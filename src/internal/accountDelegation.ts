@@ -5,10 +5,10 @@ import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import type * as Signature from 'ox/Signature'
+import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
-import type { Chain, Client, Transport } from 'viem'
+import type { Chain, Client, PrivateKeyAccount, Transport } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { readContract, writeContract } from 'viem/actions'
 import { signAuthorization } from 'viem/experimental'
@@ -117,16 +117,30 @@ export async function create<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: create.Parameters,
 ) {
-  const { authorizeKeys, delegation, rpId } = parameters
+  const { authorizeKeys, delegation, rpId, targetAccount } = parameters
+
+  let account: PrivateKeyAccount;
+  let address: Address.Address;
+  let sign: ({hash}: {hash: `0x${string}`}) => Promise<Signature.Signature>;
+  if (targetAccount) {
+    account = targetAccount;
+    address = targetAccount.address
+    sign = async ({hash}: {hash: `0x${string}`}) => Signature.from(await targetAccount.sign({hash}));
+  } else {
+    // We will only hold onto the private key for the duration of this lexical scope
+    // (we will not persist it).
+
+    // Derive the Account's address from the private key. We will use this as the
+    // Transaction target, as well as for the label/id on the WebAuthn credential.
+    const privateKey = Secp256k1.randomPrivateKey();
+    account = privateKeyToAccount(privateKey);
+    address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
+    sign = async ({hash}: {hash: `0x${string}`}) => Secp256k1.sign({payload: hash, privateKey});
+  }
+
 
   // Generate a random private key to instantiate the Account.
-  // We will only hold onto the private key for the duration of this lexical scope
-  // (we will not persist it).
-  const privateKey = Secp256k1.randomPrivateKey()
 
-  // Derive the Account's address from the private key. We will use this as the
-  // Transaction target, as well as for the label/id on the WebAuthn credential.
-  const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
 
   // Create an identifiable label for the Account.
   const label =
@@ -161,14 +175,11 @@ export async function create<chain extends Chain | undefined>(
   )
 
   // Sign the payload.
-  const signature = Secp256k1.sign({
-    payload,
-    privateKey,
-  })
+  const signature = await sign({hash: payload});
 
   // Sign an authorization to designate the delegation contract onto the Account.
   const authorization = await signAuthorization(client, {
-    account: privateKeyToAccount(privateKey),
+    account: account,
     contractAddress: delegation,
     delegate: true,
   })
@@ -206,6 +217,8 @@ export declare namespace create {
     label?: string | undefined
     /** Relying Party ID. */
     rpId?: string | undefined
+    /** Target account to attach P256 key to. If no target is specified, a new Ethereum address will be created. */
+    targetAccount?: PrivateKeyAccount;
   }
 }
 
