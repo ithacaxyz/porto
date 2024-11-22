@@ -119,28 +119,28 @@ export async function create<chain extends Chain | undefined>(
 ) {
   const { authorizeKeys, delegation, rpId, targetAccount } = parameters
 
-  let account: PrivateKeyAccount;
-  let address: Address.Address;
-  let sign: ({hash}: {hash: `0x${string}`}) => Promise<Signature.Signature>;
+  let account: PrivateKeyAccount
+  let address: Address.Address
+  let sign: ({ hash }: { hash: `0x${string}` }) => Promise<Signature.Signature>
   if (targetAccount) {
-    account = targetAccount;
+    account = targetAccount
     address = targetAccount.address
-    sign = async ({hash}: {hash: `0x${string}`}) => Signature.from(await targetAccount.sign({hash}));
+    sign = async ({ hash }: { hash: `0x${string}` }) =>
+      Signature.from(await targetAccount.sign({ hash }))
   } else {
     // We will only hold onto the private key for the duration of this lexical scope
     // (we will not persist it).
 
     // Derive the Account's address from the private key. We will use this as the
     // Transaction target, as well as for the label/id on the WebAuthn credential.
-    const privateKey = Secp256k1.randomPrivateKey();
-    account = privateKeyToAccount(privateKey);
+    const privateKey = Secp256k1.randomPrivateKey()
+    account = privateKeyToAccount(privateKey)
     address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
-    sign = async ({hash}: {hash: `0x${string}`}) => Secp256k1.sign({payload: hash, privateKey});
+    sign = async ({ hash }: { hash: `0x${string}` }) =>
+      Secp256k1.sign({ payload: hash, privateKey })
   }
 
-
   // Generate a random private key to instantiate the Account.
-
 
   // Create an identifiable label for the Account.
   const label =
@@ -175,7 +175,7 @@ export async function create<chain extends Chain | undefined>(
   )
 
   // Sign the payload.
-  const signature = await sign({hash: payload});
+  const signature = await sign({ hash: payload })
 
   // Sign an authorization to designate the delegation contract onto the Account.
   const authorization = await signAuthorization(client, {
@@ -218,7 +218,7 @@ export declare namespace create {
     /** Relying Party ID. */
     rpId?: string | undefined
     /** Target account to attach P256 key to. If no target is specified, a new Ethereum address will be created. */
-    targetAccount?: PrivateKeyAccount;
+    targetAccount?: PrivateKeyAccount
   }
 }
 
