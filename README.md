@@ -38,6 +38,8 @@ Experimental Next-gen Account for Ethereum.
   - [`experimental_createAccount`](#experimental_createaccount)
   - [`experimental_disconnect`](#experimental_disconnect)
   - [`experimental_grantSession`](#experimental_grantsession)
+  - [`experimental_prepareImportAccount`](#experimental_prepareImportAccount)
+  - [`experimental_importAccount`](#experimental_importAccount)
   - [`experimental_sessions`](#experimental_sessions)
 - [Available ERC-5792 Capabilities](#available-erc-5792-capabilities)
   - [`atomicBatch`](#atomicbatch)
@@ -272,6 +274,81 @@ Grants a session on the account.
 
   // The ID of the session.
   id: `0x${string}`,
+}
+```
+
+### `experimental_prepareImportAccount`
+
+Returns a set of hex payloads to sign over to import an external account, and prepares values needed to fill context for the `experimental_importAccount` JSON-RPC method.
+
+#### Parameters
+
+```ts
+{
+  method: 'experimental_prepareImportAccount',
+  params: [{ 
+    // Address of the account to import.
+    address?: `0x${string}`,
+
+    // ERC-5792 capabilities to define extended behavior.
+    capabilities: {
+      // Whether to grant a session with an optional expiry.
+      // Defaults to user-configured expiry on the account.
+      grantSession?: boolean | { expiry?: number },
+    } 
+  }]
+}
+```
+
+#### Returns
+
+```ts
+{
+  // Filled context for the `experimental_importAccount` JSON-RPC method.
+  context: unknown
+
+  // Hex payloads to sign over.
+  signPayloads: `0x${string}`[]
+}
+```
+
+### `experimental_importAccount`
+
+Imports an account.
+
+#### Parameters
+
+```ts
+{
+  method: 'experimental_importAccount',
+  params: [{ 
+    // Context from the `experimental_prepareImportAccount` JSON-RPC method.
+    context: unknown, 
+
+    // Signatures over the payloads returned by `experimental_prepareImportAccount`.
+    signatures: `0x${string}`[] 
+  }]
+}
+```
+
+#### Returns
+
+```ts
+{
+  // The address of the account.
+  address: `0x${string}`,
+
+  // ERC-5792 capabilities to define extended behavior.
+  capabilities: {
+    // The sessions granted to the account.
+    sessions: {
+      // The expiry of the session.
+      expiry: number,
+
+      // The ID of the session.
+      id: `0x${string}`,
+    }[],
+  }
 }
 ```
 

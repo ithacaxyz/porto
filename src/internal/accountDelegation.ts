@@ -11,7 +11,11 @@ import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import type { Chain, Client, Transport } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { readContract, writeContract } from 'viem/actions'
-import { signAuthorization } from 'viem/experimental'
+import {
+  type Authorization as Authorization_viem,
+  prepareAuthorization,
+  signAuthorization,
+} from 'viem/experimental'
 
 import { experimentalDelegationAbi } from '../generated.js'
 import type { OneOf, Undefined } from './types.js'
@@ -23,16 +27,10 @@ import type { OneOf, Undefined } from './types.js'
 export type Account = {
   address: Address.Address
   label: string
-  keys: Key[]
+  keys: readonly Key[]
 }
 
-export type Calls = readonly {
-  to: Address.Address
-  value?: bigint | undefined
-  data?: Hex.Hex | undefined
-}[]
-
-type BaseKey<type extends string, properties> = {
+export type BaseKey<type extends string, properties> = {
   expiry: bigint
   publicKey: PublicKey.PublicKey
   type: type
@@ -45,15 +43,28 @@ type BaseKey<type extends string, properties> = {
     } & Undefined<properties>)
 >
 
+export type Calls = readonly {
+  to: Address.Address
+  value?: bigint | undefined
+  data?: Hex.Hex | undefined
+}[]
+
+export type Key = WebAuthnKey | WebCryptoKey
+
+export type SerializedKey = {
+  expiry: bigint
+  keyType: number
+  publicKey: PublicKey.PublicKey
+}
+
 export type WebAuthnKey = BaseKey<'webauthn', WebAuthnP256.P256Credential>
+
 export type WebCryptoKey = BaseKey<
   'p256',
   {
     privateKey: CryptoKey
   }
 >
-
-export type Key = WebAuthnKey | WebCryptoKey
 
 ////////////////////////////////////////////////////////////////
 // Constants
@@ -117,8 +128,6 @@ export async function create<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: create.Parameters,
 ) {
-  const { authorizeKeys, delegation, rpId } = parameters
-
   // Generate a random private key to instantiate the Account.
   // We will only hold onto the private key for the duration of this lexical scope
   // (we will not persist it).
@@ -128,72 +137,31 @@ export async function create<chain extends Chain | undefined>(
   // Transaction target, as well as for the label/id on the WebAuthn credential.
   const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
 
-  // Create an identifiable label for the Account.
-  const label =
-    parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
-
-  // Create a WebAuthn-P256 key to attach and authorize onto the the Account.
-  const key = await createWebAuthnKey({
-    label,
-    rpId,
-    userId: Bytes.from(address),
+  // Prepare values needed to fill the initialize call, and extract the payloads
+  // to sign over.
+  const result = await prepareInitialize(client, {
+    ...parameters,
+    address,
   })
 
-  // Serialize the keys.
-  const serializedKeys = [key, ...(authorizeKeys ?? [])].map((key) => ({
-    expiry: key.expiry,
-    keyType: keyType[key.type],
-    publicKey: key.publicKey,
-  }))
+  // Sign the authorization to designate the delegation contract onto the
+  // account.
+  const authorization = await signAuthorization(client, {
+    account: privateKeyToAccount(privateKey),
+    ...result.authorization,
+  })
 
-  // Construct the signing payload (nonce will always be zero for instantiation).
-  const payload = Hash.keccak256(
-    AbiParameters.encode(
-      AbiParameters.from([
-        'struct PublicKey { uint256 x; uint256 y; }',
-        'struct Key { uint256 expiry; uint8 keyType; PublicKey publicKey; }',
-        'uint256 nonce',
-        'string label',
-        'Key[] keys',
-      ]),
-      [0n, label, serializedKeys],
-    ),
-  )
-
-  // Sign the payload.
+  // Sign the `initialize` payload for account initialization.
   const signature = Secp256k1.sign({
-    payload,
+    payload: result.signPayload,
     privateKey,
   })
 
-  // Sign an authorization to designate the delegation contract onto the Account.
-  const authorization = await signAuthorization(client, {
-    account: privateKeyToAccount(privateKey),
-    contractAddress: delegation,
-    delegate: true,
+  return initialize(client, {
+    ...result,
+    authorization,
+    signature,
   })
-
-  // Designate the delegation with the authorization, and initialize (and authorize keys) the Account.
-  const hash = await writeContract(client, {
-    abi: experimentalDelegationAbi,
-    address,
-    functionName: 'initialize',
-    args: [label, serializedKeys, signature],
-    authorizationList: [authorization],
-    account: null,
-    chain: null,
-  })
-
-  const keys = [key, ...(authorizeKeys ?? [])]
-
-  return {
-    account: {
-      address,
-      label,
-      keys,
-    },
-    hash,
-  }
 }
 
 export declare namespace create {
@@ -354,11 +322,7 @@ export async function getAuthorizeSignPayload<chain extends Chain | undefined>(
   })
 
   // Serialize the key.
-  const serializedKeys = keys.map((key) => ({
-    expiry: key.expiry,
-    keyType: keyType[key.type],
-    publicKey: key.publicKey,
-  }))
+  const serializedKeys = serializeKeys(keys)
 
   // Construct the signing payload.
   const payload = Hash.keccak256(
@@ -380,6 +344,42 @@ export declare namespace getAuthorizeSignPayload {
   type Parameters = {
     address: Address.Address
     keys: readonly Key[]
+  }
+}
+
+/** Initializes an Account. */
+export async function initialize<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: initialize.Parameters,
+) {
+  const { account, authorization, signature } = parameters
+  const { address, keys, label } = account
+
+  // Serialize keys into format for contract.
+  const serializedKeys = serializeKeys(keys)
+
+  // Designate the delegation with the authorization, and initialize (and authorize keys) the Account.
+  const hash = await writeContract(client, {
+    abi: experimentalDelegationAbi,
+    address,
+    functionName: 'initialize',
+    args: [label, serializedKeys, signature!],
+    authorizationList: [authorization],
+    account: null,
+    chain: null,
+  })
+
+  return {
+    account,
+    hash,
+  }
+}
+
+export declare namespace initialize {
+  type Parameters = {
+    account: Account
+    authorization: Authorization_viem
+    signature: Signature.Signature
   }
 }
 
@@ -516,13 +516,103 @@ export async function load<chain extends Chain | undefined>(
 
 export declare namespace load {
   type Parameters = {
+    /** Address of the account to load. */
     address?: Address.Address | undefined
-    credentialId?: string | undefined
     /** Extra keys to authorize. */
     authorizeKeys?: readonly Key[] | undefined
+    /** Credential ID to use to load an existing account. */
+    credentialId?: string | undefined
     /** Relying Party ID. */
     rpId?: string | undefined
   }
+}
+
+/**
+ * Prepares values needed to fill the `initialize` function, as well as the payloads to
+ * sign for account initialization.
+ */
+export async function prepareInitialize<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: prepareInitialize.Parameters,
+): Promise<prepareInitialize.ReturnType> {
+  const { address, authorizeKeys, delegation, rpId } = parameters
+
+  // Create an identifiable label for the Account.
+  const label =
+    parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+
+  // Create a WebAuthn-P256 key to attach and authorize onto the the Account.
+  const key = await createWebAuthnKey({
+    label,
+    rpId,
+    userId: Bytes.from(address),
+  })
+
+  const keys = [key, ...(authorizeKeys ?? [])]
+
+  // Serialize keys into format for contract.
+  const serializedKeys = serializeKeys(keys)
+
+  // Construct the initialize payload to sign (nonce will always be zero for instantiation).
+  const signPayload = Hash.keccak256(
+    AbiParameters.encode(
+      AbiParameters.from([
+        'struct PublicKey { uint256 x; uint256 y; }',
+        'struct Key { uint256 expiry; uint8 keyType; PublicKey publicKey; }',
+        'uint256 nonce',
+        'string label',
+        'Key[] keys',
+      ]),
+      [0n, label, serializedKeys],
+    ),
+  )
+
+  // Prepare an authorization to sign to designate the delegation contract onto the Account.
+  const authorization = await prepareAuthorization(client, {
+    account: address,
+    contractAddress: delegation,
+    delegate: true,
+  })
+
+  return {
+    account: {
+      address,
+      keys,
+      label,
+    },
+    authorization,
+    signPayload,
+  }
+}
+
+export declare namespace prepareInitialize {
+  type Parameters = {
+    /** Address of the account to import. */
+    address: Address.Address
+    /** Extra keys to authorize. */
+    authorizeKeys?: readonly Key[] | undefined
+    /** Contract address to delegate to. */
+    delegation: Address.Address
+    /** Label for the account. */
+    label?: string | undefined
+    /** Relying Party ID. */
+    rpId?: string | undefined
+  }
+
+  type ReturnType = {
+    account: Account
+    authorization: Authorization_viem
+    signPayload: Hex.Hex
+  }
+}
+
+/** Serializes keys into format for the delegation contract. */
+export function serializeKeys(keys: readonly Key[]) {
+  return keys.map((key) => ({
+    expiry: key.expiry,
+    keyType: keyType[key.type],
+    publicKey: key.publicKey,
+  }))
 }
 
 /** Signs a payload with a key on the Account. */

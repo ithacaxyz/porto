@@ -1,9 +1,10 @@
 import { AbiFunction, Hex, Json, PublicKey, TypedData, Value } from 'ox'
 import { Porto } from 'porto'
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { createClient, custom } from 'viem'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { ExperimentERC20 } from './contracts'
 
 export const porto = Porto.create()
@@ -19,6 +20,7 @@ export function App() {
       <Events />
       <Connect />
       <Register />
+      <ImportAccount />
       <Login />
       <Disconnect />
       <Accounts />
@@ -306,6 +308,71 @@ function GetSessions() {
         Get Sessions
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+    </div>
+  )
+}
+
+function ImportAccount() {
+  const account = useMemo(() => privateKeyToAccount(generatePrivateKey()), [])
+
+  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [prepareResult, setPrepareResult] = useState<{
+    context: any
+    signPayloads: readonly Hex.Hex[]
+  } | null>(null)
+  const [result, setResult] = useState<unknown | null>(null)
+
+  return (
+    <div>
+      <h3>experimental_importAccount</h3>
+      <label>
+        <input
+          type="checkbox"
+          checked={grantSession}
+          onChange={() => setGrantSession((x) => !x)}
+        />
+        Grant Session
+      </label>
+      <div>
+        <button
+          onClick={() =>
+            porto.provider
+              .request({
+                method: 'experimental_prepareImportAccount',
+                params: [
+                  { address: account.address, capabilities: { grantSession } },
+                ],
+              })
+              .then(setPrepareResult)
+          }
+          type="button"
+        >
+          Prepare
+        </button>
+        <button
+          disabled={!prepareResult}
+          onClick={async () => {
+            const signatures = await Promise.all(
+              prepareResult!.signPayloads.map((hash: Hex.Hex) =>
+                account.sign({ hash }),
+              ),
+            )
+            const address = await porto.provider.request({
+              method: 'experimental_importAccount',
+              params: [{ context: prepareResult!.context, signatures }],
+            })
+            setResult(address)
+          }}
+          type="button"
+        >
+          Sign & Import
+        </button>
+      </div>
+      {result ? (
+        <p>
+          Imported account. <pre>{JSON.stringify(result, null, 2)}</pre>
+        </p>
+      ) : null}
     </div>
   )
 }

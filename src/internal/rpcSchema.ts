@@ -1,6 +1,9 @@
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
+import type { Authorization } from 'viem/experimental'
+
+import type * as AccountDelegation from './accountDelegation.js'
 
 export type Schema = RpcSchema.From<
   | RpcSchema.Default
@@ -39,6 +42,20 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'experimental_importAccount'
+        params: [ImportAccountParameters]
+      }
+      ReturnType: ImportAccountReturnType
+    }
+  | {
+      Request: {
+        method: 'experimental_prepareImportAccount'
+        params: [PrepareImportAccountParameters]
+      }
+      ReturnType: PrepareImportAccountReturnType
+    }
+  | {
+      Request: {
         method: 'experimental_sessions'
         params?: [GetSessionsParameters] | undefined
       }
@@ -60,9 +77,11 @@ export type ConnectParameters = {
 
 export type ConnectReturnType = readonly {
   address: Address.Address
-  capabilities?: {
-    sessions?: GetSessionsReturnType | undefined
-  }
+  capabilities?:
+    | {
+        sessions?: GetSessionsReturnType | undefined
+      }
+    | undefined
 }[]
 
 export type CreateAccountParameters = {
@@ -89,4 +108,39 @@ export type GrantSessionParameters = {
 export type GrantSessionReturnType = {
   expiry: number
   id: Hex.Hex
+}
+
+export type ImportAccountParameters = {
+  context: PrepareImportAccountReturnType['context']
+  signatures: readonly Hex.Hex[]
+}
+
+export type ImportAccountReturnType = {
+  address: Address.Address
+  capabilities?:
+    | {
+        sessions?: GetSessionsReturnType | undefined
+      }
+    | undefined
+}
+
+export type PrepareImportAccountParameters = {
+  address: Address.Address
+  capabilities?:
+    | {
+        grantSession?:
+          | boolean
+          | Omit<GrantSessionParameters, 'address'>
+          | undefined
+      }
+    | undefined
+  label?: string | undefined
+}
+
+export type PrepareImportAccountReturnType = {
+  context: {
+    account: AccountDelegation.Account
+    authorization: Authorization
+  }
+  signPayloads: readonly Hex.Hex[]
 }
