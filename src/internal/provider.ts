@@ -1,12 +1,14 @@
 import * as Mipd from 'mipd'
 import type { RpcSchema } from 'ox'
 import * as Address from 'ox/Address'
+import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as ox_Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as RpcResponse from 'ox/RpcResponse'
+import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
 
 import type * as Chains from '../Chains.js'
@@ -285,6 +287,91 @@ export function from<
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'experimental_grantSession'
+          >
+        }
+
+        case 'experimental_prepareImportAccount': {
+          if (!headless) throw new ox_Provider.UnsupportedMethodError()
+
+          const [{ address, capabilities, label }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_prepareImportAccount'
+            >) ?? [{}]
+
+          const { expiry = Math.floor(Date.now() / 1000) + 60 * 60 } =
+            typeof capabilities?.grantSession === 'object'
+              ? capabilities.grantSession
+              : {}
+          const key = capabilities?.grantSession
+            ? await AccountDelegation.createWebCryptoKey({
+                expiry: BigInt(expiry),
+              })
+            : undefined
+
+          const { account, authorization, signPayload } =
+            await AccountDelegation.prepareInitialize(state.client, {
+              address,
+              authorizeKeys: key ? [key] : undefined,
+              delegation: state.delegation,
+              label,
+              rpId: keystoreHost,
+            })
+
+          const authorizationPayload = Authorization.getSignPayload({
+            address: authorization.contractAddress,
+            chainId: authorization.chainId,
+            nonce: BigInt(authorization.nonce),
+          })
+
+          return {
+            context: {
+              account,
+              authorization,
+            },
+            signPayloads: [authorizationPayload, signPayload],
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_prepareImportAccount'
+          >
+        }
+
+        case 'experimental_importAccount': {
+          const [{ context, signatures }] = (params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'experimental_importAccount'
+          >) ?? [{}]
+
+          const { authorization } = context
+
+          const authorizationSignature = Signature.from(signatures[0]!)
+          const initializeSignature = Signature.from(signatures[1]!)
+
+          const { account } = await AccountDelegation.initialize(state.client, {
+            ...context,
+            authorization: {
+              ...authorization,
+              r: Hex.fromNumber(authorizationSignature.r),
+              s: Hex.fromNumber(authorizationSignature.s),
+              yParity: authorizationSignature.yParity,
+            },
+            signature: Signature.from(initializeSignature),
+          })
+
+          const sessions = getActiveSessionKeys(account.keys)
+
+          store.setState((x) => ({ ...x, accounts: [account] }))
+
+          emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
+
+          return {
+            address: account.address,
+            capabilities: {
+              sessions,
+            },
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_importAccount'
           >
         }
 

@@ -95,7 +95,7 @@ export function create(config: Config | undefined = {}): Porto {
                 })),
               })),
               chain: state.chain,
-            } as State
+            } as unknown as State
           },
           storage: Storage.idb,
         },
