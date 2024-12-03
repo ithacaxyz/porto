@@ -1,5 +1,5 @@
 import { W } from 'porto/wagmi'
-import { formatEther, parseEther } from 'viem'
+import { type Hex, formatEther, parseEther } from 'viem'
 import {
   type BaseError,
   useAccount,
@@ -9,6 +9,11 @@ import {
 import { useCallsStatus, useSendCalls } from 'wagmi/experimental'
 
 import { useState } from 'react'
+import {
+  generatePrivateKey,
+  privateKeyToAccount,
+  privateKeyToAddress,
+} from 'viem/accounts'
 import { ExperimentERC20 } from './contracts'
 
 export function App() {
@@ -23,7 +28,10 @@ export function App() {
           <Mint />
         </>
       ) : (
-        <Connect />
+        <>
+          <Connect />
+          <ImportAccount />
+        </>
       )}
     </>
   )
@@ -97,6 +105,79 @@ function Connect() {
         ))}
       <div>{connect.status}</div>
       <div>{connect.error?.message}</div>
+    </div>
+  )
+}
+
+function ImportAccount() {
+  const [accountData, setAccountData] = useState<{
+    privateKey: string
+    address: string
+  } | null>(null)
+  const [privateKey, setPrivateKey] = useState<string>('')
+
+  const [grantSession, setGrantSession] = useState<boolean>(true)
+
+  const connectors = useConnectors()
+  const importAccount = W.useImportAccount()
+
+  return (
+    <div>
+      <h2>Import Account</h2>
+      <p>
+        <button
+          onClick={() => {
+            const privateKey = generatePrivateKey()
+            setPrivateKey(privateKey)
+            setAccountData({
+              privateKey,
+              address: privateKeyToAddress(privateKey),
+            })
+          }}
+          type="button"
+        >
+          Create Account
+        </button>
+        {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
+      </p>
+      <div>
+        <input
+          type="text"
+          value={privateKey}
+          onChange={(e) => setPrivateKey(e.target.value)}
+          placeholder="Private Key"
+          style={{ width: '300px' }}
+        />
+      </div>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            checked={grantSession}
+            onChange={() => setGrantSession((x) => !x)}
+          />
+          Grant Session
+        </label>
+      </div>
+      {connectors
+        .filter((x) => x.id === 'xyz.ithaca.porto')
+        ?.map((connector) => (
+          <button
+            key={connector.uid}
+            onClick={async () => {
+              await importAccount.mutateAsync({
+                account: privateKeyToAccount(privateKey as Hex),
+                connector,
+                grantSession,
+              })
+            }}
+            type="button"
+          >
+            Import Account
+          </button>
+        ))}
+      <div>{importAccount.status}</div>
+      <div>{importAccount.error?.message}</div>
     </div>
   )
 }

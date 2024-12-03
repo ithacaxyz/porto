@@ -481,6 +481,7 @@ Import via named export or `A` namespace (better autocomplete DX and does not im
 - `createAccount`
 - `disconnect`
 - `grantSession`
+- `importAccount`
 - `sessions`
 
 ```ts
@@ -496,6 +497,7 @@ Import via named export or `W` namespace (better autocomplete DX and does not im
 - `useCreateAccount`
 - `useDisconnect`
 - `useGrantSession`
+- `useImportAccount`
 - `useSessions`
 
 ```ts

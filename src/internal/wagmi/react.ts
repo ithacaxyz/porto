@@ -27,6 +27,7 @@ import {
   createAccount,
   disconnect,
   grantSession,
+  importAccount,
   sessions,
 } from './core.js'
 import { sessionsQueryKey } from './query.js'
@@ -194,6 +195,49 @@ export declare namespace useGrantSession {
     grantSession.ReturnType,
     grantSession.ErrorType,
     grantSession.Parameters<config>,
+    context
+  >
+}
+
+export function useImportAccount<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useImportAccount.Parameters<config, context> = {},
+): useImportAccount.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return importAccount(config as Config, variables)
+    },
+    mutationKey: ['importAccount'],
+  })
+}
+
+export declare namespace useImportAccount {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          importAccount.ReturnType,
+          importAccount.ErrorType,
+          importAccount.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    importAccount.ReturnType,
+    importAccount.ErrorType,
+    importAccount.Parameters<config>,
     context
   >
 }
