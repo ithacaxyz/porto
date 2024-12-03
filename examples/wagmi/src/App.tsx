@@ -111,12 +111,11 @@ function Connect() {
 
 function ImportAccount() {
   const [accountData, setAccountData] = useState<{
-    privateKey: string
     address: string
+    privateKey: string
   } | null>(null)
-  const [privateKey, setPrivateKey] = useState<string>('')
-
   const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [privateKey, setPrivateKey] = useState<string>('')
 
   const connectors = useConnectors()
   const importAccount = W.useImportAccount()
@@ -164,13 +163,13 @@ function ImportAccount() {
         ?.map((connector) => (
           <button
             key={connector.uid}
-            onClick={async () => {
-              await importAccount.mutateAsync({
+            onClick={() =>
+              importAccount.mutate({
                 account: privateKeyToAccount(privateKey as Hex),
                 connector,
                 grantSession,
               })
-            }}
+            }
             type="button"
           >
             Import Account
