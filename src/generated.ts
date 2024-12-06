@@ -30,7 +30,6 @@ export const accountDelegationAbi = [
           },
         ],
       },
-      { name: 'signature', internalType: 'bytes', type: 'bytes' },
     ],
     name: 'authorize',
     outputs: [{ name: 'keyIndex', internalType: 'uint32', type: 'uint32' }],
@@ -61,6 +60,16 @@ export const accountDelegationAbi = [
           },
         ],
       },
+      {
+        name: 'signature',
+        internalType: 'struct ECDSA.RecoveredSignature',
+        type: 'tuple',
+        components: [
+          { name: 'r', internalType: 'uint256', type: 'uint256' },
+          { name: 's', internalType: 'uint256', type: 'uint256' },
+          { name: 'yParity', internalType: 'uint8', type: 'uint8' },
+        ],
+      },
     ],
     name: 'authorize',
     outputs: [{ name: 'keyIndex', internalType: 'uint32', type: 'uint32' }],
@@ -77,7 +86,52 @@ export const accountDelegationAbi = [
     type: 'function',
     inputs: [
       { name: 'calls', internalType: 'bytes', type: 'bytes' },
-      { name: 'signature', internalType: 'bytes', type: 'bytes' },
+      {
+        name: 'signature',
+        internalType: 'struct ECDSA.Signature',
+        type: 'tuple',
+        components: [
+          { name: 'r', internalType: 'uint256', type: 'uint256' },
+          { name: 's', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+      {
+        name: 'metadata',
+        internalType: 'struct WebAuthnP256.Metadata',
+        type: 'tuple',
+        components: [
+          { name: 'authenticatorData', internalType: 'bytes', type: 'bytes' },
+          { name: 'clientDataJSON', internalType: 'string', type: 'string' },
+          { name: 'challengeIndex', internalType: 'uint16', type: 'uint16' },
+          { name: 'typeIndex', internalType: 'uint16', type: 'uint16' },
+          {
+            name: 'userVerificationRequired',
+            internalType: 'bool',
+            type: 'bool',
+          },
+        ],
+      },
+      { name: 'keyIndex', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'execute',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'calls', internalType: 'bytes', type: 'bytes' },
+      {
+        name: 'signature',
+        internalType: 'struct ECDSA.Signature',
+        type: 'tuple',
+        components: [
+          { name: 'r', internalType: 'uint256', type: 'uint256' },
+          { name: 's', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+      { name: 'keyIndex', internalType: 'uint32', type: 'uint32' },
+      { name: 'prehash', internalType: 'bool', type: 'bool' },
     ],
     name: 'execute',
     outputs: [],
@@ -172,7 +226,7 @@ export const accountDelegationAbi = [
       },
       {
         name: 'signature',
-        internalType: 'struct ECDSA.Signature',
+        internalType: 'struct ECDSA.RecoveredSignature',
         type: 'tuple',
         components: [
           { name: 'r', internalType: 'uint256', type: 'uint256' },
@@ -184,16 +238,6 @@ export const accountDelegationAbi = [
     name: 'initialize',
     outputs: [{ name: 'keyIndex', internalType: 'uint32', type: 'uint32' }],
     stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'digest', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'signature', internalType: 'bytes', type: 'bytes' },
-    ],
-    name: 'isValidSignature',
-    outputs: [{ name: 'magicValue', internalType: 'bytes4', type: 'bytes4' }],
-    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -227,6 +271,13 @@ export const accountDelegationAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: 'transactions', internalType: 'bytes', type: 'bytes' }],
+    name: 'multiSend',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'nonce',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
@@ -243,7 +294,16 @@ export const accountDelegationAbi = [
     type: 'function',
     inputs: [
       { name: 'keyIndex', internalType: 'uint32', type: 'uint32' },
-      { name: 'signature', internalType: 'bytes', type: 'bytes' },
+      {
+        name: 'signature',
+        internalType: 'struct ECDSA.RecoveredSignature',
+        type: 'tuple',
+        components: [
+          { name: 'r', internalType: 'uint256', type: 'uint256' },
+          { name: 's', internalType: 'uint256', type: 'uint256' },
+          { name: 'yParity', internalType: 'uint8', type: 'uint8' },
+        ],
+      },
     ],
     name: 'revoke',
     outputs: [],
@@ -420,7 +480,7 @@ export const erc20Abi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xfCFEe8f32576a608FF224bbb3eBcaAc7B3E8094C)
  */
 export const experimentErc20Abi = [
   {
@@ -617,14 +677,14 @@ export const experimentErc20Abi = [
 ] as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xfCFEe8f32576a608FF224bbb3eBcaAc7B3E8094C)
  */
 export const experimentErc20Address = {
-  911867: '0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E',
+  911867: '0xfCFEe8f32576a608FF224bbb3eBcaAc7B3E8094C',
 } as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xfCFEe8f32576a608FF224bbb3eBcaAc7B3E8094C)
  */
 export const experimentErc20Config = {
   address: experimentErc20Address,
@@ -636,7 +696,7 @@ export const experimentErc20Config = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xb46b3f3f7F8B198894d1787b9d6c0effbd3928c9)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xa4D1493aC6bB7f49f9C5fF0c1164455Ab27C8a9B)
  */
 export const experimentalDelegationAbi = [
   { type: 'fallback', stateMutability: 'payable' },
@@ -899,14 +959,14 @@ export const experimentalDelegationAbi = [
 ] as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xb46b3f3f7F8B198894d1787b9d6c0effbd3928c9)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xa4D1493aC6bB7f49f9C5fF0c1164455Ab27C8a9B)
  */
 export const experimentalDelegationAddress = {
-  911867: '0xb46b3f3f7F8B198894d1787b9d6c0effbd3928c9',
+  911867: '0xa4D1493aC6bB7f49f9C5fF0c1164455Ab27C8a9B',
 } as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xb46b3f3f7F8B198894d1787b9d6c0effbd3928c9)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xa4D1493aC6bB7f49f9C5fF0c1164455Ab27C8a9B)
  */
 export const experimentalDelegationConfig = {
   address: experimentalDelegationAddress,

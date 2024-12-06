@@ -180,5 +180,5 @@ export const ExperimentERC20 = {
     { type: 'error', name: 'PermitExpired', inputs: [] },
     { type: 'error', name: 'TotalSupplyOverflow', inputs: [] },
   ],
-  address: '0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E',
+  address: '0xfCFEe8f32576a608FF224bbb3eBcaAc7B3E8094C',
 } as const
