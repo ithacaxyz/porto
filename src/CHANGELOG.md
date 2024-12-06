@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.3
+
+### Patch Changes
+
+- [`f699e82`](https://github.com/ithacaxyz/porto/commit/f699e82453eb7051c93478dc2793a819e56bd985) Thanks [@tmm](https://github.com/tmm)! - Bumped Viem peer dependency version.
+
 ## 0.0.2
 
 ### Patch Changes
