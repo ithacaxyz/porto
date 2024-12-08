@@ -1,635 +1,42 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AccountDelegation
+// BaseUltraVerifier
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const accountDelegationAbi = [
-  { type: 'fallback', stateMutability: 'payable' },
-  { type: 'receive', stateMutability: 'payable' },
-  {
-    type: 'function',
-    inputs: [
-      {
-        name: 'key',
-        internalType: 'struct AccountDelegation.Key',
-        type: 'tuple',
-        components: [
-          { name: 'expiry', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'keyType',
-            internalType: 'enum AccountDelegation.KeyType',
-            type: 'uint8',
-          },
-          {
-            name: 'publicKey',
-            internalType: 'struct ECDSA.PublicKey',
-            type: 'tuple',
-            components: [
-              { name: 'x', internalType: 'uint256', type: 'uint256' },
-              { name: 'y', internalType: 'uint256', type: 'uint256' },
-            ],
-          },
-        ],
-      },
-      { name: 'signature', internalType: 'bytes', type: 'bytes' },
-    ],
-    name: 'authorize',
-    outputs: [{ name: 'keyIndex', internalType: 'uint32', type: 'uint32' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      {
-        name: 'key',
-        internalType: 'struct AccountDelegation.Key',
-        type: 'tuple',
-        components: [
-          { name: 'expiry', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'keyType',
-            internalType: 'enum AccountDelegation.KeyType',
-            type: 'uint8',
-          },
-          {
-            name: 'publicKey',
-            internalType: 'struct ECDSA.PublicKey',
-            type: 'tuple',
-            components: [
-              { name: 'x', internalType: 'uint256', type: 'uint256' },
-              { name: 'y', internalType: 'uint256', type: 'uint256' },
-            ],
-          },
-        ],
-      },
-    ],
-    name: 'authorize',
-    outputs: [{ name: 'keyIndex', internalType: 'uint32', type: 'uint32' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'calls', internalType: 'bytes', type: 'bytes' }],
-    name: 'execute',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'calls', internalType: 'bytes', type: 'bytes' },
-      { name: 'signature', internalType: 'bytes', type: 'bytes' },
-    ],
-    name: 'execute',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
+export const baseUltraVerifierAbi = [
   {
     type: 'function',
     inputs: [],
-    name: 'getKeys',
-    outputs: [
-      {
-        name: '',
-        internalType: 'struct AccountDelegation.Key[]',
-        type: 'tuple[]',
-        components: [
-          { name: 'expiry', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'keyType',
-            internalType: 'enum AccountDelegation.KeyType',
-            type: 'uint8',
-          },
-          {
-            name: 'publicKey',
-            internalType: 'struct ECDSA.PublicKey',
-            type: 'tuple',
-            components: [
-              { name: 'x', internalType: 'uint256', type: 'uint256' },
-              { name: 'y', internalType: 'uint256', type: 'uint256' },
-            ],
-          },
-        ],
-      },
-    ],
-    stateMutability: 'view',
+    name: 'getVerificationKeyHash',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'pure',
   },
   {
     type: 'function',
     inputs: [
-      { name: 'label_', internalType: 'string', type: 'string' },
-      {
-        name: 'key',
-        internalType: 'struct AccountDelegation.Key',
-        type: 'tuple',
-        components: [
-          { name: 'expiry', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'keyType',
-            internalType: 'enum AccountDelegation.KeyType',
-            type: 'uint8',
-          },
-          {
-            name: 'publicKey',
-            internalType: 'struct ECDSA.PublicKey',
-            type: 'tuple',
-            components: [
-              { name: 'x', internalType: 'uint256', type: 'uint256' },
-              { name: 'y', internalType: 'uint256', type: 'uint256' },
-            ],
-          },
-        ],
-      },
+      { name: '_proof', internalType: 'bytes', type: 'bytes' },
+      { name: '_publicInputs', internalType: 'bytes32[]', type: 'bytes32[]' },
     ],
-    name: 'initialize',
-    outputs: [{ name: 'keyIndex', internalType: 'uint32', type: 'uint32' }],
-    stateMutability: 'nonpayable',
+    name: 'verify',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
   },
+  { type: 'error', inputs: [], name: 'INVALID_VERIFICATION_KEY' },
+  { type: 'error', inputs: [], name: 'MOD_EXP_FAILURE' },
+  { type: 'error', inputs: [], name: 'OPENING_COMMITMENT_FAILED' },
+  { type: 'error', inputs: [], name: 'PAIRING_FAILED' },
+  { type: 'error', inputs: [], name: 'PAIRING_PREAMBLE_FAILED' },
+  { type: 'error', inputs: [], name: 'POINT_NOT_ON_CURVE' },
   {
-    type: 'function',
+    type: 'error',
     inputs: [
-      { name: 'label_', internalType: 'string', type: 'string' },
-      {
-        name: 'key',
-        internalType: 'struct AccountDelegation.Key',
-        type: 'tuple',
-        components: [
-          { name: 'expiry', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'keyType',
-            internalType: 'enum AccountDelegation.KeyType',
-            type: 'uint8',
-          },
-          {
-            name: 'publicKey',
-            internalType: 'struct ECDSA.PublicKey',
-            type: 'tuple',
-            components: [
-              { name: 'x', internalType: 'uint256', type: 'uint256' },
-              { name: 'y', internalType: 'uint256', type: 'uint256' },
-            ],
-          },
-        ],
-      },
-      {
-        name: 'signature',
-        internalType: 'struct ECDSA.Signature',
-        type: 'tuple',
-        components: [
-          { name: 'r', internalType: 'uint256', type: 'uint256' },
-          { name: 's', internalType: 'uint256', type: 'uint256' },
-          { name: 'yParity', internalType: 'uint8', type: 'uint8' },
-        ],
-      },
+      { name: 'expected', internalType: 'uint256', type: 'uint256' },
+      { name: 'actual', internalType: 'uint256', type: 'uint256' },
     ],
-    name: 'initialize',
-    outputs: [{ name: 'keyIndex', internalType: 'uint32', type: 'uint32' }],
-    stateMutability: 'nonpayable',
+    name: 'PUBLIC_INPUT_COUNT_INVALID',
   },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'digest', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'signature', internalType: 'bytes', type: 'bytes' },
-    ],
-    name: 'isValidSignature',
-    outputs: [{ name: 'magicValue', internalType: 'bytes4', type: 'bytes4' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    name: 'keys',
-    outputs: [
-      { name: 'expiry', internalType: 'uint256', type: 'uint256' },
-      {
-        name: 'keyType',
-        internalType: 'enum AccountDelegation.KeyType',
-        type: 'uint8',
-      },
-      {
-        name: 'publicKey',
-        internalType: 'struct ECDSA.PublicKey',
-        type: 'tuple',
-        components: [
-          { name: 'x', internalType: 'uint256', type: 'uint256' },
-          { name: 'y', internalType: 'uint256', type: 'uint256' },
-        ],
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'label',
-    outputs: [{ name: '', internalType: 'string', type: 'string' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'nonce',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'keyIndex', internalType: 'uint32', type: 'uint32' }],
-    name: 'revoke',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'keyIndex', internalType: 'uint32', type: 'uint32' },
-      { name: 'signature', internalType: 'bytes', type: 'bytes' },
-    ],
-    name: 'revoke',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  { type: 'error', inputs: [], name: 'AlreadyInitialized' },
-  { type: 'error', inputs: [], name: 'InvalidAuthority' },
-  { type: 'error', inputs: [], name: 'InvalidSignature' },
-  { type: 'error', inputs: [], name: 'KeyExpiredOrUnauthorized' },
+  { type: 'error', inputs: [], name: 'PUBLIC_INPUT_GE_P' },
+  { type: 'error', inputs: [], name: 'PUBLIC_INPUT_INVALID_BN128_G1_POINT' },
 ] as const
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ERC20
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export const erc20Abi = [
-  {
-    type: 'function',
-    inputs: [],
-    name: 'DOMAIN_SEPARATOR',
-    outputs: [{ name: 'result', internalType: 'bytes32', type: 'bytes32' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'owner', internalType: 'address', type: 'address' },
-      { name: 'spender', internalType: 'address', type: 'address' },
-    ],
-    name: 'allowance',
-    outputs: [{ name: 'result', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'spender', internalType: 'address', type: 'address' },
-      { name: 'amount', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'approve',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
-    name: 'balanceOf',
-    outputs: [{ name: 'result', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'decimals',
-    outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'name',
-    outputs: [{ name: '', internalType: 'string', type: 'string' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
-    name: 'nonces',
-    outputs: [{ name: 'result', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'owner', internalType: 'address', type: 'address' },
-      { name: 'spender', internalType: 'address', type: 'address' },
-      { name: 'value', internalType: 'uint256', type: 'uint256' },
-      { name: 'deadline', internalType: 'uint256', type: 'uint256' },
-      { name: 'v', internalType: 'uint8', type: 'uint8' },
-      { name: 'r', internalType: 'bytes32', type: 'bytes32' },
-      { name: 's', internalType: 'bytes32', type: 'bytes32' },
-    ],
-    name: 'permit',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'symbol',
-    outputs: [{ name: '', internalType: 'string', type: 'string' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'totalSupply',
-    outputs: [{ name: 'result', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'to', internalType: 'address', type: 'address' },
-      { name: 'amount', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'transfer',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'from', internalType: 'address', type: 'address' },
-      { name: 'to', internalType: 'address', type: 'address' },
-      { name: 'amount', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'transferFrom',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
-        name: 'owner',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'spender',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'amount',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-    ],
-    name: 'Approval',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'from', internalType: 'address', type: 'address', indexed: true },
-      { name: 'to', internalType: 'address', type: 'address', indexed: true },
-      {
-        name: 'amount',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-    ],
-    name: 'Transfer',
-  },
-  { type: 'error', inputs: [], name: 'AllowanceOverflow' },
-  { type: 'error', inputs: [], name: 'AllowanceUnderflow' },
-  { type: 'error', inputs: [], name: 'InsufficientAllowance' },
-  { type: 'error', inputs: [], name: 'InsufficientBalance' },
-  { type: 'error', inputs: [], name: 'InvalidPermit' },
-  { type: 'error', inputs: [], name: 'Permit2AllowanceIsFixedAtInfinity' },
-  { type: 'error', inputs: [], name: 'PermitExpired' },
-  { type: 'error', inputs: [], name: 'TotalSupplyOverflow' },
-] as const
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ExperimentERC20
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E)
- */
-export const experimentErc20Abi = [
-  {
-    type: 'constructor',
-    inputs: [{ name: 'origin', internalType: 'address', type: 'address' }],
-    stateMutability: 'nonpayable',
-  },
-  { type: 'fallback', stateMutability: 'payable' },
-  { type: 'receive', stateMutability: 'payable' },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'DOMAIN_SEPARATOR',
-    outputs: [{ name: 'result', internalType: 'bytes32', type: 'bytes32' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'owner', internalType: 'address', type: 'address' },
-      { name: 'spender', internalType: 'address', type: 'address' },
-    ],
-    name: 'allowance',
-    outputs: [{ name: 'result', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'spender', internalType: 'address', type: 'address' },
-      { name: 'amount', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'approve',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'authorizedOrigin',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
-    name: 'balanceOf',
-    outputs: [{ name: 'result', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'amount', internalType: 'uint256', type: 'uint256' }],
-    name: 'burnForEther',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'decimals',
-    outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'to', internalType: 'address', type: 'address' },
-      { name: 'value', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'mint',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'mintForEther',
-    outputs: [],
-    stateMutability: 'payable',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'name',
-    outputs: [{ name: '', internalType: 'string', type: 'string' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
-    name: 'nonces',
-    outputs: [{ name: 'result', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'owner', internalType: 'address', type: 'address' },
-      { name: 'spender', internalType: 'address', type: 'address' },
-      { name: 'value', internalType: 'uint256', type: 'uint256' },
-      { name: 'deadline', internalType: 'uint256', type: 'uint256' },
-      { name: 'v', internalType: 'uint8', type: 'uint8' },
-      { name: 'r', internalType: 'bytes32', type: 'bytes32' },
-      { name: 's', internalType: 'bytes32', type: 'bytes32' },
-    ],
-    name: 'permit',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'symbol',
-    outputs: [{ name: '', internalType: 'string', type: 'string' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'totalSupply',
-    outputs: [{ name: 'result', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'to', internalType: 'address', type: 'address' },
-      { name: 'amount', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'transfer',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'from', internalType: 'address', type: 'address' },
-      { name: 'to', internalType: 'address', type: 'address' },
-      { name: 'amount', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'transferFrom',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
-        name: 'owner',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'spender',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'amount',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-    ],
-    name: 'Approval',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'from', internalType: 'address', type: 'address', indexed: true },
-      { name: 'to', internalType: 'address', type: 'address', indexed: true },
-      {
-        name: 'amount',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-    ],
-    name: 'Transfer',
-  },
-  { type: 'error', inputs: [], name: 'AllowanceOverflow' },
-  { type: 'error', inputs: [], name: 'AllowanceUnderflow' },
-  { type: 'error', inputs: [], name: 'InsufficientAllowance' },
-  { type: 'error', inputs: [], name: 'InsufficientBalance' },
-  { type: 'error', inputs: [], name: 'InvalidPermit' },
-  { type: 'error', inputs: [], name: 'Permit2AllowanceIsFixedAtInfinity' },
-  { type: 'error', inputs: [], name: 'PermitExpired' },
-  { type: 'error', inputs: [], name: 'TotalSupplyOverflow' },
-] as const
-
-/**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E)
- */
-export const experimentErc20Address = {
-  911867: '0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E',
-} as const
-
-/**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E)
- */
-export const experimentErc20Config = {
-  address: experimentErc20Address,
-  abi: experimentErc20Abi,
-} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExperimentalDelegation
@@ -892,10 +299,86 @@ export const experimentalDelegationAbi = [
     outputs: [],
     stateMutability: 'nonpayable',
   },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'data',
+        internalType: 'struct JwtVerifier.AccountData',
+        type: 'tuple',
+        components: [
+          { name: 'accountId', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'authProviderId', internalType: 'bytes32', type: 'bytes32' },
+          {
+            name: 'publicKeyRegistry',
+            internalType: 'contract PublicKeyRegistry',
+            type: 'address',
+          },
+          {
+            name: 'proofVerifier',
+            internalType: 'contract UltraVerifier',
+            type: 'address',
+          },
+        ],
+      },
+    ],
+    name: 'zkLoginAddBackup',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'verificationData',
+        internalType: 'struct JwtVerifier.VerificationData',
+        type: 'tuple',
+        components: [
+          { name: 'proof', internalType: 'bytes', type: 'bytes' },
+          { name: 'jwtIat', internalType: 'uint256', type: 'uint256' },
+          { name: 'jwtNonce', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'publicKeyHash', internalType: 'bytes32', type: 'bytes32' },
+        ],
+      },
+      {
+        name: 'newKey',
+        internalType: 'struct ExperimentalDelegation.Key',
+        type: 'tuple',
+        components: [
+          { name: 'expiry', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'keyType',
+            internalType: 'enum ExperimentalDelegation.KeyType',
+            type: 'uint8',
+          },
+          {
+            name: 'publicKey',
+            internalType: 'struct ECDSA.PublicKey',
+            type: 'tuple',
+            components: [
+              { name: 'x', internalType: 'uint256', type: 'uint256' },
+              { name: 'y', internalType: 'uint256', type: 'uint256' },
+            ],
+          },
+        ],
+      },
+    ],
+    name: 'zkLoginRecover',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
   { type: 'error', inputs: [], name: 'AlreadyInitialized' },
   { type: 'error', inputs: [], name: 'InvalidAuthority' },
   { type: 'error', inputs: [], name: 'InvalidSignature' },
   { type: 'error', inputs: [], name: 'KeyExpiredOrUnauthorized' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'length', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'StringsInsufficientHexLength',
+  },
 ] as const
 
 /**
@@ -1157,12 +640,190 @@ export const iMulticall3Abi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Ownable
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const ownableAbi = [
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'OwnableInvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'OwnableUnauthorizedAccount',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PublicKeyRegistry
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const publicKeyRegistryAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'providerId', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'publicKeyHash', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'checkPublicKey',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'bytes32', type: 'bytes32' },
+      { name: '', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'isPublicKeyHashValid',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'providerId', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'publicKeyHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'valid', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setPublicKeyValid',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'validity',
+        internalType: 'struct PublicKeyRegistry.PublicKeyValidity[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'providerId', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'publicKeyHash', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'valid', internalType: 'bool', type: 'bool' },
+        ],
+      },
+    ],
+    name: 'setPublicKeysValid',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'OwnableInvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'OwnableUnauthorizedAccount',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Receiver
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const receiverAbi = [
   { type: 'fallback', stateMutability: 'payable' },
   { type: 'receive', stateMutability: 'payable' },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Strings
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const stringsAbi = [
+  {
+    type: 'error',
+    inputs: [
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'length', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'StringsInsufficientHexLength',
+  },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1202,4 +863,44 @@ export const uupsUpgradeableAbi = [
   },
   { type: 'error', inputs: [], name: 'UnauthorizedCallContext' },
   { type: 'error', inputs: [], name: 'UpgradeFailed' },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// UltraVerifier
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const ultraVerifierAbi = [
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getVerificationKeyHash',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_proof', internalType: 'bytes', type: 'bytes' },
+      { name: '_publicInputs', internalType: 'bytes32[]', type: 'bytes32[]' },
+    ],
+    name: 'verify',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  { type: 'error', inputs: [], name: 'INVALID_VERIFICATION_KEY' },
+  { type: 'error', inputs: [], name: 'MOD_EXP_FAILURE' },
+  { type: 'error', inputs: [], name: 'OPENING_COMMITMENT_FAILED' },
+  { type: 'error', inputs: [], name: 'PAIRING_FAILED' },
+  { type: 'error', inputs: [], name: 'PAIRING_PREAMBLE_FAILED' },
+  { type: 'error', inputs: [], name: 'POINT_NOT_ON_CURVE' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'expected', internalType: 'uint256', type: 'uint256' },
+      { name: 'actual', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'PUBLIC_INPUT_COUNT_INVALID',
+  },
+  { type: 'error', inputs: [], name: 'PUBLIC_INPUT_GE_P' },
+  { type: 'error', inputs: [], name: 'PUBLIC_INPUT_INVALID_BN128_G1_POINT' },
 ] as const
