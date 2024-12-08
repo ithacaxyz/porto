@@ -301,6 +301,26 @@ export const experimentalDelegationAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'zkLoginAccount',
+    outputs: [
+      { name: 'accountId', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'authProviderId', internalType: 'bytes32', type: 'bytes32' },
+      {
+        name: 'publicKeyRegistry',
+        internalType: 'contract PublicKeyRegistry',
+        type: 'address',
+      },
+      {
+        name: 'proofVerifier',
+        internalType: 'contract UltraVerifier',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [
       {
         name: 'data',
@@ -329,17 +349,9 @@ export const experimentalDelegationAbi = [
   {
     type: 'function',
     inputs: [
-      {
-        name: 'verificationData',
-        internalType: 'struct JwtVerifier.VerificationData',
-        type: 'tuple',
-        components: [
-          { name: 'proof', internalType: 'bytes', type: 'bytes' },
-          { name: 'jwtIat', internalType: 'uint256', type: 'uint256' },
-          { name: 'jwtNonce', internalType: 'bytes32', type: 'bytes32' },
-          { name: 'publicKeyHash', internalType: 'bytes32', type: 'bytes32' },
-        ],
-      },
+      { name: 'proof', internalType: 'bytes', type: 'bytes' },
+      { name: 'publicKeyHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'jwtIat', internalType: 'uint256', type: 'uint256' },
       {
         name: 'newKey',
         internalType: 'struct ExperimentalDelegation.Key',

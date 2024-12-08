@@ -80,7 +80,7 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
     /// @notice Authorization nonce used for replay protection.
     uint256 public nonce;
 
-    JwtVerifier.AccountData zkLoginAccount;
+    JwtVerifier.AccountData public zkLoginAccount;
 
     /// @notice Initializes the EOA with a public key to authorize.
     /// @param label_ - The label to associate with the EOA.
