@@ -324,7 +324,7 @@ export const experimentalDelegationAbi = [
     inputs: [
       {
         name: 'data',
-        internalType: 'struct JwtVerifier.AccountData',
+        internalType: 'struct ZkLogin.AccountData',
         type: 'tuple',
         components: [
           { name: 'accountId', internalType: 'bytes32', type: 'bytes32' },

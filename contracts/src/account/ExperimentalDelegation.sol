@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import {Receiver} from "solady/accounts/Receiver.sol";
 import {UUPSUpgradeable} from "solady/utils/UUPSUpgradeable.sol";
-import {JwtVerifier} from "zklogin/JwtVerifier.sol";
+import {ZkLogin} from "zklogin/ZkLogin.sol";
 
 import {MultiSendCallOnly} from "../utils/MultiSend.sol";
 import {ECDSA} from "../utils/ECDSA.sol";
@@ -80,7 +80,7 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
     /// @notice Authorization nonce used for replay protection.
     uint256 public nonce;
 
-    JwtVerifier.AccountData public zkLoginAccount;
+    ZkLogin.AccountData public zkLoginAccount;
 
     /// @notice Initializes the EOA with a public key to authorize.
     /// @param label_ - The label to associate with the EOA.
@@ -154,7 +154,7 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
         keys[keyIndex].expiry = 1;
     }
 
-    function zkLoginAddBackup(JwtVerifier.AccountData calldata data) public onlyOwner {
+    function zkLoginAddBackup(ZkLogin.AccountData calldata data) public onlyOwner {
         zkLoginAccount = data;
     }
 
@@ -162,9 +162,9 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
         external
     {
         require(
-            JwtVerifier.verifyJwtProof(
+            ZkLogin.verifyProof(
                 zkLoginAccount,
-                JwtVerifier.VerificationData({
+                ZkLogin.VerificationData({
                     proof: proof,
                     publicKeyHash: publicKeyHash,
                     jwtNonce: keccak256(abi.encode(newKey)),
