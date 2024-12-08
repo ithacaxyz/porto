@@ -5,6 +5,7 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "typescript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
+  "solidity.formatter": "forge",
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
