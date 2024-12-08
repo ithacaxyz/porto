@@ -158,10 +158,22 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
         zkLoginAccount = data;
     }
 
-    function zkLoginRecover(JwtVerifier.VerificationData calldata verificationData, Key calldata newKey) external {
-        require(keccak256(abi.encode(newKey)) == verificationData.jwtNonce, "invalid key");
-
-        require(JwtVerifier.verifyJwtProof(zkLoginAccount, verificationData), "invalid zklogin proof");
+    function zkLoginRecover(bytes calldata proof, bytes32 publicKeyHash, uint256 jwtIat, Key calldata newKey)
+        external
+    {
+        require(
+            JwtVerifier.verifyJwtProof(
+                zkLoginAccount,
+                JwtVerifier.VerificationData({
+                    proof: proof,
+                    publicKeyHash: publicKeyHash,
+                    jwtNonce: keccak256(abi.encode(newKey)),
+                    // TODO: check expiration?
+                    jwtIat: jwtIat
+                })
+            ),
+            "invalid zklogin proof"
+        );
 
         Key[] memory newKeys = new Key[](1);
         newKeys[0] = newKey;
