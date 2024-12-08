@@ -7,3 +7,6 @@
 [submodule "contracts/lib/zklogin"]
 	path = contracts/lib/zklogin
 	url = https://github.com/olehmisar/zklogin
+[submodule "contracts/lib/openzeppelin-contracts"]
+	path = contracts/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
