@@ -3,6 +3,7 @@ pragma solidity ^0.8.23;
 
 import {Receiver} from "solady/accounts/Receiver.sol";
 import {UUPSUpgradeable} from "solady/utils/UUPSUpgradeable.sol";
+import {JwtVerifier} from "zklogin/JwtVerifier.sol";
 
 import {MultiSendCallOnly} from "../utils/MultiSend.sol";
 import {ECDSA} from "../utils/ECDSA.sol";
@@ -79,6 +80,8 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
     /// @notice Authorization nonce used for replay protection.
     uint256 public nonce;
 
+    JwtVerifier.AccountData zkLoginAccount;
+
     /// @notice Initializes the EOA with a public key to authorize.
     /// @param label_ - The label to associate with the EOA.
     /// @param keys_ - The keys to authorize.
@@ -149,6 +152,20 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
         _assertSignature(digest, signature);
 
         keys[keyIndex].expiry = 1;
+    }
+
+    function zkLoginAddBackup(JwtVerifier.AccountData calldata data) public onlyOwner {
+        zkLoginAccount = data;
+    }
+
+    function zkLoginRecover(JwtVerifier.VerificationData calldata verificationData, Key calldata newKey) external {
+        require(keccak256(abi.encode(newKey)) == verificationData.jwtNonce, "invalid key");
+
+        require(JwtVerifier.verifyJwtProof(zkLoginAccount, verificationData), "invalid zklogin proof");
+
+        Key[] memory newKeys = new Key[](1);
+        newKeys[0] = newKey;
+        _authorize(newKeys);
     }
 
     /// @notice Executes a set of calls.
@@ -233,7 +250,7 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
 
     /// @notice Authorizes a new public key.
     /// @param keys_ - The keys to authorize.
-    function _authorize(Key[] calldata keys_) internal {
+    function _authorize(Key[] memory keys_) internal {
         for (uint32 i = 0; i < keys_.length; i++) {
             keys.push(keys_[i]);
         }

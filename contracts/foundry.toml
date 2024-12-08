@@ -6,9 +6,10 @@ libs = ["lib"]
 remappings = [
     "forge-std/=lib/forge-std/src",
     "solady/=lib/solady/src",
-    '@openzeppelin/=lib/@openzeppelin-contracts/',
+    "zklogin/=lib/zklogin/packages/evm-contracts/contracts",
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts",
 ]
-via_ir = true
+# via_ir = true # disabled due to Noir solidity verifier failing to compile
 evm_version = "prague"
 alphanet = true
 
