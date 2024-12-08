@@ -29,6 +29,20 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'experimental_addBackup'
+        params: [AddBackupParameters]
+      }
+      ReturnType: undefined
+    }
+  | {
+      Request: {
+        method: 'experimental_recover'
+        params: [RecoverParameters]
+      }
+      ReturnType: undefined
+    }
+  | {
+      Request: {
         method: 'experimental_disconnect'
       }
       ReturnType: undefined
@@ -143,4 +157,14 @@ export type PrepareImportAccountReturnType = {
     authorization: Authorization
   }
   signPayloads: readonly Hex.Hex[]
+}
+
+export type AddBackupParameters = {
+  address: Address.Address
+  jwt: string
+}
+
+export type RecoverParameters = {
+  address: Address.Address
+  proof: Hex.Hex
 }

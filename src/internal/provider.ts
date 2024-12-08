@@ -375,6 +375,33 @@ export function from<
           >
         }
 
+        case 'experimental_addBackup': {
+          if (!headless) throw new ox_Provider.UnsupportedMethodError()
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, jwt }] = (params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'experimental_addBackup'
+          >) ?? [{}]
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          return await AccountDelegation.zkLoginAddBackup(state.client, {
+            account,
+            jwt,
+          })
+        }
+
+        case 'experimental_recover': {
+          throw new Error('not implemented')
+        }
+
         case 'experimental_sessions': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()

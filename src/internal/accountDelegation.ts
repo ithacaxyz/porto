@@ -1,3 +1,4 @@
+import { zklogin } from '@shield-labs/zklogin'
 import * as AbiParameters from 'ox/AbiParameters'
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
@@ -603,6 +604,58 @@ export declare namespace prepareInitialize {
     account: Account
     authorization: Authorization_viem
     signPayload: Hex.Hex
+  }
+}
+
+const zkLogin = new zklogin.ZkLogin()
+export async function zkLoginAddBackup<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: zkLoginAddBackup.Parameters,
+) {
+  const { account, jwt } = parameters
+
+  const accountData = await zkLogin.getAccountDataFromJwt(jwt, client.chain!.id)
+
+  const hash = await writeContract(client, {
+    abi: experimentalDelegationAbi,
+    address: account.address,
+    functionName: 'zkLoginAddBackup',
+    args: [accountData],
+  })
+
+  return { hash }
+}
+
+export declare namespace zkLoginAddBackup {
+  type Parameters = {
+    account: Account
+    jwt: string
+  }
+}
+
+export async function zkLoginRecover<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: zkLoginRecover.Parameters,
+) {
+  const {
+    account,
+    proof: { proof, input },
+    newKey,
+  } = parameters
+
+  return await writeContract(client, {
+    abi: experimentalDelegationAbi,
+    address: account.address,
+    functionName: 'zkLoginRecover',
+    args: [proof, input.public_key_hash, input.jwt_iat, newKey],
+  })
+}
+
+export declare namespace zkLoginRecover {
+  type Parameters = {
+    account: Account
+    proof: NonNullable<Awaited<ReturnType<zklogin.ZkLogin['proveJwt']>>>
+    newKey: Key
   }
 }
 
