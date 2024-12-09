@@ -19,6 +19,7 @@ import {
 } from 'viem/experimental'
 
 import { experimentalDelegationAbi } from '../generated.js'
+import type { BackupZkLoginOption, RecoverParameters } from './rpcSchema.js'
 import type { OneOf, Undefined } from './types.js'
 
 ////////////////////////////////////////////////////////////
@@ -612,9 +613,12 @@ export async function zkLoginAddBackup<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: zkLoginAddBackup.Parameters,
 ) {
-  const { account, jwt } = parameters
+  const { account, backupOption } = parameters
 
-  const accountData = await zkLogin.getAccountDataFromJwt(jwt, client.chain!.id)
+  const accountData = await zkLogin.getAccountDataFromJwt(
+    backupOption.jwt,
+    client.chain!.id,
+  )
 
   const hash = await writeContract(client, {
     abi: experimentalDelegationAbi,
@@ -629,7 +633,7 @@ export async function zkLoginAddBackup<chain extends Chain | undefined>(
 export declare namespace zkLoginAddBackup {
   type Parameters = {
     account: Account
-    jwt: string
+    backupOption: BackupZkLoginOption
   }
 }
 
@@ -637,26 +641,25 @@ export async function zkLoginRecover<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: zkLoginRecover.Parameters,
 ) {
-  const {
-    account,
-    proof: { proof, input },
-    newKey,
-  } = parameters
+  const { account, backupOption, newAuthentication } = parameters
 
   return await writeContract(client, {
     abi: experimentalDelegationAbi,
     address: account.address,
     functionName: 'zkLoginRecover',
-    args: [proof, input.public_key_hash, input.jwt_iat, newKey],
+    args: [
+      backupOption.proof.proof,
+      backupOption.proof.input.public_key_hash,
+      backupOption.proof.input.jwt_iat,
+      newAuthentication.key,
+    ],
   })
 }
 
 export declare namespace zkLoginRecover {
   type Parameters = {
     account: Account
-    proof: NonNullable<Awaited<ReturnType<zklogin.ZkLogin['proveJwt']>>>
-    newKey: Key
-  }
+  } & Pick<RecoverParameters, 'backupOption' | 'newAuthentication'>
 }
 
 /** Serializes keys into format for the delegation contract. */

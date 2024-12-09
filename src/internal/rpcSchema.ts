@@ -3,6 +3,7 @@ import type * as Hex from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
 import type { Authorization } from 'viem/experimental'
 
+import type { zklogin } from '@shield-labs/zklogin'
 import type * as AccountDelegation from './accountDelegation.js'
 
 export type Schema = RpcSchema.From<
@@ -161,10 +162,30 @@ export type PrepareImportAccountReturnType = {
 
 export type AddBackupParameters = {
   address: Address.Address
+  backupOptions: readonly BackupZkLoginOption[]
+}
+
+export type BackupZkLoginOption = {
+  type: 'zkLogin'
+  provider: ZkLoginProvider
   jwt: string
+}
+
+export type RecoverNewAuthentication = {
+  key: AccountDelegation.Key // TODO: can the key be passed in RPC?
 }
 
 export type RecoverParameters = {
   address: Address.Address
-  proof: Hex.Hex
+  backupOption: RecoverZkLoginOption
+  newAuthentication: RecoverNewAuthentication
 }
+
+export type RecoverZkLoginOption = {
+  type: 'zkLogin'
+  provider: ZkLoginProvider
+  proof: NonNullable<Awaited<ReturnType<zklogin.ZkLogin['proveJwt']>>>
+}
+
+// TODO: import from `@shield-labs/zklogin`
+type ZkLoginProvider = 'google' // | 'apple'
