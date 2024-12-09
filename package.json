@@ -23,7 +23,7 @@
     "prepare": "pnpm simple-git-hooks"
   },
   "dependencies": {
-    "@shield-labs/zklogin": "^0.4.0"
+    "@shield-labs/zklogin": "^0.5.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",

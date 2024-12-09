@@ -36,8 +36,8 @@ importers:
   .:
     dependencies:
       '@shield-labs/zklogin':
-        specifier: ^0.4.0
-        version: 0.4.0(typescript@5.6.3)
+        specifier: ^0.5.0
+        version: 0.5.0(typescript@5.6.3)
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.8.3
@@ -1450,14 +1450,14 @@ packages:
   '@scure/bip39@1.4.0':
     resolution: {integrity: sha512-BEEm6p8IueV/ZTfQLp/0vhw4NPnT9oWf5+28nvmeUICjP99f4vr2d+qc7AVGDDtwRep6ifR43Yed9ERVmiITzw==}
 
-  '@shield-labs/utils@0.0.1':
-    resolution: {integrity: sha512-RO14CTAnOWsKOaO+vaazZ+jSK5HzL9/yeYiDfv/KkpnG+ejWcpOSRjqzfP7h2K7mUPqVS13XEiI+/dHK3PJguw==}
+  '@shield-labs/utils@0.1.0':
+    resolution: {integrity: sha512-o1d6kR9/hEY6L91t6xWhDFVPZrF52l5GewFDQvpxidq8ki7QbDrBfStWJrkz9K4dNS/a+iD1PUbgQx/P3OSiKA==}
 
-  '@shield-labs/zklogin-contracts@0.4.0':
-    resolution: {integrity: sha512-E9EvuBMVoCLvbBEN+qwjdgDdBXAVL29B077BhHpivd96MuEtKJThPGwyB2nLRfqgo0vZ4fRM55/hJyGBW1NlsQ==}
+  '@shield-labs/zklogin-contracts@0.5.0':
+    resolution: {integrity: sha512-LV6mPprIMKobJSiU5Wn+YfQ4keTkhO8XtfCVc6Cn8vJnnmkxYmzAG3Lx6Gy+EXWrCbjTaBffNtQJDP/ts3KogQ==}
 
-  '@shield-labs/zklogin@0.4.0':
-    resolution: {integrity: sha512-J4h4TJ48bnaShorX9H8mrlTDPwccTLz4PK5fwrV5AANpfsbPUpznwY6SRDlS9hZ0a3PPIbVJOZOanLnO6oqcZA==}
+  '@shield-labs/zklogin@0.5.0':
+    resolution: {integrity: sha512-IBrY0HFgY1TfaCvUcE7m1Hi9yCx0uUAav0YOU22R3I9+uubjLEiMSCVbBwLN7YPq+A/O04/L/2OVBhgMDUkpaQ==}
 
   '@snyk/github-codeowners@1.1.0':
     resolution: {integrity: sha512-lGFf08pbkEac0NYgVf4hdANpAgApRjNByLXB+WBip3qj1iendOIyAwP2GKkKbQMNVy2r1xxDf0ssfWscoiC+Vw==}
@@ -5361,7 +5361,7 @@ snapshots:
       '@noble/hashes': 1.5.0
       '@scure/base': 1.1.9
 
-  '@shield-labs/utils@0.0.1(typescript@5.6.3)':
+  '@shield-labs/utils@0.1.0(typescript@5.6.3)':
     dependencies:
       ms: 2.1.3
       ts-essentials: 9.4.2(typescript@5.6.3)
@@ -5369,16 +5369,16 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@shield-labs/zklogin-contracts@0.4.0': {}
+  '@shield-labs/zklogin-contracts@0.5.0': {}
 
-  '@shield-labs/zklogin@0.4.0(typescript@5.6.3)':
+  '@shield-labs/zklogin@0.5.0(typescript@5.6.3)':
     dependencies:
       '@aztec/bb.js': 0.65.2
       '@aztec/foundation': 0.65.2
       '@mach-34/noir-bignum-paramgen': 1.1.0
       '@noir-lang/noir_js': 1.0.0-beta.0
-      '@shield-labs/utils': 0.0.1(typescript@5.6.3)
-      '@shield-labs/zklogin-contracts': 0.4.0
+      '@shield-labs/utils': 0.1.0(typescript@5.6.3)
+      '@shield-labs/zklogin-contracts': 0.5.0
       ky: 1.7.2
       lodash-es: 4.17.21
       ox: 0.4.0(typescript@5.6.3)(zod@3.23.8)
