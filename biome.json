@@ -6,7 +6,8 @@
       "src/generated.ts",
       "tsconfig.json",
       "tsconfig.*.json"
-    ]
+    ],
+    "maxSize": 99999999
   },
   "organizeImports": {
     "enabled": true
