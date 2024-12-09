@@ -36,8 +36,8 @@ importers:
   .:
     dependencies:
       '@shield-labs/zklogin':
-        specifier: ^0.2.0
-        version: 0.2.0(typescript@5.6.3)
+        specifier: ^0.4.0
+        version: 0.4.0(typescript@5.6.3)
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.8.3
@@ -230,12 +230,12 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@aztec/bb.js@0.55.0':
-    resolution: {integrity: sha512-hdSn5qba/OVyDAPuNBxpF+nFodcv+lK16YPIqkgaaNJ/6hURSLXClbkfnXNg7egwmnvrBQrJb5dVuaoydm8y6w==}
+  '@aztec/bb.js@0.65.2':
+    resolution: {integrity: sha512-4wOZgB+6nkhJTocOTDlOlO2vs9tpL654EF3sUeNfmWHT+Titvf1ylLIezgO7BYkgMFMGPfKjKpMGujDpyrwAjw==}
     hasBin: true
 
-  '@aztec/foundation@0.55.0':
-    resolution: {integrity: sha512-2XE7DJ4GnehRkbjtD+dc9rkUA9khUoUMI2xX5XuPdJ780Tw7x5CPosTIqbBL254vobgzYQU0r5IkbXIVj8Cb3w==}
+  '@aztec/foundation@0.65.2':
+    resolution: {integrity: sha512-oRwumLD1W6O5XpIfSGrFNthahME3TAJwO9McbZpm0w6TjHwW4wFtdc1M3eF3a1HVrNigRGhqVFbRtVeqfwIIGA==}
     engines: {node: '>=18'}
 
   '@babel/code-frame@7.26.2':
@@ -1026,8 +1026,8 @@ packages:
   '@lit/reactive-element@1.6.3':
     resolution: {integrity: sha512-QuTgnG52Poic7uM1AN5yJ09QMe0O28e10XzSvWDz02TJiiKee4stsiownEIadWm8nYzyDAyT+gKzUoZmiWQtsQ==}
 
-  '@mach-34/noir-bignum-paramgen@1.0.2':
-    resolution: {integrity: sha512-80+8KcYR4RNxgYGBaJkZlmSDLUJcj0QIpKWUCUrShjqIQh4LGKi/dgf6JdziEzDVxKr4AkmCkA7pdwLcsD5xag==}
+  '@mach-34/noir-bignum-paramgen@1.1.0':
+    resolution: {integrity: sha512-jiD5BzwZEeFPy5Bzro8Bu5JVixG0LT3DhlNwHH2ntuogc56jbejHSGZLhanhwjMMTvIvRKHc3D1sk/eCpWEs6Q==}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -1231,20 +1231,17 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@noir-lang/acvm_js@0.50.0':
-    resolution: {integrity: sha512-tmD3eZ8GbkkD001S/YVIrp91sy+XW1ZeVRObio1WgvX9081kJS1xptBglMO4ITzdHOLLuIeaChlUhCgNtwFB9Q==}
+  '@noir-lang/acvm_js@1.0.0-beta.0':
+    resolution: {integrity: sha512-92GBgWF9B73vXMxUZF3MKcvIgOM8YX05ZdRyvCx0Xq80jttTrr1A1xVDUsHU640Btm9oPzzdYQqggb+aJkW+pw==}
 
-  '@noir-lang/backend_barretenberg@0.34.0':
-    resolution: {integrity: sha512-yDW+IN0wrbjtlVNzz0MMWpwIdzBvJ98ZdEt1jXXQItPQ8BZW7324oexWZTAtHb0oLsktdTpxyx6uM6AVpQG5ug==}
+  '@noir-lang/noir_js@1.0.0-beta.0':
+    resolution: {integrity: sha512-ZSn615HHO7bHlEW1/L3CwysElDqyjUnN6PMezkmOhx2qz1U0iUqvcTiqdXklH40MbISifGmly2VsKe0vVwtjXw==}
 
-  '@noir-lang/noir_js@0.34.0':
-    resolution: {integrity: sha512-NprF+UlG05d2SkUQDcJ+GBHiWvkkVp5QczsFGmAHtGjpETAj5fqaSE8iTzdp/QTl2K9OtrsNrDLYoK/PPCLgFQ==}
+  '@noir-lang/noirc_abi@1.0.0-beta.0':
+    resolution: {integrity: sha512-RvEVLtKnVeY1yTOVvBll/gHpAtWi6sqp1jZWqt7VK+dzG7l8i9S9deCrn1I321xamkgebWgscfkdhKKUBCKaHQ==}
 
-  '@noir-lang/noirc_abi@0.34.0':
-    resolution: {integrity: sha512-GrdOG0qQfjFN2llYOKEDenaNpMp1JAtB5NxRM+8hB69VDKmAFGJJRgcMxzWgbRcRhX5AOp/7CHqV2OVVqgTMYA==}
-
-  '@noir-lang/types@0.34.0':
-    resolution: {integrity: sha512-04A14JMPt5G6/cCD4n59W0DUtAbcN8YByvSJ6gj0VQramd11tWK3ZqhKadnQrzhA0GwEvROd6jvn/blKdHlSXQ==}
+  '@noir-lang/types@1.0.0-beta.0':
+    resolution: {integrity: sha512-+LGd8GpZfGh/gir3LX/VjphHG9wWfF/YaZWOUcaxX/TJDU/Lk+THJQnaNhxNG0z2qn/LJVlCOT65L+BLZKBidw==}
 
   '@parcel/watcher-android-arm64@2.5.0':
     resolution: {integrity: sha512-qlX4eS28bUcQCdribHkg/herLe+0A9RyYC+mm2PXpncit8z5b3nSqGVzMNR3CmtAOgRutiZ02eIJJgP/b1iEFQ==}
@@ -1456,11 +1453,11 @@ packages:
   '@shield-labs/utils@0.0.1':
     resolution: {integrity: sha512-RO14CTAnOWsKOaO+vaazZ+jSK5HzL9/yeYiDfv/KkpnG+ejWcpOSRjqzfP7h2K7mUPqVS13XEiI+/dHK3PJguw==}
 
-  '@shield-labs/zklogin-contracts@0.2.0':
-    resolution: {integrity: sha512-HghiigzXm7bKAXT3gQdVLfbWzuVuAfUqsUd4z8ne6CgrS59nqDkbqMJOlSbITbVnz87cFQH7NtQX2zw9Q4Surg==}
+  '@shield-labs/zklogin-contracts@0.4.0':
+    resolution: {integrity: sha512-E9EvuBMVoCLvbBEN+qwjdgDdBXAVL29B077BhHpivd96MuEtKJThPGwyB2nLRfqgo0vZ4fRM55/hJyGBW1NlsQ==}
 
-  '@shield-labs/zklogin@0.2.0':
-    resolution: {integrity: sha512-kW6Jt5iywLbhP7yeNNUYwJufzZNJ5ym215bT4zwWIZ9LNbhzvRApGJuoAyknUA+MsW13rgRjP+ubVZMUyK42Sw==}
+  '@shield-labs/zklogin@0.4.0':
+    resolution: {integrity: sha512-J4h4TJ48bnaShorX9H8mrlTDPwccTLz4PK5fwrV5AANpfsbPUpznwY6SRDlS9hZ0a3PPIbVJOZOanLnO6oqcZA==}
 
   '@snyk/github-codeowners@1.1.0':
     resolution: {integrity: sha512-lGFf08pbkEac0NYgVf4hdANpAgApRjNByLXB+WBip3qj1iendOIyAwP2GKkKbQMNVy2r1xxDf0ssfWscoiC+Vw==}
@@ -4170,18 +4167,20 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@aztec/bb.js@0.55.0':
+  '@aztec/bb.js@0.65.2':
     dependencies:
       comlink: 4.4.2
       commander: 10.0.1
       debug: 4.3.7
+      fflate: 0.8.2
+      pako: 2.1.0
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
-  '@aztec/foundation@0.55.0':
+  '@aztec/foundation@0.65.2':
     dependencies:
-      '@aztec/bb.js': 0.55.0
+      '@aztec/bb.js': 0.65.2
       '@koa/cors': 5.0.0
       '@noble/curves': 1.6.0
       bn.js: 5.2.1
@@ -4900,7 +4899,7 @@ snapshots:
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.2.1
 
-  '@mach-34/noir-bignum-paramgen@1.0.2': {}
+  '@mach-34/noir-bignum-paramgen@1.1.0': {}
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -5180,27 +5179,19 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@noir-lang/acvm_js@0.50.0': {}
+  '@noir-lang/acvm_js@1.0.0-beta.0': {}
 
-  '@noir-lang/backend_barretenberg@0.34.0':
+  '@noir-lang/noir_js@1.0.0-beta.0':
     dependencies:
-      '@aztec/bb.js': 0.55.0
-      '@noir-lang/types': 0.34.0
-      fflate: 0.8.2
-    transitivePeerDependencies:
-      - supports-color
+      '@noir-lang/acvm_js': 1.0.0-beta.0
+      '@noir-lang/noirc_abi': 1.0.0-beta.0
+      '@noir-lang/types': 1.0.0-beta.0
 
-  '@noir-lang/noir_js@0.34.0':
+  '@noir-lang/noirc_abi@1.0.0-beta.0':
     dependencies:
-      '@noir-lang/acvm_js': 0.50.0
-      '@noir-lang/noirc_abi': 0.34.0
-      '@noir-lang/types': 0.34.0
+      '@noir-lang/types': 1.0.0-beta.0
 
-  '@noir-lang/noirc_abi@0.34.0':
-    dependencies:
-      '@noir-lang/types': 0.34.0
-
-  '@noir-lang/types@0.34.0': {}
+  '@noir-lang/types@1.0.0-beta.0': {}
 
   '@parcel/watcher-android-arm64@2.5.0':
     optional: true
@@ -5378,16 +5369,16 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@shield-labs/zklogin-contracts@0.2.0': {}
+  '@shield-labs/zklogin-contracts@0.4.0': {}
 
-  '@shield-labs/zklogin@0.2.0(typescript@5.6.3)':
+  '@shield-labs/zklogin@0.4.0(typescript@5.6.3)':
     dependencies:
-      '@aztec/foundation': 0.55.0
-      '@mach-34/noir-bignum-paramgen': 1.0.2
-      '@noir-lang/backend_barretenberg': 0.34.0
-      '@noir-lang/noir_js': 0.34.0
+      '@aztec/bb.js': 0.65.2
+      '@aztec/foundation': 0.65.2
+      '@mach-34/noir-bignum-paramgen': 1.1.0
+      '@noir-lang/noir_js': 1.0.0-beta.0
       '@shield-labs/utils': 0.0.1(typescript@5.6.3)
-      '@shield-labs/zklogin-contracts': 0.2.0
+      '@shield-labs/zklogin-contracts': 0.4.0
       ky: 1.7.2
       lodash-es: 4.17.21
       ox: 0.4.0(typescript@5.6.3)(zod@3.23.8)
