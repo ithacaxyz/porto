@@ -1,7 +1,13 @@
 import { AbiFunction, Hex, Json, PublicKey, TypedData, Value } from 'ox'
 import { Porto } from 'porto'
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { createClient, custom } from 'viem'
+import {
+  createClient,
+  custom,
+  encodeAbiParameters,
+  keccak256,
+  parseAbiParameters,
+} from 'viem'
 import {
   generatePrivateKey,
   privateKeyToAccount,
@@ -9,6 +15,7 @@ import {
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
+import { zklogin } from '@shield-labs/zklogin'
 import { ExperimentERC20 } from './contracts'
 
 export const porto = Porto.create()
@@ -27,6 +34,8 @@ export function App() {
       <ImportAccount />
       <Login />
       <Disconnect />
+      <AddBackup />
+      <Recover />
       <Accounts />
       <GetCapabilities />
       <GrantSession />
@@ -232,6 +241,94 @@ function Disconnect() {
       >
         Disconnect
       </button>
+    </div>
+  )
+}
+
+function AddBackup() {
+  const [result, setResult] = useState<string | undefined>()
+  return (
+    <div>
+      <h3>experimental_addBackup</h3>
+      <button
+        onClick={async () => {
+          const [account] = await porto.provider.request({
+            method: 'eth_accounts',
+          })
+          return porto.provider
+            .request({
+              method: 'experimental_addBackup',
+              params: [
+                {
+                  address: account!,
+                  backupOptions: [
+                    {
+                      type: 'zkLogin',
+                      provider: 'google',
+                      // TODO: get jwt from google
+                      jwt: '',
+                    },
+                  ],
+                },
+              ],
+            })
+            .then(setResult)
+        }}
+        type="button"
+      >
+        Add Backup
+      </button>
+      <pre>{result}</pre>
+    </div>
+  )
+}
+
+function Recover() {
+  const [result, setResult] = useState<string | undefined>()
+  return (
+    <div>
+      <h3>experimental_recover</h3>
+      <button
+        onClick={async () => {
+          const [account] = await porto.provider.request({
+            method: 'eth_accounts',
+          })
+          const newKey = null as any // TODO
+          const expectedNonce = keccak256(
+            // TODO
+            encodeAbiParameters(parseAbiParameters('Key'), [newKey]),
+          ).slice('0x'.length)
+          const zkLogin = new zklogin.ZkLogin()
+          // TODO: get jwt from google
+          const jwt = ''
+          const proof = await zkLogin.proveJwt(jwt, expectedNonce)
+          if (!proof) {
+            throw new Error('jwt invalid or expired')
+          }
+          return porto.provider
+            .request({
+              method: 'experimental_recover',
+              params: [
+                {
+                  address: account!,
+                  backupOption: {
+                    type: 'zkLogin',
+                    provider: 'google',
+                    proof,
+                  },
+                  newAuthentication: {
+                    key: newKey,
+                  },
+                },
+              ],
+            })
+            .then(setResult)
+        }}
+        type="button"
+      >
+        Recover
+      </button>
+      <pre>{result}</pre>
     </div>
   )
 }
