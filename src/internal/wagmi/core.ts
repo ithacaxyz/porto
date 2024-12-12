@@ -73,7 +73,7 @@ export async function connect<config extends Config>(
       method,
       params: [{ capabilities: { createAccount, grantSession } }],
     })
-    // we already connected, but call `connector.connect` so connector even listeners are set up
+    // we already connected, but call `connector.connect` so connector event listeners are set up
     const data = await connector.connect({
       chainId: parameters.chainId,
       isReconnecting: true,
@@ -166,7 +166,7 @@ export async function createAccount<config extends Config>(
       params: [{ label }],
     })
 
-    // we already connected, but call `connector.connect` so connector even listeners are set up
+    // we already connected, but call `connector.connect` so connector event listeners are set up
     const data = await connector.connect({
       chainId: parameters.chainId,
       isReconnecting: true,
@@ -363,7 +363,7 @@ export async function importAccount<config extends Config>(
       params: [{ context, signatures }],
     })
 
-    // we already connected, but call `connector.connect` so connector even listeners are set up
+    // we already connected, but call `connector.connect` so connector event listeners are set up
     const data = await connector.connect({
       chainId: parameters.chainId,
       isReconnecting: true,
