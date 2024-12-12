@@ -541,7 +541,7 @@ export async function prepareInitialize<chain extends Chain | undefined>(
   const label =
     parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
 
-  // Create a WebAuthn-P256 key to attach and authorize onto the the Account.
+  // Create a WebAuthn-P256 key to attach and authorize onto the Account.
   const key = await createWebAuthnKey({
     label,
     rpId,
