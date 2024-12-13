@@ -625,9 +625,11 @@ export async function zkLoginAddBackup<chain extends Chain | undefined>(
     address: account.address,
     functionName: 'zkLoginAddBackup',
     args: [accountData],
+    account: null,
+    chain: null,
   })
 
-  return { hash }
+  return hash
 }
 
 export declare namespace zkLoginAddBackup {
@@ -643,6 +645,13 @@ export async function zkLoginRecover<chain extends Chain | undefined>(
 ) {
   const { account, backupOption, newAuthentication } = parameters
 
+  const key = account.keys.find(
+    (key) => newAuthentication.key.publicKey === PublicKey.toHex(key.publicKey),
+  )
+  if (!key) {
+    throw new Error('key not found')
+  }
+
   return await writeContract(client, {
     abi: experimentalDelegationAbi,
     address: account.address,
@@ -650,9 +659,11 @@ export async function zkLoginRecover<chain extends Chain | undefined>(
     args: [
       backupOption.proof.proof,
       backupOption.proof.input.public_key_hash,
-      backupOption.proof.input.jwt_iat,
-      newAuthentication.key,
+      BigInt(backupOption.proof.input.jwt_iat),
+      serializeKeys([key])[0]!,
     ],
+    account: null,
+    chain: null,
   })
 }
 

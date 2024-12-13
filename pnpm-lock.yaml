@@ -36,8 +36,8 @@ importers:
   .:
     dependencies:
       '@shield-labs/zklogin':
-        specifier: ^0.5.0
-        version: 0.5.0(typescript@5.6.3)
+        specifier: ^0.6.0
+        version: 0.6.0(typescript@5.6.3)
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.8.3
@@ -167,6 +167,12 @@ importers:
 
   playground:
     dependencies:
+      '@noir-lang/acvm_js':
+        specifier: 1.0.0-beta.0
+        version: 1.0.0-beta.0
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
       ox:
         specifier: ^0.2.2
         version: 0.2.2(typescript@5.6.3)(zod@3.23.8)
@@ -183,6 +189,9 @@ importers:
         specifier: 'catalog:'
         version: 2.21.51(bufferutil@4.0.8)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.23.8)
     devDependencies:
+      '@noir-lang/noirc_abi':
+        specifier: 1.0.0-beta.0
+        version: 1.0.0-beta.0
       '@types/react':
         specifier: 'catalog:'
         version: 18.3.12
@@ -201,6 +210,9 @@ importers:
       vite:
         specifier: ^5.4.1
         version: 5.4.11(@types/node@22.9.0)
+      vite-plugin-resolve:
+        specifier: ^2.5.2
+        version: 2.5.2
 
   src:
     dependencies:
@@ -1456,8 +1468,8 @@ packages:
   '@shield-labs/zklogin-contracts@0.5.0':
     resolution: {integrity: sha512-LV6mPprIMKobJSiU5Wn+YfQ4keTkhO8XtfCVc6Cn8vJnnmkxYmzAG3Lx6Gy+EXWrCbjTaBffNtQJDP/ts3KogQ==}
 
-  '@shield-labs/zklogin@0.5.0':
-    resolution: {integrity: sha512-IBrY0HFgY1TfaCvUcE7m1Hi9yCx0uUAav0YOU22R3I9+uubjLEiMSCVbBwLN7YPq+A/O04/L/2OVBhgMDUkpaQ==}
+  '@shield-labs/zklogin@0.6.0':
+    resolution: {integrity: sha512-sVfOH2j0ogm5yVzEw0bHIFm18QVB6PfjDSeMzjaitybQAXyL8gpJnjc2rlL2QEvpiJkyDkjsyFW/euOkg54IpQ==}
 
   '@snyk/github-codeowners@1.1.0':
     resolution: {integrity: sha512-lGFf08pbkEac0NYgVf4hdANpAgApRjNByLXB+WBip3qj1iendOIyAwP2GKkKbQMNVy2r1xxDf0ssfWscoiC+Vw==}
@@ -2663,6 +2675,10 @@ packages:
     resolution: {integrity: sha512-H5UpaUI+aHOqZXlYOaFP/8AzKsg+guWu+Pr3Y8i7+Y3zr1aXAvCvTAQ1RxSc6oVD8R8c7brgNtTVP91E7upH/g==}
     hasBin: true
 
+  js-cookie@3.0.5:
+    resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
+    engines: {node: '>=14'}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -2771,6 +2787,9 @@ packages:
     resolution: {integrity: sha512-0mFCcHcEebOwsQuk00WJwjLI6oCjbBuEYdh/RaRqhjnyVlzqf41T1NnDtCedumZ56qyIh8euLFDqV1KfzTAVhg==}
     engines: {node: '>=10'}
     deprecated: Superseded by abstract-level (https://github.com/Level/community#faq)
+
+  lib-esm@0.4.2:
+    resolution: {integrity: sha512-VGqaEGuryUbT7FLGxXg46nrSzkhLzyk+JQjYoYEORH5UtdIu3yf6DCOqh65FOR3bWOHHGINQH/vR5YGGIFBgJw==}
 
   lilconfig@2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
@@ -3918,6 +3937,9 @@ packages:
     resolution: {integrity: sha512-kqa9v+oi4HwkG6g8ufRnb5AeplcRw8jUF6/7/Qz1qRQOXHImG8YnLbB+LLszENwFnoBl9xIf9nVdCFzNd7GQEg==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
+
+  vite-plugin-resolve@2.5.2:
+    resolution: {integrity: sha512-8twv20M+KIMxkZzAoF1eAUxxxB56NxKdYjIJ309A/30lZ3GAqgiAeGFjVVlLLEpeAcbAwfl9p7jztsQEw7C3Jg==}
 
   vite@5.4.11:
     resolution: {integrity: sha512-c7jFQRklXua0mTzneGW9QVyxFjUgwcihC4bXEtujIo2ouWCe1Ajt/amn2PCxYnhYfd5k09JX3SB7OYWFKYqj8Q==}
@@ -5371,7 +5393,7 @@ snapshots:
 
   '@shield-labs/zklogin-contracts@0.5.0': {}
 
-  '@shield-labs/zklogin@0.5.0(typescript@5.6.3)':
+  '@shield-labs/zklogin@0.6.0(typescript@5.6.3)':
     dependencies:
       '@aztec/bb.js': 0.65.2
       '@aztec/foundation': 0.65.2
@@ -5379,6 +5401,7 @@ snapshots:
       '@noir-lang/noir_js': 1.0.0-beta.0
       '@shield-labs/utils': 0.1.0(typescript@5.6.3)
       '@shield-labs/zklogin-contracts': 0.5.0
+      js-cookie: 3.0.5
       ky: 1.7.2
       lodash-es: 4.17.21
       ox: 0.4.0(typescript@5.6.3)(zod@3.23.8)
@@ -6944,6 +6967,8 @@ snapshots:
 
   jiti@2.4.0: {}
 
+  js-cookie@3.0.5: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@3.14.1:
@@ -7098,6 +7123,8 @@ snapshots:
       level-iterator-stream: 5.0.0
       level-supports: 2.1.0
       queue-microtask: 1.2.3
+
+  lib-esm@0.4.2: {}
 
   lilconfig@2.1.0: {}
 
@@ -8196,6 +8223,10 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  vite-plugin-resolve@2.5.2:
+    dependencies:
+      lib-esm: 0.4.2
 
   vite@5.4.11(@types/node@22.9.0):
     dependencies:

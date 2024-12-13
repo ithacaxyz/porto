@@ -172,7 +172,9 @@ export type BackupZkLoginOption = {
 }
 
 export type RecoverNewAuthentication = {
-  key: AccountDelegation.Key // TODO: can the key be passed in RPC?
+  key: {
+    publicKey: Hex.Hex
+  }
 }
 
 export type RecoverParameters = {

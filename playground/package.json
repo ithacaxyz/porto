@@ -6,8 +6,11 @@
     "dev": "vite"
   },
   "dependencies": {
-    "porto": "workspace:*",
+    "@noir-lang/acvm_js": "1.0.0-beta.0",
+    "@noir-lang/noirc_abi": "1.0.0-beta.0",
+    "buffer": "^6.0.3",
     "ox": "^0.2.2",
+    "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "viem": "catalog:"
@@ -18,6 +21,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "globals": "^15.9.0",
     "typescript": "^5.5.3",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "vite-plugin-resolve": "^2.5.2"
   }
 }
