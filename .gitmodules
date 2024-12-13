@@ -6,4 +6,4 @@
 	url = https://github.com/Vectorized/solady
 [submodule "contracts/lib/zklogin"]
 	path = contracts/lib/zklogin
-	url = https://github.com/olehmisar/zklogin
+	url = https://github.com/shield-labs-xyz/zklogin
