@@ -31,3 +31,29 @@ jobs:
           commit_message: 'chore: format'
           commit_user_name: 'github-actions[bot]'
           commit_user_email: 'github-actions[bot]@users.noreply.github.com'
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build
+        run: pnpm build
+
+      - name: Check build
+        run: pnpm check:build
+
+      - name: Check for unused files, dependencies, and exports
+        run: pnpm check:knip
+        
+      - name: Check size
+        run: pnpm check:size

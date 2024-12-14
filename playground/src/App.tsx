@@ -23,7 +23,7 @@ import { zklogin } from '@shield-labs/zklogin'
 import { serializeKeys } from '../../src/internal/accountDelegation'
 import { ExperimentERC20 } from './contracts'
 
-export const porto = Porto.create()
+const porto = Porto.create()
 
 const client = createClient({
   transport: custom(porto.provider),
@@ -865,7 +865,7 @@ function SignTypedData() {
   )
 }
 
-export const typedData = {
+const typedData = {
   domain: {
     name: 'Ether Mail 🥵',
     version: '1.1.1',

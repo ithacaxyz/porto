@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@tanstack/react-query": "catalog:",
-    "ox": "^0.2.2",
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
