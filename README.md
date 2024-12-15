@@ -76,7 +76,7 @@ Porto can be used in conjunction with [Wagmi](https://wagmi.sh/) to provide a se
 
 #### 1. Set up Wagmi
 
-Get started with Wagmi by following the [official guide](https://wagmi.sh/docs/getting-started).
+Get started with Wagmi by following the [official guide](https://wagmi.sh/react/getting-started).
 
 #### 2. Set up Porto
 
