@@ -3,13 +3,15 @@ packages:
   - 'examples/*'
   - 'playground'
   - 'src'
+  - 'test/browser'
 
 catalog:
   "@tanstack/react-query": "^5.59.20"
   "@types/react": "^18.3.3"
   "@types/react-dom": "^18.3.0"
+  "@vitejs/plugin-react": "^4.3.4"
   react: "^18.3.1"
   react-dom: "^18.3.1"
-  typescript: "^5.5.4"
+  typescript: "^5.6.3"
   viem: "^2.21.51"
   wagmi: "^2.12.30"

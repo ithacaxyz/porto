@@ -1,0 +1,19 @@
+{
+  "name": "browser-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "porto": "workspace:*",
+    "next": "15.1.0",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  }
+}

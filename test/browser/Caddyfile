@@ -1,0 +1,3 @@
+porto.localhost, www.porto.localhost {
+  reverse_proxy localhost:3000
+}

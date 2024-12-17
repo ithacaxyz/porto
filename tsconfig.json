@@ -1,7 +1,13 @@
 {
   // This configuration is used for local development and type checking.
   "extends": "./tsconfig.base.json",
-  "include": ["scripts", "src"],
+  "include": [
+    "scripts",
+    "src",
+    "playwright.config.ts",
+    "vitest.workspace.ts",
+    "wagmi.config.ts"
+  ],
   "exclude": ["src/_dist"],
   "compilerOptions": {
     "baseUrl": "."
