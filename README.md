@@ -46,6 +46,7 @@ Experimental Next-gen Account for Ethereum.
   - [`createAccount`](#createaccount)
   - [`sessions`](#sessions)
 - [Wagmi Reference](#wagmi-reference)
+- [FAQs](#faqs)
 - [Development](#development)
 - [License](#license)
 
@@ -504,6 +505,21 @@ Import via named export or `W` namespace (better autocomplete DX and does not im
 import { W } from 'porto/wagmi' // W.useConnect()
 import { useConnect } from 'porto/wagmi'
 ```
+
+## FAQs
+
+### Is Webauthn required or can any EOA be used?
+Any eoa can be used see [`experimental_importAccount`](#experimental_importaccount)
+
+### Can sessions be revoked?
+Yes, see [`revokable`](https://github.com/ithacaxyz/porto/blob/main/contracts/src/account/ExperimentalDelegation.sol#L132-L141) on the Account contract.
+
+### Do sessions expire?
+Yes, this can be done by calling [`experimental_grantSession`](#experimental_grantsession) with an unix timestamp.
+
+### When a session is created what permissions are granted?
+Currently full control over the account is granted but in the future this can be more restricted, see [`execute`](https://github.com/ithacaxyz/account/blob/main/src/GuardedExecutor.sol#L78-L83) on the account repo.
+
 
 ## Development
 
