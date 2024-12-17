@@ -518,7 +518,7 @@ Yes, see [`revokable`](https://github.com/ithacaxyz/porto/blob/main/contracts/sr
 Yes, this can be done by calling [`experimental_grantSession`](#experimental_grantsession) with an unix timestamp.
 
 ### When a session is created what permissions are granted?
-Currently full control over the account is granted but in the future this can be more restricted, see [`execute`](https://github.com/ithacaxyz/account/blob/main/src/GuardedExecutor.sol#L78-L83) on the account repo.
+Currently full control over the account is granted, but in the future this can be more restricted (see [`execute`](https://github.com/ithacaxyz/account/blob/main/src/GuardedExecutor.sol#L78-L83)).
 
 
 ## Development
