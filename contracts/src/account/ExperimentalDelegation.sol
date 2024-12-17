@@ -20,7 +20,8 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
     /// @notice The type of key.
     enum KeyType {
         P256,
-        WebAuthnP256
+        WebAuthnP256,
+        Secp256k1
     }
 
     /// @notice A Key that can be used to authorize calls.
@@ -205,6 +206,9 @@ contract ExperimentalDelegation is Receiver, MultiSendCallOnly {
             if (key.keyType == KeyType.WebAuthnP256) {
                 WebAuthnP256.Metadata memory metadata = abi.decode(wrappedSignature.metadata, (WebAuthnP256.Metadata));
                 if (WebAuthnP256.verify(digest, metadata, wrappedSignature.signature, key.publicKey)) return success;
+            }
+            if (key.keyType == KeyType.Secp256k1 && ECDSA.verify(digest, wrappedSignature.signature, key.publicKey)) {
+                return success;
             }
         }
 
