@@ -509,7 +509,7 @@ import { useConnect } from 'porto/wagmi'
 ## FAQs
 
 ### Is Webauthn required or can any EOA be used?
-Any eoa can be used see [`experimental_importAccount`](#experimental_importaccount)
+Any EOA can be used see [`experimental_importAccount`](#experimental_importaccount).
 
 ### Can sessions be revoked?
 Yes, see [`revokable`](https://github.com/ithacaxyz/porto/blob/main/contracts/src/account/ExperimentalDelegation.sol#L132-L141) on the Account contract.
