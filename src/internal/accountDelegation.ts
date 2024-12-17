@@ -248,6 +248,28 @@ export declare namespace createWebCryptoKey {
   }
 }
 
+/** Gets a WebCrypto-P256 key in the required type **/
+export function getWebCryptoKey(
+  parameters: getWebCryptoKey.Parameters,
+): WebCryptoKey {
+  const { expiry, publicKey } = parameters
+  return {
+    expiry,
+    publicKey,
+    status: 'locked',
+    type: 'p256',
+  }
+}
+
+export declare namespace getWebCryptoKey {
+  type Parameters = {
+    /** Expiry for the key. */
+    expiry: bigint
+    /** Public key for the key. */
+    publicKey: PublicKey.PublicKey
+  }
+}
+
 /** Gets a Secp256k1Key in the required type **/
 export function getSecp256k1Key(
   parameters: getSecp256k1Key.Parameters,

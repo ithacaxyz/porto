@@ -254,10 +254,15 @@ export function from<
           let keysToDelegate: AccountDelegation.Key[] = []
           if (keys) {
             keysToDelegate = keys.map((key) =>
-              AccountDelegation.getSecp256k1Key({
-                expiry: BigInt(expiry),
-                publicKey: PublicKey.fromHex(key.publicKey),
-              }),
+              key.algorithm === 'secp256k1'
+                ? AccountDelegation.getSecp256k1Key({
+                    expiry: BigInt(expiry),
+                    publicKey: PublicKey.fromHex(key.publicKey),
+                  })
+                : AccountDelegation.getWebCryptoKey({
+                    expiry: BigInt(expiry),
+                    publicKey: PublicKey.fromHex(key.publicKey),
+                  }),
             )
           } else {
             const key = await AccountDelegation.createWebCryptoKey({

@@ -277,10 +277,12 @@ export declare namespace grantSession {
     ConnectorParameter & {
       address?: Address | undefined
       expiry?: number | undefined
-      keys?: {
-        algorithm: 'p256' | 'secp256k1'
-        publicKey: Hex
-      }[] | undefined
+      keys?:
+        | {
+            algorithm: 'p256' | 'secp256k1'
+            publicKey: Hex
+          }[]
+        | undefined
     }
 
   type ReturnType = {
