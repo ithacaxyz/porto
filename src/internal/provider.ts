@@ -287,19 +287,19 @@ export function from<
               ...x,
               accounts: x.accounts.map((account, i) =>
                 i === index
-                  ? { ...account, keys: [...account.keys, ...keysToDelegate] }
+                  ? { ...account, keys: [...account.keys, ...keysToAuthorize] }
                   : account,
               ),
             }
           })
 
           emitter.emit('message', {
-            data: getActiveSessionKeys([...account.keys, ...keysToDelegate]),
+            data: getActiveSessionKeys([...account.keys, ...keysToAuthorize]),
             type: 'sessionsChanged',
           })
 
           const id = Hex.concat(
-            ...keysToDelegate.map((key) => PublicKey.toHex(key.publicKey)),
+            ...keysToAuthorize.map((key) => PublicKey.toHex(key.publicKey)),
           )
 
           return {
