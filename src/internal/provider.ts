@@ -236,7 +236,8 @@ export function from<
           const [
             {
               address,
-              expiry = Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
+              expiry = Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour,
+              keys,
             },
           ] = (params as RpcSchema.ExtractParams<
             Schema.Schema,
@@ -250,14 +251,25 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const key = await AccountDelegation.createWebCryptoKey({
-            expiry: BigInt(expiry),
-          })
+          let keysToDelegate: AccountDelegation.Key[] = []
+          if (keys) {
+            keysToDelegate = keys.map((key) =>
+              AccountDelegation.getSecp256k1Key({
+                expiry: BigInt(expiry),
+                publicKey: PublicKey.fromHex(key.publicKey),
+              }),
+            )
+          } else {
+            const key = await AccountDelegation.createWebCryptoKey({
+              expiry: BigInt(expiry),
+            })
+            keysToDelegate.push(key)
+          }
 
           // TODO: wait for tx to be included?
           await AccountDelegation.authorize(state.client, {
             account,
-            keys: [key],
+            keys: keysToDelegate,
             rpId: keystoreHost,
           })
 
@@ -270,20 +282,24 @@ export function from<
               ...x,
               accounts: x.accounts.map((account, i) =>
                 i === index
-                  ? { ...account, keys: [...account.keys, key] }
+                  ? { ...account, keys: [...account.keys, ...keysToDelegate] }
                   : account,
               ),
             }
           })
 
           emitter.emit('message', {
-            data: getActiveSessionKeys([...account.keys, key]),
+            data: getActiveSessionKeys([...account.keys, ...keysToDelegate]),
             type: 'sessionsChanged',
           })
 
+          const id = Hex.concat(
+            ...keysToDelegate.map((key) => PublicKey.toHex(key.publicKey)),
+          )
+
           return {
             expiry,
-            id: PublicKey.toHex(key.publicKey),
+            id,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'experimental_grantSession'

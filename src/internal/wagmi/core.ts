@@ -252,7 +252,7 @@ export async function grantSession<config extends Config>(
   config: config,
   parameters: grantSession.Parameters<config>,
 ): Promise<grantSession.ReturnType> {
-  const { address, chainId, connector, expiry } = parameters
+  const { address, chainId, connector, expiry, keys } = parameters
 
   const client = await getConnectorClient(config, {
     account: address,
@@ -268,7 +268,7 @@ export async function grantSession<config extends Config>(
     ReturnType: RpcSchema.ExtractReturnType<Schema, method>
   }>({
     method,
-    params: [{ address, expiry }],
+    params: [{ address, expiry, keys }],
   })
 }
 
@@ -277,6 +277,10 @@ export declare namespace grantSession {
     ConnectorParameter & {
       address?: Address | undefined
       expiry?: number | undefined
+      keys?: {
+        algorithm: 'p256' | 'secp256k1'
+        publicKey: Hex
+      }[] | undefined
     }
 
   type ReturnType = {
