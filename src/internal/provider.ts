@@ -251,9 +251,9 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          let keysToDelegate: AccountDelegation.Key[] = []
+          let keysToAuthorize: AccountDelegation.Key[] = []
           if (keys) {
-            keysToDelegate = keys.map((key) =>
+            keysToAuthorize = keys.map((key) =>
               key.algorithm === 'secp256k1'
                 ? AccountDelegation.getSecp256k1Key({
                     expiry: BigInt(expiry),
@@ -268,13 +268,13 @@ export function from<
             const key = await AccountDelegation.createWebCryptoKey({
               expiry: BigInt(expiry),
             })
-            keysToDelegate.push(key)
+            keysToAuthorize.push(key)
           }
 
           // TODO: wait for tx to be included?
           await AccountDelegation.authorize(state.client, {
             account,
-            keys: keysToDelegate,
+            keys: keysToAuthorize,
             rpId: keystoreHost,
           })
 
