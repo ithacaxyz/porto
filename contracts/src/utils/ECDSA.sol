@@ -18,8 +18,16 @@ library ECDSA {
     /// @param signature Signature of the signer
     /// @param publicKey Public key of the signer
     /// @return success Represents if the operation was successful
-    function verify(bytes32 digest, Signature memory signature, PublicKey memory publicKey) internal pure returns (bool) {
-        address signer = ecrecover(digest, signature.v, signature.r, signature.s);
+    function verify(bytes32 digest, Signature memory signature, PublicKey memory publicKey)
+        internal
+        pure
+        returns (bool)
+    {
+        uint8 v = signature.yParity + 27;
+        bytes32 r = bytes32(signature.r);
+        bytes32 s = bytes32(signature.s);
+
+        address signer = ecrecover(digest, v, r, s);
 
         if (signer == address(0)) return false;
 
