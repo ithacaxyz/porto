@@ -99,8 +99,8 @@ export type GrantSessionParameters = {
   expiry?: number | undefined
   keys?:
     | readonly {
-        algorithm: 'p256' | 'secp256k1'
         publicKey: Hex.Hex
+        type: AccountDelegation.KeyType
       }[]
     | undefined
 }

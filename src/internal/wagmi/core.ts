@@ -21,6 +21,7 @@ import {
   disconnect as wagmi_disconnect,
 } from 'wagmi/actions'
 
+import type * as AccountDelegation from '../accountDelegation.js'
 import type {
   CreateAccountParameters,
   GrantSessionParameters,
@@ -279,8 +280,8 @@ export declare namespace grantSession {
       expiry?: number | undefined
       keys?:
         | {
-            algorithm: 'p256' | 'secp256k1'
             publicKey: Hex
+            type: AccountDelegation.KeyType
           }[]
         | undefined
     }

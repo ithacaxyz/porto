@@ -49,7 +49,11 @@ export type Calls = readonly {
   data?: Hex.Hex | undefined
 }[]
 
-export type Key = WebAuthnKey | WebCryptoKey | Secp256k1Key
+export type Key =
+  | WebAuthnKey
+  | WebCryptoKey
+  | Secp256k1Key
+  | BaseKey<'unknown', unknown>
 
 export type SerializedKey = {
   expiry: bigint
@@ -73,10 +77,12 @@ export type Secp256k1Key = BaseKey<'secp256k1', {}>
 ////////////////////////////////////////////////////////////////
 
 const keyType = {
+  unknown: -1,
   p256: 0,
   webauthn: 1,
   secp256k1: 2,
 } as const
+export type KeyType = keyof typeof keyType
 
 const keyTypeSerialized = {
   0: 'p256',
@@ -245,50 +251,6 @@ export declare namespace createWebCryptoKey {
   type Parameters = {
     /** Expiry for the key. */
     expiry: bigint
-  }
-}
-
-/** Gets a WebCrypto-P256 key in the required type **/
-export function getWebCryptoKey(
-  parameters: getWebCryptoKey.Parameters,
-): WebCryptoKey {
-  const { expiry, publicKey } = parameters
-  return {
-    expiry,
-    publicKey,
-    status: 'locked',
-    type: 'p256',
-  }
-}
-
-export declare namespace getWebCryptoKey {
-  type Parameters = {
-    /** Expiry for the key. */
-    expiry: bigint
-    /** Public key for the key. */
-    publicKey: PublicKey.PublicKey
-  }
-}
-
-/** Gets a Secp256k1Key in the required type **/
-export function getSecp256k1Key(
-  parameters: getSecp256k1Key.Parameters,
-): Secp256k1Key {
-  const { expiry, publicKey } = parameters
-  return {
-    expiry,
-    publicKey,
-    status: 'locked',
-    type: 'secp256k1',
-  }
-}
-
-export declare namespace getSecp256k1Key {
-  type Parameters = {
-    /** Expiry for the key. */
-    expiry: bigint
-    /** Public key for the key. */
-    publicKey: PublicKey.PublicKey
   }
 }
 

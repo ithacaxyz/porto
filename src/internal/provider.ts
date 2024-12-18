@@ -253,16 +253,14 @@ export function from<
 
           let keysToAuthorize: AccountDelegation.Key[] = []
           if (keys) {
-            keysToAuthorize = keys.map((key) =>
-              key.algorithm === 'secp256k1'
-                ? AccountDelegation.getSecp256k1Key({
-                    expiry: BigInt(expiry),
-                    publicKey: PublicKey.fromHex(key.publicKey),
-                  })
-                : AccountDelegation.getWebCryptoKey({
-                    expiry: BigInt(expiry),
-                    publicKey: PublicKey.fromHex(key.publicKey),
-                  }),
+            keysToAuthorize = keys.map(
+              (key) =>
+                ({
+                  expiry: BigInt(expiry),
+                  publicKey: PublicKey.fromHex(key.publicKey),
+                  status: 'unlocked',
+                  type: key.type as 'unknown',
+                }) as const,
             )
           } else {
             const key = await AccountDelegation.createWebCryptoKey({
