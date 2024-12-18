@@ -31,7 +31,7 @@ library ECDSA {
 
         if (signer == address(0)) return false;
 
-        bytes memory publicKeyBytes = abi.encodePacked(bytes1(0x04), publicKey.x, publicKey.y);
+        bytes memory publicKeyBytes = abi.encodePacked(publicKey.x, publicKey.y);
 
         bytes32 publicKeyHash = keccak256(publicKeyBytes);
 
