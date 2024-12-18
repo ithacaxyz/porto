@@ -21,6 +21,7 @@ import {
   disconnect as wagmi_disconnect,
 } from 'wagmi/actions'
 
+import type * as AccountDelegation from '../accountDelegation.js'
 import type {
   CreateAccountParameters,
   GrantSessionParameters,
@@ -252,7 +253,7 @@ export async function grantSession<config extends Config>(
   config: config,
   parameters: grantSession.Parameters<config>,
 ): Promise<grantSession.ReturnType> {
-  const { address, chainId, connector, expiry } = parameters
+  const { address, chainId, connector, expiry, keys } = parameters
 
   const client = await getConnectorClient(config, {
     account: address,
@@ -268,7 +269,7 @@ export async function grantSession<config extends Config>(
     ReturnType: RpcSchema.ExtractReturnType<Schema, method>
   }>({
     method,
-    params: [{ address, expiry }],
+    params: [{ address, expiry, keys }],
   })
 }
 
@@ -277,6 +278,12 @@ export declare namespace grantSession {
     ConnectorParameter & {
       address?: Address | undefined
       expiry?: number | undefined
+      keys?:
+        | {
+            publicKey: Hex
+            type: AccountDelegation.KeyType
+          }[]
+        | undefined
     }
 
   type ReturnType = {

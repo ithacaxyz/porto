@@ -49,7 +49,11 @@ export type Calls = readonly {
   data?: Hex.Hex | undefined
 }[]
 
-export type Key = WebAuthnKey | WebCryptoKey
+export type Key =
+  | WebAuthnKey
+  | WebCryptoKey
+  | Secp256k1Key
+  | BaseKey<'unknown', unknown>
 
 export type SerializedKey = {
   expiry: bigint
@@ -66,18 +70,24 @@ export type WebCryptoKey = BaseKey<
   }
 >
 
+export type Secp256k1Key = BaseKey<'secp256k1', {}>
+
 ////////////////////////////////////////////////////////////////
 // Constants
 ////////////////////////////////////////////////////////////////
 
 const keyType = {
+  unknown: -1,
   p256: 0,
   webauthn: 1,
+  secp256k1: 2,
 } as const
+export type KeyType = keyof typeof keyType
 
 const keyTypeSerialized = {
   0: 'p256',
   1: 'webauthn',
+  2: 'secp256k1',
 } as const
 
 ////////////////////////////////////////////////////////////

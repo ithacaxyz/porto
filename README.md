@@ -257,9 +257,10 @@ Grants a session on the account.
     expiry?: number
 
     // The keys to grant on the session.
+    // Defaults to a Web Crypto P256 key.
     keys?: {
-      algorithm: 'p256' | 'secp256k1',
       publicKey: `0x${string}`,
+      type: 'p256' | 'secp256k1' | 'webauthn',
     }[]
   }]
 }
