@@ -6,8 +6,10 @@
     "dev": "vite"
   },
   "dependencies": {
-    "porto": "workspace:*",
+    "@noir-lang/acvm_js": "1.0.0-beta.0",
+    "@noir-lang/noirc_abi": "1.0.0-beta.0",
     "ox": "^0.2.2",
+    "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "viem": "catalog:"

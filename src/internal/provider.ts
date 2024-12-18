@@ -375,6 +375,85 @@ export function from<
           >
         }
 
+        case 'experimental_addBackup': {
+          if (!headless) throw new ox_Provider.UnsupportedMethodError()
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, backupOptions }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_addBackup'
+            >) ?? [{}]
+
+          if (backupOptions.length !== 1) {
+            throw new ox_Provider.UnsupportedMethodError({
+              message:
+                'experimental_addBackup supports only one backup option right now',
+            })
+          }
+          const backupOption = backupOptions[0]!
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          switch (backupOption.type) {
+            case 'zkLogin': {
+              return await AccountDelegation.zkLoginAddBackup(state.client, {
+                account,
+                backupOption: backupOption,
+              })
+            }
+
+            default: {
+              backupOption.type satisfies never
+              throw new ox_Provider.UnsupportedMethodError({
+                message: `experimental_addBackup unknown backup option type: "${backupOption.type}"`,
+              })
+            }
+          }
+        }
+
+        case 'experimental_recover': {
+          if (!headless) throw new ox_Provider.UnsupportedMethodError()
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, backupOption, newAuthentication }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_recover'
+            >) ?? [{}]
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          switch (backupOption.type) {
+            case 'zkLogin': {
+              return await AccountDelegation.zkLoginRecover(state.client, {
+                account,
+                backupOption,
+                newAuthentication,
+              })
+            }
+
+            default: {
+              backupOption.type satisfies never
+              throw new ox_Provider.UnsupportedMethodError({
+                message: `experimental_recover unknown backup option type: "${backupOption.type}"`,
+              })
+            }
+          }
+        }
+
         case 'experimental_sessions': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()

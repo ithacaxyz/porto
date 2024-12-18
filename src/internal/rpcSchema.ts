@@ -3,6 +3,7 @@ import type * as Hex from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
 import type { Authorization } from 'viem/experimental'
 
+import type { zklogin } from '@shield-labs/zklogin'
 import type * as AccountDelegation from './accountDelegation.js'
 
 export type Schema = RpcSchema.From<
@@ -26,6 +27,20 @@ export type Schema = RpcSchema.From<
         params?: [CreateAccountParameters] | undefined
       }
       ReturnType: Address.Address
+    }
+  | {
+      Request: {
+        method: 'experimental_addBackup'
+        params: [AddBackupParameters]
+      }
+      ReturnType: undefined
+    }
+  | {
+      Request: {
+        method: 'experimental_recover'
+        params: [RecoverParameters]
+      }
+      ReturnType: undefined
     }
   | {
       Request: {
@@ -144,3 +159,35 @@ export type PrepareImportAccountReturnType = {
   }
   signPayloads: readonly Hex.Hex[]
 }
+
+export type AddBackupParameters = {
+  address: Address.Address
+  backupOptions: readonly BackupZkLoginOption[]
+}
+
+export type BackupZkLoginOption = {
+  type: 'zkLogin'
+  provider: ZkLoginProvider
+  jwt: string
+}
+
+export type RecoverNewAuthentication = {
+  key: {
+    publicKey: Hex.Hex
+  }
+}
+
+export type RecoverParameters = {
+  address: Address.Address
+  backupOption: RecoverZkLoginOption
+  newAuthentication: RecoverNewAuthentication
+}
+
+export type RecoverZkLoginOption = {
+  type: 'zkLogin'
+  provider: ZkLoginProvider
+  proof: NonNullable<Awaited<ReturnType<zklogin.ZkLogin['proveJwt']>>>
+}
+
+// TODO: import from `@shield-labs/zklogin`
+type ZkLoginProvider = 'google' // | 'apple'

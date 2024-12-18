@@ -1,3 +1,4 @@
+import { zklogin } from '@shield-labs/zklogin'
 import * as AbiParameters from 'ox/AbiParameters'
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
@@ -18,6 +19,7 @@ import {
 } from 'viem/experimental'
 
 import { experimentalDelegationAbi } from '../generated.js'
+import type { BackupZkLoginOption, RecoverParameters } from './rpcSchema.js'
 import type { OneOf, Undefined } from './types.js'
 
 ////////////////////////////////////////////////////////////
@@ -604,6 +606,71 @@ export declare namespace prepareInitialize {
     authorization: Authorization_viem
     signPayload: Hex.Hex
   }
+}
+
+const zkLogin = new zklogin.ZkLogin()
+export async function zkLoginAddBackup<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: zkLoginAddBackup.Parameters,
+) {
+  const { account, backupOption } = parameters
+
+  const accountData = await zkLogin.getAccountDataFromJwt(
+    backupOption.jwt,
+    client.chain!.id,
+  )
+
+  const hash = await writeContract(client, {
+    abi: experimentalDelegationAbi,
+    address: account.address,
+    functionName: 'zkLoginAddBackup',
+    args: [accountData],
+    account: null,
+    chain: null,
+  })
+
+  return hash
+}
+
+export declare namespace zkLoginAddBackup {
+  type Parameters = {
+    account: Account
+    backupOption: BackupZkLoginOption
+  }
+}
+
+export async function zkLoginRecover<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: zkLoginRecover.Parameters,
+) {
+  const { account, backupOption, newAuthentication } = parameters
+
+  const key = account.keys.find(
+    (key) => newAuthentication.key.publicKey === PublicKey.toHex(key.publicKey),
+  )
+  if (!key) {
+    throw new Error('key not found')
+  }
+
+  return await writeContract(client, {
+    abi: experimentalDelegationAbi,
+    address: account.address,
+    functionName: 'zkLoginRecover',
+    args: [
+      backupOption.proof.proof,
+      backupOption.proof.input.public_key_hash,
+      BigInt(backupOption.proof.input.jwt_iat),
+      serializeKeys([key])[0]!,
+    ],
+    account: null,
+    chain: null,
+  })
+}
+
+export declare namespace zkLoginRecover {
+  type Parameters = {
+    account: Account
+  } & Pick<RecoverParameters, 'backupOption' | 'newAuthentication'>
 }
 
 /** Serializes keys into format for the delegation contract. */

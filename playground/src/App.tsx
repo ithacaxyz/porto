@@ -1,4 +1,14 @@
-import { AbiFunction, Hex, Json, PublicKey, TypedData, Value } from 'ox'
+import {
+  AbiFunction,
+  AbiParameters,
+  Address,
+  Hash,
+  Hex,
+  Json,
+  PublicKey,
+  TypedData,
+  Value,
+} from 'ox'
 import { Porto } from 'porto'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { createClient, custom } from 'viem'
@@ -9,6 +19,8 @@ import {
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
+import { zklogin } from '@shield-labs/zklogin'
+import { serializeKeys } from '../../src/internal/accountDelegation'
 import { ExperimentERC20 } from './contracts'
 
 const porto = Porto.create()
@@ -16,8 +28,23 @@ const porto = Porto.create()
 const client = createClient({
   transport: custom(porto.provider),
 })
+const zkLogin = new zklogin.ZkLogin()
+const authProvider = new zklogin.GoogleProvider(
+  import.meta.env.VITE_GOOGLE_CLIENT_ID,
+)
 
 export function App() {
+  useEffect(() => {
+    ;(async () => {
+      if (window.location.pathname.startsWith('/auth')) {
+        try {
+          await authProvider.handleRedirect()
+        } finally {
+          window.location.href = '/'
+        }
+      }
+    })()
+  })
   return (
     <div>
       <State />
@@ -27,6 +54,8 @@ export function App() {
       <ImportAccount />
       <Login />
       <Disconnect />
+      <AddBackup />
+      <Recover />
       <Accounts />
       <GetCapabilities />
       <GrantSession />
@@ -232,6 +261,151 @@ function Disconnect() {
       >
         Disconnect
       </button>
+    </div>
+  )
+}
+
+function AddBackup() {
+  const [result, setResult] = useState<string | undefined>()
+  const [jwt, setJwt] = useState<string | undefined>() // TODO: use tanstack query
+  const [updateCounter, setUpdateCounter] = useState(0)
+  useEffect(() => {
+    updateCounter // trigger re-fetch
+    ;(async () => {
+      const jwt = await authProvider.getJwt()
+      setJwt(jwt)
+    })()
+  }, [updateCounter])
+
+  return (
+    <div>
+      <h3>experimental_addBackup</h3>
+      <p>Logged in: {String(!!jwt)}</p>
+      {!jwt ? (
+        <button
+          type="button"
+          onClick={async () => {
+            await authProvider.signInWithRedirect({ nonce: 'anything' })
+          }}
+        >
+          Sign in with Google
+        </button>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={async () => {
+              await authProvider.signOut()
+              setUpdateCounter((x) => x + 1)
+            }}
+          >
+            Sign out of Google
+          </button>
+          <button
+            onClick={async () => {
+              const jwt = await authProvider.getJwt()
+              if (!jwt) {
+                await authProvider.signInWithRedirect({ nonce: 'anything' })
+                return
+              }
+              const [account] = await porto.provider.request({
+                method: 'eth_accounts',
+              })
+              return porto.provider
+                .request({
+                  method: 'experimental_addBackup',
+                  params: [
+                    {
+                      address: account!,
+                      backupOptions: [
+                        {
+                          type: 'zkLogin',
+                          provider: 'google',
+                          jwt,
+                        },
+                      ],
+                    },
+                  ],
+                })
+                .then(setResult)
+            }}
+            type="button"
+          >
+            Add Backup
+          </button>
+          <pre>{result}</pre>
+        </>
+      )}
+    </div>
+  )
+}
+
+function Recover() {
+  const state = useSyncExternalStore(
+    porto._internal.store.subscribe,
+    () => porto._internal.store.getState(),
+    () => porto._internal.store.getState(),
+  )
+  const [result, setResult] = useState<string | undefined>()
+  return (
+    <div>
+      <h3>experimental_recover</h3>
+      <button
+        onClick={async () => {
+          const [account] = await porto.provider.request({
+            method: 'eth_accounts',
+          })
+          const newKey = state.accounts.find((acc) =>
+            Address.isEqual(acc.address, account),
+          )?.keys[0]
+          if (!newKey) {
+            throw new Error('key not found')
+          }
+          const expectedNonce = Hash.keccak256(
+            AbiParameters.encode(
+              AbiParameters.from([
+                'struct PublicKey { uint256 x; uint256 y; }',
+                'struct Key { uint256 expiry; uint8 keyType; PublicKey publicKey; }',
+                'Key key',
+              ]),
+              [serializeKeys([newKey])[0]!],
+            ),
+          ).slice('0x'.length)
+          const jwt = await authProvider.getJwt()
+          if (!jwt) {
+            await authProvider.signInWithRedirect({ nonce: expectedNonce })
+            return
+          }
+          const proof = await zkLogin.proveJwt(jwt, expectedNonce)
+          if (!proof) {
+            console.error('jwt invalid or expired')
+            await authProvider.signInWithRedirect({ nonce: expectedNonce })
+            return
+          }
+          return porto.provider
+            .request({
+              method: 'experimental_recover',
+              params: [
+                {
+                  address: account!,
+                  backupOption: {
+                    type: 'zkLogin',
+                    provider: 'google',
+                    proof,
+                  },
+                  newAuthentication: {
+                    key: { publicKey: PublicKey.toHex(newKey.publicKey) },
+                  },
+                },
+              ],
+            })
+            .then(setResult)
+        }}
+        type="button"
+      >
+        Recover
+      </button>
+      <pre>{result}</pre>
     </div>
   )
 }
