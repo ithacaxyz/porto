@@ -1,9 +1,7 @@
 'use client'
 
-import { Porto } from 'porto'
+import { porto } from '@/config'
 import { useState } from 'react'
-
-const porto = Porto.create()
 
 export default function Page() {
   const [result, setResult] = useState<string | null>(null)

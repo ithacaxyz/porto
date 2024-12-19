@@ -24,7 +24,7 @@
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "test": "vitest dev",
-    "test:browser": "pnpm exec playwright test"
+    "test:browser": "pnpm exec playwright test -c test/browser/playwright.config.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
