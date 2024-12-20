@@ -185,8 +185,8 @@ export async function createWebAuthnKey(
 
   const key = await WebAuthnP256.createCredential({
     authenticatorSelection: {
-      requireResidentKey: false,
       residentKey: 'preferred',
+      requireResidentKey: false,
       userVerification: 'required',
     },
     rp: rpId
