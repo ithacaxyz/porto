@@ -10,6 +10,9 @@
   ],
   "exclude": ["src/_dist"],
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": [
+      "@vitest/browser/providers/webdriverio"
+    ]
   }
 }

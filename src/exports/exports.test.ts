@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
+import * as index from '../index.js'
 import * as actions from './actions.js'
-import * as index from './index.js'
 import * as query from './query.js'
 import * as wagmi from './wagmi.js'
 
