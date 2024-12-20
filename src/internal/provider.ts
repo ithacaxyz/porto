@@ -62,11 +62,19 @@ export function from<
         case 'eth_requestAccounts': {
           if (!headless) throw new ox_Provider.UnsupportedMethodError()
 
-          const { account } = await AccountDelegation.load(state.client, {
-            rpId: keystoreHost,
-          })
+          const { account, address, credentialId } =
+            await AccountDelegation.load(state.client, {
+              rpId: keystoreHost,
+              address: state.address,
+              credentialId: state.credentialId,
+            })
 
-          store.setState((x) => ({ ...x, accounts: [account] }))
+          store.setState((x) => ({
+            ...x,
+            address,
+            credentialId,
+            accounts: [account],
+          }))
 
           emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
           return [account.address] satisfies RpcSchema.ExtractReturnType<
@@ -163,7 +171,7 @@ export function from<
               })
             : undefined
 
-          const { account } = await (async () => {
+          const { account, address, credentialId } = await (async () => {
             if (createAccount) {
               const { label } =
                 typeof createAccount === 'object' ? createAccount : {}
@@ -177,12 +185,19 @@ export function from<
             return await AccountDelegation.load(state.client, {
               authorizeKeys: key ? [key] : undefined,
               rpId: keystoreHost,
+              address: state.address,
+              credentialId: state.credentialId,
             })
           })()
 
           const sessions = getActiveSessionKeys(account.keys)
 
-          store.setState((x) => ({ ...x, accounts: [account] }))
+          store.setState((x) => ({
+            ...x,
+            address,
+            credentialId,
+            accounts: [account],
+          }))
 
           emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
 
@@ -208,13 +223,19 @@ export function from<
           >) ?? [{}]
 
           // TODO: wait for tx to be included/make counterfactual?
-          const { account } = await AccountDelegation.create(state.client, {
-            delegation: state.delegation,
-            label,
-            rpId: keystoreHost,
-          })
+          const { account, address, credentialId } =
+            await AccountDelegation.create(state.client, {
+              delegation: state.delegation,
+              label,
+              rpId: keystoreHost,
+            })
 
-          store.setState((x) => ({ ...x, accounts: [account] }))
+          store.setState((x) => ({
+            ...x,
+            address,
+            credentialId,
+            accounts: [account],
+          }))
 
           emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
           return account.address satisfies RpcSchema.ExtractReturnType<
