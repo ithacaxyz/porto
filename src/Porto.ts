@@ -64,6 +64,8 @@ export function create(config: Config | undefined = {}): Porto {
         (_, get) => ({
           accounts: [],
           chain: chains[0],
+          address: undefined,
+          credentialId: undefined,
 
           // computed
           get chainId() {
@@ -87,6 +89,8 @@ export function create(config: Config | undefined = {}): Porto {
           merge,
           partialize(state) {
             return {
+              address: state.address,
+              credentialId: state.credentialId,
               accounts: state.accounts.map((account) => ({
                 ...account,
                 keys: account.keys.map((key) => ({
@@ -182,6 +186,8 @@ export type State<
 > = {
   accounts: AccountDelegation.Account[]
   chain: chains[number]
+  address: Address.Address | undefined
+  credentialId: string | undefined
   readonly chainId: chains[number]['id']
   readonly client: Client<
     Transport,
