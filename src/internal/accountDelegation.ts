@@ -157,11 +157,21 @@ export async function create<chain extends Chain | undefined>(
     privateKey,
   })
 
-  return initialize(client, {
+  const { account } = await initialize(client, {
     ...result,
     authorization,
     signature,
   })
+
+  const credentialId = result.account.keys.find(
+    (key) => key.type === 'webauthn',
+  )?.id as string
+
+  return {
+    account,
+    address,
+    credentialId,
+  }
 }
 
 export declare namespace create {
@@ -397,7 +407,6 @@ export async function load<chain extends Chain | undefined>(
   parameters: load.Parameters = {},
 ) {
   const { authorizeKeys = [], rpId } = parameters
-
   let address: Address.Address
   let raw: PublicKeyCredential
   let credentialId: string
@@ -426,7 +435,6 @@ export async function load<chain extends Chain | undefined>(
       address,
       keys: authorizeKeys ?? [],
     })
-
     const { signature, metadata, ...rest } = await WebAuthnP256.sign({
       challenge: payload,
       credentialId,
@@ -511,6 +519,8 @@ export async function load<chain extends Chain | undefined>(
       label,
       keys,
     },
+    address,
+    credentialId,
   }
 }
 
