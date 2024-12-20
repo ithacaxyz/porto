@@ -1,6 +1,10 @@
 import type * as Address from 'ox/Address'
 import { http, type Client, type Transport, createClient } from 'viem'
-import { persist, subscribeWithSelector } from 'zustand/middleware'
+import {
+  type PersistStorage,
+  persist,
+  subscribeWithSelector,
+} from 'zustand/middleware'
 import { type Mutate, type StoreApi, createStore } from 'zustand/vanilla'
 
 import * as Chains from './Chains.js'
@@ -43,6 +47,7 @@ export function create(config: Config | undefined = {}): Porto {
     chains = defaultConfig.chains,
     headless = defaultConfig.headless,
     keystoreHost: keystoreHost_ = defaultConfig.keystoreHost,
+    storage = Storage.idb,
     transports = defaultConfig.transports,
   } = config
 
@@ -97,7 +102,7 @@ export function create(config: Config | undefined = {}): Porto {
               chain: state.chain,
             } as unknown as State
           },
-          storage: Storage.idb,
+          storage,
         },
       ),
     ),
@@ -168,6 +173,11 @@ export type Config<
    * @default 'self'
    */
   keystoreHost?: 'self' | (string & {}) | undefined
+  /**
+   * Storage to use for persistence
+   * @default Storage.idb
+   */
+  storage?: PersistStorage<State> | undefined
   /**
    * Transport to use for each chain.
    */

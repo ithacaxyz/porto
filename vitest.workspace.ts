@@ -20,7 +20,7 @@ export default defineWorkspace([
           ...getWebauthnCommands(),
         },
         enabled: true,
-        headless: false,
+        headless: true,
         name: 'chrome',
         provider: 'webdriverio',
         providerOptions: {},
@@ -47,13 +47,13 @@ declare module '@vitest/browser/context' {
 
 function getWebauthnCommands() {
   return {
-    addVirtualAuthenticator(ctx, payload) {
+    addVirtualAuthenticator(ctx, payload = {}) {
       const {
         protocol = 'ctap2',
         transport = 'internal',
         hasResidentKey = true,
         hasUserVerification = true,
-        isUserConsenting,
+        isUserConsenting = true,
         isUserVerified = true,
         extensions,
         uvm,
@@ -72,10 +72,16 @@ function getWebauthnCommands() {
     getCredentials(ctx, authenticatorId) {
       return ctx.browser.getCredentials(authenticatorId)
     },
+    setUserVerified(ctx, authenticatorId) {
+      return ctx.browser.setUserVerified(authenticatorId)
+    },
   } as const satisfies {
-    addVirtualAuthenticator: BrowserCommand<[payload: Payload]>
+    addVirtualAuthenticator: BrowserCommand<[payload: Payload | undefined]>
     getCredentials: BrowserCommand<
       Parameters<WebdriverIO.Browser['getCredentials']>
+    >
+    setUserVerified: BrowserCommand<
+      Parameters<WebdriverIO.Browser['setUserVerified']>
     >
   }
 }
@@ -85,7 +91,7 @@ type Payload = {
   transport?: addVirtualAuthenticator[1]
   hasResidentKey?: addVirtualAuthenticator[2]
   hasUserVerification?: addVirtualAuthenticator[3]
-  isUserConsenting: addVirtualAuthenticator[4]
+  isUserConsenting?: addVirtualAuthenticator[4]
   isUserVerified?: addVirtualAuthenticator[5]
   extensions?: addVirtualAuthenticator[6]
   uvm?: addVirtualAuthenticator[7]

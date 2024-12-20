@@ -1,12 +1,12 @@
-import { http, type Chain } from 'viem'
-import * as React from 'react'
 import {
-  renderHook as rtl_renderHook,
-  waitFor as rtl_waitFor,
   type RenderHookOptions,
   type RenderHookResult,
+  renderHook as rtl_renderHook,
+  waitFor as rtl_waitFor,
   type waitForOptions,
 } from '@testing-library/react'
+import * as React from 'react'
+import { http, type Chain } from 'viem'
 
 import { Chains, Porto } from './index.js'
 
@@ -30,6 +30,11 @@ export function getPorto() {
     transports: {
       [odysseyTestnet.id]: http(),
     },
+    storage: {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    },
   })
 }
 
@@ -43,68 +48,40 @@ export function waitFor<type>(
 export function run<result, props>(
   action: (props: props) => Promise<result>,
   options: Omit<RenderHookOptions<props>, 'wrapper'> & { name: string },
-): RenderHookResult<result, props> {
+): RenderHookResult<
+  { error: Error | undefined; result: result | undefined },
+  props
+> {
   function useTestHook(props: props) {
-    const { setData } = React.useContext(context)
-    const [result, setResult] = React.useState<result | null>(null)
+    const [result, setResult] = React.useState<result>()
+    const [error, setError] = React.useState<Error>()
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     React.useEffect(() => {
-      action(props).then((res) => {
-        setResult(res)
-        setData(res)
-      })
+      action(props).then(setResult).catch(setError)
     }, [])
-    return result as result
-  }
-
-  const context = React.createContext<{
-    data: unknown
-    setData: React.Dispatch<unknown>
-  }>({ data: null, setData: () => {} })
-  function Provider(props: React.PropsWithChildren) {
-    const [data, setData] = React.useState<unknown>()
-    return React.createElement(
-      context.Provider,
-      { value: { data, setData } },
-      props.children,
-    )
-  }
-  function Content(props: React.PropsWithChildren) {
-    const { data } = React.useContext(context)
-    return React.createElement(
-      'div',
-      null,
-      React.createElement('h1', null, options.name),
-      React.createElement('pre', null, JSON.stringify(data, null, 2)),
-      props.children,
-    )
+    return { error, result } as {
+      error: Error | undefined
+      result: result | undefined
+    }
   }
 
   const style = `
 :root {
-  background-color: light-dark(#f8f8f8, #191919);
-  color: light-dark(#191919, #f8f8f8);
+  background-color: light-dark(#fff, #141414);
+  color: light-dark(#141414, #fff);
   color-scheme: light dark;
 }
-html {
-  font-size: 16px;
-  font-family: monospace;
-}
-body { padding: 1rem; }
-h1 { font-size: 1rem; }
-pre {
-  font-size: 0.85rem; 
-  white-space: pre-wrap;
-}
+h1 { font-size: 20px; }
 `
   return rtl_renderHook(useTestHook, {
     ...options,
     wrapper(props) {
       return React.createElement(
-        Provider,
+        'div',
         null,
         React.createElement('style', null, style),
-        React.createElement(Content, null, props.children),
+        React.createElement('h1', null, options.name),
+        props.children as React.ReactNode,
       )
     },
   })
