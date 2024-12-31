@@ -19,7 +19,7 @@
     "dev": "pnpm preconstruct && pnpm --filter playground dev",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example dev",
     "format": "biome format --write",
-    "postinstall": "pnpm preconstruct",
+    "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
     "preconstruct": "tsx ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks"
