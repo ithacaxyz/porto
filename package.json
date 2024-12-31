@@ -22,7 +22,8 @@
     "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
     "preconstruct": "tsx ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
-    "prepare": "pnpm simple-git-hooks"
+    "prepare": "pnpm simple-git-hooks",
+    "test": "vitest -c ./test/vitest.config.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
@@ -35,6 +36,8 @@
     "@types/react": "catalog:",
     "@wagmi/cli": "^2.1.18",
     "knip": "^5.30.6",
+    "ox": "^0.6.0",
+    "prool": "^0.0.16",
     "publint": "^0.2.12",
     "sherif": "^0.11.0",
     "simple-git-hooks": "^2.11.1",
@@ -42,6 +45,7 @@
     "tsx": "^4.17.0",
     "typescript": "catalog:",
     "viem": "catalog:",
+    "vitest": "^2.1.8",
     "wagmi": "catalog:"
   },
   "packageManager": "pnpm@9.7.0",
