@@ -401,21 +401,48 @@ export async function load<chain extends Chain | undefined>(
   let address: Address.Address
   let raw: PublicKeyCredential
   let credentialId: string
-  if (parameters.address && parameters.credentialId) {
-    address = parameters.address
-    credentialId = parameters.credentialId
-  } else {
-    // We will sign a random challenge. We need to do this to extract the
-    // user id (ie. the address) to query for the Account's keys.
-    const credential = await WebAuthnP256.sign({
-      challenge: '0x',
-      rpId,
-    })
 
-    const response = credential.raw.response as AuthenticatorAssertionResponse
-    address = Bytes.toHex(new Uint8Array(response.userHandle!))
-    credentialId = credential.raw.id
-    raw = credential.raw
+  try {
+    // Try to use stored credentials first
+    if (parameters.address && parameters.credentialId) {
+      address = parameters.address
+      credentialId = parameters.credentialId
+
+      // We still need to get the raw credential for later use
+      const credential = await WebAuthnP256.sign({
+        challenge: '0x',
+        credentialId,
+        rpId,
+      })
+      raw = credential.raw
+    } else {
+      // Fall back to original flow if no stored credentials
+      const credential = await WebAuthnP256.sign({
+        challenge: '0x',
+        rpId,
+      })
+
+      const response = credential.raw.response as AuthenticatorAssertionResponse
+      address = Bytes.toHex(new Uint8Array(response.userHandle!))
+      credentialId = credential.raw.id
+      raw = credential.raw
+
+      // Persist credentials for future use
+      await persistCredentials({ address, credentialId })
+    }
+  } catch (error) {
+    // Handle invalid stored credentials
+    if (parameters.address && parameters.credentialId) {
+      // Clear invalid stored credentials
+      await clearStoredCredentials()
+      // Retry without stored credentials
+      return load(client, {
+        ...parameters,
+        address: undefined,
+        credentialId: undefined,
+      })
+    }
+    throw error
   }
 
   // If there are extra keys to authorize (ie. session keys), sign over them.
@@ -708,4 +735,23 @@ function getWebAuthnMetadata(metadata: WebAuthnP256.SignMetadata) {
     ]),
     [metadata],
   )
+}
+
+async function persistCredentials(credentials: {
+  address: Address.Address
+  credentialId: string
+}) {
+  try {
+    localStorage.setItem('accountCredentials', JSON.stringify(credentials))
+  } catch (error) {
+    console.warn('Failed to persist account credentials:', error)
+  }
+}
+
+async function clearStoredCredentials() {
+  try {
+    localStorage.removeItem('accountCredentials')
+  } catch (error) {
+    console.warn('Failed to clear account credentials:', error)
+  }
 }
