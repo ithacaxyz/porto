@@ -74,6 +74,7 @@ export function create(config: Config | undefined = {}): Porto {
             return createClient({
               chain,
               transport: (transports as Record<number, Transport>)[chain.id]!,
+              pollingInterval: 1_000,
             })
           },
           get delegation() {
