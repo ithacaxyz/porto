@@ -46,8 +46,30 @@ export async function execute<
   client: Client<Transport, chain>,
   parameters: execute.Parameters<calls, chain>,
 ): Promise<execute.ReturnType> {
-  const { account, authorization, executor, nonce, signatures, ...rest } =
-    parameters
+  const { request, signatures } = await (async () => {
+    const { account, nonce, keyIndex, signatures } = parameters
+
+    if (nonce && signatures) return { request: parameters, signatures }
+    if (account.type !== 'delegated')
+      return { request: parameters, signatures: undefined }
+
+    const { request, signPayloads } = await prepareExecute(client, parameters)
+
+    if (signPayloads.length > 1 && !account.sign) throw new Error('unsupported')
+
+    return {
+      request,
+      signatures: await Promise.all(
+        signPayloads.map((payload) => {
+          if (typeof keyIndex === 'number' && account.keys)
+            return account.keys[keyIndex]!.sign!({ payload })
+          return account.sign!({ payload })
+        }),
+      ),
+    }
+  })()
+
+  const { account, authorization, executor, nonce, ...rest } = request
 
   const [executeSignature, authorizationSignature] = signatures || []
 
@@ -123,6 +145,12 @@ export declare namespace execute {
            * Signature for execution. Required if the `executor` is not the EOA.
            */
           signatures: readonly Hex.Hex[]
+        }
+      | {
+          /**
+           * Index of the key to use for execution.
+           */
+          keyIndex: number
         }
       | {}
     >

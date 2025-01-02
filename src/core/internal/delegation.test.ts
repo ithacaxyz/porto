@@ -38,6 +38,51 @@ async function setup() {
 
 describe('execute', () => {
   describe('authorize call', () => {
+    test.skip('', async () => {
+      const { account: eoa } = await setup()
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+      const account = Account.from({
+        ...eoa,
+        keys: [key],
+      })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          Call.authorize({
+            key,
+            to: account.address,
+          }),
+        ],
+        executor: null,
+      })
+
+      expect(
+        await Delegation.keyAt(client, {
+          account,
+          index: 0,
+        }),
+      ).toEqual({
+        ...key,
+        sign: undefined,
+      })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: Value.fromEther('0.1'),
+          },
+        ],
+        executor: null,
+        keyIndex: 0,
+      })
+    })
+
     test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account } = await setup()
 

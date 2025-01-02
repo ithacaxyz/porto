@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 
 import type * as Key from './key.js'
+import type { PartialBy } from './types.js'
 
 /** A delegated account. */
 export type Account = {
@@ -10,6 +11,7 @@ export type Account = {
   keys?: readonly Key.Key[] | undefined
   label?: string | undefined
   sign?: (parameters: { payload: Hex.Hex }) => Hex.Hex | undefined
+  type: 'delegated'
 }
 
 /**
@@ -18,8 +20,8 @@ export type Account = {
  * @param account - Account to instantiate.
  * @returns An instantiated delegated account.
  */
-export function from<const account extends Account>(
-  account: account | Account,
-): account {
-  return account as never
+export function from<const account extends PartialBy<Account, 'type'>>(
+  account: account | PartialBy<Account, 'type'>,
+): account & { type: 'delegated' } {
+  return { ...account, type: 'delegated' } as never
 }
