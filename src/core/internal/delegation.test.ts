@@ -1,48 +1,19 @@
-import { Address, Secp256k1, Signature, Value } from 'ox'
+import { Secp256k1, Value } from 'ox'
 import { privateKeyToAccount } from 'viem/accounts'
-import { getBalance, sendTransaction, setBalance } from 'viem/actions'
+import { getBalance, sendTransaction } from 'viem/actions'
 import { signAuthorization } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
 
-import { porto } from '../../../test/src/config.js'
-import * as Account from './account.js'
+import { getAccount } from '../../../test/src/account.js'
+import { client, delegation } from '../../../test/src/porto.js'
 import * as Call from './call.js'
 import * as Delegation from './delegation.js'
 import * as Key from './key.js'
 
-const state = porto._internal.store.getState()
-const client = state.client.extend(() => ({ mode: 'anvil' }))
-
-async function setup() {
-  const privateKey = Secp256k1.randomPrivateKey()
-  const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
-
-  await setBalance(client, {
-    address,
-    value: Value.fromEther('2'),
-  })
-
-  const key = Key.fromSecp256k1({
-    privateKey,
-    role: 'owner',
-  })
-
-  const account = Account.from({
-    address,
-    delegation: state.delegation,
-    keys: [key],
-  })
-
-  return {
-    account,
-    privateKey,
-  }
-}
-
 describe('execute', () => {
   describe('authorize', () => {
-    test('delegated: false, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { account } = await setup()
+    test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { account } = await getAccount(client, { delegation })
 
       const key = Key.createP256({
         role: 'admin',
@@ -70,12 +41,14 @@ describe('execute', () => {
       })
     })
 
-    test('delegated: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { account, privateKey } = await setup()
+    test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { account, privateKey } = await getAccount(client, {
+        delegation,
+      })
 
       const authorization = await signAuthorization(client, {
         account: privateKeyToAccount(privateKey),
-        contractAddress: state.delegation,
+        contractAddress: delegation,
         delegate: true,
       })
       await sendTransaction(client, {
@@ -109,8 +82,10 @@ describe('execute', () => {
       })
     })
 
-    test('delegated: false, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
-      const { account, privateKey } = await setup()
+    test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
+      const { account, privateKey } = await getAccount(client, {
+        delegation,
+      })
 
       const key = Key.createP256({
         role: 'admin',
@@ -139,12 +114,14 @@ describe('execute', () => {
       })
     })
 
-    test('delegated: true, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
-      const { account, privateKey } = await setup()
+    test('delegated: true, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
+      const { account, privateKey } = await getAccount(client, {
+        delegation,
+      })
 
       const authorization = await signAuthorization(client, {
         account: privateKeyToAccount(privateKey),
-        contractAddress: state.delegation,
+        contractAddress: delegation,
         delegate: true,
       })
       await sendTransaction(client, {
@@ -180,7 +157,7 @@ describe('execute', () => {
     })
 
     test.skip('key: P256, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { account } = await setup()
+      const { account } = await getAccount(client, { delegation })
 
       const key = Key.createP256({
         role: 'admin',
@@ -225,14 +202,16 @@ describe('execute', () => {
   })
 
   describe('arbitrary calls', () => {
-    test('delegated: true, key: EOA, executor: EOA', async () => {
-      const { account, privateKey } = await setup()
+    test('delegated: true, key: owner, executor: EOA', async () => {
+      const { account, privateKey } = await getAccount(client, {
+        delegation,
+      })
 
       const eoa = privateKeyToAccount(privateKey)
 
       const authorization = await signAuthorization(client, {
         account: eoa,
-        contractAddress: state.delegation,
+        contractAddress: delegation,
         delegate: true,
       })
       await sendTransaction(client, {
@@ -250,7 +229,6 @@ describe('execute', () => {
         getBalance(client, { address: bob.address }),
       ])
 
-      expect(balances_before[0]).toEqual(Value.fromEther('2'))
       expect(balances_before[1]).toEqual(Value.fromEther('0'))
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
@@ -280,8 +258,8 @@ describe('execute', () => {
 
 describe('prepareExecute', () => {
   describe('authorize', () => {
-    test('delegated: false, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { account } = await setup()
+    test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { account } = await getAccount(client, { delegation })
 
       const key = account.keys[0]
 
@@ -323,12 +301,14 @@ describe('prepareExecute', () => {
       })
     })
 
-    test('delegated: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { account, privateKey } = await setup()
+    test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { account, privateKey } = await getAccount(client, {
+        delegation,
+      })
 
       const authorization = await signAuthorization(client, {
         account: privateKeyToAccount(privateKey),
-        contractAddress: state.delegation,
+        contractAddress: delegation,
         delegate: true,
       })
       await sendTransaction(client, {
@@ -376,8 +356,10 @@ describe('prepareExecute', () => {
       })
     })
 
-    test('delegated: false, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
-      const { account, privateKey } = await setup()
+    test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
+      const { account, privateKey } = await getAccount(client, {
+        delegation,
+      })
 
       const key = account.keys[0]
 
@@ -424,11 +406,13 @@ describe('prepareExecute', () => {
 
 describe('getExecuteSignPayload', () => {
   test('default', async () => {
-    const { account, privateKey } = await setup()
+    const { account, privateKey } = await getAccount(client, {
+      delegation,
+    })
 
     const authorization = await signAuthorization(client, {
       account: privateKeyToAccount(privateKey),
-      contractAddress: state.delegation,
+      contractAddress: delegation,
       delegate: true,
     })
     await sendTransaction(client, {
@@ -456,7 +440,7 @@ describe('getExecuteSignPayload', () => {
   })
 
   test('behavior: account not delegated yet', async () => {
-    const { account } = await setup()
+    const { account } = await getAccount(client, { delegation })
 
     const key = Key.createP256({
       role: 'admin',

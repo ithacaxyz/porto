@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest'
 
-import { anvil, porto } from '../../../test/src/config.js'
+import { delegation, porto } from '../../../test/src/porto.js'
 
 test('default', async () => {
   const code = await porto.provider.request({
     method: 'eth_getCode',
-    params: [anvil.contracts.accountDelegation.address, 'latest'],
+    params: [delegation, 'latest'],
   })
   expect(code).toMatchSnapshot()
 })

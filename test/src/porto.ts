@@ -4,7 +4,7 @@ import * as chains from 'viem/chains'
 
 import { anvilMainnet } from './anvil.js'
 
-export const anvil = defineChain({
+const anvil = defineChain({
   ...chains.mainnet,
   contracts: {
     ...chains.mainnet.contracts,
@@ -23,3 +23,7 @@ export const porto = Porto.create({
     [anvil.id]: custom(anvilMainnet),
   },
 })
+
+export const state = porto._internal.store.getState()
+export const client = state.client.extend(() => ({ mode: 'anvil' }))
+export const delegation = state.delegation
