@@ -6,6 +6,12 @@ export default defineConfig({
     alias: {
       porto: join(__dirname, '../src'),
     },
+    coverage: {
+      all: false,
+      include: ['**/src/**'],
+      provider: 'v8',
+      reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
+    },
     globalSetup: [join(__dirname, './globalSetup.ts')],
     include: ['src/**/*.test.ts'],
     passWithNoTests: true,

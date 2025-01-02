@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "porto": "workspace:*",
-    "ox": "^0.2.2",
+    "ox": "^0.6.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "viem": "catalog:"

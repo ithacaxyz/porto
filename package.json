@@ -34,6 +34,7 @@
     "@tanstack/react-query": "catalog:",
     "@types/node": "^22.5.4",
     "@types/react": "catalog:",
+    "@vitest/coverage-v8": "2.1.8",
     "@wagmi/cli": "^2.1.18",
     "knip": "^5.30.6",
     "ox": "^0.6.0",
