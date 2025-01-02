@@ -22,12 +22,15 @@ async function setup() {
     value: Value.fromEther('2'),
   })
 
+  const key = Key.fromSecp256k1({
+    privateKey,
+    role: 'owner',
+  })
+
   const account = Account.from({
     address,
     delegation: state.delegation,
-    sign({ payload }) {
-      return Signature.toHex(Secp256k1.sign({ privateKey, payload }))
-    },
+    keys: [key],
   })
 
   return {
@@ -37,7 +40,7 @@ async function setup() {
 }
 
 describe('execute', () => {
-  describe('authorize call', () => {
+  describe('authorize', () => {
     test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account } = await setup()
 
@@ -54,7 +57,6 @@ describe('execute', () => {
           }),
         ],
         delegate: true,
-        executor: null,
       })
 
       expect(
@@ -94,7 +96,6 @@ describe('execute', () => {
             to: account.address,
           }),
         ],
-        executor: null,
       })
 
       expect(
@@ -177,14 +178,60 @@ describe('execute', () => {
         sign: undefined,
       })
     })
+
+    test.skip('counterfactual: true, key: P256, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { account } = await setup()
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          Call.authorize({
+            key,
+            to: account.address,
+          }),
+        ],
+        delegate: true,
+      })
+
+      const nextKey = Key.createP256({
+        role: 'admin',
+      })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          Call.authorize({
+            key: nextKey,
+            to: account.address,
+          }),
+        ],
+        key,
+      })
+
+      expect(
+        await Delegation.keyAt(client, {
+          account,
+          index: 1,
+        }),
+      ).toEqual({
+        ...nextKey,
+        sign: undefined,
+      })
+    })
   })
 
   describe('arbitrary calls', () => {
     test('counterfactual: false, key: EOA, executor: EOA', async () => {
       const { account, privateKey } = await setup()
 
+      const eoa = privateKeyToAccount(privateKey)
+
       const authorization = await signAuthorization(client, {
-        account: privateKeyToAccount(privateKey),
+        account: eoa,
         contractAddress: state.delegation,
         delegate: true,
       })
@@ -208,11 +255,12 @@ describe('execute', () => {
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
       await Delegation.execute(client, {
-        account: privateKeyToAccount(privateKey),
+        account: eoa,
         calls: [
           { to: alice.address, value: Value.fromEther('1') },
           { to: bob.address, value: Value.fromEther('0.5') },
         ],
+        executor: eoa,
       })
 
       const balances_after = await Promise.all([
@@ -231,7 +279,7 @@ describe('execute', () => {
 })
 
 describe('prepareExecute', () => {
-  describe('authorize call', () => {
+  describe('authorize', () => {
     test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account } = await setup()
 
@@ -250,12 +298,11 @@ describe('prepareExecute', () => {
             }),
           ],
           delegate: true,
-          executor: null,
         },
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.sign({ payload })),
+        signPayloads.map((payload) => account.keys[0].sign({ payload })),
       )
 
       await Delegation.execute(client, {
@@ -302,12 +349,11 @@ describe('prepareExecute', () => {
               to: account.address,
             }),
           ],
-          executor: null,
         },
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.sign({ payload })),
+        signPayloads.map((payload) => account.keys[0].sign({ payload })),
       )
 
       await Delegation.execute(client, {
@@ -349,7 +395,7 @@ describe('prepareExecute', () => {
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.sign({ payload })),
+        signPayloads.map((payload) => account.keys[0].sign({ payload })),
       )
 
       await Delegation.execute(client, {

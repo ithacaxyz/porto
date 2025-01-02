@@ -46,32 +46,22 @@ export async function execute<
   parameters: execute.Parameters<calls, chain>,
 ): Promise<execute.ReturnType> {
   const { request, signatures } = await (async () => {
-    const { account, keyIndex } = parameters
+    const { account, key } = parameters
 
     if (parameters.nonce && parameters.signatures)
       return { request: parameters, signatures: parameters.signatures }
     if (account.type !== 'delegated')
       return { request: parameters, signatures: undefined }
 
-    const { request, signPayloads } = await prepareExecute(client, parameters)
-
-    const [executePayload, authorizationPayload] = signPayloads
-
-    if (authorizationPayload && !account.sign) throw new Error('unsupported')
-
-    const signatures = await Promise.all([
-      (async () => {
-        if (typeof keyIndex === 'number' && account.keys)
-          return await account.keys[keyIndex]!.sign!({
-            payload: executePayload,
-          })
-        return account.sign!({ payload: executePayload })
-      })(),
-      authorizationPayload
-        ? account.sign!({ payload: authorizationPayload })
-        : undefined,
-    ])
-
+    const { request, signPayloads: payloads } = await prepareExecute(
+      client,
+      parameters,
+    )
+    const signatures = await sign({
+      account,
+      key,
+      payloads,
+    })
     return {
       request,
       signatures,
@@ -107,7 +97,7 @@ export async function execute<
     return await execute_viem(client, {
       ...rest,
       address: account.address,
-      account: typeof executor === 'undefined' ? account : executor,
+      account: typeof executor === 'undefined' ? null : executor,
       authorizationList,
       opData,
     } as ExecuteParameters)
@@ -140,10 +130,9 @@ export declare namespace execute {
      * The executor of the execute transaction.
      *
      * - `Account`: execution will be attempted with the specified account.
-     * - `null`: the transaction will be filled by the JSON-RPC server.
-     * - `undefined`: execution will be attempted with the `account` value.
+     * - `undefined`: the transaction will be filled by the JSON-RPC server.
      */
-    executor?: Account | undefined | null
+    executor?: Account | undefined
   } & OneOf<
       | {
           /**
@@ -161,9 +150,9 @@ export declare namespace execute {
         }
       | {
           /**
-           * Index of the key to use for execution.
+           * Key to use for execution.
            */
-          keyIndex: number
+          key: number | Key.Key
         }
       | {}
     >
@@ -205,7 +194,7 @@ export async function prepareExecute<
         const authorization = await prepareAuthorization(client, {
           account: account.address,
           contractAddress: account.delegation,
-          delegate: executor === null || executor,
+          delegate: !executor || executor,
         })
         return [
           authorization,
@@ -262,10 +251,9 @@ export declare namespace prepareExecute {
      * The executor of the execute transaction.
      *
      * - `Account`: execution will be attempted with the specified account.
-     * - `null`: the transaction will be filled by the JSON-RPC server.
-     * - `undefined`: execution will be attempted with the `account` value.
+     * - `undefined`: the transaction will be filled by the JSON-RPC server.
      */
-    executor?: Account | undefined | null
+    executor?: Account | undefined
     /**
      * Nonce to use for execution that will be invalidated by the delegated account.
      */
@@ -276,13 +264,13 @@ export declare namespace prepareExecute {
     calls extends readonly unknown[] = readonly unknown[],
     chain extends Chain | undefined = Chain | undefined,
   > = {
-    signPayloads:
-      | [executePayload: Hex.Hex]
-      | [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
     request: Parameters<calls, chain> & {
       authorization?: Authorization_viem | undefined
       nonce: bigint
     }
+    signPayloads:
+      | [executePayload: Hex.Hex]
+      | [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
   }
 }
 
@@ -316,6 +304,9 @@ export async function getEip712Domain<chain extends Chain | undefined>(
 
 export declare namespace getEip712Domain {
   export type Parameters = {
+    /**
+     * The delegated account to get the EIP-712 domain for.
+     */
     account: DelegatedAccount.Account | Account
   }
 }
@@ -389,9 +380,21 @@ export declare namespace getExecuteSignPayload {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
   > = {
+    /**
+     * The delegated account to execute the calls on.
+     */
     account: DelegatedAccount.Account | Account
+    /**
+     * Calls to execute.
+     */
     calls: calls
+    /**
+     * Nonce to use for execution that will be invalidated by the delegated account.
+     */
     nonce: bigint
+    /**
+     * Nonce salt.
+     */
     nonceSalt?: bigint | undefined
   }
 }
@@ -421,7 +424,95 @@ export async function keyAt<chain extends Chain | undefined>(
 
 export declare namespace keyAt {
   export type Parameters = {
+    /**
+     * The delegated account to extract the key from.
+     */
     account: DelegatedAccount.Account | Account
+    /**
+     * Index of the key to extract.
+     */
     index: number
   }
+}
+
+/**
+ * Extracts a signing key from a delegated account and signs payload(s).
+ *
+ * @example
+ * TODO
+ *
+ * @param parameters - Parameters.
+ * @returns Signatures.
+ */
+export async function sign(
+  parameters: sign.Parameters,
+): Promise<sign.ReturnType> {
+  const { account, key, payloads } = parameters
+
+  const [payload, authorizationPayload] = payloads
+
+  // In order to sign (and perform) an authorization, we need the EOA's root key.
+  // We will extract an "owner" key from either the `key` parameter or the provided `account`.
+  const ownerKey = (() => {
+    // Extract from `key` parameter.
+    if (typeof key === 'object' && key.role === 'owner') return key
+    if (typeof key === 'number' && account.keys?.[key]?.role === 'owner')
+      return account.keys[key]
+
+    // Extract from the `account`.
+    return account.keys?.find((key) => key.role === 'owner')
+  })()
+
+  // If we have an authorization payload, but no "owner" key on the account,
+  // then we cannot perform an authorization as we need the EOA's private key.
+  if (authorizationPayload && !ownerKey?.sign)
+    throw new Error('account does not have an owner key.')
+
+  // Extract a key to sign the payload with.
+  const signingKey = (() => {
+    // Extract from `key` parameter.
+    if (typeof key === 'object') return key
+
+    // Extract from the `account` (with optional `key` index).
+    if (!account.keys) return undefined
+    if (typeof key === 'number') return account.keys[key]
+    return account.keys[0]
+  })()
+
+  // If the account has no valid signing key, then we cannot sign the payload.
+  if (!signingKey || !signingKey.sign)
+    throw new Error('cannot find key to sign with.')
+
+  // Sign the payload(s).
+  const signatures = await Promise.all([
+    signingKey.sign({ payload }),
+    authorizationPayload && ownerKey?.sign
+      ? ownerKey.sign({ payload: authorizationPayload })
+      : undefined,
+  ])
+
+  return signatures as never
+}
+
+export declare namespace sign {
+  type Parameters = {
+    /**
+     * The delegated account to sign the payloads for.
+     */
+    account: DelegatedAccount.Account
+    /**
+     * Key to sign the payloads with. If not provided, a key will be extracted from the `account`.
+     */
+    key?: number | Key.Key | undefined
+    /**
+     * Payloads to sign.
+     */
+    payloads:
+      | [executePayload: Hex.Hex]
+      | [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
+  }
+
+  type ReturnType =
+    | [executeSignature: Hex.Hex]
+    | [executeSignature: Hex.Hex, authorizationSignature: Hex.Hex]
 }
