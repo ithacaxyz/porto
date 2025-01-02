@@ -41,7 +41,7 @@ async function setup() {
 
 describe('execute', () => {
   describe('authorize', () => {
-    test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test('delegated: false, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account } = await setup()
 
       const key = Key.createP256({
@@ -70,7 +70,7 @@ describe('execute', () => {
       })
     })
 
-    test('counterfactual: false, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test('delegated: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account, privateKey } = await setup()
 
       const authorization = await signAuthorization(client, {
@@ -109,7 +109,7 @@ describe('execute', () => {
       })
     })
 
-    test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
+    test('delegated: false, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
       const { account, privateKey } = await setup()
 
       const key = Key.createP256({
@@ -139,7 +139,7 @@ describe('execute', () => {
       })
     })
 
-    test('counterfactual: false, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
+    test('delegated: true, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
       const { account, privateKey } = await setup()
 
       const authorization = await signAuthorization(client, {
@@ -179,7 +179,7 @@ describe('execute', () => {
       })
     })
 
-    test.skip('counterfactual: true, key: P256, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test.skip('key: P256, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account } = await setup()
 
       const key = Key.createP256({
@@ -225,7 +225,7 @@ describe('execute', () => {
   })
 
   describe('arbitrary calls', () => {
-    test('counterfactual: false, key: EOA, executor: EOA', async () => {
+    test('delegated: true, key: EOA, executor: EOA', async () => {
       const { account, privateKey } = await setup()
 
       const eoa = privateKeyToAccount(privateKey)
@@ -280,7 +280,7 @@ describe('execute', () => {
 
 describe('prepareExecute', () => {
   describe('authorize', () => {
-    test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test('delegated: false, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account } = await setup()
 
       const key = account.keys[0]
@@ -323,7 +323,7 @@ describe('prepareExecute', () => {
       })
     })
 
-    test('counterfactual: false, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test('delegated: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account, privateKey } = await setup()
 
       const authorization = await signAuthorization(client, {
@@ -376,7 +376,7 @@ describe('prepareExecute', () => {
       })
     })
 
-    test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
+    test('delegated: false, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
       const { account, privateKey } = await setup()
 
       const key = account.keys[0]
@@ -441,42 +441,36 @@ describe('getExecuteSignPayload', () => {
       role: 'admin',
     })
 
-    const nonce = 0n
-    const calls = [
-      Call.authorize({
-        key,
-        to: account.address,
-      }),
-    ] as const
-
     const payload = await Delegation.getExecuteSignPayload(client, {
       account,
-      calls,
-      nonce,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      nonce: 0n,
     })
 
     expect(payload).toBeDefined()
   })
 
-  test('behavior: counterfactual', async () => {
+  test('behavior: account not delegated yet', async () => {
     const { account } = await setup()
 
     const key = Key.createP256({
       role: 'admin',
     })
 
-    const nonce = 0n
-    const calls = [
-      Call.authorize({
-        key,
-        to: account.address,
-      }),
-    ] as const
-
     const payload = await Delegation.getExecuteSignPayload(client, {
       account,
-      calls,
-      nonce,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      nonce: 0n,
     })
 
     expect(payload).toBeDefined()

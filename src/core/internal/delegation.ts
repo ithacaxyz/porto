@@ -46,10 +46,9 @@ export async function execute<
   parameters: execute.Parameters<calls, chain>,
 ): Promise<execute.ReturnType> {
   const { request, signatures } = await (async () => {
-    const { account, key } = parameters
+    const { account, nonce, key, signatures } = parameters
 
-    if (parameters.nonce && parameters.signatures)
-      return { request: parameters, signatures: parameters.signatures }
+    if (nonce && signatures) return { request: parameters, signatures }
     if (account.type !== 'delegated')
       return { request: parameters, signatures: undefined }
 
@@ -57,13 +56,12 @@ export async function execute<
       client,
       parameters,
     )
-    const signatures = await DelegatedAccount.sign(account, {
-      key,
-      payloads,
-    })
     return {
       request,
-      signatures,
+      signatures: await DelegatedAccount.sign(account, {
+        key,
+        payloads,
+      }),
     }
   })()
 
