@@ -1,20 +1,13 @@
-import { Address, Secp256k1, Value } from 'ox'
+import { Address, Secp256k1, Signature, Value } from 'ox'
 import { privateKeyToAccount } from 'viem/accounts'
-import {
-  getBalance,
-  readContract,
-  sendTransaction,
-  setBalance,
-} from 'viem/actions'
+import { getBalance, sendTransaction, setBalance } from 'viem/actions'
 import { signAuthorization } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
 
-import { Signature } from 'ox'
 import { porto } from '../../../test/src/config.js'
 import * as Account from './account.js'
 import * as Call from './call.js'
 import * as Delegation from './delegation.js'
-import { delegationAbi } from './generated.js'
 import * as Key from './key.js'
 
 const state = porto._internal.store.getState()
@@ -52,7 +45,7 @@ describe('execute', () => {
         role: 'admin',
       })
 
-      const { signPayloads, request } = await Delegation.prepareExecute(
+      const { request, signPayloads } = await Delegation.prepareExecute(
         client,
         {
           account,
@@ -75,14 +68,12 @@ describe('execute', () => {
         signatures,
       })
 
-      const serializedKey = await readContract(client, {
-        abi: delegationAbi,
-        address: account.address,
-        functionName: 'keyAt',
-        args: [0n],
-      })
-
-      expect(Key.deserialize(serializedKey)).toEqual({
+      expect(
+        await Delegation.keyAt(client, {
+          account,
+          index: 0,
+        }),
+      ).toEqual({
         ...key,
         sign: undefined,
       })
@@ -129,14 +120,12 @@ describe('execute', () => {
         signatures,
       })
 
-      const serializedKey = await readContract(client, {
-        abi: delegationAbi,
-        address: account.address,
-        functionName: 'keyAt',
-        args: [0n],
-      })
-
-      expect(Key.deserialize(serializedKey)).toEqual({
+      expect(
+        await Delegation.keyAt(client, {
+          account,
+          index: 0,
+        }),
+      ).toEqual({
         ...key,
         sign: undefined,
       })
@@ -172,14 +161,12 @@ describe('execute', () => {
         signatures,
       })
 
-      const serializedKey = await readContract(client, {
-        abi: delegationAbi,
-        address: account.address,
-        functionName: 'keyAt',
-        args: [0n],
-      })
-
-      expect(Key.deserialize(serializedKey)).toEqual({
+      expect(
+        await Delegation.keyAt(client, {
+          account,
+          index: 0,
+        }),
+      ).toEqual({
         ...key,
         sign: undefined,
       })
@@ -214,14 +201,12 @@ describe('execute', () => {
         executor: privateKeyToAccount(privateKey),
       })
 
-      const serializedKey = await readContract(client, {
-        abi: delegationAbi,
-        address: account.address,
-        functionName: 'keyAt',
-        args: [0n],
-      })
-
-      expect(Key.deserialize(serializedKey)).toEqual({
+      expect(
+        await Delegation.keyAt(client, {
+          account,
+          index: 0,
+        }),
+      ).toEqual({
         ...key,
         sign: undefined,
       })

@@ -21,6 +21,7 @@ import {
 
 import type * as DelegatedAccount from './account.js'
 import { delegationAbi } from './generated.js'
+import * as Key from './key.js'
 import type { OneOf } from './types.js'
 
 export const domainNameAndVersion = {
@@ -157,10 +158,12 @@ export async function prepareExecute<
   const [[authorization, authorizationPayload], executePayload] =
     await Promise.all([
       (async () => {
-        const code = await getCode(client, { address: account.address })
         if (!('delegation' in account)) return []
+
+        const code = await getCode(client, { address: account.address })
         if (code === Hex.concat('0xef0100', account.delegation).toLowerCase())
           return []
+
         const authorization = await prepareAuthorization(client, {
           account: account.address,
           contractAddress: account.delegation,
@@ -346,5 +349,35 @@ export declare namespace getExecuteSignPayload {
     calls: calls
     nonce: bigint
     nonceSalt?: bigint | undefined
+  }
+}
+
+/**
+ * Returns the key at the given index.
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Key.
+ */
+export async function keyAt<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: keyAt.Parameters,
+) {
+  const { account, index } = parameters
+
+  const key = await readContract(client, {
+    abi: delegationAbi,
+    address: account.address,
+    functionName: 'keyAt',
+    args: [BigInt(index)],
+  })
+
+  return Key.deserialize(key)
+}
+
+export declare namespace keyAt {
+  export type Parameters = {
+    account: DelegatedAccount.Account | Account
+    index: number
   }
 }
