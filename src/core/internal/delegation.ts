@@ -159,10 +159,7 @@ export async function prepareExecute<
     await Promise.all([
       (async () => {
         if (!('delegation' in account)) return []
-
-        const code = await getCode(client, { address: account.address })
-        if (code === Hex.concat('0xef0100', account.delegation).toLowerCase())
-          return []
+        if (!parameters.authorization) return []
 
         const authorization = await prepareAuthorization(client, {
           account: account.address,
@@ -217,6 +214,10 @@ export declare namespace prepareExecute {
      */
     account: DelegatedAccount.Account | Account
     /**
+     * Whether to prepare a sign payload for the EIP-7702 authorization.
+     */
+    authorization?: boolean | undefined
+    /**
      * The executor of the execute transaction.
      *
      * - `Account`: execution will be attempted with the specified account.
@@ -234,7 +235,9 @@ export declare namespace prepareExecute {
     calls extends readonly unknown[] = readonly unknown[],
     chain extends Chain | undefined = Chain | undefined,
   > = {
-    signPayloads: readonly Hex.Hex[]
+    signPayloads:
+      | [executePayload: Hex.Hex]
+      | [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
     request: Parameters<calls, chain> & {
       authorization?: Authorization_viem | undefined
       nonce: bigint

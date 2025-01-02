@@ -49,6 +49,7 @@ describe('execute', () => {
         client,
         {
           account,
+          authorization: true,
           calls: [
             Call.authorize({
               key,
@@ -142,6 +143,7 @@ describe('execute', () => {
         client,
         {
           account,
+          authorization: true,
           calls: [
             Call.authorize({
               key,
