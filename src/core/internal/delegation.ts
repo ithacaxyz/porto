@@ -5,7 +5,6 @@ import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
 import type { Account, Chain, Client, Transport } from 'viem'
 import {
-  getCode,
   getEip712Domain as getEip712Domain_viem,
   readContract,
 } from 'viem/actions'
@@ -47,25 +46,35 @@ export async function execute<
   parameters: execute.Parameters<calls, chain>,
 ): Promise<execute.ReturnType> {
   const { request, signatures } = await (async () => {
-    const { account, nonce, keyIndex, signatures } = parameters
+    const { account, keyIndex } = parameters
 
-    if (nonce && signatures) return { request: parameters, signatures }
+    if (parameters.nonce && parameters.signatures)
+      return { request: parameters, signatures: parameters.signatures }
     if (account.type !== 'delegated')
       return { request: parameters, signatures: undefined }
 
     const { request, signPayloads } = await prepareExecute(client, parameters)
 
-    if (signPayloads.length > 1 && !account.sign) throw new Error('unsupported')
+    const [executePayload, authorizationPayload] = signPayloads
+
+    if (authorizationPayload && !account.sign) throw new Error('unsupported')
+
+    const signatures = await Promise.all([
+      (async () => {
+        if (typeof keyIndex === 'number' && account.keys)
+          return await account.keys[keyIndex]!.sign!({
+            payload: executePayload,
+          })
+        return account.sign!({ payload: executePayload })
+      })(),
+      authorizationPayload
+        ? account.sign!({ payload: authorizationPayload })
+        : undefined,
+    ])
 
     return {
       request,
-      signatures: await Promise.all(
-        signPayloads.map((payload) => {
-          if (typeof keyIndex === 'number' && account.keys)
-            return account.keys[keyIndex]!.sign!({ payload })
-          return account.sign!({ payload })
-        }),
-      ),
+      signatures,
     }
   })()
 
@@ -124,9 +133,9 @@ export declare namespace execute {
      */
     account: DelegatedAccount.Account | Account
     /**
-     * Unsigned EIP-7702 Authorization to use for execution.
+     * Whether to perform a EIP-7702 authorization to delegate the account.
      */
-    authorization?: Authorization_viem | undefined
+    delegate?: boolean | undefined
     /**
      * The executor of the execute transaction.
      *
@@ -137,6 +146,10 @@ export declare namespace execute {
     executor?: Account | undefined | null
   } & OneOf<
       | {
+          /**
+           * Unsigned EIP-7702 Authorization to use for execution.
+           */
+          authorization?: Authorization_viem | undefined
           /**
            * Nonce to use for execution that will be invalidated by the delegated account.
            */
@@ -187,7 +200,7 @@ export async function prepareExecute<
     await Promise.all([
       (async () => {
         if (!('delegation' in account)) return []
-        if (!parameters.authorization) return []
+        if (!parameters.delegate) return []
 
         const authorization = await prepareAuthorization(client, {
           account: account.address,
@@ -244,7 +257,7 @@ export declare namespace prepareExecute {
     /**
      * Whether to prepare a sign payload for the EIP-7702 authorization.
      */
-    authorization?: boolean | undefined
+    delegate?: boolean | undefined
     /**
      * The executor of the execute transaction.
      *
