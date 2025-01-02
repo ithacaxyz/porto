@@ -283,7 +283,9 @@ describe('prepareExecute', () => {
     test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account } = await setup()
 
-      const key = Key.createP256({
+      const key = account.keys[0]
+
+      const keyToAuthorize = Key.createP256({
         role: 'admin',
       })
 
@@ -293,7 +295,7 @@ describe('prepareExecute', () => {
           account,
           calls: [
             Call.authorize({
-              key,
+              key: keyToAuthorize,
               to: account.address,
             }),
           ],
@@ -302,7 +304,7 @@ describe('prepareExecute', () => {
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.keys[0].sign({ payload })),
+        signPayloads.map((payload) => key.sign({ payload })),
       )
 
       await Delegation.execute(client, {
@@ -316,7 +318,7 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...key,
+        ...keyToAuthorize,
         sign: undefined,
       })
     })
@@ -335,7 +337,9 @@ describe('prepareExecute', () => {
         to: account.address,
       })
 
-      const key = Key.createP256({
+      const key = account.keys[0]
+
+      const keyToAuthorize = Key.createP256({
         role: 'admin',
       })
 
@@ -345,7 +349,7 @@ describe('prepareExecute', () => {
           account,
           calls: [
             Call.authorize({
-              key,
+              key: keyToAuthorize,
               to: account.address,
             }),
           ],
@@ -353,7 +357,7 @@ describe('prepareExecute', () => {
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.keys[0].sign({ payload })),
+        signPayloads.map((payload) => key.sign({ payload })),
       )
 
       await Delegation.execute(client, {
@@ -367,7 +371,7 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...key,
+        ...keyToAuthorize,
         sign: undefined,
       })
     })
@@ -375,7 +379,9 @@ describe('prepareExecute', () => {
     test('counterfactual: true, key: EOA, keysToAuthorize: [P256], executor: EOA', async () => {
       const { account, privateKey } = await setup()
 
-      const key = Key.createP256({
+      const key = account.keys[0]
+
+      const keyToAuthorize = Key.createP256({
         role: 'admin',
       })
 
@@ -385,7 +391,7 @@ describe('prepareExecute', () => {
           account,
           calls: [
             Call.authorize({
-              key,
+              key: keyToAuthorize,
               to: account.address,
             }),
           ],
@@ -395,7 +401,7 @@ describe('prepareExecute', () => {
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.keys[0].sign({ payload })),
+        signPayloads.map((payload) => key.sign({ payload })),
       )
 
       await Delegation.execute(client, {
@@ -409,7 +415,7 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...key,
+        ...keyToAuthorize,
         sign: undefined,
       })
     })
