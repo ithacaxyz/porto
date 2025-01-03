@@ -1,6 +1,11 @@
-import { Bytes, Secp256k1, WebAuthnP256, WebCryptoP256 } from 'ox'
+import { Bytes, Hex, Secp256k1, WebAuthnP256, WebCryptoP256 } from 'ox'
+import { verifyHash } from 'viem/actions'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 
+import { getAccount } from '../../../test/src/account.js'
+import { client, delegation } from '../../../test/src/porto.js'
+import * as Call from './call.js'
+import * as Delegation from './delegation.js'
 import * as Key from './key.js'
 
 describe('createP256', () => {
@@ -21,6 +26,40 @@ describe('createP256', () => {
       }
     `)
   })
+
+  test('behavior: authorize + sign', async () => {
+    const { account } = await getAccount(client, {
+      delegation,
+    })
+
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      delegate: true,
+    })
+
+    const payload = Hex.random(32)
+    const signature = await key.sign({
+      payload,
+    })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: payload,
+        signature,
+      }),
+    ).toBe(true)
+  })
 })
 
 describe('createSecp256k1', () => {
@@ -40,6 +79,42 @@ describe('createSecp256k1', () => {
         "type": "secp256k1",
       }
     `)
+  })
+
+  // TODO: unskip when https://github.com/ithacaxyz/account/blob/main/src/Delegation.sol#L392
+  // compares against pubkey instead of address
+  test.skip('behavior: authorize + sign', async () => {
+    const { account } = await getAccount(client, {
+      delegation,
+    })
+
+    const key = Key.createSecp256k1({
+      role: 'admin',
+    })
+
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      delegate: true,
+    })
+
+    const payload = Hex.random(32)
+    const signature = await key.sign({
+      payload,
+    })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: payload,
+        signature,
+      }),
+    ).toBe(true)
   })
 })
 
@@ -115,6 +190,40 @@ describe('createWebCryptoP256', () => {
         "type": "p256",
       }
     `)
+  })
+
+  test('behavior: authorize + sign', async () => {
+    const { account } = await getAccount(client, {
+      delegation,
+    })
+
+    const key = await Key.createWebCryptoP256({
+      role: 'admin',
+    })
+
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      delegate: true,
+    })
+
+    const payload = Hex.random(32)
+    const signature = await key.sign({
+      payload,
+    })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: payload,
+        signature,
+      }),
+    ).toBe(true)
   })
 })
 
