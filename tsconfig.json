@@ -1,9 +1,12 @@
 {
   // This configuration is used for local development and type checking.
   "extends": "./tsconfig.base.json",
-  "include": ["scripts", "src"],
+  "include": ["scripts", "src", "test"],
   "exclude": ["src/_dist"],
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "porto": ["src/index.ts"]
+    }
   }
 }

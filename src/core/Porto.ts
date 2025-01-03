@@ -4,7 +4,7 @@ import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { type Mutate, type StoreApi, createStore } from 'zustand/vanilla'
 
 import * as Chains from './Chains.js'
-import type * as AccountDelegation from './internal/accountDelegation.js'
+import type * as Account from './internal/account.js'
 import * as Provider from './internal/provider.js'
 import * as Storage from './internal/storage.js'
 import * as WebAuthn from './internal/webauthn.js'
@@ -75,6 +75,7 @@ export function create(config: Config | undefined = {}): Porto {
             return createClient({
               chain,
               transport: (transports as Record<number, Transport>)[chain.id]!,
+              pollingInterval: 1_000,
             })
           },
           get delegation() {
@@ -87,13 +88,14 @@ export function create(config: Config | undefined = {}): Porto {
           merge,
           partialize(state) {
             return {
-              accounts: state.accounts.map((account) => ({
-                ...account,
-                keys: account.keys.map((key) => ({
-                  ...key,
-                  ...('raw' in key ? { raw: undefined } : {}),
-                })),
-              })),
+              // TODO
+              // accounts: state.accounts.map((account) => ({
+              //   ...account,
+              //   keys: account.keys.map((key) => ({
+              //     ...key,
+              //     ...('raw' in key ? { raw: undefined } : {}),
+              //   })),
+              // })),
               chain: state.chain,
             } as unknown as State
           },
@@ -180,7 +182,7 @@ export type State<
     ...Chains.Chain[],
   ],
 > = {
-  accounts: AccountDelegation.Account[]
+  accounts: Account.Account[]
   chain: chains[number]
   readonly chainId: chains[number]['id']
   readonly client: Client<
