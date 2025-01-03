@@ -44,14 +44,13 @@ export function from<
       const state = store.getState()
 
       switch (method) {
-        // TODO
-        // case 'eth_accounts': {
-        //   if (state.accounts.length === 0)
-        //     throw new ox_Provider.DisconnectedError()
-        //   return state.accounts.map(
-        //     (account) => account.address,
-        //   ) satisfies RpcSchema.ExtractReturnType<Schema.Schema, 'eth_accounts'>
-        // }
+        case 'eth_accounts': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+          return state.accounts.map(
+            (account) => account.address,
+          ) satisfies RpcSchema.ExtractReturnType<Schema.Schema, 'eth_accounts'>
+        }
 
         case 'eth_chainId': {
           return Hex.fromNumber(
@@ -529,16 +528,15 @@ export function from<
   })
 
   function setup() {
-    // TODO
-    // const unsubscribe_accounts = store.subscribe(
-    //   (state) => state.accounts,
-    //   (accounts) => {
-    //     emitter.emit(
-    //       'accountsChanged',
-    //       accounts.map((account) => account.address),
-    //     )
-    //   },
-    // )
+    const unsubscribe_accounts = store.subscribe(
+      (state) => state.accounts,
+      (accounts) => {
+        emitter.emit(
+          'accountsChanged',
+          accounts.map((account) => account.address),
+        )
+      },
+    )
 
     const unsubscribe_chain = store.subscribe(
       (state) => state.chain,
@@ -550,8 +548,7 @@ export function from<
     const unwatch = announceProvider ? announce(provider as Provider) : () => {}
 
     return () => {
-      // TODO
-      // unsubscribe_accounts()
+      unsubscribe_accounts()
       unsubscribe_chain()
       unwatch()
     }

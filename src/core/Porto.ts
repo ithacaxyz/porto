@@ -4,6 +4,7 @@ import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { type Mutate, type StoreApi, createStore } from 'zustand/vanilla'
 
 import * as Chains from './Chains.js'
+import type * as Account from './internal/account.js'
 import * as Provider from './internal/provider.js'
 import * as Storage from './internal/storage.js'
 import * as WebAuthn from './internal/webauthn.js'
@@ -181,8 +182,7 @@ export type State<
     ...Chains.Chain[],
   ],
 > = {
-  // TODO
-  // accounts: AccountDelegation.Account[]
+  accounts: Account.Account[]
   chain: chains[number]
   readonly chainId: chains[number]['id']
   readonly client: Client<
