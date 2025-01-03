@@ -98,11 +98,11 @@ export declare namespace sign {
      * Payloads to sign.
      */
     payloads:
-      | [executePayload: Hex.Hex]
-      | [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
+      | readonly [executePayload: Hex.Hex]
+      | readonly [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
   }
 
   type ReturnType =
-    | [executeSignature: Hex.Hex]
-    | [executeSignature: Hex.Hex, authorizationSignature: Hex.Hex]
+    | readonly [executeSignature: Hex.Hex]
+    | readonly [executeSignature: Hex.Hex, authorizationSignature: Hex.Hex]
 }

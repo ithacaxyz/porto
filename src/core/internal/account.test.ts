@@ -50,25 +50,22 @@ describe('from', () => {
 })
 
 describe('sign', () => {
-  test('key: owner', async () => {
+  test('default', async () => {
     const { account } = await getAccount(client, {
       delegation,
     })
 
-    // delegate
     await Delegation.execute(client, {
       account,
       calls: [],
       delegate: true,
     })
 
-    // sign
     const payload = Hex.random(32)
     const [signature] = await Account.sign(account, {
       payloads: [payload],
     })
 
-    // verify
     const valid = await verifyHash(client, {
       address: account.address,
       hash: payload,
@@ -78,10 +75,8 @@ describe('sign', () => {
     expect(valid).toBe(true)
   })
 
-  test('key: P256 (admin)', async () => {
-    const key = Key.fromP256({
-      privateKey:
-        '0x0c57184baffb76254bcb3e225bb789082b9cc25f37d9805e2fbfcd5c681e72ee',
+  test('args: key', async () => {
+    const key = Key.createP256({
       role: 'admin',
     })
 
@@ -90,7 +85,6 @@ describe('sign', () => {
       keys: [key],
     })
 
-    // delegate
     await Delegation.execute(client, {
       account,
       calls: [
@@ -105,13 +99,11 @@ describe('sign', () => {
     const payload = Hex.random(32)
 
     {
-      // sign
       const [signature] = await Account.sign(account, {
         key,
         payloads: [payload],
       })
 
-      // verify
       const valid = await verifyHash(client, {
         address: account.address,
         hash: payload,
@@ -122,13 +114,11 @@ describe('sign', () => {
     }
 
     {
-      // sign
       const [signature] = await Account.sign(account, {
         key: 1,
         payloads: [payload],
       })
 
-      // verify
       const valid = await verifyHash(client, {
         address: account.address,
         hash: payload,
@@ -137,5 +127,169 @@ describe('sign', () => {
 
       expect(valid).toBe(true)
     }
+  })
+
+  test('behavior: with authorization payload', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const { account } = await getAccount(client, {
+      delegation,
+      keys: [key],
+    })
+
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      delegate: true,
+    })
+
+    const payloads = [Hex.random(32), Hex.random(32)] as const
+
+    {
+      const signatures = await Account.sign(account, {
+        payloads,
+      })
+
+      expect(signatures.length).toBe(2)
+      expect(
+        await verifyHash(client, {
+          address: account.address,
+          hash: payloads[0],
+          signature: signatures[0],
+        }),
+      ).toBe(true)
+      expect(
+        await verifyHash(client, {
+          address: account.address,
+          hash: payloads[1],
+          signature: signatures[1]!,
+        }),
+      ).toBe(true)
+    }
+
+    {
+      const signatures = await Account.sign(account, {
+        key: account.keys[0],
+        payloads,
+      })
+
+      expect(signatures.length).toBe(2)
+      expect(
+        await verifyHash(client, {
+          address: account.address,
+          hash: payloads[0],
+          signature: signatures[0],
+        }),
+      ).toBe(true)
+      expect(
+        await verifyHash(client, {
+          address: account.address,
+          hash: payloads[1],
+          signature: signatures[1]!,
+        }),
+      ).toBe(true)
+    }
+
+    {
+      const signatures = await Account.sign(account, {
+        key: 0,
+        payloads,
+      })
+
+      expect(signatures.length).toBe(2)
+      expect(
+        await verifyHash(client, {
+          address: account.address,
+          hash: payloads[0],
+          signature: signatures[0],
+        }),
+      ).toBe(true)
+      expect(
+        await verifyHash(client, {
+          address: account.address,
+          hash: payloads[1],
+          signature: signatures[1]!,
+        }),
+      ).toBe(true)
+    }
+  })
+
+  test('behavior: with authorization payload, no owner', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const { account } = await getAccount(client, {
+      delegation,
+    })
+
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      delegate: true,
+    })
+
+    const nextAccount = Account.from({
+      ...account,
+      keys: [key],
+    })
+
+    const payloads = [Hex.random(32), Hex.random(32)] as const
+
+    await expect(
+      Account.sign(nextAccount, {
+        payloads,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: account does not have key of role "owner".]`,
+    )
+  })
+
+  test('behavior: no keys', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const { account } = await getAccount(client, {
+      delegation,
+    })
+
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      delegate: true,
+    })
+
+    const nextAccount = Account.from({
+      ...account,
+      keys: undefined,
+    })
+
+    const payloads = [Hex.random(32)] as const
+
+    await expect(
+      Account.sign(nextAccount, {
+        payloads,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[Error: cannot find key to sign with.]',
+    )
   })
 })
