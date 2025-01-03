@@ -502,15 +502,7 @@ describe('prepareExecute', () => {
 
 describe('getExecuteSignPayload', () => {
   test('default', async () => {
-    const { account } = await getAccount(client, {
-      delegation,
-    })
-
-    await DelegatedAccount.execute(client, {
-      account,
-      calls: [],
-      initialize: true,
-    })
+    const { account } = await getAccount(client, { delegation })
 
     const key = Key.createP256({
       role: 'admin',
@@ -529,8 +521,16 @@ describe('getExecuteSignPayload', () => {
     expect(payload).toBeDefined()
   })
 
-  test('behavior: account not delegated yet', async () => {
-    const { account } = await getAccount(client, { delegation })
+  test('behavior: account already delegated', async () => {
+    const { account } = await getAccount(client, {
+      delegation,
+    })
+
+    await DelegatedAccount.execute(client, {
+      account,
+      calls: [],
+      initialize: true,
+    })
 
     const key = Key.createP256({
       role: 'admin',
