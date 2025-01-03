@@ -567,6 +567,36 @@ export declare namespace fromWebCryptoP256 {
 }
 
 /**
+ * Hashes a key.
+ *
+ * @example
+ * ```ts
+ * import * as Key from './key.js'
+ *
+ * const key = Key.createP256({
+ *   role: 'admin',
+ * })
+ *
+ * const hash = Key.hash(key)
+ * ```
+ *
+ * @param key - Key.
+ * @returns Hashed key.
+ */
+export function hash(key: Pick<Key, 'publicKey' | 'type'>): Hex.Hex {
+  const { publicKey, type } = key
+  return Hash.keccak256(
+    AbiParameters.encode(
+      [{ type: 'uint8' }, { type: 'bytes32' }],
+      [
+        toSerializedKeyType[type],
+        Hash.keccak256(PublicKey.toHex(publicKey, { includePrefix: false })),
+      ],
+    ),
+  )
+}
+
+/**
  * Serializes a key to a contract-compatible format.
  *
  * @example
@@ -598,17 +628,9 @@ export function serialize(key: Key): Serialized {
 ///////////////////////////////////////////////////////////////////////////
 
 function wrapSignature(signature: Hex.Hex, options: wrapSignature.Options) {
-  const { keyType, prehash = false, publicKey } = options
+  const { keyType: type, prehash = false, publicKey } = options
 
-  const keyHash = Hash.keccak256(
-    AbiParameters.encode(
-      [{ type: 'uint8' }, { type: 'bytes32' }],
-      [
-        toSerializedKeyType[keyType],
-        Hash.keccak256(PublicKey.toHex(publicKey, { includePrefix: false })),
-      ],
-    ),
-  )
+  const keyHash = hash({ publicKey, type })
   return AbiParameters.encodePacked(
     ['bytes', 'bytes32', 'bool'],
     [signature, keyHash, prehash],

@@ -1,8 +1,12 @@
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
+import type * as Hex from 'ox/Hex'
 
 import { delegationAbi } from './generated.js'
 import * as Key from './key.js'
+
+/** Stub address for self-execution. */
+export const self = '0x2323232323232323232323232323232323232323'
 
 /**
  * Instantiates values to populate a call to authorize a key.
@@ -11,22 +15,62 @@ import * as Key from './key.js'
  * @returns Instantiated values.
  */
 export function authorize(parameters: authorize.Parameters) {
-  const { key, to } = parameters
+  const { key } = parameters
   return {
     data: AbiFunction.encodeData(
       AbiFunction.fromAbi(delegationAbi, 'authorize'),
       [Key.serialize(key)],
     ),
-    to,
-  }
+    to: self,
+  } as const
 }
 
 export declare namespace authorize {
   export type Parameters = {
     /** Key to authorize. */
     key: Key.Key
-    /** Address of the account to authorize the key on. */
-    to: Address.Address
+  }
+}
+
+const anyHash =
+  '0x3232323232323232323232323232323232323232323232323232323232323232'
+const anyTarget = '0x3232323232323232323232323232323232323232'
+const anySelector = '0x32323232'
+
+/**
+ * Instantiates values to populate a call to set the label of a delegated account.
+ *
+ * @param parameters - Parameters.
+ * @returns Instantiated values.
+ */
+export function setCanExecute(parameters: setCanExecute.Parameters = {}) {
+  const {
+    enabled = true,
+    key,
+    selector = anySelector,
+    to = anyTarget,
+  } = parameters
+  const hash = key ? Key.hash(key) : anyHash
+
+  return {
+    data: AbiFunction.encodeData(
+      AbiFunction.fromAbi(delegationAbi, 'setCanExecute'),
+      [hash, to, selector, enabled],
+    ),
+    to: self,
+  } as const
+}
+
+export declare namespace setCanExecute {
+  export type Parameters = {
+    /** Whether to enable execution. */
+    enabled?: boolean | undefined
+    /** Key to authorize. */
+    key?: Key.Key | undefined
+    /** Target to authorize. */
+    to?: Address.Address | undefined
+    /** Function selector to authorize. */
+    selector?: Hex.Hex | undefined
   }
 }
 
@@ -37,21 +81,19 @@ export declare namespace authorize {
  * @returns Instantiated values.
  */
 export function setLabel(parameters: setLabel.Parameters) {
-  const { label, to } = parameters
+  const { label } = parameters
   return {
     data: AbiFunction.encodeData(
       AbiFunction.fromAbi(delegationAbi, 'setLabel'),
       [label],
     ),
-    to,
-  }
+    to: self,
+  } as const
 }
 
 export declare namespace setLabel {
   export type Parameters = {
     /** Label to set. */
     label: string
-    /** Address of the account to set the label on. */
-    to: Address.Address
   }
 }

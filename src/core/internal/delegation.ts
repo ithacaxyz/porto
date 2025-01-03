@@ -19,6 +19,7 @@ import {
 } from 'viem/experimental/erc7821'
 
 import * as DelegatedAccount from './account.js'
+import * as Call from './call.js'
 import { delegationAbi } from './generated.js'
 import * as Key from './key.js'
 import type { OneOf } from './types.js'
@@ -176,11 +177,15 @@ export async function prepareExecute<
 ): Promise<prepareExecute.ReturnType<calls, chain>> {
   const {
     account,
-    calls,
     executor,
     nonce = Hex.toBigInt(Hex.random(32)),
     ...rest
   } = parameters
+
+  const calls = parameters.calls.map((call: any) => ({
+    ...call,
+    to: call.to === Call.self ? account.address : call.to,
+  }))
 
   const [[authorization, authorizationPayload], executePayload] =
     await Promise.all([

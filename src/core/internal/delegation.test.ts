@@ -24,7 +24,6 @@ describe('execute', () => {
         calls: [
           Call.authorize({
             key,
-            to: account.address,
           }),
         ],
         delegate: true,
@@ -66,7 +65,6 @@ describe('execute', () => {
         calls: [
           Call.authorize({
             key,
-            to: account.address,
           }),
         ],
       })
@@ -96,7 +94,6 @@ describe('execute', () => {
         calls: [
           Call.authorize({
             key,
-            to: account.address,
           }),
         ],
         delegate: true,
@@ -139,7 +136,6 @@ describe('execute', () => {
         calls: [
           Call.authorize({
             key,
-            to: account.address,
           }),
         ],
         executor: privateKeyToAccount(privateKey),
@@ -156,7 +152,7 @@ describe('execute', () => {
       })
     })
 
-    test.skip('key: P256, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test('key: P256, keysToAuthorize: [P256]', async () => {
       const { account } = await getAccount(client, { delegation })
 
       const key = Key.createP256({
@@ -166,9 +162,9 @@ describe('execute', () => {
       await Delegation.execute(client, {
         account,
         calls: [
+          Call.setCanExecute(),
           Call.authorize({
             key,
-            to: account.address,
           }),
         ],
         delegate: true,
@@ -183,7 +179,49 @@ describe('execute', () => {
         calls: [
           Call.authorize({
             key: nextKey,
-            to: account.address,
+          }),
+        ],
+        key,
+      })
+
+      expect(
+        await Delegation.keyAt(client, {
+          account,
+          index: 1,
+        }),
+      ).toEqual({
+        ...nextKey,
+        sign: undefined,
+      })
+    })
+
+    test('key: P256, keysToAuthorize: [WebCryptoP256]', async () => {
+      const { account } = await getAccount(client, { delegation })
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          Call.setCanExecute(),
+          Call.authorize({
+            key,
+          }),
+        ],
+        delegate: true,
+      })
+
+      const nextKey = await Key.createWebCryptoP256({
+        role: 'admin',
+      })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          Call.authorize({
+            key: nextKey,
           }),
         ],
         key,
@@ -202,22 +240,15 @@ describe('execute', () => {
   })
 
   describe('arbitrary calls', () => {
-    test('delegated: true, key: owner, executor: EOA', async () => {
-      const { account, privateKey } = await getAccount(client, {
+    test('key: owner, executor: JSON-RPC', async () => {
+      const { account } = await getAccount(client, {
         delegation,
       })
 
-      const eoa = privateKeyToAccount(privateKey)
-
-      const authorization = await signAuthorization(client, {
-        account: eoa,
-        contractAddress: delegation,
+      await Delegation.execute(client, {
+        account,
+        calls: [],
         delegate: true,
-      })
-      await sendTransaction(client, {
-        authorizationList: [authorization],
-        account: null,
-        to: account.address,
       })
 
       const alice = privateKeyToAccount(Secp256k1.randomPrivateKey())
@@ -233,12 +264,56 @@ describe('execute', () => {
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
       await Delegation.execute(client, {
-        account: eoa,
+        account,
         calls: [
           { to: alice.address, value: Value.fromEther('1') },
           { to: bob.address, value: Value.fromEther('0.5') },
         ],
-        executor: eoa,
+      })
+
+      const balances_after = await Promise.all([
+        getBalance(client, { address: account.address }),
+        getBalance(client, { address: alice.address }),
+        getBalance(client, { address: bob.address }),
+      ])
+
+      expect(balances_after[0]).not.toBeGreaterThan(
+        balances_before[0] - Value.fromEther('1'),
+      )
+      expect(balances_after[1]).toEqual(Value.fromEther('1'))
+      expect(balances_after[2]).toEqual(Value.fromEther('0.5'))
+    })
+
+    test('key: owner, executor: EOA', async () => {
+      const { account, privateKey } = await getAccount(client, {
+        delegation,
+      })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [],
+        delegate: true,
+      })
+
+      const alice = privateKeyToAccount(Secp256k1.randomPrivateKey())
+      const bob = privateKeyToAccount(Secp256k1.randomPrivateKey())
+
+      const balances_before = await Promise.all([
+        getBalance(client, { address: account.address }),
+        getBalance(client, { address: alice.address }),
+        getBalance(client, { address: bob.address }),
+      ])
+
+      expect(balances_before[1]).toEqual(Value.fromEther('0'))
+      expect(balances_before[2]).toEqual(Value.fromEther('0'))
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          { to: alice.address, value: Value.fromEther('1') },
+          { to: bob.address, value: Value.fromEther('0.5') },
+        ],
+        executor: privateKeyToAccount(privateKey),
       })
 
       const balances_after = await Promise.all([
@@ -274,7 +349,6 @@ describe('prepareExecute', () => {
           calls: [
             Call.authorize({
               key: keyToAuthorize,
-              to: account.address,
             }),
           ],
           delegate: true,
@@ -330,7 +404,6 @@ describe('prepareExecute', () => {
           calls: [
             Call.authorize({
               key: keyToAuthorize,
-              to: account.address,
             }),
           ],
         },
@@ -374,7 +447,6 @@ describe('prepareExecute', () => {
           calls: [
             Call.authorize({
               key: keyToAuthorize,
-              to: account.address,
             }),
           ],
           delegate: true,
@@ -430,7 +502,6 @@ describe('getExecuteSignPayload', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       nonce: 0n,
@@ -451,7 +522,6 @@ describe('getExecuteSignPayload', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       nonce: 0n,

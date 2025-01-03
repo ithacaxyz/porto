@@ -90,7 +90,6 @@ describe('sign', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       delegate: true,
@@ -144,7 +143,6 @@ describe('sign', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       delegate: true,
@@ -235,7 +233,6 @@ describe('sign', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       delegate: true,
@@ -271,7 +268,6 @@ describe('sign', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       delegate: true,

@@ -41,7 +41,6 @@ describe('createP256', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       delegate: true,
@@ -97,7 +96,6 @@ describe('createSecp256k1', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       delegate: true,
@@ -206,7 +204,6 @@ describe('createWebCryptoP256', () => {
       calls: [
         Call.authorize({
           key,
-          to: account.address,
         }),
       ],
       delegate: true,
