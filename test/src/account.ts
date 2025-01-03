@@ -1,7 +1,8 @@
 import { Address, Secp256k1 } from 'ox'
 import { type Client, parseEther } from 'viem'
 import { setBalance } from 'viem/actions'
-import * as DelegatedAccount from '../../src/core/internal/delegatedAccount.js'
+
+import * as Account from '../../src/core/internal/account.js'
 import * as Key from '../../src/core/internal/key.js'
 
 export async function getAccount(
@@ -26,7 +27,7 @@ export async function getAccount(
     role: 'owner',
   })
 
-  const account = DelegatedAccount.from({
+  const account = Account.from({
     address,
     delegation,
     keys: [key, ...(keys ?? [])],
