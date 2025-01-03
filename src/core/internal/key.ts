@@ -1,5 +1,7 @@
+import * as AbiParameters from 'ox/AbiParameters'
 import type * as Bytes from 'ox/Bytes'
-import type * as Hex from 'ox/Hex'
+import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
@@ -25,14 +27,14 @@ export type Serialized = {
 }
 
 /** Key type to serialized key type mapping. */
-const toSerializedKeyType = {
+export const toSerializedKeyType = {
   p256: 0,
   'webauthn-p256': 1,
   secp256k1: 2,
 } as const
 
 /** Serialized key type to key type mapping. */
-const fromSerializedKeyType = {
+export const fromSerializedKeyType = {
   0: 'p256',
   1: 'webauthn-p256',
   2: 'secp256k1',
@@ -332,16 +334,19 @@ export function fromP256<const role extends 'admin' | 'session'>(
 ) {
   const { privateKey } = parameters
   const publicKey = P256.getPublicKey({ privateKey })
+  const type = 'p256' as const
   return from({
     expiry: parameters.expiry ?? 0,
     publicKey,
     role: parameters.role as 'admin' | 'session',
-    async sign() {
-      // TODO
-      // return P256.sign({ payload, privateKey })
-      return '0x' as const
+    async sign({ payload }) {
+      const signature = Signature.toHex(P256.sign({ payload, privateKey }))
+      return wrapSignature(signature, {
+        keyType: type,
+        publicKey,
+      })
     },
-    type: 'p256',
+    type,
   })
 }
 
@@ -386,18 +391,20 @@ export function fromSecp256k1<const role extends 'owner' | 'admin' | 'session'>(
 ) {
   const { privateKey, role } = parameters
   const publicKey = Secp256k1.getPublicKey({ privateKey })
+  const type = 'secp256k1' as const
   return from({
     expiry: parameters.expiry ?? 0,
     publicKey,
     role,
     async sign({ payload }) {
-      if (role === 'owner')
-        return Signature.toHex(Secp256k1.sign({ payload, privateKey }))
-      // const signature = Secp256k1.sign({ payload, privateKey })
-      // TODO
-      return '0x' as const
+      const signature = Signature.toHex(Secp256k1.sign({ payload, privateKey }))
+      if (role === 'owner') return signature
+      return wrapSignature(signature, {
+        keyType: type,
+        publicKey,
+      })
     },
-    type: 'secp256k1',
+    type,
   })
 }
 
@@ -444,26 +451,43 @@ export declare namespace fromSecp256k1 {
 export function fromWebAuthnP256<const role extends 'admin' | 'session'>(
   parameters: fromWebAuthnP256.Parameters<role>,
 ) {
-  const { credential } = parameters
-
+  const { credential, rpId } = parameters
+  const type = 'webauthn-p256' as const
   return from({
     expiry: parameters.expiry ?? 0,
     publicKey: credential.publicKey,
     role: parameters.role as 'admin' | 'session',
-    async sign() {
-      // const { signature, metadata } = await WebAuthnP256.sign({
-      //   challenge: payload,
-      //   credentialId: credential.id,
-      //   rpId,
-      // })
-      // return {
-      //   ...signature,
-      //   metadata,
-      // }
-      // TODO
-      return '0x' as const
+    async sign({ payload }) {
+      const {
+        signature: { r, s },
+        metadata,
+      } = await WebAuthnP256.sign({
+        challenge: payload,
+        credentialId: credential.id,
+        rpId,
+      })
+      const signature = AbiParameters.encode(
+        AbiParameters.from([
+          'struct WebAuthnAuth { bytes authenticatorData; string clientDataJSON; uint256 challengeIndex; uint256 typeIndex; bytes32 r; bytes32 s; }',
+          'WebAuthnAuth auth',
+        ]),
+        [
+          {
+            authenticatorData: metadata.authenticatorData,
+            challengeIndex: BigInt(metadata.challengeIndex),
+            clientDataJSON: metadata.clientDataJSON,
+            r: Hex.fromNumber(r, { size: 32 }),
+            s: Hex.fromNumber(s, { size: 32 }),
+            typeIndex: BigInt(metadata.typeIndex),
+          },
+        ],
+      )
+      return wrapSignature(signature, {
+        keyType: type,
+        publicKey: credential.publicKey,
+      })
     },
-    type: 'webauthn-p256',
+    type,
   })
 }
 
@@ -511,23 +535,23 @@ export function fromWebCryptoP256<const role extends 'admin' | 'session'>(
   parameters: fromWebCryptoP256.Parameters<role>,
 ) {
   const { keyPair } = parameters
-  const { publicKey } = keyPair
+  const { publicKey, privateKey } = keyPair
+  const type = 'p256' as const
   return from({
     expiry: parameters.expiry ?? 0,
     publicKey,
     role: parameters.role as 'admin' | 'session',
-    async sign() {
-      // const signature = await WebCryptoP256.sign({ payload, privateKey })
-      // return {
-      //   ...signature,
-      //   metadata: {
-      //     prehash: true,
-      //   },
-      // }
-      // TODO
-      return '0x' as const
+    async sign({ payload }) {
+      const signature = Signature.toHex(
+        await WebCryptoP256.sign({ payload, privateKey }),
+      )
+      return wrapSignature(signature, {
+        keyType: type,
+        prehash: true,
+        publicKey,
+      })
     },
-    type: 'p256',
+    type,
   })
 }
 
@@ -565,6 +589,36 @@ export function serialize(key: Key): Serialized {
     expiry,
     isSuperAdmin: role === 'owner' || role === 'admin',
     keyType: toSerializedKeyType[type],
-    publicKey: PublicKey.toHex(publicKey),
+    publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Internal
+///////////////////////////////////////////////////////////////////////////
+
+function wrapSignature(signature: Hex.Hex, options: wrapSignature.Options) {
+  const { keyType, prehash = false, publicKey } = options
+
+  const keyHash = Hash.keccak256(
+    AbiParameters.encode(
+      [{ type: 'uint8' }, { type: 'bytes32' }],
+      [
+        toSerializedKeyType[keyType],
+        Hash.keccak256(PublicKey.toHex(publicKey, { includePrefix: false })),
+      ],
+    ),
+  )
+  return AbiParameters.encodePacked(
+    ['bytes', 'bytes32', 'bool'],
+    [signature, keyHash, prehash],
+  )
+}
+
+declare namespace wrapSignature {
+  type Options = {
+    keyType: Key['type']
+    prehash?: boolean | undefined
+    publicKey: PublicKey.PublicKey
   }
 }

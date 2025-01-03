@@ -39,6 +39,7 @@ function defineAnvil(parameters: AnvilParameters) {
 
   const config = {
     ...parameters,
+    odyssey: true,
     hardfork: 'Prague',
   } as const
 

@@ -8,9 +8,10 @@ export async function getAccount(
   client: Client,
   parameters: {
     delegation: Address.Address
+    keys?: readonly Key.Key[] | undefined
   },
 ) {
-  const { delegation } = parameters
+  const { delegation, keys } = parameters
 
   const privateKey = Secp256k1.randomPrivateKey()
   const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
@@ -28,7 +29,7 @@ export async function getAccount(
   const account = Account.from({
     address,
     delegation,
-    keys: [key],
+    keys: [key, ...(keys ?? [])],
   })
 
   return {

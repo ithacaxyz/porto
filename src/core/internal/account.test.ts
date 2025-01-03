@@ -5,6 +5,7 @@ import { describe, expect, test } from 'vitest'
 import { getAccount } from '../../../test/src/account.js'
 import { client, delegation } from '../../../test/src/porto.js'
 import * as Account from './account.js'
+import * as Call from './call.js'
 import * as Delegation from './delegation.js'
 import * as Key from './key.js'
 
@@ -75,5 +76,66 @@ describe('sign', () => {
     })
 
     expect(valid).toBe(true)
+  })
+
+  test('key: P256 (admin)', async () => {
+    const key = Key.fromP256({
+      privateKey:
+        '0x0c57184baffb76254bcb3e225bb789082b9cc25f37d9805e2fbfcd5c681e72ee',
+      role: 'admin',
+    })
+
+    const { account } = await getAccount(client, {
+      delegation,
+      keys: [key],
+    })
+
+    // delegate
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+          to: account.address,
+        }),
+      ],
+      delegate: true,
+    })
+
+    const payload = Hex.random(32)
+
+    {
+      // sign
+      const [signature] = await Account.sign(account, {
+        key,
+        payloads: [payload],
+      })
+
+      // verify
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash: payload,
+        signature,
+      })
+
+      expect(valid).toBe(true)
+    }
+
+    {
+      // sign
+      const [signature] = await Account.sign(account, {
+        key: 1,
+        payloads: [payload],
+      })
+
+      // verify
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash: payload,
+        signature,
+      })
+
+      expect(valid).toBe(true)
+    }
   })
 })
