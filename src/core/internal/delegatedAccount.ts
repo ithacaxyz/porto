@@ -1,9 +1,10 @@
 import * as AbiParameters from 'ox/AbiParameters'
+import type * as Address from 'ox/Address'
 import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
-import type { Account, Chain, Client, Transport } from 'viem'
+import type { Account as Account_viem, Chain, Client, Transport } from 'viem'
 import {
   getEip712Domain as getEip712Domain_viem,
   readContract,
@@ -18,11 +19,19 @@ import {
   execute as execute_viem,
 } from 'viem/experimental/erc7821'
 
-import * as DelegatedAccount from './account.js'
 import * as Call from './call.js'
 import { delegationAbi } from './generated.js'
 import * as Key from './key.js'
 import type { OneOf } from './types.js'
+
+/** A delegated account. */
+export type Account = {
+  address: Address.Address
+  delegation: Address.Address
+  keys?: readonly Key.Key[] | undefined
+  label?: string | undefined
+  type: 'delegated'
+}
 
 export const domainNameAndVersion = {
   name: 'Delegation',
@@ -59,7 +68,8 @@ export async function execute<
     )
     return {
       request,
-      signatures: await DelegatedAccount.sign(account, {
+      signatures: await sign({
+        account,
         key,
         payloads,
       }),
@@ -119,18 +129,18 @@ export declare namespace execute {
      * - `DelegatedAccount`: account that was instantiated with `Delegation.create` or `Delegation.from`.
      * - `Account`: Viem account that has delegated to Porto.
      */
-    account: DelegatedAccount.Account | Account
+    account: Account | Account_viem
     /**
-     * Whether to perform a EIP-7702 authorization to delegate the account.
+     * Whether to initialize the delegation and prepare a sign payload for the EIP-7702 authorization.
      */
-    delegate?: boolean | undefined
+    initialize?: boolean | undefined
     /**
      * The executor of the execute transaction.
      *
      * - `Account`: execution will be attempted with the specified account.
      * - `undefined`: the transaction will be filled by the JSON-RPC server.
      */
-    executor?: Account | undefined
+    executor?: Account_viem | undefined
   } & OneOf<
       | {
           /**
@@ -156,6 +166,22 @@ export declare namespace execute {
     >
 
   export type ReturnType = ExecuteReturnType
+}
+
+/**
+ * Instantiates a delegated account.
+ *
+ * @param account - Account to instantiate.
+ * @returns An instantiated delegated account.
+ */
+export function from<const account extends from.Parameters>(
+  account: account | from.Parameters,
+): account & { type: 'delegated' } {
+  return { ...account, type: 'delegated' } as never
+}
+
+export declare namespace from {
+  type Parameters = Omit<Account, 'type'>
 }
 
 /**
@@ -191,7 +217,7 @@ export async function prepareExecute<
     await Promise.all([
       (async () => {
         if (!('delegation' in account)) return []
-        if (!parameters.delegate) return []
+        if (!parameters.initialize) return []
 
         const authorization = await prepareAuthorization(client, {
           account: account.address,
@@ -244,18 +270,18 @@ export declare namespace prepareExecute {
      * - `DelegatedAccount`: account that was instantiated with `Delegation.create` or `Delegation.from`.
      * - `Account`: Viem account that has delegated to Porto.
      */
-    account: DelegatedAccount.Account | Account
-    /**
-     * Whether to prepare a sign payload for the EIP-7702 authorization.
-     */
-    delegate?: boolean | undefined
+    account: Account | Account_viem
     /**
      * The executor of the execute transaction.
      *
      * - `Account`: execution will be attempted with the specified account.
      * - `undefined`: the transaction will be filled by the JSON-RPC server.
      */
-    executor?: Account | undefined
+    executor?: Account_viem | undefined
+    /**
+     * Whether to initialize the delegation and prepare a sign payload for the EIP-7702 authorization.
+     */
+    initialize?: boolean | undefined
     /**
      * Nonce to use for execution that will be invalidated by the delegated account.
      */
@@ -309,7 +335,7 @@ export declare namespace getEip712Domain {
     /**
      * The delegated account to get the EIP-712 domain for.
      */
-    account: DelegatedAccount.Account | Account
+    account: Account | Account_viem
   }
 }
 
@@ -385,7 +411,7 @@ export declare namespace getExecuteSignPayload {
     /**
      * The delegated account to execute the calls on.
      */
-    account: DelegatedAccount.Account | Account
+    account: Account | Account_viem
     /**
      * Calls to execute.
      */
@@ -429,10 +455,92 @@ export declare namespace keyAt {
     /**
      * The delegated account to extract the key from.
      */
-    account: DelegatedAccount.Account | Account
+    account: Account | Account_viem
     /**
      * Index of the key to extract.
      */
     index: number
   }
+}
+
+/**
+ * Extracts a signing key from a delegated account and signs payload(s).
+ *
+ * @example
+ * TODO
+ *
+ * @param parameters - Parameters.
+ * @returns Signatures.
+ */
+export async function sign(
+  parameters: sign.Parameters,
+): Promise<sign.ReturnType> {
+  const { account, key, payloads } = parameters
+
+  const [payload, authorizationPayload] = payloads
+
+  // In order to sign (and perform) an authorization, we need the EOA's root key.
+  // We will extract an "owner" key from either the `key` parameter or the provided `account`.
+  const ownerKey = (() => {
+    // Extract from `key` parameter.
+    if (typeof key === 'object' && key.role === 'owner') return key
+    if (typeof key === 'number' && account.keys?.[key]?.role === 'owner')
+      return account.keys[key]
+
+    // Extract from the `account`.
+    return account.keys?.find((key) => key.role === 'owner')
+  })()
+
+  // If we have an authorization payload, but no "owner" key on the account,
+  // then we cannot perform an authorization as we need the EOA's private key.
+  if (authorizationPayload && !ownerKey?.sign)
+    throw new Error('account does not have key of role "owner".')
+
+  // Extract a key to sign the payload with.
+  const signingKey = (() => {
+    // Extract from `key` parameter.
+    if (typeof key === 'object') return key
+
+    // Extract from the `account` (with optional `key` index).
+    if (!account.keys) return undefined
+    if (typeof key === 'number') return account.keys[key]
+    return account.keys[0]
+  })()
+
+  // If the account has no valid signing key, then we cannot sign the payload.
+  if (!signingKey || !signingKey.sign)
+    throw new Error('cannot find key to sign with.')
+
+  // Sign the payload(s).
+  const signatures = await Promise.all([
+    signingKey.sign({ payload }),
+    authorizationPayload && ownerKey?.sign
+      ? ownerKey.sign({ payload: authorizationPayload })
+      : undefined,
+  ])
+
+  return signatures as never
+}
+
+export declare namespace sign {
+  type Parameters = {
+    /**
+     * The delegated account to sign the payloads with.
+     */
+    account: Account
+    /**
+     * Key to sign the payloads with. If not provided, a key will be extracted from the `account`.
+     */
+    key?: number | Key.Key | undefined
+    /**
+     * Payloads to sign.
+     */
+    payloads:
+      | readonly [executePayload: Hex.Hex]
+      | readonly [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
+  }
+
+  type ReturnType =
+    | readonly [executeSignature: Hex.Hex]
+    | readonly [executeSignature: Hex.Hex, authorizationSignature: Hex.Hex]
 }

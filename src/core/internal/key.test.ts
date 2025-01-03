@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 import { getAccount } from '../../../test/src/account.js'
 import { client, delegation } from '../../../test/src/porto.js'
 import * as Call from './call.js'
-import * as Delegation from './delegation.js'
+import * as DelegatedAccount from './delegatedAccount.js'
 import * as Key from './key.js'
 
 describe('createP256', () => {
@@ -36,14 +36,14 @@ describe('createP256', () => {
       role: 'admin',
     })
 
-    await Delegation.execute(client, {
+    await DelegatedAccount.execute(client, {
       account,
       calls: [
         Call.authorize({
           key,
         }),
       ],
-      delegate: true,
+      initialize: true,
     })
 
     const payload = Hex.random(32)
@@ -91,14 +91,14 @@ describe('createSecp256k1', () => {
       role: 'admin',
     })
 
-    await Delegation.execute(client, {
+    await DelegatedAccount.execute(client, {
       account,
       calls: [
         Call.authorize({
           key,
         }),
       ],
-      delegate: true,
+      initialize: true,
     })
 
     const payload = Hex.random(32)
@@ -199,14 +199,14 @@ describe('createWebCryptoP256', () => {
       role: 'admin',
     })
 
-    await Delegation.execute(client, {
+    await DelegatedAccount.execute(client, {
       account,
       calls: [
         Call.authorize({
           key,
         }),
       ],
-      delegate: true,
+      initialize: true,
     })
 
     const payload = Hex.random(32)
