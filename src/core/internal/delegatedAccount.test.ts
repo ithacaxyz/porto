@@ -151,10 +151,10 @@ describe('execute', () => {
       await DelegatedAccount.execute(client, {
         account,
         calls: [
-          Call.setCanExecute(),
           Call.authorize({
             key,
           }),
+          Call.setCanExecute(),
         ],
         initialize: true,
       })
@@ -194,10 +194,10 @@ describe('execute', () => {
       await DelegatedAccount.execute(client, {
         account,
         calls: [
-          Call.setCanExecute(),
           Call.authorize({
             key,
           }),
+          Call.setCanExecute(),
         ],
         initialize: true,
       })
