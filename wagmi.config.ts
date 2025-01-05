@@ -3,7 +3,7 @@ import { foundry } from '@wagmi/cli/plugins'
 import { odysseyTestnet } from 'viem/chains'
 
 export default defineConfig({
-  out: 'src/generated.ts',
+  out: 'src/core/internal/generated.ts',
   contracts: [],
   plugins: [
     foundry({
