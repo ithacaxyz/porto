@@ -4,7 +4,16 @@ import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
-import type { Account, Chain, Client, Transport } from 'viem'
+import * as Errors from 'ox/Errors'
+import * as AbiError from 'ox/AbiError'
+import {
+  getContractError,
+  type Account,
+  type BaseError,
+  type Chain,
+  type Client,
+  type Transport,
+} from 'viem'
 import {
   getEip712Domain as getEip712Domain_viem,
   readContract,
@@ -52,8 +61,6 @@ export async function execute<
     const { account, nonce, key, signatures } = parameters
 
     if (nonce && signatures) return { request: parameters, signatures }
-    if (account.type !== 'delegated')
-      return { request: parameters, signatures: undefined }
 
     const { request, signPayloads: payloads } = await prepareExecute(
       client,
@@ -86,13 +93,10 @@ export async function execute<
     ]
   })()
 
-  const opData =
-    typeof nonce === 'bigint' && executeSignature
-      ? AbiParameters.encodePacked(
-          ['uint256', 'bytes'],
-          [nonce, executeSignature],
-        )
-      : undefined
+  const opData = AbiParameters.encodePacked(
+    ['uint256', 'bytes'],
+    [nonce, executeSignature],
+  )
 
   try {
     return await execute_viem(client, {
@@ -102,9 +106,16 @@ export async function execute<
       authorizationList,
       opData,
     } as ExecuteParameters)
-  } catch (error) {
-    // biome-ignore lint/complexity/noUselessCatch: TODO: Handle contract errors
-    throw error
+  } catch (e) {
+    const error = e as BaseError
+    const abiError = (() => {
+      const cause = error.walk((e) => 'data' in (e as BaseError))
+      if (!cause) return undefined
+      if (!('data' in cause)) return undefined
+      if (cause.data === '0x') return undefined
+      return AbiError.fromAbi(delegationAbi, cause.data as Hex.Hex)
+    })()
+    throw new ExecutionError(error, { abiError })
   }
 }
 
@@ -357,7 +368,6 @@ export async function getExecuteSignPayload<
   ])
 
   if (!client.chain) throw new Error('chain is required.')
-
   return TypedData.getSignPayload({
     domain: {
       name: domain.name,
@@ -442,5 +452,24 @@ export declare namespace keyAt {
      * Index of the key to extract.
      */
     index: number
+  }
+}
+
+/** Thrown when the execution fails. */
+export class ExecutionError extends Errors.BaseError<BaseError> {
+  override readonly name = 'Delegation.ExecutionError'
+
+  abiError?: AbiError.AbiError | undefined
+
+  constructor(
+    cause: BaseError,
+    { abiError }: { abiError?: AbiError.AbiError | undefined } = {},
+  ) {
+    super('An error occurred while executing calls.', {
+      cause,
+      metaMessages: [abiError && 'Reason: ' + abiError.name].filter(Boolean),
+    })
+
+    this.abiError = abiError
   }
 }

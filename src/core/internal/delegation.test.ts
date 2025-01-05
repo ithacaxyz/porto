@@ -223,6 +223,100 @@ describe('execute', () => {
   })
 
   describe('arbitrary calls', () => {
+    test('key: p256, executor: JSON-RPC', async () => {
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      const { account } = await getAccount(client, { keys: [key] })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [Call.setCanExecute(), Call.authorize({ key })],
+        delegation,
+      })
+
+      const alice = privateKeyToAccount(Secp256k1.randomPrivateKey())
+      const bob = privateKeyToAccount(Secp256k1.randomPrivateKey())
+
+      const balances_before = await Promise.all([
+        getBalance(client, { address: account.address }),
+        getBalance(client, { address: alice.address }),
+        getBalance(client, { address: bob.address }),
+      ])
+
+      expect(balances_before[1]).toEqual(Value.fromEther('0'))
+      expect(balances_before[2]).toEqual(Value.fromEther('0'))
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          { to: alice.address, value: Value.fromEther('1') },
+          { to: bob.address, value: Value.fromEther('0.5') },
+        ],
+        key,
+      })
+
+      const balances_after = await Promise.all([
+        getBalance(client, { address: account.address }),
+        getBalance(client, { address: alice.address }),
+        getBalance(client, { address: bob.address }),
+      ])
+
+      expect(balances_after[0]).not.toBeGreaterThan(
+        balances_before[0] - Value.fromEther('1'),
+      )
+      expect(balances_after[1]).toEqual(Value.fromEther('1'))
+      expect(balances_after[2]).toEqual(Value.fromEther('0.5'))
+    })
+
+    test('key: webcrypto, executor: JSON-RPC', async () => {
+      const key = await Key.createWebCryptoP256({
+        role: 'admin',
+      })
+
+      const { account } = await getAccount(client, { keys: [key] })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [Call.setCanExecute(), Call.authorize({ key })],
+        delegation,
+      })
+
+      const alice = privateKeyToAccount(Secp256k1.randomPrivateKey())
+      const bob = privateKeyToAccount(Secp256k1.randomPrivateKey())
+
+      const balances_before = await Promise.all([
+        getBalance(client, { address: account.address }),
+        getBalance(client, { address: alice.address }),
+        getBalance(client, { address: bob.address }),
+      ])
+
+      expect(balances_before[1]).toEqual(Value.fromEther('0'))
+      expect(balances_before[2]).toEqual(Value.fromEther('0'))
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          { to: alice.address, value: Value.fromEther('1') },
+          { to: bob.address, value: Value.fromEther('0.5') },
+        ],
+        key,
+      })
+
+      const balances_after = await Promise.all([
+        getBalance(client, { address: account.address }),
+        getBalance(client, { address: alice.address }),
+        getBalance(client, { address: bob.address }),
+      ])
+
+      expect(balances_after[0]).not.toBeGreaterThan(
+        balances_before[0] - Value.fromEther('1'),
+      )
+      expect(balances_after[1]).toEqual(Value.fromEther('1'))
+      expect(balances_after[2]).toEqual(Value.fromEther('0.5'))
+    })
+
     test('key: owner, executor: JSON-RPC', async () => {
       const { account } = await getAccount(client)
 
@@ -307,6 +401,65 @@ describe('execute', () => {
       expect(balances_after[1]).toEqual(Value.fromEther('1'))
       expect(balances_after[2]).toEqual(Value.fromEther('0.5'))
     })
+  })
+
+  test('error: insufficient funds', async () => {
+    const { account } = await getAccount(client)
+
+    await expect(() =>
+      Delegation.execute(client, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: Value.fromEther('99999'),
+          },
+        ],
+        delegation,
+      }),
+    ).rejects.toThrowError('An error occurred while executing calls.')
+  })
+
+  test('error: unauthorized', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const { account } = await getAccount(client)
+
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.setCanExecute({ enabled: false, key }),
+        Call.authorize({ key }),
+      ],
+      delegation,
+    })
+
+    await expect(() =>
+      Delegation.execute(client, {
+        account,
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        key,
+      }),
+    ).rejects.toThrowError('Reason: Unauthorized')
+  })
+
+  test('error: key does not exist ', async () => {
+    const { account } = await getAccount(client)
+
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    await expect(() =>
+      Delegation.execute(client, {
+        account,
+        calls: [],
+        delegation,
+        key,
+      }),
+    ).rejects.toThrowError('Reason: KeyDoesNotExist')
   })
 })
 

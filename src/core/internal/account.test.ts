@@ -142,6 +142,40 @@ describe('sign', () => {
     }
   })
 
+  test('behavior: with key', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const { account } = await getAccount(client, {
+      keys: [key],
+    })
+
+    await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+        }),
+      ],
+      delegation,
+    })
+
+    const payload = Hex.random(32)
+
+    const [signature] = await Account.sign(account, {
+      payloads: [payload],
+    })
+
+    const valid = await verifyHash(client, {
+      address: account.address,
+      hash: payload,
+      signature,
+    })
+
+    expect(valid).toBe(true)
+  })
+
   test('behavior: with authorization payload', async () => {
     const key = Key.createP256({
       role: 'admin',
