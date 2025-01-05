@@ -83,6 +83,7 @@ export type ConnectReturnType = readonly {
 }[]
 
 export type CreateAccountParameters = {
+  chainId?: Hex.Hex | undefined
   label?: string | undefined
 }
 

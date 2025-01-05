@@ -8,7 +8,7 @@ const anvil = defineChain({
   ...chains.mainnet,
   contracts: {
     ...chains.mainnet.contracts,
-    accountDelegation: {
+    delegation: {
       address: '0x0ff027b63351364071425cF65d4FEce75a8e17B8',
     },
   },
@@ -24,6 +24,5 @@ export const porto = Porto.create({
   },
 })
 
-export const state = porto._internal.store.getState()
-export const client = state.client.extend(() => ({ mode: 'anvil' }))
-export const delegation = state.delegation
+export const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+export const delegation = client.chain.contracts.delegation.address

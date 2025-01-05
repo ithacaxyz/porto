@@ -5,7 +5,7 @@ import { delegationAddress } from './internal/generated.js'
 
 export type Chain = Chain_viem & {
   contracts: Chain_viem['contracts'] & {
-    accountDelegation: {
+    delegation: {
       address: Address.Address
     }
   }
@@ -19,7 +19,7 @@ export const odysseyTestnet = /*#__PURE__*/ define({
   ...chains.odysseyTestnet,
   contracts: {
     ...chains.odysseyTestnet.contracts,
-    accountDelegation: {
+    delegation: {
       address: delegationAddress[chains.odysseyTestnet.id],
     },
   },

@@ -1,18 +1,25 @@
 import * as Mipd from 'mipd'
 import type { RpcSchema } from 'ox'
-// import * as Address from 'ox/Address'
+import * as Address from 'ox/Address'
+import * as Bytes from 'ox/Bytes'
 // import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
 // import * as Json from 'ox/Json'
 // import * as PersonalMessage from 'ox/PersonalMessage'
 import * as ox_Provider from 'ox/Provider'
+import * as Secp256k1 from 'ox/Secp256k1'
 // import * as PublicKey from 'ox/PublicKey'
 // import * as RpcResponse from 'ox/RpcResponse'
 // import * as Signature from 'ox/Signature'
 // import * as TypedData from 'ox/TypedData'
+import type { Client, Transport } from 'viem'
 
 import type * as Chains from '../Chains.js'
-import type { Config, Store } from '../Porto.js'
+import * as Porto from '../Porto.js'
+import * as Account from './account.js'
+import * as Call from './call.js'
+import * as Delegation from './delegation.js'
+import * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
 export type Provider = ox_Provider.Provider<{
@@ -35,7 +42,13 @@ export function from<
   ],
 >(parameters: from.Parameters<chains>): Provider {
   const { config, store } = parameters
-  const { announceProvider } = config
+  const { announceProvider, headless, keystoreHost } = config
+
+  function getClient(chainId_?: Hex.Hex | number | undefined) {
+    const chainId =
+      typeof chainId_ === 'string' ? Hex.toNumber(chainId_) : chainId_
+    return Porto.getClient({ _internal: parameters }, { chainId })
+  }
 
   const emitter = ox_Provider.createEmitter()
   const provider = ox_Provider.from({
@@ -54,7 +67,7 @@ export function from<
 
         case 'eth_chainId': {
           return Hex.fromNumber(
-            state.chainId,
+            state.chain.id,
           ) satisfies RpcSchema.ExtractReturnType<Schema.Schema, 'eth_chainId'>
         }
 
@@ -202,30 +215,29 @@ export function from<
         //   >
         // }
 
-        // TODO
-        // case 'experimental_createAccount': {
-        //   if (!headless) throw new ox_Provider.UnsupportedMethodError()
+        case 'experimental_createAccount': {
+          if (!headless) throw new ox_Provider.UnsupportedMethodError()
 
-        //   const [{ label }] = (params as RpcSchema.ExtractParams<
-        //     Schema.Schema,
-        //     'experimental_createAccount'
-        //   >) ?? [{}]
+          const [{ chainId, label }] = (params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'experimental_createAccount'
+          >) ?? [{}]
 
-        //   // TODO: wait for tx to be included/make counterfactual?
-        //   const { account } = await AccountDelegation.create(state.client, {
-        //     delegation: state.delegation,
-        //     label,
-        //     rpId: keystoreHost,
-        //   })
+          const client = getClient(chainId)
 
-        //   store.setState((x) => ({ ...x, accounts: [account] }))
+          const { account } = await createAccount(client, {
+            keystoreHost,
+            label,
+          })
 
-        //   emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
-        //   return account.address satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'experimental_createAccount'
-        //   >
-        // }
+          store.setState((x) => ({ ...x, accounts: [account] }))
+
+          emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
+          return account.address satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_createAccount'
+          >
+        }
 
         case 'experimental_disconnect': {
           store.setState((x) => ({ ...x, accounts: [] }))
@@ -446,7 +458,9 @@ export function from<
               'wallet_getCallsStatus'
             >) ?? []
 
-          const receipt = await state.client.request({
+          const client = getClient()
+
+          const receipt = await client.request({
             method: 'eth_getTransactionReceipt',
             params: [id! as Hex.Hex],
           })
@@ -462,19 +476,23 @@ export function from<
         }
 
         case 'wallet_getCapabilities': {
-          return {
-            [Hex.fromNumber(state.chainId)]: {
-              atomicBatch: {
-                supported: true,
-              },
-              createAccount: {
-                supported: true,
-              },
-              sessions: {
-                supported: true,
-              },
+          const value = {
+            atomicBatch: {
+              supported: true,
             },
-          } satisfies RpcSchema.ExtractReturnType<
+            createAccount: {
+              supported: true,
+            },
+            sessions: {
+              supported: true,
+            },
+          }
+
+          const capabilities = {} as Record<Hex.Hex, typeof value>
+          for (const chain of config.chains)
+            capabilities[Hex.fromNumber(chain.id)] = value
+
+          return capabilities satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_getCapabilities'
           >
@@ -521,7 +539,7 @@ export function from<
         default: {
           if (method.startsWith('wallet_'))
             throw new ox_Provider.UnsupportedMethodError()
-          return state.client.request({ method, params } as any)
+          return getClient().request({ method, params } as any)
         }
       }
     },
@@ -569,8 +587,8 @@ export declare namespace from {
       ...Chains.Chain[],
     ],
   > = {
-    config: Config<chains>
-    store: Store
+    config: Porto.Config<chains>
+    store: Porto.Store
   }
 }
 
@@ -585,6 +603,41 @@ export function announce(provider: Provider) {
     },
     provider: provider as any,
   })
+}
+
+async function createAccount(
+  client: Client<Transport, Chains.Chain>,
+  parameters: {
+    label?: string | undefined
+    keystoreHost: Porto.Config['keystoreHost']
+  },
+) {
+  const { keystoreHost } = parameters
+
+  const privateKey = Secp256k1.randomPrivateKey()
+  const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
+
+  const label =
+    parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+
+  const key = await Key.createWebAuthnP256({
+    label,
+    role: 'admin',
+    rpId: keystoreHost,
+    userId: Bytes.from(address),
+  })
+
+  const account = Account.fromPrivateKey(privateKey, { keys: [key] })
+  const delegation = client.chain.contracts.delegation.address
+
+  // TODO: wait for tx to be included?
+  const hash = await Delegation.execute(client, {
+    account,
+    calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
+    delegation,
+  })
+
+  return { account, hash }
 }
 
 // TODO

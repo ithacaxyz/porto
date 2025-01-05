@@ -1,4 +1,4 @@
-import { AbiFunction, Hex, Json, PublicKey, TypedData, Value } from 'ox'
+import { AbiFunction, Hex, Json, TypedData, Value } from 'ox'
 import { Porto } from 'porto'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { createClient, custom } from 'viem'
@@ -9,9 +9,16 @@ import {
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
+import * as Anvil from './anvil'
 import { ExperimentERC20 } from './contracts'
 
-const porto = Porto.create()
+export const porto = Porto.create({
+  chains: [Anvil.chain(), ...Porto.defaultConfig.chains],
+  transports: {
+    ...Porto.defaultConfig.transports,
+    [Anvil.chain().id]: Anvil.transport(),
+  },
+})
 
 const client = createClient({
   transport: custom(porto.provider),
@@ -56,20 +63,7 @@ function State() {
           <p>Chain ID: {state.chain.id}</p>
           <p>
             Keys:{' '}
-            <pre>
-              {Json.stringify(
-                state.accounts?.[0]?.keys
-                  .filter((x) => x.status === 'unlocked')
-                  .map((x) => ({
-                    expiry: x.expiry,
-                    publicKey: PublicKey.toHex(x.publicKey),
-                    status: x.status,
-                    type: x.type,
-                  })),
-                null,
-                2,
-              )}
-            </pre>
+            <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
           </p>
         </>
       )}
