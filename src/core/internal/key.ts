@@ -1,4 +1,5 @@
 import * as AbiParameters from 'ox/AbiParameters'
+import * as Address from 'ox/Address'
 import type * as Bytes from 'ox/Bytes'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
@@ -8,11 +9,12 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
+import type { OneOf } from './types.js'
 
 /** Key on a delegated account. */
 export type Key = {
   expiry: number
-  publicKey: PublicKey.PublicKey
+  publicKey: Hex.Hex
   sign?: ((parameters: { payload: Hex.Hex }) => Promise<Hex.Hex>) | undefined
   role: 'admin' | 'session'
   type: 'p256' | 'secp256k1' | 'webauthn-p256'
@@ -264,7 +266,7 @@ export declare namespace createWebCryptoP256 {
 export function deserialize(serialized: Serialized): Key {
   return {
     expiry: serialized.expiry,
-    publicKey: PublicKey.fromHex(serialized.publicKey),
+    publicKey: serialized.publicKey,
     role: serialized.isSuperAdmin ? 'admin' : 'session',
     type: (fromSerializedKeyType as any)[serialized.keyType],
   }
@@ -333,7 +335,9 @@ export function fromP256<const role extends Key['role']>(
   parameters: fromP256.Parameters<role>,
 ) {
   const { privateKey } = parameters
-  const publicKey = P256.getPublicKey({ privateKey })
+  const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+    includePrefix: false,
+  })
   const type = 'p256' as const
   return from({
     expiry: parameters.expiry ?? 0,
@@ -390,19 +394,30 @@ export function fromSecp256k1<const role extends Key['role']>(
   parameters: fromSecp256k1.Parameters<role>,
 ) {
   const { privateKey, role } = parameters
-  const publicKey = Secp256k1.getPublicKey({ privateKey })
+  const address = (() => {
+    if (parameters.address) return parameters.address.toLowerCase() as Hex.Hex
+    const publicKey =
+      parameters.publicKey ??
+      Secp256k1.getPublicKey({ privateKey: privateKey! })
+    return Address.fromPublicKey(publicKey)
+  })()
+  const publicKey = AbiParameters.encode([{ type: 'address' }], [address])
   const type = 'secp256k1' as const
   return from({
     expiry: parameters.expiry ?? 0,
     publicKey,
     role,
-    async sign({ payload }) {
-      const signature = Signature.toHex(Secp256k1.sign({ payload, privateKey }))
-      return wrapSignature(signature, {
-        keyType: type,
-        publicKey,
-      })
-    },
+    sign: privateKey
+      ? async ({ payload }) => {
+          const signature = Signature.toHex(
+            Secp256k1.sign({ payload, privateKey }),
+          )
+          return wrapSignature(signature, {
+            keyType: type,
+            publicKey,
+          })
+        }
+      : undefined,
     type,
   })
 }
@@ -411,11 +426,22 @@ export declare namespace fromSecp256k1 {
   type Parameters<role extends Key['role'] = Key['role']> = {
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
-    /** Secp256k1 private key. */
-    privateKey: Hex.Hex
     /** Role. */
     role: role | Key['role']
-  }
+  } & OneOf<
+    | {
+        /** Ethereum address. */
+        address: Address.Address
+      }
+    | {
+        /** Secp256k1 public key. */
+        publicKey: PublicKey.PublicKey
+      }
+    | {
+        /** Secp256k1 private key. */
+        privateKey: Hex.Hex
+      }
+  >
 }
 
 /**
@@ -449,10 +475,13 @@ export function fromWebAuthnP256<const role extends Key['role']>(
   parameters: fromWebAuthnP256.Parameters<role>,
 ) {
   const { credential, rpId } = parameters
+  const publicKey = PublicKey.toHex(credential.publicKey, {
+    includePrefix: false,
+  })
   const type = 'webauthn-p256' as const
   return from({
     expiry: parameters.expiry ?? 0,
-    publicKey: credential.publicKey,
+    publicKey,
     role: parameters.role as Key['role'],
     async sign({ payload }) {
       const {
@@ -481,7 +510,7 @@ export function fromWebAuthnP256<const role extends Key['role']>(
       )
       return wrapSignature(signature, {
         keyType: type,
-        publicKey: credential.publicKey,
+        publicKey,
       })
     },
     type,
@@ -532,7 +561,10 @@ export function fromWebCryptoP256<const role extends Key['role']>(
   parameters: fromWebCryptoP256.Parameters<role>,
 ) {
   const { keyPair } = parameters
-  const { publicKey, privateKey } = keyPair
+  const { privateKey } = keyPair
+  const publicKey = PublicKey.toHex(keyPair.publicKey, {
+    includePrefix: false,
+  })
   const type = 'p256' as const
   return from({
     expiry: parameters.expiry ?? 0,
@@ -585,10 +617,7 @@ export function hash(key: Pick<Key, 'publicKey' | 'type'>): Hex.Hex {
   return Hash.keccak256(
     AbiParameters.encode(
       [{ type: 'uint8' }, { type: 'bytes32' }],
-      [
-        toSerializedKeyType[type],
-        Hash.keccak256(PublicKey.toHex(publicKey, { includePrefix: false })),
-      ],
+      [toSerializedKeyType[type], Hash.keccak256(publicKey)],
     ),
   )
 }
@@ -616,7 +645,7 @@ export function serialize(key: Key): Serialized {
     expiry,
     isSuperAdmin: role === 'admin',
     keyType: toSerializedKeyType[type],
-    publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+    publicKey,
   }
 }
 
@@ -638,6 +667,6 @@ declare namespace wrapSignature {
   type Options = {
     keyType: Key['type']
     prehash?: boolean | undefined
-    publicKey: PublicKey.PublicKey
+    publicKey: Hex.Hex
   }
 }

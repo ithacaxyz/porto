@@ -1,19 +1,12 @@
+import * as AbiError from 'ox/AbiError'
 import * as AbiParameters from 'ox/AbiParameters'
 import type * as Address from 'ox/Address'
 import * as Authorization from 'ox/Authorization'
+import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
-import * as Errors from 'ox/Errors'
-import * as AbiError from 'ox/AbiError'
-import {
-  getContractError,
-  type Account,
-  type BaseError,
-  type Chain,
-  type Client,
-  type Transport,
-} from 'viem'
+import type { Account, BaseError, Chain, Client, Transport } from 'viem'
 import {
   getEip712Domain as getEip712Domain_viem,
   readContract,
