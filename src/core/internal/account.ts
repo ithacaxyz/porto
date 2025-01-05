@@ -1,14 +1,16 @@
-import type * as Address from 'ox/Address'
+import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
+import * as Secp256k1 from 'ox/Secp256k1'
+import * as Signature from 'ox/Signature'
 
 import type * as Key from './key.js'
+import type { Compute, RequiredBy } from './types.js'
 
 /** A delegated account. */
 export type Account = {
   address: Address.Address
-  delegation: Address.Address
   keys?: readonly Key.Key[] | undefined
-  label?: string | undefined
+  sign?: ((parameters: { payload: Hex.Hex }) => Promise<Hex.Hex>) | undefined
   type: 'delegated'
 }
 
@@ -20,12 +22,57 @@ export type Account = {
  */
 export function from<const account extends from.Parameters>(
   account: account | from.Parameters,
-): account & { type: 'delegated' } {
+): Compute<Readonly<account & { type: 'delegated' }>> {
   return { ...account, type: 'delegated' } as never
 }
 
 export declare namespace from {
   type Parameters = Omit<Account, 'type'>
+}
+
+/**
+ * Instantiates a delegated account from a private key.
+ *
+ * @param privateKey - Private key.
+ * @param options - Options.
+ * @returns An instantiated delegated account.
+ */
+export function fromPrivateKey<
+  const options extends fromPrivateKey.Options = fromPrivateKey.Options,
+>(
+  privateKey: Hex.Hex,
+  options: options | fromPrivateKey.Options = {},
+): Compute<fromPrivateKey.ReturnType<options>> {
+  const { keys } = options
+  const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
+  return from({
+    address,
+    keys,
+    async sign({ payload }) {
+      return Signature.toHex(
+        Secp256k1.sign({
+          privateKey,
+          payload,
+        }),
+      )
+    },
+  }) as fromPrivateKey.ReturnType<options>
+}
+
+export declare namespace fromPrivateKey {
+  type Options = {
+    /**
+     * Keys to instantiate.
+     */
+    keys?: readonly Key.Key[] | undefined
+  }
+
+  type ReturnType<options extends Options = Options> = Readonly<
+    RequiredBy<Omit<Account, 'keys'>, 'sign'> &
+      (options['keys'] extends readonly Key.Key[]
+        ? { keys: options['keys'] }
+        : { keys?: Account['keys'] })
+  >
 }
 
 /**
@@ -37,40 +84,38 @@ export declare namespace from {
  * @param parameters - Parameters.
  * @returns Signatures.
  */
-export async function sign(
-  account: Account,
-  parameters: sign.Parameters,
-): Promise<sign.ReturnType> {
+export async function sign<
+  const account extends Account,
+  payloads extends sign.Payloads,
+>(
+  account: account | Account,
+  parameters: sign.Parameters<account, payloads>,
+): Promise<Compute<payloads>> {
   const { key, payloads } = parameters
 
-  const [payload, authorizationPayload] = payloads
+  const [payload, authorizationPayload] = payloads as {} as [Hex.Hex, Hex.Hex]
 
-  // In order to sign (and perform) an authorization, we need the EOA's root key.
-  // We will extract an "owner" key from either the `key` parameter or the provided `account`.
-  const ownerKey = (() => {
-    // Extract from `key` parameter.
-    if (typeof key === 'object' && key.role === 'owner') return key
-    if (typeof key === 'number' && account.keys?.[key]?.role === 'owner')
-      return account.keys[key]
-
-    // Extract from the `account`.
-    return account.keys?.find((key) => key.role === 'owner')
-  })()
-
-  // If we have an authorization payload, but no "owner" key on the account,
+  // If we have an authorization payload, but no root signing key on the account,
   // then we cannot perform an authorization as we need the EOA's private key.
-  if (authorizationPayload && !ownerKey?.sign)
-    throw new Error('account does not have key of role "owner".')
+  if (authorizationPayload && !account.sign)
+    throw new Error('cannot find root signing key to sign authorization.')
 
   // Extract a key to sign the payload with.
   const signingKey = (() => {
     // Extract from `key` parameter.
     if (typeof key === 'object') return key
 
-    // Extract from the `account` (with optional `key` index).
-    if (!account.keys) return undefined
-    if (typeof key === 'number') return account.keys[key]
-    return account.keys[0]
+    // If we have an authorization payload, use the root signing key.
+    if (authorizationPayload) return account
+
+    // Extract from `account.keys` (with optional `key` index).
+    if (account.keys && account.keys.length > 0) {
+      if (typeof key === 'number') return account.keys[key]
+      return account.keys[0]
+    }
+
+    // Fall back to `account.sign`.
+    return account
   })()
 
   // If the account has no valid signing key, then we cannot sign the payload.
@@ -80,8 +125,8 @@ export async function sign(
   // Sign the payload(s).
   const signatures = await Promise.all([
     signingKey.sign({ payload }),
-    authorizationPayload && ownerKey?.sign
-      ? ownerKey.sign({ payload: authorizationPayload })
+    authorizationPayload && account.sign
+      ? account.sign({ payload: authorizationPayload })
       : undefined,
   ])
 
@@ -89,7 +134,10 @@ export async function sign(
 }
 
 export declare namespace sign {
-  type Parameters = {
+  type Parameters<
+    account extends Account = Account,
+    payloads extends Payloads = Payloads,
+  > = {
     /**
      * Key to sign the payloads with. If not provided, a key will be extracted from the `account`.
      */
@@ -97,12 +145,13 @@ export declare namespace sign {
     /**
      * Payloads to sign.
      */
-    payloads:
-      | readonly [executePayload: Hex.Hex]
-      | readonly [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
+    payloads: payloads &
+      (account extends { sign: NonNullable<Account['sign']> }
+        ? Payloads
+        : readonly [execute: Hex.Hex])
   }
 
-  type ReturnType =
-    | readonly [executeSignature: Hex.Hex]
-    | readonly [executeSignature: Hex.Hex, authorizationSignature: Hex.Hex]
+  type Payloads =
+    | readonly [execute: Hex.Hex]
+    | readonly [execute: Hex.Hex, authorization: Hex.Hex]
 }

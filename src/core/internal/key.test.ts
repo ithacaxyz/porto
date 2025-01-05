@@ -28,9 +28,7 @@ describe('createP256', () => {
   })
 
   test('behavior: authorize + sign', async () => {
-    const { account } = await getAccount(client, {
-      delegation,
-    })
+    const { account } = await getAccount(client)
 
     const key = Key.createP256({
       role: 'admin',
@@ -43,7 +41,7 @@ describe('createP256', () => {
           key,
         }),
       ],
-      initialize: true,
+      delegation,
     })
 
     const payload = Hex.random(32)
@@ -83,9 +81,7 @@ describe('createSecp256k1', () => {
   // TODO: unskip when https://github.com/ithacaxyz/account/blob/main/src/Delegation.sol#L392
   // compares against pubkey instead of address
   test.skip('behavior: authorize + sign', async () => {
-    const { account } = await getAccount(client, {
-      delegation,
-    })
+    const { account } = await getAccount(client)
 
     const key = Key.createSecp256k1({
       role: 'admin',
@@ -98,7 +94,7 @@ describe('createSecp256k1', () => {
           key,
         }),
       ],
-      initialize: true,
+      delegation,
     })
 
     const payload = Hex.random(32)
@@ -191,9 +187,7 @@ describe('createWebCryptoP256', () => {
   })
 
   test('behavior: authorize + sign', async () => {
-    const { account } = await getAccount(client, {
-      delegation,
-    })
+    const { account } = await getAccount(client)
 
     const key = await Key.createWebCryptoP256({
       role: 'admin',
@@ -206,7 +200,7 @@ describe('createWebCryptoP256', () => {
           key,
         }),
       ],
-      initialize: true,
+      delegation,
     })
 
     const payload = Hex.random(32)

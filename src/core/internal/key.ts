@@ -13,8 +13,8 @@ import * as WebCryptoP256 from 'ox/WebCryptoP256'
 export type Key = {
   expiry: number
   publicKey: PublicKey.PublicKey
-  sign?: (parameters: { payload: Hex.Hex }) => Promise<Hex.Hex> | undefined
-  role: 'owner' | 'admin' | 'session'
+  sign?: ((parameters: { payload: Hex.Hex }) => Promise<Hex.Hex>) | undefined
+  role: 'admin' | 'session'
   type: 'p256' | 'secp256k1' | 'webauthn-p256'
 }
 
@@ -62,7 +62,7 @@ export const fromSerializedKeyType = {
  * @param parameters - Key parameters.
  * @returns P256 key.
  */
-export function createP256<const role extends 'admin' | 'session'>(
+export function createP256<const role extends Key['role']>(
   parameters: createP256.Parameters<role>,
 ) {
   const privateKey = P256.randomPrivateKey()
@@ -73,7 +73,7 @@ export function createP256<const role extends 'admin' | 'session'>(
 }
 
 export declare namespace createP256 {
-  type Parameters<role extends 'admin' | 'session'> = {
+  type Parameters<role extends Key['role']> = {
     /** Expiry. */
     expiry?: fromP256.Parameters['expiry']
     /** Role. */
@@ -103,7 +103,7 @@ export declare namespace createP256 {
  * @param parameters - Key parameters.
  * @returns Secp256k1 key.
  */
-export function createSecp256k1<const role extends 'admin' | 'session'>(
+export function createSecp256k1<const role extends Key['role']>(
   parameters: createSecp256k1.Parameters<role>,
 ) {
   const privateKey = Secp256k1.randomPrivateKey()
@@ -114,7 +114,7 @@ export function createSecp256k1<const role extends 'admin' | 'session'>(
 }
 
 export declare namespace createSecp256k1 {
-  type Parameters<role extends 'admin' | 'session'> = {
+  type Parameters<role extends Key['role']> = {
     /** Expiry. */
     expiry?: fromSecp256k1.Parameters['expiry']
     /** Role. */
@@ -149,9 +149,9 @@ export declare namespace createSecp256k1 {
  * @param parameters - Key parameters.
  * @returns WebAuthnP256 key.
  */
-export async function createWebAuthnP256<
-  const role extends 'admin' | 'session',
->(parameters: createWebAuthnP256.Parameters<role>) {
+export async function createWebAuthnP256<const role extends Key['role']>(
+  parameters: createWebAuthnP256.Parameters<role>,
+) {
   const { createFn, label, rpId, userId } = parameters
 
   const credential = await WebAuthnP256.createCredential({
@@ -181,7 +181,7 @@ export async function createWebAuthnP256<
 }
 
 export declare namespace createWebAuthnP256 {
-  type Parameters<role extends 'admin' | 'session'> = {
+  type Parameters<role extends Key['role']> = {
     /**
      * Credential creation function. Useful for environments that do not support
      * the WebAuthn API natively (i.e. React Native or testing environments).
@@ -224,9 +224,9 @@ export declare namespace createWebAuthnP256 {
  * @param parameters - Key parameters.
  * @returns WebCryptoP256 key.
  */
-export async function createWebCryptoP256<
-  const role extends 'admin' | 'session',
->(parameters: createWebCryptoP256.Parameters<role>) {
+export async function createWebCryptoP256<const role extends Key['role']>(
+  parameters: createWebCryptoP256.Parameters<role>,
+) {
   const keyPair = await WebCryptoP256.createKeyPair()
   return fromWebCryptoP256({
     ...parameters,
@@ -235,7 +235,7 @@ export async function createWebCryptoP256<
 }
 
 export declare namespace createWebCryptoP256 {
-  type Parameters<role extends 'admin' | 'session'> = {
+  type Parameters<role extends Key['role']> = {
     /** Expiry. */
     expiry?: fromP256.Parameters['expiry']
     /** Role. */
@@ -329,7 +329,7 @@ export function from<const key extends Key>(
  * @param parameters - Key parameters.
  * @returns P256 key.
  */
-export function fromP256<const role extends 'admin' | 'session'>(
+export function fromP256<const role extends Key['role']>(
   parameters: fromP256.Parameters<role>,
 ) {
   const { privateKey } = parameters
@@ -338,7 +338,7 @@ export function fromP256<const role extends 'admin' | 'session'>(
   return from({
     expiry: parameters.expiry ?? 0,
     publicKey,
-    role: parameters.role as 'admin' | 'session',
+    role: parameters.role as Key['role'],
     async sign({ payload }) {
       const signature = Signature.toHex(P256.sign({ payload, privateKey }))
       return wrapSignature(signature, {
@@ -351,13 +351,13 @@ export function fromP256<const role extends 'admin' | 'session'>(
 }
 
 export declare namespace fromP256 {
-  type Parameters<role extends 'admin' | 'session' = 'admin' | 'session'> = {
+  type Parameters<role extends Key['role'] = Key['role']> = {
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** P256 private key. */
     privateKey: Hex.Hex
     /** Role. */
-    role: role | 'admin' | 'session'
+    role: role | Key['role']
   }
 }
 
@@ -386,7 +386,7 @@ export declare namespace fromP256 {
  * @param parameters - Key parameters.
  * @returns Secp256k1 key.
  */
-export function fromSecp256k1<const role extends 'owner' | 'admin' | 'session'>(
+export function fromSecp256k1<const role extends Key['role']>(
   parameters: fromSecp256k1.Parameters<role>,
 ) {
   const { privateKey, role } = parameters
@@ -398,7 +398,6 @@ export function fromSecp256k1<const role extends 'owner' | 'admin' | 'session'>(
     role,
     async sign({ payload }) {
       const signature = Signature.toHex(Secp256k1.sign({ payload, privateKey }))
-      if (role === 'owner') return signature
       return wrapSignature(signature, {
         keyType: type,
         publicKey,
@@ -409,15 +408,13 @@ export function fromSecp256k1<const role extends 'owner' | 'admin' | 'session'>(
 }
 
 export declare namespace fromSecp256k1 {
-  type Parameters<
-    role extends 'owner' | 'admin' | 'session' = 'owner' | 'admin' | 'session',
-  > = {
+  type Parameters<role extends Key['role'] = Key['role']> = {
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** Secp256k1 private key. */
     privateKey: Hex.Hex
     /** Role. */
-    role: role | 'owner' | 'admin' | 'session'
+    role: role | Key['role']
   }
 }
 
@@ -448,7 +445,7 @@ export declare namespace fromSecp256k1 {
  * @param parameters - Key parameters.
  * @returns WebAuthnP256 key.
  */
-export function fromWebAuthnP256<const role extends 'admin' | 'session'>(
+export function fromWebAuthnP256<const role extends Key['role']>(
   parameters: fromWebAuthnP256.Parameters<role>,
 ) {
   const { credential, rpId } = parameters
@@ -456,7 +453,7 @@ export function fromWebAuthnP256<const role extends 'admin' | 'session'>(
   return from({
     expiry: parameters.expiry ?? 0,
     publicKey: credential.publicKey,
-    role: parameters.role as 'admin' | 'session',
+    role: parameters.role as Key['role'],
     async sign({ payload }) {
       const {
         signature: { r, s },
@@ -492,13 +489,13 @@ export function fromWebAuthnP256<const role extends 'admin' | 'session'>(
 }
 
 export declare namespace fromWebAuthnP256 {
-  type Parameters<role extends 'admin' | 'session' = 'admin' | 'session'> = {
+  type Parameters<role extends Key['role'] = Key['role']> = {
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** WebAuthnP256 Credential. */
     credential: WebAuthnP256.P256Credential
     /** Role. */
-    role: role | 'admin' | 'session'
+    role: role | Key['role']
     /** Relying Party ID. */
     rpId?: string | undefined
   }
@@ -531,7 +528,7 @@ export declare namespace fromWebAuthnP256 {
  * @param parameters - Key parameters.
  * @returns WebCryptoP256 key.
  */
-export function fromWebCryptoP256<const role extends 'admin' | 'session'>(
+export function fromWebCryptoP256<const role extends Key['role']>(
   parameters: fromWebCryptoP256.Parameters<role>,
 ) {
   const { keyPair } = parameters
@@ -540,7 +537,7 @@ export function fromWebCryptoP256<const role extends 'admin' | 'session'>(
   return from({
     expiry: parameters.expiry ?? 0,
     publicKey,
-    role: parameters.role as 'admin' | 'session',
+    role: parameters.role as Key['role'],
     async sign({ payload }) {
       const signature = Signature.toHex(
         await WebCryptoP256.sign({ payload, privateKey }),
@@ -556,13 +553,13 @@ export function fromWebCryptoP256<const role extends 'admin' | 'session'>(
 }
 
 export declare namespace fromWebCryptoP256 {
-  type Parameters<role extends 'admin' | 'session'> = {
+  type Parameters<role extends Key['role']> = {
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** P256 private key. */
     keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
     /** Role. */
-    role: role | 'admin' | 'session'
+    role: role | Key['role']
   }
 }
 
@@ -617,7 +614,7 @@ export function serialize(key: Key): Serialized {
   const { expiry = 0, publicKey, role, type } = key
   return {
     expiry,
-    isSuperAdmin: role === 'owner' || role === 'admin',
+    isSuperAdmin: role === 'admin',
     keyType: toSerializedKeyType[type],
     publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
   }

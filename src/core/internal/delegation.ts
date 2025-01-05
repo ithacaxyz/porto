@@ -1,4 +1,5 @@
 import * as AbiParameters from 'ox/AbiParameters'
+import type * as Address from 'ox/Address'
 import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
@@ -42,9 +43,10 @@ export const domainNameAndVersion = {
 export async function execute<
   const calls extends readonly unknown[],
   chain extends Chain | undefined,
+  account extends DelegatedAccount.Account,
 >(
   client: Client<Transport, chain>,
-  parameters: execute.Parameters<calls, chain>,
+  parameters: execute.Parameters<calls, chain, account>,
 ): Promise<execute.ReturnType> {
   const { request, signatures } = await (async () => {
     const { account, nonce, key, signatures } = parameters
@@ -61,14 +63,15 @@ export async function execute<
       request,
       signatures: await DelegatedAccount.sign(account, {
         key,
-        payloads,
+        payloads: payloads as any,
       }),
     }
   })()
 
   const { account, authorization, executor, nonce, ...rest } = request
 
-  const [executeSignature, authorizationSignature] = signatures || []
+  const [executeSignature, authorizationSignature] =
+    (signatures as [Hex.Hex, Hex.Hex]) || []
 
   const authorizationList = (() => {
     if (!authorizationSignature) return undefined
@@ -109,21 +112,23 @@ export declare namespace execute {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
     chain extends Chain | undefined = Chain | undefined,
+    account extends DelegatedAccount.Account = DelegatedAccount.Account,
   > = Omit<
     ExecuteParameters<calls, chain>,
     'account' | 'address' | 'authorizationList' | 'opData'
   > & {
     /**
      * The delegated account to execute the calls on.
-     *
-     * - `DelegatedAccount`: account that was instantiated with `Delegation.create` or `Delegation.from`.
-     * - `Account`: Viem account that has delegated to Porto.
      */
-    account: DelegatedAccount.Account | Account
+    account: account | DelegatedAccount.Account
     /**
-     * Whether to initialize the delegation and prepare a sign payload for the EIP-7702 authorization.
+     * Contract address to delegate to.
      */
-    initialize?: boolean | undefined
+    delegation?: account extends {
+      sign: NonNullable<DelegatedAccount.Account['sign']>
+    }
+      ? Address.Address | undefined
+      : undefined
     /**
      * The executor of the execute transaction.
      *
@@ -134,7 +139,7 @@ export declare namespace execute {
   } & OneOf<
       | {
           /**
-           * Unsigned EIP-7702 Authorization to use for execution.
+           * EIP-7702 Authorization to use for delegation.
            */
           authorization?: Authorization_viem | undefined
           /**
@@ -171,12 +176,14 @@ export declare namespace execute {
 export async function prepareExecute<
   const calls extends readonly unknown[],
   chain extends Chain | undefined,
+  account extends DelegatedAccount.Account,
 >(
   client: Client<Transport, chain>,
-  parameters: prepareExecute.Parameters<calls, chain>,
+  parameters: prepareExecute.Parameters<calls, chain, account>,
 ): Promise<prepareExecute.ReturnType<calls, chain>> {
   const {
     account,
+    delegation,
     executor,
     nonce = Hex.toBigInt(Hex.random(32)),
     ...rest
@@ -190,12 +197,11 @@ export async function prepareExecute<
   const [[authorization, authorizationPayload], executePayload] =
     await Promise.all([
       (async () => {
-        if (!('delegation' in account)) return []
-        if (!parameters.initialize) return []
+        if (!delegation) return []
 
         const authorization = await prepareAuthorization(client, {
           account: account.address,
-          contractAddress: account.delegation,
+          contractAddress: delegation,
           delegate: !executor || executor,
         })
         return [
@@ -234,17 +240,23 @@ export declare namespace prepareExecute {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
     chain extends Chain | undefined = Chain | undefined,
+    account extends DelegatedAccount.Account = DelegatedAccount.Account,
   > = Omit<
     ExecuteParameters<calls, chain>,
     'account' | 'address' | 'authorizationList' | 'opData'
   > & {
     /**
      * The delegated account to execute the calls on.
-     *
-     * - `DelegatedAccount`: account that was instantiated with `Delegation.create` or `Delegation.from`.
-     * - `Account`: Viem account that has delegated to Porto.
      */
-    account: DelegatedAccount.Account | Account
+    account: account | DelegatedAccount.Account
+    /**
+     * Contract address to delegate to.
+     */
+    delegation?: account extends {
+      sign: NonNullable<DelegatedAccount.Account['sign']>
+    }
+      ? Address.Address | undefined
+      : undefined
     /**
      * The executor of the execute transaction.
      *
@@ -252,10 +264,6 @@ export declare namespace prepareExecute {
      * - `undefined`: the transaction will be filled by the JSON-RPC server.
      */
     executor?: Account | undefined
-    /**
-     * Whether to initialize the delegation and prepare a sign payload for the EIP-7702 authorization.
-     */
-    initialize?: boolean | undefined
     /**
      * Nonce to use for execution that will be invalidated by the delegated account.
      */
@@ -309,7 +317,7 @@ export declare namespace getEip712Domain {
     /**
      * The delegated account to get the EIP-712 domain for.
      */
-    account: DelegatedAccount.Account | Account
+    account: DelegatedAccount.Account
   }
 }
 
@@ -385,7 +393,7 @@ export declare namespace getExecuteSignPayload {
     /**
      * The delegated account to execute the calls on.
      */
-    account: DelegatedAccount.Account | Account
+    account: DelegatedAccount.Account
     /**
      * Calls to execute.
      */
@@ -429,7 +437,7 @@ export declare namespace keyAt {
     /**
      * The delegated account to extract the key from.
      */
-    account: DelegatedAccount.Account | Account
+    account: DelegatedAccount.Account
     /**
      * Index of the key to extract.
      */
