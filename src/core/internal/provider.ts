@@ -12,13 +12,16 @@ import * as Secp256k1 from 'ox/Secp256k1'
 // import * as RpcResponse from 'ox/RpcResponse'
 // import * as Signature from 'ox/Signature'
 // import * as TypedData from 'ox/TypedData'
+import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import type { Client, Transport } from 'viem'
 
+import { readContract } from 'viem/actions'
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
 import * as Account from './account.js'
 import * as Call from './call.js'
 import * as Delegation from './delegation.js'
+import { delegationAbi } from './generated.js'
 import * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
@@ -71,22 +74,23 @@ export function from<
           ) satisfies RpcSchema.ExtractReturnType<Schema.Schema, 'eth_chainId'>
         }
 
-        // TODO
-        // case 'eth_requestAccounts': {
-        // if (!headless) throw new ox_Provider.UnsupportedMethodError()
+        case 'eth_requestAccounts': {
+          if (!headless) throw new ox_Provider.UnsupportedMethodError()
 
-        // const { account } = await AccountDelegation.load(state.client, {
-        //   rpId: keystoreHost,
-        // })
+          const client = getClient()
 
-        // store.setState((x) => ({ ...x, accounts: [account] }))
+          const { account } = await loadAccount(client, {
+            keystoreHost,
+          })
 
-        // emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
-        // return [account.address] satisfies RpcSchema.ExtractReturnType<
-        //   Schema.Schema,
-        //   'eth_requestAccounts'
-        // >
-        // }
+          store.setState((x) => ({ ...x, accounts: [account] }))
+
+          emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
+          return [account.address] satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'eth_requestAccounts'
+          >
+        }
 
         // TODO
         // case 'eth_sendTransaction': {
@@ -607,10 +611,7 @@ export function announce(provider: Provider) {
 
 async function createAccount(
   client: Client<Transport, Chains.Chain>,
-  parameters: {
-    label?: string | undefined
-    keystoreHost: Porto.Config['keystoreHost']
-  },
+  parameters: createAccount.Parameters,
 ) {
   const { keystoreHost } = parameters
 
@@ -638,6 +639,69 @@ async function createAccount(
   })
 
   return { account, hash }
+}
+
+export declare namespace createAccount {
+  type Parameters = {
+    /** Label to associate with the WebAuthn credential. */
+    label?: string | undefined
+    /** Keystore host. */
+    keystoreHost: Porto.Config['keystoreHost']
+  }
+}
+
+async function loadAccount(
+  client: Client<Transport, Chains.Chain>,
+  parameters: {
+    keystoreHost: Porto.Config['keystoreHost']
+  },
+) {
+  const { keystoreHost } = parameters
+
+  // We will sign a random challenge. We need to do this to extract the
+  // user id (ie. the address) to query for the Account's keys.
+  const credential = await WebAuthnP256.sign({
+    challenge: '0x',
+    rpId: keystoreHost,
+  })
+  const response = credential.raw.response as AuthenticatorAssertionResponse
+
+  const address = Bytes.toHex(new Uint8Array(response.userHandle!))
+
+  // Fetch the delegated account's keys.
+  const keyCount = await readContract(client, {
+    abi: delegationAbi,
+    address,
+    functionName: 'keyCount',
+  })
+  const keys = await Promise.all(
+    Array.from({ length: Number(keyCount) }, (_, index) =>
+      Delegation.keyAt(client, { account: address, index }),
+    ),
+  )
+
+  // Instantiate the account based off the extracted address and keys.
+  const account = Account.from({
+    address,
+    keys,
+  })
+
+  return {
+    account,
+  }
+}
+
+export declare namespace loadAccount {
+  type Parameters = {
+    /** Address of the account to load. */
+    address?: Address.Address | undefined
+    /** Extra keys to authorize. */
+    authorizeKeys?: readonly Key.Key[] | undefined
+    /** Credential ID to use to load an existing account. */
+    credentialId?: string | undefined
+    /** Keystore host. */
+    keystoreHost: Porto.Config['keystoreHost']
+  }
 }
 
 // TODO

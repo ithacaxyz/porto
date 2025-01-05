@@ -21,13 +21,32 @@ export type Account = {
  * @returns An instantiated delegated account.
  */
 export function from<const account extends from.Parameters>(
-  account: account | from.Parameters,
-): Compute<Readonly<account & { type: 'delegated' }>> {
+  parameters: from.Parameters<account>,
+): Compute<from.ReturnType<account>> {
+  const account = (
+    typeof parameters === 'string' ? { address: parameters } : parameters
+  ) as from.AccountParameter
   return { ...account, type: 'delegated' } as never
 }
 
 export declare namespace from {
-  type Parameters = Omit<Account, 'type'>
+  type AccountParameter = Omit<Account, 'type'>
+
+  type Parameters<
+    account extends Address.Address | AccountParameter =
+      | Address.Address
+      | AccountParameter,
+  > = account | Address.Address | AccountParameter
+
+  type ReturnType<
+    account extends Address.Address | AccountParameter =
+      | Address.Address
+      | AccountParameter,
+  > = Readonly<
+    (account extends AccountParameter ? account : { address: account }) & {
+      type: 'delegated'
+    }
+  >
 }
 
 /**

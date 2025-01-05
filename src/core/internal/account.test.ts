@@ -13,7 +13,6 @@ describe('from', () => {
   test('default', () => {
     const account = Account.from({
       address: '0x0000000000000000000000000000000000000001',
-      delegation: '0x0000000000000000000000000000000000000002',
       keys: [
         Key.fromP256({
           expiry: 42069,
@@ -22,13 +21,11 @@ describe('from', () => {
           role: 'admin',
         }),
       ],
-      label: 'test',
     })
 
     expect(account).toMatchInlineSnapshot(`
       {
         "address": "0x0000000000000000000000000000000000000001",
-        "delegation": "0x0000000000000000000000000000000000000002",
         "keys": [
           {
             "expiry": 42069,
@@ -38,7 +35,17 @@ describe('from', () => {
             "type": "p256",
           },
         ],
-        "label": "test",
+        "type": "delegated",
+      }
+    `)
+  })
+
+  test('args: address', () => {
+    const account = Account.from('0x0000000000000000000000000000000000000000')
+
+    expect(account).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000000",
         "type": "delegated",
       }
     `)

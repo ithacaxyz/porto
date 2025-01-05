@@ -423,7 +423,9 @@ export async function keyAt<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: keyAt.Parameters,
 ) {
-  const { account, index } = parameters
+  const { index } = parameters
+
+  const account = DelegatedAccount.from(parameters.account)
 
   const key = await readContract(client, {
     abi: delegationAbi,
@@ -440,7 +442,7 @@ export declare namespace keyAt {
     /**
      * The delegated account to extract the key from.
      */
-    account: DelegatedAccount.Account
+    account: DelegatedAccount.Account | Address.Address
     /**
      * Index of the key to extract.
      */
