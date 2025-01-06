@@ -171,3 +171,65 @@ export declare namespace local {
 export function iframe() {
   throw new Error('Not implemented.')
 }
+
+/**
+ * Mock P256 implementation for testing.
+ *
+ * @param parameters - Parameters.
+ * @returns Implementation.
+ */
+export function mock() {
+  let address: Address.Address | undefined
+
+  return from({
+    actions: {
+      async createAccount(parameters) {
+        const { client } = parameters
+
+        const privateKey = Secp256k1.randomPrivateKey()
+
+        const key = Key.createP256({
+          role: 'admin',
+        })
+
+        const account = Account.fromPrivateKey(privateKey, { keys: [key] })
+        const delegation = client.chain.contracts.delegation.address
+
+        address = account.address
+
+        const hash = await Delegation.execute(client, {
+          account,
+          calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
+          delegation,
+        })
+
+        return { account, hash }
+      },
+      async loadAccounts(parameters) {
+        const { client } = parameters
+
+        if (!address) throw new Error('no address found.')
+
+        const keyCount = await readContract(client, {
+          abi: delegationAbi,
+          address,
+          functionName: 'keyCount',
+        })
+        const keys = await Promise.all(
+          Array.from({ length: Number(keyCount) }, (_, index) =>
+            Delegation.keyAt(client, { account: address!, index }),
+          ),
+        )
+
+        const account = Account.from({
+          address,
+          keys,
+        })
+
+        return {
+          accounts: [account],
+        }
+      },
+    },
+  })
+}

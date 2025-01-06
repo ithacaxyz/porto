@@ -1,4 +1,4 @@
-import { Porto } from 'porto'
+import { Implementation, Porto, Storage } from 'porto'
 import { custom, defineChain } from 'viem'
 import * as chains from 'viem/chains'
 
@@ -19,6 +19,8 @@ const anvil = defineChain({
 
 export const porto = Porto.create({
   chains: [anvil],
+  implementation: Implementation.mock(),
+  storage: Storage.memory(),
   transports: {
     [anvil.id]: custom(anvilMainnet),
   },

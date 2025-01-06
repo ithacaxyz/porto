@@ -4,15 +4,16 @@ import { type Mutate, type StoreApi, createStore } from 'zustand/vanilla'
 
 import * as Chains from './Chains.js'
 import * as Implementation from './Implementation.js'
+import * as Storage from './Storage.js'
 import type * as Account from './internal/account.js'
 import * as Provider from './internal/provider.js'
-import * as Storage from './internal/storage.js'
 import type { ExactPartial } from './internal/types.js'
 
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.odysseyTestnet],
   implementation: Implementation.local(),
+  storage: Storage.idb(),
   transports: {
     [Chains.odysseyTestnet.id]: http(),
   },
@@ -56,6 +57,11 @@ export type Config<
    * @default Implementation.local()
    */
   implementation: Implementation.Implementation
+  /**
+   * Storage to use.
+   * @default Storage.idb()
+   */
+  storage: Storage.Storage
   /**
    * Transport to use for each chain.
    */
@@ -107,6 +113,7 @@ export function create(
     announceProvider = defaultConfig.announceProvider,
     chains = defaultConfig.chains,
     implementation = defaultConfig.implementation,
+    storage = defaultConfig.storage,
     transports = defaultConfig.transports,
   } = parameters
 
@@ -133,7 +140,7 @@ export function create(
               chain: state.chain,
             } as unknown as State
           },
-          storage: Storage.idb,
+          storage,
         },
       ),
     ),
@@ -144,6 +151,7 @@ export function create(
     announceProvider,
     chains,
     implementation,
+    storage,
     transports,
   } satisfies Config
 
