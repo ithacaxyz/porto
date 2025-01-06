@@ -3,17 +3,16 @@ import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { type Mutate, type StoreApi, createStore } from 'zustand/vanilla'
 
 import * as Chains from './Chains.js'
+import * as Implementation from './Implementation.js'
 import type * as Account from './internal/account.js'
 import * as Provider from './internal/provider.js'
 import * as Storage from './internal/storage.js'
 import type { ExactPartial } from './internal/types.js'
-import * as WebAuthn from './internal/webauthn.js'
 
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.odysseyTestnet],
-  headless: true,
-  keystoreHost: 'self',
+  implementation: Implementation.local(),
   transports: {
     [Chains.odysseyTestnet.id]: http(),
   },
@@ -53,15 +52,10 @@ export type Config<
    */
   chains: chains | readonly [Chains.Chain, ...Chains.Chain[]]
   /**
-   * Whether to run EIP-1193 Provider in headless mode.
-   * @default true
+   * Implementation to use.
+   * @default Implementation.local()
    */
-  headless: boolean
-  /**
-   * Keystore host (WebAuthn relying party).
-   * @default 'self'
-   */
-  keystoreHost: 'self' | (string & {}) | undefined
+  implementation: Implementation.Implementation
   /**
    * Transport to use for each chain.
    */
@@ -74,7 +68,7 @@ export type State<
     ...Chains.Chain[],
   ],
 > = {
-  accounts: Account.Account[]
+  accounts: readonly Account.Account[]
   chain: chains[number]
 }
 
@@ -112,22 +106,9 @@ export function create(
   const {
     announceProvider = defaultConfig.announceProvider,
     chains = defaultConfig.chains,
-    headless = defaultConfig.headless,
-    keystoreHost: keystoreHost_ = defaultConfig.keystoreHost,
+    implementation = defaultConfig.implementation,
     transports = defaultConfig.transports,
   } = parameters
-
-  const keystoreHost = (() => {
-    if (keystoreHost_ === 'self') return undefined
-    if (
-      typeof window !== 'undefined' &&
-      window.location.hostname === 'localhost'
-    )
-      return undefined
-    return keystoreHost_
-  })()
-
-  if (headless && keystoreHost) WebAuthn.touchWellknown({ rpId: keystoreHost })
 
   const store = createStore(
     subscribeWithSelector(
@@ -162,8 +143,7 @@ export function create(
   const config = {
     announceProvider,
     chains,
-    headless,
-    keystoreHost,
+    implementation,
     transports,
   } satisfies Config
 

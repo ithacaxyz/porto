@@ -3,6 +3,8 @@ import type * as Hex from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
 import type { Authorization } from 'viem/experimental'
 
+import type * as Account from './account.js'
+
 export type Schema = RpcSchema.From<
   | RpcSchema.Default
   | {
@@ -138,8 +140,7 @@ export type PrepareImportAccountParameters = {
 
 export type PrepareImportAccountReturnType = {
   context: {
-    // TODO
-    // account: AccountDelegation.Account
+    account: Account.Account
     authorization: Authorization
   }
   signPayloads: readonly Hex.Hex[]

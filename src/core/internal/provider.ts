@@ -1,28 +1,10 @@
 import * as Mipd from 'mipd'
 import type { RpcSchema } from 'ox'
-import * as Address from 'ox/Address'
-import * as Bytes from 'ox/Bytes'
-// import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
-// import * as Json from 'ox/Json'
-// import * as PersonalMessage from 'ox/PersonalMessage'
 import * as ox_Provider from 'ox/Provider'
-import * as Secp256k1 from 'ox/Secp256k1'
-// import * as PublicKey from 'ox/PublicKey'
-// import * as RpcResponse from 'ox/RpcResponse'
-// import * as Signature from 'ox/Signature'
-// import * as TypedData from 'ox/TypedData'
-import * as WebAuthnP256 from 'ox/WebAuthnP256'
-import type { Client, Transport } from 'viem'
 
-import { readContract } from 'viem/actions'
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
-import * as Account from './account.js'
-import * as Call from './call.js'
-import * as Delegation from './delegation.js'
-import { delegationAbi } from './generated.js'
-import * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
 export type Provider = ox_Provider.Provider<{
@@ -45,7 +27,7 @@ export function from<
   ],
 >(parameters: from.Parameters<chains>): Provider {
   const { config, store } = parameters
-  const { announceProvider, headless, keystoreHost } = config
+  const { announceProvider, implementation } = config
 
   function getClient(chainId_?: Hex.Hex | number | undefined) {
     const chainId =
@@ -56,7 +38,8 @@ export function from<
   const emitter = ox_Provider.createEmitter()
   const provider = ox_Provider.from({
     ...emitter,
-    async request({ method, params }) {
+    async request(request) {
+      const { method, params } = request
       const state = store.getState()
 
       switch (method) {
@@ -75,18 +58,20 @@ export function from<
         }
 
         case 'eth_requestAccounts': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
-
           const client = getClient()
 
-          const { account } = await loadAccount(client, {
-            keystoreHost,
+          const { accounts } = await implementation.loadAccounts({
+            client,
+            config,
+            request,
           })
 
-          store.setState((x) => ({ ...x, accounts: [account] }))
+          store.setState((x) => ({ ...x, accounts }))
 
           emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
-          return [account.address] satisfies RpcSchema.ExtractReturnType<
+          return accounts.map(
+            (account) => account.address,
+          ) satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'eth_requestAccounts'
           >
@@ -220,8 +205,6 @@ export function from<
         // }
 
         case 'experimental_createAccount': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
-
           const [{ chainId, label }] = (params as RpcSchema.ExtractParams<
             Schema.Schema,
             'experimental_createAccount'
@@ -229,9 +212,11 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { account } = await createAccount(client, {
-            keystoreHost,
+          const { account } = await implementation.createAccount({
+            client,
+            config,
             label,
+            request,
           })
 
           store.setState((x) => ({ ...x, accounts: [account] }))
@@ -607,101 +592,6 @@ export function announce(provider: Provider) {
     },
     provider: provider as any,
   })
-}
-
-async function createAccount(
-  client: Client<Transport, Chains.Chain>,
-  parameters: createAccount.Parameters,
-) {
-  const { keystoreHost } = parameters
-
-  const privateKey = Secp256k1.randomPrivateKey()
-  const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }))
-
-  const label =
-    parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
-
-  const key = await Key.createWebAuthnP256({
-    label,
-    role: 'admin',
-    rpId: keystoreHost,
-    userId: Bytes.from(address),
-  })
-
-  const account = Account.fromPrivateKey(privateKey, { keys: [key] })
-  const delegation = client.chain.contracts.delegation.address
-
-  // TODO: wait for tx to be included?
-  const hash = await Delegation.execute(client, {
-    account,
-    calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
-    delegation,
-  })
-
-  return { account, hash }
-}
-
-export declare namespace createAccount {
-  type Parameters = {
-    /** Label to associate with the WebAuthn credential. */
-    label?: string | undefined
-    /** Keystore host. */
-    keystoreHost: Porto.Config['keystoreHost']
-  }
-}
-
-async function loadAccount(
-  client: Client<Transport, Chains.Chain>,
-  parameters: {
-    keystoreHost: Porto.Config['keystoreHost']
-  },
-) {
-  const { keystoreHost } = parameters
-
-  // We will sign a random challenge. We need to do this to extract the
-  // user id (ie. the address) to query for the Account's keys.
-  const credential = await WebAuthnP256.sign({
-    challenge: '0x',
-    rpId: keystoreHost,
-  })
-  const response = credential.raw.response as AuthenticatorAssertionResponse
-
-  const address = Bytes.toHex(new Uint8Array(response.userHandle!))
-
-  // Fetch the delegated account's keys.
-  const keyCount = await readContract(client, {
-    abi: delegationAbi,
-    address,
-    functionName: 'keyCount',
-  })
-  const keys = await Promise.all(
-    Array.from({ length: Number(keyCount) }, (_, index) =>
-      Delegation.keyAt(client, { account: address, index }),
-    ),
-  )
-
-  // Instantiate the account based off the extracted address and keys.
-  const account = Account.from({
-    address,
-    keys,
-  })
-
-  return {
-    account,
-  }
-}
-
-export declare namespace loadAccount {
-  type Parameters = {
-    /** Address of the account to load. */
-    address?: Address.Address | undefined
-    /** Extra keys to authorize. */
-    authorizeKeys?: readonly Key.Key[] | undefined
-    /** Credential ID to use to load an existing account. */
-    credentialId?: string | undefined
-    /** Keystore host. */
-    keystoreHost: Porto.Config['keystoreHost']
-  }
 }
 
 // TODO
