@@ -50,11 +50,14 @@ export async function execute<
   client: Client<Transport, chain>,
   parameters: execute.Parameters<calls, chain, account>,
 ): Promise<execute.ReturnType> {
+  // Block expression to obtain the execution request and signatures.
   const { request, signatures } = await (async () => {
     const { account, nonce, key, signatures } = parameters
 
+    // If an execution has been prepared, we can early return the request and signatures.
     if (nonce && signatures) return { request: parameters, signatures }
 
+    // Otherwise, we need to prepare the execution (compute payloads and sign over them).
     const { request, signPayloads: payloads } = await prepareExecute(
       client,
       parameters,
@@ -73,6 +76,9 @@ export async function execute<
   const [executeSignature, authorizationSignature] =
     (signatures as [Hex.Hex, Hex.Hex]) || []
 
+  // If an authorization signature is provided, it means that we will need to designate
+  // the EOA to the delegation contract. We will need to construct an authorization list
+  // to do so.
   const authorizationList = (() => {
     if (!authorizationSignature) return undefined
     const signature = Signature.from(authorizationSignature)
@@ -86,6 +92,9 @@ export async function execute<
     ]
   })()
 
+  // Structure the operation data to be passed to EIP-7821 execution.
+  // The operation data contains the nonce of the execution, as well as the
+  // signature.
   const opData = AbiParameters.encodePacked(
     ['uint256', 'bytes'],
     [nonce, executeSignature],
@@ -168,128 +177,8 @@ export declare namespace execute {
 }
 
 /**
- * Prepares the payloads to sign over and fills the request to execute a set of calls.
- *
- * @example
- * TODO
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns Prepared properties.
- */
-export async function prepareExecute<
-  const calls extends readonly unknown[],
-  chain extends Chain | undefined,
-  account extends DelegatedAccount.Account,
->(
-  client: Client<Transport, chain>,
-  parameters: prepareExecute.Parameters<calls, chain, account>,
-): Promise<prepareExecute.ReturnType<calls, chain>> {
-  const {
-    account,
-    delegation,
-    executor,
-    nonce = Hex.toBigInt(Hex.random(32)),
-    ...rest
-  } = parameters
-
-  const calls = parameters.calls.map((call: any) => ({
-    ...call,
-    to: call.to === Call.self ? account.address : call.to,
-  }))
-
-  const [[authorization, authorizationPayload], executePayload] =
-    await Promise.all([
-      (async () => {
-        if (!delegation) return []
-
-        const authorization = await prepareAuthorization(client, {
-          account: account.address,
-          contractAddress: delegation,
-          delegate: !executor || executor,
-        })
-        return [
-          authorization,
-          Authorization.getSignPayload({
-            address: authorization.contractAddress,
-            chainId: authorization.chainId,
-            nonce: BigInt(authorization.nonce),
-          }),
-        ]
-      })(),
-      getExecuteSignPayload(client, {
-        account,
-        calls,
-        nonce,
-      }),
-    ])
-
-  return {
-    signPayloads: [
-      executePayload,
-      ...(authorizationPayload ? [authorizationPayload] : []),
-    ],
-    request: {
-      ...rest,
-      account,
-      authorization,
-      calls,
-      executor,
-      nonce,
-    },
-  } as never
-}
-
-export declare namespace prepareExecute {
-  export type Parameters<
-    calls extends readonly unknown[] = readonly unknown[],
-    chain extends Chain | undefined = Chain | undefined,
-    account extends DelegatedAccount.Account = DelegatedAccount.Account,
-  > = Omit<
-    ExecuteParameters<calls, chain>,
-    'account' | 'address' | 'authorizationList' | 'opData'
-  > & {
-    /**
-     * The delegated account to execute the calls on.
-     */
-    account: account | DelegatedAccount.Account
-    /**
-     * Contract address to delegate to.
-     */
-    delegation?: account extends {
-      sign: NonNullable<DelegatedAccount.Account['sign']>
-    }
-      ? Address.Address | undefined
-      : undefined
-    /**
-     * The executor of the execute transaction.
-     *
-     * - `Account`: execution will be attempted with the specified account.
-     * - `undefined`: the transaction will be filled by the JSON-RPC server.
-     */
-    executor?: Account | undefined
-    /**
-     * Nonce to use for execution that will be invalidated by the delegated account.
-     */
-    nonce?: bigint | undefined
-  }
-
-  export type ReturnType<
-    calls extends readonly unknown[] = readonly unknown[],
-    chain extends Chain | undefined = Chain | undefined,
-  > = {
-    request: Parameters<calls, chain> & {
-      authorization?: Authorization_viem | undefined
-      nonce: bigint
-    }
-    signPayloads:
-      | [executePayload: Hex.Hex]
-      | [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
-  }
-}
-
-/**
- * Returns the EIP-712 domain for a delegated account.
+ * Returns the EIP-712 domain for a delegated account. Used for the execution
+ * signing payload.
  *
  * @param client - Client.
  * @param parameters - Parameters.
@@ -344,10 +233,11 @@ export async function getExecuteSignPayload<
 ): Promise<Hex.Hex> {
   const { account, nonce } = parameters
 
+  // Structure calls into EIP-7821 execution format.
   const calls = parameters.calls.map((call: any) => ({
-    value: call.value ?? 0n,
-    target: call.to,
     data: call.data ?? '0x',
+    target: call.to === Call.self ? account.address : call.to,
+    value: call.value ?? 0n,
   }))
 
   const [nonceSalt, domain] = await Promise.all([
@@ -447,6 +337,131 @@ export declare namespace keyAt {
      * Index of the key to extract.
      */
     index: number
+  }
+}
+
+/**
+ * Prepares the payloads to sign over and fills the request to execute a set of calls.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Prepared properties.
+ */
+export async function prepareExecute<
+  const calls extends readonly unknown[],
+  chain extends Chain | undefined,
+  account extends DelegatedAccount.Account,
+>(
+  client: Client<Transport, chain>,
+  parameters: prepareExecute.Parameters<calls, chain, account>,
+): Promise<prepareExecute.ReturnType<calls, chain>> {
+  const {
+    account,
+    delegation,
+    executor,
+    nonce = Hex.toBigInt(Hex.random(32)),
+    ...rest
+  } = parameters
+
+  const calls = parameters.calls.map((call: any) => ({
+    data: call.data ?? '0x',
+    to: call.to === Call.self ? account.address : call.to,
+    value: call.value ?? 0n,
+  }))
+
+  // Compute the signing payloads for execution and EIP-7702 authorization (optional).
+  const [executePayload, [authorization, authorizationPayload]] =
+    await Promise.all([
+      getExecuteSignPayload(client, {
+        account,
+        calls,
+        nonce,
+      }),
+
+      // Only need to compute an authorization payload if we are delegating to an EOA.
+      (async () => {
+        if (!delegation) return []
+
+        const authorization = await prepareAuthorization(client, {
+          account: account.address,
+          contractAddress: delegation,
+          delegate: !executor || executor,
+        })
+        return [
+          authorization,
+          Authorization.getSignPayload({
+            address: authorization.contractAddress,
+            chainId: authorization.chainId,
+            nonce: BigInt(authorization.nonce),
+          }),
+        ]
+      })(),
+    ])
+
+  return {
+    signPayloads: [
+      executePayload,
+      ...(authorizationPayload ? [authorizationPayload] : []),
+    ],
+    request: {
+      ...rest,
+      account,
+      authorization,
+      calls,
+      executor,
+      nonce,
+    },
+  } as never
+}
+
+export declare namespace prepareExecute {
+  export type Parameters<
+    calls extends readonly unknown[] = readonly unknown[],
+    chain extends Chain | undefined = Chain | undefined,
+    account extends DelegatedAccount.Account = DelegatedAccount.Account,
+  > = Omit<
+    ExecuteParameters<calls, chain>,
+    'account' | 'address' | 'authorizationList' | 'opData'
+  > & {
+    /**
+     * The delegated account to execute the calls on.
+     */
+    account: account | DelegatedAccount.Account
+    /**
+     * Contract address to delegate to.
+     */
+    delegation?: account extends {
+      sign: NonNullable<DelegatedAccount.Account['sign']>
+    }
+      ? Address.Address | undefined
+      : undefined
+    /**
+     * The executor of the execute transaction.
+     *
+     * - `Account`: execution will be attempted with the specified account.
+     * - `undefined`: the transaction will be filled by the JSON-RPC server.
+     */
+    executor?: Account | undefined
+    /**
+     * Nonce to use for execution that will be invalidated by the delegated account.
+     */
+    nonce?: bigint | undefined
+  }
+
+  export type ReturnType<
+    calls extends readonly unknown[] = readonly unknown[],
+    chain extends Chain | undefined = Chain | undefined,
+  > = {
+    request: Parameters<calls, chain> & {
+      authorization?: Authorization_viem | undefined
+      nonce: bigint
+    }
+    signPayloads:
+      | [executePayload: Hex.Hex]
+      | [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
   }
 }
 
