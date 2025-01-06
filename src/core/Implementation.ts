@@ -15,6 +15,8 @@ import { delegationAbi } from './internal/generated.js'
 import * as Key from './internal/key.js'
 import type { Compute } from './internal/types.js'
 
+type Request = Pick<RpcRequest.RpcRequest, 'method' | 'params'>
+
 export type Implementation = {
   createAccount: (parameters: {
     /** Viem Client. */
@@ -24,7 +26,7 @@ export type Implementation = {
     /** Label to associate with the WebAuthn credential. */
     label?: string | undefined
     /** RPC Request. */
-    request: Pick<RpcRequest.RpcRequest, 'method' | 'params'>
+    request: Request
   }) => Promise<{
     /** Account. */
     account: Account.Account
@@ -44,7 +46,7 @@ export type Implementation = {
     /** Credential ID to use to load an existing account. */
     credentialId?: string | undefined
     /** RPC Request. */
-    request: Pick<RpcRequest.RpcRequest, 'method' | 'params'>
+    request: Request
   }) => Promise<{
     /** Accounts. */
     accounts: readonly Account.Account[]
