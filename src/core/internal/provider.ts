@@ -1,7 +1,9 @@
 import * as Mipd from 'mipd'
 import type { RpcSchema } from 'ox'
+import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
+import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
@@ -77,47 +79,48 @@ export function from<
           >
         }
 
-        // TODO
-        // case 'eth_sendTransaction': {
-        //   if (!headless) throw new ox_Provider.UnsupportedMethodError()
-        //   if (state.accounts.length === 0)
-        //     throw new ox_Provider.DisconnectedError()
+        case 'eth_sendTransaction': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
 
-        //   const [{ chainId, data = '0x', from, to, value = '0x0' }] =
-        //     params as RpcSchema.ExtractParams<
-        //       Schema.Schema,
-        //       'eth_sendTransaction'
-        //     >
+          const [{ chainId, data = '0x', from, to, value = '0x0' }] =
+            params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'eth_sendTransaction'
+            >
 
-        //   if (chainId && Hex.toNumber(chainId) !== state.chainId)
-        //     throw new ox_Provider.ChainDisconnectedError()
+          const client = getClient(chainId)
 
-        //   requireParameter(to, 'to')
-        //   requireParameter(from, 'from')
+          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
 
-        //   const account = state.accounts.find((account) =>
-        //     Address.isEqual(account.address, from),
-        //   )
-        //   if (!account) throw new ox_Provider.UnauthorizedError()
+          requireParameter(to, 'to')
+          requireParameter(from, 'from')
 
-        //   const keyIndex = getActiveSessionKeyIndex({ account })
+          const account = state.accounts.find((account) =>
+            Address.isEqual(account.address, from),
+          )
+          if (!account) throw new ox_Provider.UnauthorizedError()
 
-        //   return (await AccountDelegation.execute(state.client, {
-        //     account,
-        //     calls: [
-        //       {
-        //         data,
-        //         to,
-        //         value: Hex.toBigInt(value),
-        //       },
-        //     ],
-        //     keyIndex,
-        //     rpId: keystoreHost,
-        //   })) satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'eth_sendTransaction'
-        //   >
-        // }
+          const hash = await implementation.actions.execute({
+            account,
+            calls: [
+              {
+                data,
+                to,
+                value: Hex.toBigInt(value),
+              },
+            ],
+            client,
+            config,
+            request,
+          })
+
+          return hash satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'eth_sendTransaction'
+          >
+        }
 
         // TODO
         // case 'eth_signTypedData_v4': {
@@ -594,42 +597,12 @@ export function announce(provider: Provider) {
   })
 }
 
-// TODO
-// function getActiveSessionKeyIndex(parameters: {
-//   account: AccountDelegation.Account
-//   id?: Hex.Hex | undefined
-// }) {
-//   const { account, id } = parameters
-//   if (id)
-//     return account.keys.findIndex(
-//       (key) => PublicKey.toHex(key.publicKey) === id,
-//     )
-//   const index = account.keys.findIndex(AccountDelegation.isActiveSessionKey)
-//   if (index === -1) return 0
-//   return index
-// }
-
-// TODO
-// function getActiveSessionKeys(
-//   keys: readonly AccountDelegation.Key[],
-// ): Schema.GrantSessionReturnType[] {
-//   return keys
-//     .map((key) => {
-//       if (!AccountDelegation.isActiveSessionKey(key)) return undefined
-//       return {
-//         expiry: Number(key.expiry),
-//         id: PublicKey.toHex(key.publicKey),
-//       }
-//     })
-//     .filter(Boolean) as never
-// }
-
-// function requireParameter(
-//   param: unknown,
-//   details: string,
-// ): asserts param is NonNullable<typeof param> {
-//   if (typeof param === 'undefined')
-//     throw new RpcResponse.InvalidParamsError({
-//       message: `Missing required parameter: ${details}`,
-//     })
-// }
+function requireParameter(
+  param: unknown,
+  details: string,
+): asserts param is NonNullable<typeof param> {
+  if (typeof param === 'undefined')
+    throw new RpcResponse.InvalidParamsError({
+      message: `Missing required parameter: ${details}`,
+    })
+}

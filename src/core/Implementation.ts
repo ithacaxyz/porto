@@ -1,5 +1,6 @@
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
+import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import type { Client, Hash, Transport } from 'viem'
@@ -34,6 +35,19 @@ export type Implementation = {
       /** Transaction hash. */
       hash: Hash
     }>
+
+    execute: (parameters: {
+      /** Account to execute the calls with. */
+      account: Account.Account
+      /** Calls to execute. */
+      calls: readonly Call.Call[]
+      /** Viem Client. */
+      client: Client<Transport, Chains.Chain>
+      /** Porto config. */
+      config: Config
+      /** RPC Request. */
+      request: Request
+    }) => Promise<Hex.Hex>
 
     loadAccounts: (parameters: {
       /** Address of the account to load. */
@@ -117,6 +131,29 @@ export function local(parameters: local.Parameters = {}) {
 
         return { account, hash }
       },
+
+      async execute(parameters) {
+        const { account, calls, client } = parameters
+
+        const key = (() => {
+          const sessionKey = account.keys?.find(
+            (key) =>
+              key.role === 'session' &&
+              key.expiry > BigInt(Math.floor(Date.now() / 1000)),
+          )
+          const adminKey = account.keys?.find((key) => key.role === 'admin')
+          return sessionKey ?? adminKey
+        })()
+
+        const hash = await Delegation.execute(client, {
+          account,
+          calls,
+          key,
+        })
+
+        return hash
+      },
+
       async loadAccounts(parameters) {
         const { client } = parameters
 
@@ -183,6 +220,8 @@ export function mock() {
 
   return from({
     actions: {
+      ...local().actions,
+
       async createAccount(parameters) {
         const { client } = parameters
 
@@ -205,6 +244,7 @@ export function mock() {
 
         return { account, hash }
       },
+
       async loadAccounts(parameters) {
         const { client } = parameters
 

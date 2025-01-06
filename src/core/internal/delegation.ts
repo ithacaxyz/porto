@@ -159,7 +159,7 @@ export declare namespace execute {
           /**
            * Key to use for execution.
            */
-          key: number | Key.Key
+          key?: number | Key.Key | undefined
         }
       | {}
     >

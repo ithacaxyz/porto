@@ -8,6 +8,12 @@ import * as Key from './key.js'
 /** Stub address for self-execution. */
 export const self = '0x2323232323232323232323232323232323232323'
 
+export type Call = {
+  to: Address.Address
+  value?: bigint | undefined
+  data?: Hex.Hex | undefined
+}
+
 /**
  * Instantiates values to populate a call to authorize a key.
  *
@@ -22,7 +28,7 @@ export function authorize(parameters: authorize.Parameters) {
       [Key.serialize(key)],
     ),
     to: self,
-  } as const
+  } as const satisfies Call
 }
 
 export declare namespace authorize {
@@ -58,7 +64,7 @@ export function setCanExecute(parameters: setCanExecute.Parameters = {}) {
       [hash, to, selector, enabled],
     ),
     to: self,
-  } as const
+  } as const satisfies Call
 }
 
 export declare namespace setCanExecute {
@@ -88,7 +94,7 @@ export function setLabel(parameters: setLabel.Parameters) {
       [label],
     ),
     to: self,
-  } as const
+  } as const satisfies Call
 }
 
 export declare namespace setLabel {
