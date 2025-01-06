@@ -17,14 +17,18 @@ const anvil = defineChain({
   },
 })
 
-export const porto = Porto.create({
-  chains: [anvil],
-  implementation: Implementation.mock(),
-  storage: Storage.memory(),
-  transports: {
-    [anvil.id]: custom(anvilMainnet),
-  },
-})
+export const createPorto = () =>
+  Porto.create({
+    chains: [anvil],
+    implementation: Implementation.mock(),
+    storage: Storage.memory(),
+    transports: {
+      [anvil.id]: custom(anvilMainnet),
+    },
+  })
 
-export const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+export const porto = createPorto()
+export const client = Porto.getClient(porto).extend(() => ({
+  mode: 'anvil',
+}))
 export const delegation = client.chain.contracts.delegation.address

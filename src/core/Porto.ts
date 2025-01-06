@@ -33,7 +33,7 @@ export type Porto<
    */
   _internal: {
     config: Config<chains>
-    store: StoreApi<State<chains>>
+    store: Store<chains>
   }
 }
 
