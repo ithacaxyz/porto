@@ -18,39 +18,41 @@ import type { Compute } from './internal/types.js'
 type Request = Pick<RpcRequest.RpcRequest, 'method' | 'params'>
 
 export type Implementation = {
-  createAccount: (parameters: {
-    /** Viem Client. */
-    client: Client<Transport, Chains.Chain>
-    /** Porto config. */
-    config: Config
-    /** Label to associate with the WebAuthn credential. */
-    label?: string | undefined
-    /** RPC Request. */
-    request: Request
-  }) => Promise<{
-    /** Account. */
-    account: Account.Account
-    /** Transaction hash. */
-    hash: Hash
-  }>
+  actions: {
+    createAccount: (parameters: {
+      /** Viem Client. */
+      client: Client<Transport, Chains.Chain>
+      /** Porto config. */
+      config: Config
+      /** Label to associate with the WebAuthn credential. */
+      label?: string | undefined
+      /** RPC Request. */
+      request: Request
+    }) => Promise<{
+      /** Account. */
+      account: Account.Account
+      /** Transaction hash. */
+      hash: Hash
+    }>
 
-  loadAccounts: (parameters: {
-    /** Address of the account to load. */
-    address?: Address.Address | undefined
-    /** Extra keys to authorize. */
-    authorizeKeys?: readonly Key.Key[] | undefined
-    /** Viem Client. */
-    client: Client<Transport, Chains.Chain>
-    /** Porto config. */
-    config: Config
-    /** Credential ID to use to load an existing account. */
-    credentialId?: string | undefined
-    /** RPC Request. */
-    request: Request
-  }) => Promise<{
-    /** Accounts. */
-    accounts: readonly Account.Account[]
-  }>
+    loadAccounts: (parameters: {
+      /** Address of the account to load. */
+      address?: Address.Address | undefined
+      /** Extra keys to authorize. */
+      authorizeKeys?: readonly Key.Key[] | undefined
+      /** Viem Client. */
+      client: Client<Transport, Chains.Chain>
+      /** Porto config. */
+      config: Config
+      /** Credential ID to use to load an existing account. */
+      credentialId?: string | undefined
+      /** RPC Request. */
+      request: Request
+    }) => Promise<{
+      /** Accounts. */
+      accounts: readonly Account.Account[]
+    }>
+  }
 }
 
 /**
@@ -84,70 +86,73 @@ export function local(parameters: local.Parameters = {}) {
   })()
 
   return from({
-    async createAccount(parameters) {
-      const { client } = parameters
+    actions: {
+      async createAccount(parameters) {
+        const { client } = parameters
 
-      const privateKey = Secp256k1.randomPrivateKey()
-      const address = Address.fromPublicKey(
-        Secp256k1.getPublicKey({ privateKey }),
-      )
+        const privateKey = Secp256k1.randomPrivateKey()
+        const address = Address.fromPublicKey(
+          Secp256k1.getPublicKey({ privateKey }),
+        )
 
-      const label =
-        parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+        const label =
+          parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
 
-      const key = await Key.createWebAuthnP256({
-        label,
-        role: 'admin',
-        rpId: keystoreHost,
-        userId: Bytes.from(address),
-      })
+        const key = await Key.createWebAuthnP256({
+          label,
+          role: 'admin',
+          rpId: keystoreHost,
+          userId: Bytes.from(address),
+        })
 
-      const account = Account.fromPrivateKey(privateKey, { keys: [key] })
-      const delegation = client.chain.contracts.delegation.address
+        const account = Account.fromPrivateKey(privateKey, { keys: [key] })
+        const delegation = client.chain.contracts.delegation.address
 
-      // TODO: wait for tx to be included?
-      const hash = await Delegation.execute(client, {
-        account,
-        calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
-        delegation,
-      })
+        // TODO: wait for tx to be included?
+        const hash = await Delegation.execute(client, {
+          account,
+          calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
+          delegation,
+        })
 
-      return { account, hash }
-    },
-    async loadAccounts(parameters) {
-      const { client } = parameters
+        return { account, hash }
+      },
+      async loadAccounts(parameters) {
+        const { client } = parameters
 
-      // We will sign a random challenge. We need to do this to extract the
-      // user id (ie. the address) to query for the Account's keys.
-      const credential = await WebAuthnP256.sign({
-        challenge: '0x',
-        rpId: keystoreHost,
-      })
-      const response = credential.raw.response as AuthenticatorAssertionResponse
+        // We will sign a random challenge. We need to do this to extract the
+        // user id (ie. the address) to query for the Account's keys.
+        const credential = await WebAuthnP256.sign({
+          challenge: '0x',
+          rpId: keystoreHost,
+        })
+        const response = credential.raw
+          .response as AuthenticatorAssertionResponse
 
-      const address = Bytes.toHex(new Uint8Array(response.userHandle!))
+        const address = Bytes.toHex(new Uint8Array(response.userHandle!))
 
-      // Fetch the delegated account's keys.
-      const keyCount = await readContract(client, {
-        abi: delegationAbi,
-        address,
-        functionName: 'keyCount',
-      })
-      const keys = await Promise.all(
-        Array.from({ length: Number(keyCount) }, (_, index) =>
-          Delegation.keyAt(client, { account: address, index }),
-        ),
-      )
+        // Fetch the delegated account's keys.
+        const keyCount = await readContract(client, {
+          abi: delegationAbi,
+          address,
+          functionName: 'keyCount',
+        })
+        const keys = await Promise.all(
+          Array.from({ length: Number(keyCount) }, (_, index) =>
+            Delegation.keyAt(client, { account: address, index }),
+          ),
+        )
 
-      // Instantiate the account based off the extracted address and keys.
-      const account = Account.from({
-        address,
-        keys,
-      })
+        // Instantiate the account based off the extracted address and keys.
+        const account = Account.from({
+          address,
+          keys,
+        })
 
-      return {
-        accounts: [account],
-      }
+        return {
+          accounts: [account],
+        }
+      },
     },
   })
 }

@@ -60,7 +60,7 @@ export function from<
         case 'eth_requestAccounts': {
           const client = getClient()
 
-          const { accounts } = await implementation.loadAccounts({
+          const { accounts } = await implementation.actions.loadAccounts({
             client,
             config,
             request,
@@ -212,7 +212,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { account } = await implementation.createAccount({
+          const { account } = await implementation.actions.createAccount({
             client,
             config,
             label,
