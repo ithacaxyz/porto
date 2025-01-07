@@ -64,7 +64,7 @@ export async function connect<config extends Config>(
     if (!provider) throw new ProviderNotFoundError()
 
     const { authorizeKey, createAccount } = parameters
-    const method = 'experimental_connect'
+    const method = 'wallet_connect'
     type method = typeof method
     await provider.request<{
       Method: method
@@ -230,7 +230,7 @@ export async function disconnect(
 
   await wagmi_disconnect(config, parameters)
 
-  const method = 'experimental_disconnect'
+  const method = 'wallet_disconnect'
   type method = typeof method
   await provider?.request<{
     Method: method

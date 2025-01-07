@@ -35,9 +35,7 @@ Experimental Next-gen Account for Ethereum.
   - [Usage with Wagmi](#usage-with-wagmi)
 - [JSON-RPC Reference](#json-rpc-reference)
   - [`experimental_authorizeKey`](#experimental_authorizeKey)
-  - [`experimental_connect`](#experimental_connect)
   - [`experimental_createAccount`](#experimental_createaccount)
-  - [`experimental_disconnect`](#experimental_disconnect)
   - [`experimental_prepareImportAccount`](#experimental_prepareImportAccount)
   - [`experimental_importAccount`](#experimental_importAccount)
   - [`experimental_keys`](#experimental_keys)
@@ -65,7 +63,7 @@ import { Porto } from 'porto'
 const porto = Porto.create()
 
 const account = await porto.provider.request({ 
-  method: 'experimental_connect',
+  method: 'wallet_connect',
   params: [{ capabilities: { authorizeKey: true } }]
 })
 ```
@@ -146,9 +144,11 @@ Porto implements the following **standardized wallet** JSON-RPC methods:
 - `eth_sendTransaction`
 - `eth_signTypedData_v4`
 - `personal_sign`
-- `wallet_getCapabilities`
-- `wallet_getCallsStatus`
-- `wallet_sendCalls`
+- `wallet_connect` [(ERC-7846: Wallet Connection API)](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)
+- `wallet_disconnect` [(ERC-7846: Wallet Connection API)](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)
+- `wallet_getCapabilities` [(ERC-5792: Wallet Call API)](https://eips.ethereum.org/EIPS/eip-5792)
+- `wallet_getCallsStatus` [(ERC-5792: Wallet Call API)](https://eips.ethereum.org/EIPS/eip-5792)
+- `wallet_sendCalls` [(ERC-5792: Wallet Call API)](https://eips.ethereum.org/EIPS/eip-5792)
 
 In addition to the above, Porto implements the following **experimental** JSON-RPC methods:
 
@@ -212,50 +212,6 @@ The following `role` values are supported:
 ```
 
 
-### `experimental_connect`
-
-Connects an end-user to an application.
-
-#### Parameters
-
-```ts
-{
-  method: 'experimental_connect',
-  params: [{ 
-    // ERC-5792 capabilities to define extended behavior.
-    capabilities: {
-      // Whether to create a new account.
-      createAccount?: boolean | { label?: string },
-
-      // Whether to authorize a key with an optional expiry.
-      authorizeKey?: boolean | { expiry?: number },
-    } 
-  }]
-}
-```
-
-#### Returns
-
-```ts
-{
-  account: {
-    // The address of the account.
-    address: `0x${string}`,
-
-    // ERC-5792 capabilities to define extended behavior.
-    capabilities: {
-      // The keys authorized on the account.
-      keys: {
-        expiry: number,
-        publicKey: `0x${string}`,
-        role: 'admin' | 'session',
-        type: 'p256' | 'secp256k1' | 'webauthn-p256',
-      }[],
-    }
-  }[]
-}
-```
-
 ### `experimental_createAccount`
 
 Creates (and connects) a new account.
@@ -278,18 +234,6 @@ Creates (and connects) a new account.
 ```ts
 // Address of the created account.
 `0x${string}`
-```
-
-### `experimental_disconnect`
-
-Disconnects the account.
-
-#### Parameters
-
-```ts
-{
-  method: 'experimental_disconnect'
-}
 ```
 
 ### `experimental_prepareImportAccount`
@@ -423,15 +367,15 @@ Example:
 { method: 'experimental_createAccount' }
 ```
 
-#### Creation via `experimental_connect`
+#### Creation via `wallet_connect`
 
-Accounts may be created upon connection with the `createAccount` parameter on the [`experimental_connect`](#experimental_connect) JSON-RPC method.
+Accounts may be created upon connection with the `createAccount` capability on the [`wallet_connect`](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md) JSON-RPC method.
 
 Example:
 
 ```ts
 {
-  method: 'experimental_connect',
+  method: 'wallet_connect',
   params: [{
     capabilities: {
       createAccount: true
@@ -466,9 +410,9 @@ Example:
 }
 ```
 
-#### Authorizing keys via `experimental_connect`
+#### Authorizing keys via `wallet_connect`
 
-Keys may be authorized upon connection with the `authorizeKey` parameter on the [`experimental_connect`](#experimental_connect) JSON-RPC method.
+Keys may be authorized upon connection with the `authorizeKey` capability on the [`wallet_connect`]([#wallet_connect](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)) JSON-RPC method.
 
 If `authorizeKey.publicKey` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
@@ -476,7 +420,7 @@ Example:
 
 ```ts
 {
-  method: 'experimental_connect',
+  method: 'wallet_connect',
   params: [{ 
     capabilities: { 
       authorizeKey: {
@@ -487,21 +431,23 @@ Example:
 }
 ```
 
-If a key is authorized upon connection, the `experimental_connect` JSON-RPC method will return the key on the `capabilities.keys` parameter of the response.
+If a key is authorized upon connection, the `wallet_connect` JSON-RPC method will return the key on the `capabilities.keys` parameter of the response.
 
 Example:
 
 ```ts
 {
-  address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe',
-  capabilities: {
-    keys: [{ 
-      expiry: 1727078400, 
-      publicKey: '0x...', 
-      role: 'session', 
-      type: 'p256' 
-    }]
-  }
+  accounts: [{
+    address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe',
+    capabilities: {
+      keys: [{ 
+        expiry: 1727078400, 
+        publicKey: '0x...', 
+        role: 'session', 
+        type: 'p256' 
+      }]
+    }
+  }],
 }
 ```
 

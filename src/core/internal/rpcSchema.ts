@@ -23,23 +23,10 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
-        method: 'experimental_connect'
-        params?: [ConnectParameters] | undefined
-      }
-      ReturnType: ConnectReturnType
-    }
-  | {
-      Request: {
         method: 'experimental_createAccount'
         params?: [CreateAccountParameters] | undefined
       }
       ReturnType: Address.Address
-    }
-  | {
-      Request: {
-        method: 'experimental_disconnect'
-      }
-      ReturnType: undefined
     }
   | {
       Request: {
@@ -61,6 +48,19 @@ export type Schema = RpcSchema.From<
         params?: [GetKeysParameters] | undefined
       }
       ReturnType: GetKeysReturnType
+    }
+  | {
+      Request: {
+        method: 'wallet_connect'
+        params?: [ConnectParameters] | undefined
+      }
+      ReturnType: ConnectReturnType
+    }
+  | {
+      Request: {
+        method: 'wallet_disconnect'
+      }
+      ReturnType: undefined
     }
 >
 
@@ -114,14 +114,16 @@ export type ConnectParameters = {
     | undefined
 }
 
-export type ConnectReturnType = readonly {
-  address: Address.Address
-  capabilities?:
-    | {
-        keys?: GetKeysReturnType | undefined
-      }
-    | undefined
-}[]
+export type ConnectReturnType = {
+  accounts: readonly {
+    address: Address.Address
+    capabilities?:
+      | {
+          keys?: GetKeysReturnType | undefined
+        }
+      | undefined
+  }[]
+}
 
 export type CreateAccountParameters = {
   chainId?: Hex.Hex | undefined

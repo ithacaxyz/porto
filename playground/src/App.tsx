@@ -113,7 +113,7 @@ function Connect() {
   const [result, setResult] = useState<unknown | null>(null)
   return (
     <div>
-      <h3>experimental_connect</h3>
+      <h3>wallet_connect</h3>
       <label>
         <input
           type="checkbox"
@@ -127,7 +127,7 @@ function Connect() {
           onClick={() =>
             porto.provider
               .request({
-                method: 'experimental_connect',
+                method: 'wallet_connect',
                 params: [{ capabilities: { authorizeKey } }],
               })
               .then(setResult)
@@ -140,7 +140,7 @@ function Connect() {
           onClick={() =>
             porto.provider
               .request({
-                method: 'experimental_connect',
+                method: 'wallet_connect',
                 params: [
                   { capabilities: { createAccount: true, authorizeKey } },
                 ],
@@ -218,11 +218,9 @@ function Login() {
 function Disconnect() {
   return (
     <div>
-      <h3>experimental_disconnect</h3>
+      <h3>wallet_disconnect</h3>
       <button
-        onClick={() =>
-          porto.provider.request({ method: 'experimental_disconnect' })
-        }
+        onClick={() => porto.provider.request({ method: 'wallet_disconnect' })}
         type="button"
       >
         Disconnect

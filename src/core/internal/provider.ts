@@ -72,6 +72,7 @@ export function from<
           store.setState((x) => ({ ...x, accounts }))
 
           emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
+
           return accounts.map(
             (account) => account.address,
           ) satisfies RpcSchema.ExtractReturnType<
@@ -212,60 +213,6 @@ export function from<
           >
         }
 
-        // TODO
-        // case 'experimental_connect': {
-        //   if (!headless) throw new ox_Provider.UnsupportedMethodError()
-
-        //   const [{ capabilities }] = (params as RpcSchema.ExtractParams<
-        //     Schema.Schema,
-        //     'experimental_connect'
-        //   >) ?? [{}]
-        //   const { createAccount, grantSession } = capabilities ?? {}
-
-        //   const { expiry = Math.floor(Date.now() / 1000) + 60 * 60 } =
-        //     typeof grantSession === 'object' ? grantSession : {}
-        //   const key = grantSession
-        //     ? await AccountDelegation.createWebCryptoKey({
-        //         expiry: BigInt(expiry),
-        //       })
-        //     : undefined
-
-        //   const { account } = await (async () => {
-        //     if (createAccount) {
-        //       const { label } =
-        //         typeof createAccount === 'object' ? createAccount : {}
-        //       return await AccountDelegation.create(state.client, {
-        //         authorizeKeys: key ? [key] : undefined,
-        //         delegation: state.delegation,
-        //         label,
-        //         rpId: keystoreHost,
-        //       })
-        //     }
-        //     return await AccountDelegation.load(state.client, {
-        //       authorizeKeys: key ? [key] : undefined,
-        //       rpId: keystoreHost,
-        //     })
-        //   })()
-
-        //   const sessions = getActiveKeys(account.keys)
-
-        //   store.setState((x) => ({ ...x, accounts: [account] }))
-
-        //   emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
-
-        //   return [
-        //     {
-        //       address: account.address,
-        //       capabilities: {
-        //         sessions,
-        //       },
-        //     },
-        //   ] satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'experimental_connect'
-        //   >
-        // }
-
         case 'experimental_createAccount': {
           const [{ chainId, label }] = (params as RpcSchema.ExtractParams<
             Schema.Schema,
@@ -288,11 +235,6 @@ export function from<
             Schema.Schema,
             'experimental_createAccount'
           >
-        }
-
-        case 'experimental_disconnect': {
-          store.setState((x) => ({ ...x, accounts: [] }))
-          return
         }
 
         // TODO
@@ -437,6 +379,65 @@ export function from<
         //     'personal_sign'
         //   >
         // }
+
+        case 'wallet_connect': {
+          // const [{ capabilities }] = (params as RpcSchema.ExtractParams<
+          //   Schema.Schema,
+          //   'wallet_connect'
+          // >) ?? [{}]
+
+          const client = getClient()
+
+          // const { authorizeKey, createAccount } = capabilities ?? {}
+
+          // const { expiry = Math.floor(Date.now() / 1000) + 60 * 60 } =
+          //   typeof grantSession === 'object' ? grantSession : {}
+          // const key = grantSession
+          //   ? await AccountDelegation.createWebCryptoKey({
+          //       expiry: BigInt(expiry),
+          //     })
+          //   : undefined
+
+          const { accounts } = await (async () => {
+            // if (createAccount) {
+            //   const { label } =
+            //     typeof createAccount === 'object' ? createAccount : {}
+            //   return await AccountDelegation.create(state.client, {
+            //     authorizeKeys: key ? [key] : undefined,
+            //     delegation: state.delegation,
+            //     label,
+            //     rpId: keystoreHost,
+            //   })
+            // }
+            return await implementation.actions.loadAccounts({
+              client,
+              config,
+              request,
+            })
+          })()
+
+          store.setState((x) => ({ ...x, accounts }))
+
+          emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
+
+          return {
+            accounts: accounts.map((account) => ({
+              address: account.address,
+              capabilities: {
+                keys: account.keys ? getActiveKeys(account.keys) : [],
+              },
+            })),
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'wallet_connect'
+          >
+        }
+
+        case 'wallet_disconnect': {
+          store.setState((x) => ({ ...x, accounts: [] }))
+          emitter.emit('disconnect', new ox_Provider.DisconnectedError())
+          return
+        }
 
         case 'wallet_getCallsStatus': {
           const [id] =
