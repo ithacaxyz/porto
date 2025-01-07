@@ -72,6 +72,13 @@ export type AuthorizeKeyParameters = {
             expiry?: number | undefined
           }
         | {
+            // TODO: Hook up GuardedExecutor.sol
+            // executionGuards?:
+            //   | readonly {
+            //       selector?: Hex.Hex | undefined
+            //       target?: Address.Address | undefined
+            //     }[]
+            //   | undefined
             expiry?: number | undefined
             publicKey: Hex.Hex
             role: 'admin' | 'session'
@@ -82,6 +89,13 @@ export type AuthorizeKeyParameters = {
 }
 
 export type AuthorizeKeyReturnType = {
+  // TODO: Hook up GuardedExecutor.sol
+  // executionGuards?:
+  //   | readonly {
+  //       selector?: Hex.Hex | undefined
+  //       target?: Address.Address | undefined
+  //     }[]
+  //   | undefined
   expiry: number
   publicKey: Hex.Hex
   role: 'admin' | 'session'
