@@ -34,10 +34,10 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
+        canSign: false,
         expiry: key.expiry,
         publicKey: key.publicKey,
         role: key.role,
-        signable: false,
         type: 'p256',
       })
     })
@@ -73,7 +73,7 @@ describe('execute', () => {
         expiry: key.expiry,
         publicKey: key.publicKey,
         role: key.role,
-        signable: false,
+        canSign: false,
         type: 'p256',
       })
     })
@@ -105,7 +105,7 @@ describe('execute', () => {
         expiry: key.expiry,
         publicKey: key.publicKey,
         role: key.role,
-        signable: false,
+        canSign: false,
         type: 'p256',
       })
     })
@@ -142,7 +142,7 @@ describe('execute', () => {
         expiry: key.expiry,
         publicKey: key.publicKey,
         role: key.role,
-        signable: false,
+        canSign: false,
         type: 'p256',
       })
     })
@@ -188,7 +188,7 @@ describe('execute', () => {
         expiry: nextKey.expiry,
         publicKey: nextKey.publicKey,
         role: nextKey.role,
-        signable: false,
+        canSign: false,
         type: 'p256',
       })
     })
@@ -234,7 +234,7 @@ describe('execute', () => {
         expiry: nextKey.expiry,
         publicKey: nextKey.publicKey,
         role: nextKey.role,
-        signable: false,
+        canSign: false,
         type: 'p256',
       })
     })
@@ -568,7 +568,7 @@ describe('prepareExecute', () => {
         expiry: keyToAuthorize.expiry,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
-        signable: false,
+        canSign: false,
         type: 'p256',
       })
     })
@@ -616,7 +616,7 @@ describe('prepareExecute', () => {
         expiry: keyToAuthorize.expiry,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
-        signable: false,
+        canSign: false,
         type: 'p256',
       })
     })
@@ -660,7 +660,7 @@ describe('prepareExecute', () => {
         expiry: keyToAuthorize.expiry,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
-        signable: false,
+        canSign: false,
         type: 'p256',
       })
     })

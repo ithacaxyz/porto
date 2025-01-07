@@ -22,10 +22,10 @@ export type BaseKey<type extends string, properties> = {
   type: type
 } & OneOf<
   | ({
-      signable: true
+      canSign: true
     } & properties)
   | ({
-      signable: false
+      canSign: false
     } & Undefined<properties>)
 >
 
@@ -298,7 +298,7 @@ export function deserialize(serialized: Serialized): Key {
     expiry: serialized.expiry,
     publicKey: serialized.publicKey,
     role: serialized.isSuperAdmin ? 'admin' : 'session',
-    signable: false,
+    canSign: false,
     type: (fromSerializedKeyType as any)[serialized.keyType],
   }
 }
@@ -371,7 +371,7 @@ export function fromP256<const role extends Key['role']>(
     expiry: parameters.expiry ?? 0,
     publicKey,
     role: parameters.role as Key['role'],
-    signable: true,
+    canSign: true,
     privateKey() {
       return privateKey
     },
@@ -431,7 +431,7 @@ export function fromSecp256k1<const role extends Key['role']>(
     expiry: parameters.expiry ?? 0,
     publicKey,
     role,
-    signable: Boolean(privateKey),
+    canSign: Boolean(privateKey),
     privateKey: privateKey ? () => privateKey : undefined,
     type: 'secp256k1',
   } as Secp256k1Key)
@@ -498,7 +498,7 @@ export function fromWebAuthnP256<const role extends Key['role']>(
     expiry: parameters.expiry ?? 0,
     publicKey,
     role: parameters.role as Key['role'],
-    signable: true,
+    canSign: true,
     rpId,
     type: 'webauthn-p256',
   })
@@ -556,7 +556,7 @@ export function fromWebCryptoP256<const role extends Key['role']>(
     expiry: parameters.expiry ?? 0,
     publicKey,
     role: parameters.role as Key['role'],
-    signable: true,
+    canSign: true,
     privateKey,
     type: 'p256',
   })
@@ -629,11 +629,11 @@ export function serialize(key: Key): Serialized {
 
 export async function sign(key: Key, parameters: { payload: Hex.Hex }) {
   const { payload } = parameters
-  const { publicKey, type: keyType, signable } = key
+  const { canSign, publicKey, type: keyType } = key
 
-  if (!signable)
+  if (!canSign)
     throw new Error(
-      'Key is not signable.\n\nKey:\n' + Json.stringify(key, null, 2),
+      'Key is not canSign.\n\nKey:\n' + Json.stringify(key, null, 2),
     )
 
   const [signature, prehash] = await (async () => {

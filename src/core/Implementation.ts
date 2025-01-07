@@ -175,12 +175,12 @@ export function local(parameters: local.Parameters = {}) {
         const key = (() => {
           const sessionKey = account.keys?.find(
             (key) =>
-              key.signable &&
+              key.canSign &&
               key.role === 'session' &&
               key.expiry > BigInt(Math.floor(Date.now() / 1000)),
           )
           const adminKey = account.keys?.find(
-            (key) => key.role === 'admin' && key.signable,
+            (key) => key.role === 'admin' && key.canSign,
           )
           return sessionKey ?? adminKey
         })()

@@ -599,7 +599,7 @@ function getActiveKeys(
     .map((key) => {
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
-      if (!key.signable) return undefined
+      if (!key.canSign) return undefined
       return {
         expiry: key.expiry,
         publicKey: key.publicKey,
