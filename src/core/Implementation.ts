@@ -1,6 +1,7 @@
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
+import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import type { Client, Hash, Transport } from 'viem'
@@ -167,6 +168,7 @@ export function local(parameters: local.Parameters = {}) {
           .response as AuthenticatorAssertionResponse
 
         const address = Bytes.toHex(new Uint8Array(response.userHandle!))
+        const credentialId = credential.raw.id
 
         // Fetch the delegated account's keys.
         const keyCount = await readContract(client, {
@@ -183,7 +185,18 @@ export function local(parameters: local.Parameters = {}) {
         // Instantiate the account based off the extracted address and keys.
         const account = Account.from({
           address,
-          keys,
+          keys: keys.map((key, i) => {
+            // Assume that the first key is the admin WebAuthn key.
+            if (i === 0 && key.type === 'webauthn-p256')
+              return Key.fromWebAuthnP256({
+                ...key,
+                credential: {
+                  id: credentialId,
+                  publicKey: PublicKey.fromHex(key.publicKey),
+                },
+              })
+            return key
+          }),
         })
 
         return {

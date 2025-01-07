@@ -34,8 +34,11 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...key,
-        sign: undefined,
+        expiry: key.expiry,
+        publicKey: key.publicKey,
+        role: key.role,
+        signable: false,
+        type: 'p256',
       })
     })
 
@@ -67,8 +70,11 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...key,
-        sign: undefined,
+        expiry: key.expiry,
+        publicKey: key.publicKey,
+        role: key.role,
+        signable: false,
+        type: 'p256',
       })
     })
 
@@ -96,8 +102,11 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...key,
-        sign: undefined,
+        expiry: key.expiry,
+        publicKey: key.publicKey,
+        role: key.role,
+        signable: false,
+        type: 'p256',
       })
     })
 
@@ -130,8 +139,11 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...key,
-        sign: undefined,
+        expiry: key.expiry,
+        publicKey: key.publicKey,
+        role: key.role,
+        signable: false,
+        type: 'p256',
       })
     })
 
@@ -173,8 +185,11 @@ describe('execute', () => {
           index: 1,
         }),
       ).toEqual({
-        ...nextKey,
-        sign: undefined,
+        expiry: nextKey.expiry,
+        publicKey: nextKey.publicKey,
+        role: nextKey.role,
+        signable: false,
+        type: 'p256',
       })
     })
 
@@ -216,8 +231,11 @@ describe('execute', () => {
           index: 1,
         }),
       ).toEqual({
-        ...nextKey,
-        sign: undefined,
+        expiry: nextKey.expiry,
+        publicKey: nextKey.publicKey,
+        role: nextKey.role,
+        signable: false,
+        type: 'p256',
       })
     })
   })
@@ -547,8 +565,11 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...keyToAuthorize,
-        sign: undefined,
+        expiry: keyToAuthorize.expiry,
+        publicKey: keyToAuthorize.publicKey,
+        role: keyToAuthorize.role,
+        signable: false,
+        type: 'p256',
       })
     })
 
@@ -592,8 +613,11 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...keyToAuthorize,
-        sign: undefined,
+        expiry: keyToAuthorize.expiry,
+        publicKey: keyToAuthorize.publicKey,
+        role: keyToAuthorize.role,
+        signable: false,
+        type: 'p256',
       })
     })
 
@@ -633,8 +657,11 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        ...keyToAuthorize,
-        sign: undefined,
+        expiry: keyToAuthorize.expiry,
+        publicKey: keyToAuthorize.publicKey,
+        role: keyToAuthorize.role,
+        signable: false,
+        type: 'p256',
       })
     })
   })

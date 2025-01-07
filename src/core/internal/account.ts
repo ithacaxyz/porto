@@ -3,7 +3,7 @@ import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 
-import type * as Key from './key.js'
+import * as Key from './key.js'
 import type { Compute, RequiredBy } from './types.js'
 
 /** A delegated account. */
@@ -110,7 +110,7 @@ export async function sign<
   account: account | Account,
   parameters: sign.Parameters<account, payloads>,
 ): Promise<Compute<payloads>> {
-  const { key, payloads } = parameters
+  const { payloads } = parameters
 
   const [payload, authorizationPayload] = payloads as {} as [Hex.Hex, Hex.Hex]
 
@@ -120,12 +120,14 @@ export async function sign<
     throw new Error('cannot find root signing key to sign authorization.')
 
   // Extract a key to sign the payload with.
-  const signingKey = (() => {
+  const key = (() => {
+    const key = parameters.key
+
     // Extract from `key` parameter.
     if (typeof key === 'object') return key
 
     // If we have an authorization payload, use the root signing key.
-    if (authorizationPayload) return account
+    if (authorizationPayload) return undefined
 
     // Extract from `account.keys` (with optional `key` index).
     if (account.keys && account.keys.length > 0) {
@@ -133,17 +135,21 @@ export async function sign<
       return account.keys[0]
     }
 
-    // Fall back to `account.sign`.
-    return account
+    return undefined
+  })()
+
+  const sign = (() => {
+    // If we have no key, use the root signing key.
+    if (!key) return account.sign
+    return (parameters: { payload: Hex.Hex }) => Key.sign(key, parameters)
   })()
 
   // If the account has no valid signing key, then we cannot sign the payload.
-  if (!signingKey || !signingKey.sign)
-    throw new Error('cannot find key to sign with.')
+  if (!sign) throw new Error('cannot find key to sign with.')
 
   // Sign the payload(s).
   const signatures = await Promise.all([
-    signingKey.sign({ payload }),
+    sign({ payload }),
     authorizationPayload && account.sign
       ? account.sign({ payload: authorizationPayload })
       : undefined,

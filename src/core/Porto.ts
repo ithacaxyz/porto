@@ -126,7 +126,6 @@ export function create(
         }),
         {
           name: 'porto.store',
-          merge,
           partialize(state) {
             return {
               accounts: state.accounts.map((account) => ({
@@ -134,7 +133,7 @@ export function create(
                 sign: undefined,
                 keys: account.keys?.map((key) => ({
                   ...key,
-                  sign: undefined,
+                  privateKey: undefined,
                 })),
               })),
               chain: state.chain,
@@ -199,25 +198,4 @@ export function getClient<
     transport: (transports as Record<number, Transport>)[chain.id]!,
     pollingInterval: 1_000,
   })
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Internal
-//////////////////////////////////////////////////////////////////////////////
-
-function merge(p: unknown, currentState: State): State {
-  const persistedState = p as State
-  const state = { ...currentState, ...persistedState }
-  return {
-    ...state,
-    // TODO: Fix
-    // When filtering out keys, `keyIndex` changes and no longer matches index in
-    // `WrappedSignature` (via `wrapSignature`).
-    // accounts: state.accounts.map((account) => ({
-    //   ...account,
-    //   keys: account.keys.filter(
-    //     (key) => key.expiry === 0n || AccountDelegation.isActiveSessionKey(key),
-    //   ),
-    // })),
-  } satisfies State
 }

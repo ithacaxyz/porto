@@ -6,14 +6,13 @@ import {
   WebAuthnP256,
   WebCryptoP256,
 } from 'ox'
-import { readContract, verifyHash } from 'viem/actions'
+import { verifyHash } from 'viem/actions'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { getAccount } from '../../../test/src/account.js'
 import { client, delegation } from '../../../test/src/porto.js'
 import * as Call from './call.js'
 import * as Delegation from './delegation.js'
-import { delegationAbi } from './generated.js'
 import * as Key from './key.js'
 
 describe('createP256', () => {
@@ -28,8 +27,9 @@ describe('createP256', () => {
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "privateKey": [Function],
         "role": "admin",
-        "sign": [Function],
+        "signable": true,
         "type": "p256",
       }
     `)
@@ -53,7 +53,7 @@ describe('createP256', () => {
     })
 
     const payload = Hex.random(32)
-    const signature = await key.sign({
+    const signature = await Key.sign(key, {
       payload,
     })
 
@@ -79,8 +79,9 @@ describe('createSecp256k1', () => {
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "privateKey": [Function],
         "role": "admin",
-        "sign": [Function],
+        "signable": true,
         "type": "secp256k1",
       }
     `)
@@ -104,22 +105,15 @@ describe('createSecp256k1', () => {
     })
 
     const payload = Hex.random(32)
-    const signature = await key.sign?.({
+    const signature = await Key.sign(key, {
       payload,
-    })
-
-    await readContract(client, {
-      abi: delegationAbi,
-      address: account.address,
-      functionName: 'unwrapAndValidateSignature',
-      args: [payload, signature!],
     })
 
     expect(
       await verifyHash(client, {
         address: account.address,
         hash: payload,
-        signature: signature!,
+        signature,
       }),
     ).toBe(true)
   })
@@ -171,9 +165,18 @@ describe('createWebAuthnP256', () => {
     expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "credential": {
+          "id": "m1-bMPuAqpWhCxHZQZTT6e-lSPntQbh3opIoGe7g4Qs",
+          "publicKey": {
+            "prefix": 4,
+            "x": 77587693192652859874025541476425832478302972220661277688017673393936226333095n,
+            "y": 97933141135755737384413290261786792525004108403409931527059712582886746584404n,
+          },
+        },
         "expiry": 0,
         "role": "admin",
-        "sign": [Function],
+        "rpId": undefined,
+        "signable": true,
         "type": "webauthn-p256",
       }
     `)
@@ -192,8 +195,9 @@ describe('createWebCryptoP256', () => {
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "privateKey": CryptoKey {},
         "role": "admin",
-        "sign": [Function],
+        "signable": true,
         "type": "p256",
       }
     `)
@@ -217,7 +221,7 @@ describe('createWebCryptoP256', () => {
     })
 
     const payload = Hex.random(32)
-    const signature = await key.sign({
+    const signature = await Key.sign(key, {
       payload,
     })
 
@@ -241,10 +245,15 @@ describe('deserialize', () => {
     const serialized = Key.serialize(key)
     const deserialized = Key.deserialize(serialized)
 
-    expect(deserialized).toEqual({
-      ...key,
-      sign: undefined,
-    })
+    expect(deserialized).toMatchInlineSnapshot(`
+      {
+        "expiry": 0,
+        "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
+        "role": "admin",
+        "signable": false,
+        "type": "p256",
+      }
+    `)
   })
 })
 
@@ -252,7 +261,8 @@ describe('from', () => {
   test('default', () => {
     const publicKey = PublicKey.toHex(
       Secp256k1.getPublicKey({
-        privateKey: Secp256k1.randomPrivateKey(),
+        privateKey:
+          '0x72685afe259e683fa3b7819c4745383ba36366c7571fd17456fd4cd9777aedcb',
       }),
       {
         includePrefix: false,
@@ -263,15 +273,23 @@ describe('from', () => {
       expiry: 69420,
       publicKey,
       role: 'admin',
+      signable: true,
+      privateKey() {
+        return '0x'
+      },
       type: 'p256',
     })
 
-    expect(key).toEqual({
-      expiry: 69420,
-      publicKey,
-      role: 'admin',
-      type: 'p256',
-    })
+    expect(key).toMatchInlineSnapshot(`
+      {
+        "expiry": 69420,
+        "privateKey": [Function],
+        "publicKey": "0x144f4bf8bda60e5bf0e9f11a509e55a14987a6c5a63aed81bcb6939f9f5abc7c3598cce19015350ce8d30f11e57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
+        "role": "admin",
+        "signable": true,
+        "type": "p256",
+      }
+    `)
   })
 
   test('serialized', () => {
@@ -288,6 +306,10 @@ describe('from', () => {
       expiry: 69420,
       publicKey,
       role: 'admin',
+      signable: true,
+      privateKey() {
+        return '0x'
+      },
       type: 'p256',
     })
     const serialized = Key.serialize(key)
@@ -295,6 +317,7 @@ describe('from', () => {
     expect(Key.from(serialized)).toEqual({
       expiry: 69420,
       publicKey,
+      signable: false,
       role: 'admin',
       type: 'p256',
     })
@@ -312,9 +335,10 @@ describe('fromP256', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "privateKey": [Function],
         "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "role": "admin",
-        "sign": [Function],
+        "signable": true,
         "type": "p256",
       }
     `)
@@ -331,9 +355,10 @@ describe('fromP256', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 69420,
+        "privateKey": [Function],
         "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "role": "admin",
-        "sign": [Function],
+        "signable": true,
         "type": "p256",
       }
     `)
@@ -351,9 +376,10 @@ describe('fromSecp256k1', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "privateKey": [Function],
         "publicKey": "0x000000000000000000000000673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "role": "admin",
-        "sign": [Function],
+        "signable": true,
         "type": "secp256k1",
       }
     `)
@@ -368,9 +394,10 @@ describe('fromSecp256k1', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "privateKey": undefined,
         "publicKey": "0x0000000000000000000000000000000000000000000000000000000000000000",
         "role": "admin",
-        "sign": undefined,
+        "signable": false,
         "type": "secp256k1",
       }
     `)
@@ -387,9 +414,10 @@ describe('fromSecp256k1', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "privateKey": undefined,
         "publicKey": "0x000000000000000000000000673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "role": "admin",
-        "sign": undefined,
+        "signable": false,
         "type": "secp256k1",
       }
     `)
@@ -442,10 +470,25 @@ describe('fromWebAuthnP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "credential": {
+          "id": "m1-bMPuAqpWhCxHZQZTT6e-lSPntQbh3opIoGe7g4Qs",
+          "publicKey": {
+            "prefix": 4,
+            "x": 77587693192652859874025541476425832478302972220661277688017673393936226333095n,
+            "y": 97933141135755737384413290261786792525004108403409931527059712582886746584404n,
+          },
+          "raw": {
+            "id": "m1-bMPuAqpWhCxHZQZTT6e-lSPntQbh3opIoGe7g4Qs",
+            "response": {
+              "getPublicKey": [Function],
+            },
+          },
+        },
         "expiry": 0,
         "publicKey": "0xab891400140fc4f8e941ce0ff90e419de9470acaca613bbd717a4775435031a7d884318e919fd3b3e5a631d866d8a380b44063e70f0c381ee16e0652f7f97554",
         "role": "admin",
-        "sign": [Function],
+        "rpId": undefined,
+        "signable": true,
         "type": "webauthn-p256",
       }
     `)
@@ -471,9 +514,10 @@ describe('fromWebCryptoP256', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "privateKey": CryptoKey {},
         "publicKey": "0x410e2eb4820de45c0dd6730c300c3c66b8bc5885c963067fe0ff29c5e480329009d8fbd71e76257a2d5577e2211a62114eca15c9218d488209fa789a45497124",
         "role": "admin",
-        "sign": [Function],
+        "signable": true,
         "type": "p256",
       }
     `)

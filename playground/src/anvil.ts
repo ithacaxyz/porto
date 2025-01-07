@@ -22,7 +22,9 @@ export const chain = (id = 1) =>
       decimals: 18,
     },
     contracts: {
-      delegation: Chains.odysseyTestnet.contracts.delegation,
+      delegation: {
+        address: '0x0ff027b63351364071425cF65d4FEce75a8e17B8',
+      },
     },
     rpcUrls: {
       default: {
