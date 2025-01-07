@@ -7,6 +7,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
+import type * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
 export type Provider = ox_Provider.Provider<{
@@ -51,6 +52,64 @@ export function from<
           return state.accounts.map(
             (account) => account.address,
           ) satisfies RpcSchema.ExtractReturnType<Schema.Schema, 'eth_accounts'>
+        }
+
+        case 'experimental_authorizeKey': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, key: keyToAuthorize }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_authorizeKey'
+            >) ?? [{}]
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const client = getClient()
+
+          const { key } = await implementation.actions.authorizeKey({
+            account,
+            client,
+            key: keyToAuthorize,
+            config,
+            request,
+          })
+
+          store.setState((x) => {
+            const index = x.accounts.findIndex((x) =>
+              account ? Address.isEqual(x.address, account.address) : true,
+            )
+            if (index === -1) return x
+            return {
+              ...x,
+              accounts: x.accounts.map((account, i) =>
+                i === index
+                  ? { ...account, keys: [...(account.keys ?? []), key] }
+                  : account,
+              ),
+            }
+          })
+
+          emitter.emit('message', {
+            data: getActiveKeys([...(account.keys ?? []), key]),
+            type: 'keysChanged',
+          })
+
+          return {
+            expiry: key.expiry,
+            publicKey: key.publicKey,
+            role: key.role,
+            type: key.type,
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_authorizeKey'
+          >
         }
 
         case 'eth_chainId': {
@@ -188,7 +247,7 @@ export function from<
         //     })
         //   })()
 
-        //   const sessions = getActiveSessionKeys(account.keys)
+        //   const sessions = getActiveKeys(account.keys)
 
         //   store.setState((x) => ({ ...x, accounts: [account] }))
 
@@ -235,69 +294,6 @@ export function from<
           store.setState((x) => ({ ...x, accounts: [] }))
           return
         }
-
-        // TODO
-        // case 'experimental_grantSession': {
-        //   if (!headless) throw new ox_Provider.UnsupportedMethodError()
-        //   if (state.accounts.length === 0)
-        //     throw new ox_Provider.DisconnectedError()
-
-        //   const [
-        //     {
-        //       address,
-        //       expiry = Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
-        //     },
-        //   ] = (params as RpcSchema.ExtractParams<
-        //     Schema.Schema,
-        //     'experimental_grantSession'
-        //   >) ?? [{}]
-
-        //   const account = address
-        //     ? state.accounts.find((account) =>
-        //         Address.isEqual(account.address, address),
-        //       )
-        //     : state.accounts[0]
-        //   if (!account) throw new ox_Provider.UnauthorizedError()
-
-        //   const key = await AccountDelegation.createWebCryptoKey({
-        //     expiry: BigInt(expiry),
-        //   })
-
-        //   // TODO: wait for tx to be included?
-        //   await AccountDelegation.authorize(state.client, {
-        //     account,
-        //     keys: [key],
-        //     rpId: keystoreHost,
-        //   })
-
-        //   store.setState((x) => {
-        //     const index = x.accounts.findIndex((x) =>
-        //       account ? Address.isEqual(x.address, account.address) : true,
-        //     )
-        //     if (index === -1) return x
-        //     return {
-        //       ...x,
-        //       accounts: x.accounts.map((account, i) =>
-        //         i === index
-        //           ? { ...account, keys: [...account.keys, key] }
-        //           : account,
-        //       ),
-        //     }
-        //   })
-
-        //   emitter.emit('message', {
-        //     data: getActiveSessionKeys([...account.keys, key]),
-        //     type: 'sessionsChanged',
-        //   })
-
-        //   return {
-        //     expiry,
-        //     id: PublicKey.toHex(key.publicKey),
-        //   } satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'experimental_grantSession'
-        //   >
-        // }
 
         // TODO
         // case 'experimental_prepareImportAccount': {
@@ -369,7 +365,7 @@ export function from<
         //     signature: Signature.from(initializeSignature),
         //   })
 
-        //   const sessions = getActiveSessionKeys(account.keys)
+        //   const sessions = getActiveKeys(account.keys)
 
         //   store.setState((x) => ({ ...x, accounts: [account] }))
 
@@ -402,7 +398,7 @@ export function from<
         //       )
         //     : state.accounts[0]
 
-        //   return getActiveSessionKeys(account?.keys ?? [])
+        //   return getActiveKeys(account?.keys ?? [])
         // }
 
         case 'porto_ping': {
@@ -595,6 +591,24 @@ export function announce(provider: Provider) {
     },
     provider: provider as any,
   })
+}
+
+function getActiveKeys(
+  keys: readonly Key.Key[],
+): Schema.AuthorizeKeyReturnType[] {
+  return keys
+    .map((key) => {
+      if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
+        return undefined
+      if (!key.signable) return undefined
+      return {
+        expiry: key.expiry,
+        publicKey: key.publicKey,
+        role: key.role,
+        type: key.type,
+      }
+    })
+    .filter(Boolean) as never
 }
 
 function requireParameter(

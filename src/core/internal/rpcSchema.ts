@@ -4,6 +4,7 @@ import type * as RpcSchema from 'ox/RpcSchema'
 import type { Authorization } from 'viem/experimental'
 
 import type * as Account from './account.js'
+import type { OneOf } from './types.js'
 
 export type Schema = RpcSchema.From<
   | RpcSchema.Default
@@ -12,6 +13,13 @@ export type Schema = RpcSchema.From<
         method: 'porto_ping'
       }
       ReturnType: string
+    }
+  | {
+      Request: {
+        method: 'experimental_authorizeKey'
+        params?: [AuthorizeKeyParameters] | undefined
+      }
+      ReturnType: AuthorizeKeyReturnType
     }
   | {
       Request: {
@@ -35,13 +43,6 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
-        method: 'experimental_grantSession'
-        params?: [GrantSessionParameters] | undefined
-      }
-      ReturnType: GrantSessionReturnType
-    }
-  | {
-      Request: {
         method: 'experimental_importAccount'
         params: [ImportAccountParameters]
       }
@@ -56,21 +57,45 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
-        method: 'experimental_sessions'
-        params?: [GetSessionsParameters] | undefined
+        method: 'experimental_keys'
+        params?: [GetKeysParameters] | undefined
       }
-      ReturnType: GetSessionsReturnType
+      ReturnType: GetKeysReturnType
     }
 >
+
+export type AuthorizeKeyParameters = {
+  address?: Address.Address | undefined
+  key?:
+    | OneOf<
+        | {
+            expiry?: number | undefined
+          }
+        | {
+            expiry?: number | undefined
+            publicKey: Hex.Hex
+            role: 'admin' | 'session'
+            type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256'
+          }
+      >
+    | undefined
+}
+
+export type AuthorizeKeyReturnType = {
+  expiry: number
+  publicKey: Hex.Hex
+  role: 'admin' | 'session'
+  type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256'
+}
 
 export type ConnectParameters = {
   capabilities?:
     | {
-        createAccount?: boolean | CreateAccountParameters | undefined
-        grantSession?:
+        authorizeKey?:
           | boolean
-          | Omit<GrantSessionParameters, 'address'>
+          | Omit<AuthorizeKeyParameters, 'address'>
           | undefined
+        createAccount?: boolean | CreateAccountParameters | undefined
       }
     | undefined
 }
@@ -79,7 +104,7 @@ export type ConnectReturnType = readonly {
   address: Address.Address
   capabilities?:
     | {
-        sessions?: GetSessionsReturnType | undefined
+        keys?: GetKeysReturnType | undefined
       }
     | undefined
 }[]
@@ -89,27 +114,11 @@ export type CreateAccountParameters = {
   label?: string | undefined
 }
 
-export type GetSessionsParameters = {
+export type GetKeysParameters = {
   address?: Address.Address | undefined
 }
 
-export type GetSessionsReturnType = readonly GrantSessionReturnType[]
-
-export type GrantSessionParameters = {
-  address?: Address.Address | undefined
-  expiry?: number | undefined
-  keys?:
-    | readonly {
-        algorithm: 'p256' | 'secp256k1'
-        publicKey: Hex.Hex
-      }[]
-    | undefined
-}
-
-export type GrantSessionReturnType = {
-  expiry: number
-  id: Hex.Hex
-}
+export type GetKeysReturnType = readonly AuthorizeKeyReturnType[]
 
 export type ImportAccountParameters = {
   context: PrepareImportAccountReturnType['context']
@@ -120,7 +129,7 @@ export type ImportAccountReturnType = {
   address: Address.Address
   capabilities?:
     | {
-        sessions?: GetSessionsReturnType | undefined
+        keys?: GetKeysReturnType | undefined
       }
     | undefined
 }
@@ -129,9 +138,9 @@ export type PrepareImportAccountParameters = {
   address: Address.Address
   capabilities?:
     | {
-        grantSession?:
+        authorizeKey?:
           | boolean
-          | Omit<GrantSessionParameters, 'address'>
+          | Omit<AuthorizeKeyParameters, 'address'>
           | undefined
       }
     | undefined

@@ -133,7 +133,10 @@ export function create(
                 sign: undefined,
                 keys: account.keys?.map((key) => ({
                   ...key,
-                  privateKey: undefined,
+                  privateKey:
+                    typeof key.privateKey === 'function'
+                      ? undefined
+                      : key.privateKey,
                 })),
               })),
               chain: state.chain,

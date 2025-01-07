@@ -37,8 +37,8 @@ export function App() {
       <Disconnect />
       <Accounts />
       <GetCapabilities />
-      <GrantSession />
-      <GetSessions />
+      <AuthorizeKey />
+      <GetKeys />
       <SendCalls />
       <SendTransaction />
       <SignMessage />
@@ -109,7 +109,7 @@ function Events() {
 }
 
 function Connect() {
-  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
   const [result, setResult] = useState<unknown | null>(null)
   return (
     <div>
@@ -117,8 +117,8 @@ function Connect() {
       <label>
         <input
           type="checkbox"
-          checked={grantSession}
-          onChange={() => setGrantSession((x) => !x)}
+          checked={authorizeKey}
+          onChange={() => setAuthorizeKey((x) => !x)}
         />
         Grant Session
       </label>
@@ -128,7 +128,7 @@ function Connect() {
             porto.provider
               .request({
                 method: 'experimental_connect',
-                params: [{ capabilities: { grantSession } }],
+                params: [{ capabilities: { authorizeKey } }],
               })
               .then(setResult)
           }
@@ -142,7 +142,7 @@ function Connect() {
               .request({
                 method: 'experimental_connect',
                 params: [
-                  { capabilities: { createAccount: true, grantSession } },
+                  { capabilities: { createAccount: true, authorizeKey } },
                 ],
               })
               .then(setResult)
@@ -251,11 +251,11 @@ function GetCapabilities() {
   )
 }
 
-function GrantSession() {
-  const [result, setResult] = useState<Hex.Hex | null>(null)
+function AuthorizeKey() {
+  const [result, setResult] = useState<any | null>(null)
   return (
     <div>
-      <h3>experimental_grantSession</h3>
+      <h3>experimental_authorizeKey</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -265,16 +265,18 @@ function GrantSession() {
           const [account] = await porto.provider.request({
             method: 'eth_accounts',
           })
-          const { id } = await porto.provider.request({
-            method: 'experimental_grantSession',
+          const result = await porto.provider.request({
+            method: 'experimental_authorizeKey',
             params: [
               {
                 address: account,
-                expiry: Math.floor(Date.now() / 1000) + expiry,
+                key: {
+                  expiry: Math.floor(Date.now() / 1000) + expiry,
+                },
               },
             ],
           })
-          setResult(id)
+          setResult(result)
         }}
       >
         <input
@@ -283,28 +285,28 @@ function GrantSession() {
           name="expiry"
           type="number"
         />
-        <button type="submit">Grant Session</button>
+        <button type="submit">Authorize Key</button>
       </form>
-      {result && <pre>session id: {result}</pre>}
+      {result && <pre>key: {JSON.stringify(result, null, 2)}</pre>}
     </div>
   )
 }
 
-function GetSessions() {
+function GetKeys() {
   const [result, setResult] = useState<unknown>(null)
 
   return (
     <div>
-      <h3>experimental_sessions</h3>
+      <h3>experimental_keys</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_sessions' })
+            .request({ method: 'experimental_keys' })
             .then(setResult)
         }
         type="button"
       >
-        Get Sessions
+        Get Keys
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
@@ -316,7 +318,7 @@ function ImportAccount() {
     address: string
     privateKey: string
   } | null>(null)
-  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
   const [privateKey, setPrivateKey] = useState<string>('')
   const [result, setResult] = useState<unknown | null>(null)
 
@@ -351,10 +353,10 @@ function ImportAccount() {
       <label>
         <input
           type="checkbox"
-          checked={grantSession}
-          onChange={() => setGrantSession((x) => !x)}
+          checked={authorizeKey}
+          onChange={() => setAuthorizeKey((x) => !x)}
         />
-        Grant Session
+        Authorize Key
       </label>
       <div>
         <button
@@ -364,7 +366,7 @@ function ImportAccount() {
             const { context, signPayloads } = await porto.provider.request({
               method: 'experimental_prepareImportAccount',
               params: [
-                { address: account.address, capabilities: { grantSession } },
+                { address: account.address, capabilities: { authorizeKey } },
               ],
             })
 

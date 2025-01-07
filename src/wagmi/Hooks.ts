@@ -1,8 +1,8 @@
 export {
+  useAuthorizeKey,
   useConnect,
   useCreateAccount,
   useDisconnect,
-  useGrantSession,
   useImportAccount,
-  useSessions,
+  useKeys,
 } from './internal/react.js'

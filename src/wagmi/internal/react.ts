@@ -23,15 +23,58 @@ import type {
 } from 'wagmi/query'
 
 import {
+  authorizeKey,
   connect,
   createAccount,
   disconnect,
-  grantSession,
   importAccount,
-  sessions,
+  keys,
 } from './core.js'
-import { sessionsQueryKey } from './query.js'
+import { keysQueryKey } from './query.js'
 import type { ConfigParameter } from './types.js'
+
+export function useAuthorizeKey<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useAuthorizeKey.Parameters<config, context> = {},
+): useAuthorizeKey.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return authorizeKey(config, variables)
+    },
+    mutationKey: ['authorizeKey'],
+  })
+}
+
+export declare namespace useAuthorizeKey {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          authorizeKey.ReturnType,
+          authorizeKey.ErrorType,
+          authorizeKey.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    authorizeKey.ReturnType,
+    authorizeKey.ErrorType,
+    authorizeKey.Parameters<config>,
+    context
+  >
+}
 
 export function useConnect<
   config extends Config = ResolvedRegister['config'],
@@ -156,49 +199,6 @@ export declare namespace useDisconnect {
   >
 }
 
-export function useGrantSession<
-  config extends Config = ResolvedRegister['config'],
-  context = unknown,
->(
-  parameters: useGrantSession.Parameters<config, context> = {},
-): useGrantSession.ReturnType<config, context> {
-  const { mutation } = parameters
-  const config = useConfig(parameters)
-  return useMutation({
-    ...mutation,
-    async mutationFn(variables) {
-      return grantSession(config, variables)
-    },
-    mutationKey: ['grantSession'],
-  })
-}
-
-export declare namespace useGrantSession {
-  type Parameters<
-    config extends Config = Config,
-    context = unknown,
-  > = ConfigParameter<config> & {
-    mutation?:
-      | UseMutationParameters<
-          grantSession.ReturnType,
-          grantSession.ErrorType,
-          grantSession.Parameters<config>,
-          context
-        >
-      | undefined
-  }
-
-  type ReturnType<
-    config extends Config = Config,
-    context = unknown,
-  > = UseMutationResult<
-    grantSession.ReturnType,
-    grantSession.ErrorType,
-    grantSession.Parameters<config>,
-    context
-  >
-}
-
 export function useImportAccount<
   config extends Config = ResolvedRegister['config'],
   context = unknown,
@@ -242,12 +242,12 @@ export declare namespace useImportAccount {
   >
 }
 
-export function useSessions<
+export function useKeys<
   config extends Config = ResolvedRegister['config'],
-  selectData = sessions.ReturnType,
+  selectData = keys.ReturnType,
 >(
-  parameters: useSessions.Parameters<config, selectData> = {},
-): useSessions.ReturnType<selectData> {
+  parameters: useKeys.Parameters<config, selectData> = {},
+): useKeys.ReturnType<selectData> {
   const { query = {}, ...rest } = parameters
 
   const config = useConfig(rest)
@@ -263,7 +263,7 @@ export function useSessions<
   )
   const queryKey = useMemo(
     () =>
-      sessionsQueryKey({
+      keysQueryKey({
         address,
         chainId: parameters.chainId ?? chainId,
         connector: activeConnector,
@@ -279,7 +279,7 @@ export function useSessions<
       provider.current ??=
         (await activeConnector.getProvider?.()) as EIP1193Provider
       provider.current?.on('message', (event) => {
-        if (event.type !== 'sessionsChanged') return
+        if (event.type !== 'keysChanged') return
         queryClient.setQueryData(queryKey, event.data)
       })
     })()
@@ -297,7 +297,7 @@ export function useSessions<
           )[1]
           provider.current ??=
             (await activeConnector.getProvider()) as EIP1193Provider
-          return await sessions(config, {
+          return await keys(config, {
             ...options,
             connector: activeConnector,
           })
@@ -307,27 +307,27 @@ export function useSessions<
   }) as never
 }
 
-export declare namespace useSessions {
+export declare namespace useKeys {
   type Parameters<
     config extends Config = Config,
-    selectData = sessions.ReturnType,
-  > = sessions.Parameters<config> &
+    selectData = keys.ReturnType,
+  > = keys.Parameters<config> &
     ConfigParameter<config> & {
       query?:
         | Omit<
             UseQueryParameters<
-              sessions.ReturnType,
-              sessions.ErrorType,
+              keys.ReturnType,
+              keys.ErrorType,
               selectData,
-              sessionsQueryKey.Value<config>
+              keysQueryKey.Value<config>
             >,
             'gcTime' | 'staleTime'
           >
         | undefined
     }
 
-  type ReturnType<selectData = sessions.ReturnType> = UseQueryReturnType<
+  type ReturnType<selectData = keys.ReturnType> = UseQueryReturnType<
     selectData,
-    sessions.ErrorType
+    keys.ErrorType
   >
 }

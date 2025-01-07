@@ -4,7 +4,6 @@ import {
   type Chain,
   ChainMismatchError,
   type EIP1193Provider,
-  type Hex,
   type PrivateKeyAccount,
 } from 'viem'
 import {
@@ -22,8 +21,10 @@ import {
 } from 'wagmi/actions'
 
 import type {
+  AuthorizeKeyParameters,
+  AuthorizeKeyReturnType,
   CreateAccountParameters,
-  GrantSessionParameters,
+  GetKeysReturnType,
   Schema,
 } from '../../core/internal/rpcSchema.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
@@ -62,7 +63,7 @@ export async function connect<config extends Config>(
       | undefined
     if (!provider) throw new ProviderNotFoundError()
 
-    const { createAccount, grantSession } = parameters
+    const { authorizeKey, createAccount } = parameters
     const method = 'experimental_connect'
     type method = typeof method
     await provider.request<{
@@ -71,7 +72,7 @@ export async function connect<config extends Config>(
       ReturnType: RpcSchema.ExtractReturnType<Schema, method>
     }>({
       method,
-      params: [{ capabilities: { createAccount, grantSession } }],
+      params: [{ capabilities: { authorizeKey, createAccount } }],
     })
     // we already connected, but call `connector.connect` so connector even listeners are set up
     const data = await connector.connect({
@@ -109,9 +110,9 @@ export async function connect<config extends Config>(
 
 export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
+    authorizeKey?: boolean | AuthorizeKeyParameters | undefined
     connector: Connector | CreateConnectorFn
     createAccount?: boolean | CreateAccountParameters | undefined
-    grantSession?: boolean | GrantSessionParameters | undefined
   }
 
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
@@ -248,11 +249,11 @@ export declare namespace disconnect {
   type ErrorType = BaseErrorType
 }
 
-export async function grantSession<config extends Config>(
+export async function authorizeKey<config extends Config>(
   config: config,
-  parameters: grantSession.Parameters<config>,
-): Promise<grantSession.ReturnType> {
-  const { address, chainId, connector, expiry } = parameters
+  parameters: authorizeKey.Parameters<config>,
+): Promise<authorizeKey.ReturnType> {
+  const { address, chainId, connector, key } = parameters
 
   const client = await getConnectorClient(config, {
     account: address,
@@ -260,7 +261,7 @@ export async function grantSession<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_grantSession'
+  const method = 'experimental_authorizeKey'
   type method = typeof method
   return client.request<{
     Method: method
@@ -268,21 +269,18 @@ export async function grantSession<config extends Config>(
     ReturnType: RpcSchema.ExtractReturnType<Schema, method>
   }>({
     method,
-    params: [{ address, expiry }],
+    params: [{ address, key }],
   })
 }
 
-export declare namespace grantSession {
+export declare namespace authorizeKey {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter & {
       address?: Address | undefined
-      expiry?: number | undefined
+      key?: AuthorizeKeyParameters['key'] | undefined
     }
 
-  type ReturnType = {
-    expiry: number
-    id: Hex
-  }
+  type ReturnType = AuthorizeKeyReturnType
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseErrorType
@@ -322,7 +320,7 @@ export async function importAccount<config extends Config>(
       | undefined
     if (!provider) throw new ProviderNotFoundError()
 
-    const { account, grantSession, label } = parameters
+    const { account, authorizeKey, label } = parameters
 
     const experimental_prepareImportAccount =
       'experimental_prepareImportAccount'
@@ -341,7 +339,7 @@ export async function importAccount<config extends Config>(
     }>({
       method: experimental_prepareImportAccount,
       params: [
-        { address: account.address, capabilities: { grantSession }, label },
+        { address: account.address, capabilities: { authorizeKey }, label },
       ],
     })
 
@@ -399,9 +397,9 @@ export async function importAccount<config extends Config>(
 
 export declare namespace importAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
+    authorizeKey?: boolean | AuthorizeKeyParameters | undefined
     account: PrivateKeyAccount
     connector: Connector | CreateConnectorFn
-    grantSession?: boolean | GrantSessionParameters | undefined
     label?: string | undefined
   }
 
@@ -411,10 +409,10 @@ export declare namespace importAccount {
   type ErrorType = BaseErrorType
 }
 
-export async function sessions<config extends Config>(
+export async function keys<config extends Config>(
   config: config,
-  parameters: sessions.Parameters<config>,
-): Promise<sessions.ReturnType> {
+  parameters: keys.Parameters<config>,
+): Promise<keys.ReturnType> {
   const { address, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -423,7 +421,7 @@ export async function sessions<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_sessions'
+  const method = 'experimental_keys'
   type method = typeof method
   return client.request<{
     Method: method
@@ -435,16 +433,13 @@ export async function sessions<config extends Config>(
   })
 }
 
-export declare namespace sessions {
+export declare namespace keys {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter & {
       address?: Address | undefined
     }
 
-  type ReturnType = readonly {
-    expiry: number
-    id: Hex
-  }[]
+  type ReturnType = GetKeysReturnType
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseErrorType

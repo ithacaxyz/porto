@@ -24,7 +24,7 @@ export function App() {
       {isConnected ? (
         <>
           <Balance />
-          <GrantSession />
+          <AuthorizeKey />
           <Mint />
         </>
       ) : (
@@ -39,7 +39,7 @@ export function App() {
 
 function Account() {
   const account = useAccount()
-  const { data: sessions } = Hooks.useSessions()
+  const { data: keys } = Hooks.useKeys()
   const disconnect = Hooks.useDisconnect()
 
   return (
@@ -53,7 +53,7 @@ function Account() {
         <br />
         status: {account.status}
         <br />
-        sessions: {JSON.stringify(sessions)}
+        keys: {JSON.stringify(keys)}
       </div>
 
       {account.status !== 'disconnected' && (
@@ -66,7 +66,7 @@ function Account() {
 }
 
 function Connect() {
-  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
 
   const connectors = useConnectors()
   const connect = Hooks.useConnect()
@@ -77,8 +77,8 @@ function Connect() {
       <label>
         <input
           type="checkbox"
-          checked={grantSession}
-          onChange={() => setGrantSession((x) => !x)}
+          checked={authorizeKey}
+          onChange={() => setAuthorizeKey((x) => !x)}
         />
         Grant Session
       </label>
@@ -88,14 +88,14 @@ function Connect() {
           <div key={connector.uid}>
             <button
               key={connector.uid}
-              onClick={() => connect.mutate({ connector, grantSession })}
+              onClick={() => connect.mutate({ connector, authorizeKey })}
               type="button"
             >
               Login
             </button>
             <button
               onClick={() =>
-                connect.mutate({ connector, createAccount: true, grantSession })
+                connect.mutate({ connector, createAccount: true, authorizeKey })
               }
               type="button"
             >
@@ -114,7 +114,7 @@ function ImportAccount() {
     address: string
     privateKey: string
   } | null>(null)
-  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
   const [privateKey, setPrivateKey] = useState<string>('')
 
   const connectors = useConnectors()
@@ -152,8 +152,8 @@ function ImportAccount() {
         <label>
           <input
             type="checkbox"
-            checked={grantSession}
-            onChange={() => setGrantSession((x) => !x)}
+            checked={authorizeKey}
+            onChange={() => setAuthorizeKey((x) => !x)}
           />
           Grant Session
         </label>
@@ -167,7 +167,7 @@ function ImportAccount() {
               importAccount.mutate({
                 account: privateKeyToAccount(privateKey as Hex),
                 connector,
-                grantSession,
+                authorizeKey,
               })
             }
             type="button"
@@ -201,21 +201,21 @@ function Balance() {
   )
 }
 
-function GrantSession() {
-  const sessions = Hooks.useSessions()
-  const grantSession = Hooks.useGrantSession()
+function AuthorizeKey() {
+  const keys = Hooks.useKeys()
+  const authorizeKey = Hooks.useAuthorizeKey()
 
-  if (sessions.data?.length !== 0) return null
+  if (keys.data?.length !== 0) return null
   return (
     <div>
       <h2>Grant Session</h2>
-      <button onClick={() => grantSession.mutate({})} type="button">
+      <button onClick={() => authorizeKey.mutate({})} type="button">
         Grant Session
       </button>
-      {grantSession.data && <div>Session granted.</div>}
-      {grantSession.error && (
+      {authorizeKey.data && <div>Session granted.</div>}
+      {authorizeKey.error && (
         <div>
-          Error: {grantSession.error.shortMessage || grantSession.error.message}
+          Error: {authorizeKey.error.shortMessage || authorizeKey.error.message}
         </div>
       )}
     </div>

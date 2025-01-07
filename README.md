@@ -34,17 +34,17 @@ Experimental Next-gen Account for Ethereum.
 - [Usage](#usage)
   - [Usage with Wagmi](#usage-with-wagmi)
 - [JSON-RPC Reference](#json-rpc-reference)
+  - [`experimental_authorizeKey`](#experimental_authorizeKey)
   - [`experimental_connect`](#experimental_connect)
   - [`experimental_createAccount`](#experimental_createaccount)
   - [`experimental_disconnect`](#experimental_disconnect)
-  - [`experimental_grantSession`](#experimental_grantsession)
   - [`experimental_prepareImportAccount`](#experimental_prepareImportAccount)
   - [`experimental_importAccount`](#experimental_importAccount)
-  - [`experimental_sessions`](#experimental_sessions)
+  - [`experimental_keys`](#experimental_keys)
 - [Available ERC-5792 Capabilities](#available-erc-5792-capabilities)
   - [`atomicBatch`](#atomicbatch)
   - [`createAccount`](#createaccount)
-  - [`sessions`](#sessions)
+  - [`keys`](#keys)
 - [Wagmi Reference](#wagmi-reference)
 - [Development](#development)
 - [License](#license)
@@ -66,7 +66,7 @@ const porto = Porto.create()
 
 const account = await porto.provider.request({ 
   method: 'experimental_connect',
-  params: [{ capabilities: { grantSession: true } }]
+  params: [{ capabilities: { authorizeKey: true } }]
 })
 ```
 
@@ -115,7 +115,7 @@ function Connect() {
         onClick={() =>
           connect.mutate({ 
             connector, 
-            grantSession: true,
+            authorizeKey: true,
           })
         }
       >
@@ -126,7 +126,7 @@ function Connect() {
           connect.mutate({ 
             connector, 
             createAccount: true, 
-            grantSession: true,
+            authorizeKey: true,
           }
         )}
       >
@@ -155,6 +155,49 @@ In addition to the above, Porto implements the following **experimental** JSON-R
 > [!NOTE]
 > These JSON-RPC methods intend to be upstreamed as an ERC (or deprecated in favor of upcoming/existing ERCs) in the near future. They are purposefully minimalistic and intend to be iterated on.
 
+### `experimental_authorizeKey`
+
+Grants a key on the account. 
+
+> Minimal alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa3603c6181849f61d219f75e8a16d6624ac60/ERCS/erc-7715.md) specification. We hope to upstream concepts from this method and eventually use ERC-7715 or similar.
+
+#### Parameters
+
+```ts
+{
+  method: 'experimental_authorizeKey',
+  params: [{
+    // Address of the account to grant a key on.
+    address?: `0x${string}`
+
+    // Key to grant on the account.
+    key?: {
+      // Expiry of the key.
+      // Defaults to account-configured expiry.
+      expiry?: number
+      // Public key.
+      publicKey: `0x${string}`,
+      // Role of key.
+      role: 'admin' | 'session',
+      // Type of key.
+      type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256',
+    }
+  }]
+}
+```
+
+#### Returns
+
+```ts
+{
+  expiry: number,
+  publicKey: `0x${string}`,
+  role: 'admin' | 'session',
+  type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256',
+}
+```
+
+
 ### `experimental_connect`
 
 Connects an end-user to an application.
@@ -170,9 +213,9 @@ Connects an end-user to an application.
       // Whether to create a new account.
       createAccount?: boolean | { label?: string },
 
-      // Whether to grant a session with an optional expiry.
-      // Defaults to user-configured expiry on the account.
-      grantSession?: boolean | { expiry?: number },
+      // Whether to grant a key with an optional expiry.
+      // Defaults to account-configured expiry.
+      authorizeKey?: boolean | { expiry?: number },
     } 
   }]
 }
@@ -188,12 +231,12 @@ Connects an end-user to an application.
 
     // ERC-5792 capabilities to define extended behavior.
     capabilities: {
-      // The sessions granted to the account.
-      sessions: {
-        // The expiry of the session.
+      // The keys granted to the account.
+      keys: {
+        // The expiry of the key.
         expiry: number,
 
-        // The ID of the session.
+        // The ID of the key.
         id: `0x${string}`,
       }[],
     }
@@ -237,46 +280,6 @@ Disconnects the account.
 }
 ```
 
-### `experimental_grantSession`
-
-Grants a session on the account. 
-
-> Minimal alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa3603c6181849f61d219f75e8a16d6624ac60/ERCS/erc-7715.md) specification. We hope to upstream concepts from this method and eventually use ERC-7715 or similar.
-
-#### Parameters
-
-```ts
-{
-  method: 'experimental_grantSession',
-  params: [{
-    // Address of the account to grant a session on.
-    address?: `0x${string}`
-
-    // The expiry of the session.
-    // Defaults to user-configured expiry on the account.
-    expiry?: number
-
-    // The keys to grant on the session.
-    keys?: {
-      algorithm: 'p256' | 'secp256k1',
-      publicKey: `0x${string}`,
-    }[]
-  }]
-}
-```
-
-#### Returns
-
-```ts
-{
-  // The expiry of the session.
-  expiry: number,
-
-  // The ID of the session.
-  id: `0x${string}`,
-}
-```
-
 ### `experimental_prepareImportAccount`
 
 Returns a set of hex payloads to sign over to import an external account, and prepares values needed to fill context for the `experimental_importAccount` JSON-RPC method.
@@ -292,9 +295,9 @@ Returns a set of hex payloads to sign over to import an external account, and pr
 
     // ERC-5792 capabilities to define extended behavior.
     capabilities: {
-      // Whether to grant a session with an optional expiry.
-      // Defaults to user-configured expiry on the account.
-      grantSession?: boolean | { expiry?: number },
+      // Whether to grant a key with an optional expiry.
+      // Defaults to account-configured expiry.
+      authorizeKey?: boolean | { expiry?: number },
     } 
   }]
 }
@@ -340,29 +343,32 @@ Imports an account.
 
   // ERC-5792 capabilities to define extended behavior.
   capabilities: {
-    // The sessions granted to the account.
-    sessions: {
-      // The expiry of the session.
+    // The keys granted to the account.
+    keys: {
+      // The expiry of the key.
       expiry: number,
-
-      // The ID of the session.
-      id: `0x${string}`,
+      // Public key.
+      publicKey: `0x${string}`,
+      // Role of key.
+      role: 'admin' | 'session',
+      // Type of key.
+      type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256',
     }[],
   }
 }
 ```
 
-### `experimental_sessions`
+### `experimental_keys`
 
-Lists the active sessions on the account.
+Lists the active keys on the account.
 
 #### Parameters
 
 ```ts
 {
-  method: 'experimental_sessions',
+  method: 'experimental_keys',
   params: [{
-    // Address of the account to list sessions on.
+    // Address of the account to list keys on.
     address?: `0x${string}`
   }]
 }
@@ -371,8 +377,14 @@ Lists the active sessions on the account.
 #### Returns
 
 ```ts
-{ expiry: number, id: `0x${string}` }[]
+{ 
+  expiry: number, 
+  publicKey: `0x${string}`, 
+  role: 'admin' | 'session', 
+  type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256' 
+}[]
 ```
+
 ## Available ERC-5792 Capabilities
 
 Porto implements the following [ERC-5792 capabilities](https://eips.ethereum.org/EIPS/eip-5792#wallet_getcapabilities) to define extended behavior:
@@ -414,29 +426,31 @@ Example:
 }
 ```
 
-### `sessions`
+### `keys`
 
-Porto supports account session management (ie. session keys & their permissions).
+Porto supports account key management (ie. session keys & their permissions).
 
-#### Granting sessions via `experimental_grantSession`
+#### Granting keys via `experimental_authorizeKey`
 
-Sessions may be granted via the [`experimental_grantSession`](#experimental_grantsession) JSON-RPC method.
+Keys may be granted via the [`experimental_authorizeKey`](#experimental_authorizeKey) JSON-RPC method.
 
 Example:
 
 ```ts
 {
-  method: 'experimental_grantSession',
+  method: 'experimental_authorizeKey',
   params: [{ 
     address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe', 
-    expiry: 1727078400 
+    key: {
+      expiry: 1727078400,
+    }
   }]
 }
 ```
 
-#### Granting sessions via `experimental_connect`
+#### Granting keys via `experimental_connect`
 
-Sessions may be granted upon connection with the `grantSession` parameter on the [`experimental_connect`](#experimental_connect) JSON-RPC method.
+Keys may be granted upon connection with the `authorizeKey` parameter on the [`experimental_connect`](#experimental_connect) JSON-RPC method.
 
 Example:
 
@@ -445,7 +459,7 @@ Example:
   method: 'experimental_connect',
   params: [{ 
     capabilities: { 
-      grantSession: {
+      authorizeKey: {
         expiry: 1727078400
       }
     } 
@@ -453,7 +467,7 @@ Example:
 }
 ```
 
-If a session is granted upon connection, the `experimental_connect` JSON-RPC method will return the session on the `capabilities.sessions` parameter of the response.
+If a key is granted upon connection, the `experimental_connect` JSON-RPC method will return the key on the `capabilities.keys` parameter of the response.
 
 Example:
 
@@ -461,7 +475,12 @@ Example:
 {
   address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe',
   capabilities: {
-    sessions: [{ expiry: 1727078400, id: '0x...' }]
+    keys: [{ 
+      expiry: 1727078400, 
+      publicKey: '0x...', 
+      role: 'session', 
+      type: 'p256' 
+    }]
   }
 }
 ```
@@ -477,12 +496,12 @@ Porto implements the following [Wagmi](https://github.com/wevm/wagmi) VanillaJS 
 
 Import via named export or `A` namespace (better autocomplete DX and does not impact tree shaking).
 
+- `authorizeKey`
 - `connect`
 - `createAccount`
 - `disconnect`
-- `grantSession`
 - `importAccount`
-- `sessions`
+- `keys`
 
 ```ts
 import { Actions } from 'porto/wagmi' // Actions.connect()
@@ -493,12 +512,12 @@ import { connect } from 'porto/wagmi/Actions'
 
 Import via named export or `W` namespace (better autocomplete DX and does not impact tree shaking).
 
+- `useAuthorizeKey`
 - `useConnect`
 - `useCreateAccount`
 - `useDisconnect`
-- `useGrantSession`
 - `useImportAccount`
-- `useSessions`
+- `useKeys`
 
 ```ts
 import { Hooks } from 'porto/wagmi' // Hooks.useConnect()

@@ -15,12 +15,26 @@ import * as Call from './internal/call.js'
 import * as Delegation from './internal/delegation.js'
 import { delegationAbi } from './internal/generated.js'
 import * as Key from './internal/key.js'
+import type * as RpcSchema from './internal/rpcSchema.js'
 import type { Compute } from './internal/types.js'
 
 type Request = Pick<RpcRequest.RpcRequest, 'method' | 'params'>
 
 export type Implementation = {
   actions: {
+    authorizeKey: (parameters: {
+      /** Account to authorize the keys for. */
+      account: Account.Account
+      /** Key to authorize. */
+      key?: RpcSchema.AuthorizeKeyParameters['key'] | undefined
+      /** Viem Client. */
+      client: Client<Transport, Chains.Chain>
+      /** Porto config. */
+      config: Config
+      /** RPC Request. */
+      request: Request
+    }) => Promise<{ hash: Hex.Hex; key: Key.Key }>
+
     createAccount: (parameters: {
       /** Viem Client. */
       client: Client<Transport, Chains.Chain>
@@ -102,6 +116,28 @@ export function local(parameters: local.Parameters = {}) {
 
   return from({
     actions: {
+      async authorizeKey(parameters) {
+        const { account, client, key: keyToAuthorize } = parameters
+
+        const expiry =
+          keyToAuthorize?.expiry ?? Math.floor(Date.now() / 1_000) + 60 * 60 // 1 hour
+
+        const key = keyToAuthorize?.publicKey
+          ? ({ ...keyToAuthorize, expiry } as Key.Key)
+          : await Key.createWebCryptoP256({
+              expiry,
+              role: 'session',
+            })
+
+        // TODO: wait for tx to be included?
+        const hash = await Delegation.execute(client, {
+          account,
+          calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
+        })
+
+        return { hash, key }
+      },
+
       async createAccount(parameters) {
         const { client } = parameters
 
@@ -139,10 +175,13 @@ export function local(parameters: local.Parameters = {}) {
         const key = (() => {
           const sessionKey = account.keys?.find(
             (key) =>
+              key.signable &&
               key.role === 'session' &&
               key.expiry > BigInt(Math.floor(Date.now() / 1000)),
           )
-          const adminKey = account.keys?.find((key) => key.role === 'admin')
+          const adminKey = account.keys?.find(
+            (key) => key.role === 'admin' && key.signable,
+          )
           return sessionKey ?? adminKey
         })()
 
