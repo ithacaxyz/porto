@@ -381,14 +381,14 @@ export function from<
         // }
 
         case 'wallet_connect': {
-          // const [{ capabilities }] = (params as RpcSchema.ExtractParams<
-          //   Schema.Schema,
-          //   'wallet_connect'
-          // >) ?? [{}]
+          const [{ capabilities }] = (params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'wallet_connect'
+          >) ?? [{}]
 
           const client = getClient()
 
-          // const { authorizeKey, createAccount } = capabilities ?? {}
+          const { createAccount } = capabilities ?? {}
 
           // const { expiry = Math.floor(Date.now() / 1000) + 60 * 60 } =
           //   typeof grantSession === 'object' ? grantSession : {}
@@ -399,16 +399,17 @@ export function from<
           //   : undefined
 
           const { accounts } = await (async () => {
-            // if (createAccount) {
-            //   const { label } =
-            //     typeof createAccount === 'object' ? createAccount : {}
-            //   return await AccountDelegation.create(state.client, {
-            //     authorizeKeys: key ? [key] : undefined,
-            //     delegation: state.delegation,
-            //     label,
-            //     rpId: keystoreHost,
-            //   })
-            // }
+            if (createAccount) {
+              const { label = undefined } =
+                typeof createAccount === 'object' ? createAccount : {}
+              const { account } = await implementation.actions.createAccount({
+                client,
+                config,
+                label,
+                request,
+              })
+              return { accounts: [account] }
+            }
             return await implementation.actions.loadAccounts({
               client,
               config,

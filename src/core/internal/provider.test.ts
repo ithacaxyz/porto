@@ -9,13 +9,14 @@ describe('eth_accounts', () => {
   test('default', async () => {
     const porto = createPorto()
     await porto.provider.request({
-      method: 'experimental_createAccount',
-    })
-    await porto.provider.request({
-      method: 'wallet_disconnect',
-    })
-    await porto.provider.request({
       method: 'wallet_connect',
+      params: [
+        {
+          capabilities: {
+            createAccount: true,
+          },
+        },
+      ],
     })
     const accounts = await porto.provider.request({
       method: 'eth_accounts',
@@ -196,6 +197,43 @@ describe('wallet_connect', () => {
         {
           "canSign": false,
           "expiry": null,
+          "publicKey": null,
+          "role": "admin",
+          "type": "p256",
+        },
+      ]
+    `)
+
+    expect(messages[0].chainId).toBe(Hex.fromNumber(1))
+  })
+
+  test('behavior: `createAccount` capability', async () => {
+    const messages: any[] = []
+
+    const porto = createPorto()
+    porto.provider.on('connect', (message) => messages.push(message))
+
+    await porto.provider.request({
+      method: 'wallet_connect',
+      params: [
+        {
+          capabilities: {
+            createAccount: true,
+          },
+        },
+      ],
+    })
+    const accounts = porto._internal.store.getState().accounts
+    expect(accounts.length).toBe(1)
+    expect(accounts![0]!.keys?.length).toBe(1)
+    expect(
+      accounts![0]!.keys?.map((x) => ({ ...x, expiry: null, publicKey: null })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "canSign": true,
+          "expiry": null,
+          "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
