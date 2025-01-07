@@ -36,6 +36,11 @@ export type Implementation = {
     }) => Promise<{ hash: Hex.Hex; key: Key.Key }>
 
     createAccount: (parameters: {
+      /** Extra keys to authorize. */
+      authorizeKeys?:
+        | true
+        | readonly RpcSchema.AuthorizeKeyParameters['key'][]
+        | undefined
       /** Viem Client. */
       client: Client<Transport, Chains.Chain>
       /** Porto config. */
@@ -68,7 +73,10 @@ export type Implementation = {
       /** Address of the account to load. */
       address?: Address.Address | undefined
       /** Extra keys to authorize. */
-      authorizeKeys?: readonly Key.Key[] | undefined
+      authorizeKeys?:
+        | true
+        | readonly RpcSchema.AuthorizeKeyParameters['key'][]
+        | undefined
       /** Viem Client. */
       client: Client<Transport, Chains.Chain>
       /** Porto config. */
@@ -104,6 +112,8 @@ export function from<const implementation extends Implementation>(
  * @returns Implementation.
  */
 export function local(parameters: local.Parameters = {}) {
+  const defaultExpiry = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
+
   const keystoreHost = (() => {
     if (parameters.keystoreHost === 'self') return undefined
     if (
@@ -119,27 +129,25 @@ export function local(parameters: local.Parameters = {}) {
       async authorizeKey(parameters) {
         const { account, client, key: keyToAuthorize } = parameters
 
-        const expiry =
-          keyToAuthorize?.expiry ?? Math.floor(Date.now() / 1_000) + 60 * 60 // 1 hour
-
-        const key = keyToAuthorize?.publicKey
-          ? ({ ...keyToAuthorize, expiry } as Key.Key)
-          : await Key.createWebCryptoP256({
-              expiry,
-              role: 'session',
-            })
+        const keys = await getKeysToAuthorize({
+          authorizeKeys: [keyToAuthorize],
+          defaultExpiry,
+        })
 
         // TODO: wait for tx to be included?
         const hash = await Delegation.execute(client, {
           account,
-          calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
+          calls: keys!.flatMap((key) => [
+            Call.setCanExecute({ key }),
+            Call.authorize({ key }),
+          ]),
         })
 
-        return { hash, key }
+        return { hash, key: keys![0]! }
       },
 
       async createAccount(parameters) {
-        const { client } = parameters
+        const { authorizeKeys, client } = parameters
 
         const privateKey = Secp256k1.randomPrivateKey()
         const address = Address.fromPublicKey(
@@ -156,13 +164,23 @@ export function local(parameters: local.Parameters = {}) {
           userId: Bytes.from(address),
         })
 
-        const account = Account.fromPrivateKey(privateKey, { keys: [key] })
+        const extraKeys = await getKeysToAuthorize({
+          authorizeKeys,
+          defaultExpiry,
+        })
+
+        const account = Account.fromPrivateKey(privateKey, {
+          keys: [key, ...(extraKeys ?? [])],
+        })
         const delegation = client.chain.contracts.delegation.address
 
         // TODO: wait for tx to be included?
         const hash = await Delegation.execute(client, {
           account,
-          calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
+          calls: account.keys.flatMap((key) => [
+            Call.setCanExecute({ key }),
+            Call.authorize({ key }),
+          ]),
           delegation,
         })
 
@@ -275,7 +293,7 @@ export function mock() {
       ...local().actions,
 
       async createAccount(parameters) {
-        const { client } = parameters
+        const { authorizeKeys, client } = parameters
 
         const privateKey = Secp256k1.randomPrivateKey()
 
@@ -283,14 +301,24 @@ export function mock() {
           role: 'admin',
         })
 
-        const account = Account.fromPrivateKey(privateKey, { keys: [key] })
+        const extraKeys = await getKeysToAuthorize({
+          authorizeKeys,
+          defaultExpiry: 694206942069,
+        })
+
+        const account = Account.fromPrivateKey(privateKey, {
+          keys: [key, ...(extraKeys ?? [])],
+        })
         const delegation = client.chain.contracts.delegation.address
 
         address = account.address
 
         const hash = await Delegation.execute(client, {
           account,
-          calls: [Call.setCanExecute({ key }), Call.authorize({ key })],
+          calls: account.keys.flatMap((key) => [
+            Call.setCanExecute({ key }),
+            Call.authorize({ key }),
+          ]),
           delegation,
         })
 
@@ -324,4 +352,47 @@ export function mock() {
       },
     },
   })
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Internal
+///////////////////////////////////////////////////////////////////////////
+
+async function getKeysToAuthorize(parameters: {
+  authorizeKeys:
+    | true
+    | readonly RpcSchema.AuthorizeKeyParameters['key'][]
+    | undefined
+  defaultExpiry: number
+}) {
+  const { authorizeKeys, defaultExpiry } = parameters
+
+  // Don't need to authorize extra keys if none are provided.
+  if (!authorizeKeys) return undefined
+
+  // If truthy, authorize an arbitrary session key.
+  if (authorizeKeys === true)
+    return [
+      await Key.createWebCryptoP256({
+        expiry: defaultExpiry,
+        role: 'session',
+      }),
+    ]
+
+  // Otherwise, authorize the provided keys.
+  return await Promise.all(
+    authorizeKeys.map(async (key) => {
+      const expiry = key?.expiry ?? defaultExpiry
+      if (key?.publicKey)
+        return Key.from({
+          ...key,
+          canSign: false,
+          expiry,
+        })
+      return await Key.createWebCryptoP256({
+        expiry,
+        role: 'session',
+      })
+    }),
+  )
 }

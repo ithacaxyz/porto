@@ -1,4 +1,4 @@
-import { Hex, Value } from 'ox'
+import { Hex, P256, PublicKey, Value } from 'ox'
 import { Porto } from 'porto'
 import { getBalance, setBalance } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -125,6 +125,57 @@ describe('experimental_authorizeKey', () => {
     expect(messages[0].type).toBe('keysChanged')
     expect(messages[0].data.length).toBe(2)
   })
+
+  test('behavior: provided key', async () => {
+    const messages: any[] = []
+
+    const porto = createPorto()
+    porto.provider.on('message', (message) => messages.push(message))
+
+    await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    await porto.provider.request({
+      method: 'experimental_authorizeKey',
+      params: [
+        {
+          key: {
+            publicKey:
+              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+            role: 'session',
+            type: 'p256',
+          },
+        },
+      ],
+    })
+    const accounts = porto._internal.store.getState().accounts
+    expect(accounts.length).toBe(1)
+    expect(accounts![0]!.keys?.length).toBe(2)
+    expect(
+      accounts![0]!.keys?.map((x) => ({ ...x, expiry: null, publicKey: null })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "canSign": true,
+          "expiry": null,
+          "privateKey": [Function],
+          "publicKey": null,
+          "role": "admin",
+          "type": "p256",
+        },
+        {
+          "canSign": false,
+          "expiry": null,
+          "publicKey": null,
+          "role": "session",
+          "type": "p256",
+        },
+      ]
+    `)
+
+    expect(messages[0].type).toBe('keysChanged')
+    expect(messages[0].data.length).toBe(2)
+  })
 })
 
 describe('experimental_createAccount', () => {
@@ -236,6 +287,111 @@ describe('wallet_connect', () => {
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
+          "type": "p256",
+        },
+      ]
+    `)
+
+    expect(messages[0].chainId).toBe(Hex.fromNumber(1))
+  })
+
+  test('behavior: `createAccount` + `authorizeKey` capability', async () => {
+    const messages: any[] = []
+
+    const porto = createPorto()
+    porto.provider.on('connect', (message) => messages.push(message))
+
+    await porto.provider.request({
+      method: 'wallet_connect',
+      params: [
+        {
+          capabilities: {
+            createAccount: true,
+            authorizeKey: true,
+          },
+        },
+      ],
+    })
+    const accounts = porto._internal.store.getState().accounts
+    expect(accounts.length).toBe(1)
+    expect(accounts![0]!.keys?.length).toBe(2)
+    expect(
+      accounts![0]!.keys?.map((x) => ({ ...x, expiry: null, publicKey: null })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "canSign": true,
+          "expiry": null,
+          "privateKey": [Function],
+          "publicKey": null,
+          "role": "admin",
+          "type": "p256",
+        },
+        {
+          "canSign": true,
+          "expiry": null,
+          "privateKey": CryptoKey {},
+          "publicKey": null,
+          "role": "session",
+          "type": "p256",
+        },
+      ]
+    `)
+
+    expect(messages[0].chainId).toBe(Hex.fromNumber(1))
+  })
+
+  test('behavior: `createAccount` + `authorizeKey` capability (provided key)', async () => {
+    const messages: any[] = []
+
+    const porto = createPorto()
+    porto.provider.on('connect', (message) => messages.push(message))
+
+    const privateKey =
+      '0x1e8dd87f21bc6bbfc86e726ca9c21a285c13984461cf2e3adb265019fb78203d'
+    const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+      includePrefix: false,
+    })
+
+    await porto.provider.request({
+      method: 'wallet_connect',
+      params: [
+        {
+          capabilities: {
+            createAccount: true,
+            authorizeKey: {
+              publicKey,
+              role: 'session',
+              type: 'p256',
+            },
+          },
+        },
+      ],
+    })
+    const accounts = porto._internal.store.getState().accounts
+    expect(accounts.length).toBe(1)
+    expect(accounts![0]!.keys?.length).toBe(2)
+    expect(
+      accounts![0]!.keys?.map((x, i) => ({
+        ...x,
+        expiry: i === 0 ? null : x.expiry,
+        publicKey: i === 0 ? null : x.publicKey,
+      })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "canSign": true,
+          "expiry": null,
+          "privateKey": [Function],
+          "publicKey": null,
+          "role": "admin",
+          "type": "p256",
+        },
+        {
+          "canSign": false,
+          "expiry": 694206942069,
+          "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
+          "role": "session",
           "type": "p256",
         },
       ]

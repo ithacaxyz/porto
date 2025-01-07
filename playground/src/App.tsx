@@ -441,12 +441,12 @@ function SendCalls() {
 
           return [
             {
-              data: '0xdeadbeef',
               to: '0x0000000000000000000000000000000000000000',
+              value: '0x0',
             },
             {
-              data: '0xcafebabe',
               to: '0x0000000000000000000000000000000000000000',
+              value: '0x0',
             },
           ] as const
         })()
@@ -520,7 +520,7 @@ function SendTransaction() {
             {
               from: account,
               to: '0x0000000000000000000000000000000000000000',
-              data: '0xdeadbeef',
+              value: '0x0',
             },
           ] as const
         })() as any

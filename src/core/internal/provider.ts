@@ -388,21 +388,20 @@ export function from<
 
           const client = getClient()
 
-          const { createAccount } = capabilities ?? {}
+          const { createAccount, authorizeKey } = capabilities ?? {}
 
-          // const { expiry = Math.floor(Date.now() / 1000) + 60 * 60 } =
-          //   typeof grantSession === 'object' ? grantSession : {}
-          // const key = grantSession
-          //   ? await AccountDelegation.createWebCryptoKey({
-          //       expiry: BigInt(expiry),
-          //     })
-          //   : undefined
+          const authorizeKeys = (() => {
+            if (authorizeKey === true) return true
+            if (authorizeKey) return [authorizeKey]
+            return undefined
+          })()
 
           const { accounts } = await (async () => {
             if (createAccount) {
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await implementation.actions.createAccount({
+                authorizeKeys,
                 client,
                 config,
                 label,
@@ -411,6 +410,7 @@ export function from<
               return { accounts: [account] }
             }
             return await implementation.actions.loadAccounts({
+              authorizeKeys,
               client,
               config,
               request,
@@ -601,7 +601,6 @@ function getActiveKeys(
     .map((key) => {
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
-      if (!key.canSign) return undefined
       return {
         expiry: key.expiry,
         publicKey: key.publicKey,

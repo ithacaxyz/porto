@@ -105,11 +105,8 @@ export type AuthorizeKeyReturnType = {
 export type ConnectParameters = {
   capabilities?:
     | {
-        authorizeKey?:
-          | boolean
-          | Omit<AuthorizeKeyParameters, 'address'>
-          | undefined
-        createAccount?: boolean | CreateAccountParameters | undefined
+        authorizeKey?: true | AuthorizeKeyParameters['key'] | undefined
+        createAccount?: true | CreateAccountParameters | undefined
       }
     | undefined
 }
