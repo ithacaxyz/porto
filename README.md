@@ -157,7 +157,7 @@ In addition to the above, Porto implements the following **experimental** JSON-R
 
 ### `experimental_authorizeKey`
 
-Grants a key on the account. If no `key` is provided, Porto will generate a new "session" key to authorize on the account.
+Authorizes a key on the account. If no `key` is provided, Porto will generate a new arbitrary "session" key to authorize on the account.
 
 > Minimal alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa3603c6181849f61d219f75e8a16d6624ac60/ERCS/erc-7715.md) specification. We hope to upstream concepts from this method and eventually use ERC-7715 or similar.
 
@@ -167,13 +167,12 @@ Grants a key on the account. If no `key` is provided, Porto will generate a new 
 {
   method: 'experimental_authorizeKey',
   params: [{
-    // Address of the account to grant a key on.
+    // Address of the account to authorize a key on.
     address?: `0x${string}`
 
-    // Key to grant on the account.
+    // Key to authorize on the account.
     key?: {
       // Expiry of the key.
-      // Defaults to account-configured expiry.
       expiry?: number
       // Public key.
       publicKey?: `0x${string}`,
@@ -213,8 +212,7 @@ Connects an end-user to an application.
       // Whether to create a new account.
       createAccount?: boolean | { label?: string },
 
-      // Whether to grant a key with an optional expiry.
-      // Defaults to account-configured expiry.
+      // Whether to authorize a key with an optional expiry.
       authorizeKey?: boolean | { expiry?: number },
     } 
   }]
@@ -231,7 +229,7 @@ Connects an end-user to an application.
 
     // ERC-5792 capabilities to define extended behavior.
     capabilities: {
-      // The keys granted to the account.
+      // The keys authorized on the account.
       keys: {
         expiry: number,
         publicKey: `0x${string}`,
@@ -294,9 +292,13 @@ Returns a set of hex payloads to sign over to import an external account, and pr
 
     // ERC-5792 capabilities to define extended behavior.
     capabilities: {
-      // Whether to grant a key with an optional expiry.
-      // Defaults to account-configured expiry.
-      authorizeKey?: boolean | { expiry?: number },
+      // Whether to authorize a key with an optional expiry.
+      authorizeKey?: boolean | { 
+        expiry?: number 
+        publicKey?: `0x${string}`
+        role?: 'admin' | 'session'
+        type?: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256'
+      },
     } 
   }]
 }
@@ -342,7 +344,7 @@ Imports an account.
 
   // ERC-5792 capabilities to define extended behavior.
   capabilities: {
-    // The keys granted to the account.
+    // The keys authorized on the account.
     keys: {
       // The expiry of the key.
       expiry: number,
@@ -429,9 +431,9 @@ Example:
 
 Porto supports account key management (ie. session keys & their permissions).
 
-#### Granting keys via `experimental_authorizeKey`
+#### Authorizing keys via `experimental_authorizeKey`
 
-Keys may be granted via the [`experimental_authorizeKey`](#experimental_authorizeKey) JSON-RPC method.
+Keys may be authorized via the [`experimental_authorizeKey`](#experimental_authorizeKey) JSON-RPC method.
 
 If `key.publicKey` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
@@ -449,9 +451,9 @@ Example:
 }
 ```
 
-#### Granting keys via `experimental_connect`
+#### Authorizing keys via `experimental_connect`
 
-Keys may be granted upon connection with the `authorizeKey` parameter on the [`experimental_connect`](#experimental_connect) JSON-RPC method.
+Keys may be authorized upon connection with the `authorizeKey` parameter on the [`experimental_connect`](#experimental_connect) JSON-RPC method.
 
 If `authorizeKey.publicKey` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
@@ -470,7 +472,7 @@ Example:
 }
 ```
 
-If a key is granted upon connection, the `experimental_connect` JSON-RPC method will return the key on the `capabilities.keys` parameter of the response.
+If a key is authorized upon connection, the `experimental_connect` JSON-RPC method will return the key on the `capabilities.keys` parameter of the response.
 
 Example:
 

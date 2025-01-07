@@ -212,7 +212,7 @@ function AuthorizeKey() {
       <button onClick={() => authorizeKey.mutate({})} type="button">
         Authorize Key
       </button>
-      {authorizeKey.data && <div>Key granted.</div>}
+      {authorizeKey.data && <div>Key authorized.</div>}
       {authorizeKey.error && (
         <div>
           Error: {authorizeKey.error.shortMessage || authorizeKey.error.message}
