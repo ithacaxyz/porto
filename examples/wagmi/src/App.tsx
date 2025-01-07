@@ -80,7 +80,7 @@ function Connect() {
           checked={authorizeKey}
           onChange={() => setAuthorizeKey((x) => !x)}
         />
-        Grant Session
+        Authorize Key
       </label>
       {connectors
         .filter((x) => x.id === 'xyz.ithaca.porto')
@@ -155,7 +155,7 @@ function ImportAccount() {
             checked={authorizeKey}
             onChange={() => setAuthorizeKey((x) => !x)}
           />
-          Grant Session
+          Authorize Key
         </label>
       </div>
       {connectors
@@ -208,11 +208,11 @@ function AuthorizeKey() {
   if (keys.data?.length !== 0) return null
   return (
     <div>
-      <h2>Grant Session</h2>
+      <h2>Authorize Key</h2>
       <button onClick={() => authorizeKey.mutate({})} type="button">
-        Grant Session
+        Authorize Key
       </button>
-      {authorizeKey.data && <div>Session granted.</div>}
+      {authorizeKey.data && <div>Key granted.</div>}
       {authorizeKey.error && (
         <div>
           Error: {authorizeKey.error.shortMessage || authorizeKey.error.message}

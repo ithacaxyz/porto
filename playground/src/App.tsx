@@ -120,7 +120,7 @@ function Connect() {
           checked={authorizeKey}
           onChange={() => setAuthorizeKey((x) => !x)}
         />
-        Grant Session
+        Authorize Key
       </label>
       <div>
         <button
