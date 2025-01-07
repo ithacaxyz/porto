@@ -157,7 +157,22 @@ In addition to the above, Porto implements the following **experimental** JSON-R
 
 ### `experimental_authorizeKey`
 
-Authorizes a key on the account. If no `key` is provided, Porto will generate a new arbitrary "session" key to authorize on the account.
+Authorizes a key that can perform actions on behalf of the account.
+
+If no `key` is provided, Porto will generate a new arbitrary "session" key to authorize on the account.
+
+The following `role` values are supported:
+
+- `admin`: 
+  - CAN have an infinite expiry
+  - CAN execute transactions (e.g. `eth_sendTransaction`, `wallet_sendCalls`)
+  - CAN sign arbitrary data (e.g. `personal_sign`, `eth_signTypedData_v4`)
+  <!-- TODO: - CAN have execution guards (`executionGuards`) -->
+- `session`: 
+  - MUST have a limited expiry
+  - CAN only execute transactions
+  - CANNOT sign arbitrary data
+  - <!-- TODO: - SHOULD have execution guards (`executionGuards`) -->
 
 > Minimal alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa3603c6181849f61d219f75e8a16d6624ac60/ERCS/erc-7715.md) specification. We hope to upstream concepts from this method and eventually use ERC-7715 or similar.
 
@@ -361,7 +376,7 @@ Imports an account.
 
 ### `experimental_keys`
 
-Lists the active keys on the account.
+Lists active keys that can perform actions on behalf of the account.
 
 #### Parameters
 
@@ -429,7 +444,7 @@ Example:
 
 ### `keys`
 
-Porto supports account key management (ie. session keys & their permissions).
+Porto supports account key management (ie. authorized keys & their scopes).
 
 #### Authorizing keys via `experimental_authorizeKey`
 
