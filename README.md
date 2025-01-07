@@ -233,11 +233,10 @@ Connects an end-user to an application.
     capabilities: {
       // The keys granted to the account.
       keys: {
-        // The expiry of the key.
         expiry: number,
-
-        // The ID of the key.
-        id: `0x${string}`,
+        publicKey: `0x${string}`,
+        role: 'admin' | 'session',
+        type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256',
       }[],
     }
   }[]
