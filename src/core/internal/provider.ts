@@ -54,64 +54,6 @@ export function from<
           ) satisfies RpcSchema.ExtractReturnType<Schema.Schema, 'eth_accounts'>
         }
 
-        case 'experimental_authorizeKey': {
-          if (state.accounts.length === 0)
-            throw new ox_Provider.DisconnectedError()
-
-          const [{ address, key: keyToAuthorize }] =
-            (params as RpcSchema.ExtractParams<
-              Schema.Schema,
-              'experimental_authorizeKey'
-            >) ?? [{}]
-
-          const account = address
-            ? state.accounts.find((account) =>
-                Address.isEqual(account.address, address),
-              )
-            : state.accounts[0]
-          if (!account) throw new ox_Provider.UnauthorizedError()
-
-          const client = getClient()
-
-          const { key } = await implementation.actions.authorizeKey({
-            account,
-            client,
-            key: keyToAuthorize,
-            config,
-            request,
-          })
-
-          store.setState((x) => {
-            const index = x.accounts.findIndex((x) =>
-              account ? Address.isEqual(x.address, account.address) : true,
-            )
-            if (index === -1) return x
-            return {
-              ...x,
-              accounts: x.accounts.map((account, i) =>
-                i === index
-                  ? { ...account, keys: [...(account.keys ?? []), key] }
-                  : account,
-              ),
-            }
-          })
-
-          emitter.emit('message', {
-            data: getActiveKeys([...(account.keys ?? []), key]),
-            type: 'keysChanged',
-          })
-
-          return {
-            expiry: key.expiry,
-            publicKey: key.publicKey,
-            role: key.role,
-            type: key.type,
-          } satisfies RpcSchema.ExtractReturnType<
-            Schema.Schema,
-            'experimental_authorizeKey'
-          >
-        }
-
         case 'eth_chainId': {
           return Hex.fromNumber(
             state.chain.id,
@@ -211,6 +153,64 @@ export function from<
         //     'eth_signTypedData_v4'
         //   >
         // }
+
+        case 'experimental_authorizeKey': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, key: keyToAuthorize }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_authorizeKey'
+            >) ?? [{}]
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const client = getClient()
+
+          const { key } = await implementation.actions.authorizeKey({
+            account,
+            client,
+            key: keyToAuthorize,
+            config,
+            request,
+          })
+
+          store.setState((x) => {
+            const index = x.accounts.findIndex((x) =>
+              account ? Address.isEqual(x.address, account.address) : true,
+            )
+            if (index === -1) return x
+            return {
+              ...x,
+              accounts: x.accounts.map((account, i) =>
+                i === index
+                  ? { ...account, keys: [...(account.keys ?? []), key] }
+                  : account,
+              ),
+            }
+          })
+
+          emitter.emit('message', {
+            data: getActiveKeys([...(account.keys ?? []), key]),
+            type: 'keysChanged',
+          })
+
+          return {
+            expiry: key.expiry,
+            publicKey: key.publicKey,
+            role: key.role,
+            type: key.type,
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_authorizeKey'
+          >
+        }
 
         // TODO
         // case 'experimental_connect': {
