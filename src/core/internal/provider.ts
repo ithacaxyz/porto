@@ -382,24 +382,23 @@ export function from<
         //   >
         // }
 
-        // TODO
-        // case 'experimental_sessions': {
-        //   if (state.accounts.length === 0)
-        //     throw new ox_Provider.DisconnectedError()
+        case 'experimental_keys': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
 
-        //   const [{ address }] = (params as RpcSchema.ExtractParams<
-        //     Schema.Schema,
-        //     'experimental_sessions'
-        //   >) ?? [{}]
+          const [{ address }] = (params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'experimental_keys'
+          >) ?? [{}]
 
-        //   const account = address
-        //     ? state.accounts.find((account) =>
-        //         Address.isEqual(account.address, address),
-        //       )
-        //     : state.accounts[0]
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
 
-        //   return getActiveKeys(account?.keys ?? [])
-        // }
+          return getActiveKeys(account?.keys ?? [])
+        }
 
         case 'porto_ping': {
           return 'pong' satisfies RpcSchema.ExtractReturnType<
@@ -606,7 +605,7 @@ function getActiveKeys(
         publicKey: key.publicKey,
         role: key.role,
         type: key.type,
-      }
+      } satisfies Schema.AuthorizeKeyReturnType
     })
     .filter(Boolean) as never
 }

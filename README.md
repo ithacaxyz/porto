@@ -179,7 +179,7 @@ Authorizes a key on the account. If no `key` is provided, Porto will generate a 
       // Role of key.
       role?: 'admin' | 'session',
       // Type of key.
-      type?: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256',
+      type?: 'p256' | 'secp256k1' | 'webauthn-p256',
     }
   }]
 }
@@ -192,7 +192,7 @@ Authorizes a key on the account. If no `key` is provided, Porto will generate a 
   expiry: number,
   publicKey: `0x${string}`,
   role: 'admin' | 'session',
-  type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256',
+  type: 'p256' | 'secp256k1' | 'webauthn-p256',
 }
 ```
 
@@ -234,7 +234,7 @@ Connects an end-user to an application.
         expiry: number,
         publicKey: `0x${string}`,
         role: 'admin' | 'session',
-        type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256',
+        type: 'p256' | 'secp256k1' | 'webauthn-p256',
       }[],
     }
   }[]
@@ -297,7 +297,7 @@ Returns a set of hex payloads to sign over to import an external account, and pr
         expiry?: number 
         publicKey?: `0x${string}`
         role?: 'admin' | 'session'
-        type?: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256'
+        type?: 'p256' | 'secp256k1' | 'webauthn-p256'
       },
     } 
   }]
@@ -353,7 +353,7 @@ Imports an account.
       // Role of key.
       role: 'admin' | 'session',
       // Type of key.
-      type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256',
+      type: 'p256' | 'secp256k1' | 'webauthn-p256',
     }[],
   }
 }
@@ -382,7 +382,7 @@ Lists the active keys on the account.
   expiry: number, 
   publicKey: `0x${string}`, 
   role: 'admin' | 'session', 
-  type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256' 
+  type: 'p256' | 'secp256k1' | 'webauthn-p256' 
 }[]
 ```
 

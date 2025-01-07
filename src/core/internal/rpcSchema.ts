@@ -82,7 +82,7 @@ export type AuthorizeKeyParameters = {
             expiry?: number | undefined
             publicKey: Hex.Hex
             role: 'admin' | 'session'
-            type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256'
+            type: 'p256' | 'secp256k1' | 'webauthn-p256'
           }
       >
     | undefined
@@ -99,7 +99,7 @@ export type AuthorizeKeyReturnType = {
   expiry: number
   publicKey: Hex.Hex
   role: 'admin' | 'session'
-  type: 'p256' | 'secp256k1' | 'webcrypto-p256' | 'webauthn-p256'
+  type: 'p256' | 'secp256k1' | 'webauthn-p256'
 }
 
 export type ConnectParameters = {
