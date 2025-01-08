@@ -9,5 +9,5 @@
   - `experimental_sessions` → `experimental_keys`
 - Capabilities:
   - `grantSession` → `authorizeKey`
-  - `revokeSession` → `revokeKey`
+  - `sessions` → `keys`
 
