@@ -141,7 +141,11 @@ export async function sign<
   const sign = (() => {
     // If we have no key, use the root signing key.
     if (!key) return account.sign
-    return (parameters: { payload: Hex.Hex }) => Key.sign(key, parameters)
+    return (parameters: { payload: Hex.Hex }) =>
+      Key.sign(key, {
+        ...parameters,
+        address: account.address,
+      })
   })()
 
   // If the account has no valid signing key, then we cannot sign the payload.

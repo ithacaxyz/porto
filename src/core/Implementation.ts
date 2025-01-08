@@ -255,26 +255,42 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async loadAccounts(parameters) {
-        const { client } = parameters
+        const { authorizeKeys, client } = parameters
 
-        // We will sign a random challenge. We need to do this to extract the
-        // user id (ie. the address) to query for the Account's keys.
-        const credential = await WebAuthnP256.sign({
-          challenge: '0x',
-          rpId: keystoreHost,
-        })
-        const response = credential.raw
-          .response as AuthenticatorAssertionResponse
+        const { address, credentialId } = await (async () => {
+          if (parameters.address && parameters.credentialId)
+            return {
+              address: parameters.address,
+              credentialId: parameters.credentialId,
+            }
 
-        const address = Bytes.toHex(new Uint8Array(response.userHandle!))
-        const credentialId = credential.raw.id
+          // We will sign a random challenge. We need to do this to extract the
+          // user id (ie. the address) to query for the Account's keys.
+          const credential = await WebAuthnP256.sign({
+            challenge: '0x',
+            rpId: keystoreHost,
+          })
+          const response = credential.raw
+            .response as AuthenticatorAssertionResponse
+
+          const address = Bytes.toHex(new Uint8Array(response.userHandle!))
+          const credentialId = credential.raw.id
+
+          return { address, credentialId }
+        })()
 
         // Fetch the delegated account's keys.
-        const keyCount = await readContract(client, {
-          abi: delegationAbi,
-          address,
-          functionName: 'keyCount',
-        })
+        const [keyCount, extraKeys] = await Promise.all([
+          readContract(client, {
+            abi: delegationAbi,
+            address,
+            functionName: 'keyCount',
+          }),
+          getKeysToAuthorize({
+            authorizeKeys,
+            defaultExpiry,
+          }),
+        ])
         const keys = await Promise.all(
           Array.from({ length: Number(keyCount) }, (_, index) =>
             Delegation.keyAt(client, { account: address, index }),
@@ -284,7 +300,7 @@ export function local(parameters: local.Parameters = {}) {
         // Instantiate the account based off the extracted address and keys.
         const account = Account.from({
           address,
-          keys: keys.map((key, i) => {
+          keys: [...keys, ...(extraKeys ?? [])].map((key, i) => {
             // Assume that the first key is the admin WebAuthn key.
             if (i === 0 && key.type === 'webauthn-p256')
               return Key.fromWebAuthnP256({
@@ -297,6 +313,15 @@ export function local(parameters: local.Parameters = {}) {
             return key
           }),
         })
+
+        if (extraKeys)
+          await Delegation.execute(client, {
+            account,
+            calls: extraKeys.flatMap((key) => [
+              Call.setCanExecute({ key }),
+              Call.authorize({ key }),
+            ]),
+          })
 
         return {
           accounts: [account],

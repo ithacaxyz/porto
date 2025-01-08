@@ -1,6 +1,6 @@
 import * as AbiParameters from 'ox/AbiParameters'
 import * as Address from 'ox/Address'
-import type * as Bytes from 'ox/Bytes'
+import * as Bytes from 'ox/Bytes'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
@@ -627,8 +627,11 @@ export function serialize(key: Key): Serialized {
   }
 }
 
-export async function sign(key: Key, parameters: { payload: Hex.Hex }) {
-  const { payload } = parameters
+export async function sign(
+  key: Key,
+  parameters: { address?: Hex.Hex | undefined; payload: Hex.Hex },
+) {
+  const { address, payload } = parameters
   const { canSign, publicKey, type: keyType } = key
 
   if (!canSign)
@@ -662,12 +665,21 @@ export async function sign(key: Key, parameters: { payload: Hex.Hex }) {
       const { credential, rpId } = key
       const {
         signature: { r, s },
+        raw,
         metadata,
       } = await WebAuthnP256.sign({
         challenge: payload,
         credentialId: credential.id,
         rpId,
       })
+
+      const response = raw.response as AuthenticatorAssertionResponse
+      const userHandle = Bytes.toHex(new Uint8Array(response.userHandle!))
+      if (address !== userHandle)
+        throw new Error(
+          `supplied address "${address}" does not match signature address "${userHandle}"`,
+        )
+
       const signature = AbiParameters.encode(
         AbiParameters.from([
           'struct WebAuthnAuth { bytes authenticatorData; string clientDataJSON; uint256 challengeIndex; uint256 typeIndex; bytes32 r; bytes32 s; }',
