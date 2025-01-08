@@ -28,7 +28,7 @@ export const createPorto = () =>
   })
 
 export const porto = createPorto()
-export const client = Porto.getClient(porto).extend(() => ({
+export const client = Porto.getClients(porto).default.extend(() => ({
   mode: 'anvil',
 }))
 export const delegation = client.chain.contracts.delegation.address
