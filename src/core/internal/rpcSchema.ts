@@ -1,9 +1,7 @@
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
-import type { Authorization } from 'viem/experimental'
 
-import type * as Account from './account.js'
 import type { OneOf } from './types.js'
 
 export type Schema = RpcSchema.From<
@@ -134,7 +132,7 @@ export type GetKeysParameters = {
 export type GetKeysReturnType = readonly AuthorizeKeyReturnType[]
 
 export type ImportAccountParameters = {
-  context: PrepareImportAccountReturnType['context']
+  context: unknown
   signatures: readonly Hex.Hex[]
 }
 
@@ -151,19 +149,13 @@ export type PrepareImportAccountParameters = {
   address: Address.Address
   capabilities?:
     | {
-        authorizeKey?:
-          | boolean
-          | Omit<AuthorizeKeyParameters, 'address'>
-          | undefined
+        authorizeKey?: boolean | AuthorizeKeyParameters['key'] | undefined
       }
     | undefined
   label?: string | undefined
 }
 
 export type PrepareImportAccountReturnType = {
-  context: {
-    account: Account.Account
-    authorization: Authorization
-  }
+  context: unknown
   signPayloads: readonly Hex.Hex[]
 }

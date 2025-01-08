@@ -433,11 +433,7 @@ export declare namespace prepareExecute {
     /**
      * Contract address to delegate to.
      */
-    delegation?: account extends {
-      sign: NonNullable<DelegatedAccount.Account['sign']>
-    }
-      ? Address.Address | undefined
-      : undefined
+    delegation?: Address.Address | undefined
     /**
      * The executor of the execute transaction.
      *
@@ -455,7 +451,7 @@ export declare namespace prepareExecute {
     calls extends readonly unknown[] = readonly unknown[],
     chain extends Chain | undefined = Chain | undefined,
   > = {
-    request: Parameters<calls, chain> & {
+    request: Omit<Parameters<calls, chain>, 'delegation'> & {
       authorization?: Authorization_viem | undefined
       nonce: bigint
     }

@@ -74,6 +74,22 @@ export type Implementation = {
       request: Request
     }) => Promise<Hex.Hex>
 
+    importAccount: (parameters: {
+      /** Viem Client. */
+      client: Client<Transport, Chains.Chain>
+      /** Porto config. */
+      config: Config
+      /** Import context. */
+      context: unknown
+      /** RPC Request. */
+      request: Request
+      /** Import signatures. */
+      signatures: readonly Hex.Hex[]
+    }) => Promise<{
+      /** Imported account. */
+      account: Account.Account
+    }>
+
     loadAccounts: (parameters: {
       /** Address of the account to load. */
       address?: Address.Address | undefined
@@ -93,6 +109,30 @@ export type Implementation = {
     }) => Promise<{
       /** Accounts. */
       accounts: readonly Account.Account[]
+    }>
+
+    prepareImportAccount: (parameters: {
+      /** Address of the account to import. */
+      address: Address.Address
+      /** Extra keys to authorize. */
+      authorizeKeys?:
+        | true
+        | readonly RpcSchema.AuthorizeKeyParameters['key'][]
+        | undefined
+      /** Viem Client. */
+      client: Client<Transport, Chains.Chain>
+      /** Porto config. */
+      config: Config
+      /** Label to associate with the account. */
+      label?: string | undefined
+      /** RPC Request. */
+      request: Request
+    }) => Promise<{
+      /** Filled context for the `experimental_importAccount` JSON-RPC method. */
+      // TODO
+      context: any
+      /** Hex payloads to sign over. */
+      signPayloads: Hex.Hex[]
     }>
 
     signPersonalMessage: (parameters: {
@@ -178,41 +218,32 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { authorizeKeys, client } = parameters
+        const { authorizeKeys, client, label } = parameters
 
         const privateKey = Secp256k1.randomPrivateKey()
         const address = Address.fromPublicKey(
           Secp256k1.getPublicKey({ privateKey }),
         )
 
-        const label =
-          parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
-
-        const key = await Key.createWebAuthnP256({
-          label,
-          role: 'admin',
-          rpId: keystoreHost,
-          userId: Bytes.from(address),
-        })
-
-        const extraKeys = await getKeysToAuthorize({
+        const { context, signPayloads } = await prepareImportAccount({
+          address,
           authorizeKeys,
+          client,
           defaultExpiry,
+          keystoreHost,
+          label,
         })
 
         const account = Account.fromPrivateKey(privateKey, {
-          keys: [key, ...(extraKeys ?? [])],
+          keys: context.account.keys,
         })
-        const delegation = client.chain.contracts.delegation.address
-
-        // TODO: wait for tx to be included?
+        const signatures = await Account.sign(account, {
+          payloads: signPayloads,
+        })
         const hash = await Delegation.execute(client, {
+          ...context,
           account,
-          calls: account.keys.flatMap((key) => [
-            Call.setCanExecute({ key }),
-            Call.authorize({ key }),
-          ]),
-          delegation,
+          signatures,
         })
 
         return { account, hash }
@@ -252,6 +283,17 @@ export function local(parameters: local.Parameters = {}) {
         })
 
         return hash
+      },
+
+      async importAccount(parameters) {
+        const { client, context, signatures } = parameters
+
+        await Delegation.execute(client, {
+          ...(context as any),
+          signatures,
+        })
+
+        return { account: (context as any).account }
       },
 
       async loadAccounts(parameters) {
@@ -326,6 +368,19 @@ export function local(parameters: local.Parameters = {}) {
         return {
           accounts: [account],
         }
+      },
+
+      async prepareImportAccount(parameters) {
+        const { address, authorizeKeys, client, label } = parameters
+
+        return await prepareImportAccount({
+          address,
+          authorizeKeys,
+          client,
+          defaultExpiry,
+          keystoreHost,
+          label,
+        })
       },
 
       async signPersonalMessage(parameters) {
@@ -456,6 +511,55 @@ export function mock() {
 ///////////////////////////////////////////////////////////////////////////
 // Internal
 ///////////////////////////////////////////////////////////////////////////
+
+async function prepareImportAccount(parameters: {
+  address: Address.Address
+  authorizeKeys:
+    | true
+    | readonly RpcSchema.AuthorizeKeyParameters['key'][]
+    | undefined
+  client: Client<Transport, Chains.Chain>
+  defaultExpiry: number
+  label?: string | undefined
+  keystoreHost?: string | undefined
+}) {
+  const { address, authorizeKeys, client, defaultExpiry, keystoreHost } =
+    parameters
+
+  const label =
+    parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+
+  const key = await Key.createWebAuthnP256({
+    label,
+    role: 'admin',
+    rpId: keystoreHost,
+    userId: Bytes.from(address),
+  })
+
+  const extraKeys = await getKeysToAuthorize({
+    authorizeKeys,
+    defaultExpiry,
+  })
+
+  const keys = [key, ...(extraKeys ?? [])]
+
+  const account = Account.from({
+    address,
+    keys,
+  })
+  const delegation = client.chain.contracts.delegation.address
+
+  const { request, signPayloads } = await Delegation.prepareExecute(client, {
+    account,
+    calls: account.keys.flatMap((key) => [
+      Call.setCanExecute({ key }),
+      Call.authorize({ key }),
+    ]),
+    delegation,
+  })
+
+  return { context: request, signPayloads }
+}
 
 async function getKeysToAuthorize(parameters: {
   authorizeKeys:

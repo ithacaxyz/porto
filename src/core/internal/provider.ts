@@ -237,92 +237,74 @@ export function from<
           >
         }
 
-        // TODO
-        // case 'experimental_prepareImportAccount': {
-        //   if (!headless) throw new ox_Provider.UnsupportedMethodError()
+        case 'experimental_prepareImportAccount': {
+          const [{ address, capabilities, label }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_prepareImportAccount'
+            >) ?? [{}]
 
-        //   const [{ address, capabilities, label }] =
-        //     (params as RpcSchema.ExtractParams<
-        //       Schema.Schema,
-        //       'experimental_prepareImportAccount'
-        //     >) ?? [{}]
+          const { authorizeKey } = capabilities ?? {}
 
-        //   const { expiry = Math.floor(Date.now() / 1000) + 60 * 60 } =
-        //     typeof capabilities?.grantSession === 'object'
-        //       ? capabilities.grantSession
-        //       : {}
-        //   const key = capabilities?.grantSession
-        //     ? await AccountDelegation.createWebCryptoKey({
-        //         expiry: BigInt(expiry),
-        //       })
-        //     : undefined
+          const authorizeKeys = (() => {
+            if (authorizeKey === true) return true
+            if (authorizeKey) return [authorizeKey]
+            return undefined
+          })()
 
-        //   const { account, authorization, signPayload } =
-        //     await AccountDelegation.prepareInitialize(state.client, {
-        //       address,
-        //       authorizeKeys: key ? [key] : undefined,
-        //       delegation: state.delegation,
-        //       label,
-        //       rpId: keystoreHost,
-        //     })
+          const client = getClient()
 
-        //   const authorizationPayload = Authorization.getSignPayload({
-        //     address: authorization.contractAddress,
-        //     chainId: authorization.chainId,
-        //     nonce: BigInt(authorization.nonce),
-        //   })
+          const { context, signPayloads } =
+            await implementation.actions.prepareImportAccount({
+              address,
+              authorizeKeys,
+              client,
+              config,
+              label,
+              request,
+            })
 
-        //   return {
-        //     context: {
-        //       account,
-        //       authorization,
-        //     },
-        //     signPayloads: [authorizationPayload, signPayload],
-        //   } satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'experimental_prepareImportAccount'
-        //   >
-        // }
+          return {
+            context,
+            signPayloads,
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_prepareImportAccount'
+          >
+        }
 
-        // TODO
-        // case 'experimental_importAccount': {
-        //   const [{ context, signatures }] = (params as RpcSchema.ExtractParams<
-        //     Schema.Schema,
-        //     'experimental_importAccount'
-        //   >) ?? [{}]
+        case 'experimental_importAccount': {
+          const [{ context, signatures }] = (params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'experimental_importAccount'
+          >) ?? [{}]
 
-        //   const { authorization } = context
+          const client = getClient()
 
-        //   const authorizationSignature = Signature.from(signatures[0]!)
-        //   const initializeSignature = Signature.from(signatures[1]!)
+          const { account } = await implementation.actions.importAccount({
+            client,
+            config,
+            context,
+            request,
+            signatures,
+          })
 
-        //   const { account } = await AccountDelegation.initialize(state.client, {
-        //     ...context,
-        //     authorization: {
-        //       ...authorization,
-        //       r: Hex.fromNumber(authorizationSignature.r),
-        //       s: Hex.fromNumber(authorizationSignature.s),
-        //       yParity: authorizationSignature.yParity,
-        //     },
-        //     signature: Signature.from(initializeSignature),
-        //   })
+          const keys = getActiveKeys(account.keys!)
 
-        //   const sessions = getActiveKeys(account.keys)
+          store.setState((x) => ({ ...x, accounts: [account] }))
 
-        //   store.setState((x) => ({ ...x, accounts: [account] }))
+          emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
 
-        //   emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
-
-        //   return {
-        //     address: account.address,
-        //     capabilities: {
-        //       sessions,
-        //     },
-        //   } satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'experimental_importAccount'
-        //   >
-        // }
+          return {
+            address: account.address,
+            capabilities: {
+              keys,
+            },
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_importAccount'
+          >
+        }
 
         case 'experimental_keys': {
           if (state.accounts.length === 0)

@@ -397,7 +397,7 @@ export async function importAccount<config extends Config>(
 
 export declare namespace importAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    authorizeKey?: boolean | AuthorizeKeyParameters | undefined
+    authorizeKey?: boolean | AuthorizeKeyParameters['key'] | undefined
     account: PrivateKeyAccount
     connector: Connector | CreateConnectorFn
     label?: string | undefined
