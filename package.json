@@ -23,7 +23,8 @@
     "preconstruct": "tsx ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
-    "test": "vitest -c ./test/vitest.config.ts"
+    "test": "vitest -c ./test/vitest.config.ts",
+    "test:ci": "CI=true vitest -c ./test/vitest.config.ts --retry=3 --bail=1"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
@@ -59,7 +60,11 @@
   "knip": {
     "entry": ["src/{index,wagmi/index}.ts!"],
     "project": ["src/**"],
-    "ignore": ["**/internal/**", "src/core/internal/generated.ts"],
+    "ignore": [
+      "**/internal/**",
+      "playground/**",
+      "src/core/internal/generated.ts"
+    ],
     "ignoreDependencies": ["@tanstack/react-query", "react", "wagmi"]
   },
   "size-limit": [
