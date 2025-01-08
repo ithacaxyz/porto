@@ -128,9 +128,8 @@ export type Implementation = {
       /** RPC Request. */
       request: Request
     }) => Promise<{
-      /** Filled context for the `experimental_importAccount` JSON-RPC method. */
-      // TODO
-      context: any
+      /** Filled context for the `importAccount` implementation. */
+      context: unknown
       /** Hex payloads to sign over. */
       signPayloads: Hex.Hex[]
     }>
