@@ -110,9 +110,9 @@ export async function connect<config extends Config>(
 
 export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    authorizeKey?: true | AuthorizeKeyParameters['key'] | undefined
+    authorizeKey?: boolean | AuthorizeKeyParameters['key'] | undefined
     connector: Connector | CreateConnectorFn
-    createAccount?: true | CreateAccountParameters | undefined
+    createAccount?: boolean | CreateAccountParameters | undefined
   }
 
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
