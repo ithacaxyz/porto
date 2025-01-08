@@ -60,7 +60,9 @@ describe('eth_requestAccounts', () => {
 describe('eth_sendTransaction', () => {
   test('default', async () => {
     const porto = createPorto()
-    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+    const client = Porto.getClients(porto).default.extend(() => ({
+      mode: 'anvil',
+    }))
 
     const account = await porto.provider.request({
       method: 'experimental_createAccount',
@@ -91,7 +93,7 @@ describe('eth_sendTransaction', () => {
 describe('eth_signTypedData_v4', () => {
   test('default', async () => {
     const porto = createPorto()
-    const client = Porto.getClient(porto)
+    const client = Porto.getClients(porto).default
     const account = await porto.provider.request({
       method: 'experimental_createAccount',
     })
@@ -252,7 +254,7 @@ describe('experimental_keys', () => {
 describe('personal_sign', () => {
   test('default', async () => {
     const porto = createPorto()
-    const client = Porto.getClient(porto)
+    const client = Porto.getClients(porto).default
     const account = await porto.provider.request({
       method: 'experimental_createAccount',
     })
@@ -477,7 +479,9 @@ describe('wallet_disconnect', () => {
 describe('wallet_sendCalls', () => {
   test('default', async () => {
     const porto = createPorto()
-    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+    const client = Porto.getClients(porto).default.extend(() => ({
+      mode: 'anvil',
+    }))
 
     const account = await porto.provider.request({
       method: 'experimental_createAccount',
@@ -511,7 +515,9 @@ describe('wallet_sendCalls', () => {
 
   test('behavior: `key` capability', async () => {
     const porto = createPorto()
-    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+    const client = Porto.getClients(porto).default.extend(() => ({
+      mode: 'anvil',
+    }))
 
     const account = await porto.provider.request({
       method: 'experimental_createAccount',
@@ -551,7 +557,9 @@ describe('wallet_sendCalls', () => {
 
   test('behavior: not provider-managed key', async () => {
     const porto = createPorto()
-    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+    const client = Porto.getClients(porto).default.extend(() => ({
+      mode: 'anvil',
+    }))
 
     const account = await porto.provider.request({
       method: 'experimental_createAccount',
@@ -602,7 +610,9 @@ describe('wallet_sendCalls', () => {
 
   test('behavior: key does not exist', async () => {
     const porto = createPorto()
-    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+    const client = Porto.getClients(porto).default.extend(() => ({
+      mode: 'anvil',
+    }))
 
     const account = await porto.provider.request({
       method: 'experimental_createAccount',

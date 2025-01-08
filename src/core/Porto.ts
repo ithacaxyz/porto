@@ -1,4 +1,10 @@
-import { http, type Transport, createClient } from 'viem'
+import {
+  http,
+  type Client,
+  createClient,
+  fallback,
+  type Transport as viem_Transport,
+} from 'viem'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { type Mutate, type StoreApi, createStore } from 'zustand/vanilla'
 
@@ -15,9 +21,17 @@ export const defaultConfig = {
   implementation: Implementation.local(),
   storage: Storage.idb(),
   transports: {
-    [Chains.odysseyTestnet.id]: http(),
+    [Chains.odysseyTestnet.id]: {
+      default: http(),
+      relay: http('https://t9uhvbea8n.eu-central-1.awsapprunner.com'),
+    },
   },
 } as const satisfies Config
+
+export type Clients<chain extends Chains.Chain = Chains.Chain> = {
+  default: Client<viem_Transport, chain>
+  relay: Client<viem_Transport, chain>
+}
 
 export type Porto<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
@@ -65,7 +79,10 @@ export type Config<
   /**
    * Transport to use for each chain.
    */
-  transports: Record<chains[number]['id'], Transport>
+  transports: Record<
+    chains[number]['id'],
+    Transport | { default: Transport; relay?: Transport | undefined }
+  >
 }
 
 export type State<
@@ -87,6 +104,10 @@ export type Store<
   StoreApi<State<chains>>,
   [['zustand/subscribeWithSelector', never], ['zustand/persist', any]]
 >
+
+export type Transport =
+  | viem_Transport
+  | { default: viem_Transport; relay?: viem_Transport | undefined }
 
 /**
  * Instantiates an Porto instance.
@@ -182,23 +203,44 @@ export function create(
  * @param parameters - Parameters.
  * @returns Client.
  */
-export function getClient<
+export function getClients<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(
   porto: { _internal: Porto<chains>['_internal'] },
   parameters: { chainId?: number | undefined } = {},
-) {
+): Clients<chains[number]> {
   const { chainId } = parameters
   const { config, store } = porto._internal
-  const { chains, transports } = config
+  const { chains } = config
 
   const state = store.getState()
   const chain = chains.find((chain) => chain.id === chainId || state.chain.id)
   if (!chain) throw new Error('chain not found')
 
-  return createClient({
-    chain,
-    transport: (transports as Record<number, Transport>)[chain.id]!,
-    pollingInterval: 1_000,
-  })
+  const transport = (config.transports as Record<number, Transport>)[chain.id]
+  if (!transport) throw new Error('transport not found')
+
+  const { default: default_, relay } = (() => {
+    if (typeof transport === 'object') {
+      if (transport.relay)
+        return {
+          default: transport.default,
+          relay: transport.relay,
+        } as const
+      return { default: transport.default, relay: undefined } as const
+    }
+    return { default: transport, relay: undefined } as const
+  })()
+
+  const client = (transport: viem_Transport) =>
+    createClient({
+      chain,
+      transport,
+      pollingInterval: 1_000,
+    })
+
+  return {
+    default: client(default_),
+    relay: relay ? client(fallback([relay, default_])) : client(default_),
+  }
 }

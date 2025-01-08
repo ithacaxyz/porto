@@ -33,10 +33,10 @@ export function from<
   const { config, store } = parameters
   const { announceProvider, implementation } = config
 
-  function getClient(chainId_?: Hex.Hex | number | undefined) {
+  function getClients(chainId_?: Hex.Hex | number | undefined) {
     const chainId =
       typeof chainId_ === 'string' ? Hex.toNumber(chainId_) : chainId_
-    return Porto.getClient({ _internal: parameters }, { chainId })
+    return Porto.getClients({ _internal: parameters }, { chainId })
   }
 
   const emitter = ox_Provider.createEmitter()
@@ -62,17 +62,19 @@ export function from<
         }
 
         case 'eth_requestAccounts': {
-          const client = getClient()
+          const clients = getClients()
 
           const { accounts } = await implementation.actions.loadAccounts({
-            client,
+            clients,
             config,
             request,
           })
 
           store.setState((x) => ({ ...x, accounts }))
 
-          emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(clients.default.chain.id),
+          })
 
           return accounts.map(
             (account) => account.address,
@@ -92,9 +94,9 @@ export function from<
               'eth_sendTransaction'
             >
 
-          const client = getClient(chainId)
+          const clients = getClients(chainId)
 
-          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+          if (chainId && Hex.toNumber(chainId) !== clients.default.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
           requireParameter(to, 'to')
@@ -114,7 +116,7 @@ export function from<
                 value: Hex.toBigInt(value),
               },
             ],
-            client,
+            clients,
             config,
             request,
           })
@@ -139,11 +141,11 @@ export function from<
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient()
+          const clients = getClients()
 
           const signature = await implementation.actions.signTypedData({
             account,
-            client,
+            clients,
             config,
             data,
             request,
@@ -172,11 +174,11 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient()
+          const clients = getClients()
 
           const { key } = await implementation.actions.authorizeKey({
             account,
-            client,
+            clients,
             key: keyToAuthorize,
             config,
             request,
@@ -219,10 +221,10 @@ export function from<
             'experimental_createAccount'
           >) ?? [{}]
 
-          const client = getClient(chainId)
+          const clients = getClients(chainId)
 
           const { account } = await implementation.actions.createAccount({
-            client,
+            clients,
             config,
             label,
             request,
@@ -230,7 +232,9 @@ export function from<
 
           store.setState((x) => ({ ...x, accounts: [account] }))
 
-          emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(clients.default.chain.id),
+          })
           return account.address satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'experimental_createAccount'
@@ -252,13 +256,13 @@ export function from<
             return undefined
           })()
 
-          const client = getClient()
+          const clients = getClients()
 
           const { context, signPayloads } =
             await implementation.actions.prepareImportAccount({
               address,
               authorizeKeys,
-              client,
+              clients,
               config,
               label,
               request,
@@ -279,10 +283,10 @@ export function from<
             'experimental_importAccount'
           >) ?? [{}]
 
-          const client = getClient()
+          const clients = getClients()
 
           const { account } = await implementation.actions.importAccount({
-            client,
+            clients,
             config,
             context,
             request,
@@ -293,7 +297,9 @@ export function from<
 
           store.setState((x) => ({ ...x, accounts: [account] }))
 
-          emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(clients.default.chain.id),
+          })
 
           return {
             address: account.address,
@@ -345,11 +351,11 @@ export function from<
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const client = getClient()
+          const clients = getClients()
 
           const signature = await implementation.actions.signPersonalMessage({
             account,
-            client,
+            clients,
             config,
             data,
             request,
@@ -367,7 +373,7 @@ export function from<
             'wallet_connect'
           >) ?? [{}]
 
-          const client = getClient()
+          const clients = getClients()
 
           const { createAccount, authorizeKey } = capabilities ?? {}
 
@@ -383,7 +389,7 @@ export function from<
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await implementation.actions.createAccount({
                 authorizeKeys,
-                client,
+                clients,
                 config,
                 label,
                 request,
@@ -392,7 +398,7 @@ export function from<
             }
             return await implementation.actions.loadAccounts({
               authorizeKeys,
-              client,
+              clients,
               config,
               request,
             })
@@ -400,7 +406,9 @@ export function from<
 
           store.setState((x) => ({ ...x, accounts }))
 
-          emitter.emit('connect', { chainId: Hex.fromNumber(client.chain.id) })
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(clients.default.chain.id),
+          })
 
           return {
             accounts: accounts.map((account) => ({
@@ -428,9 +436,9 @@ export function from<
               'wallet_getCallsStatus'
             >) ?? []
 
-          const client = getClient()
+          const clients = getClients()
 
-          const receipt = await client.request({
+          const receipt = await clients.default.request({
             method: 'eth_getTransactionReceipt',
             params: [id! as Hex.Hex],
           })
@@ -478,9 +486,9 @@ export function from<
           >
           const { capabilities, chainId, from } = parameters
 
-          const client = getClient(chainId)
+          const clients = getClients(chainId)
 
-          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+          if (chainId && Hex.toNumber(chainId) !== clients.default.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
           requireParameter(from, 'from')
@@ -498,7 +506,7 @@ export function from<
           const hash = await implementation.actions.execute({
             account,
             calls,
-            client,
+            clients,
             config,
             key: capabilities?.key,
             request,
@@ -513,7 +521,7 @@ export function from<
         default: {
           if (method.startsWith('wallet_'))
             throw new ox_Provider.UnsupportedMethodError()
-          return getClient().request({ method, params } as any)
+          return getClients().default.request({ method, params } as any)
         }
       }
     },
