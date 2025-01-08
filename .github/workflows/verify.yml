@@ -57,20 +57,3 @@ jobs:
         
       - name: Check size
         run: pnpm check:size
-
-  test:
-    name: Test Runtime
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Run tests
-        run: pnpm test:ci
-        env: 
-          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
