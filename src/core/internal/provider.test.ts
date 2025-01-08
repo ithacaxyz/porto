@@ -425,6 +425,174 @@ describe('wallet_disconnect', () => {
   })
 })
 
+describe('wallet_sendCalls', () => {
+  test('default', async () => {
+    const porto = createPorto()
+    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+
+    const account = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    await setBalance(client, {
+      address: account,
+      value: Value.fromEther('10000'),
+    })
+
+    const alice = '0x0000000000000000000000000000000000069421'
+
+    const hash = await porto.provider.request({
+      method: 'wallet_sendCalls',
+      params: [
+        {
+          from: account,
+          calls: [
+            {
+              to: alice,
+              value: Hex.fromNumber(69420),
+            },
+          ],
+          version: '1',
+        },
+      ],
+    })
+
+    expect(hash).toBeDefined()
+    expect(await getBalance(client, { address: alice })).toBe(69420n)
+  })
+
+  test('behavior: `key` capability', async () => {
+    const porto = createPorto()
+    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+
+    const account = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    await setBalance(client, {
+      address: account,
+      value: Value.fromEther('10000'),
+    })
+
+    const alice = '0x0000000000000000000000000000000000069422'
+
+    const key = await porto.provider.request({
+      method: 'experimental_authorizeKey',
+    })
+    const hash = await porto.provider.request({
+      method: 'wallet_sendCalls',
+      params: [
+        {
+          capabilities: {
+            key,
+          },
+          from: account,
+          calls: [
+            {
+              to: alice,
+              value: Hex.fromNumber(69420),
+            },
+          ],
+          version: '1',
+        },
+      ],
+    })
+
+    expect(hash).toBeDefined()
+    expect(await getBalance(client, { address: alice })).toBe(69420n)
+  })
+
+  test('behavior: not provider-managed key', async () => {
+    const porto = createPorto()
+    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+
+    const account = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    await setBalance(client, {
+      address: account,
+      value: Value.fromEther('10000'),
+    })
+
+    const alice = '0x0000000000000000000000000000000000069421'
+
+    const key = await porto.provider.request({
+      method: 'experimental_authorizeKey',
+      params: [
+        {
+          key: {
+            publicKey:
+              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+            role: 'session',
+            type: 'p256',
+          },
+        },
+      ],
+    })
+    await expect(() =>
+      porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            capabilities: {
+              key,
+            },
+            from: account,
+            calls: [
+              {
+                to: alice,
+                value: Hex.fromNumber(69420),
+              },
+            ],
+            version: '1',
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[Error: key (publicKey: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist or is not a provider-managed key.]',
+    )
+  })
+
+  test('behavior: key does not exist', async () => {
+    const porto = createPorto()
+    const client = Porto.getClient(porto).extend(() => ({ mode: 'anvil' }))
+
+    const account = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    await setBalance(client, {
+      address: account,
+      value: Value.fromEther('10000'),
+    })
+
+    const alice = '0x0000000000000000000000000000000000069421'
+
+    await expect(() =>
+      porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            capabilities: {
+              key: {
+                publicKey:
+                  '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+              },
+            },
+            from: account,
+            calls: [
+              {
+                to: alice,
+                value: Hex.fromNumber(69420),
+              },
+            ],
+            version: '1',
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[Error: key (publicKey: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist or is not a provider-managed key.]',
+    )
+  })
+})
+
 test('smoke', async () => {
   const porto = createPorto()
   const code = await porto.provider.request({

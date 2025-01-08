@@ -7,6 +7,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
+import type * as Call from './call.js'
 import type * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
@@ -487,43 +488,47 @@ export function from<
           >
         }
 
-        // TODO
-        // case 'wallet_sendCalls': {
-        //   if (!headless) throw new ox_Provider.UnsupportedMethodError()
-        //   if (state.accounts.length === 0)
-        //     throw new ox_Provider.DisconnectedError()
+        case 'wallet_sendCalls': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
 
-        //   const [{ chainId, calls, from, capabilities }] =
-        //     params as RpcSchema.ExtractParams<Schema.Schema, 'wallet_sendCalls'>
+          const [parameters] = params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'wallet_sendCalls'
+          >
+          const { capabilities, chainId, from } = parameters
 
-        //   if (chainId && Hex.toNumber(chainId) !== state.chainId)
-        //     throw new ox_Provider.ChainDisconnectedError()
+          const client = getClient(chainId)
 
-        //   requireParameter(from, 'from')
+          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
 
-        //   const account = state.accounts.find((account) =>
-        //     Address.isEqual(account.address, from),
-        //   )
-        //   if (!account) throw new ox_Provider.UnauthorizedError()
+          requireParameter(from, 'from')
 
-        //   const { enabled = true, id } = capabilities?.session ?? {}
+          const account = state.accounts.find((account) =>
+            Address.isEqual(account.address, from),
+          )
+          if (!account) throw new ox_Provider.UnauthorizedError()
 
-        //   const keyIndex = enabled
-        //     ? getActiveSessionKeyIndex({ account, id })
-        //     : undefined
-        //   if (typeof keyIndex !== 'number')
-        //     throw new ox_Provider.UnauthorizedError()
+          const calls = parameters.calls.map((x) => {
+            requireParameter(x, 'to')
+            return x
+          }) as Call.Call[]
 
-        //   return (await AccountDelegation.execute(state.client, {
-        //     account,
-        //     calls: calls as AccountDelegation.Calls,
-        //     keyIndex,
-        //     rpId: keystoreHost,
-        //   })) satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'wallet_sendCalls'
-        //   >
-        // }
+          const hash = await implementation.actions.execute({
+            account,
+            calls,
+            client,
+            config,
+            key: capabilities?.key,
+            request,
+          })
+
+          return hash satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'wallet_sendCalls'
+          >
+        }
 
         default: {
           if (method.startsWith('wallet_'))

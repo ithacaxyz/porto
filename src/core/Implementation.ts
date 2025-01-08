@@ -63,6 +63,8 @@ export type Implementation = {
       calls: readonly Call.Call[]
       /** Viem Client. */
       client: Client<Transport, Chains.Chain>
+      /** Key to use to execute the calls. */
+      key?: { publicKey: Hex.Hex } | undefined
       /** Porto config. */
       config: Config
       /** RPC Request. */
@@ -191,6 +193,17 @@ export function local(parameters: local.Parameters = {}) {
         const { account, calls, client } = parameters
 
         const key = (() => {
+          if (parameters.key) {
+            const key = account.keys?.find(
+              (key) =>
+                key.publicKey === parameters.key?.publicKey && key.canSign,
+            )
+            if (!key)
+              throw new Error(
+                `key (publicKey: ${parameters.key?.publicKey}) does not exist or is not a provider-managed key.`,
+              )
+            return key
+          }
           const sessionKey = account.keys?.find(
             (key) =>
               key.canSign &&
