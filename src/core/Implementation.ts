@@ -1,13 +1,14 @@
+import type { RpcRequest } from 'ox'
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
+import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import type { Client, Hash, Transport } from 'viem'
 import { readContract } from 'viem/actions'
 
-import type { RpcRequest } from 'ox'
 import type * as Chains from './Chains.js'
 import type { Config } from './Porto.js'
 import * as Account from './internal/account.js'
@@ -91,6 +92,19 @@ export type Implementation = {
       /** Accounts. */
       accounts: readonly Account.Account[]
     }>
+
+    signPersonalMessage: (parameters: {
+      /** Account to sign the message with. */
+      account: Account.Account
+      /** Viem Client. */
+      client: Client<Transport, Chains.Chain>
+      /** Porto config. */
+      config: Config
+      /** Data to sign. */
+      data: Hex.Hex
+      /** RPC Request. */
+      request: Request
+    }) => Promise<Hex.Hex>
   }
 }
 
@@ -272,6 +286,22 @@ export function local(parameters: local.Parameters = {}) {
         return {
           accounts: [account],
         }
+      },
+
+      async signPersonalMessage(parameters) {
+        const { account, data } = parameters
+
+        const key = account.keys?.find(
+          (key) => key.role === 'admin' && key.canSign,
+        )
+        if (!key) throw new Error('cannot find admin key to sign with.')
+
+        const [signature] = await Account.sign(account, {
+          key,
+          payloads: [PersonalMessage.getSignPayload(data)],
+        })
+
+        return signature
       },
     },
   })

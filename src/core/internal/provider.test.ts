@@ -1,6 +1,6 @@
 import { Hex, P256, PublicKey, Value } from 'ox'
 import { Porto } from 'porto'
-import { getBalance, setBalance } from 'viem/actions'
+import { getBalance, setBalance, verifyMessage } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { createPorto, delegation } from '../../../test/src/porto.js'
@@ -219,6 +219,28 @@ describe('experimental_keys', () => {
         },
       ]
     `)
+  })
+})
+
+describe('personal_sign', () => {
+  test('default', async () => {
+    const porto = createPorto()
+    const client = Porto.getClient(porto)
+    const account = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    const signature = await porto.provider.request({
+      method: 'personal_sign',
+      params: [Hex.fromString('hello'), account],
+    })
+    expect(signature).toBeDefined()
+
+    const valid = await verifyMessage(client, {
+      address: account,
+      message: 'hello',
+      signature,
+    })
+    expect(valid).toBe(true)
   })
 })
 

@@ -350,36 +350,35 @@ export function from<
           >
         }
 
-        // TODO
-        // case 'personal_sign': {
-        //   if (!headless) throw new ox_Provider.UnsupportedMethodError()
-        //   if (state.accounts.length === 0)
-        //     throw new ox_Provider.DisconnectedError()
+        case 'personal_sign': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
 
-        //   const [data, address] = params as RpcSchema.ExtractParams<
-        //     Schema.Schema,
-        //     'personal_sign'
-        //   >
+          const [data, address] = params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'personal_sign'
+          >
 
-        //   const account = state.accounts.find((account) =>
-        //     Address.isEqual(account.address, address),
-        //   )
-        //   if (!account) throw new ox_Provider.UnauthorizedError()
+          const account = state.accounts.find((account) =>
+            Address.isEqual(account.address, address),
+          )
+          if (!account) throw new ox_Provider.UnauthorizedError()
 
-        //   const keyIndex = getActiveSessionKeyIndex({ account })
+          const client = getClient()
 
-        //   const signature = await AccountDelegation.sign({
-        //     account,
-        //     keyIndex,
-        //     payload: PersonalMessage.getSignPayload(data),
-        //     rpId: keystoreHost,
-        //   })
+          const signature = await implementation.actions.signPersonalMessage({
+            account,
+            client,
+            config,
+            data,
+            request,
+          })
 
-        //   return signature satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'personal_sign'
-        //   >
-        // }
+          return signature satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'personal_sign'
+          >
+        }
 
         case 'wallet_connect': {
           const [{ capabilities }] = (params as RpcSchema.ExtractParams<
