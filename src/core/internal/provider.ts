@@ -125,36 +125,35 @@ export function from<
           >
         }
 
-        // TODO
-        // case 'eth_signTypedData_v4': {
-        //   if (!headless) throw new ox_Provider.UnsupportedMethodError()
-        //   if (state.accounts.length === 0)
-        //     throw new ox_Provider.DisconnectedError()
+        case 'eth_signTypedData_v4': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
 
-        //   const [address, data] = params as RpcSchema.ExtractParams<
-        //     Schema.Schema,
-        //     'eth_signTypedData_v4'
-        //   >
+          const [address, data] = params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'eth_signTypedData_v4'
+          >
 
-        //   const account = state.accounts.find((account) =>
-        //     Address.isEqual(account.address, address),
-        //   )
-        //   if (!account) throw new ox_Provider.UnauthorizedError()
+          const account = state.accounts.find((account) =>
+            Address.isEqual(account.address, address),
+          )
+          if (!account) throw new ox_Provider.UnauthorizedError()
 
-        //   const keyIndex = getActiveSessionKeyIndex({ account })
+          const client = getClient()
 
-        //   const signature = await AccountDelegation.sign({
-        //     account,
-        //     keyIndex,
-        //     payload: TypedData.getSignPayload(Json.parse(data)),
-        //     rpId: keystoreHost,
-        //   })
+          const signature = await implementation.actions.signTypedData({
+            account,
+            client,
+            config,
+            data,
+            request,
+          })
 
-        //   return signature satisfies RpcSchema.ExtractReturnType<
-        //     Schema.Schema,
-        //     'eth_signTypedData_v4'
-        //   >
-        // }
+          return signature satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'eth_signTypedData_v4'
+          >
+        }
 
         case 'experimental_authorizeKey': {
           if (state.accounts.length === 0)
