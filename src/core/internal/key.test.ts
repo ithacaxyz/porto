@@ -26,6 +26,7 @@ describe('createP256', () => {
     expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "expiry": 0,
         "privateKey": [Function],
@@ -78,6 +79,7 @@ describe('createSecp256k1', () => {
     expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "expiry": 0,
         "privateKey": [Function],
@@ -165,6 +167,7 @@ describe('createWebAuthnP256', () => {
     expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "credential": {
           "id": "m1-bMPuAqpWhCxHZQZTT6e-lSPntQbh3opIoGe7g4Qs",
@@ -194,6 +197,7 @@ describe('createWebCryptoP256', () => {
     expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "expiry": 0,
         "privateKey": CryptoKey {},
@@ -334,6 +338,7 @@ describe('fromP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "expiry": 0,
         "privateKey": [Function],
@@ -354,6 +359,7 @@ describe('fromP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "expiry": 69420,
         "privateKey": [Function],
@@ -375,6 +381,7 @@ describe('fromSecp256k1', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "expiry": 0,
         "privateKey": [Function],
@@ -393,6 +400,7 @@ describe('fromSecp256k1', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": false,
         "expiry": 0,
         "privateKey": undefined,
@@ -413,6 +421,7 @@ describe('fromSecp256k1', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": false,
         "expiry": 0,
         "privateKey": undefined,
@@ -470,6 +479,7 @@ describe('fromWebAuthnP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "credential": {
           "id": "m1-bMPuAqpWhCxHZQZTT6e-lSPntQbh3opIoGe7g4Qs",
@@ -513,6 +523,7 @@ describe('fromWebCryptoP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "callScopes": undefined,
         "canSign": true,
         "expiry": 0,
         "privateKey": CryptoKey {},

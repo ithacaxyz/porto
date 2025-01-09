@@ -3,8 +3,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { WagmiProvider } from 'wagmi'
 
-import { App } from './App'
-import { wagmiConfig } from './config'
+import { App } from './App.js'
+import { wagmiConfig } from './config.js'
 
 import './main.css'
 

@@ -113,7 +113,7 @@ export async function execute<
     const abiError = (() => {
       const cause = error.walk((e) => 'data' in (e as BaseError))
       if (!cause) return undefined
-      if (!('data' in cause)) return undefined
+      if (!('data' in cause && cause.data)) return undefined
       if (cause.data === '0x') return undefined
       return AbiError.fromAbi(delegationAbi, cause.data as Hex.Hex)
     })()

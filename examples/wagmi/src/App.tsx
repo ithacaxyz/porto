@@ -14,7 +14,14 @@ import {
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
-import { ExperimentERC20 } from './contracts'
+import { ExperimentERC20 } from './contracts.js'
+
+const callScopes = [
+  {
+    signature: 'mint(address,uint256)',
+    to: ExperimentERC20.address,
+  },
+] as const
 
 export function App() {
   const { isConnected } = useAccount()
@@ -88,14 +95,23 @@ function Connect() {
           <div key={connector.uid}>
             <button
               key={connector.uid}
-              onClick={() => connect.mutate({ connector, authorizeKey })}
+              onClick={() =>
+                connect.mutate({
+                  connector,
+                  authorizeKey: authorizeKey ? { callScopes } : undefined,
+                })
+              }
               type="button"
             >
               Login
             </button>
             <button
               onClick={() =>
-                connect.mutate({ connector, createAccount: true, authorizeKey })
+                connect.mutate({
+                  connector,
+                  createAccount: true,
+                  authorizeKey: authorizeKey ? { callScopes } : undefined,
+                })
               }
               type="button"
             >
@@ -167,7 +183,7 @@ function ImportAccount() {
               importAccount.mutate({
                 account: privateKeyToAccount(privateKey as Hex),
                 connector,
-                authorizeKey,
+                authorizeKey: authorizeKey ? { callScopes } : undefined,
               })
             }
             type="button"

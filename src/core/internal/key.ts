@@ -16,6 +16,7 @@ type PrivateKeyFn = () => Hex.Hex
 
 /** Key on a delegated account. */
 export type BaseKey<type extends string, properties> = {
+  callScopes?: CallScopes | undefined
   expiry: number
   publicKey: Hex.Hex
   role: 'admin' | 'session'
@@ -28,6 +29,22 @@ export type BaseKey<type extends string, properties> = {
       canSign: false
     } & Undefined<properties>)
 >
+
+export type CallScope = OneOf<
+  | {
+      signature: string
+      to: Address.Address
+    }
+  | {
+      signature: string
+    }
+  | {
+      to: Address.Address
+    }
+>
+export type CallScopes = readonly [CallScope, ...CallScope[]]
+
+export type Key = OneOf<P256Key | Secp256k1Key | WebCryptoKey | WebAuthnKey>
 
 export type P256Key = BaseKey<'p256', { privateKey: PrivateKeyFn }>
 export type Secp256k1Key = BaseKey<'secp256k1', { privateKey: PrivateKeyFn }>
@@ -44,8 +61,6 @@ export type WebAuthnKey = BaseKey<
     rpId: string | undefined
   }
 >
-
-export type Key = OneOf<P256Key | Secp256k1Key | WebCryptoKey | WebAuthnKey>
 
 /** Serialized (contract-compatible) format of a key. */
 export type Serialized = {
@@ -103,6 +118,8 @@ export function createP256<const role extends Key['role']>(
 
 export declare namespace createP256 {
   type Parameters<role extends Key['role']> = {
+    /** Call scopes. */
+    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: fromP256.Parameters['expiry']
     /** Role. */
@@ -144,6 +161,8 @@ export function createSecp256k1<const role extends Key['role']>(
 
 export declare namespace createSecp256k1 {
   type Parameters<role extends Key['role']> = {
+    /** Call scopes. */
+    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: fromSecp256k1.Parameters['expiry']
     /** Role. */
@@ -214,6 +233,8 @@ export async function createWebAuthnP256<const role extends Key['role']>(
 
 export declare namespace createWebAuthnP256 {
   type Parameters<role extends Key['role']> = {
+    /** Call scopes. */
+    callScopes?: CallScopes | undefined
     /**
      * Credential creation function. Useful for environments that do not support
      * the WebAuthn API natively (i.e. React Native or testing environments).
@@ -268,6 +289,8 @@ export async function createWebCryptoP256<const role extends Key['role']>(
 
 export declare namespace createWebCryptoP256 {
   type Parameters<role extends Key['role']> = {
+    /** Call scopes. */
+    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: fromP256.Parameters['expiry']
     /** Role. */
@@ -368,6 +391,7 @@ export function fromP256<const role extends Key['role']>(
     includePrefix: false,
   })
   return from({
+    callScopes: parameters.callScopes,
     expiry: parameters.expiry ?? 0,
     publicKey,
     role: parameters.role as Key['role'],
@@ -381,6 +405,8 @@ export function fromP256<const role extends Key['role']>(
 
 export declare namespace fromP256 {
   type Parameters<role extends Key['role'] = Key['role']> = {
+    /** Call scopes. */
+    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** P256 private key. */
@@ -428,6 +454,7 @@ export function fromSecp256k1<const role extends Key['role']>(
   })()
   const publicKey = AbiParameters.encode([{ type: 'address' }], [address])
   return from({
+    callScopes: parameters.callScopes,
     expiry: parameters.expiry ?? 0,
     publicKey,
     role,
@@ -439,6 +466,8 @@ export function fromSecp256k1<const role extends Key['role']>(
 
 export declare namespace fromSecp256k1 {
   type Parameters<role extends Key['role'] = Key['role']> = {
+    /** Call scopes. */
+    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** Role. */
@@ -494,6 +523,7 @@ export function fromWebAuthnP256<const role extends Key['role']>(
     includePrefix: false,
   })
   return from({
+    callScopes: parameters.callScopes,
     credential,
     expiry: parameters.expiry ?? 0,
     publicKey,
@@ -506,6 +536,8 @@ export function fromWebAuthnP256<const role extends Key['role']>(
 
 export declare namespace fromWebAuthnP256 {
   type Parameters<role extends Key['role'] = Key['role']> = {
+    /** Call scopes. */
+    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** WebAuthnP256 Credential. */
@@ -553,6 +585,7 @@ export function fromWebCryptoP256<const role extends Key['role']>(
     includePrefix: false,
   })
   return from({
+    callScopes: parameters.callScopes,
     expiry: parameters.expiry ?? 0,
     publicKey,
     role: parameters.role as Key['role'],
@@ -564,6 +597,8 @@ export function fromWebCryptoP256<const role extends Key['role']>(
 
 export declare namespace fromWebCryptoP256 {
   type Parameters<role extends Key['role']> = {
+    /** Call scopes. */
+    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** P256 private key. */

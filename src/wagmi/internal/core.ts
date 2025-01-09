@@ -110,7 +110,7 @@ export async function connect<config extends Config>(
 
 export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    authorizeKey?: boolean | AuthorizeKeyParameters['key'] | undefined
+    authorizeKey?: AuthorizeKeyParameters['key'] | undefined
     connector: Connector | CreateConnectorFn
     createAccount?: boolean | CreateAccountParameters | undefined
   }
@@ -397,7 +397,7 @@ export async function importAccount<config extends Config>(
 
 export declare namespace importAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    authorizeKey?: boolean | AuthorizeKeyParameters['key'] | undefined
+    authorizeKey?: AuthorizeKeyParameters['key'] | undefined
     account: PrivateKeyAccount
     connector: Connector | CreateConnectorFn
     label?: string | undefined

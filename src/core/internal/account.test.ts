@@ -28,6 +28,7 @@ describe('from', () => {
         "address": "0x0000000000000000000000000000000000000001",
         "keys": [
           {
+            "callScopes": undefined,
             "canSign": true,
             "expiry": 42069,
             "privateKey": [Function],

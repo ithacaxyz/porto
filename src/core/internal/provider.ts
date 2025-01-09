@@ -205,6 +205,7 @@ export function from<
           })
 
           return {
+            callScopes: key.callScopes,
             expiry: key.expiry,
             publicKey: key.publicKey,
             role: key.role,
@@ -250,11 +251,7 @@ export function from<
 
           const { authorizeKey } = capabilities ?? {}
 
-          const authorizeKeys = (() => {
-            if (authorizeKey === true) return true
-            if (authorizeKey) return [authorizeKey]
-            return undefined
-          })()
+          const authorizeKeys = authorizeKey ? [authorizeKey] : undefined
 
           const clients = getClients()
 
@@ -377,11 +374,7 @@ export function from<
 
           const { createAccount, authorizeKey } = capabilities ?? {}
 
-          const authorizeKeys = (() => {
-            if (authorizeKey === true) return true
-            if (authorizeKey) return [authorizeKey]
-            return undefined
-          })()
+          const authorizeKeys = authorizeKey ? [authorizeKey] : undefined
 
           const { accounts } = await (async () => {
             if (createAccount) {
@@ -595,6 +588,7 @@ function getActiveKeys(
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
       return {
+        callScopes: key.callScopes,
         expiry: key.expiry,
         publicKey: key.publicKey,
         role: key.role,

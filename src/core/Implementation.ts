@@ -1,7 +1,8 @@
 import type { RpcRequest } from 'ox'
+import * as AbiItem from 'ox/AbiItem'
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
@@ -40,7 +41,6 @@ export type Implementation = {
     createAccount: (parameters: {
       /** Extra keys to authorize. */
       authorizeKeys?:
-        | true
         | readonly RpcSchema.AuthorizeKeyParameters['key'][]
         | undefined
       /** Viem Clients. */
@@ -94,7 +94,6 @@ export type Implementation = {
       address?: Address.Address | undefined
       /** Extra keys to authorize. */
       authorizeKeys?:
-        | true
         | readonly RpcSchema.AuthorizeKeyParameters['key'][]
         | undefined
       /** Viem Clients. */
@@ -115,7 +114,6 @@ export type Implementation = {
       address: Address.Address
       /** Extra keys to authorize. */
       authorizeKeys?:
-        | true
         | readonly RpcSchema.AuthorizeKeyParameters['key'][]
         | undefined
       /** Viem Clients. */
@@ -206,10 +204,7 @@ export function local(parameters: local.Parameters = {}) {
         // TODO: wait for tx to be included?
         const hash = await Delegation.execute(clients.relay, {
           account,
-          calls: keys!.flatMap((key) => [
-            Call.setCanExecute({ key }),
-            Call.authorize({ key }),
-          ]),
+          calls: getAuthorizeCalls(keys!),
         })
 
         return { hash, key: keys![0]! }
@@ -251,6 +246,7 @@ export function local(parameters: local.Parameters = {}) {
         const { account, calls, clients } = parameters
 
         const key = (() => {
+          // If a key is provided, use it.
           if (parameters.key) {
             const key = account.keys?.find(
               (key) =>
@@ -262,15 +258,40 @@ export function local(parameters: local.Parameters = {}) {
               )
             return key
           }
-          const sessionKey = account.keys?.find(
-            (key) =>
-              key.canSign &&
-              key.role === 'session' &&
-              key.expiry > BigInt(Math.floor(Date.now() / 1000)),
-          )
+
+          // Otherwise, try and find a valid session key.
+          const sessionKey = account.keys?.find((key) => {
+            if (!key.canSign) return false
+            if (key.role !== 'session') return false
+            if (key.expiry < BigInt(Math.floor(Date.now() / 1000))) return false
+
+            const hasInvalidScope = key.callScopes?.some((scope) =>
+              calls.some((call) => {
+                if (scope.to && scope.to !== call.to) return true
+                if (scope.signature) {
+                  if (!call.data) return true
+                  const selector = Hex.slice(call.data, 0, 4)
+                  if (
+                    Hex.validate(scope.signature) &&
+                    scope.signature !== selector
+                  )
+                    return true
+                  if (AbiItem.getSelector(scope.signature) !== selector)
+                    return true
+                }
+                return false
+              }),
+            )
+            if (hasInvalidScope) return false
+
+            return true
+          })
+
+          // Fall back to an admin key.
           const adminKey = account.keys?.find(
             (key) => key.role === 'admin' && key.canSign,
           )
+
           return sessionKey ?? adminKey
         })()
 
@@ -357,10 +378,7 @@ export function local(parameters: local.Parameters = {}) {
         if (extraKeys)
           await Delegation.execute(clients.relay, {
             account,
-            calls: extraKeys.flatMap((key) => [
-              Call.setCanExecute({ key }),
-              Call.authorize({ key }),
-            ]),
+            calls: getAuthorizeCalls(extraKeys),
           })
 
         return {
@@ -467,10 +485,7 @@ export function mock() {
 
         const hash = await Delegation.execute(clients.relay, {
           account,
-          calls: account.keys.flatMap((key) => [
-            Call.setCanExecute({ key }),
-            Call.authorize({ key }),
-          ]),
+          calls: getAuthorizeCalls(account.keys),
           delegation,
         })
 
@@ -512,10 +527,7 @@ export function mock() {
 
 async function prepareImportAccount(parameters: {
   address: Address.Address
-  authorizeKeys:
-    | true
-    | readonly RpcSchema.AuthorizeKeyParameters['key'][]
-    | undefined
+  authorizeKeys: readonly RpcSchema.AuthorizeKeyParameters['key'][] | undefined
   clients: Clients
   defaultExpiry: number
   label?: string | undefined
@@ -551,10 +563,7 @@ async function prepareImportAccount(parameters: {
     clients.default,
     {
       account,
-      calls: account.keys.flatMap((key) => [
-        Call.setCanExecute({ key }),
-        Call.authorize({ key }),
-      ]),
+      calls: getAuthorizeCalls(account.keys),
       delegation,
     },
   )
@@ -562,11 +571,33 @@ async function prepareImportAccount(parameters: {
   return { context: request, signPayloads }
 }
 
+function getAuthorizeCalls(keys: readonly Key.Key[]) {
+  return keys.flatMap((key) => {
+    if (key.role === 'session' && (key.callScopes ?? []).length === 0)
+      throw new Error(
+        'session key must have at least one call scope (`callScope`).',
+      )
+    const scopes = key.callScopes
+      ? key.callScopes.map((scope) => {
+          const selector = (() => {
+            if (!scope.signature) return undefined
+            if (scope.signature.startsWith('0x'))
+              return scope.signature as Hex.Hex
+            return AbiItem.getSelector(scope.signature)
+          })()
+          return Call.setCanExecute({
+            key,
+            selector,
+            to: scope.to,
+          })
+        })
+      : [Call.setCanExecute({ key })]
+    return [...scopes, Call.authorize({ key })]
+  })
+}
+
 async function getKeysToAuthorize(parameters: {
-  authorizeKeys:
-    | true
-    | readonly RpcSchema.AuthorizeKeyParameters['key'][]
-    | undefined
+  authorizeKeys: readonly RpcSchema.AuthorizeKeyParameters['key'][] | undefined
   defaultExpiry: number
 }) {
   const { authorizeKeys, defaultExpiry } = parameters
@@ -574,26 +605,20 @@ async function getKeysToAuthorize(parameters: {
   // Don't need to authorize extra keys if none are provided.
   if (!authorizeKeys) return undefined
 
-  // If truthy, authorize an arbitrary session key.
-  if (authorizeKeys === true)
-    return [
-      await Key.createWebCryptoP256({
-        expiry: defaultExpiry,
-        role: 'session',
-      }),
-    ]
-
   // Otherwise, authorize the provided keys.
   return await Promise.all(
     authorizeKeys.map(async (key) => {
       const expiry = key?.expiry ?? defaultExpiry
+      const role = key?.role ?? 'session'
       if (key?.publicKey)
         return Key.from({
           ...key,
           canSign: false,
           expiry,
+          role,
         })
       return await Key.createWebCryptoP256({
+        callScopes: key?.callScopes,
         expiry,
         role: 'session',
       })

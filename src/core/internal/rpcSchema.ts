@@ -1,7 +1,7 @@
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
-
+import type * as Key from './key.js'
 import type { OneOf } from './types.js'
 
 export type Schema = RpcSchema.From<
@@ -15,7 +15,7 @@ export type Schema = RpcSchema.From<
   | {
       Request: {
         method: 'experimental_authorizeKey'
-        params?: [AuthorizeKeyParameters] | undefined
+        params: [AuthorizeKeyParameters]
       }
       ReturnType: AuthorizeKeyReturnType
     }
@@ -67,43 +67,33 @@ export type AuthorizeKeyParameters = {
   key?:
     | OneOf<
         | {
+            callScopes: Key.CallScopes
             expiry?: number | undefined
           }
         | {
-            // TODO: Hook up GuardedExecutor.sol
-            // executionGuards?:
-            //   | readonly {
-            //       selector?: Hex.Hex | undefined
-            //       target?: Address.Address | undefined
-            //     }[]
-            //   | undefined
+            callScopes: Key.CallScopes
             expiry?: number | undefined
             publicKey: Hex.Hex
-            role: 'admin' | 'session'
+            role?: 'session' | undefined
+            type: 'p256' | 'secp256k1' | 'webauthn-p256'
+          }
+        | {
+            callScopes?: Key.CallScopes | undefined
+            expiry?: number | undefined
+            publicKey: Hex.Hex
+            role: 'admin'
             type: 'p256' | 'secp256k1' | 'webauthn-p256'
           }
       >
     | undefined
 }
 
-export type AuthorizeKeyReturnType = {
-  // TODO: Hook up GuardedExecutor.sol
-  // executionGuards?:
-  //   | readonly {
-  //       selector?: Hex.Hex | undefined
-  //       target?: Address.Address | undefined
-  //     }[]
-  //   | undefined
-  expiry: number
-  publicKey: Hex.Hex
-  role: 'admin' | 'session'
-  type: 'p256' | 'secp256k1' | 'webauthn-p256'
-}
+export type AuthorizeKeyReturnType = GetKeysReturnType[number]
 
 export type ConnectParameters = {
   capabilities?:
     | {
-        authorizeKey?: boolean | AuthorizeKeyParameters['key'] | undefined
+        authorizeKey?: AuthorizeKeyParameters['key'] | undefined
         createAccount?: boolean | CreateAccountParameters | undefined
       }
     | undefined
@@ -129,7 +119,13 @@ export type GetKeysParameters = {
   address?: Address.Address | undefined
 }
 
-export type GetKeysReturnType = readonly AuthorizeKeyReturnType[]
+export type GetKeysReturnType = readonly {
+  callScopes?: Key.CallScopes | undefined
+  expiry: number
+  publicKey: Hex.Hex
+  role: 'admin' | 'session'
+  type: 'p256' | 'secp256k1' | 'webauthn-p256'
+}[]
 
 export type ImportAccountParameters = {
   context: unknown
@@ -149,7 +145,7 @@ export type PrepareImportAccountParameters = {
   address: Address.Address
   capabilities?:
     | {
-        authorizeKey?: boolean | AuthorizeKeyParameters['key'] | undefined
+        authorizeKey?: AuthorizeKeyParameters['key'] | undefined
       }
     | undefined
   label?: string | undefined

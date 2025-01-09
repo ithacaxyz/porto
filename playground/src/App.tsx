@@ -25,6 +25,13 @@ const client = createClient({
   transport: custom(porto.provider),
 })
 
+const callScopes = [
+  {
+    signature: 'mint(address,uint256)',
+    to: ExperimentERC20.address,
+  },
+] as const
+
 export function App() {
   return (
     <div>
@@ -120,7 +127,7 @@ function Connect() {
           checked={authorizeKey}
           onChange={() => setAuthorizeKey((x) => !x)}
         />
-        Authorize Key
+        Authorize a Session Key
       </label>
       <div>
         <button
@@ -128,7 +135,13 @@ function Connect() {
             porto.provider
               .request({
                 method: 'wallet_connect',
-                params: [{ capabilities: { authorizeKey } }],
+                params: [
+                  {
+                    capabilities: {
+                      authorizeKey: authorizeKey ? { callScopes } : undefined,
+                    },
+                  },
+                ],
               })
               .then(setResult)
           }
@@ -142,7 +155,12 @@ function Connect() {
               .request({
                 method: 'wallet_connect',
                 params: [
-                  { capabilities: { createAccount: true, authorizeKey } },
+                  {
+                    capabilities: {
+                      authorizeKey: authorizeKey ? { callScopes } : undefined,
+                      createAccount: true,
+                    },
+                  },
                 ],
               })
               .then(setResult)
@@ -269,6 +287,7 @@ function AuthorizeKey() {
               {
                 address: account,
                 key: {
+                  callScopes,
                   expiry: Math.floor(Date.now() / 1000) + expiry,
                 },
               },
@@ -283,7 +302,7 @@ function AuthorizeKey() {
           name="expiry"
           type="number"
         />
-        <button type="submit">Authorize Key</button>
+        <button type="submit">Authorize a Session Key</button>
       </form>
       {result && <pre>key: {JSON.stringify(result, null, 2)}</pre>}
     </div>
@@ -354,7 +373,7 @@ function ImportAccount() {
           checked={authorizeKey}
           onChange={() => setAuthorizeKey((x) => !x)}
         />
-        Authorize Key
+        Authorize a Session Key
       </label>
       <div>
         <button
@@ -364,7 +383,12 @@ function ImportAccount() {
             const { context, signPayloads } = await porto.provider.request({
               method: 'experimental_prepareImportAccount',
               params: [
-                { address: account.address, capabilities: { authorizeKey } },
+                {
+                  address: account.address,
+                  capabilities: {
+                    authorizeKey: authorizeKey ? { callScopes } : undefined,
+                  },
+                },
               ],
             })
 

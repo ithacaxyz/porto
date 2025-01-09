@@ -62,9 +62,8 @@ import { Porto } from 'porto'
 
 const porto = Porto.create()
 
-const account = await porto.provider.request({ 
-  method: 'wallet_connect',
-  params: [{ capabilities: { authorizeKey: true } }]
+const { accounts } = await porto.provider.request({ 
+  method: 'wallet_connect'
 })
 ```
 
@@ -112,8 +111,7 @@ function Connect() {
       <button
         onClick={() =>
           connect.mutate({ 
-            connector, 
-            authorizeKey: true,
+            connector,
           })
         }
       >
@@ -123,8 +121,7 @@ function Connect() {
         onClick={() =>
           connect.mutate({ 
             connector, 
-            createAccount: true, 
-            authorizeKey: true,
+            createAccount: true,
           }
         )}
       >
@@ -159,34 +156,40 @@ In addition to the above, Porto implements the following **experimental** JSON-R
 
 Authorizes a key that can perform actions on behalf of the account.
 
-If no `key` is provided, Porto will generate a new arbitrary "session" key to authorize on the account.
+If `key.role` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
 The following `role` values are supported:
 
 - `admin`: 
-  - CAN have an infinite expiry
-  - CAN execute transactions (e.g. `eth_sendTransaction`, `wallet_sendCalls`)
+  - CAN have an infinite expiry 
+  - CAN have call scopes (`callScopes`)
+  - CAN execute calls (e.g. `eth_sendTransaction`, `wallet_sendCalls`)
   - CAN sign arbitrary data (e.g. `personal_sign`, `eth_signTypedData_v4`)
-  <!-- TODO: - CAN have execution guards (`executionGuards`) -->
 - `session`: 
   - MUST have a limited expiry
-  - CAN only execute transactions
+  - MUST have call scopes (`callScopes`)
+  - CAN only execute calls
   - CANNOT sign arbitrary data
-  - <!-- TODO: - SHOULD have execution guards (`executionGuards`) -->
 
 > Minimal alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa3603c6181849f61d219f75e8a16d6624ac60/ERCS/erc-7715.md) specification. We hope to upstream concepts from this method and eventually use ERC-7715 or similar.
 
-#### Parameters
+#### Request
 
 ```ts
-{
+type Request = {
   method: 'experimental_authorizeKey',
   params: [{
     // Address of the account to authorize a key on.
     address?: `0x${string}`
-
     // Key to authorize on the account.
     key?: {
+      // Call scopes to authorize on the key.
+      callScopes?: {
+        // Function signature or 4-byte selector.
+        signature?: string
+        // Authorized target address.
+        to?: `0x${string}`
+      }[]
       // Expiry of the key.
       expiry?: number
       // Public key.
@@ -200,10 +203,14 @@ The following `role` values are supported:
 }
 ```
 
-#### Returns
+#### Response
 
 ```ts
-{
+type Response = {
+  callScopes?: {
+    signature?: string
+    to?: `0x${string}`
+  }[]
   expiry: number,
   publicKey: `0x${string}`,
   role: 'admin' | 'session',
@@ -211,19 +218,60 @@ The following `role` values are supported:
 }
 ```
 
+#### Example
+
+```ts
+// Generate and authorize a session key with two call scopes.
+const key = await porto.provider.request({
+  method: 'experimental_authorizeKey',
+  params: [{ 
+    key: { 
+      callScopes: [
+        { 
+          signature: 'mint()', 
+          to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' 
+        },
+        { 
+          signature: 'transfer(address,uint256)', 
+          to: '0xcafebabecafebabecafebabecafebabecafebabe' 
+        },
+      ] 
+    } 
+  }],
+})
+
+// Provide and authorize a P256 session key.
+const key = await porto.provider.request({
+  method: 'experimental_authorizeKey',
+  params: [{ 
+    key: { 
+      callScopes: [
+        { 
+          signature: 'mint()', 
+          to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' 
+        },
+      ],
+      publicKey: '0x...',
+      type: 'p256',
+    } 
+  }],
+})
+```
 
 ### `experimental_createAccount`
 
 Creates (and connects) a new account.
 
-#### Parameters
+#### Request
 
 ```ts
-{
+type Request = {
   method: 'experimental_createAccount',
   params: [{ 
-    // Label for the account. Used as the Passkey
-    // credential display name.
+    // Chain ID to create the account on.
+    chainId?: Hex.Hex
+    // Label for the account. 
+    // Used as the Passkey credential display name.
     label?: string 
   }]
 }
@@ -233,26 +281,38 @@ Creates (and connects) a new account.
 
 ```ts
 // Address of the created account.
-`0x${string}`
+type Response = `0x${string}`
+```
+
+#### Example
+
+```ts
+const address = await porto.provider.request({
+  method: 'experimental_createAccount',
+  params: [{ label: 'My Example Account' }],
+})
 ```
 
 ### `experimental_prepareImportAccount`
 
 Returns a set of hex payloads to sign over to import an external account, and prepares values needed to fill context for the `experimental_importAccount` JSON-RPC method.
 
-#### Parameters
+#### Request
 
 ```ts
-{
+type Request = {
   method: 'experimental_prepareImportAccount',
   params: [{ 
     // Address of the account to import.
     address?: `0x${string}`,
-
     // ERC-5792 capabilities to define extended behavior.
     capabilities: {
       // Whether to authorize a key with an optional expiry.
-      authorizeKey?: boolean | { 
+      authorizeKey?: { 
+        callScopes?: {
+          signature?: string
+          to?: `0x${string}`
+        }[]
         expiry?: number 
         publicKey?: `0x${string}`
         role?: 'admin' | 'session'
@@ -263,48 +323,72 @@ Returns a set of hex payloads to sign over to import an external account, and pr
 }
 ```
 
-#### Returns
+#### Response
 
 ```ts
-{
+type Response = {
   // Filled context for the `experimental_importAccount` JSON-RPC method.
   context: unknown
-
   // Hex payloads to sign over.
   signPayloads: `0x${string}`[]
 }
+```
+
+#### Example
+
+```ts
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+
+const eoa = privateKeyToAccount(generatePrivateKey())
+
+const { context, signPayloads } = await porto.provider.request({
+  method: 'experimental_prepareImportAccount',
+  params: [{ address: eoa.address }],
+})
+
+const signatures = signPayloads.map((payload) => eoa.sign(payload))
+
+const { address, capabilities } = await porto.provider.request({
+  method: 'experimental_importAccount',
+  params: [{ context, signatures }],
+})
 ```
 
 ### `experimental_importAccount`
 
 Imports an account.
 
-#### Parameters
+#### Request
 
 ```ts
-{
+type Request = {
   method: 'experimental_importAccount',
   params: [{ 
     // Context from the `experimental_prepareImportAccount` JSON-RPC method.
     context: unknown, 
-
     // Signatures over the payloads returned by `experimental_prepareImportAccount`.
     signatures: `0x${string}`[] 
   }]
 }
 ```
 
-#### Returns
+#### Response
 
 ```ts
-{
+type Response = {
   // The address of the account.
   address: `0x${string}`,
-
   // ERC-5792 capabilities to define extended behavior.
   capabilities: {
     // The keys authorized on the account.
     keys: {
+      // Calls to scope on the key.
+      callScopes?: {
+        // Function signature or 4-byte selector.
+        signature?: string
+        // Authorized target address.
+        to?: `0x${string}`
+      }[]
       // The expiry of the key.
       expiry: number,
       // Public key.
@@ -318,14 +402,34 @@ Imports an account.
 }
 ```
 
+#### Example
+
+```ts
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+
+const eoa = privateKeyToAccount(generatePrivateKey())
+
+const { context, signPayloads } = await porto.provider.request({
+  method: 'experimental_prepareImportAccount',
+  params: [{ address: eoa.address }],
+})
+
+const signatures = signPayloads.map((payload) => eoa.sign(payload))
+
+const { address, capabilities } = await porto.provider.request({
+  method: 'experimental_importAccount',
+  params: [{ context, signatures }],
+})
+```
+
 ### `experimental_keys`
 
 Lists active keys that can perform actions on behalf of the account.
 
-#### Parameters
+#### Request
 
 ```ts
-{
+type Request = {
   method: 'experimental_keys',
   params: [{
     // Address of the account to list keys on.
@@ -334,15 +438,27 @@ Lists active keys that can perform actions on behalf of the account.
 }
 ```
 
-#### Returns
+#### Response
 
 ```ts
-{ 
+type Response = { 
+  callScopes?: {
+    signature?: string
+    to?: `0x${string}`
+  }[]
   expiry: number, 
   publicKey: `0x${string}`, 
   role: 'admin' | 'session', 
   type: 'p256' | 'secp256k1' | 'webauthn-p256' 
 }[]
+```
+
+#### Example
+
+```ts
+const keys = await porto.provider.request({
+  method: 'experimental_keys',
+})
 ```
 
 ## Available ERC-5792 Capabilities
@@ -394,7 +510,7 @@ Porto supports account key management (ie. authorized keys & their scopes).
 
 Keys may be authorized via the [`experimental_authorizeKey`](#experimental_authorizeKey) JSON-RPC method.
 
-If `key.publicKey` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
+If `key.role` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
 Example:
 
@@ -404,6 +520,10 @@ Example:
   params: [{ 
     address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe', 
     key: {
+      callScopes: [{
+        signature: 'mint()',
+        to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe',
+      }],
       expiry: 1727078400,
     }
   }]
@@ -414,7 +534,7 @@ Example:
 
 Keys may be authorized upon connection with the `authorizeKey` capability on the [`wallet_connect`]([#wallet_connect](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)) JSON-RPC method.
 
-If `authorizeKey.publicKey` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
+If `authorizeKey.role` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
 Example:
 
@@ -424,7 +544,11 @@ Example:
   params: [{ 
     capabilities: { 
       authorizeKey: {
-        expiry: 1727078400
+        callScopes: [{
+          signature: 'mint()',
+          to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe',
+        }],
+        expiry: 1727078400,
       }
     } 
   }]
@@ -441,7 +565,11 @@ Example:
     address: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe',
     capabilities: {
       keys: [{ 
-        expiry: 1727078400, 
+        callScopes: [{
+          signature: 'mint()',
+          to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbe',
+        }],
+        expiry: 1727078400,
         publicKey: '0x...', 
         role: 'session', 
         type: 'p256' 
