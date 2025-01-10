@@ -42,6 +42,13 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'experimental_revokeKey'
+        params: [RevokeKeyParameters]
+      }
+      ReturnType: undefined
+    }
+  | {
+      Request: {
         method: 'wallet_connect'
         params?: [ConnectParameters] | undefined
       }
@@ -149,4 +156,9 @@ export type PrepareCreateAccountParameters = {
 export type PrepareCreateAccountReturnType = {
   context: unknown
   signPayloads: readonly Hex.Hex[]
+}
+
+export type RevokeKeyParameters = {
+  address?: Address.Address | undefined
+  publicKey: Hex.Hex
 }

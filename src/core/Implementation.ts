@@ -119,6 +119,19 @@ export type Implementation = {
       signPayloads: Hex.Hex[]
     }>
 
+    revokeKey: (parameters: {
+      /** Account to revoke the key for. */
+      account: Account.Account
+      /** Public key of the key to revoke. */
+      publicKey: Hex.Hex
+      /** Viem Clients. */
+      clients: Clients
+      /** Porto config. */
+      config: Config
+      /** RPC Request. */
+      request: Request
+    }) => Promise<void>
+
     signPersonalMessage: (parameters: {
       /** Account to sign the message with. */
       account: Account.Account
@@ -385,6 +398,26 @@ export function local(parameters: local.Parameters = {}) {
           defaultExpiry,
           keystoreHost,
           label,
+        })
+      },
+
+      async revokeKey(parameters) {
+        const { account, clients, publicKey } = parameters
+
+        const key = account.keys?.find((key) => key.publicKey === publicKey)
+        if (!key) return
+
+        if (
+          key.role === 'admin' &&
+          account.keys?.map((x) => x.role === 'admin').length === 1
+        )
+          throw new Error(
+            'cannot revoke key. account must have at least one admin key.',
+          )
+
+        await Delegation.execute(clients.relay, {
+          account,
+          calls: [Call.setCanExecute({ key, enabled: false })],
         })
       },
 

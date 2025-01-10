@@ -300,6 +300,56 @@ export function from<
           return getActiveKeys(account?.keys ?? [])
         }
 
+        case 'experimental_revokeKey': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, publicKey }] = params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'experimental_revokeKey'
+          >
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const clients = getClients()
+
+          await implementation.actions.revokeKey({
+            account,
+            clients,
+            config,
+            publicKey,
+            request,
+          })
+
+          const keys = account.keys?.filter(
+            (key) => key.publicKey !== publicKey,
+          )
+
+          store.setState((x) => ({
+            ...x,
+            accounts: x.accounts.map((x) =>
+              Address.isEqual(x.address, account.address)
+                ? {
+                    ...x,
+                    keys,
+                  }
+                : x,
+            ),
+          }))
+
+          emitter.emit('message', {
+            data: getActiveKeys(keys ?? []),
+            type: 'keysChanged',
+          })
+
+          return
+        }
+
         case 'porto_ping': {
           return 'pong' satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,

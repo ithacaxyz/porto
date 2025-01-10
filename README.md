@@ -38,6 +38,7 @@ Experimental Next-gen Account for Ethereum.
   - [`experimental_createAccount`](#experimental_createaccount)
   - [`experimental_prepareCreateAccount`](#experimental_prepareCreateAccount)
   - [`experimental_keys`](#experimental_keys)
+  - [`experimental_revokeKey`](#experimental_revokeKey)
 - [Available ERC-5792 Capabilities](#available-erc-5792-capabilities)
   - [`atomicBatch`](#atomicbatch)
   - [`createAccount`](#createaccount)
@@ -394,6 +395,33 @@ type Response = {
 ```ts
 const keys = await porto.provider.request({
   method: 'experimental_keys',
+})
+```
+
+### `experimental_revokeKey`
+
+Revokes a key.
+
+#### Request
+
+```ts
+type Request = {
+  method: 'experimental_revokeKey',
+  params: [{ 
+    // Address of the account to revoke a key on.
+    address?: `0x${string}`
+    // Public key of the key to revoke.
+    publicKey: `0x${string}` 
+  }]
+}
+```
+
+#### Example
+
+```ts
+await porto.provider.request({
+  method: 'experimental_revokeKey',
+  params: [{ publicKey: '0x...' }],
 })
 ```
 

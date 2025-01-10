@@ -309,6 +309,112 @@ describe('experimental_keys', () => {
   })
 })
 
+describe('experimental_revokeKey', () => {
+  test('default', async () => {
+    const porto = createPorto()
+
+    const messages: any[] = []
+    porto.provider.on('message', (message) => messages.push(message))
+
+    await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    const { publicKey } = await porto.provider.request({
+      method: 'experimental_authorizeKey',
+      params: [
+        {
+          key: {
+            callScopes: [{ signature: 'mint()' }],
+          },
+        },
+      ],
+    })
+    let accounts = porto._internal.store.getState().accounts
+    expect(accounts.length).toBe(1)
+    expect(accounts![0]!.keys?.length).toBe(2)
+    expect(
+      accounts![0]!.keys?.map((x) => ({ ...x, expiry: null, publicKey: null })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "callScopes": undefined,
+          "canSign": true,
+          "expiry": null,
+          "privateKey": [Function],
+          "publicKey": null,
+          "role": "admin",
+          "type": "p256",
+        },
+        {
+          "callScopes": [
+            {
+              "signature": "mint()",
+            },
+          ],
+          "canSign": true,
+          "expiry": null,
+          "privateKey": CryptoKey {},
+          "publicKey": null,
+          "role": "session",
+          "type": "p256",
+        },
+      ]
+    `)
+
+    expect(messages[0].type).toBe('keysChanged')
+    expect(messages[0].data.length).toBe(2)
+
+    await porto.provider.request({
+      method: 'experimental_revokeKey',
+      params: [{ publicKey }],
+    })
+
+    accounts = porto._internal.store.getState().accounts
+    expect(accounts![0]!.keys?.length).toBe(1)
+    expect(
+      accounts![0]!.keys?.map((x) => ({ ...x, expiry: null, publicKey: null })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "callScopes": undefined,
+          "canSign": true,
+          "expiry": null,
+          "privateKey": [Function],
+          "publicKey": null,
+          "role": "admin",
+          "type": "p256",
+        },
+      ]
+    `)
+
+    expect(messages[1].type).toBe('keysChanged')
+    expect(messages[1].data.length).toBe(1)
+  })
+
+  test('behavior: revoke last admin key', async () => {
+    const porto = createPorto()
+
+    const messages: any[] = []
+    porto.provider.on('message', (message) => messages.push(message))
+
+    await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+
+    const accounts = porto._internal.store.getState().accounts
+    const publicKey = accounts![0]!.keys![0]!.publicKey
+
+    await expect(() =>
+      porto.provider.request({
+        method: 'experimental_revokeKey',
+        params: [{ publicKey }],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[Error: cannot revoke key. account must have at least one admin key.]',
+    )
+  })
+})
+
 describe('personal_sign', () => {
   test('default', async () => {
     const porto = createPorto()
@@ -682,6 +788,80 @@ describe('wallet_sendCalls', () => {
         ],
       }),
     ).rejects.toThrowError('Unauthorized')
+  })
+
+  test('behavior: revoked key', async () => {
+    const porto = createPorto()
+    const client = Porto.getClients(porto).default.extend(() => ({
+      mode: 'anvil',
+    }))
+
+    const { address } = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    await setBalance(client, {
+      address,
+      value: Value.fromEther('10000'),
+    })
+
+    const alice = '0x0000000000000000000000000000000000069422'
+
+    const key = await porto.provider.request({
+      method: 'experimental_authorizeKey',
+      params: [
+        {
+          key: {
+            callScopes: [{ to: alice }],
+          },
+        },
+      ],
+    })
+    const hash = await porto.provider.request({
+      method: 'wallet_sendCalls',
+      params: [
+        {
+          capabilities: {
+            key,
+          },
+          from: address,
+          calls: [
+            {
+              to: alice,
+              value: Hex.fromNumber(69420),
+            },
+          ],
+          version: '1',
+        },
+      ],
+    })
+
+    expect(hash).toBeDefined()
+    expect(await getBalance(client, { address: alice })).toBe(69420n)
+
+    await porto.provider.request({
+      method: 'experimental_revokeKey',
+      params: [{ publicKey: key.publicKey }],
+    })
+    await expect(() =>
+      porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            capabilities: {
+              key,
+            },
+            from: address,
+            calls: [
+              {
+                to: alice,
+                value: Hex.fromNumber(69420),
+              },
+            ],
+            version: '1',
+          },
+        ],
+      }),
+    ).rejects.toThrowError()
   })
 
   test('behavior: not provider-managed key', async () => {
