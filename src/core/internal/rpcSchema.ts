@@ -24,21 +24,14 @@ export type Schema = RpcSchema.From<
         method: 'experimental_createAccount'
         params?: [CreateAccountParameters] | undefined
       }
-      ReturnType: Address.Address
+      ReturnType: CreateAccountReturnType
     }
   | {
       Request: {
-        method: 'experimental_importAccount'
-        params: [ImportAccountParameters]
+        method: 'experimental_prepareCreateAccount'
+        params: [PrepareCreateAccountParameters]
       }
-      ReturnType: ImportAccountReturnType
-    }
-  | {
-      Request: {
-        method: 'experimental_prepareImportAccount'
-        params: [PrepareImportAccountParameters]
-      }
-      ReturnType: PrepareImportAccountReturnType
+      ReturnType: PrepareCreateAccountReturnType
     }
   | {
       Request: {
@@ -112,7 +105,23 @@ export type ConnectReturnType = {
 
 export type CreateAccountParameters = {
   chainId?: Hex.Hex | undefined
-  label?: string | undefined
+} & OneOf<
+  | {
+      label?: string | undefined
+    }
+  | {
+      context: unknown
+      signatures: readonly Hex.Hex[]
+    }
+>
+
+export type CreateAccountReturnType = {
+  address: Address.Address
+  capabilities?:
+    | {
+        keys?: GetKeysReturnType | undefined
+      }
+    | undefined
 }
 
 export type GetKeysParameters = {
@@ -127,21 +136,7 @@ export type GetKeysReturnType = readonly {
   type: 'p256' | 'secp256k1' | 'webauthn-p256'
 }[]
 
-export type ImportAccountParameters = {
-  context: unknown
-  signatures: readonly Hex.Hex[]
-}
-
-export type ImportAccountReturnType = {
-  address: Address.Address
-  capabilities?:
-    | {
-        keys?: GetKeysReturnType | undefined
-      }
-    | undefined
-}
-
-export type PrepareImportAccountParameters = {
+export type PrepareCreateAccountParameters = {
   address: Address.Address
   capabilities?:
     | {
@@ -151,7 +146,7 @@ export type PrepareImportAccountParameters = {
   label?: string | undefined
 }
 
-export type PrepareImportAccountReturnType = {
+export type PrepareCreateAccountReturnType = {
   context: unknown
   signPayloads: readonly Hex.Hex[]
 }

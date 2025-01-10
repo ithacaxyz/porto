@@ -3,6 +3,6 @@ export {
   connect,
   createAccount,
   disconnect,
-  importAccount,
+  upgradeAccount,
   keys,
 } from './internal/core.js'

@@ -286,10 +286,10 @@ export declare namespace authorizeKey {
   type ErrorType = BaseErrorType
 }
 
-export async function importAccount<config extends Config>(
+export async function upgradeAccount<config extends Config>(
   config: config,
-  parameters: importAccount.Parameters<config>,
-): Promise<importAccount.ReturnType> {
+  parameters: upgradeAccount.Parameters<config>,
+): Promise<upgradeAccount.ReturnType> {
   // "Register" connector if not already created
   let connector: Connector
   if (typeof parameters.connector === 'function') {
@@ -322,22 +322,22 @@ export async function importAccount<config extends Config>(
 
     const { account, authorizeKey, label } = parameters
 
-    const experimental_prepareImportAccount =
-      'experimental_prepareImportAccount'
-    type experimental_prepareImportAccount =
-      typeof experimental_prepareImportAccount
+    const experimental_prepareCreateAccount =
+      'experimental_prepareCreateAccount'
+    type experimental_prepareCreateAccount =
+      typeof experimental_prepareCreateAccount
     const { context, signPayloads } = await provider.request<{
-      Method: experimental_prepareImportAccount
+      Method: experimental_prepareCreateAccount
       Parameters?: RpcSchema.ExtractParams<
         Schema,
-        experimental_prepareImportAccount
+        experimental_prepareCreateAccount
       >
       ReturnType: RpcSchema.ExtractReturnType<
         Schema,
-        experimental_prepareImportAccount
+        experimental_prepareCreateAccount
       >
     }>({
-      method: experimental_prepareImportAccount,
+      method: experimental_prepareCreateAccount,
       params: [
         { address: account.address, capabilities: { authorizeKey }, label },
       ],
@@ -347,17 +347,17 @@ export async function importAccount<config extends Config>(
       signPayloads.map((hash) => account.sign({ hash })),
     )
 
-    const experimental_importAccount = 'experimental_importAccount'
-    type experimental_importAccount = typeof experimental_importAccount
+    const experimental_createAccount = 'experimental_createAccount'
+    type experimental_createAccount = typeof experimental_createAccount
     await provider.request<{
-      Method: experimental_importAccount
-      Parameters?: RpcSchema.ExtractParams<Schema, experimental_importAccount>
+      Method: experimental_createAccount
+      Parameters?: RpcSchema.ExtractParams<Schema, experimental_createAccount>
       ReturnType: RpcSchema.ExtractReturnType<
         Schema,
-        experimental_importAccount
+        experimental_createAccount
       >
     }>({
-      method: experimental_importAccount,
+      method: experimental_createAccount,
       params: [{ context, signatures }],
     })
 
@@ -395,7 +395,7 @@ export async function importAccount<config extends Config>(
   }
 }
 
-export declare namespace importAccount {
+export declare namespace upgradeAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
     authorizeKey?: AuthorizeKeyParameters['key'] | undefined
     account: PrivateKeyAccount

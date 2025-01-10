@@ -37,7 +37,7 @@ export function App() {
       ) : (
         <>
           <Connect />
-          <ImportAccount />
+          <UpgradeAccount />
         </>
       )}
     </>
@@ -125,7 +125,7 @@ function Connect() {
   )
 }
 
-function ImportAccount() {
+function UpgradeAccount() {
   const [accountData, setAccountData] = useState<{
     address: string
     privateKey: string
@@ -134,11 +134,11 @@ function ImportAccount() {
   const [privateKey, setPrivateKey] = useState<string>('')
 
   const connectors = useConnectors()
-  const importAccount = Hooks.useImportAccount()
+  const upgradeAccount = Hooks.useUpgradeAccount()
 
   return (
     <div>
-      <h2>Import Account</h2>
+      <h2>Upgrade Account</h2>
       <p>
         <button
           onClick={() => {
@@ -151,7 +151,7 @@ function ImportAccount() {
           }}
           type="button"
         >
-          Create Account
+          Create EOA
         </button>
         {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
       </p>
@@ -180,7 +180,7 @@ function ImportAccount() {
           <button
             key={connector.uid}
             onClick={() =>
-              importAccount.mutate({
+              upgradeAccount.mutate({
                 account: privateKeyToAccount(privateKey as Hex),
                 connector,
                 authorizeKey: authorizeKey ? { callScopes } : undefined,
@@ -188,11 +188,11 @@ function ImportAccount() {
             }
             type="button"
           >
-            Import Account
+            Upgrade EOA to Porto Account
           </button>
         ))}
-      <div>{importAccount.status}</div>
-      <div>{importAccount.error?.message}</div>
+      <div>{upgradeAccount.status}</div>
+      <div>{upgradeAccount.error?.message}</div>
     </div>
   )
 }

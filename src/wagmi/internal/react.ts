@@ -27,8 +27,8 @@ import {
   connect,
   createAccount,
   disconnect,
-  importAccount,
   keys,
+  upgradeAccount,
 } from './core.js'
 import { keysQueryKey } from './query.js'
 import type { ConfigParameter } from './types.js'
@@ -199,33 +199,33 @@ export declare namespace useDisconnect {
   >
 }
 
-export function useImportAccount<
+export function useUpgradeAccount<
   config extends Config = ResolvedRegister['config'],
   context = unknown,
 >(
-  parameters: useImportAccount.Parameters<config, context> = {},
-): useImportAccount.ReturnType<config, context> {
+  parameters: useUpgradeAccount.Parameters<config, context> = {},
+): useUpgradeAccount.ReturnType<config, context> {
   const { mutation } = parameters
   const config = useConfig(parameters)
   return useMutation({
     ...mutation,
     async mutationFn(variables) {
-      return importAccount(config as Config, variables)
+      return upgradeAccount(config as Config, variables)
     },
-    mutationKey: ['importAccount'],
+    mutationKey: ['upgradeAccount'],
   })
 }
 
-export declare namespace useImportAccount {
+export declare namespace useUpgradeAccount {
   type Parameters<
     config extends Config = Config,
     context = unknown,
   > = ConfigParameter<config> & {
     mutation?:
       | UseMutationParameters<
-          importAccount.ReturnType,
-          importAccount.ErrorType,
-          importAccount.Parameters<config>,
+          upgradeAccount.ReturnType,
+          upgradeAccount.ErrorType,
+          upgradeAccount.Parameters<config>,
           context
         >
       | undefined
@@ -235,9 +235,9 @@ export declare namespace useImportAccount {
     config extends Config = Config,
     context = unknown,
   > = UseMutationResult<
-    importAccount.ReturnType,
-    importAccount.ErrorType,
-    importAccount.Parameters<config>,
+    upgradeAccount.ReturnType,
+    upgradeAccount.ErrorType,
+    upgradeAccount.Parameters<config>,
     context
   >
 }

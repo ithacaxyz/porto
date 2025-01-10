@@ -3,6 +3,6 @@ export {
   useConnect,
   useCreateAccount,
   useDisconnect,
-  useImportAccount,
+  useUpgradeAccount,
   useKeys,
 } from './internal/react.js'

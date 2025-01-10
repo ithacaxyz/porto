@@ -64,11 +64,11 @@ describe('eth_sendTransaction', () => {
       mode: 'anvil',
     }))
 
-    const account = await porto.provider.request({
+    const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
     await setBalance(client, {
-      address: account,
+      address,
       value: Value.fromEther('10000'),
     })
 
@@ -78,7 +78,7 @@ describe('eth_sendTransaction', () => {
       method: 'eth_sendTransaction',
       params: [
         {
-          from: account,
+          from: address,
           to: alice,
           value: Hex.fromNumber(69420),
         },
@@ -94,18 +94,18 @@ describe('eth_signTypedData_v4', () => {
   test('default', async () => {
     const porto = createPorto()
     const client = Porto.getClients(porto).default
-    const account = await porto.provider.request({
+    const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
     const signature = await porto.provider.request({
       method: 'eth_signTypedData_v4',
-      params: [account, TypedData.serialize(typedData)],
+      params: [address, TypedData.serialize(typedData)],
     })
     expect(signature).toBeDefined()
 
     const valid = await verifyTypedData(client, {
       ...typedData,
-      address: account,
+      address,
       signature,
     })
     expect(valid).toBe(true)
@@ -313,17 +313,17 @@ describe('personal_sign', () => {
   test('default', async () => {
     const porto = createPorto()
     const client = Porto.getClients(porto).default
-    const account = await porto.provider.request({
+    const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
     const signature = await porto.provider.request({
       method: 'personal_sign',
-      params: [Hex.fromString('hello'), account],
+      params: [Hex.fromString('hello'), address],
     })
     expect(signature).toBeDefined()
 
     const valid = await verifyMessage(client, {
-      address: account,
+      address,
       message: 'hello',
       signature,
     })
@@ -557,11 +557,11 @@ describe('wallet_sendCalls', () => {
       mode: 'anvil',
     }))
 
-    const account = await porto.provider.request({
+    const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
     await setBalance(client, {
-      address: account,
+      address,
       value: Value.fromEther('10000'),
     })
 
@@ -571,7 +571,7 @@ describe('wallet_sendCalls', () => {
       method: 'wallet_sendCalls',
       params: [
         {
-          from: account,
+          from: address,
           calls: [
             {
               to: alice,
@@ -593,11 +593,11 @@ describe('wallet_sendCalls', () => {
       mode: 'anvil',
     }))
 
-    const account = await porto.provider.request({
+    const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
     await setBalance(client, {
-      address: account,
+      address,
       value: Value.fromEther('10000'),
     })
 
@@ -620,7 +620,7 @@ describe('wallet_sendCalls', () => {
           capabilities: {
             key,
           },
-          from: account,
+          from: address,
           calls: [
             {
               to: alice,
@@ -642,11 +642,11 @@ describe('wallet_sendCalls', () => {
       mode: 'anvil',
     }))
 
-    const account = await porto.provider.request({
+    const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
     await setBalance(client, {
-      address: account,
+      address,
       value: Value.fromEther('10000'),
     })
 
@@ -670,7 +670,7 @@ describe('wallet_sendCalls', () => {
             capabilities: {
               key,
             },
-            from: account,
+            from: address,
             calls: [
               {
                 to: alice,
@@ -690,11 +690,11 @@ describe('wallet_sendCalls', () => {
       mode: 'anvil',
     }))
 
-    const account = await porto.provider.request({
+    const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
     await setBalance(client, {
-      address: account,
+      address,
       value: Value.fromEther('10000'),
     })
 
@@ -722,7 +722,7 @@ describe('wallet_sendCalls', () => {
             capabilities: {
               key,
             },
-            from: account,
+            from: address,
             calls: [
               {
                 to: alice,
@@ -744,11 +744,11 @@ describe('wallet_sendCalls', () => {
       mode: 'anvil',
     }))
 
-    const account = await porto.provider.request({
+    const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
     await setBalance(client, {
-      address: account,
+      address,
       value: Value.fromEther('10000'),
     })
 
@@ -765,7 +765,7 @@ describe('wallet_sendCalls', () => {
                   '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
               },
             },
-            from: account,
+            from: address,
             calls: [
               {
                 to: alice,

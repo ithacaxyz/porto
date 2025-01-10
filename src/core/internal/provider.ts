@@ -217,18 +217,21 @@ export function from<
         }
 
         case 'experimental_createAccount': {
-          const [{ chainId, label }] = (params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'experimental_createAccount'
-          >) ?? [{}]
+          const [{ chainId, label, context, signatures }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_createAccount'
+            >) ?? [{}]
 
           const clients = getClients(chainId)
 
           const { account } = await implementation.actions.createAccount({
             clients,
             config,
+            context,
             label,
             request,
+            signatures,
           })
 
           store.setState((x) => ({ ...x, accounts: [account] }))
@@ -236,17 +239,22 @@ export function from<
           emitter.emit('connect', {
             chainId: Hex.fromNumber(clients.default.chain.id),
           })
-          return account.address satisfies RpcSchema.ExtractReturnType<
+          return {
+            address: account.address,
+            capabilities: {
+              keys: account.keys ? getActiveKeys(account.keys) : [],
+            },
+          } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'experimental_createAccount'
           >
         }
 
-        case 'experimental_prepareImportAccount': {
+        case 'experimental_prepareCreateAccount': {
           const [{ address, capabilities, label }] =
             (params as RpcSchema.ExtractParams<
               Schema.Schema,
-              'experimental_prepareImportAccount'
+              'experimental_prepareCreateAccount'
             >) ?? [{}]
 
           const { authorizeKey } = capabilities ?? {}
@@ -256,7 +264,7 @@ export function from<
           const clients = getClients()
 
           const { context, signPayloads } =
-            await implementation.actions.prepareImportAccount({
+            await implementation.actions.prepareCreateAccount({
               address,
               authorizeKeys,
               clients,
@@ -270,42 +278,7 @@ export function from<
             signPayloads,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
-            'experimental_prepareImportAccount'
-          >
-        }
-
-        case 'experimental_importAccount': {
-          const [{ context, signatures }] = (params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'experimental_importAccount'
-          >) ?? [{}]
-
-          const clients = getClients()
-
-          const { account } = await implementation.actions.importAccount({
-            clients,
-            config,
-            context,
-            request,
-            signatures,
-          })
-
-          const keys = getActiveKeys(account.keys!)
-
-          store.setState((x) => ({ ...x, accounts: [account] }))
-
-          emitter.emit('connect', {
-            chainId: Hex.fromNumber(clients.default.chain.id),
-          })
-
-          return {
-            address: account.address,
-            capabilities: {
-              keys,
-            },
-          } satisfies RpcSchema.ExtractReturnType<
-            Schema.Schema,
-            'experimental_importAccount'
+            'experimental_prepareCreateAccount'
           >
         }
 

@@ -36,8 +36,7 @@ Experimental Next-gen Account for Ethereum.
 - [JSON-RPC Reference](#json-rpc-reference)
   - [`experimental_authorizeKey`](#experimental_authorizeKey)
   - [`experimental_createAccount`](#experimental_createaccount)
-  - [`experimental_prepareImportAccount`](#experimental_prepareImportAccount)
-  - [`experimental_importAccount`](#experimental_importAccount)
+  - [`experimental_prepareCreateAccount`](#experimental_prepareCreateAccount)
   - [`experimental_keys`](#experimental_keys)
 - [Available ERC-5792 Capabilities](#available-erc-5792-capabilities)
   - [`atomicBatch`](#atomicbatch)
@@ -287,21 +286,22 @@ type Response = `0x${string}`
 #### Example
 
 ```ts
+// Creates an account and associates its WebAuthn credential with a label.
 const address = await porto.provider.request({
   method: 'experimental_createAccount',
   params: [{ label: 'My Example Account' }],
 })
 ```
 
-### `experimental_prepareImportAccount`
+### `experimental_prepareCreateAccount`
 
-Returns a set of hex payloads to sign over to import an external account, and prepares values needed to fill context for the `experimental_importAccount` JSON-RPC method.
+Returns a set of hex payloads to sign over to upgrade an existing EOA to a Porto Account. Additionally, it will prepare values needed to fill context for the `experimental_createAccount` JSON-RPC method.
 
 #### Request
 
 ```ts
 type Request = {
-  method: 'experimental_prepareImportAccount',
+  method: 'experimental_prepareCreateAccount',
   params: [{ 
     // Address of the account to import.
     address?: `0x${string}`,
@@ -327,7 +327,7 @@ type Request = {
 
 ```ts
 type Response = {
-  // Filled context for the `experimental_importAccount` JSON-RPC method.
+  // Filled context for the `experimental_createAccount` JSON-RPC method.
   context: unknown
   // Hex payloads to sign over.
   signPayloads: `0x${string}`[]
@@ -339,85 +339,21 @@ type Response = {
 ```ts
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 
+// Create a random EOA.
 const eoa = privateKeyToAccount(generatePrivateKey())
 
+// Extract the payloads to sign over to upgrade the EOA to a Porto Account.
 const { context, signPayloads } = await porto.provider.request({
-  method: 'experimental_prepareImportAccount',
+  method: 'experimental_prepareCreateAccount',
   params: [{ address: eoa.address }],
 })
 
+// Sign over the payloads.
 const signatures = signPayloads.map((payload) => eoa.sign(payload))
 
+// Upgrade the EOA to a Porto Account.
 const { address, capabilities } = await porto.provider.request({
-  method: 'experimental_importAccount',
-  params: [{ context, signatures }],
-})
-```
-
-### `experimental_importAccount`
-
-Imports an account.
-
-#### Request
-
-```ts
-type Request = {
-  method: 'experimental_importAccount',
-  params: [{ 
-    // Context from the `experimental_prepareImportAccount` JSON-RPC method.
-    context: unknown, 
-    // Signatures over the payloads returned by `experimental_prepareImportAccount`.
-    signatures: `0x${string}`[] 
-  }]
-}
-```
-
-#### Response
-
-```ts
-type Response = {
-  // The address of the account.
-  address: `0x${string}`,
-  // ERC-5792 capabilities to define extended behavior.
-  capabilities: {
-    // The keys authorized on the account.
-    keys: {
-      // Calls to scope on the key.
-      callScopes?: {
-        // Function signature or 4-byte selector.
-        signature?: string
-        // Authorized target address.
-        to?: `0x${string}`
-      }[]
-      // The expiry of the key.
-      expiry: number,
-      // Public key.
-      publicKey: `0x${string}`,
-      // Role of key.
-      role: 'admin' | 'session',
-      // Type of key.
-      type: 'p256' | 'secp256k1' | 'webauthn-p256',
-    }[],
-  }
-}
-```
-
-#### Example
-
-```ts
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-
-const eoa = privateKeyToAccount(generatePrivateKey())
-
-const { context, signPayloads } = await porto.provider.request({
-  method: 'experimental_prepareImportAccount',
-  params: [{ address: eoa.address }],
-})
-
-const signatures = signPayloads.map((payload) => eoa.sign(payload))
-
-const { address, capabilities } = await porto.provider.request({
-  method: 'experimental_importAccount',
+  method: 'experimental_createAccount',
   params: [{ context, signatures }],
 })
 ```
@@ -594,7 +530,7 @@ Import via named export or `A` namespace (better autocomplete DX and does not im
 - `connect`
 - `createAccount`
 - `disconnect`
-- `importAccount`
+- `upgradeAccount`
 - `keys`
 
 ```ts
@@ -610,7 +546,7 @@ Import via named export or `W` namespace (better autocomplete DX and does not im
 - `useConnect`
 - `useCreateAccount`
 - `useDisconnect`
-- `useImportAccount`
+- `useUpgradeAccount`
 - `useKeys`
 
 ```ts

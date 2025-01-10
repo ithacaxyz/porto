@@ -9,17 +9,17 @@ import {
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
-// import * as Anvil from './anvil'
+import * as Anvil from './anvil'
 import { ExperimentERC20 } from './contracts'
 
-export const porto = Porto.create()
-// export const porto = Porto.create({
-//   chains: [Anvil.chain(), ...Porto.defaultConfig.chains],
-//   transports: {
-//     ...Porto.defaultConfig.transports,
-//     [Anvil.chain().id]: Anvil.transport(),
-//   },
-// })
+// export const porto = Porto.create()
+export const porto = Porto.create({
+  chains: [Anvil.chain(), ...Porto.defaultConfig.chains],
+  transports: {
+    ...Porto.defaultConfig.transports,
+    [Anvil.chain().id]: Anvil.transport(),
+  },
+})
 
 const client = createClient({
   transport: custom(porto.provider),
@@ -39,8 +39,8 @@ export function App() {
       <Events />
       <Connect />
       <Register />
-      <ImportAccount />
       <Login />
+      <UpgradeAccount />
       <Disconnect />
       <Accounts />
       <GetCapabilities />
@@ -194,7 +194,7 @@ function Accounts() {
 }
 
 function Register() {
-  const [result, setResult] = useState<string | null>(null)
+  const [result, setResult] = useState<unknown | null>(null)
   return (
     <div>
       <h3>experimental_createAccount</h3>
@@ -208,7 +208,7 @@ function Register() {
       >
         Register
       </button>
-      <pre>{result}</pre>
+      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
@@ -330,7 +330,7 @@ function GetKeys() {
   )
 }
 
-function ImportAccount() {
+function UpgradeAccount() {
   const [accountData, setAccountData] = useState<{
     address: string
     privateKey: string
@@ -341,7 +341,7 @@ function ImportAccount() {
 
   return (
     <div>
-      <h3>experimental_importAccount</h3>
+      <h3>experimental_prepareCreateAccount</h3>
       <p>
         <button
           onClick={() => {
@@ -354,7 +354,7 @@ function ImportAccount() {
           }}
           type="button"
         >
-          Create Account
+          Create EOA
         </button>
         {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
       </p>
@@ -381,7 +381,7 @@ function ImportAccount() {
             const account = privateKeyToAccount(privateKey as Hex.Hex)
 
             const { context, signPayloads } = await porto.provider.request({
-              method: 'experimental_prepareImportAccount',
+              method: 'experimental_prepareCreateAccount',
               params: [
                 {
                   address: account.address,
@@ -397,19 +397,19 @@ function ImportAccount() {
             )
 
             const address = await porto.provider.request({
-              method: 'experimental_importAccount',
+              method: 'experimental_createAccount',
               params: [{ context, signatures }],
             })
             setResult(address)
           }}
           type="button"
         >
-          Import Account
+          Upgrade EOA to Porto Account
         </button>
       </div>
       {result ? (
         <p>
-          Imported account. <pre>{JSON.stringify(result, null, 2)}</pre>
+          Upgraded account. <pre>{JSON.stringify(result, null, 2)}</pre>
         </p>
       ) : null}
     </div>

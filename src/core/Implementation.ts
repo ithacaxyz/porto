@@ -45,12 +45,16 @@ export type Implementation = {
         | undefined
       /** Viem Clients. */
       clients: Clients
+      /** Preparation context (from `prepareCreateAccount`). */
+      context?: unknown | undefined
       /** Porto config. */
       config: Config
       /** Label to associate with the WebAuthn credential. */
       label?: string | undefined
       /** RPC Request. */
       request: Request
+      /** Preparation signatures (from `prepareCreateAccount`). */
+      signatures?: readonly Hex.Hex[] | undefined
     }) => Promise<{
       /** Account. */
       account: Account.Account
@@ -73,22 +77,6 @@ export type Implementation = {
       request: Request
     }) => Promise<Hex.Hex>
 
-    importAccount: (parameters: {
-      /** Viem Clients. */
-      clients: Clients
-      /** Porto config. */
-      config: Config
-      /** Import context. */
-      context: unknown
-      /** RPC Request. */
-      request: Request
-      /** Import signatures. */
-      signatures: readonly Hex.Hex[]
-    }) => Promise<{
-      /** Imported account. */
-      account: Account.Account
-    }>
-
     loadAccounts: (parameters: {
       /** Address of the account to load. */
       address?: Address.Address | undefined
@@ -109,7 +97,7 @@ export type Implementation = {
       accounts: readonly Account.Account[]
     }>
 
-    prepareImportAccount: (parameters: {
+    prepareCreateAccount: (parameters: {
       /** Address of the account to import. */
       address: Address.Address
       /** Extra keys to authorize. */
@@ -125,7 +113,7 @@ export type Implementation = {
       /** RPC Request. */
       request: Request
     }) => Promise<{
-      /** Filled context for the `importAccount` implementation. */
+      /** Filled context for the `createAccount` implementation. */
       context: unknown
       /** Hex payloads to sign over. */
       signPayloads: Hex.Hex[]
@@ -213,28 +201,40 @@ export function local(parameters: local.Parameters = {}) {
       async createAccount(parameters) {
         const { authorizeKeys, clients, label } = parameters
 
-        const privateKey = Secp256k1.randomPrivateKey()
-        const address = Address.fromPublicKey(
-          Secp256k1.getPublicKey({ privateKey }),
-        )
+        const { account, context, signatures } = await (async () => {
+          if (parameters.context && parameters.signatures)
+            return {
+              account: (parameters.context as any).account,
+              context: parameters.context,
+              signatures: parameters.signatures,
+            }
 
-        const { context, signPayloads } = await prepareImportAccount({
-          address,
-          authorizeKeys,
-          clients,
-          defaultExpiry,
-          keystoreHost,
-          label,
-        })
+          const privateKey = Secp256k1.randomPrivateKey()
+          const address = Address.fromPublicKey(
+            Secp256k1.getPublicKey({ privateKey }),
+          )
 
-        const account = Account.fromPrivateKey(privateKey, {
-          keys: context.account.keys,
-        })
-        const signatures = await Account.sign(account, {
-          payloads: signPayloads,
-        })
+          const { context, signPayloads } = await prepareCreateAccount({
+            address,
+            authorizeKeys,
+            clients,
+            defaultExpiry,
+            keystoreHost,
+            label,
+          })
+
+          const account = Account.fromPrivateKey(privateKey, {
+            keys: context.account.keys,
+          })
+          const signatures = await Account.sign(account, {
+            payloads: signPayloads,
+          })
+
+          return { account, context, signatures }
+        })()
+
         const hash = await Delegation.execute(clients.relay, {
-          ...context,
+          ...(context as any),
           account,
           signatures,
         })
@@ -302,17 +302,6 @@ export function local(parameters: local.Parameters = {}) {
         })
 
         return hash
-      },
-
-      async importAccount(parameters) {
-        const { clients, context, signatures } = parameters
-
-        await Delegation.execute(clients.relay, {
-          ...(context as any),
-          signatures,
-        })
-
-        return { account: (context as any).account }
       },
 
       async loadAccounts(parameters) {
@@ -386,10 +375,10 @@ export function local(parameters: local.Parameters = {}) {
         }
       },
 
-      async prepareImportAccount(parameters) {
+      async prepareCreateAccount(parameters) {
         const { address, authorizeKeys, clients, label } = parameters
 
-        return await prepareImportAccount({
+        return await prepareCreateAccount({
           address,
           authorizeKeys,
           clients,
@@ -525,7 +514,7 @@ export function mock() {
 // Internal
 ///////////////////////////////////////////////////////////////////////////
 
-async function prepareImportAccount(parameters: {
+async function prepareCreateAccount(parameters: {
   address: Address.Address
   authorizeKeys: readonly RpcSchema.AuthorizeKeyParameters['key'][] | undefined
   clients: Clients
