@@ -25,9 +25,47 @@ import type {
   AuthorizeKeyReturnType,
   CreateAccountParameters,
   GetKeysReturnType,
+  RevokeKeyParameters,
   Schema,
 } from '../../core/internal/rpcSchema.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
+
+export async function authorizeKey<config extends Config>(
+  config: config,
+  parameters: authorizeKey.Parameters<config>,
+): Promise<authorizeKey.ReturnType> {
+  const { address, chainId, connector, key } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: address,
+    chainId,
+    connector,
+  })
+
+  const method = 'experimental_authorizeKey'
+  type method = typeof method
+  return client.request<{
+    Method: method
+    Parameters?: RpcSchema.ExtractParams<Schema, method>
+    ReturnType: RpcSchema.ExtractReturnType<Schema, method>
+  }>({
+    method,
+    params: [{ address, key }],
+  })
+}
+
+export declare namespace authorizeKey {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter & {
+      address?: Address | undefined
+      key?: AuthorizeKeyParameters['key'] | undefined
+    }
+
+  type ReturnType = AuthorizeKeyReturnType
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseErrorType
+}
 
 export async function connect<config extends Config>(
   config: config,
@@ -249,11 +287,11 @@ export declare namespace disconnect {
   type ErrorType = BaseErrorType
 }
 
-export async function authorizeKey<config extends Config>(
+export async function keys<config extends Config>(
   config: config,
-  parameters: authorizeKey.Parameters<config>,
-): Promise<authorizeKey.ReturnType> {
-  const { address, chainId, connector, key } = parameters
+  parameters: keys.Parameters<config>,
+): Promise<keys.ReturnType> {
+  const { address, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
     account: address,
@@ -261,7 +299,7 @@ export async function authorizeKey<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_authorizeKey'
+  const method = 'experimental_keys'
   type method = typeof method
   return client.request<{
     Method: method
@@ -269,18 +307,52 @@ export async function authorizeKey<config extends Config>(
     ReturnType: RpcSchema.ExtractReturnType<Schema, method>
   }>({
     method,
-    params: [{ address, key }],
+    params: [{ address }],
   })
 }
 
-export declare namespace authorizeKey {
+export declare namespace keys {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter & {
       address?: Address | undefined
-      key?: AuthorizeKeyParameters['key'] | undefined
     }
 
-  type ReturnType = AuthorizeKeyReturnType
+  type ReturnType = GetKeysReturnType
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseErrorType
+}
+
+export async function revokeKey<config extends Config>(
+  config: config,
+  parameters: revokeKey.Parameters<config>,
+) {
+  const { address, chainId, connector, publicKey } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: address,
+    chainId,
+    connector,
+  })
+
+  const method = 'experimental_revokeKey'
+  type method = typeof method
+  return client.request<{
+    Method: method
+    Parameters?: RpcSchema.ExtractParams<Schema, method>
+    ReturnType: RpcSchema.ExtractReturnType<Schema, method>
+  }>({
+    method,
+    params: [{ address, publicKey }],
+  })
+}
+
+export declare namespace revokeKey {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter & {
+      address?: Address | undefined
+      publicKey: RevokeKeyParameters['publicKey']
+    }
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseErrorType
@@ -404,42 +476,6 @@ export declare namespace upgradeAccount {
   }
 
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
-
-  // TODO: Exhaustive ErrorType
-  type ErrorType = BaseErrorType
-}
-
-export async function keys<config extends Config>(
-  config: config,
-  parameters: keys.Parameters<config>,
-): Promise<keys.ReturnType> {
-  const { address, chainId, connector } = parameters
-
-  const client = await getConnectorClient(config, {
-    account: address,
-    chainId,
-    connector,
-  })
-
-  const method = 'experimental_keys'
-  type method = typeof method
-  return client.request<{
-    Method: method
-    Parameters?: RpcSchema.ExtractParams<Schema, method>
-    ReturnType: RpcSchema.ExtractReturnType<Schema, method>
-  }>({
-    method,
-    params: [{ address }],
-  })
-}
-
-export declare namespace keys {
-  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    ConnectorParameter & {
-      address?: Address | undefined
-    }
-
-  type ReturnType = GetKeysReturnType
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseErrorType

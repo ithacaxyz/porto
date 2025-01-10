@@ -558,8 +558,9 @@ Import via named export or `A` namespace (better autocomplete DX and does not im
 - `connect`
 - `createAccount`
 - `disconnect`
-- `upgradeAccount`
 - `keys`
+- `revokeKey`
+- `upgradeAccount`
 
 ```ts
 import { Actions } from 'porto/wagmi' // Actions.connect()
@@ -574,8 +575,9 @@ Import via named export or `W` namespace (better autocomplete DX and does not im
 - `useConnect`
 - `useCreateAccount`
 - `useDisconnect`
-- `useUpgradeAccount`
 - `useKeys`
+- `useRevokeKey`
+- `useUpgradeAccount`
 
 ```ts
 import { Hooks } from 'porto/wagmi' // Hooks.useConnect()

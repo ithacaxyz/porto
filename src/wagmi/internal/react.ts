@@ -28,6 +28,7 @@ import {
   createAccount,
   disconnect,
   keys,
+  revokeKey,
   upgradeAccount,
 } from './core.js'
 import { keysQueryKey } from './query.js'
@@ -199,49 +200,6 @@ export declare namespace useDisconnect {
   >
 }
 
-export function useUpgradeAccount<
-  config extends Config = ResolvedRegister['config'],
-  context = unknown,
->(
-  parameters: useUpgradeAccount.Parameters<config, context> = {},
-): useUpgradeAccount.ReturnType<config, context> {
-  const { mutation } = parameters
-  const config = useConfig(parameters)
-  return useMutation({
-    ...mutation,
-    async mutationFn(variables) {
-      return upgradeAccount(config as Config, variables)
-    },
-    mutationKey: ['upgradeAccount'],
-  })
-}
-
-export declare namespace useUpgradeAccount {
-  type Parameters<
-    config extends Config = Config,
-    context = unknown,
-  > = ConfigParameter<config> & {
-    mutation?:
-      | UseMutationParameters<
-          upgradeAccount.ReturnType,
-          upgradeAccount.ErrorType,
-          upgradeAccount.Parameters<config>,
-          context
-        >
-      | undefined
-  }
-
-  type ReturnType<
-    config extends Config = Config,
-    context = unknown,
-  > = UseMutationResult<
-    upgradeAccount.ReturnType,
-    upgradeAccount.ErrorType,
-    upgradeAccount.Parameters<config>,
-    context
-  >
-}
-
 export function useKeys<
   config extends Config = ResolvedRegister['config'],
   selectData = keys.ReturnType,
@@ -329,5 +287,91 @@ export declare namespace useKeys {
   type ReturnType<selectData = keys.ReturnType> = UseQueryReturnType<
     selectData,
     keys.ErrorType
+  >
+}
+
+export function useRevokeKey<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useRevokeKey.Parameters<config, context> = {},
+): useRevokeKey.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return revokeKey(config, variables)
+    },
+    mutationKey: ['revokeKey'],
+  })
+}
+
+export declare namespace useRevokeKey {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          undefined,
+          revokeKey.ErrorType,
+          revokeKey.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    undefined,
+    revokeKey.ErrorType,
+    revokeKey.Parameters<config>,
+    context
+  >
+}
+
+export function useUpgradeAccount<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useUpgradeAccount.Parameters<config, context> = {},
+): useUpgradeAccount.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return upgradeAccount(config as Config, variables)
+    },
+    mutationKey: ['upgradeAccount'],
+  })
+}
+
+export declare namespace useUpgradeAccount {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          upgradeAccount.ReturnType,
+          upgradeAccount.ErrorType,
+          upgradeAccount.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    upgradeAccount.ReturnType,
+    upgradeAccount.ErrorType,
+    upgradeAccount.Parameters<config>,
+    context
   >
 }
