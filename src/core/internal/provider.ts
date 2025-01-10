@@ -1,19 +1,14 @@
 import * as Mipd from 'mipd'
 import type { RpcSchema } from 'ox'
 import * as Address from 'ox/Address'
-import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
-import * as Json from 'ox/Json'
-import * as PersonalMessage from 'ox/PersonalMessage'
 import * as ox_Provider from 'ox/Provider'
-import * as PublicKey from 'ox/PublicKey'
 import * as RpcResponse from 'ox/RpcResponse'
-import * as Signature from 'ox/Signature'
-import * as TypedData from 'ox/TypedData'
 
 import type * as Chains from '../Chains.js'
-import type { Config, Store } from '../Porto.js'
-import * as AccountDelegation from './accountDelegation.js'
+import * as Porto from '../Porto.js'
+import type * as Call from './call.js'
+import type * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
 export type Provider = ox_Provider.Provider<{
@@ -36,12 +31,19 @@ export function from<
   ],
 >(parameters: from.Parameters<chains>): Provider {
   const { config, store } = parameters
-  const { announceProvider, headless, keystoreHost } = config
+  const { announceProvider, implementation } = config
+
+  function getClients(chainId_?: Hex.Hex | number | undefined) {
+    const chainId =
+      typeof chainId_ === 'string' ? Hex.toNumber(chainId_) : chainId_
+    return Porto.getClients({ _internal: parameters }, { chainId })
+  }
 
   const emitter = ox_Provider.createEmitter()
   const provider = ox_Provider.from({
     ...emitter,
-    async request({ method, params }) {
+    async request(request) {
+      const { method, params } = request
       const state = store.getState()
 
       switch (method) {
@@ -55,28 +57,34 @@ export function from<
 
         case 'eth_chainId': {
           return Hex.fromNumber(
-            state.chainId,
+            state.chain.id,
           ) satisfies RpcSchema.ExtractReturnType<Schema.Schema, 'eth_chainId'>
         }
 
         case 'eth_requestAccounts': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
+          const clients = getClients()
 
-          const { account } = await AccountDelegation.load(state.client, {
-            rpId: keystoreHost,
+          const { accounts } = await implementation.actions.loadAccounts({
+            clients,
+            config,
+            request,
           })
 
-          store.setState((x) => ({ ...x, accounts: [account] }))
+          store.setState((x) => ({ ...x, accounts }))
 
-          emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
-          return [account.address] satisfies RpcSchema.ExtractReturnType<
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(clients.default.chain.id),
+          })
+
+          return accounts.map(
+            (account) => account.address,
+          ) satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'eth_requestAccounts'
           >
         }
 
         case 'eth_sendTransaction': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -86,7 +94,9 @@ export function from<
               'eth_sendTransaction'
             >
 
-          if (chainId && Hex.toNumber(chainId) !== state.chainId)
+          const clients = getClients(chainId)
+
+          if (chainId && Hex.toNumber(chainId) !== clients.default.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
           requireParameter(to, 'to')
@@ -97,9 +107,7 @@ export function from<
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const keyIndex = getActiveSessionKeyIndex({ account })
-
-          return (await AccountDelegation.execute(state.client, {
+          const hash = await implementation.actions.execute({
             account,
             calls: [
               {
@@ -108,16 +116,18 @@ export function from<
                 value: Hex.toBigInt(value),
               },
             ],
-            keyIndex,
-            rpId: keystoreHost,
-          })) satisfies RpcSchema.ExtractReturnType<
+            clients,
+            config,
+            request,
+          })
+
+          return hash satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'eth_sendTransaction'
           >
         }
 
         case 'eth_signTypedData_v4': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -131,13 +141,14 @@ export function from<
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const keyIndex = getActiveSessionKeyIndex({ account })
+          const clients = getClients()
 
-          const signature = await AccountDelegation.sign({
+          const signature = await implementation.actions.signTypedData({
             account,
-            keyIndex,
-            payload: TypedData.getSignPayload(Json.parse(data)),
-            rpId: keystoreHost,
+            clients,
+            config,
+            data,
+            request,
           })
 
           return signature satisfies RpcSchema.ExtractReturnType<
@@ -146,102 +157,15 @@ export function from<
           >
         }
 
-        case 'experimental_connect': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
-
-          const [{ capabilities }] = (params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'experimental_connect'
-          >) ?? [{}]
-          const { createAccount, grantSession } = capabilities ?? {}
-
-          const { expiry = Math.floor(Date.now() / 1000) + 60 * 60 } =
-            typeof grantSession === 'object' ? grantSession : {}
-          const key = grantSession
-            ? await AccountDelegation.createWebCryptoKey({
-                expiry: BigInt(expiry),
-              })
-            : undefined
-
-          const { account } = await (async () => {
-            if (createAccount) {
-              const { label } =
-                typeof createAccount === 'object' ? createAccount : {}
-              return await AccountDelegation.create(state.client, {
-                authorizeKeys: key ? [key] : undefined,
-                delegation: state.delegation,
-                label,
-                rpId: keystoreHost,
-              })
-            }
-            return await AccountDelegation.load(state.client, {
-              authorizeKeys: key ? [key] : undefined,
-              rpId: keystoreHost,
-            })
-          })()
-
-          const sessions = getActiveSessionKeys(account.keys)
-
-          store.setState((x) => ({ ...x, accounts: [account] }))
-
-          emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
-
-          return [
-            {
-              address: account.address,
-              capabilities: {
-                sessions,
-              },
-            },
-          ] satisfies RpcSchema.ExtractReturnType<
-            Schema.Schema,
-            'experimental_connect'
-          >
-        }
-
-        case 'experimental_createAccount': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
-
-          const [{ label }] = (params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'experimental_createAccount'
-          >) ?? [{}]
-
-          // TODO: wait for tx to be included/make counterfactual?
-          const { account } = await AccountDelegation.create(state.client, {
-            delegation: state.delegation,
-            label,
-            rpId: keystoreHost,
-          })
-
-          store.setState((x) => ({ ...x, accounts: [account] }))
-
-          emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
-          return account.address satisfies RpcSchema.ExtractReturnType<
-            Schema.Schema,
-            'experimental_createAccount'
-          >
-        }
-
-        case 'experimental_disconnect': {
-          store.setState((x) => ({ ...x, accounts: [] }))
-          return
-        }
-
-        case 'experimental_grantSession': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
+        case 'experimental_authorizeKey': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [
-            {
-              address,
-              expiry = Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
-            },
-          ] = (params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'experimental_grantSession'
-          >) ?? [{}]
+          const [{ address, key: keyToAuthorize }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_authorizeKey'
+            >) ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -250,15 +174,14 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const key = await AccountDelegation.createWebCryptoKey({
-            expiry: BigInt(expiry),
-          })
+          const clients = getClients()
 
-          // TODO: wait for tx to be included?
-          await AccountDelegation.authorize(state.client, {
+          const { key } = await implementation.actions.authorizeKey({
             account,
-            keys: [key],
-            rpId: keystoreHost,
+            clients,
+            key: keyToAuthorize,
+            config,
+            request,
           })
 
           store.setState((x) => {
@@ -270,118 +193,102 @@ export function from<
               ...x,
               accounts: x.accounts.map((account, i) =>
                 i === index
-                  ? { ...account, keys: [...account.keys, key] }
+                  ? { ...account, keys: [...(account.keys ?? []), key] }
                   : account,
               ),
             }
           })
 
           emitter.emit('message', {
-            data: getActiveSessionKeys([...account.keys, key]),
-            type: 'sessionsChanged',
+            data: getActiveKeys([...(account.keys ?? []), key]),
+            type: 'keysChanged',
           })
 
           return {
-            expiry,
-            id: PublicKey.toHex(key.publicKey),
+            callScopes: key.callScopes,
+            expiry: key.expiry,
+            publicKey: key.publicKey,
+            role: key.role,
+            type: key.type,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
-            'experimental_grantSession'
+            'experimental_authorizeKey'
           >
         }
 
-        case 'experimental_prepareImportAccount': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
-
-          const [{ address, capabilities, label }] =
+        case 'experimental_createAccount': {
+          const [{ chainId, label, context, signatures }] =
             (params as RpcSchema.ExtractParams<
               Schema.Schema,
-              'experimental_prepareImportAccount'
+              'experimental_createAccount'
             >) ?? [{}]
 
-          const { expiry = Math.floor(Date.now() / 1000) + 60 * 60 } =
-            typeof capabilities?.grantSession === 'object'
-              ? capabilities.grantSession
-              : {}
-          const key = capabilities?.grantSession
-            ? await AccountDelegation.createWebCryptoKey({
-                expiry: BigInt(expiry),
-              })
-            : undefined
+          const clients = getClients(chainId)
 
-          const { account, authorization, signPayload } =
-            await AccountDelegation.prepareInitialize(state.client, {
-              address,
-              authorizeKeys: key ? [key] : undefined,
-              delegation: state.delegation,
-              label,
-              rpId: keystoreHost,
-            })
-
-          const authorizationPayload = Authorization.getSignPayload({
-            address: authorization.contractAddress,
-            chainId: authorization.chainId,
-            nonce: BigInt(authorization.nonce),
+          const { account } = await implementation.actions.createAccount({
+            clients,
+            config,
+            context,
+            label,
+            request,
+            signatures,
           })
-
-          return {
-            context: {
-              account,
-              authorization,
-            },
-            signPayloads: [authorizationPayload, signPayload],
-          } satisfies RpcSchema.ExtractReturnType<
-            Schema.Schema,
-            'experimental_prepareImportAccount'
-          >
-        }
-
-        case 'experimental_importAccount': {
-          const [{ context, signatures }] = (params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'experimental_importAccount'
-          >) ?? [{}]
-
-          const { authorization } = context
-
-          const authorizationSignature = Signature.from(signatures[0]!)
-          const initializeSignature = Signature.from(signatures[1]!)
-
-          const { account } = await AccountDelegation.initialize(state.client, {
-            ...context,
-            authorization: {
-              ...authorization,
-              r: Hex.fromNumber(authorizationSignature.r),
-              s: Hex.fromNumber(authorizationSignature.s),
-              yParity: authorizationSignature.yParity,
-            },
-            signature: Signature.from(initializeSignature),
-          })
-
-          const sessions = getActiveSessionKeys(account.keys)
 
           store.setState((x) => ({ ...x, accounts: [account] }))
 
-          emitter.emit('connect', { chainId: Hex.fromNumber(state.chainId) })
-
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(clients.default.chain.id),
+          })
           return {
             address: account.address,
             capabilities: {
-              sessions,
+              keys: account.keys ? getActiveKeys(account.keys) : [],
             },
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
-            'experimental_importAccount'
+            'experimental_createAccount'
           >
         }
 
-        case 'experimental_sessions': {
+        case 'experimental_prepareCreateAccount': {
+          const [{ address, capabilities, label }] =
+            (params as RpcSchema.ExtractParams<
+              Schema.Schema,
+              'experimental_prepareCreateAccount'
+            >) ?? [{}]
+
+          const { authorizeKey } = capabilities ?? {}
+
+          const authorizeKeys = authorizeKey ? [authorizeKey] : undefined
+
+          const clients = getClients()
+
+          const { context, signPayloads } =
+            await implementation.actions.prepareCreateAccount({
+              address,
+              authorizeKeys,
+              clients,
+              config,
+              label,
+              request,
+            })
+
+          return {
+            context,
+            signPayloads,
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_prepareCreateAccount'
+          >
+        }
+
+        case 'experimental_keys': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
           const [{ address }] = (params as RpcSchema.ExtractParams<
             Schema.Schema,
-            'experimental_sessions'
+            'experimental_keys'
           >) ?? [{}]
 
           const account = address
@@ -390,7 +297,57 @@ export function from<
               )
             : state.accounts[0]
 
-          return getActiveSessionKeys(account?.keys ?? [])
+          return getActiveKeys(account?.keys ?? [])
+        }
+
+        case 'experimental_revokeKey': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, publicKey }] = params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'experimental_revokeKey'
+          >
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const clients = getClients()
+
+          await implementation.actions.revokeKey({
+            account,
+            clients,
+            config,
+            publicKey,
+            request,
+          })
+
+          const keys = account.keys?.filter(
+            (key) => key.publicKey !== publicKey,
+          )
+
+          store.setState((x) => ({
+            ...x,
+            accounts: x.accounts.map((x) =>
+              Address.isEqual(x.address, account.address)
+                ? {
+                    ...x,
+                    keys,
+                  }
+                : x,
+            ),
+          }))
+
+          emitter.emit('message', {
+            data: getActiveKeys(keys ?? []),
+            type: 'keysChanged',
+          })
+
+          return
         }
 
         case 'porto_ping': {
@@ -401,7 +358,6 @@ export function from<
         }
 
         case 'personal_sign': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -415,19 +371,78 @@ export function from<
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const keyIndex = getActiveSessionKeyIndex({ account })
+          const clients = getClients()
 
-          const signature = await AccountDelegation.sign({
+          const signature = await implementation.actions.signPersonalMessage({
             account,
-            keyIndex,
-            payload: PersonalMessage.getSignPayload(data),
-            rpId: keystoreHost,
+            clients,
+            config,
+            data,
+            request,
           })
 
           return signature satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'personal_sign'
           >
+        }
+
+        case 'wallet_connect': {
+          const [{ capabilities }] = (params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'wallet_connect'
+          >) ?? [{}]
+
+          const clients = getClients()
+
+          const { createAccount, authorizeKey } = capabilities ?? {}
+
+          const authorizeKeys = authorizeKey ? [authorizeKey] : undefined
+
+          const { accounts } = await (async () => {
+            if (createAccount) {
+              const { label = undefined } =
+                typeof createAccount === 'object' ? createAccount : {}
+              const { account } = await implementation.actions.createAccount({
+                authorizeKeys,
+                clients,
+                config,
+                label,
+                request,
+              })
+              return { accounts: [account] }
+            }
+            return await implementation.actions.loadAccounts({
+              authorizeKeys,
+              clients,
+              config,
+              request,
+            })
+          })()
+
+          store.setState((x) => ({ ...x, accounts }))
+
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(clients.default.chain.id),
+          })
+
+          return {
+            accounts: accounts.map((account) => ({
+              address: account.address,
+              capabilities: {
+                keys: account.keys ? getActiveKeys(account.keys) : [],
+              },
+            })),
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'wallet_connect'
+          >
+        }
+
+        case 'wallet_disconnect': {
+          store.setState((x) => ({ ...x, accounts: [] }))
+          emitter.emit('disconnect', new ox_Provider.DisconnectedError())
+          return
         }
 
         case 'wallet_getCallsStatus': {
@@ -437,7 +452,9 @@ export function from<
               'wallet_getCallsStatus'
             >) ?? []
 
-          const receipt = await state.client.request({
+          const clients = getClients()
+
+          const receipt = await clients.default.request({
             method: 'eth_getTransactionReceipt',
             params: [id! as Hex.Hex],
           })
@@ -453,33 +470,41 @@ export function from<
         }
 
         case 'wallet_getCapabilities': {
-          return {
-            [Hex.fromNumber(state.chainId)]: {
-              atomicBatch: {
-                supported: true,
-              },
-              createAccount: {
-                supported: true,
-              },
-              sessions: {
-                supported: true,
-              },
+          const value = {
+            atomicBatch: {
+              supported: true,
             },
-          } satisfies RpcSchema.ExtractReturnType<
+            createAccount: {
+              supported: true,
+            },
+            keys: {
+              supported: true,
+            },
+          }
+
+          const capabilities = {} as Record<Hex.Hex, typeof value>
+          for (const chain of config.chains)
+            capabilities[Hex.fromNumber(chain.id)] = value
+
+          return capabilities satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_getCapabilities'
           >
         }
 
         case 'wallet_sendCalls': {
-          if (!headless) throw new ox_Provider.UnsupportedMethodError()
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ chainId, calls, from, capabilities }] =
-            params as RpcSchema.ExtractParams<Schema.Schema, 'wallet_sendCalls'>
+          const [parameters] = params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'wallet_sendCalls'
+          >
+          const { capabilities, chainId, from } = parameters
 
-          if (chainId && Hex.toNumber(chainId) !== state.chainId)
+          const clients = getClients(chainId)
+
+          if (chainId && Hex.toNumber(chainId) !== clients.default.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
           requireParameter(from, 'from')
@@ -489,20 +514,21 @@ export function from<
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const { enabled = true, id } = capabilities?.session ?? {}
+          const calls = parameters.calls.map((x) => {
+            requireParameter(x, 'to')
+            return x
+          }) as Call.Call[]
 
-          const keyIndex = enabled
-            ? getActiveSessionKeyIndex({ account, id })
-            : undefined
-          if (typeof keyIndex !== 'number')
-            throw new ox_Provider.UnauthorizedError()
-
-          return (await AccountDelegation.execute(state.client, {
+          const hash = await implementation.actions.execute({
             account,
-            calls: calls as AccountDelegation.Calls,
-            keyIndex,
-            rpId: keystoreHost,
-          })) satisfies RpcSchema.ExtractReturnType<
+            calls,
+            clients,
+            config,
+            key: capabilities?.key,
+            request,
+          })
+
+          return hash satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_sendCalls'
           >
@@ -511,7 +537,7 @@ export function from<
         default: {
           if (method.startsWith('wallet_'))
             throw new ox_Provider.UnsupportedMethodError()
-          return state.client.request({ method, params } as any)
+          return getClients().default.request({ method, params } as any)
         }
       }
     },
@@ -559,8 +585,8 @@ export declare namespace from {
       ...Chains.Chain[],
     ],
   > = {
-    config: Config<chains>
-    store: Store
+    config: Porto.Config<chains>
+    store: Porto.Store
   }
 }
 
@@ -577,30 +603,20 @@ export function announce(provider: Provider) {
   })
 }
 
-function getActiveSessionKeyIndex(parameters: {
-  account: AccountDelegation.Account
-  id?: Hex.Hex | undefined
-}) {
-  const { account, id } = parameters
-  if (id)
-    return account.keys.findIndex(
-      (key) => PublicKey.toHex(key.publicKey) === id,
-    )
-  const index = account.keys.findIndex(AccountDelegation.isActiveSessionKey)
-  if (index === -1) return 0
-  return index
-}
-
-function getActiveSessionKeys(
-  keys: readonly AccountDelegation.Key[],
-): Schema.GrantSessionReturnType[] {
+function getActiveKeys(
+  keys: readonly Key.Key[],
+): Schema.AuthorizeKeyReturnType[] {
   return keys
     .map((key) => {
-      if (!AccountDelegation.isActiveSessionKey(key)) return undefined
+      if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
+        return undefined
       return {
-        expiry: Number(key.expiry),
-        id: PublicKey.toHex(key.publicKey),
-      }
+        callScopes: key.callScopes,
+        expiry: key.expiry,
+        publicKey: key.publicKey,
+        role: key.role,
+        type: key.type,
+      } satisfies Schema.AuthorizeKeyReturnType
     })
     .filter(Boolean) as never
 }

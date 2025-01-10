@@ -14,7 +14,14 @@ import {
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
-import { ExperimentERC20 } from './contracts'
+import { ExperimentERC20 } from './contracts.js'
+
+const callScopes = [
+  {
+    signature: 'mint(address,uint256)',
+    to: ExperimentERC20.address,
+  },
+] as const
 
 export function App() {
   const { isConnected } = useAccount()
@@ -24,13 +31,13 @@ export function App() {
       {isConnected ? (
         <>
           <Balance />
-          <GrantSession />
+          <AuthorizeKey />
           <Mint />
         </>
       ) : (
         <>
           <Connect />
-          <ImportAccount />
+          <UpgradeAccount />
         </>
       )}
     </>
@@ -39,7 +46,7 @@ export function App() {
 
 function Account() {
   const account = useAccount()
-  const { data: sessions } = Hooks.useSessions()
+  const { data: keys } = Hooks.useKeys()
   const disconnect = Hooks.useDisconnect()
 
   return (
@@ -53,7 +60,7 @@ function Account() {
         <br />
         status: {account.status}
         <br />
-        sessions: {JSON.stringify(sessions)}
+        keys: {JSON.stringify(keys)}
       </div>
 
       {account.status !== 'disconnected' && (
@@ -66,7 +73,7 @@ function Account() {
 }
 
 function Connect() {
-  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
 
   const connectors = useConnectors()
   const connect = Hooks.useConnect()
@@ -77,10 +84,10 @@ function Connect() {
       <label>
         <input
           type="checkbox"
-          checked={grantSession}
-          onChange={() => setGrantSession((x) => !x)}
+          checked={authorizeKey}
+          onChange={() => setAuthorizeKey((x) => !x)}
         />
-        Grant Session
+        Authorize Key
       </label>
       {connectors
         .filter((x) => x.id === 'xyz.ithaca.porto')
@@ -88,14 +95,23 @@ function Connect() {
           <div key={connector.uid}>
             <button
               key={connector.uid}
-              onClick={() => connect.mutate({ connector, grantSession })}
+              onClick={() =>
+                connect.mutate({
+                  connector,
+                  authorizeKey: authorizeKey ? { callScopes } : undefined,
+                })
+              }
               type="button"
             >
               Login
             </button>
             <button
               onClick={() =>
-                connect.mutate({ connector, createAccount: true, grantSession })
+                connect.mutate({
+                  connector,
+                  createAccount: true,
+                  authorizeKey: authorizeKey ? { callScopes } : undefined,
+                })
               }
               type="button"
             >
@@ -109,20 +125,20 @@ function Connect() {
   )
 }
 
-function ImportAccount() {
+function UpgradeAccount() {
   const [accountData, setAccountData] = useState<{
     address: string
     privateKey: string
   } | null>(null)
-  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
   const [privateKey, setPrivateKey] = useState<string>('')
 
   const connectors = useConnectors()
-  const importAccount = Hooks.useImportAccount()
+  const upgradeAccount = Hooks.useUpgradeAccount()
 
   return (
     <div>
-      <h2>Import Account</h2>
+      <h2>Upgrade Account</h2>
       <p>
         <button
           onClick={() => {
@@ -135,7 +151,7 @@ function ImportAccount() {
           }}
           type="button"
         >
-          Create Account
+          Create EOA
         </button>
         {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
       </p>
@@ -152,10 +168,10 @@ function ImportAccount() {
         <label>
           <input
             type="checkbox"
-            checked={grantSession}
-            onChange={() => setGrantSession((x) => !x)}
+            checked={authorizeKey}
+            onChange={() => setAuthorizeKey((x) => !x)}
           />
-          Grant Session
+          Authorize Key
         </label>
       </div>
       {connectors
@@ -164,19 +180,19 @@ function ImportAccount() {
           <button
             key={connector.uid}
             onClick={() =>
-              importAccount.mutate({
+              upgradeAccount.mutate({
                 account: privateKeyToAccount(privateKey as Hex),
                 connector,
-                grantSession,
+                authorizeKey: authorizeKey ? { callScopes } : undefined,
               })
             }
             type="button"
           >
-            Import Account
+            Upgrade EOA to Porto Account
           </button>
         ))}
-      <div>{importAccount.status}</div>
-      <div>{importAccount.error?.message}</div>
+      <div>{upgradeAccount.status}</div>
+      <div>{upgradeAccount.error?.message}</div>
     </div>
   )
 }
@@ -201,21 +217,21 @@ function Balance() {
   )
 }
 
-function GrantSession() {
-  const sessions = Hooks.useSessions()
-  const grantSession = Hooks.useGrantSession()
+function AuthorizeKey() {
+  const keys = Hooks.useKeys()
+  const authorizeKey = Hooks.useAuthorizeKey()
 
-  if (sessions.data?.length !== 0) return null
+  if (keys.data?.length !== 0) return null
   return (
     <div>
-      <h2>Grant Session</h2>
-      <button onClick={() => grantSession.mutate({})} type="button">
-        Grant Session
+      <h2>Authorize Key</h2>
+      <button onClick={() => authorizeKey.mutate({})} type="button">
+        Authorize Key
       </button>
-      {grantSession.data && <div>Session granted.</div>}
-      {grantSession.error && (
+      {authorizeKey.data && <div>Key authorized.</div>}
+      {authorizeKey.error && (
         <div>
-          Error: {grantSession.error.shortMessage || grantSession.error.message}
+          Error: {authorizeKey.error.shortMessage || authorizeKey.error.message}
         </div>
       )}
     </div>

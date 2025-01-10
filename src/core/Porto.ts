@@ -1,23 +1,113 @@
-import type * as Address from 'ox/Address'
-import { http, type Client, type Transport, createClient } from 'viem'
+import {
+  http,
+  type Client,
+  createClient,
+  fallback,
+  type Transport as viem_Transport,
+} from 'viem'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { type Mutate, type StoreApi, createStore } from 'zustand/vanilla'
 
 import * as Chains from './Chains.js'
-import type * as AccountDelegation from './internal/accountDelegation.js'
+import * as Implementation from './Implementation.js'
+import * as Storage from './Storage.js'
+import type * as Account from './internal/account.js'
 import * as Provider from './internal/provider.js'
-import * as Storage from './internal/storage.js'
-import * as WebAuthn from './internal/webauthn.js'
+import type { ExactPartial } from './internal/types.js'
 
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.odysseyTestnet],
-  headless: true,
-  keystoreHost: 'self',
+  implementation: Implementation.local(),
+  storage: Storage.idb(),
   transports: {
-    [Chains.odysseyTestnet.id]: http(),
+    [Chains.odysseyTestnet.id]: {
+      default: http(),
+      // relay: http('https://t9uhvbea8n.eu-central-1.awsapprunner.com'),
+    },
   },
 } as const satisfies Config
+
+export type Clients<chain extends Chains.Chain = Chains.Chain> = {
+  default: Client<viem_Transport, chain>
+  relay: Client<viem_Transport, chain>
+}
+
+export type Porto<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = {
+  destroy: () => void
+  provider: Provider.Provider
+  /**
+   * Not part of versioned API, proceed with caution.
+   * @deprecated
+   */
+  _internal: {
+    config: Config<chains>
+    store: Store<chains>
+  }
+}
+
+export type Config<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = {
+  /**
+   * Whether to announce the provider via EIP-6963.
+   * @default true
+   */
+  announceProvider: boolean
+  /**
+   * List of supported chains.
+   */
+  chains: chains | readonly [Chains.Chain, ...Chains.Chain[]]
+  /**
+   * Implementation to use.
+   * @default Implementation.local()
+   */
+  implementation: Implementation.Implementation
+  /**
+   * Storage to use.
+   * @default Storage.idb()
+   */
+  storage: Storage.Storage
+  /**
+   * Transport to use for each chain.
+   */
+  transports: Record<
+    chains[number]['id'],
+    Transport | { default: Transport; relay?: Transport | undefined }
+  >
+}
+
+export type State<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = {
+  accounts: readonly Account.Account[]
+  chain: chains[number]
+}
+
+export type Store<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = Mutate<
+  StoreApi<State<chains>>,
+  [['zustand/subscribeWithSelector', never], ['zustand/persist', any]]
+>
+
+export type Transport =
+  | viem_Transport
+  | { default: viem_Transport; relay?: viem_Transport | undefined }
 
 /**
  * Instantiates an Porto instance.
@@ -36,82 +126,60 @@ export function create<
     Chains.Chain,
     ...Chains.Chain[],
   ] = typeof defaultConfig.chains,
->(config?: Config<chains>): Porto<chains>
-export function create(config: Config | undefined = {}): Porto {
+>(parameters?: ExactPartial<Config> | undefined): Porto<chains>
+export function create(
+  parameters: ExactPartial<Config> | undefined = {},
+): Porto {
   const {
     announceProvider = defaultConfig.announceProvider,
     chains = defaultConfig.chains,
-    headless = defaultConfig.headless,
-    keystoreHost: keystoreHost_ = defaultConfig.keystoreHost,
+    implementation = defaultConfig.implementation,
+    storage = defaultConfig.storage,
     transports = defaultConfig.transports,
-  } = config
-
-  const keystoreHost = (() => {
-    if (keystoreHost_ === 'self') return undefined
-    if (
-      typeof window !== 'undefined' &&
-      window.location.hostname === 'localhost'
-    )
-      return undefined
-    return keystoreHost_
-  })()
-
-  if (headless && keystoreHost) WebAuthn.touchWellknown({ rpId: keystoreHost })
+  } = parameters
 
   const store = createStore(
     subscribeWithSelector(
       persist<State>(
-        (_, get) => ({
+        (_) => ({
           accounts: [],
           chain: chains[0],
-
-          // computed
-          get chainId() {
-            const { chain } = get()
-            return chain.id
-          },
-          get client() {
-            const { chain } = get()
-            return createClient({
-              chain,
-              transport: (transports as Record<number, Transport>)[chain.id]!,
-            })
-          },
-          get delegation() {
-            const { chain } = get()
-            return chain.contracts.accountDelegation.address
-          },
         }),
         {
           name: 'porto.store',
-          merge,
           partialize(state) {
             return {
               accounts: state.accounts.map((account) => ({
                 ...account,
-                keys: account.keys.map((key) => ({
+                sign: undefined,
+                keys: account.keys?.map((key) => ({
                   ...key,
-                  ...('raw' in key ? { raw: undefined } : {}),
+                  privateKey:
+                    typeof key.privateKey === 'function'
+                      ? undefined
+                      : key.privateKey,
                 })),
               })),
               chain: state.chain,
             } as unknown as State
           },
-          storage: Storage.idb,
+          storage,
         },
       ),
     ),
   )
   store.persist.rehydrate()
 
+  const config = {
+    announceProvider,
+    chains,
+    implementation,
+    storage,
+    transports,
+  } satisfies Config
+
   const provider = Provider.from({
-    config: {
-      announceProvider,
-      chains,
-      headless,
-      keystoreHost,
-      transports,
-    } satisfies Config,
+    config,
     store,
   })
 
@@ -121,98 +189,58 @@ export function create(config: Config | undefined = {}): Porto {
     },
     provider,
     _internal: {
+      config,
       store,
     },
   }
 }
 
-export type Porto<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = {
-  destroy: () => void
-  provider: Provider.Provider
-  /**
-   * Not part of versioned API, proceed with caution.
-   * @deprecated
-   */
-  _internal: {
-    store: StoreApi<State<chains>>
-  }
-}
+/**
+ * Extracts a Viem Client from a Porto instance, and an optional chain ID.
+ * By default, the Client for the current chain ID will be extracted.
+ *
+ * @param porto - Porto instance.
+ * @param parameters - Parameters.
+ * @returns Client.
+ */
+export function getClients<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(
+  porto: { _internal: Porto<chains>['_internal'] },
+  parameters: { chainId?: number | undefined } = {},
+): Clients<chains[number]> {
+  const { chainId } = parameters
+  const { config, store } = porto._internal
+  const { chains } = config
 
-export type Config<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = {
-  /**
-   * Whether to announce the provider via EIP-6963.
-   * @default true
-   */
-  announceProvider?: boolean | undefined
-  /**
-   * List of supported chains.
-   */
-  chains?: chains | readonly [Chains.Chain, ...Chains.Chain[]]
-  /**
-   * Whether to run EIP-1193 Provider in headless mode.
-   * @default true
-   */
-  headless?: boolean | undefined
-  /**
-   * Keystore host (WebAuthn relying party).
-   * @default 'self'
-   */
-  keystoreHost?: 'self' | (string & {}) | undefined
-  /**
-   * Transport to use for each chain.
-   */
-  transports?: Record<chains[number]['id'], Transport>
-}
+  const state = store.getState()
+  const chain = chains.find((chain) => chain.id === chainId || state.chain.id)
+  if (!chain) throw new Error('chain not found')
 
-export type State<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = {
-  accounts: AccountDelegation.Account[]
-  chain: chains[number]
-  readonly chainId: chains[number]['id']
-  readonly client: Client<
-    Transport,
-    Extract<chains[number], { id: chains[number]['id'] }>
-  >
-  readonly delegation: Address.Address
-}
+  const transport = (config.transports as Record<number, Transport>)[chain.id]
+  if (!transport) throw new Error('transport not found')
 
-export type Store<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = Mutate<
-  StoreApi<State<chains>>,
-  [['zustand/subscribeWithSelector', never], ['zustand/persist', any]]
->
+  const { default: default_, relay } = (() => {
+    if (typeof transport === 'object') {
+      if (transport.relay)
+        return {
+          default: transport.default,
+          relay: transport.relay,
+        } as const
+      return { default: transport.default, relay: undefined } as const
+    }
+    return { default: transport, relay: undefined } as const
+  })()
 
-function merge(p: unknown, currentState: State): State {
-  const persistedState = p as State
-  const state = { ...currentState, ...persistedState }
+  const client = (transport: viem_Transport) =>
+    createClient({
+      chain,
+      transport,
+      pollingInterval: 1_000,
+    })
+
   return {
-    ...state,
-    // TODO: Fix
-    // When filtering out keys, `keyIndex` changes and no longer matches index in
-    // `WrappedSignature` (via `wrapSignature`).
-    // accounts: state.accounts.map((account) => ({
-    //   ...account,
-    //   keys: account.keys.filter(
-    //     (key) => key.expiry === 0n || AccountDelegation.isActiveSessionKey(key),
-    //   ),
-    // })),
-  } satisfies State
+    default: client(default_),
+    relay: relay ? client(fallback([relay, default_])) : client(default_),
+  }
 }

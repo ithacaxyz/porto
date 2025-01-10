@@ -6,8 +6,8 @@
     "dev": "vite"
   },
   "dependencies": {
+    "ox": "^0.6.0",
     "porto": "workspace:*",
-    "ox": "^0.2.2",
     "react": "catalog:",
     "react-dom": "catalog:",
     "viem": "catalog:"
@@ -15,9 +15,10 @@
   "devDependencies": {
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "globals": "^15.9.0",
+    "prool": "^0.0.16",
     "typescript": "^5.5.3",
-    "vite": "^5.4.1"
+    "vite": "^6.0.7"
   }
 }

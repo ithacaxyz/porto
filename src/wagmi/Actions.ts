@@ -1,8 +1,8 @@
 export {
+  authorizeKey,
   connect,
   createAccount,
   disconnect,
-  grantSession,
-  importAccount,
-  sessions,
+  upgradeAccount,
+  keys,
 } from './internal/core.js'

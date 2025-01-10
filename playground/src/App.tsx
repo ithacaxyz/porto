@@ -1,4 +1,4 @@
-import { AbiFunction, Hex, Json, PublicKey, TypedData, Value } from 'ox'
+import { AbiFunction, Hex, Json, TypedData, Value } from 'ox'
 import { Porto } from 'porto'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { createClient, custom } from 'viem'
@@ -9,13 +9,28 @@ import {
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
+import * as Anvil from './anvil'
 import { ExperimentERC20 } from './contracts'
 
-const porto = Porto.create()
+// export const porto = Porto.create()
+export const porto = Porto.create({
+  chains: [Anvil.chain(), ...Porto.defaultConfig.chains],
+  transports: {
+    ...Porto.defaultConfig.transports,
+    [Anvil.chain().id]: Anvil.transport(),
+  },
+})
 
 const client = createClient({
   transport: custom(porto.provider),
 })
+
+const callScopes = [
+  {
+    signature: 'mint(address,uint256)',
+    to: ExperimentERC20.address,
+  },
+] as const
 
 export function App() {
   return (
@@ -24,13 +39,14 @@ export function App() {
       <Events />
       <Connect />
       <Register />
-      <ImportAccount />
       <Login />
+      <UpgradeAccount />
       <Disconnect />
       <Accounts />
       <GetCapabilities />
-      <GrantSession />
-      <GetSessions />
+      <AuthorizeKey />
+      <RevokeKey />
+      <GetKeys />
       <SendCalls />
       <SendTransaction />
       <SignMessage />
@@ -56,20 +72,7 @@ function State() {
           <p>Chain ID: {state.chain.id}</p>
           <p>
             Keys:{' '}
-            <pre>
-              {Json.stringify(
-                state.accounts?.[0]?.keys
-                  .filter((x) => x.status === 'unlocked')
-                  .map((x) => ({
-                    expiry: x.expiry,
-                    publicKey: PublicKey.toHex(x.publicKey),
-                    status: x.status,
-                    type: x.type,
-                  })),
-                null,
-                2,
-              )}
-            </pre>
+            <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
           </p>
         </>
       )}
@@ -114,26 +117,32 @@ function Events() {
 }
 
 function Connect() {
-  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
   const [result, setResult] = useState<unknown | null>(null)
   return (
     <div>
-      <h3>experimental_connect</h3>
+      <h3>wallet_connect</h3>
       <label>
         <input
           type="checkbox"
-          checked={grantSession}
-          onChange={() => setGrantSession((x) => !x)}
+          checked={authorizeKey}
+          onChange={() => setAuthorizeKey((x) => !x)}
         />
-        Grant Session
+        Authorize a Session Key
       </label>
       <div>
         <button
           onClick={() =>
             porto.provider
               .request({
-                method: 'experimental_connect',
-                params: [{ capabilities: { grantSession } }],
+                method: 'wallet_connect',
+                params: [
+                  {
+                    capabilities: {
+                      authorizeKey: authorizeKey ? { callScopes } : undefined,
+                    },
+                  },
+                ],
               })
               .then(setResult)
           }
@@ -145,9 +154,14 @@ function Connect() {
           onClick={() =>
             porto.provider
               .request({
-                method: 'experimental_connect',
+                method: 'wallet_connect',
                 params: [
-                  { capabilities: { createAccount: true, grantSession } },
+                  {
+                    capabilities: {
+                      authorizeKey: authorizeKey ? { callScopes } : undefined,
+                      createAccount: true,
+                    },
+                  },
                 ],
               })
               .then(setResult)
@@ -181,7 +195,7 @@ function Accounts() {
 }
 
 function Register() {
-  const [result, setResult] = useState<string | null>(null)
+  const [result, setResult] = useState<unknown | null>(null)
   return (
     <div>
       <h3>experimental_createAccount</h3>
@@ -195,7 +209,7 @@ function Register() {
       >
         Register
       </button>
-      <pre>{result}</pre>
+      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
@@ -223,11 +237,9 @@ function Login() {
 function Disconnect() {
   return (
     <div>
-      <h3>experimental_disconnect</h3>
+      <h3>wallet_disconnect</h3>
       <button
-        onClick={() =>
-          porto.provider.request({ method: 'experimental_disconnect' })
-        }
+        onClick={() => porto.provider.request({ method: 'wallet_disconnect' })}
         type="button"
       >
         Disconnect
@@ -256,11 +268,11 @@ function GetCapabilities() {
   )
 }
 
-function GrantSession() {
-  const [result, setResult] = useState<Hex.Hex | null>(null)
+function AuthorizeKey() {
+  const [result, setResult] = useState<any | null>(null)
   return (
     <div>
-      <h3>experimental_grantSession</h3>
+      <h3>experimental_authorizeKey</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -270,16 +282,19 @@ function GrantSession() {
           const [account] = await porto.provider.request({
             method: 'eth_accounts',
           })
-          const { id } = await porto.provider.request({
-            method: 'experimental_grantSession',
+          const result = await porto.provider.request({
+            method: 'experimental_authorizeKey',
             params: [
               {
                 address: account,
-                expiry: Math.floor(Date.now() / 1000) + expiry,
+                key: {
+                  callScopes,
+                  expiry: Math.floor(Date.now() / 1000) + expiry,
+                },
               },
             ],
           })
-          setResult(id)
+          setResult(result)
         }}
       >
         <input
@@ -288,46 +303,73 @@ function GrantSession() {
           name="expiry"
           type="number"
         />
-        <button type="submit">Grant Session</button>
+        <button type="submit">Authorize a Session Key</button>
       </form>
-      {result && <pre>session id: {result}</pre>}
+      {result && <pre>key: {JSON.stringify(result, null, 2)}</pre>}
     </div>
   )
 }
 
-function GetSessions() {
+function RevokeKey() {
+  const [revoked, setRevoked] = useState(false)
+  return (
+    <div>
+      <h3>experimental_revokeKey</h3>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          const formData = new FormData(e.target as HTMLFormElement)
+          const publicKey = formData.get('publicKey') as `0x${string}`
+
+          setRevoked(false)
+          await porto.provider.request({
+            method: 'experimental_revokeKey',
+            params: [{ publicKey }],
+          })
+          setRevoked(true)
+        }}
+      >
+        <input name="publicKey" placeholder="Public Key (0x...)" type="text" />
+        <button type="submit">Revoke Key</button>
+      </form>
+      {revoked && <p>Key revoked.</p>}
+    </div>
+  )
+}
+
+function GetKeys() {
   const [result, setResult] = useState<unknown>(null)
 
   return (
     <div>
-      <h3>experimental_sessions</h3>
+      <h3>experimental_keys</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_sessions' })
+            .request({ method: 'experimental_keys' })
             .then(setResult)
         }
         type="button"
       >
-        Get Sessions
+        Get Keys
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
 
-function ImportAccount() {
+function UpgradeAccount() {
   const [accountData, setAccountData] = useState<{
     address: string
     privateKey: string
   } | null>(null)
-  const [grantSession, setGrantSession] = useState<boolean>(true)
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
   const [privateKey, setPrivateKey] = useState<string>('')
   const [result, setResult] = useState<unknown | null>(null)
 
   return (
     <div>
-      <h3>experimental_importAccount</h3>
+      <h3>experimental_prepareCreateAccount</h3>
       <p>
         <button
           onClick={() => {
@@ -340,7 +382,7 @@ function ImportAccount() {
           }}
           type="button"
         >
-          Create Account
+          Create EOA
         </button>
         {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
       </p>
@@ -356,10 +398,10 @@ function ImportAccount() {
       <label>
         <input
           type="checkbox"
-          checked={grantSession}
-          onChange={() => setGrantSession((x) => !x)}
+          checked={authorizeKey}
+          onChange={() => setAuthorizeKey((x) => !x)}
         />
-        Grant Session
+        Authorize a Session Key
       </label>
       <div>
         <button
@@ -367,9 +409,14 @@ function ImportAccount() {
             const account = privateKeyToAccount(privateKey as Hex.Hex)
 
             const { context, signPayloads } = await porto.provider.request({
-              method: 'experimental_prepareImportAccount',
+              method: 'experimental_prepareCreateAccount',
               params: [
-                { address: account.address, capabilities: { grantSession } },
+                {
+                  address: account.address,
+                  capabilities: {
+                    authorizeKey: authorizeKey ? { callScopes } : undefined,
+                  },
+                },
               ],
             })
 
@@ -378,19 +425,19 @@ function ImportAccount() {
             )
 
             const address = await porto.provider.request({
-              method: 'experimental_importAccount',
+              method: 'experimental_createAccount',
               params: [{ context, signatures }],
             })
             setResult(address)
           }}
           type="button"
         >
-          Import Account
+          Upgrade EOA to Porto Account
         </button>
       </div>
       {result ? (
         <p>
-          Imported account. <pre>{JSON.stringify(result, null, 2)}</pre>
+          Upgraded account. <pre>{JSON.stringify(result, null, 2)}</pre>
         </p>
       ) : null}
     </div>
@@ -446,12 +493,12 @@ function SendCalls() {
 
           return [
             {
-              data: '0xdeadbeef',
               to: '0x0000000000000000000000000000000000000000',
+              value: '0x0',
             },
             {
-              data: '0xcafebabe',
               to: '0x0000000000000000000000000000000000000000',
+              value: '0x0',
             },
           ] as const
         })()
@@ -525,7 +572,7 @@ function SendTransaction() {
             {
               from: account,
               to: '0x0000000000000000000000000000000000000000',
-              data: '0xdeadbeef',
+              value: '0x0',
             },
           ] as const
         })() as any

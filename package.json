@@ -19,10 +19,12 @@
     "dev": "pnpm preconstruct && pnpm --filter playground dev",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example dev",
     "format": "biome format --write",
-    "postinstall": "pnpm preconstruct",
+    "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
     "preconstruct": "tsx ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
-    "prepare": "pnpm simple-git-hooks"
+    "prepare": "pnpm simple-git-hooks",
+    "test": "vitest -c ./test/vitest.config.ts",
+    "test:ci": "CI=true vitest -c ./test/vitest.config.ts --retry=3 --bail=1"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
@@ -33,8 +35,11 @@
     "@tanstack/react-query": "catalog:",
     "@types/node": "^22.5.4",
     "@types/react": "catalog:",
+    "@vitest/coverage-v8": "2.1.8",
     "@wagmi/cli": "^2.1.18",
     "knip": "^5.30.6",
+    "ox": "^0.6.0",
+    "prool": "^0.0.16",
     "publint": "^0.2.12",
     "sherif": "^0.11.0",
     "simple-git-hooks": "^2.11.1",
@@ -42,6 +47,7 @@
     "tsx": "^4.17.0",
     "typescript": "catalog:",
     "viem": "catalog:",
+    "vitest": "^2.1.8",
     "wagmi": "catalog:"
   },
   "packageManager": "pnpm@9.7.0",
@@ -54,7 +60,11 @@
   "knip": {
     "entry": ["src/{index,wagmi/index}.ts!"],
     "project": ["src/**"],
-    "ignore": ["**/internal/**", "src/core/internal/generated.ts"],
+    "ignore": [
+      "**/internal/**",
+      "playground/**",
+      "src/core/internal/generated.ts"
+    ],
     "ignoreDependencies": ["@tanstack/react-query", "react", "wagmi"]
   },
   "size-limit": [
@@ -62,7 +72,7 @@
       "name": "import * from 'ox'",
       "path": "./src/_dist/index.js",
       "import": "*",
-      "limit": "54 kB"
+      "limit": "60 kB"
     }
   ]
 }
