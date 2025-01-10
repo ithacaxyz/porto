@@ -45,6 +45,7 @@ export function App() {
       <Accounts />
       <GetCapabilities />
       <AuthorizeKey />
+      <RevokeKey />
       <GetKeys />
       <SendCalls />
       <SendTransaction />
@@ -305,6 +306,33 @@ function AuthorizeKey() {
         <button type="submit">Authorize a Session Key</button>
       </form>
       {result && <pre>key: {JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  )
+}
+
+function RevokeKey() {
+  const [revoked, setRevoked] = useState(false)
+  return (
+    <div>
+      <h3>experimental_revokeKey</h3>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          const formData = new FormData(e.target as HTMLFormElement)
+          const publicKey = formData.get('publicKey') as `0x${string}`
+
+          setRevoked(false)
+          await porto.provider.request({
+            method: 'experimental_revokeKey',
+            params: [{ publicKey }],
+          })
+          setRevoked(true)
+        }}
+      >
+        <input name="publicKey" placeholder="Public Key (0x...)" type="text" />
+        <button type="submit">Revoke Key</button>
+      </form>
+      {revoked && <p>Key revoked.</p>}
     </div>
   )
 }
