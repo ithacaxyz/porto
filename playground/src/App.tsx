@@ -37,16 +37,25 @@ export function App() {
     <div>
       <State />
       <Events />
-      <Connect />
-      <Register />
-      <Login />
-      <UpgradeAccount />
-      <Disconnect />
-      <Accounts />
       <GetCapabilities />
+      <p>
+        <hr />
+      </p>
+      <Connect />
+      <Login />
+      <Register />
+      <Accounts />
+      <Disconnect />
+      <UpgradeAccount />
+      <p>
+        <hr />
+      </p>
       <AuthorizeKey />
-      <RevokeKey />
       <GetKeys />
+      <RevokeKey />
+      <p>
+        <hr />
+      </p>
       <SendCalls />
       <SendTransaction />
       <SignMessage />
@@ -171,7 +180,7 @@ function Connect() {
           Register
         </button>
       </div>
-      <pre>{JSON.stringify(result, null, 2)}</pre>
+      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
@@ -263,7 +272,7 @@ function GetCapabilities() {
       >
         Get Capabilities
       </button>
-      <pre>{JSON.stringify(result, null, 2)}</pre>
+      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
