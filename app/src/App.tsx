@@ -1,6 +1,6 @@
 'use client'
 
-import { RpcResponse } from 'ox'
+import { Provider, RpcResponse } from 'ox'
 import { Implementation, Porto } from 'porto'
 import { Anvil } from 'porto/test'
 import { useEffect, useState } from 'react'
@@ -45,7 +45,7 @@ export function App() {
               '*',
             )
           } catch (e) {
-            const error = e as { code: number; message: string }
+            const error = e as RpcResponse.BaseError
             window.parent.postMessage(
               {
                 topic: 'rpc-response',
@@ -76,8 +76,8 @@ export function App() {
                 id: request.request.id,
                 jsonrpc: '2.0',
                 error: {
-                  code: 4001,
-                  message: 'User rejected the request',
+                  code: Provider.UserRejectedRequestError.code,
+                  message: 'User rejected the request.',
                 },
               }),
             },

@@ -499,13 +499,7 @@ export function frame(parameters: frame.Parameters = {}) {
           unsubscribe()
 
           if (queued.status === 'success') resolve(queued.result)
-          else
-            reject(
-              new Provider.ProviderRpcError(
-                queued.error.code,
-                queued.error.message,
-              ),
-            )
+          else reject(Provider.parseErrorObject(queued.error))
 
           store.setState((x) => ({
             ...x,
@@ -553,7 +547,9 @@ export function frame(parameters: frame.Parameters = {}) {
             return account
           }
 
-          throw new Error('Not implemented.')
+          throw new Error(
+            `Account creation not supported on method: ${request.method}`,
+          )
         })()
 
         return {

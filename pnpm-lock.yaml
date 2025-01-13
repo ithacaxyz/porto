@@ -15,6 +15,9 @@ catalogs:
     '@types/react-dom':
       specifier: ^18.3.0
       version: 18.3.1
+    ox:
+      specifier: ^0.6.1
+      version: 0.6.1
     react:
       specifier: ^18.3.1
       version: 18.3.1
@@ -69,8 +72,8 @@ importers:
         specifier: ^5.30.6
         version: 5.37.1(@types/node@22.9.0)(typescript@5.6.3)
       ox:
-        specifier: ^0.6.0
-        version: 0.6.0(typescript@5.6.3)(zod@3.23.8)
+        specifier: 'catalog:'
+        version: 0.6.1(typescript@5.6.3)(zod@3.23.8)
       prool:
         specifier: ^0.0.16
         version: 0.0.16
@@ -105,8 +108,8 @@ importers:
   app:
     dependencies:
       ox:
-        specifier: ^0.6.0
-        version: 0.6.0(typescript@5.6.3)(zod@3.23.8)
+        specifier: 'catalog:'
+        version: 0.6.1(typescript@5.6.3)(zod@3.23.8)
       porto:
         specifier: workspace:*
         version: link:../src
@@ -179,8 +182,8 @@ importers:
   playground:
     dependencies:
       ox:
-        specifier: ^0.6.0
-        version: 0.6.0(typescript@5.6.3)(zod@3.23.8)
+        specifier: 'catalog:'
+        version: 0.6.1(typescript@5.6.3)(zod@3.23.8)
       porto:
         specifier: workspace:*
         version: link:../src
@@ -225,8 +228,8 @@ importers:
         specifier: ^0.0.7
         version: 0.0.7(typescript@5.6.3)
       ox:
-        specifier: ^0.6.0
-        version: 0.6.0(typescript@5.6.3)(zod@3.23.8)
+        specifier: ^0.6.1
+        version: 0.6.1(typescript@5.6.3)(zod@3.23.8)
       zustand:
         specifier: ^5.0.1
         version: 5.0.1(@types/react@18.3.18)(react@18.3.1)(use-sync-external-store@1.2.0(react@18.3.1))
@@ -3304,6 +3307,14 @@ packages:
 
   ox@0.6.0:
     resolution: {integrity: sha512-blUzTLidvUlshv0O02CnLFqBLidNzPoAZdIth894avUAotTuWziznv6IENv5idRuOSSP3dH8WzcYw84zVdu0Aw==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@0.6.1:
+    resolution: {integrity: sha512-pwxamgT/sa2W572iB2v3YQZ4Jzx++JimA52PjP33Mr1FcdCzZuX/DTGDoxbSFOcWsR63MHcySUPVTrK0WWtsOQ==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -8005,6 +8016,20 @@ snapshots:
       '@scure/bip32': 1.5.0
       '@scure/bip39': 1.4.0
       abitype: 1.0.6(typescript@5.6.3)(zod@3.23.8)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.6.3
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.6.1(typescript@5.6.3)(zod@3.23.8):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.7.0
+      '@noble/hashes': 1.6.1
+      '@scure/bip32': 1.6.0
+      '@scure/bip39': 1.5.0
+      abitype: 1.0.7(typescript@5.6.3)(zod@3.23.8)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.6.3

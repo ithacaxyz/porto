@@ -6,7 +6,7 @@
     "dev": "vite --port 5173"
   },
   "dependencies": {
-    "ox": "^0.6.0",
+    "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",

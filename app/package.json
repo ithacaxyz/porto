@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "ox": "^0.6.0",
+    "ox": "catalog:",
     "porto": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

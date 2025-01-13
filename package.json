@@ -38,7 +38,7 @@
     "@vitest/coverage-v8": "2.1.8",
     "@wagmi/cli": "^2.1.18",
     "knip": "^5.30.6",
-    "ox": "^0.6.0",
+    "ox": "catalog:",
     "prool": "^0.0.16",
     "publint": "^0.2.12",
     "sherif": "^0.11.0",
