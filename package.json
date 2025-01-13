@@ -50,9 +50,9 @@
     "vitest": "^2.1.8",
     "wagmi": "catalog:"
   },
-  "packageManager": "pnpm@9.7.0",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.5"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
