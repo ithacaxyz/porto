@@ -9,17 +9,17 @@ import {
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
-import * as Anvil from './anvil'
+// import * as Anvil from './anvil'
 import { ExperimentERC20 } from './contracts'
 
-// export const porto = Porto.create()
-export const porto = Porto.create({
-  chains: [Anvil.chain(), ...Porto.defaultConfig.chains],
-  transports: {
-    ...Porto.defaultConfig.transports,
-    [Anvil.chain().id]: Anvil.transport(),
-  },
-})
+export const porto = Porto.create()
+// export const porto = Porto.create({
+//   chains: [Anvil.chain(), ...Porto.defaultConfig.chains],
+//   transports: {
+//     ...Porto.defaultConfig.transports,
+//     [Anvil.chain().id]: Anvil.transport(),
+//   },
+// })
 
 const client = createClient({
   transport: custom(porto.provider),

@@ -2,16 +2,10 @@
 
 import { Provider, RpcResponse } from 'ox'
 import { Implementation, Porto } from 'porto'
-import { Anvil } from 'porto/test'
 import { useEffect, useState } from 'react'
 
 export const porto = Porto.create({
-  chains: [Anvil.chain(), ...Porto.defaultConfig.chains],
   implementation: Implementation.local(),
-  transports: {
-    ...Porto.defaultConfig.transports,
-    [Anvil.chain().id]: Anvil.transport(),
-  },
 })
 
 export function App() {
