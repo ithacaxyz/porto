@@ -499,7 +499,13 @@ export function frame(parameters: frame.Parameters = {}) {
           unsubscribe()
 
           if (queued.status === 'success') resolve(queued.result)
-          else reject(new Error(queued.error.message)) // TODO: wrap with proper error.
+          else
+            reject(
+              new Provider.ProviderRpcError(
+                queued.error.code,
+                queued.error.message,
+              ),
+            )
 
           store.setState((x) => ({
             ...x,
