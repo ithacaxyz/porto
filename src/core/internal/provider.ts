@@ -8,7 +8,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
 import type * as Call from './call.js'
-import type * as Key from './key.js'
+import * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
 export type Provider = ox_Provider.Provider<{
@@ -65,9 +65,12 @@ export function from<
           const clients = getClients()
 
           const { accounts } = await implementation.actions.loadAccounts({
-            clients,
-            config,
-            request,
+            internal: {
+              clients,
+              config,
+              request,
+              store,
+            },
           })
 
           store.setState((x) => ({ ...x, accounts }))
@@ -116,9 +119,12 @@ export function from<
                 value: Hex.toBigInt(value),
               },
             ],
-            clients,
-            config,
-            request,
+            internal: {
+              clients,
+              config,
+              request,
+              store,
+            },
           })
 
           return hash satisfies RpcSchema.ExtractReturnType<
@@ -145,10 +151,13 @@ export function from<
 
           const signature = await implementation.actions.signTypedData({
             account,
-            clients,
-            config,
             data,
-            request,
+            internal: {
+              clients,
+              config,
+              request,
+              store,
+            },
           })
 
           return signature satisfies RpcSchema.ExtractReturnType<
@@ -178,10 +187,13 @@ export function from<
 
           const { key } = await implementation.actions.authorizeKey({
             account,
-            clients,
             key: keyToAuthorize,
-            config,
-            request,
+            internal: {
+              clients,
+              config,
+              request,
+              store,
+            },
           })
 
           store.setState((x) => {
@@ -226,12 +238,15 @@ export function from<
           const clients = getClients(chainId)
 
           const { account } = await implementation.actions.createAccount({
-            clients,
-            config,
             context,
             label,
-            request,
             signatures,
+            internal: {
+              clients,
+              config,
+              request,
+              store,
+            },
           })
 
           store.setState((x) => ({ ...x, accounts: [account] }))
@@ -267,10 +282,13 @@ export function from<
             await implementation.actions.prepareCreateAccount({
               address,
               authorizeKeys,
-              clients,
-              config,
               label,
-              request,
+              internal: {
+                clients,
+                config,
+                request,
+                store,
+              },
             })
 
           return {
@@ -320,10 +338,13 @@ export function from<
 
           await implementation.actions.revokeKey({
             account,
-            clients,
-            config,
             publicKey,
-            request,
+            internal: {
+              clients,
+              config,
+              request,
+              store,
+            },
           })
 
           const keys = account.keys?.filter(
@@ -375,10 +396,13 @@ export function from<
 
           const signature = await implementation.actions.signPersonalMessage({
             account,
-            clients,
-            config,
             data,
-            request,
+            internal: {
+              clients,
+              config,
+              request,
+              store,
+            },
           })
 
           return signature satisfies RpcSchema.ExtractReturnType<
@@ -405,18 +429,24 @@ export function from<
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await implementation.actions.createAccount({
                 authorizeKeys,
-                clients,
-                config,
                 label,
-                request,
+                internal: {
+                  clients,
+                  config,
+                  request,
+                  store,
+                },
               })
               return { accounts: [account] }
             }
             return await implementation.actions.loadAccounts({
               authorizeKeys,
-              clients,
-              config,
-              request,
+              internal: {
+                clients,
+                config,
+                request,
+                store,
+              },
             })
           })()
 
@@ -522,10 +552,13 @@ export function from<
           const hash = await implementation.actions.execute({
             account,
             calls,
-            clients,
-            config,
             key: capabilities?.key,
-            request,
+            internal: {
+              clients,
+              config,
+              request,
+              store,
+            },
           })
 
           return hash satisfies RpcSchema.ExtractReturnType<
@@ -603,20 +636,12 @@ export function announce(provider: Provider) {
   })
 }
 
-function getActiveKeys(
-  keys: readonly Key.Key[],
-): Schema.AuthorizeKeyReturnType[] {
+function getActiveKeys(keys: readonly Key.Key[]): readonly Key.Rpc[] {
   return keys
     .map((key) => {
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
-      return {
-        callScopes: key.callScopes,
-        expiry: key.expiry,
-        publicKey: key.publicKey,
-        role: key.role,
-        type: key.type,
-      } satisfies Schema.AuthorizeKeyReturnType
+      return Key.toRpc(key)
     })
     .filter(Boolean) as never
 }

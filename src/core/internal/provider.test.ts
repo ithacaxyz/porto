@@ -804,7 +804,7 @@ describe('wallet_sendCalls', () => {
       value: Value.fromEther('10000'),
     })
 
-    const alice = '0x0000000000000000000000000000000000069422'
+    const alice = '0x0000000000000000000000000000000000069423'
 
     const key = await porto.provider.request({
       method: 'experimental_authorizeKey',

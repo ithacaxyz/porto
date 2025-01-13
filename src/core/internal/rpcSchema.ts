@@ -67,22 +67,22 @@ export type AuthorizeKeyParameters = {
   key?:
     | OneOf<
         | {
-            callScopes: Key.CallScopes
-            expiry?: number | undefined
+            callScopes: Key.Rpc['callScopes']
+            expiry?: Key.Rpc['expiry'] | undefined
           }
         | {
-            callScopes: Key.CallScopes
-            expiry?: number | undefined
-            publicKey: Hex.Hex
+            callScopes: Key.Rpc['callScopes']
+            expiry?: Key.Rpc['expiry'] | undefined
+            publicKey: Key.Rpc['publicKey']
             role?: 'session' | undefined
-            type: 'p256' | 'secp256k1' | 'webauthn-p256'
+            type: Key.Rpc['type']
           }
         | {
-            callScopes?: Key.CallScopes | undefined
-            expiry?: number | undefined
-            publicKey: Hex.Hex
+            callScopes?: Key.Rpc['callScopes'] | undefined
+            expiry?: Key.Rpc['expiry'] | undefined
+            publicKey: Key.Rpc['publicKey']
             role: 'admin'
-            type: 'p256' | 'secp256k1' | 'webauthn-p256'
+            type: Key.Rpc['type']
           }
       >
     | undefined
@@ -135,13 +135,7 @@ export type GetKeysParameters = {
   address?: Address.Address | undefined
 }
 
-export type GetKeysReturnType = readonly {
-  callScopes?: Key.CallScopes | undefined
-  expiry: number
-  publicKey: Hex.Hex
-  role: 'admin' | 'session'
-  type: 'p256' | 'secp256k1' | 'webauthn-p256'
-}[]
+export type GetKeysReturnType = readonly Key.Rpc[]
 
 export type PrepareCreateAccountParameters = {
   address: Address.Address

@@ -1,3 +1,5 @@
+import type * as RpcRequest from 'ox/RpcRequest'
+import type * as RpcResponse from 'ox/RpcResponse'
 import {
   http,
   type Client,
@@ -12,13 +14,14 @@ import * as Chains from './Chains.js'
 import * as Implementation from './Implementation.js'
 import * as Storage from './Storage.js'
 import type * as Account from './internal/account.js'
+import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
-import type { ExactPartial } from './internal/types.js'
+import type { ExactPartial, OneOf } from './internal/types.js'
 
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.odysseyTestnet],
-  implementation: Implementation.local(),
+  implementation: Implementation.frame(),
   storage: Storage.idb(),
   transports: {
     [Chains.odysseyTestnet.id]: {
@@ -45,10 +48,7 @@ export type Porto<
    * Not part of versioned API, proceed with caution.
    * @deprecated
    */
-  _internal: {
-    config: Config<chains>
-    store: Store<chains>
-  }
+  _internal: internal.Internal<chains>
 }
 
 export type Config<
@@ -85,6 +85,22 @@ export type Config<
   >
 }
 
+export type QueuedRequest<result = unknown> = {
+  request: RpcRequest.RpcRequest
+} & OneOf<
+  | {
+      status: 'pending'
+    }
+  | {
+      result: result
+      status: 'success'
+    }
+  | {
+      error: RpcResponse.ErrorObject
+      status: 'error'
+    }
+>
+
 export type State<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
     Chains.Chain,
@@ -93,6 +109,7 @@ export type State<
 > = {
   accounts: readonly Account.Account[]
   chain: chains[number]
+  requestQueue: readonly QueuedRequest[]
 }
 
 export type Store<
@@ -144,6 +161,7 @@ export function create(
         (_) => ({
           accounts: [],
           chain: chains[0],
+          requestQueue: [],
         }),
         {
           name: 'porto.store',
@@ -178,20 +196,24 @@ export function create(
     transports,
   } satisfies Config
 
-  const provider = Provider.from({
+  const internal = {
     config,
     store,
+  } satisfies internal.Internal
+
+  const provider = Provider.from(internal)
+
+  const destroy = implementation.setup({
+    internal,
   })
 
   return {
     destroy() {
+      destroy()
       provider._internal.destroy()
     },
     provider,
-    _internal: {
-      config,
-      store,
-    },
+    _internal: internal,
   }
 }
 
@@ -206,7 +228,7 @@ export function create(
 export function getClients<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(
-  porto: { _internal: Porto<chains>['_internal'] },
+  porto: { _internal: internal.Internal<chains> },
   parameters: { chainId?: number | undefined } = {},
 ): Clients<chains[number]> {
   const { chainId } = parameters

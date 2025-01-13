@@ -1,27 +1,37 @@
-import type { RpcRequest } from 'ox'
 import * as AbiItem from 'ox/AbiItem'
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
+import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
+import * as RpcRequest from 'ox/RpcRequest'
+import type * as RpcResponse from 'ox/RpcResponse'
+import type * as RpcSchema from 'ox/RpcSchema'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
-import type { Hash } from 'viem'
 import { readContract } from 'viem/actions'
 
-import type { Clients, Config } from './Porto.js'
+import type { Clients, QueuedRequest } from './Porto.js'
 import * as Account from './internal/account.js'
 import * as Call from './internal/call.js'
 import * as Delegation from './internal/delegation.js'
 import { delegationAbi } from './internal/generated.js'
 import * as Key from './internal/key.js'
-import type * as RpcSchema from './internal/rpcSchema.js'
-import type { Compute } from './internal/types.js'
+import type * as Porto from './internal/porto.js'
+import type * as RpcSchema_porto from './internal/rpcSchema.js'
+import type { Compute, PartialBy } from './internal/types.js'
 
 type Request = Pick<RpcRequest.RpcRequest, 'method' | 'params'>
+
+type ActionsInternal = Porto.Internal & {
+  /** Viem Clients. */
+  clients: Clients
+  /** RPC Request. */
+  request: Request
+}
 
 export type Implementation = {
   actions: {
@@ -29,37 +39,27 @@ export type Implementation = {
       /** Account to authorize the keys for. */
       account: Account.Account
       /** Key to authorize. */
-      key?: RpcSchema.AuthorizeKeyParameters['key'] | undefined
-      /** Viem Clients. */
-      clients: Clients
-      /** Porto config. */
-      config: Config
-      /** RPC Request. */
-      request: Request
-    }) => Promise<{ hash: Hex.Hex; key: Key.Key }>
+      key?: RpcSchema_porto.AuthorizeKeyParameters['key'] | undefined
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<{ key: Key.Key }>
 
     createAccount: (parameters: {
       /** Extra keys to authorize. */
       authorizeKeys?:
-        | readonly RpcSchema.AuthorizeKeyParameters['key'][]
+        | readonly RpcSchema_porto.AuthorizeKeyParameters['key'][]
         | undefined
-      /** Viem Clients. */
-      clients: Clients
       /** Preparation context (from `prepareCreateAccount`). */
       context?: unknown | undefined
-      /** Porto config. */
-      config: Config
+      /** Internal properties. */
+      internal: ActionsInternal
       /** Label to associate with the WebAuthn credential. */
       label?: string | undefined
-      /** RPC Request. */
-      request: Request
       /** Preparation signatures (from `prepareCreateAccount`). */
       signatures?: readonly Hex.Hex[] | undefined
     }) => Promise<{
       /** Account. */
       account: Account.Account
-      /** Transaction hash. */
-      hash: Hash
     }>
 
     execute: (parameters: {
@@ -67,14 +67,10 @@ export type Implementation = {
       account: Account.Account
       /** Calls to execute. */
       calls: readonly Call.Call[]
-      /** Viem Clients. */
-      clients: Clients
       /** Key to use to execute the calls. */
       key?: { publicKey: Hex.Hex } | undefined
-      /** Porto config. */
-      config: Config
-      /** RPC Request. */
-      request: Request
+      /** Internal properties. */
+      internal: ActionsInternal
     }) => Promise<Hex.Hex>
 
     loadAccounts: (parameters: {
@@ -82,16 +78,12 @@ export type Implementation = {
       address?: Address.Address | undefined
       /** Extra keys to authorize. */
       authorizeKeys?:
-        | readonly RpcSchema.AuthorizeKeyParameters['key'][]
+        | readonly RpcSchema_porto.AuthorizeKeyParameters['key'][]
         | undefined
-      /** Viem Clients. */
-      clients: Clients
-      /** Porto config. */
-      config: Config
       /** Credential ID to use to load an existing account. */
       credentialId?: string | undefined
-      /** RPC Request. */
-      request: Request
+      /** Internal properties. */
+      internal: ActionsInternal
     }) => Promise<{
       /** Accounts. */
       accounts: readonly Account.Account[]
@@ -102,16 +94,12 @@ export type Implementation = {
       address: Address.Address
       /** Extra keys to authorize. */
       authorizeKeys?:
-        | readonly RpcSchema.AuthorizeKeyParameters['key'][]
+        | readonly RpcSchema_porto.AuthorizeKeyParameters['key'][]
         | undefined
-      /** Viem Clients. */
-      clients: Clients
-      /** Porto config. */
-      config: Config
       /** Label to associate with the account. */
       label?: string | undefined
-      /** RPC Request. */
-      request: Request
+      /** Internal properties. */
+      internal: ActionsInternal
     }) => Promise<{
       /** Filled context for the `createAccount` implementation. */
       context: unknown
@@ -124,40 +112,32 @@ export type Implementation = {
       account: Account.Account
       /** Public key of the key to revoke. */
       publicKey: Hex.Hex
-      /** Viem Clients. */
-      clients: Clients
-      /** Porto config. */
-      config: Config
-      /** RPC Request. */
-      request: Request
+      /** Internal properties. */
+      internal: ActionsInternal
     }) => Promise<void>
 
     signPersonalMessage: (parameters: {
       /** Account to sign the message with. */
       account: Account.Account
-      /** Viem Clients. */
-      clients: Clients
-      /** Porto config. */
-      config: Config
       /** Data to sign. */
       data: Hex.Hex
-      /** RPC Request. */
-      request: Request
+      /** Internal properties. */
+      internal: ActionsInternal
     }) => Promise<Hex.Hex>
 
     signTypedData: (parameters: {
       /** Account to sign the message with. */
       account: Account.Account
-      /** Viem Clients. */
-      clients: Clients
-      /** Porto config. */
-      config: Config
       /** Data to sign. */
       data: string
-      /** RPC Request. */
-      request: Request
+      /** Internal properties. */
+      internal: ActionsInternal
     }) => Promise<Hex.Hex>
   }
+  setup: (parameters: {
+    /** Internal properties. */
+    internal: Porto.Internal
+  }) => () => void
 }
 
 /**
@@ -166,10 +146,17 @@ export type Implementation = {
  * @param implementation - Implementation.
  * @returns Implementation.
  */
-export function from<const implementation extends Implementation>(
-  implementation: implementation | Implementation,
-): Compute<implementation> {
-  return implementation as implementation
+export function from<const implementation extends from.Parameters>(
+  implementation: implementation | from.Parameters,
+): Compute<implementation & Pick<Implementation, 'setup'>> {
+  return {
+    ...implementation,
+    setup: implementation.setup ?? (() => {}),
+  } as implementation & Pick<Implementation, 'setup'>
+}
+
+export declare namespace from {
+  type Parameters = PartialBy<Implementation, 'setup'>
 }
 
 /**
@@ -195,7 +182,8 @@ export function local(parameters: local.Parameters = {}) {
   return from({
     actions: {
       async authorizeKey(parameters) {
-        const { account, clients, key: keyToAuthorize } = parameters
+        const { account, key: keyToAuthorize, internal } = parameters
+        const { clients } = internal
 
         const keys = await getKeysToAuthorize({
           authorizeKeys: [keyToAuthorize],
@@ -212,7 +200,8 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { authorizeKeys, clients, label } = parameters
+        const { authorizeKeys, label, internal } = parameters
+        const { clients } = internal
 
         const { account, context, signatures } = await (async () => {
           if (parameters.context && parameters.signatures)
@@ -256,8 +245,8 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async execute(parameters) {
-        const { account, calls, clients } = parameters
-
+        const { account, calls, internal } = parameters
+        const { clients } = internal
         const key = (() => {
           // If a key is provided, use it.
           if (parameters.key) {
@@ -318,7 +307,8 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async loadAccounts(parameters) {
-        const { authorizeKeys, clients } = parameters
+        const { authorizeKeys, internal } = parameters
+        const { clients } = internal
 
         const { address, credentialId } = await (async () => {
           if (parameters.address && parameters.credentialId)
@@ -389,8 +379,8 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async prepareCreateAccount(parameters) {
-        const { address, authorizeKeys, clients, label } = parameters
-
+        const { address, authorizeKeys, label, internal } = parameters
+        const { clients } = internal
         return await prepareCreateAccount({
           address,
           authorizeKeys,
@@ -402,7 +392,8 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async revokeKey(parameters) {
-        const { account, clients, publicKey } = parameters
+        const { account, internal, publicKey } = parameters
+        const { clients } = internal
 
         const key = account.keys?.find((key) => key.publicKey === publicKey)
         if (!key) return
@@ -466,9 +457,252 @@ export declare namespace local {
   }
 }
 
-// TODO
-export function iframe() {
-  throw new Error('Not implemented.')
+export function frame(parameters: frame.Parameters = {}) {
+  // TODO: change
+  const { host = 'http://localhost:5174/embed' } = parameters
+
+  const hostUrl = new URL(host)
+  const requestStore = RpcRequest.createStore()
+
+  function perform(parameters: {
+    request: Request
+    store: Porto.Internal['store']
+  }) {
+    const { store } = parameters
+
+    const request = requestStore.prepare(parameters.request)
+
+    store.setState((x) => ({
+      ...x,
+      requestQueue: [
+        ...x.requestQueue,
+        {
+          request,
+          status: 'pending',
+        },
+      ],
+    }))
+
+    return new Promise((resolve, reject) => {
+      const unsubscribe = store.subscribe(
+        (x) => x.requestQueue,
+        (requestQueue) => {
+          if (requestQueue.length === 0) {
+            unsubscribe()
+            reject(new Provider.UserRejectedRequestError())
+          }
+
+          const queued = requestQueue.find((x) => x.request.id === request.id)
+          if (!queued) return
+          if (queued.status !== 'success' && queued.status !== 'error') return
+
+          unsubscribe()
+
+          if (queued.status === 'success') resolve(queued.result)
+          else reject(new Error(queued.error.message)) // TODO: wrap with proper error.
+
+          store.setState((x) => ({
+            ...x,
+            requestQueue: x.requestQueue.filter(
+              (x) => x.request.id !== request.id,
+            ),
+          }))
+        },
+      )
+    })
+  }
+
+  return from({
+    actions: {
+      authorizeKey() {
+        throw new Error('Not implemented.')
+      },
+
+      async createAccount(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        const account = await (async () => {
+          if (request.method === 'experimental_createAccount')
+            return (await perform({
+              request,
+              store,
+            })) as RpcSchema.ExtractReturnType<
+              RpcSchema_porto.Schema,
+              'experimental_createAccount'
+            >
+
+          if (request.method === 'wallet_connect') {
+            const result = (await perform({
+              request,
+              store,
+            })) as RpcSchema.ExtractReturnType<
+              RpcSchema_porto.Schema,
+              'wallet_connect'
+            >
+
+            const account = result.accounts[0]
+            if (!account) throw new Error('no account found.')
+
+            return account
+          }
+
+          throw new Error('Not implemented.')
+        })()
+
+        return {
+          account: Account.from({
+            address: account.address,
+            keys: account.capabilities?.keys?.map(Key.fromRpc) ?? [],
+          }),
+        }
+      },
+
+      execute() {
+        throw new Error('Not implemented.')
+      },
+
+      async loadAccounts(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        const result = await perform({
+          request,
+          store,
+        })
+
+        return result as never
+      },
+
+      prepareCreateAccount() {
+        throw new Error('Not implemented.')
+      },
+
+      revokeKey() {
+        throw new Error('Not implemented.')
+      },
+
+      signPersonalMessage() {
+        throw new Error('Not implemented.')
+      },
+
+      signTypedData() {
+        throw new Error('Not implemented.')
+      },
+    },
+    setup(parameters) {
+      const { internal } = parameters
+      const { store } = internal
+
+      const root = document.createElement('div')
+      document.body.appendChild(root)
+
+      const backdrop = document.createElement('div')
+      Object.assign(backdrop.style, frame.styles.backdrop)
+      root.appendChild(backdrop)
+
+      const iframe = document.createElement('iframe')
+      iframe.allow = `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`
+      iframe.src = host
+      iframe.title = 'Porto'
+      Object.assign(iframe.style, frame.styles.iframe)
+
+      root.appendChild(document.createElement('style')).textContent = `
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `
+      root.appendChild(iframe)
+
+      backdrop.addEventListener('click', () =>
+        store.setState((x) => ({
+          ...x,
+          requestQueue: x.requestQueue.map((x) => ({
+            error: new Provider.UserRejectedRequestError(),
+            request: x.request,
+            status: 'error',
+          })),
+        })),
+      )
+
+      window.addEventListener('message', (event) => {
+        if (event.origin !== hostUrl.origin) return
+        if (event.data.topic !== 'rpc-response') return
+        const response = event.data.response as RpcResponse.RpcResponse
+        store.setState((x) => ({
+          ...x,
+          requestQueue: x.requestQueue.map((queued) => {
+            if (queued.request.id !== response.id) return queued
+            if (response.error)
+              return {
+                request: queued.request,
+                status: 'error',
+                error: response.error,
+              } satisfies QueuedRequest
+            return {
+              request: queued.request,
+              status: 'success',
+              result: response.result,
+            } satisfies QueuedRequest
+          }),
+        }))
+      })
+
+      return store.subscribe(
+        (x) => x.requestQueue,
+        (requestQueue) => {
+          const request = requestQueue.find((x) => x.status === 'pending')
+          if (request) {
+            backdrop.style.display = 'block'
+            iframe.style.display = 'block'
+            iframe.contentWindow?.postMessage(
+              { topic: 'rpc-request', request },
+              hostUrl.origin,
+            )
+          } else {
+            backdrop.style.display = 'none'
+            iframe.style.display = 'none'
+          }
+        },
+      )
+    },
+  })
+}
+
+frame.styles = {
+  iframe: {
+    animation: 'fadeIn 0.1s ease-in-out',
+    display: 'none',
+    border: 'none',
+    borderRadius: '8px',
+    position: 'fixed',
+    top: '16px',
+    left: 'calc(50% - 160px)',
+    width: '320px',
+    height: '180px',
+    zIndex: '999999999999',
+  },
+  backdrop: {
+    display: 'none',
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: '999999999998',
+  },
+} as const satisfies Record<string, Partial<CSSStyleDeclaration>>
+
+export declare namespace frame {
+  type Parameters = {
+    /**
+     * Wallet embed host.
+     * @default 'http://wallet.ithaca.xyz/embed'
+     */
+    host?: string | undefined
+  }
 }
 
 /**
@@ -485,7 +719,8 @@ export function mock() {
       ...local().actions,
 
       async createAccount(parameters) {
-        const { authorizeKeys, clients } = parameters
+        const { authorizeKeys, internal } = parameters
+        const { clients } = internal
 
         const privateKey = Secp256k1.randomPrivateKey()
 
@@ -515,7 +750,8 @@ export function mock() {
       },
 
       async loadAccounts(parameters) {
-        const { clients } = parameters
+        const { internal } = parameters
+        const { clients } = internal
 
         if (!address) throw new Error('no address found.')
 
@@ -549,7 +785,9 @@ export function mock() {
 
 async function prepareCreateAccount(parameters: {
   address: Address.Address
-  authorizeKeys: readonly RpcSchema.AuthorizeKeyParameters['key'][] | undefined
+  authorizeKeys:
+    | readonly RpcSchema_porto.AuthorizeKeyParameters['key'][]
+    | undefined
   clients: Clients
   defaultExpiry: number
   label?: string | undefined
@@ -619,7 +857,9 @@ function getAuthorizeCalls(keys: readonly Key.Key[]) {
 }
 
 async function getKeysToAuthorize(parameters: {
-  authorizeKeys: readonly RpcSchema.AuthorizeKeyParameters['key'][] | undefined
+  authorizeKeys:
+    | readonly RpcSchema_porto.AuthorizeKeyParameters['key'][]
+    | undefined
   defaultExpiry: number
 }) {
   const { authorizeKeys, defaultExpiry } = parameters
