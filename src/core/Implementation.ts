@@ -514,10 +514,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   return from({
     actions: {
-      authorizeKey() {
-        throw new Error('Not implemented.')
+      async authorizeKey() {
+        throw new Error('TODO')
       },
 
+      // TODO: handle authorize keys
       async createAccount(parameters) {
         const { internal } = parameters
         const { store, request } = internal
@@ -560,36 +561,122 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
-      execute() {
-        throw new Error('Not implemented.')
+      // TODO: handle authorize keys
+      async execute(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (
+          request.method !== 'eth_sendTransaction' &&
+          request.method !== 'wallet_sendCalls'
+        )
+          throw new Error('Cannot execute for method: ' + request.method)
+
+        const result = (await perform({
+          request,
+          store,
+        })) as RpcSchema.ExtractReturnType<
+          RpcSchema_porto.Schema,
+          'eth_sendTransaction' | 'wallet_sendCalls'
+        >
+
+        return result as Hex.Hex
       },
 
+      // TODO: handle authorize keys
       async loadAccounts(parameters) {
         const { internal } = parameters
         const { store, request } = internal
 
-        const result = await perform({
-          request,
-          store,
-        })
+        const accounts = await (async () => {
+          if (request.method === 'eth_requestAccounts') {
+            const addresses = (await perform({
+              request,
+              store,
+            })) as RpcSchema.ExtractReturnType<
+              RpcSchema_porto.Schema,
+              'eth_requestAccounts'
+            >
 
-        return result as never
+            return addresses.map((address) => ({
+              address,
+              capabilities: {
+                keys: [],
+              },
+            }))
+          }
+
+          if (request.method === 'wallet_connect') {
+            const result = (await perform({
+              request,
+              store,
+            })) as RpcSchema.ExtractReturnType<
+              RpcSchema_porto.Schema,
+              'wallet_connect'
+            >
+
+            return result.accounts
+          }
+
+          throw new Error('Cannot load accounts for method: ' + request.method)
+        })()
+
+        return {
+          accounts: accounts.map((account) =>
+            Account.from({
+              address: account.address,
+              keys: account.capabilities?.keys?.map(Key.fromRpc) ?? [],
+            }),
+          ),
+        }
       },
 
       prepareCreateAccount() {
-        throw new Error('Not implemented.')
+        throw new Error('TODO')
       },
 
-      revokeKey() {
-        throw new Error('Not implemented.')
+      async revokeKey() {
+        throw new Error('TODO')
       },
 
-      signPersonalMessage() {
-        throw new Error('Not implemented.')
+      async signPersonalMessage(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'personal_sign')
+          throw new Error(
+            'Cannot sign personal message for method: ' + request.method,
+          )
+
+        const result = (await perform({
+          request,
+          store,
+        })) as RpcSchema.ExtractReturnType<
+          RpcSchema_porto.Schema,
+          'personal_sign'
+        >
+
+        return result
       },
 
-      signTypedData() {
-        throw new Error('Not implemented.')
+      async signTypedData(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'eth_signTypedData_v4')
+          throw new Error(
+            'Cannot sign typed data for method: ' + request.method,
+          )
+
+        const result = (await perform({
+          request,
+          store,
+        })) as RpcSchema.ExtractReturnType<
+          RpcSchema_porto.Schema,
+          'eth_signTypedData_v4'
+        >
+
+        return result
       },
     },
     setup(parameters) {
