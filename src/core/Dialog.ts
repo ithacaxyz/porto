@@ -1,10 +1,11 @@
 import type { RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
 
+import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
 import type { Internal } from './internal/porto.js'
-import * as promise from './internal/promise.js'
 
+/** Dialog interface. */
 export type Dialog = {
   setup: (parameters: { host: string; internal: Internal }) => {
     close: () => void
@@ -42,11 +43,25 @@ const styles = {
   },
 } as const satisfies Record<string, Partial<CSSStyleDeclaration>>
 
+/**
+ * Instantiates a dialog.
+ *
+ * @param dialog - Dialog.
+ * @returns Instantiated dialog.
+ */
 export function from<const dialog extends Dialog>(dialog: dialog): dialog {
   return dialog
 }
 
+/**
+ * Instantiates an iframe dialog.
+ *
+ * @returns iframe dialog.
+ */
 export function iframe() {
+  // Safari does not support WebAuthn credential creation in iframes.
+  // Fall back to popup dialog.
+  // Tracking: https://github.com/WebKit/standards-positions/issues/304
   const ua = navigator.userAgent.toLowerCase()
   if (ua.includes('safari') && !ua.includes('chrome')) return popup()
 
@@ -84,24 +99,19 @@ export function iframe() {
       `
       root.appendChild(iframe)
 
-      backdrop.addEventListener('click', () =>
-        store.setState((x) => ({
-          ...x,
-          requestQueue: x.requestQueue.map((x) => ({
-            error: new Provider.UserRejectedRequestError(),
-            request: x.request,
-            status: 'error',
-          })),
-        })),
-      )
-
-      function onResponse(event: MessageEvent) {
-        if (event.origin !== hostUrl.origin) return
-        if (event.data.topic !== 'rpc-response') return
-        const response = event.data.response as RpcResponse.RpcResponse
-        handleResponse(store, response)
+      function onBlur() {
+        handleBlur(store)
       }
-      window.addEventListener('message', onResponse)
+      backdrop.addEventListener('click', onBlur)
+
+      const messenger = Messenger.bridge({
+        from: Messenger.fromWindow(window, { targetOrigin: hostUrl.origin }),
+        to: Messenger.fromWindow(iframe.contentWindow!),
+      })
+
+      messenger.on('rpc-response', (response) =>
+        handleResponse(store, response),
+      )
 
       return {
         open() {
@@ -117,20 +127,23 @@ export function iframe() {
         },
         destroy() {
           this.close()
-          window.removeEventListener('message', onResponse)
+          backdrop.removeEventListener('click', onBlur)
+          messenger.destroy()
         },
         async syncRequests(requests) {
           if (!open) this.open()
-          iframe.contentWindow?.postMessage(
-            { topic: 'rpc-requests', requests },
-            hostUrl.origin,
-          )
+          messenger.send('rpc-requests', requests)
         },
       }
     },
   })
 }
 
+/**
+ * Instantiates a popup dialog.
+ *
+ * @returns Popup dialog.
+ */
 export function popup() {
   return from({
     setup(parameters) {
@@ -140,7 +153,6 @@ export function popup() {
       const hostUrl = new URL(host)
 
       let popup: Window | null = null
-      let ready = promise.withResolvers()
 
       const root = document.createElement('div')
       document.body.appendChild(root)
@@ -153,33 +165,31 @@ export function popup() {
         handleBlur(store)
       }
 
-      function onReady(event: MessageEvent) {
-        if (event.origin !== hostUrl.origin) return
-        if (event.data.topic !== 'ready') return
-        ready.resolve(true)
-      }
-      window.addEventListener('message', onReady)
-
-      function onResponse(event: MessageEvent) {
-        if (event.origin !== hostUrl.origin) return
-        if (event.data.topic !== 'rpc-response') return
-        const response = event.data.response as RpcResponse.RpcResponse
-        handleResponse(store, response)
-      }
-      window.addEventListener('message', onResponse)
+      let messenger: Messenger.Messenger | undefined
 
       return {
         open() {
           const left = (window.innerWidth - width) / 2 + window.screenX
           const top = window.screenY + 100
 
-          ready = promise.withResolvers()
           popup = window.open(
             host,
             '_blank',
             `width=${width},height=${height},left=${left},top=${top}`,
           )
           if (!popup) throw new Error('Failed to open popup')
+
+          messenger = Messenger.bridge({
+            from: Messenger.fromWindow(window, {
+              targetOrigin: hostUrl.origin,
+            }),
+            to: Messenger.fromWindow(popup),
+            waitForReady: true,
+          })
+
+          messenger.on('rpc-response', (response) =>
+            handleResponse(store, response),
+          )
 
           window.addEventListener('focus', onBlur)
 
@@ -194,18 +204,12 @@ export function popup() {
         destroy() {
           this.close()
           window.removeEventListener('focus', onBlur)
-          window.removeEventListener('message', onResponse)
-          window.removeEventListener('message', onReady)
-          ready.reject()
+          messenger?.destroy()
         },
         async syncRequests(requests) {
           if (!popup || popup.closed) this.open()
           popup?.focus()
-          await ready.promise
-          popup?.postMessage(
-            { topic: 'rpc-requests', requests },
-            hostUrl.origin,
-          )
+          messenger?.send('rpc-requests', requests)
         },
       }
     },

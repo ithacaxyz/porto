@@ -1,7 +1,7 @@
 'use client'
 
 import { Provider, RpcResponse } from 'ox'
-import { Implementation, Porto, Storage } from 'porto'
+import { Implementation, Messenger, Porto, Storage } from 'porto'
 import { useEffect, useState } from 'react'
 
 export const porto = Porto.create({
@@ -9,22 +9,17 @@ export const porto = Porto.create({
   storage: Storage.localStorage(),
 })
 
-const parent = window.opener ?? window.parent
+const messenger = Messenger.bridge({
+  from: Messenger.fromWindow(window),
+  to: Messenger.fromWindow(window.opener ?? window.parent),
+})
 
 export function App() {
   const [requests, setRequests] = useState<readonly Porto.QueuedRequest[]>([])
 
   useEffect(() => {
-    parent.postMessage({ topic: 'ready' }, '*')
-
-    function onMessage(event: MessageEvent) {
-      if (event.data.topic !== 'rpc-requests') return
-      const requests = event.data
-        .requests satisfies readonly Porto.QueuedRequest[]
-      setRequests(requests)
-    }
-    window.addEventListener('message', onMessage)
-    return () => window.removeEventListener('message', onMessage)
+    messenger.ready()
+    return messenger.on('rpc-requests', setRequests)
   }, [])
 
   return (
@@ -36,32 +31,26 @@ export function App() {
           const request = requests[0]!
           try {
             const result = await porto.provider.request(request.request)
-            parent.postMessage(
-              {
-                topic: 'rpc-response',
-                response: RpcResponse.from({
-                  id: request.request.id,
-                  jsonrpc: '2.0',
-                  result,
-                }),
-              },
-              '*',
+            messenger.send(
+              'rpc-response',
+              RpcResponse.from({
+                id: request.request.id,
+                jsonrpc: '2.0',
+                result,
+              }),
             )
           } catch (e) {
             const error = e as RpcResponse.BaseError
-            parent.postMessage(
-              {
-                topic: 'rpc-response',
-                response: RpcResponse.from({
-                  id: request.request.id,
-                  jsonrpc: '2.0',
-                  error: {
-                    code: error.code,
-                    message: error.message,
-                  },
-                }),
-              },
-              '*',
+            messenger.send(
+              'rpc-response',
+              RpcResponse.from({
+                id: request.request.id,
+                jsonrpc: '2.0',
+                error: {
+                  code: error.code,
+                  message: error.message,
+                },
+              }),
             )
           }
         }}
@@ -73,19 +62,16 @@ export function App() {
         onClick={async () => {
           if (requests.length === 0) return
           const request = requests[0]!
-          parent.postMessage(
-            {
-              topic: 'rpc-response',
-              response: RpcResponse.from({
-                id: request.request.id,
-                jsonrpc: '2.0',
-                error: {
-                  code: Provider.UserRejectedRequestError.code,
-                  message: 'User rejected the request.',
-                },
-              }),
-            },
-            '*',
+          messenger.send(
+            'rpc-response',
+            RpcResponse.from({
+              id: request.request.id,
+              jsonrpc: '2.0',
+              error: {
+                code: Provider.UserRejectedRequestError.code,
+                message: 'User rejected the request.',
+              },
+            }),
           )
         }}
       >
