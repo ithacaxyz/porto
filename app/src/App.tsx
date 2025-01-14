@@ -1,22 +1,30 @@
 'use client'
 
 import { Provider, RpcResponse } from 'ox'
-import { Implementation, Porto } from 'porto'
+import { Implementation, Porto, Storage } from 'porto'
 import { useEffect, useState } from 'react'
 
 export const porto = Porto.create({
   implementation: Implementation.local(),
+  storage: Storage.localStorage(),
 })
 
+const parent = window.opener ?? window.parent
+
 export function App() {
-  const [request, setRequest] = useState<Porto.QueuedRequest | null>(null)
+  const [requests, setRequests] = useState<readonly Porto.QueuedRequest[]>([])
 
   useEffect(() => {
-    window.addEventListener('message', (event) => {
-      if (event.data.topic !== 'rpc-request') return
-      const request = event.data.request satisfies Porto.QueuedRequest
-      setRequest(request)
-    })
+    parent.postMessage({ topic: 'ready' }, '*')
+
+    function onMessage(event: MessageEvent) {
+      if (event.data.topic !== 'rpc-requests') return
+      const requests = event.data
+        .requests satisfies readonly Porto.QueuedRequest[]
+      setRequests(requests)
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
   }, [])
 
   return (
@@ -24,10 +32,11 @@ export function App() {
       <button
         type="button"
         onClick={async () => {
-          if (!request) return
+          if (requests.length === 0) return
+          const request = requests[0]!
           try {
             const result = await porto.provider.request(request.request)
-            window.parent.postMessage(
+            parent.postMessage(
               {
                 topic: 'rpc-response',
                 response: RpcResponse.from({
@@ -40,7 +49,7 @@ export function App() {
             )
           } catch (e) {
             const error = e as RpcResponse.BaseError
-            window.parent.postMessage(
+            parent.postMessage(
               {
                 topic: 'rpc-response',
                 response: RpcResponse.from({
@@ -62,8 +71,9 @@ export function App() {
       <button
         type="button"
         onClick={async () => {
-          if (!request) return
-          window.parent.postMessage(
+          if (requests.length === 0) return
+          const request = requests[0]!
+          parent.postMessage(
             {
               topic: 'rpc-response',
               response: RpcResponse.from({
@@ -81,6 +91,14 @@ export function App() {
       >
         reject
       </button>
+      <div>
+        {requests.map((request) => (
+          <div key={request.request.id}>
+            {request.request.id}: {request.request.method}
+            {request.status}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

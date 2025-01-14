@@ -16,8 +16,8 @@ catalogs:
       specifier: ^18.3.0
       version: 18.3.1
     ox:
-      specifier: ^0.6.2
-      version: 0.6.2
+      specifier: ^0.6.3
+      version: 0.6.3
     react:
       specifier: ^18.3.1
       version: 18.3.1
@@ -73,7 +73,7 @@ importers:
         version: 5.37.1(@types/node@22.9.0)(typescript@5.6.3)
       ox:
         specifier: 'catalog:'
-        version: 0.6.2(typescript@5.6.3)(zod@3.23.8)
+        version: 0.6.3(typescript@5.6.3)(zod@3.23.8)
       prool:
         specifier: ^0.0.16
         version: 0.0.16
@@ -109,7 +109,7 @@ importers:
     dependencies:
       ox:
         specifier: 'catalog:'
-        version: 0.6.2(typescript@5.6.3)(zod@3.23.8)
+        version: 0.6.3(typescript@5.6.3)(zod@3.23.8)
       porto:
         specifier: workspace:*
         version: link:../src
@@ -183,7 +183,7 @@ importers:
     dependencies:
       ox:
         specifier: 'catalog:'
-        version: 0.6.2(typescript@5.6.3)(zod@3.23.8)
+        version: 0.6.3(typescript@5.6.3)(zod@3.23.8)
       porto:
         specifier: workspace:*
         version: link:../src
@@ -228,8 +228,8 @@ importers:
         specifier: ^0.0.7
         version: 0.0.7(typescript@5.6.3)
       ox:
-        specifier: ^0.6.2
-        version: 0.6.2(typescript@5.6.3)(zod@3.23.8)
+        specifier: ^0.6.3
+        version: 0.6.3(typescript@5.6.3)(zod@3.23.8)
       zustand:
         specifier: ^5.0.1
         version: 5.0.1(@types/react@18.3.18)(react@18.3.1)(use-sync-external-store@1.2.0(react@18.3.1))
@@ -3313,8 +3313,8 @@ packages:
       typescript:
         optional: true
 
-  ox@0.6.2:
-    resolution: {integrity: sha512-IcVd0XmdXCVi8NJngx/vO1O3p8aicL33twmhU4+tk+ESz/o5z9AMO2hESX0bUDZWlGxn9oQYCADlYAJBlXWdjw==}
+  ox@0.6.3:
+    resolution: {integrity: sha512-0eCaMQrdfTjNojzjaDoZOW8CpZILKJWkewNUPBreUIgaF0EcWRq3I4EySFXNlxHjJu/TCVRzLy6jXJdFooOH7A==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -8022,7 +8022,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.6.2(typescript@5.6.3)(zod@3.23.8):
+  ox@0.6.3(typescript@5.6.3)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.7.0

@@ -7,13 +7,13 @@ import * as PersonalMessage from 'ox/PersonalMessage'
 import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as RpcRequest from 'ox/RpcRequest'
-import type * as RpcResponse from 'ox/RpcResponse'
 import type * as RpcSchema from 'ox/RpcSchema'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { readContract } from 'viem/actions'
 
+import * as Dialog from './Dialog.js'
 import type { Clients, QueuedRequest } from './Porto.js'
 import * as Account from './internal/account.js'
 import * as Call from './internal/call.js'
@@ -457,11 +457,11 @@ export declare namespace local {
   }
 }
 
-export function frame(parameters: frame.Parameters = {}) {
+export function dialog(parameters: dialog.Parameters = {}) {
   // TODO: change
-  const { host = 'http://localhost:5174/embed' } = parameters
+  const { host = 'http://localhost:5174', renderer = Dialog.iframe() } =
+    parameters
 
-  const hostUrl = new URL(host)
   const requestStore = RpcRequest.createStore()
 
   function perform(parameters: {
@@ -596,114 +596,42 @@ export function frame(parameters: frame.Parameters = {}) {
       const { internal } = parameters
       const { store } = internal
 
-      const root = document.createElement('div')
-      document.body.appendChild(root)
-
-      const backdrop = document.createElement('div')
-      Object.assign(backdrop.style, frame.styles.backdrop)
-      root.appendChild(backdrop)
-
-      const iframe = document.createElement('iframe')
-      iframe.allow = `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`
-      iframe.src = host
-      iframe.title = 'Porto'
-      Object.assign(iframe.style, frame.styles.iframe)
-
-      root.appendChild(document.createElement('style')).textContent = `
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `
-      root.appendChild(iframe)
-
-      backdrop.addEventListener('click', () =>
-        store.setState((x) => ({
-          ...x,
-          requestQueue: x.requestQueue.map((x) => ({
-            error: new Provider.UserRejectedRequestError(),
-            request: x.request,
-            status: 'error',
-          })),
-        })),
-      )
-
-      window.addEventListener('message', (event) => {
-        if (event.origin !== hostUrl.origin) return
-        if (event.data.topic !== 'rpc-response') return
-        const response = event.data.response as RpcResponse.RpcResponse
-        store.setState((x) => ({
-          ...x,
-          requestQueue: x.requestQueue.map((queued) => {
-            if (queued.request.id !== response.id) return queued
-            if (response.error)
-              return {
-                request: queued.request,
-                status: 'error',
-                error: response.error,
-              } satisfies QueuedRequest
-            return {
-              request: queued.request,
-              status: 'success',
-              result: response.result,
-            } satisfies QueuedRequest
-          }),
-        }))
+      const dialog = renderer.setup({
+        host,
+        internal,
       })
 
-      return store.subscribe(
+      const unsubscribe = store.subscribe(
         (x) => x.requestQueue,
         (requestQueue) => {
-          const request = requestQueue.find((x) => x.status === 'pending')
-          if (request) {
-            backdrop.style.display = 'block'
-            iframe.style.display = 'block'
-            iframe.contentWindow?.postMessage(
-              { topic: 'rpc-request', request },
-              hostUrl.origin,
-            )
-          } else {
-            backdrop.style.display = 'none'
-            iframe.style.display = 'none'
-          }
+          const requests = requestQueue
+            .map((x) => (x.status === 'pending' ? x : undefined))
+            .filter(Boolean) as readonly QueuedRequest[]
+          if (requests.length > 0) dialog.syncRequests(requests)
+          else dialog.close()
         },
       )
+
+      return () => {
+        unsubscribe()
+        dialog.destroy()
+      }
     },
   })
 }
 
-frame.styles = {
-  iframe: {
-    animation: 'fadeIn 0.1s ease-in-out',
-    display: 'none',
-    border: 'none',
-    borderRadius: '8px',
-    position: 'fixed',
-    top: '16px',
-    left: 'calc(50% - 160px)',
-    width: '320px',
-    height: '180px',
-    zIndex: '999999999999',
-  },
-  backdrop: {
-    display: 'none',
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: '999999999998',
-  },
-} as const satisfies Record<string, Partial<CSSStyleDeclaration>>
-
-export declare namespace frame {
+export declare namespace dialog {
   type Parameters = {
     /**
      * Wallet embed host.
      * @default 'http://wallet.ithaca.xyz/embed'
      */
     host?: string | undefined
+    /**
+     * Dialog renderer.
+     * @default Dialog.iframe()
+     */
+    renderer?: Dialog.Dialog | undefined
   }
 }
 

@@ -1,4 +1,6 @@
 import { createStore, del, get, set } from 'idb-keyval'
+import { Json } from 'ox'
+
 import type { MaybePromise } from './internal/types.js'
 
 export type Storage = {
@@ -25,6 +27,26 @@ export function idb() {
     },
     async setItem(name, value) {
       await set(name, value, store)
+    },
+  })
+}
+
+export function localStorage() {
+  return from({
+    async getItem(name) {
+      const item = window.localStorage.getItem(name)
+      if (item === null) return null
+      try {
+        return Json.parse(item)
+      } catch {
+        return null
+      }
+    },
+    async removeItem(name) {
+      window.localStorage.removeItem(name)
+    },
+    async setItem(name, value) {
+      window.localStorage.setItem(name, Json.stringify(value))
     },
   })
 }
