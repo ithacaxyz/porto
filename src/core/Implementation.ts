@@ -235,18 +235,19 @@ export function local(parameters: local.Parameters = {}) {
           return { account, context, signatures }
         })()
 
-        const hash = await Delegation.execute(clients.relay, {
+        await Delegation.execute(clients.relay, {
           ...(context as any),
           account,
           signatures,
         })
 
-        return { account, hash }
+        return { account }
       },
 
       async execute(parameters) {
         const { account, calls, internal } = parameters
         const { clients } = internal
+
         const key = (() => {
           // If a key is provided, use it.
           if (parameters.key) {
@@ -458,13 +459,14 @@ export declare namespace local {
 }
 
 export function dialog(parameters: dialog.Parameters = {}) {
-  // TODO: change
-  const { host = 'http://localhost:5174', renderer = Dialog.iframe() } =
-    parameters
+  const {
+    host = 'http://localhost:5174', // TODO: change
+    renderer = Dialog.iframe(),
+  } = parameters
 
   const requestStore = RpcRequest.createStore()
 
-  function perform(store: Porto.Internal['store']) {
+  function getProvider(store: Porto.Internal['store']) {
     return Provider.from(
       {
         async request(r) {
@@ -514,7 +516,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         },
       },
       { schema: RpcSchema.from<RpcSchema_porto.Schema>() },
-    ).request
+    )
   }
 
   return from({
@@ -536,7 +538,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const key = keys[0]!
 
-        await perform(store)({
+        const provider = getProvider(store)
+        await provider.request({
           method: 'experimental_authorizeKey',
           params: [
             {
@@ -549,22 +552,58 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return { key }
       },
 
-      // TODO: handle authorize keys
       async createAccount(parameters) {
         const { internal } = parameters
         const { store, request } = internal
 
+        const provider = getProvider(store)
+
         const account = await (async () => {
-          if (request.method === 'experimental_createAccount')
-            return await perform(store)(request)
+          if (request.method === 'experimental_createAccount') {
+            const { address } = await provider.request(request)
+            return Account.from({
+              address,
+            })
+          }
 
           if (request.method === 'wallet_connect') {
-            const result = await perform(store)(request)
+            const [{ capabilities }] = request.params ?? [{}]
 
-            const account = result.accounts[0]
+            const [authorizeKey] = await getKeysToAuthorize({
+              authorizeKeys: capabilities?.authorizeKey
+                ? [capabilities.authorizeKey]
+                : undefined,
+              defaultExpiry,
+            })
+
+            const authorizeKey_rpc = authorizeKey
+              ? Key.toRpc(authorizeKey)
+              : undefined
+
+            const { accounts } = await provider.request({
+              ...request,
+              params: [
+                {
+                  capabilities: {
+                    ...request.params?.[0]?.capabilities,
+                    authorizeKey: authorizeKey_rpc as any,
+                  },
+                },
+              ],
+            })
+
+            const [account] = accounts
             if (!account) throw new Error('no account found.')
 
-            return account
+            const keys = account.capabilities?.keys?.map((key) => {
+              if (key.publicKey === authorizeKey?.publicKey) return authorizeKey
+              return Key.fromRpc(key)
+            })
+
+            return Account.from({
+              address: account.address,
+              keys,
+            })
           }
 
           throw new Error(
@@ -573,10 +612,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         })()
 
         return {
-          account: Account.from({
-            address: account.address,
-            keys: account.capabilities?.keys?.map(Key.fromRpc) ?? [],
-          }),
+          account,
         }
       },
 
@@ -591,7 +627,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
         )
           throw new Error('Cannot execute for method: ' + request.method)
 
-        const result = await perform(store)(request)
+        const provider = getProvider(store)
+        const result = await provider.request(request)
 
         return result as Hex.Hex
       },
@@ -601,9 +638,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { internal } = parameters
         const { store, request } = internal
 
+        const provider = getProvider(store)
+
         const accounts = await (async () => {
           if (request.method === 'eth_requestAccounts') {
-            const addresses = await perform(store)(request)
+            const addresses = await provider.request(request)
             return addresses.map((address) => ({
               address,
               capabilities: {
@@ -613,7 +652,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           }
 
           if (request.method === 'wallet_connect') {
-            const result = await perform(store)(request)
+            const result = await provider.request(request)
             return result.accounts
           }
 
@@ -647,7 +686,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot sign personal message for method: ' + request.method,
           )
 
-        return await perform(store)(request)
+        const provider = getProvider(store)
+        return await provider.request(request)
       },
 
       async signTypedData(parameters) {
@@ -659,7 +699,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot sign typed data for method: ' + request.method,
           )
 
-        return await perform(store)(request)
+        const provider = getProvider(store)
+        return await provider.request(request)
       },
     },
     setup(parameters) {
@@ -865,7 +906,7 @@ async function getKeysToAuthorize(parameters: {
   const { authorizeKeys, defaultExpiry } = parameters
 
   // Don't need to authorize extra keys if none are provided.
-  if (!authorizeKeys) return undefined
+  if (!authorizeKeys) return []
 
   // Otherwise, authorize the provided keys.
   return await Promise.all(
