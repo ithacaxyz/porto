@@ -185,6 +185,7 @@ export function local(parameters: local.Parameters = {}) {
         const { account, key: keyToAuthorize, internal } = parameters
         const { clients } = internal
 
+        // Parse provided (RPC) keys into a list of structured keys (`Key.Key`).
         const keys = await getKeysToAuthorize({
           authorizeKeys: [keyToAuthorize],
           defaultExpiry,
@@ -193,6 +194,7 @@ export function local(parameters: local.Parameters = {}) {
         // TODO: wait for tx to be included?
         await Delegation.execute(clients.relay, {
           account,
+          // Extract calls to authorize the keys.
           calls: getAuthorizeCalls(keys!),
         })
 
@@ -204,6 +206,9 @@ export function local(parameters: local.Parameters = {}) {
         const { clients } = internal
 
         const { account, context, signatures } = await (async () => {
+          // If the context and signatures are provided, we can skip
+          // the preparation step (likely `wallet_prepareCreateAccount` has
+          // been called).
           if (parameters.context && parameters.signatures)
             return {
               account: (parameters.context as any).account,
@@ -211,11 +216,14 @@ export function local(parameters: local.Parameters = {}) {
               signatures: parameters.signatures,
             }
 
+          // Generate a random private key and derive the address.
+          // The address here will be the address of the account.
           const privateKey = Secp256k1.randomPrivateKey()
           const address = Address.fromPublicKey(
             Secp256k1.getPublicKey({ privateKey }),
           )
 
+          // Prepare the account for creation.
           const { context, signPayloads } = await prepareCreateAccount({
             address,
             authorizeKeys,
@@ -225,6 +233,8 @@ export function local(parameters: local.Parameters = {}) {
             label,
           })
 
+          // Assign any keys to the account and sign over the payloads
+          // required for account creation (e.g. 7702 auth and/or account initdata).
           const account = Account.fromPrivateKey(privateKey, {
             keys: context.account.keys,
           })
@@ -235,6 +245,8 @@ export function local(parameters: local.Parameters = {}) {
           return { account, context, signatures }
         })()
 
+        // Execute the account creation.
+        // TODO: wait for tx to be included?
         await Delegation.execute(clients.relay, {
           ...(context as any),
           account,
@@ -248,56 +260,15 @@ export function local(parameters: local.Parameters = {}) {
         const { account, calls, internal } = parameters
         const { clients } = internal
 
-        const key = (() => {
-          // If a key is provided, use it.
-          if (parameters.key) {
-            const key = account.keys?.find(
-              (key) =>
-                key.publicKey === parameters.key?.publicKey && key.canSign,
-            )
-            if (!key)
-              throw new Error(
-                `key (publicKey: ${parameters.key?.publicKey}) does not exist or is not a provider-managed key.`,
-              )
-            return key
-          }
+        // Try and extract an authorized key to sign the calls with.
+        const key = await getAuthorizedExecuteKey({
+          account,
+          calls,
+          key: parameters.key,
+        })
 
-          // Otherwise, try and find a valid session key.
-          const sessionKey = account.keys?.find((key) => {
-            if (!key.canSign) return false
-            if (key.role !== 'session') return false
-            if (key.expiry < BigInt(Math.floor(Date.now() / 1000))) return false
-
-            const hasInvalidScope = key.callScopes?.some((scope) =>
-              calls.some((call) => {
-                if (scope.to && scope.to !== call.to) return true
-                if (scope.signature) {
-                  if (!call.data) return true
-                  const selector = Hex.slice(call.data, 0, 4)
-                  if (
-                    Hex.validate(scope.signature) &&
-                    scope.signature !== selector
-                  )
-                    return true
-                  if (AbiItem.getSelector(scope.signature) !== selector)
-                    return true
-                }
-                return false
-              }),
-            )
-            if (hasInvalidScope) return false
-
-            return true
-          })
-
-          // Fall back to an admin key.
-          const adminKey = account.keys?.find(
-            (key) => key.role === 'admin' && key.canSign,
-          )
-
-          return sessionKey ?? adminKey
-        })()
-
+        // Execute the calls (with the key if provided, otherwise it will
+        // fall back to an admin key).
         const hash = await Delegation.execute(clients.relay, {
           account,
           calls,
@@ -312,14 +283,16 @@ export function local(parameters: local.Parameters = {}) {
         const { clients } = internal
 
         const { address, credentialId } = await (async () => {
+          // If the address and credentialId are provided, we can skip the
+          // WebAuthn discovery step.
           if (parameters.address && parameters.credentialId)
             return {
               address: parameters.address,
               credentialId: parameters.credentialId,
             }
 
-          // We will sign a random challenge. We need to do this to extract the
-          // user id (ie. the address) to query for the Account's keys.
+          // Discovery step. We will sign a random challenge. We need to do this
+          // to extract the user id (ie. the address) to query for the Account's keys.
           const credential = await WebAuthnP256.sign({
             challenge: '0x',
             rpId: keystoreHost,
@@ -368,7 +341,9 @@ export function local(parameters: local.Parameters = {}) {
           }),
         })
 
+        // If there are any extra keys to authorize, we need to authorize them.
         if (extraKeys)
+          // TODO: wait for tx to be included?
           await Delegation.execute(clients.relay, {
             account,
             calls: getAuthorizeCalls(extraKeys),
@@ -399,6 +374,7 @@ export function local(parameters: local.Parameters = {}) {
         const key = account.keys?.find((key) => key.publicKey === publicKey)
         if (!key) return
 
+        // We shouldn't be able to revoke the last key.
         if (
           key.role === 'admin' &&
           account.keys?.map((x) => x.role === 'admin').length === 1
@@ -416,6 +392,7 @@ export function local(parameters: local.Parameters = {}) {
       async signPersonalMessage(parameters) {
         const { account, data } = parameters
 
+        // Only admin keys can sign personal messages.
         const key = account.keys?.find(
           (key) => key.role === 'admin' && key.canSign,
         )
@@ -432,6 +409,7 @@ export function local(parameters: local.Parameters = {}) {
       async signTypedData(parameters) {
         const { account, data } = parameters
 
+        // Only admin keys can sign typed data.
         const key = account.keys?.find(
           (key) => key.role === 'admin' && key.canSign,
         )
@@ -466,12 +444,16 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   const requestStore = RpcRequest.createStore()
 
+  // Function to instantiate a provider for the dialog. This
+  // will be used to queue up requests for the dialog and
+  // handle responses.
   function getProvider(store: Porto.Internal['store']) {
     return Provider.from(
       {
         async request(r) {
           const request = requestStore.prepare(r as any)
 
+          // When we receive a request, we need to add it to the queue.
           store.setState((x) => ({
             ...x,
             requestQueue: [
@@ -483,15 +465,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
             ],
           }))
 
+          // We need to wait for the request to be resolved.
           return new Promise((resolve, reject) => {
             const unsubscribe = store.subscribe(
               (x) => x.requestQueue,
               (requestQueue) => {
+                // If the queue is empty, reject the request as it will
+                // never be resolved.
                 if (requestQueue.length === 0) {
                   unsubscribe()
                   reject(new Provider.UserRejectedRequestError())
                 }
 
+                // Find the request in the queue based off its JSON-RPC identifier.
                 const queued = requestQueue.find(
                   (x) => x.request.id === request.id,
                 )
@@ -499,11 +485,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 if (queued.status !== 'success' && queued.status !== 'error')
                   return
 
+                // We have a response, we can unsubscribe from the store.
                 unsubscribe()
 
+                // If the request was successful, resolve with the result.
                 if (queued.status === 'success') resolve(queued.result as any)
+                // Otherwise, reject with EIP-1193 Provider error.
                 else reject(Provider.parseError(queued.error))
 
+                // Remove the request from the queue.
                 store.setState((x) => ({
                   ...x,
                   requestQueue: x.requestQueue.filter(
@@ -530,14 +520,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const [{ address, key: keyToAuthorize }] = request.params
 
-        const keys = await getKeysToAuthorize({
+        // Parse provided (RPC) key into a structured key (`Key.Key`).
+        const [key] = await getKeysToAuthorize({
           authorizeKeys: [keyToAuthorize],
           defaultExpiry,
         })
-        if (!keys || keys.length === 0) throw new Error('no keys found.')
+        if (!key) throw new Error('key not found.')
 
-        const key = keys[0]!
-
+        // Send a request off to the dialog to authorize the key.
         const provider = getProvider(store)
         await provider.request({
           method: 'experimental_authorizeKey',
@@ -560,6 +550,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const account = await (async () => {
           if (request.method === 'experimental_createAccount') {
+            // Send a request off to the dialog to create an account.
             const { address } = await provider.request(request)
             return Account.from({
               address,
@@ -567,8 +558,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
           }
 
           if (request.method === 'wallet_connect') {
+            // Extract the capabilities from the request.
             const [{ capabilities }] = request.params ?? [{}]
 
+            // Parse the authorize key into a structured key (`Key.Key`).
             const [authorizeKey] = await getKeysToAuthorize({
               authorizeKeys: capabilities?.authorizeKey
                 ? [capabilities.authorizeKey]
@@ -576,10 +569,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
               defaultExpiry,
             })
 
+            // Convert the key into RPC format.
             const authorizeKey_rpc = authorizeKey
               ? Key.toRpc(authorizeKey)
               : undefined
 
+            // Send a request off to the dialog to create an account.
             const { accounts } = await provider.request({
               ...request,
               params: [
@@ -595,6 +590,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             const [account] = accounts
             if (!account) throw new Error('no account found.')
 
+            // Build keys to assign onto the account.
             const keys = account.capabilities?.keys?.map((key) => {
               if (key.publicKey === authorizeKey?.publicKey) return authorizeKey
               return Key.fromRpc(key)
@@ -616,21 +612,48 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
-      // TODO: handle authorize keys
       async execute(parameters) {
-        const { internal } = parameters
-        const { store, request } = internal
+        const { account, calls, internal } = parameters
+        const { clients, store, request } = internal
 
-        if (
-          request.method !== 'eth_sendTransaction' &&
-          request.method !== 'wallet_sendCalls'
-        )
-          throw new Error('Cannot execute for method: ' + request.method)
+        // Try and extract an authorized key to sign the calls with.
+        const key = await getAuthorizedExecuteKey({
+          account,
+          calls,
+          key: parameters.key,
+        })
+
+        // If a key is found, execute the calls with it.
+        // No need to send a request to the dialog.
+        if (key)
+          return await Delegation.execute(clients.relay, {
+            account,
+            calls,
+            key,
+          })
 
         const provider = getProvider(store)
-        const result = await provider.request(request)
 
-        return result as Hex.Hex
+        if (request.method === 'eth_sendTransaction')
+          // Send a transaction request to the dialog.
+          return await provider.request(request)
+
+        if (request.method === 'wallet_sendCalls')
+          // Send calls request to the dialog.
+          return (await provider.request({
+            ...request,
+            params: [
+              {
+                ...request.params?.[0],
+                capabilities: {
+                  ...request.params?.[0]?.capabilities,
+                  key,
+                },
+              },
+            ],
+          })) as Hex.Hex
+
+        throw new Error('Cannot execute for method: ' + request.method)
       },
 
       // TODO: handle authorize keys
@@ -872,7 +895,7 @@ async function prepareCreateAccount(parameters: {
   return { context: request, signPayloads }
 }
 
-function getAuthorizeCalls(keys: readonly Key.Key[]) {
+function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
   return keys.flatMap((key) => {
     if (key.role === 'session' && (key.callScopes ?? []).length === 0)
       throw new Error(
@@ -897,12 +920,63 @@ function getAuthorizeCalls(keys: readonly Key.Key[]) {
   })
 }
 
+async function getAuthorizedExecuteKey(parameters: {
+  account: Account.Account
+  calls: readonly Call.Call[]
+  key?: { publicKey: Hex.Hex } | undefined
+}): Promise<Key.Key | undefined> {
+  const { account, calls, key } = parameters
+
+  // If a key is provided, use it.
+  if (key) {
+    const key = account.keys?.find(
+      (key) => key.publicKey === parameters.key?.publicKey && key.canSign,
+    )
+    if (!key)
+      throw new Error(
+        `key (publicKey: ${parameters.key?.publicKey}) does not exist or is not a provider-managed key.`,
+      )
+    return key
+  }
+
+  // Otherwise, try and find a valid session key.
+  const sessionKey = account.keys?.find((key) => {
+    if (!key.canSign) return false
+    if (key.role !== 'session') return false
+    if (key.expiry < BigInt(Math.floor(Date.now() / 1000))) return false
+
+    const hasInvalidScope = key.callScopes?.some((scope) =>
+      calls.some((call) => {
+        if (scope.to && scope.to !== call.to) return true
+        if (scope.signature) {
+          if (!call.data) return true
+          const selector = Hex.slice(call.data, 0, 4)
+          if (Hex.validate(scope.signature) && scope.signature !== selector)
+            return true
+          if (AbiItem.getSelector(scope.signature) !== selector) return true
+        }
+        return false
+      }),
+    )
+    if (hasInvalidScope) return false
+
+    return true
+  })
+
+  // Fall back to an admin key.
+  const adminKey = account.keys?.find(
+    (key) => key.role === 'admin' && key.canSign,
+  )
+
+  return sessionKey ?? adminKey
+}
+
 async function getKeysToAuthorize(parameters: {
   authorizeKeys:
     | readonly RpcSchema_porto.AuthorizeKeyParameters['key'][]
     | undefined
   defaultExpiry: number
-}) {
+}): Promise<readonly Key.Key[]> {
   const { authorizeKeys, defaultExpiry } = parameters
 
   // Don't need to authorize extra keys if none are provided.
