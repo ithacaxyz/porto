@@ -104,7 +104,7 @@ export type Implementation = {
       /** Filled context for the `createAccount` implementation. */
       context: unknown
       /** Hex payloads to sign over. */
-      signPayloads: Hex.Hex[]
+      signPayloads: readonly Hex.Hex[]
     }>
 
     revokeKey: (parameters: {
@@ -544,12 +544,28 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async createAccount(parameters) {
         const { internal } = parameters
-        const { store, request } = internal
+        const { clients, store, request } = internal
 
         const provider = getProvider(store)
 
         const account = await (async () => {
           if (request.method === 'experimental_createAccount') {
+            // Extract the capabilities from the request.
+            const [{ context, signatures }] = request.params ?? [{}]
+
+            // If the context and signatures are provided, we can create
+            // the account without sending a request to the dialog.
+            if (context && signatures) {
+              const request = context as Delegation.execute.Parameters & {
+                nonce: bigint
+              }
+              await Delegation.execute(clients.relay, {
+                ...request,
+                signatures,
+              })
+              return Account.from(request.account)
+            }
+
             // Send a request off to the dialog to create an account.
             const { address } = await provider.request(request)
             return Account.from({
@@ -721,8 +737,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
-      prepareCreateAccount() {
-        throw new Error('TODO')
+      async prepareCreateAccount(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'experimental_prepareCreateAccount')
+          throw new Error(
+            'Cannot prepare create account for method: ' + request.method,
+          )
+
+        const provider = getProvider(store)
+        return await provider.request(request)
       },
 
       async revokeKey(parameters) {
