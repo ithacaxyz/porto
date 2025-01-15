@@ -16,7 +16,7 @@
     "check:types": "tsc --noEmit",
     "clean": "rm -rf src/_dist ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
     "deps": "pnpx taze -r",
-    "dev": "pnpm preconstruct && pnpm --filter wagmi-example --filter app dev",
+    "dev": "pnpm preconstruct && pnpm --filter playground --filter app dev",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example dev",
     "format": "biome format --write",
     "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
