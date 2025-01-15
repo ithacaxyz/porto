@@ -44,6 +44,7 @@ Experimental Next-gen Account for Ethereum.
   - [`createAccount`](#createaccount)
   - [`keys`](#keys)
 - [Wagmi Reference](#wagmi-reference)
+- [FAQs](#faqs)
 - [Development](#development)
 - [License](#license)
 
@@ -552,7 +553,7 @@ Porto implements the following [Wagmi](https://github.com/wevm/wagmi) VanillaJS 
 
 ### VanillaJS Actions
 
-Import via named export or `A` namespace (better autocomplete DX and does not impact tree shaking).
+Import via named export or `Actions` namespace (better autocomplete DX and does not impact tree shaking).
 
 - `authorizeKey`
 - `connect`
@@ -569,7 +570,7 @@ import { connect } from 'porto/wagmi/Actions'
 
 ### React Hooks
 
-Import via named export or `W` namespace (better autocomplete DX and does not impact tree shaking).
+Import via named export or `Hooks` namespace (better autocomplete DX and does not impact tree shaking).
 
 - `useAuthorizeKey`
 - `useConnect`
@@ -583,6 +584,21 @@ Import via named export or `W` namespace (better autocomplete DX and does not im
 import { Hooks } from 'porto/wagmi' // Hooks.useConnect()
 import { useConnect } from 'porto/wagmi/Hooks'
 ```
+
+## FAQs
+
+### Is Webauthn required or can any EOA be used?
+Any EOA can be used see [`experimental_importAccount`](#experimental_importaccount).
+
+### Can sessions be revoked?
+Yes, see [`revokable`](https://github.com/ithacaxyz/porto/blob/main/contracts/src/account/ExperimentalDelegation.sol#L132-L141) on the Account contract.
+
+### Do sessions expire?
+Yes, this can be done by calling [`experimental_grantSession`](#experimental_grantsession) with an unix timestamp.
+
+### When a session is created what permissions are granted?
+Currently full control over the account is granted, but in the future this can be more restricted (see [`execute`](https://github.com/ithacaxyz/account/blob/main/src/GuardedExecutor.sol#L78-L83)).
+
 
 ## Development
 

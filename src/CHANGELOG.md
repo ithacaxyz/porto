@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.4
+
+### Patch Changes
+
+- [`394cc44`](https://github.com/ithacaxyz/porto/commit/394cc441bf0cf175cf669449be19490879714b74) Thanks [@jxom](https://github.com/jxom)! - Modified `porto/wagmi` entrypoint to export `Actions`, `Hooks`, and `Query` modules.
+
 ## 0.0.3
 
 ### Patch Changes

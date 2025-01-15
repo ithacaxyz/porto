@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xc8f36b7222e22d192aa0b73046cdd47444392570)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xde1e05b27289652cf1dcbbaaed1c0e3cb0e8c919)
  */
 export const delegationAbi = [
   { type: 'fallback', stateMutability: 'payable' },
@@ -438,14 +438,14 @@ export const delegationAbi = [
 ] as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xc8f36b7222e22d192aa0b73046cdd47444392570)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xde1e05b27289652cf1dcbbaaed1c0e3cb0e8c919)
  */
 export const delegationAddress = {
-  911867: '0xc8f36b7222E22D192Aa0B73046Cdd47444392570',
+  911867: '0xde1e05B27289652cF1DcBBaaEd1C0E3Cb0e8c919',
 } as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xc8f36b7222e22d192aa0b73046cdd47444392570)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xde1e05b27289652cf1dcbbaaed1c0e3cb0e8c919)
  */
 export const delegationConfig = {
   address: delegationAddress,
