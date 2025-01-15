@@ -7,7 +7,7 @@ import * as PersonalMessage from 'ox/PersonalMessage'
 import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as RpcRequest from 'ox/RpcRequest'
-import type * as RpcSchema from 'ox/RpcSchema'
+import * as RpcSchema from 'ox/RpcSchema'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
@@ -24,7 +24,7 @@ import type * as Porto from './internal/porto.js'
 import type * as RpcSchema_porto from './internal/rpcSchema.js'
 import type { Compute, PartialBy } from './internal/types.js'
 
-type Request = Pick<RpcRequest.RpcRequest, 'method' | 'params'>
+type Request = RpcSchema.ExtractRequest<RpcSchema_porto.Schema>
 
 type ActionsInternal = Porto.Internal & {
   /** Viem Clients. */
@@ -140,6 +140,8 @@ export type Implementation = {
   }) => () => void
 }
 
+const defaultExpiry = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
+
 /**
  * Instantiates an implementation.
  *
@@ -167,8 +169,6 @@ export declare namespace from {
  * @returns Implementation.
  */
 export function local(parameters: local.Parameters = {}) {
-  const defaultExpiry = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
-
   const keystoreHost = (() => {
     if (parameters.keystoreHost === 'self') return undefined
     if (
@@ -191,12 +191,12 @@ export function local(parameters: local.Parameters = {}) {
         })
 
         // TODO: wait for tx to be included?
-        const hash = await Delegation.execute(clients.relay, {
+        await Delegation.execute(clients.relay, {
           account,
           calls: getAuthorizeCalls(keys!),
         })
 
-        return { hash, key: keys![0]! }
+        return { key: keys![0]! }
       },
 
       async createAccount(parameters) {
@@ -464,58 +464,89 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   const requestStore = RpcRequest.createStore()
 
-  function perform(parameters: {
-    request: Request
-    store: Porto.Internal['store']
-  }) {
-    const { store } = parameters
-
-    const request = requestStore.prepare(parameters.request)
-
-    store.setState((x) => ({
-      ...x,
-      requestQueue: [
-        ...x.requestQueue,
-        {
-          request,
-          status: 'pending',
-        },
-      ],
-    }))
-
-    return new Promise((resolve, reject) => {
-      const unsubscribe = store.subscribe(
-        (x) => x.requestQueue,
-        (requestQueue) => {
-          if (requestQueue.length === 0) {
-            unsubscribe()
-            reject(new Provider.UserRejectedRequestError())
-          }
-
-          const queued = requestQueue.find((x) => x.request.id === request.id)
-          if (!queued) return
-          if (queued.status !== 'success' && queued.status !== 'error') return
-
-          unsubscribe()
-
-          if (queued.status === 'success') resolve(queued.result)
-          else reject(Provider.parseErrorObject(queued.error))
+  function perform(store: Porto.Internal['store']) {
+    return Provider.from(
+      {
+        async request(r) {
+          const request = requestStore.prepare(r as any)
 
           store.setState((x) => ({
             ...x,
-            requestQueue: x.requestQueue.filter(
-              (x) => x.request.id !== request.id,
-            ),
+            requestQueue: [
+              ...x.requestQueue,
+              {
+                request,
+                status: 'pending',
+              },
+            ],
           }))
+
+          return new Promise((resolve, reject) => {
+            const unsubscribe = store.subscribe(
+              (x) => x.requestQueue,
+              (requestQueue) => {
+                if (requestQueue.length === 0) {
+                  unsubscribe()
+                  reject(new Provider.UserRejectedRequestError())
+                }
+
+                const queued = requestQueue.find(
+                  (x) => x.request.id === request.id,
+                )
+                if (!queued) return
+                if (queued.status !== 'success' && queued.status !== 'error')
+                  return
+
+                unsubscribe()
+
+                if (queued.status === 'success') resolve(queued.result as any)
+                else reject(Provider.parseError(queued.error))
+
+                store.setState((x) => ({
+                  ...x,
+                  requestQueue: x.requestQueue.filter(
+                    (x) => x.request.id !== request.id,
+                  ),
+                }))
+              },
+            )
+          })
         },
-      )
-    })
+      },
+      { schema: RpcSchema.from<RpcSchema_porto.Schema>() },
+    ).request
   }
 
   return from({
     actions: {
-      async authorizeKey() {
-        throw new Error('TODO')
+      async authorizeKey(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'experimental_authorizeKey')
+          throw new Error('Cannot authorize key for method: ' + request.method)
+
+        const [{ address, key: keyToAuthorize }] = request.params
+
+        const keys = await getKeysToAuthorize({
+          authorizeKeys: [keyToAuthorize],
+          defaultExpiry,
+        })
+        if (!keys || keys.length === 0) throw new Error('no keys found.')
+
+        const key = keys[0]!
+
+        await perform(store)({
+          method: 'experimental_authorizeKey',
+          params: [
+            {
+              address,
+              key: Key.toRpc(key) as any,
+            },
+          ],
+        })
+
+        return { key }
       },
 
       // TODO: handle authorize keys
@@ -525,22 +556,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const account = await (async () => {
           if (request.method === 'experimental_createAccount')
-            return (await perform({
-              request,
-              store,
-            })) as RpcSchema.ExtractReturnType<
-              RpcSchema_porto.Schema,
-              'experimental_createAccount'
-            >
+            return await perform(store)(request)
 
           if (request.method === 'wallet_connect') {
-            const result = (await perform({
-              request,
-              store,
-            })) as RpcSchema.ExtractReturnType<
-              RpcSchema_porto.Schema,
-              'wallet_connect'
-            >
+            const result = await perform(store)(request)
 
             const account = result.accounts[0]
             if (!account) throw new Error('no account found.')
@@ -572,13 +591,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         )
           throw new Error('Cannot execute for method: ' + request.method)
 
-        const result = (await perform({
-          request,
-          store,
-        })) as RpcSchema.ExtractReturnType<
-          RpcSchema_porto.Schema,
-          'eth_sendTransaction' | 'wallet_sendCalls'
-        >
+        const result = await perform(store)(request)
 
         return result as Hex.Hex
       },
@@ -590,14 +603,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const accounts = await (async () => {
           if (request.method === 'eth_requestAccounts') {
-            const addresses = (await perform({
-              request,
-              store,
-            })) as RpcSchema.ExtractReturnType<
-              RpcSchema_porto.Schema,
-              'eth_requestAccounts'
-            >
-
+            const addresses = await perform(store)(request)
             return addresses.map((address) => ({
               address,
               capabilities: {
@@ -607,14 +613,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           }
 
           if (request.method === 'wallet_connect') {
-            const result = (await perform({
-              request,
-              store,
-            })) as RpcSchema.ExtractReturnType<
-              RpcSchema_porto.Schema,
-              'wallet_connect'
-            >
-
+            const result = await perform(store)(request)
             return result.accounts
           }
 
@@ -648,15 +647,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot sign personal message for method: ' + request.method,
           )
 
-        const result = (await perform({
-          request,
-          store,
-        })) as RpcSchema.ExtractReturnType<
-          RpcSchema_porto.Schema,
-          'personal_sign'
-        >
-
-        return result
+        return await perform(store)(request)
       },
 
       async signTypedData(parameters) {
@@ -668,15 +659,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot sign typed data for method: ' + request.method,
           )
 
-        const result = (await perform({
-          request,
-          store,
-        })) as RpcSchema.ExtractReturnType<
-          RpcSchema_porto.Schema,
-          'eth_signTypedData_v4'
-        >
-
-        return result
+        return await perform(store)(request)
       },
     },
     setup(parameters) {

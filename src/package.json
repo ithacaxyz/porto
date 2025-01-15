@@ -17,7 +17,7 @@
   "dependencies": {
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
-    "ox": "^0.6.3",
+    "ox": "^0.6.4",
     "zustand": "^5.0.1"
   },
   "peerDependencies": {

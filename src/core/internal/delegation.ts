@@ -6,7 +6,13 @@ import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
-import type { Account, BaseError, Chain, Client, Transport } from 'viem'
+import {
+  type Account,
+  BaseError,
+  type Chain,
+  type Client,
+  type Transport,
+} from 'viem'
 import {
   getEip712Domain as getEip712Domain_viem,
   readContract,
@@ -109,15 +115,21 @@ export async function execute<
       opData,
     } as ExecuteParameters)
   } catch (e) {
-    const error = e as BaseError
-    const abiError = (() => {
+    const getAbiError = (error: BaseError) => {
       const cause = error.walk((e) => 'data' in (e as BaseError))
       if (!cause) return undefined
-      if (!('data' in cause && cause.data)) return undefined
+      if (!('data' in cause)) return undefined
+      if (cause.data instanceof BaseError) return getAbiError(cause.data)
+      if (typeof cause.data !== 'string') return undefined
       if (cause.data === '0x') return undefined
-      return AbiError.fromAbi(delegationAbi, cause.data as Hex.Hex)
-    })()
-    throw new ExecutionError(error, { abiError })
+      try {
+        return AbiError.fromAbi(delegationAbi, cause.data as Hex.Hex)
+      } catch {
+        return undefined
+      }
+    }
+    const error = e as BaseError
+    throw new ExecutionError(error, { abiError: getAbiError(error) })
   }
 }
 

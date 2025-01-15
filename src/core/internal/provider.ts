@@ -42,11 +42,11 @@ export function from<
   const emitter = ox_Provider.createEmitter()
   const provider = ox_Provider.from({
     ...emitter,
-    async request(request) {
-      const { method, params } = request
+    async request(request_) {
+      const request = request_ as RpcSchema.ExtractRequest<Schema.Schema>
       const state = store.getState()
 
-      switch (method) {
+      switch (request.method) {
         case 'eth_accounts': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
@@ -92,10 +92,7 @@ export function from<
             throw new ox_Provider.DisconnectedError()
 
           const [{ chainId, data = '0x', from, to, value = '0x0' }] =
-            params as RpcSchema.ExtractParams<
-              Schema.Schema,
-              'eth_sendTransaction'
-            >
+            request.params
 
           const clients = getClients(chainId)
 
@@ -137,10 +134,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [address, data] = params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'eth_signTypedData_v4'
-          >
+          const [address, data] = request.params
 
           const account = state.accounts.find((account) =>
             Address.isEqual(account.address, address),
@@ -170,11 +164,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, key: keyToAuthorize }] =
-            (params as RpcSchema.ExtractParams<
-              Schema.Schema,
-              'experimental_authorizeKey'
-            >) ?? [{}]
+          const [{ address, key: keyToAuthorize }] = request.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -229,11 +219,9 @@ export function from<
         }
 
         case 'experimental_createAccount': {
-          const [{ chainId, label, context, signatures }] =
-            (params as RpcSchema.ExtractParams<
-              Schema.Schema,
-              'experimental_createAccount'
-            >) ?? [{}]
+          const [{ chainId, label, context, signatures }] = request.params ?? [
+            {},
+          ]
 
           const clients = getClients(chainId)
 
@@ -266,11 +254,7 @@ export function from<
         }
 
         case 'experimental_prepareCreateAccount': {
-          const [{ address, capabilities, label }] =
-            (params as RpcSchema.ExtractParams<
-              Schema.Schema,
-              'experimental_prepareCreateAccount'
-            >) ?? [{}]
+          const [{ address, capabilities, label }] = request.params ?? [{}]
 
           const { authorizeKey } = capabilities ?? {}
 
@@ -304,10 +288,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address }] = (params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'experimental_keys'
-          >) ?? [{}]
+          const [{ address }] = request.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -322,10 +303,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, publicKey }] = params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'experimental_revokeKey'
-          >
+          const [{ address, publicKey }] = request.params
 
           const account = address
             ? state.accounts.find((account) =>
@@ -382,10 +360,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [data, address] = params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'personal_sign'
-          >
+          const [data, address] = request.params
 
           const account = state.accounts.find((account) =>
             Address.isEqual(account.address, address),
@@ -412,10 +387,7 @@ export function from<
         }
 
         case 'wallet_connect': {
-          const [{ capabilities }] = (params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'wallet_connect'
-          >) ?? [{}]
+          const [{ capabilities }] = request.params ?? [{}]
 
           const clients = getClients()
 
@@ -476,11 +448,7 @@ export function from<
         }
 
         case 'wallet_getCallsStatus': {
-          const [id] =
-            (params as RpcSchema.ExtractParams<
-              Schema.Schema,
-              'wallet_getCallsStatus'
-            >) ?? []
+          const [id] = request.params ?? []
 
           const clients = getClients()
 
@@ -526,10 +494,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [parameters] = params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'wallet_sendCalls'
-          >
+          const [parameters] = request.params
           const { capabilities, chainId, from } = parameters
 
           const clients = getClients(chainId)
@@ -568,9 +533,9 @@ export function from<
         }
 
         default: {
-          if (method.startsWith('wallet_'))
+          if (request.method.startsWith('wallet_'))
             throw new ox_Provider.UnsupportedMethodError()
-          return getClients().default.request({ method, params } as any)
+          return getClients().default.request(request as any)
         }
       }
     },
