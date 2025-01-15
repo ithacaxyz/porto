@@ -656,7 +656,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         throw new Error('Cannot execute for method: ' + request.method)
       },
 
-      // TODO: handle authorize keys
       async loadAccounts(parameters) {
         const { internal } = parameters
         const { store, request } = internal
@@ -666,29 +665,59 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const accounts = await (async () => {
           if (request.method === 'eth_requestAccounts') {
             const addresses = await provider.request(request)
-            return addresses.map((address) => ({
-              address,
-              capabilities: {
-                keys: [],
-              },
-            }))
+            return addresses.map((address) => Account.from({ address }))
           }
 
           if (request.method === 'wallet_connect') {
-            const result = await provider.request(request)
-            return result.accounts
+            const [{ capabilities }] = request.params ?? [{}]
+
+            // Parse provided (RPC) key into a structured key (`Key.Key`).
+            const [authorizeKey] = await getKeysToAuthorize({
+              authorizeKeys: capabilities?.authorizeKey
+                ? [capabilities.authorizeKey]
+                : undefined,
+              defaultExpiry,
+            })
+            if (!authorizeKey) throw new Error('key not found.')
+
+            // Convert the key into RPC format.
+            const authorizeKey_rpc = authorizeKey
+              ? Key.toRpc(authorizeKey)
+              : undefined
+
+            // Send a request to the dialog.
+            const result = await provider.request({
+              ...request,
+              params: [
+                {
+                  ...request.params?.[0],
+                  capabilities: {
+                    ...request.params?.[0]?.capabilities,
+                    authorizeKey: authorizeKey_rpc as any,
+                  },
+                },
+              ],
+            })
+
+            return result.accounts.map((account) => {
+              const keys = account.capabilities?.keys?.map((key) => {
+                if (key.publicKey === authorizeKey?.publicKey)
+                  return authorizeKey
+                return Key.fromRpc(key)
+              })
+
+              return Account.from({
+                address: account.address,
+                keys,
+              })
+            })
           }
 
           throw new Error('Cannot load accounts for method: ' + request.method)
         })()
 
         return {
-          accounts: accounts.map((account) =>
-            Account.from({
-              address: account.address,
-              keys: account.capabilities?.keys?.map(Key.fromRpc) ?? [],
-            }),
-          ),
+          accounts,
         }
       },
 
@@ -696,8 +725,29 @@ export function dialog(parameters: dialog.Parameters = {}) {
         throw new Error('TODO')
       },
 
-      async revokeKey() {
-        throw new Error('TODO')
+      async revokeKey(parameters) {
+        const { account, internal, publicKey } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'experimental_revokeKey')
+          throw new Error(
+            'Cannot sign personal message for method: ' + request.method,
+          )
+
+        const key = account.keys?.find((key) => key.publicKey === publicKey)
+        if (!key) return
+
+        // We shouldn't be able to revoke the last key.
+        if (
+          key.role === 'admin' &&
+          account.keys?.map((x) => x.role === 'admin').length === 1
+        )
+          throw new Error(
+            'cannot revoke key. account must have at least one admin key.',
+          )
+
+        const provider = getProvider(store)
+        return await provider.request(request)
       },
 
       async signPersonalMessage(parameters) {
