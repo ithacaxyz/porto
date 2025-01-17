@@ -1,5 +1,22 @@
 # porto
 
+## 0.0.5
+
+### Patch Changes
+
+- [#19](https://github.com/ithacaxyz/porto/pull/19) [`a2f01d4`](https://github.com/ithacaxyz/porto/commit/a2f01d48745e4aa046152cb566896e8993b87a58) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed APIs:
+
+  - JSON-RPC Methods:
+    - `experimental_grantSession` → `experimental_authorizeKey`
+    - `experimental_importAccount` → `experimental_createAccount`
+    - `experimental_prepareImportAccount` → `experimental_prepareCreateAccount`
+    - `experimental_sessions` → `experimental_keys`
+  - Capabilities:
+    - `grantSession` → `authorizeKey`
+    - `sessions` → `keys`
+
+- [#19](https://github.com/ithacaxyz/porto/pull/19) [`a2f01d4`](https://github.com/ithacaxyz/porto/commit/a2f01d48745e4aa046152cb566896e8993b87a58) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Migrated to new [Account contracts](https://github.com/ithacaxyz/account).
+
 ## 0.0.4
 
 ### Patch Changes
