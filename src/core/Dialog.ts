@@ -15,34 +15,6 @@ export type Dialog = {
   }
 }
 
-const width = 320
-const height = 180
-
-const styles = {
-  backdrop: {
-    display: 'none',
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: '999999999998',
-  },
-  iframe: {
-    animation: 'fadeIn 0.1s ease-in-out',
-    display: 'none',
-    border: 'none',
-    borderRadius: '8px',
-    position: 'fixed',
-    top: '16px',
-    left: `calc(50% - ${width / 2}px)`,
-    width: `${width}px`,
-    height: `${height}px`,
-    zIndex: '999999999999',
-  },
-} as const satisfies Record<string, Partial<CSSStyleDeclaration>>
-
 /**
  * Instantiates a dialog.
  *
@@ -113,12 +85,17 @@ export function iframe() {
         handleResponse(store, response),
       )
 
+      function onEscape(event: KeyboardEvent) {
+        if (event.key === 'Escape') handleBlur(store)
+      }
+
       return {
         open() {
           if (open) return
           open = true
           backdrop.style.display = 'block'
           iframe.style.display = 'block'
+          document.addEventListener('keydown', onEscape)
         },
         close() {
           open = false
@@ -128,6 +105,7 @@ export function iframe() {
         destroy() {
           this.close()
           backdrop.removeEventListener('click', onBlur)
+          document.removeEventListener('keydown', onEscape)
           messenger.destroy()
         },
         async syncRequests(requests) {
@@ -215,6 +193,34 @@ export function popup() {
     },
   })
 }
+
+const width = 320
+const height = 180
+
+const styles = {
+  backdrop: {
+    display: 'none',
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: '999999999998',
+  },
+  iframe: {
+    animation: 'fadeIn 0.1s ease-in-out',
+    display: 'none',
+    border: 'none',
+    borderRadius: '8px',
+    position: 'fixed',
+    top: '16px',
+    left: `calc(50% - ${width / 2}px)`,
+    width: `${width}px`,
+    height: `${height}px`,
+    zIndex: '999999999999',
+  },
+} as const satisfies Record<string, Partial<CSSStyleDeclaration>>
 
 /////////////////////////////////////////////////////////////////////
 // Internal
