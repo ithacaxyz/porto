@@ -394,6 +394,12 @@ export function from<
           const { createAccount, authorizeKey } = capabilities ?? {}
 
           const authorizeKeys = authorizeKey ? [authorizeKey] : undefined
+          const internal = {
+            clients,
+            config,
+            request,
+            store,
+          }
 
           const { accounts } = await (async () => {
             if (createAccount) {
@@ -401,25 +407,43 @@ export function from<
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await implementation.actions.createAccount({
                 authorizeKeys,
+                internal,
                 label,
-                internal: {
-                  clients,
-                  config,
-                  request,
-                  store,
-                },
               })
               return { accounts: [account] }
             }
-            return await implementation.actions.loadAccounts({
+
+            const account = state.accounts[0]
+            const address = account?.address
+            const credentialId = (() => {
+              for (const key of account?.keys ?? []) {
+                if (key.expiry < BigInt(Math.floor(Date.now() / 1000))) continue
+                if (!key.credential) continue
+                return key.credential.id
+              }
+              return undefined
+            })()
+            const loadAccountsParams = {
               authorizeKeys,
-              internal: {
-                clients,
-                config,
-                request,
-                store,
-              },
-            })
+              internal,
+            } satisfies Parameters<
+              typeof implementation.actions.loadAccounts
+            >[0]
+            try {
+              // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
+              return await implementation.actions.loadAccounts({
+                address,
+                credentialId,
+                ...loadAccountsParams,
+              })
+            } catch (error) {
+              // error with `address`/`credentialId` likely means one or both are stale, retry
+              if (address && credentialId)
+                return await implementation.actions.loadAccounts(
+                  loadAccountsParams,
+                )
+              throw error
+            }
           })()
 
           store.setState((x) => ({ ...x, accounts }))

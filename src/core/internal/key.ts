@@ -46,11 +46,24 @@ export type CallScopes = readonly [CallScope, ...CallScope[]]
 
 export type Key = OneOf<P256Key | Secp256k1Key | WebCryptoKey | WebAuthnKey>
 
-export type P256Key = BaseKey<'p256', { privateKey: PrivateKeyFn }>
-export type Secp256k1Key = BaseKey<'secp256k1', { privateKey: PrivateKeyFn }>
+export type P256Key = BaseKey<
+  'p256',
+  {
+    privateKey: PrivateKeyFn
+  }
+>
+export type Secp256k1Key = BaseKey<
+  'secp256k1',
+  {
+    privateKey: PrivateKeyFn
+  }
+>
 export type WebCryptoKey = BaseKey<
   'p256',
   {
+    credential?:
+      | Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+      | undefined
     privateKey: CryptoKey
   }
 >
