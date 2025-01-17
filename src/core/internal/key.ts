@@ -51,6 +51,9 @@ export type Secp256k1Key = BaseKey<'secp256k1', { privateKey: PrivateKeyFn }>
 export type WebCryptoKey = BaseKey<
   'p256',
   {
+    credential?:
+      | Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+      | undefined
     privateKey: CryptoKey
   }
 >
