@@ -509,6 +509,40 @@ export function from<
           >
         }
 
+        case 'experimental_prepareCalls': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [parameters] = params as RpcSchema.ExtractParams<
+            Schema.Schema,
+            'wallet_sendCalls'
+          >
+          const { capabilities, chainId, from } = parameters
+
+          const account = state.accounts.find((account) =>
+            Address.isEqual(account.address, from),
+          )
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const clients = getClients(chainId)
+
+          const { request, signPayloads } =
+            await implementation.actions.prepareExecute({
+              ...parameters,
+              account,
+              clients,
+              request,
+            })
+
+          return {
+            context: request,
+            signPayload: signPayloads[0],
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'experimental_prepareCalls'
+          >
+        }
+
         case 'wallet_sendCalls': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()

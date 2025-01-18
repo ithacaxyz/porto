@@ -1,0 +1,22 @@
+#: schema https://esm.sh/wrangler/config-schema.json
+# https://developers.cloudflare.com/workers/wrangler/configuration
+
+# start of globally inheritable configuration
+#
+name = "offline-server-example"
+main = "./src/main.ts"
+minify = true
+keep_vars = true
+compatibility_date = "2024-12-30"
+compatibility_flags = [ "nodejs_compat" ]
+#
+# end of globally inheritable configuration
+
+workers_dev = true
+vars = { ENVIRONMENT = "development" }
+
+
+[env.production]
+name = "offline-server-example"
+workers_dev = true
+vars = { ENVIRONMENT = "production" }

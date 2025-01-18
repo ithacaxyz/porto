@@ -1,0 +1,23 @@
+{
+  "name": "offline-server-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler --config='wrangler.toml' dev",
+    "preview": "wrangler --config='wrangler.toml' dev --remote",
+    "build": "wrangler --config='wrangler.toml' deploy --outdir='dist' --dry-run"
+  },
+  "dependencies": {
+    "@wagmi/core": "^2.16.3",
+    "hono": "^4.6.16",
+    "ox": "^0.6.0",
+    "porto": "workspace:*",
+    "viem": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "@types/node": "^22.10.7",
+    "tsx": "^4.17.0",
+    "typescript": "^5.7.3"
+  }
+}
