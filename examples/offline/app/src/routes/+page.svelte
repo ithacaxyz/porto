@@ -1,57 +1,61 @@
 <script lang="ts">
-  import {
-    connect,
-    disconnect,
-    getAccount,
-    getConnectors,
-    type GetAccountReturnType,
-  } from '@wagmi/core/actions'
-  import { Porto } from 'porto'
-  import type { Address } from 'viem'
-  import { Actions } from 'porto/wagmi'
-  import { wagmiConfig, porto } from '$/lib/config.ts'
-  import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query'
+import { porto, wagmiConfig } from '$/lib/config.ts'
+import {
+  createMutation,
+  createQuery,
+  useQueryClient,
+} from '@tanstack/svelte-query'
+import {
+  type GetAccountReturnType,
+  connect,
+  disconnect,
+  getAccount,
+  getConnectors,
+} from '@wagmi/core/actions'
+import { Porto } from 'porto'
+import { Actions } from 'porto/wagmi'
+import type { Address } from 'viem'
 
-  const queryClient = useQueryClient()
+const queryClient = useQueryClient()
 
-  const account = createQuery<GetAccountReturnType>({
-    queryKey: ['account'],
-    queryFn: () => getAccount(wagmiConfig),
+const account = createQuery<GetAccountReturnType>({
+  queryKey: ['account'],
+  queryFn: () => getAccount(wagmiConfig),
+})
+let address = $derived($account?.data?.address)
+
+async function keysRequest() {
+  if (!address) return
+  const response = await fetch('http://localhost:6900/keys', {
+    method: 'POST',
+    body: JSON.stringify({ address }),
   })
-  let address = $derived($account?.data?.address)
+  return response.json()
+}
 
-  async function keysRequest() {
-    if (!address) return
-    const response = await fetch('http://localhost:6900/keys', {
-      method: 'POST',
-      body: JSON.stringify({ address }),
-    })
-    return response.json()
+const keysRequestMutation = createMutation({
+  mutationFn: keysRequest,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['keys'] })
+  },
+})
+
+async function connectWallet() {
+  if ($account?.data?.isConnected) {
+    const d = await disconnect(wagmiConfig)
+  } else {
+    const [connector, ...connectors] = getConnectors(wagmiConfig)
+    const portoConnectResult = await Actions.connect(
+      {
+        connectors: [connector],
+      },
+      {
+        connector,
+      },
+    )
+    await connect(wagmiConfig, { connector, chainId: 911_867 })
   }
-
-  const keysRequestMutation = createMutation({
-    mutationFn: keysRequest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['keys'] })
-    },
-  })
-
-  async function connectWallet() {
-    if ($account?.data?.isConnected) {
-      const d = await disconnect(wagmiConfig)
-    } else {
-      const [connector, ...connectors] = getConnectors(wagmiConfig)
-      const portoConnectResult = await Actions.connect(
-        {
-          connectors: [connector],
-        },
-        {
-          connector,
-        },
-      )
-      await connect(wagmiConfig, { connector, chainId: 911_867 })
-    }
-  }
+}
 </script>
 
 <h1 class="mb-4">Porto Offline Delegation Demo</h1>
