@@ -1,3 +1,4 @@
+// import * as focusTrap from 'focus-trap'
 import type { RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
 
@@ -46,7 +47,10 @@ export function iframe() {
 
       const hostUrl = new URL(host)
 
+      // TODO: Use <dialog> element instead.
+      //       https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
       const root = document.createElement('div')
+      Object.assign(root.style, styles.root)
       document.body.appendChild(root)
 
       const backdrop = document.createElement('div')
@@ -54,11 +58,16 @@ export function iframe() {
       root.appendChild(backdrop)
 
       const iframe = document.createElement('iframe')
-      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
       iframe.setAttribute(
         'allow',
         `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`,
       )
+      iframe.setAttribute('aria-closed', 'true')
+      iframe.setAttribute('aria-label', 'Porto Wallet')
+      iframe.setAttribute('hidden', 'true')
+      iframe.setAttribute('role', 'dialog')
+      iframe.setAttribute('tabindex', '0')
+      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
       iframe.setAttribute('src', host)
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
@@ -89,18 +98,47 @@ export function iframe() {
         if (event.key === 'Escape') handleBlur(store)
       }
 
+      const bodyStyle = Object.assign({}, document.body.style)
+
+      // TODO: Programmatic dismissal via "Escape" key is broken when
+      //       focus trap is enabled. Need to fix.
+      // const trap = focusTrap.createFocusTrap(root, {
+      //   clickOutsideDeactivates: true,
+      //   escapeDeactivates: true,
+      // })
+
       return {
         open() {
           if (open) return
           open = true
+
+          root.style.display = 'block'
           backdrop.style.display = 'block'
-          iframe.style.display = 'block'
+          document.body.style.overflow = 'hidden'
           document.addEventListener('keydown', onEscape)
+
+          iframe.style.display = 'block'
+          iframe.setAttribute('aria-closed', 'true')
+          iframe.setAttribute('hidden', 'true')
+          iframe.removeAttribute('aria-modal')
+          iframe.removeAttribute('aria-open')
+
+          // trap.activate()
         },
         close() {
           open = false
+
+          root.style.display = 'none'
           backdrop.style.display = 'none'
+          Object.assign(document.body.style, bodyStyle)
+
           iframe.style.display = 'none'
+          iframe.setAttribute('aria-modal', 'true')
+          iframe.setAttribute('aria-open', 'true')
+          iframe.removeAttribute('hidden')
+          iframe.removeAttribute('aria-closed')
+
+          // trap.deactivate()
         },
         destroy() {
           this.close()
@@ -198,15 +236,24 @@ const width = 320
 const height = 180
 
 const styles = {
-  backdrop: {
+  root: {
     display: 'none',
     position: 'fixed',
     top: '0',
     left: '0',
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    right: '0',
+    bottom: '0',
+    // TODO: Maybe use <dialog> element instead so we don't need to
+    //       rely on z-index.
+    //       https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
     zIndex: '999999999998',
+  },
+  backdrop: {
+    display: 'none',
+    position: 'fixed',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   iframe: {
     animation: 'fadeIn 0.1s ease-in-out',
@@ -218,6 +265,9 @@ const styles = {
     left: `calc(50% - ${width / 2}px)`,
     width: `${width}px`,
     height: `${height}px`,
+    // TODO: Maybe use <dialog> element instead so we don't need to
+    //       rely on z-index.
+    //       https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
     zIndex: '999999999999',
   },
 } as const satisfies Record<string, Partial<CSSStyleDeclaration>>

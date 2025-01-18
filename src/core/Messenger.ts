@@ -28,6 +28,11 @@ export type Bridge = Messenger & {
 /** Messenger schema. */
 export type Schema = [
   {
+    topic: 'close'
+    payload: undefined
+    response: undefined
+  },
+  {
     topic: 'ready'
     payload: undefined
     response: undefined
