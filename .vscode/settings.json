@@ -3,12 +3,8 @@
   "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "javascript.preferences.autoImportFileExcludePatterns": [
-    "**/index.js"
-  ],
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "**/index.js"
-  ],
+  "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
+  "typescript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "[css]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
