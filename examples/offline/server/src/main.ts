@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
-import { Address, WebCryptoP256 } from 'ox'
 import { env, getRuntimeKey } from 'hono/adapter'
 import { getRouterName, showRoutes } from 'hono/dev'
+import { Address, WebCryptoP256 } from 'ox'
 
 const app = new Hono<{ Bindings: Env }>().basePath('/v1')
 

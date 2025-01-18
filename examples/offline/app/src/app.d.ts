@@ -2,4 +2,4 @@ declare global {
   namespace App {}
 }
 
-export type {};
+export type {}
