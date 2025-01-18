@@ -62,6 +62,22 @@ export type Implementation = {
       account: Account.Account
     }>
 
+    prepareExecute: (parameters: {
+      /** Account to execute the calls with. */
+      account: Account.Account
+      /** Calls to execute. */
+      calls: readonly Call.Call[]
+      /** Viem Clients. */
+      clients: Clients
+      /** RPC Request. */
+      request: Request
+    }) => Promise<{
+      /** RPC Request. */
+      request: Request
+      /** Hex payloads to sign over. */
+      signPayloads: Hex.Hex[]
+    }>
+
     execute: (parameters: {
       /** Account to execute the calls with. */
       account: Account.Account
@@ -254,6 +270,18 @@ export function local(parameters: local.Parameters = {}) {
         })
 
         return { account }
+      },
+
+      async prepareExecute(parameters) {
+        // @ts-ignore
+        const { account, calls, clients } = parameters
+
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          clients.default,
+          parameters,
+        )
+
+        return { request, signPayloads } as any
       },
 
       async execute(parameters) {

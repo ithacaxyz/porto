@@ -14,6 +14,13 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'experimental_prepareCalls'
+        params: RpcSchema.ExtractParams<Schema, 'wallet_sendCalls'>
+      }
+      ReturnType: PrepareCallsReturnType
+    }
+  | {
+      Request: {
         method: 'experimental_authorizeKey'
         params: [AuthorizeKeyParameters]
       }
@@ -156,4 +163,9 @@ export type PrepareCreateAccountReturnType = {
 export type RevokeKeyParameters = {
   address?: Address.Address | undefined
   publicKey: Hex.Hex
+}
+
+export type PrepareCallsReturnType = {
+  context: Request
+  signPayload: Hex.Hex
 }
