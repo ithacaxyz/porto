@@ -77,3 +77,8 @@ export type RevokePermissionsParameters = {
   address?: Address.Address | undefined
   id: Hex.Hex
 }
+
+export type PrepareCallsReturnType = {
+  context: Request
+  signPayload: Hex.Hex
+}
