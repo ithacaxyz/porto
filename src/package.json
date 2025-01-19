@@ -6,6 +6,11 @@
   "main": "./_dist/index.js",
   "types": "./_dist/index.d.ts",
   "typings": "./_dist/index.d.ts",
+  "exports": {
+    ".": "./_dist/index.js",
+    "./wagmi": "./_dist/wagmi/index.js",
+    "./wagmi/Actions": "./_dist/wagmi/Actions.js"
+  },
   "sideEffects": false,
   "files": [
     "*",
@@ -25,7 +30,8 @@
     "react": ">=18",
     "typescript": ">=5.4.0",
     "viem": ">=2.21.60",
-    "wagmi": ">=2.0.0"
+    "wagmi": ">=2.0.0",
+    "@wagmi/core": ">=2.16.3"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-query": {

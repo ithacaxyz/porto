@@ -1,3 +1,16 @@
+import {
+  type BaseError,
+  type Config,
+  type Connector,
+  ConnectorAlreadyConnectedError,
+  type CreateConnectorFn,
+  ProviderNotFoundError,
+} from '@wagmi/core'
+import {
+  type ConnectReturnType,
+  getConnectorClient,
+  disconnect as wagmi_disconnect,
+} from '@wagmi/core/actions'
 import type { RpcSchema } from 'ox'
 import {
   type Address,
@@ -6,19 +19,6 @@ import {
   type EIP1193Provider,
   type PrivateKeyAccount,
 } from 'viem'
-import {
-  type BaseErrorType,
-  type Config,
-  type Connector,
-  ConnectorAlreadyConnectedError,
-  type CreateConnectorFn,
-  ProviderNotFoundError,
-} from 'wagmi'
-import {
-  type ConnectReturnType,
-  getConnectorClient,
-  disconnect as wagmi_disconnect,
-} from 'wagmi/actions'
 
 import type {
   AuthorizeKeyParameters,
@@ -64,7 +64,7 @@ export declare namespace authorizeKey {
   type ReturnType = AuthorizeKeyReturnType
 
   // TODO: Exhaustive ErrorType
-  type ErrorType = BaseErrorType
+  type ErrorType = BaseError
 }
 
 export async function connect<config extends Config>(
@@ -156,7 +156,7 @@ export declare namespace connect {
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
 
   // TODO: Exhaustive ErrorType
-  type ErrorType = BaseErrorType
+  type ErrorType = BaseError
 }
 
 export async function createAccount<config extends Config>(
@@ -248,7 +248,7 @@ export declare namespace createAccount {
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
 
   // TODO: Exhaustive ErrorType
-  type ErrorType = BaseErrorType
+  type ErrorType = BaseError
 }
 
 export async function disconnect(
@@ -284,7 +284,7 @@ export declare namespace disconnect {
   type ReturnType = void
 
   // TODO: Exhaustive ErrorType
-  type ErrorType = BaseErrorType
+  type ErrorType = BaseError
 }
 
 export async function keys<config extends Config>(
@@ -320,7 +320,7 @@ export declare namespace keys {
   type ReturnType = GetKeysReturnType
 
   // TODO: Exhaustive ErrorType
-  type ErrorType = BaseErrorType
+  type ErrorType = BaseError
 }
 
 export async function revokeKey<config extends Config>(
@@ -355,7 +355,7 @@ export declare namespace revokeKey {
     }
 
   // TODO: Exhaustive ErrorType
-  type ErrorType = BaseErrorType
+  type ErrorType = BaseError
 }
 
 export async function upgradeAccount<config extends Config>(
@@ -478,5 +478,5 @@ export declare namespace upgradeAccount {
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
 
   // TODO: Exhaustive ErrorType
-  type ErrorType = BaseErrorType
+  type ErrorType = BaseError
 }

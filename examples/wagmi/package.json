@@ -19,8 +19,8 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "^4.3.4",
-    "globals": "^15.11.0",
-    "typescript": "~5.6.3",
+    "globals": "catalog:",
+    "typescript": "catalog:",
     "vite": "^6.0.7"
   }
 }

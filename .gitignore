@@ -40,3 +40,7 @@ out
 
 # vercel
 .vercel
+
+_
+.svelte-kit
+.dev.vars

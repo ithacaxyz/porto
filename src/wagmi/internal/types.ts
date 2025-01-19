@@ -1,4 +1,4 @@
-import type { Config, Connector } from 'wagmi'
+import type { Config, Connector } from '@wagmi/core'
 
 export type ChainIdParameter<
   config extends Config,
