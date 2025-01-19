@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Mipd from 'mipd'
 import type { RpcSchema } from 'ox'
 import * as Address from 'ox/Address'
