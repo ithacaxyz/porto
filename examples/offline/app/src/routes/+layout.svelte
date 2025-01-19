@@ -4,12 +4,7 @@ import '$lib/override.ts'
 import { wagmiConfig } from '$/lib/config.ts'
 import { browser } from '$app/environment'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
-import {
-  MutationCache,
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/svelte-query'
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/svelte-query'
 import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools'
 import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client'
 import { watchAccount } from '@wagmi/core'

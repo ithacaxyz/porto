@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { env, getRuntimeKey } from 'hono/adapter'
 import { cache } from 'hono/cache'
-import { contextStorage, getContext } from 'hono/context-storage'
+import { contextStorage } from 'hono/context-storage'
 import { cors } from 'hono/cors'
 import { getRouterName, showRoutes } from 'hono/dev'
 import { Address, Json, WebCryptoP256 } from 'ox'
