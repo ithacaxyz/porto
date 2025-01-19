@@ -107,11 +107,7 @@ const keysRequestMutation = createMutation({
             {
               address,
               key: {
-                // ...keys,
-                // type: 'p256',
-                // role: 'session',
                 callScopes: [...callScopes],
-                // key: $accountQuery.data?.address,
               },
             },
           ],
