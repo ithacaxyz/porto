@@ -1,4 +1,4 @@
-import type { Config } from 'wagmi'
+import type { Config } from '@wagmi/core'
 
 import type { keys } from './core.js'
 import { filterQueryOptions } from './utils.js'

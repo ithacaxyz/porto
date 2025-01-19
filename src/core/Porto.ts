@@ -2,9 +2,11 @@ import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import {
   http,
-  type Client,
+  type TransportConfig,
   createClient,
+  createTransport,
   fallback,
+  type Client as viem_Client,
   type Transport as viem_Transport,
 } from 'viem'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
@@ -31,10 +33,10 @@ export const defaultConfig = {
   },
 } as const satisfies Config
 
-export type Clients<chain extends Chains.Chain = Chains.Chain> = {
-  default: Client<viem_Transport, chain>
-  relay: Client<viem_Transport, chain>
-}
+export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
+  viem_Transport,
+  chain
+>
 
 export type Porto<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
@@ -225,12 +227,12 @@ export function create(
  * @param parameters - Parameters.
  * @returns Client.
  */
-export function getClients<
+export function getClient<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(
   porto: { _internal: internal.Internal<chains> },
   parameters: { chainId?: number | undefined } = {},
-): Clients<chains[number]> {
+): Client<chains[number]> {
   const { chainId } = parameters
   const { config, store } = porto._internal
   const { chains } = config
@@ -242,27 +244,35 @@ export function getClients<
   const transport = (config.transports as Record<number, Transport>)[chain.id]
   if (!transport) throw new Error('transport not found')
 
-  const { default: default_, relay } = (() => {
-    if (typeof transport === 'object') {
-      if (transport.relay)
-        return {
-          default: transport.default,
-          relay: transport.relay,
-        } as const
-      return { default: transport.default, relay: undefined } as const
+  function getTransport(
+    transport: viem_Transport,
+    methods: TransportConfig['methods'],
+  ): viem_Transport {
+    return (config) => {
+      const t = transport(config)
+      return createTransport({ ...t.config, methods }, t.value)
     }
-    return { default: transport, relay: undefined } as const
-  })()
-
-  const client = (transport: viem_Transport) =>
-    createClient({
-      chain,
-      transport,
-      pollingInterval: 1_000,
-    })
-
-  return {
-    default: client(default_),
-    relay: relay ? client(fallback([relay, default_])) : client(default_),
   }
+
+  let relay: viem_Transport | undefined
+  let default_: viem_Transport
+  if (typeof transport === 'object') {
+    default_ = transport.default
+    relay = transport.relay
+  } else {
+    default_ = transport
+  }
+
+  return createClient({
+    chain,
+    transport: relay
+      ? fallback([
+          getTransport(relay, { include: ['wallet_sendTransaction'] }),
+          getTransport(default_, {
+            exclude: ['eth_sendTransaction', 'wallet_sendTransaction'],
+          }),
+        ])
+      : default_,
+    pollingInterval: 1_000,
+  })
 }
