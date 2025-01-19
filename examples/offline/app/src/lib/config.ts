@@ -1,12 +1,12 @@
 import {
   http,
-  injected,
-  reconnect,
   createConfig,
   createStorage,
+  injected,
+  reconnect,
 } from '@wagmi/core'
-import { Porto } from 'porto'
 import { odysseyTestnet } from '@wagmi/core/chains'
+import { Porto } from 'porto'
 
 export const porto = Porto.create()
 
