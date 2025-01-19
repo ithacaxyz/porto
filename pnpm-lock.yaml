@@ -15,6 +15,9 @@ catalogs:
     '@types/react-dom':
       specifier: ^18.3.0
       version: 18.3.1
+    '@wagmi/core':
+      specifier: ^2.16.3
+      version: 2.16.3
     globals:
       specifier: ^15.14.0
       version: 15.14.0
@@ -69,7 +72,7 @@ importers:
         specifier: ^2.1.18
         version: 2.2.0(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)
       '@wagmi/core':
-        specifier: ^2.16.3
+        specifier: 'catalog:'
         version: 2.16.3(@tanstack/query-core@5.59.20)(@types/react@18.3.12)(react@18.3.1)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.22.3(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       knip:
         specifier: ^5.30.6

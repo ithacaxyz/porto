@@ -44,3 +44,4 @@ out
 _
 .svelte-kit
 .dev.vars
+.wrangler
