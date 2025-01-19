@@ -6,11 +6,6 @@
   "main": "./_dist/index.js",
   "types": "./_dist/index.d.ts",
   "typings": "./_dist/index.d.ts",
-  "exports": {
-    ".": "./_dist/index.js",
-    "./wagmi": "./_dist/wagmi/index.js",
-    "./wagmi/Actions": "./_dist/wagmi/Actions.js"
-  },
   "sideEffects": false,
   "files": [
     "*",
