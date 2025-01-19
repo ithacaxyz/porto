@@ -1,4 +1,3 @@
-// import * as focusTrap from 'focus-trap'
 import type { RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
 
@@ -47,15 +46,10 @@ export function iframe() {
 
       const hostUrl = new URL(host)
 
-      // TODO: Use <dialog> element instead.
-      //       https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
-      const root = document.createElement('div')
-      Object.assign(root.style, styles.root)
+      const root = document.createElement('dialog')
+      root.dataset.porto = ''
+      root.style.insetBlockStart = '-1000px'
       document.body.appendChild(root)
-
-      const backdrop = document.createElement('div')
-      Object.assign(backdrop.style, styles.backdrop)
-      root.appendChild(backdrop)
 
       const iframe = document.createElement('iframe')
       iframe.setAttribute(
@@ -73,7 +67,11 @@ export function iframe() {
       Object.assign(iframe.style, styles.iframe)
 
       root.appendChild(document.createElement('style')).textContent = `
-        @keyframes fadeIn {
+        dialog[data-porto]::backdrop {
+          background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes porto-fade-in {
           from { opacity: 0; transform: translateY(-20px); }
           to { opacity: 1; transform: translateY(0); }
         }
@@ -83,7 +81,7 @@ export function iframe() {
       function onBlur() {
         handleBlur(store)
       }
-      backdrop.addEventListener('click', onBlur)
+      root.addEventListener('click', onBlur)
 
       const messenger = Messenger.bridge({
         from: Messenger.fromWindow(window, { targetOrigin: hostUrl.origin }),
@@ -100,49 +98,25 @@ export function iframe() {
 
       const bodyStyle = Object.assign({}, document.body.style)
 
-      // TODO: Programmatic dismissal via "Escape" key is broken when
-      //       focus trap is enabled. Need to fix.
-      // const trap = focusTrap.createFocusTrap(root, {
-      //   clickOutsideDeactivates: true,
-      //   escapeDeactivates: true,
-      // })
-
       return {
         open() {
           if (open) return
           open = true
 
-          root.style.display = 'block'
-          backdrop.style.display = 'block'
-          document.body.style.overflow = 'hidden'
+          root.showModal()
           document.addEventListener('keydown', onEscape)
-
+          document.body.style.overflow = 'hidden'
           iframe.style.display = 'block'
-          iframe.setAttribute('aria-closed', 'true')
-          iframe.setAttribute('hidden', 'true')
-          iframe.removeAttribute('aria-modal')
-          iframe.removeAttribute('aria-open')
-
-          // trap.activate()
         },
         close() {
           open = false
 
-          root.style.display = 'none'
-          backdrop.style.display = 'none'
+          root.close()
           Object.assign(document.body.style, bodyStyle)
-
           iframe.style.display = 'none'
-          iframe.setAttribute('aria-modal', 'true')
-          iframe.setAttribute('aria-open', 'true')
-          iframe.removeAttribute('hidden')
-          iframe.removeAttribute('aria-closed')
-
-          // trap.deactivate()
         },
         destroy() {
           this.close()
-          backdrop.removeEventListener('click', onBlur)
           document.removeEventListener('keydown', onEscape)
           messenger.destroy()
         },
@@ -236,27 +210,16 @@ const width = 320
 const height = 180
 
 const styles = {
-  root: {
-    display: 'none',
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    right: '0',
-    bottom: '0',
-    // TODO: Maybe use <dialog> element instead so we don't need to
-    //       rely on z-index.
-    //       https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
-    zIndex: '999999999998',
-  },
   backdrop: {
     display: 'none',
     position: 'fixed',
     width: '100%',
     height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: '2147483647',
   },
   iframe: {
-    animation: 'fadeIn 0.1s ease-in-out',
+    animation: 'porto-fade-in 0.1s ease-in-out',
     display: 'none',
     border: 'none',
     borderRadius: '8px',
@@ -265,10 +228,6 @@ const styles = {
     left: `calc(50% - ${width / 2}px)`,
     width: `${width}px`,
     height: `${height}px`,
-    // TODO: Maybe use <dialog> element instead so we don't need to
-    //       rely on z-index.
-    //       https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
-    zIndex: '999999999999',
   },
 } as const satisfies Record<string, Partial<CSSStyleDeclaration>>
 

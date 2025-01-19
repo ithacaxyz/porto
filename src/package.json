@@ -15,7 +15,6 @@
     "!jsr.json"
   ],
   "dependencies": {
-    "focus-trap": "^7.6.4",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
     "ox": "^0.6.4",
