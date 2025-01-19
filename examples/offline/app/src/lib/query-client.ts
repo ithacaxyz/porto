@@ -1,12 +1,12 @@
+import { browser } from '$app/environment'
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import {
+  MutationCache,
   QueryCache,
   QueryClient,
-  MutationCache,
   QueryClientProvider,
 } from '@tanstack/svelte-query'
-import { browser } from '$app/environment'
 import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client'
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 
 export function createQueryClient() {
   const queryClient: QueryClient = new QueryClient({
