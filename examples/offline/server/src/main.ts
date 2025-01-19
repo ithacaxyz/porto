@@ -1,25 +1,45 @@
 import { Hono } from 'hono'
-import { env, getRuntimeKey } from 'hono/adapter'
-import { cache } from 'hono/cache'
-import { contextStorage } from 'hono/context-storage'
 import { cors } from 'hono/cors'
-import { getRouterName, showRoutes } from 'hono/dev'
+import { cache } from 'hono/cache'
+import { logger } from 'hono/logger'
+import { poweredBy } from 'hono/powered-by'
+import { prettyJSON } from 'hono/pretty-json'
 import { Address, Json, WebCryptoP256 } from 'ox'
+import { env, getRuntimeKey } from 'hono/adapter'
+import { HTTPException } from 'hono/http-exception'
+import { getRouterName, showRoutes } from 'hono/dev'
+import { contextStorage } from 'hono/context-storage'
+import { getConnInfo } from 'hono/cloudflare-workers'
 
-const app = new Hono<{ Bindings: Env }>().basePath('/v1')
+const app = new Hono<{ Bindings: Env }>()
 
-app.use('*', cors())
+app.use('*', logger())
+app.use('*', cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'OPTIONS'] }))
+/* append `?pretty` to any request to get prettified JSON */
+app.use('*', prettyJSON({ space: 2 }))
 app.use(contextStorage())
-app.get(
-  '*',
-  cache({
-    cacheControl: 'max-age=3600',
-    cacheName: 'porto-offline-server',
-  }),
-)
 
-app.get('/', (context) => context.text('TBD'))
+app.get('/', (context) => context.redirect('/v1'))
+
 app.get('/ping', (context) => context.text('pong'))
+app.get('/health', (context) => context.text('ok'))
+
+app.get('/routes', async (context) => {
+  const verbose = context.req.query('verbose')
+  const { ENVIRONMENT } = env(context)
+  if (ENVIRONMENT === 'development') {
+    const { showRoutes } = await import('hono/dev')
+    showRoutes(app, { verbose: verbose === 'true' || verbose === '1' })
+    return new Response(
+      JSON.stringify([...new Set(app.routes.map(({ path }) => path))], null, 2),
+    )
+  }
+  return new Response(null, { status: 418 })
+})
+
+app.get('/v1', (context) =>
+  context.json({ version: '1', name: 'Porto Offline Tx Server' }),
+)
 
 /**
  * Returns existing keys
@@ -37,7 +57,7 @@ app.post('/keys', async (context) => {
 
   const keys = await WebCryptoP256.createKeyPair({ extractable: true })
 
-  return new Response(
+  return context.json(
     Json.stringify({
       callScopes: [],
       publicKey: keys.publicKey,
