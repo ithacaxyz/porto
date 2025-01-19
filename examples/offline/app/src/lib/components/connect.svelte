@@ -1,14 +1,12 @@
 <script lang="ts">
 import { porto, wagmiConfig } from '$/lib/config.ts'
-import { createQuery, useQueryClient } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
 import {
   type GetAccountReturnType,
   disconnect,
   getAccount,
   getConnectors,
 } from '@wagmi/core'
-
-const queryClient = useQueryClient()
 
 const account = createQuery<GetAccountReturnType>({
   queryKey: ['account'],
@@ -20,16 +18,11 @@ async function connectWallet() {
   if (connected) await disconnect(wagmiConfig)
   else {
     const connectors = getConnectors(wagmiConfig)
-    const portoConnector = connectors.filter(
-      (connector) => connector.id === 'xyz.ithaca.porto',
-    )
     const connectResult = await porto.provider.request({
       method: 'wallet_connect',
       params: [
         {
-          capabilities: {
-            createAccount: true,
-          },
+          capabilities: { createAccount: true },
         },
       ],
     })
