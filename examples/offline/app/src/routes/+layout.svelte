@@ -1,60 +1,60 @@
 <script lang="ts">
-  import '$/app.css'
-  import '$lib/override.ts'
-  import {
-    QueryCache,
-    QueryClient,
-    MutationCache,
-    QueryClientProvider,
-  } from '@tanstack/svelte-query'
-  import { onMount } from 'svelte'
-  import { watchAccount } from '@wagmi/core'
-  import { browser } from '$app/environment'
-  import { wagmiConfig } from '$/lib/config.ts'
-  import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools'
-  import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client'
-  import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import '$/app.css'
+import '$lib/override.ts'
+import { wagmiConfig } from '$/lib/config.ts'
+import { browser } from '$app/environment'
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/svelte-query'
+import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools'
+import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client'
+import { watchAccount } from '@wagmi/core'
+import { onMount } from 'svelte'
 
-  const queryClient: QueryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        enabled: browser,
-        gcTime: 1000 * 60 * 60 * 24, // 24 hours
-        refetchOnReconnect: () => !queryClient.isMutating(),
-      },
+const queryClient: QueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      enabled: browser,
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours
+      refetchOnReconnect: () => !queryClient.isMutating(),
     },
-    queryCache: new QueryCache({
-      onError: (error, query) => {
-        if (import.meta.env.MODE !== 'development') return
-        if (query.state.data !== undefined) {
-          console.info('Tanstack Query Error: ', error)
-        }
-      },
-    }),
-    mutationCache: new MutationCache({
-      // @ts-ignore
-      onSettled: () => {
-        if (queryClient.isMutating() === 1) {
-          queryClient.invalidateQueries()
-        }
-      },
-    }),
-  })
+  },
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      if (import.meta.env.MODE !== 'development') return
+      if (query.state.data !== undefined) {
+        console.info('Tanstack Query Error: ', error)
+      }
+    },
+  }),
+  mutationCache: new MutationCache({
+    // @ts-ignore
+    onSettled: () => {
+      if (queryClient.isMutating() === 1) {
+        queryClient.invalidateQueries()
+      }
+    },
+  }),
+})
 
-  const localStoragePersister = createSyncStoragePersister({
-    key: 'SVELTE_QUERY',
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined, // Use local storage if in browser
-  })
+const localStoragePersister = createSyncStoragePersister({
+  key: 'SVELTE_QUERY',
+  storage: typeof window !== 'undefined' ? window.localStorage : undefined, // Use local storage if in browser
+})
 
-  let { children } = $props()
+let { children } = $props()
 
-  onMount(() => {
-    watchAccount(wagmiConfig, {
-      onChange: (account, _) => {
-        queryClient.setQueryData(['account'], account)
-      },
-    })
+onMount(() => {
+  watchAccount(wagmiConfig, {
+    onChange: (account, _) => {
+      queryClient.setQueryData(['account'], account)
+    },
   })
+})
 </script>
 
 <svelte:head>
