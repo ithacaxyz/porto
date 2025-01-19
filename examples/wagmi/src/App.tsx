@@ -78,6 +78,7 @@ function Connect() {
   const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
 
   const connectors = useConnectors()
+  console.info(connectors)
   const connect = Hooks.useConnect()
 
   return (
