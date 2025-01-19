@@ -70,6 +70,17 @@
           }
         }
       }
+    },
+
+    {
+      "include": ["./examples/offline/app/src/lib/override.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNodejsImportProtocol": "off"
+          }
+        }
+      }
     }
   ]
 }
