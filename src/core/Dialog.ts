@@ -68,7 +68,7 @@ export function iframe() {
 
       root.appendChild(document.createElement('style')).textContent = `
         dialog[data-porto]::backdrop {
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0);
         }
 
         @keyframes porto-fade-in {
@@ -102,6 +102,12 @@ export function iframe() {
         open() {
           if (open) return
           open = true
+
+          messenger.send('_internal', {
+            type: 'initial',
+            dialog: 'iframe',
+            hostname: window.location.hostname,
+          })
 
           root.showModal()
           document.addEventListener('keydown', onEscape)
@@ -177,6 +183,12 @@ export function popup() {
             waitForReady: true,
           })
 
+          messenger.send('_internal', {
+            type: 'initial',
+            dialog: 'popup',
+            hostname: window.location.hostname,
+          })
+
           messenger.on('rpc-response', (response) =>
             handleResponse(store, response),
           )
@@ -206,7 +218,7 @@ export function popup() {
   })
 }
 
-const width = 320
+const width = 258
 const height = 180
 
 const styles = {
@@ -222,10 +234,9 @@ const styles = {
     animation: 'porto-fade-in 0.1s ease-in-out',
     display: 'none',
     border: 'none',
-    borderRadius: '8px',
     position: 'fixed',
     top: '16px',
-    left: `calc(50% - ${width / 2}px)`,
+    insetInlineEnd: '16px',
     width: `${width}px`,
     height: `${height}px`,
   },

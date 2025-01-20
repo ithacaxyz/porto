@@ -23,6 +23,11 @@
       "complexity": {
         "noBannedTypes": "off"
       },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error"
+        }
+      },
       "performance": {
         "noDelete": "off"
       },

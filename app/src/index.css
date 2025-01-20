@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light dark;
+}
+
+/* biome-ignore format: <explanation> */
+@theme {
+  --color-neutral-0: light-dark(oklch(100% 0 0), oklch(10.39% 0.0194 248.34));
+  --color-neutral-1: light-dark(oklch(97.82% 0.0034 247.86), oklch(17.63% 0.014 258.36));
+  --color-neutral-2: light-dark(oklch(95.97% 0.0052 247.88), oklch(21.98% 0.0182 255.71));
+  --color-neutral-3: light-dark(oklch(93.54% 0.008 253.86), oklch(27.35% 0.0179 251.92));
+  --color-neutral-4: light-dark(oklch(92.18% 0.0094 242.84), oklch(29.16% 0.0202 260.62));
+  --color-neutral-5: light-dark(oklch(90.42% 0.0116 252.09), oklch(31.12% 0.0221 259.38));
+  --color-neutral-6: light-dark(oklch(88.12% 0.013 244.27), oklch(33.39% 0.0223 256.4));
+  --color-neutral-7: light-dark(oklch(85.65% 0.0159 248.01), oklch(38.37% 0.0179 254.74));
+  --color-neutral-8: light-dark(oklch(63.29% 0.0228 254.97), oklch(52.87% 0.0179 257.24));
+  --color-neutral-9: light-dark(oklch(49.51% 0.0215 250.78), oklch(67.69% 0.0155 254.64));
+  --color-neutral-10: light-dark(oklch(41.32% 0.0162 251.74), oklch(79.7% 0.0169 262.74));
+  --color-neutral-11: light-dark(oklch(36.48% 0.0145 252.28), oklch(87.72% 0.014 258.35));
+  --color-neutral-12: light-dark(oklch(27.9% 0.0109 254.02), oklch(97.03% 0.0103 247.93));
+  --color-neutral-13: light-dark(oklch(25.42% 0.0111 254.04), oklch(100% 0 0));
+
+  --color-blue-0: light-dark(oklch(95.36% 0.0284 228.04), oklch(91.65% 0.04465193227092647 241.05511694844725));
+  --color-blue-1: light-dark(oklch(89.34% 0.06055390973251268 235.6727779869789), oklch(85.6% 0.0768 244.09));
+  --color-blue-2: light-dark(oklch(81.49% 0.1045 239.21), oklch(78.57% 0.1153 246.66));
+  --color-blue-3: light-dark(oklch(73.11% 0.14617742520974394 248.33971997534024), oklch(71.53% 0.1518100004775152 253.30612539990454));
+  --color-blue-4: light-dark(oklch(64.18% 0.19507618434109797 254.9761894488772), oklch(64.56% 0.1876 257.45));
+  --color-blue-5: light-dark(oklch(53.99% 0.1906 257.48), oklch(56.86% 0.2023 259.67));
+  --color-blue-6: light-dark(oklch(45.09% 0.1641 258.18), oklch(49.02% 0.1857 260.08));
+  --color-blue-7: light-dark(oklch(37.9% 0.1412 258.7), oklch(40.54% 0.1591 261.16));
+  --color-blue-8: light-dark(oklch(32.1% 0.1084 259.11), oklch(31.63% 0.115 261.53));
+  --color-blue-9: light-dark(oklch(26.35% 0.1021 259.01), oklch(24.8% 0.0939 261.75));
+}
+
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+}
