@@ -1,14 +1,24 @@
-import { Key } from 'Porto'
+import type { KVNamespace } from '@cloudflare/workers-types'
+import { signMessage } from '@wagmi/core'
+import { Key, Porto } from 'Porto'
 import { Hono } from 'hono'
 import { env, getRuntimeKey } from 'hono/adapter'
+import { contextStorage, getContext } from 'hono/context-storage'
 import { cors } from 'hono/cors'
 import { showRoutes } from 'hono/dev'
 import { logger } from 'hono/logger'
-import { Address, WebCryptoP256 } from 'ox'
+import { Address, Json, WebCryptoP256 } from 'ox'
 
-const app = new Hono<{ Bindings: Env }>()
+type Env = {
+  Bindings: {
+    KV: KVNamespace
+  }
+}
+
+const app = new Hono<Env>()
 
 app.use('*', logger())
+app.use(contextStorage())
 app.use('*', cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'OPTIONS'] }))
 
 app.get('/routes', async (context) => {
@@ -50,6 +60,8 @@ app.post('/keys', async (context) => {
     expiry: 1714857600,
   })
 
+  getContext<Env>().env.KV.put('keyPair', JSON.stringify(keyPair))
+
   return context.json(Key.toRpc(key))
 })
 
@@ -58,6 +70,48 @@ app.post('/keys', async (context) => {
  */
 app.post('/authorized-key', async (context) => {
   const payload = await context.req.json<{}>()
+
+  const porto = Porto.create()
+  const {
+    signPayload,
+    // Filled context for the `wallet_sendCalls` JSON-RPC method.
+    context: portoContext,
+  } = await porto.provider.request({
+    method: 'experimental_prepareCalls',
+    params: [
+      {
+        calls: [],
+        capabilities: {},
+        chainId: '0x1',
+        from: '0x0',
+        version: '1',
+      },
+    ] as any,
+  })
+
+  const keyPairString = await getContext<Env>().env.KV.get('keyPair')
+  const keyPair = Json.parse(keyPairString ?? '{}') as Key.Key
+
+  const signature = Key.sign(keyPair, { payload: signPayload })
+
+  const hash = await porto.provider.request({
+    method: 'wallet_sendCalls',
+    params: [
+      {
+        //@ts-ignore
+        ...portoContext,
+        capabilities: {
+          // @ts-ignore
+          ...portoContext.capabilities,
+          prepareCalls: {
+            // @ts-ignore
+            ...portoContext.capabilities.prepareCalls,
+            signature,
+          },
+        },
+      },
+    ],
+  })
 
   return context.json({ error: 'Not implemented' })
 })

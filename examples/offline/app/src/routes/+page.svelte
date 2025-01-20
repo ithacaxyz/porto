@@ -100,6 +100,7 @@ const keysRequestMutation = createMutation({
           ],
         })
 
+
         queryClient.setQueryData<Array<typeof authorizeKeys>>(['authorizedKeys'], oldResult =>
           oldResult ? [...oldResult, authorizeKeys] : [authorizeKeys],
         )

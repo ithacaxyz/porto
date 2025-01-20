@@ -36,5 +36,9 @@
     ".dev.vars": "dotenv",
     ".dev.vars.example": "dotenv",
     ".vscode/*.json": "jsonc"
+  },
+  "search.exclude": {
+    "pnpm-lock.yaml": true,
+    "**/node_modules": true
   }
 }
