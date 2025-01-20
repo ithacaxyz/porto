@@ -1,7 +1,6 @@
 // cloudflare workers types
-interface Environment {
+interface Env {
   PORT: string
-  KV: KVNamespace
   ENVIRONMENT: 'development' | 'production'
 }
 
