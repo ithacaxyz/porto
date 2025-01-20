@@ -47,6 +47,15 @@ export type Schema = [
     payload: RpcResponse.RpcResponse
     response: undefined
   },
+  {
+    topic: '_internal'
+    payload: {
+      type: 'initial'
+      dialog: 'iframe' | 'popup'
+      hostname: string
+    }
+    response: undefined
+  },
 ]
 
 export type Topic = Schema[number]['topic']
