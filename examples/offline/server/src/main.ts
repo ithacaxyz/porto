@@ -1,12 +1,10 @@
+import { Key } from 'Porto'
 import { Hono } from 'hono'
 import { env, getRuntimeKey } from 'hono/adapter'
-import { contextStorage } from 'hono/context-storage'
 import { cors } from 'hono/cors'
-// import { Key } from 'porto'
-import { getRouterName, showRoutes } from 'hono/dev'
+import { showRoutes } from 'hono/dev'
 import { logger } from 'hono/logger'
-import { prettyJSON } from 'hono/pretty-json'
-import { Address, Json, WebCryptoP256 } from 'ox'
+import { Address, WebCryptoP256 } from 'ox'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -44,14 +42,15 @@ app.post('/keys', async (context) => {
   const isAddress = Address.validate(payload.address)
   if (!isAddress) return context.json({ error: 'Invalid address' }, 400)
 
-  const keys = await WebCryptoP256.createKeyPair({ extractable: true })
+  const keyPair = await WebCryptoP256.createKeyPair({ extractable: true })
 
-  // const _key = key.fromWebCryptoP256({
-  //   keyPair: keys,
-  // })
+  const key = Key.fromWebCryptoP256({
+    keyPair,
+    role: 'session',
+    expiry: 1714857600,
+  })
 
-  // return context.json(Key.toRpc(_key))
-  return context.json({})
+  return context.json(Key.toRpc(key))
 })
 
 /**

@@ -9,14 +9,12 @@ import {
   useQueryClient,
 } from '@tanstack/svelte-query'
 import { type GetAccountReturnType, getAccount } from '@wagmi/core/actions'
-import { Address, Json, PublicKey } from 'ox'
+import { Json } from 'ox'
 import type { Rpc } from 'ox/Authorization'
+import { Key } from 'porto'
+import type { Prettify } from 'viem'
 
-interface Keys {
-  expiry: number
-  publicKey: PublicKey.PublicKey
-  callScopes: Array<{ signature: string; to: Address.Address }>
-}
+type Keys = Prettify<ReturnType<typeof Key.fromWebCryptoP256>>
 
 const callScopes = [
   {
@@ -95,12 +93,9 @@ const keysRequestMutation = createMutation({
         const authorizeKeys = await porto.provider.request({
           method: 'experimental_authorizeKey',
           params: [
-            // result of Key.toRpc(_key)
             {
               address,
-              key: {
-                callScopes: [...callScopes],
-              },
+              key: Key.toRpc(keys) as any,
             },
           ],
         })
