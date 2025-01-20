@@ -3,8 +3,6 @@
   "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
-  "typescript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "[css]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
@@ -30,11 +28,13 @@
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
   },
   "files.exclude": {
+    "**/.wrangler": true,
     "**/.svelte-kit": true
   },
   "files.associations": {
     ".env.*": "dotenv",
     ".dev.vars": "dotenv",
-    ".dev.vars.example": "dotenv"
+    ".dev.vars.example": "dotenv",
+    ".vscode/*.json": "jsonc"
   }
 }

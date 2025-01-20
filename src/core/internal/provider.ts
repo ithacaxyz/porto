@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as Mipd from 'mipd'
 import type { RpcSchema } from 'ox'
 import * as Address from 'ox/Address'
@@ -510,30 +509,30 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [parameters] = params as RpcSchema.ExtractParams<
+          const [parameters] = request.params as RpcSchema.ExtractParams<
             Schema.Schema,
             'wallet_sendCalls'
           >
-          const { capabilities, chainId, from } = parameters
+
+          const { chainId, from } = parameters
 
           const account = state.accounts.find((account) =>
             Address.isEqual(account.address, from),
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const clients = getClients(chainId)
+          const client = getClient(chainId)
 
-          const { request, signPayloads } =
-            await implementation.actions.prepareExecute({
-              ...parameters,
-              account,
-              clients,
-              request,
-            })
+          const { signPayloads } = await implementation.actions.prepareExecute({
+            client,
+            account,
+            request,
+            calls: parameters.calls as Call.Call[],
+          })
 
           return {
             context: request,
-            signPayload: signPayloads[0],
+            signPayload: signPayloads.at(0)!,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'experimental_prepareCalls'

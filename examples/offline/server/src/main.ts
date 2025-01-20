@@ -1,13 +1,10 @@
 import { Hono } from 'hono'
 import { env, getRuntimeKey } from 'hono/adapter'
-import { cache } from 'hono/cache'
-import { getConnInfo } from 'hono/cloudflare-workers'
 import { contextStorage } from 'hono/context-storage'
 import { cors } from 'hono/cors'
+// import { Key } from 'porto'
 import { getRouterName, showRoutes } from 'hono/dev'
-import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
-import { poweredBy } from 'hono/powered-by'
 import { prettyJSON } from 'hono/pretty-json'
 import { Address, Json, WebCryptoP256 } from 'ox'
 
@@ -15,14 +12,6 @@ const app = new Hono<{ Bindings: Env }>()
 
 app.use('*', logger())
 app.use('*', cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'OPTIONS'] }))
-/* append `?pretty` to any request to get prettified JSON */
-app.use('*', prettyJSON({ space: 2 }))
-app.use(contextStorage())
-
-app.get('/', (context) => context.redirect('/v1'))
-
-app.get('/ping', (context) => context.text('pong'))
-app.get('/health', (context) => context.text('ok'))
 
 app.get('/routes', async (context) => {
   const verbose = context.req.query('verbose')
@@ -57,13 +46,12 @@ app.post('/keys', async (context) => {
 
   const keys = await WebCryptoP256.createKeyPair({ extractable: true })
 
-  return context.json(
-    Json.stringify({
-      callScopes: [],
-      publicKey: keys.publicKey,
-      expiry: Date.now() + 1000 * 60 * 60, // 1 hour
-    }),
-  )
+  // const _key = key.fromWebCryptoP256({
+  //   keyPair: keys,
+  // })
+
+  // return context.json(Key.toRpc(_key))
+  return context.json({})
 })
 
 /**
