@@ -174,7 +174,7 @@ importers:
         specifier: ^5.64.2
         version: 5.64.2(@tanstack/svelte-query@5.64.2(svelte@5.19.0))(svelte@5.19.0)
       '@wagmi/core':
-        specifier: ^2.16.3
+        specifier: 'catalog:'
         version: 2.16.3(@tanstack/query-core@5.64.2)(@types/react@18.3.12)(react@18.3.1)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.22.10(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))
       porto:
         specifier: workspace:*
@@ -208,7 +208,7 @@ importers:
         specifier: ^2.8.1
         version: 2.8.1
       typescript:
-        specifier: ^5.7.3
+        specifier: 'catalog:'
         version: 5.7.3
       vite:
         specifier: ^6.0.7
@@ -220,13 +220,13 @@ importers:
   examples/offline/server:
     dependencies:
       '@wagmi/core':
-        specifier: ^2.16.3
+        specifier: 'catalog:'
         version: 2.16.3(@tanstack/query-core@5.64.2)(@types/react@18.3.12)(react@18.3.1)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.22.10(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))
       hono:
         specifier: ^4.6.17
         version: 4.6.17
       ox:
-        specifier: ^0.6.5
+        specifier: 'catalog:'
         version: 0.6.5(typescript@5.7.3)(zod@3.24.1)
       porto:
         specifier: workspace:*
@@ -245,7 +245,7 @@ importers:
         specifier: ^4.19.2
         version: 4.19.2
       typescript:
-        specifier: ^5.7.3
+        specifier: 'catalog:'
         version: 5.7.3
       wrangler:
         specifier: ^3.103.2

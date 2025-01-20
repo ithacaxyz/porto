@@ -95,7 +95,7 @@ const keysRequestMutation = createMutation({
           params: [
             {
               address,
-              key: Key.toRpc(keys) as any,
+              key: Key.toRpc({ ...keys, role: 'admin' }) as any,
             },
           ],
         })
