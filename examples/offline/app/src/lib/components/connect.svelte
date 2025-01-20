@@ -26,5 +26,5 @@ async function connectWallet() {
 </script>
 
 <button type="button" onclick={connectWallet} class="hover:cursor-pointer mr-auto">
-  {connected ? 'login' : 'logout'}
+  {connected ? 'logout' : 'login'}
 </button>
