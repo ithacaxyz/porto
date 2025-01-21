@@ -241,9 +241,6 @@ importers:
       '@types/node':
         specifier: ^22.10.7
         version: 22.10.7
-      esbuild:
-        specifier: ^0.24.2
-        version: 0.24.2
       tsx:
         specifier: ^4.19.2
         version: 4.19.2

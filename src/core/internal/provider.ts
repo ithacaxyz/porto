@@ -7,7 +7,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
-import type * as Call from './call.js'
+import * as Call from './call.js'
 import * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
@@ -509,10 +509,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [parameters] = request.params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'wallet_sendCalls'
-          >
+          const [parameters] = request.params
 
           const { chainId, from } = parameters
 
@@ -523,12 +520,17 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { signPayloads } = await implementation.actions.prepareExecute({
-            client,
-            account,
-            request,
-            calls: parameters.calls as Call.Call[],
-          })
+          const { signPayloads, request: _prepareExecuteRequest } =
+            await implementation.actions.prepareExecute({
+              client,
+              account,
+              request,
+              calls: parameters.calls.map((x) => ({
+                ...x,
+                to: x.to ?? Call.self,
+                value: x.value ? BigInt(x.value) : 0n,
+              })),
+            })
 
           return {
             context: request,

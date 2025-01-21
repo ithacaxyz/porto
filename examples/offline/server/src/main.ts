@@ -1,19 +1,39 @@
-import { Key, Porto } from 'Porto'
+import { signMessage } from '@wagmi/core'
+import { odysseyTestnet } from '@wagmi/core/chains'
+import { Chains, Implementation, Key, Porto, Storage } from 'Porto'
 import { Hono } from 'hono'
 import { env, getRuntimeKey } from 'hono/adapter'
 import { contextStorage, getContext } from 'hono/context-storage'
 import { cors } from 'hono/cors'
 import { showRoutes } from 'hono/dev'
 import { logger } from 'hono/logger'
-import { Address, Json, WebCryptoP256 } from 'ox'
+import { Address, Json, type RpcSchema, WebCryptoP256 } from 'ox'
+import type { Wallet } from 'ox/RpcSchema'
 
-const app = new Hono<{
-  Bindings: { KV: KVNamespace }
-}>()
+type WalletSendCallsParams = RpcSchema.ExtractRequest<
+  Wallet,
+  'wallet_sendCalls'
+>['params'][number]
+
+type Calls = Omit<WalletSendCallsParams['calls'][number], 'value'> & {
+  value?: bigint | undefined
+}
+
+type SendCallsContext = WalletSendCallsParams
+//  Omit<WalletSendCallsParams, 'calls'> & {
+//   calls: Calls[]
+// }
+
+const app = new Hono<Env>()
 
 app.use('*', logger())
 app.use(contextStorage())
 app.use('*', cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'OPTIONS'] }))
+
+app.use(async (context, next) => {
+  context.set('KEY_PAIR', 'test')
+  await next()
+})
 
 app.get('/routes', async (context) => {
   const verbose = context.req.query('verbose')
@@ -54,24 +74,43 @@ app.post('/keys', async (context) => {
     expiry: 1714857600,
   })
 
-  getContext<{
-    Bindings: { KV: KVNamespace }
-  }>().env.KV.put('keyPair', JSON.stringify(keyPair))
+  context.set('KEY_PAIR', Json.stringify(keyPair))
+
+  // getContext<{
+  //   Bindings: { KV: KVNamespace }
+  // }>().env.KV.put('keyPair', JSON.stringify(keyPair))
 
   return context.json(Key.toRpc(key))
 })
 
 /**
- * Authorized key notification
+ * once the app client authorizes the key,
+ * it will call this endpoint to notify the server
  */
-app.post('/authorized-key', async (context) => {
+app.post('/authorize-status', async (context) => {
   const payload = await context.req.json<{}>()
+  console.info(JSON.stringify(payload, undefined, 2))
+  // const keyPairString = await getContext<{
+  //   Bindings: { KV: KVNamespace }
+  // }>().env.KV.get('keyPair')
+  // const keyPair = Json.parse(keyPairString ?? '{}') as Key.Key
+  // const keyPairString = context.get('KEY_PAIR') as Key.Key
+  // console.info()
+  console.info('key pairs')
+  const keyPair = context.get('KEY_PAIR')
+  console.info(JSON.stringify({ keyPair }, undefined, 2))
+  const keyPairString = {}
 
-  const porto = Porto.create()
+  const porto = Porto.create({
+    chains: [Chains.odysseyTestnet],
+    storage: Storage.localStorage(),
+    implementation: Implementation.local(),
+  })
+
   const {
     signPayload,
     // Filled context for the `wallet_sendCalls` JSON-RPC method.
-    context: portoContext,
+    context: _portoContext,
   } = await porto.provider.request({
     method: 'experimental_prepareCalls',
     params: [
@@ -84,26 +123,21 @@ app.post('/authorized-key', async (context) => {
       },
     ] as any,
   })
+  const portoContext = _portoContext as SendCallsContext
 
-  const keyPairString = await getContext<{
-    Bindings: { KV: KVNamespace }
-  }>().env.KV.get('keyPair')
-  const keyPair = Json.parse(keyPairString ?? '{}') as Key.Key
+  const signature = Key.sign(Json.parse(keyPair), { payload: signPayload })
 
-  const signature = Key.sign(keyPair, { payload: signPayload })
+  const preparedCalls = portoContext?.capabilities?.['prepareCalls']
 
   const hash = await porto.provider.request({
     method: 'wallet_sendCalls',
     params: [
       {
-        //@ts-ignore
         ...portoContext,
         capabilities: {
-          // @ts-ignore
           ...portoContext.capabilities,
           prepareCalls: {
-            // @ts-ignore
-            ...portoContext.capabilities.prepareCalls,
+            ...preparedCalls,
             signature,
           },
         },

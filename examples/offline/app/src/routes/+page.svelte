@@ -73,8 +73,10 @@ const keysRequestMutation = createMutation({
 </script>
 
 <section class="my-4 gap-y-3 flex flex-col justify-start size-full">
-  <p>{$accountQuery.data?.address}</p>
-
+  <div>
+    <p>Address</p>
+    <p>{$accountQuery.data?.address}</p>
+  </div>
   <Connect />
 
   <div class="size-full">
@@ -95,15 +97,24 @@ const keysRequestMutation = createMutation({
           params: [
             {
               address,
-              key: Key.toRpc({ ...keys, role: 'admin' }) as any,
+              key: Key.toRpc({ ...keys, role: 'session', callScopes }) as any,
             },
           ],
         })
 
-
         queryClient.setQueryData<Array<typeof authorizeKeys>>(['authorizedKeys'], oldResult =>
           oldResult ? [...oldResult, authorizeKeys] : [authorizeKeys],
         )
+
+        const response = await fetch(`${PUBLIC_SERVER_URL}/authorize-status`, {
+          method: 'POST',
+          body: JSON.stringify({ address, authorizeKeys }),
+        })
+
+        console.info(response.status, response.statusText)
+
+        const result = await response.json()
+        console.info(result)
       }}
     >
       Authorize key
@@ -113,12 +124,12 @@ const keysRequestMutation = createMutation({
 </section>
 
 <style>
-  :global(button) {
-    cursor: pointer;
-    padding: 0.4rem 0.75rem;
-    border-radius: 4px;
-    border: 1px solid #333;
-    text-align: left;
-    font-size: 14px;
-  }
+:global(button) {
+  cursor: pointer;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #333;
+  text-align: left;
+  font-size: 14px;
+}
 </style>
