@@ -25,6 +25,10 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
   return dialog
 }
 
+function getSearch(opts: { type: 'iframe' | 'popup' }) {
+  return `?referrer=${location.hostname}&type=${opts.type}`
+}
+
 /**
  * Instantiates an iframe dialog.
  *
@@ -62,7 +66,7 @@ export function iframe() {
       iframe.setAttribute('role', 'dialog')
       iframe.setAttribute('tabindex', '0')
       iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
-      iframe.setAttribute('src', host)
+      iframe.setAttribute('src', `${host}${getSearch({ type: 'iframe' })}`)
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
 
@@ -103,12 +107,6 @@ export function iframe() {
           if (open) return
           open = true
 
-          messenger.send('_internal', {
-            type: 'initial',
-            dialog: 'iframe',
-            hostname: window.location.hostname,
-          })
-
           root.showModal()
           document.addEventListener('keydown', onEscape)
           document.body.style.overflow = 'hidden'
@@ -118,7 +116,9 @@ export function iframe() {
           open = false
 
           root.close()
-          Object.assign(document.body.style, bodyStyle)
+          Object.assign(document.body.style, bodyStyle ?? '')
+          // firefox: explicitly restore/clear `overflow` directly
+          document.body.style.overflow = bodyStyle.overflow ?? ''
           iframe.style.display = 'none'
         },
         destroy() {
@@ -169,7 +169,7 @@ export function popup() {
           const top = window.screenY + 100
 
           popup = window.open(
-            host,
+            `${host}${getSearch({ type: 'iframe' })}`,
             '_blank',
             `width=${width},height=${height},left=${left},top=${top}`,
           )
@@ -181,12 +181,6 @@ export function popup() {
             }),
             to: Messenger.fromWindow(popup),
             waitForReady: true,
-          })
-
-          messenger.send('_internal', {
-            type: 'initial',
-            dialog: 'popup',
-            hostname: window.location.hostname,
           })
 
           messenger.on('rpc-response', (response) =>
@@ -219,7 +213,7 @@ export function popup() {
 }
 
 const width = 258
-const height = 180
+const height = 380
 
 const styles = {
   backdrop: {

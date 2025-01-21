@@ -18,6 +18,7 @@ import * as Storage from './Storage.js'
 import type * as Account from './internal/account.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
+import type { Schema } from './internal/rpcSchema.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 
 export const defaultConfig = {
@@ -32,101 +33,6 @@ export const defaultConfig = {
     },
   },
 } as const satisfies Config
-
-export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
-  viem_Transport,
-  chain
->
-
-export type Porto<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = {
-  destroy: () => void
-  provider: Provider.Provider
-  /**
-   * Not part of versioned API, proceed with caution.
-   * @deprecated
-   */
-  _internal: internal.Internal<chains>
-}
-
-export type Config<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = {
-  /**
-   * Whether to announce the provider via EIP-6963.
-   * @default true
-   */
-  announceProvider: boolean
-  /**
-   * List of supported chains.
-   */
-  chains: chains | readonly [Chains.Chain, ...Chains.Chain[]]
-  /**
-   * Implementation to use.
-   * @default Implementation.local()
-   */
-  implementation: Implementation.Implementation
-  /**
-   * Storage to use.
-   * @default Storage.idb()
-   */
-  storage: Storage.Storage
-  /**
-   * Transport to use for each chain.
-   */
-  transports: Record<
-    chains[number]['id'],
-    Transport | { default: Transport; relay?: Transport | undefined }
-  >
-}
-
-export type QueuedRequest<result = unknown> = {
-  request: RpcRequest.RpcRequest
-} & OneOf<
-  | {
-      status: 'pending'
-    }
-  | {
-      result: result
-      status: 'success'
-    }
-  | {
-      error: RpcResponse.ErrorObject
-      status: 'error'
-    }
->
-
-export type State<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = {
-  accounts: readonly Account.Account[]
-  chain: chains[number]
-  requestQueue: readonly QueuedRequest[]
-}
-
-export type Store<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = Mutate<
-  StoreApi<State<chains>>,
-  [['zustand/subscribeWithSelector', never], ['zustand/persist', any]]
->
-
-export type Transport =
-  | viem_Transport
-  | { default: viem_Transport; relay?: viem_Transport | undefined }
 
 /**
  * Instantiates an Porto instance.
@@ -219,6 +125,76 @@ export function create(
   }
 }
 
+export type Config<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = {
+  /**
+   * Whether to announce the provider via EIP-6963.
+   * @default true
+   */
+  announceProvider: boolean
+  /**
+   * List of supported chains.
+   */
+  chains: chains | readonly [Chains.Chain, ...Chains.Chain[]]
+  /**
+   * Implementation to use.
+   * @default Implementation.local()
+   */
+  implementation: Implementation.Implementation
+  /**
+   * Storage to use.
+   * @default Storage.idb()
+   */
+  storage: Storage.Storage
+  /**
+   * Transport to use for each chain.
+   */
+  transports: Record<
+    chains[number]['id'],
+    Transport | { default: Transport; relay?: Transport | undefined }
+  >
+}
+
+export type Porto<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = {
+  destroy: () => void
+  provider: Provider.Provider
+  /**
+   * Not part of versioned API, proceed with caution.
+   * @deprecated
+   */
+  _internal: internal.Internal<chains>
+}
+
+export type State<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = {
+  accounts: readonly Account.Account[]
+  chain: chains[number]
+  requestQueue: readonly QueuedRequest[]
+}
+
+export type Store<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = Mutate<
+  StoreApi<State<chains>>,
+  [['zustand/subscribeWithSelector', never], ['zustand/persist', any]]
+>
+
 /**
  * Extracts a Viem Client from a Porto instance, and an optional chain ID.
  * By default, the Client for the current chain ID will be extracted.
@@ -276,3 +252,28 @@ export function getClient<
     pollingInterval: 1_000,
   })
 }
+
+export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
+  viem_Transport,
+  chain
+>
+
+export type Transport =
+  | viem_Transport
+  | { default: viem_Transport; relay?: viem_Transport | undefined }
+
+export type QueuedRequest<result = unknown> = {
+  request: RpcRequest.RpcRequest
+} & OneOf<
+  | {
+      status: 'pending'
+    }
+  | {
+      result: result
+      status: 'success'
+    }
+  | {
+      error: RpcResponse.ErrorObject
+      status: 'error'
+    }
+>
