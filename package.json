@@ -13,7 +13,7 @@
     "check:knip": "knip --production",
     "check:repo": "sherif",
     "check:size": "size-limit",
-    "check:types": "tsc --noEmit",
+    "check:types": "pnpm run --r --parallel check:types && tsc --noEmit",
     "clean": "rm -rf src/_dist ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter playground --filter app dev",
