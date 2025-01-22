@@ -66,7 +66,7 @@ export type CallScopes = readonly [CallScope, ...CallScope[]]
 
 export type Permissions<bigintType = bigint> = {
   calls?: CallScopes | undefined
-  spend?: SpendLimit<bigintType> | undefined
+  spend?: SpendLimits<bigintType> | undefined
 }
 
 export type Rpc = {
@@ -90,6 +90,7 @@ export type SpendLimit<bigintType = bigint> = {
   period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
   token: Address.Address
 }
+export type SpendLimits<bigintType = bigint> = readonly SpendLimit<bigintType>[]
 
 /** Serialized key type to key type mapping. */
 export const fromSerializedKeyType = {
@@ -467,12 +468,10 @@ export function fromRpc(rpc: Rpc): Key {
   const permissions = rpc.permissions
     ? {
         calls: rpc.permissions.calls,
-        spend: rpc.permissions.spend
-          ? {
-              ...rpc.permissions.spend,
-              limit: BigInt(rpc.permissions.spend.limit ?? 0),
-            }
-          : undefined,
+        spend: rpc.permissions.spend?.map((spend) => ({
+          ...spend,
+          limit: BigInt(spend.limit ?? 0),
+        })),
       }
     : undefined
 
@@ -826,12 +825,10 @@ export function toRpc(key: Key): Rpc {
   const permissions = key.permissions
     ? {
         ...key.permissions,
-        spend: key.permissions.spend
-          ? {
-              ...key.permissions.spend,
-              limit: Hex.fromNumber(key.permissions.spend.limit),
-            }
-          : undefined,
+        spend: key.permissions.spend?.map((spend) => ({
+          ...spend,
+          limit: Hex.fromNumber(spend.limit),
+        })),
       }
     : undefined
 

@@ -1001,7 +1001,11 @@ function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
 
     // Set spend limits.
     if (permissions?.spend)
-      permissionCalls.push(Call.setSpendLimit({ key, ...permissions.spend }))
+      permissionCalls.push(
+        ...permissions.spend.map((spend) =>
+          Call.setSpendLimit({ key, ...spend }),
+        ),
+      )
 
     return [...permissionCalls, Call.authorize({ key })]
   })

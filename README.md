@@ -205,7 +205,7 @@ type Request = {
         period?: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
         // ERC20 token to set the limit on.
         token?: `0x${string}`
-      }
+      }[]
     }
     // Type of key.
     type?: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256',
@@ -227,7 +227,7 @@ type Response = {
       limit?: bigint
       period?: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
       token?: `0x${string}`
-    }
+    }[]
   }
   publicKey: `0x${string}`,
   role: 'admin' | 'session',
@@ -262,11 +262,11 @@ const key = await porto.provider.request({
   method: 'experimental_authorizeKey',
   params: [{ 
     permissions: {
-      spend: {
+      spend: [{
         limit: 100_000_000n, // 100 USDC
         period: 'day',
         token: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
-      }
+      }]
     },
     publicKey: '0x...',
     type: 'p256',
@@ -405,7 +405,7 @@ type Response = {
       limit?: bigint
       period?: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
       token?: `0x${string}`
-    }
+    }[]
   }
   publicKey: `0x${string}`, 
   role: 'admin' | 'session', 
