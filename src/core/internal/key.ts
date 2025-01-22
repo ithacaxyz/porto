@@ -69,12 +69,6 @@ export type Permissions<bigintType = bigint> = {
   spend?: SpendLimit<bigintType> | undefined
 }
 
-export type SpendLimit<bigintType = bigint> = {
-  limit: bigintType
-  period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-  token: Address.Address
-}
-
 export type Rpc = {
   expiry: number
   permissions?: Permissions<Hex.Hex> | undefined
@@ -89,6 +83,12 @@ export type Serialized = {
   isSuperAdmin: boolean
   keyType: number
   publicKey: Hex.Hex
+}
+
+export type SpendLimit<bigintType = bigint> = {
+  limit: bigintType
+  period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+  token: Address.Address
 }
 
 /** Serialized key type to key type mapping. */

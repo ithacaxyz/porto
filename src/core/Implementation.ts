@@ -977,22 +977,33 @@ function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
       throw new Error(
         'session key must have at least one permission (`permissions`).',
       )
-    const scopes = permissions?.calls
-      ? permissions.calls.map((scope) => {
-          const selector = (() => {
-            if (!scope.signature) return undefined
-            if (scope.signature.startsWith('0x'))
-              return scope.signature as Hex.Hex
-            return AbiItem.getSelector(scope.signature)
-          })()
-          return Call.setCanExecute({
-            key,
-            selector,
-            to: scope.to,
+
+    const permissionCalls: Call.Call[] = []
+
+    // Set call scopes.
+    permissionCalls.push(
+      ...(permissions?.calls
+        ? permissions.calls.map((scope) => {
+            const selector = (() => {
+              if (!scope.signature) return undefined
+              if (scope.signature.startsWith('0x'))
+                return scope.signature as Hex.Hex
+              return AbiItem.getSelector(scope.signature)
+            })()
+            return Call.setCanExecute({
+              key,
+              selector,
+              to: scope.to,
+            })
           })
-        })
-      : [Call.setCanExecute({ key })]
-    return [...scopes, Call.authorize({ key })]
+        : [Call.setCanExecute({ key })]),
+    )
+
+    // Set spend limits.
+    if (permissions?.spend)
+      permissionCalls.push(Call.setSpendLimit({ key, ...permissions.spend }))
+
+    return [...permissionCalls, Call.authorize({ key })]
   })
 }
 
