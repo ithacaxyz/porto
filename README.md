@@ -208,7 +208,7 @@ type Request = {
       }
     }
     // Type of key.
-    type?: 'p256' | 'secp256k1' | 'webauthn-p256',
+    type?: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256',
   }]
 }
 ```
@@ -231,7 +231,7 @@ type Response = {
   }
   publicKey: `0x${string}`,
   role: 'admin' | 'session',
-  type: 'p256' | 'secp256k1' | 'webauthn-p256',
+  type: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256',
 }
 ```
 

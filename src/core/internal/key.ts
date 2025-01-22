@@ -80,7 +80,7 @@ export type Rpc = {
   permissions?: Permissions<Hex.Hex> | undefined
   publicKey: Hex.Hex
   role: 'admin' | 'session'
-  type: 'p256' | 'secp256k1' | 'webauthn-p256'
+  type: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256'
 }
 
 /** Serialized (contract-compatible) format of a key. */
@@ -489,7 +489,7 @@ export function fromRpc(rpc: Rpc): Key {
     expiry: rpc.expiry,
     publicKey: rpc.publicKey,
     role: rpc.role,
-    type: rpc.type,
+    type: rpc.type === 'contract' ? 'secp256k1' : rpc.type,
     ...(permissions ? { permissions } : {}),
   }
 }
