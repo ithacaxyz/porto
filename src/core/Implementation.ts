@@ -1075,10 +1075,10 @@ async function getKeysToAuthorize(parameters: {
   return await Promise.all(
     authorizeKeys
       .map(async (k) => {
-        const expiry = k?.expiry ?? defaultExpiry
         const publicKey = k?.publicKey ?? '0x'
         const role = k?.role ?? 'session'
         const type = k.type ?? 'secp256k1'
+        const expiry = k?.expiry ?? (role === 'admin' ? 0 : defaultExpiry)
         const key = Key.fromRpc({
           ...k,
           expiry,
@@ -1087,6 +1087,8 @@ async function getKeysToAuthorize(parameters: {
           type,
         })
         if (key?.publicKey !== '0x') return key
+        if (role === 'admin')
+          throw new Error('must provide `publicKey` to authorize admin keys.')
         return await Key.createWebCryptoP256({
           ...key,
           expiry,

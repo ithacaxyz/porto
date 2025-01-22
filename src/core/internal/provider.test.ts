@@ -132,6 +132,7 @@ describe('experimental_authorizeKey', () => {
         },
       ],
     })
+
     const accounts = porto._internal.store.getState().accounts
     expect(accounts.length).toBe(1)
     expect(accounts![0]!.keys?.length).toBe(2)
@@ -180,23 +181,63 @@ describe('experimental_authorizeKey', () => {
     await porto.provider.request({
       method: 'experimental_createAccount',
     })
-    await porto.provider.request({
-      method: 'experimental_authorizeKey',
-      params: [
-        {
-          permissions: {
-            calls: [{ signature: 'mint()' }],
+
+    expect(
+      await porto.provider.request({
+        method: 'experimental_authorizeKey',
+        params: [
+          {
+            expiry: 1737590801,
+            permissions: {
+              calls: [{ signature: 'mint()' }],
+            },
+            publicKey:
+              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+            role: 'session',
+            type: 'p256',
           },
-          publicKey:
-            '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
-          role: 'session',
-          type: 'p256',
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "expiry": 1737590801,
+        "permissions": {
+          "calls": [
+            {
+              "signature": "mint()",
+            },
+          ],
+          "spend": undefined,
         },
-      ],
-    })
+        "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
+        "role": "session",
+        "type": "p256",
+      }
+    `)
+
+    expect(
+      await porto.provider.request({
+        method: 'experimental_authorizeKey',
+        params: [
+          {
+            publicKey: '0x0000000000000000000000000000000000000000',
+            role: 'admin',
+            type: 'contract',
+          },
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "expiry": 0,
+        "publicKey": "0x0000000000000000000000000000000000000000",
+        "role": "admin",
+        "type": "secp256k1",
+      }
+    `)
+
     const accounts = porto._internal.store.getState().accounts
     expect(accounts.length).toBe(1)
-    expect(accounts![0]!.keys?.length).toBe(2)
+    expect(accounts![0]!.keys?.length).toBe(3)
     expect(
       accounts![0]!.keys?.map((x) => ({ ...x, expiry: null, publicKey: null })),
     ).toMatchInlineSnapshot(`
@@ -224,6 +265,13 @@ describe('experimental_authorizeKey', () => {
           "publicKey": null,
           "role": "session",
           "type": "p256",
+        },
+        {
+          "canSign": false,
+          "expiry": null,
+          "publicKey": null,
+          "role": "admin",
+          "type": "secp256k1",
         },
       ]
     `)
