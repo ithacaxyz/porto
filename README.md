@@ -200,10 +200,11 @@ type Request = {
       // Spend permissions of the key.
       spend?: {
         // Spending limit (in wei) per period.
-        limit?: bigint
+        limit: bigint
         // Period of the spend limit.
-        period?: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-        // ERC20 token to set the limit on.
+        period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+        // ERC20 token to set the limit on. 
+        // If not provided, the limit will be set on the native token (e.g. ETH).
         token?: `0x${string}`
       }[]
     }
@@ -224,8 +225,8 @@ type Response = {
       to?: `0x${string}`
     }[]
     spend?: {
-      limit?: bigint
-      period?: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+      limit: bigint
+      period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
       token?: `0x${string}`
     }[]
   }
@@ -402,8 +403,8 @@ type Response = {
       to?: `0x${string}`
     }[]
     spend?: {
-      limit?: bigint
-      period?: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+      limit: bigint
+      period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
       token?: `0x${string}`
     }[]
   }

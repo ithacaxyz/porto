@@ -232,7 +232,7 @@ describe('experimental_authorizeKey', () => {
     expect(messages[0].data.length).toBe(2)
   })
 
-  test('behavior: no call scopes', async () => {
+  test('behavior: no permissions', async () => {
     const porto = createPorto()
     await porto.provider.request({
       method: 'experimental_createAccount',
@@ -282,10 +282,25 @@ describe('experimental_keys', () => {
         },
       ],
     })
+    await porto.provider.request({
+      method: 'experimental_authorizeKey',
+      params: [
+        {
+          permissions: {
+            spend: [
+              {
+                limit: Hex.fromNumber(Value.fromEther('1.5')),
+                period: 'day',
+              },
+            ],
+          },
+        },
+      ],
+    })
     const keys = await porto.provider.request({
       method: 'experimental_keys',
     })
-    expect(keys.length).toBe(2)
+    expect(keys.length).toBe(3)
     expect(
       keys.map((x) => ({ ...x, expiry: null, publicKey: null })),
     ).toMatchInlineSnapshot(`
@@ -305,6 +320,21 @@ describe('experimental_keys', () => {
               },
             ],
             "spend": undefined,
+          },
+          "publicKey": null,
+          "role": "session",
+          "type": "p256",
+        },
+        {
+          "expiry": null,
+          "permissions": {
+            "calls": undefined,
+            "spend": [
+              {
+                "limit": "0x14d1120d7b160000",
+                "period": "day",
+              },
+            ],
           },
           "publicKey": null,
           "role": "session",
@@ -761,7 +791,7 @@ describe('wallet_sendCalls', () => {
     expect(await getBalance(client, { address: alice })).toBe(69420n)
   })
 
-  test('behavior: `key.callScopes` mismatch', async () => {
+  test('behavior: `key.permissions.calls` unauthorized', async () => {
     const porto = createPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
@@ -807,6 +837,79 @@ describe('wallet_sendCalls', () => {
         ],
       }),
     ).rejects.toThrowError('Unauthorized')
+  })
+
+  test('behavior: `key.permissions.spend` exceeded', async () => {
+    const porto = createPorto()
+    const client = Porto.getClient(porto).extend(() => ({
+      mode: 'anvil',
+    }))
+
+    const { address } = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    await setBalance(client, {
+      address,
+      value: Value.fromEther('10000'),
+    })
+
+    const alice = '0x0000000000000000000000000000000000069422'
+
+    const key = await porto.provider.request({
+      method: 'experimental_authorizeKey',
+      params: [
+        {
+          permissions: {
+            spend: [
+              {
+                limit: Hex.fromNumber(69420),
+                period: 'day',
+              },
+            ],
+          },
+        },
+      ],
+    })
+
+    await porto.provider.request({
+      method: 'wallet_sendCalls',
+      params: [
+        {
+          capabilities: {
+            key,
+          },
+          from: address,
+          calls: [
+            {
+              to: alice,
+              value: Hex.fromNumber(69420),
+            },
+          ],
+          version: '1',
+        },
+      ],
+    })
+
+    await expect(() =>
+      porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            capabilities: {
+              key,
+            },
+            from: address,
+            calls: [
+              {
+                to: alice,
+                value: Hex.fromNumber(1),
+              },
+            ],
+            version: '1',
+          },
+        ],
+      }),
+    ).rejects.toThrowError('ExceededSpendLimit')
   })
 
   test('behavior: revoked key', async () => {

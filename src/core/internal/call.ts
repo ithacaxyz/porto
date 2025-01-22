@@ -111,7 +111,8 @@ export declare namespace setLabel {
  * @returns Instantiated values.
  */
 export function setSpendLimit(parameters: setSpendLimit.Parameters) {
-  const { key, token, period, limit } = parameters
+  const { key, period, limit } = parameters
+  const token = parameters.token ?? '0x0000000000000000000000000000000000000000'
   return {
     data: AbiFunction.encodeData(
       AbiFunction.fromAbi(delegationAbi, 'setSpendLimit'),
@@ -130,7 +131,7 @@ export declare namespace setSpendLimit {
     /** Period to set. */
     period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
     /** Token to set. */
-    token: Address.Address
+    token?: Address.Address | undefined
   }
 }
 

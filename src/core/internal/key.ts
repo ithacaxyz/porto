@@ -88,7 +88,7 @@ export type Serialized = {
 export type SpendLimit<bigintType = bigint> = {
   limit: bigintType
   period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-  token: Address.Address
+  token?: Address.Address | undefined
 }
 export type SpendLimits<bigintType = bigint> = readonly SpendLimit<bigintType>[]
 

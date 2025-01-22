@@ -10,7 +10,7 @@ import * as Delegation from './delegation.js'
 import * as Key from './key.js'
 
 describe('execute', () => {
-  describe('authorize', () => {
+  describe('behavior: authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
       const { account } = await getAccount(client)
 
@@ -240,7 +240,7 @@ describe('execute', () => {
     })
   })
 
-  describe('arbitrary calls', () => {
+  describe('behavior: arbitrary calls', () => {
     test('key: p256, executor: JSON-RPC', async () => {
       const key = Key.createP256({
         role: 'admin',
@@ -465,6 +465,74 @@ describe('execute', () => {
       )
       expect(balances_after[1]).toEqual(Value.fromEther('1'))
       expect(balances_after[2]).toEqual(Value.fromEther('0.5'))
+    })
+  })
+
+  describe('behavior: spend limits', () => {
+    test('default', async () => {
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      const { account } = await getAccount(client, { keys: [key] })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          Call.setCanExecute(),
+          Call.authorize({ key }),
+          Call.setSpendLimit({
+            key,
+            period: 'day',
+            limit: Value.fromEther('1.5'),
+          }),
+        ],
+        delegation,
+      })
+
+      const alice = privateKeyToAccount(Secp256k1.randomPrivateKey())
+      const bob = privateKeyToAccount(Secp256k1.randomPrivateKey())
+
+      const balances_before = await Promise.all([
+        getBalance(client, { address: account.address }),
+        getBalance(client, { address: alice.address }),
+        getBalance(client, { address: bob.address }),
+      ])
+
+      expect(balances_before[1]).toEqual(Value.fromEther('0'))
+      expect(balances_before[2]).toEqual(Value.fromEther('0'))
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          { to: alice.address, value: Value.fromEther('1') },
+          { to: bob.address, value: Value.fromEther('0.5') },
+        ],
+        key,
+      })
+
+      const balances_after = await Promise.all([
+        getBalance(client, { address: account.address }),
+        getBalance(client, { address: alice.address }),
+        getBalance(client, { address: bob.address }),
+      ])
+
+      expect(balances_after[0]).not.toBeGreaterThan(
+        balances_before[0] - Value.fromEther('1'),
+      )
+      expect(balances_after[1]).toEqual(Value.fromEther('1'))
+      expect(balances_after[2]).toEqual(Value.fromEther('0.5'))
+
+      await expect(() =>
+        Delegation.execute(client, {
+          account,
+          calls: [
+            { to: alice.address, value: Value.fromEther('1') },
+            { to: bob.address, value: Value.fromEther('0.5') },
+          ],
+          key,
+        }),
+      ).rejects.toThrowError('ExceededSpendLimit')
     })
   })
 
