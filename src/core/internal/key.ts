@@ -159,14 +159,12 @@ export function createP256<const role extends Key['role']>(
 
 export declare namespace createP256 {
   type Parameters<role extends Key['role']> = {
-    /** Call scopes. */
-    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: fromP256.Parameters['expiry']
+    /** Permissions. */
+    permissions?: Permissions | undefined
     /** Role. */
     role: fromP256.Parameters<role>['role']
-    /** Spend limit. */
-    spendLimit?: SpendLimit | undefined
   }
 }
 
@@ -204,14 +202,12 @@ export function createSecp256k1<const role extends Key['role']>(
 
 export declare namespace createSecp256k1 {
   type Parameters<role extends Key['role']> = {
-    /** Call scopes. */
-    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: fromSecp256k1.Parameters['expiry']
+    /** Permissions. */
+    permissions?: Permissions | undefined
     /** Role. */
     role: fromSecp256k1.Parameters<role>['role']
-    /** Spend limit. */
-    spendLimit?: SpendLimit | undefined
   }
 }
 
@@ -278,8 +274,6 @@ export async function createWebAuthnP256<const role extends Key['role']>(
 
 export declare namespace createWebAuthnP256 {
   type Parameters<role extends Key['role']> = {
-    /** Call scopes. */
-    callScopes?: CallScopes | undefined
     /**
      * Credential creation function. Useful for environments that do not support
      * the WebAuthn API natively (i.e. React Native or testing environments).
@@ -291,12 +285,12 @@ export declare namespace createWebAuthnP256 {
     expiry?: fromWebAuthnP256.Parameters['expiry']
     /** Label. */
     label: string
+    /** Permissions. */
+    permissions?: Permissions | undefined
     /** Role. */
     role: fromWebAuthnP256.Parameters<role>['role']
     /** Relying Party ID. */
     rpId?: string | undefined
-    /** Spend limit. */
-    spendLimit?: SpendLimit | undefined
     /** User ID. */
     userId: Bytes.Bytes
   }
@@ -336,14 +330,12 @@ export async function createWebCryptoP256<const role extends Key['role']>(
 
 export declare namespace createWebCryptoP256 {
   type Parameters<role extends Key['role']> = {
-    /** Call scopes. */
-    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: fromP256.Parameters['expiry']
+    /** Permissions. */
+    permissions?: Permissions | undefined
     /** Role. */
     role: fromP256.Parameters<role>['role']
-    /** Spend limit. */
-    spendLimit?: SpendLimit | undefined
   }
 }
 
