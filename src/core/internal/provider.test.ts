@@ -126,8 +126,8 @@ describe('experimental_authorizeKey', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ signature: 'mint()' }],
+          permissions: {
+            calls: [{ signature: 'mint()' }],
           },
         },
       ],
@@ -140,22 +140,25 @@ describe('experimental_authorizeKey', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": true,
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "privateKey": CryptoKey {},
           "publicKey": null,
           "role": "session",
@@ -181,13 +184,13 @@ describe('experimental_authorizeKey', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ signature: 'mint()' }],
-            publicKey:
-              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
-            role: 'session',
-            type: 'p256',
+          permissions: {
+            calls: [{ signature: 'mint()' }],
           },
+          publicKey:
+            '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+          role: 'session',
+          type: 'p256',
         },
       ],
     })
@@ -199,22 +202,25 @@ describe('experimental_authorizeKey', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": false,
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "publicKey": null,
           "role": "session",
           "type": "p256",
@@ -235,19 +241,17 @@ describe('experimental_authorizeKey', () => {
       porto.provider.request({
         method: 'experimental_authorizeKey',
         params: [
+          // @ts-expect-error: testing
           {
-            // @ts-expect-error
-            key: {
-              publicKey:
-                '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
-              role: 'session',
-              type: 'p256',
-            },
+            publicKey:
+              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+            role: 'session',
+            type: 'p256',
           },
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[RpcResponse.InternalError: session key must have at least one call scope (`callScope`).]',
+      '[RpcResponse.InternalError: session key must have at least one permission (`permissions`).]',
     )
   })
 })
@@ -272,8 +276,8 @@ describe('experimental_keys', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ signature: 'mint()' }],
+          permissions: {
+            calls: [{ signature: 'mint()' }],
           },
         },
       ],
@@ -287,19 +291,21 @@ describe('experimental_keys', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "expiry": null,
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "publicKey": null,
           "role": "session",
           "type": "p256",
@@ -323,8 +329,8 @@ describe('experimental_revokeKey', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ signature: 'mint()' }],
+          permissions: {
+            calls: [{ signature: 'mint()' }],
           },
         },
       ],
@@ -337,22 +343,25 @@ describe('experimental_revokeKey', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": true,
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "privateKey": CryptoKey {},
           "publicKey": null,
           "role": "session",
@@ -376,9 +385,9 @@ describe('experimental_revokeKey', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
@@ -497,9 +506,9 @@ describe('wallet_connect', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
@@ -524,7 +533,9 @@ describe('wallet_connect', () => {
           capabilities: {
             createAccount: true,
             authorizeKey: {
-              callScopes: [{ signature: 'mint()' }],
+              permissions: {
+                calls: [{ signature: 'mint()' }],
+              },
             },
           },
         },
@@ -538,22 +549,25 @@ describe('wallet_connect', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": true,
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "privateKey": CryptoKey {},
           "publicKey": null,
           "role": "session",
@@ -584,7 +598,9 @@ describe('wallet_connect', () => {
           capabilities: {
             createAccount: true,
             authorizeKey: {
-              callScopes: [{ signature: 'mint()' }],
+              permissions: {
+                calls: [{ signature: 'mint()' }],
+              },
               publicKey,
               role: 'session',
               type: 'p256',
@@ -605,22 +621,25 @@ describe('wallet_connect', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": false,
           "expiry": 694206942069,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
           "role": "session",
           "type": "p256",
@@ -713,8 +732,8 @@ describe('wallet_sendCalls', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ to: alice }],
+          permissions: {
+            calls: [{ to: alice }],
           },
         },
       ],
@@ -762,8 +781,8 @@ describe('wallet_sendCalls', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ to: '0x0000000000000000000000000000000000000000' }],
+          permissions: {
+            calls: [{ to: '0x0000000000000000000000000000000000000000' }],
           },
         },
       ],
@@ -810,8 +829,8 @@ describe('wallet_sendCalls', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ to: alice }],
+          permissions: {
+            calls: [{ to: alice }],
           },
         },
       ],
@@ -884,13 +903,13 @@ describe('wallet_sendCalls', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ to: alice }],
-            publicKey:
-              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
-            role: 'session',
-            type: 'p256',
+          permissions: {
+            calls: [{ to: alice }],
           },
+          publicKey:
+            '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+          role: 'session',
+          type: 'p256',
         },
       ],
     })

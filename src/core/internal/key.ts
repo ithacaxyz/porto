@@ -14,10 +14,30 @@ import type { OneOf, Undefined } from './types.js'
 
 type PrivateKeyFn = () => Hex.Hex
 
+export type Key = OneOf<P256Key | Secp256k1Key | WebCryptoKey | WebAuthnKey>
+export type P256Key = BaseKey<'p256', { privateKey: PrivateKeyFn }>
+export type Secp256k1Key = BaseKey<'secp256k1', { privateKey: PrivateKeyFn }>
+export type WebCryptoKey = BaseKey<
+  'p256',
+  {
+    credential?:
+      | Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+      | undefined
+    privateKey: CryptoKey
+  }
+>
+export type WebAuthnKey = BaseKey<
+  'webauthn-p256',
+  {
+    credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+    rpId: string | undefined
+  }
+>
+
 /** Key on a delegated account. */
 export type BaseKey<type extends string, properties> = {
-  callScopes?: CallScopes | undefined
   expiry: number
+  permissions?: Permissions | undefined
   publicKey: Hex.Hex
   role: 'admin' | 'session'
   type: type
@@ -44,30 +64,20 @@ export type CallScope = OneOf<
 >
 export type CallScopes = readonly [CallScope, ...CallScope[]]
 
-export type Key = OneOf<P256Key | Secp256k1Key | WebCryptoKey | WebAuthnKey>
+export type Permissions<bigintType = bigint> = {
+  calls?: CallScopes | undefined
+  spend?: SpendLimit<bigintType> | undefined
+}
 
-export type P256Key = BaseKey<'p256', { privateKey: PrivateKeyFn }>
-export type Secp256k1Key = BaseKey<'secp256k1', { privateKey: PrivateKeyFn }>
-export type WebCryptoKey = BaseKey<
-  'p256',
-  {
-    credential?:
-      | Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
-      | undefined
-    privateKey: CryptoKey
-  }
->
-export type WebAuthnKey = BaseKey<
-  'webauthn-p256',
-  {
-    credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
-    rpId: string | undefined
-  }
->
+export type SpendLimit<bigintType = bigint> = {
+  limit: bigintType
+  period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+  token: Address.Address
+}
 
 export type Rpc = {
-  callScopes?: CallScopes | undefined
   expiry: number
+  permissions?: Permissions<Hex.Hex> | undefined
   publicKey: Hex.Hex
   role: 'admin' | 'session'
   type: 'p256' | 'secp256k1' | 'webauthn-p256'
@@ -81,6 +91,23 @@ export type Serialized = {
   publicKey: Hex.Hex
 }
 
+/** Serialized key type to key type mapping. */
+export const fromSerializedKeyType = {
+  0: 'p256',
+  1: 'webauthn-p256',
+  2: 'secp256k1',
+} as const
+
+/** Serialized spend period to period mapping. */
+export const fromSerializedSpendPeriod = {
+  0: 'minute',
+  1: 'hour',
+  2: 'day',
+  3: 'week',
+  4: 'month',
+  5: 'year',
+} as const
+
 /** Key type to serialized key type mapping. */
 export const toSerializedKeyType = {
   p256: 0,
@@ -88,11 +115,14 @@ export const toSerializedKeyType = {
   secp256k1: 2,
 } as const
 
-/** Serialized key type to key type mapping. */
-export const fromSerializedKeyType = {
-  0: 'p256',
-  1: 'webauthn-p256',
-  2: 'secp256k1',
+/** Period to serialized period mapping. */
+export const toSerializedSpendPeriod = {
+  minute: 0,
+  hour: 1,
+  day: 2,
+  week: 3,
+  month: 4,
+  year: 5,
 } as const
 
 /**
@@ -135,6 +165,8 @@ export declare namespace createP256 {
     expiry?: fromP256.Parameters['expiry']
     /** Role. */
     role: fromP256.Parameters<role>['role']
+    /** Spend limit. */
+    spendLimit?: SpendLimit | undefined
   }
 }
 
@@ -178,6 +210,8 @@ export declare namespace createSecp256k1 {
     expiry?: fromSecp256k1.Parameters['expiry']
     /** Role. */
     role: fromSecp256k1.Parameters<role>['role']
+    /** Spend limit. */
+    spendLimit?: SpendLimit | undefined
   }
 }
 
@@ -261,6 +295,8 @@ export declare namespace createWebAuthnP256 {
     role: fromWebAuthnP256.Parameters<role>['role']
     /** Relying Party ID. */
     rpId?: string | undefined
+    /** Spend limit. */
+    spendLimit?: SpendLimit | undefined
     /** User ID. */
     userId: Bytes.Bytes
   }
@@ -306,6 +342,8 @@ export declare namespace createWebCryptoP256 {
     expiry?: fromP256.Parameters['expiry']
     /** Role. */
     role: fromP256.Parameters<role>['role']
+    /** Spend limit. */
+    spendLimit?: SpendLimit | undefined
   }
 }
 
@@ -402,11 +440,11 @@ export function fromP256<const role extends Key['role']>(
     includePrefix: false,
   })
   return from({
-    callScopes: parameters.callScopes,
+    canSign: true,
     expiry: parameters.expiry ?? 0,
     publicKey,
     role: parameters.role as Key['role'],
-    canSign: true,
+    permissions: parameters.permissions,
     privateKey() {
       return privateKey
     },
@@ -416,10 +454,10 @@ export function fromP256<const role extends Key['role']>(
 
 export declare namespace fromP256 {
   type Parameters<role extends Key['role'] = Key['role']> = {
-    /** Call scopes. */
-    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
+    /** Permissions. */
+    permissions?: Permissions | undefined
     /** P256 private key. */
     privateKey: Hex.Hex
     /** Role. */
@@ -434,13 +472,25 @@ export declare namespace fromP256 {
  * @returns Key.
  */
 export function fromRpc(rpc: Rpc): Key {
+  const permissions = rpc.permissions
+    ? {
+        calls: rpc.permissions.calls,
+        spend: rpc.permissions.spend
+          ? {
+              ...rpc.permissions.spend,
+              limit: BigInt(rpc.permissions.spend.limit ?? 0),
+            }
+          : undefined,
+      }
+    : undefined
+
   return {
     canSign: false,
-    callScopes: rpc.callScopes,
     expiry: rpc.expiry,
     publicKey: rpc.publicKey,
     role: rpc.role,
     type: rpc.type,
+    ...(permissions ? { permissions } : {}),
   }
 }
 
@@ -482,11 +532,11 @@ export function fromSecp256k1<const role extends Key['role']>(
   })()
   const publicKey = AbiParameters.encode([{ type: 'address' }], [address])
   return from({
-    callScopes: parameters.callScopes,
+    canSign: Boolean(privateKey),
     expiry: parameters.expiry ?? 0,
     publicKey,
     role,
-    canSign: Boolean(privateKey),
+    permissions: parameters.permissions,
     privateKey: privateKey ? () => privateKey : undefined,
     type: 'secp256k1',
   } as Secp256k1Key)
@@ -494,10 +544,10 @@ export function fromSecp256k1<const role extends Key['role']>(
 
 export declare namespace fromSecp256k1 {
   type Parameters<role extends Key['role'] = Key['role']> = {
-    /** Call scopes. */
-    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
+    /** Permissions. */
+    permissions?: Permissions | undefined
     /** Role. */
     role: role | Key['role']
   } & OneOf<
@@ -551,12 +601,12 @@ export function fromWebAuthnP256<const role extends Key['role']>(
     includePrefix: false,
   })
   return from({
-    callScopes: parameters.callScopes,
+    canSign: true,
     credential,
     expiry: parameters.expiry ?? 0,
+    permissions: parameters.permissions,
     publicKey,
     role: parameters.role as Key['role'],
-    canSign: true,
     rpId,
     type: 'webauthn-p256',
   })
@@ -564,12 +614,12 @@ export function fromWebAuthnP256<const role extends Key['role']>(
 
 export declare namespace fromWebAuthnP256 {
   type Parameters<role extends Key['role'] = Key['role']> = {
-    /** Call scopes. */
-    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+    /** Permissions. */
+    permissions?: Permissions | undefined
     /** Role. */
     role: role | Key['role']
     /** Relying Party ID. */
@@ -613,11 +663,11 @@ export function fromWebCryptoP256<const role extends Key['role']>(
     includePrefix: false,
   })
   return from({
-    callScopes: parameters.callScopes,
+    canSign: true,
     expiry: parameters.expiry ?? 0,
+    permissions: parameters.permissions,
     publicKey,
     role: parameters.role as Key['role'],
-    canSign: true,
     privateKey,
     type: 'p256',
   })
@@ -625,12 +675,12 @@ export function fromWebCryptoP256<const role extends Key['role']>(
 
 export declare namespace fromWebCryptoP256 {
   type Parameters<role extends Key['role']> = {
-    /** Call scopes. */
-    callScopes?: CallScopes | undefined
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
     /** P256 private key. */
     keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
+    /** Permissions. */
+    permissions?: Permissions | undefined
     /** Role. */
     role: role | Key['role']
   }
@@ -781,12 +831,24 @@ export async function sign(
  * @returns RPC key.
  */
 export function toRpc(key: Key): Rpc {
+  const permissions = key.permissions
+    ? {
+        ...key.permissions,
+        spend: key.permissions.spend
+          ? {
+              ...key.permissions.spend,
+              limit: Hex.fromNumber(key.permissions.spend.limit),
+            }
+          : undefined,
+      }
+    : undefined
+
   return {
-    callScopes: key.callScopes,
     expiry: key.expiry,
     publicKey: key.publicKey,
     role: key.role,
     type: key.type,
+    ...(permissions ? { permissions } : {}),
   }
 }
 

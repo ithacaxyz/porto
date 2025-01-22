@@ -34,7 +34,7 @@ export async function authorizeKey<config extends Config>(
   config: config,
   parameters: authorizeKey.Parameters<config>,
 ): Promise<authorizeKey.ReturnType> {
-  const { address, chainId, connector, key } = parameters
+  const { address, chainId, connector, ...key } = parameters
 
   const client = await getConnectorClient(config, {
     account: address,
@@ -50,15 +50,15 @@ export async function authorizeKey<config extends Config>(
     ReturnType: RpcSchema.ExtractReturnType<Schema, method>
   }>({
     method,
-    params: [{ address, key }],
+    params: [{ address, ...key }],
   })
 }
 
 export declare namespace authorizeKey {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    ConnectorParameter & {
+    ConnectorParameter &
+    AuthorizeKeyParameters & {
       address?: Address | undefined
-      key?: AuthorizeKeyParameters['key'] | undefined
     }
 
   type ReturnType = AuthorizeKeyReturnType
@@ -148,7 +148,7 @@ export async function connect<config extends Config>(
 
 export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    authorizeKey?: AuthorizeKeyParameters['key'] | undefined
+    authorizeKey?: AuthorizeKeyParameters | undefined
     connector: Connector | CreateConnectorFn
     createAccount?: boolean | CreateAccountParameters | undefined
   }
@@ -469,7 +469,7 @@ export async function upgradeAccount<config extends Config>(
 
 export declare namespace upgradeAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    authorizeKey?: AuthorizeKeyParameters['key'] | undefined
+    authorizeKey?: AuthorizeKeyParameters | undefined
     account: PrivateKeyAccount
     connector: Connector | CreateConnectorFn
     label?: string | undefined
