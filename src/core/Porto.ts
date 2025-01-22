@@ -18,7 +18,6 @@ import * as Storage from './Storage.js'
 import type * as Account from './internal/account.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
-import type { Schema } from './internal/rpcSchema.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 
 export const defaultConfig = {
