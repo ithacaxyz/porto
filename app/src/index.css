@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-:root {
-  color-scheme: light dark;
-}
-
 /* biome-ignore format: <explanation> */
 @theme {
   --color-neutral-0: light-dark(oklch(100% 0 0), oklch(10.39% 0.0194 248.34));
@@ -20,15 +16,4 @@
   --color-neutral-11: light-dark(oklch(36.48% 0.0145 252.28), oklch(87.72% 0.014 258.35));
   --color-neutral-12: light-dark(oklch(27.9% 0.0109 254.02), oklch(97.03% 0.0103 247.93));
   --color-neutral-13: light-dark(oklch(25.42% 0.0111 254.04), oklch(100% 0 0));
-}
-
-html,
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  height: 100%;
-}
-
-#root {
-  height: 100%;
 }

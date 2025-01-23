@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App.js'
+import { appStore } from './lib/app.ts'
 import { messenger } from './lib/porto.js'
 import { requestsStore } from './lib/requests.js'
 import { router } from './lib/router.ts'
@@ -8,10 +9,13 @@ import { router } from './lib/router.ts'
 import './index.css'
 
 messenger.ready()
-const unsubscribe = messenger.on('rpc-requests', (payload) => {
+const unsubscribe_internal = messenger.on('__internal', (payload) => {
+  if (payload.type === 'init') appStore.setState(payload)
+})
+const unsubscribe_rpc = messenger.on('rpc-requests', (payload) => {
   const requests = payload as requestsStore.State['requests']
   requestsStore.setState({ requests })
-  handleIncomingRequests(requests)
+  handle_rpc(requests)
 })
 
 createRoot(document.getElementById('root')!).render(
@@ -22,10 +26,11 @@ createRoot(document.getElementById('root')!).render(
 
 if (import.meta.hot)
   import.meta.hot.on('vite:beforeUpdate', () => {
-    unsubscribe()
+    unsubscribe_internal()
+    unsubscribe_rpc()
   })
 
-function handleIncomingRequests(requests: requestsStore.State['requests']) {
+function handle_rpc(requests: requestsStore.State['requests']) {
   const request = requests[0]?.request
   const search: Parameters<(typeof router)['navigate']>[0]['search'] = (prev) =>
     prev as never

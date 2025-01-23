@@ -1,28 +1,47 @@
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import type { Porto } from 'porto'
 import * as React from 'react'
-import * as v from 'valibot'
+import { type appStore, useAppStore } from '../lib/app'
+import { messenger } from '../lib/porto'
 import { Header } from '../ui/Header'
 
 export const Route = createRootRouteWithContext<{
+  appState: appStore.State
   portoState: Porto.State
 }>()({
   component: RouteComponent,
-  // extract critical iframe properties from search (for secure properties use messenger API)
-  validateSearch: v.object({
-    referrer: v.string(),
-    type: v.union([v.literal('iframe'), v.literal('popup')]),
-  }),
 })
 
 function RouteComponent() {
-  const { referrer, type } = Route.useSearch()
+  const mode = useAppStore((state) => state.mode)
+
+  const elementRef = React.useRef<HTMLDivElement | null>(null)
+  React.useEffect(() => {
+    const element = elementRef.current
+    if (!element) return
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { height, width } = entry.contentRect
+        if (mode === 'popup')
+          window.resizeTo(width, height + 30) // add 30px to account for title bar
+        else messenger.send('__internal', { type: 'resize', height, width })
+      }
+    })
+
+    resizeObserver.observe(element)
+    return () => {
+      resizeObserver.unobserve(element)
+    }
+  }, [mode])
+
   return (
     <div
-      {...{ [`data-${type}`]: '' }} // for conditional styling based on dialog type
-      className="h-fit w-full bg-neutral-0 dark:bg-neutral-1"
+      {...{ [`data-${mode}`]: '' }} // for conditional styling based on dialog mode ("iframe" or "popup")
+      ref={elementRef}
+      className="h-fit min-w-[282px] bg-neutral-0 dark:bg-neutral-1"
     >
-      <Header referrer={referrer} />
+      <Header />
       <Outlet />
       <React.Suspense>
         <TanStackRouterDevtools position="bottom-right" />

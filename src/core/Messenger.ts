@@ -13,6 +13,7 @@ export type Messenger = {
   send: <const topic extends Topic>(
     topic: topic | Topic,
     payload: Payload<topic>,
+    targetOrigin?: string | undefined,
   ) => Promise<{ id: string; topic: topic; payload: Payload<topic> }>
   sendAsync: <const topic extends Topic>(
     topic: topic | Topic,
@@ -45,6 +46,21 @@ export type Schema = [
   {
     topic: 'rpc-response'
     payload: RpcResponse.RpcResponse
+    response: undefined
+  },
+  {
+    topic: '__internal'
+    payload:
+      | {
+          type: 'init'
+          mode: 'iframe' | 'popup'
+          targetOrigin: string
+        }
+      | {
+          type: 'resize'
+          height: number
+          width: number
+        }
     response: undefined
   },
 ]
@@ -101,9 +117,9 @@ export function fromWindow(
       listeners.set(topic, handler)
       return () => w.removeEventListener('message', handler)
     },
-    async send(topic, payload) {
+    async send(topic, payload, target) {
       const id = crypto.randomUUID()
-      w.postMessage({ id, topic, payload }, targetOrigin ?? '*')
+      w.postMessage({ id, topic, payload }, target ?? targetOrigin ?? '*')
       return { id, topic, payload } as never
     },
     async sendAsync(topic, payload) {
