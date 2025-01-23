@@ -25,6 +25,10 @@ async function connectWallet() {
 }
 </script>
 
-<button type="button" onclick={connectWallet} class="hover:cursor-pointer mr-auto">
+<button
+  type="button"
+  onclick={connectWallet}
+  class="hover:cursor-pointer mr-auto bg-[#145AC6] text-white"
+>
   {connected ? 'logout' : 'login'}
 </button>

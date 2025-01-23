@@ -3,11 +3,7 @@ import Connect from '$/lib/components/connect.svelte'
 import { porto, wagmiConfig } from '$/lib/config.ts'
 import { ExperimentERC20 } from '$/lib/contracts'
 import { PUBLIC_SERVER_URL } from '$env/static/public'
-import {
-  createMutation,
-  createQuery,
-  useQueryClient,
-} from '@tanstack/svelte-query'
+import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query'
 import { type GetAccountReturnType, getAccount } from '@wagmi/core/actions'
 import { Json } from 'ox'
 import type { Rpc } from 'ox/Authorization'
@@ -56,12 +52,12 @@ async function keysRequest() {
 const keysRequestMutation = createMutation({
   mutationKey: ['keys'],
   mutationFn: keysRequest,
-  onMutate: (variables) => {
+  onMutate: variables => {
     console.info('onMutate', variables)
   },
   onSuccess: (result, variables, context) => {
     console.info('onSuccess', result, variables, context)
-    queryClient.setQueryData<Array<Keys>>(['keys'], (oldResult) =>
+    queryClient.setQueryData<Array<Keys>>(['keys'], oldResult =>
       oldResult ? [...oldResult, result] : [result],
     )
   },
@@ -72,12 +68,12 @@ const keysRequestMutation = createMutation({
 })
 </script>
 
-<section class="my-4 gap-y-3 flex flex-col justify-start size-full">
+<section class="my-4 gap-y-10 flex flex-col justify-start size-full">
   <div>
     <p>Address</p>
     <p>{$accountQuery.data?.address}</p>
+    <Connect />
   </div>
-  <Connect />
 
   <div class="size-full">
     <button type="button" onclick={() => $keysRequestMutation.mutate()}> Request keys </button>
@@ -128,8 +124,13 @@ const keysRequestMutation = createMutation({
   cursor: pointer;
   padding: 0.4rem 0.75rem;
   border-radius: 4px;
-  border: 1px solid #333;
+  border: 2px solid #3b6db8;
   text-align: left;
   font-size: 14px;
+  background-color: #145ac6;
+  color: white;
+  &:hover {
+    border-color: #000000;
+  }
 }
 </style>
