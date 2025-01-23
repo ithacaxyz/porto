@@ -5,7 +5,9 @@ import { getExports } from './utils/exports.js'
 // biome-ignore lint/suspicious/noConsoleLog:
 console.log('Setting up packages for development.')
 
-const packagePath = resolve(import.meta.dirname, '../src/package.json')
+import { fileURLToPath } from 'node:url';
+
+const packagePath = resolve(fileURLToPath(import.meta.url), '../src/package.json');
 const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'))
 
 // biome-ignore lint/suspicious/noConsoleLog:
