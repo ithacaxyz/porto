@@ -1,19 +1,109 @@
 @import "tailwindcss";
 
+/* https://github.com/radix-ui/colors */
 /* biome-ignore format: <explanation> */
 @theme {
-  --color-neutral-0: light-dark(oklch(100% 0 0), oklch(10.39% 0.0194 248.34));
-  --color-neutral-1: light-dark(oklch(97.82% 0.0034 247.86), oklch(17.63% 0.014 258.36));
-  --color-neutral-2: light-dark(oklch(95.97% 0.0052 247.88), oklch(21.98% 0.0182 255.71));
-  --color-neutral-3: light-dark(oklch(93.54% 0.008 253.86), oklch(27.35% 0.0179 251.92));
-  --color-neutral-4: light-dark(oklch(92.18% 0.0094 242.84), oklch(29.16% 0.0202 260.62));
-  --color-neutral-5: light-dark(oklch(90.42% 0.0116 252.09), oklch(31.12% 0.0221 259.38));
-  --color-neutral-6: light-dark(oklch(88.12% 0.013 244.27), oklch(33.39% 0.0223 256.4));
-  --color-neutral-7: light-dark(oklch(85.65% 0.0159 248.01), oklch(38.37% 0.0179 254.74));
-  --color-neutral-8: light-dark(oklch(63.29% 0.0228 254.97), oklch(52.87% 0.0179 257.24));
-  --color-neutral-9: light-dark(oklch(49.51% 0.0215 250.78), oklch(67.69% 0.0155 254.64));
-  --color-neutral-10: light-dark(oklch(41.32% 0.0162 251.74), oklch(79.7% 0.0169 262.74));
-  --color-neutral-11: light-dark(oklch(36.48% 0.0145 252.28), oklch(87.72% 0.014 258.35));
-  --color-neutral-12: light-dark(oklch(27.9% 0.0109 254.02), oklch(97.03% 0.0103 247.93));
-  --color-neutral-13: light-dark(oklch(25.42% 0.0111 254.04), oklch(100% 0 0));
+  --color-gray1: light-dark(#fcfcfc, #111111);
+  --color-gray2: light-dark(#f9f9f9, #191919);
+  --color-gray3: light-dark(#f0f0f0, #222222);
+  --color-gray4: light-dark(#e8e8e8, #2a2a2a);
+  --color-gray5: light-dark(#e0e0e0, #313131);
+  --color-gray6: light-dark(#d9d9d9, #3a3a3a);
+  --color-gray7: light-dark(#cecece, #484848);
+  --color-gray8: light-dark(#bbbbbb, #606060);
+  --color-gray9: light-dark(#8d8d8d, #6e6e6e);
+  --color-gray10: light-dark(#838383, #7b7b7b);
+  --color-gray11: light-dark(#646464, #b4b4b4);
+  --color-gray12: light-dark(#202020, #eeeeee);
+
+  --color-grayA1: light-dark(#00000003, #00000000);
+  --color-grayA2: light-dark(#00000006, #ffffff09);
+  --color-grayA3: light-dark(#0000000f, #ffffff12);
+  --color-grayA4: light-dark(#00000017, #ffffff1b);
+  --color-grayA5: light-dark(#0000001f, #ffffff22);
+  --color-grayA6: light-dark(#00000026, #ffffff2c);
+  --color-grayA7: light-dark(#00000031, #ffffff3b);
+  --color-grayA8: light-dark(#00000044, #ffffff55);
+  --color-grayA9: light-dark(#00000072, #ffffff64);
+  --color-grayA10: light-dark(#0000007c, #ffffff72);
+  --color-grayA11: light-dark(#0000009b, #ffffffaf);
+  --color-grayA12: light-dark(#000000df, #ffffffed);
+
+  --color-blackA1: rgba(0, 0, 0, 0.05);
+  --color-blackA2: rgba(0, 0, 0, 0.1);
+  --color-blackA3: rgba(0, 0, 0, 0.15);
+  --color-blackA4: rgba(0, 0, 0, 0.2);
+  --color-blackA5: rgba(0, 0, 0, 0.3);
+  --color-blackA6: rgba(0, 0, 0, 0.4);
+  --color-blackA7: rgba(0, 0, 0, 0.5);
+  --color-blackA8: rgba(0, 0, 0, 0.6);
+  --color-blackA9: rgba(0, 0, 0, 0.7);
+  --color-blackA10: rgba(0, 0, 0, 0.8);
+  --color-blackA11: rgba(0, 0, 0, 0.9);
+  --color-blackA12: rgba(0, 0, 0, 0.95);
+
+  --color-whiteA1: rgba(255, 255, 255, 0.05);
+  --color-whiteA2: rgba(255, 255, 255, 0.1);
+  --color-whiteA3: rgba(255, 255, 255, 0.15);
+  --color-whiteA4: rgba(255, 255, 255, 0.2);
+  --color-whiteA5: rgba(255, 255, 255, 0.3);
+  --color-whiteA6: rgba(255, 255, 255, 0.4);
+  --color-whiteA7: rgba(255, 255, 255, 0.5);
+  --color-whiteA8: rgba(255, 255, 255, 0.6);
+  --color-whiteA9: rgba(255, 255, 255, 0.7);
+  --color-whiteA10: rgba(255, 255, 255, 0.8);
+  --color-whiteA11: rgba(255, 255, 255, 0.9);
+  --color-whiteA12: rgba(255, 255, 255, 0.95);
+
+  --color-blue1: light-dark(#fbfdff, #0d1520);
+  --color-blue2: light-dark(#f4faff, #111927);
+  --color-blue3: light-dark(#e6f4fe, #0d2847);
+  --color-blue4: light-dark(#d5efff, #003362);
+  --color-blue5: light-dark(#c2e5ff, #004074);
+  --color-blue6: light-dark(#acd8fc, #104d87);
+  --color-blue7: light-dark(#8ec8f6, #205d9e);
+  --color-blue8: light-dark(#5eb1ef, #2870bd);
+  --color-blue9: light-dark(#0090ff, #0090ff);
+  --color-blue10: light-dark(#0588f0, #3b9eff);
+  --color-blue11: light-dark(#0d74ce, #70b8ff);
+  --color-blue12: light-dark(#113264, #c2e6ff);
+
+  --color-blueA1: light-dark(#0080ff04, #004df211);
+  --color-blueA2: light-dark(#008cff0b, #1166fb18);
+  --color-blueA3: light-dark(#008ff519, #0077ff3a);
+  --color-blueA4: light-dark(#009eff2a, #0075ff57);
+  --color-blueA5: light-dark(#0093ff3d, #0081fd6b);
+  --color-blueA6: light-dark(#0088f653, #0f89fd7f);
+  --color-blueA7: light-dark(#0083eb71, #2a91fe98);
+  --color-blueA8: light-dark(#0084e6a1, #3094feb9);
+  --color-blueA9: light-dark(#0090ff, #0090ff);
+  --color-blueA10: light-dark(#0086f0fa, #3b9eff);
+  --color-blueA11: light-dark(#006dcbf2, #70b8ff);
+  --color-blueA12: light-dark(#002359ee, #c2e6ff);
+
+  --color-amber1: light-dark(#fefdfb, #16120c);
+  --color-amber2: light-dark(#fefbe9, #1d180f);
+  --color-amber3: light-dark(#fff7c2, #302008);
+  --color-amber4: light-dark(#ffee9c, #3f2700);
+  --color-amber5: light-dark(#fbe577, #4d3000);
+  --color-amber6: light-dark(#f3d673, #5c3d05);
+  --color-amber7: light-dark(#e9c162, #714f19);
+  --color-amber8: light-dark(#e2a336, #8f6424);
+  --color-amber9: light-dark(#ffc53d, #ffc53d);
+  --color-amber10: light-dark(#ffba18, #ffd60a);
+  --color-amber11: light-dark(#ab6400, #ffca16);
+  --color-amber12: light-dark(#4f3422, #ffe7b3);
+
+  --color-amberA1: light-dark(#c0800004, #e63c0006);
+  --color-amberA2: light-dark(#f4d10016, #fd9b000d);
+  --color-amberA3: light-dark(#ffde003d, #fa820022);
+  --color-amberA4: light-dark(#ffd40063, #fc820032);
+  --color-amberA5: light-dark(#f8cf0088, #fd8b0041);
+  --color-amberA6: light-dark(#eab5008c, #fd9b0051);
+  --color-amberA7: light-dark(#dc9b009d, #ffab2567);
+  --color-amberA8: light-dark(#da8a00c9, #ffae3587);
+  --color-amberA9: light-dark(#ffb300c2, #ffc53d);
+  --color-amberA10: light-dark(#ffb300e7, #ffd60a);
+  --color-amberA11: light-dark(#ab6400, #ffca16);
+  --color-amberA12: light-dark(#341500dd, #ffe7b3);
 }
