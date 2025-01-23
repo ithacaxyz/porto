@@ -10,7 +10,7 @@ import { messenger, porto } from './porto'
 export const requestsStore = createStore(
   import.meta.env.DEV
     ? persist(getInitialState, {
-        name: 'porto.app',
+        name: 'porto.requests',
         partialize(state) {
           return {
             requests: state.requests,

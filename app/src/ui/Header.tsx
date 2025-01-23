@@ -1,13 +1,14 @@
 import LucideX from '~icons/lucide/x'
+import { useAppStore } from '../lib/app'
 import { requestsStore } from '../lib/requests'
 
-export function Header(props: Header.Props) {
-  const { referrer } = props
+export function Header() {
+  const hostname = useAppStore((state) => new URL(state.targetOrigin).hostname)
   return (
     <header className="flex items-center justify-between border-neutral-5/50 border-b px-3 pt-2 pb-1.5 dark:border-neutral-6/60">
       <div className="flex items-center gap-2">
         <div className="font-normal text-[14px] text-neutral-10 leading-[22px]">
-          {referrer}
+          {hostname}
         </div>
       </div>
 
@@ -25,10 +26,4 @@ export function Header(props: Header.Props) {
       </button>
     </header>
   )
-}
-
-export declare namespace Header {
-  type Props = {
-    referrer: string
-  }
 }

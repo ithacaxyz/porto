@@ -25,10 +25,6 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
   return dialog
 }
 
-function getSearch(opts: { type: 'iframe' | 'popup' }) {
-  return `?referrer=${location.hostname}&type=${opts.type}`
-}
-
 /**
  * Instantiates an iframe dialog.
  *
@@ -52,7 +48,7 @@ export function iframe() {
 
       const root = document.createElement('dialog')
       root.dataset.porto = ''
-      root.style.insetBlockStart = '-1000px'
+      root.style.top = '-10000px'
       document.body.appendChild(root)
 
       const iframe = document.createElement('iframe')
@@ -66,7 +62,7 @@ export function iframe() {
       iframe.setAttribute('role', 'dialog')
       iframe.setAttribute('tabindex', '0')
       iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
-      iframe.setAttribute('src', `${host}${getSearch({ type: 'iframe' })}`)
+      iframe.setAttribute('src', host)
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
 
@@ -89,12 +85,20 @@ export function iframe() {
 
       const messenger = Messenger.bridge({
         from: Messenger.fromWindow(window, { targetOrigin: hostUrl.origin }),
-        to: Messenger.fromWindow(iframe.contentWindow!),
+        to: Messenger.fromWindow(iframe.contentWindow!, {
+          targetOrigin: hostUrl.origin,
+        }),
       })
 
       messenger.on('rpc-response', (response) =>
         handleResponse(store, response),
       )
+      messenger.on('__internal', (payload) => {
+        if (payload.type === 'resize') {
+          iframe.style.height = `${payload.height}px`
+          iframe.style.width = `${payload.width}px`
+        }
+      })
 
       function onEscape(event: KeyboardEvent) {
         if (event.key === 'Escape') handleBlur(store)
@@ -107,6 +111,12 @@ export function iframe() {
           if (open) return
           open = true
 
+          messenger.send('__internal', {
+            type: 'init',
+            mode: 'iframe',
+            targetOrigin: location.origin,
+          })
+
           root.showModal()
           document.addEventListener('keydown', onEscape)
           document.body.style.overflow = 'hidden'
@@ -114,7 +124,6 @@ export function iframe() {
         },
         close() {
           open = false
-
           root.close()
           Object.assign(document.body.style, bodyStyle ?? '')
           // firefox: explicitly restore/clear `overflow` directly
@@ -163,13 +172,16 @@ export function popup() {
 
       let messenger: Messenger.Messenger | undefined
 
+      const width = 282
+      const height = 282
+
       return {
         open() {
           const left = (window.innerWidth - width) / 2 + window.screenX
           const top = window.screenY + 100
 
           popup = window.open(
-            `${host}${getSearch({ type: 'iframe' })}`,
+            host,
             '_blank',
             `width=${width},height=${height},left=${left},top=${top}`,
           )
@@ -179,13 +191,23 @@ export function popup() {
             from: Messenger.fromWindow(window, {
               targetOrigin: hostUrl.origin,
             }),
-            to: Messenger.fromWindow(popup),
+            to: Messenger.fromWindow(popup, {
+              targetOrigin: hostUrl.origin,
+            }),
             waitForReady: true,
+          })
+
+          messenger.send('__internal', {
+            type: 'init',
+            mode: 'popup',
+            targetOrigin: location.origin,
           })
 
           messenger.on('rpc-response', (response) =>
             handleResponse(store, response),
           )
+
+          messenger.on('__internal', (_payload) => {})
 
           window.addEventListener('focus', onBlur)
 
@@ -212,9 +234,6 @@ export function popup() {
   })
 }
 
-const width = 258
-const height = 380
-
 const styles = {
   backdrop: {
     display: 'none',
@@ -231,8 +250,6 @@ const styles = {
     position: 'fixed',
     top: '16px',
     insetInlineEnd: '16px',
-    width: `${width}px`,
-    height: `${height}px`,
   },
 } as const satisfies Record<string, Partial<CSSStyleDeclaration>>
 

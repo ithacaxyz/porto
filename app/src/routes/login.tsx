@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import * as React from 'react'
 import { useRequestsStore } from '../lib/requests'
 
 export const Route = createFileRoute('/login')({
@@ -6,6 +7,7 @@ export const Route = createFileRoute('/login')({
 })
 
 function RouteComponent() {
+  const [on, toggle] = React.useState(false)
   const [request, reject, respond] = useRequestsStore(
     (state) => [state.requests[0], state.reject, state.respond] as const,
   )
@@ -24,6 +26,13 @@ function RouteComponent() {
         <button type="button" onClick={() => respond(request!)}>
           Sign in
         </button>
+      </div>
+
+      <div>
+        <button type="button" onClick={() => toggle((x) => !x)}>
+          toggle
+        </button>
+        {on && <div className="h-80 w-10 bg-red-400" />}
       </div>
     </div>
   )
