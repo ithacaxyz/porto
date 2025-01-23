@@ -164,7 +164,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, key: keyToAuthorize }] = request.params ?? [{}]
+          const [{ address, ...keyToAuthorize }] = request.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -206,13 +206,7 @@ export function from<
             type: 'keysChanged',
           })
 
-          return {
-            callScopes: key.callScopes,
-            expiry: key.expiry,
-            publicKey: key.publicKey,
-            role: key.role,
-            type: key.type,
-          } satisfies RpcSchema.ExtractReturnType<
+          return Key.toRpc(key) satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'experimental_authorizeKey'
           >

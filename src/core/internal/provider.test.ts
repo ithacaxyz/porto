@@ -126,12 +126,13 @@ describe('experimental_authorizeKey', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ signature: 'mint()' }],
+          permissions: {
+            calls: [{ signature: 'mint()' }],
           },
         },
       ],
     })
+
     const accounts = porto._internal.store.getState().accounts
     expect(accounts.length).toBe(1)
     expect(accounts![0]!.keys?.length).toBe(2)
@@ -140,22 +141,25 @@ describe('experimental_authorizeKey', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": true,
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "privateKey": CryptoKey {},
           "publicKey": null,
           "role": "session",
@@ -177,47 +181,101 @@ describe('experimental_authorizeKey', () => {
     await porto.provider.request({
       method: 'experimental_createAccount',
     })
-    await porto.provider.request({
-      method: 'experimental_authorizeKey',
-      params: [
-        {
-          key: {
-            callScopes: [{ signature: 'mint()' }],
-            publicKey:
-              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+
+    expect(
+      await porto.provider.request({
+        method: 'experimental_authorizeKey',
+        params: [
+          {
+            expiry: 9999999999,
+            key: {
+              publicKey:
+                '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+              type: 'p256',
+            },
+            permissions: {
+              calls: [{ signature: 'mint()' }],
+            },
             role: 'session',
-            type: 'p256',
           },
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "expiry": 9999999999,
+        "permissions": {
+          "calls": [
+            {
+              "signature": "mint()",
+            },
+          ],
+          "spend": undefined,
         },
-      ],
-    })
+        "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
+        "role": "session",
+        "type": "p256",
+      }
+    `)
+
+    expect(
+      await porto.provider.request({
+        method: 'experimental_authorizeKey',
+        params: [
+          {
+            key: {
+              publicKey: '0x0000000000000000000000000000000000000000',
+              type: 'contract',
+            },
+            role: 'admin',
+          },
+        ],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "expiry": 0,
+        "publicKey": "0x0000000000000000000000000000000000000000",
+        "role": "admin",
+        "type": "secp256k1",
+      }
+    `)
+
     const accounts = porto._internal.store.getState().accounts
     expect(accounts.length).toBe(1)
-    expect(accounts![0]!.keys?.length).toBe(2)
+    expect(accounts![0]!.keys?.length).toBe(3)
     expect(
       accounts![0]!.keys?.map((x) => ({ ...x, expiry: null, publicKey: null })),
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": false,
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "publicKey": null,
           "role": "session",
           "type": "p256",
+        },
+        {
+          "canSign": false,
+          "expiry": null,
+          "publicKey": null,
+          "role": "admin",
+          "type": "secp256k1",
         },
       ]
     `)
@@ -226,7 +284,7 @@ describe('experimental_authorizeKey', () => {
     expect(messages[0].data.length).toBe(2)
   })
 
-  test('behavior: no call scopes', async () => {
+  test('behavior: no permissions', async () => {
     const porto = createPorto()
     await porto.provider.request({
       method: 'experimental_createAccount',
@@ -235,19 +293,19 @@ describe('experimental_authorizeKey', () => {
       porto.provider.request({
         method: 'experimental_authorizeKey',
         params: [
+          // @ts-expect-error: testing
           {
-            // @ts-expect-error
             key: {
               publicKey:
                 '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
-              role: 'session',
               type: 'p256',
             },
+            role: 'session',
           },
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[RpcResponse.InternalError: session key must have at least one call scope (`callScope`).]',
+      '[RpcResponse.InternalError: session key must have at least one permission (`permissions`).]',
     )
   })
 })
@@ -272,8 +330,23 @@ describe('experimental_keys', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ signature: 'mint()' }],
+          permissions: {
+            calls: [{ signature: 'mint()' }],
+          },
+        },
+      ],
+    })
+    await porto.provider.request({
+      method: 'experimental_authorizeKey',
+      params: [
+        {
+          permissions: {
+            spend: [
+              {
+                limit: Hex.fromNumber(Value.fromEther('1.5')),
+                period: 'day',
+              },
+            ],
           },
         },
       ],
@@ -281,25 +354,42 @@ describe('experimental_keys', () => {
     const keys = await porto.provider.request({
       method: 'experimental_keys',
     })
-    expect(keys.length).toBe(2)
+    expect(keys.length).toBe(3)
     expect(
       keys.map((x) => ({ ...x, expiry: null, publicKey: null })),
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "expiry": null,
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
+          "publicKey": null,
+          "role": "session",
+          "type": "p256",
+        },
+        {
+          "expiry": null,
+          "permissions": {
+            "calls": undefined,
+            "spend": [
+              {
+                "limit": "0x14d1120d7b160000",
+                "period": "day",
+              },
+            ],
+          },
           "publicKey": null,
           "role": "session",
           "type": "p256",
@@ -323,8 +413,8 @@ describe('experimental_revokeKey', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ signature: 'mint()' }],
+          permissions: {
+            calls: [{ signature: 'mint()' }],
           },
         },
       ],
@@ -337,22 +427,25 @@ describe('experimental_revokeKey', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": true,
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "privateKey": CryptoKey {},
           "publicKey": null,
           "role": "session",
@@ -376,9 +469,9 @@ describe('experimental_revokeKey', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
@@ -497,9 +590,9 @@ describe('wallet_connect', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
@@ -524,7 +617,9 @@ describe('wallet_connect', () => {
           capabilities: {
             createAccount: true,
             authorizeKey: {
-              callScopes: [{ signature: 'mint()' }],
+              permissions: {
+                calls: [{ signature: 'mint()' }],
+              },
             },
           },
         },
@@ -538,22 +633,25 @@ describe('wallet_connect', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": true,
           "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "privateKey": CryptoKey {},
           "publicKey": null,
           "role": "session",
@@ -584,10 +682,14 @@ describe('wallet_connect', () => {
           capabilities: {
             createAccount: true,
             authorizeKey: {
-              callScopes: [{ signature: 'mint()' }],
-              publicKey,
+              key: {
+                publicKey,
+                type: 'p256',
+              },
+              permissions: {
+                calls: [{ signature: 'mint()' }],
+              },
               role: 'session',
-              type: 'p256',
             },
           },
         },
@@ -605,22 +707,25 @@ describe('wallet_connect', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "callScopes": undefined,
           "canSign": true,
           "expiry": null,
+          "permissions": undefined,
           "privateKey": [Function],
           "publicKey": null,
           "role": "admin",
           "type": "p256",
         },
         {
-          "callScopes": [
-            {
-              "signature": "mint()",
-            },
-          ],
           "canSign": false,
           "expiry": 694206942069,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
+            "spend": undefined,
+          },
           "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
           "role": "session",
           "type": "p256",
@@ -713,8 +818,8 @@ describe('wallet_sendCalls', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ to: alice }],
+          permissions: {
+            calls: [{ to: alice }],
           },
         },
       ],
@@ -742,7 +847,7 @@ describe('wallet_sendCalls', () => {
     expect(await getBalance(client, { address: alice })).toBe(69420n)
   })
 
-  test('behavior: `key.callScopes` mismatch', async () => {
+  test('behavior: `key.permissions.calls` unauthorized', async () => {
     const porto = createPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
@@ -762,8 +867,8 @@ describe('wallet_sendCalls', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ to: '0x0000000000000000000000000000000000000000' }],
+          permissions: {
+            calls: [{ to: '0x0000000000000000000000000000000000000000' }],
           },
         },
       ],
@@ -790,6 +895,79 @@ describe('wallet_sendCalls', () => {
     ).rejects.toThrowError('Unauthorized')
   })
 
+  test('behavior: `key.permissions.spend` exceeded', async () => {
+    const porto = createPorto()
+    const client = Porto.getClient(porto).extend(() => ({
+      mode: 'anvil',
+    }))
+
+    const { address } = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+    await setBalance(client, {
+      address,
+      value: Value.fromEther('10000'),
+    })
+
+    const alice = '0x0000000000000000000000000000000000069422'
+
+    const key = await porto.provider.request({
+      method: 'experimental_authorizeKey',
+      params: [
+        {
+          permissions: {
+            spend: [
+              {
+                limit: Hex.fromNumber(69420),
+                period: 'day',
+              },
+            ],
+          },
+        },
+      ],
+    })
+
+    await porto.provider.request({
+      method: 'wallet_sendCalls',
+      params: [
+        {
+          capabilities: {
+            key,
+          },
+          from: address,
+          calls: [
+            {
+              to: alice,
+              value: Hex.fromNumber(69420),
+            },
+          ],
+          version: '1',
+        },
+      ],
+    })
+
+    await expect(() =>
+      porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            capabilities: {
+              key,
+            },
+            from: address,
+            calls: [
+              {
+                to: alice,
+                value: Hex.fromNumber(1),
+              },
+            ],
+            version: '1',
+          },
+        ],
+      }),
+    ).rejects.toThrowError('ExceededSpendLimit')
+  })
+
   test('behavior: revoked key', async () => {
     const porto = createPorto()
     const client = Porto.getClient(porto).extend(() => ({
@@ -810,8 +988,8 @@ describe('wallet_sendCalls', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
-          key: {
-            callScopes: [{ to: alice }],
+          permissions: {
+            calls: [{ to: alice }],
           },
         },
       ],
@@ -885,12 +1063,14 @@ describe('wallet_sendCalls', () => {
       params: [
         {
           key: {
-            callScopes: [{ to: alice }],
             publicKey:
               '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
-            role: 'session',
             type: 'p256',
           },
+          permissions: {
+            calls: [{ to: alice }],
+          },
+          role: 'session',
         },
       ],
     })

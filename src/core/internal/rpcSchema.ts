@@ -64,36 +64,37 @@ export type Schema = RpcSchema.From<
 
 export type AuthorizeKeyParameters = {
   address?: Address.Address | undefined
-  key?:
-    | OneOf<
-        | {
-            callScopes: Key.Rpc['callScopes']
-            expiry?: Key.Rpc['expiry'] | undefined
-          }
-        | {
-            callScopes: Key.Rpc['callScopes']
-            expiry?: Key.Rpc['expiry'] | undefined
-            publicKey: Key.Rpc['publicKey']
-            role?: 'session' | undefined
-            type: Key.Rpc['type']
-          }
-        | {
-            callScopes?: Key.Rpc['callScopes'] | undefined
-            expiry?: Key.Rpc['expiry'] | undefined
-            publicKey: Key.Rpc['publicKey']
-            role: 'admin'
-            type: Key.Rpc['type']
-          }
-      >
-    | undefined
-}
+} & OneOf<
+  | {
+      permissions: Key.Rpc['permissions']
+      expiry?: Key.Rpc['expiry'] | undefined
+    }
+  | {
+      permissions: Key.Rpc['permissions']
+      expiry?: Key.Rpc['expiry'] | undefined
+      key: {
+        publicKey: Key.Rpc['publicKey']
+        type: Key.Rpc['type']
+      }
+      role?: 'session' | undefined
+    }
+  | {
+      expiry?: Key.Rpc['expiry'] | undefined
+      permissions?: Key.Rpc['permissions'] | undefined
+      key: {
+        publicKey: Key.Rpc['publicKey']
+        type: Key.Rpc['type']
+      }
+      role: 'admin'
+    }
+>
 
 export type AuthorizeKeyReturnType = GetKeysReturnType[number]
 
 export type ConnectParameters = {
   capabilities?:
     | {
-        authorizeKey?: AuthorizeKeyParameters['key'] | undefined
+        authorizeKey?: AuthorizeKeyParameters | undefined
         createAccount?: boolean | CreateAccountParameters | undefined
       }
     | undefined
@@ -141,7 +142,7 @@ export type PrepareCreateAccountParameters = {
   address: Address.Address
   capabilities?:
     | {
-        authorizeKey?: AuthorizeKeyParameters['key'] | undefined
+        authorizeKey?: AuthorizeKeyParameters | undefined
       }
     | undefined
   label?: string | undefined

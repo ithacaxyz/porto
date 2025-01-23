@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xde1e05b27289652cf1dcbbaaed1c0e3cb0e8c919)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x71048c9277e63087ba6390174691be1bea2c4985)
  */
 export const delegationAbi = [
   { type: 'fallback', stateMutability: 'payable' },
@@ -277,6 +277,21 @@ export const delegationAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: 'keyHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'token', internalType: 'address', type: 'address' },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+      },
+    ],
+    name: 'removeSpendLimit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'keyHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'revoke',
     outputs: [],
@@ -300,6 +315,60 @@ export const delegationAbi = [
     name: 'setLabel',
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'keyHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'token', internalType: 'address', type: 'address' },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+      },
+      { name: 'limit', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'setSpendLimit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'keyHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'spendInfos',
+    outputs: [
+      {
+        name: 'results',
+        internalType: 'struct GuardedExecutor.SpendInfo[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'token', internalType: 'address', type: 'address' },
+          {
+            name: 'period',
+            internalType: 'enum GuardedExecutor.SpendPeriod',
+            type: 'uint8',
+          },
+          { name: 'limit', internalType: 'uint256', type: 'uint256' },
+          { name: 'spent', internalType: 'uint256', type: 'uint256' },
+          { name: 'lastUpdated', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'unixTimestamp', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+      },
+    ],
+    name: 'startOfSpendPeriod',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
   },
   {
     type: 'function',
@@ -423,7 +492,65 @@ export const delegationAbi = [
     ],
     name: 'Revoked',
   },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'keyHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'token',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+        indexed: false,
+      },
+    ],
+    name: 'SpendLimitRemoved',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'keyHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'token',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+        indexed: false,
+      },
+      {
+        name: 'limit',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'SpendLimitSet',
+  },
   { type: 'error', inputs: [], name: 'CannotSelfExecute' },
+  { type: 'error', inputs: [], name: 'ExceededSpendLimit' },
+  { type: 'error', inputs: [], name: 'ExceededSpendsCapacity' },
   { type: 'error', inputs: [], name: 'FnSelectorNotRecognized' },
   { type: 'error', inputs: [], name: 'IndexOutOfBounds' },
   { type: 'error', inputs: [], name: 'InvalidNonce' },
@@ -438,14 +565,14 @@ export const delegationAbi = [
 ] as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xde1e05b27289652cf1dcbbaaed1c0e3cb0e8c919)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x71048c9277e63087ba6390174691be1bea2c4985)
  */
 export const delegationAddress = {
-  911867: '0xde1e05B27289652cF1DcBBaaEd1C0E3Cb0e8c919',
+  911867: '0x71048C9277E63087BA6390174691bE1beA2c4985',
 } as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xde1e05b27289652cf1dcbbaaed1c0e3cb0e8c919)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x71048c9277e63087ba6390174691be1bea2c4985)
  */
 export const delegationConfig = {
   address: delegationAddress,
@@ -902,6 +1029,26 @@ export const enumerableSetLibAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FixedPointMathLib
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const fixedPointMathLibAbi = [
+  { type: 'error', inputs: [], name: 'DivFailed' },
+  { type: 'error', inputs: [], name: 'DivWadFailed' },
+  { type: 'error', inputs: [], name: 'ExpOverflow' },
+  { type: 'error', inputs: [], name: 'FactorialOverflow' },
+  { type: 'error', inputs: [], name: 'FullMulDivFailed' },
+  { type: 'error', inputs: [], name: 'LnWadUndefined' },
+  { type: 'error', inputs: [], name: 'MantissaOverflow' },
+  { type: 'error', inputs: [], name: 'MulDivFailed' },
+  { type: 'error', inputs: [], name: 'MulWadFailed' },
+  { type: 'error', inputs: [], name: 'OutOfDomain' },
+  { type: 'error', inputs: [], name: 'RPowOverflow' },
+  { type: 'error', inputs: [], name: 'SDivWadFailed' },
+  { type: 'error', inputs: [], name: 'SMulWadFailed' },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // GuardedExecutor
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -961,6 +1108,21 @@ export const guardedExecutorAbi = [
     type: 'function',
     inputs: [
       { name: 'keyHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'token', internalType: 'address', type: 'address' },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+      },
+    ],
+    name: 'removeSpendLimit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'keyHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'target', internalType: 'address', type: 'address' },
       { name: 'fnSel', internalType: 'bytes4', type: 'bytes4' },
       { name: 'can', internalType: 'bool', type: 'bool' },
@@ -968,6 +1130,60 @@ export const guardedExecutorAbi = [
     name: 'setCanExecute',
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'keyHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'token', internalType: 'address', type: 'address' },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+      },
+      { name: 'limit', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'setSpendLimit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'keyHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'spendInfos',
+    outputs: [
+      {
+        name: 'results',
+        internalType: 'struct GuardedExecutor.SpendInfo[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'token', internalType: 'address', type: 'address' },
+          {
+            name: 'period',
+            internalType: 'enum GuardedExecutor.SpendPeriod',
+            type: 'uint8',
+          },
+          { name: 'limit', internalType: 'uint256', type: 'uint256' },
+          { name: 'spent', internalType: 'uint256', type: 'uint256' },
+          { name: 'lastUpdated', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'unixTimestamp', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+      },
+    ],
+    name: 'startOfSpendPeriod',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
   },
   {
     type: 'function',
@@ -997,8 +1213,67 @@ export const guardedExecutorAbi = [
     ],
     name: 'CanExecuteSet',
   },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'keyHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'token',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+        indexed: false,
+      },
+    ],
+    name: 'SpendLimitRemoved',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'keyHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'token',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'period',
+        internalType: 'enum GuardedExecutor.SpendPeriod',
+        type: 'uint8',
+        indexed: false,
+      },
+      {
+        name: 'limit',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'SpendLimitSet',
+  },
   { type: 'error', inputs: [], name: 'CannotSelfExecute' },
+  { type: 'error', inputs: [], name: 'ExceededSpendLimit' },
+  { type: 'error', inputs: [], name: 'ExceededSpendsCapacity' },
   { type: 'error', inputs: [], name: 'FnSelectorNotRecognized' },
+  { type: 'error', inputs: [], name: 'IndexOutOfBounds' },
   { type: 'error', inputs: [], name: 'KeyHashIsZero' },
   { type: 'error', inputs: [], name: 'Unauthorized' },
   { type: 'error', inputs: [], name: 'UnsupportedExecutionMode' },
@@ -1835,7 +2110,9 @@ export const safeTransferLibAbi = [
   { type: 'error', inputs: [], name: 'ApproveFailed' },
   { type: 'error', inputs: [], name: 'ETHTransferFailed' },
   { type: 'error', inputs: [], name: 'Permit2AmountOverflow' },
+  { type: 'error', inputs: [], name: 'Permit2ApproveFailed' },
   { type: 'error', inputs: [], name: 'Permit2Failed' },
+  { type: 'error', inputs: [], name: 'Permit2LockdownFailed' },
   { type: 'error', inputs: [], name: 'TotalSupplyQueryFailed' },
   { type: 'error', inputs: [], name: 'TransferFailed' },
   { type: 'error', inputs: [], name: 'TransferFromFailed' },

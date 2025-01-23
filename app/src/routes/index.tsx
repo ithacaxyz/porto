@@ -19,7 +19,7 @@ function RouteComponent() {
   if (loading)
     return (
       <div className="flex flex-grow flex-col justify-center">
-        <IndeterminateLoader title="Signing up" />
+        <IndeterminateLoader title="Responding" />
       </div>
     )
 

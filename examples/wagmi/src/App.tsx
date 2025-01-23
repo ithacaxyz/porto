@@ -16,12 +16,14 @@ import {
 } from 'viem/accounts'
 import { ExperimentERC20 } from './contracts.js'
 
-const callScopes = [
-  {
-    signature: 'mint(address,uint256)',
-    to: ExperimentERC20.address,
-  },
-] as const
+const permissions = {
+  calls: [
+    {
+      signature: 'mint(address,uint256)',
+      to: ExperimentERC20.address,
+    },
+  ],
+} as const
 
 export function App() {
   const { isConnected } = useAccount()
@@ -98,7 +100,7 @@ function Connect() {
               onClick={() =>
                 connect.mutate({
                   connector,
-                  authorizeKey: authorizeKey ? { callScopes } : undefined,
+                  authorizeKey: authorizeKey ? { permissions } : undefined,
                 })
               }
               type="button"
@@ -110,7 +112,7 @@ function Connect() {
                 connect.mutate({
                   connector,
                   createAccount: true,
-                  authorizeKey: authorizeKey ? { callScopes } : undefined,
+                  authorizeKey: authorizeKey ? { permissions } : undefined,
                 })
               }
               type="button"
@@ -183,7 +185,7 @@ function UpgradeAccount() {
               upgradeAccount.mutate({
                 account: privateKeyToAccount(privateKey as Hex),
                 connector,
-                authorizeKey: authorizeKey ? { callScopes } : undefined,
+                authorizeKey: authorizeKey ? { permissions } : undefined,
               })
             }
             type="button"
@@ -225,7 +227,14 @@ function AuthorizeKey() {
   return (
     <div>
       <h2>Authorize Key</h2>
-      <button onClick={() => authorizeKey.mutate({})} type="button">
+      <button
+        onClick={() =>
+          authorizeKey.mutate({
+            permissions,
+          })
+        }
+        type="button"
+      >
         Authorize Key
       </button>
       {authorizeKey.data && <div>Key authorized.</div>}

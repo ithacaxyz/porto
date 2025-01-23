@@ -1,4 +1,4 @@
-import { type VariantProps, cva } from 'class-variance-authority'
+import { type VariantProps, cva } from 'cva'
 import type * as React from 'react'
 
 export function Header(props: Header.Props) {

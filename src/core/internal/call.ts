@@ -103,3 +103,62 @@ export declare namespace setLabel {
     label: string
   }
 }
+
+/**
+ * Instantiates values to populate a call to set the spend limit of a key.
+ *
+ * @param parameters - Parameters.
+ * @returns Instantiated values.
+ */
+export function setSpendLimit(parameters: setSpendLimit.Parameters) {
+  const { key, period, limit } = parameters
+  const token = parameters.token ?? '0x0000000000000000000000000000000000000000'
+  return {
+    data: AbiFunction.encodeData(
+      AbiFunction.fromAbi(delegationAbi, 'setSpendLimit'),
+      [Key.hash(key), token, Key.toSerializedSpendPeriod[period], limit],
+    ),
+    to: self,
+  } as const satisfies Call
+}
+
+export declare namespace setSpendLimit {
+  export type Parameters = {
+    /** Key to set the spend limit of. */
+    key: Key.Key
+    /** Limit to set. */
+    limit: bigint
+    /** Period to set. */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** Token to set. */
+    token?: Address.Address | undefined
+  }
+}
+
+/**
+ * Instantiates values to populate a call to remove the spend limit of a key.
+ *
+ * @param parameters - Parameters.
+ * @returns Instantiated values.
+ */
+export function removeSpendLimit(parameters: removeSpendLimit.Parameters) {
+  const { key, token, period } = parameters
+  return {
+    data: AbiFunction.encodeData(
+      AbiFunction.fromAbi(delegationAbi, 'removeSpendLimit'),
+      [Key.hash(key), token, Key.toSerializedSpendPeriod[period]],
+    ),
+    to: self,
+  } as const satisfies Call
+}
+
+export declare namespace removeSpendLimit {
+  export type Parameters = {
+    /** Key to set the spend limit of. */
+    key: Key.Key
+    /** Period to set. */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** Token to set. */
+    token: Address.Address
+  }
+}

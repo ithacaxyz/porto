@@ -1,4 +1,5 @@
-import { type VariantProps, cva } from 'class-variance-authority'
+import { type VariantProps, cva } from 'cva'
+import type * as React from 'react'
 
 export function Button(props: Button.Props) {
   const { className, size, variant, asChild = false, ...rest } = props
