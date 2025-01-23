@@ -187,20 +187,22 @@ describe('experimental_authorizeKey', () => {
         method: 'experimental_authorizeKey',
         params: [
           {
-            expiry: 1737590801,
+            expiry: 9999999999,
+            key: {
+              publicKey:
+                '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+              type: 'p256',
+            },
             permissions: {
               calls: [{ signature: 'mint()' }],
             },
-            publicKey:
-              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
             role: 'session',
-            type: 'p256',
           },
         ],
       }),
     ).toMatchInlineSnapshot(`
       {
-        "expiry": 1737590801,
+        "expiry": 9999999999,
         "permissions": {
           "calls": [
             {
@@ -220,9 +222,11 @@ describe('experimental_authorizeKey', () => {
         method: 'experimental_authorizeKey',
         params: [
           {
-            publicKey: '0x0000000000000000000000000000000000000000',
+            key: {
+              publicKey: '0x0000000000000000000000000000000000000000',
+              type: 'contract',
+            },
             role: 'admin',
-            type: 'contract',
           },
         ],
       }),
@@ -291,10 +295,12 @@ describe('experimental_authorizeKey', () => {
         params: [
           // @ts-expect-error: testing
           {
-            publicKey:
-              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+            key: {
+              publicKey:
+                '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+              type: 'p256',
+            },
             role: 'session',
-            type: 'p256',
           },
         ],
       }),
@@ -676,12 +682,14 @@ describe('wallet_connect', () => {
           capabilities: {
             createAccount: true,
             authorizeKey: {
+              key: {
+                publicKey,
+                type: 'p256',
+              },
               permissions: {
                 calls: [{ signature: 'mint()' }],
               },
-              publicKey,
               role: 'session',
-              type: 'p256',
             },
           },
         },
@@ -1054,13 +1062,15 @@ describe('wallet_sendCalls', () => {
       method: 'experimental_authorizeKey',
       params: [
         {
+          key: {
+            publicKey:
+              '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
+            type: 'p256',
+          },
           permissions: {
             calls: [{ to: alice }],
           },
-          publicKey:
-            '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
           role: 'session',
-          type: 'p256',
         },
       ],
     })

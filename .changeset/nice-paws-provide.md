@@ -4,17 +4,19 @@
 
 **Breaking:** Modified `wallet_authorizeKey` and `authorizeKey` capability APIs.
 
-- Removed `key` property, and moved `key` properties to root level:
+- Moved `key.expiry` & `key.role` properties to root level:
 
 ```diff
 {
   address: '0x...',
-- key: {
-    expiry: 1716537600,
++ expiry: 1716537600,
+  key: {
+-   expiry: 1716537600,
     publicKey: '0x...',
-    role: 'admin',
     type: 'p256',
-- },
+-   role: 'admin',
+  },
++ role: 'admin',
 }
 ```
 

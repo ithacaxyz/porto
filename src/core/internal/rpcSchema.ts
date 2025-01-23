@@ -72,16 +72,20 @@ export type AuthorizeKeyParameters = {
   | {
       permissions: Key.Rpc['permissions']
       expiry?: Key.Rpc['expiry'] | undefined
-      publicKey: Key.Rpc['publicKey']
+      key: {
+        publicKey: Key.Rpc['publicKey']
+        type: Key.Rpc['type']
+      }
       role?: 'session' | undefined
-      type: Key.Rpc['type']
     }
   | {
       expiry?: Key.Rpc['expiry'] | undefined
       permissions?: Key.Rpc['permissions'] | undefined
-      publicKey: Key.Rpc['publicKey']
+      key: {
+        publicKey: Key.Rpc['publicKey']
+        type: Key.Rpc['type']
+      }
       role: 'admin'
-      type: Key.Rpc['type']
     }
 >
 

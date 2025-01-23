@@ -157,16 +157,18 @@ In addition to the above, Porto implements the following **experimental** JSON-R
 
 Authorizes a key that can perform actions on behalf of the account.
 
-If `key.role` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
+If the `key` property is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
 The following `role` values are supported:
 
 - `admin`: 
+  - MUST specify a `key`
   - CAN have an infinite expiry 
   - CAN have permissions (`permissions`)
   - CAN execute calls (e.g. `eth_sendTransaction`, `wallet_sendCalls`)
   - CAN sign arbitrary data (e.g. `personal_sign`, `eth_signTypedData_v4`)
 - `session`: 
+  - CAN specify a `key` - if absent, a new arbitrary key will be generated
   - MUST have a limited expiry
   - MUST have permissions (`permissions`)
   - CAN only execute calls
@@ -184,10 +186,13 @@ type Request = {
     address?: `0x${string}`
     // Expiry of the key.
     expiry?: number
-    // Public key.
-    publicKey?: `0x${string}`,
-    // Role of key.
-    role?: 'admin' | 'session',
+    // Key to authorize.
+    key?: {
+      // Public key. Accepts an address for `contract` type.
+      publicKey?: `0x${string}`,
+      // Key type.
+      type?: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256', 
+    }
     // Key permissions.
     permissions?: {
       // Call permissions to authorize on the key.
@@ -208,8 +213,8 @@ type Request = {
         token?: `0x${string}`
       }[]
     }
-    // Type of key.
-    type?: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256',
+    // Role of key.
+    role?: 'admin' | 'session',
   }]
 }
 ```
@@ -219,6 +224,10 @@ type Request = {
 ```ts
 type Response = {
   expiry: number,
+  key?: {
+    publicKey: `0x${string}`,
+    type: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256',
+  },
   permissions?: {
     calls?: {
       signature?: string
@@ -230,9 +239,7 @@ type Response = {
       token?: `0x${string}`
     }[]
   }
-  publicKey: `0x${string}`,
   role: 'admin' | 'session',
-  type: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256',
 }
 ```
 
@@ -261,7 +268,11 @@ const key = await porto.provider.request({
 // Provide and authorize a P256 session key with a spend limit.
 const key = await porto.provider.request({
   method: 'experimental_authorizeKey',
-  params: [{ 
+  params: [{
+    key: {
+      publicKey: '0x...',
+      type: 'p256',
+    },
     permissions: {
       spend: [{
         limit: 100_000_000n, // 100 USDC
@@ -269,8 +280,6 @@ const key = await porto.provider.request({
         token: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
       }]
     },
-    publicKey: '0x...',
-    type: 'p256',
   }],
 })
 ```
@@ -327,14 +336,23 @@ type Request = {
     capabilities: {
       // Whether to authorize a key with an optional expiry.
       authorizeKey?: { 
-        callScopes?: {
-          signature?: string
-          to?: `0x${string}`
-        }[]
-        expiry?: number 
-        publicKey?: `0x${string}`
+        expiry?: number,
+        key?: {
+          publicKey?: `0x${string}`,
+          type?: 'p256' | 'secp256k1' | 'webauthn-p256'
+        },
+        permissions?: {
+          calls?: {
+            signature?: string
+            to?: `0x${string}`
+          }[]
+          spend?: {
+            limit: bigint
+            period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+            token?: `0x${string}`
+          }[]
+        }
         role?: 'admin' | 'session'
-        type?: 'p256' | 'secp256k1' | 'webauthn-p256'
       },
     } 
   }]
@@ -498,7 +516,7 @@ Porto supports account key management (ie. authorized keys & their scopes).
 
 Keys may be authorized via the [`experimental_authorizeKey`](#experimental_authorizeKey) JSON-RPC method.
 
-If `key.role` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
+If the `key` property is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
 Example:
 
@@ -522,7 +540,7 @@ Example:
 
 Keys may be authorized upon connection with the `authorizeKey` capability on the [`wallet_connect`]([#wallet_connect](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)) JSON-RPC method.
 
-If `authorizeKey.role` is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
+If the `authorizeKey.key` property is absent, Porto will generate a new arbitrary "session" key to authorize on the account.
 
 Example:
 

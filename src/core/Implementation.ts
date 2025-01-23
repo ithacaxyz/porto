@@ -981,23 +981,23 @@ function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
     const permissionCalls: Call.Call[] = []
 
     // Set call scopes.
-    permissionCalls.push(
-      ...(permissions?.calls
-        ? permissions.calls.map((scope) => {
-            const selector = (() => {
-              if (!scope.signature) return undefined
-              if (scope.signature.startsWith('0x'))
-                return scope.signature as Hex.Hex
-              return AbiItem.getSelector(scope.signature)
-            })()
-            return Call.setCanExecute({
-              key,
-              selector,
-              to: scope.to,
-            })
+    if (permissions?.calls)
+      permissionCalls.push(
+        ...permissions.calls.map((scope) => {
+          const selector = (() => {
+            if (!scope.signature) return undefined
+            if (scope.signature.startsWith('0x'))
+              return scope.signature as Hex.Hex
+            return AbiItem.getSelector(scope.signature)
+          })()
+          return Call.setCanExecute({
+            key,
+            selector,
+            to: scope.to,
           })
-        : [Call.setCanExecute({ key })]),
-    )
+        }),
+      )
+    else permissionCalls.push(Call.setCanExecute({ key }))
 
     // Set spend limits.
     if (permissions?.spend)
@@ -1075,10 +1075,19 @@ async function getKeysToAuthorize(parameters: {
   return await Promise.all(
     authorizeKeys
       .map(async (k) => {
-        const publicKey = k?.publicKey ?? '0x'
         const role = k?.role ?? 'session'
-        const type = k.type ?? 'secp256k1'
+        const type = k?.key?.type ?? 'secp256k1'
         const expiry = k?.expiry ?? (role === 'admin' ? 0 : defaultExpiry)
+
+        let publicKey = k?.key?.publicKey ?? '0x'
+        // If the public key is not an address for secp256k1, convert it to an address.
+        if (
+          type === 'secp256k1' &&
+          publicKey !== '0x' &&
+          !Address.validate(publicKey)
+        )
+          publicKey = Address.fromPublicKey(publicKey)
+
         const key = Key.fromRpc({
           ...k,
           expiry,
@@ -1086,9 +1095,9 @@ async function getKeysToAuthorize(parameters: {
           role,
           type,
         })
-        if (key?.publicKey !== '0x') return key
+        if (k.key) return key
         if (role === 'admin')
-          throw new Error('must provide `publicKey` to authorize admin keys.')
+          throw new Error('must provide `key` to authorize admin keys.')
         return await Key.createWebCryptoP256({
           ...key,
           expiry,
