@@ -3,7 +3,11 @@ import Connect from '$/lib/components/connect.svelte'
 import { porto, wagmiConfig } from '$/lib/config.ts'
 import { ExperimentERC20 } from '$/lib/contracts'
 import { PUBLIC_SERVER_URL } from '$env/static/public'
-import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query'
+import {
+  createMutation,
+  createQuery,
+  useQueryClient,
+} from '@tanstack/svelte-query'
 import { type GetAccountReturnType, getAccount } from '@wagmi/core/actions'
 import { Json } from 'ox'
 import type { Rpc } from 'ox/Authorization'
@@ -52,12 +56,12 @@ async function keysRequest() {
 const keysRequestMutation = createMutation({
   mutationKey: ['keys'],
   mutationFn: keysRequest,
-  onMutate: variables => {
+  onMutate: (variables) => {
     console.info('onMutate', variables)
   },
   onSuccess: (result, variables, context) => {
     console.info('onSuccess', result, variables, context)
-    queryClient.setQueryData<Array<Keys>>(['keys'], oldResult =>
+    queryClient.setQueryData<Array<Keys>>(['keys'], (oldResult) =>
       oldResult ? [...oldResult, result] : [result],
     )
   },
