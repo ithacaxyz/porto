@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.7
+
+### Patch Changes
+
+- [`1a3df65`](https://github.com/ithacaxyz/porto/commit/1a3df6555a526c9a006dab4e7876eaed37dd2f2c) Thanks [@jxom](https://github.com/jxom)! - Added `porto/remote` entrypoint.
+
 ## 0.0.6
 
 ### Patch Changes
