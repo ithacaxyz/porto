@@ -62,6 +62,22 @@ export type Implementation = {
       account: Account.Account
     }>
 
+    prepareExecute: (parameters: {
+      /** Account to execute the calls with. */
+      account: Account.Account
+      /** Calls to execute. */
+      calls: readonly Call.Call[]
+      /** Viem Clients. */
+      client: Client
+      /** RPC Request. */
+      request: Request
+    }) => Promise<{
+      /** RPC Request. */
+      request: unknown
+      /** Hex payloads to sign over. */
+      signPayloads: readonly Hex.Hex[]
+    }>
+
     execute: (parameters: {
       /** Account to execute the calls with. */
       account: Account.Account
@@ -254,6 +270,20 @@ export function local(parameters: local.Parameters = {}) {
         })
 
         return { account }
+      },
+
+      async prepareExecute(parameters) {
+        const { client } = parameters
+
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
+        }
       },
 
       async execute(parameters) {
@@ -632,6 +662,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           account,
+        }
+      },
+
+      async prepareExecute(parameters) {
+        const { client } = parameters
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
         }
       },
 

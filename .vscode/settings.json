@@ -5,6 +5,12 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "typescript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
+  },
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
@@ -22,5 +28,19 @@
   },
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+  },
+  "files.exclude": {
+    "**/.wrangler": true,
+    "**/.svelte-kit": true
+  },
+  "files.associations": {
+    ".env.*": "dotenv",
+    ".dev.vars": "dotenv",
+    ".dev.vars.example": "dotenv",
+    ".vscode/*.json": "jsonc"
+  },
+  "search.exclude": {
+    "pnpm-lock.yaml": true,
+    "**/node_modules": true
   }
 }
