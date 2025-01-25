@@ -7,8 +7,8 @@ import {
   privateKeyToAddress,
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
+import { client, porto, wagmiConfig } from './config.ts'
 import { ExperimentERC20 } from './contracts'
-import { porto, wagmiConfig, client } from './config.ts'
 
 const APP_SERVER_URL = 'http://localhost:6900'
 
@@ -184,9 +184,9 @@ function CheckServerActivity() {
       <form
         onSubmit={async (e) => {
           e.preventDefault()
-          const authorizedKey = Json.parse(
-            (await wagmiConfig.storage?.getItem('authorizedKey')) || '{}',
-          ) as Key.Rpc
+          const serverKeys = Json.parse(
+            (await wagmiConfig.storage?.getItem('keys')) || '{}',
+          )
 
           const [account] = await porto.provider.request({
             method: 'eth_accounts',
@@ -196,7 +196,7 @@ function CheckServerActivity() {
             method: 'POST',
             body: JSON.stringify({
               address: account,
-              authorizeKeys: authorizedKey,
+              authorizeKeys: serverKeys,
             }),
           })
           const result = await Json.parse(await response.text())
@@ -274,7 +274,7 @@ function Events() {
 function Connect() {
   const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
   const [result, setResult] = useState<unknown | null>(null)
-  const label = `offline-tx-support-${new Date().toISOString()}`
+  const label = `offline-tx-support-${Math.floor(Date.now() / 1000)}`
   return (
     <div>
       <h3>wallet_connect</h3>
