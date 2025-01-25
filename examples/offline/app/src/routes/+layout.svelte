@@ -56,13 +56,20 @@ onMount(() => {
   <title>Proto Offline</title>
 </svelte:head>
 
-<h1 class="mb-4">Porto Offline Delegation Demo</h1>
-
 <PersistQueryClientProvider
   client={queryClient}
   persistOptions={{ persister: localStoragePersister }}
 >
-  <main>
+  <main class="mx-4">
+    <header class="grid grid-cols-3 mt-3 w-full w-full mb-10">
+      <h1 class="col-start-2 text-lg font-extrabold uppercase">Porto Offline Delegation Demo</h1>
+
+      <img
+        alt="Logo"
+        src="https://github.com/ithacaxyz.png"
+        class="w-min justify-self-end col-start-3 size-10 pointer-events-none"
+      />
+    </header>
     {@render children()}
   </main>
   <SvelteQueryDevtools

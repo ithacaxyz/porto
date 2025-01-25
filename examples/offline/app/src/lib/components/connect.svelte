@@ -1,12 +1,7 @@
 <script lang="ts">
 import { porto, wagmiConfig } from '$/lib/config.ts'
 import { createQuery } from '@tanstack/svelte-query'
-import {
-  type GetAccountReturnType,
-  disconnect,
-  getAccount,
-  getConnectors,
-} from '@wagmi/core'
+import { type GetAccountReturnType, getAccount } from '@wagmi/core'
 
 const account = createQuery<GetAccountReturnType>({
   queryKey: ['account'],
@@ -15,9 +10,8 @@ const account = createQuery<GetAccountReturnType>({
 let connected = $derived($account?.data?.isConnected)
 
 async function connectWallet() {
-  if (connected) await disconnect(wagmiConfig)
+  if (connected) await porto.provider.request({ method: 'wallet_disconnect' })
   else {
-    const connectors = getConnectors(wagmiConfig)
     const connectResult = await porto.provider.request({
       method: 'wallet_connect',
       params: [
@@ -26,11 +20,15 @@ async function connectWallet() {
         },
       ],
     })
-    console.info(`${connectResult.accounts.at(0)} connected`)
+    console.info(`${connectResult.accounts.at(0)?.address} connected`)
   }
 }
 </script>
 
-<button type="button" onclick={connectWallet} class="hover:cursor-pointer mr-auto">
-  {connected ? 'disconnect' : 'connect'}
+<button
+  type="button"
+  onclick={connectWallet}
+  class="hover:cursor-pointer mr-auto bg-[#145AC6] text-white"
+>
+  {connected ? 'logout' : 'login'}
 </button>
