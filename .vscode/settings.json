@@ -30,11 +30,17 @@
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
   },
   "files.exclude": {
+    "**/.wrangler": true,
     "**/.svelte-kit": true
   },
   "files.associations": {
     ".env.*": "dotenv",
     ".dev.vars": "dotenv",
-    ".dev.vars.example": "dotenv"
+    ".dev.vars.example": "dotenv",
+    ".vscode/*.json": "jsonc"
+  },
+  "search.exclude": {
+    "pnpm-lock.yaml": true,
+    "**/node_modules": true
   }
 }

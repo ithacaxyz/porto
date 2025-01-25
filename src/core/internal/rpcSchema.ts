@@ -79,6 +79,6 @@ export type RevokePermissionsParameters = {
 }
 
 export type PrepareCallsReturnType = {
-  context: Request
+  context: unknown
   signPayload: Hex.Hex
 }
