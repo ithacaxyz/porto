@@ -32,7 +32,8 @@
     "forceConsistentCasingInFileNames": true,
     "noPropertyAccessFromIndexSignature": true,
     "types": [
-      "node"
+      "node",
+      "@cloudflare/workers-types"
     ]
   },
   "include": [
