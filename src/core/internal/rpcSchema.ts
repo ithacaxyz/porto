@@ -166,6 +166,6 @@ export type RevokeKeyParameters = {
 }
 
 export type PrepareCallsReturnType = {
-  context: Request
+  context: unknown
   signPayload: Hex.Hex
 }

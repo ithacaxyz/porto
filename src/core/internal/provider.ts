@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as Mipd from 'mipd'
 import type { RpcSchema } from 'ox'
 import * as Address from 'ox/Address'
@@ -8,6 +7,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
+import * as Account from './account.js'
 import type * as Call from './call.js'
 import * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
@@ -511,33 +511,30 @@ export function from<
         }
 
         case 'experimental_prepareCalls': {
-          if (state.accounts.length === 0)
-            throw new ox_Provider.DisconnectedError()
+          const [parameters] = request.params
+          const { chainId, from } = parameters
 
-          const [parameters] = params as RpcSchema.ExtractParams<
-            Schema.Schema,
-            'wallet_sendCalls'
-          >
-          const { capabilities, chainId, from } = parameters
+          const client = getClient(chainId)
 
-          const account = state.accounts.find((account) =>
-            Address.isEqual(account.address, from),
-          )
-          if (!account) throw new ox_Provider.UnauthorizedError()
+          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
 
-          const clients = getClients(chainId)
+          const calls = parameters.calls.map((x) => {
+            requireParameter(x, 'to')
+            return x
+          }) as Call.Call[]
 
-          const { request, signPayloads } =
+          const { signPayloads, request: prepareExecuteRequest } =
             await implementation.actions.prepareExecute({
-              ...parameters,
-              account,
-              clients,
+              calls,
+              client,
               request,
+              account: Account.from({ address: from }),
             })
 
           return {
-            context: request,
-            signPayload: signPayloads[0],
+            context: prepareExecuteRequest,
+            signPayload: signPayloads.at(0)!,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'experimental_prepareCalls'

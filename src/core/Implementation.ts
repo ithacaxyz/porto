@@ -68,14 +68,14 @@ export type Implementation = {
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Viem Clients. */
-      clients: Clients
+      client: Client
       /** RPC Request. */
       request: Request
     }) => Promise<{
       /** RPC Request. */
-      request: Request
+      request: unknown
       /** Hex payloads to sign over. */
-      signPayloads: Hex.Hex[]
+      signPayloads: readonly Hex.Hex[]
     }>
 
     execute: (parameters: {
@@ -273,15 +273,17 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async prepareExecute(parameters) {
-        // @ts-ignore
-        const { account, calls, clients } = parameters
+        const { client } = parameters
 
         const { request, signPayloads } = await Delegation.prepareExecute(
-          clients.default,
+          client,
           parameters,
         )
 
-        return { request, signPayloads } as any
+        return {
+          request,
+          signPayloads,
+        }
       },
 
       async execute(parameters) {
@@ -660,6 +662,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           account,
+        }
+      },
+
+      async prepareExecute(parameters) {
+        const { client } = parameters
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
         }
       },
 

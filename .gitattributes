@@ -1,0 +1,9 @@
+* text=auto
+.gitattributes !filter !diff
+
+.dev.vars linguist-language=Dotenv
+.dev.vars.example linguist-language=Dotenv
+
+biome.json linguist-language=JSON-with-Comments
+knip.json linguist-language=JSON-with-Comments
+.vscode/*.json linguist-language=JSON-with-Comments
