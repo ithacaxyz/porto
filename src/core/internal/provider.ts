@@ -7,7 +7,8 @@ import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
-import * as Call from './call.js'
+import * as Account from './account.js'
+import type * as Call from './call.js'
 import * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
@@ -506,34 +507,29 @@ export function from<
         }
 
         case 'experimental_prepareCalls': {
-          if (state.accounts.length === 0)
-            throw new ox_Provider.DisconnectedError()
-
           const [parameters] = request.params
-
           const { chainId, from } = parameters
-
-          const account = state.accounts.find((account) =>
-            Address.isEqual(account.address, from),
-          )
-          if (!account) throw new ox_Provider.UnauthorizedError()
 
           const client = getClient(chainId)
 
-          const { signPayloads, request: _prepareExecuteRequest } =
+          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
+
+          const calls = parameters.calls.map((x) => {
+            requireParameter(x, 'to')
+            return x
+          }) as Call.Call[]
+
+          const { signPayloads, request: prepareExecuteRequest } =
             await implementation.actions.prepareExecute({
+              calls,
               client,
-              account,
               request,
-              calls: parameters.calls.map((x) => ({
-                ...x,
-                to: x.to ?? Call.self,
-                value: x.value ? BigInt(x.value) : 0n,
-              })),
+              account: Account.from({ address: from }),
             })
 
           return {
-            context: request,
+            context: prepareExecuteRequest,
             signPayload: signPayloads.at(0)!,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
