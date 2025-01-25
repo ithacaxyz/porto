@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-family-display: "MulishVariable", "sans-serif";
+  --font-display: "MulishVariable", "sans-serif";
 }
 
 /* mulish-latin-wght-normal */

@@ -6,8 +6,8 @@
     "allowJs": true,
     "checkJs": true,
     "lib": [
-      "ESNext",
       "DOM",
+      "ESNext",
       "DOM.Iterable"
     ],
     "esModuleInterop": true,

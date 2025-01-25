@@ -8,17 +8,17 @@
     "build": "wrangler --config='wrangler.toml' deploy --outdir='dist' --dry-run"
   },
   "dependencies": {
-    "@wagmi/core": "^2.16.3",
-    "hono": "^4.6.16",
-    "ox": "^0.6.0",
+    "@wagmi/core": "catalog:",
+    "hono": "^4.6.17",
+    "ox": "catalog:",
     "porto": "workspace:*",
     "viem": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250109.0",
     "@types/node": "^22.10.7",
-    "tsx": "^4.17.0",
-    "typescript": "^5.7.3",
+    "tsx": "^4.19.2",
+    "typescript": "catalog:",
     "wrangler": "^3.103.2"
   }
 }
