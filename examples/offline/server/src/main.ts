@@ -1,10 +1,17 @@
 import { Chains, Key, Porto } from 'Porto'
 import { Hono } from 'hono'
 import { env, getRuntimeKey } from 'hono/adapter'
-import { contextStorage } from 'hono/context-storage'
 import { cors } from 'hono/cors'
 import { showRoutes } from 'hono/dev'
-import { AbiFunction, Address, Hex, P256, type RpcSchema, Value } from 'ox'
+import {
+  AbiFunction,
+  Address,
+  Hex,
+  Json,
+  P256,
+  type RpcSchema,
+  Value,
+} from 'ox'
 import type { Wallet } from 'ox/RpcSchema'
 import { ExperimentERC20 } from 'src/contracts.ts'
 
@@ -17,26 +24,7 @@ type SendCallsContext = WalletSendCallsParams
 
 const app = new Hono<Env>()
 
-app.use(contextStorage())
 app.use('*', cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'OPTIONS'] }))
-
-app.use(async (context, next) => {
-  context.set('KEY_PAIR', context.get('KEY_PAIR'))
-  await next()
-})
-
-app.get('/routes', async (context) => {
-  const verbose = context.req.query('verbose')
-  const { ENVIRONMENT } = env(context)
-  if (ENVIRONMENT === 'development') {
-    const { showRoutes } = await import('hono/dev')
-    showRoutes(app, { verbose: verbose === 'true' || verbose === '1' })
-    return new Response(
-      JSON.stringify([...new Set(app.routes.map(({ path }) => path))], null, 2),
-    )
-  }
-  return new Response(null, { status: 418 })
-})
 
 /**
  * Returns existing keys
@@ -59,12 +47,12 @@ app.post('/keys', async (context) => {
 
   const key = Key.fromP256({
     privateKey,
-    role: 'admin',
+    role: 'session',
     expiry: 1714857600,
     permissions: payload.permissions,
   })
-  console.info(key.privateKey)
-  return context.json({ key: Key.toRpc(key), privateKey: key.privateKey() })
+
+  return context.json({ key: Key.toRpc(key) })
 })
 
 /**
@@ -75,7 +63,6 @@ app.post('/authorize-status', async (context) => {
   const payload = await context.req.json<{
     address: Address.Address
     authorizeKeys: Key.Key
-    privateKey: Hex.Hex // tmp
   }>()
 
   const porto = Porto.create({
@@ -92,7 +79,7 @@ app.post('/authorize-status', async (context) => {
           to: ExperimentERC20.address,
           data: AbiFunction.encodeData(
             AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
-            [account, Value.fromEther('100')],
+            [account, Value.fromEther('10')],
           ),
         },
       ]
@@ -103,7 +90,7 @@ app.post('/authorize-status', async (context) => {
           to: ExperimentERC20.address,
           data: AbiFunction.encodeData(
             AbiFunction.fromAbi(ExperimentERC20.abi, 'approve'),
-            [account, Value.fromEther('50')],
+            [account, Value.fromEther('5')],
           ),
         },
         {
@@ -113,7 +100,7 @@ app.post('/authorize-status', async (context) => {
             [
               account,
               '0x0000000000000000000000000000000000000000',
-              Value.fromEther('50'),
+              Value.fromEther('5'),
             ],
           ),
         },
@@ -148,19 +135,10 @@ app.post('/authorize-status', async (context) => {
   })
 
   const portoContext = _portoContext as SendCallsContext
-
-  const signature = await Key.sign(
-    Key.fromP256({
-      privateKey: payload.privateKey,
-      role: payload.authorizeKeys.role,
-      expiry: payload.authorizeKeys.expiry,
-      permissions: payload.authorizeKeys.permissions,
-    }),
-    {
-      address: payload.address,
-      payload: signPayload,
-    },
-  )
+  const signature = await Key.sign(payload.authorizeKeys, {
+    address: payload.address,
+    payload: signPayload,
+  })
 
   const hash = await porto.provider.request({
     method: 'wallet_sendCalls',
