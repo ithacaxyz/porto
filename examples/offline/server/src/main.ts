@@ -1,6 +1,6 @@
 import { Chains, Key, Porto } from 'Porto'
 import { Hono } from 'hono'
-import { env, getRuntimeKey } from 'hono/adapter'
+import { getRuntimeKey } from 'hono/adapter'
 import { cors } from 'hono/cors'
 import { showRoutes } from 'hono/dev'
 import {
@@ -16,14 +16,16 @@ import {
 import type { Wallet } from 'ox/RpcSchema'
 import { ExperimentERC20 } from 'src/contracts.ts'
 
-type WalletSendCallsParams = RpcSchema.ExtractRequest<
+type SendCallsContext = RpcSchema.ExtractRequest<
   Wallet,
   'wallet_sendCalls'
 >['params'][number]
 
-type SendCallsContext = WalletSendCallsParams
-
 const app = new Hono<Env>()
+app.onError((error, context) => {
+  console.info(error)
+  return context.json({ error: error.message }, 500)
+})
 
 app.use('*', cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'OPTIONS'] }))
 

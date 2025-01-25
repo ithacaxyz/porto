@@ -175,6 +175,7 @@ function AuthorizeServerKey() {
  */
 function CheckServerActivity() {
   const [result, setResult] = useState<any | null>(null)
+  const [error, setError] = useState<any | null>(null)
 
   return (
     <div>
@@ -199,13 +200,27 @@ function CheckServerActivity() {
               authorizeKeys: serverKeys,
             }),
           })
+          if (!response.ok) {
+            const errorJson = await response.json()
+            console.error(errorJson.error)
+            setError(errorJson.error)
+            return
+          }
           const result = await Json.parse(await response.text())
+          console.info(result)
           setResult(result)
         }}
       >
         <button type="submit">Check Server Activity</button>
       </form>
-      {result && <pre>key: {JSON.stringify(result, null, 2)}</pre>}
+      {result ? (
+        <pre>{Json.stringify(result, null, 2)}</pre>
+      ) : error ? (
+        <p>
+          Error
+          <pre>{error}</pre>
+        </p>
+      ) : null}
     </div>
   )
 }
