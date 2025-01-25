@@ -11,6 +11,7 @@ import {
   P256,
   type RpcSchema,
   Value,
+  WebCryptoP256,
 } from 'ox'
 import type { Wallet } from 'ox/RpcSchema'
 import { ExperimentERC20 } from 'src/contracts.ts'
@@ -43,16 +44,16 @@ app.post('/keys', async (context) => {
   const isAddress = Address.validate(payload.address)
   if (!isAddress) return context.json({ error: 'Invalid address' }, 400)
 
-  const privateKey = P256.randomPrivateKey()
+  const keyPair = await WebCryptoP256.createKeyPair({ extractable: true })
 
-  const key = Key.fromP256({
-    privateKey,
-    role: 'session',
-    expiry: 1714857600,
-    permissions: payload.permissions,
+  return context.json({
+    key: Key.fromWebCryptoP256({
+      keyPair,
+      role: 'admin',
+      expiry: 1714857600,
+      permissions: payload.permissions,
+    }),
   })
-
-  return context.json({ key: Key.toRpc(key) })
 })
 
 /**
@@ -135,6 +136,7 @@ app.post('/authorize-status', async (context) => {
   })
 
   const portoContext = _portoContext as SendCallsContext
+
   const signature = await Key.sign(payload.authorizeKeys, {
     address: payload.address,
     payload: signPayload,
