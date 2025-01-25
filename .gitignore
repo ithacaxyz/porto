@@ -45,3 +45,4 @@ _
 .svelte-kit
 .dev.vars
 .wrangler
+dist
