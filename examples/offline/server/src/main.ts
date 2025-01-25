@@ -1,13 +1,12 @@
-import { signMessage } from '@wagmi/core'
-import { odysseyTestnet } from '@wagmi/core/chains'
-import { Chains, Implementation, Key, Porto, Storage } from 'Porto'
+import { Chains, Key, Porto } from 'Porto'
 import { Hono } from 'hono'
 import { env, getRuntimeKey } from 'hono/adapter'
-import { contextStorage, getContext } from 'hono/context-storage'
+import { contextStorage } from 'hono/context-storage'
 import { cors } from 'hono/cors'
 import { showRoutes } from 'hono/dev'
-import { Address, Json, type RpcSchema, WebCryptoP256 } from 'ox'
+import { AbiFunction, Address, Hex, P256, type RpcSchema, Value } from 'ox'
 import type { Wallet } from 'ox/RpcSchema'
+import { ExperimentERC20 } from 'src/contracts.ts'
 
 type WalletSendCallsParams = RpcSchema.ExtractRequest<
   Wallet,
@@ -48,21 +47,24 @@ app.get('/keys', async (context) => context.json({ error: 'Not implemented' }))
  * Creates new keys
  */
 app.post('/keys', async (context) => {
-  const payload = await context.req.json<{ address: Address.Address }>()
+  const payload = await context.req.json<{
+    address: Address.Address
+    permissions: Key.Permissions
+  }>()
 
   const isAddress = Address.validate(payload.address)
   if (!isAddress) return context.json({ error: 'Invalid address' }, 400)
 
-  const keyPair = await WebCryptoP256.createKeyPair({ extractable: true })
+  const privateKey = P256.randomPrivateKey()
 
-  const key = Key.fromWebCryptoP256({
-    keyPair,
-    role: 'session',
+  const key = Key.fromP256({
+    privateKey,
+    role: 'admin',
     expiry: 1714857600,
+    permissions: payload.permissions,
   })
-
-  context.set('KEY_PAIR', Json.stringify(keyPair))
-  return context.json(Key.toRpc(key))
+  console.info(key.privateKey)
+  return context.json({ key: Key.toRpc(key), privateKey: key.privateKey() })
 })
 
 /**
@@ -70,16 +72,71 @@ app.post('/keys', async (context) => {
  * it will call this endpoint to notify the server (WIP)
  */
 app.post('/authorize-status', async (context) => {
-  const payload = await context.req.json<{}>()
-  console.info(context.get('KEY_PAIR'), getContext<Env>().get('KEY_PAIR'))
-  const keyPair = context.get('KEY_PAIR')
-  console.info(JSON.stringify({ keyPair }, undefined, 2))
+  const payload = await context.req.json<{
+    address: Address.Address
+    authorizeKeys: Key.Key
+    privateKey: Hex.Hex // tmp
+  }>()
 
   const porto = Porto.create({
     chains: [Chains.odysseyTestnet],
-    storage: Storage.localStorage(),
-    implementation: Implementation.local(),
   })
+
+  const action = 'mint'
+  const account = payload.address
+
+  const calls = (() => {
+    if (action === 'mint')
+      return [
+        {
+          to: ExperimentERC20.address,
+          data: AbiFunction.encodeData(
+            AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
+            [account, Value.fromEther('100')],
+          ),
+        },
+      ]
+
+    if (action === 'approve-transfer')
+      return [
+        {
+          to: ExperimentERC20.address,
+          data: AbiFunction.encodeData(
+            AbiFunction.fromAbi(ExperimentERC20.abi, 'approve'),
+            [account, Value.fromEther('50')],
+          ),
+        },
+        {
+          to: ExperimentERC20.address,
+          data: AbiFunction.encodeData(
+            AbiFunction.fromAbi(ExperimentERC20.abi, 'transferFrom'),
+            [
+              account,
+              '0x0000000000000000000000000000000000000000',
+              Value.fromEther('50'),
+            ],
+          ),
+        },
+      ] as const
+
+    return [
+      {
+        to: '0x0000000000000000000000000000000000000000',
+        value: '0x0',
+      },
+      {
+        to: '0x0000000000000000000000000000000000000000',
+        value: '0x0',
+      },
+    ] as const
+  })()
+
+  const prepareCallsParams = {
+    calls,
+    chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
+    from: payload.address,
+    version: '1',
+  } as const
 
   const {
     signPayload,
@@ -87,21 +144,23 @@ app.post('/authorize-status', async (context) => {
     context: _portoContext,
   } = await porto.provider.request({
     method: 'experimental_prepareCalls',
-    params: [
-      {
-        calls: [],
-        capabilities: {},
-        chainId: '0x1',
-        from: '0x0',
-        version: '1',
-      },
-    ] as any,
+    params: [prepareCallsParams],
   })
+
   const portoContext = _portoContext as SendCallsContext
 
-  const signature = Key.sign(Json.parse(keyPair), { payload: signPayload })
-
-  const preparedCalls = portoContext?.capabilities?.['prepareCalls']
+  const signature = await Key.sign(
+    Key.fromP256({
+      privateKey: payload.privateKey,
+      role: payload.authorizeKeys.role,
+      expiry: payload.authorizeKeys.expiry,
+      permissions: payload.authorizeKeys.permissions,
+    }),
+    {
+      address: payload.address,
+      payload: signPayload,
+    },
+  )
 
   const hash = await porto.provider.request({
     method: 'wallet_sendCalls',
@@ -111,17 +170,16 @@ app.post('/authorize-status', async (context) => {
         capabilities: {
           ...portoContext.capabilities,
           prepareCalls: {
-            ...preparedCalls,
+            ...portoContext.capabilities?.['prepareCalls'],
             signature,
           },
         },
+        from: payload.address,
       },
     ],
   })
 
-  // TODO: `Delegation.execute(calls, signature)`
-
-  return context.json({ error: 'Not implemented' })
+  return context.json({ hash })
 })
 
 showRoutes(app)
