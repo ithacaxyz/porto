@@ -16,7 +16,7 @@ export namespace Button {
 
   export interface Props
     extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-      VariantProps<typeof className> {
+      VariantProps<typeof Button.className>
     asChild?: boolean
   }
 
