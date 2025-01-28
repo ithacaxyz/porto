@@ -1,4 +1,4 @@
-import { Chains, Key, Porto } from 'Porto'
+import { Chains, Key, Porto, Account } from 'Porto'
 import { Hono } from 'hono'
 import { getRuntimeKey } from 'hono/adapter'
 import { cors } from 'hono/cors'
@@ -47,15 +47,13 @@ app.post('/keys', async (context) => {
   if (!isAddress) return context.json({ error: 'Invalid address' }, 400)
 
   const keyPair = await WebCryptoP256.createKeyPair({ extractable: true })
-
-  return context.json({
-    key: Key.fromWebCryptoP256({
-      keyPair,
-      role: 'admin',
-      expiry: 1714857600,
-      permissions: payload.permissions,
-    }),
+  const key = Key.fromWebCryptoP256({
+    keyPair,
+    role: 'session',
+    expiry: 1714857600,
+    permissions: payload.permissions,
   })
+  return context.json(Key.toRpc(key))
 })
 
 /**
@@ -68,9 +66,7 @@ app.post('/authorize-status', async (context) => {
     authorizeKeys: Key.Key
   }>()
 
-  const porto = Porto.create({
-    chains: [Chains.odysseyTestnet],
-  })
+  const porto = Porto.create()
 
   const action = 'mint'
   const account = payload.address
@@ -156,7 +152,7 @@ app.post('/authorize-status', async (context) => {
             signature,
           },
         },
-        from: payload.address,
+        from: Account.from({ address: payload.address }).address,
       },
     ],
   })
