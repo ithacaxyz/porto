@@ -152,9 +152,9 @@ function AuthorizeServerKey() {
               {
                 permissions,
                 address: account,
-                role: serverKeys?.key.role,
-                expiry: serverKeys?.key.expiry,
-                key: Key.fromRpc(serverKeys!.key),
+                role: serverKeys?.role,
+                expiry: serverKeys?.expiry,
+                key: Key.fromRpc(serverKeys),
               },
             ],
           })
@@ -165,7 +165,7 @@ function AuthorizeServerKey() {
       >
         <button type="submit">Authorize a Session Key</button>
       </form>
-      {result && <pre>key: {JSON.stringify(result, null, 2)}</pre>}
+      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
     </div>
   )
 }
