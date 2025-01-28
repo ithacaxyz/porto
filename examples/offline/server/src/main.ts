@@ -1,4 +1,4 @@
-import { Chains, Key, Porto, Account } from 'Porto'
+import { Account, Chains, Key, Porto } from 'Porto'
 import { Hono } from 'hono'
 import { getRuntimeKey } from 'hono/adapter'
 import { cors } from 'hono/cors'
