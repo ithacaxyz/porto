@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.8
+
+### Patch Changes
+
+- [`dffa6cd`](https://github.com/ithacaxyz/porto/commit/dffa6cdca17b3b8b1018ae0be1d180597eb4936e) Thanks [@jxom](https://github.com/jxom)! - Fixed session key extraction based on call permissions.
+
 ## 0.0.7
 
 ### Patch Changes
