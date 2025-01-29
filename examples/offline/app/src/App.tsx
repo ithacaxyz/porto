@@ -45,10 +45,10 @@ export function App() {
         <GetCapabilities />
       </details>
       <Events />
-      <div>
+      {/* <div>
         <hr />
       </div>
-      <Connect />
+      <Connect /> */}
       <div>
         <hr />
       </div>
@@ -100,7 +100,7 @@ function RequestKey() {
   const [result, setResult] = useState<ServerKey | null>(null)
   return (
     <div>
-      <h3>POST /keys</h3>
+      <h3>Request Key from Server (POST /keys)</h3>
       <button
         onClick={async () => {
           const [account] = await porto.provider.request({
@@ -160,7 +160,7 @@ function AuthorizeServerKey() {
           })
 
           setResult(result)
-          wagmiConfig.storage?.setItem('authorizedKey', Json.stringify(result))
+          // wagmiConfig.storage?.setItem('authorizedKey', Json.stringify(result))
         }}
       >
         <button type="submit">Authorize a Session Key</button>
@@ -185,9 +185,9 @@ function CheckServerActivity() {
       <form
         onSubmit={async (e) => {
           e.preventDefault()
-          const serverKeys = Json.parse(
-            (await wagmiConfig.storage?.getItem('keys')) || '{}',
-          )
+          // const serverKeys = Json.parse(
+          //   (await wagmiConfig.storage?.getItem('keys')) || '{}',
+          // )
 
           const [account] = await porto.provider.request({
             method: 'eth_accounts',
@@ -197,7 +197,6 @@ function CheckServerActivity() {
             method: 'POST',
             body: JSON.stringify({
               address: account,
-              authorizeKeys: serverKeys,
             }),
           })
           if (!response.ok) {

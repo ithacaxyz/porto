@@ -9,15 +9,15 @@
   },
   "dependencies": {
     "@wagmi/core": "catalog:",
-    "hono": "^4.6.18",
+    "hono": "^4.6.19",
     "ox": "catalog:",
     "porto": "workspace:*",
     "viem": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250124.3",
-    "@types/node": "^22.10.10",
+    "@types/node": "^22.12.0",
     "typescript": "catalog:",
-    "wrangler": "^3.105.1"
+    "wrangler": "^3.106.0"
   }
 }

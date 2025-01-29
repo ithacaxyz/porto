@@ -27,6 +27,13 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'wallet_prepareCalls'
+        params: RpcSchema.ExtractParams<Schema, 'wallet_sendCalls'>
+      }
+      ReturnType: internal.WalletPrepareCallsReturnType
+    }
+  | {
+      Request: {
         method: 'experimental_prepareCreateAccount'
         params: [internal.PrepareCreateAccountParameters]
       }
@@ -45,6 +52,13 @@ export type Schema = RpcSchema.From<
         params: [internal.RevokePermissionsParameters]
       }
       ReturnType: undefined
+    }
+  | {
+      Request: {
+        method: 'wallet_sendPreparedCalls'
+        params: [internal.WalletSendPreparedCallsParameters]
+      }
+      ReturnType: Hex.Hex[]
     }
   | {
       Request: {
@@ -71,6 +85,9 @@ export type Schema = RpcSchema.From<
               | {
                   permissions?: {
                     id: Hex.Hex | undefined
+                  }
+                  prepareCalls?: {
+                    signature: Hex.Hex
                   }
                 }
               | undefined
