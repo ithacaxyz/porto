@@ -1,4 +1,4 @@
-import { AbiFunction, Hex, Json, TypedData, Value } from 'ox'
+import { type Hex, Json } from 'ox'
 import { Key } from 'porto'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import {
@@ -6,8 +6,7 @@ import {
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
-import { verifyMessage, verifyTypedData } from 'viem/actions'
-import { client, porto, wagmiConfig } from './config.ts'
+import { porto, wagmiConfig } from './config.ts'
 import { ExperimentERC20 } from './contracts'
 
 const APP_SERVER_URL = 'http://localhost:6900'
@@ -45,10 +44,6 @@ export function App() {
         <GetCapabilities />
       </details>
       <Events />
-      {/* <div>
-        <hr />
-      </div>
-      <Connect /> */}
       <div>
         <hr />
       </div>
@@ -66,6 +61,7 @@ export function App() {
       </div>
       <details>
         <summary style={{ fontSize: '1.25rem' }}>Other Requests</summary>
+        <Connect />
         <Login />
         <Register />
         <Accounts />
@@ -77,15 +73,6 @@ export function App() {
         <AuthorizeKey />
         <GetKeys />
         <RevokeKey />
-        <div>
-          <br />
-          <hr />
-          <br />
-        </div>
-        <SendCalls />
-        <SendTransaction />
-        <SignMessage />
-        <SignTypedData />
       </details>
     </div>
   )
@@ -160,7 +147,6 @@ function AuthorizeServerKey() {
           })
 
           setResult(result)
-          // wagmiConfig.storage?.setItem('authorizedKey', Json.stringify(result))
         }}
       >
         <button type="submit">Authorize a Session Key</button>
@@ -185,9 +171,6 @@ function CheckServerActivity() {
       <form
         onSubmit={async (e) => {
           e.preventDefault()
-          // const serverKeys = Json.parse(
-          //   (await wagmiConfig.storage?.getItem('keys')) || '{}',
-          // )
 
           const [account] = await porto.provider.request({
             method: 'eth_accounts',
@@ -611,352 +594,3 @@ function UpgradeAccount() {
     </div>
   )
 }
-
-function SendCalls() {
-  const [hash, setHash] = useState<string | null>(null)
-  return (
-    <form
-      onSubmit={async (e) => {
-        e.preventDefault()
-        const formData = new FormData(e.target as HTMLFormElement)
-        const action = formData.get('action') as string | null
-
-        const [account] = await porto.provider.request({
-          method: 'eth_accounts',
-        })
-
-        const calls = (() => {
-          if (action === 'mint')
-            return [
-              {
-                to: ExperimentERC20.address,
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
-                  [account, Value.fromEther('100')],
-                ),
-              },
-            ]
-
-          if (action === 'approve-transfer')
-            return [
-              {
-                to: ExperimentERC20.address,
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(ExperimentERC20.abi, 'approve'),
-                  [account, Value.fromEther('50')],
-                ),
-              },
-              {
-                to: ExperimentERC20.address,
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(ExperimentERC20.abi, 'transferFrom'),
-                  [
-                    account,
-                    '0x0000000000000000000000000000000000000000',
-                    Value.fromEther('50'),
-                  ],
-                ),
-              },
-            ] as const
-
-          return [
-            {
-              to: '0x0000000000000000000000000000000000000000',
-              value: '0x0',
-            },
-            {
-              to: '0x0000000000000000000000000000000000000000',
-              value: '0x0',
-            },
-          ] as const
-        })()
-
-        const hash = await porto.provider.request({
-          method: 'wallet_sendCalls',
-          params: [
-            {
-              calls,
-              from: account,
-              version: '1',
-            },
-          ],
-        })
-        setHash(hash)
-      }}
-    >
-      <h3>wallet_sendCalls</h3>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <select name="action">
-          <option value="mint">Mint 100 EXP</option>
-          <option value="approve-transfer">Approve + Transfer 50 EXP</option>
-          <option value="noop">Noop Calls</option>
-        </select>
-        <button type="submit">Send</button>
-      </div>
-      {hash && (
-        <>
-          <pre>{hash}</pre>
-          <a
-            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Explorer
-          </a>
-        </>
-      )}
-    </form>
-  )
-}
-
-function SendTransaction() {
-  const [hash, setHash] = useState<Hex.Hex | null>(null)
-  return (
-    <form
-      onSubmit={async (e) => {
-        e.preventDefault()
-
-        const formData = new FormData(e.target as HTMLFormElement)
-        const action = formData.get('action') as string | null
-
-        const [account] = await porto.provider.request({
-          method: 'eth_accounts',
-        })
-
-        const params = (() => {
-          if (action === 'mint')
-            return [
-              {
-                from: account,
-                to: ExperimentERC20.address,
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
-                  [account, Value.fromEther('100')],
-                ),
-              },
-            ] as const
-
-          return [
-            {
-              from: account,
-              to: '0x0000000000000000000000000000000000000000',
-              value: '0x0',
-            },
-          ] as const
-        })() as any
-
-        const hash = await porto.provider.request({
-          method: 'eth_sendTransaction',
-          params,
-        })
-        setHash(hash)
-      }}
-    >
-      <h3>eth_sendTransaction</h3>
-      <select name="action">
-        <option value="mint">Mint 100 EXP</option>
-        <option value="noop">Noop</option>
-      </select>
-      <button type="submit">Send</button>
-      {hash && (
-        <>
-          <pre>{hash}</pre>
-          <a
-            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Explorer
-          </a>
-        </>
-      )}
-    </form>
-  )
-}
-
-function SignMessage() {
-  const [signature, setSignature] = useState<string | null>(null)
-  const [valid, setValid] = useState<boolean | null>(null)
-
-  return (
-    <>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-
-          const formData = new FormData(e.target as HTMLFormElement)
-          const message = formData.get('message') as string
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-          const result = await porto.provider.request({
-            method: 'personal_sign',
-            params: [Hex.fromString(message), account],
-          })
-          setSignature(result)
-        }}
-      >
-        <h3>personal_sign</h3>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input defaultValue="hello world" name="message" />
-          <button type="submit">Sign</button>
-        </div>
-        <pre
-          style={{
-            maxWidth: '500px',
-            overflowWrap: 'anywhere',
-            // @ts-expect-error
-            textWrapMode: 'wrap',
-          }}
-        >
-          {signature}
-        </pre>
-      </form>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          const formData = new FormData(e.target as HTMLFormElement)
-          const message = formData.get('message') as string
-          const signature = formData.get('signature') as `0x${string}`
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-
-          const valid = await verifyMessage(client, {
-            address: account,
-            message,
-            signature,
-          })
-          setValid(valid)
-        }}
-      >
-        <div>
-          <input name="message" placeholder="message" />
-        </div>
-        <div>
-          <textarea name="signature" placeholder="signature" />
-        </div>
-        <button type="submit">Verify</button>
-        {valid !== null && <pre>{valid ? 'valid' : 'invalid'}</pre>}
-      </form>
-    </>
-  )
-}
-
-function SignTypedData() {
-  const [signature, setSignature] = useState<string | null>(null)
-  const [valid, setValid] = useState<boolean | null>(null)
-
-  return (
-    <>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-          const result = await porto.provider.request({
-            method: 'eth_signTypedData_v4',
-            params: [account, TypedData.serialize(typedData)],
-          })
-          setSignature(result)
-        }}
-      >
-        <h3>eth_signTypedData_v4</h3>
-        <button type="submit">Sign</button>
-        <pre
-          style={{
-            maxWidth: '500px',
-            overflowWrap: 'anywhere',
-            // @ts-expect-error
-            textWrapMode: 'wrap',
-          }}
-        >
-          {signature}
-        </pre>
-      </form>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          const formData = new FormData(e.target as HTMLFormElement)
-          const signature = formData.get('signature') as `0x${string}`
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-
-          const valid = await verifyTypedData(client, {
-            ...typedData,
-            address: account,
-            signature,
-          })
-          setValid(valid)
-        }}
-      >
-        <div>
-          <textarea name="signature" placeholder="signature" />
-        </div>
-        <button type="submit">Verify</button>
-        {valid !== null && <pre>{valid ? 'valid' : 'invalid'}</pre>}
-      </form>
-    </>
-  )
-}
-
-const typedData = {
-  domain: {
-    name: 'Ether Mail 🥵',
-    version: '1.1.1',
-    chainId: 1,
-    verifyingContract: '0x0000000000000000000000000000000000000000',
-  },
-  types: {
-    Name: [
-      { name: 'first', type: 'string' },
-      { name: 'last', type: 'string' },
-    ],
-    Person: [
-      { name: 'name', type: 'Name' },
-      { name: 'wallet', type: 'address' },
-      { name: 'favoriteColors', type: 'string[3]' },
-      { name: 'foo', type: 'uint256' },
-      { name: 'age', type: 'uint8' },
-      { name: 'isCool', type: 'bool' },
-    ],
-    Mail: [
-      { name: 'timestamp', type: 'uint256' },
-      { name: 'from', type: 'Person' },
-      { name: 'to', type: 'Person' },
-      { name: 'contents', type: 'string' },
-      { name: 'hash', type: 'bytes' },
-    ],
-  },
-  primaryType: 'Mail',
-  message: {
-    timestamp: 1234567890n,
-    contents: 'Hello, Bob! 🖤',
-    hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-    from: {
-      name: {
-        first: 'Cow',
-        last: 'Burns',
-      },
-      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-      age: 69,
-      foo: 123123123123123123n,
-      favoriteColors: ['red', 'green', 'blue'],
-      isCool: false,
-    },
-    to: {
-      name: { first: 'Bob', last: 'Builder' },
-      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-      age: 70,
-      foo: 123123123123123123n,
-      favoriteColors: ['orange', 'yellow', 'green'],
-      isCool: true,
-    },
-  },
-} as const
