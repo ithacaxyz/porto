@@ -177,11 +177,12 @@ function AuthorizeServerKey() {
  */
 function Demo() {
   const [result, setResult] = useState<Array<any> | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   return (
     <div>
       <h3>
-        Demo Server Action (wallet_prepareCalls, wallet_sendPreparedCalls)
+        Demo Server Action (wallet_prepareCalls {'->'} wallet_sendPreparedCalls)
       </h3>
       <form
         onSubmit={async (e) => {
@@ -196,14 +197,11 @@ function Demo() {
           if (!response.ok) {
             const errorJson = await response.json()
             console.error(errorJson.error)
-            setResult((prevResult) => [...(prevResult || []), errorJson.error])
+            setError(errorJson.error)
             return
           }
           const result = await response.text()
-          setResult((prevResult) => [
-            ...(prevResult || []),
-            `https://odyssey-explorer.ithaca.xyz/tx/${result}`,
-          ])
+          setResult((prevResult) => [...(prevResult || []), result])
         }}
       >
         <select
@@ -216,7 +214,22 @@ function Demo() {
         </select>
         <button type="submit">Send</button>
       </form>
-      {result ? <pre>{Json.stringify(result, null, 2)}</pre> : null}
+      {error ? <pre>{error}</pre> : null}
+      {result ? (
+        <ul style={{ listStyleType: 'none', padding: 0 }}>
+          {result.map((tx) => (
+            <li key={tx} style={{ marginBottom: '5px' }}>
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={`https://odyssey-explorer.ithaca.xyz/tx/${tx}`}
+              >
+                {tx}
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   )
 }
