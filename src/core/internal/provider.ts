@@ -1,5 +1,5 @@
 import * as Mipd from 'mipd'
-import type { RpcSchema } from 'ox'
+import { Json, type RpcSchema } from 'ox'
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
@@ -7,6 +7,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
+import type * as Delegation from './Delegation.js'
 import * as Account from './account.js'
 import type * as Call from './call.js'
 import * as Key from './key.js'
@@ -510,7 +511,7 @@ export function from<
           >
         }
 
-        case 'experimental_prepareCalls': {
+        case 'wallet_prepareCalls': {
           const [parameters] = request.params
           const { chainId, from } = parameters
 
@@ -533,20 +534,72 @@ export function from<
             })
 
           return {
-            context: prepareExecuteRequest,
+            chainId,
+            data: prepareExecuteRequest,
             signPayload: signPayloads.at(0)!,
+            version: '1.0',
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
-            'experimental_prepareCalls'
+            'wallet_prepareCalls'
+          >
+        }
+
+        case 'wallet_sendPreparedCalls': {
+          // if (state.accounts.length === 0)
+          //   throw new ox_Provider.DisconnectedError()
+
+          const [parameters] = request.params
+          const { signature, chainId } = parameters
+          const data =
+            parameters.data as Delegation.prepareExecute.ReturnType['request']
+
+          const client = getClient(chainId)
+
+          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
+
+          requireParameter(from, 'from')
+
+          // const account = state.accounts.find((account) =>
+          //   Address.isEqual(account.address, from),
+          // )
+          // if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const calls = data.calls.map((x) => {
+            requireParameter(x, 'to')
+            return x
+          }) as Call.Call[]
+
+          const hash = await implementation.actions.execute({
+            account: data.account,
+            calls,
+            nonce: data.nonce,
+            signature,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          return [hash] satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'wallet_sendPreparedCalls'
           >
         }
 
         case 'wallet_sendCalls': {
-          if (state.accounts.length === 0)
-            throw new ox_Provider.DisconnectedError()
+          // console.info(Json.stringify(request.params, undefined, 2))
 
           const [parameters] = request.params
           const { capabilities, chainId, from } = parameters
+
+          if (
+            state.accounts.length === 0 &&
+            !capabilities?.prepareCalls?.signature
+          )
+            throw new ox_Provider.DisconnectedError()
 
           const client = getClient(chainId)
 

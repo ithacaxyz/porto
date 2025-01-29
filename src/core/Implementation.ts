@@ -85,6 +85,10 @@ export type Implementation = {
       calls: readonly Call.Call[]
       /** Key to use to execute the calls. */
       key?: { publicKey: Hex.Hex } | undefined
+      /** Nonce to use for execution. */
+      nonce?: bigint | undefined
+      /** Signature for execution. */
+      signature?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
@@ -287,7 +291,7 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async execute(parameters) {
-        const { account, calls, internal } = parameters
+        const { account, calls, internal, nonce, signature } = parameters
         const { client } = internal
 
         // Try and extract an authorized key to sign the calls with.
@@ -302,7 +306,14 @@ export function local(parameters: local.Parameters = {}) {
         const hash = await Delegation.execute(client, {
           account,
           calls,
-          key,
+          ...(key
+            ? {
+                key,
+              }
+            : {
+                nonce,
+                signatures: (signature ? [signature] : undefined) as any,
+              }),
         })
 
         return hash

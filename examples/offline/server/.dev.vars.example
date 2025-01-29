@@ -1,2 +1,5 @@
 PORT=6900
 ENVIRONMENT="development"
+
+ENCRYPTION_PASSWORD="random-password"
+ENCRYPTION_SALT="random-salt"

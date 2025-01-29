@@ -14,10 +14,17 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
-        method: 'experimental_prepareCalls'
+        method: 'wallet_prepareCalls'
         params: RpcSchema.ExtractParams<Schema, 'wallet_sendCalls'>
       }
-      ReturnType: PrepareCallsReturnType
+      ReturnType: WalletPrepareCallsReturnType
+    }
+  | {
+      Request: {
+        method: 'wallet_sendPreparedCalls'
+        params: [WalletSendPreparedCallsParameters]
+      }
+      ReturnType: Hex.Hex[]
     }
   | {
       Request: {
@@ -165,7 +172,18 @@ export type RevokeKeyParameters = {
   publicKey: Hex.Hex
 }
 
-export type PrepareCallsReturnType = {
-  context: unknown
+export type WalletPrepareCallsReturnType = {
+  capabilities?: Record<string, any>
+  chainId?: Hex.Hex | undefined
+  data: unknown
   signPayload: Hex.Hex
+  type?: string | undefined
+  version?: string | undefined
+}
+
+export type WalletSendPreparedCallsParameters = Omit<
+  WalletPrepareCallsReturnType,
+  'signPayload'
+> & {
+  signature: Hex.Hex
 }
