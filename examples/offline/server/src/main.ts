@@ -1,51 +1,18 @@
 import { Account, Chains, Key, Porto } from 'Porto'
 import { Hono } from 'hono'
 import { getRuntimeKey } from 'hono/adapter'
-import { contextStorage, getContext } from 'hono/context-storage'
 import { cors } from 'hono/cors'
 import { showRoutes } from 'hono/dev'
-import {
-  AbiFunction,
-  Address,
-  AesGcm,
-  Authorization,
-  Hex,
-  Json,
-  P256,
-  type RpcSchema,
-  Value,
-  WebCryptoP256,
-} from 'ox'
-import type { Wallet } from 'ox/RpcSchema'
+import { AbiFunction, Address, AesGcm, Hex, Json, P256, Value } from 'ox'
 import { ExperimentERC20 } from 'src/contracts.ts'
 
-type SendCallsContext = RpcSchema.ExtractRequest<
-  Wallet,
-  'wallet_sendCalls'
->['params'][number]
-
 const app = new Hono<Env>()
-app.use(contextStorage())
+
 app.use('*', cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'OPTIONS'] }))
+
 app.onError((error, context) => {
   console.info(error)
   return context.json({ error: error.message }, 500)
-})
-
-const setKV = (value: string) => {
-  return getContext<Env>().env.KEYS_01.put('key', value)
-}
-
-const getKV = () => {
-  return getContext<Env>().env.KEYS_01.get('key')
-}
-
-app.use(async (c, next) => {
-  const url = c.req.url
-  // console.info(url)
-  // console.info()
-  // c.set('KEY', 'Hello!')
-  await next()
 })
 
 /**
@@ -74,8 +41,8 @@ app.post('/keys', async (context) => {
   const key = Key.fromP256({
     privateKey,
     role: 'session',
-    expiry: 1714857600,
     permissions: payload.permissions,
+    expiry: Math.floor(Date.now() / 1_000) + 3_600, // 1 hour
   })
 
   const toRpc = Key.toRpc(key)
@@ -161,7 +128,6 @@ app.post('/authorize-status', async (context) => {
     method: 'wallet_prepareCalls',
     params: [prepareCallsParams],
   })
-  console.info(request)
 
   const storedKey = await context.env.KEYS_01.get('key')
   if (!storedKey) throw new Error('Key not found')
@@ -169,33 +135,10 @@ app.post('/authorize-status', async (context) => {
   const { privateKey, ...key } = Json.parse(storedKey)
   const p256Key = Key.fromP256({ ...key, privateKey })
 
-  // const signature = P256.sign({
-  //   payload: signPayload,
-  //   privateKey: p256Key.privateKey(),
-  // })
-
-  const signature = await Key.sign(Key.from({ ...p256Key, type: 'p256' }), {
+  const signature = await Key.sign(Key.from({ ...p256Key }), {
     address: payload.address,
     payload: signPayload,
   })
-
-  // const hash = await porto.provider.request({
-  //   method: 'wallet_sendCalls',
-  //   params: [
-  //     {
-  //       ...portoContext,
-  //       capabilities: {
-  //         ...portoContext.capabilities,
-  //         prepareCalls: {
-  //           ...portoContext.capabilities?.['prepareCalls'],
-  //           signature,
-  //         },
-  //       },
-  //       chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
-  //       from: Account.from({ address: payload.address }).address,
-  //     },
-  //   ],
-  // })
 
   const hash = await porto.provider.request({
     method: 'wallet_sendPreparedCalls',
