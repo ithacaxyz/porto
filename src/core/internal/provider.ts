@@ -11,9 +11,9 @@ import type * as Schema from '../RpcSchema.js'
 import type * as Delegation from '../Delegation.js'
 import * as Account from './account.js'
 import type * as Call from './call.js'
-import type * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import type * as Schema_internal from './rpcSchema.js'
+import type * as Key from './key.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -542,7 +542,7 @@ export function from<
 
         case 'wallet_prepareCalls': {
           const [parameters] = request.params
-          const { chainId, from } = parameters
+          const { chainId, from, version = '1.0' } = parameters
 
           const client = getClient(chainId)
 
@@ -564,9 +564,9 @@ export function from<
 
           return {
             chainId,
+            version,
             data: prepareExecuteRequest,
             signPayload: signPayloads.at(0)!,
-            version: '1.0',
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_prepareCalls'
@@ -574,9 +574,6 @@ export function from<
         }
 
         case 'wallet_sendPreparedCalls': {
-          // if (state.accounts.length === 0)
-          //   throw new ox_Provider.DisconnectedError()
-
           const [parameters] = request.params
           const { signature, chainId } = parameters
           const data =
@@ -588,11 +585,6 @@ export function from<
             throw new ox_Provider.ChainDisconnectedError()
 
           requireParameter(from, 'from')
-
-          // const account = state.accounts.find((account) =>
-          //   Address.isEqual(account.address, from),
-          // )
-          // if (!account) throw new ox_Provider.UnauthorizedError()
 
           const calls = data.calls.map((x) => {
             requireParameter(x, 'to')
@@ -619,7 +611,8 @@ export function from<
         }
 
         case 'wallet_sendCalls': {
-          // console.info(Json.stringify(request.params, undefined, 2))
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
 
           const [parameters] = request.params
           const { capabilities, chainId, from } = parameters

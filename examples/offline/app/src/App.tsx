@@ -1,4 +1,4 @@
-import { type Hex, Json } from 'ox'
+import { Hex, Json, Value } from 'ox'
 import { Key } from 'porto'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import {
@@ -26,16 +26,28 @@ const permissions = {
       to: ExperimentERC20.address,
     },
   ],
-  // spend: [
-  //   {
-  //     limit: Hex.fromNumber(Value.fromEther('50')),
-  //     period: 'minute',
-  //     token: ExperimentERC20.address,
-  //   },
-  // ],
+  spend: [
+    {
+      limit: Hex.fromNumber(Value.fromEther('1000')),
+      period: 'minute',
+      token: ExperimentERC20.address,
+    },
+  ],
 } as const
 
 export function App() {
+  useEffect(() => {
+    // on `d` press
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'd') {
+        window.localStorage.clear()
+        window.sessionStorage.clear()
+        // clear everything
+
+        window.location.reload()
+      }
+    })
+  }, [])
   return (
     <div>
       <details>
@@ -47,6 +59,10 @@ export function App() {
       <div>
         <hr />
       </div>
+      <Connect />
+      <div>
+        <hr />
+      </div>
       <RequestKey />
       <div>
         <hr />
@@ -55,7 +71,7 @@ export function App() {
       <div>
         <hr />
       </div>
-      <CheckServerActivity />
+      <Demo />
       <div>
         <hr />
       </div>
@@ -159,50 +175,48 @@ function AuthorizeServerKey() {
 /**
  * Check server activity
  */
-function CheckServerActivity() {
-  const [result, setResult] = useState<any | null>(null)
-  const [error, setError] = useState<any | null>(null)
+function Demo() {
+  const [result, setResult] = useState<Array<any> | null>(null)
 
   return (
     <div>
       <h3>
-        Check Server Activity (experimental_prepareCalls, wallet_sendCalls)
+        Demo Server Action (wallet_prepareCalls, wallet_sendPreparedCalls)
       </h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
+          const formData = new FormData(e.target as HTMLFormElement)
+          const action = formData.get('action') as string
 
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-
-          const response = await fetch(`${APP_SERVER_URL}/authorize-status`, {
-            method: 'POST',
-            body: JSON.stringify({
-              address: account,
-            }),
-          })
+          const response = await fetch(
+            `${APP_SERVER_URL}/demo?action=${action}`,
+            { method: 'POST' },
+          )
           if (!response.ok) {
             const errorJson = await response.json()
             console.error(errorJson.error)
-            setError(errorJson.error)
+            setResult((prevResult) => [...(prevResult || []), errorJson.error])
             return
           }
-          const result = await Json.parse(await response.text())
-          console.info(result)
-          setResult(result)
+          const result = await response.text()
+          setResult((prevResult) => [
+            ...(prevResult || []),
+            `https://odyssey-explorer.ithaca.xyz/tx/${result}`,
+          ])
         }}
       >
-        <button type="submit">Check Server Activity</button>
+        <select
+          name="action"
+          defaultValue="mint"
+          style={{ marginRight: '10px' }}
+        >
+          <option value="mint">Mint</option>
+          <option value="approve-transfer">Approve & Transfer</option>
+        </select>
+        <button type="submit">Send</button>
       </form>
-      {result ? (
-        <pre>{Json.stringify(result, null, 2)}</pre>
-      ) : error ? (
-        <p>
-          Error
-          <pre>{error}</pre>
-        </p>
-      ) : null}
+      {result ? <pre>{Json.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
