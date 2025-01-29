@@ -15,14 +15,11 @@ app.onError((error, context) => {
   return context.json({ error: error.message }, 500)
 })
 
-/**
- * Returns existing keys
- */
-app.get('/keys', async (context) => {
+app.get('/debug', async (context) => {
   const value = await context.env.KEYS_01.get('key')
   if (!value) return context.json([])
-  const { privateKey, ...key } = Json.parse(value)
-  return context.json({ key, privateKey })
+  const { privateKey, account, ...key } = Json.parse(value)
+  return context.json({ key, account, privateKey })
 })
 
 /**
@@ -37,35 +34,49 @@ app.post('/keys', async (context) => {
   const isAddress = Address.validate(payload.address)
   if (!isAddress) return context.json({ error: 'Invalid address' }, 400)
 
-  const privateKey = P256.randomPrivateKey({ as: 'Hex' })
-  const key = Key.fromP256({
-    privateKey,
+  const key = Key.createP256({
     role: 'session',
     permissions: payload.permissions,
-    expiry: Math.floor(Date.now() / 1_000) + 3_600, // 1 hour
+    expiry: Math.floor(Date.now() / 1_000) + 3_600,
   })
 
   const toRpc = Key.toRpc(key)
 
+  /**
+   * NOTE: this is not secure. In production, you should encrypt the private key.
+   * See https://oxlib.sh/api/AesGcm
+   */
   context.env.KEYS_01.put(
     'key',
-    JSON.stringify({ ...toRpc, privateKey: key.privateKey() }),
+    JSON.stringify({
+      ...toRpc,
+      account: payload.address,
+      privateKey: key.privateKey(),
+    }),
   )
 
   return context.json(toRpc)
 })
 
+const actions = ['mint', 'approve-transfer']
+
 /**
  * once the app client authorizes the key,
  * it will call this endpoint to notify the server (WIP)
  */
-app.post('/authorize-status', async (context) => {
-  const payload = await context.req.json<{ address: Address.Address }>()
+app.post('/demo', async (context) => {
+  const action = context.req.query('action')
+
+  if (!action || !actions.includes(action)) {
+    return context.json({ error: 'Invalid action' }, 400)
+  }
 
   const porto = Porto.create()
 
-  const action = 'mint'
-  const account = payload.address
+  const storedKey = await context.env.KEYS_01.get('key')
+  if (!storedKey) throw new Error('Key not found')
+
+  const { privateKey, account, ...key } = Json.parse(storedKey)
 
   const calls = (() => {
     if (action === 'mint')
@@ -85,17 +96,16 @@ app.post('/authorize-status', async (context) => {
           to: ExperimentERC20.address,
           data: AbiFunction.encodeData(
             AbiFunction.fromAbi(ExperimentERC20.abi, 'approve'),
-            [account, Value.fromEther('5')],
+            [account, Value.fromEther('3')],
           ),
         },
         {
           to: ExperimentERC20.address,
           data: AbiFunction.encodeData(
-            AbiFunction.fromAbi(ExperimentERC20.abi, 'transferFrom'),
+            AbiFunction.fromAbi(ExperimentERC20.abi, 'transfer'),
             [
-              account,
               '0x0000000000000000000000000000000000000000',
-              Value.fromEther('5'),
+              Value.fromEther('1'),
             ],
           ),
         },
@@ -115,9 +125,9 @@ app.post('/authorize-status', async (context) => {
 
   const prepareCallsParams = {
     calls,
-    chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
-    from: payload.address,
     version: '1',
+    from: account,
+    chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
   } as const
 
   const {
@@ -129,18 +139,14 @@ app.post('/authorize-status', async (context) => {
     params: [prepareCallsParams],
   })
 
-  const storedKey = await context.env.KEYS_01.get('key')
-  if (!storedKey) throw new Error('Key not found')
-
-  const { privateKey, ...key } = Json.parse(storedKey)
   const p256Key = Key.fromP256({ ...key, privateKey })
 
-  const signature = await Key.sign(Key.from({ ...p256Key }), {
-    address: payload.address,
+  const signature = await Key.sign(Key.from(p256Key), {
+    address: account,
     payload: signPayload,
   })
 
-  const hash = await porto.provider.request({
+  const [hash] = await porto.provider.request({
     method: 'wallet_sendPreparedCalls',
     params: [
       {
@@ -150,7 +156,7 @@ app.post('/authorize-status', async (context) => {
     ],
   })
 
-  return context.json({ hash })
+  return context.text(hash ?? '')
 })
 
 showRoutes(app)

@@ -4,6 +4,10 @@
   color-scheme: light dark;
 }
 
+body {
+  font-family: monospace;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     background-color: #f8f8f8;

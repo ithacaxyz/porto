@@ -1,5 +1,5 @@
 import * as Mipd from 'mipd'
-import { Json, type RpcSchema } from 'ox'
+import type { RpcSchema } from 'ox'
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
@@ -7,9 +7,9 @@ import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
-import type * as Delegation from './Delegation.js'
 import * as Account from './account.js'
 import type * as Call from './call.js'
+import type * as Delegation from './delegation.js'
 import * as Key from './key.js'
 import type * as Schema from './rpcSchema.js'
 
@@ -513,7 +513,7 @@ export function from<
 
         case 'wallet_prepareCalls': {
           const [parameters] = request.params
-          const { chainId, from } = parameters
+          const { chainId, from, version = '1.0' } = parameters
 
           const client = getClient(chainId)
 
@@ -535,9 +535,9 @@ export function from<
 
           return {
             chainId,
+            version,
             data: prepareExecuteRequest,
             signPayload: signPayloads.at(0)!,
-            version: '1.0',
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_prepareCalls'
@@ -545,9 +545,6 @@ export function from<
         }
 
         case 'wallet_sendPreparedCalls': {
-          // if (state.accounts.length === 0)
-          //   throw new ox_Provider.DisconnectedError()
-
           const [parameters] = request.params
           const { signature, chainId } = parameters
           const data =
@@ -559,11 +556,6 @@ export function from<
             throw new ox_Provider.ChainDisconnectedError()
 
           requireParameter(from, 'from')
-
-          // const account = state.accounts.find((account) =>
-          //   Address.isEqual(account.address, from),
-          // )
-          // if (!account) throw new ox_Provider.UnauthorizedError()
 
           const calls = data.calls.map((x) => {
             requireParameter(x, 'to')
@@ -590,7 +582,8 @@ export function from<
         }
 
         case 'wallet_sendCalls': {
-          // console.info(Json.stringify(request.params, undefined, 2))
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
 
           const [parameters] = request.params
           const { capabilities, chainId, from } = parameters

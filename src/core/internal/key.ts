@@ -743,10 +743,7 @@ export async function sign(
       'Key is not canSign.\n\nKey:\n' + Json.stringify(key, null, 2),
     )
 
-  if (
-    key.role === 'session' &&
-    expiry < BigInt(Math.floor(Date.now() / 1_000))
-  ) {
+  if (expiry > BigInt(0) && expiry < BigInt(Math.floor(Date.now() / 1_000))) {
     throw new Error('Key expired.\n\nKey:\n' + Json.stringify(key, null, 2))
   }
 
