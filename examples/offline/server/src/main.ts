@@ -1,9 +1,8 @@
 import { Account, Chains, Key, Porto } from 'Porto'
 import { Hono } from 'hono'
-import { getRuntimeKey } from 'hono/adapter'
 import { cors } from 'hono/cors'
 import { showRoutes } from 'hono/dev'
-import { AbiFunction, Address, AesGcm, Hex, Json, P256, Value } from 'ox'
+import { AbiFunction, Address, Hex, Json, Value } from 'ox'
 import { ExperimentERC20 } from 'src/contracts.ts'
 
 const app = new Hono<Env>()
@@ -15,11 +14,20 @@ app.onError((error, context) => {
   return context.json({ error: error.message }, 500)
 })
 
+/**
+ * Debug stored keys
+ * If `address` is provided, returns the value of the key, otherwise list all keys
+ */
 app.get('/debug', async (context) => {
-  const value = await context.env.KEYS_01.get('key')
-  if (!value) return context.json([])
-  const { privateKey, account, ...key } = Json.parse(value)
-  return context.json({ key, account, privateKey })
+  const address = context.req.query('address')
+  if (!address) {
+    const keys = await context.env.KEYS_01.list()
+    return context.json(keys)
+  }
+
+  const key = await context.env.KEYS_01.get(address.toLowerCase())
+  if (!key) return context.json({ error: 'Key not found' }, 404)
+  return context.json(Json.parse(key))
 })
 
 /**
@@ -42,17 +50,19 @@ app.post('/keys', async (context) => {
 
   const toRpc = Key.toRpc(key)
 
-  /**
-   * NOTE: this is not secure. In production, you should encrypt the private key.
-   * See https://oxlib.sh/api/AesGcm
-   */
-  context.env.KEYS_01.put(
-    'key',
-    JSON.stringify({
-      ...toRpc,
-      account: payload.address,
-      privateKey: key.privateKey(),
-    }),
+  context.executionCtx.waitUntil(
+    /**
+     * NOTE: this is not secure. In production, you should encrypt the private key.
+     * See https://oxlib.sh/api/AesGcm
+     */
+    context.env.KEYS_01.put(
+      payload.address.toLowerCase(),
+      JSON.stringify({
+        ...toRpc,
+        privateKey: key.privateKey(),
+        account: payload.address.toLowerCase(),
+      }),
+    ),
   )
 
   return context.json(toRpc)
@@ -66,6 +76,7 @@ const actions = ['mint', 'approve-transfer']
  */
 app.post('/demo', async (context) => {
   const action = context.req.query('action')
+  const payload = await context.req.json<{ address: Address.Address }>()
 
   if (!action || !actions.includes(action)) {
     return context.json({ error: 'Invalid action' }, 400)
@@ -73,7 +84,8 @@ app.post('/demo', async (context) => {
 
   const porto = Porto.create()
 
-  const storedKey = await context.env.KEYS_01.get('key')
+  const storedKey = await context.env.KEYS_01.get(payload.address.toLowerCase())
+
   if (!storedKey) throw new Error('Key not found')
 
   const { privateKey, account, ...key } = Json.parse(storedKey)
@@ -160,10 +172,16 @@ app.post('/demo', async (context) => {
 })
 
 showRoutes(app)
+async function scheduledTask(
+  env: Env,
+  context: ExecutionContext,
+): Promise<void> {
+  /* TODO */
+}
 
-const runtimeKey = getRuntimeKey()
-
-if (runtimeKey !== 'workerd')
-  console.info(`Running on http://localhost:${process.env.PORT}`)
-
-export default app
+export default {
+  fetch: app.fetch,
+  scheduled: async (controller, env, context): Promise<void> => {
+    context.waitUntil(scheduledTask(env, context))
+  },
+} satisfies ExportedHandler<Env>

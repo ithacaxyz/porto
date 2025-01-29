@@ -1,4 +1,5 @@
 export const ExperimentERC20 = {
+  address: '0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E',
   abi: [
     { type: 'fallback', stateMutability: 'payable' },
     { type: 'receive', stateMutability: 'payable' },
@@ -185,5 +186,4 @@ export const ExperimentERC20 = {
     { type: 'error', name: 'PermitExpired', inputs: [] },
     { type: 'error', name: 'TotalSupplyOverflow', inputs: [] },
   ],
-  address: '0x238c8CD93ee9F8c7Edf395548eF60c0d2e46665E',
 } as const

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler --config='wrangler.toml' dev",
+    "dev": "wrangler --config='wrangler.toml' dev --test-scheduled",
     "preview": "wrangler --config='wrangler.toml' dev --remote",
     "build": "wrangler --config='wrangler.toml' deploy --outdir='dist' --dry-run"
   },
