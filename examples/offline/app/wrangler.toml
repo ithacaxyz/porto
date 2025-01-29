@@ -1,0 +1,20 @@
+#: schema https://esm.sh/wrangler/config-schema.json
+# https://developers.cloudflare.com/workers/wrangler/configuration
+
+# start of globally inheritable configuration
+#
+name = "porto"
+minify = true
+keep_vars = true
+workers_dev = true
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat", "nodejs_als"]
+
+[observability]
+enabled = true
+
+[dev]
+port = 6901
+
+[assets]
+directory = "./dist"

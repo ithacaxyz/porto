@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 6901"
+    "dev": "vite --port 6901",
+    "build": "vite build",
+    "deploy": "vite build && wrangler --config='wrangler.toml' deploy"
   },
   "dependencies": {
     "ox": "catalog:",

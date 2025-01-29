@@ -16,15 +16,23 @@ compatibility_flags = ["nodejs_compat", "nodejs_als"]
 workers_dev = true
 vars = { ENVIRONMENT = "development" }
 
+[dev]
+port = 6900
+
 [[kv_namespaces]]
 binding = "KEYS_01"
 id = "e3099ba311184208a453ad289f2560f6"
 preview_id = "1ce6744860ec4aaeabaa9b16a54d1e17"
 
-[dev]
-port = 6900
-
 [env.production]
 name = "offline-server-example"
 workers_dev = true
 vars = { ENVIRONMENT = "production" }
+
+[[env.production.kv_namespaces]]
+binding = "KEYS_01"
+id = "e3099ba311184208a453ad289f2560f6"
+preview_id = "1ce6744860ec4aaeabaa9b16a54d1e17"
+
+[observability]
+enabled = true

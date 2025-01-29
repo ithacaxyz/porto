@@ -9,7 +9,9 @@ import {
 import { porto, wagmiConfig } from './config.ts'
 import { ExperimentERC20 } from './contracts'
 
-const APP_SERVER_URL = 'http://localhost:6900'
+const APP_SERVER_URL = window.location.hostname.includes('localhost')
+  ? 'http://localhost:6900'
+  : 'https://offline-server-example.evm.workers.dev'
 
 const permissions = {
   calls: [
@@ -103,7 +105,7 @@ function RequestKey() {
   const [result, setResult] = useState<ServerKey | null>(null)
   return (
     <div>
-      <h3>Request Key from Server (POST /keys)</h3>
+      <h3>[server] Request Key from Server (POST /keys)</h3>
       <button
         onClick={async () => {
           const [account] = await porto.provider.request({
@@ -137,7 +139,7 @@ function AuthorizeServerKey() {
 
   return (
     <div>
-      <h3>Authorize Server Key (experimental_authorizeKey)</h3>
+      <h3>[client] Authorize Server Key (experimental_authorizeKey)</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -182,7 +184,8 @@ function Demo() {
   return (
     <div>
       <h3>
-        Demo Server Action (wallet_prepareCalls {'->'} wallet_sendPreparedCalls)
+        [server] Demo Server Action (wallet_prepareCalls {'->'}{' '}
+        wallet_sendPreparedCalls)
       </h3>
       <form
         onSubmit={async (e) => {
@@ -190,10 +193,18 @@ function Demo() {
           const formData = new FormData(e.target as HTMLFormElement)
           const action = formData.get('action') as string
 
+          const [account] = await porto.provider.request({
+            method: 'eth_accounts',
+          })
+          console.info('account', account)
           const response = await fetch(
             `${APP_SERVER_URL}/demo?action=${action}`,
-            { method: 'POST' },
+            {
+              method: 'POST',
+              body: JSON.stringify({ address: account }),
+            },
           )
+
           if (!response.ok) {
             const errorJson = await response.json()
             console.error(errorJson.error)
@@ -211,8 +222,9 @@ function Demo() {
         >
           <option value="mint">Mint</option>
           <option value="approve-transfer">Approve & Transfer</option>
+          {/* <option value="schedule">Schedule</option> */}
         </select>
-        <button type="submit">Send</button>
+        <button type="submit">Submit</button>
       </form>
       {error ? <pre>{error}</pre> : null}
       {result ? (
