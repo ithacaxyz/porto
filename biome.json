@@ -37,8 +37,9 @@
         "noDelete": "off"
       },
       "style": {
+        "useTemplate": "off",
         "noNonNullAssertion": "off",
-        "useTemplate": "off"
+        "noUnusedTemplateLiteral": "off"
       },
       "suspicious": {
         "noAssignInExpressions": "off",
@@ -68,17 +69,6 @@
           "style": {
             "useConst": "off",
             "useImportType": "off"
-          }
-        }
-      }
-    },
-
-    {
-      "include": ["./examples/offline/app/src/lib/override.ts"],
-      "linter": {
-        "rules": {
-          "style": {
-            "useNodejsImportProtocol": "off"
           }
         }
       }

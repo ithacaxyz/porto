@@ -1,8 +1,7 @@
 interface Env {
-  Bindings: {
-    KEYS_01: KVNamespace
-    ENVIRONMENT: 'development' | 'production'
-  }
+  DB: D1Database
+  KEYS_01: KVNamespace
+  ENVIRONMENT: 'development' | 'production'
 }
 
 declare namespace NodeJS {

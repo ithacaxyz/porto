@@ -8,18 +8,22 @@
     "deploy": "vite build && wrangler --config='wrangler.toml' deploy"
   },
   "dependencies": {
+    "@tanstack/react-query": "catalog:",
     "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "viem": "catalog:"
+    "viem": "catalog:",
+    "wagmi": "catalog:"
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "^5.65.1",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "^4.3.4",
     "globals": "catalog:",
     "prool": "^0.0.16",
+    "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "vite": "^6.0.11"
   }

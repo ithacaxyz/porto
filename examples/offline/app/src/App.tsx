@@ -1,13 +1,14 @@
-import { Hex, Json, Value } from 'ox'
+import { useQueryClient } from '@tanstack/react-query'
+import { type Errors, Hex, Json, Value } from 'ox'
 import { Key } from 'porto'
+import { Hooks } from 'porto/wagmi'
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import {
-  generatePrivateKey,
-  privateKeyToAccount,
-  privateKeyToAddress,
-} from 'viem/accounts'
+import { parseEther } from 'viem'
+import { useAccount, useConnectors } from 'wagmi'
+import { useCallsStatus, useSendCalls } from 'wagmi/experimental'
 import { porto, wagmiConfig } from './config.ts'
-import { ExperimentERC20 } from './contracts'
+import { ExperimentERC20 } from './contracts.ts'
+import { useBalance, useDebug } from './hooks.ts'
 
 const APP_SERVER_URL = window.location.hostname.includes('localhost')
   ? 'http://localhost:6900'
@@ -38,71 +39,178 @@ const permissions = {
 } as const
 
 export function App() {
+  const queryClient = useQueryClient()
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // on `d` press
     window.addEventListener('keydown', (event) => {
       if (event.key === 'd') {
+        // clear everything
+        queryClient.clear()
+        queryClient.resetQueries()
+        queryClient.removeQueries()
+        queryClient.invalidateQueries()
+        queryClient.unmount()
         window.localStorage.clear()
         window.sessionStorage.clear()
-        // clear everything
-
         window.location.reload()
       }
     })
   }, [])
   return (
-    <div>
-      <details>
-        <summary style={{ fontSize: '1.25rem' }}>State/getCapabilities</summary>
-        <State />
-        <GetCapabilities />
-      </details>
-      <Events />
-      <div>
-        <hr />
-      </div>
-      <Connect />
-      <div>
-        <hr />
-      </div>
-      <RequestKey />
-      <div>
-        <hr />
-      </div>
-      <AuthorizeServerKey />
-      <div>
-        <hr />
-      </div>
-      <Demo />
-      <div>
-        <hr />
-      </div>
-      <details>
-        <summary style={{ fontSize: '1.25rem' }}>Other Requests</summary>
-        <Connect />
-        <Login />
-        <Register />
-        <Accounts />
-        <Disconnect />
-        <UpgradeAccount />
+    <>
+      <DebugLink />
+      <main>
+        <details>
+          <summary style={{ fontSize: '1.25rem' }}>State</summary>
+          <State />
+          <GetCapabilities />
+        </details>
+        <details>
+          <summary style={{ fontSize: '1.25rem', marginTop: '1rem' }}>
+            Events
+          </summary>
+          <Events />
+        </details>
         <div>
           <hr />
         </div>
-        <AuthorizeKey />
-        <GetKeys />
-        <RevokeKey />
-      </details>
+        <Connect />
+        <div>
+          <hr />
+        </div>
+        <RequestKey />
+        <div>
+          <hr />
+        </div>
+        <AuthorizeServerKey />
+        <div>
+          <hr />
+        </div>
+        <Mint />
+        <div>
+          <hr />
+        </div>
+        <DemoCron />
+      </main>
+    </>
+  )
+}
+
+function DebugLink() {
+  const { address } = useAccount()
+  return (
+    <a
+      target="_blank"
+      rel="noreferrer"
+      href={`${APP_SERVER_URL}/debug?address=${address}&pretty=true`}
+      style={{
+        position: 'fixed',
+        top: '0',
+        right: '0',
+        padding: '5px',
+        backgroundColor: 'white',
+        fontWeight: '700',
+        fontSize: '1.25rem',
+        textDecoration: 'none',
+        zIndex: 1,
+      }}
+    >
+      DEBUG
+    </a>
+  )
+}
+
+function truncateHexString({
+  address,
+  length = 6,
+}: {
+  address: string
+  length?: number
+}) {
+  return length > 0
+    ? `${address.slice(0, length)}...${address.slice(-length)}`
+    : address
+}
+
+function Connect() {
+  const label = `offline-tx-support-${Math.floor(Date.now() / 1000)}`
+  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
+
+  const connectors = useConnectors()
+
+  const connect = Hooks.useConnect()
+  const disconnect = Hooks.useDisconnect()
+  const keys = Hooks.useKeys()
+
+  return (
+    <div>
+      <h3>[client] wallet_connect</h3>
+      <p>
+        <input
+          type="checkbox"
+          checked={authorizeKey}
+          onChange={() => setAuthorizeKey((x) => !x)}
+        />
+        Authorize a Session Key
+      </p>
+      {connectors
+        .filter((x) => x.id === 'xyz.ithaca.porto')
+        ?.map((connector) => (
+          <div key={connector.uid}>
+            <button
+              key={connector.uid}
+              style={{ marginRight: '10px' }}
+              onClick={() =>
+                connect.mutate({
+                  connector,
+                  authorizeKey: authorizeKey ? { permissions } : undefined,
+                })
+              }
+              type="button"
+            >
+              Login
+            </button>
+            <button
+              onClick={async () => {
+                await Promise.all(
+                  connectors.map((c) => c.disconnect().catch(() => {})),
+                )
+                disconnect.mutateAsync({ connector }).then(() =>
+                  connect.mutateAsync({
+                    connector,
+                    createAccount: { label },
+                    authorizeKey: authorizeKey ? { permissions } : undefined,
+                  }),
+                )
+              }}
+              type="button"
+            >
+              Register
+            </button>
+          </div>
+        ))}
+      <p>{connect.status}</p>
+      <p>{connect.error?.message}</p>
+      {JSON.stringify(connect.data, undefined, 2)}
+      {keys.data?.map((key) => (
+        <details style={{ marginTop: '5px' }} key={key.expiry + key.publicKey}>
+          <summary>
+            ({key.role}){' '}
+            {truncateHexString({ address: key.publicKey, length: 12 })}
+          </summary>
+          <pre>{JSON.stringify(key, undefined, 2)}</pre>
+        </details>
+      ))}
     </div>
   )
 }
 
-type ServerKey = { key: Key.Rpc }
-
-/**
- * request a key from the App Server
- */
+/* request a key from the App Server */
 function RequestKey() {
-  const [result, setResult] = useState<ServerKey | null>(null)
+  const [result, setResult] = useState<Key.Rpc | null>(null)
+
+  const { refetch } = useDebug({ enabled: result !== null })
   return (
     <div>
       <h3>[server] Request Key from Server (POST /keys)</h3>
@@ -121,28 +229,37 @@ function RequestKey() {
           const result = await Json.parse(await response.text())
           wagmiConfig.storage?.setItem('keys', Json.stringify(result))
           setResult(result)
+          refetch()
         }}
         type="button"
       >
         Request Key
       </button>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+      {result ? (
+        <details>
+          <summary style={{ marginTop: '1rem' }}>
+            ({result?.role}){' '}
+            {truncateHexString({ address: result?.publicKey, length: 12 })}
+          </summary>
+          <pre>{JSON.stringify(result, undefined, 2)}</pre>
+        </details>
+      ) : null}
     </div>
   )
 }
 
-/**
- * Authorize server key
- */
+/* Authorize server key */
 function AuthorizeServerKey() {
-  const [result, setResult] = useState<any | null>(null)
+  const authorizeKey = Hooks.useAuthorizeKey()
+
+  const { address } = useAccount()
 
   return (
     <div>
       <h3>[client] Authorize Server Key (experimental_authorizeKey)</h3>
       <form
-        onSubmit={async (e) => {
-          e.preventDefault()
+        onSubmit={async (event) => {
+          event.preventDefault()
           const serverKeys = Json.parse(
             (await wagmiConfig.storage?.getItem('keys')) || '{}',
           )
@@ -150,98 +267,248 @@ function AuthorizeServerKey() {
           const [account] = await porto.provider.request({
             method: 'eth_accounts',
           })
-
-          const result = await porto.provider.request({
-            method: 'experimental_authorizeKey',
-            params: [
-              {
-                permissions,
-                address: account,
-                role: serverKeys?.role,
-                expiry: serverKeys?.expiry,
-                key: Key.fromRpc(serverKeys),
-              },
-            ],
+          console.info('address', address)
+          console.info('account', account)
+          authorizeKey.mutate({
+            address: account,
+            permissions,
+            role: serverKeys?.role,
+            expiry: serverKeys?.expiry,
+            key: Key.fromRpc(serverKeys),
           })
-
-          setResult(result)
         }}
       >
-        <button type="submit">Authorize a Session Key</button>
+        <button
+          type="submit"
+          style={{ marginBottom: '5px' }}
+          disabled={authorizeKey.status === 'pending'}
+        >
+          {authorizeKey.status === 'pending'
+            ? 'Authorizing…'
+            : 'Authorize a Session Key'}
+        </button>
+        {authorizeKey.status === 'error' && (
+          <p>{authorizeKey.error?.message}</p>
+        )}
       </form>
-      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+      {authorizeKey.data ? (
+        <details>
+          <summary style={{ marginTop: '1rem' }}>
+            ({authorizeKey.data?.role}){' '}
+            {truncateHexString({
+              address: authorizeKey.data?.publicKey,
+              length: 12,
+            })}
+          </summary>
+          <pre>{JSON.stringify(authorizeKey.data, undefined, 2)}</pre>
+        </details>
+      ) : null}
     </div>
   )
 }
 
-/**
- * Check server activity
- */
-function Demo() {
-  const [result, setResult] = useState<Array<any> | null>(null)
-  const [error, setError] = useState<string | null>(null)
+function Mint() {
+  const { address } = useAccount()
+  const { data: id, error, isPending, sendCalls } = useSendCalls()
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useCallsStatus({
+    id: id as string,
+    query: {
+      enabled: !!id,
+      refetchInterval({ state }) {
+        if (state.data?.status === 'CONFIRMED') return false
+        return 1_000
+      },
+    },
+  })
+
+  const balance = useBalance()
+  const [transactions, setTransactions] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (id) setTransactions((prev) => new Set([...prev, id]))
+  }, [id])
 
   return (
     <div>
-      <h3>
-        [server] Demo Server Action (wallet_prepareCalls {'->'}{' '}
-        wallet_sendPreparedCalls)
-      </h3>
+      <h3>[client] Mint EXP [balance: {balance}]</h3>
       <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          const formData = new FormData(e.target as HTMLFormElement)
-          const action = formData.get('action') as string
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
+        onSubmit={(event) => {
+          event.preventDefault()
+          sendCalls({
+            calls: [
+              {
+                abi: ExperimentERC20.abi,
+                to: ExperimentERC20.address,
+                functionName: 'mint',
+                args: [address!, parseEther('100')],
+              },
+            ],
           })
-          console.info('account', account)
-          const response = await fetch(
-            `${APP_SERVER_URL}/demo?action=${action}`,
-            {
-              method: 'POST',
-              body: JSON.stringify({ address: account }),
-            },
-          )
-
-          if (!response.ok) {
-            const errorJson = await response.json()
-            console.error(errorJson.error)
-            setError(errorJson.error)
-            return
-          }
-          const result = await response.text()
-          setResult((prevResult) => [...(prevResult || []), result])
         }}
       >
-        <select
-          name="action"
-          defaultValue="mint"
-          style={{ marginRight: '10px' }}
+        <button
+          type="submit"
+          disabled={isPending}
+          style={{ marginBottom: '5px' }}
         >
-          <option value="mint">Mint</option>
-          <option value="approve-transfer">Approve & Transfer</option>
-          {/* <option value="schedule">Schedule</option> */}
-        </select>
-        <button type="submit">Submit</button>
+          {isPending ? 'Confirming...' : 'Mint 100 EXP'}
+        </button>
       </form>
-      {error ? <pre>{error}</pre> : null}
-      {result ? (
-        <ul style={{ listStyleType: 'none', padding: 0 }}>
-          {result.map((tx) => (
-            <li key={tx} style={{ marginBottom: '5px' }}>
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href={`https://odyssey-explorer.ithaca.xyz/tx/${tx}`}
-              >
-                {tx}
-              </a>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <ul style={{ listStyleType: 'none', padding: 0 }}>
+        {Array.from(transactions).map((tx) => (
+          <li key={tx}>
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`https://odyssey-explorer.ithaca.xyz/tx/${tx}`}
+            >
+              {tx}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p>{isConfirming && 'Waiting for confirmation...'}</p>
+      <p>{isConfirmed && 'Transaction confirmed.'}</p>
+      {error && (
+        <div>
+          Error: {(error as Errors.BaseError).shortMessage || error.message}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const schedules = {
+  'once every minute': '* * * * *',
+  'once every hour': '0 * * * *',
+  'once every day': '0 0 * * *',
+  'once every week': '0 0 * * 0',
+} as const
+
+type Schedule = keyof typeof schedules
+
+/* Check server activity */
+function DemoCron() {
+  const [status, setStatus] = useState<
+    'idle' | 'pending' | 'error' | 'success'
+  >('idle')
+  const [error, setError] = useState<string | null>(null)
+  const { address } = useAccount()
+
+  const { data: debugData } = useDebug({ address, enabled: !!address })
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <h3>[server] Schedule Transactions |</h3>
+        {status !== 'idle' && (
+          <span style={{ color: '#F43F5E', marginLeft: '10px' }}>{status}</span>
+        )}
+      </div>
+      <p style={{ fontStyle: 'italic', color: 'lightgray' }}>
+        (wallet_prepareCalls {'->'} wallet_sendPreparedCalls)
+      </p>
+      <form
+        onSubmit={async (event) => {
+          event.preventDefault()
+          try {
+            setStatus('pending')
+
+            /**
+             * first we check if the key is valid (not expired)
+             */
+            const serverKeys = Json.parse(
+              (await wagmiConfig.storage?.getItem('keys')) || '{}',
+            )
+            if (serverKeys?.expiry < Math.floor(Date.now() / 1000)) {
+              setError('Key expired')
+              throw new Error('Key expired')
+            }
+
+            const formData = new FormData(event.target as HTMLFormElement)
+            const action =
+              (formData.get('action') as string) ?? 'approve-transfer'
+            const schedule = formData.get('schedule') as Schedule
+
+            const cron = schedules[schedule]
+            if (!cron) return setError('Invalid schedule')
+
+            const searchParams = new URLSearchParams({
+              action,
+              schedule: cron,
+            })
+            const url = `${APP_SERVER_URL}/schedule?${searchParams.toString()}`
+            const response = await fetch(url, {
+              method: 'POST',
+              body: JSON.stringify({ address }),
+            })
+
+            if (!response.ok) return setError(await response.json())
+
+            const result = await response.text()
+            console.info('result', result)
+            setStatus('success')
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : 'unknown error'
+            console.error(errorMessage)
+            setError(errorMessage)
+            setStatus('error')
+          }
+        }}
+      >
+        <p>Approve & Transfer 1 EXP</p>
+        <select
+          name="schedule"
+          style={{ marginRight: '10px' }}
+          defaultValue="once every minute"
+        >
+          <option value="once every minute">once every minute</option>
+          <option value="once every hour" disabled>
+            once every hour (coming soon)
+          </option>
+          <option value="once every day" disabled>
+            once every day (coming soon)
+          </option>
+        </select>
+        <button type="submit" disabled={status === 'pending'}>
+          {status === 'pending' ? 'Submitting…' : 'Submit'}
+        </button>
+      </form>
+      {error ? (
+        <pre style={{ color: '#F43F5E' }}>{error}</pre>
+      ) : (
+        <pre style={{ color: 'lightgray' }}>No errors</pre>
+      )}
+      <ul style={{ paddingLeft: 10 }}>
+        {debugData
+          ? debugData?.transactions?.toReversed()?.map((transaction) => {
+              return (
+                <li key={transaction.id} style={{ marginBottom: '8px' }}>
+                  <p style={{ margin: 3 }}>
+                    🔑 PUBLIC KEY:{' '}
+                    {truncateHexString({
+                      address: transaction.public_key,
+                      length: 12,
+                    })}{' '}
+                    | TYPE: {transaction.role}
+                  </p>
+                  <span>🔗 </span>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`https://odyssey-explorer.ithaca.xyz/tx/${transaction.hash}`}
+                  >
+                    {truncateHexString({
+                      length: 26,
+                      address: transaction.hash,
+                    })}
+                  </a>
+                </li>
+              )
+            })
+          : null}
+      </ul>
     </div>
   )
 }
@@ -307,139 +574,6 @@ function Events() {
   )
 }
 
-function Connect() {
-  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
-  const [result, setResult] = useState<unknown | null>(null)
-  const label = `offline-tx-support-${Math.floor(Date.now() / 1000)}`
-  return (
-    <div>
-      <h3>wallet_connect</h3>
-      <label>
-        <input
-          type="checkbox"
-          checked={authorizeKey}
-          onChange={() => setAuthorizeKey((x) => !x)}
-        />
-        Authorize a Session Key
-      </label>
-      <div>
-        <button
-          onClick={() =>
-            porto.provider
-              .request({
-                method: 'wallet_connect',
-                params: [
-                  {
-                    capabilities: {
-                      authorizeKey: authorizeKey ? { permissions } : undefined,
-                    },
-                  },
-                ],
-              })
-              .then(setResult)
-          }
-          type="button"
-        >
-          Login
-        </button>
-        <button
-          onClick={() =>
-            porto.provider
-              .request({
-                method: 'wallet_connect',
-                params: [
-                  {
-                    capabilities: {
-                      authorizeKey: authorizeKey ? { permissions } : undefined,
-                      createAccount: { label },
-                    },
-                  },
-                ],
-              })
-              .then(setResult)
-          }
-          type="button"
-        >
-          Register
-        </button>
-      </div>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
-    </div>
-  )
-}
-
-function Accounts() {
-  const [result, setResult] = useState<readonly string[] | null>(null)
-  return (
-    <div>
-      <h3>eth_accounts</h3>
-      <button
-        onClick={() =>
-          porto.provider.request({ method: 'eth_accounts' }).then(setResult)
-        }
-        type="button"
-      >
-        Get Accounts
-      </button>
-      <pre>{result}</pre>
-    </div>
-  )
-}
-
-function Register() {
-  const [result, setResult] = useState<unknown | null>(null)
-  return (
-    <div>
-      <h3>experimental_createAccount</h3>
-      <button
-        onClick={() =>
-          porto.provider
-            .request({ method: 'experimental_createAccount' })
-            .then(setResult)
-        }
-        type="button"
-      >
-        Register
-      </button>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
-    </div>
-  )
-}
-
-function Login() {
-  const [result, setResult] = useState<readonly string[] | null>(null)
-  return (
-    <div>
-      <h3>eth_requestAccounts</h3>
-      <button
-        onClick={() =>
-          porto.provider
-            .request({ method: 'eth_requestAccounts' })
-            .then(setResult)
-        }
-        type="button"
-      >
-        Login
-      </button>
-      <pre>{result}</pre>
-    </div>
-  )
-}
-
-function Disconnect() {
-  return (
-    <div>
-      <h3>wallet_disconnect</h3>
-      <button
-        onClick={() => porto.provider.request({ method: 'wallet_disconnect' })}
-        type="button"
-      >
-        Disconnect
-      </button>
-    </div>
-  )
-}
-
 function GetCapabilities() {
   const [result, setResult] = useState<Record<string, unknown> | null>(null)
   return (
@@ -456,180 +590,6 @@ function GetCapabilities() {
         Get Capabilities
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
-    </div>
-  )
-}
-
-function AuthorizeKey() {
-  const [result, setResult] = useState<any | null>(null)
-  return (
-    <div>
-      <h3>experimental_authorizeKey</h3>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          const formData = new FormData(e.target as HTMLFormElement)
-          const expiry = Number(formData.get('expiry'))
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-          const result = await porto.provider.request({
-            method: 'experimental_authorizeKey',
-            params: [
-              {
-                address: account,
-                expiry: Math.floor(Date.now() / 1000) + expiry,
-                permissions,
-              },
-            ],
-          })
-          setResult(result)
-        }}
-      >
-        <input
-          required
-          placeholder="expiry (seconds)"
-          name="expiry"
-          type="number"
-        />
-        <button type="submit">Authorize a Session Key</button>
-      </form>
-      {result && <pre>key: {JSON.stringify(result, null, 2)}</pre>}
-    </div>
-  )
-}
-
-function RevokeKey() {
-  const [revoked, setRevoked] = useState(false)
-  return (
-    <div>
-      <h3>experimental_revokeKey</h3>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          const formData = new FormData(e.target as HTMLFormElement)
-          const publicKey = formData.get('publicKey') as `0x${string}`
-
-          setRevoked(false)
-          await porto.provider.request({
-            method: 'experimental_revokeKey',
-            params: [{ publicKey }],
-          })
-          setRevoked(true)
-        }}
-      >
-        <input name="publicKey" placeholder="Public Key (0x...)" type="text" />
-        <button type="submit">Revoke Key</button>
-      </form>
-      {revoked && <p>Key revoked.</p>}
-    </div>
-  )
-}
-
-function GetKeys() {
-  const [result, setResult] = useState<unknown>(null)
-
-  return (
-    <div>
-      <h3>experimental_keys</h3>
-      <button
-        onClick={() =>
-          porto.provider
-            .request({ method: 'experimental_keys' })
-            .then(setResult)
-        }
-        type="button"
-      >
-        Get Keys
-      </button>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
-    </div>
-  )
-}
-
-function UpgradeAccount() {
-  const [accountData, setAccountData] = useState<{
-    address: string
-    privateKey: string
-  } | null>(null)
-  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
-  const [privateKey, setPrivateKey] = useState<string>('')
-  const [result, setResult] = useState<unknown | null>(null)
-
-  return (
-    <div>
-      <h3>experimental_prepareCreateAccount</h3>
-      <p>
-        <button
-          onClick={() => {
-            const privateKey = generatePrivateKey()
-            setPrivateKey(privateKey)
-            setAccountData({
-              privateKey,
-              address: privateKeyToAddress(privateKey),
-            })
-          }}
-          type="button"
-        >
-          Create EOA
-        </button>
-        {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
-      </p>
-      <div>
-        <input
-          type="text"
-          value={privateKey}
-          onChange={(e) => setPrivateKey(e.target.value)}
-          placeholder="Private Key"
-          style={{ width: '300px' }}
-        />
-      </div>
-      <label>
-        <input
-          type="checkbox"
-          checked={authorizeKey}
-          onChange={() => setAuthorizeKey((x) => !x)}
-        />
-        Authorize a Session Key
-      </label>
-      <div>
-        <button
-          onClick={async () => {
-            const account = privateKeyToAccount(privateKey as Hex.Hex)
-
-            const { context, signPayloads } = await porto.provider.request({
-              method: 'experimental_prepareCreateAccount',
-              params: [
-                {
-                  address: account.address,
-                  capabilities: {
-                    authorizeKey: authorizeKey ? { permissions } : undefined,
-                  },
-                },
-              ],
-            })
-
-            const signatures = await Promise.all(
-              signPayloads.map((hash) => account.sign({ hash })),
-            )
-
-            const address = await porto.provider.request({
-              method: 'experimental_createAccount',
-              params: [{ context, signatures }],
-            })
-            setResult(address)
-          }}
-          type="button"
-        >
-          Upgrade EOA to Porto Account
-        </button>
-      </div>
-      {result ? (
-        <p>
-          Upgraded account. <pre>{JSON.stringify(result, null, 2)}</pre>
-        </p>
-      ) : null}
     </div>
   )
 }
