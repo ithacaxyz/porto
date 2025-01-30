@@ -1,7 +1,7 @@
-import { http, createConfig, createStorage } from '@wagmi/core'
-import { odysseyTestnet } from '@wagmi/core/chains'
 import { Porto } from 'porto'
 import { createClient, custom } from 'viem'
+import { http, createConfig, createStorage } from 'wagmi'
+import { odysseyTestnet } from 'wagmi/chains'
 
 export const porto = Porto.create()
 
