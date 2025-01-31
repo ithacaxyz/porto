@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Address, type Hex, Json, Value } from 'ox'
 import type { Key } from 'porto'
+import { useEffect } from 'react'
 import { useAccount, useReadContract } from 'wagmi'
 import { ExperimentERC20 } from './contracts.ts'
 
@@ -53,4 +54,26 @@ export function useDebug({
       return result as DebugData
     },
   })
+}
+
+export function useClearLocalStorage() {
+  const queryClient = useQueryClient()
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    // on `d` press
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'd') {
+        // clear everything
+        queryClient.clear()
+        queryClient.resetQueries()
+        queryClient.removeQueries()
+        queryClient.invalidateQueries()
+        queryClient.unmount()
+        window.localStorage.clear()
+        window.sessionStorage.clear()
+        window.location.reload()
+      }
+    })
+  }, [])
 }

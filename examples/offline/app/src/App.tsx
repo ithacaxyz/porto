@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { type Errors, Hex, Json, Value } from 'ox'
 import { Key } from 'porto'
 import { Hooks } from 'porto/wagmi'
@@ -8,7 +7,7 @@ import { useAccount, useConnectors } from 'wagmi'
 import { useCallsStatus, useSendCalls } from 'wagmi/experimental'
 import { porto, wagmiConfig } from './config.ts'
 import { ExperimentERC20 } from './contracts.ts'
-import { useBalance, useDebug } from './hooks.ts'
+import { useBalance, useClearLocalStorage, useDebug } from './hooks.ts'
 
 const APP_SERVER_URL = window.location.hostname.includes('localhost')
   ? 'http://localhost:6900'
@@ -39,24 +38,8 @@ const permissions = {
 } as const
 
 export function App() {
-  const queryClient = useQueryClient()
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    // on `d` press
-    window.addEventListener('keydown', (event) => {
-      if (event.key === 'd') {
-        // clear everything
-        queryClient.clear()
-        queryClient.resetQueries()
-        queryClient.removeQueries()
-        queryClient.invalidateQueries()
-        queryClient.unmount()
-        window.localStorage.clear()
-        window.sessionStorage.clear()
-        window.location.reload()
-      }
-    })
-  }, [])
+  useClearLocalStorage()
+
   return (
     <>
       <DebugLink />
@@ -402,7 +385,14 @@ function DemoCron() {
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <h3>[server] Schedule Transactions |</h3>
         {status !== 'idle' && (
-          <span style={{ color: '#F43F5E', marginLeft: '10px' }}>{status}</span>
+          <span
+            style={{
+              marginLeft: '10px',
+              color: status === 'error' ? '#F43F5E' : '#16A34A',
+            }}
+          >
+            {status}
+          </span>
         )}
       </div>
       <p style={{ fontStyle: 'italic', color: 'lightgray' }}>

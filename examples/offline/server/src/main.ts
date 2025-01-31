@@ -83,16 +83,16 @@ app.post('/keys', async (context) => {
   const toRpc = Key.toRpc(key)
 
   context.executionCtx.waitUntil(
-    /**
-     * NOTE: this is not secure. In production, you should encrypt any sensitive data before storing it.
-     * See https://oxlib.sh/api/AesGcm
-     */
     context.env.KEYS_01.put(
       payload.address.toLowerCase(),
       JSON.stringify({
         ...toRpc,
-        privateKey: key.privateKey(),
         account: payload.address.toLowerCase(),
+        /**
+         * NOTE: this is not secure. In production, you should encrypt any sensitive data before storing it.
+         * See https://oxlib.sh/api/AesGcm
+         */
+        privateKey: key.privateKey(),
       }),
     ),
   )
@@ -101,8 +101,8 @@ app.post('/keys', async (context) => {
 })
 
 /**
- * once the app client authorizes the key,
- * it will call this endpoint to notify the server (WIP)
+ * Schedules transactions to be executed at a later time
+ * The transaction are sent by the key owner
  */
 app.post('/schedule', async (context) => {
   const action = context.req.query('action')
@@ -115,8 +115,6 @@ app.post('/schedule', async (context) => {
   const { address } = await context.req.json<{ address: Address.Address }>()
   if (!address) return context.json({ error: 'Invalid address' }, 400)
 
-  const porto = Porto.create()
-
   const storedKey = await context.env.KEYS_01.get(address.toLowerCase())
   if (!storedKey) throw new Error('Key not found')
   const { privateKey, account, ...key } = Json.parse(storedKey)
@@ -125,20 +123,9 @@ app.post('/schedule', async (context) => {
 
   const insertSchedule = await context.env.DB.prepare(
     /* sql */ `
-    INSERT INTO schedules (
-      address,
-      schedule,
-      action,
-      calls
-    ) VALUES (?, ?, ?, ?)`,
+    INSERT INTO schedules ( address, schedule, action, calls ) VALUES ( ?, ?, ?, ? )`,
   )
-    .bind(
-      //
-      address.toLowerCase(),
-      schedule,
-      action,
-      Json.stringify(calls),
-    )
+    .bind(address.toLowerCase(), schedule, action, Json.stringify(calls))
     .all()
 
   if (!insertSchedule.success) {

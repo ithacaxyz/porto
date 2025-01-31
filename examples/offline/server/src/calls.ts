@@ -11,7 +11,7 @@ export function buildActionCall({
   account: Address.Address
 }) {
   if (action === 'mint') {
-    return [
+    return <const>[
       {
         to: ExperimentERC20.address,
         data: AbiFunction.encodeData(
@@ -23,7 +23,7 @@ export function buildActionCall({
   }
 
   if (action === 'approve-transfer') {
-    return [
+    return <const>[
       {
         to: ExperimentERC20.address,
         data: AbiFunction.encodeData(
@@ -38,11 +38,11 @@ export function buildActionCall({
           ['0x0000000000000000000000000000000000000000', Value.fromEther('1')],
         ),
       },
-    ] as const
+    ]
   }
 
-  return [
+  return <const>[
     { to: '0x0000000000000000000000000000000000000000', value: '0x0' },
     { to: '0x0000000000000000000000000000000000000000', value: '0x0' },
-  ] as const
+  ]
 }
