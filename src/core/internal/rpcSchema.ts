@@ -82,7 +82,7 @@ export type WalletPrepareCallsReturnType = {
   capabilities?: Record<string, any>
   chainId?: Hex.Hex | undefined
   data: unknown
-  signPayload: Hex.Hex
+  digest: Hex.Hex
   type?: string | undefined
   version?: string | undefined
 }
