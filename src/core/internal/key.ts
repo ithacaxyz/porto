@@ -706,12 +706,16 @@ export async function sign(
   parameters: { address?: Hex.Hex | undefined; payload: Hex.Hex },
 ) {
   const { address, payload } = parameters
-  const { canSign, publicKey, type: keyType } = key
+  const { canSign, publicKey, type: keyType, expiry } = key
 
   if (!canSign)
     throw new Error(
       'Key is not canSign.\n\nKey:\n' + Json.stringify(key, null, 2),
     )
+
+  if (expiry > BigInt(0) && expiry < BigInt(Math.floor(Date.now() / 1_000))) {
+    throw new Error('Key expired.\n\nKey:\n' + Json.stringify(key, null, 2))
+  }
 
   const [signature, prehash] = await (async () => {
     if (keyType === 'p256') {

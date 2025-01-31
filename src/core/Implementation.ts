@@ -54,6 +54,22 @@ export type Implementation = {
       account: Account.Account
     }>
 
+    prepareExecute: (parameters: {
+      /** Account to execute the calls with. */
+      account: Account.Account
+      /** Calls to execute. */
+      calls: readonly Call.Call[]
+      /** Viem Clients. */
+      client: Client
+      /** RPC Request. */
+      request: Request
+    }) => Promise<{
+      /** RPC Request. */
+      request: unknown
+      /** Hex payloads to sign over. */
+      signPayloads: readonly Hex.Hex[]
+    }>
+
     execute: (parameters: {
       /** Account to execute the calls with. */
       account: Account.Account
@@ -61,6 +77,10 @@ export type Implementation = {
       calls: readonly Call.Call[]
       /** Permissions ID to use to execute the calls. */
       permissionsId?: Hex.Hex | undefined
+      /** Nonce to use for execution. */
+      nonce?: bigint | undefined
+      /** Signature for execution. */
+      signature?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
@@ -230,8 +250,22 @@ export function local(parameters: local.Parameters = {}) {
         return { account }
       },
 
+      async prepareExecute(parameters) {
+        const { client } = parameters
+
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
+        }
+      },
+
       async execute(parameters) {
-        const { account, calls, internal } = parameters
+        const { account, calls, internal, nonce, signature } = parameters
         const { client } = internal
 
         // Try and extract an authorized key to sign the calls with.
@@ -246,7 +280,14 @@ export function local(parameters: local.Parameters = {}) {
         const hash = await Delegation.execute(client, {
           account,
           calls,
-          key,
+          ...(key
+            ? {
+                key,
+              }
+            : {
+                nonce,
+                signatures: (signature ? [signature] : undefined) as any,
+              }),
         })
 
         return hash
@@ -574,6 +615,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           account,
+        }
+      },
+
+      async prepareExecute(parameters) {
+        const { client } = parameters
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
         }
       },
 
