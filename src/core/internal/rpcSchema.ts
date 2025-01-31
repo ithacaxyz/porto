@@ -81,7 +81,7 @@ export type RevokePermissionsParameters = {
 export type WalletPrepareCallsReturnType = {
   capabilities?: Record<string, any>
   chainId?: Hex.Hex | undefined
-  data: unknown
+  context: unknown
   digest: Hex.Hex
   type?: string | undefined
   version?: string | undefined
