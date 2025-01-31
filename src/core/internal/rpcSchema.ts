@@ -91,5 +91,8 @@ export type WalletSendPreparedCallsParameters = Omit<
   WalletPrepareCallsReturnType,
   'signPayload'
 > & {
-  signature: Hex.Hex
+  signature: {
+    type: string
+    value: Hex.Hex
+  }
 }
