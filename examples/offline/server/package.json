@@ -23,6 +23,6 @@
     "@cloudflare/workers-types": "^4.20250129.0",
     "@types/node": "^22.12.0",
     "typescript": "catalog:",
-    "wrangler": "^3.106.0"
+    "wrangler": "^3.107.0"
   }
 }
