@@ -1,5 +1,16 @@
 # porto
 
+## 0.0.9
+
+### Patch Changes
+
+- [`001e2cd`](https://github.com/ithacaxyz/porto/commit/001e2cd69f81f4efcb8e7344839d97fa0ab0df0f) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Updated Account contracts.
+
+- [`401d2dc`](https://github.com/ithacaxyz/porto/commit/401d2dcf3710195fe4aef82b59771fd383d538d3) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Simplified `experimental_authorizeKey` parameters.
+
+  - Made `expiry` and `permissions` required.
+  - Removed `role` – all keys are now `role="session"`.
+
 ## 0.0.8
 
 ### Patch Changes
