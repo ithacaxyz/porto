@@ -672,7 +672,7 @@ export async function simulate<
         throw new BaseError('invalid decimals or symbol')
       return {
         address: erc20Addresses[i - 1]! as Address.Address,
-        decimals: decimals_,
+        decimals: Number(decimals_),
         symbol: symbol_,
       }
     })()

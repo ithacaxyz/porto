@@ -473,7 +473,7 @@ function SendCalls() {
               },
             ]
 
-          if (action === 'approve-transfer')
+          if (action === 'transfer')
             return [
               {
                 to: ExperimentERC20.address,
@@ -490,6 +490,50 @@ function SendCalls() {
                     account,
                     '0x0000000000000000000000000000000000000000',
                     Value.fromEther('50'),
+                  ],
+                ),
+              },
+            ] as const
+
+          if (action === 'mint-transfer')
+            return [
+              {
+                to: '0x390dd40042a844f92b499069cfe983236d9fe204',
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
+                  [account, Value.fromEther('100')],
+                ),
+              },
+              {
+                to: ExperimentERC20.address,
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(ExperimentERC20.abi, 'approve'),
+                  [account, Value.fromEther('50')],
+                ),
+              },
+              {
+                to: ExperimentERC20.address,
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(ExperimentERC20.abi, 'transferFrom'),
+                  [
+                    account,
+                    '0x0000000000000000000000000000000000000000',
+                    Value.fromEther('50'),
+                  ],
+                ),
+              },
+            ] as const
+
+          if (action === 'revert')
+            return [
+              {
+                to: '0x390dd40042a844f92b499069cfe983236d9fe204',
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(ExperimentERC20.abi, 'transferFrom'),
+                  [
+                    '0x0000000000000000000000000000000000000000',
+                    account,
+                    Value.fromEther('100'),
                   ],
                 ),
               },
@@ -524,7 +568,9 @@ function SendCalls() {
       <div style={{ display: 'flex', gap: '10px' }}>
         <select name="action">
           <option value="mint">Mint 100 EXP</option>
-          <option value="approve-transfer">Approve + Transfer 50 EXP</option>
+          <option value="transfer">Transfer 50 EXP</option>
+          <option value="mint-transfer">Mint 100 EXP2 + Transfer 50 EXP</option>
+          <option value="revert">Revert</option>
           <option value="noop">Noop Calls</option>
         </select>
         <button type="submit">Send</button>

@@ -1,9 +1,10 @@
 import type * as RpcSchema from 'ox/RpcSchema'
 
+import type * as Key from './internal/key.js'
 import type * as internal from './internal/rpcSchema.js'
 
 export type Schema = RpcSchema.From<
-  | RpcSchema.Default
+  | Exclude<RpcSchema.Default, { Request: { method: 'wallet_sendCalls' } }>
   | {
       Request: {
         method: 'porto_ping'
@@ -57,5 +58,26 @@ export type Schema = RpcSchema.From<
         method: 'wallet_disconnect'
       }
       ReturnType: undefined
+    }
+  | {
+      Request: {
+        method: 'wallet_sendCalls'
+        params: [
+          Omit<
+            RpcSchema.ExtractParams<RpcSchema.Wallet, 'wallet_sendCalls'>[0],
+            'capabilities'
+          > & {
+            capabilities?:
+              | {
+                  key?: { publicKey: Key.Rpc['publicKey'] } | undefined
+                }
+              | undefined
+          },
+        ]
+      }
+      ReturnType: RpcSchema.ExtractReturnType<
+        RpcSchema.Wallet,
+        'wallet_sendCalls'
+      >
     }
 >

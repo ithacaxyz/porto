@@ -58,7 +58,7 @@ export namespace Layout {
         <div>
           <div className="flex items-center gap-2">
             <div className={Default.className({ variant })}>
-              <Icon className="size-4 text-current" />
+              <Icon className="size-[18px] text-current" />
             </div>
             <div className="font-medium text-[18px] text-gray12">{title}</div>
           </div>
@@ -86,6 +86,7 @@ export namespace Layout {
               default: 'bg-blueA3 text-blue10',
               primary: 'bg-blueA3 text-blue10',
               warning: 'bg-amberA2 text-amber8',
+              destructive: 'bg-red3 text-red10',
             },
           },
           defaultVariants: {
@@ -140,9 +141,7 @@ export namespace Layout {
 
     // Wallet Footer
     export function Wallet(props: Wallet.Props) {
-      const address =
-        props.address ??
-        Hooks.usePortoStore(porto, (state) => state.accounts[0]?.address)
+      const address = props.address ?? Hooks.useAccount(porto)?.address
       if (!address) return null
       return (
         <div className="flex justify-between border-blackA1 border-t px-3 pt-3 dark:border-whiteA1">

@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as IndexImport } from './routes/index'
+import { Route as DialogDialogWalletsendCallsImport } from './routes/_dialog.dialog/wallet_sendCalls'
 import { Route as DialogDialogWalletconnectImport } from './routes/_dialog.dialog/wallet_connect'
 import { Route as DialogDialogPersonalsignImport } from './routes/_dialog.dialog/personal_sign'
 import { Route as DialogDialogExperimentalcreateAccountImport } from './routes/_dialog.dialog/experimental_createAccount'
@@ -32,6 +33,13 @@ const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const DialogDialogWalletsendCallsRoute =
+  DialogDialogWalletsendCallsImport.update({
+    id: '/dialog/wallet_sendCalls',
+    path: '/dialog/wallet_sendCalls',
+    getParentRoute: () => DialogRoute,
+  } as any)
 
 const DialogDialogWalletconnectRoute = DialogDialogWalletconnectImport.update({
   id: '/dialog/wallet_connect',
@@ -132,6 +140,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogDialogWalletconnectImport
       parentRoute: typeof DialogImport
     }
+    '/_dialog/dialog/wallet_sendCalls': {
+      id: '/_dialog/dialog/wallet_sendCalls'
+      path: '/dialog/wallet_sendCalls'
+      fullPath: '/dialog/wallet_sendCalls'
+      preLoaderRoute: typeof DialogDialogWalletsendCallsImport
+      parentRoute: typeof DialogImport
+    }
   }
 }
 
@@ -144,6 +159,7 @@ interface DialogRouteChildren {
   DialogDialogExperimentalcreateAccountRoute: typeof DialogDialogExperimentalcreateAccountRoute
   DialogDialogPersonalsignRoute: typeof DialogDialogPersonalsignRoute
   DialogDialogWalletconnectRoute: typeof DialogDialogWalletconnectRoute
+  DialogDialogWalletsendCallsRoute: typeof DialogDialogWalletsendCallsRoute
 }
 
 const DialogRouteChildren: DialogRouteChildren = {
@@ -155,6 +171,7 @@ const DialogRouteChildren: DialogRouteChildren = {
     DialogDialogExperimentalcreateAccountRoute,
   DialogDialogPersonalsignRoute: DialogDialogPersonalsignRoute,
   DialogDialogWalletconnectRoute: DialogDialogWalletconnectRoute,
+  DialogDialogWalletsendCallsRoute: DialogDialogWalletsendCallsRoute,
 }
 
 const DialogRouteWithChildren =
@@ -169,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/dialog/experimental_createAccount': typeof DialogDialogExperimentalcreateAccountRoute
   '/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
+  '/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
 }
 
 export interface FileRoutesByTo {
@@ -180,6 +198,7 @@ export interface FileRoutesByTo {
   '/dialog/experimental_createAccount': typeof DialogDialogExperimentalcreateAccountRoute
   '/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
+  '/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
 }
 
 export interface FileRoutesById {
@@ -192,6 +211,7 @@ export interface FileRoutesById {
   '/_dialog/dialog/experimental_createAccount': typeof DialogDialogExperimentalcreateAccountRoute
   '/_dialog/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/_dialog/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
+  '/_dialog/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
 }
 
 export interface FileRouteTypes {
@@ -205,6 +225,7 @@ export interface FileRouteTypes {
     | '/dialog/experimental_createAccount'
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
+    | '/dialog/wallet_sendCalls'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -215,6 +236,7 @@ export interface FileRouteTypes {
     | '/dialog/experimental_createAccount'
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
+    | '/dialog/wallet_sendCalls'
   id:
     | '__root__'
     | '/'
@@ -225,6 +247,7 @@ export interface FileRouteTypes {
     | '/_dialog/dialog/experimental_createAccount'
     | '/_dialog/dialog/personal_sign'
     | '/_dialog/dialog/wallet_connect'
+    | '/_dialog/dialog/wallet_sendCalls'
   fileRoutesById: FileRoutesById
 }
 
@@ -263,7 +286,8 @@ export const routeTree = rootRoute
         "/_dialog/dialog/experimental_authorizeKey",
         "/_dialog/dialog/experimental_createAccount",
         "/_dialog/dialog/personal_sign",
-        "/_dialog/dialog/wallet_connect"
+        "/_dialog/dialog/wallet_connect",
+        "/_dialog/dialog/wallet_sendCalls"
       ]
     },
     "/_dialog/dialog/$": {
@@ -288,6 +312,10 @@ export const routeTree = rootRoute
     },
     "/_dialog/dialog/wallet_connect": {
       "filePath": "_dialog.dialog/wallet_connect.tsx",
+      "parent": "/_dialog"
+    },
+    "/_dialog/dialog/wallet_sendCalls": {
+      "filePath": "_dialog.dialog/wallet_sendCalls.tsx",
       "parent": "/_dialog"
     }
   }

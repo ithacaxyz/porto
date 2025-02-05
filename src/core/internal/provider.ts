@@ -10,7 +10,7 @@ import * as Porto from '../Porto.js'
 import type * as Schema from '../RpcSchema.js'
 import type * as Call from './call.js'
 import * as Key from './key.js'
-import type * as RpcSchema_internal from './rpcSchema.js'
+import type * as Schema_internal from './rpcSchema.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -660,7 +660,7 @@ function requireParameter(
 }
 
 function assertKeys(
-  keys: readonly RpcSchema_internal.AuthorizeKeyParameters[] | undefined,
+  keys: readonly Schema_internal.AuthorizeKeyParameters[] | undefined,
 ) {
   if (!keys) return
   for (const key of keys) {

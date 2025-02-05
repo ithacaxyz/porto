@@ -5,7 +5,7 @@ import type * as Chains from '../core/Chains.js'
 import * as Implementation from '../core/Implementation.js'
 import * as Messenger from '../core/Messenger.js'
 import * as Porto_ from '../core/Porto.js'
-import type { Schema } from '../core/RpcSchema.js'
+import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Storage from '../core/Storage.js'
 import type { ExactPartial } from '../core/internal/types.js'
 
@@ -41,7 +41,7 @@ export type State<
 
 export type RemoteState = {
   requests: readonly (Porto_.QueuedRequest & {
-    request: RpcRequest.RpcRequest<Schema>
+    request: RpcRequest.RpcRequest<RpcSchema.Schema>
   })[]
 }
 

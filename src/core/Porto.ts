@@ -194,6 +194,8 @@ export type Store<
   [['zustand/subscribeWithSelector', never], ['zustand/persist', any]]
 >
 
+const clientCache = new Map<number, Client>()
+
 /**
  * Extracts a Viem Client from a Porto instance, and an optional chain ID.
  * By default, the Client for the current chain ID will be extracted.
@@ -238,7 +240,8 @@ export function getClient<
     default_ = transport
   }
 
-  return createClient({
+  if (clientCache.has(chain.id)) return clientCache.get(chain.id)!
+  const client = createClient({
     chain,
     transport: relay
       ? fallback([
@@ -250,6 +253,8 @@ export function getClient<
       : default_,
     pollingInterval: 1_000,
   })
+  clientCache.set(chain.id, client)
+  return client
 }
 
 export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
