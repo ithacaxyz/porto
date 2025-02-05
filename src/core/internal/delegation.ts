@@ -11,20 +11,22 @@ import {
   BaseError,
   type Chain,
   type Client,
+  type SendTransactionParameters,
   type Transport,
 } from 'viem'
 import {
   getEip712Domain as getEip712Domain_viem,
   readContract,
+  sendTransaction,
 } from 'viem/actions'
 import {
   type Authorization as Authorization_viem,
   prepareAuthorization,
 } from 'viem/experimental'
 import {
-  type ExecuteParameters,
-  type ExecuteReturnType,
-  execute as execute_viem,
+  type EncodeExecuteDataParameters,
+  encodeExecuteData,
+  getExecuteError as viem_getExecuteError,
 } from 'viem/experimental/erc7821'
 
 import * as DelegatedAccount from './account.js'
@@ -54,7 +56,7 @@ export async function execute<
   account extends DelegatedAccount.Account,
 >(
   client: Client<Transport, chain>,
-  parameters: execute.Parameters<calls, chain, account>,
+  parameters: execute.Parameters<calls, account>,
 ): Promise<execute.ReturnType> {
   // Block expression to obtain the execution request and signatures.
   const { request, signatures } = await (async () => {
@@ -77,7 +79,7 @@ export async function execute<
     }
   })()
 
-  const { account, authorization, executor, nonce, ...rest } = request
+  const { account, authorization, calls, executor, nonce } = request
 
   const [executeSignature, authorizationSignature] =
     (signatures as [Hex.Hex, Hex.Hex]) || []
@@ -107,53 +109,22 @@ export async function execute<
   )
 
   try {
-    return await execute_viem(client, {
-      ...rest,
-      address: account.address,
+    return await sendTransaction(client, {
       account: typeof executor === 'undefined' ? null : executor,
       authorizationList,
-      opData,
-    } as ExecuteParameters)
+      data: encodeExecuteData({ calls, opData }),
+      to: account.address,
+    } as SendTransactionParameters)
   } catch (e) {
-    const getAbiError = (error: BaseError) => {
-      const cause = error.walk((e) => 'data' in (e as BaseError))
-      if (!cause) return undefined
-
-      let data: Hex.Hex | undefined
-      if (cause instanceof BaseError) {
-        const [, match] = cause.details.match(/(0x[0-9a-f]{8})/) || []
-        if (match) data = match as Hex.Hex
-      }
-
-      if (!data) {
-        if (!('data' in cause)) return undefined
-        if (cause.data instanceof BaseError) return getAbiError(cause.data)
-        if (typeof cause.data !== 'string') return undefined
-        if (cause.data === '0x') return undefined
-        data = cause.data as Hex.Hex
-      }
-
-      try {
-        if (data === '0xd0d5039b') return AbiError.from('error Unauthorized()')
-        return AbiError.fromAbi(delegationAbi, data)
-      } catch {
-        return undefined
-      }
-    }
-    const error = e as BaseError
-    throw new ExecutionError(error, { abiError: getAbiError(error) })
+    throw getExecuteError(e as BaseError, { calls })
   }
 }
 
 export declare namespace execute {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
-    chain extends Chain | undefined = Chain | undefined,
     account extends DelegatedAccount.Account = DelegatedAccount.Account,
-  > = Omit<
-    ExecuteParameters<calls, chain>,
-    'account' | 'address' | 'authorizationList' | 'opData'
-  > & {
+  > = Pick<EncodeExecuteDataParameters<calls>, 'calls'> & {
     /**
      * The delegated account to execute the calls on.
      */
@@ -197,7 +168,7 @@ export declare namespace execute {
       | {}
     >
 
-  export type ReturnType = ExecuteReturnType
+  export type ReturnType = Hex.Hex
 }
 
 /**
@@ -384,8 +355,8 @@ export async function prepareExecute<
   account extends DelegatedAccount.Account,
 >(
   client: Client<Transport, chain>,
-  parameters: prepareExecute.Parameters<calls, chain, account>,
-): Promise<prepareExecute.ReturnType<calls, chain>> {
+  parameters: prepareExecute.Parameters<calls, account>,
+): Promise<prepareExecute.ReturnType<calls>> {
   const { account, delegation, executor, ...rest } = parameters
 
   const calls = parameters.calls.map((call: any) => ({
@@ -445,12 +416,8 @@ export async function prepareExecute<
 export declare namespace prepareExecute {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
-    chain extends Chain | undefined = Chain | undefined,
     account extends DelegatedAccount.Account = DelegatedAccount.Account,
-  > = Omit<
-    ExecuteParameters<calls, chain>,
-    'account' | 'address' | 'authorizationList' | 'opData'
-  > & {
+  > = Pick<execute.Parameters<calls, account>, 'calls'> & {
     /**
      * The delegated account to execute the calls on.
      */
@@ -470,9 +437,8 @@ export declare namespace prepareExecute {
 
   export type ReturnType<
     calls extends readonly unknown[] = readonly unknown[],
-    chain extends Chain | undefined = Chain | undefined,
   > = {
-    request: Omit<Parameters<calls, chain>, 'delegation'> & {
+    request: Omit<Parameters<calls>, 'delegation'> & {
       authorization?: Authorization_viem | undefined
       nonce: bigint
     }
@@ -499,4 +465,41 @@ export class ExecutionError extends Errors.BaseError<BaseError> {
 
     this.abiError = abiError
   }
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Internal
+///////////////////////////////////////////////////////////////////////////
+
+function getExecuteError<const calls extends readonly unknown[]>(
+  e: BaseError,
+  { calls }: { calls: execute.Parameters<calls>['calls'] },
+) {
+  const getAbiError = (error: BaseError) => {
+    const cause = error.walk((e) => 'data' in (e as BaseError))
+    if (!cause) return undefined
+
+    let data: Hex.Hex | undefined
+    if (cause instanceof BaseError) {
+      const [, match] = cause.details.match(/"(0x[0-9a-f]{8})"/) || []
+      if (match) data = match as Hex.Hex
+    }
+
+    if (!data) {
+      if (!('data' in cause)) return undefined
+      if (cause.data instanceof BaseError) return getAbiError(cause.data)
+      if (typeof cause.data !== 'string') return undefined
+      if (cause.data === '0x') return undefined
+      data = cause.data as Hex.Hex
+    }
+
+    try {
+      if (data === '0xd0d5039b') return AbiError.from('error Unauthorized()')
+      return AbiError.fromAbi(delegationAbi, data)
+    } catch {
+      return undefined
+    }
+  }
+  const error = viem_getExecuteError(e as BaseError, { calls })
+  return new ExecutionError(error, { abiError: getAbiError(error) })
 }

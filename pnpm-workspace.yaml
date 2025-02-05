@@ -15,5 +15,5 @@ catalog:
   react: "^18.3.1"
   react-dom: "^18.3.1"
   typescript: "^5.7.3"
-  viem: "^2.22.17"
+  viem: "^2.22.21"
   wagmi: "^2.14.5"
