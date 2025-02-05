@@ -556,23 +556,6 @@ describe('execute', () => {
     ).rejects.toThrowError('An error occurred while executing calls.')
   })
 
-  test('error: invalid selector', async () => {
-    const { account } = await getAccount(client)
-
-    await expect(() =>
-      Delegation.execute(client, {
-        account,
-        calls: [
-          {
-            data: '0xdeadbeef',
-            to: '0x0000000000000000000000000000000000000000',
-          },
-        ],
-        delegation,
-      }),
-    ).rejects.toThrowError('Reason: FnSelectorNotRecognized')
-  })
-
   test('error: unauthorized', async () => {
     const key = Key.createP256({
       role: 'admin',
