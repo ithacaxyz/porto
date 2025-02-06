@@ -55,9 +55,9 @@ export function TransactionRequest(props: TransactionRequest.Props) {
     <Layout loading={respond.isPending} loadingTitle="Sending...">
       <Layout.Header>
         <Layout.Header.Default
-          title="Transaction Request"
+          title="Action Request"
           icon={simulate.status === 'error' ? TriangleAlert : Star}
-          content={<>Review the transaction to send below.</>}
+          content={<>Review the action to perform below.</>}
           variant={simulate.status === 'error' ? 'destructive' : 'default'}
         />
       </Layout.Header>
@@ -72,46 +72,59 @@ export function TransactionRequest(props: TransactionRequest.Props) {
         )}
 
         {simulate.status === 'success' && (
-          <div className="space-y-2 rounded-lg bg-gray3 p-3">
-            {balances.map((balance) => {
-              const { token, value } = balance
-              if (value.diff === BigInt(0)) return null
+          <div className="space-y-3 rounded-lg bg-gray3 p-3">
+            <div className="space-y-2">
+              {balances.map((balance) => {
+                const { token, value } = balance
+                if (value.diff === BigInt(0)) return null
 
-              const { decimals, symbol } = token
+                const { decimals, symbol } = token
 
-              const receiving = value.diff > BigInt(0)
-              const formatted = ValueFormatter.format(value.diff, decimals)
+                const receiving = value.diff > BigInt(0)
+                const formatted = ValueFormatter.format(value.diff, decimals)
 
-              const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+                const Icon = receiving ? ArrowDownLeft : ArrowUpRight
 
-              return (
-                <div key={token.address} className="flex gap-2 font-medium">
-                  <div
-                    className={cx(
-                      'flex size-[24px] items-center justify-center rounded-full',
-                      {
-                        'bg-green4': receiving,
-                        'bg-red4': !receiving,
-                      },
-                    )}
-                  >
-                    <Icon
-                      className={cx('size-4 text-current', {
-                        'text-green10': receiving,
-                        'text-red10': !receiving,
-                      })}
-                    />
+                return (
+                  <div key={token.address} className="flex gap-2 font-medium">
+                    <div
+                      className={cx(
+                        'flex size-[24px] items-center justify-center rounded-full',
+                        {
+                          'bg-green4': receiving,
+                          'bg-red4': !receiving,
+                        },
+                      )}
+                    >
+                      <Icon
+                        className={cx('size-4 text-current', {
+                          'text-green10': receiving,
+                          'text-red10': !receiving,
+                        })}
+                      />
+                    </div>
+                    <div>
+                      {receiving ? 'Receive' : 'Send'}{' '}
+                      <span
+                        className={receiving ? 'text-green10' : 'text-red10'}
+                      >
+                        {formatted}
+                      </span>{' '}
+                      {symbol}
+                    </div>
                   </div>
-                  <div>
-                    {receiving ? 'Receive' : 'Send'}{' '}
-                    <span className={receiving ? 'text-green10' : 'text-red10'}>
-                      {formatted}
-                    </span>{' '}
-                    {symbol}
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
+
+            {/* <div className="h-[1px] w-full bg-gray6" />
+
+            <div className="space-y-1">
+              <div className="flex justify-between font-medium text-[14px]">
+                <span className="text-[14px] text-gray10">Fees</span>
+                <span>TODO</span>
+              </div>
+            </div> */}
           </div>
         )}
 
@@ -119,7 +132,7 @@ export function TransactionRequest(props: TransactionRequest.Props) {
           <div className="rounded-lg bg-red3 px-3 py-2 text-red10">
             <div className="font-medium text-[14px]">Error</div>
             <div className="text-[14px] text-gray12">
-              An error occurred while simulating the transaction. Contact{' '}
+              An error occurred while simulating the action. Contact{' '}
               <span className="font-medium">{origin?.hostname}</span> for more
               information.
             </div>
