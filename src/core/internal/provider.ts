@@ -6,14 +6,14 @@ import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 
 import type * as Chains from '../Chains.js'
+import type * as Delegation from '../Delegation.js'
 import * as Porto from '../Porto.js'
 import type * as Schema from '../RpcSchema.js'
-import type * as Delegation from '../Delegation.js'
 import * as Account from './account.js'
 import type * as Call from './call.js'
+import type * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import type * as Schema_internal from './rpcSchema.js'
-import type * as Key from './key.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
