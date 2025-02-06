@@ -855,7 +855,7 @@ describe('simulate', () => {
         {
           "token": {
             "address": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-            "decimals": 18n,
+            "decimals": 18,
             "symbol": "EXP",
           },
           "value": {
