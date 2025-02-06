@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.10
+
+### Patch Changes
+
+- [`515f8cc`](https://github.com/ithacaxyz/porto/commit/515f8cca9de6d1b171d0615ea191a2666f2b6174) Thanks [@jxom](https://github.com/jxom)! - Added support for authorizing/revoking Admin Key.
+
 ## 0.0.9
 
 ### Patch Changes
