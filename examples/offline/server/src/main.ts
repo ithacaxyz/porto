@@ -1,9 +1,9 @@
-import { Key, Porto } from 'Porto'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { showRoutes } from 'hono/dev'
 import { prettyJSON } from 'hono/pretty-json'
-import { Address, Json } from 'ox'
+import { Address, Json, P256, PublicKey, type RpcSchema, Signature } from 'ox'
+import type { RpcSchema as RpcSchema_porto } from 'porto'
 import { actions, buildActionCall } from './calls.ts'
 import { scheduledTask } from './scheduled.ts'
 
@@ -66,38 +66,52 @@ app.get('/debug', async (context) => {
  * Creates new keys
  */
 app.post('/keys', async (context) => {
+  type Permissions = RpcSchema.ExtractParams<
+    RpcSchema_porto.Schema,
+    'experimental_grantPermissions'
+  >[0]['permissions']
   const payload = await context.req.json<{
     address: Address.Address
-    permissions: Key.Permissions
+    permissions: Permissions
   }>()
 
   const isAddress = Address.validate(payload.address)
   if (!isAddress) return context.json({ error: 'Invalid address' }, 400)
 
-  const key = Key.createP256({
-    role: 'session',
-    permissions: payload.permissions,
-    expiry: Math.floor(Date.now() / 1_000) + 4 * 60, // 3 minutes
+  const privateKey = P256.randomPrivateKey()
+  const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+    includePrefix: false,
   })
 
-  const toRpc = Key.toRpc(key)
+  const result = {
+    expiry: Math.floor(Date.now() / 1_000) + 4 * 60, // 3 minutes
+    permissions: payload.permissions,
+    key: {
+      publicKey,
+      type: 'p256',
+    },
+  } satisfies RpcSchema.ExtractParams<
+    RpcSchema_porto.Schema,
+    'experimental_grantPermissions'
+  >[0]
 
   context.executionCtx.waitUntil(
     context.env.KEYS_01.put(
       payload.address.toLowerCase(),
       JSON.stringify({
-        ...toRpc,
+        ...result,
         account: payload.address.toLowerCase(),
         /**
          * NOTE: this is not secure. In production, you should encrypt any sensitive data before storing it.
          * See https://oxlib.sh/api/AesGcm
          */
-        privateKey: key.privateKey(),
+        privateKey,
+        publicKey,
       }),
     ),
   )
 
-  return context.json(toRpc)
+  return context.json(result)
 })
 
 /**

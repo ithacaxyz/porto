@@ -1,5 +1,4 @@
 import { type Errors, Hex, Json, Value } from 'ox'
-import { Key } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { parseEther } from 'viem'
@@ -14,27 +13,30 @@ const APP_SERVER_URL = window.location.hostname.includes('localhost')
   : 'https://offline-server-example.evm.workers.dev'
 
 const permissions = {
-  calls: [
-    {
-      signature: 'mint(address,uint256)',
-      to: ExperimentERC20.address,
-    },
-    {
-      signature: 'approve(address,uint256)',
-      to: ExperimentERC20.address,
-    },
-    {
-      signature: 'transfer(address,uint256)',
-      to: ExperimentERC20.address,
-    },
-  ],
-  spend: [
-    {
-      limit: Hex.fromNumber(Value.fromEther('1000')),
-      period: 'minute',
-      token: ExperimentERC20.address,
-    },
-  ],
+  expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
+  permissions: {
+    calls: [
+      {
+        signature: 'mint(address,uint256)',
+        to: ExperimentERC20.address,
+      },
+      {
+        signature: 'approve(address,uint256)',
+        to: ExperimentERC20.address,
+      },
+      {
+        signature: 'transfer(address,uint256)',
+        to: ExperimentERC20.address,
+      },
+    ],
+    spend: [
+      {
+        limit: Hex.fromNumber(Value.fromEther('1000')),
+        period: 'minute',
+        token: ExperimentERC20.address,
+      },
+    ],
+  },
 } as const
 
 export function App() {
@@ -118,13 +120,13 @@ function truncateHexString({
 
 function Connect() {
   const label = `offline-tx-support-${Math.floor(Date.now() / 1000)}`
-  const [authorizeKey, setAuthorizeKey] = useState<boolean>(true)
+  const [grantPermissions, setGrantPermissions] = useState<boolean>(true)
 
   const connectors = useConnectors()
 
   const connect = Hooks.useConnect()
   const disconnect = Hooks.useDisconnect()
-  const keys = Hooks.useKeys()
+  const permissions_ = Hooks.usePermissions()
 
   return (
     <div>
@@ -132,8 +134,8 @@ function Connect() {
       <p>
         <input
           type="checkbox"
-          checked={authorizeKey}
-          onChange={() => setAuthorizeKey((x) => !x)}
+          checked={grantPermissions}
+          onChange={() => setGrantPermissions((x) => !x)}
         />
         Authorize a Session Key
       </p>
@@ -147,7 +149,7 @@ function Connect() {
               onClick={() =>
                 connect.mutate({
                   connector,
-                  authorizeKey: authorizeKey ? { permissions } : undefined,
+                  grantPermissions: grantPermissions ? permissions : undefined,
                 })
               }
               type="button"
@@ -163,7 +165,9 @@ function Connect() {
                   connect.mutateAsync({
                     connector,
                     createAccount: { label },
-                    authorizeKey: authorizeKey ? { permissions } : undefined,
+                    grantPermissions: grantPermissions
+                      ? permissions
+                      : undefined,
                   }),
                 )
               }}
@@ -176,13 +180,18 @@ function Connect() {
       <p>{connect.status}</p>
       <p>{connect.error?.message}</p>
       {JSON.stringify(connect.data, undefined, 2)}
-      {keys.data?.map((key) => (
-        <details style={{ marginTop: '5px' }} key={key.expiry + key.publicKey}>
+      {permissions_.data?.map((permission) => (
+        <details
+          style={{ marginTop: '5px' }}
+          key={permission.expiry + permission.id}
+        >
           <summary>
-            ({key.role}){' '}
-            {truncateHexString({ address: key.publicKey, length: 12 })}
+            {truncateHexString({
+              address: permission.key.publicKey,
+              length: 12,
+            })}
           </summary>
-          <pre>{JSON.stringify(key, undefined, 2)}</pre>
+          <pre>{JSON.stringify(permission, undefined, 2)}</pre>
         </details>
       ))}
     </div>
@@ -191,7 +200,9 @@ function Connect() {
 
 /* request a key from the App Server */
 function RequestKey() {
-  const [result, setResult] = useState<Key.Rpc | null>(null)
+  const [result, setResult] = useState<{ key: { publicKey: Hex.Hex } } | null>(
+    null,
+  )
 
   const { refetch } = useDebug({ enabled: result !== null })
   return (
@@ -221,8 +232,7 @@ function RequestKey() {
       {result ? (
         <details>
           <summary style={{ marginTop: '1rem' }}>
-            ({result?.role}){' '}
-            {truncateHexString({ address: result?.publicKey, length: 12 })}
+            {truncateHexString({ address: result?.key.publicKey, length: 12 })}
           </summary>
           <pre>{JSON.stringify(result, undefined, 2)}</pre>
         </details>
@@ -233,13 +243,15 @@ function RequestKey() {
 
 /* Authorize server key */
 function AuthorizeServerKey() {
-  const authorizeKey = Hooks.useAuthorizeKey()
+  const grantPermissions = Hooks.useGrantPermissions()
 
   const { address } = useAccount()
 
   return (
     <div>
-      <h3>[client] Authorize Server Key (experimental_authorizeKey)</h3>
+      <h3>
+        [client] Grant Permissions to Server (experimental_grantPermissions)
+      </h3>
       <form
         onSubmit={async (event) => {
           event.preventDefault()
@@ -252,38 +264,31 @@ function AuthorizeServerKey() {
           })
           console.info('address', address)
           console.info('account', account)
-          authorizeKey.mutate({
-            address: account,
-            permissions,
-            role: serverKeys?.role,
-            expiry: serverKeys?.expiry,
-            key: Key.fromRpc(serverKeys),
-          })
+          grantPermissions.mutate(serverKeys)
         }}
       >
         <button
           type="submit"
           style={{ marginBottom: '5px' }}
-          disabled={authorizeKey.status === 'pending'}
+          disabled={grantPermissions.status === 'pending'}
         >
-          {authorizeKey.status === 'pending'
+          {grantPermissions.status === 'pending'
             ? 'Authorizing…'
             : 'Authorize a Session Key'}
         </button>
-        {authorizeKey.status === 'error' && (
-          <p>{authorizeKey.error?.message}</p>
+        {grantPermissions.status === 'error' && (
+          <p>{grantPermissions.error?.message}</p>
         )}
       </form>
-      {authorizeKey.data ? (
+      {grantPermissions.data ? (
         <details>
           <summary style={{ marginTop: '1rem' }}>
-            ({authorizeKey.data?.role}){' '}
             {truncateHexString({
-              address: authorizeKey.data?.publicKey,
+              address: grantPermissions.data?.key.publicKey,
               length: 12,
             })}
           </summary>
-          <pre>{JSON.stringify(authorizeKey.data, undefined, 2)}</pre>
+          <pre>{JSON.stringify(grantPermissions.data, undefined, 2)}</pre>
         </details>
       ) : null}
     </div>

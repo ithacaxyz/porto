@@ -11,7 +11,7 @@ import * as Porto from '../Porto.js'
 import type * as Schema from '../RpcSchema.js'
 import * as Account from './account.js'
 import type * as Call from './call.js'
-import type * as Key from './key.js'
+import * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import type * as Schema_internal from './rpcSchema.js'
 
@@ -542,7 +542,7 @@ export function from<
 
         case 'wallet_prepareCalls': {
           const [parameters] = request.params
-          const { chainId, from, version = '1.0' } = parameters
+          const { capabilities, chainId, from, version = '1.0' } = parameters
 
           const client = getClient(chainId)
 
@@ -563,10 +563,11 @@ export function from<
             })
 
           return {
+            capabilities: capabilities ?? {},
             chainId,
+            context: prepareExecuteRequest,
+            digest: signPayloads.at(0)!,
             version,
-            data: prepareExecuteRequest,
-            signPayload: signPayloads.at(0)!,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_prepareCalls'
@@ -575,9 +576,9 @@ export function from<
 
         case 'wallet_sendPreparedCalls': {
           const [parameters] = request.params
-          const { signature, chainId } = parameters
-          const data =
-            parameters.data as Delegation.prepareExecute.ReturnType['request']
+          const { chainId, signature } = parameters
+          const context =
+            parameters.context as Delegation.prepareExecute.ReturnType['request']
 
           const client = getClient(chainId)
 
@@ -586,16 +587,21 @@ export function from<
 
           requireParameter(from, 'from')
 
-          const calls = data.calls.map((x) => {
+          const calls = context.calls.map((x) => {
             requireParameter(x, 'to')
             return x
           }) as Call.Call[]
 
+          const wrappedSignature = Key.wrapSignature(signature.value, {
+            keyType: signature.type as never,
+            publicKey: signature.publicKey,
+          })
+
           const hash = await implementation.actions.execute({
-            account: data.account,
+            account: context.account,
             calls,
-            nonce: data.nonce,
-            signature,
+            nonce: context.nonce,
+            signature: wrappedSignature,
             internal: {
               client,
               config,

@@ -1,5 +1,5 @@
-import { Chains, Key, Porto } from 'Porto'
-import { Hex, Json } from 'ox'
+import { Chains, Porto } from 'Porto'
+import { Hex, Json, P256, Signature } from 'ox'
 
 export interface Schedule {
   id: number
@@ -53,7 +53,7 @@ export async function scheduledTask(
         continue
       }
 
-      const { signPayload, ...request } = await porto.provider.request({
+      const { digest, ...request } = await porto.provider.request({
         method: 'wallet_prepareCalls',
         params: [
           {
@@ -65,15 +65,25 @@ export async function scheduledTask(
         ],
       })
 
-      const p256Key = Key.fromP256({ ...key, privateKey })
-      const signature = await Key.sign(Key.from(p256Key), {
-        address: account,
-        payload: signPayload,
-      })
+      const signature = Signature.toHex(
+        P256.sign({
+          payload: digest,
+          privateKey,
+        }),
+      )
 
       const [hash] = await porto.provider.request({
         method: 'wallet_sendPreparedCalls',
-        params: [{ ...request, signature }],
+        params: [
+          {
+            ...request,
+            signature: {
+              publicKey: key.publicKey,
+              type: 'p256',
+              value: signature,
+            },
+          },
+        ],
       })
 
       const statement = env.DB.prepare(
