@@ -28,7 +28,7 @@ export const defaultConfig = {
   transports: {
     [Chains.odysseyTestnet.id]: {
       default: http(),
-      relay: http('https://relay.ithaca.xyz'),
+      relay: http('https://relay-staging.ithaca.xyz'),
     },
   },
 } as const satisfies Config

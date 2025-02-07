@@ -549,24 +549,34 @@ export function from<
           if (chainId && Hex.toNumber(chainId) !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
+          requireParameter(from, 'from')
+
           const calls = parameters.calls.map((x) => {
             requireParameter(x, 'to')
             return x
           }) as Call.Call[]
 
-          const { signPayloads, request: prepareExecuteRequest } =
-            await implementation.actions.prepareExecute({
-              calls,
-              client,
-              request,
-              account: Account.from({ address: from }),
+          const {
+            signPayloads: [digest],
+            request: prepareExecuteRequest,
+          } = await implementation.actions.prepareExecute({
+            calls,
+            client,
+            request,
+            account: Account.from({ address: from }),
+          })
+
+          if (!digest)
+            throw new RpcResponse.InvalidParamsError({
+              data: digest,
+              message: 'digest is undefined',
             })
 
           return {
+            digest,
             chainId,
             version,
             context: prepareExecuteRequest,
-            digest: signPayloads.at(0)!,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_prepareCalls'
@@ -586,7 +596,7 @@ export function from<
 
           requireParameter(from, 'from')
 
-          const calls = context.calls.map((x) => {
+          const calls = context.calls.map((x: any) => {
             requireParameter(x, 'to')
             return x
           }) as Call.Call[]
