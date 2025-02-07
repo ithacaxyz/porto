@@ -1,5 +1,17 @@
 # porto
 
+## 0.0.11
+
+### Patch Changes
+
+- [`89616dc`](https://github.com/ithacaxyz/porto/commit/89616dc283aff8f05fb57323de0a3132b300815e) Thanks [@jxom](https://github.com/jxom)! - **Breaking:**
+
+  - Renamed `experimental_authorizeKey` to `experimental_grantPermissions`
+  - Renamed `experimental_keys` to `experimental_permissions`
+  - Renamed `experimental_revokeKey` to `experimental_revokePermissions`
+  - Renamed `keys` capability to `permissions`
+  - Renamed `authorizeKey` capability to `grantPermissions`
+
 ## 0.0.10
 
 ### Patch Changes
