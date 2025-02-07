@@ -83,15 +83,15 @@ export type WalletPrepareCallsReturnType = {
   chainId?: Hex.Hex | undefined
   context: unknown
   digest: Hex.Hex
-  type?: string | undefined
   version?: string | undefined
 }
 
 export type WalletSendPreparedCallsParameters = Omit<
   WalletPrepareCallsReturnType,
-  'signPayload'
+  'digest'
 > & {
   signature: {
+    publicKey: Hex.Hex
     type: string
     value: Hex.Hex
   }
