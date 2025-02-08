@@ -34,7 +34,7 @@
     "module": "NodeNext",
     "target": "ES2021",
     "lib": ["ES2023", "DOM"],
-
+    "types": ["typed-query-selector/strict"],
     // Skip type checking for node modules
     "skipLibCheck": true
   }

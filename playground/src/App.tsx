@@ -23,7 +23,7 @@ import { ExperimentERC20 } from './contracts'
 
 const porto = Porto.create({
   implementation: Implementation.dialog({
-    host: 'https://exp.porto.sh/dialog',
+    host: import.meta.env.VITE_HOST ?? 'https://exp.porto.sh/dialog',
   }),
 })
 
@@ -566,11 +566,11 @@ function PreparedCalls() {
             return [
               {
                 to: '0x0000000000000000000000000000000000000000',
-                value: 0n,
+                value: '0x0',
               },
               {
                 to: '0x0000000000000000000000000000000000000000',
-                value: 0n,
+                value: '0x0',
               },
             ] as const
           })()
@@ -579,9 +579,9 @@ function PreparedCalls() {
             method: 'wallet_prepareCalls',
             params: [
               {
+                calls,
                 version: '1',
                 from: account,
-                calls: permissions().permissions.calls,
                 chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
               },
             ],
