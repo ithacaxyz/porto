@@ -23,7 +23,7 @@ import { ExperimentERC20 } from './contracts'
 
 const porto = Porto.create({
   implementation: Implementation.dialog({
-    host: import.meta.env.VITE_HOST ?? 'https://exp.porto.sh/dialog',
+    host: 'https://exp.porto.sh/dialog',
   }),
 })
 
@@ -521,23 +521,12 @@ function PreparedCalls() {
             },
           })
 
-          const _grantPermissions = await porto.provider.request({
+          const permissionsResult = await porto.provider.request({
             method: 'experimental_grantPermissions',
-            params: [
-              {
-                key,
-                address: account,
-                expiry: key.expiry,
-                permissions: {
-                  calls: key.permissions?.calls,
-                  spend: key.permissions?.spend?.map((limit) => ({
-                    ...limit,
-                    limit: Hex.fromNumber(limit.limit),
-                  })),
-                },
-              },
-            ],
+            params: [{ key, address: account, ...permissions() }],
           })
+
+          console.info(permissionsResult)
 
           setKey(key)
           setStep('PREPARE-SEND')
@@ -590,23 +579,15 @@ function PreparedCalls() {
             method: 'wallet_prepareCalls',
             params: [
               {
-                calls: calls as any,
                 version: '1',
                 from: account,
+                calls: permissions().permissions.calls,
                 chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
               },
             ],
           })
 
           setDigest(digest)
-
-          // const signature = await Key.sign(
-          //   Key.from(Key.fromP256({ ...key!, privateKey: key!.privateKey() })),
-          //   {
-          //     address: account,
-          //     payload: digest,
-          //   },
-          // )
 
           const signature = P256.sign({
             payload: digest,
@@ -615,7 +596,7 @@ function PreparedCalls() {
 
           setSignature(Signature.toHex(signature))
 
-          const [hash] = await porto.provider.request({
+          const [sendPreparedCallsResult] = await porto.provider.request({
             method: 'wallet_sendPreparedCalls',
             params: [
               {
@@ -628,8 +609,9 @@ function PreparedCalls() {
               },
             ],
           })
+          console.info(sendPreparedCallsResult)
 
-          setHash(hash)
+          setHash(sendPreparedCallsResult.id)
         }
       }}
     >

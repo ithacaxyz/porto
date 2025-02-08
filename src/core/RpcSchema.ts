@@ -28,7 +28,7 @@ export type Schema = RpcSchema.From<
   | {
       Request: {
         method: 'wallet_prepareCalls'
-        params: RpcSchema.ExtractParams<Schema, 'wallet_sendCalls'>
+        params: [internal.WalletPrepareCallsParameters]
       }
       ReturnType: internal.WalletPrepareCallsReturnType
     }
@@ -94,6 +94,6 @@ export type Schema = RpcSchema.From<
         method: 'wallet_sendPreparedCalls'
         params: [internal.WalletSendPreparedCallsParameters]
       }
-      ReturnType: Hex.Hex[]
+      ReturnType: internal.WalletSendPreparedCallsReturnType
     }
 >

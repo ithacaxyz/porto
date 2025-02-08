@@ -78,6 +78,19 @@ export type RevokePermissionsParameters = {
   id: Hex.Hex
 }
 
+export type WalletPrepareCallsParameters = {
+  version?: string | undefined
+  chainId: Hex.Hex
+  from?: Address.Address | undefined
+  calls: readonly {
+    to: Address.Address
+    data?: Hex.Hex | undefined
+    value?: Hex.Hex | undefined
+    capabilities?: Record<string, any> | undefined
+  }[]
+  capabilities?: Record<string, any> | undefined
+}
+
 export type WalletPrepareCallsReturnType = {
   capabilities?: Record<string, any>
   chainId?: Hex.Hex | undefined
@@ -96,3 +109,8 @@ export type WalletSendPreparedCallsParameters = Omit<
     value: Hex.Hex
   }
 }
+
+export type WalletSendPreparedCallsReturnType = {
+  id: string
+  capabilities?: Record<string, any>
+}[]
