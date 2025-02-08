@@ -19,30 +19,49 @@ function RouteComponent() {
 
   const contentRef = React.useRef<HTMLDivElement | null>(null)
   const titlebarRef = React.useRef<HTMLDivElement | null>(null)
+
   React.useLayoutEffect(() => {
     const element = contentRef.current
     if (!element) return
 
+    let frameId: number
+    let lastHeight: number | undefined
+
     const resizeObserver = new ResizeObserver((entries) => {
-      requestAnimationFrame(() => {
+      // cancel any pending animation frame before requesting a new one
+      cancelAnimationFrame(frameId)
+
+      frameId = requestAnimationFrame(() => {
         for (const entry of entries) {
+          if (!entry) return
+
           const { height, width } = entry.contentRect
+          // Only send resize if height actually changed
+          if (height === lastHeight) return
+
           const titlebarHeight = titlebarRef.current?.clientHeight ?? 0
+          const modeHeight = mode === 'popup' ? 30 : 2
+          const totalHeight = height + titlebarHeight + modeHeight
+
+          lastHeight = height
+
           if (mode === 'popup') {
-            const topbarHeight = 30
-            window.resizeTo(width, height + titlebarHeight + topbarHeight)
-          } else if (mode === 'iframe')
+            window.resizeTo(width, totalHeight)
+          } else if (mode === 'iframe') {
             porto.messenger.send('__internal', {
               type: 'resize',
-              height: height + titlebarHeight + 2,
+              height: totalHeight,
             })
+          }
         }
       })
     })
 
     resizeObserver.observe(element)
     return () => {
-      resizeObserver.unobserve(element)
+      // cancel any pending animation frame before disconnecting the observer
+      cancelAnimationFrame(frameId)
+      resizeObserver.disconnect()
     }
   }, [mode])
 
@@ -52,6 +71,7 @@ function RouteComponent() {
     <>
       <header
         ref={titlebarRef}
+        data-element="dialog-header"
         {...{ [`data-${mode}`]: '' }}
         className="fixed flex h-navbar w-full items-center justify-between border border-gray4 bg-gray2 px-3 pt-2 pb-1.5 data-iframe:rounded-t-[14px]"
       >
