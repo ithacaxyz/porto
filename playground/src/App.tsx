@@ -522,18 +522,19 @@ function PreparedCalls() {
           })
 
           const _grantPermissions = await porto.provider.request({
-            method: 'wallet_grantPermissions',
+            method: 'experimental_grantPermissions',
             params: [
               {
-                signer: { type: 'account', data: account },
+                key,
+                address: account,
                 expiry: key.expiry,
-                permissions: [
-                  {
-                    data: key.permissions?.calls,
-                    type: 'calls',
-                    policies: [],
-                  },
-                ],
+                permissions: {
+                  calls: key.permissions?.calls,
+                  spend: key.permissions?.spend?.map((limit) => ({
+                    ...limit,
+                    limit: Hex.fromNumber(limit.limit),
+                  })),
+                },
               },
             ],
           })
