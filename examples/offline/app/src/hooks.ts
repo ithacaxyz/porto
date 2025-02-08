@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Address, type Hex, Json, Value } from 'ox'
-import type { Key } from 'porto'
 import { useEffect } from 'react'
 import { useAccount, useReadContract } from 'wagmi'
 import { ExperimentERC20 } from './contracts.ts'
@@ -30,7 +29,7 @@ export interface DebugData {
     hash: Address.Address
     public_key: Hex.Hex
   }>
-  key: Key.Rpc & {
+  key: {
     account: Address.Address
     privateKey: Address.Address
   }
