@@ -62,10 +62,10 @@ export function App() {
         <br />
       </div>
       <Connect />
+      <Disconnect />
       <Login />
       <Register />
       <Accounts />
-      <Disconnect />
       <UpgradeAccount />
       <div>
         <br />

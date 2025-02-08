@@ -19,6 +19,6 @@
     "globals": "catalog:",
     "prool": "^0.0.17",
     "typescript": "catalog:",
-    "vite": "^6.0.7"
+    "vite": "^6.1.0"
   }
 }
