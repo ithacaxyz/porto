@@ -619,7 +619,7 @@ export function from<
             },
           })
 
-          return [hash] satisfies RpcSchema.ExtractReturnType<
+          return [{ id: hash }] satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_sendPreparedCalls'
           >
