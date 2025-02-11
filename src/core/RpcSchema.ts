@@ -61,10 +61,27 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'wallet_prepareCalls'
+        params: [internal.WalletPrepareCallsParameters]
+      }
+      ReturnType: internal.WalletPrepareCallsReturnType
+    }
+  | {
+      Request: {
+        method: 'wallet_sendPreparedCalls'
+        params: [internal.WalletSendPreparedCallsParameters]
+      }
+      ReturnType: internal.WalletSendPreparedCallsReturnType
+    }
+  | {
+      Request: {
         method: 'wallet_sendCalls'
         params: [
           Omit<
-            RpcSchema.ExtractParams<RpcSchema.Wallet, 'wallet_sendCalls'>[0],
+            RpcSchema.ExtractParams<
+              RpcSchema.Wallet,
+              'wallet_sendCalls'
+            >[number],
             'capabilities'
           > & {
             capabilities?:

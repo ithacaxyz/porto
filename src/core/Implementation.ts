@@ -54,6 +54,22 @@ export type Implementation = {
       account: Account.Account
     }>
 
+    prepareExecute: (parameters: {
+      /** Account to execute the calls with. */
+      account: Account.Account
+      /** Calls to execute. */
+      calls: readonly Call.Call[]
+      /** Viem Clients. */
+      client: Client
+      /** RPC Request. */
+      request: Request
+    }) => Promise<{
+      /** RPC Request. */
+      request: unknown
+      /** Hex payloads to sign over. */
+      signPayloads: readonly Hex.Hex[]
+    }>
+
     execute: (parameters: {
       /** Account to execute the calls with. */
       account: Account.Account
@@ -61,6 +77,10 @@ export type Implementation = {
       calls: readonly Call.Call[]
       /** Permissions ID to use to execute the calls. */
       permissionsId?: Hex.Hex | undefined
+      /** Nonce to use for execution. */
+      nonce?: bigint | undefined
+      /** Signature for execution. */
+      signature?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
@@ -228,6 +248,20 @@ export function local(parameters: local.Parameters = {}) {
         })
 
         return { account }
+      },
+
+      async prepareExecute(parameters) {
+        const { client } = parameters
+
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
+        }
       },
 
       async execute(parameters) {
@@ -577,6 +611,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
+      async prepareExecute(parameters) {
+        const { client } = parameters
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
+        }
+      },
+
       async execute(parameters) {
         const { account, calls, internal } = parameters
         const { client, store, request } = internal
@@ -606,6 +653,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method === 'wallet_sendCalls')
           // Send calls request to the dialog.
           return (await provider.request(request)) as Hex.Hex
+
+        // execute prepared calls directly with Delegation.execute
+        if (request.method === 'wallet_sendPreparedCalls') {
+          const [{ context, signature, ...parameter }] = request.params
+
+          const hash = await Delegation.execute(client, {
+            key,
+            account,
+            calls: (context as any).calls,
+            nonce: (context as any).nonce,
+            signatures: [signature.value], // <--
+          })
+
+          return hash
+        }
 
         throw new Error('Cannot execute for method: ' + request.method)
       },

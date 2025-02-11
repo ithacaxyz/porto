@@ -789,7 +789,10 @@ export async function sign(
 // Internal
 ///////////////////////////////////////////////////////////////////////////
 
-function wrapSignature(signature: Hex.Hex, options: wrapSignature.Options) {
+export function wrapSignature(
+  signature: Hex.Hex,
+  options: wrapSignature.Options,
+) {
   const { keyType: type, prehash = false, publicKey } = options
 
   const keyHash = hash({ publicKey, type })

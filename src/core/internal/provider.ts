@@ -5,11 +5,13 @@ import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 
+import type { Delegation } from 'porto'
 import type * as Chains from '../Chains.js'
 import * as Porto from '../Porto.js'
 import type * as Schema from '../RpcSchema.js'
+import * as Account from './account.js'
 import type * as Call from './call.js'
-import type * as Key from './key.js'
+import * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import type * as Schema_internal from './rpcSchema.js'
 
@@ -535,6 +537,82 @@ export function from<
           return capabilities satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
             'wallet_getCapabilities'
+          >
+        }
+
+        case 'wallet_prepareCalls': {
+          const [parameters] = request.params
+          const { chainId, from, version = '1.0' } = parameters
+
+          const client = getClient(chainId)
+
+          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
+
+          const calls = parameters.calls.map((x) => {
+            requireParameter(x, 'to')
+            return x
+          }) as Call.Call[]
+
+          const { signPayloads, request: prepareExecuteRequest } =
+            await implementation.actions.prepareExecute({
+              calls,
+              client,
+              request,
+              // @ts-ignore
+              account: Account.from({ address: from }),
+            })
+
+          return {
+            chainId,
+            version,
+            context: prepareExecuteRequest,
+            digest: signPayloads.at(0)!,
+          } satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'wallet_prepareCalls'
+          >
+        }
+
+        case 'wallet_sendPreparedCalls': {
+          const [parameters] = request.params
+          const { signature, chainId } = parameters
+          const context =
+            parameters.context as Delegation.prepareExecute.ReturnType['request']
+
+          const client = getClient(chainId)
+
+          if (chainId && Hex.toNumber(chainId) !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
+
+          requireParameter(from, 'from')
+
+          const calls = context.calls.map((x) => {
+            requireParameter(x, 'to')
+            return x
+          }) as Call.Call[]
+
+          const wrappedSignature = Key.wrapSignature(signature.value, {
+            keyType: signature.type as never,
+            publicKey: signature.publicKey,
+          })
+
+          const hash = await implementation.actions.execute({
+            account: context.account,
+            calls,
+            nonce: context.nonce,
+            signature: wrappedSignature,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          return [{ id: hash }] satisfies RpcSchema.ExtractReturnType<
+            Schema.Schema,
+            'wallet_sendPreparedCalls'
           >
         }
 

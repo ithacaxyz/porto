@@ -1,5 +1,16 @@
-import { AbiFunction, Hex, Json, Siwe, TypedData, Value } from 'ox'
-import { Porto } from 'porto'
+import {
+  AbiFunction,
+  type Address,
+  Hex,
+  Json,
+  P256,
+  PublicKey,
+  Signature,
+  Siwe,
+  TypedData,
+  Value,
+} from 'ox'
+import { Chains, Porto } from 'porto'
 import { Implementation } from 'porto'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { createClient, custom } from 'viem'
@@ -12,12 +23,15 @@ import { verifyMessage, verifyTypedData } from 'viem/actions'
 
 import { ExperimentERC20 } from './contracts'
 
-const porto = Porto.create({
-  implementation: Implementation.dialog({
-    host: import.meta.env.VITE_HOST ?? 'https://exp.porto.sh/dialog',
-  }),
-})
+const DISABLE_DIALOG = import.meta.env.VITE_DISABLE_DIALOG === 'true'
 
+const implementation = DISABLE_DIALOG
+  ? Implementation.local()
+  : Implementation.dialog({
+      host: import.meta.env.VITE_DIALOG_HOST ?? 'https://exp.porto.sh/dialog',
+    })
+
+export const porto = Porto.create({ implementation })
 const client = createClient({
   transport: custom(porto.provider),
 })
@@ -61,6 +75,13 @@ export function App() {
       <Accounts />
       <Disconnect />
       <UpgradeAccount />
+      <div>
+        <br />
+        <hr />
+        <br />
+      </div>
+      <GrantKeyPermissions />
+      <PrepareCalls />
       <div>
         <br />
         <hr />
@@ -318,6 +339,152 @@ function GrantPermissions() {
       </form>
       {result && <pre>permissions: {JSON.stringify(result, null, 2)}</pre>}
     </div>
+  )
+}
+
+function GrantKeyPermissions() {
+  const [result, setResult] = useState<any | null>(null)
+  return (
+    <div>
+      <h3>P256.randomPrivateKey() + experimental_grantPermissions</h3>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+
+          const [account] = await porto.provider.request({
+            method: 'eth_accounts',
+          })
+
+          const privateKey = P256.randomPrivateKey()
+          const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }))
+
+          localStorage.setItem(
+            '__generatedKey',
+            Json.stringify({ publicKey, privateKey }),
+          )
+
+          const result = await porto.provider.request({
+            method: 'experimental_grantPermissions',
+            params: [
+              {
+                address: account,
+                chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
+                expiry: Math.floor(Date.now() / 1000) + 60 * 60,
+                key: { type: 'p256', publicKey },
+                permissions: {
+                  calls: [
+                    {
+                      signature: 'mint()',
+                      to: ExperimentERC20.address[0],
+                    },
+                    {
+                      signature: 'mint()',
+                      to: ExperimentERC20.address[1],
+                    },
+                  ],
+                  spend: [
+                    {
+                      period: 'day',
+                      token: ExperimentERC20.address[0],
+                      limit: Hex.fromNumber(Value.fromEther('100')),
+                    },
+                  ],
+                },
+              },
+            ],
+          })
+          setResult(result)
+        }}
+      >
+        <button type="submit">Grant Key Permissions</button>
+      </form>
+      {result && <pre>permissions: {JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  )
+}
+
+function PrepareCalls() {
+  const [hash, setHash] = useState<string | null>(null)
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault()
+        const formData = new FormData(e.target as HTMLFormElement)
+        const action = formData.get('action') as string | null
+
+        const [account] = await porto.provider.request({
+          method: 'eth_accounts',
+        })
+
+        const request = await porto.provider.request({
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              calls: [
+                {
+                  to: ExperimentERC20.address[0],
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
+                    [account, Value.fromEther('10')],
+                  ),
+                },
+              ],
+              from: account,
+              chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
+            },
+          ],
+        })
+
+        const generatedKey = Json.parse(
+          localStorage.getItem('__generatedKey') ?? '{}',
+        ) as {
+          publicKey: Address.Address
+          privateKey: Address.Address
+        }
+
+        if (!generatedKey) throw new Error('No generated key found')
+
+        const signature = P256.sign({
+          payload: request.digest,
+          privateKey: generatedKey.privateKey,
+        })
+
+        const [{ id: hash }] = await porto.provider.request({
+          method: 'wallet_sendPreparedCalls',
+          params: [
+            {
+              ...request,
+              signature: {
+                type: 'p256',
+                publicKey: generatedKey.publicKey,
+                value: Signature.toHex(signature),
+              },
+            },
+          ],
+        })
+        setHash(hash)
+      }}
+    >
+      <h3>wallet_prepareCalls + Delegation.execute</h3>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <select name="action">
+          <option value="mint">Mint 10 EXP</option>
+        </select>
+        <button type="submit">Prepare</button>
+      </div>
+      {hash && (
+        <>
+          <pre>{hash}</pre>
+          <a
+            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Explorer
+          </a>
+        </>
+      )}
+    </form>
   )
 }
 
