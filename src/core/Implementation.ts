@@ -625,7 +625,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async execute(parameters) {
-        const { account, calls, internal } = parameters
+        const { account, calls, internal, nonce } = parameters
         const { client, store, request } = internal
 
         // Try and extract an authorized key to sign the calls with.
@@ -656,14 +656,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // execute prepared calls directly with Delegation.execute
         if (request.method === 'wallet_sendPreparedCalls') {
-          const [{ context, signature, ...parameter }] = request.params
+          const [{ signature }] = request.params
 
           const hash = await Delegation.execute(client, {
-            key,
             account,
-            calls: (context as any).calls,
-            nonce: (context as any).nonce,
-            signatures: [signature.value], // <--
+            calls,
+            ...(key
+              ? { key }
+              : {
+                  nonce,
+                  signatures: (signature ? [signature] : undefined) as any,
+                }),
           })
 
           return hash
