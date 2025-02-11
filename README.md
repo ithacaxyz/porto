@@ -146,7 +146,9 @@ Porto implements the following **standardized wallet** JSON-RPC methods:
 - `wallet_disconnect` [(ERC-7846: Wallet Connection API)](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)
 - `wallet_getCapabilities` [(ERC-5792: Wallet Call API)](https://eips.ethereum.org/EIPS/eip-5792)
 - `wallet_getCallsStatus` [(ERC-5792: Wallet Call API)](https://eips.ethereum.org/EIPS/eip-5792)
+- `wallet_prepareCalls` [(ERC-7836: Wallet Call Preparation API)](https://eips.ethereum.org/EIPS/eip-7836)
 - `wallet_sendCalls` [(ERC-5792: Wallet Call API)](https://eips.ethereum.org/EIPS/eip-5792)
+- `wallet_sendPreparedCalls` [(ERC-7836: Wallet Call Preparation API)](https://eips.ethereum.org/EIPS/eip-7836)
 
 In addition to the above, Porto implements the following **experimental** JSON-RPC methods:
 
