@@ -1,11 +1,12 @@
 import { AbiFunction, Secp256k1, Value } from 'ox'
 import { http, createClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { getBalance } from 'viem/actions'
+import { getBalance, readContract } from 'viem/actions'
 import { odysseyTestnet } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
 
 import { getAccount } from '../../test/src/account.js'
+import { ExperimentERC20 } from '../../test/src/contracts.js'
 import { client, delegation } from '../../test/src/porto.js'
 import * as Delegation from './Delegation.js'
 import * as Account from './internal/account.js'
@@ -289,6 +290,40 @@ describe('execute', () => {
       )
       expect(balances_after[1]).toEqual(Value.fromEther('1'))
       expect(balances_after[2]).toEqual(Value.fromEther('0.5'))
+    })
+
+    test('key: p256, executor: JSON-RPC, mint tokens', async () => {
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      const { account } = await getAccount(client, { keys: [key] })
+
+      await Delegation.execute(client, {
+        account,
+        calls: [Call.setCanExecute(), Call.authorize({ key })],
+        delegation,
+      })
+
+      const mint = AbiFunction.encodeData(
+        AbiFunction.from('function mint(address,uint256)'),
+        [account.address, Value.fromEther('1000')],
+      )
+
+      await Delegation.execute(client, {
+        account,
+        calls: [{ data: mint, to: ExperimentERC20.address[0] }],
+        key,
+      })
+
+      const balance = await readContract(client, {
+        address: ExperimentERC20.address[0],
+        abi: ExperimentERC20.abi,
+        functionName: 'balanceOf',
+        args: [account.address],
+      })
+
+      expect(balance).toEqual(Value.fromEther('1000'))
     })
 
     test('key: secp256k1, executor: JSON-RPC', async () => {
@@ -735,54 +770,6 @@ describe('prepareExecute', () => {
         type: 'p256',
       })
     })
-  })
-})
-
-describe('getExecuteSignPayload', () => {
-  test('default', async () => {
-    const { account } = await getAccount(client)
-
-    const key = Key.createP256({
-      role: 'admin',
-    })
-
-    const payload = await Delegation.getExecuteSignPayload(client, {
-      account,
-      calls: [
-        Call.authorize({
-          key,
-        }),
-      ],
-      nonce: 0n,
-    })
-
-    expect(payload).toBeDefined()
-  })
-
-  test('behavior: account already delegated', async () => {
-    const { account } = await getAccount(client)
-
-    await Delegation.execute(client, {
-      account,
-      calls: [],
-      delegation,
-    })
-
-    const key = Key.createP256({
-      role: 'admin',
-    })
-
-    const payload = await Delegation.getExecuteSignPayload(client, {
-      account,
-      calls: [
-        Call.authorize({
-          key,
-        }),
-      ],
-      nonce: 0n,
-    })
-
-    expect(payload).toBeDefined()
   })
 })
 

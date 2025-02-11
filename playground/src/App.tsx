@@ -477,7 +477,7 @@ function SendCalls() {
                 to: ExperimentERC20.address[0],
                 data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
-                  [account, Value.fromEther('100')],
+                  [account, Value.fromEther('1000')],
                 ),
               },
             ]
@@ -488,7 +488,7 @@ function SendCalls() {
                 to: ExperimentERC20.address[0],
                 data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(ExperimentERC20.abi, 'approve'),
-                  [account, Value.fromEther('50')],
+                  [account, Value.fromEther('1000')],
                 ),
               },
               {
@@ -497,8 +497,8 @@ function SendCalls() {
                   AbiFunction.fromAbi(ExperimentERC20.abi, 'transferFrom'),
                   [
                     account,
-                    '0x0000000000000000000000000000000000000000',
-                    Value.fromEther('50'),
+                    '0x1f772ae28dcd469e74ee43af5412587bc13a994f',
+                    Value.fromEther('1000'),
                   ],
                 ),
               },
