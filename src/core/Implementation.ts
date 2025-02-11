@@ -24,9 +24,9 @@ import * as Key from './internal/key.js'
 import * as Permissions from './internal/permissions.js'
 import * as PermissionsRequest from './internal/permissionsRequest.js'
 import type * as Porto from './internal/porto.js'
+import * as Provider_internal from './internal/provider.js'
 import type * as RpcSchema_internal from './internal/rpcSchema.js'
 import type { Compute, PartialBy } from './internal/types.js'
-import * as Provider_internal from './internal/provider.js'
 
 type Request = RpcSchema.ExtractRequest<RpcSchema_porto.Schema>
 
