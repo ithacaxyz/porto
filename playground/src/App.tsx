@@ -356,7 +356,9 @@ function GrantKeyPermissions() {
           })
 
           const privateKey = P256.randomPrivateKey()
-          const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }))
+          const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+            includePrefix: false,
+          })
 
           localStorage.setItem(
             '__generatedKey',
@@ -374,11 +376,9 @@ function GrantKeyPermissions() {
                 permissions: {
                   calls: [
                     {
-                      signature: 'mint()',
                       to: ExperimentERC20.address[0],
                     },
                     {
-                      signature: 'mint()',
                       to: ExperimentERC20.address[1],
                     },
                   ],
@@ -386,7 +386,7 @@ function GrantKeyPermissions() {
                     {
                       period: 'day',
                       token: ExperimentERC20.address[0],
-                      limit: Hex.fromNumber(Value.fromEther('100')),
+                      limit: Hex.fromNumber(Value.fromEther('50')),
                     },
                   ],
                 },

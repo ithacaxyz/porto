@@ -105,7 +105,7 @@ function RouteComponent() {
         className="flex not-data-popup-standalone:h-fit flex-col overflow-hidden border-gray4 bg-gray1 pt-titlebar data-popup-standalone:min-h-dvh data-iframe:rounded-[14px] data-iframe:border"
       >
         <div
-          className="flex flex-grow"
+          className="flex flex-grow *:w-full"
           key={id} // rehydrate on id changes
         >
           <Outlet />

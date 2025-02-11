@@ -16,7 +16,7 @@ export default defineConfig({
   define:
     process.env.NODE_ENV === 'development'
       ? {
-          'import.meta.env.VITE_HOST': JSON.stringify(
+          'import.meta.env.VITE_DIALOG_HOST': JSON.stringify(
             (enableHttps ? 'https' : 'http') + '://localhost:5174/dialog',
           ),
         }

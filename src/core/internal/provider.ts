@@ -544,6 +544,8 @@ export function from<
           const [parameters] = request.params
           const { chainId, from, version = '1.0' } = parameters
 
+          requireParameter(from, 'from')
+
           const client = getClient(chainId)
 
           if (chainId && Hex.toNumber(chainId) !== client.chain.id)
@@ -554,19 +556,18 @@ export function from<
             return x
           }) as Call.Call[]
 
-          const { signPayloads, request: prepareExecuteRequest } =
+          const { signPayloads, request: context } =
             await implementation.actions.prepareExecute({
               calls,
               client,
               request,
-              // @ts-ignore
-              account: Account.from({ address: from }),
+              account: Account.from(from),
             })
 
           return {
             chainId,
             version,
-            context: prepareExecuteRequest,
+            context,
             digest: signPayloads.at(0)!,
           } satisfies RpcSchema.ExtractReturnType<
             Schema.Schema,
@@ -584,8 +585,6 @@ export function from<
 
           if (chainId && Hex.toNumber(chainId) !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
-
-          requireParameter(from, 'from')
 
           const calls = context.calls.map((x) => {
             requireParameter(x, 'to')
