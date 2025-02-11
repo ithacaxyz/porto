@@ -22,5 +22,8 @@
   },
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+  },
+  "files.associations": {
+    ".env.example": "dotenv"
   }
 }
