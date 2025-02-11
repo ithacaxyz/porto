@@ -743,7 +743,7 @@ function getActivePermissions(
     .filter(Boolean) as never
 }
 
-function requireParameter(
+export function requireParameter(
   param: unknown,
   details: string,
 ): asserts param is NonNullable<typeof param> {

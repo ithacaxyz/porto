@@ -13,7 +13,6 @@ import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { readContract } from 'viem/actions'
 
-import { RpcResponse } from 'ox'
 import * as Delegation from './Delegation.js'
 import * as Dialog from './Dialog.js'
 import type { Client, QueuedRequest } from './Porto.js'
@@ -27,6 +26,7 @@ import * as PermissionsRequest from './internal/permissionsRequest.js'
 import type * as Porto from './internal/porto.js'
 import type * as RpcSchema_internal from './internal/rpcSchema.js'
 import type { Compute, PartialBy } from './internal/types.js'
+import * as Provider_internal from './internal/provider.js'
 
 type Request = RpcSchema.ExtractRequest<RpcSchema_porto.Schema>
 
@@ -664,8 +664,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // execute prepared calls directly with Delegation.execute
         if (request.method === 'wallet_sendPreparedCalls') {
-          requireParameter(nonce, 'nonce')
-          requireParameter(signature, 'signature')
+          Provider_internal.requireParameter(nonce, 'nonce')
+          Provider_internal.requireParameter(signature, 'signature')
 
           const hash = await Delegation.execute(client, {
             account,
@@ -1081,14 +1081,4 @@ async function getAuthorizedExecuteKey(parameters: {
   )
 
   return sessionKey ?? adminKey
-}
-
-function requireParameter(
-  param: unknown,
-  details: string,
-): asserts param is NonNullable<typeof param> {
-  if (typeof param === 'undefined')
-    throw new RpcResponse.InvalidParamsError({
-      message: `Missing required parameter: ${details}`,
-    })
 }
