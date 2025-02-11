@@ -63,12 +63,12 @@ export function App() {
     <div>
       <State />
       <Events />
-      <GetCapabilities />
       <div>
         <br />
         <hr />
         <br />
       </div>
+      <h2>Account Management</h2>
       <Connect />
       <Login />
       <Register />
@@ -80,13 +80,7 @@ export function App() {
         <hr />
         <br />
       </div>
-      <GrantKeyPermissions />
-      <PrepareCalls />
-      <div>
-        <br />
-        <hr />
-        <br />
-      </div>
+      <h2>Permissions</h2>
       <GrantPermissions />
       <GetPermissions />
       <RevokePermissions />
@@ -95,10 +89,26 @@ export function App() {
         <hr />
         <br />
       </div>
+      <h2>Actions</h2>
       <SendCalls />
       <SendTransaction />
       <SignMessage />
       <SignTypedData />
+      <div>
+        <br />
+        <hr />
+        <br />
+      </div>
+      <h2>App-managed Signing</h2>
+      <GrantKeyPermissions />
+      <PrepareCalls />
+      <div>
+        <br />
+        <hr />
+        <br />
+      </div>
+      <h2>Misc.</h2>
+      <GetCapabilities />
     </div>
   )
 }
@@ -339,152 +349,6 @@ function GrantPermissions() {
       </form>
       {result && <pre>permissions: {JSON.stringify(result, null, 2)}</pre>}
     </div>
-  )
-}
-
-function GrantKeyPermissions() {
-  const [result, setResult] = useState<any | null>(null)
-  return (
-    <div>
-      <h3>P256.randomPrivateKey() + experimental_grantPermissions</h3>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-
-          const [account] = await porto.provider.request({
-            method: 'eth_accounts',
-          })
-
-          const privateKey = P256.randomPrivateKey()
-          const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-            includePrefix: false,
-          })
-
-          localStorage.setItem(
-            '__generatedKey',
-            Json.stringify({ publicKey, privateKey }),
-          )
-
-          const result = await porto.provider.request({
-            method: 'experimental_grantPermissions',
-            params: [
-              {
-                address: account,
-                chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
-                expiry: Math.floor(Date.now() / 1000) + 60 * 60,
-                key: { type: 'p256', publicKey },
-                permissions: {
-                  calls: [
-                    {
-                      to: ExperimentERC20.address[0],
-                    },
-                    {
-                      to: ExperimentERC20.address[1],
-                    },
-                  ],
-                  spend: [
-                    {
-                      period: 'day',
-                      token: ExperimentERC20.address[0],
-                      limit: Hex.fromNumber(Value.fromEther('50')),
-                    },
-                  ],
-                },
-              },
-            ],
-          })
-          setResult(result)
-        }}
-      >
-        <button type="submit">Grant Key Permissions</button>
-      </form>
-      {result && <pre>permissions: {JSON.stringify(result, null, 2)}</pre>}
-    </div>
-  )
-}
-
-function PrepareCalls() {
-  const [hash, setHash] = useState<string | null>(null)
-  return (
-    <form
-      onSubmit={async (e) => {
-        e.preventDefault()
-        const formData = new FormData(e.target as HTMLFormElement)
-        const action = formData.get('action') as string | null
-
-        const [account] = await porto.provider.request({
-          method: 'eth_accounts',
-        })
-
-        const request = await porto.provider.request({
-          method: 'wallet_prepareCalls',
-          params: [
-            {
-              calls: [
-                {
-                  to: ExperimentERC20.address[0],
-                  data: AbiFunction.encodeData(
-                    AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
-                    [account, Value.fromEther('10')],
-                  ),
-                },
-              ],
-              from: account,
-              chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
-            },
-          ],
-        })
-
-        const generatedKey = Json.parse(
-          localStorage.getItem('__generatedKey') ?? '{}',
-        ) as {
-          publicKey: Address.Address
-          privateKey: Address.Address
-        }
-
-        if (!generatedKey) throw new Error('No generated key found')
-
-        const signature = P256.sign({
-          payload: request.digest,
-          privateKey: generatedKey.privateKey,
-        })
-
-        const [{ id: hash }] = await porto.provider.request({
-          method: 'wallet_sendPreparedCalls',
-          params: [
-            {
-              ...request,
-              signature: {
-                type: 'p256',
-                publicKey: generatedKey.publicKey,
-                value: Signature.toHex(signature),
-              },
-            },
-          ],
-        })
-        setHash(hash)
-      }}
-    >
-      <h3>wallet_prepareCalls + Delegation.execute</h3>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <select name="action">
-          <option value="mint">Mint 10 EXP</option>
-        </select>
-        <button type="submit">Prepare</button>
-      </div>
-      {hash && (
-        <>
-          <pre>{hash}</pre>
-          <a
-            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Explorer
-          </a>
-        </>
-      )}
-    </form>
   )
 }
 
@@ -993,6 +857,177 @@ function SignTypedData() {
         {valid !== null && <pre>{valid ? 'valid' : 'invalid'}</pre>}
       </form>
     </>
+  )
+}
+
+let keyPair: {
+  publicKey: Hex.Hex
+  privateKey: Hex.Hex
+} | null = null
+
+function GrantKeyPermissions() {
+  const [result, setResult] = useState<any | null>(null)
+  return (
+    <div>
+      <button
+        onClick={async (e) => {
+          const privateKey = P256.randomPrivateKey()
+          const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+            includePrefix: false,
+          })
+
+          keyPair = { publicKey, privateKey }
+
+          const result = await porto.provider.request({
+            method: 'experimental_grantPermissions',
+            params: [
+              {
+                key: { type: 'p256', publicKey },
+                ...permissions(),
+              },
+            ],
+          })
+          setResult(result)
+        }}
+        type="button"
+      >
+        Create Key & Grant Permissions
+      </button>
+      {result && <pre>permissions: {JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  )
+}
+
+function PrepareCalls() {
+  const [hash, setHash] = useState<string | null>(null)
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault()
+        const formData = new FormData(e.target as HTMLFormElement)
+        const action = formData.get('action') as string | null
+
+        const [account] = await porto.provider.request({
+          method: 'eth_accounts',
+        })
+
+        const calls = (() => {
+          if (action === 'mint')
+            return [
+              {
+                to: ExperimentERC20.address[0],
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
+                  [account, Value.fromEther('100')],
+                ),
+              },
+            ]
+
+          if (action === 'transfer')
+            return [
+              {
+                to: ExperimentERC20.address[0],
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(ExperimentERC20.abi, 'approve'),
+                  [account, Value.fromEther('50')],
+                ),
+              },
+              {
+                to: ExperimentERC20.address[0],
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(ExperimentERC20.abi, 'transferFrom'),
+                  [
+                    account,
+                    '0x0000000000000000000000000000000000000000',
+                    Value.fromEther('50'),
+                  ],
+                ),
+              },
+            ] as const
+
+          if (action === 'revert')
+            return [
+              {
+                to: ExperimentERC20.address[1],
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(ExperimentERC20.abi, 'transferFrom'),
+                  [
+                    '0x0000000000000000000000000000000000000000',
+                    account,
+                    Value.fromEther('100'),
+                  ],
+                ),
+              },
+            ] as const
+
+          return [
+            {
+              to: '0x0000000000000000000000000000000000000000',
+              value: '0x0',
+            },
+            {
+              to: '0x0000000000000000000000000000000000000000',
+              value: '0x0',
+            },
+          ] as const
+        })()
+
+        const { digest, ...request } = await porto.provider.request({
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              calls,
+              chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
+            },
+          ],
+        })
+
+        if (!keyPair) throw new Error('create key first.')
+
+        const signature = Signature.toHex(
+          P256.sign({
+            payload: digest,
+            privateKey: keyPair.privateKey,
+          }),
+        )
+
+        const [{ id: hash }] = await porto.provider.request({
+          method: 'wallet_sendPreparedCalls',
+          params: [
+            {
+              ...request,
+              signature: {
+                type: 'p256',
+                publicKey: keyPair.publicKey,
+                value: signature,
+              },
+            },
+          ],
+        })
+        setHash(hash)
+      }}
+    >
+      <h3>wallet_prepareCalls → P256.sign → wallet_sendPreparedCalls</h3>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <select name="action">
+          <option value="mint">Mint 100 EXP</option>
+          <option value="transfer">Transfer 50 EXP</option>
+        </select>
+        <button type="submit">Sign & Send</button>
+      </div>
+      {hash && (
+        <>
+          <pre>{hash}</pre>
+          <a
+            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Explorer
+          </a>
+        </>
+      )}
+    </form>
   )
 }
 

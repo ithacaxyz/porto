@@ -544,9 +544,14 @@ export function from<
           const [parameters] = request.params
           const { chainId, from, version = '1.0' } = parameters
 
-          requireParameter(from, 'from')
-
           const client = getClient(chainId)
+
+          const account = from
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, from),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
 
           if (chainId && Hex.toNumber(chainId) !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
@@ -561,7 +566,7 @@ export function from<
               calls,
               client,
               request,
-              account: Account.from(from),
+              account: Account.from(account),
             })
 
           return {
@@ -627,11 +632,11 @@ export function from<
           if (chainId && Hex.toNumber(chainId) !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
-          requireParameter(from, 'from')
-
-          const account = state.accounts.find((account) =>
-            Address.isEqual(account.address, from),
-          )
+          const account = from
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, from),
+              )
+            : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
           const calls = parameters.calls.map((x) => {
