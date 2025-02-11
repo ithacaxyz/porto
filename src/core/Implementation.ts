@@ -13,6 +13,7 @@ import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { readContract } from 'viem/actions'
 
+import { RpcResponse } from 'ox'
 import * as Delegation from './Delegation.js'
 import * as Dialog from './Dialog.js'
 import type { Client, QueuedRequest } from './Porto.js'
@@ -663,17 +664,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // execute prepared calls directly with Delegation.execute
         if (request.method === 'wallet_sendPreparedCalls') {
+          requireParameter(nonce, 'nonce')
+          requireParameter(signature, 'signature')
+
           const hash = await Delegation.execute(client, {
             account,
             calls,
-            ...(nonce && signature
-              ? {
-                  nonce,
-                  signatures: [signature],
-                }
-              : {
-                  key,
-                }),
+            nonce,
+            signatures: [signature],
           })
 
           return hash
@@ -1083,4 +1081,14 @@ async function getAuthorizedExecuteKey(parameters: {
   )
 
   return sessionKey ?? adminKey
+}
+
+function requireParameter(
+  param: unknown,
+  details: string,
+): asserts param is NonNullable<typeof param> {
+  if (typeof param === 'undefined')
+    throw new RpcResponse.InvalidParamsError({
+      message: `Missing required parameter: ${details}`,
+    })
 }
