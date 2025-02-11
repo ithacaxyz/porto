@@ -657,6 +657,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // execute prepared calls directly with Delegation.execute
         if (request.method === 'wallet_sendPreparedCalls') {
           const [{ signature }] = request.params
+          const signatureValue = signature?.value
 
           const hash = await Delegation.execute(client, {
             account,
@@ -665,7 +666,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ? { key }
               : {
                   nonce,
-                  signatures: (signature ? [signature] : undefined) as any,
+                  signatures: (signatureValue
+                    ? [signatureValue]
+                    : undefined) as any,
                 }),
           })
 
