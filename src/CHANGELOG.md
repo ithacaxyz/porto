@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.12
+
+### Patch Changes
+
+- [#46](https://github.com/ithacaxyz/porto/pull/46) [`dd9b5b2`](https://github.com/ithacaxyz/porto/commit/dd9b5b20114e0514e842191da6d22d160ef61f8f) Thanks [@o-az](https://github.com/o-az)! - Added support for `wallet_prepareCalls` & `wallet_sendPreparedCalls`.
+
 ## 0.0.11
 
 ### Patch Changes
