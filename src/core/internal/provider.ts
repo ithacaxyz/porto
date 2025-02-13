@@ -83,7 +83,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })
@@ -127,7 +127,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })
@@ -156,7 +156,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })
@@ -187,7 +187,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })
@@ -238,7 +238,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })
@@ -278,7 +278,7 @@ export function from<
               internal: {
                 client,
                 config,
-                request: request.raw,
+                request,
                 store,
               },
             })
@@ -329,7 +329,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })
@@ -383,7 +383,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })
@@ -404,7 +404,7 @@ export function from<
           const internal = {
             client,
             config,
-            request: request.raw,
+            request,
             store,
           }
 
@@ -539,7 +539,12 @@ export function from<
             await implementation.actions.prepareExecute({
               calls,
               client,
-              request: request.raw,
+              internal: {
+                client,
+                config,
+                request,
+                store,
+              },
               account: Account.from(account),
             })
 
@@ -574,7 +579,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })
@@ -610,7 +615,7 @@ export function from<
             internal: {
               client,
               config,
-              request: request.raw,
+              request,
               store,
             },
           })

@@ -7,7 +7,6 @@ import * as PersonalMessage from 'ox/PersonalMessage'
 import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as RpcRequest from 'ox/RpcRequest'
-import * as RpcResponse from 'ox/RpcResponse'
 import * as RpcSchema from 'ox/RpcSchema'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as TypedData from 'ox/TypedData'
@@ -25,11 +24,11 @@ import * as Key from './internal/key.js'
 import * as Permissions from './internal/permissions.js'
 import * as PermissionsRequest from './internal/permissionsRequest.js'
 import type * as Porto from './internal/porto.js'
-import * as Rpc from './internal/typebox/rpc.js'
+import type * as Rpc from './internal/typebox/rpc.js'
 import * as Schema from './internal/typebox/schema.js'
 import type { Compute, PartialBy } from './internal/types.js'
 
-type Request = Schema.Static<typeof Rpc.Request>
+type Request = Rpc.Parse.ReturnType
 
 type ActionsInternal = Porto.Internal & {
   /** Viem Client. */
@@ -63,8 +62,8 @@ export type Implementation = {
       calls: readonly Call.Call[]
       /** Viem Clients. */
       client: Client
-      /** RPC Request. */
-      request: Request
+      /** Internal properties. */
+      internal: ActionsInternal
     }) => Promise<{
       /** RPC Request. */
       request: unknown
@@ -537,9 +536,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
     actions: {
       async createAccount(parameters) {
         const { internal } = parameters
-        const { client, store } = internal
-
-        const request = Rpc.Parse(internal.request)
+        const { client, request, store } = internal
 
         const provider = getProvider(store)
 
@@ -670,11 +667,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method === 'eth_sendTransaction')
           // Send a transaction request to the dialog.
-          return await provider.request(request)
+          return (await provider.request(request.raw)) as Hex.Hex
 
         if (request.method === 'wallet_sendCalls')
           // Send calls request to the dialog.
-          return (await provider.request(request as never)) as Hex.Hex
+          return (await provider.request(request.raw)) as Hex.Hex
 
         // execute prepared calls directly with Delegation.execute
         if (request.method === 'wallet_sendPreparedCalls') {
@@ -693,9 +690,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async grantPermissions(parameters) {
         const { internal } = parameters
-        const { store } = internal
-
-        const request = Rpc.Parse(internal.request)
+        const { request, store } = internal
 
         if (request.method !== 'experimental_grantPermissions')
           throw new Error(
@@ -725,9 +720,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async loadAccounts(parameters) {
         const { internal } = parameters
-        const { store } = internal
-
-        const request = Rpc.Parse(internal.request)
+        const { store, request } = internal
 
         const provider = getProvider(store)
 
@@ -799,13 +792,16 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { internal } = parameters
         const { store, request } = internal
 
-        if (request.method !== 'experimental_prepareCreateAccount')
+        if (
+          request.method !== 'experimental_prepareCreateAccount' ||
+          request.raw.method !== 'experimental_prepareCreateAccount'
+        )
           throw new Error(
             'Cannot prepare create account for method: ' + request.method,
           )
 
         const provider = getProvider(store)
-        return await provider.request(request)
+        return await provider.request(request.raw)
       },
 
       async revokePermissions(parameters) {
@@ -1107,14 +1103,4 @@ async function getAuthorizedExecuteKey(parameters: {
   )
 
   return sessionKey ?? adminKey
-}
-
-export function requireParameter(
-  param: unknown,
-  details: string,
-): asserts param is NonNullable<typeof param> {
-  if (typeof param === 'undefined')
-    throw new RpcResponse.InvalidParamsError({
-      message: `Missing required parameter: ${details}`,
-    })
 }
