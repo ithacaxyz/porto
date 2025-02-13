@@ -1,41 +1,23 @@
 import * as Address from 'ox/Address'
-import * as Hex from 'ox/Hex'
+import type * as Hex from 'ox/Hex'
 
 import * as Key from './key.js'
+import * as Permissions from './typebox/permissions.js'
+import type { StaticDecode } from './typebox/schema.js'
 
-export type PermissionsRequest = {
-  address?: Address.Address | undefined
-  chainId?: Hex.Hex | undefined
-  expiry: number
-  key?:
-    | {
-        publicKey: Hex.Hex
-        type: Key.Key['type'] | 'contract'
-      }
-    | undefined
-  permissions: Key.Permissions<Hex.Hex>
-}
+export const Schema = Permissions.Request
+
+export type PermissionsRequest = StaticDecode<typeof Schema>
 
 export function fromKey(key: Key.Key): PermissionsRequest {
-  const { expiry, publicKey, type } = key
-
-  const permissions = key.permissions
-    ? {
-        ...key.permissions,
-        spend: key.permissions.spend?.map((spend) => ({
-          ...spend,
-          limit: Hex.fromNumber(spend.limit),
-        })),
-      }
-    : {}
-
+  const { expiry, permissions, publicKey, type } = key
   return {
     expiry,
     key: {
       publicKey,
       type,
     },
-    permissions,
+    permissions: permissions ?? {},
   }
 }
 
@@ -53,15 +35,7 @@ export async function toKey(
 
   const expiry = request.expiry ?? 0
   const type = request.key?.type ?? 'secp256k1'
-  const permissions = request.permissions
-    ? {
-        ...request.permissions,
-        spend: request.permissions.spend?.map((spend) => ({
-          ...spend,
-          limit: BigInt(spend.limit ?? 0),
-        })),
-      }
-    : {}
+  const permissions = request.permissions ?? {}
 
   let publicKey = request?.key?.publicKey ?? '0x'
   // If the public key is not an address for secp256k1, convert it to an address.

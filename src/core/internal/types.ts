@@ -412,3 +412,20 @@ export type UnionPartialBy<T, K extends keyof T> = T extends any
 export type UnionRequiredBy<T, K extends keyof T> = T extends any
   ? RequiredBy<T, K>
   : never
+
+type Primitive = string | number | boolean | bigint | symbol | undefined | null
+type Builtin = Primitive | Date | Error | RegExp
+
+export type DeepReadonly<T> = T extends Builtin
+  ? T
+  : IsUnknown<T> extends true
+    ? T
+    : T extends object
+      ? Readonly<{
+          [K in keyof T]: T[K] extends Primitive ? T[K] : DeepReadonly<T[K]>
+        }>
+      : T extends Array<infer U>
+        ? U extends Primitive
+          ? Readonly<Array<U>>
+          : Readonly<Array<DeepReadonly<U>>>
+        : never

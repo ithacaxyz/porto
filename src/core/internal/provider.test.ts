@@ -160,7 +160,6 @@ describe('experimental_grantPermissions', () => {
                 "signature": "mint()",
               },
             ],
-            "spend": undefined,
           },
           "privateKey": CryptoKey {},
           "publicKey": null,
@@ -218,7 +217,6 @@ describe('experimental_grantPermissions', () => {
               "signature": "mint()",
             },
           ],
-          "spend": undefined,
         },
       }
     `)
@@ -278,48 +276,47 @@ describe('experimental_grantPermissions', () => {
         publicKey: null,
       })),
     ).toMatchInlineSnapshot(`
-        [
-          {
-            "canSign": true,
-            "expiry": null,
-            "permissions": undefined,
-            "privateKey": [Function],
-            "publicKey": null,
-            "role": "admin",
-            "type": "p256",
+      [
+        {
+          "canSign": true,
+          "expiry": null,
+          "permissions": undefined,
+          "privateKey": [Function],
+          "publicKey": null,
+          "role": "admin",
+          "type": "p256",
+        },
+        {
+          "canSign": false,
+          "expiry": null,
+          "permissions": {
+            "calls": [
+              {
+                "signature": "mint()",
+              },
+            ],
           },
-          {
-            "canSign": false,
-            "expiry": null,
-            "permissions": {
-              "calls": [
-                {
-                  "signature": "mint()",
-                },
-              ],
-              "spend": undefined,
-            },
-            "publicKey": null,
-            "role": "session",
-            "type": "p256",
+          "publicKey": null,
+          "role": "session",
+          "type": "p256",
+        },
+        {
+          "canSign": false,
+          "expiry": null,
+          "permissions": {
+            "spend": [
+              {
+                "limit": 1500000000000000000n,
+                "period": "day",
+              },
+            ],
           },
-          {
-            "canSign": false,
-            "expiry": null,
-            "permissions": {
-              "spend": [
-                {
-                  "limit": 1500000000000000000n,
-                  "period": "day",
-                },
-              ],
-            },
-            "publicKey": null,
-            "role": "session",
-            "type": "secp256k1",
-          },
-        ]
-      `)
+          "publicKey": null,
+          "role": "session",
+          "type": "secp256k1",
+        },
+      ]
+    `)
 
     expect(messages[0].type).toBe('permissionsChanged')
     expect(messages[0].data.length).toBe(1)
@@ -337,7 +334,10 @@ describe('experimental_grantPermissions', () => {
       method: 'experimental_grantPermissions',
       params: [
         {
-          key,
+          key: {
+            publicKey: key.publicKey,
+            type: key.type,
+          },
           expiry: 9999999999,
           permissions: {
             signatureVerification: {
@@ -395,7 +395,12 @@ describe('experimental_grantPermissions', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[RpcResponse.InternalError: permissions are required.]',
+      `
+      [RpcResponse.InvalidParamsError: Expected object to have at least 1 properties
+
+      Path: params.0.permissions
+      Value: {}]
+    `,
     )
   })
 
@@ -422,7 +427,11 @@ describe('experimental_grantPermissions', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[RpcResponse.InternalError: expiry is required.]',
+      `
+      [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
+
+      Path: params.0.expiry]
+    `,
     )
   })
 })
@@ -523,7 +532,6 @@ describe('experimental_revokePermissions', () => {
                 "signature": "mint()",
               },
             ],
-            "spend": undefined,
           },
           "privateKey": CryptoKey {},
           "publicKey": null,
@@ -730,7 +738,6 @@ describe('wallet_connect', () => {
                 "signature": "mint()",
               },
             ],
-            "spend": undefined,
           },
           "privateKey": CryptoKey {},
           "publicKey": null,
@@ -804,7 +811,6 @@ describe('wallet_connect', () => {
                 "signature": "mint()",
               },
             ],
-            "spend": undefined,
           },
           "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
           "role": "session",
@@ -836,7 +842,11 @@ describe('wallet_connect', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[RpcResponse.InternalError: expiry is required.]',
+      `
+      [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
+
+      Path: params.0.capabilities.grantPermissions.expiry]
+    `,
     )
   })
 
@@ -858,7 +868,12 @@ describe('wallet_connect', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[RpcResponse.InternalError: permissions are required.]',
+      `
+      [RpcResponse.InvalidParamsError: Expected object to have at least 1 properties
+
+      Path: params.0.capabilities.grantPermissions.permissions
+      Value: {}]
+    `,
     )
   })
 })
@@ -1271,6 +1286,86 @@ describe('wallet_sendCalls', () => {
       '[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]',
     )
   })
+
+  test('behavior: no calls', async () => {
+    const porto = createPorto()
+
+    const { address } = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+
+    await expect(() =>
+      porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            from: address,
+            calls: [],
+            version: '1',
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
+
+      Path: params.0.calls
+      Value: []]
+    `,
+    )
+  })
+
+  test('behavior: no calls.to', async () => {
+    const porto = createPorto()
+
+    const { address } = await porto.provider.request({
+      method: 'experimental_createAccount',
+    })
+
+    await expect(() =>
+      porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            from: address,
+            calls: [
+              // @ts-ignore
+              {
+                data: '0xdeadbeef',
+              },
+            ],
+            version: '1',
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [RpcResponse.InvalidParamsError: Expected required property
+
+      Path: params.0.calls.0.to]
+    `,
+    )
+  })
+})
+
+test('behavior: fall through', async () => {
+  const porto = createPorto()
+  expect(
+    await porto.provider.request({
+      method: 'eth_blockNumber',
+    }),
+  ).toBeDefined()
+})
+
+test('behavior: unsupported wallet_ method', async () => {
+  const porto = createPorto()
+  await expect(() =>
+    porto.provider.request({
+      method: 'wallet_lol',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    '[Provider.UnsupportedMethodError: The provider does not support the requested method.]',
+  )
 })
 
 const typedData = {

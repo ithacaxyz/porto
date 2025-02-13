@@ -62,7 +62,7 @@ export type CallScope = OneOf<
       to: Address.Address
     }
 >
-export type CallScopes = readonly [CallScope, ...CallScope[]]
+export type CallScopes = readonly CallScope[]
 
 export type Permissions<bigintType = bigint> = {
   calls?: CallScopes | undefined

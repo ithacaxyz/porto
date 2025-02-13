@@ -75,7 +75,7 @@
       "name": "import * from 'ox'",
       "path": "./src/_dist/index.js",
       "import": "*",
-      "limit": "67 kB"
+      "limit": "85 kB"
     }
   ]
 }
