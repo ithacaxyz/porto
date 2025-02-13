@@ -11,7 +11,7 @@ import {
   getConnectorClient,
   disconnect as wagmi_disconnect,
 } from '@wagmi/core/actions'
-import type { RpcSchema } from 'ox'
+import type * as RpcSchema_ox from 'ox/RpcSchema'
 import {
   type Address,
   type Chain,
@@ -20,14 +20,10 @@ import {
   type PrivateKeyAccount,
 } from 'viem'
 
-import type { Schema } from '../../core/RpcSchema.js'
-import type {
-  CreateAccountParameters,
-  GrantPermissionsParameters,
-  GrantPermissionsReturnType,
-  PermissionsReturnType,
-  RevokePermissionsParameters,
-} from '../../core/internal/rpcSchema.js'
+import type * as RpcSchema from '../../core/RpcSchema.js'
+import * as Capabilities from '../../core/internal/typebox/capabilities.js'
+import * as Rpc from '../../core/internal/typebox/rpc.js'
+import * as Schema from '../../core/internal/typebox/schema.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
 
 export async function connect<config extends Config>(
@@ -69,11 +65,18 @@ export async function connect<config extends Config>(
     type method = typeof method
     await provider.request<{
       Method: method
-      Parameters?: RpcSchema.ExtractParams<Schema, method>
-      ReturnType: RpcSchema.ExtractReturnType<Schema, method>
+      Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+      ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
     }>({
       method,
-      params: [{ capabilities: { grantPermissions, createAccount } }],
+      params: [
+        {
+          capabilities: Schema.Encode(Capabilities.Connect, {
+            grantPermissions,
+            createAccount,
+          }),
+        },
+      ],
     })
     // we already connected, but call `connector.connect` so connector even listeners are set up
     const data = await connector.connect({
@@ -111,9 +114,13 @@ export async function connect<config extends Config>(
 
 export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    grantPermissions?: GrantPermissionsParameters | undefined
+    grantPermissions?:
+      | Schema.Static<typeof Capabilities.Connect.properties.grantPermissions>
+      | undefined
     connector: Connector | CreateConnectorFn
-    createAccount?: boolean | CreateAccountParameters | undefined
+    createAccount?:
+      | Schema.Static<typeof Capabilities.Connect.properties.createAccount>
+      | undefined
   }
 
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
@@ -161,8 +168,8 @@ export async function createAccount<config extends Config>(
     type method = typeof method
     await provider.request<{
       Method: method
-      Parameters?: RpcSchema.ExtractParams<Schema, method>
-      ReturnType: RpcSchema.ExtractReturnType<Schema, method>
+      Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+      ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
     }>({
       method,
       params: [{ label }],
@@ -266,22 +273,29 @@ export async function grantPermissions<config extends Config>(
   type method = typeof method
   return client.request<{
     Method: method
-    Parameters?: RpcSchema.ExtractParams<Schema, method>
-    ReturnType: RpcSchema.ExtractReturnType<Schema, method>
+    Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+    ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
   }>({
     method,
-    params: [{ address, ...key }],
+    params: [
+      Schema.Encode(Rpc.experimental_grantPermissionsParams0, {
+        address,
+        ...key,
+      }),
+    ],
   })
 }
 
 export declare namespace grantPermissions {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    GrantPermissionsParameters & {
+    Schema.Static<typeof Rpc.experimental_grantPermissionsParams0> & {
       address?: Address | undefined
     }
 
-  type ReturnType = GrantPermissionsReturnType
+  type ReturnType = Schema.Static<
+    typeof Rpc.experimental_grantPermissions.ReturnType
+  >
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError
@@ -303,8 +317,8 @@ export async function permissions<config extends Config>(
   type method = typeof method
   return client.request<{
     Method: method
-    Parameters?: RpcSchema.ExtractParams<Schema, method>
-    ReturnType: RpcSchema.ExtractReturnType<Schema, method>
+    Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+    ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
   }>({
     method,
     params: [{ address }],
@@ -317,7 +331,9 @@ export declare namespace permissions {
       address?: Address | undefined
     }
 
-  type ReturnType = PermissionsReturnType
+  type ReturnType = Schema.Static<
+    typeof Rpc.experimental_permissions.ReturnType
+  >
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError
@@ -339,8 +355,8 @@ export async function revokePermissions<config extends Config>(
   type method = typeof method
   return client.request<{
     Method: method
-    Parameters?: RpcSchema.ExtractParams<Schema, method>
-    ReturnType: RpcSchema.ExtractReturnType<Schema, method>
+    Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+    ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
   }>({
     method,
     params: [{ address, id }],
@@ -351,7 +367,7 @@ export declare namespace revokePermissions {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter & {
       address?: Address | undefined
-      id: RevokePermissionsParameters['id']
+      id: Schema.Static<typeof Rpc.experimental_revokePermissionsParams0>['id']
     }
 
   // TODO: Exhaustive ErrorType
@@ -394,24 +410,25 @@ export async function upgradeAccount<config extends Config>(
 
     const { account, grantPermissions, label } = parameters
 
-    const experimental_prepareCreateAccount =
-      'experimental_prepareCreateAccount'
-    type experimental_prepareCreateAccount =
-      typeof experimental_prepareCreateAccount
+    const method = 'experimental_prepareCreateAccount'
+    type method = typeof method
     const { context, signPayloads } = await provider.request<{
-      Method: experimental_prepareCreateAccount
-      Parameters?: RpcSchema.ExtractParams<
-        Schema,
-        experimental_prepareCreateAccount
-      >
-      ReturnType: RpcSchema.ExtractReturnType<
-        Schema,
-        experimental_prepareCreateAccount
-      >
+      Method: method
+      Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+      ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
     }>({
-      method: experimental_prepareCreateAccount,
+      method: method,
       params: [
-        { address: account.address, capabilities: { grantPermissions }, label },
+        {
+          address: account.address,
+          capabilities: {
+            grantPermissions: Schema.Encode(
+              Capabilities.Connect.properties.grantPermissions,
+              grantPermissions,
+            ),
+          },
+          label,
+        },
       ],
     })
 
@@ -423,10 +440,11 @@ export async function upgradeAccount<config extends Config>(
     type experimental_createAccount = typeof experimental_createAccount
     await provider.request<{
       Method: experimental_createAccount
-      Parameters?: RpcSchema.ExtractParams<Schema, experimental_createAccount>
-      ReturnType: RpcSchema.ExtractReturnType<
-        Schema,
-        experimental_createAccount
+      Parameters?: Schema.Static<
+        typeof Rpc.experimental_createAccount.Request.properties.params
+      >
+      ReturnType: Schema.Static<
+        typeof Rpc.experimental_createAccount.ReturnType
       >
     }>({
       method: experimental_createAccount,
@@ -469,7 +487,9 @@ export async function upgradeAccount<config extends Config>(
 
 export declare namespace upgradeAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    grantPermissions?: GrantPermissionsParameters | undefined
+    grantPermissions?:
+      | Schema.Static<typeof Capabilities.Connect.properties.grantPermissions>
+      | undefined
     account: PrivateKeyAccount
     connector: Connector | CreateConnectorFn
     label?: string | undefined

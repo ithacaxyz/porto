@@ -312,6 +312,9 @@ importers:
 
   src:
     dependencies:
+      '@sinclair/typebox':
+        specifier: ~0.34
+        version: 0.34.16
       idb-keyval:
         specifier: ^6.2.1
         version: 6.2.1
@@ -1662,6 +1665,9 @@ packages:
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
+
+  '@sinclair/typebox@0.34.16':
+    resolution: {integrity: sha512-rIljj8VPYAfn26ANY+5pCNVBPiv6hSufuKGe46y65cJZpvx8vHvPXlU0Q/Le4OGtlNaL8Jg2FuhtvQX18lSIqA==}
 
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
@@ -7390,6 +7396,8 @@ snapshots:
       '@scure/base': 1.2.4
 
   '@sec-ant/readable-stream@0.4.1': {}
+
+  '@sinclair/typebox@0.34.16': {}
 
   '@sindresorhus/is@4.6.0': {}
 

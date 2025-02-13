@@ -15,6 +15,7 @@
     "!jsr.json"
   ],
   "dependencies": {
+    "@sinclair/typebox": "~0.34",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
     "ox": "^0.6.4",
