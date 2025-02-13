@@ -665,13 +665,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
 
-        if (request.method === 'eth_sendTransaction')
+        if (
+          request.method === 'eth_sendTransaction' &&
+          request.raw.method === 'eth_sendTransaction'
+        )
           // Send a transaction request to the dialog.
-          return (await provider.request(request.raw)) as Hex.Hex
+          return await provider.request(request.raw)
 
-        if (request.method === 'wallet_sendCalls')
+        if (
+          request.method === 'wallet_sendCalls' &&
+          request.raw.method === 'wallet_sendCalls'
+        )
           // Send calls request to the dialog.
-          return (await provider.request(request.raw)) as Hex.Hex
+          return await provider.request(request.raw)
 
         // execute prepared calls directly with Delegation.execute
         if (request.method === 'wallet_sendPreparedCalls') {
