@@ -1,6 +1,5 @@
 import {
   AbiFunction,
-  type Address,
   Hex,
   Json,
   P256,

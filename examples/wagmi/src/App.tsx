@@ -1,5 +1,5 @@
 import { Hooks } from 'porto/wagmi'
-import { type Hex, formatEther, parseEther, toHex } from 'viem'
+import { type Hex, formatEther, parseEther } from 'viem'
 import {
   type BaseError,
   useAccount,
@@ -27,7 +27,7 @@ const key = () =>
       ],
       spend: [
         {
-          limit: toHex(parseEther('50')),
+          limit: parseEther('50'),
           period: 'minute',
           token: ExperimentERC20.address,
         },
