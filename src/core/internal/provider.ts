@@ -48,7 +48,10 @@ export function from<
       try {
         request = Rpc.parseRequest(request_)
       } catch (e) {
-        if ((e as any).error?.type !== 62) throw e
+        const unsupportedCode = 62
+        if ((e as any).error?.type !== unsupportedCode) throw e
+
+        // catch unsupported methods
         if ((request_ as { method: string }).method.startsWith('wallet_'))
           throw new ox_Provider.UnsupportedMethodError()
         return getClient().request(request_ as any)
@@ -103,7 +106,8 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ chainId, data = '0x', from, to, value }] = request.params
+          const [{ chainId, data = '0x', from, to, value }] =
+            request._decoded.params
 
           const client = getClient(chainId)
 
@@ -141,7 +145,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [address, data] = request.params
+          const [address, data] = request._decoded.params
 
           const account = state.accounts.find((account) =>
             Address.isEqual(account.address, address),
@@ -170,7 +174,8 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, chainId, ...permissions }] = request.params ?? [{}]
+          const [{ address, chainId, ...permissions }] = request._decoded
+            .params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -225,9 +230,8 @@ export function from<
         }
 
         case 'experimental_createAccount': {
-          const [{ chainId, label, context, signatures }] = request.params ?? [
-            {},
-          ]
+          const [{ chainId, label, context, signatures }] = request._decoded
+            .params ?? [{}]
 
           const client = getClient(chainId)
 
@@ -263,8 +267,8 @@ export function from<
         }
 
         case 'experimental_prepareCreateAccount': {
-          const [{ address, capabilities, chainId, label }] =
-            request.params ?? [{}]
+          const [{ address, capabilities, chainId, label }] = request._decoded
+            .params ?? [{}]
 
           const { grantPermissions: permissions } = capabilities ?? {}
 
@@ -295,7 +299,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address }] = request.params ?? [{}]
+          const [{ address }] = request._decoded.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -312,7 +316,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, id }] = request.params
+          const [{ address, id }] = request._decoded.params
 
           const account = address
             ? state.accounts.find((account) =>
@@ -368,7 +372,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [data, address] = request.params
+          const [data, address] = request._decoded.params
 
           const account = state.accounts.find((account) =>
             Address.isEqual(account.address, address),
@@ -394,7 +398,7 @@ export function from<
         }
 
         case 'wallet_connect': {
-          const [{ capabilities }] = request.params ?? [{}]
+          const [{ capabilities }] = request._decoded.params ?? [{}]
 
           const client = getClient()
 
@@ -481,7 +485,7 @@ export function from<
         }
 
         case 'wallet_getCallsStatus': {
-          const [id] = request.params ?? []
+          const [id] = request._decoded.params ?? []
 
           const client = getClient()
 
@@ -520,7 +524,7 @@ export function from<
         }
 
         case 'wallet_prepareCalls': {
-          const [parameters] = request.params
+          const [parameters] = request._decoded.params
           const { calls, chainId, from, version = '1.0' } = parameters
 
           const client = getClient(chainId)
@@ -557,7 +561,7 @@ export function from<
         }
 
         case 'wallet_sendPreparedCalls': {
-          const [parameters] = request.params
+          const [parameters] = request._decoded.params
           const { signature, chainId } = parameters
           const { account, calls, nonce } = parameters.context
 
@@ -593,7 +597,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [parameters] = request.params
+          const [parameters] = request._decoded.params
           const { calls, capabilities, chainId, from } = parameters
 
           const client = getClient(chainId)

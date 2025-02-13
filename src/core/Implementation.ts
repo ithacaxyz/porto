@@ -541,12 +541,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const provider = getProvider(store)
 
         const account = await (async () => {
-          if (
-            request.method === 'experimental_createAccount' &&
-            request.raw.method === 'experimental_createAccount'
-          ) {
+          if (request.method === 'experimental_createAccount') {
             // Extract the capabilities from the request.
-            const [{ context, signatures }] = request.params ?? [{}]
+            const [{ context, signatures }] = request._decoded.params ?? [{}]
 
             // If the context and signatures are provided, we can create
             // the account without sending a request to the dialog.
@@ -562,18 +559,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
             }
 
             // Send a request off to the dialog to create an account.
-            const { address } = await provider.request(request.raw)
+            const { address } = await provider.request(request)
             return Account.from({
               address,
             })
           }
 
-          if (
-            request.method === 'wallet_connect' &&
-            request.raw.method === 'wallet_connect'
-          ) {
+          if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
-            const [{ capabilities }] = request.params ?? [{}]
+            const [{ capabilities }] = request._decoded.params ?? [{}]
 
             // Parse the authorize key into a structured key.
             const key = await PermissionsRequest.toKey(
@@ -590,11 +584,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             // Send a request off to the dialog to create an account.
             const { accounts } = await provider.request({
-              ...request.raw,
+              ...request,
               params: [
                 {
                   capabilities: {
-                    ...request.raw.params?.[0]?.capabilities,
+                    ...request.params?.[0]?.capabilities,
                     grantPermissions: permissionsRequest,
                   },
                 },
@@ -665,19 +659,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
 
-        if (
-          request.method === 'eth_sendTransaction' &&
-          request.raw.method === 'eth_sendTransaction'
-        )
+        if (request.method === 'eth_sendTransaction')
           // Send a transaction request to the dialog.
-          return await provider.request(request.raw)
+          return await provider.request(request)
 
-        if (
-          request.method === 'wallet_sendCalls' &&
-          request.raw.method === 'wallet_sendCalls'
-        )
+        if (request.method === 'wallet_sendCalls')
           // Send calls request to the dialog.
-          return await provider.request(request.raw)
+          return await provider.request(request)
 
         // execute prepared calls directly with Delegation.execute
         if (request.method === 'wallet_sendPreparedCalls') {
@@ -703,7 +691,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot grant permissions for method: ' + request.method,
           )
 
-        const [{ address, ...permissions }] = request.params
+        const [{ address, ...permissions }] = request._decoded.params
 
         // Parse permissions request into a structured key.
         const key = await PermissionsRequest.toKey(permissions)
@@ -736,11 +724,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
             return addresses.map((address) => Account.from({ address }))
           }
 
-          if (
-            request.method === 'wallet_connect' &&
-            request.raw.method === 'wallet_connect'
-          ) {
-            const [{ capabilities }] = request.params ?? [{}]
+          if (request.method === 'wallet_connect') {
+            const [{ capabilities }] = request._decoded.params ?? [{}]
 
             // Parse provided (RPC) key into a structured key.
             const key = await PermissionsRequest.toKey(
@@ -757,12 +742,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             // Send a request to the dialog.
             const result = await provider.request({
-              ...request.raw,
+              ...request,
               params: [
                 {
-                  ...request.raw.params?.[0],
+                  ...request.params?.[0],
                   capabilities: {
-                    ...request.raw.params?.[0]?.capabilities,
+                    ...request.params?.[0]?.capabilities,
                     grantPermissions: permissionsRequest,
                   },
                 },
@@ -798,16 +783,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { internal } = parameters
         const { store, request } = internal
 
-        if (
-          request.method !== 'experimental_prepareCreateAccount' ||
-          request.raw.method !== 'experimental_prepareCreateAccount'
-        )
+        if (request.method !== 'experimental_prepareCreateAccount')
           throw new Error(
             'Cannot prepare create account for method: ' + request.method,
           )
 
         const provider = getProvider(store)
-        return await provider.request(request.raw)
+        return await provider.request(request)
       },
 
       async revokePermissions(parameters) {

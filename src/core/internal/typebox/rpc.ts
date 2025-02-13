@@ -1,6 +1,7 @@
 import * as Json from 'ox/Json'
 import * as RpcResponse from 'ox/RpcResponse'
 
+import type { Union } from '@sinclair/typebox/type'
 import * as RpcRequest from './request.js'
 import { type StaticDecode, type StaticEncode, Type, Value } from './schema.js'
 
@@ -46,16 +47,20 @@ export function parseRequest(request: unknown): parseRequest.ReturnType {
   }
 
   Value.Assert(Request, raw)
-  const value = Value.Decode(Request, raw)
+  const _decoded = Value.Decode(Request, raw)
 
   return {
-    ...value,
-    raw,
-  }
+    ...raw,
+    _decoded,
+  } as never
 }
 
 export declare namespace parseRequest {
-  export type ReturnType = StaticDecode<typeof Request> & {
-    raw: StaticEncode<typeof Request>
-  }
+  export type ReturnType = typeof Request extends Union<infer U>
+    ? {
+        [K in keyof U]: StaticEncode<U[K]> & {
+          _decoded: StaticDecode<U[K]>
+        }
+      }[number]
+    : never
 }
