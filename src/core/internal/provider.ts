@@ -44,9 +44,9 @@ export function from<
   const provider = ox_Provider.from({
     ...emitter,
     async request(request_) {
-      let request: Rpc.Parse.ReturnType
+      let request: Rpc.parseRequest.ReturnType
       try {
-        request = Rpc.Parse(request_)
+        request = Rpc.parseRequest(request_)
       } catch (e) {
         if ((e as any).error?.type !== 62) throw e
         if ((request_ as { method: string }).method.startsWith('wallet_'))

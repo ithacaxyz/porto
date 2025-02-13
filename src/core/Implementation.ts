@@ -28,7 +28,7 @@ import type * as Rpc from './internal/typebox/rpc.js'
 import * as Schema from './internal/typebox/schema.js'
 import type { Compute, PartialBy } from './internal/types.js'
 
-type Request = Rpc.Parse.ReturnType
+type Request = Rpc.parseRequest.ReturnType
 
 type ActionsInternal = Porto.Internal & {
   /** Viem Client. */

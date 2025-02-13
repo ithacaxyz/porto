@@ -28,7 +28,7 @@ export const Request = Type.Union([
   RpcRequest.wallet_sendPreparedCalls.Request,
 ])
 
-export function Parse(request: unknown): Parse.ReturnType {
+export function parseRequest(request: unknown): parseRequest.ReturnType {
   const raw = Value.Convert(Request, request)
 
   const method = RpcRequest[(raw as any).method as keyof typeof RpcRequest]
@@ -54,7 +54,7 @@ export function Parse(request: unknown): Parse.ReturnType {
   }
 }
 
-export declare namespace Parse {
+export declare namespace parseRequest {
   export type ReturnType = StaticDecode<typeof Request> & {
     raw: StaticEncode<typeof Request>
   }
