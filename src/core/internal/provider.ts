@@ -529,7 +529,8 @@ export function from<
 
           const client = getClient(chainId)
 
-          const account = from ?? (state.accounts[0] as Account.Account)
+          const account = from ?? state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
 
           if (chainId && chainId !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
