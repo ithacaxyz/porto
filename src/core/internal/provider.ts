@@ -529,7 +529,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          if (!from) throw new ox_Provider.UnauthorizedError()
+          const account = from ?? (state.accounts[0] as Account.Account)
 
           if (chainId && chainId !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
@@ -544,7 +544,10 @@ export function from<
                 request,
                 store,
               },
-              account: Account.from({ address: from }),
+              account:
+                typeof account === 'string'
+                  ? Account.from({ address: account })
+                  : account,
             })
 
           return {
