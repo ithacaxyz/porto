@@ -544,10 +544,7 @@ export function from<
                 request,
                 store,
               },
-              account:
-                typeof account === 'string'
-                  ? Account.from({ address: account })
-                  : account,
+              account: Account.from(account),
             })
 
           return {
