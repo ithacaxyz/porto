@@ -2,4 +2,4 @@
 "porto": patch
 ---
 
-remove address check against state in wallet_prepareCalls
+Updated `wallet_prepareCalls` to not require account state.
