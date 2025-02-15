@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.13
+
+### Patch Changes
+
+- [#51](https://github.com/ithacaxyz/porto/pull/51) [`e37e70e`](https://github.com/ithacaxyz/porto/commit/e37e70e67a4f2361aa81a4b6d2dadd6ca0a105aa) Thanks [@o-az](https://github.com/o-az)! - Updated `wallet_prepareCalls` to not require account state.
+
 ## 0.0.12
 
 ### Patch Changes
