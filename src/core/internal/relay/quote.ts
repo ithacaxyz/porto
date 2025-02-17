@@ -38,10 +38,13 @@ export async function estimateFee(
   client: Client,
   options: estimateFee.Options,
 ): Promise<Quote<true>> {
-  const { token = '0x0000000000000000000000000000000000000000', ...action } =
-    options
+  const {
+    delegation,
+    token = '0x0000000000000000000000000000000000000000',
+    ...action
+  } = options
 
-  const request = ActionRequest.toRpc(action)
+  const request = ActionRequest.toRpc(action, { authorization: delegation })
 
   const result = await client.request<any>({
     method: 'relay_estimateFee',
@@ -53,6 +56,7 @@ export async function estimateFee(
 
 export declare namespace estimateFee {
   type Options = ActionRequest.ActionRequest & {
+    delegation?: Address.Address | undefined
     token?: Address.Address | undefined
   }
 }

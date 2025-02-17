@@ -1,33 +1,86 @@
+import * as AbiParameters from 'ox/AbiParameters'
 import type * as Address from 'ox/Address'
 import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
+import * as TypedData from 'ox/TypedData'
 import type { Client } from 'viem'
 import {
   type Authorization as Authorization_viem,
   prepareAuthorization,
 } from 'viem/experimental'
 
+import { readContract } from 'viem/actions'
 import * as Account from '../account.js'
+import * as Call from '../call.js'
+import { delegationAbi } from '../generated.js'
 import type * as Key from '../key.js'
-import type { Compute } from '../types.js'
+import type { PartialBy } from '../types.js'
+import * as ActionRequest from './actionRequest.js'
+import * as EntryPoint from './entryPoint.js'
 import * as Quote from './quote.js'
-import * as UserOp from './userOp.js'
-import * as UserOpRequest from './userOpRequest.js'
 
-export type Action<
-  signed extends boolean = boolean,
-  bigintType = bigint,
-  numberType = number,
-> = {
+/**
+ * Action.
+ * Mirrors a `UserOp` struct on Account contract.
+ */
+export type Action<signed extends boolean = boolean, bigintType = bigint> = {
   /**
-   * EIP-7702 Authorization object.
+   * The combined gas limit for payment, verification, and calling the EOA.
    */
-  authorization?: Authorization_viem<numberType, signed> | undefined
+  combinedGas: bigintType
   /**
-   * User operation.
+   * The user's address.
    */
-  userOp: UserOp.UserOp<signed, bigintType>
-}
+  eoa: Address.Address
+  /**
+   * An encoded array of calls, using ERC7579 batch execution encoding.
+   * `abi.encode(calls)`, where `calls` is an array of type `Call[]`.
+   * This allows for more efficient safe forwarding to the EOA.
+   */
+  executionData: Hex.Hex
+  /**
+   * Per delegated EOA.
+   */
+  nonce: bigintType
+  /**
+   * The account paying the payment token.
+   * If this is `address(0)`, it defaults to the `eoa`.
+   */
+  payer: Address.Address
+  /**
+   * The ERC20 or native token used to pay for gas.
+   */
+  paymentToken: Address.Address
+  /**
+   * The payment recipient for the ERC20 token.
+   * Excluded from signature. The filler can replace this with their own address.
+   * This enables multiple fillers, allowing for competitive filling, better uptime.
+   * If `address(0)`, the payment will be accrued by the entry point.
+   */
+  paymentRecipient: Address.Address
+  /**
+   * The amount of the token to pay.
+   * Excluded from signature. This will be required to be less than `paymentMaxAmount`.
+   */
+  paymentAmount: bigintType
+  /**
+   * The maximum amount of the token to pay.
+   */
+  paymentMaxAmount: bigintType
+  /**
+   * The amount of ERC20 to pay per gas spent. For calculation of refunds.
+   * If this is left at zero, it will be treated as infinity (i.e. no refunds).
+   */
+  paymentPerGas: bigintType
+} & (signed extends true
+  ? {
+      /**
+       * The wrapped signature.
+       * `abi.encodePacked(innerSignature, keyHash, prehash)`.
+       */
+      signature: Hex.Hex
+    }
+  : { signature?: Hex.Hex | undefined })
 
 export type Rpc = {
   /**
@@ -37,7 +90,117 @@ export type Rpc = {
   /**
    * User operation.
    */
-  op: UserOp.Rpc
+  op: Action<true, Hex.Hex>
+}
+
+export function from<
+  const action extends from.Value,
+  const signature extends Hex.Hex | undefined = undefined,
+>(
+  action: action | from.Value,
+  options: from.Options<signature> = {},
+): from.ReturnType<action, signature> {
+  return {
+    ...action,
+    payer: action.payer ?? '0x0000000000000000000000000000000000000000',
+    paymentMaxAmount: action.paymentMaxAmount ?? action.paymentAmount,
+    paymentPerGas: action.paymentPerGas ?? 0n,
+    paymentRecipient:
+      action.paymentRecipient ?? '0x0000000000000000000000000000000000000000',
+    signature: options.signature,
+  } as Action as never
+}
+
+export declare namespace from {
+  type Value = PartialBy<
+    Action,
+    'payer' | 'paymentMaxAmount' | 'paymentPerGas' | 'paymentRecipient'
+  >
+
+  type Options<signature extends Hex.Hex | undefined = undefined> = {
+    signature?: signature | Hex.Hex | undefined
+  }
+
+  type ReturnType<
+    action extends from.Value = from.Value,
+    signature extends Hex.Hex | undefined = undefined,
+  > = Action<signature extends Hex.Hex ? true : false> & action
+}
+
+export function fromRpc(rpc: Rpc): Action {
+  return {
+    ...rpc,
+    ...rpc.op,
+    combinedGas: BigInt(rpc.op.combinedGas),
+    nonce: BigInt(rpc.op.nonce),
+    paymentAmount: BigInt(rpc.op.paymentAmount),
+    paymentMaxAmount: BigInt(rpc.op.paymentMaxAmount),
+    paymentPerGas: BigInt(rpc.op.paymentPerGas),
+  }
+}
+
+export async function getSignPayload(
+  client: Client,
+  action: Action,
+): Promise<Hex.Hex> {
+  const [c] = AbiParameters.decode(
+    AbiParameters.from([
+      'struct Call { address target; uint256 value; bytes data; }',
+      'Call[] calls',
+    ]),
+    action.executionData,
+  )
+  const calls = c.map((call) => ({
+    ...call,
+    target: call.target === Call.self ? action.eoa : call.target,
+  }))
+
+  const domain = EntryPoint.getEip712Domain(client)
+  const multichain = action.nonce & 1n
+  const nonceSalt =
+    multichain > 0n
+      ? 0n
+      : await readContract(client, {
+          abi: delegationAbi,
+          address: action.eoa,
+          functionName: 'nonceSalt',
+        }).catch(() => 0n)
+
+  if (!client.chain) throw new Error('chain is required.')
+  return TypedData.getSignPayload({
+    domain: {
+      name: domain.name,
+      verifyingContract: domain.verifyingContract,
+      version: domain.version,
+      ...(!multichain ? { chainId: client.chain.id } : {}),
+    },
+    types: {
+      Call: [
+        { name: 'target', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'data', type: 'bytes' },
+      ],
+      UserOp: [
+        { name: 'multichain', type: 'bool' },
+        { name: 'eoa', type: 'address' },
+        { name: 'calls', type: 'Call[]' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'nonceSalt', type: 'uint256' },
+        { name: 'payer', type: 'address' },
+        { name: 'paymentToken', type: 'address' },
+        { name: 'paymentMaxAmount', type: 'uint256' },
+        { name: 'paymentPerGas', type: 'uint256' },
+        { name: 'combinedGas', type: 'uint256' },
+      ],
+    },
+    message: {
+      ...action,
+      multichain: Boolean(multichain),
+      calls,
+      nonceSalt,
+    },
+    primaryType: 'UserOp',
+  })
 }
 
 /**
@@ -62,18 +225,18 @@ export async function prepare<
   const account = Account.from(parameters.account)
 
   // Prepare the User Operation request.
-  const request = UserOpRequest.prepare({
+  const request = ActionRequest.prepare({
     account,
     calls,
   })
 
   // Get the quote to execute the Action.
   const quote = await Quote.estimateFee(client, {
-    request,
+    ...request,
     token: gasToken,
   })
 
-  const userOp = UserOp.from({
+  const action = from({
     ...request,
     combinedGas: quote.gasEstimate,
     paymentAmount: quote.amount,
@@ -81,9 +244,9 @@ export async function prepare<
   })
 
   // Compute the signing payloads for execution and EIP-7702 authorization (optional).
-  const [userOpPayload, [authorization, authorizationPayload]] =
+  const [actionPayload, [authorization, authorizationPayload]] =
     await Promise.all([
-      UserOp.getSignPayload(client, userOp),
+      getSignPayload(client, action),
 
       // Only need to compute an authorization payload if we are delegating to an EOA.
       (async () => {
@@ -108,12 +271,12 @@ export async function prepare<
 
   return {
     context: {
+      action,
       authorization,
       quote,
-      userOp,
     },
     signPayloads: [
-      userOpPayload,
+      actionPayload,
       ...(authorizationPayload ? [authorizationPayload] : []),
     ] as never,
   }
@@ -125,9 +288,19 @@ export declare namespace prepare {
     account extends Account.Account | Address.Address =
       | Account.Account
       | Address.Address,
-  > = Pick<UserOpRequest.prepare.Parameters<calls>, 'calls'> & {
+  > = Pick<ActionRequest.prepare.Parameters<calls>, 'calls'> & {
+    /**
+     * Account to prepare the action for.
+     */
     account: account | Account.Account | Address.Address
+    /**
+     * Contract address to delegate to.
+     */
     delegation?: Address.Address | undefined
+    /**
+     * ERC20 or native token to pay for gas.
+     * If left empty, the native token will be used.
+     */
     gasToken?: Address.Address | undefined
   }
 
@@ -136,11 +309,11 @@ export declare namespace prepare {
       | Account.Account
       | Address.Address,
   > = {
-    context: Compute<
-      Action<false> & {
-        quote: Quote.Quote<true>
-      }
-    >
+    context: {
+      action: Action<false>
+      authorization?: Authorization_viem | undefined
+      quote: Quote.Quote<true>
+    }
     signPayloads: account extends {
       sign: NonNullable<Account.Account['sign']>
     }
@@ -209,13 +382,13 @@ export async function sendPrepared(
 ): Promise<Hex.Hex> {
   const [userOpSignature, _authSignature] = parameters.signatures ?? []
 
-  const userOp = UserOp.from(parameters.userOp, {
+  const action = from(parameters.action, {
     signature: userOpSignature!,
   })
 
-  const request = toRpc({
-    // TODO: authorization
-    userOp,
+  const request = toRpc(action, {
+    // TODO
+    // authorization
   })
   const quote = Quote.toRpc(parameters.quote)
 
@@ -228,24 +401,44 @@ export async function sendPrepared(
 }
 
 export declare namespace sendPrepared {
-  type Parameters = Action & {
+  type Parameters = {
+    action: Action<false>
     quote: Quote.Quote<true>
     signatures: readonly Hex.Hex[]
   }
 }
 
-export function toRpc(action: Action<true>): Rpc {
+export function toRpc(action: Action<true>, options: toRpc.Options = {}): Rpc {
+  const { authorization } = options
   return {
-    auth: action.authorization
+    auth: authorization
       ? {
-          address: action.authorization.contractAddress,
-          chainId: Hex.fromNumber(action.authorization.chainId),
-          nonce: Hex.fromNumber(action.authorization.nonce),
-          r: action.authorization.r,
-          s: action.authorization.s,
-          yParity: Hex.fromNumber(action.authorization.yParity!),
+          address: authorization.contractAddress,
+          chainId: Hex.fromNumber(authorization.chainId),
+          nonce: Hex.fromNumber(authorization.nonce),
+          r: authorization.r,
+          s: authorization.s,
+          yParity: Hex.fromNumber(authorization.yParity!),
         }
       : undefined,
-    op: UserOp.toRpc(action.userOp),
+    op: {
+      combinedGas: Hex.fromNumber(action.combinedGas),
+      eoa: action.eoa,
+      executionData: action.executionData,
+      nonce: Hex.fromNumber(action.nonce),
+      payer: action.payer,
+      paymentAmount: Hex.fromNumber(action.paymentAmount),
+      paymentMaxAmount: Hex.fromNumber(action.paymentMaxAmount),
+      paymentPerGas: Hex.fromNumber(action.paymentPerGas),
+      paymentRecipient: action.paymentRecipient,
+      paymentToken: action.paymentToken,
+      signature: action.signature,
+    },
+  }
+}
+
+export declare namespace toRpc {
+  type Options = {
+    authorization?: Authorization_viem<number, true> | undefined
   }
 }
