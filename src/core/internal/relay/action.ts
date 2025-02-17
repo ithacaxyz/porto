@@ -5,12 +5,12 @@ import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
 import type { Client } from 'viem'
+import { readContract } from 'viem/actions'
 import {
   type Authorization as Authorization_viem,
   prepareAuthorization,
 } from 'viem/experimental'
 
-import { readContract } from 'viem/actions'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
 import { delegationAbi } from '../generated.js'
