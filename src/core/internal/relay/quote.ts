@@ -2,7 +2,10 @@ import type * as Address from 'ox/Address'
 import type * as Fee from 'ox/Fee'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
+import type { Client } from 'viem'
+
 import type { Undefined } from '../types.js'
+import * as ActionRequest from './actionRequest.js'
 
 export type Quote<
   signed extends boolean = boolean,
@@ -30,6 +33,29 @@ export type Rpc<signed extends boolean = boolean> = Quote<
   Hex.Hex,
   Hex.Hex
 >
+
+export async function estimateFee(
+  client: Client,
+  options: estimateFee.Options,
+): Promise<Quote<true>> {
+  const { token = '0x0000000000000000000000000000000000000000', ...action } =
+    options
+
+  const request = ActionRequest.toRpc(action)
+
+  const result = await client.request<any>({
+    method: 'relay_estimateFee',
+    params: [request, token],
+  })
+
+  return fromRpc(result) as never
+}
+
+export declare namespace estimateFee {
+  type Options = ActionRequest.ActionRequest & {
+    token?: Address.Address | undefined
+  }
+}
 
 export function fromRpc<signed extends boolean = boolean>(
   rpc: Rpc<signed>,
