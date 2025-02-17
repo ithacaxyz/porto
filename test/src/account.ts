@@ -1,9 +1,11 @@
-import { Secp256k1 } from 'ox'
+import { type Hex, Secp256k1 } from 'ox'
 import { type Client, parseEther } from 'viem'
-import { setBalance } from 'viem/actions'
+import { setBalance, waitForTransactionReceipt } from 'viem/actions'
 
 import * as Account from '../../src/core/internal/account.js'
-import type * as Key from '../../src/core/internal/key.js'
+import * as Key from '../../src/core/internal/key.js'
+import * as Action from '../../src/core/internal/relay/action.js'
+import { ExperimentERC20 } from './contracts.js'
 
 export async function getAccount(
   client: Client,
@@ -22,6 +24,50 @@ export async function getAccount(
       address: account.address,
       value: balance,
     })
+
+  return {
+    account,
+    privateKey,
+  }
+}
+
+export async function getTestnetAccount(
+  client: Client,
+  parameters: {
+    keys?: readonly Key.Key[] | undefined
+    setBalance?: false | bigint | undefined
+  } = {},
+) {
+  const { keys, setBalance: balance = parseEther('10000') } = parameters
+
+  const privateKey = Secp256k1.randomPrivateKey()
+  const account = Account.fromPrivateKey(privateKey, { keys })
+
+  if (balance) {
+    const key = Key.fromP256({
+      privateKey: process.env.VITE_P256_PRIVATE_KEY as Hex.Hex,
+      role: 'admin',
+    })
+    const account_ = Account.from({
+      address: process.env.VITE_EOA_PRIVATE_KEY as Hex.Hex,
+      keys: [key],
+    })
+
+    const hash = await Action.send(client, {
+      account: account_,
+      calls: [
+        {
+          to: ExperimentERC20.address[0],
+          abi: ExperimentERC20.abi,
+          functionName: 'mint',
+          args: [account.address, balance],
+        },
+      ],
+      gasToken: ExperimentERC20.address[0],
+    })
+
+    await waitForTransactionReceipt(client, { hash })
+  }
 
   return {
     account,

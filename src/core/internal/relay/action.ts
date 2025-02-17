@@ -2,6 +2,7 @@ import * as AbiParameters from 'ox/AbiParameters'
 import type * as Address from 'ox/Address'
 import * as Authorization from 'ox/Authorization'
 import * as Hex from 'ox/Hex'
+import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
 import type { Client } from 'viem'
 import {
@@ -232,7 +233,8 @@ export async function prepare<
 
   // Get the quote to execute the Action.
   const quote = await Quote.estimateFee(client, {
-    ...request,
+    action: request,
+    delegation,
     token: gasToken,
   })
 
@@ -380,15 +382,26 @@ export async function sendPrepared(
   client: Client,
   parameters: sendPrepared.Parameters,
 ): Promise<Hex.Hex> {
-  const [userOpSignature, _authSignature] = parameters.signatures ?? []
+  const [userOpSignature, authSignature] = parameters.signatures ?? []
 
   const action = from(parameters.action, {
     signature: userOpSignature!,
   })
 
+  const authorization = (() => {
+    if (!authSignature) return undefined
+    if (!parameters.authorization) throw new Error('authorization is required.')
+    const signature = Signature.from(authSignature)
+    return {
+      ...parameters.authorization,
+      r: Hex.fromNumber(signature.r),
+      s: Hex.fromNumber(signature.s),
+      yParity: signature.yParity,
+    } as const
+  })()
+
   const request = toRpc(action, {
-    // TODO
-    // authorization
+    authorization,
   })
   const quote = Quote.toRpc(parameters.quote)
 
@@ -403,6 +416,7 @@ export async function sendPrepared(
 export declare namespace sendPrepared {
   type Parameters = {
     action: Action<false>
+    authorization?: Authorization_viem<number, false> | undefined
     quote: Quote.Quote<true>
     signatures: readonly Hex.Hex[]
   }

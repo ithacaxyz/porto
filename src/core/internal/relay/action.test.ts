@@ -1,11 +1,14 @@
 import { Hex, Value } from 'ox'
-import { Chains, Implementation, Porto, Storage } from 'porto'
+import { Chains, Delegation, Implementation, Porto, Storage } from 'porto'
 import { http } from 'viem'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
+import { getTestnetAccount } from '../../../../test/src/account.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
+import { delegation } from '../../../../test/src/porto.js'
 import * as Account from '../account.js'
+import * as Call from '../call.js'
 import * as Key from '../key.js'
 import * as Action from './action.js'
 
@@ -22,16 +25,20 @@ const porto = Porto.create({
 })
 const client = Porto.getClient(porto)
 
-describe('e2e', () => {
-  test('send', async () => {
-    const key = Key.fromP256({
-      privateKey: process.env.VITE_P256_PRIVATE_KEY as Hex.Hex,
-      role: 'admin',
-    })
-    const account = Account.from({
-      address: process.env.VITE_EOA_PRIVATE_KEY as Hex.Hex,
-      keys: [key],
-    })
+describe('send', () => {
+  test('default', async () => {
+    const { account } = await getTestnetAccount(client)
+
+    // delegate
+    {
+      const hash = await Action.send(client, {
+        account,
+        delegation,
+        calls: [],
+        gasToken: ExperimentERC20.address[0],
+      })
+      await waitForTransactionReceipt(client, { hash })
+    }
 
     const alice = Hex.random(20)
     const value = Value.fromEther('0.0001')
@@ -61,15 +68,49 @@ describe('e2e', () => {
     ).toBe(value)
   })
 
-  test('prepare + sendPrepared', async () => {
-    const key = Key.fromP256({
-      privateKey: process.env.VITE_P256_PRIVATE_KEY as Hex.Hex,
+  test('behavior: delegation', async () => {
+    const { account } = await getTestnetAccount(client)
+
+    const key = Key.createP256({
       role: 'admin',
     })
-    const account = Account.from({
-      address: process.env.VITE_EOA_PRIVATE_KEY as Hex.Hex,
-      keys: [key],
+
+    const hash = await Action.send(client, {
+      account,
+      delegation,
+      calls: [
+        Call.authorize({
+          key,
+        }),
+      ],
+      gasToken: ExperimentERC20.address[0],
     })
+
+    await waitForTransactionReceipt(client, { hash })
+
+    const { publicKey } = await Delegation.keyAt(client, {
+      account: account.address,
+      index: 0,
+    })
+
+    expect(publicKey).toEqual(key.publicKey)
+  })
+})
+
+describe('prepare, sendPrepared', () => {
+  test('default', async () => {
+    const { account } = await getTestnetAccount(client)
+
+    // delegate
+    {
+      const hash = await Action.send(client, {
+        account,
+        delegation,
+        calls: [],
+        gasToken: ExperimentERC20.address[0],
+      })
+      await waitForTransactionReceipt(client, { hash })
+    }
 
     const alice = Hex.random(20)
     const value = Value.fromEther('0.0001')
@@ -107,84 +148,4 @@ describe('e2e', () => {
       }),
     ).toBe(value)
   })
-
-  // test.skip('behavior: new account', async () => {
-  //   const privateKey = Secp256k1.randomPrivateKey()
-  //   const account = Account.fromPrivateKey(privateKey)
-
-  //   const key = Key.createP256({
-  //     role: 'admin',
-  //   })
-
-  //   const calls = [
-  //     Call.authorize({
-  //       key,
-  //     }),
-  //   ]
-  //   const data = encodeCalls(
-  //     calls.map((c) => ({
-  //       ...c,
-  //       to: c.to === Call.self ? account.address : c.to,
-  //     })),
-  //   )
-
-  //   let nonce = Hex.toBigInt(Hex.random(32))
-  //   if (!(nonce & 1n)) nonce += 1n
-
-  //   const userOpRequest = {
-  //     eoa: account.address,
-  //     executionData: data,
-  //     nonce,
-  //   } as const satisfies UserOpRequest.UserOpRequest
-
-  //   const quote = await Relay.estimateFee(client, {
-  //     authorization: delegation,
-  //     token: ExperimentERC20.address[0],
-  //     request: userOpRequest,
-  //   })
-
-  //   const userOp = {
-  //     ...userOpRequest,
-  //     combinedGas: quote.gasEstimate,
-  //     payer: '0x0000000000000000000000000000000000000000',
-  //     paymentAmount: quote.amount,
-  //     paymentMaxAmount: quote.amount,
-  //     paymentPerGas: 0n,
-  //     paymentRecipient: '0x0000000000000000000000000000000000000000',
-  //     paymentToken: ExperimentERC20.address[0],
-  //   } as const satisfies UserOp.UserOp
-
-  //   const payload = await UserOp.getSignPayload(client, userOp)
-
-  //   const authorization = await signAuthorization(client, {
-  //     account: privateKeyToAccount(privateKey),
-  //     contractAddress: delegation,
-  //     chainId: 0,
-  //     sponsor: true,
-  //   })
-
-  //   const [signature] = await Account.sign(account, {
-  //     payloads: [payload],
-  //   })
-
-  //   const userOp_signed = {
-  //     ...userOp,
-  //     signature,
-  //   } as const satisfies UserOp.UserOp
-
-  //   const hash = await Relay.sendAction(client, {
-  //     authorization,
-  //     userOp: userOp_signed,
-  //     quote,
-  //   })
-
-  //   await waitForTransactionReceipt(client, { hash })
-
-  //   const { publicKey } = await Delegation.keyAt(client, {
-  //     account: account.address,
-  //     index: 0,
-  //   })
-
-  //   expect(publicKey).toEqual(key.publicKey)
-  // })
 })

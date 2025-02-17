@@ -7,6 +7,10 @@ import type { Client } from 'viem'
 import type { Undefined } from '../types.js'
 import * as ActionRequest from './actionRequest.js'
 
+/**
+ * Quote type.
+ * Mirrors the `Quote` type on the Relay.
+ */
 export type Quote<
   signed extends boolean = boolean,
   bigintType = bigint,
@@ -39,9 +43,9 @@ export async function estimateFee(
   options: estimateFee.Options,
 ): Promise<Quote<true>> {
   const {
+    action,
     delegation,
     token = '0x0000000000000000000000000000000000000000',
-    ...action
   } = options
 
   const request = ActionRequest.toRpc(action, { authorization: delegation })
@@ -55,7 +59,8 @@ export async function estimateFee(
 }
 
 export declare namespace estimateFee {
-  type Options = ActionRequest.ActionRequest & {
+  type Options = {
+    action: ActionRequest.ActionRequest
     delegation?: Address.Address | undefined
     token?: Address.Address | undefined
   }
