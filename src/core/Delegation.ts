@@ -194,7 +194,7 @@ export async function getEip712Domain<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getEip712Domain.Parameters,
 ): Promise<TypedData.Domain> {
-  const { account } = parameters
+  const account = DelegatedAccount.from(parameters.account)
 
   const {
     domain: { name, version },
@@ -216,99 +216,7 @@ export declare namespace getEip712Domain {
     /**
      * The delegated account to get the EIP-712 domain for.
      */
-    account: DelegatedAccount.Account
-  }
-}
-
-/**
- * Computes the digest to sign in order to execute a set of calls on a delegated account.
- *
- * @example
- * TODO
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns Sign digest.
- */
-export async function getExecuteSignPayload<
-  const calls extends readonly unknown[],
-  chain extends Chain | undefined,
->(
-  client: Client<Transport, chain>,
-  parameters: getExecuteSignPayload.Parameters<calls>,
-): Promise<Hex.Hex> {
-  const { account, nonce } = parameters
-
-  // Structure calls into EIP-7821 execution format.
-  const calls = parameters.calls.map((call: any) => ({
-    data: call.data ?? '0x',
-    target: call.to === Call.self ? account.address : call.to,
-    value: call.value ?? 0n,
-  }))
-
-  const [nonceSalt, domain] = await Promise.all([
-    parameters.nonceSalt ??
-      (await readContract(client, {
-        abi: delegationAbi,
-        address: account.address,
-        functionName: 'nonceSalt',
-      }).catch(() => 0n)),
-    getEip712Domain(client, { account }),
-  ])
-
-  const multichain = nonce & 1n
-
-  if (!client.chain) throw new Error('chain is required.')
-  return TypedData.getSignPayload({
-    domain: {
-      name: domain.name,
-      chainId: client.chain.id,
-      verifyingContract: account.address,
-      version: domain.version,
-    },
-    types: {
-      Call: [
-        { name: 'target', type: 'address' },
-        { name: 'value', type: 'uint256' },
-        { name: 'data', type: 'bytes' },
-      ],
-      Execute: [
-        { name: 'multichain', type: 'bool' },
-        { name: 'calls', type: 'Call[]' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'nonceSalt', type: 'uint256' },
-      ],
-    },
-    message: {
-      multichain: Boolean(multichain),
-      calls,
-      nonce,
-      nonceSalt,
-    },
-    primaryType: 'Execute',
-  })
-}
-
-export declare namespace getExecuteSignPayload {
-  export type Parameters<
-    calls extends readonly unknown[] = readonly unknown[],
-  > = {
-    /**
-     * The delegated account to execute the calls on.
-     */
-    account: DelegatedAccount.Account
-    /**
-     * Calls to execute.
-     */
-    calls: calls
-    /**
-     * Nonce to use for execution that will be invalidated by the delegated account.
-     */
-    nonce: bigint
-    /**
-     * Nonce salt.
-     */
-    nonceSalt?: bigint | undefined
+    account: DelegatedAccount.Account | Address.Address
   }
 }
 
@@ -394,6 +302,7 @@ export async function prepareExecute<
 
         const authorization = await prepareAuthorization(client, {
           account: account.address,
+          // chainId: 0,
           contractAddress: delegation,
           delegate: !executor || executor,
         })
@@ -823,4 +732,87 @@ function getExecuteError<const calls extends readonly unknown[]>(
   }
   const error = getExecuteError_viem(e as BaseError, { calls })
   return new ExecutionError(error, { abiError: getAbiError(error) })
+}
+
+/** @internal */
+async function getExecuteSignPayload<
+  const calls extends readonly unknown[],
+  chain extends Chain | undefined,
+>(
+  client: Client<Transport, chain>,
+  parameters: getExecuteSignPayload.Parameters<calls>,
+): Promise<Hex.Hex> {
+  const { account, nonce } = parameters
+
+  // Structure calls into EIP-7821 execution format.
+  const calls = parameters.calls.map((call: any) => ({
+    data: call.data ?? '0x',
+    target: call.to === Call.self ? account.address : call.to,
+    value: call.value ?? 0n,
+  }))
+
+  const [nonceSalt, domain] = await Promise.all([
+    parameters.nonceSalt ??
+      (await readContract(client, {
+        abi: delegationAbi,
+        address: account.address,
+        functionName: 'nonceSalt',
+      }).catch(() => 0n)),
+    getEip712Domain(client, { account }),
+  ])
+
+  const multichain = nonce & 1n
+
+  if (!client.chain) throw new Error('chain is required.')
+  return TypedData.getSignPayload({
+    domain: {
+      name: domain.name,
+      chainId: client.chain.id,
+      verifyingContract: account.address,
+      version: domain.version,
+    },
+    types: {
+      Call: [
+        { name: 'target', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'data', type: 'bytes' },
+      ],
+      Execute: [
+        { name: 'multichain', type: 'bool' },
+        { name: 'calls', type: 'Call[]' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'nonceSalt', type: 'uint256' },
+      ],
+    },
+    message: {
+      multichain: Boolean(multichain),
+      calls,
+      nonce,
+      nonceSalt,
+    },
+    primaryType: 'Execute',
+  })
+}
+
+export declare namespace getExecuteSignPayload {
+  export type Parameters<
+    calls extends readonly unknown[] = readonly unknown[],
+  > = {
+    /**
+     * The delegated account to execute the calls on.
+     */
+    account: DelegatedAccount.Account
+    /**
+     * Calls to execute.
+     */
+    calls: calls
+    /**
+     * Nonce to use for execution that will be invalidated by the delegated account.
+     */
+    nonce: bigint
+    /**
+     * Nonce salt.
+     */
+    nonceSalt?: bigint | undefined
+  }
 }

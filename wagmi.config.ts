@@ -4,20 +4,6 @@ import { odysseyTestnet } from 'viem/chains'
 
 export default defineConfig([
   {
-    out: 'src/core/internal/generated.ts',
-    contracts: [],
-    plugins: [
-      foundry({
-        deployments: {
-          Delegation: {
-            [odysseyTestnet.id]: '0xabe148edaa9046303c9b9d42243c23b9599484cd',
-          },
-        },
-        project: 'contracts',
-      }),
-    ],
-  },
-  {
     out: 'docs/generated.ts',
     contracts: [],
     plugins: [

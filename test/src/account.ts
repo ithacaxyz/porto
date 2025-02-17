@@ -9,17 +9,19 @@ export async function getAccount(
   client: Client,
   parameters: {
     keys?: readonly Key.Key[] | undefined
+    setBalance?: false | bigint | undefined
   } = {},
 ) {
-  const { keys } = parameters
+  const { keys, setBalance: balance = parseEther('10000') } = parameters
 
   const privateKey = Secp256k1.randomPrivateKey()
   const account = Account.fromPrivateKey(privateKey, { keys })
 
-  await setBalance(client as any, {
-    address: account.address,
-    value: parseEther('10000'),
-  })
+  if (balance)
+    await setBalance(client as any, {
+      address: account.address,
+      value: balance,
+    })
 
   return {
     account,

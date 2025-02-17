@@ -240,14 +240,22 @@ export function getClient<
     default_ = transport
   }
 
+  const relayMethods = [
+    'relay_estimateFee',
+    'relay_sendAction',
+    'wallet_sendTransaction',
+  ]
+
   if (clientCache.has(chain.id)) return clientCache.get(chain.id)!
   const client = createClient({
     chain,
     transport: relay
       ? fallback([
-          getTransport(relay, { include: ['wallet_sendTransaction'] }),
+          getTransport(relay, {
+            include: relayMethods,
+          }),
           getTransport(default_, {
-            exclude: ['eth_sendTransaction', 'wallet_sendTransaction'],
+            exclude: ['eth_sendTransaction', ...relayMethods],
           }),
         ])
       : default_,
