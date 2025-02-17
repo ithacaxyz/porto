@@ -66,7 +66,7 @@ export type UserOp<signed extends boolean = boolean, bigintType = bigint> = {
        */
       signature: Hex.Hex
     }
-  : { signature?: undefined })
+  : { signature?: Hex.Hex | undefined })
 
 export type Rpc<signed extends boolean = boolean> = UserOp<signed, Hex.Hex>
 

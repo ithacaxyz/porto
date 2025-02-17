@@ -1,14 +1,16 @@
 import { AbiFunction, Hex, P256, PublicKey, TypedData, Value } from 'ox'
-import { Porto } from 'porto'
+import { Delegation, Porto } from 'porto'
 import {
   getBalance,
+  readContract,
   setBalance,
   verifyMessage,
   verifyTypedData,
 } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { createPorto } from '../../../test/src/porto.js'
+import { client, createPorto } from '../../../test/src/porto.js'
+import { delegationAbi } from './generated.js'
 import * as Key from './key.js'
 
 describe('eth_accounts', () => {

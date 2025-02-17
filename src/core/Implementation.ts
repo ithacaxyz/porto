@@ -1026,6 +1026,8 @@ function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
           })
         }),
       )
+    else if (role === 'session')
+      permissionCalls.push(Call.setCanExecute({ key }))
 
     // Set spend limits.
     if (permissions?.spend)
@@ -1055,7 +1057,7 @@ function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
       )
     }
 
-    return [...permissionCalls, Call.authorize({ key })]
+    return [Call.authorize({ key }), ...permissionCalls]
   })
 }
 
