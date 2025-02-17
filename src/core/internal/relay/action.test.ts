@@ -22,7 +22,7 @@ const porto = Porto.create({
 })
 const client = Porto.getClient(porto)
 
-describe('e2e playground', () => {
+describe('e2e', () => {
   test('send', async () => {
     const key = Key.fromP256({
       privateKey: process.env.VITE_P256_PRIVATE_KEY as Hex.Hex,
