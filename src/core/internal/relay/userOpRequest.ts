@@ -1,6 +1,9 @@
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import { encodeCalls } from 'viem/experimental/erc7821'
+import {
+  type EncodeExecuteDataParameters,
+  encodeCalls,
+} from 'viem/experimental/erc7821'
 
 import * as Account from '../account.js'
 import * as Call from '../call.js'
@@ -40,13 +43,15 @@ export function toRpc(userOp: UserOpRequest): Rpc {
   }
 }
 
-export function prepare(parameters: prepare.Parameters): UserOpRequest {
+export function prepare<const calls extends readonly unknown[]>(
+  parameters: prepare.Parameters<calls>,
+): UserOpRequest {
   const { account, calls, multichain = false } = parameters
 
   const eoa = Account.from(account).address
 
   const executionData = encodeCalls(
-    calls.map((c) => ({
+    calls.map((c: any) => ({
       ...c,
       to: c.to === Call.self ? eoa : c.to,
     })),
@@ -71,9 +76,11 @@ export function prepare(parameters: prepare.Parameters): UserOpRequest {
 }
 
 export declare namespace prepare {
-  type Parameters = {
+  type Parameters<calls extends readonly unknown[] = readonly unknown[]> = Pick<
+    EncodeExecuteDataParameters<calls>,
+    'calls'
+  > & {
     account: Account.Account | Address.Address
-    calls: readonly Call.Call[]
     multichain?: boolean | undefined
     nonce?: bigint | undefined
   }
