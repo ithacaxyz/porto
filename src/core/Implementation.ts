@@ -1026,7 +1026,6 @@ function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
           })
         }),
       )
-    else permissionCalls.push(Call.setCanExecute({ key }))
 
     // Set spend limits.
     if (permissions?.spend)
