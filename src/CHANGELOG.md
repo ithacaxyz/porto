@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.14
+
+### Patch Changes
+
+- [`b02b8fd`](https://github.com/ithacaxyz/porto/commit/b02b8fd9ce2a2386da1fc54365e7cec03ab4bc10) Thanks [@jxom](https://github.com/jxom)! - Tightened `permissions` types.
+
 ## 0.0.13
 
 ### Patch Changes
