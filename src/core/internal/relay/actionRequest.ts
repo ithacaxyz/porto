@@ -28,7 +28,7 @@ export type ActionRequest<bigintType = bigint> = {
 }
 
 export type Rpc = {
-  auth?: Address.Address | undefined
+  chainId: number
   op: Omit<ActionRequest<Hex.Hex>, 'authorization'>
 }
 
@@ -90,10 +90,10 @@ export declare namespace prepare {
 
 export function toRpc(
   actionRequest: ActionRequest,
-  options: toRpc.Options = {},
+  options: toRpc.Options,
 ): Rpc {
   return {
-    auth: options.authorization,
+    chainId: options.chainId,
     op: {
       eoa: actionRequest.eoa,
       executionData: actionRequest.executionData,
@@ -105,8 +105,8 @@ export function toRpc(
 export declare namespace toRpc {
   type Options = {
     /**
-     * Contract address to delegate to.
+     * The destination chain ID.
      */
-    authorization?: Address.Address | undefined
+    chainId: number
   }
 }
