@@ -48,11 +48,13 @@ export async function estimateFee(
     token = '0x0000000000000000000000000000000000000000',
   } = options
 
-  const request = ActionRequest.toRpc(action, { authorization: delegation })
+  const request = ActionRequest.toRpc(action, {
+    chainId: client.chain?.id ?? 0,
+  })
 
   const result = await client.request<any>({
     method: 'relay_estimateFee',
-    params: [request, token],
+    params: [request, token, ...(delegation ? [delegation] : [])],
   })
 
   return fromRpc(result) as never

@@ -8,8 +8,8 @@ import { delegation } from '../../../../test/src/porto.js'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
 import * as Key from '../key.js'
+import * as ActionRequest from './actionRequest.js'
 import * as Quote from './quote.js'
-import * as UserOpRequest from './userOpRequest.js'
 
 // TODO: move to test/src/porto.ts
 const porto = Porto.create({
@@ -34,7 +34,7 @@ describe('estimateFee', () => {
       role: 'admin',
     })
 
-    const request = UserOpRequest.prepare({
+    const action = ActionRequest.prepare({
       account,
       calls: [
         Call.authorize({
@@ -45,9 +45,9 @@ describe('estimateFee', () => {
     })
 
     const result = await Quote.estimateFee(client, {
-      authorization: delegation,
+      action,
+      delegation,
       token: ExperimentERC20.address[0],
-      request,
     })
 
     expect(result.amount).toBeGreaterThan(0n)
@@ -66,7 +66,7 @@ describe('estimateFee', () => {
   test('behavior: existing account', async () => {
     const account = Account.from('0x23ed230396be45ea109410276df89fe8d1ed95be')
 
-    const request = UserOpRequest.prepare({
+    const action = ActionRequest.prepare({
       account,
       calls: [
         {
@@ -77,8 +77,8 @@ describe('estimateFee', () => {
     })
 
     const result = await Quote.estimateFee(client, {
+      action,
       token: ExperimentERC20.address[0],
-      request,
     })
 
     expect(result.amount).toBeGreaterThan(0n)
