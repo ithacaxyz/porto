@@ -507,7 +507,7 @@ function SendCalls() {
                 to: ExperimentERC20.address[0],
                 data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
-                  [account, Value.fromEther('10000000')],
+                  [account, Value.fromEther('100')],
                 ),
               },
             ]
