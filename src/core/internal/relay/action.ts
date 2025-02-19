@@ -85,9 +85,9 @@ export type Action<signed extends boolean = boolean, bigintType = bigint> = {
 
 export type Rpc = {
   /**
-   * EIP-7702 Authorization object.
+   * Chain ID of the action.
    */
-  auth?: Authorization.Rpc | undefined
+  chainId: number
   /**
    * User operation.
    */
@@ -391,9 +391,12 @@ export async function sendPrepared(
   const authorization = (() => {
     if (!authSignature) return undefined
     if (!parameters.authorization) throw new Error('authorization is required.')
+    const { contractAddress, chainId, nonce } = parameters.authorization
     const signature = Signature.from(authSignature)
     return {
-      ...parameters.authorization,
+      address: contractAddress,
+      chainId,
+      nonce,
       r: Hex.fromNumber(signature.r),
       s: Hex.fromNumber(signature.s),
       yParity: signature.yParity,
@@ -401,13 +404,13 @@ export async function sendPrepared(
   })()
 
   const request = toRpc(action, {
-    authorization,
+    chainId: client.chain?.id ?? 0,
   })
   const quote = Quote.toRpc(parameters.quote)
 
   const hash = await client.request<any>({
     method: 'relay_sendAction',
-    params: [request, quote],
+    params: [request, quote, ...(authorization ? [authorization] : [])],
   })
 
   return hash
@@ -422,19 +425,10 @@ export declare namespace sendPrepared {
   }
 }
 
-export function toRpc(action: Action<true>, options: toRpc.Options = {}): Rpc {
-  const { authorization } = options
+export function toRpc(action: Action<true>, options: toRpc.Options): Rpc {
+  const { chainId } = options
   return {
-    auth: authorization
-      ? {
-          address: authorization.contractAddress,
-          chainId: Hex.fromNumber(authorization.chainId),
-          nonce: Hex.fromNumber(authorization.nonce),
-          r: authorization.r,
-          s: authorization.s,
-          yParity: Hex.fromNumber(authorization.yParity!),
-        }
-      : undefined,
+    chainId,
     op: {
       combinedGas: Hex.fromNumber(action.combinedGas),
       eoa: action.eoa,
@@ -453,6 +447,6 @@ export function toRpc(action: Action<true>, options: toRpc.Options = {}): Rpc {
 
 export declare namespace toRpc {
   type Options = {
-    authorization?: Authorization_viem<number, true> | undefined
+    chainId: number
   }
 }

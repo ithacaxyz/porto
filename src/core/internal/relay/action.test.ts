@@ -19,7 +19,12 @@ const porto = Porto.create({
   transports: {
     [Chains.odysseyTestnet.id]: {
       default: http(),
-      relay: http('https://relay-staging.ithaca.xyz'),
+      relay: http('https://relay-staging.ithaca.xyz', {
+        async onFetchRequest(request) {
+          // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+          console.log('request', JSON.stringify(await request.json(), null, 2))
+        },
+      }),
     },
   },
 })
@@ -94,6 +99,137 @@ describe('send', () => {
     })
 
     expect(publicKey).toEqual(key.publicKey)
+  })
+
+  describe('behavior: authorize', () => {
+    test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { account } = await getTestnetAccount(client)
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      const hash = await Action.send(client, {
+        account,
+        delegation,
+        calls: [
+          Call.authorize({
+            key,
+          }),
+        ],
+        gasToken: ExperimentERC20.address[0],
+      })
+
+      await waitForTransactionReceipt(client, { hash })
+
+      const { publicKey } = await Delegation.keyAt(client, {
+        account: account.address,
+        index: 0,
+      })
+
+      expect(publicKey).toEqual(key.publicKey)
+    })
+
+    test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { account } = await getTestnetAccount(client)
+
+      // delegate
+      {
+        const hash = await Action.send(client, {
+          account,
+          delegation,
+          calls: [],
+          gasToken: ExperimentERC20.address[0],
+        })
+        await waitForTransactionReceipt(client, { hash })
+      }
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      const hash = await Action.send(client, {
+        account,
+        calls: [
+          Call.authorize({
+            key,
+          }),
+        ],
+        gasToken: ExperimentERC20.address[0],
+      })
+
+      await waitForTransactionReceipt(client, { hash })
+
+      const { publicKey } = await Delegation.keyAt(client, {
+        account: account.address,
+        index: 0,
+      })
+
+      expect(publicKey).toEqual(key.publicKey)
+    })
+
+    test('key: P256, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { account } = await getTestnetAccount(client)
+
+      // delegate
+      {
+        const hash = await Action.send(client, {
+          account,
+          delegation,
+          calls: [],
+          gasToken: ExperimentERC20.address[0],
+        })
+        await waitForTransactionReceipt(client, { hash })
+      }
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      // authorize P256 key
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            Call.authorize({
+              key,
+            }),
+          ],
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+      }
+
+      const anotherKey = Key.createP256({
+        role: 'admin',
+      })
+
+      // authorize another P256 key with previously authorized key
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            Call.authorize({
+              key: anotherKey,
+            }),
+          ],
+          key,
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+      }
+
+      expect(
+        (
+          await Delegation.keyAt(client, {
+            account: account.address,
+            index: 1,
+          })
+        ).publicKey,
+      ).toEqual(anotherKey.publicKey)
+    })
   })
 })
 
