@@ -79,8 +79,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: jxom
+          password: ${{ secrets.RELAY_GH_TOKEN }}
       
       - name: Pull Relay
         shell: bash
