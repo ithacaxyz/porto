@@ -1,11 +1,11 @@
 import { type Hex, Secp256k1 } from 'ox'
 import { type Client, parseEther } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import {
   setBalance,
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
-import { privateKeyToAccount } from 'viem/accounts'
 
 import * as Account from '../../src/core/internal/account.js'
 import * as Key from '../../src/core/internal/key.js'
