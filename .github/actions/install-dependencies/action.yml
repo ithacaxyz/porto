@@ -13,6 +13,7 @@ runs:
       uses: docker/setup-docker-action@v4
     
     - name: Pull Relay
+      shell: bash
       run: docker pull ghcr.io/ithacaxyz/relay:latest
 
     - name: Set up pnpm
