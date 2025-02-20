@@ -18,6 +18,10 @@ export const anvilOdyssey = defineAnvil({
   forkBlockNumber: 19868020n,
   port: 8545,
   loadState: resolve(import.meta.dirname, 'anvil.json'),
+  dumpState: resolve(
+    import.meta.dirname,
+    '.logs/anvil-' + new Date().getTime() + '.json',
+  ),
 })
 
 /////////////////////////////////////////////////////////////////
