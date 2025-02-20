@@ -1,11 +1,18 @@
-import { afterAll, vi } from 'vitest'
-import * as instances from './src/anvil.js'
+import { afterAll, beforeAll, vi } from 'vitest'
+
+import * as anvilInstances from './src/anvil.js'
+import * as relayInstances from './src/relay.js'
+
+beforeAll(async () => {
+  await Promise.all(
+    [...Object.values(anvilInstances), ...Object.values(relayInstances)].map(
+      async (instance) => {
+        await fetch(`${instance.rpcUrl}/start`)
+      },
+    ),
+  )
+})
 
 afterAll(async () => {
   vi.restoreAllMocks()
-
-  // Reset the anvil instances to the same state it was in before the tests started.
-  await Promise.all(
-    Object.values(instances).map((instance) => instance.restart()),
-  )
 })

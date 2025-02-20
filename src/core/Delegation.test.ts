@@ -7,11 +7,13 @@ import { describe, expect, test } from 'vitest'
 
 import { getAccount } from '../../test/src/account.js'
 import { ExperimentERC20 } from '../../test/src/contracts.js'
-import { client, delegation } from '../../test/src/porto.js'
+import { getPorto } from '../../test/src/porto.js'
 import * as Delegation from './Delegation.js'
 import * as Account from './internal/account.js'
 import * as Call from './internal/call.js'
 import * as Key from './internal/key.js'
+
+const { client, delegation } = getPorto()
 
 describe('execute', () => {
   describe('behavior: authorize', () => {
@@ -321,7 +323,7 @@ describe('execute', () => {
         args: [account.address],
       })
 
-      expect(balance).toEqual(Value.fromEther('1000'))
+      expect(balance).toEqual(Value.fromEther('11000'))
     })
 
     test('key: secp256k1, executor: JSON-RPC', async () => {
