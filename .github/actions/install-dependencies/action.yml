@@ -9,19 +9,5 @@ runs:
       with:
         version: nightly
 
-    - name: Set up Docker
-      uses: docker/setup-docker-action@v4
-
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Pull Relay
-      shell: bash
-      run: docker pull ghcr.io/ithacaxyz/relay:latest
-
     - name: Set up pnpm
       uses: wevm/actions/.github/actions/pnpm@main
