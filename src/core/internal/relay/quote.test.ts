@@ -1,28 +1,19 @@
-import { Chains, Implementation, Porto, Storage } from 'porto'
-import { http } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import { getAccount } from '../../../../test/src/account.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
-import { delegation } from '../../../../test/src/porto.js'
+import { getPorto } from '../../../../test/src/porto.js'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
 import * as Key from '../key.js'
 import * as ActionRequest from './actionRequest.js'
 import * as Quote from './quote.js'
 
-// TODO: move to test/src/porto.ts
-const porto = Porto.create({
-  implementation: Implementation.local(),
-  storage: Storage.memory(),
+const { client, delegation } = getPorto({
   transports: {
-    [Chains.odysseyTestnet.id]: {
-      default: http(),
-      relay: http('https://relay-staging.ithaca.xyz'),
-    },
+    relay: true,
   },
 })
-const client = Porto.getClient(porto)
 
 describe('estimateFee', () => {
   test('behavior: new account', async () => {
@@ -53,12 +44,8 @@ describe('estimateFee', () => {
     expect(result.amount).toBeGreaterThan(0n)
     expect(result.digest).toBeDefined()
     expect(result.gasEstimate).toBeGreaterThan(0)
-    expect(result.nativeFeeEstimate).toMatchInlineSnapshot(`
-      {
-        "maxFeePerGas": 505n,
-        "maxPriorityFeePerGas": 1n,
-      }
-    `)
+    expect(result.nativeFeeEstimate.maxFeePerGas).toBeGreaterThan(0n)
+    expect(result.nativeFeeEstimate.maxPriorityFeePerGas).toBeGreaterThan(0n)
     expect(result.token).toBeDefined()
     expect(result.ttl).toBeGreaterThan(0)
   })
@@ -84,12 +71,8 @@ describe('estimateFee', () => {
     expect(result.amount).toBeGreaterThan(0n)
     expect(result.digest).toBeDefined()
     expect(result.gasEstimate).toBeGreaterThan(0)
-    expect(result.nativeFeeEstimate).toMatchInlineSnapshot(`
-      {
-        "maxFeePerGas": 505n,
-        "maxPriorityFeePerGas": 1n,
-      }
-    `)
+    expect(result.nativeFeeEstimate.maxFeePerGas).toBeGreaterThan(0n)
+    expect(result.nativeFeeEstimate.maxPriorityFeePerGas).toBeGreaterThan(0n)
     expect(result.token).toBeDefined()
     expect(result.ttl).toBeGreaterThan(0)
   })

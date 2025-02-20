@@ -17,13 +17,13 @@ catalogs:
       version: 19.0.3
     '@wagmi/core':
       specifier: ^2.16.3
-      version: 2.16.3
+      version: 2.16.5
     globals:
       specifier: ^15.14.0
       version: 15.14.0
     ox:
       specifier: ^0.6.4
-      version: 0.6.5
+      version: 0.6.7
     react:
       specifier: ^19
       version: 19.0.0
@@ -79,16 +79,16 @@ importers:
         version: 2.1.18(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)
       '@wagmi/core':
         specifier: 'catalog:'
-        version: 2.16.3(@tanstack/query-core@5.66.4)(@types/react@19.0.8)(react@19.0.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))
+        version: 2.16.5(@tanstack/query-core@5.66.4)(@types/react@19.0.8)(react@19.0.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))
       knip:
         specifier: ^5.30.6
         version: 5.37.1(@types/node@22.10.7)(typescript@5.7.3)
       ox:
         specifier: 'catalog:'
-        version: 0.6.5(typescript@5.7.3)(zod@3.24.1)
+        version: 0.6.7(typescript@5.7.3)(zod@3.24.1)
       prool:
-        specifier: ^0.0.17
-        version: 0.0.17
+        specifier: ^0.0.18
+        version: 0.0.18
       publint:
         specifier: ^0.2.12
         version: 0.2.12
@@ -136,7 +136,7 @@ importers:
         version: class-variance-authority@0.7.1
       ox:
         specifier: 'catalog:'
-        version: 0.6.5(typescript@5.7.3)(zod@3.24.1)
+        version: 0.6.7(typescript@5.7.3)(zod@3.24.1)
       porto:
         specifier: workspace:*
         version: link:../src
@@ -338,7 +338,7 @@ importers:
     dependencies:
       ox:
         specifier: 'catalog:'
-        version: 0.6.5(typescript@5.7.3)(zod@3.24.1)
+        version: 0.6.7(typescript@5.7.3)(zod@3.24.1)
       porto:
         specifier: workspace:*
         version: link:../src
@@ -3040,18 +3040,6 @@ packages:
       typescript: '>=5.0.4'
       viem: 2.x
     peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  '@wagmi/core@2.16.3':
-    resolution: {integrity: sha512-SVovoWHaQ2AIkmGf+ucNijT6AHXcTMffFcLmcFF6++y21x+ge7Gkh3UoJiU91SDDv8n08eTQ9jbyia3GEgU5jQ==}
-    peerDependencies:
-      '@tanstack/query-core': '>=5.0.0'
-      typescript: '>=5.0.4'
-      viem: 2.x
-    peerDependenciesMeta:
-      '@tanstack/query-core':
-        optional: true
       typescript:
         optional: true
 
@@ -6224,6 +6212,15 @@ packages:
 
   prool@0.0.17:
     resolution: {integrity: sha512-wSEoXcsJflqnrqAcJy3XAsJceF0qN2W4UTCQIpAvsf0g9WOrdA9/zgIGeaFUG87PrcYZ3i5Bdw/Fv30o4NmXBA==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      '@pimlico/alto': '*'
+    peerDependenciesMeta:
+      '@pimlico/alto':
+        optional: true
+
+  prool@0.0.18:
+    resolution: {integrity: sha512-pMszBzVUtRs1PgfolsSTbWVaZJy6gq1EGUjKGpO8ERMTwjolFOcdN96TdHybGW5Vcdp2lgcaPitu9FpAY0qliA==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -10585,21 +10582,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@wagmi/core@2.16.3(@tanstack/query-core@5.66.4)(@types/react@19.0.8)(react@19.0.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))':
-    dependencies:
-      eventemitter3: 5.0.1
-      mipd: 0.0.7(typescript@5.7.3)
-      viem: 2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
-      zustand: 5.0.0(@types/react@19.0.8)(react@19.0.0)(use-sync-external-store@1.4.0(react@19.0.0))
-    optionalDependencies:
-      '@tanstack/query-core': 5.66.4
-      typescript: 5.7.3
-    transitivePeerDependencies:
-      - '@types/react'
-      - immer
-      - react
-      - use-sync-external-store
-
   '@wagmi/core@2.16.5(@tanstack/query-core@5.66.4)(@types/react@19.0.8)(react@19.0.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))':
     dependencies:
       eventemitter3: 5.0.1
@@ -14512,6 +14494,17 @@ snapshots:
       sisteransi: 1.0.5
 
   prool@0.0.17:
+    dependencies:
+      change-case: 5.4.4
+      eventemitter3: 5.0.1
+      execa: 9.5.2
+      get-port: 7.1.0
+      http-proxy: 1.18.1
+      tar: 7.2.0
+    transitivePeerDependencies:
+      - debug
+
+  prool@0.0.18:
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.1

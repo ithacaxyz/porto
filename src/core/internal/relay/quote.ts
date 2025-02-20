@@ -18,6 +18,8 @@ export type Quote<
 > = {
   /** The amount of the token to pay. */
   amount: bigintType
+  /** The address of the authorization contract. */
+  authorizationAddress: Address.Address
   /** The digest of the `UserOp`. */
   digest: Hex.Hex
   /** The estimated amount of gas the action will consume. */
@@ -74,6 +76,7 @@ export function fromRpc<signed extends boolean = boolean>(
   const signature = Signature.extract(rpc)
   return {
     amount: BigInt(rpc.amount),
+    authorizationAddress: rpc.authorizationAddress,
     digest: rpc.digest,
     gasEstimate: BigInt(rpc.gasEstimate),
     hash: rpc.hash,
@@ -93,6 +96,7 @@ export function toRpc<signed extends boolean = boolean>(
   const signature = Signature.extract(quote)
   return {
     amount: Hex.fromNumber(quote.amount),
+    authorizationAddress: quote.authorizationAddress,
     digest: quote.digest,
     gasEstimate: Hex.fromNumber(quote.gasEstimate),
     hash: quote.hash,

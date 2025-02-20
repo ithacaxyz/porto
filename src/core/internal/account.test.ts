@@ -3,11 +3,13 @@ import { verifyHash } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { getAccount } from '../../../test/src/account.js'
-import { client, delegation } from '../../../test/src/porto.js'
+import { getPorto } from '../../../test/src/porto.js'
 import * as Delegation from '../Delegation.js'
 import * as Account from './account.js'
 import * as Call from './call.js'
 import * as Key from './key.js'
+
+const { client, delegation } = getPorto()
 
 describe('from', () => {
   test('default', () => {

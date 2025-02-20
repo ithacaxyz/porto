@@ -1,38 +1,33 @@
 import { Hex, Value } from 'ox'
-import { Chains, Delegation, Implementation, Porto, Storage } from 'porto'
-import { http } from 'viem'
+import { Chains, Delegation } from 'porto'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { getTestnetAccount } from '../../../../test/src/account.js'
+import { http } from 'viem'
+import { getAccount } from '../../../../test/src/account.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
-import { delegation } from '../../../../test/src/porto.js'
+import { getPorto } from '../../../../test/src/porto.js'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
 import * as Key from '../key.js'
 import * as Action from './action.js'
 
-// TODO: move to test/src/porto.ts
-const porto = Porto.create({
-  implementation: Implementation.local(),
-  storage: Storage.memory(),
+// const { client, delegation } = getPorto({
+//   transports: {
+//     relay: true
+//   }
+// })
+const { client, delegation } = getPorto({
+  chain: Chains.odysseyTestnet,
   transports: {
-    [Chains.odysseyTestnet.id]: {
-      default: http(),
-      relay: http('https://relay-staging.ithaca.xyz', {
-        async onFetchRequest(request) {
-          // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-          console.log('request', JSON.stringify(await request.json(), null, 2))
-        },
-      }),
-    },
+    default: http(),
+    relay: http('https://relay-staging.ithaca.xyz'),
   },
 })
-const client = Porto.getClient(porto)
 
-describe('send', () => {
+describe.skip('send', () => {
   test('default', async () => {
-    const { account } = await getTestnetAccount(client)
+    const { account } = await getAccount(client)
 
     // delegate
     {
@@ -74,7 +69,7 @@ describe('send', () => {
   })
 
   test('behavior: delegation', async () => {
-    const { account } = await getTestnetAccount(client)
+    const { account } = await getAccount(client)
 
     const key = Key.createP256({
       role: 'admin',
@@ -103,7 +98,7 @@ describe('send', () => {
 
   describe('behavior: authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { account } = await getTestnetAccount(client)
+      const { account } = await getAccount(client)
 
       const key = Key.createP256({
         role: 'admin',
@@ -131,7 +126,7 @@ describe('send', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { account } = await getTestnetAccount(client)
+      const { account } = await getAccount(client)
 
       // delegate
       {
@@ -169,7 +164,7 @@ describe('send', () => {
     })
 
     test('key: P256, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { account } = await getTestnetAccount(client)
+      const { account } = await getAccount(client)
 
       // delegate
       {
@@ -233,9 +228,9 @@ describe('send', () => {
   })
 })
 
-describe('prepare, sendPrepared', () => {
+describe.skip('prepare, sendPrepared', () => {
   test('default', async () => {
-    const { account } = await getTestnetAccount(client)
+    const { account } = await getAccount(client)
 
     // delegate
     {

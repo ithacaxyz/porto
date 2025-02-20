@@ -1,21 +1,19 @@
 import { AbiFunction, Hex, P256, PublicKey, TypedData, Value } from 'ox'
-import { Delegation, Porto } from 'porto'
+import { Porto } from 'porto'
 import {
   getBalance,
-  readContract,
   setBalance,
   verifyMessage,
   verifyTypedData,
 } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { client, createPorto } from '../../../test/src/porto.js'
-import { delegationAbi } from './generated.js'
+import { getPorto } from '../../../test/src/porto.js'
 import * as Key from './key.js'
 
 describe('eth_accounts', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     await porto.provider.request({
       method: 'wallet_connect',
       params: [
@@ -33,7 +31,7 @@ describe('eth_accounts', () => {
   })
 
   test('behavior: disconnected', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     await expect(
       porto.provider.request({
         method: 'eth_accounts',
@@ -46,7 +44,7 @@ describe('eth_accounts', () => {
 
 describe('eth_requestAccounts', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     await porto.provider.request({
       method: 'experimental_createAccount',
     })
@@ -62,7 +60,7 @@ describe('eth_requestAccounts', () => {
 
 describe('eth_sendTransaction', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
     }))
@@ -95,7 +93,7 @@ describe('eth_sendTransaction', () => {
 
 describe('eth_signTypedData_v4', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto)
     const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
@@ -119,7 +117,7 @@ describe('experimental_grantPermissions', () => {
   test('default', async () => {
     const messages: any[] = []
 
-    const porto = createPorto()
+    const { porto } = getPorto()
     porto.provider.on('message', (message) => messages.push(message))
 
     await porto.provider.request({
@@ -178,7 +176,7 @@ describe('experimental_grantPermissions', () => {
   test('behavior: provided key', async () => {
     const messages: any[] = []
 
-    const porto = createPorto()
+    const { porto } = getPorto()
     porto.provider.on('message', (message) => messages.push(message))
 
     await porto.provider.request({
@@ -336,7 +334,7 @@ describe('experimental_grantPermissions', () => {
   })
 
   test('behavior: signature verification permission', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
     })
@@ -389,7 +387,7 @@ describe('experimental_grantPermissions', () => {
   })
 
   test('behavior: no permissions', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     await porto.provider.request({
       method: 'experimental_createAccount',
     })
@@ -421,7 +419,7 @@ describe('experimental_grantPermissions', () => {
   })
 
   test('behavior: unlimited expiry', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     await porto.provider.request({
       method: 'experimental_createAccount',
     })
@@ -454,7 +452,7 @@ describe('experimental_grantPermissions', () => {
 
 describe('experimental_createAccount', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const account = await porto.provider.request({
       method: 'experimental_createAccount',
     })
@@ -464,7 +462,7 @@ describe('experimental_createAccount', () => {
 
 describe('experimental_permissions', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     await porto.provider.request({
       method: 'experimental_createAccount',
     })
@@ -505,7 +503,7 @@ describe('experimental_permissions', () => {
 
 describe('experimental_revokePermissions', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
 
     const messages: any[] = []
     porto.provider.on('message', (message) => messages.push(message))
@@ -589,7 +587,7 @@ describe('experimental_revokePermissions', () => {
   })
 
   test('behavior: revoke last admin key', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
 
     const messages: any[] = []
     porto.provider.on('message', (message) => messages.push(message))
@@ -614,7 +612,7 @@ describe('experimental_revokePermissions', () => {
 
 describe('personal_sign', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto)
     const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
@@ -638,7 +636,7 @@ describe('wallet_connect', () => {
   test('default', async () => {
     const messages: any[] = []
 
-    const porto = createPorto()
+    const { client, porto } = getPorto()
     porto.provider.on('connect', (message) => messages.push(message))
 
     await porto.provider.request({
@@ -667,13 +665,13 @@ describe('wallet_connect', () => {
       ]
     `)
 
-    expect(messages[0].chainId).toBe(Hex.fromNumber(1))
+    expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
   })
 
   test('behavior: `createAccount` capability', async () => {
     const messages: any[] = []
 
-    const porto = createPorto()
+    const { client, porto } = getPorto()
     porto.provider.on('connect', (message) => messages.push(message))
 
     await porto.provider.request({
@@ -705,13 +703,13 @@ describe('wallet_connect', () => {
       ]
     `)
 
-    expect(messages[0].chainId).toBe(Hex.fromNumber(1))
+    expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
   })
 
   test('behavior: `createAccount` + `grantPermissions` capability', async () => {
     const messages: any[] = []
 
-    const porto = createPorto()
+    const { client, porto } = getPorto()
     porto.provider.on('connect', (message) => messages.push(message))
 
     await porto.provider.request({
@@ -764,13 +762,13 @@ describe('wallet_connect', () => {
       ]
     `)
 
-    expect(messages[0].chainId).toBe(Hex.fromNumber(1))
+    expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
   })
 
   test('behavior: `createAccount` + `grantPermissions` capability (provided key)', async () => {
     const messages: any[] = []
 
-    const porto = createPorto()
+    const { client, porto } = getPorto()
     porto.provider.on('connect', (message) => messages.push(message))
 
     const privateKey =
@@ -836,11 +834,11 @@ describe('wallet_connect', () => {
       ]
     `)
 
-    expect(messages[0].chainId).toBe(Hex.fromNumber(1))
+    expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
   })
 
   test('behavior: `grantPermissions` capability (unlimited expiry)', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     await expect(() =>
       porto.provider.request({
         method: 'wallet_connect',
@@ -868,7 +866,7 @@ describe('wallet_connect', () => {
   })
 
   test('behavior: `grantPermissions` capability (no permissions)', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     await expect(() =>
       porto.provider.request({
         method: 'wallet_connect',
@@ -901,7 +899,7 @@ describe('wallet_disconnect', () => {
   test('default', async () => {
     const messages: any[] = []
 
-    const porto = createPorto()
+    const { porto } = getPorto()
     porto.provider.on('disconnect', (message) => messages.push(message))
 
     await porto.provider.request({
@@ -923,7 +921,7 @@ describe('wallet_disconnect', () => {
 
 describe('wallet_sendCalls', () => {
   test('default', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
     }))
@@ -959,7 +957,7 @@ describe('wallet_sendCalls', () => {
   })
 
   test('behavior: `permissions` capability', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
     }))
@@ -1010,7 +1008,7 @@ describe('wallet_sendCalls', () => {
   })
 
   test('behavior: `permissions.calls` unauthorized', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
     }))
@@ -1060,7 +1058,7 @@ describe('wallet_sendCalls', () => {
   })
 
   test('behavior: `permissions.spend` exceeded', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
     }))
@@ -1135,7 +1133,7 @@ describe('wallet_sendCalls', () => {
   })
 
   test('behavior: revoked permission', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
     }))
@@ -1211,7 +1209,7 @@ describe('wallet_sendCalls', () => {
   })
 
   test('behavior: not provider-managed permission', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
     }))
@@ -1269,7 +1267,7 @@ describe('wallet_sendCalls', () => {
   })
 
   test('behavior: permission does not exist', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
     const client = Porto.getClient(porto).extend(() => ({
       mode: 'anvil',
     }))
@@ -1311,7 +1309,7 @@ describe('wallet_sendCalls', () => {
   })
 
   test('behavior: no calls', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
 
     const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
@@ -1339,7 +1337,7 @@ describe('wallet_sendCalls', () => {
   })
 
   test('behavior: no calls.to', async () => {
-    const porto = createPorto()
+    const { porto } = getPorto()
 
     const { address } = await porto.provider.request({
       method: 'experimental_createAccount',
@@ -1372,7 +1370,7 @@ describe('wallet_sendCalls', () => {
 })
 
 test('behavior: fall through', async () => {
-  const porto = createPorto()
+  const { porto } = getPorto()
   expect(
     await porto.provider.request({
       method: 'eth_blockNumber',
@@ -1381,7 +1379,7 @@ test('behavior: fall through', async () => {
 })
 
 test('behavior: unsupported wallet_ method', async () => {
-  const porto = createPorto()
+  const { porto } = getPorto()
   await expect(() =>
     porto.provider.request({
       method: 'wallet_lol',
