@@ -9,5 +9,11 @@ runs:
       with:
         version: nightly
 
+    - name: Set up Docker
+      uses: docker/setup-docker-action@v4
+    
+    - name: Pull Relay
+      run: docker pull ghcr.io/ithacaxyz/relay:latest
+
     - name: Set up pnpm
       uses: wevm/actions/.github/actions/pnpm@main
