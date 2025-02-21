@@ -21,11 +21,20 @@ const { client, delegation } = getPorto({
   chain: Chains.odysseyTestnet,
   transports: {
     default: http(),
-    relay: http('https://relay-staging.ithaca.xyz'),
+    relay: http('https://relay-staging.ithaca.xyz', {
+      async onFetchRequest(request) {
+        // biome-ignore lint/suspicious/noConsoleLog:
+        console.log('request:', JSON.stringify(await request.json()))
+      },
+      async onFetchResponse(response) {
+        // biome-ignore lint/suspicious/noConsoleLog:
+        console.log('response:', JSON.stringify(await response.clone().json()))
+      },
+    }),
   },
 })
 
-describe.skip('send', () => {
+describe('send', () => {
   test('default', async () => {
     const { account } = await getAccount(client)
 
@@ -97,7 +106,7 @@ describe.skip('send', () => {
   })
 
   describe('behavior: authorize', () => {
-    test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test('delegated: false, key: EOA, keyToAuthorize: P256', async () => {
       const { account } = await getAccount(client)
 
       const key = Key.createP256({
@@ -125,7 +134,7 @@ describe.skip('send', () => {
       expect(publicKey).toEqual(key.publicKey)
     })
 
-    test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test('delegated: true, key: EOA, keyToAuthorize: P256', async () => {
       const { account } = await getAccount(client)
 
       // delegate
@@ -163,7 +172,7 @@ describe.skip('send', () => {
       expect(publicKey).toEqual(key.publicKey)
     })
 
-    test('key: P256, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+    test('key: P256, keyToAuthorize: P256', async () => {
       const { account } = await getAccount(client)
 
       // delegate
