@@ -7,6 +7,12 @@ import { relayOdyssey } from './relay.js'
 
 export const defaultChain = defineChain({
   ...odysseyTestnet,
+  contracts: {
+    ...odysseyTestnet.contracts,
+    entryPoint: {
+      address: '0x307AF7d28AfEE82092aA95D35644898311CA5360',
+    },
+  },
   rpcUrls: {
     default: { http: [anvilOdyssey.rpcUrl] },
   },

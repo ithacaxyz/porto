@@ -1,9 +1,8 @@
 import { Hex, Value } from 'ox'
-import { Chains, Delegation } from 'porto'
+import { Delegation } from 'porto'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { http } from 'viem'
 import { getAccount } from '../../../../test/src/account.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
@@ -12,27 +11,18 @@ import * as Call from '../call.js'
 import * as Key from '../key.js'
 import * as Action from './action.js'
 
-// const { client, delegation } = getPorto({
-//   transports: {
-//     relay: true
-//   }
-// })
 const { client, delegation } = getPorto({
-  chain: Chains.odysseyTestnet,
   transports: {
-    default: http(),
-    relay: http('https://relay-staging.ithaca.xyz', {
-      async onFetchRequest(request) {
-        // biome-ignore lint/suspicious/noConsoleLog:
-        console.log('request:', JSON.stringify(await request.json()))
-      },
-      async onFetchResponse(response) {
-        // biome-ignore lint/suspicious/noConsoleLog:
-        console.log('response:', JSON.stringify(await response.clone().json()))
-      },
-    }),
+    relay: true,
   },
 })
+// const { client, delegation } = getPorto({
+//   chain: Chains.odysseyTestnet,
+//   transports: {
+//     default: http(),
+//     relay: http('https://relay-staging.ithaca.xyz'),
+//   },
+// })
 
 describe('send', () => {
   test('default', async () => {
@@ -172,7 +162,7 @@ describe('send', () => {
       expect(publicKey).toEqual(key.publicKey)
     })
 
-    test.only('key: P256, keyToAuthorize: P256', async () => {
+    test('key: P256, keyToAuthorize: P256', async () => {
       const { account } = await getAccount(client)
 
       // delegate
@@ -237,7 +227,7 @@ describe('send', () => {
   })
 })
 
-describe.skip('prepare, sendPrepared', () => {
+describe('prepare, sendPrepared', () => {
   test('default', async () => {
     const { account } = await getAccount(client)
 
