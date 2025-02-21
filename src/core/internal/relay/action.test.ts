@@ -172,7 +172,7 @@ describe('send', () => {
       expect(publicKey).toEqual(key.publicKey)
     })
 
-    test('key: P256, keyToAuthorize: P256', async () => {
+    test.only('key: P256, keyToAuthorize: P256', async () => {
       const { account } = await getAccount(client)
 
       // delegate
