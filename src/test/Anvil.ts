@@ -22,7 +22,7 @@ export const chain = (id = 1) =>
     },
     contracts: {
       delegation: {
-        address: '0x44b636676dbbc8361ffa519a121958958b66ba3f',
+        address: '0x766dd4f7d39233d0c46e241011e18de4207197d8',
       },
     },
     rpcUrls: {
