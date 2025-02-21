@@ -1,23 +1,27 @@
 import { AbiFunction, Secp256k1, Value } from 'ox'
 import { http, createClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { getBalance, readContract } from 'viem/actions'
+import {
+  getBalance,
+  readContract,
+  waitForTransactionReceipt,
+} from 'viem/actions'
 import { odysseyTestnet } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
 
 import { getAccount } from '../../test/src/account.js'
 import { ExperimentERC20 } from '../../test/src/contracts.js'
 import { getPorto } from '../../test/src/porto.js'
+import * as Chains from './Chains.js'
 import * as Delegation from './Delegation.js'
 import * as Account from './internal/account.js'
 import * as Call from './internal/call.js'
 import * as Key from './internal/key.js'
 
-const { client, delegation } = getPorto()
-
 describe('execute', () => {
   describe('behavior: authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
       const key = Key.createP256({
@@ -49,6 +53,7 @@ describe('execute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
       await Delegation.execute(client, {
@@ -85,6 +90,7 @@ describe('execute', () => {
     })
 
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
+      const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
       const key = Key.createP256({
@@ -117,6 +123,7 @@ describe('execute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
+      const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
       await Delegation.execute(client, {
@@ -154,6 +161,7 @@ describe('execute', () => {
     })
 
     test('key: P256, keysToAuthorize: [P256]', async () => {
+      const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
       const key = Key.createP256({
@@ -199,6 +207,7 @@ describe('execute', () => {
     })
 
     test('key: P256, keysToAuthorize: [WebCryptoP256]', async () => {
+      const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
       const key = Key.createP256({
@@ -246,6 +255,8 @@ describe('execute', () => {
 
   describe('behavior: arbitrary calls', () => {
     test('key: p256, executor: JSON-RPC', async () => {
+      const { client, delegation } = getPorto()
+
       const key = Key.createP256({
         role: 'admin',
       })
@@ -293,6 +304,8 @@ describe('execute', () => {
     })
 
     test('key: p256, executor: JSON-RPC, mint tokens', async () => {
+      const { client, delegation } = getPorto()
+
       const key = Key.createP256({
         role: 'admin',
       })
@@ -327,6 +340,8 @@ describe('execute', () => {
     })
 
     test('key: secp256k1, executor: JSON-RPC', async () => {
+      const { client, delegation } = getPorto()
+
       const key = Key.createSecp256k1({
         role: 'admin',
       })
@@ -374,6 +389,8 @@ describe('execute', () => {
     })
 
     test('key: webcrypto, executor: JSON-RPC', async () => {
+      const { client, delegation } = getPorto()
+
       const key = await Key.createWebCryptoP256({
         role: 'admin',
       })
@@ -421,6 +438,7 @@ describe('execute', () => {
     })
 
     test('key: owner, executor: JSON-RPC', async () => {
+      const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
       await Delegation.execute(client, {
@@ -463,6 +481,7 @@ describe('execute', () => {
     })
 
     test('key: owner, executor: EOA', async () => {
+      const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
       await Delegation.execute(client, {
@@ -508,6 +527,8 @@ describe('execute', () => {
 
   describe('behavior: spend limits', () => {
     test('default', async () => {
+      const { client, delegation } = getPorto()
+
       const key = Key.createP256({
         role: 'admin',
       })
@@ -574,6 +595,7 @@ describe('execute', () => {
   })
 
   test('error: insufficient funds', async () => {
+    const { client, delegation } = getPorto()
     const { account } = await getAccount(client)
 
     await expect(() =>
@@ -595,6 +617,7 @@ describe('execute', () => {
       role: 'session',
     })
 
+    const { client, delegation } = getPorto()
     const { account } = await getAccount(client)
 
     await Delegation.execute(client, {
@@ -618,6 +641,7 @@ describe('execute', () => {
   })
 
   test('error: key does not exist ', async () => {
+    const { client, delegation } = getPorto()
     const { account } = await getAccount(client)
 
     const key = Key.createP256({
@@ -638,6 +662,7 @@ describe('execute', () => {
 describe('prepareExecute', () => {
   describe('authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
       const keyToAuthorize = Key.createP256({
@@ -681,6 +706,7 @@ describe('prepareExecute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
+      const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
       await Delegation.execute(client, {
@@ -729,6 +755,7 @@ describe('prepareExecute', () => {
     })
 
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
+      const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
       const keyToAuthorize = Key.createP256({
@@ -926,4 +953,72 @@ describe('simulate', () => {
       ]
     `)
   })
+})
+
+test.skip('e2e (https://relay.ithaca.xyz)', async () => {
+  const { client, delegation } = getPorto({
+    chain: Chains.odysseyTestnet,
+    transports: {
+      default: http(),
+      relay: http('https://relay.ithaca.xyz'),
+    },
+  })
+
+  const { account } = await getAccount(client, { setBalance: false })
+
+  // delegate
+  {
+    const hash = await Delegation.execute(client, {
+      account,
+      delegation,
+      calls: [],
+    })
+    await waitForTransactionReceipt(client, { hash })
+  }
+
+  const key = Key.createP256({
+    role: 'admin',
+  })
+
+  // authorize P256 key
+  {
+    const hash = await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key,
+        }),
+      ],
+    })
+
+    await waitForTransactionReceipt(client, { hash })
+  }
+
+  const anotherKey = Key.createP256({
+    role: 'admin',
+  })
+
+  // authorize another P256 key with previously authorized key
+  {
+    const hash = await Delegation.execute(client, {
+      account,
+      calls: [
+        Call.authorize({
+          key: anotherKey,
+        }),
+      ],
+      key,
+    })
+
+    await waitForTransactionReceipt(client, { hash })
+  }
+
+  expect(
+    (
+      await Delegation.keyAt(client, {
+        account: account.address,
+        index: 1,
+      })
+    ).publicKey,
+  ).toEqual(anotherKey.publicKey)
 })
