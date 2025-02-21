@@ -46,7 +46,7 @@ export async function getAccount(
         role: 'admin',
       })
       const account_ = Account.from({
-        address: process.env.VITE_EOA_PRIVATE_KEY as Hex.Hex,
+        address: process.env.VITE_EOA_ADDRESS as Hex.Hex,
         keys: [key],
       })
 

@@ -11,7 +11,7 @@ export const callContextCheckerAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x44b636676dbbc8361ffa519a121958958b66ba3f)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x766dd4f7d39233d0c46e241011e18de4207197d8)
  */
 export const delegationAbi = [
   { type: 'fallback', stateMutability: 'payable' },
@@ -697,14 +697,14 @@ export const delegationAbi = [
 ] as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x44b636676dbbc8361ffa519a121958958b66ba3f)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x766dd4f7d39233d0c46e241011e18de4207197d8)
  */
 export const delegationAddress = {
-  911867: '0x44B636676DBbc8361fFA519A121958958B66ba3f',
+  911867: '0x766dD4F7d39233D0C46e241011E18De4207197D8',
 } as const
 
 /**
- * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x44b636676dbbc8361ffa519a121958958b66ba3f)
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x766dd4f7d39233d0c46e241011e18de4207197d8)
  */
 export const delegationConfig = {
   address: delegationAddress,
@@ -1124,6 +1124,9 @@ export const erc7821Abi = [
 // EntryPoint
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xB28AF4994867Faf0be7aa6b1bfD6477a0d282410)
+ */
 export const entryPointAbi = [
   { type: 'fallback', stateMutability: 'payable' },
   { type: 'receive', stateMutability: 'payable' },
@@ -1343,6 +1346,21 @@ export const entryPointAbi = [
   { type: 'error', inputs: [], name: 'VerificationError' },
   { type: 'error', inputs: [], name: 'VerifiedCallError' },
 ] as const
+
+/**
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xB28AF4994867Faf0be7aa6b1bfD6477a0d282410)
+ */
+export const entryPointAddress = {
+  911867: '0xB28AF4994867Faf0be7aa6b1bfD6477a0d282410',
+} as const
+
+/**
+ * [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0xB28AF4994867Faf0be7aa6b1bfD6477a0d282410)
+ */
+export const entryPointConfig = {
+  address: entryPointAddress,
+  abi: entryPointAbi,
+} as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EnumerableSetLib
