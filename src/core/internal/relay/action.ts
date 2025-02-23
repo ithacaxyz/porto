@@ -229,6 +229,7 @@ export async function prepare<
   const request = ActionRequest.prepare({
     account,
     calls,
+    delegation,
   })
 
   // Get the quote to execute the Action.
