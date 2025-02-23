@@ -411,6 +411,103 @@ describe('send', () => {
         ).toBe(value)
       }
     })
+
+    test('key: P256, keyToAuthorize: P256 (session)', async () => {
+      const { account } = await getAccount(client)
+
+      // delegate
+      {
+        const hash = await Action.send(client, {
+          account,
+          delegation,
+          calls: [],
+          gasToken: ExperimentERC20.address[0],
+        })
+        await waitForTransactionReceipt(client, { hash })
+      }
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      // authorize P256 key
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            Call.authorize({
+              key,
+            }),
+          ],
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+      }
+
+      const anotherKey = Key.createP256({
+        role: 'session',
+      })
+
+      // authorize another P256 key with previously authorized key
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            Call.authorize({
+              key: anotherKey,
+            }),
+            Call.setCanExecute({
+              key: anotherKey,
+            }),
+          ],
+          key,
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+
+        expect(
+          (
+            await Delegation.keyAt(client, {
+              account: account.address,
+              index: 1,
+            })
+          ).publicKey,
+        ).toEqual(anotherKey.publicKey)
+      }
+
+      // test an arbitrary action
+      {
+        const alice = Hex.random(20)
+        const value = Value.fromEther('0.0001')
+
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            {
+              to: ExperimentERC20.address[0],
+              abi: ExperimentERC20.abi,
+              functionName: 'transfer',
+              args: [alice, value],
+            },
+          ],
+          key: anotherKey,
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+
+        expect(
+          await readContract(client, {
+            abi: ExperimentERC20.abi,
+            address: ExperimentERC20.address[0],
+            functionName: 'balanceOf',
+            args: [alice],
+          }),
+        ).toBe(value)
+      }
+    })
   })
 
   test('behavior: spend limits', async () => {
@@ -483,6 +580,197 @@ describe('send', () => {
         gasToken: ExperimentERC20.address[0],
       }),
     ).rejects.toThrowError('ExceededSpendLimit')
+  })
+
+  describe('behavior: execution guards', async () => {
+    test('default', async () => {
+      const { account } = await getAccount(client)
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      // authorize admin P256 key
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            Call.authorize({
+              key,
+            }),
+          ],
+          delegation,
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+      }
+
+      const anotherKey = Key.createP256({
+        role: 'session',
+      })
+
+      // authorize and set guard.
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            Call.authorize({
+              key: anotherKey,
+            }),
+            Call.setCanExecute({
+              key: anotherKey,
+            }),
+          ],
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+
+        expect(
+          (
+            await Delegation.keyAt(client, {
+              account: account.address,
+              index: 1,
+            })
+          ).publicKey,
+        ).toEqual(anotherKey.publicKey)
+      }
+
+      // test an arbitrary action
+      {
+        const alice = Hex.random(20)
+        const value = Value.fromEther('0.0001')
+
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            {
+              to: ExperimentERC20.address[0],
+              abi: ExperimentERC20.abi,
+              functionName: 'transfer',
+              args: [alice, value],
+            },
+          ],
+          key: anotherKey,
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+
+        expect(
+          await readContract(client, {
+            abi: ExperimentERC20.abi,
+            address: ExperimentERC20.address[0],
+            functionName: 'balanceOf',
+            args: [alice],
+          }),
+        ).toBe(value)
+      }
+    })
+
+    test('behavior: target scope', async () => {
+      const { account } = await getAccount(client)
+
+      const key = Key.createP256({
+        role: 'admin',
+      })
+
+      // authorize admin P256 key
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            Call.authorize({
+              key,
+            }),
+          ],
+          delegation,
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+      }
+
+      const anotherKey = Key.createP256({
+        role: 'session',
+      })
+
+      // authorize and set guard.
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            Call.authorize({
+              key: anotherKey,
+            }),
+            Call.setCanExecute({
+              key: anotherKey,
+              to: ExperimentERC20.address[0],
+            }),
+          ],
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+
+        expect(
+          (
+            await Delegation.keyAt(client, {
+              account: account.address,
+              index: 1,
+            })
+          ).publicKey,
+        ).toEqual(anotherKey.publicKey)
+      }
+
+      const alice = Hex.random(20)
+      const value = Value.fromEther('0.0001')
+
+      // test an arbitrary action
+      {
+        const hash = await Action.send(client, {
+          account,
+          calls: [
+            {
+              to: ExperimentERC20.address[0],
+              abi: ExperimentERC20.abi,
+              functionName: 'transfer',
+              args: [alice, value],
+            },
+          ],
+          key: anotherKey,
+          gasToken: ExperimentERC20.address[0],
+        })
+
+        await waitForTransactionReceipt(client, { hash })
+
+        expect(
+          await readContract(client, {
+            abi: ExperimentERC20.abi,
+            address: ExperimentERC20.address[0],
+            functionName: 'balanceOf',
+            args: [alice],
+          }),
+        ).toBe(value)
+      }
+
+      await expect(() =>
+        Action.send(client, {
+          account,
+          calls: [
+            {
+              to: ExperimentERC20.address[1],
+              abi: ExperimentERC20.abi,
+              functionName: 'transfer',
+              args: [alice, value],
+            },
+          ],
+          key: anotherKey,
+          gasToken: ExperimentERC20.address[0],
+        }),
+      ).rejects.toThrowError('Unauthorized')
+    })
   })
 })
 
