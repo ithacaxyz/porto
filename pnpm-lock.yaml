@@ -87,8 +87,8 @@ importers:
         specifier: 'catalog:'
         version: 0.6.7(typescript@5.7.3)(zod@3.24.1)
       prool:
-        specifier: ^0.0.18
-        version: 0.0.18
+        specifier: ^0.0.23
+        version: 0.0.23
       publint:
         specifier: ^0.2.12
         version: 0.2.12
@@ -365,8 +365,8 @@ importers:
         specifier: 'catalog:'
         version: 15.14.0
       prool:
-        specifier: ^0.0.17
-        version: 0.0.17
+        specifier: ^0.0.23
+        version: 0.0.23
       typescript:
         specifier: 'catalog:'
         version: 5.7.3
@@ -6210,17 +6210,8 @@ packages:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
     engines: {node: '>= 6'}
 
-  prool@0.0.17:
-    resolution: {integrity: sha512-wSEoXcsJflqnrqAcJy3XAsJceF0qN2W4UTCQIpAvsf0g9WOrdA9/zgIGeaFUG87PrcYZ3i5Bdw/Fv30o4NmXBA==}
-    engines: {node: '>=22'}
-    peerDependencies:
-      '@pimlico/alto': '*'
-    peerDependenciesMeta:
-      '@pimlico/alto':
-        optional: true
-
-  prool@0.0.18:
-    resolution: {integrity: sha512-pMszBzVUtRs1PgfolsSTbWVaZJy6gq1EGUjKGpO8ERMTwjolFOcdN96TdHybGW5Vcdp2lgcaPitu9FpAY0qliA==}
+  prool@0.0.23:
+    resolution: {integrity: sha512-r1d0DIiVsp7aXqGiNGKmgrqJZa8GjMGEjsgjQO22DEClYYvK+HMPZTQ9diBqleGuwfiRk3lnsWRMbFTRmFbk9g==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -14493,18 +14484,7 @@ snapshots:
       kleur: 3.0.3
       sisteransi: 1.0.5
 
-  prool@0.0.17:
-    dependencies:
-      change-case: 5.4.4
-      eventemitter3: 5.0.1
-      execa: 9.5.2
-      get-port: 7.1.0
-      http-proxy: 1.18.1
-      tar: 7.2.0
-    transitivePeerDependencies:
-      - debug
-
-  prool@0.0.18:
+  prool@0.0.23:
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.1
