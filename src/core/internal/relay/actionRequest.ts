@@ -1,3 +1,4 @@
+import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import { encodeCalls } from 'viem/experimental/erc7821'
@@ -5,6 +6,7 @@ import type { EncodeExecuteDataParameters } from 'viem/experimental/erc7821'
 
 import * as Account from '../account.js'
 import * as Call from '../call.js'
+import { delegationAbi } from '../generated.js'
 
 /**
  * Action request.
@@ -35,15 +37,26 @@ export type Rpc = {
 export function prepare<const calls extends readonly unknown[]>(
   parameters: prepare.Parameters<calls>,
 ): ActionRequest {
-  const { account, calls, multichain = false } = parameters
+  const { account, calls, delegation } = parameters
 
   const eoa = Account.from(account).address
 
+  let multichain = parameters.multichain ?? Boolean(delegation)
   const executionData = encodeCalls(
-    calls.map((c: any) => ({
-      ...c,
-      to: c.to === Call.self ? eoa : c.to,
-    })),
+    calls.map((c: any) => {
+      const selector = Hex.slice(c.data ?? '0x', 0, 4)
+      // if a non-authorize call exists, don't allow multichain.
+      if (
+        selector !==
+        AbiFunction.getSelector(AbiFunction.fromAbi(delegationAbi, 'authorize'))
+      )
+        multichain = false
+
+      return {
+        ...c,
+        to: c.to === Call.self ? eoa : c.to,
+      }
+    }),
   )
 
   let nonce = parameters.nonce
