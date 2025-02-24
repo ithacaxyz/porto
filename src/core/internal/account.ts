@@ -94,6 +94,30 @@ export declare namespace fromPrivateKey {
   >
 }
 
+export function getKey(
+  account: Account,
+  parameters: getKey.Parameters,
+): Key.Key | undefined {
+  const { key } = parameters
+
+  // Extract from `key` parameter.
+  if (typeof key === 'object') return key
+
+  // Extract from `account.keys` (with optional `key` index).
+  if (account.keys && account.keys.length > 0) {
+    if (typeof key === 'number') return account.keys[key]
+    return account.keys.find((key) => key.canSign)
+  }
+
+  return undefined
+}
+
+export declare namespace getKey {
+  type Parameters = {
+    key?: number | Key.Key | undefined
+  }
+}
+
 /**
  * Extracts a signing key from a delegated account and signs payload(s).
  *
@@ -119,24 +143,7 @@ export async function sign<
   if (authorizationPayload && !account.sign)
     throw new Error('cannot find root signing key to sign authorization.')
 
-  // Extract a key to sign the payload with.
-  const key = (() => {
-    const key = parameters.key
-
-    // Extract from `key` parameter.
-    if (typeof key === 'object') return key
-
-    // If we have an authorization payload, use the root signing key.
-    if (authorizationPayload) return undefined
-
-    // Extract from `account.keys` (with optional `key` index).
-    if (account.keys && account.keys.length > 0) {
-      if (typeof key === 'number') return account.keys[key]
-      return account.keys.find((key) => key.canSign)
-    }
-
-    return undefined
-  })()
+  const key = authorizationPayload ? undefined : getKey(account, parameters)
 
   const sign = (() => {
     // If we have no key, use the root signing key.

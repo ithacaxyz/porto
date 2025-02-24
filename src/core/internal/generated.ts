@@ -74,6 +74,13 @@ export const delegationAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'MULTICHAIN_NONCE_PREFIX',
+    outputs: [{ name: '', internalType: 'uint16', type: 'uint16' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [
       { name: 'implementation', internalType: 'address', type: 'address' },
     ],
@@ -128,6 +135,18 @@ export const delegationAbi = [
     name: 'canExecute',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'paymentToken', internalType: 'address', type: 'address' },
+      { name: 'paymentRecipient', internalType: 'address', type: 'address' },
+      { name: 'paymentAmount', internalType: 'uint256', type: 'uint256' },
+      { name: 'eoa', internalType: 'address', type: 'address' },
+    ],
+    name: 'compensate',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -198,6 +217,13 @@ export const delegationAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: 'seqKey', internalType: 'uint192', type: 'uint192' }],
+    name: 'getNonce',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [
       {
         name: 'key',
@@ -218,15 +244,6 @@ export const delegationAbi = [
     name: 'hash',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'pure',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'incrementNonceSalt',
-    outputs: [
-      { name: 'newNonceSalt', internalType: 'uint256', type: 'uint256' },
-    ],
-    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -281,31 +298,6 @@ export const delegationAbi = [
     name: 'label',
     outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'nonce', internalType: 'uint256', type: 'uint256' }],
-    name: 'nonceIsInvalidated',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'nonceSalt',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'paymentToken', internalType: 'address', type: 'address' },
-      { name: 'paymentAmount', internalType: 'uint256', type: 'uint256' },
-      { name: 'eoa', internalType: 'address', type: 'address' },
-    ],
-    name: 'payEntryPoint',
-    outputs: [],
-    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -455,6 +447,15 @@ export const delegationAbi = [
     stateMutability: 'view',
   },
   {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'upgradeProxyDelegation',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
     type: 'event',
     anonymous: false,
     inputs: [
@@ -579,19 +580,6 @@ export const delegationAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'newNonceSalt',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-    ],
-    name: 'NonceSaltIncremented',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
         name: 'keyHash',
         internalType: 'bytes32',
         type: 'bytes32',
@@ -690,6 +678,7 @@ export const delegationAbi = [
   { type: 'error', inputs: [], name: 'InvalidNonce' },
   { type: 'error', inputs: [], name: 'KeyDoesNotExist' },
   { type: 'error', inputs: [], name: 'KeyHashIsZero' },
+  { type: 'error', inputs: [], name: 'NewSequenceMustBeLarger' },
   { type: 'error', inputs: [], name: 'OpDataTooShort' },
   { type: 'error', inputs: [], name: 'SuperAdminCanExecuteEverything' },
   { type: 'error', inputs: [], name: 'Unauthorized' },
@@ -1147,6 +1136,13 @@ export const entryPointAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'MULTICHAIN_NONCE_PREFIX',
+    outputs: [{ name: '', internalType: 'uint16', type: 'uint16' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'USER_OP_TYPEHASH',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
@@ -1211,6 +1207,36 @@ export const entryPointAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: 'eoa', internalType: 'address', type: 'address' },
+      { name: 'seqKey', internalType: 'uint192', type: 'uint192' },
+    ],
+    name: 'getNonce',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'nonce', internalType: 'uint256', type: 'uint256' }],
+    name: 'invalidateNonce',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'eoa', internalType: 'address', type: 'address' },
+      { name: 'nonce', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'nonceStatus',
+    outputs: [
+      { name: 'seq', internalType: 'uint64', type: 'uint64' },
+      { name: 'err', internalType: 'bytes4', type: 'bytes4' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'orderId', internalType: 'bytes32', type: 'bytes32' }],
     name: 'orderIdIsFilled',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
@@ -1256,6 +1282,13 @@ export const entryPointAbi = [
   {
     type: 'function',
     inputs: [{ name: 'encodedUserOp', internalType: 'bytes', type: 'bytes' }],
+    name: 'simulateExecute2',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'encodedUserOp', internalType: 'bytes', type: 'bytes' }],
     name: 'simulateFailedVerifyAndCall',
     outputs: [],
     stateMutability: 'payable',
@@ -1277,6 +1310,20 @@ export const entryPointAbi = [
     name: 'withdrawTokens',
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'eoa', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'nonce',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'NonceInvalidated',
   },
   {
     type: 'event',
@@ -1323,16 +1370,34 @@ export const entryPointAbi = [
     ],
     name: 'OwnershipTransferred',
   },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'eoa', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'nonce',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      { name: 'err', internalType: 'bytes4', type: 'bytes4', indexed: false },
+    ],
+    name: 'UserOpExecuted',
+  },
   { type: 'error', inputs: [], name: 'AlreadyInitialized' },
   { type: 'error', inputs: [], name: 'CallError' },
   { type: 'error', inputs: [], name: 'FnSelectorNotRecognized' },
   { type: 'error', inputs: [], name: 'InsufficientGas' },
+  { type: 'error', inputs: [], name: 'InvalidNonce' },
   { type: 'error', inputs: [], name: 'NewOwnerIsZeroAddress' },
+  { type: 'error', inputs: [], name: 'NewSequenceMustBeLarger' },
   { type: 'error', inputs: [], name: 'NoHandoverRequest' },
   { type: 'error', inputs: [], name: 'NoRevertEncoutered' },
   { type: 'error', inputs: [], name: 'OrderAlreadyFilled' },
   { type: 'error', inputs: [], name: 'PaymentError' },
   { type: 'error', inputs: [], name: 'Reentrancy' },
+  { type: 'error', inputs: [], name: 'SimulateExecute2Failed' },
   {
     type: 'error',
     inputs: [
@@ -1340,6 +1405,16 @@ export const entryPointAbi = [
       { name: 'err', internalType: 'bytes4', type: 'bytes4' },
     ],
     name: 'SimulationResult',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'gExecute', internalType: 'uint256', type: 'uint256' },
+      { name: 'gCombined', internalType: 'uint256', type: 'uint256' },
+      { name: 'gUsed', internalType: 'uint256', type: 'uint256' },
+      { name: 'err', internalType: 'bytes4', type: 'bytes4' },
+    ],
+    name: 'SimulationResult2',
   },
   { type: 'error', inputs: [], name: 'Unauthorized' },
   { type: 'error', inputs: [], name: 'UnauthorizedCallContext' },
@@ -1879,6 +1954,16 @@ export const libCloneAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// LibEIP7702
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const libEip7702Abi = [
+  { type: 'error', inputs: [], name: 'ChangeProxyAdminFailed' },
+  { type: 'error', inputs: [], name: 'ProxyQueryFailed' },
+  { type: 'error', inputs: [], name: 'UpgradeProxyFailed' },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // LibERC7579
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1905,6 +1990,13 @@ export const mockEntryPointAbi = [
     inputs: [],
     name: 'DOMAIN_TYPEHASH',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MULTICHAIN_NONCE_PREFIX',
+    outputs: [{ name: '', internalType: 'uint16', type: 'uint16' }],
     stateMutability: 'view',
   },
   {
@@ -2008,6 +2100,36 @@ export const mockEntryPointAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: 'eoa', internalType: 'address', type: 'address' },
+      { name: 'seqKey', internalType: 'uint192', type: 'uint192' },
+    ],
+    name: 'getNonce',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'nonce', internalType: 'uint256', type: 'uint256' }],
+    name: 'invalidateNonce',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'eoa', internalType: 'address', type: 'address' },
+      { name: 'nonce', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'nonceStatus',
+    outputs: [
+      { name: 'seq', internalType: 'uint64', type: 'uint64' },
+      { name: 'err', internalType: 'bytes4', type: 'bytes4' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'orderId', internalType: 'bytes32', type: 'bytes32' }],
     name: 'orderIdIsFilled',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
@@ -2053,6 +2175,13 @@ export const mockEntryPointAbi = [
   {
     type: 'function',
     inputs: [{ name: 'encodedUserOp', internalType: 'bytes', type: 'bytes' }],
+    name: 'simulateExecute2',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'encodedUserOp', internalType: 'bytes', type: 'bytes' }],
     name: 'simulateFailedVerifyAndCall',
     outputs: [],
     stateMutability: 'payable',
@@ -2074,6 +2203,20 @@ export const mockEntryPointAbi = [
     name: 'withdrawTokens',
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'eoa', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'nonce',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'NonceInvalidated',
   },
   {
     type: 'event',
@@ -2120,16 +2263,34 @@ export const mockEntryPointAbi = [
     ],
     name: 'OwnershipTransferred',
   },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'eoa', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'nonce',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      { name: 'err', internalType: 'bytes4', type: 'bytes4', indexed: false },
+    ],
+    name: 'UserOpExecuted',
+  },
   { type: 'error', inputs: [], name: 'AlreadyInitialized' },
   { type: 'error', inputs: [], name: 'CallError' },
   { type: 'error', inputs: [], name: 'FnSelectorNotRecognized' },
   { type: 'error', inputs: [], name: 'InsufficientGas' },
+  { type: 'error', inputs: [], name: 'InvalidNonce' },
   { type: 'error', inputs: [], name: 'NewOwnerIsZeroAddress' },
+  { type: 'error', inputs: [], name: 'NewSequenceMustBeLarger' },
   { type: 'error', inputs: [], name: 'NoHandoverRequest' },
   { type: 'error', inputs: [], name: 'NoRevertEncoutered' },
   { type: 'error', inputs: [], name: 'OrderAlreadyFilled' },
   { type: 'error', inputs: [], name: 'PaymentError' },
   { type: 'error', inputs: [], name: 'Reentrancy' },
+  { type: 'error', inputs: [], name: 'SimulateExecute2Failed' },
   {
     type: 'error',
     inputs: [
@@ -2137,6 +2298,16 @@ export const mockEntryPointAbi = [
       { name: 'err', internalType: 'bytes4', type: 'bytes4' },
     ],
     name: 'SimulationResult',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'gExecute', internalType: 'uint256', type: 'uint256' },
+      { name: 'gCombined', internalType: 'uint256', type: 'uint256' },
+      { name: 'gUsed', internalType: 'uint256', type: 'uint256' },
+      { name: 'err', internalType: 'bytes4', type: 'bytes4' },
+    ],
+    name: 'SimulationResult2',
   },
   { type: 'error', inputs: [], name: 'Unauthorized' },
   { type: 'error', inputs: [], name: 'UnauthorizedCallContext' },

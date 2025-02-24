@@ -5,7 +5,6 @@ import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
 import type { Client } from 'viem'
-import { readContract } from 'viem/actions'
 import {
   type Authorization as Authorization_viem,
   prepareAuthorization,
@@ -13,7 +12,6 @@ import {
 
 import * as Account from '../account.js'
 import * as Call from '../call.js'
-import { delegationAbi } from '../generated.js'
 import type * as Key from '../key.js'
 import type { PartialBy } from '../types.js'
 import * as ActionRequest from './actionRequest.js'
@@ -157,15 +155,7 @@ export async function getSignPayload(
   }))
 
   const domain = EntryPoint.getEip712Domain(client)
-  const multichain = action.nonce & 1n
-  const nonceSalt =
-    multichain > 0n
-      ? 0n
-      : await readContract(client, {
-          abi: delegationAbi,
-          address: action.eoa,
-          functionName: 'nonceSalt',
-        }).catch(() => 0n)
+  const multichain = Hex.slice(Hex.fromNumber(action.nonce), 0, 2) === '0xc1d0'
 
   if (!client.chain) throw new Error('chain is required.')
   return TypedData.getSignPayload({
@@ -186,7 +176,6 @@ export async function getSignPayload(
         { name: 'eoa', type: 'address' },
         { name: 'calls', type: 'Call[]' },
         { name: 'nonce', type: 'uint256' },
-        { name: 'nonceSalt', type: 'uint256' },
         { name: 'payer', type: 'address' },
         { name: 'paymentToken', type: 'address' },
         { name: 'paymentMaxAmount', type: 'uint256' },
@@ -198,7 +187,6 @@ export async function getSignPayload(
       ...action,
       multichain: Boolean(multichain),
       calls,
-      nonceSalt,
     },
     primaryType: 'UserOp',
   })
@@ -221,7 +209,7 @@ export async function prepare<
   client: Client,
   parameters: prepare.Parameters<calls, account>,
 ): Promise<prepare.ReturnType<account>> {
-  const { delegation, calls, gasToken } = parameters
+  const { delegation, calls, gasToken, key, multichain } = parameters
 
   const account = Account.from(parameters.account)
 
@@ -230,18 +218,20 @@ export async function prepare<
     account,
     calls,
     delegation,
+    multichain,
   })
 
   // Get the quote to execute the Action.
   const quote = await Quote.estimateFee(client, {
     action: request,
     delegation,
+    keyType: key?.type,
     token: gasToken,
   })
 
   const action = from({
     ...request,
-    combinedGas: quote.gasEstimate,
+    combinedGas: quote.gasEstimate.op,
     paymentAmount: quote.amount,
     paymentToken: quote.token,
   })
@@ -301,10 +291,18 @@ export declare namespace prepare {
      */
     delegation?: Address.Address | undefined
     /**
+     * Key type to use for execution.
+     */
+    key?: Key.Key | undefined
+    /**
      * ERC20 or native token to pay for gas.
      * If left empty, the native token will be used.
      */
     gasToken?: Address.Address | undefined
+    /**
+     * Whether the action can be replayed across chains.
+     */
+    multichain?: boolean | undefined
   }
 
   type ReturnType<
@@ -341,14 +339,24 @@ export async function send<const calls extends readonly unknown[]>(
   client: Client,
   options: send.Options<calls>,
 ): Promise<Hex.Hex> {
+  const { calls, delegation, gasToken, multichain } = options
   const account = Account.from(options.account)
 
+  const key = options.key ?? Account.getKey(account, options)
+
   // Prepare the action.
-  const { context, signPayloads } = await prepare(client, options)
+  const { context, signPayloads } = await prepare(client, {
+    account,
+    calls,
+    delegation,
+    gasToken,
+    key,
+    multichain,
+  })
 
   // Sign the payloads.
   const signatures = await Account.sign(account, {
-    key: options.key,
+    key,
     payloads: signPayloads,
   })
 
@@ -365,7 +373,7 @@ export declare namespace send {
       /**
        * Key to use for execution.
        */
-      key?: number | Key.Key | undefined
+      key?: Key.Key | undefined
     }
 }
 

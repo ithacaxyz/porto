@@ -284,8 +284,16 @@ export async function prepareExecute<
     value: call.value ?? 0n,
   }))
 
-  let nonce = Hex.toBigInt(Hex.random(32))
-  if (nonce & 1n) nonce += 1n // even nonce (no chain replay) // TODO: enable replay for `authorize` calls
+  const nonce = Hex.toBigInt(
+    Hex.concat(
+      // multichain flag (0 = single chain, 0xc1d0 = multi-chain) // TODO: enable multi-chain
+      Hex.fromNumber(0, { size: 2 }),
+      // sequence key
+      Hex.random(22),
+      // sequential nonce
+      Hex.fromNumber(0, { size: 8 }),
+    ),
+  )
 
   // Compute the signing payloads for execution and EIP-7702 authorization (optional).
   const [executePayload, [authorization, authorizationPayload]] =
@@ -751,15 +759,7 @@ async function getExecuteSignPayload<
     value: call.value ?? 0n,
   }))
 
-  const [nonceSalt, domain] = await Promise.all([
-    parameters.nonceSalt ??
-      (await readContract(client, {
-        abi: delegationAbi,
-        address: account.address,
-        functionName: 'nonceSalt',
-      }).catch(() => 0n)),
-    getEip712Domain(client, { account }),
-  ])
+  const domain = await getEip712Domain(client, { account })
 
   const multichain = nonce & 1n
 
@@ -781,14 +781,12 @@ async function getExecuteSignPayload<
         { name: 'multichain', type: 'bool' },
         { name: 'calls', type: 'Call[]' },
         { name: 'nonce', type: 'uint256' },
-        { name: 'nonceSalt', type: 'uint256' },
       ],
     },
     message: {
       multichain: Boolean(multichain),
       calls,
       nonce,
-      nonceSalt,
     },
     primaryType: 'Execute',
   })

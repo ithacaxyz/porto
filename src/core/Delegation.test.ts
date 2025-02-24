@@ -648,11 +648,16 @@ describe('execute', () => {
       role: 'admin',
     })
 
+    await Delegation.execute(client, {
+      account,
+      calls: [],
+      delegation,
+    })
+
     await expect(() =>
       Delegation.execute(client, {
         account,
         calls: [],
-        delegation,
         key,
       }),
     ).rejects.toThrowError('Reason: KeyDoesNotExist')

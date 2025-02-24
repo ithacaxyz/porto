@@ -1,8 +1,9 @@
 import { AbiFunction, Hex, Value } from 'ox'
-import { Delegation } from 'porto'
+import { Chains, Delegation } from 'porto'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
+import { http } from 'viem'
 import { getAccount } from '../../../../test/src/account.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
@@ -11,18 +12,18 @@ import * as Call from '../call.js'
 import * as Key from '../key.js'
 import * as Action from './action.js'
 
-const { client, delegation } = getPorto({
-  transports: {
-    relay: true,
-  },
-})
 // const { client, delegation } = getPorto({
-//   chain: Chains.odysseyTestnet,
 //   transports: {
-//     default: http(),
-//     relay: http('https://relay-staging.ithaca.xyz'),
+//     relay: true,
 //   },
 // })
+const { client, delegation } = getPorto({
+  chain: Chains.odysseyTestnet,
+  transports: {
+    default: http(),
+    relay: http('https://relay-staging.ithaca.xyz'),
+  },
+})
 
 describe('send', () => {
   test('default', async () => {
@@ -253,7 +254,6 @@ describe('send', () => {
           ],
           gasToken: ExperimentERC20.address[0],
         })
-
         await waitForTransactionReceipt(client, { hash })
       }
 
@@ -533,6 +533,7 @@ describe('send', () => {
         ],
         delegation,
         gasToken: ExperimentERC20.address[0],
+        multichain: false,
       })
 
       await waitForTransactionReceipt(client, { hash })
