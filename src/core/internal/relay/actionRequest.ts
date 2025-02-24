@@ -41,16 +41,19 @@ export function prepare<const calls extends readonly unknown[]>(
 
   const eoa = Account.from(account).address
 
-  let multichain = parameters.multichain ?? Boolean(delegation)
+  const multichain = parameters.multichain ?? Boolean(delegation)
   const executionData = encodeCalls(
     calls.map((c: any) => {
       const selector = Hex.slice(c.data ?? '0x', 0, 4)
       // if a non-authorize call exists, don't allow multichain.
       if (
+        multichain &&
         selector !==
-        AbiFunction.getSelector(AbiFunction.fromAbi(delegationAbi, 'authorize'))
+          AbiFunction.getSelector(
+            AbiFunction.fromAbi(delegationAbi, 'authorize'),
+          )
       )
-        multichain = false
+        throw new Error('multichain is only permitted on `authorize` calls.')
 
       return {
         ...c,
@@ -61,14 +64,17 @@ export function prepare<const calls extends readonly unknown[]>(
 
   let nonce = parameters.nonce
   if (!nonce) {
-    nonce = Hex.toBigInt(Hex.random(32))
-    if (multichain && !(nonce & 1n)) nonce += 1n
-    else if (!multichain) nonce += nonce & 1n
+    nonce = Hex.toBigInt(
+      Hex.concat(
+        // multichain flag (0 = single chain, 0xc1d0 = multi-chain)
+        Hex.fromNumber(multichain ? 0xc1d0 : 0, { size: 2 }),
+        // sequence key
+        Hex.random(22),
+        // sequential nonce
+        Hex.fromNumber(0, { size: 8 }),
+      ),
+    )
   }
-  if (multichain && !(nonce & 1n))
-    throw new Error('multichain nonce must be odd')
-  if (!multichain && nonce & 1n)
-    throw new Error('single chain nonce must be even')
 
   return {
     eoa,
