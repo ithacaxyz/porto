@@ -4,6 +4,7 @@ import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import type { Client } from 'viem'
 
+import type * as Key from '../key.js'
 import type { Undefined } from '../types.js'
 import * as ActionRequest from './actionRequest.js'
 
@@ -23,7 +24,10 @@ export type Quote<
   /** The digest of the `UserOp`. */
   digest: Hex.Hex
   /** The estimated amount of gas the action will consume. */
-  gasEstimate: bigintType
+  gasEstimate: {
+    op: bigintType
+    tx: bigintType
+  }
   /** The fee estimate for the action in the destination chains native token. */
   nativeFeeEstimate: Fee.FeeValuesEip1559<bigintType>
   /** The fee token address. */
@@ -47,6 +51,7 @@ export async function estimateFee(
   const {
     action,
     delegation,
+    keyType = 'secp256k1',
     token = '0x0000000000000000000000000000000000000000',
   } = options
 
@@ -54,9 +59,20 @@ export async function estimateFee(
     chainId: client.chain?.id ?? 0,
   })
 
+  const toKeyType = {
+    p256: 'p256',
+    secp256k1: 'secp256k1',
+    'webauthn-p256': 'webauthnp256',
+  } as const satisfies Record<Key.Key['type'], string>
+
   const result = await client.request<any>({
     method: 'relay_estimateFee',
-    params: [request, token, ...(delegation ? [delegation] : [])],
+    params: [
+      request,
+      token,
+      ...(delegation ? [delegation] : [undefined]),
+      toKeyType[keyType],
+    ],
   })
 
   return fromRpc(result) as never
@@ -66,6 +82,7 @@ export declare namespace estimateFee {
   type Options = {
     action: ActionRequest.ActionRequest
     delegation?: Address.Address | undefined
+    keyType?: Key.Key['type'] | undefined
     token?: Address.Address | undefined
   }
 }
@@ -78,7 +95,10 @@ export function fromRpc<signed extends boolean = boolean>(
     amount: BigInt(rpc.amount),
     authorizationAddress: rpc.authorizationAddress,
     digest: rpc.digest,
-    gasEstimate: BigInt(rpc.gasEstimate),
+    gasEstimate: {
+      op: BigInt(rpc.gasEstimate.op),
+      tx: BigInt(rpc.gasEstimate.tx),
+    },
     hash: rpc.hash,
     nativeFeeEstimate: {
       maxFeePerGas: BigInt(rpc.nativeFeeEstimate.maxFeePerGas),
@@ -98,7 +118,10 @@ export function toRpc<signed extends boolean = boolean>(
     amount: Hex.fromNumber(quote.amount),
     authorizationAddress: quote.authorizationAddress,
     digest: quote.digest,
-    gasEstimate: Hex.fromNumber(quote.gasEstimate),
+    gasEstimate: {
+      op: Hex.fromNumber(quote.gasEstimate.op),
+      tx: Hex.fromNumber(quote.gasEstimate.tx),
+    },
     hash: quote.hash,
     nativeFeeEstimate: {
       maxFeePerGas: Hex.fromNumber(quote.nativeFeeEstimate.maxFeePerGas),
