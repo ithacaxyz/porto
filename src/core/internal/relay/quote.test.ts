@@ -38,12 +38,14 @@ describe('estimateFee', () => {
     const result = await Quote.estimateFee(client, {
       action,
       delegation,
+      keyType: key.type,
       token: ExperimentERC20.address[0],
     })
 
     expect(result.amount).toBeGreaterThan(0n)
     expect(result.digest).toBeDefined()
-    expect(result.gasEstimate).toBeGreaterThan(0)
+    expect(result.gasEstimate.op).toBeGreaterThan(0)
+    expect(result.gasEstimate.tx).toBeGreaterThan(0)
     expect(result.nativeFeeEstimate.maxFeePerGas).toBeGreaterThan(0n)
     expect(result.nativeFeeEstimate.maxPriorityFeePerGas).toBeGreaterThan(0n)
     expect(result.token).toBeDefined()
@@ -51,7 +53,13 @@ describe('estimateFee', () => {
   })
 
   test('behavior: existing account', async () => {
-    const account = Account.from('0x23ed230396be45ea109410276df89fe8d1ed95be')
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const account = Account.from({
+      address: '0x23ed230396be45ea109410276df89fe8d1ed95be',
+      keys: [key],
+    })
 
     const action = ActionRequest.prepare({
       account,
@@ -60,17 +68,18 @@ describe('estimateFee', () => {
           to: '0x0000000000000000000000000000000000000001',
         },
       ],
-      multichain: true,
     })
 
     const result = await Quote.estimateFee(client, {
       action,
+      keyType: key.type,
       token: ExperimentERC20.address[0],
     })
 
     expect(result.amount).toBeGreaterThan(0n)
     expect(result.digest).toBeDefined()
-    expect(result.gasEstimate).toBeGreaterThan(0)
+    expect(result.gasEstimate.op).toBeGreaterThan(0)
+    expect(result.gasEstimate.tx).toBeGreaterThan(0)
     expect(result.nativeFeeEstimate.maxFeePerGas).toBeGreaterThan(0n)
     expect(result.nativeFeeEstimate.maxPriorityFeePerGas).toBeGreaterThan(0n)
     expect(result.token).toBeDefined()
