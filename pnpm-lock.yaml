@@ -131,6 +131,9 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.111.7
         version: 1.111.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       cva:
         specifier: npm:class-variance-authority@^0.7.1
         version: class-variance-authority@0.7.1
@@ -146,6 +149,12 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 18.3.1(react@18.3.1)
+      sonner:
+        specifier: ^2.0.1
+        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tailwind-merge:
+        specifier: ^3.0.2
+        version: 3.0.2
       wagmi:
         specifier: 'catalog:'
         version: 2.14.9(@tanstack/query-core@5.66.4)(@tanstack/react-query@5.66.9(react@18.3.1))(@types/react@18.3.18)(bufferutil@4.0.8)(react@18.3.1)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(zod@3.24.1)
@@ -5509,6 +5518,12 @@ packages:
   sonic-boom@2.8.0:
     resolution: {integrity: sha512-kuonw1YOYYNOve5iHdSahXPOK49GqwA+LZhI6Wz/l0rP57iKyXXIHaRagOBHAPmGwJC6od2Z9zgvZ5loSgMlVg==}
 
+  sonner@2.0.1:
+    resolution: {integrity: sha512-FRBphaehZ5tLdLcQ8g2WOIRE+Y7BCfWi5Zyd8bCvBjiW8TxxAyoWZIxS661Yz6TGPqFQ4VLzOF89WEYhfynSFQ==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -5653,6 +5668,9 @@ packages:
   system-architecture@0.1.0:
     resolution: {integrity: sha512-ulAk51I9UVUyJgxlv9M6lFot2WP3e7t8Kz9+IS6D4rVba1tR9kON+Ey69f+1R4Q8cd45Lod6a4IcJIxnzGc/zA==}
     engines: {node: '>=18'}
+
+  tailwind-merge@3.0.2:
+    resolution: {integrity: sha512-l7z+OYZ7mu3DTqrL88RiKrKIqO3NcpEO8V/Od04bNpvk0kiIFndGEoqfuzvj4yuhRkHKjRkII2z+KS2HfPcSxw==}
 
   tailwindcss@4.0.9:
     resolution: {integrity: sha512-12laZu+fv1ONDRoNR9ipTOpUD7RN9essRVkX36sjxuRUInpN7hIiHN4lBd/SIFjbISvnXzp8h/hXzmU8SQQYhw==}
@@ -12110,6 +12128,11 @@ snapshots:
     dependencies:
       atomic-sleep: 1.0.0
 
+  sonner@2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   source-map-js@1.2.1: {}
 
   source-map-support@0.5.21:
@@ -12237,6 +12260,8 @@ snapshots:
   svg-parser@2.0.4: {}
 
   system-architecture@0.1.0: {}
+
+  tailwind-merge@3.0.2: {}
 
   tailwindcss@4.0.9: {}
 
