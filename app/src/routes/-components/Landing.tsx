@@ -20,8 +20,11 @@ export function Landing() {
         </nav>
       </div>
       <div className="max-w-[300px] flex-grow content-end space-y-6 px-4 pb-[30dvh]">
-        <div className="space-y-4">
-          <p className="font-medium text-[34px] leading-[24px]">Porto</p>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <img src="/icons/wallet.svg" alt="Porto" className="size-9" />
+            <p className="font-medium text-[34px] leading-[24px]">Porto</p>
+          </div>
           <p className="font-normal text-[19px] text-secondary leading-[22px]">
             A home for your digital assets,
             <br />
@@ -34,6 +37,7 @@ export function Landing() {
             >
               Ithaca
             </a>
+            .
           </p>
         </div>
         <div className="h-[100px]">
@@ -46,7 +50,7 @@ export function Landing() {
               />
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex gap-2">
                 <Button
                   onClick={() => {
@@ -76,6 +80,14 @@ export function Landing() {
                   Learn more
                 </a>
               </Button>
+              <a
+                className="mx-1 text-secondary"
+                href="https://ithaca.xyz/recover"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Recover my account →
+              </a>
             </div>
           )}
         </div>

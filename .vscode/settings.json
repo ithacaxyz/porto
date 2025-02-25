@@ -23,7 +23,19 @@
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
   },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  },
   "files.associations": {
-    ".env.example": "dotenv"
+    ".env.example": "dotenv",
+    "*.css": "tailwindcss",
+    "biome.json": "jsonc",
+    ".vscode/*.json": "jsonc"
+  },
+  "files.exclude": {
+    "**/*.tsbuildinfo": true
   }
 }

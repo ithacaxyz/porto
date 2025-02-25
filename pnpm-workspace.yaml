@@ -8,7 +8,7 @@ packages:
   - 'src'
 
 catalog:
-  "@tanstack/react-query": "^5.65.1"
+  "@tanstack/react-query": "^5.66.9"
   "@types/react": "^19"
   "@types/react-dom": "^19"
   "@wagmi/core": "^2.16.3"
@@ -16,7 +16,7 @@ catalog:
   ox: "^0.6.4"
   react: "^19"
   react-dom: "^19"
-  tailwindcss: "^4"
+  tailwindcss: "^4.0.8"
   typescript: "^5.7.3"
   viem: "^2.23.1"
   wagmi: "^2.14.11"
