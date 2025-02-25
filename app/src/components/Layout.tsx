@@ -16,7 +16,9 @@ export function Layout(props: Layout.Props) {
       </div>
     )
   return (
-    <div className="flex flex-grow flex-col space-y-3 py-3">{children}</div>
+    <div className="mx-auto flex size-full min-h-screen max-w-2xl flex-col gap-y-4 p-4">
+      {children}
+    </div>
   )
 }
 

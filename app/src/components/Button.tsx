@@ -27,7 +27,7 @@ export namespace Button {
       variants: {
         variant: {
           default:
-            'text-primary bg-gray7 hover:not-active:bg-surfaceHover text-surface border border-surface',
+            'text-primary bg-gray5 hover:not-active:bg-surfaceHover text-surface border border-surface',
           ghost:
             'text-primary bg-transparent hover:not-active:bg-surfaceHover border border-gray8 hover:border-gray9 hover:active:border-gray10',
           invert:
@@ -42,7 +42,7 @@ export namespace Button {
           true: 'pointer-events-none opacity-50',
         },
         size: {
-          default: 'h-button px-5 text-[15px]',
+          default: 'h-button px-4',
         },
       },
       defaultVariants: {

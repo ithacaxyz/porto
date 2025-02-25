@@ -1,21 +1,20 @@
 import * as Ariakit from '@ariakit/react'
-import { cx } from 'cva'
-import { Hooks } from 'porto/wagmi'
-import { toast } from 'sonner'
-import { useAccount } from 'wagmi'
+import * as React from 'react'
+import BtcIcon from '~icons/cryptocurrency-color/btc'
 import EthIcon from '~icons/cryptocurrency-color/eth'
-import ChevronDownIcon from '~icons/lucide/chevron-down'
 import CoinsIcon from '~icons/lucide/coins'
-import CopyIcon from '~icons/lucide/copy'
 import HistoryIcon from '~icons/lucide/history'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
+import OpIcon from '~icons/simple-icons/optimism'
 
 import { Button } from '~/components/Button'
+import { Header } from '~/components/Header'
+import { Layout } from '~/components/Layout'
 import { Pill } from '~/components/Pill'
-import { StringFormatter, cn } from '~/utils'
+import { cn, sum } from '~/utils'
 
-export const assets = [
+const assets = [
   {
     name: 'Ethereum',
     symbol: 'ETH',
@@ -27,85 +26,80 @@ export const assets = [
       value: 13350.41,
       native: 3.354,
     },
-    icon: EthIcon,
+    icon: <EthIcon className="size-8" />,
+  },
+  {
+    name: 'Wrapped Bitcoin',
+    symbol: 'wBTC',
+    price: {
+      value: 99999,
+      change: 4.2,
+    },
+    balance: {
+      value: 1249494.3,
+      native: 12.494943,
+    },
+    icon: <BtcIcon className="size-8" />,
+  },
+  {
+    name: 'Optimism',
+    symbol: 'OP',
+    price: {
+      value: 3.35,
+      change: 6.69,
+    },
+    balance: {
+      value: 1970.44,
+      native: 1970.44,
+    },
+    icon: <OpIcon className="size-8 text-red-500" />,
   },
 ]
 
 export function Dashboard() {
-  const account = useAccount()
-  const disconnect = Hooks.useDisconnect()
-
   const formStore = Ariakit.useFormStore({
     defaultValues: {
       email: '',
     },
   })
 
+  const [search, setSearch] = React.useState('')
+  const [filteredAssets, setFilteredAssets] = React.useState(assets)
+
+  React.useEffect(() => {
+    setFilteredAssets(
+      assets.filter((asset) =>
+        asset.name.toLowerCase().includes(search.toLowerCase()),
+      ),
+    )
+  }, [search])
+
   return (
-    <div className="mx-auto flex size-full min-h-screen max-w-xl flex-col gap-y-4 p-4">
-      <div className="mt-3 flex items-center justify-between">
-        <a href="/" className="font-medium text-2xl">
-          Porto
-        </a>
-        <div className="flex flex-row items-center gap-x-2">
-          <span className="rounded-full bg-accent/20 px-1 py-[0.5px] text-accent">
-            🌀
-          </span>
-          <Ariakit.MenuProvider>
-            <Ariakit.MenuButton className="flex items-center gap-x-2">
-              <p className="font-semibold">
-                {StringFormatter.truncate(account?.address ?? '', {
-                  start: 6,
-                  end: 4,
-                })}
-              </p>
-              <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
-            </Ariakit.MenuButton>
-            <Ariakit.Menu
-              gutter={8}
-              className={cx(
-                'w-full rounded-sm bg-gray6 p-1',
-                '*:tracking-wide',
-              )}
-            >
-              <Ariakit.MenuItem
-                className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
-                onClick={() =>
-                  navigator.clipboard
-                    .writeText(account?.address ?? '')
-                    .then(() => toast.success('Address copied to clipboard'))
-                    .catch(() => toast.error('Failed to copy address'))
-                }
-              >
-                Copy
-                <CopyIcon className="size-3.5" />
-              </Ariakit.MenuItem>
-              <Ariakit.MenuSeparator className="my-1" />
-              <Ariakit.MenuItem
-                className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
-                onClick={() => disconnect.mutate({})}
-              >
-                Disconnect
-              </Ariakit.MenuItem>
-            </Ariakit.Menu>
-          </Ariakit.MenuProvider>
-        </div>
-      </div>
-      <div className="flex justify-between gap-2 rounded-xl bg-surface p-4">
+    <Layout>
+      <Header />
+      <section className="flex justify-between gap-2 rounded-xl bg-gray3 p-4">
         <div>
-          <p className="font-semibold text-xl">$32,350.20</p>
+          <p className="font-semibold text-xl">
+            ${sum(assets.map((asset) => asset.balance.value)).toLocaleString()}
+          </p>
           <p className="my-auto text-secondary text-sm">
-            14.348 <Pill>ETH</Pill>
+            {sum(assets.map((asset) => asset.balance.native)).toLocaleString()}
+            <Pill className="ml-1.5">{assets[0]?.symbol}</Pill>
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="invert">Deposit</Button>
-          <Button variant="default">Withdraw</Button>
+          <Button variant="default" className="bg-gray6!">
+            Withdraw
+          </Button>
         </div>
-      </div>
-      <div className="items-center gap-2 pr-1 pl-1.5">
+      </section>
+      <section className="items-center gap-2 pr-1 pl-1.5">
         <Ariakit.TabProvider defaultSelectedId="assets">
-          <Ariakit.TabList className="tab-list flex gap-x-2" aria-label="tabs">
+          <Ariakit.TabList
+            aria-label="tabs"
+            className="tab-list flex justify-between gap-x-2"
+          >
             <Ariakit.Tab
               id="assets"
               tabbable={true}
@@ -117,7 +111,7 @@ export function Dashboard() {
             <Ariakit.Tab
               id="history"
               tabbable={true}
-              className="tab flex gap-x-1 rounded-4xl border-[1.5px] border-gray-400/50 px-3 data-[active-item=true]:border-accent data-[active-item=true]:text-accent"
+              className="tab mr-auto flex gap-x-1 rounded-4xl border-[1.5px] border-gray-400/50 px-3 data-[active-item=true]:border-accent data-[active-item=true]:text-accent"
             >
               <HistoryIcon className="my-auto size-5" />
               <span className="my-auto">History</span>
@@ -125,15 +119,17 @@ export function Dashboard() {
             <input
               type="text"
               placeholder="Search…"
-              className={cx(
-                'ml-2 w-full max-w-[55%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-black placeholder:text-secondary sm:ml-8',
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className={cn(
+                'ml-2 w-full max-w-[50%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-black placeholder:text-secondary sm:ml-8',
                 'dark:bg-secondary dark:text-gray-50',
               )}
             />
           </Ariakit.TabList>
           <div className="mt-3">
             <Ariakit.TabPanel tabId="assets">
-              <table className="w-full">
+              <table className="md:table-none w-full table-fixed">
                 <thead className="">
                   <tr className="*:font-light *:text-secondary *:text-sm">
                     <th className="text-left">Name</th>
@@ -142,11 +138,17 @@ export function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="w-full">
-                  {assets.map((asset) => (
-                    <tr key={asset.name} className="">
+                  {filteredAssets.map((asset, _index) => (
+                    <tr
+                      key={asset.name}
+                      className={cn(
+                        'border-gray-400/50 border-b *:px-1',
+                        _index === filteredAssets.length - 1 && 'border-b-0',
+                      )}
+                    >
                       <td className="text-left">
-                        <div className="flex items-center gap-x-2">
-                          <EthIcon className="mr-0.5 size-8" />
+                        <div className="flex items-center gap-x-2 py-4">
+                          {asset.icon}
                           <div className="flex flex-col">
                             <span className="text-lg">{asset.name}</span>
                             <span className="text-secondary text-xs">
@@ -178,7 +180,7 @@ export function Dashboard() {
                           </span>
                           <span className="text-secondary text-sm">
                             {asset.balance.native.toLocaleString()}{' '}
-                            <Pill className="">ETH</Pill>
+                            <Pill className="">{asset.symbol}</Pill>
                           </span>
                         </div>
                       </td>
@@ -194,7 +196,7 @@ export function Dashboard() {
             </Ariakit.TabPanel>
           </div>
         </Ariakit.TabProvider>
-      </div>
+      </section>
       {/* ==== Footer ==== */}
       <footer className="mt-auto flex flex-col gap-y-5 p-2">
         <Ariakit.Form
@@ -232,7 +234,7 @@ export function Dashboard() {
             required={true}
             name={formStore.names.email}
             placeholder="Get email updates…"
-            className={cx(
+            className={cn(
               'rounded-full border border-gray8 bg-white px-3 py-1 text-sm placeholder:text-secondary',
               'dark:bg-secondary dark:text-gray-50 dark:placeholder:text-gray-400',
             )}
@@ -273,6 +275,6 @@ export function Dashboard() {
           </nav>
         </div>
       </footer>
-    </div>
+    </Layout>
   )
 }

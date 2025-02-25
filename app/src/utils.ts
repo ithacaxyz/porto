@@ -6,6 +6,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const sum = (array: number[]) =>
+  array.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
+
 export namespace StringFormatter {
   export function truncate(
     str: string,
