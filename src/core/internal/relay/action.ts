@@ -11,9 +11,9 @@ import {
 } from 'viem/experimental'
 import type { RequestErrorType } from 'viem/utils'
 
-import * as Delegation from '../../Delegation.js'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
+import * as Delegation from '../delegation.js'
 import type * as Key from '../key.js'
 import type { PartialBy } from '../types.js'
 import * as ActionRequest from './actionRequest.js'
