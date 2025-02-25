@@ -14,6 +14,8 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as IndexImport } from './routes/index'
+import { Route as SettingsIndexImport } from './routes/settings.index'
+import { Route as SettingsPermissionsImport } from './routes/settings.permissions'
 import { Route as DialogDialogWalletsendCallsImport } from './routes/_dialog.dialog/wallet_sendCalls'
 import { Route as DialogDialogWalletconnectImport } from './routes/_dialog.dialog/wallet_connect'
 import { Route as DialogDialogPersonalsignImport } from './routes/_dialog.dialog/personal_sign'
@@ -39,6 +41,18 @@ const DialogRoute = DialogImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsIndexRoute = SettingsIndexImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsPermissionsRoute = SettingsPermissionsImport.update({
+  id: '/settings/permissions',
+  path: '/settings/permissions',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -118,6 +132,20 @@ declare module '@tanstack/react-router' {
       path: '/playground'
       fullPath: '/playground'
       preLoaderRoute: typeof PlaygroundImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/permissions': {
+      id: '/settings/permissions'
+      path: '/settings/permissions'
+      fullPath: '/settings/permissions'
+      preLoaderRoute: typeof SettingsPermissionsImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsIndexImport
       parentRoute: typeof rootRoute
     }
     '/_dialog/dialog/$': {
@@ -212,6 +240,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof DialogRouteWithChildren
   '/playground': typeof PlaygroundRoute
+  '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings': typeof SettingsIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogDialogEthsendTransactionRoute
@@ -226,6 +256,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof DialogRouteWithChildren
   '/playground': typeof PlaygroundRoute
+  '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings': typeof SettingsIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogDialogEthsendTransactionRoute
@@ -241,6 +273,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_dialog': typeof DialogRouteWithChildren
   '/playground': typeof PlaygroundRoute
+  '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings/': typeof SettingsIndexRoute
   '/_dialog/dialog/$': typeof DialogDialogSplatRoute
   '/_dialog/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
   '/_dialog/dialog/eth_sendTransaction': typeof DialogDialogEthsendTransactionRoute
@@ -257,6 +291,8 @@ export interface FileRouteTypes {
     | '/'
     | ''
     | '/playground'
+    | '/settings/permissions'
+    | '/settings'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
@@ -270,6 +306,8 @@ export interface FileRouteTypes {
     | '/'
     | ''
     | '/playground'
+    | '/settings/permissions'
+    | '/settings'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
@@ -283,6 +321,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_dialog'
     | '/playground'
+    | '/settings/permissions'
+    | '/settings/'
     | '/_dialog/dialog/$'
     | '/_dialog/dialog/eth_requestAccounts'
     | '/_dialog/dialog/eth_sendTransaction'
@@ -298,12 +338,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DialogRoute: typeof DialogRouteWithChildren
   PlaygroundRoute: typeof PlaygroundRoute
+  SettingsPermissionsRoute: typeof SettingsPermissionsRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DialogRoute: DialogRouteWithChildren,
   PlaygroundRoute: PlaygroundRoute,
+  SettingsPermissionsRoute: SettingsPermissionsRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -318,7 +362,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_dialog",
-        "/playground"
+        "/playground",
+        "/settings/permissions",
+        "/settings/"
       ]
     },
     "/": {
@@ -339,6 +385,12 @@ export const routeTree = rootRoute
     },
     "/playground": {
       "filePath": "playground.tsx"
+    },
+    "/settings/permissions": {
+      "filePath": "settings.permissions.tsx"
+    },
+    "/settings/": {
+      "filePath": "settings.index.tsx"
     },
     "/_dialog/dialog/$": {
       "filePath": "_dialog.dialog/$.tsx",
