@@ -1,4 +1,10 @@
+import { type ClassValue, clsx } from 'clsx'
 import { Value } from 'ox'
+import { twMerge } from 'tailwind-merge'
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 
 export namespace StringFormatter {
   export function truncate(

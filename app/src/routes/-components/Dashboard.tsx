@@ -1,18 +1,39 @@
 import * as Ariakit from '@ariakit/react'
+import { cx } from 'cva'
+import { Hooks } from 'porto/wagmi'
+import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
+import EthIcon from '~icons/cryptocurrency-color/eth'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
-import XIcon from '~icons/lucide/x'
 import CoinsIcon from '~icons/lucide/coins'
+import CopyIcon from '~icons/lucide/copy'
 import HistoryIcon from '~icons/lucide/history'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
+import XIcon from '~icons/lucide/x'
 
 import { Button } from '~/components/Button'
 import { Pill } from '~/components/Pill'
-import { StringFormatter } from '~/utils'
-import { cx } from 'cva'
+import { StringFormatter, cn } from '~/utils'
+
+export const assets = [
+  {
+    name: 'Ethereum',
+    symbol: 'ETH',
+    price: {
+      value: 2689,
+      change: 3.66,
+    },
+    balance: {
+      value: 13350.41,
+      native: 3.354,
+    },
+    icon: EthIcon,
+  },
+]
 
 export function Dashboard() {
   const account = useAccount()
+  const disconnect = Hooks.useDisconnect()
 
   const formStore = Ariakit.useFormStore({
     defaultValues: {
@@ -27,16 +48,47 @@ export function Dashboard() {
           Porto
         </a>
         <div className="flex flex-row items-center gap-x-2">
-          <span className="rounded-full bg-accent/20 px-1.5 py-0.5 text-accent">
+          <span className="rounded-full bg-accent/20 px-1 py-[0.5px] text-accent">
             🌀
           </span>
-          <p className="font-semibold">
-            {StringFormatter.truncate(account?.address ?? '', {
-              start: 6,
-              end: 4,
-            })}
-          </p>
-          <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700" />
+          <Ariakit.MenuProvider>
+            <Ariakit.MenuButton className="flex items-center gap-x-2">
+              <p className="font-semibold">
+                {StringFormatter.truncate(account?.address ?? '', {
+                  start: 6,
+                  end: 4,
+                })}
+              </p>
+              <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
+            </Ariakit.MenuButton>
+            <Ariakit.Menu
+              gutter={8}
+              className={cx(
+                'w-full rounded-sm bg-gray6 p-1',
+                '*:tracking-wide',
+              )}
+            >
+              <Ariakit.MenuItem
+                className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
+                onClick={() =>
+                  navigator.clipboard
+                    .writeText(account?.address ?? '')
+                    .then(() => toast.success('Address copied to clipboard'))
+                    .catch(() => toast.error('Failed to copy address'))
+                }
+              >
+                Copy
+                <CopyIcon className="size-3.5" />
+              </Ariakit.MenuItem>
+              <Ariakit.MenuSeparator className="my-1" />
+              <Ariakit.MenuItem
+                className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
+                onClick={() => disconnect.mutate({})}
+              >
+                Disconnect
+              </Ariakit.MenuItem>
+            </Ariakit.Menu>
+          </Ariakit.MenuProvider>
         </div>
       </div>
       <div className="flex justify-between gap-2 rounded-xl bg-surface p-4">
@@ -81,11 +133,59 @@ export function Dashboard() {
           </Ariakit.TabList>
           <div className="mt-3">
             <Ariakit.TabPanel tabId="assets">
-              <ul>
-                <li>BTC</li>
-                <li>ETH</li>
-                <li>USDC</li>
-              </ul>
+              <table className="w-full">
+                <thead className="">
+                  <tr className="*:font-light *:text-secondary *:text-sm">
+                    <th className="text-left">Name</th>
+                    <th className="text-right">Price</th>
+                    <th className="text-right">Balance</th>
+                  </tr>
+                </thead>
+                <tbody className="w-full">
+                  {assets.map((asset) => (
+                    <tr key={asset.name} className="">
+                      <td className="text-left">
+                        <div className="flex items-center gap-x-2">
+                          <EthIcon className="mr-0.5 size-8" />
+                          <div className="flex flex-col">
+                            <span className="text-lg">{asset.name}</span>
+                            <span className="text-secondary text-xs">
+                              {asset.symbol}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="text-right">
+                        <div className="flex flex-col">
+                          <span className="text-lg">
+                            ${asset.price.value.toLocaleString()}
+                          </span>
+                          <span
+                            className={cn(
+                              'text-sm tracking-wider',
+                              asset.price.change > 0 && 'text-emerald-500',
+                              asset.price.change < 0 && 'text-red-500',
+                            )}
+                          >
+                            ↑{asset.price.change}%
+                          </span>
+                        </div>
+                      </td>
+                      <td className="text-right">
+                        <div className="flex flex-col">
+                          <span className="text-lg">
+                            ${asset.balance.value.toLocaleString()}
+                          </span>
+                          <span className="text-secondary text-sm">
+                            {asset.balance.native.toLocaleString()}{' '}
+                            <Pill className="">ETH</Pill>
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </Ariakit.TabPanel>
             <Ariakit.TabPanel tabId="history">
               <ul>
