@@ -1,5 +1,4 @@
 import { AbiFunction, Hex, Value } from 'ox'
-import { Delegation } from 'porto'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
@@ -8,6 +7,7 @@ import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
+import * as Delegation from '../delegation.js'
 import * as Key from '../key.js'
 import * as Action from './action.js'
 
