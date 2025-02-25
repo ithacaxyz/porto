@@ -1,9 +1,8 @@
 import { AbiFunction, Hex, Value } from 'ox'
-import { Chains, Delegation } from 'porto'
+import { Delegation } from 'porto'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { http } from 'viem'
 import { getAccount } from '../../../../test/src/account.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
@@ -12,18 +11,18 @@ import * as Call from '../call.js'
 import * as Key from '../key.js'
 import * as Action from './action.js'
 
-// const { client, delegation } = getPorto({
-//   transports: {
-//     relay: true,
-//   },
-// })
 const { client, delegation } = getPorto({
-  chain: Chains.odysseyTestnet,
   transports: {
-    default: http(),
-    relay: http('https://relay-staging.ithaca.xyz'),
+    relay: true,
   },
 })
+// const { client, delegation } = getPorto({
+//   chain: Chains.odysseyTestnet,
+//   transports: {
+//     default: http(),
+//     relay: http('https://relay-staging.ithaca.xyz'),
+//   },
+// })
 
 describe('send', () => {
   test('default', async () => {
@@ -31,7 +30,7 @@ describe('send', () => {
 
     // delegate
     {
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         delegation,
         calls: [],
@@ -43,7 +42,7 @@ describe('send', () => {
     const alice = Hex.random(20)
     const value = Value.fromEther('0.0001')
 
-    const hash = await Action.send(client, {
+    const { hash } = await Action.send(client, {
       account,
       calls: [
         {
@@ -75,7 +74,7 @@ describe('send', () => {
       role: 'admin',
     })
 
-    const hash = await Action.send(client, {
+    const { hash } = await Action.send(client, {
       account,
       delegation,
       calls: [
@@ -104,7 +103,7 @@ describe('send', () => {
         role: 'admin',
       })
 
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         delegation,
         calls: [
@@ -129,7 +128,7 @@ describe('send', () => {
         const alice = Hex.random(20)
         const value = Value.fromEther('0.0001')
 
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             {
@@ -161,7 +160,7 @@ describe('send', () => {
 
       // delegate
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           delegation,
           calls: [],
@@ -174,7 +173,7 @@ describe('send', () => {
         role: 'admin',
       })
 
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         calls: [
           Call.authorize({
@@ -198,7 +197,7 @@ describe('send', () => {
         const alice = Hex.random(20)
         const value = Value.fromEther('0.0001')
 
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             {
@@ -230,7 +229,7 @@ describe('send', () => {
 
       // delegate
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           delegation,
           calls: [],
@@ -245,7 +244,7 @@ describe('send', () => {
 
       // authorize P256 key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -263,7 +262,7 @@ describe('send', () => {
 
       // authorize another P256 key with previously authorized key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -291,7 +290,7 @@ describe('send', () => {
         const alice = Hex.random(20)
         const value = Value.fromEther('0.0001')
 
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             {
@@ -323,7 +322,7 @@ describe('send', () => {
 
       // delegate
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           delegation,
           calls: [],
@@ -338,7 +337,7 @@ describe('send', () => {
 
       // authorize P256 key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -357,7 +356,7 @@ describe('send', () => {
 
       // authorize another P256 key with previously authorized key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -385,7 +384,7 @@ describe('send', () => {
         const alice = Hex.random(20)
         const value = Value.fromEther('0.0001')
 
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             {
@@ -417,7 +416,7 @@ describe('send', () => {
 
       // delegate
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           delegation,
           calls: [],
@@ -432,7 +431,7 @@ describe('send', () => {
 
       // authorize P256 key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -451,7 +450,7 @@ describe('send', () => {
 
       // authorize another P256 key with previously authorized key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -482,7 +481,7 @@ describe('send', () => {
         const alice = Hex.random(20)
         const value = Value.fromEther('0.0001')
 
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             {
@@ -518,7 +517,7 @@ describe('send', () => {
 
     // delegate, authorize, and set spend limit.
     {
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         calls: [
           Call.authorize({
@@ -543,7 +542,7 @@ describe('send', () => {
 
     // successful transfer.
     {
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         calls: [
           {
@@ -593,7 +592,7 @@ describe('send', () => {
 
       // authorize admin P256 key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -613,7 +612,7 @@ describe('send', () => {
 
       // authorize and set guard.
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -643,7 +642,7 @@ describe('send', () => {
         const alice = Hex.random(20)
         const value = Value.fromEther('0.0001')
 
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             {
@@ -679,7 +678,7 @@ describe('send', () => {
 
       // authorize admin P256 key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -699,7 +698,7 @@ describe('send', () => {
 
       // authorize and set guard.
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -730,7 +729,7 @@ describe('send', () => {
 
       // test an arbitrary action
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             {
@@ -783,7 +782,7 @@ describe('send', () => {
 
       // authorize admin P256 key
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -803,7 +802,7 @@ describe('send', () => {
 
       // authorize and set guard.
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             Call.authorize({
@@ -837,7 +836,7 @@ describe('send', () => {
 
       // test an arbitrary action
       {
-        const hash = await Action.send(client, {
+        const { hash } = await Action.send(client, {
           account,
           calls: [
             {
@@ -891,7 +890,7 @@ describe('send', () => {
 
     // authorize admin P256 key
     {
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         calls: [
           Call.authorize({
@@ -911,7 +910,7 @@ describe('send', () => {
 
     // authorize and set guard.
     {
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         calls: [
           Call.authorize({
@@ -947,7 +946,7 @@ describe('send', () => {
     const value = Value.fromEther('1')
 
     {
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         calls: [
           {
@@ -987,7 +986,7 @@ describe('send', () => {
         key: anotherKey,
         gasToken: ExperimentERC20.address[0],
       }),
-    ).rejects.toThrowError('SpendLimitExceeded')
+    ).rejects.toThrowError('ExceededSpendLimit')
   })
 })
 
@@ -997,7 +996,7 @@ describe('prepare, sendPrepared', () => {
 
     // delegate
     {
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account,
         delegation,
         calls: [],
@@ -1026,7 +1025,7 @@ describe('prepare, sendPrepared', () => {
       payloads: signPayloads,
     })
 
-    const hash = await Action.sendPrepared(client, {
+    const { hash } = await Action.sendPrepared(client, {
       ...context,
       signatures,
     })

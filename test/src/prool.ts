@@ -5,11 +5,13 @@ import { execa } from 'prool/processes'
 type RelayParameters = {
   endpoint: string
   feeToken: string
-  secretKey?: string | undefined
-  quoteSecretKey?: string | undefined
   http?: {
     port?: number | undefined
   }
+  quoteSecretKey?: string | undefined
+  secretKey?: string | undefined
+  txGasBuffer?: bigint | undefined
+  userOpGasBuffer?: bigint | undefined
 }
 
 export const relay = defineInstance((parameters?: RelayParameters) => {

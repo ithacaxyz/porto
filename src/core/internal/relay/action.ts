@@ -9,7 +9,9 @@ import {
   type Authorization as Authorization_viem,
   prepareAuthorization,
 } from 'viem/experimental'
+import type { RequestErrorType } from 'viem/utils'
 
+import * as Delegation from '../../Delegation.js'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
 import type * as Key from '../key.js'
@@ -92,6 +94,33 @@ export type Rpc = {
   op: Action<true, Hex.Hex>
 }
 
+/**
+ * Decodes an encoded UserOp into an Action.
+ *
+ * @param data - Encoded UserOp.
+ * @returns Action.
+ */
+export function decode(data: Hex.Hex): Action<true> {
+  return AbiParameters.decode([userOpStruct], data)[0] as Action<true>
+}
+
+/**
+ * Encodes an Action into an encoded UserOp.
+ *
+ * @param action - Action.
+ * @returns Encoded UserOp.
+ */
+export function encode(action: Action<true>): Hex.Hex {
+  return AbiParameters.encode([userOpStruct], [action])
+}
+
+/**
+ * Creates an Action.
+ *
+ * @param action - (Partial) Action.
+ * @param options - Options.
+ * @returns Action.
+ */
 export function from<
   const action extends from.Value,
   const signature extends Hex.Hex | undefined = undefined,
@@ -126,6 +155,12 @@ export declare namespace from {
   > = Action<signature extends Hex.Hex ? true : false> & action
 }
 
+/**
+ * Instantiates an Action from RPC format.
+ *
+ * @param rpc - RPC formatted Action.
+ * @returns Action.
+ */
 export function fromRpc(rpc: Rpc): Action {
   return {
     ...rpc,
@@ -138,6 +173,13 @@ export function fromRpc(rpc: Rpc): Action {
   }
 }
 
+/**
+ * Gets the sign payload for an Action.
+ *
+ * @param client - Client.
+ * @param action - Action.
+ * @returns Sign payload.
+ */
 export async function getSignPayload(
   client: Client,
   action: Action,
@@ -266,6 +308,7 @@ export async function prepare<
     context: {
       action,
       authorization,
+      calls,
       quote,
     },
     signPayloads: [
@@ -313,6 +356,7 @@ export declare namespace prepare {
     context: {
       action: Action<false>
       authorization?: Authorization_viem | undefined
+      calls: readonly unknown[]
       quote: Quote.Quote<true>
     }
     signPayloads: account extends {
@@ -338,7 +382,7 @@ export declare namespace prepare {
 export async function send<const calls extends readonly unknown[]>(
   client: Client,
   options: send.Options<calls>,
-): Promise<Hex.Hex> {
+): Promise<Promise<send.ReturnType>> {
   const { calls, delegation, gasToken, multichain } = options
   const account = Account.from(options.account)
 
@@ -361,7 +405,7 @@ export async function send<const calls extends readonly unknown[]>(
   })
 
   // Send the action.
-  return sendPrepared(client, {
+  return await sendPrepared(client, {
     ...context,
     signatures,
   })
@@ -375,6 +419,10 @@ export declare namespace send {
        */
       key?: Key.Key | undefined
     }
+
+  type ReturnType = {
+    hash: Hex.Hex
+  }
 }
 
 /**
@@ -390,7 +438,9 @@ export declare namespace send {
 export async function sendPrepared(
   client: Client,
   parameters: sendPrepared.Parameters,
-): Promise<Hex.Hex> {
+): Promise<sendPrepared.ReturnType> {
+  const { calls } = parameters
+
   const [userOpSignature, authSignature] = parameters.signatures ?? []
 
   const action = from(parameters.action, {
@@ -417,20 +467,40 @@ export async function sendPrepared(
   })
   const quote = Quote.toRpc(parameters.quote)
 
-  const hash = await client.request<any>({
-    method: 'relay_sendAction',
-    params: [request, quote, ...(authorization ? [authorization] : [])],
-  })
+  try {
+    const hash = await client.request<any>({
+      method: 'relay_sendAction',
+      params: [request, quote, ...(authorization ? [authorization] : [])],
+    })
 
-  return hash
+    return { action, hash }
+  } catch (e) {
+    const error = e as RequestErrorType
+
+    const data = (() => {
+      if (error.name !== 'InvalidParamsRpcError') return
+      const match = error.details.match(/op reverted: (0x[0-9a-f]{8})/)
+      return match?.[1] as Hex.Hex | undefined
+    })()
+
+    throw Delegation.getExecuteError(Object.assign(error, { data }), {
+      calls: calls ?? [],
+    })
+  }
 }
 
 export declare namespace sendPrepared {
   type Parameters = {
     action: Action<false>
     authorization?: Authorization_viem<number, false> | undefined
+    calls?: readonly unknown[] | undefined
     quote: Quote.Quote<true>
     signatures: readonly Hex.Hex[]
+  }
+
+  type ReturnType = {
+    action: Action<true>
+    hash: Hex.Hex
   }
 }
 
@@ -458,4 +528,29 @@ export declare namespace toRpc {
   type Options = {
     chainId: number
   }
+}
+
+const userOpStruct = {
+  type: 'tuple',
+  components: [
+    { name: 'eoa', internalType: 'address', type: 'address' },
+    { name: 'executionData', internalType: 'bytes', type: 'bytes' },
+    { name: 'nonce', internalType: 'uint256', type: 'uint256' },
+    { name: 'payer', internalType: 'address', type: 'address' },
+    { name: 'paymentToken', internalType: 'address', type: 'address' },
+    {
+      name: 'paymentRecipient',
+      internalType: 'address',
+      type: 'address',
+    },
+    { name: 'paymentAmount', internalType: 'uint256', type: 'uint256' },
+    {
+      name: 'paymentMaxAmount',
+      internalType: 'uint256',
+      type: 'uint256',
+    },
+    { name: 'paymentPerGas', internalType: 'uint256', type: 'uint256' },
+    { name: 'combinedGas', internalType: 'uint256', type: 'uint256' },
+    { name: 'signature', internalType: 'bytes', type: 'bytes' },
+  ],
 }

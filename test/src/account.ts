@@ -50,7 +50,7 @@ export async function getAccount(
         keys: [key],
       })
 
-      const hash = await Action.send(client, {
+      const { hash } = await Action.send(client, {
         account: account_,
         calls: [
           {
