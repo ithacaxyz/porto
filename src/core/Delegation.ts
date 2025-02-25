@@ -732,12 +732,9 @@ export function getExecuteError<const calls extends readonly unknown[]>(
     }
 
     try {
+      if (data === '0xd0d5039b') return AbiError.from('error Unauthorized()')
       return AbiError.fromAbi(
-        [
-          ...delegationAbi,
-          AbiError.from('error Unauthorized()'),
-          AbiError.from('error CallError()'),
-        ],
+        [...delegationAbi, AbiError.from('error CallError()')],
         data,
       )
     } catch {
