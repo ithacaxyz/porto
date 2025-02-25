@@ -719,7 +719,7 @@ export function getExecuteError<const calls extends readonly unknown[]>(
 
     let data: Hex.Hex | undefined
     if (cause instanceof BaseError) {
-      const [, match] = cause.details.match(/"(0x[0-9a-f]{8})"/) || []
+      const [, match] = cause.details?.match(/"(0x[0-9a-f]{8})"/) || []
       if (match) data = match as Hex.Hex
     }
 
@@ -732,8 +732,14 @@ export function getExecuteError<const calls extends readonly unknown[]>(
     }
 
     try {
-      if (data === '0xd0d5039b') return AbiError.from('error Unauthorized()')
-      return AbiError.fromAbi(delegationAbi, data)
+      return AbiError.fromAbi(
+        [
+          ...delegationAbi,
+          AbiError.from('error Unauthorized()'),
+          AbiError.from('error CallError()'),
+        ],
+        data,
+      )
     } catch {
       return undefined
     }

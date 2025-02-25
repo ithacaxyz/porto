@@ -173,6 +173,28 @@ export function fromRpc(rpc: Rpc): Action {
   }
 }
 
+export function getExecuteError(e: Error, options: getExecuteError.Options) {
+  const { calls } = options
+
+  const error = e as RequestErrorType
+
+  const data = (() => {
+    if (error.name !== 'InvalidParamsRpcError') return
+    const match = error.details.match(/op reverted: (0x[0-9a-f]{8})/)
+    return match?.[1] as Hex.Hex | undefined
+  })()
+
+  throw Delegation.getExecuteError(Object.assign(error, data ? { data } : {}), {
+    calls: calls ?? [],
+  })
+}
+
+export declare namespace getExecuteError {
+  type Options = {
+    calls?: readonly unknown[] | undefined
+  }
+}
+
 /**
  * Gets the sign payload for an Action.
  *
@@ -269,6 +291,10 @@ export async function prepare<
     delegation,
     keyType: key?.type,
     token: gasToken,
+  }).catch((e) => {
+    throw getExecuteError(e as Error, {
+      calls,
+    })
   })
 
   const action = from({
@@ -475,17 +501,7 @@ export async function sendPrepared(
 
     return { action, hash }
   } catch (e) {
-    const error = e as RequestErrorType
-
-    const data = (() => {
-      if (error.name !== 'InvalidParamsRpcError') return
-      const match = error.details.match(/op reverted: (0x[0-9a-f]{8})/)
-      return match?.[1] as Hex.Hex | undefined
-    })()
-
-    throw Delegation.getExecuteError(Object.assign(error, { data }), {
-      calls: calls ?? [],
-    })
+    throw getExecuteError(e as Error, { calls })
   }
 }
 
