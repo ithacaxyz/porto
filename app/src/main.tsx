@@ -29,11 +29,15 @@ const offRequests = Events.onRequests(porto, (requests) => {
 
 porto.ready()
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const rootElement = document.querySelector('div#root')
+
+if (rootElement) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+}
 
 if (import.meta.hot)
   import.meta.hot.on('vite:beforeUpdate', () => {

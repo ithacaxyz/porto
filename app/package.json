@@ -39,6 +39,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "globals": "catalog:",
     "tailwindcss": "catalog:",
+    "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "unplugin-icons": "^22.1.0",
     "vite": "^6.2.0",
