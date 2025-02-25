@@ -11,8 +11,8 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { getAccount } from '../../../test/src/account.js'
 import { getPorto } from '../../../test/src/porto.js'
-import * as Delegation from '../Delegation.js'
 import * as Call from './call.js'
+import * as Delegation from './delegation.js'
 import * as Key from './key.js'
 
 const { client, delegation } = getPorto()
