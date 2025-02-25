@@ -27,7 +27,9 @@ export namespace Button {
       variants: {
         variant: {
           default:
-            'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
+            'text-primary bg-gray7 hover:not-active:bg-surfaceHover text-surface border border-surface',
+          ghost:
+            'text-primary bg-transparent hover:not-active:bg-surfaceHover border border-gray8 hover:border-gray9 hover:active:border-gray10',
           invert:
             'text-invert bg-invert hover:not-active:bg-invertHover text-invert',
           accent: 'text-white bg-accent hover:not-active:bg-accentHover',

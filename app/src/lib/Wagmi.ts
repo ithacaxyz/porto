@@ -1,10 +1,11 @@
-import { http, createConfig, injected } from 'wagmi'
+import { http, createConfig, createStorage, injected } from 'wagmi'
 import { odysseyTestnet } from 'wagmi/chains'
 
 import { porto } from './Porto'
 
 export const config = createConfig({
   chains: [odysseyTestnet],
+  storage: createStorage({ storage: localStorage }),
   connectors: [
     injected({
       target() {
