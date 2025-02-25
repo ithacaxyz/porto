@@ -15,11 +15,6 @@
   src: url("./assets/fonts/BerkeleyMonoVariable-Italic.woff") format("woff");
 }
 
-html,
-:host {
-  background-color: var(--background-color-primary);
-}
-
 /* https://github.com/radix-ui/colors */
 /* biome-ignore format: <explanation> */
 @theme {
@@ -187,18 +182,10 @@ html,
 
   --height-button: 42px;
   
-  --spacing-dialog: 360px;
-  --spacing-titlebar: 36px;
-
   --radius-default: calc(infinity * 1px);
 }
 
-[data-dialog] {
-  --height-button: 36px;
-
-  --radius-default: 8px;
-}
-
+/* Privy CSS Overrides */
 #privy-dialog-backdrop {
   display: none;
 }
@@ -211,4 +198,28 @@ html,
 }
 wcm-modal {
   display: none;
+}
+h3 {
+  width: 100%;
+}
+#p-title {
+  color: var(--privy-color-foreground-2);
+  display: block;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 14px;
+  line-height: 20px;
+  margin-top: -16px;
+  padding-bottom: 16px;
+  text-align: center;
+}
+#p-logo {
+  margin-top: -8px;
+  margin-bottom: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  max-height: 90px;
+  max-width: 180px;
+  padding-top: 24px;
+  padding-bottom: 2px;
 }

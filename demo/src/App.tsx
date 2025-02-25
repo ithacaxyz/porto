@@ -1,4 +1,4 @@
-import { LoginModal, PrivyProvider, useLogin } from '@privy-io/react-auth'
+import { LoginModal, PrivyProvider, usePrivy } from '@privy-io/react-auth'
 import {
   ConnectButton,
   RainbowKitProvider,
@@ -9,16 +9,18 @@ import {
   useConnectModal,
 } from '@rainbow-me/rainbowkit'
 import { type VariantProps, cva, cx } from 'cva'
-import { Hooks as Wagmi } from 'porto/wagmi'
+import { Hooks as W } from 'porto/wagmi'
 import * as React from 'react'
 import { useAccount, useConnectors } from 'wagmi'
 
 import '@rainbow-me/rainbowkit/styles.css'
 
-import { Privy } from '~/config'
+import { odysseyTestnet } from 'wagmi/chains'
+import { Wagmi } from '~/config'
 
 export function App() {
   const account = useAccount()
+  const colorScheme = usePrefersColorScheme()
   return (
     <div className="h-full bg-gray1 p-1 pb-0">
       <title>Demo ⋅ Ithaca</title>
@@ -36,7 +38,12 @@ export function App() {
               <div className="md:max-w-[368px]">
                 <RainbowKitProvider
                   modalSize="compact"
-                  theme={{ darkMode: darkTheme(), lightMode: lightTheme() }}
+                  theme={{
+                    darkMode: darkTheme({ accentColor: 'var(--color-blue9)' }),
+                    lightMode: lightTheme({
+                      accentColor: 'var(--color-blue9)',
+                    }),
+                  }}
                 >
                   <RainbowKitDemo />
                 </RainbowKitProvider>
@@ -47,7 +54,43 @@ export function App() {
               <div className="md:max-w-[368px]">
                 <PrivyProvider
                   appId="cm7jinb1h059lnn9kchlh4jf7"
-                  config={Privy.config}
+                  config={{
+                    appearance: {
+                      accentColor:
+                        colorScheme === 'light' ? '#0090ff' : '#0090ff',
+                      logo:
+                        colorScheme === 'light'
+                          ? 'https://auth.privy.io/logos/privy-logo.png'
+                          : 'https://auth.privy.io/logos/privy-logo-dark.png',
+                      showWalletLoginFirst: false,
+                      theme: colorScheme,
+                      walletChainType: 'ethereum-only',
+                      walletList: ['detected_wallets'],
+                    },
+                    defaultChain: odysseyTestnet,
+                    embeddedWallets: {
+                      createOnLogin: 'users-without-wallets',
+                      ethereum: {
+                        createOnLogin: 'users-without-wallets',
+                      },
+                      requireUserPasswordOnCreate: false,
+                      solana: {
+                        createOnLogin: 'off',
+                      },
+                    },
+                    externalWallets: {},
+                    fundingMethodConfig: {
+                      moonpay: {
+                        useSandbox: true,
+                      },
+                    },
+                    loginMethods: ['wallet'],
+                    supportedChains: [odysseyTestnet],
+                    // @ts-ignore
+                    _render: {
+                      standalone: true,
+                    },
+                  }}
                 >
                   <PrivyDemo />
                 </PrivyProvider>
@@ -56,8 +99,12 @@ export function App() {
           </div>
 
           <div className="flex-1">
-            <div className="min-h-20 rounded-xl border border-gray4 p-5">
-              {account?.address}
+            <div className="rounded-xl border border-gray4 p-5">
+              {account?.address ? (
+                StringFormatter.truncate(account.address)
+              ) : (
+                <div>Sign in to continue</div>
+              )}
             </div>
           </div>
         </div>
@@ -68,83 +115,120 @@ export function App() {
 
 function CustomDemo() {
   const account = useAccount()
-  const disconnect = Wagmi.useDisconnect()
+  const disconnect = W.useDisconnect()
 
   const [signUp, setSignUp] = React.useState(false)
-  const connect = Wagmi.useConnect()
+  const connect = W.useConnect()
   const [connector] = useConnectors()
 
   if (account.status === 'connected')
+    return <Button onClick={() => disconnect.mutate({})}>Logout</Button>
+
+  if (connect.isPending)
     return (
-      <div>
-        <p>{account.address}</p>
-        <Button onClick={() => disconnect.mutate({})}>Logout</Button>
+      <div className="flex min-h-10.5 items-center">
+        <div className="flex items-center gap-2">
+          <div className="flex size-8 items-center justify-center rounded-full bg-accentTint p-[6px] text-accent">
+            <Spinner />
+          </div>
+
+          <div className="font-medium text-[18px] text-primary">
+            {signUp ? 'Signing up...' : 'Signing in...'}
+          </div>
+        </div>
       </div>
     )
 
   return (
-    <div>
-      {connect.isPending ? (
-        <div>
-          <IndeterminateLoader
-            title={signUp ? 'Signing up...' : 'Signing in...'}
-            description=""
-            hint=""
-          />
-        </div>
-      ) : (
-        <div className="space-x-3">
-          <Button
-            onClick={() => {
-              setSignUp(true)
-              connect
-                .mutateAsync({
-                  connector: connector!,
-                  createAccount: true,
-                })
-                .finally(() => setSignUp(false))
-            }}
-            className="flex-grow"
-            variant="accent"
-          >
-            Sign up
-          </Button>
+    <div className="space-x-3">
+      <Button
+        onClick={() => {
+          setSignUp(true)
+          connect
+            .mutateAsync({
+              connector: connector!,
+              createAccount: true,
+            })
+            .finally(() => setSignUp(false))
+        }}
+        className="flex-grow"
+        variant="accent"
+      >
+        Sign up
+      </Button>
 
-          <Button
-            onClick={() => connect.mutate({ connector: connector! })}
-            className="flex-grow"
-            variant="invert"
-          >
-            Sign in
-          </Button>
-        </div>
-      )}
+      <Button
+        onClick={() => connect.mutate({ connector: connector! })}
+        className="flex-grow"
+        variant="invert"
+      >
+        Sign in
+      </Button>
     </div>
   )
 }
 
 function RainbowKitDemo() {
-  const { connectModalOpen } = useConnectModal()
+  const account = useAccount()
+
+  const { connectModalOpen, openConnectModal } = useConnectModal()
   const { accountModalOpen } = useAccountModal()
   const { chainModalOpen } = useChainModal()
 
-  if (connectModalOpen || accountModalOpen || chainModalOpen) return null
+  // Re-open connect modal when disconnected
+  const [active, setActive] = React.useState(false)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  React.useEffect(() => {
+    return Wagmi.config.subscribe(
+      (state) => state.status,
+      (curr, prev) => {
+        if (
+          openConnectModal &&
+          curr === 'disconnected' &&
+          prev === 'connected'
+        ) {
+          setActive(true)
+          setTimeout(() => {
+            openConnectModal?.()
+            setActive(false)
+          })
+        }
+      },
+    )
+  }, [])
+
+  if (accountModalOpen || chainModalOpen) return null
+  if ((connectModalOpen && !account.address) || active) return null
+
   return <ConnectButton />
 }
 
 function PrivyDemo() {
-  const { login } = useLogin()
+  const account = useAccount()
+  const disconnect = W.useDisconnect()
+
+  const privy = usePrivy()
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
-    login()
+    privy.connectWallet()
   }, [])
 
+  if (account.address)
+    return (
+      <Button
+        onClick={async () => {
+          disconnect.mutate({})
+          privy.connectWallet()
+        }}
+      >
+        Logout
+      </Button>
+    )
+
   return (
-    <div>
-      <div className="overflow-hidden rounded-xl">
-        <LoginModal open />
-      </div>
+    <div className="overflow-hidden rounded-xl">
+      <LoginModal open />
     </div>
   )
 }
@@ -154,7 +238,29 @@ function Nav() {
     <nav className="sticky flex h-15.5 items-center justify-between border-gray4 border-b px-5">
       <div className="flex gap-2.5">
         <div className="h-6">
-          <Logomark />
+          {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
+          <svg
+            fill="none"
+            height="100%"
+            viewBox="0 0 310 270"
+            width="auto"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M230.325 142.852C239.487 140.109 249.33 144.005 254.163 152.287L307.601 243.855C314.357 255.432 306.042 270 292.678 270H17.3266C3.28438 270 -4.90514 254.087 3.21898 242.587L27.5208 208.188C30.2035 204.391 34.0755 201.604 38.5192 200.274L230.325 142.852Z"
+              fill="currentColor"
+            />
+            <path
+              opacity="0.75"
+              d="M131.398 13.7191C135.343 6.66017 145.914 8.38328 147.433 16.3329L169.996 134.441C171.161 140.539 167.562 146.539 161.648 148.355L54.8997 181.152C47.4404 183.443 41.01 175.429 44.8277 168.599L131.398 13.7191Z"
+              fill="currentColor"
+            />
+            <path
+              opacity="0.5"
+              d="M158.675 6.21863C157.566 0.45227 165.328 -2.46256 168.26 2.61951L236.048 120.133C237.75 123.083 236.218 126.851 232.947 127.764L193.677 138.716C188.812 140.073 183.829 136.974 182.871 131.997L158.675 6.21863Z"
+              fill="currentColor"
+            />
+          </svg>
         </div>
 
         <div className="mt-0.5 flex h-fit items-center rounded-full border border-gray7 bg-gray3 px-2 py-1 font-mono text-[11px] text-gray11 leading-none tracking-wide">
@@ -162,34 +268,6 @@ function Nav() {
         </div>
       </div>
     </nav>
-  )
-}
-
-function Logomark() {
-  return (
-    // biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
-    <svg
-      fill="none"
-      height="100%"
-      viewBox="0 0 310 270"
-      width="auto"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M230.325 142.852C239.487 140.109 249.33 144.005 254.163 152.287L307.601 243.855C314.357 255.432 306.042 270 292.678 270H17.3266C3.28438 270 -4.90514 254.087 3.21898 242.587L27.5208 208.188C30.2035 204.391 34.0755 201.604 38.5192 200.274L230.325 142.852Z"
-        fill="currentColor"
-      />
-      <path
-        opacity="0.75"
-        d="M131.398 13.7191C135.343 6.66017 145.914 8.38328 147.433 16.3329L169.996 134.441C171.161 140.539 167.562 146.539 161.648 148.355L54.8997 181.152C47.4404 183.443 41.01 175.429 44.8277 168.599L131.398 13.7191Z"
-        fill="currentColor"
-      />
-      <path
-        opacity="0.5"
-        d="M158.675 6.21863C157.566 0.45227 165.328 -2.46256 168.26 2.61951L236.048 120.133C237.75 123.083 236.218 126.851 232.947 127.764L193.677 138.716C188.812 140.073 183.829 136.974 182.871 131.997L158.675 6.21863Z"
-        fill="currentColor"
-      />
-    </svg>
   )
 }
 
@@ -259,37 +337,6 @@ namespace Button {
   )
 }
 
-function IndeterminateLoader(props: IndeterminateLoader.Props) {
-  const {
-    title,
-    description = 'This will only take a few moments.',
-    hint = 'Please do not close the window.',
-  } = props
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <div className="flex size-8 items-center justify-center rounded-full bg-accentTint p-[6px] text-accent">
-          <Spinner />
-        </div>
-
-        <div className="font-medium text-[18px] text-primary">{title}</div>
-      </div>
-
-      <div className="mt-1.5 text-[15px] leading-[20px]">
-        <div className="text-primary">{description}</div>
-        {hint && <div className="text-secondary">{hint}</div>}
-      </div>
-    </div>
-  )
-}
-declare namespace IndeterminateLoader {
-  type Props = {
-    description?: string
-    title: string
-    hint?: string
-  }
-}
-
 function Spinner({ className }: { className?: string }) {
   return (
     <svg
@@ -310,4 +357,42 @@ function Spinner({ className }: { className?: string }) {
       />
     </svg>
   )
+}
+
+namespace StringFormatter {
+  export function truncate(
+    str: string,
+    { start = 8, end = 6 }: { start?: number; end?: number } = {},
+  ) {
+    if (str.length <= start + end) return str
+    return `${str.slice(0, start)}\u2026${str.slice(-end)}`
+  }
+}
+
+function usePrefersColorScheme(): 'light' | 'dark' {
+  const getPrefersColorScheme = (): 'light' | 'dark' => {
+    if (window.matchMedia?.('(prefers-color-scheme: dark)').matches)
+      return 'dark'
+    return 'light'
+  }
+
+  const [colorScheme, setColorScheme] = React.useState<'light' | 'dark'>(
+    getPrefersColorScheme,
+  )
+
+  React.useEffect(() => {
+    const mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)')
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setColorScheme(event.matches ? 'dark' : 'light')
+    }
+
+    mediaQueryList.addEventListener('change', handleChange)
+
+    return () => {
+      mediaQueryList.removeEventListener('change', handleChange)
+    }
+  }, [])
+
+  return colorScheme
 }

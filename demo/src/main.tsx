@@ -6,7 +6,7 @@ import { WagmiProvider } from 'wagmi'
 import { App } from './App.js'
 import { Query, Wagmi } from './config.ts'
 
-import './index.css'
+import './main.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

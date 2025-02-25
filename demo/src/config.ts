@@ -1,4 +1,3 @@
-import type { PrivyClientConfig } from '@privy-io/react-auth'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
 import { Implementation, Porto as P } from 'porto'
@@ -23,7 +22,9 @@ export namespace Query {
 export namespace Porto {
   export const instance = P.create({
     announceProvider: true,
-    implementation: Implementation.local(),
+    implementation: Implementation.dialog({
+      host: import.meta.env.VITE_DIALOG_HOST ?? 'https://exp.porto.sh/dialog',
+    }),
   })
 }
 
@@ -55,47 +56,4 @@ declare module 'wagmi' {
   interface Register {
     config: typeof Wagmi.config
   }
-}
-
-export namespace Privy {
-  export const config = {
-    appearance: {
-      accentColor: '#6A6FF5',
-      logo: 'https://auth.privy.io/logos/privy-logo-dark.png',
-      showWalletLoginFirst: false,
-      theme: '#222224',
-      walletChainType: 'ethereum-only',
-      walletList: ['detected_wallets'],
-    },
-    customAuth: {
-      enabled: true,
-      async getCustomAccessToken() {
-        return undefined
-      },
-      isLoading: false,
-    },
-    defaultChain: odysseyTestnet,
-    embeddedWallets: {
-      createOnLogin: 'users-without-wallets',
-      ethereum: {
-        createOnLogin: 'users-without-wallets',
-      },
-      requireUserPasswordOnCreate: false,
-      solana: {
-        createOnLogin: 'off',
-      },
-    },
-    externalWallets: {},
-    fundingMethodConfig: {
-      moonpay: {
-        useSandbox: true,
-      },
-    },
-    loginMethods: ['wallet'],
-    supportedChains: [odysseyTestnet],
-    // @ts-ignore
-    _render: {
-      standalone: true,
-    },
-  } satisfies PrivyClientConfig
 }

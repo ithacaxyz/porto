@@ -58,7 +58,7 @@ export function iframe() {
       )
       iframe.setAttribute('aria-closed', 'true')
       iframe.setAttribute('aria-label', 'Porto Wallet')
-      iframe.setAttribute('hidden', 'true')
+      iframe.setAttribute('hidden', 'until-found')
       iframe.setAttribute('role', 'dialog')
       iframe.setAttribute('tabindex', '0')
       iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')

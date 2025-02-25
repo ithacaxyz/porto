@@ -5,12 +5,10 @@
   "scripts": {
     "build": "tsc -b && vite build",
     "check:types": "tsc --noEmit",
-    "dev": "vite --port 5175",
-    "preview": "vite preview"
+    "dev": "vite --port 5175"
   },
   "dependencies": {
     "@privy-io/react-auth": "^2.4.5",
-    "@privy-io/wagmi": "^1.0.3",
     "@rainbow-me/rainbowkit": "^2.2.4",
     "@tanstack/query-sync-storage-persister": "^5.65.0",
     "@tanstack/react-query": "catalog:",

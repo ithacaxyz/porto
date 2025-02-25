@@ -79,7 +79,11 @@ function RouteComponent() {
           <div className="flex size-5 items-center justify-center rounded-[5px] bg-gray6">
             {icon ? (
               <div className="p-[3px]">
-                <img src={icon} alt={hostname} className="size-full" />
+                <img
+                  src={icon}
+                  alt={hostname}
+                  className="size-full text-transparent"
+                />
               </div>
             ) : (
               <LucideGlobe className="size-3.5 text-primary" />

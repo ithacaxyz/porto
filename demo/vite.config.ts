@@ -14,13 +14,21 @@ const enableHttps = existsSync(https.cert) && existsSync(https.key)
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  server: {
-    https: enableHttps ? https : undefined,
-  },
+  define:
+    process.env.NODE_ENV === 'development'
+      ? {
+          'import.meta.env.VITE_DIALOG_HOST': JSON.stringify(
+            (enableHttps ? 'https' : 'http') + '://localhost:5174/dialog',
+          ),
+        }
+      : undefined,
   plugins: [
     Tailwindcss(),
     React(),
     Icons({ compiler: 'jsx', jsx: 'react' }),
     TsconfigPaths(),
   ],
+  server: {
+    https: enableHttps ? https : undefined,
+  },
 })
