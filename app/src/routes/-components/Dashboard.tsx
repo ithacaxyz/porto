@@ -1,6 +1,7 @@
 import * as Ariakit from '@ariakit/react'
 import { useAccount } from 'wagmi'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
+import XIcon from '~icons/lucide/x'
 import CoinsIcon from '~icons/lucide/coins'
 import HistoryIcon from '~icons/lucide/history'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
@@ -8,9 +9,16 @@ import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import { Button } from '~/components/Button'
 import { Pill } from '~/components/Pill'
 import { StringFormatter } from '~/utils'
+import { cx } from 'cva'
 
 export function Dashboard() {
   const account = useAccount()
+
+  const formStore = Ariakit.useFormStore({
+    defaultValues: {
+      email: '',
+    },
+  })
 
   return (
     <div className="mx-auto flex size-full min-h-screen max-w-xl flex-col gap-y-4 p-4">
@@ -65,7 +73,10 @@ export function Dashboard() {
             <input
               type="text"
               placeholder="Search…"
-              className="ml-2 w-full max-w-[55%] rounded-full border border-gray8 bg-transparent px-3 py-2 text-black placeholder:text-secondary sm:ml-8"
+              className={cx(
+                'ml-2 w-full max-w-[55%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-black placeholder:text-secondary sm:ml-8',
+                'dark:bg-secondary dark:text-gray-50',
+              )}
             />
           </Ariakit.TabList>
           <div className="mt-3">
@@ -86,26 +97,53 @@ export function Dashboard() {
       </div>
       {/* ==== Footer ==== */}
       <footer className="mt-auto flex flex-col gap-y-5 p-2">
-        <form className="flex flex-row justify-between gap-x-2 rounded-full bg-surface px-3 py-2">
+        <Ariakit.Form
+          store={formStore}
+          className="flex flex-row justify-between gap-x-2 rounded-full bg-surface px-3 py-2"
+        >
           <img
             src="/icons/mushroom.svg"
             alt="icon"
             className="my-auto size-6"
           />
-          <p className="my-auto mr-auto font-medium text-secondary">
+          <Ariakit.FormLabel
+            name={formStore.names.email}
+            className="my-auto mr-auto font-medium text-secondary dark:text-gray-300"
+          >
             Power up your wallet!
-          </p>
-          <input
+          </Ariakit.FormLabel>
+          <Ariakit.TooltipProvider>
+            <Ariakit.TooltipAnchor
+              className="link"
+              render={() => {
+                const error = formStore.getError('email')
+                if (!error) return null
+                return (
+                  <XIcon className="my-auto size-6 rounded-full bg-rose-300 p-1 text-red-500" />
+                )
+              }}
+            />
+            <Ariakit.Tooltip className="tooltip">
+              <Ariakit.FormError name={formStore.names.email} />
+            </Ariakit.Tooltip>
+          </Ariakit.TooltipProvider>
+          <Ariakit.FormInput
             type="email"
+            required={true}
+            name={formStore.names.email}
             placeholder="Get email updates…"
-            className="rounded-full border border-gray-300/90 bg-white px-2.5 py-1 text-sm placeholder:text-secondary"
+            className={cx(
+              'rounded-full border border-gray8 bg-white px-3 py-1 text-sm placeholder:text-secondary',
+              'dark:bg-secondary dark:text-gray-50 dark:placeholder:text-gray-400',
+            )}
           />
-          <button type="button" className="rounded-full bg-gray-300 p-2">
+          <Ariakit.FormSubmit className="rounded-full bg-gray-300 p-2">
+            <span className="sr-only">Send</span>
             <SendHorizontalIcon className=" text-gray-500" />
-          </button>
-        </form>
+          </Ariakit.FormSubmit>
+        </Ariakit.Form>
         <div className="flex flex-row justify-between px-4">
-          <p className="flex gap-x-2 text-secondary leading-[22px]">
+          <p className="flex gap-x-2 text-secondary leading-[22px] dark:text-gray-300">
             Built by
             <a
               className="my-auto flex font-mono text-primary"
