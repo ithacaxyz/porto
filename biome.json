@@ -55,6 +55,11 @@
       "semicolons": "asNeeded"
     }
   },
+  "css": {
+    "formatter": {
+      "enabled": true
+    }
+  },
   "vcs": {
     "enabled": true,
     "clientKind": "git",
