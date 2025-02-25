@@ -8,6 +8,8 @@ import { relay } from './prool.js'
 export const relayOdyssey = defineRelay({
   endpoint: (key) => `http://127.0.0.1:${anvilOdyssey.port}/${key}`,
   feeToken: ExperimentERC20.address[0],
+  txGasBuffer: 2_000_000n,
+  userOpGasBuffer: 2_000_000n,
 })
 
 /////////////////////////////////////////////////////////////////
@@ -17,6 +19,8 @@ export const relayOdyssey = defineRelay({
 function defineRelay(parameters: {
   endpoint: (key: number) => string
   feeToken: string
+  txGasBuffer?: bigint | undefined
+  userOpGasBuffer?: bigint | undefined
   port?: number | undefined
 }) {
   const { endpoint, port = 9119 } = parameters
