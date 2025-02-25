@@ -32,7 +32,9 @@ export function getPorto(
   const { chain = defaultChain, transports = {} } = parameters
   const porto = Porto.create({
     chains: [chain],
-    implementation: Implementation.mock(),
+    implementation: Implementation.local({
+      mock: true,
+    }),
     storage: Storage.memory(),
     transports: {
       [Chains.odysseyTestnet.id]: {
