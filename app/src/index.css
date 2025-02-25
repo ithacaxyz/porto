@@ -159,8 +159,9 @@ html,
 
   --border-color-primary: light-dark(var(--color-gray5), var(--color-gray4));
   --border-color-surface: light-dark(var(--color-gray4), var(--color-gray5));
+  --border-color-accent: var(--color-blue11);
 
-  --text-color-accent: var(--color-blue10);
+  --text-color-accent: var(--color-blue11);
   --text-color-destructive: var(--color-red10);
   --text-color-invert: light-dark(var(--color-white), var(--color-black));
   --text-color-primary: var(--color-gray12);
