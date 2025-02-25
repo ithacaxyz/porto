@@ -1,0 +1,277 @@
+diff --git a/dist/index.css b/dist/index.css
+index 4af35cb02a486591dcaa55c3b7950680d0b5da36..6d3367a793f2beb673c58461b9e9fe21d91dd618 100644
+--- a/dist/index.css
++++ b/dist/index.css
+@@ -2063,7 +2063,6 @@
+   z-index: 2147483646;
+ }
+ [data-rk] ._9pm4ki5 {
+-  animation: _9pm4ki0 350ms cubic-bezier(.15, 1.15, 0.6, 1.00), _9pm4ki1 150ms ease;
+   max-width: 100vw;
+ }
+ 
+@@ -2071,18 +2070,13 @@
+ [data-rk] ._1ckjpok1 {
+   box-sizing: content-box;
+   max-width: 100vw;
+-  width: 360px;
+ }
+ [data-rk] ._1ckjpok2 {
+   width: 100vw;
+ }
+ [data-rk] ._1ckjpok3 {
+-  min-width: 720px;
+-  width: 720px;
+ }
+ [data-rk] ._1ckjpok4 {
+-  min-width: 368px;
+-  width: 368px;
+ }
+ [data-rk] ._1ckjpok6 {
+   border-width: 0px;
+@@ -2091,14 +2085,10 @@
+ }
+ @media screen and (min-width: 768px) {
+   [data-rk] ._1ckjpok1 {
+-    width: 360px;
+   }
+   [data-rk] ._1ckjpok2 {
+-    width: 480px;
+   }
+   [data-rk] ._1ckjpok4 {
+-    min-width: 368px;
+-    width: 368px;
+   }
+ }
+ @media screen and (max-width: 767px) {
+diff --git a/dist/index.js b/dist/index.js
+index 99af3d7bbc46fbafbf17e788628cab625bc2750e..f1a5dc2a5d523868d669f7c558626f6112ff39c2 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1664,16 +1664,13 @@ import { useAccount as useAccount13, useAccountEffect as useAccountEffect3, useC
+ 
+ // src/components/AccountModal/AccountModal.tsx
+ import React35 from "react";
+-import { useAccount as useAccount10, useDisconnect } from "wagmi";
++import { useAccount as useAccount10 } from "wagmi";
++import { Hooks as Wagmi } from 'porto/wagmi'
+ 
+ // src/components/Dialog/Dialog.tsx
+ import React23, {
+-  useCallback as useCallback6,
+   useEffect as useEffect11,
+-  useState as useState9
+ } from "react";
+-import { createPortal } from "react-dom";
+-import { RemoveScroll } from "react-remove-scroll";
+ 
+ // src/components/RainbowKitProvider/RainbowKitProvider.tsx
+ import React21, { createContext as createContext11, useContext as useContext7 } from "react";
+@@ -2725,34 +2722,14 @@ function FocusTrap(props) {
+ 
+ // src/components/Dialog/Dialog.tsx
+ var stopPropagation = (event) => event.stopPropagation();
+-function Dialog({ children, onClose, open, titleId }) {
++function Dialog({ children, onClose, open }) {
+   useEffect11(() => {
+     const handleEscape = (event) => open && event.key === "Escape" && onClose();
+     document.addEventListener("keydown", handleEscape);
+     return () => document.removeEventListener("keydown", handleEscape);
+   }, [open, onClose]);
+-  const [bodyScrollable, setBodyScrollable] = useState9(true);
+-  useEffect11(() => {
+-    setBodyScrollable(
+-      getComputedStyle(window.document.body).overflow !== "hidden"
+-    );
+-  }, []);
+-  const handleBackdropClick = useCallback6(() => onClose(), [onClose]);
+   const themeRootProps = useThemeRootProps();
+-  const mobile = isMobile();
+-  return /* @__PURE__ */ React23.createElement(React23.Fragment, null, open ? createPortal(
+-    /* @__PURE__ */ React23.createElement(RemoveScroll, { enabled: bodyScrollable }, /* @__PURE__ */ React23.createElement(Box, { ...themeRootProps }, /* @__PURE__ */ React23.createElement(
+-      Box,
+-      {
+-        ...themeRootProps,
+-        alignItems: mobile ? "flex-end" : "center",
+-        "aria-labelledby": titleId,
+-        "aria-modal": true,
+-        className: overlay,
+-        onClick: handleBackdropClick,
+-        position: "fixed",
+-        role: "dialog"
+-      },
++  return /* @__PURE__ */ React23.createElement(React23.Fragment, null, open ? /* @__PURE__ */ React23.createElement(Box, { ...themeRootProps },
+       /* @__PURE__ */ React23.createElement(
+         FocusTrap,
+         {
+@@ -2762,9 +2739,8 @@ function Dialog({ children, onClose, open, titleId }) {
+         },
+         children
+       )
+-    ))),
+-    document.body
+-  ) : null);
++    )
++   : null);
+ }
+ 
+ // src/components/Dialog/DialogContent.tsx
+@@ -3386,13 +3362,19 @@ function ProfileDetails({
+ }
+ 
+ // src/components/AccountModal/AccountModal.tsx
+-function AccountModal({ onClose, open }) {
++function AccountModal({ onClose, open, openConnectModal }) {
+   const { address } = useAccount10();
+   const { balance, ensAvatar, ensName } = useProfile({
+     address,
+     includeBalance: open
+   });
+-  const { disconnect } = useDisconnect();
++  const disconnect = Wagmi.useDisconnect({
++    mutation: {
++      onSuccess() {
++        openConnectModal()
++      }
++    }
++  });
+   if (!address) {
+     return null;
+   }
+@@ -3405,15 +3387,16 @@ function AccountModal({ onClose, open }) {
+       ensName,
+       balance,
+       onClose,
+-      onDisconnect: disconnect
++      onDisconnect: disconnect.mutate
+     }
+   ))));
+ }
+ 
+ // src/components/ChainModal/ChainModal.tsx
+ import React39, { useContext as useContext12, useState as useState11 } from "react";
+-import { useAccount as useAccount11, useDisconnect as useDisconnect2, useSwitchChain } from "wagmi";
++import { useAccount as useAccount11, useSwitchChain } from "wagmi";
+ import { useConfig as useConfig2 } from "wagmi";
++import { Hooks as Wagmi2 } from 'porto/wagmi'
+ 
+ // src/components/Icons/DisconnectSq.tsx
+ import React36 from "react";
+@@ -3604,7 +3587,7 @@ var DesktopScrollClassName = "_18dqw9x0";
+ var MobileScrollClassName = "_18dqw9x1";
+ 
+ // src/components/ChainModal/ChainModal.tsx
+-function ChainModal({ onClose, open }) {
++function ChainModal({ onClose, open, openConnectModal }) {
+   const { chainId } = useAccount11();
+   const { chains } = useConfig2();
+   const [pendingChainId, setPendingChainId] = useState11(null);
+@@ -3627,7 +3610,13 @@ function ChainModal({ onClose, open }) {
+     }
+   });
+   const { i18n: i18n2 } = useContext12(I18nContext);
+-  const { disconnect } = useDisconnect2();
++  const disconnect = Wagmi2.useDisconnect({
++    mutation: {
++      onSuccess() {
++        openConnectModal()
++      }
++    }
++  });
+   const titleId = "rk_chain_modal_title";
+   const mobile = isMobile();
+   const isCurrentChainSupported = chains.some((chain) => chain.id === chainId);
+@@ -3688,7 +3677,7 @@ function ChainModal({ onClose, open }) {
+     !isCurrentChainSupported && /* @__PURE__ */ React39.createElement(React39.Fragment, null, /* @__PURE__ */ React39.createElement(Box, { background: "generalBorderDim", height: "1", marginX: "8" }), /* @__PURE__ */ React39.createElement(
+       MenuButton,
+       {
+-        onClick: () => disconnect(),
++        onClick: () => disconnect.mutate({}),
+         testId: "chain-option-disconnect"
+       },
+       /* @__PURE__ */ React39.createElement(
+@@ -3737,7 +3726,8 @@ function ChainModal({ onClose, open }) {
+ 
+ // src/components/ConnectModal/ConnectModal.tsx
+ import React57 from "react";
+-import { useAccount as useAccount12, useDisconnect as useDisconnect3 } from "wagmi";
++import { useAccount as useAccount12 } from "wagmi";
++import { Hooks as Wagmi3 } from 'porto/wagmi'
+ 
+ // src/components/ConnectOptions/ConnectOptions.tsx
+ import React56, { useContext as useContext19 } from "react";
+@@ -6281,20 +6271,26 @@ function ConnectOptions({ onClose }) {
+ }
+ 
+ // src/components/ConnectModal/ConnectModal.tsx
+-function ConnectModal({ onClose, open }) {
++function ConnectModal({ onClose, open, openConnectModal }) {
+   const titleId = "rk_connect_title";
+   const connectionStatus = useConnectionStatus();
+-  const { disconnect } = useDisconnect3();
++  const disconnect = Wagmi3.useDisconnect({
++    mutation: {
++      onSuccess() {
++        openConnectModal()
++      }
++    }
++  });
+   const { isConnecting } = useAccount12();
+   const onAuthCancel = React57.useCallback(() => {
+     onClose();
+-    disconnect();
+-  }, [onClose, disconnect]);
++    disconnect.mutate({});
++  }, [onClose, disconnect.mutate]);
+   const onConnectModalCancel = React57.useCallback(() => {
+     if (isConnecting)
+-      disconnect();
++      disconnect.mutate({});
+     onClose();
+-  }, [onClose, disconnect, isConnecting]);
++  }, [onClose, disconnect.mutate, isConnecting]);
+   if (connectionStatus === "disconnected") {
+     return /* @__PURE__ */ React57.createElement(Dialog, { onClose: onConnectModalCancel, open, titleId }, /* @__PURE__ */ React57.createElement(DialogContent, { bottomSheetOnMobile: true, padding: "0", wide: true }, /* @__PURE__ */ React57.createElement(ConnectOptions, { onClose: onConnectModalCancel })));
+   }
+@@ -6305,8 +6301,8 @@ function ConnectModal({ onClose, open }) {
+ }
+ 
+ // src/components/RainbowKitProvider/ModalContext.tsx
+-function useModalStateValue() {
+-  const [isModalOpen, setModalOpen] = useState14(false);
++function useModalStateValue(defaultValue = false) {
++  const [isModalOpen, setModalOpen] = useState14(defaultValue);
+   return {
+     closeModal: useCallback10(() => setModalOpen(false), []),
+     isModalOpen,
+@@ -6316,7 +6312,7 @@ function useModalStateValue() {
+ var ModalContext = createContext12({
+   accountModalOpen: false,
+   chainModalOpen: false,
+-  connectModalOpen: false,
++  connectModalOpen: true,
+   isWalletConnectModalOpen: false,
+   setIsWalletConnectModalOpen: () => {
+   }
+@@ -6326,7 +6322,7 @@ function ModalProvider({ children }) {
+     closeModal: closeConnectModal,
+     isModalOpen: connectModalOpen,
+     openModal: openConnectModal
+-  } = useModalStateValue();
++  } = useModalStateValue(true);
+   const {
+     closeModal: closeAccountModal,
+     isModalOpen: accountModalOpen,
+@@ -6389,9 +6385,9 @@ function ModalProvider({ children }) {
+       )
+     },
+     children,
+-    /* @__PURE__ */ React58.createElement(ConnectModal, { onClose: closeConnectModal, open: connectModalOpen }),
+-    /* @__PURE__ */ React58.createElement(AccountModal, { onClose: closeAccountModal, open: accountModalOpen }),
+-    /* @__PURE__ */ React58.createElement(ChainModal, { onClose: closeChainModal, open: chainModalOpen })
++    /* @__PURE__ */ React58.createElement(ConnectModal, { onClose: closeConnectModal, open: connectModalOpen, openConnectModal }),
++    /* @__PURE__ */ React58.createElement(AccountModal, { onClose: closeAccountModal, open: accountModalOpen, openConnectModal }),
++    /* @__PURE__ */ React58.createElement(ChainModal, { onClose: closeChainModal, open: chainModalOpen, openConnectModal })
+   );
+ }
+ function useModalState() {
