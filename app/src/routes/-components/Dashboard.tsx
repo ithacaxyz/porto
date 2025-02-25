@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { Hooks as Wagmi } from 'porto/wagmi'
 import { useAccount } from 'wagmi'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import CoinsIcon from '~icons/lucide/coins'
@@ -12,7 +11,7 @@ import { StringFormatter } from '~/utils'
 
 export function Dashboard() {
   const account = useAccount()
-  const disconnect = Wagmi.useDisconnect()
+
   return (
     <div className="mx-auto flex size-full min-h-screen max-w-xl flex-col gap-y-4 p-4">
       <div className="mt-3 flex items-center justify-between">
