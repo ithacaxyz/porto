@@ -24,6 +24,7 @@ describe('eth_accounts', () => {
         },
       ],
     })
+
     const accounts = await porto.provider.request({
       method: 'eth_accounts',
     })
@@ -652,11 +653,17 @@ describe('wallet_connect', () => {
     expect(accounts.length).toBe(1)
     expect(accounts![0]!.keys?.length).toBe(1)
     expect(
-      accounts![0]!.keys?.map((x) => ({ ...x, expiry: null, publicKey: null })),
+      accounts![0]!.keys?.map((x) => ({
+        ...x,
+        credential: null,
+        expiry: null,
+        publicKey: null,
+      })),
     ).toMatchInlineSnapshot(`
       [
         {
           "canSign": false,
+          "credential": null,
           "expiry": null,
           "publicKey": null,
           "role": "admin",
