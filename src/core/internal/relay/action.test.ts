@@ -988,6 +988,70 @@ describe('send', () => {
       }),
     ).rejects.toThrowError('ExceededSpendLimit')
   })
+
+  test('error: contract error (insufficient erc20 balance)', async () => {
+    const { account } = await getAccount(client)
+
+    // delegate
+    {
+      const { hash } = await Action.send(client, {
+        account,
+        delegation,
+        calls: [],
+        gasToken: ExperimentERC20.address[0],
+      })
+      await waitForTransactionReceipt(client, { hash })
+    }
+
+    const alice = Hex.random(20)
+    const value = Value.fromEther('9999999999')
+
+    await expect(() =>
+      Action.send(client, {
+        account,
+        calls: [
+          {
+            to: ExperimentERC20.address[0],
+            abi: ExperimentERC20.abi,
+            functionName: 'transfer',
+            args: [alice, value],
+          },
+        ],
+        gasToken: ExperimentERC20.address[0],
+      }),
+    ).rejects.toThrowError('InsufficientBalance')
+  })
+
+  test('error: insufficient eth balance', async () => {
+    const { account } = await getAccount(client)
+
+    // delegate
+    {
+      const { hash } = await Action.send(client, {
+        account,
+        delegation,
+        calls: [],
+        gasToken: ExperimentERC20.address[0],
+      })
+      await waitForTransactionReceipt(client, { hash })
+    }
+
+    const alice = Hex.random(20)
+    const value = Value.fromEther('9999999999')
+
+    await expect(() =>
+      Action.send(client, {
+        account,
+        calls: [
+          {
+            to: alice,
+            value,
+          },
+        ],
+        gasToken: ExperimentERC20.address[0],
+      }),
+    ).rejects.toThrowError('CallError')
+  })
 })
 
 describe('prepare, sendPrepared', () => {
