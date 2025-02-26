@@ -30,6 +30,7 @@
       },
       "nursery": {
         "useSortedClasses": {
+          "fix": "unsafe",
           "level": "error",
           "options": {}
         }

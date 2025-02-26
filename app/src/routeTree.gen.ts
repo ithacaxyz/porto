@@ -11,11 +11,12 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as WithdrawImport } from './routes/withdraw'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as IndexImport } from './routes/index'
-import { Route as SettingsIndexImport } from './routes/settings.index'
-import { Route as SettingsPermissionsImport } from './routes/settings.permissions'
+import { Route as SettingsIndexImport } from './routes/settings/index'
+import { Route as SettingsPermissionsImport } from './routes/settings/permissions'
 import { Route as DialogDialogWalletsendCallsImport } from './routes/_dialog.dialog/wallet_sendCalls'
 import { Route as DialogDialogWalletconnectImport } from './routes/_dialog.dialog/wallet_connect'
 import { Route as DialogDialogPersonalsignImport } from './routes/_dialog.dialog/personal_sign'
@@ -26,6 +27,12 @@ import { Route as DialogDialogEthrequestAccountsImport } from './routes/_dialog.
 import { Route as DialogDialogSplatImport } from './routes/_dialog.dialog/$'
 
 // Create/Update Routes
+
+const WithdrawRoute = WithdrawImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const PlaygroundRoute = PlaygroundImport.update({
   id: '/playground',
@@ -134,6 +141,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaygroundImport
       parentRoute: typeof rootRoute
     }
+    '/withdraw': {
+      id: '/withdraw'
+      path: '/withdraw'
+      fullPath: '/withdraw'
+      preLoaderRoute: typeof WithdrawImport
+      parentRoute: typeof rootRoute
+    }
     '/settings/permissions': {
       id: '/settings/permissions'
       path: '/settings/permissions'
@@ -240,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof DialogRouteWithChildren
   '/playground': typeof PlaygroundRoute
+  '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
   '/settings': typeof SettingsIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
@@ -256,6 +271,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof DialogRouteWithChildren
   '/playground': typeof PlaygroundRoute
+  '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
   '/settings': typeof SettingsIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
@@ -273,6 +289,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_dialog': typeof DialogRouteWithChildren
   '/playground': typeof PlaygroundRoute
+  '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
   '/settings/': typeof SettingsIndexRoute
   '/_dialog/dialog/$': typeof DialogDialogSplatRoute
@@ -291,6 +308,7 @@ export interface FileRouteTypes {
     | '/'
     | ''
     | '/playground'
+    | '/withdraw'
     | '/settings/permissions'
     | '/settings'
     | '/dialog/$'
@@ -306,6 +324,7 @@ export interface FileRouteTypes {
     | '/'
     | ''
     | '/playground'
+    | '/withdraw'
     | '/settings/permissions'
     | '/settings'
     | '/dialog/$'
@@ -321,6 +340,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_dialog'
     | '/playground'
+    | '/withdraw'
     | '/settings/permissions'
     | '/settings/'
     | '/_dialog/dialog/$'
@@ -338,6 +358,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DialogRoute: typeof DialogRouteWithChildren
   PlaygroundRoute: typeof PlaygroundRoute
+  WithdrawRoute: typeof WithdrawRoute
   SettingsPermissionsRoute: typeof SettingsPermissionsRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
@@ -346,6 +367,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DialogRoute: DialogRouteWithChildren,
   PlaygroundRoute: PlaygroundRoute,
+  WithdrawRoute: WithdrawRoute,
   SettingsPermissionsRoute: SettingsPermissionsRoute,
   SettingsIndexRoute: SettingsIndexRoute,
 }
@@ -363,6 +385,7 @@ export const routeTree = rootRoute
         "/",
         "/_dialog",
         "/playground",
+        "/withdraw",
         "/settings/permissions",
         "/settings/"
       ]
@@ -386,11 +409,14 @@ export const routeTree = rootRoute
     "/playground": {
       "filePath": "playground.tsx"
     },
+    "/withdraw": {
+      "filePath": "withdraw.tsx"
+    },
     "/settings/permissions": {
-      "filePath": "settings.permissions.tsx"
+      "filePath": "settings/permissions.tsx"
     },
     "/settings/": {
-      "filePath": "settings.index.tsx"
+      "filePath": "settings/index.tsx"
     },
     "/_dialog/dialog/$": {
       "filePath": "_dialog.dialog/$.tsx",

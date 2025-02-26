@@ -5,18 +5,32 @@ import { Drawer } from 'vaul'
 import { useAccount } from 'wagmi'
 import BtcIcon from '~icons/cryptocurrency-color/btc'
 import EthIcon from '~icons/cryptocurrency-color/eth'
+import ChevronDownIcon from '~icons/lucide/chevron-down'
 import CoinsIcon from '~icons/lucide/coins'
 import HistoryIcon from '~icons/lucide/history'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
 import OpIcon from '~icons/simple-icons/optimism'
+import BaseIcon from '~icons/token-branded/base'
 
+import { Link } from '@tanstack/react-router'
 import { Layout } from '~/components/AppLayout'
-import { Button } from '~/components/Button'
+import { Button, ButtonWithRef } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
 import { QrCode } from '~/components/QrCode'
-import { StringFormatter, cn, sum } from '~/utils'
+import { PercentFormatter, StringFormatter, cn, sum } from '~/utils'
+
+/**
+ * This is temporary. Eventual goal is to switch to using an API to fetch web3 icons
+ * e.g., https://api.ithaca.xyz/icons/:chain/:{address|coingecko-id}
+ */
+const TokenIcon = {
+  Eth: (props: React.SVGProps<SVGSVGElement>) => <EthIcon {...props} />,
+  Op: (props: React.SVGProps<SVGSVGElement>) => <OpIcon {...props} />,
+  Base: (props: React.SVGProps<SVGSVGElement>) => <BaseIcon {...props} />,
+  Btc: (props: React.SVGProps<SVGSVGElement>) => <BtcIcon {...props} />,
+}
 
 const assets = [
   {
@@ -30,20 +44,20 @@ const assets = [
       value: 13350.41,
       native: 3.354,
     },
-    icon: <EthIcon className="size-8" />,
+    icon: <TokenIcon.Eth className="size-8" />,
   },
   {
     name: 'Wrapped Bitcoin',
     symbol: 'wBTC',
     price: {
       value: 99999,
-      change: 4.2,
+      change: -4.2,
     },
     balance: {
       value: 1249494.3,
       native: 12.494943,
     },
-    icon: <BtcIcon className="size-8" />,
+    icon: <TokenIcon.Btc className="size-8" />,
   },
   {
     name: 'Optimism',
@@ -56,7 +70,7 @@ const assets = [
       value: 1970.44,
       native: 1970.44,
     },
-    icon: <OpIcon className="size-8 text-red-500" />,
+    icon: <TokenIcon.Op className="size-8 text-red-500" />,
   },
 ]
 
@@ -88,7 +102,7 @@ export function Dashboard() {
           <p className="font-semibold text-xl">
             ${sum(assets.map((asset) => asset.balance.value)).toLocaleString()}
           </p>
-          <p className="my-auto text-secondary text-sm">
+          <p className="my-auto text-primary text-sm">
             {sum(assets.map((asset) => asset.balance.native)).toLocaleString()}
             <Pill className="ml-1.5">{assets[0]?.symbol}</Pill>
           </p>
@@ -96,12 +110,12 @@ export function Dashboard() {
         <div className="flex items-center gap-2">
           <Drawer.Root>
             <Drawer.Trigger asChild>
-              <Button variant="invert">Deposit</Button>
+              <ButtonWithRef variant="invert">Deposit</ButtonWithRef>
             </Drawer.Trigger>
             <Drawer.Portal>
-              <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-              <Drawer.Content className="fixed right-0 bottom-0 left-0 mx-auto h-fit w-full rounded-t-3xl bg-gray-100 outline-none sm:w-[400px]">
-                <div className="rounded-t-3xl bg-white px-6 py-4">
+              <Drawer.Overlay className="fixed inset-0 bg-black/30" />
+              <Drawer.Content className="fixed right-0 bottom-0 left-0 mx-auto h-fit w-full rounded-t-3xl bg-gray-50 px-3 outline-none sm:w-[400px]">
+                <div className="rounded-t-3xl bg-gray-50 px-6 py-4">
                   <Drawer.Title className="mb-2 font-medium text-2xl">
                     Deposit
                   </Drawer.Title>
@@ -114,7 +128,7 @@ export function Dashboard() {
                   <div className="mx-auto w-full">
                     <QrCode key={address} contents={address} />
                   </div>
-                  <div className="-mt-5 relative flex items-center justify-center gap-x-4">
+                  <div className="relative flex items-center justify-around gap-x-4">
                     <p className="my-auto text-xl tracking-wider">
                       {StringFormatter.truncate(address ?? '', {
                         start: 8,
@@ -136,17 +150,19 @@ export function Dashboard() {
                       Copy
                     </Button>
                   </div>
-                  {/* <Ariakit.Separator className="mt-4 py-4" /> */}
                 </div>
               </Drawer.Content>
             </Drawer.Portal>
           </Drawer.Root>
-          <Button variant="default" className="bg-gray6!">
-            Withdraw
-          </Button>
+          <Link
+            to="/withdraw"
+            className="h-10 rounded-default bg-gray6 px-3.5 hover:bg-gray5"
+          >
+            <p className="mt-2 h-full font-medium">Withdraw</p>
+          </Link>
         </div>
       </section>
-      <section className="items-center gap-2 pr-1 pl-1.5">
+      <section className="mt-1 items-center gap-2 pr-1 pl-1.5">
         <Ariakit.TabProvider defaultSelectedId="assets">
           <Ariakit.TabList
             aria-label="tabs"
@@ -179,9 +195,9 @@ export function Dashboard() {
               )}
             />
           </Ariakit.TabList>
-          <div className="mt-3">
+          <div className="mt-5">
             <Ariakit.TabPanel tabId="assets">
-              <table className="md:table-none w-full table-fixed">
+              <table className="md:table-none w-full ">
                 <thead className="">
                   <tr className="*:font-light *:text-secondary *:text-sm">
                     <th className="text-left">Name</th>
@@ -190,12 +206,12 @@ export function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="w-full">
-                  {filteredAssets.map((asset, _index) => (
+                  {filteredAssets.map((asset, index) => (
                     <tr
                       key={asset.name}
                       className={cn(
                         'border-gray-400/50 border-b *:px-1',
-                        _index === filteredAssets.length - 1 && 'border-b-0',
+                        index === filteredAssets.length - 1 && 'border-b-0',
                       )}
                     >
                       <td className="text-left">
@@ -207,6 +223,18 @@ export function Dashboard() {
                               {asset.symbol}
                             </span>
                           </div>
+                          {index === 0 && (
+                            <Ariakit.MenuProvider>
+                              <Ariakit.MenuButton className="mb-auto flex gap-x-0.5 rounded-2xl bg-gray4 py-1.5 pr-1 pl-1.5">
+                                <TokenIcon.Op className="-mr-2 text-gray10" />
+                                <TokenIcon.Eth className="text-gray10" />
+                                <ChevronDownIcon className="size-5 text-gray10" />
+                              </Ariakit.MenuButton>
+                              <Ariakit.Menu>
+                                <Ariakit.MenuItem>WIP</Ariakit.MenuItem>
+                              </Ariakit.Menu>
+                            </Ariakit.MenuProvider>
+                          )}
                         </div>
                       </td>
                       <td className="text-right">
@@ -219,9 +247,13 @@ export function Dashboard() {
                               'text-sm tracking-wider',
                               asset.price.change > 0 && 'text-emerald-500',
                               asset.price.change < 0 && 'text-red-500',
+                              !asset.price.change && 'text-secondary',
                             )}
                           >
-                            ↑{asset.price.change}%
+                            {asset.price.change > 0 ? '↑' : '↓'}
+                            {PercentFormatter.format(asset.price.change)
+                              .toString()
+                              .replaceAll('-', '')}
                           </span>
                         </div>
                       </td>
