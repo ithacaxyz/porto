@@ -1,5 +1,5 @@
 import * as Ariakit from '@ariakit/react'
-import { Link, useRouter } from '@tanstack/react-router'
+import { Link, Navigate, useLocation } from '@tanstack/react-router'
 import { Hooks } from 'porto/wagmi'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
@@ -15,21 +15,34 @@ export function Header() {
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
 
-  const router = useRouter()
-  const currentPath = router.latestLocation.pathname
+  const location = useLocation()
+
+  const currentFullPath = location.pathname
+  const currentPathSegment = currentFullPath.split('/').pop()
+
+  if (account.isDisconnected) return <Navigate to="/" />
 
   return (
     <header className="mt-3 flex items-center justify-between px-2">
-      {currentPath === '/' ? (
+      {currentFullPath === '/' ? (
         <Link to="/" className="font-medium text-2xl">
           Porto
         </Link>
       ) : (
         <>
-          <Link to="/" className="mr-3">
+          <Link
+            to={
+              currentFullPath.split('/').length > 2
+                ? currentFullPath.split('/').slice(0, -1).join('/')
+                : '/'
+            }
+            className="mr-3"
+          >
             <ChevronLeftIcon className="mt-0.5 size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
           </Link>
-          <span className="mr-auto font-medium text-2xl">Settings</span>
+          <span className="mr-auto font-medium text-2xl capitalize">
+            {currentPathSegment}
+          </span>
         </>
       )}
       <div className="flex flex-row items-center gap-x-2">
@@ -69,7 +82,7 @@ export function Header() {
                   to="/settings"
                   className={cn(
                     'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2',
-                    currentPath === '/settings' && 'bg-gray2',
+                    currentFullPath === '/settings' && 'bg-gray2',
                   )}
                 >
                   Settings
@@ -79,7 +92,7 @@ export function Header() {
             />
             <Ariakit.MenuSeparator className="my-1 text-secondary/60" />
             <Ariakit.MenuItem
-              className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
+              className="flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
               onClick={() => disconnect.mutate({})}
             >
               Disconnect

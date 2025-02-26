@@ -1,29 +1,39 @@
 import * as Ariakit from '@ariakit/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
+import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
+import { toast } from 'sonner'
+import { useAccount } from 'wagmi'
 import PermissionIcon from '~icons/arcticons/permissionsmanager'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import LockIcon from '~icons/lucide/lock'
 import SettingsIcon from '~icons/lucide/settings'
 import WarningIcon from '~icons/ph/warning-octagon'
 
-import { toast } from 'sonner'
-import { useAccount } from 'wagmi'
+import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
-import { Layout } from '~/components/Layout'
 import { Pill } from '~/components/Pill'
+import { porto } from '~/lib/Porto'
 import { cn } from '~/utils'
 
 export const Route = createFileRoute('/settings/')({
   component: RouteComponent,
+  head: (_context) => ({
+    meta: [
+      { name: 'title', content: 'Settings' },
+      { name: 'description', content: 'Manage your wallet settings' },
+    ],
+  }),
 })
 
 const emojis = ['🌀', '🚀', '🌟', '🌈', '🌸']
 
 function RouteComponent() {
   const account = useAccount()
+
+  const permissions = Hooks.usePermissions()
 
   const [userEmoji, setUserEmoji] = React.useState(
     localStorage.getItem('_porto_emoji') ?? emojis[0],
@@ -132,7 +142,7 @@ function RouteComponent() {
             <div className="flex items-center gap-x-2">
               <p className="text-lg">Spending</p>
               <Pill className="rounded-2xl bg-gray4 px-2 font-medium">
-                13 apps
+                {permissions.data?.length ?? 0} apps
               </Pill>
             </div>
             <p className="text-secondary dark:text-gray-200">

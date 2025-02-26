@@ -31,13 +31,13 @@ porto.ready()
 
 const rootElement = document.querySelector('div#root')
 
-if (rootElement) {
-  createRoot(rootElement).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-}
+if (!rootElement) throw new Error('Root element not found')
+
+createRoot(rootElement).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
 
 if (import.meta.hot)
   import.meta.hot.on('vite:beforeUpdate', () => {

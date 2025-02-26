@@ -6,10 +6,6 @@ html,
   background-color: var(--background-color-primary);
 }
 
-.dark svg {
-  filter: invert(100%);
-}
-
 /* https://github.com/radix-ui/colors */
 /* biome-ignore format: <explanation> */
 @theme {

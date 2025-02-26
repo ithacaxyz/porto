@@ -133,7 +133,14 @@ importers:
         version: 5.67.1(@tanstack/react-query@5.67.1(react@19.0.0))(react@19.0.0)
       '@tanstack/react-router':
         specifier: ^1.111.7
+<<<<<<< HEAD
         version: 1.112.16(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+=======
+        version: 1.111.7(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@wagmi/core':
+        specifier: 'catalog:'
+        version: 2.16.3(@tanstack/query-core@5.66.4)(@types/react@19.0.8)(react@19.0.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+>>>>>>> a376efe (chore: wip permissions page)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

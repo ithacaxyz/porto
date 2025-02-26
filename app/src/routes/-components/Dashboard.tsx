@@ -8,9 +8,10 @@ import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
 import OpIcon from '~icons/simple-icons/optimism'
 
+import { Hooks } from 'porto/wagmi'
+import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
-import { Layout } from '~/components/Layout'
 import { Pill } from '~/components/Pill'
 import { cn, sum } from '~/utils'
 
@@ -73,6 +74,9 @@ export function Dashboard() {
       ),
     )
   }, [search])
+
+  const permissions = Hooks.usePermissions()
+  console.info(permissions)
 
   return (
     <Layout>
