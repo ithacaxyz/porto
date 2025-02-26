@@ -23,7 +23,7 @@ export function Header() {
   if (account.isDisconnected) return <Navigate to="/" />
 
   return (
-    <header className="mt-3 flex items-center justify-between px-2">
+    <header className="mt-5 mb-2 flex items-center justify-between px-2">
       {currentFullPath === '/' ? (
         <Link to="/" className="font-medium text-2xl">
           Porto

@@ -6,6 +6,14 @@ html,
   background-color: var(--background-color-primary);
 }
 
+/* hide ugly arrows for number inputs */
+@layer utilities {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    @apply appearance-none;
+  }
+}
+
 /* https://github.com/radix-ui/colors */
 /* biome-ignore format: <explanation> */
 @theme {
