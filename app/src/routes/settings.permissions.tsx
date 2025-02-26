@@ -15,7 +15,6 @@ export const Route = createFileRoute('/settings/permissions')({
 })
 
 function RouteComponent() {
-
   const permissions = Hooks.usePermissions()
   console.info('permissions', permissions)
 
