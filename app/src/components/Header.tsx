@@ -23,7 +23,7 @@ export function Header() {
   if (account.isDisconnected) return <Navigate to="/" />
 
   return (
-    <header className="mt-5 mb-2 flex items-center justify-between px-2">
+    <header className="mt-5 mb-2 flex items-center justify-between px-2 tabular-nums">
       {currentFullPath === '/' ? (
         <Link to="/" className="font-medium text-2xl">
           Porto
@@ -51,7 +51,7 @@ export function Header() {
         </span>
         <Ariakit.MenuProvider>
           <Ariakit.MenuButton className="flex items-center gap-x-2">
-            <p className="mr-1 font-semibold text-gray-800 text-lg dark:text-gray-100">
+            <p className="mr-1 font-semibold text-lg text-primary">
               {StringFormatter.truncate(account?.address ?? '', {
                 start: 6,
                 end: 4,
@@ -61,7 +61,10 @@ export function Header() {
           </Ariakit.MenuButton>
           <Ariakit.Menu
             gutter={8}
-            className={cn('w-full rounded-sm bg-gray6 p-1', '*:tracking-wide')}
+            className={cn(
+              'w-full rounded-sm border border-gray6 bg-gray4 p-1 shadow-lg',
+              '*:tracking-wide',
+            )}
           >
             <Ariakit.MenuItem
               className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
