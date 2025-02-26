@@ -5,21 +5,21 @@ import { useConnectors } from 'wagmi'
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { IthacaMark } from '~/components/IthacaMark'
+import { config } from '~/lib/Wagmi'
 
 export function Landing() {
   const [signUp, setSignUp] = useState(false)
-  const connect = Hooks.useConnect()
-  const [connector] = useConnectors()
+  const connect = Hooks.useConnect({ config })
+  const [connector] = useConnectors({ config })
 
   return (
-    <div className="mx-auto flex h-screen w-full max-w-[768px] flex-col">
-      <div className="flex h-[100px] items-center px-4">
-        <nav className="flex gap-6 font-medium text-gray11">
-          <a href="https://ithaca.xyz">Home ↗</a>
-          <a href="https://ithaca.xyz/contact">Careers ↗</a>
-        </nav>
-      </div>
-      <div className="max-w-[300px] flex-grow content-end space-y-6 px-4 pb-[30dvh]">
+    <div className="mx-auto flex h-screen w-full max-w-[768px] flex-col p-6">
+      <nav className="flex gap-6 pt-5 font-medium text-gray11">
+        <a href="https://ithaca.xyz">Home ↗</a>
+        <a href="https://ithaca.xyz/contact">Careers ↗</a>
+      </nav>
+
+      <div className="w-full flex-grow content-end space-y-6 px-4 pb-10 sm:max-w-[350px] sm:justify-center sm:pb-[30dvh]">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <img src="/icons/wallet.svg" alt="Porto" className="size-9" />
@@ -76,15 +76,19 @@ export function Landing() {
                 </Button>
               </div>
               <Button asChild className="w-full">
-                <a href="https://ithaca.xyz/updates/introducing-ithaca">
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://ithaca.xyz/updates/introducing-ithaca"
+                >
                   Learn more
                 </a>
               </Button>
               <a
+                target="_blank"
+                rel="noreferrer"
                 className="mx-1 text-secondary"
                 href="https://ithaca.xyz/recover"
-                rel="noreferrer"
-                target="_blank"
               >
                 Recover my account →
               </a>
@@ -92,7 +96,7 @@ export function Landing() {
           )}
         </div>
       </div>
-      <div className="fixed top-[10dvh] right-0 h-[80dvh] max-[768px]:hidden max-[1024px]:h-[70dvh]">
+      <div className="-z-50 fixed top-[10dvh] right-0 h-[80dvh] max-[568px]:hidden max-[1024px]:h-[70dvh]">
         <IthacaMark />
       </div>
     </div>
