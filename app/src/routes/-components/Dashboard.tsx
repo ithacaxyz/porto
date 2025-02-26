@@ -1,5 +1,9 @@
 import * as Ariakit from '@ariakit/react'
+import { defineCustomElements } from '@bitjson/qr-code'
 import * as React from 'react'
+import { toast } from 'sonner'
+import { Drawer } from 'vaul'
+import { useAccount } from 'wagmi'
 import BtcIcon from '~icons/cryptocurrency-color/btc'
 import EthIcon from '~icons/cryptocurrency-color/eth'
 import CoinsIcon from '~icons/lucide/coins'
@@ -8,12 +12,11 @@ import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
 import OpIcon from '~icons/simple-icons/optimism'
 
-import { Hooks } from 'porto/wagmi'
 import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
-import { cn, sum } from '~/utils'
+import { StringFormatter, cn, sum } from '~/utils'
 
 const assets = [
   {
@@ -58,6 +61,8 @@ const assets = [
 ]
 
 export function Dashboard() {
+  const { address } = useAccount()
+
   const formStore = Ariakit.useFormStore({
     defaultValues: {
       email: '',
@@ -75,8 +80,9 @@ export function Dashboard() {
     )
   }, [search])
 
-  const permissions = Hooks.usePermissions()
-  console.info(permissions)
+  React.useEffect(() => {
+    defineCustomElements(window)
+  }, [])
 
   return (
     <Layout>
@@ -92,7 +98,67 @@ export function Dashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="invert">Deposit</Button>
+          <Drawer.Root>
+            <Drawer.Trigger asChild>
+              <Button variant="invert">Deposit</Button>
+            </Drawer.Trigger>
+            <Drawer.Portal>
+              <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+              <Drawer.Content className="fixed right-0 bottom-0 left-0 mx-auto h-fit w-full rounded-t-3xl bg-gray-100 outline-none sm:w-[400px]">
+                <div className="rounded-t-3xl bg-white px-6 py-4">
+                  <Drawer.Title className="mb-2 font-medium text-2xl">
+                    Deposit
+                  </Drawer.Title>
+                  <Drawer.Close className="absolute top-5 right-5">
+                    <XIcon className="size-6 text-secondary" />
+                  </Drawer.Close>
+                  <Drawer.Description className="text-lg text-secondary">
+                    Fund your Ithaca wallet with crypto.
+                  </Drawer.Description>
+                  <div className="mx-auto w-full">
+                    {/* @ts-expect-error because it's a web component */}
+                    <qr-code
+                      key={address}
+                      squares={false}
+                      contents={address}
+                      module-color="#000"
+                      position-ring-color="#000"
+                      position-center-color="#000"
+                    >
+                      <img
+                        src="/icons/ithaca-light.svg"
+                        alt="icon"
+                        slot="icon"
+                      />
+                    </qr-code>
+                  </div>
+                  <div className="-mt-5 relative flex items-center justify-center gap-x-4">
+                    <p className="my-auto text-xl tracking-wider">
+                      {StringFormatter.truncate(address ?? '', {
+                        start: 8,
+                        end: 6,
+                      })}
+                    </p>
+                    <Button
+                      variant="default"
+                      className="h-10!"
+                      onClick={() =>
+                        navigator.clipboard
+                          .writeText(address ?? '')
+                          .then(() =>
+                            toast.success('Address copied to clipboard'),
+                          )
+                          .catch(() => toast.error('Failed to copy address'))
+                      }
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                  {/* <Ariakit.Separator className="mt-4 py-4" /> */}
+                </div>
+              </Drawer.Content>
+            </Drawer.Portal>
+          </Drawer.Root>
           <Button variant="default" className="bg-gray6!">
             Withdraw
           </Button>
