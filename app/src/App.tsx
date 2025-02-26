@@ -15,7 +15,15 @@ export function App() {
         persistOptions={{ persister: Query.persister }}
       >
         <RouterProvider router={Router.router} />
-        <Toaster />
+        <Toaster
+          expand={true}
+          theme="system"
+          duration={3000}
+          richColors={true}
+          position="bottom-right"
+          className="z-[42069] select-none"
+          swipeDirections={['right', 'left', 'top', 'bottom']}
+        />
       </PersistQueryClientProvider>
     </WagmiProvider>
   )
