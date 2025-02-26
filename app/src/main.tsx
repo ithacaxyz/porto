@@ -63,8 +63,19 @@ if (import.meta.env.DEV) {
     }
 
     // ⌥ + 2: toggle dialog mode
-    if (event.altKey && event.code === 'Digit2')
+    if (event.altKey && event.code === 'Digit2') {
       document.documentElement.toggleAttribute('data-dialog')
+    }
+
+    // ⌥ + h: hide dev tools
+    if (event.altKey && event.code === 'KeyH') {
+      const devToolsElement = document.querySelector(
+        'button[aria-label="Open TanStack Router Devtools"]',
+      )
+      if (!devToolsElement) return
+
+      devToolsElement.hidden = !devToolsElement.hidden
+    }
   })
 }
 
