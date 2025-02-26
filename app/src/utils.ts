@@ -31,3 +31,16 @@ export namespace ValueFormatter {
     )
   }
 }
+
+export namespace PercentFormatter {
+  const numberIntl = new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  })
+
+  export function format(num: number | undefined) {
+    if (!num) return '0%'
+    return numberIntl.format(Number(num / 100))
+  }
+}

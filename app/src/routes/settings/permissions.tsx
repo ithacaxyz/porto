@@ -10,6 +10,7 @@ import UniswapIcon from '~icons/token/uniswap'
 import { Layout } from '~/components/AppLayout'
 import { Header } from '~/components/Header'
 import { cn } from '~/utils'
+
 export const Route = createFileRoute('/settings/permissions')({
   component: RouteComponent,
   head: (_context) => ({
@@ -86,7 +87,7 @@ function RouteComponent() {
               </Ariakit.MenuButton>
               <Ariakit.Menu
                 gutter={5}
-                className="space-y-1 rounded-sm bg-gray4 p-1"
+                className="space-y-1 rounded-sm border border-gray6 bg-gray4 p-1 shadow-lg"
               >
                 {['minute', 'hour', 'day', 'week', 'month', 'year'].map(
                   (unit) => (
@@ -133,13 +134,8 @@ function RouteComponent() {
                   permission.
                 </Drawer.Description>
                 <div className="mt-4 flex justify-around gap-x-2">
-                  <Drawer.Close>
-                    <button
-                      type="button"
-                      className="rounded-3xl bg-gray4 px-6 py-2 font-medium text-gray12 text-xl hover:bg-gray5"
-                    >
-                      Cancel
-                    </button>
+                  <Drawer.Close className="rounded-3xl bg-gray4 px-6 py-2 font-medium text-gray12 text-xl hover:bg-gray5">
+                    Cancel
                   </Drawer.Close>
                   <button
                     type="button"
