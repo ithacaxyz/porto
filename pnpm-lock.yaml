@@ -131,6 +131,9 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.111.7
         version: 1.111.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wagmi/core':
+        specifier: 'catalog:'
+        version: 2.16.3(@tanstack/query-core@5.66.4)(@types/react@18.3.18)(react@18.3.1)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
