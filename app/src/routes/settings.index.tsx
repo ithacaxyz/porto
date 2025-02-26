@@ -113,9 +113,8 @@ function RouteComponent() {
                 onClick={(_event) => {
                   if (!navigator.canShare) return
                   navigator.share({
-                    title: 'Porto',
-                    url: window.location.href,
-                    text: 'Share your wallet address',
+                    text: account?.address,
+                    title: "Here's my Porto address:",
                   })
                 }}
               >
@@ -150,7 +149,7 @@ function RouteComponent() {
           </div>
           <Link
             to="/settings/permissions"
-            className="h-10 rounded-default bg-gray4 px-3.5"
+            className="h-10 rounded-default bg-gray4 px-3.5 hover:bg-gray3"
           >
             <p className="mt-2 h-full font-medium">Manage</p>
           </Link>
@@ -181,7 +180,7 @@ function RouteComponent() {
           </div>
           <Link
             to="/settings/permissions"
-            className="h-10 rounded-default bg-gray4 px-3.5"
+            className="h-10 rounded-default bg-gray4 px-3.5 hover:bg-gray3"
           >
             <p className="mt-2 h-full font-medium">Manage</p>
           </Link>
@@ -192,7 +191,7 @@ function RouteComponent() {
               <p className="text-lg">Export wallet</p>
             </div>
             <p className="text-secondary dark:text-gray-200">
-              These are used to restore access to your wallet.
+              Use your wallet in another application.
             </p>
           </div>
           <Button

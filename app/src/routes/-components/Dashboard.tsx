@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { defineCustomElements } from '@bitjson/qr-code'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { Drawer } from 'vaul'
@@ -16,6 +15,7 @@ import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
+import { QrCode } from '~/components/QrCode'
 import { StringFormatter, cn, sum } from '~/utils'
 
 const assets = [
@@ -80,10 +80,6 @@ export function Dashboard() {
     )
   }, [search])
 
-  React.useEffect(() => {
-    defineCustomElements(window)
-  }, [])
-
   return (
     <Layout>
       <Header />
@@ -116,21 +112,7 @@ export function Dashboard() {
                     Fund your Ithaca wallet with crypto.
                   </Drawer.Description>
                   <div className="mx-auto w-full">
-                    {/* @ts-expect-error because it's a web component */}
-                    <qr-code
-                      key={address}
-                      squares={false}
-                      contents={address}
-                      module-color="#000"
-                      position-ring-color="#000"
-                      position-center-color="#000"
-                    >
-                      <img
-                        src="/icons/ithaca-light.svg"
-                        alt="icon"
-                        slot="icon"
-                      />
-                    </qr-code>
+                    <QrCode key={address} contents={address} />
                   </div>
                   <div className="-mt-5 relative flex items-center justify-center gap-x-4">
                     <p className="my-auto text-xl tracking-wider">
@@ -311,7 +293,7 @@ export function Dashboard() {
           />
           <Ariakit.FormSubmit className="rounded-full bg-gray-300 p-2">
             <span className="sr-only">Send</span>
-            <SendHorizontalIcon className=" text-gray-500" />
+            <SendHorizontalIcon className=" text-gray-500 hover:text-accent" />
           </Ariakit.FormSubmit>
         </Ariakit.Form>
         <div className="flex flex-row justify-between px-4">
