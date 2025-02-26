@@ -15,7 +15,6 @@ import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
-import { porto } from '~/lib/Porto'
 import { cn } from '~/utils'
 
 export const Route = createFileRoute('/settings/')({

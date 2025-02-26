@@ -183,3 +183,58 @@ html,
 
   --radius-default: 8px;
 }
+
+.backdrop {
+  background-color: rgb(0 0 0 / 0.1);
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+}
+
+.backdrop:where(.dark, .dark *) {
+  background-color: rgb(0 0 0 / 0.3);
+}
+
+.dialog {
+  position: fixed;
+  inset: var(--inset);
+  z-index: 50;
+  margin: auto;
+  display: flex;
+  height: fit-content;
+  max-height: calc(100dvh - var(--inset) * 2);
+  flex-direction: column;
+  gap: 1rem;
+  overflow: auto;
+  border-radius: 0.75rem;
+  background-color: white;
+  padding: 1rem;
+  color: black;
+  --inset: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .dialog {
+    top: 10vh;
+    bottom: 10vh;
+    margin-top: 0px;
+    max-height: 80vh;
+    width: 420px;
+    border-radius: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+.dialog:where(.dark, .dark *) {
+  border-width: 1px;
+  border-style: solid;
+  border-color: hsl(204 4% 24%);
+  background-color: hsl(204 4% 16%);
+  color: white;
+}
+
+.heading {
+  margin: 0px;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+}
