@@ -9,8 +9,7 @@ import OctagonAlertIcon from '~icons/lucide/octagon-alert'
 import { Layout } from '~/components/AppLayout'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
-import { TokenIcon, assets } from '~/lib/fake'
-import { StringFormatter, cn, sum } from '~/utils'
+import { StringFormatter, cn } from '~/utils'
 
 export const Route = createFileRoute('/withdraw')({
   component: RouteComponent,
@@ -35,10 +34,10 @@ function RouteComponent() {
   const [isRecipientFocused, setIsRecipientFocused] = React.useState(false)
   const validRecipient = Address.validate(form.getValue(form.names.recipient))
 
-  const totalBalance = React.useMemo(
-    () => sum(assets.map((asset) => asset.balance.value)),
-    [],
-  )
+  // const totalBalance = React.useMemo(
+  //   () => sum(assets.map((asset) => asset.balance.value)),
+  //   [],
+  // )
 
   return (
     <Layout>
@@ -151,7 +150,7 @@ function RouteComponent() {
                 const error = form.getError(form.names.amount)
                 if (!error) return null
                 const value = Number(form.getValue(form.names.amount) ?? 0)
-                const [min, max] = [0, 3_002.41]
+                const [_min, max] = [0, 3_002.41]
 
                 const message =
                   value > max ? (
