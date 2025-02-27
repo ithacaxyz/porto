@@ -9,7 +9,7 @@ import PermissionIcon from '~icons/arcticons/permissionsmanager'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import LockIcon from '~icons/lucide/lock'
 import SettingsIcon from '~icons/lucide/settings'
-import WarningIcon from '~icons/ph/warning-octagon'
+// import WarningIcon from '~icons/ph/warning-octagon'
 
 import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
@@ -55,9 +55,7 @@ function RouteComponent() {
         <div className="flex items-center gap-x-3 pt-1">
           <div>
             <p className="text-lg">Emoji</p>
-            <p className="text-secondary dark:text-gray-200">
-              A visual motif for your wallet.
-            </p>
+            <p className="text-secondary ">A visual motif for your wallet.</p>
           </div>
           <Ariakit.MenuProvider>
             <Ariakit.MenuButton className="ml-auto flex items-center gap-x-3 rounded-3xl border-2 border-gray-300/60 px-1 py-0.5">
@@ -88,11 +86,11 @@ function RouteComponent() {
         </div>
         <div className="mt-5 flex w-full flex-col gap-x-3 pt-1">
           <p className="text-lg">Wallet address</p>
-          <p className="text-secondary dark:text-gray-200">
+          <p className="text-secondary ">
             This is where you will receive funds.
           </p>
           <div className="mt-2 flex w-full flex-row items-center justify-between gap-x-2">
-            <p className="mr-2 w-full overflow-auto rounded-default border border-gray6 px-3.5 py-1 text-secondary tracking-normal md:tracking-wide dark:border-gray-500 dark:text-gray-200">
+            <p className="mr-2 w-full overflow-auto rounded-default border border-gray6 px-3.5 py-1 text-secondary tracking-normal md:tracking-wide ">
               {account?.address}
             </p>
             <Button
@@ -143,7 +141,7 @@ function RouteComponent() {
                 {permissions.data?.length ?? 0} apps
               </Pill>
             </div>
-            <p className="text-secondary dark:text-gray-200">
+            <p className="text-secondary ">
               Manage spend permissions you have granted.
             </p>
           </div>
@@ -174,7 +172,7 @@ function RouteComponent() {
                 3 added
               </Pill>
             </div>
-            <p className="text-secondary dark:text-gray-200">
+            <p className="text-secondary ">
               These are used to restore access to your wallet.
             </p>
           </div>
@@ -190,7 +188,7 @@ function RouteComponent() {
             <div className="flex items-center gap-x-2">
               <p className="text-lg">Export wallet</p>
             </div>
-            <p className="text-secondary dark:text-gray-200">
+            <p className="text-secondary ">
               Use your wallet in another application.
             </p>
           </div>
@@ -203,10 +201,16 @@ function RouteComponent() {
         </div>
         <div className="mx-2 mt-5 flex flex-col items-center justify-center gap-x-2 rounded-3xl bg-red3 px-2 py-1.5 sm:flex-row sm:px-6 sm:py-2">
           <p className="flex gap-x-1 font-semibold text-red9">
-            <WarningIcon className="size-6 text-red11" />
+            {/* <WarningIcon className="size-6 text-[#ff9592] " /> */}
+            <img
+              src="/icons/warning.svg"
+              className="size-6"
+              alt="Warning"
+              aria-label="Warning"
+            />
             Be careful!
           </p>
-          <p className="text-secondary dark:text-gray-200">
+          <p className="text-secondary ">
             This phrase will grant access to all your funds.
           </p>
         </div>
