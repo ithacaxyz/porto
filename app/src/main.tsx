@@ -29,38 +29,69 @@ const offRequests = Events.onRequests(porto, (requests) => {
 
 porto.ready()
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.querySelector('div#root')
+
+if (!rootElement) throw new Error('Root element not found')
+
+createRoot(rootElement).render(
   <StrictMode>
     <App />
   </StrictMode>,
 )
 
-if (import.meta.hot)
+if (import.meta.hot && import.meta.env.VITE_LAUNCH_MODE !== 'app')
   import.meta.hot.on('vite:beforeUpdate', () => {
     offInitialized()
     offRequests()
   })
 
-if (import.meta.env.DEV) {
-  let theme = 'system'
+if (
+  import.meta.env.DEV ||
+  import.meta.env.VERCEL_ENV === 'preview' ||
+  import.meta.env.VERCEL_ENV === 'development'
+) {
   document.addEventListener('keydown', (event) => {
     // ⌥ + 1: light/dark mode
     if (event.altKey && event.code === 'Digit1') {
-      if (theme === 'system') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        theme = isDark ? 'dark' : 'light'
-      } else theme = theme === 'dark' ? 'light' : 'dark'
+      if (document.documentElement.classList.contains('scheme-light')) {
+        document.documentElement.classList.replace(
+          'scheme-light',
+          'scheme-light-dark',
+        )
+      } else if (document.documentElement.classList.contains('scheme-dark')) {
+        document.documentElement.classList.replace(
+          'scheme-dark',
+          'scheme-light',
+        )
+      } else {
+        let themePreference = window.matchMedia('(prefers-color-scheme: dark)')
+          .matches
+          ? 'dark'
+          : 'light'
+        themePreference = themePreference === 'dark' ? 'light' : 'dark'
 
-      document.documentElement.classList.remove('scheme-light-dark')
-      document.documentElement.classList.remove('scheme-light')
-      if (theme === 'dark')
+        document.documentElement.classList.remove(
+          'scheme-light',
+          'scheme-light-dark',
+        )
         document.documentElement.classList.add('scheme-light')
-      else document.documentElement.classList.add('scheme-light-dark')
+      }
     }
 
     // ⌥ + 2: toggle dialog mode
-    if (event.altKey && event.code === 'Digit2')
+    if (event.altKey && event.code === 'Digit2') {
       document.documentElement.toggleAttribute('data-dialog')
+    }
+
+    // ⌥ + h: hide dev tools
+    if (event.altKey && event.code === 'KeyH') {
+      const devToolsElement = document.querySelector(
+        'button[aria-label="Open TanStack Router Devtools"]',
+      )
+      if (!devToolsElement) return
+
+      devToolsElement.hidden = !devToolsElement.hidden
+    }
   })
 }
 

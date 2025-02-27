@@ -23,7 +23,32 @@
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
   },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  },
   "files.associations": {
-    ".env.example": "dotenv"
+    ".env.example": "dotenv",
+    ".dev.vars": "dotenv",
+    ".dev.vars.example": "dotenv",
+    "*.css": "tailwindcss",
+    "biome.json": "jsonc",
+    ".vscode/*.json": "jsonc"
+  },
+  "files.exclude": {
+    "**/*.tsbuildinfo": true
+  },
+  "search.exclude": {
+    "**/dist/**": true,
+    "pnpm-lock.yaml": true,
+    "**/routeTree.gen.ts": true
+  },
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
   }
 }

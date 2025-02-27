@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
+import { Json } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 
 import { Button } from '~/components/Button'
@@ -33,7 +34,7 @@ export function NotFound() {
 
       <Layout.Content>
         <pre className="max-h-[400px] overflow-scroll rounded-lg border border-primary bg-surface p-3 text-[14px] text-primary leading-[22px]">
-          {JSON.stringify(request?.request ?? {}, null, 2)}
+          {Json.stringify(request?.request ?? {}, null, 2)}
         </pre>
       </Layout.Content>
 
