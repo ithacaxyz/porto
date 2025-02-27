@@ -80,8 +80,9 @@ export function Header() {
             </Ariakit.MenuItem>
             <Ariakit.MenuSeparator className="my-1 text-secondary/60" />
             <Ariakit.MenuItem
-              render={
+              render={(props) => (
                 <Link
+                  {...props}
                   to="/settings"
                   className={cn(
                     'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2',
@@ -91,7 +92,7 @@ export function Header() {
                   Settings
                   <SettingsIcon className="ml-3 size-4" />
                 </Link>
-              }
+              )}
             />
             <Ariakit.MenuSeparator className="my-1 text-secondary/60" />
             <Ariakit.MenuItem
