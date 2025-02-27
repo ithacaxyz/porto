@@ -3,15 +3,11 @@ import * as React from 'react'
 import { toast } from 'sonner'
 import { Drawer } from 'vaul'
 import { useAccount } from 'wagmi'
-import BtcIcon from '~icons/cryptocurrency-color/btc'
-import EthIcon from '~icons/cryptocurrency-color/eth'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import CoinsIcon from '~icons/lucide/coins'
 import HistoryIcon from '~icons/lucide/history'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
-import OpIcon from '~icons/simple-icons/optimism'
-import BaseIcon from '~icons/token-branded/base'
 
 import { Link } from '@tanstack/react-router'
 import { Layout } from '~/components/AppLayout'
@@ -19,60 +15,8 @@ import { Button, ButtonWithRef } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
 import { QrCode } from '~/components/QrCode'
+import { TokenIcon, assets } from '~/lib/fake'
 import { PercentFormatter, StringFormatter, cn, sum } from '~/utils'
-
-/**
- * This is temporary. Eventual goal is to switch to using an API to fetch web3 icons
- * e.g., https://api.ithaca.xyz/icons/:chain/:{address|coingecko-id}
- */
-const TokenIcon = {
-  Eth: (props: React.SVGProps<SVGSVGElement>) => <EthIcon {...props} />,
-  Op: (props: React.SVGProps<SVGSVGElement>) => <OpIcon {...props} />,
-  Base: (props: React.SVGProps<SVGSVGElement>) => <BaseIcon {...props} />,
-  Btc: (props: React.SVGProps<SVGSVGElement>) => <BtcIcon {...props} />,
-}
-
-const assets = [
-  {
-    name: 'Ethereum',
-    symbol: 'ETH',
-    price: {
-      value: 2689,
-      change: 3.66,
-    },
-    balance: {
-      value: 13350.41,
-      native: 3.354,
-    },
-    icon: <TokenIcon.Eth className="size-8" />,
-  },
-  {
-    name: 'Wrapped Bitcoin',
-    symbol: 'wBTC',
-    price: {
-      value: 99999,
-      change: -4.2,
-    },
-    balance: {
-      value: 1249494.3,
-      native: 12.494943,
-    },
-    icon: <TokenIcon.Btc className="size-8" />,
-  },
-  {
-    name: 'Optimism',
-    symbol: 'OP',
-    price: {
-      value: 3.35,
-      change: 6.69,
-    },
-    balance: {
-      value: 1970.44,
-      native: 1970.44,
-    },
-    icon: <TokenIcon.Op className="size-8 text-red-500" />,
-  },
-]
 
 export function Dashboard() {
   const { address } = useAccount()
@@ -301,11 +245,14 @@ export function Dashboard() {
           <Ariakit.TooltipProvider>
             <Ariakit.TooltipAnchor
               className="link"
-              render={() => {
+              render={(props) => {
                 const error = formStore.getError('email')
                 if (!error) return null
                 return (
-                  <XIcon className="my-auto size-6 rounded-full bg-rose-300 p-1 text-red-500" />
+                  <XIcon
+                    {...props}
+                    className="my-auto size-6 rounded-full bg-rose-300 p-1 text-red-500"
+                  />
                 )
               }}
             />

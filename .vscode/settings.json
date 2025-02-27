@@ -39,8 +39,9 @@
     "**/*.tsbuildinfo": true
   },
   "search.exclude": {
-    "**/routeTree.gen.ts": true,
-    "pnpm-lock.yaml": true
+    "**/dist/**": true,
+    "pnpm-lock.yaml": true,
+    "**/routeTree.gen.ts": true
   },
   "files.watcherExclude": {
     "**/routeTree.gen.ts": true

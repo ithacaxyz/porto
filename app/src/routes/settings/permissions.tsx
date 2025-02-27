@@ -61,7 +61,7 @@ function RouteComponent() {
             </a>
           </div>
           <div className="ml-auto flex items-center gap-x-2">
-            <div className="flex h-9 w-min min-w-[70px] items-center rounded-full border-2 border-gray-300/60 py-1 pr-4.5 pl-3 text-center text-gray9 text-lg">
+            <div className="flex h-9 w-min min-w-[70px] items-center rounded-full border-2 border-gray-300/60 py-1 pr-3 pl-3 text-center text-gray9 text-lg">
               <span className="-mr-0.5 text-gray9">$</span>
               <input
                 type="number"
