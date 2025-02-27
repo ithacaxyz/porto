@@ -36,16 +36,19 @@ function RouteComponent() {
     if (signIn) {
       if (shouldAuthorize)
         navigate({
+          // @ts-ignore
           search: (prev) => ({ ...prev, step: 'authorize' }),
           replace: true,
         })
       else
         navigate({
+          // @ts-ignore
           search: (prev) => ({ ...prev, step: 'signIn' }),
           replace: true,
         })
     } else
       navigate({
+        // @ts-ignore
         search: (prev) => ({ ...prev, step: 'signUp' }),
         replace: true,
       })
@@ -103,6 +106,7 @@ function RouteComponent() {
         enableSignIn={!capabilities?.createAccount}
         onApprove={() =>
           navigate({
+            // @ts-ignore
             search: (prev) => ({ ...prev, step: 'authorize' }),
           })
         }

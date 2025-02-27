@@ -13,13 +13,13 @@ export function Landing() {
   const [connector] = useConnectors({ config })
 
   return (
-    <div className="mx-auto flex h-screen w-full max-w-[768px] flex-col p-6">
+    <div className="mx-auto flex h-screen w-full max-w-[768px] flex-col p-6 sm:ml-34">
       <nav className="flex gap-6 pt-5 font-medium text-gray11">
         <a href="https://ithaca.xyz">Home ↗</a>
         <a href="https://ithaca.xyz/contact">Careers ↗</a>
       </nav>
 
-      <div className="w-full flex-grow content-end space-y-6 px-4 pb-10 sm:max-w-[350px] sm:justify-center sm:pb-[30dvh]">
+      <div className="w-full flex-grow content-end space-y-6 px-4 pb-10 sm:max-w-[350px] sm:justify-center sm:pb-[18dvh]">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <img src="/icons/wallet.svg" alt="Porto" className="size-9" />
@@ -96,8 +96,8 @@ export function Landing() {
           )}
         </div>
       </div>
-      <div className="-z-50 fixed top-[10dvh] right-0 h-[80dvh] max-[568px]:hidden max-[1024px]:h-[70dvh]">
-        <IthacaMark />
+      <div className="-z-50 fixed right-0 mt-3 hidden size-full h-[80dvh] max-w-[868px] max-[568px]:hidden max-[1024px]:h-[70dvh] sm:block">
+        <IthacaMark className="" />
       </div>
     </div>
   )

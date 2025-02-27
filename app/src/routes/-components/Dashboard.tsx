@@ -170,8 +170,8 @@ export function Dashboard() {
                           {index === 0 && (
                             <Ariakit.MenuProvider>
                               <Ariakit.MenuButton className="mb-auto flex gap-x-0.5 rounded-2xl bg-gray4 py-1.5 pr-1 pl-1.5">
-                                <TokenIcon.Op className="-mr-2 text-gray10" />
-                                <TokenIcon.Eth className="text-gray10" />
+                                <TokenIcon.Op className="-mr-2 size-5 text-gray10" />
+                                <TokenIcon.Eth className="size-5 text-gray10" />
                                 <ChevronDownIcon className="size-5 text-gray10" />
                               </Ariakit.MenuButton>
                               <Ariakit.Menu>

@@ -1,10 +1,10 @@
 import * as React from 'react'
 import BtcIcon from '~icons/cryptocurrency-color/btc'
 import EthIcon from '~icons/cryptocurrency-color/eth'
-import OpIcon from '~icons/simple-icons/optimism'
 import BaseIcon from '~icons/token-branded/base'
 
 import { ExpIcon } from '~/components/Exp'
+import { OpIcon } from '~/components/Op'
 
 /**
  * This is temporary. Eventual goal is to switch to using an API to fetch web3 icons
@@ -14,10 +14,11 @@ export const TokenIcon = {
   Exp: (
     props: React.PropsWithChildren<React.ImgHTMLAttributes<HTMLImageElement>>,
   ) => React.createElement(ExpIcon, props),
+  Op: (
+    props: React.PropsWithChildren<React.ImgHTMLAttributes<HTMLImageElement>>,
+  ) => React.createElement(OpIcon, props),
   Eth: (props: React.SVGProps<SVGSVGElement>) =>
     React.createElement(EthIcon, props),
-  Op: (props: React.SVGProps<SVGSVGElement>) =>
-    React.createElement(OpIcon, props),
   Base: (props: React.SVGProps<SVGSVGElement>) =>
     React.createElement(BaseIcon, props),
   Btc: (props: React.SVGProps<SVGSVGElement>) =>
@@ -75,6 +76,6 @@ export const assets = [
       value: 1970.44,
       native: 1970.44,
     },
-    icon: TokenIcon.Op({ className: 'size-8 text-red-500' }),
+    icon: TokenIcon.Op({ className: 'size-8 text-red-500 bg' }),
   },
 ]
