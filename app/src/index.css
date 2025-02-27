@@ -6,6 +6,12 @@ html,
   background-color: var(--background-color-primary);
 }
 
+@media (prefers-color-scheme: dark) {
+  path {
+    fill: white;
+  }
+}
+
 /* https://github.com/radix-ui/colors */
 /* biome-ignore format: <explanation> */
 @theme {
