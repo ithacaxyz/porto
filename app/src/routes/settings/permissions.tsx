@@ -1,12 +1,14 @@
 import * as Ariakit from '@ariakit/react'
-import { createFileRoute } from '@tanstack/react-router'
+import { Navigate, createFileRoute } from '@tanstack/react-router'
 import { Hooks } from 'porto/wagmi'
 import { Drawer } from 'vaul'
+import { useAccount } from 'wagmi'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import HandCoinsIcon from '~icons/lucide/hand-coins'
 import XIcon from '~icons/lucide/x'
 import UniswapIcon from '~icons/token/uniswap'
 
+import { Json } from 'ox'
 import { Layout } from '~/components/AppLayout'
 import { Header } from '~/components/Header'
 import { cn } from '~/utils'
@@ -22,9 +24,12 @@ export const Route = createFileRoute('/settings/permissions')({
 })
 
 function RouteComponent() {
-  // const account = useAccount()
-  // const permissions = Hooks.usePermissions()
+  const account = useAccount()
+  const permissions = Hooks.usePermissions()
+
   const revokePermissions = Hooks.useRevokePermissions()
+
+  if (!account.isConnected) return <Navigate to="/" />
 
   return (
     <Layout>
@@ -67,7 +72,7 @@ function RouteComponent() {
                 type="number"
                 size={200}
                 placeholder="100"
-                className="ml-1 h-full w-[3ch] bg-transparent text-gray9 text-lg focus:outline-none"
+                className="ml-1 h-full w-[3ch] bg-transparent text-gray9 text-lg tabular-nums focus:outline-none"
                 onInput={(event) => {
                   const input = event.currentTarget.value
                   const newWidth =
@@ -82,7 +87,7 @@ function RouteComponent() {
             <span className="text-gray9 text-lg">per</span>
             <Ariakit.MenuProvider>
               <Ariakit.MenuButton className="ml-auto flex items-center gap-x-2 rounded-3xl border-2 border-gray-300/60 px-1 py-0.5">
-                <p className="ml-2 text-gray9 text-lg">day</p>
+                <span className="mb-0.5 ml-2 text-gray9 text-lg">day</span>
                 <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
               </Ariakit.MenuButton>
               <Ariakit.Menu
@@ -155,17 +160,19 @@ function RouteComponent() {
           </Drawer.Root>
         </div>
       </section>
-      <div className="mt-3 flex justify-between rounded-2xl bg-gray3 pl-4">
+      <div className="mt-3 flex justify-between rounded-2xl bg-gray3 pl-5">
         <p className="my-auto text-gray10 dark:text-gray-200">
-          13 apps authorized
+          {permissions?.data?.length} app
+          {permissions?.data?.length === 1 ? '' : 's'} authorized
         </p>
         <button
           type="button"
-          className="select-none rounded-tr-2xl rounded-br-2xl px-4 py-2 text-red-500 hover:bg-destructive"
+          className="select-none rounded-tr-2xl rounded-br-2xl px-5 py-2 text-red-500 hover:bg-destructive"
         >
           Revoke all
         </button>
       </div>
+      <pre>{Json.stringify(permissions?.data, null, 2)}</pre>
     </Layout>
   )
 }

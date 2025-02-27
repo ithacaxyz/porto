@@ -16,7 +16,6 @@ export function Header() {
   const disconnect = Hooks.useDisconnect()
 
   const location = useLocation()
-
   const currentFullPath = location.pathname
   const currentPathSegment = currentFullPath.split('/').pop()
 

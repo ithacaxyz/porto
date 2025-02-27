@@ -16,13 +16,34 @@ export const Route = createFileRoute('/withdraw')({
 })
 
 function RouteComponent() {
+  const [values, setValues] = React.useState<{
+    asset: string
+    recipient: string
+    amount: string
+  }>({ asset: '', recipient: '', amount: '' })
+
   const form = Ariakit.useFormStore({
-    defaultValues: {
-      asset: '',
-      recipient: '',
-      amount: undefined,
-    },
+    values,
+    setValues,
   })
+
+  const [formIsValid, setFormIsValid] = React.useState(false)
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  React.useEffect(() => {
+    /* TODO: better than this */
+    const asset = values.asset
+    const amount = Number(values.amount)
+    const recipient = values.recipient
+
+    const hasAsset = Boolean(asset)
+    const hasValidAmount = amount > 0 && amount <= 3002.41
+    const hasValidRecipient = Boolean(recipient && Address.validate(recipient))
+
+    setFormIsValid(
+      hasAsset && hasValidAmount && hasValidRecipient && amount > 0,
+    )
+  }, [form.getState().values])
 
   const [truncatedRecipient, setTruncatedRecipient] = React.useState(
     StringFormatter.truncate(form.getValue(form.names.recipient), {
@@ -33,11 +54,6 @@ function RouteComponent() {
 
   const [isRecipientFocused, setIsRecipientFocused] = React.useState(false)
   const validRecipient = Address.validate(form.getValue(form.names.recipient))
-
-  // const totalBalance = React.useMemo(
-  //   () => sum(assets.map((asset) => asset.balance.value)),
-  //   [],
-  // )
 
   return (
     <Layout>
@@ -72,8 +88,8 @@ function RouteComponent() {
                     )}
                   >
                     <img
-                      src="/icons/exp.svg"
                       alt="ithaca"
+                      src="/icons/exp.svg"
                       className="size-6 rounded-full"
                     />
                     <span className="mb-0.5">Experiment</span>
@@ -82,19 +98,36 @@ function RouteComponent() {
                   <Ariakit.Menu
                     gutter={6}
                     className={cn(
-                      'w-[364px] rounded-sm border border-gray6 bg-gray4 shadow-lg',
                       '*:tracking-normal',
-                      '',
+                      'w-[364px] rounded-sm border border-gray6 bg-gray4 shadow-lg',
                     )}
                   >
-                    <Ariakit.MenuItem className="flex items-center justify-between gap-x-2 rounded-sm px-4 py-3 hover:bg-gray2">
+                    <Ariakit.MenuItem
+                      onClick={() => form.setValue(form.names.asset, 'ithaca')}
+                      className="flex items-center justify-between gap-x-2 rounded-sm px-4 py-3 hover:bg-gray2"
+                    >
                       WIP
                     </Ariakit.MenuItem>
                   </Ariakit.Menu>
                 </Ariakit.MenuProvider>
               )}
             />
-            {/* <Ariakit.FormError name={form.names.asset} className="" /> */}
+            <Ariakit.FormError
+              className=""
+              name={form.names.asset}
+              render={(props) => {
+                const error = form.getError(form.names.asset)
+                if (!error) return null
+                return (
+                  <div
+                    {...props}
+                    className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11"
+                  >
+                    {error}
+                  </div>
+                )
+              }}
+            />
           </div>
           <div className="mt-3 mb-1 flex flex-col gap-y-1.5">
             <div className="flex items-center justify-between gap-x-2">
@@ -130,10 +163,13 @@ function RouteComponent() {
                   'slashed-zero tabular-nums placeholder:slashed-zero',
                   'size-full text-left font-medium text-2xl text-primary/80 hover:bg-secondary focus:outline-none',
                 )}
+                min={0}
                 max={3_002.41}
                 required={true}
                 placeholder="0.00"
-                defaultValue={undefined}
+                autoCorrect="off"
+                autoComplete="off"
+                autoCapitalize="off"
                 name={form.names.amount}
               />
 
@@ -147,13 +183,19 @@ function RouteComponent() {
             <Ariakit.FormError
               name={form.names.amount}
               render={(props) => {
+                const value = form.getValue(form.names.amount)
+                if (!value) return null
                 const error = form.getError(form.names.amount)
                 if (!error) return null
-                const value = Number(form.getValue(form.names.amount) ?? 0)
                 const [_min, max] = [0, 3_002.41]
 
-                const message =
-                  value > max ? (
+                if (Number.parseFloat(value) <= max) return null
+
+                return (
+                  <div
+                    {...props}
+                    className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11"
+                  >
                     <p className="flex items-center justify-center gap-x-1">
                       <OctagonAlertIcon className="size-5 text-red-500" />
                       <span className="font-semibold text-red-500">
@@ -161,15 +203,6 @@ function RouteComponent() {
                       </span>
                       You hold {max} EXP.
                     </p>
-                  ) : (
-                    error
-                  )
-                return (
-                  <div
-                    {...props}
-                    className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11"
-                  >
-                    {message}
                   </div>
                 )
               }}
@@ -228,15 +261,33 @@ function RouteComponent() {
                 <CircleCheckIcon className="my-auto mr-3 ml-auto size-6 rounded-full text-emerald-600" />
               )}
             </div>
-            <Ariakit.FormError name={form.names.recipient} className="" />
+            <Ariakit.FormError
+              className=""
+              name={form.names.recipient}
+              render={(props) => {
+                const error = form.getError(form.names.recipient)
+                if (!error) return null
+                return (
+                  <div
+                    {...props}
+                    className="mt-1 rounded-2xl bg-[#FEEBEC] px-4 py-1.5 text-gray11"
+                  >
+                    Must be a valid Ethereum address.
+                  </div>
+                )
+              }}
+            />
           </div>
-          <div className="my-4 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg">
+          <div className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg">
             <Ariakit.FormReset className="rounded-full border-2 border-gray6 bg-gray5 text-primary hover:bg-gray4">
               Cancel
             </Ariakit.FormReset>
             <Ariakit.FormSubmit
               className={cn(
-                'rounded-full border-2 border-gray6 text-gray10 hover:bg-gray2',
+                formIsValid
+                  ? 'bg-accent text-white hover:bg-accent/90'
+                  : 'border-gray6 text-gray10 hover:bg-gray2',
+                'rounded-full border-2',
               )}
             >
               Withdraw
