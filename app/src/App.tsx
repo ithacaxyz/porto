@@ -17,9 +17,8 @@ export function App() {
         <RouterProvider router={Router.router} />
         <Toaster
           expand={true}
-          theme="system"
+          theme="light"
           duration={3000}
-          richColors={true}
           position="bottom-right"
           className="z-[42069] select-none"
           swipeDirections={['right', 'left', 'top', 'bottom']}
