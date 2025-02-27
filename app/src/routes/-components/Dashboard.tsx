@@ -135,7 +135,6 @@ export function Dashboard() {
               onChange={(event) => setSearch(event.target.value)}
               className={cn(
                 'ml-2 w-full max-w-[50%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-black placeholder:text-secondary sm:ml-8',
-                'dark:bg-secondary dark:text-gray-50',
               )}
             />
           </Ariakit.TabList>
@@ -267,7 +266,6 @@ export function Dashboard() {
             placeholder="Get email updates…"
             className={cn(
               'rounded-full border border-gray8 bg-white px-3 py-1 text-sm placeholder:text-secondary',
-              'dark:bg-secondary dark:text-gray-50 dark:placeholder:text-gray-400',
             )}
           />
           <Ariakit.FormSubmit className="rounded-full bg-gray-300 p-2">
