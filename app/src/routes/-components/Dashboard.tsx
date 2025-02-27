@@ -288,13 +288,13 @@ export function Dashboard() {
           className="flex flex-row justify-between gap-x-2 rounded-full bg-surface px-3 py-2"
         >
           <img
-            src="/icons/mushroom.svg"
             alt="icon"
+            src="/icons/mushroom.svg"
             className="my-auto size-6"
           />
           <Ariakit.FormLabel
             name={formStore.names.email}
-            className="my-auto mr-auto font-medium text-secondary dark:text-gray-300"
+            className="my-auto mr-auto font-medium text-secondary"
           >
             Power up your wallet!
           </Ariakit.FormLabel>
