@@ -31,6 +31,8 @@
   },
   "files.associations": {
     ".env.example": "dotenv",
+    ".dev.vars": "dotenv",
+    ".dev.vars.example": "dotenv",
     "*.css": "tailwindcss",
     "biome.json": "jsonc",
     ".vscode/*.json": "jsonc"

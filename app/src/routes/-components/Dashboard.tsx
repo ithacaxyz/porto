@@ -15,7 +15,7 @@ import { Button, ButtonWithRef } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
 import { QrCode } from '~/components/QrCode'
-import { TokenIcon, assets } from '~/lib/Fake'
+import { TokenIcon, assets } from '~/lib/fake'
 import { PercentFormatter, StringFormatter, cn, sum } from '~/utils'
 
 export function Dashboard() {
