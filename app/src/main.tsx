@@ -45,21 +45,37 @@ if (import.meta.hot)
     offRequests()
   })
 
-if (import.meta.env.DEV) {
-  let theme = 'system'
+if (
+  import.meta.env.DEV ||
+  import.meta.env.VERCEL_ENV === 'preview' ||
+  import.meta.env.VERCEL_ENV === 'development'
+) {
   document.addEventListener('keydown', (event) => {
     // ⌥ + 1: light/dark mode
     if (event.altKey && event.code === 'Digit1') {
-      if (theme === 'system') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        theme = isDark ? 'dark' : 'light'
-      } else theme = theme === 'dark' ? 'light' : 'dark'
+      if (document.documentElement.classList.contains('scheme-light')) {
+        document.documentElement.classList.replace(
+          'scheme-light',
+          'scheme-light-dark',
+        )
+      } else if (document.documentElement.classList.contains('scheme-dark')) {
+        document.documentElement.classList.replace(
+          'scheme-dark',
+          'scheme-light',
+        )
+      } else {
+        let themePreference = window.matchMedia('(prefers-color-scheme: dark)')
+          .matches
+          ? 'dark'
+          : 'light'
+        themePreference = themePreference === 'dark' ? 'light' : 'dark'
 
-      document.documentElement.classList.remove('scheme-light-dark')
-      document.documentElement.classList.remove('scheme-light')
-      if (theme === 'dark')
+        document.documentElement.classList.remove(
+          'scheme-light',
+          'scheme-light-dark',
+        )
         document.documentElement.classList.add('scheme-light')
-      else document.documentElement.classList.add('scheme-light-dark')
+      }
     }
 
     // ⌥ + 2: toggle dialog mode
@@ -78,7 +94,6 @@ if (import.meta.env.DEV) {
     }
   })
 }
-
 declare module 'react' {
   interface CSSProperties {
     [key: `--${string}`]: string | number
