@@ -1,15 +1,17 @@
 import * as Ariakit from '@ariakit/react'
 import { Navigate, createFileRoute } from '@tanstack/react-router'
+import { Json } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import { Drawer } from 'vaul'
+import { parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import HandCoinsIcon from '~icons/lucide/hand-coins'
 import XIcon from '~icons/lucide/x'
 import UniswapIcon from '~icons/token/uniswap'
 
-import { Json } from 'ox'
 import { Layout } from '~/components/AppLayout'
+import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { cn } from '~/utils'
 
@@ -23,9 +25,32 @@ export const Route = createFileRoute('/settings/permissions')({
   }),
 })
 
+const NON_PRODUCTION =
+  import.meta.env.DEV || import.meta.env.VERCEL_ENV !== 'production'
+
+const key = () =>
+  ({
+    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    permissions: {
+      calls: [
+        {
+          to: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+        },
+      ],
+      spend: [
+        {
+          limit: parseEther('50'),
+          period: 'minute',
+          token: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+        },
+      ],
+    },
+  }) as const
+
 function RouteComponent() {
   const account = useAccount()
   const permissions = Hooks.usePermissions()
+  const grantPermissions = Hooks.useGrantPermissions()
 
   const revokePermissions = Hooks.useRevokePermissions()
 
@@ -38,6 +63,11 @@ function RouteComponent() {
         orientation="horizontal"
         className="mx-auto my-2 w-full text-gray6"
       />
+      {NON_PRODUCTION && (
+        <Button variant="accent" onClick={() => grantPermissions.mutate(key())}>
+          Grant permissions
+        </Button>
+      )}
       <section className="px-3">
         <div className="mb-6 flex items-center gap-x-3">
           <div className="w-min rounded-full bg-gray-200 p-2">
