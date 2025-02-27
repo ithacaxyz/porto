@@ -39,7 +39,7 @@ createRoot(rootElement).render(
   </StrictMode>,
 )
 
-if (import.meta.hot)
+if (import.meta.hot && import.meta.env.VITE_LAUNCH_MODE !== 'app')
   import.meta.hot.on('vite:beforeUpdate', () => {
     offInitialized()
     offRequests()
@@ -94,6 +94,7 @@ if (
     }
   })
 }
+
 declare module 'react' {
   interface CSSProperties {
     [key: `--${string}`]: string | number
