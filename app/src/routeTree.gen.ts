@@ -16,6 +16,7 @@ import { Route as PlaygroundImport } from './routes/playground'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as IndexImport } from './routes/index'
 import { Route as SettingsIndexImport } from './routes/settings/index'
+import { Route as SettingsRecoveryImport } from './routes/settings/recovery'
 import { Route as SettingsPermissionsImport } from './routes/settings/permissions'
 import { Route as DialogDialogWalletsendCallsImport } from './routes/_dialog.dialog/wallet_sendCalls'
 import { Route as DialogDialogWalletconnectImport } from './routes/_dialog.dialog/wallet_connect'
@@ -54,6 +55,12 @@ const IndexRoute = IndexImport.update({
 const SettingsIndexRoute = SettingsIndexImport.update({
   id: '/settings/',
   path: '/settings/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsRecoveryRoute = SettingsRecoveryImport.update({
+  id: '/settings/recovery',
+  path: '/settings/recovery',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -153,6 +160,13 @@ declare module '@tanstack/react-router' {
       path: '/settings/permissions'
       fullPath: '/settings/permissions'
       preLoaderRoute: typeof SettingsPermissionsImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/recovery': {
+      id: '/settings/recovery'
+      path: '/settings/recovery'
+      fullPath: '/settings/recovery'
+      preLoaderRoute: typeof SettingsRecoveryImport
       parentRoute: typeof rootRoute
     }
     '/settings/': {
@@ -256,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/playground': typeof PlaygroundRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings/recovery': typeof SettingsRecoveryRoute
   '/settings': typeof SettingsIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
@@ -273,6 +288,7 @@ export interface FileRoutesByTo {
   '/playground': typeof PlaygroundRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings/recovery': typeof SettingsRecoveryRoute
   '/settings': typeof SettingsIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
@@ -291,6 +307,7 @@ export interface FileRoutesById {
   '/playground': typeof PlaygroundRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings/recovery': typeof SettingsRecoveryRoute
   '/settings/': typeof SettingsIndexRoute
   '/_dialog/dialog/$': typeof DialogDialogSplatRoute
   '/_dialog/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
@@ -310,6 +327,7 @@ export interface FileRouteTypes {
     | '/playground'
     | '/withdraw'
     | '/settings/permissions'
+    | '/settings/recovery'
     | '/settings'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
@@ -326,6 +344,7 @@ export interface FileRouteTypes {
     | '/playground'
     | '/withdraw'
     | '/settings/permissions'
+    | '/settings/recovery'
     | '/settings'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
@@ -342,6 +361,7 @@ export interface FileRouteTypes {
     | '/playground'
     | '/withdraw'
     | '/settings/permissions'
+    | '/settings/recovery'
     | '/settings/'
     | '/_dialog/dialog/$'
     | '/_dialog/dialog/eth_requestAccounts'
@@ -360,6 +380,7 @@ export interface RootRouteChildren {
   PlaygroundRoute: typeof PlaygroundRoute
   WithdrawRoute: typeof WithdrawRoute
   SettingsPermissionsRoute: typeof SettingsPermissionsRoute
+  SettingsRecoveryRoute: typeof SettingsRecoveryRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
@@ -369,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlaygroundRoute: PlaygroundRoute,
   WithdrawRoute: WithdrawRoute,
   SettingsPermissionsRoute: SettingsPermissionsRoute,
+  SettingsRecoveryRoute: SettingsRecoveryRoute,
   SettingsIndexRoute: SettingsIndexRoute,
 }
 
@@ -387,6 +409,7 @@ export const routeTree = rootRoute
         "/playground",
         "/withdraw",
         "/settings/permissions",
+        "/settings/recovery",
         "/settings/"
       ]
     },
@@ -414,6 +437,9 @@ export const routeTree = rootRoute
     },
     "/settings/permissions": {
       "filePath": "settings/permissions.tsx"
+    },
+    "/settings/recovery": {
+      "filePath": "settings/recovery.tsx"
     },
     "/settings/": {
       "filePath": "settings/index.tsx"

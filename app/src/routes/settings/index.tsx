@@ -179,7 +179,7 @@ function RouteComponent() {
             </p>
           </div>
           <Link
-            to="/settings/permissions"
+            to="/settings/recovery"
             className="h-10 rounded-default bg-gray4 px-3.5 hover:bg-gray3"
           >
             <p className="mt-2 h-full font-medium">Manage</p>
