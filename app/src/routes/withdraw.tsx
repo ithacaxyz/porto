@@ -4,11 +4,13 @@ import { Address } from 'ox'
 import * as React from 'react'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
 import CircleCheckIcon from '~icons/lucide/circle-check'
+import OctagonAlertIcon from '~icons/lucide/octagon-alert'
 
 import { Layout } from '~/components/AppLayout'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
-import { StringFormatter, cn } from '~/utils'
+import { TokenIcon, assets } from '~/lib/fake'
+import { StringFormatter, cn, sum } from '~/utils'
 
 export const Route = createFileRoute('/withdraw')({
   component: RouteComponent,
@@ -33,6 +35,11 @@ function RouteComponent() {
   const [isRecipientFocused, setIsRecipientFocused] = React.useState(false)
   const validRecipient = Address.validate(form.getValue(form.names.recipient))
 
+  const totalBalance = React.useMemo(
+    () => sum(assets.map((asset) => asset.balance.value)),
+    [],
+  )
+
   return (
     <Layout>
       <Header />
@@ -56,9 +63,10 @@ function RouteComponent() {
             <Ariakit.FormControl
               name={form.names.asset}
               className="text-gray9"
-              render={() => (
+              render={(props) => (
                 <Ariakit.MenuProvider>
                   <Ariakit.MenuButton
+                    {...props}
                     className={cn(
                       'flex items-center gap-x-2',
                       'h-14 rounded-xl border-2 border-gray4 px-3.5 py-2.5 text-left font-medium text-lg text-primary hover:bg-secondary',
@@ -123,6 +131,7 @@ function RouteComponent() {
                   'slashed-zero tabular-nums placeholder:slashed-zero',
                   'size-full text-left font-medium text-2xl text-primary/80 hover:bg-secondary focus:outline-none',
                 )}
+                max={3_002.41}
                 required={true}
                 placeholder="0.00"
                 defaultValue={undefined}
@@ -136,7 +145,36 @@ function RouteComponent() {
               />
               <span className="ml-2 text-gray9 text-lg">EXP</span>
             </div>
-            {/* <Ariakit.FormError name={form.names.amount} className="" /> */}
+            <Ariakit.FormError
+              name={form.names.amount}
+              render={(props) => {
+                const error = form.getError(form.names.amount)
+                if (!error) return null
+                const value = Number(form.getValue(form.names.amount) ?? 0)
+                const [min, max] = [0, 3_002.41]
+
+                const message =
+                  value > max ? (
+                    <p className="flex items-center justify-center gap-x-1">
+                      <OctagonAlertIcon className="size-5 text-red-500" />
+                      <span className="font-semibold text-red-500">
+                        Exceeded balance.
+                      </span>
+                      You hold {max} EXP.
+                    </p>
+                  ) : (
+                    error
+                  )
+                return (
+                  <div
+                    {...props}
+                    className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11"
+                  >
+                    {message}
+                  </div>
+                )
+              }}
+            />
           </div>
           <div className="my-3 flex flex-col gap-y-1">
             <Ariakit.FormLabel
