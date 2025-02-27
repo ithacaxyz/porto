@@ -276,7 +276,7 @@ export function Dashboard() {
           </Ariakit.FormSubmit>
         </Ariakit.Form>
         <div className="flex flex-row justify-between px-4">
-          <p className="flex gap-x-2 text-secondary leading-[22px] dark:text-gray-300">
+          <p className="flex gap-x-2 text-secondary leading-[22px]">
             Built by
             <a
               className="my-auto flex font-mono text-primary"
