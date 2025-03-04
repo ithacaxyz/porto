@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "./theme.css";
 
+.root {
+  isolation: isolate;
+}
+
 html,
 :host {
   background-color: var(--background-color-primary);
@@ -8,7 +12,7 @@ html,
 
 @media (prefers-color-scheme: dark) {
   path {
-    fill: white;
+    /* fill: white; */
   }
 }
 
