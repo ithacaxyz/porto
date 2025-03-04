@@ -13,6 +13,7 @@
     "@ariakit/react": "^0.4.15",
     "@bitjson/qr-code": "^1.0.2",
     "@floating-ui/react": "^0.27.5",
+    "@radix-ui/themes": "^3.2.1",
     "@tanstack/query-sync-storage-persister": "^5.65.0",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "^5.66.9",
