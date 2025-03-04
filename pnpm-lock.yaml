@@ -211,8 +211,8 @@ importers:
         specifier: latest
         version: 19.0.0(react@19.0.0)
       vocs:
-        specifier: latest
-        version: 1.0.1(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+        specifier: ^1.0.2
+        version: 1.0.2(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
     devDependencies:
       '@types/react':
         specifier: latest
@@ -7496,8 +7496,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@1.0.1:
-    resolution: {integrity: sha512-lGOdtJbu0Tx3B34CBOKC0fw5l0Aeg/ShZzPSIWHHFABjxpWtaQR8Z6qJFZSk6SiXCHJmF3zoofzAB2/ptc4NrA==}
+  vocs@1.0.2:
+    resolution: {integrity: sha512-hlAH9SUT4NOpaEQGoWay898zkLmGoH3Y+uzzmAiI1ep+7eMYYXJI6YvGagPPAc/SoRjVugTpObQwNXxwG7bB1Q==}
     hasBin: true
     peerDependencies:
       react: ^19
@@ -10369,7 +10369,7 @@ snapshots:
       '@vanilla-extract/babel-plugin-debug-ids': 1.2.0
       '@vanilla-extract/css': 1.17.1
       dedent: 1.5.3
-      esbuild: 0.24.2
+      esbuild: 0.25.0
       eval: 0.1.8
       find-up: 5.0.0
       javascript-stringify: 2.1.0
@@ -16035,7 +16035,7 @@ snapshots:
       - supports-color
       - terser
 
-  vocs@1.0.1(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0):
+  vocs@1.0.2(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0):
     dependencies:
       '@floating-ui/react': 0.27.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.13.8(hono@4.7.2)

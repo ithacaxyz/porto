@@ -18,6 +18,7 @@
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter playground --filter app dev",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example dev",
+    "docs:dev": "pnpm --filter docs dev",
     "format": "biome format --write",
     "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
     "preconstruct": "tsx ./scripts/preconstruct.ts",
