@@ -183,7 +183,7 @@ function RouteComponent() {
             <p className="mt-2 h-full font-medium">Manage</p>
           </Link>
         </div>
-        <div className="mt-5 flex items-center justify-between gap-x-3 pt-1">
+        {/* <div className="mt-5 flex items-center justify-between gap-x-3 pt-1">
           <div>
             <div className="flex items-center gap-x-2">
               <p className="text-lg">Export wallet</p>
@@ -201,7 +201,6 @@ function RouteComponent() {
         </div>
         <div className="mx-2 mt-5 flex flex-col items-center justify-center gap-x-2 rounded-3xl bg-red3 px-2 py-1.5 sm:flex-row sm:px-6 sm:py-2">
           <p className="flex gap-x-1 font-semibold text-red9">
-            {/* <WarningIcon className="size-6 text-[#ff9592] " /> */}
             <img
               src="/icons/warning.svg"
               className="size-6"
@@ -213,7 +212,7 @@ function RouteComponent() {
           <p className="text-secondary ">
             This phrase will grant access to all your funds.
           </p>
-        </div>
+        </div> */}
       </section>
       <Ariakit.Separator
         orientation="horizontal"
