@@ -4,6 +4,8 @@ export default defineConfig({
   rootDir: '.',
   title: 'Porto',
   description: 'Next-gen Account for Ethereum',
+  iconUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
+  logoUrl: { light: '/logo-light.svg', dark: '/logo-dark.svg' },
   sidebar: {
     '/sdk': [
       {

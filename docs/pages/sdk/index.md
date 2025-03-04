@@ -2,7 +2,7 @@
 
 ## Overview
 
-Porto is a TypeScript library designed for Applications and Wallets to create, manage, and 
+The Porto SDK is a TypeScript library designed for Applications and Wallets to create, manage, and 
 interact with universal next-gen accounts on Ethereum.
 
 ## Install
