@@ -20,11 +20,11 @@ export default defineConfig({
         text: 'Guides',
         items: [
           {
-            text: 'Applications',
+            text: 'Connecting to Apps',
             link: '/sdk/guides/connection',
           },
           {
-            text: 'Authentication',
+            text: 'Authentication (SIWE)',
             link: '/sdk/guides/authentication',
           },
           {
@@ -114,36 +114,40 @@ export default defineConfig({
         text: 'Wagmi Reference',
         items: [
           {
+            text: 'Overview',
+            link: '/sdk/wagmi',
+          },
+          {
             text: 'Actions',
             collapsed: true,
             items: [
               {
                 text: 'connect',
-                link: '/sdk/api/wagmi/connect',
+                link: '/sdk/wagmi/connect',
               },
               {
                 text: 'createAccount',
-                link: '/sdk/api/wagmi/createAccount',
+                link: '/sdk/wagmi/createAccount',
               },
               {
                 text: 'disconnect',
-                link: '/sdk/api/wagmi/disconnect',
+                link: '/sdk/wagmi/disconnect',
               },
               {
                 text: 'grantPermissions',
-                link: '/sdk/api/wagmi/grantPermissions',
+                link: '/sdk/wagmi/grantPermissions',
               },
               {
                 text: 'permissions',
-                link: '/sdk/api/wagmi/permissions',
+                link: '/sdk/wagmi/permissions',
               },
               {
                 text: 'revokePermissions',
-                link: '/sdk/api/wagmi/revokePermissions',
+                link: '/sdk/wagmi/revokePermissions',
               },
               {
                 text: 'upgradeAccount',
-                link: '/sdk/api/wagmi/upgradeAccount',
+                link: '/sdk/wagmi/upgradeAccount',
               },
             ],
           },
@@ -153,31 +157,31 @@ export default defineConfig({
             items: [
               {
                 text: 'useConnect',
-                link: '/sdk/api/wagmi/useConnect',
+                link: '/sdk/wagmi/useConnect',
               },
               {
                 text: 'useCreateAccount',
-                link: '/sdk/api/wagmi/useCreateAccount',
+                link: '/sdk/wagmi/useCreateAccount',
               },
               {
                 text: 'useDisconnect',
-                link: '/sdk/api/wagmi/useDisconnect',
+                link: '/sdk/wagmi/useDisconnect',
               },
               {
                 text: 'useGrantPermissions',
-                link: '/sdk/api/wagmi/useGrantPermissions',
+                link: '/sdk/wagmi/useGrantPermissions',
               },
               {
                 text: 'usePermissions',
-                link: '/sdk/api/wagmi/usePermissions',
+                link: '/sdk/wagmi/usePermissions',
               },
               {
                 text: 'useRevokePermissions',
-                link: '/sdk/api/wagmi/useRevokePermissions',
+                link: '/sdk/wagmi/useRevokePermissions',
               },
               {
                 text: 'useUpgradeAccount',
-                link: '/sdk/api/wagmi/useUpgradeAccount',
+                link: '/sdk/wagmi/useUpgradeAccount',
               },
             ],
           },
@@ -187,68 +191,72 @@ export default defineConfig({
         text: 'RPC Reference',
         items: [
           {
+            text: 'Overview',
+            link: '/sdk/rpc',
+          },
+          {
             text: 'eth_accounts',
-            link: '/sdk/api/eth_accounts',
+            link: '/sdk/rpc/eth_accounts',
           },
           {
             text: 'eth_requestAccounts',
-            link: '/sdk/api/eth_requestAccounts',
+            link: '/sdk/rpc/eth_requestAccounts',
           },
           {
             text: 'eth_sendTransaction',
-            link: '/sdk/api/eth_sendTransaction',
+            link: '/sdk/rpc/eth_sendTransaction',
           },
           {
             text: 'eth_signTypedData_V4',
-            link: '/sdk/api/eth_signTypedData_V4',
+            link: '/sdk/rpc/eth_signTypedData_V4',
           },
           {
             text: 'experimental_createAccount',
-            link: '/sdk/api/experimental_createAccount',
+            link: '/sdk/rpc/experimental_createAccount',
           },
           {
             text: 'experimental_grantPermissions',
-            link: '/sdk/api/experimental_grantPermissions',
+            link: '/sdk/rpc/experimental_grantPermissions',
           },
           {
             text: 'experimental_permissions',
-            link: '/sdk/api/experimental_permissions',
+            link: '/sdk/rpc/experimental_permissions',
           },
           {
             text: 'experimental_revokePermissions',
-            link: '/sdk/api/experimental_revokePermissions',
+            link: '/sdk/rpc/experimental_revokePermissions',
           },
           {
             text: 'personal_sign',
-            link: '/sdk/api/personal_sign',
+            link: '/sdk/rpc/personal_sign',
           },
           {
             text: 'wallet_connect',
-            link: '/sdk/api/wallet_connect',
+            link: '/sdk/rpc/wallet_connect',
           },
           {
             text: 'wallet_disconnect',
-            link: '/sdk/api/wallet_disconnect',
+            link: '/sdk/rpc/wallet_disconnect',
           },
           {
             text: 'wallet_getCapabilities',
-            link: '/sdk/api/wallet_getCapabilities',
+            link: '/sdk/rpc/wallet_getCapabilities',
           },
           {
             text: 'wallet_getCallsStatus',
-            link: '/sdk/api/wallet_getCallsStatus',
+            link: '/sdk/rpc/wallet_getCallsStatus',
           },
           {
             text: 'wallet_prepareCalls',
-            link: '/sdk/api/wallet_prepareCalls',
+            link: '/sdk/rpc/wallet_prepareCalls',
           },
           {
             text: 'wallet_sendCalls',
-            link: '/sdk/api/wallet_sendCalls',
+            link: '/sdk/rpc/wallet_sendCalls',
           },
           {
             text: 'wallet_sendPreparedCalls',
-            link: '/sdk/api/wallet_sendPreparedCalls',
+            link: '/sdk/rpc/wallet_sendPreparedCalls',
           },
         ],
       },
@@ -263,27 +271,27 @@ export default defineConfig({
         items: [
           {
             text: 'wallet_createAccount',
-            link: '/relay/api/wallet_createAccount',
+            link: '/relay/rpc/wallet_createAccount',
           },
           {
             text: 'wallet_getKeys',
-            link: '/relay/api/wallet_getKeys',
+            link: '/relay/rpc/wallet_getKeys',
           },
           {
             text: 'wallet_prepareCalls',
-            link: '/relay/api/wallet_prepareCalls',
+            link: '/relay/rpc/wallet_prepareCalls',
           },
           {
             text: 'wallet_prepareUpgradeAccount',
-            link: '/relay/api/wallet_prepareUpgradeAccount',
+            link: '/relay/rpc/wallet_prepareUpgradeAccount',
           },
           {
             text: 'wallet_sendPreparedCalls',
-            link: '/relay/api/wallet_sendPreparedCalls',
+            link: '/relay/rpc/wallet_sendPreparedCalls',
           },
           {
             text: 'wallet_upgradeAccount',
-            link: '/relay/api/wallet_upgradeAccount',
+            link: '/relay/rpc/wallet_upgradeAccount',
           },
         ],
       },
@@ -302,7 +310,7 @@ export default defineConfig({
   socials: [
     {
       icon: 'github',
-      link: 'https://github.com/ithacaxyz',
+      link: 'https://github.com/ithacaxyz/porto',
     },
     {
       icon: 'x',

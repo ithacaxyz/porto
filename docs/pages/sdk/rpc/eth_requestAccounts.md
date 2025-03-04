@@ -1,0 +1,34 @@
+# `eth_requestAccounts`
+
+Requests access to Account addresses.
+
+:::tip
+The `eth_requestAccounts` methods effectively "connects" an Application to a Wallet.
+:::
+
+## Request
+
+```ts
+type Request = {
+  method: 'eth_requestAccounts',
+}
+```
+
+## Response
+
+Array of connected Account addresses.
+
+```ts
+type Response = `0x${string}`[]
+```
+
+## Example
+
+```ts twoslash
+import { Porto } from 'porto'
+
+const { provider } = Porto.create()
+
+const accounts = await provider.request({ method: 'eth_requestAccounts' }) // [!code focus]
+```
+
