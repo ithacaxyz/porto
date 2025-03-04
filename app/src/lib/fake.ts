@@ -73,9 +73,9 @@ export const assets = [
       change: 6.69,
     },
     balance: {
-      value: 1970.44,
-      native: 1970.44,
+      value: 1_970.44,
+      native: 1_970.44,
     },
-    icon: TokenIcon.Op({ className: 'size-8 text-red-500 bg' }),
+    icon: TokenIcon.Op({ className: 'size-8 text-red-500' }),
   },
 ]
