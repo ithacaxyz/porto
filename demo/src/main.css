@@ -1,20 +1,5 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: "Berkeley Mono";
-  font-style: normal;
-  font-weight: 200 700;
-  font-display: swap;
-  src: url("./assets/fonts/BerkeleyMonoVariable-Regular.woff") format("woff");
-}
-@font-face {
-  font-family: "Berkeley Mono";
-  font-style: italic;
-  font-weight: 200 700;
-  font-display: swap;
-  src: url("./assets/fonts/BerkeleyMonoVariable-Italic.woff") format("woff");
-}
-
 /* https://github.com/radix-ui/colors */
 /* biome-ignore format: <explanation> */
 @theme {
@@ -170,7 +155,7 @@
   --border-color-primary: light-dark(var(--color-gray5), var(--color-gray4));
   --border-color-surface: light-dark(var(--color-gray4), var(--color-gray5));
 
-  --font-mono: "Berkeley Mono", "monospace";
+  --font-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   --text-color-accent: var(--color-blue10);
   --text-color-destructive: var(--color-red10);
