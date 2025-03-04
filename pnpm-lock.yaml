@@ -214,7 +214,7 @@ importers:
         specifier: latest
         version: 4.0.9
       vocs:
-        specifier: 1.0.3
+        specifier: latest
         version: 1.0.3(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
     devDependencies:
       '@types/react':
