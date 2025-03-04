@@ -41,18 +41,22 @@ function RouteComponent() {
         orientation="horizontal"
         className="mx-auto my-2 w-full text-gray6"
       />
-      <section className="px-3">
-        <div className="mb-6 flex items-center gap-x-3">
-          <div className="w-min rounded-full bg-gray-200 p-2">
-            <HandCoinsIcon className="size-6 text-gray-700" />
-          </div>
-          <div>
-            <p className="font-medium text-xl">Spending</p>
-            <p className="text-secondary ">
-              Control how apps can use your money, or revoke their ability.
-            </p>
-          </div>
+
+      {/* header */}
+      <section className="mb-3 flex items-center gap-x-3 px-3">
+        <div className="w-min rounded-full bg-gray-200 p-2">
+          <HandCoinsIcon className="size-6 text-gray-700" />
         </div>
+        <div>
+          <p className="font-medium text-xl">Spending</p>
+          <p className="text-secondary ">
+            Control how apps can use your money, or revoke their ability.
+          </p>
+        </div>
+      </section>
+
+      {/* permissions */}
+      <section className="px-3">
         <div className="flex w-full items-center gap-x-3 pt-1">
           <div className="mb-2 w-fit rounded-lg bg-pink-500 p-1">
             <UniswapIcon className="size-6 text-white" />
@@ -163,6 +167,8 @@ function RouteComponent() {
           </Drawer.Root>
         </div>
       </section>
+
+      {/* footer */}
       <div className="mt-3 flex justify-between rounded-2xl bg-gray3 pl-5">
         <p className="my-auto text-gray10 ">
           {permissions?.data?.length ?? 0} app
@@ -170,8 +176,18 @@ function RouteComponent() {
         </p>
         <button
           type="button"
+          disabled={!permissions.data?.length}
+          onClick={async (_event) => {
+            if (!permissions.data) return
+            await Promise.all(
+              permissions.data?.map((permission) =>
+                revokePermissions.mutateAsync({ id: permission.id }),
+              ),
+            )
+          }}
           className={cn(
             'select-none rounded-tr-2xl rounded-br-2xl px-5 py-2 text-red-500 hover:bg-destructive',
+            permissions?.data && 'hover:bg-destructive',
             !permissions?.data?.length && 'invisible',
           )}
         >

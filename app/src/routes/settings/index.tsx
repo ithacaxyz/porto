@@ -2,11 +2,9 @@ import * as Ariakit from '@ariakit/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { Hooks } from 'porto/wagmi'
-import * as React from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
 import PermissionIcon from '~icons/arcticons/permissionsmanager'
-import ChevronDownIcon from '~icons/lucide/chevron-down'
 import LockIcon from '~icons/lucide/lock'
 import SettingsIcon from '~icons/lucide/settings'
 // import WarningIcon from '~icons/ph/warning-octagon'
@@ -15,7 +13,6 @@ import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
-import { cn } from '~/utils'
 
 export const Route = createFileRoute('/settings/')({
   component: RouteComponent,
@@ -34,10 +31,6 @@ function RouteComponent() {
 
   const permissions = Hooks.usePermissions()
 
-  const [userEmoji, setUserEmoji] = React.useState(
-    localStorage.getItem('_porto_emoji') ?? emojis[0],
-  )
-
   return (
     <Layout>
       <Header />
@@ -52,7 +45,7 @@ function RouteComponent() {
           </div>
           <p className="font-medium text-xl">General</p>
         </div>
-        <div className="flex items-center gap-x-3 pt-1">
+        {/* <div className="flex items-center gap-x-3 pt-1">
           <div>
             <p className="text-lg">Emoji</p>
             <p className="text-secondary ">A visual motif for your wallet.</p>
@@ -83,7 +76,7 @@ function RouteComponent() {
               ))}
             </Ariakit.Menu>
           </Ariakit.MenuProvider>
-        </div>
+        </div> */}
         <div className="mt-5 flex w-full flex-col gap-x-3 pt-1">
           <p className="text-lg">Wallet address</p>
           <p className="text-secondary ">
@@ -138,7 +131,8 @@ function RouteComponent() {
             <div className="flex items-center gap-x-2">
               <p className="text-lg">Spending</p>
               <Pill className="rounded-2xl bg-gray4 px-2 font-medium">
-                {permissions.data?.length ?? 0} apps
+                {permissions.data?.length ?? 0}{' '}
+                {permissions.data?.length === 1 ? 'app' : 'apps'}
               </Pill>
             </div>
             <p className="text-secondary ">
@@ -169,7 +163,7 @@ function RouteComponent() {
             <div className="flex items-center gap-x-2">
               <p className="text-lg">Recovery methods</p>
               <Pill className="rounded-2xl bg-gray4 px-2 font-medium">
-                3 added
+                0 added
               </Pill>
             </div>
             <p className="text-secondary ">
