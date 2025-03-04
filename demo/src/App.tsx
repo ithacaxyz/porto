@@ -14,6 +14,7 @@ import { Hooks as W } from 'porto/wagmi'
 import * as React from 'react'
 import { useAccount, useConnectors } from 'wagmi'
 import LucideBoxes from '~icons/lucide/boxes'
+import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 import OcticonMarkGithub16 from '~icons/octicon/mark-github-16'
 
 import '@rainbow-me/rainbowkit/styles.css'
@@ -225,6 +226,38 @@ export function App() {
           </div>
         </div>
       </div>
+
+      <footer className="mt-8.5 flex justify-between rounded-[20px] border border-gray4 bg-white p-7.5 dark:bg-black">
+        <div className="flex flex-col gap-3">
+          <div className="-tracking-[0.392px] text-[14px] text-black opacity-50 dark:text-white">
+            Upgrade your wallets
+          </div>
+          <div className="-tracking-[0.672px] font-medium text-[24px] text-gray12 leading-[23px]">
+            Porto is wallet infrastructure <i>done right</i>.
+          </div>
+          <div className="-tracking-[0.476px] max-w-[526px] text-[17px] text-gray10 leading-[23px]">
+            Seamlessly integrate onboarding, authentication, payments, and
+            recovery into your product, with no app or extension required.
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            <Button variant="accent">Integrate now</Button>
+            <Button>Reach out</Button>
+          </div>
+          <form className="flex rounded-full border border-gray5 py-1.25 ps-3.25 pe-1.5">
+            <input placeholder="Get email updates..." />
+            <button
+              title="submit"
+              type="submit"
+              className="flex size-[30px] items-center justify-center rounded-full bg-gray5"
+            >
+              <LucideSendHorizontal />
+            </button>
+          </form>
+        </div>
+      </footer>
     </div>
   )
 }
