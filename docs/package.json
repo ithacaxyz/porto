@@ -12,7 +12,8 @@
     "porto": "workspace:*",
     "react": "latest",
     "react-dom": "latest",
-    "vocs": "^1.0.2"
+    "tailwindcss": "latest",
+    "vocs": "latest"
   },
   "devDependencies": {
     "@types/react": "latest",

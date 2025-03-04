@@ -210,8 +210,11 @@ importers:
       react-dom:
         specifier: latest
         version: 19.0.0(react@19.0.0)
+      tailwindcss:
+        specifier: latest
+        version: 4.0.9
       vocs:
-        specifier: ^1.0.2
+        specifier: latest
         version: 1.0.2(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
     devDependencies:
       '@types/react':
@@ -6895,6 +6898,9 @@ packages:
 
   tailwindcss@4.0.7:
     resolution: {integrity: sha512-yH5bPPyapavo7L+547h3c4jcBXcrKwybQRjwdEIVAd9iXRvy/3T1CC6XSQEgZtRySjKfqvo3Cc0ZF1DTheuIdA==}
+
+  tailwindcss@4.0.9:
+    resolution: {integrity: sha512-12laZu+fv1ONDRoNR9ipTOpUD7RN9essRVkX36sjxuRUInpN7hIiHN4lBd/SIFjbISvnXzp8h/hXzmU8SQQYhw==}
 
   tapable@2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
@@ -15438,6 +15444,8 @@ snapshots:
   tailwindcss@4.0.0-beta.9: {}
 
   tailwindcss@4.0.7: {}
+
+  tailwindcss@4.0.9: {}
 
   tapable@2.2.1: {}
 
