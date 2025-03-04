@@ -65,6 +65,7 @@
     "project": ["src/**"],
     "ignore": [
       "app/**",
+      "docs/**",
       "extension/**",
       "**/internal/**",
       "playground/**",
