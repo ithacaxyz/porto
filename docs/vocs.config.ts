@@ -20,19 +20,23 @@ export default defineConfig({
         text: 'Guides',
         items: [
           {
-            text: 'Connecting to Apps',
+            text: 'Connecting to Apps 🚧',
+            disabled: true,
             link: '/sdk/guides/connection',
           },
           {
-            text: 'Authentication (SIWE)',
+            text: 'Authentication (SIWE) 🚧',
+            disabled: true,
             link: '/sdk/guides/authentication',
           },
           {
-            text: 'Payments',
+            text: 'Payments 🚧',
+            disabled: true,
             link: '/sdk/guides/payments',
           },
           {
-            text: 'Subscriptions',
+            text: 'Subscriptions 🚧',
+            disabled: true,
             link: '/sdk/guides/subscriptions',
           },
         ],
@@ -41,69 +45,83 @@ export default defineConfig({
         text: 'API Reference',
         items: [
           {
-            text: 'Porto',
+            text: 'Porto 🚧',
             collapsed: false,
+            disabled: true,
             link: '/sdk/api/porto',
             items: [
               {
                 text: '.create',
+                disabled: true,
                 link: '/sdk/api/porto/create',
               },
             ],
           },
           {
-            text: 'Chains',
+            text: 'Chains 🚧',
+            disabled: true,
             link: '/sdk/api/chains',
           },
           {
-            text: 'Dialog',
+            text: 'Dialog 🚧',
             collapsed: true,
+            disabled: true,
             link: '/sdk/api/dialog',
             items: [
               {
                 text: '.iframe',
+                disabled: true,
                 link: '/sdk/api/dialog/iframe',
               },
               {
                 text: '.popup',
+                disabled: true,
                 link: '/sdk/api/dialog/popup',
               },
             ],
           },
           {
-            text: 'Implementation',
+            text: 'Implementation 🚧',
             collapsed: true,
+            disabled: true,
             link: '/sdk/api/implementation',
             items: [
               {
                 text: '.dialog',
+                disabled: true,
                 link: '/sdk/api/implementation/dialog',
               },
               {
                 text: '.local',
+                disabled: true,
                 link: '/sdk/api/implementation/local',
               },
             ],
           },
           {
-            text: 'Storage',
+            text: 'Storage 🚧',
             collapsed: true,
+            disabled: true,
             link: '/sdk/api/storage',
             items: [
               {
                 text: '.cookie',
+                disabled: true,
                 link: '/sdk/api/storage/cookie',
               },
               {
                 text: '.idb',
+                disabled: true,
                 link: '/sdk/api/storage/idb',
               },
               {
                 text: '.localStorage',
+                disabled: true,
                 link: '/sdk/api/storage/localstorage',
               },
               {
                 text: '.memory',
+                disabled: true,
                 link: '/sdk/api/storage/memory',
               },
             ],
@@ -118,69 +136,85 @@ export default defineConfig({
             link: '/sdk/wagmi',
           },
           {
-            text: 'Actions',
+            text: 'Actions 🚧',
+            disabled: true,
             collapsed: true,
             items: [
               {
                 text: 'connect',
+                disabled: true,
                 link: '/sdk/wagmi/connect',
               },
               {
                 text: 'createAccount',
+                disabled: true,
                 link: '/sdk/wagmi/createAccount',
               },
               {
                 text: 'disconnect',
+                disabled: true,
                 link: '/sdk/wagmi/disconnect',
               },
               {
                 text: 'grantPermissions',
+                disabled: true,
                 link: '/sdk/wagmi/grantPermissions',
               },
               {
                 text: 'permissions',
+                disabled: true,
                 link: '/sdk/wagmi/permissions',
               },
               {
                 text: 'revokePermissions',
+                disabled: true,
                 link: '/sdk/wagmi/revokePermissions',
               },
               {
                 text: 'upgradeAccount',
+                disabled: true,
                 link: '/sdk/wagmi/upgradeAccount',
               },
             ],
           },
           {
-            text: 'Hooks',
+            text: 'Hooks 🚧',
             collapsed: true,
+            disabled: true,
             items: [
               {
                 text: 'useConnect',
+                disabled: true,
                 link: '/sdk/wagmi/useConnect',
               },
               {
                 text: 'useCreateAccount',
+                disabled: true,
                 link: '/sdk/wagmi/useCreateAccount',
               },
               {
                 text: 'useDisconnect',
+                disabled: true,
                 link: '/sdk/wagmi/useDisconnect',
               },
               {
                 text: 'useGrantPermissions',
+                disabled: true,
                 link: '/sdk/wagmi/useGrantPermissions',
               },
               {
                 text: 'usePermissions',
+                disabled: true,
                 link: '/sdk/wagmi/usePermissions',
               },
               {
                 text: 'useRevokePermissions',
+                disabled: true,
                 link: '/sdk/wagmi/useRevokePermissions',
               },
               {
                 text: 'useUpgradeAccount',
+                disabled: true,
                 link: '/sdk/wagmi/useUpgradeAccount',
               },
             ],
@@ -263,34 +297,41 @@ export default defineConfig({
     ],
     '/relay': [
       {
-        text: 'Overview',
-        link: '/relay',
-      },
-      {
         text: 'RPC Reference',
         items: [
           {
-            text: 'wallet_createAccount',
+            text: 'Overview 🚧',
+            disabled: true,
+            link: '/relay/rpc',
+          },
+          {
+            text: 'wallet_createAccount 🚧',
+            disabled: true,
             link: '/relay/rpc/wallet_createAccount',
           },
           {
-            text: 'wallet_getKeys',
+            text: 'wallet_getKeys 🚧',
+            disabled: true,
             link: '/relay/rpc/wallet_getKeys',
           },
           {
-            text: 'wallet_prepareCalls',
+            text: 'wallet_prepareCalls 🚧',
+            disabled: true,
             link: '/relay/rpc/wallet_prepareCalls',
           },
           {
-            text: 'wallet_prepareUpgradeAccount',
+            text: 'wallet_prepareUpgradeAccount 🚧',
+            disabled: true,
             link: '/relay/rpc/wallet_prepareUpgradeAccount',
           },
           {
-            text: 'wallet_sendPreparedCalls',
+            text: 'wallet_sendPreparedCalls 🚧',
+            disabled: true,
             link: '/relay/rpc/wallet_sendPreparedCalls',
           },
           {
-            text: 'wallet_upgradeAccount',
+            text: 'wallet_upgradeAccount 🚧',
+            disabled: true,
             link: '/relay/rpc/wallet_upgradeAccount',
           },
         ],
@@ -324,7 +365,7 @@ export default defineConfig({
     },
     {
       text: 'Relay',
-      link: '/relay',
+      link: '/relay/rpc',
     },
     {
       text: 'Contracts',

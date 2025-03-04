@@ -214,8 +214,8 @@ importers:
         specifier: latest
         version: 4.0.9
       vocs:
-        specifier: latest
-        version: 1.0.2(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+        specifier: 1.0.3
+        version: 1.0.3(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
     devDependencies:
       '@types/react':
         specifier: latest
@@ -7502,8 +7502,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@1.0.2:
-    resolution: {integrity: sha512-hlAH9SUT4NOpaEQGoWay898zkLmGoH3Y+uzzmAiI1ep+7eMYYXJI6YvGagPPAc/SoRjVugTpObQwNXxwG7bB1Q==}
+  vocs@1.0.3:
+    resolution: {integrity: sha512-CJVWNag8GZwTJLoYa4ACUTQ/4NIuX57tsZb8kbsyKL0Wh62rCX24yYYArcwardNu/lxV+kCyZngxsfawXKPtGQ==}
     hasBin: true
     peerDependencies:
       react: ^19
@@ -16043,7 +16043,7 @@ snapshots:
       - supports-color
       - terser
 
-  vocs@1.0.2(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0):
+  vocs@1.0.3(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0):
     dependencies:
       '@floating-ui/react': 0.27.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.13.8(hono@4.7.2)
