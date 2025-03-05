@@ -5,38 +5,17 @@ import { useAccount, useConnectors } from 'wagmi'
 
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
+import * as Constants from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
-import { cn, shuffleArray } from '~/utils'
+import { cn } from '~/utils'
 
 export const Route = createFileRoute('/create-account')({
   component: RouteComponent,
 })
 
-const emojisArray = shuffleArray([
-  '🍕',
-  '🧁',
-  '🦋',
-  '❤️',
-  '😈',
-  '🌟',
-  '🌀',
-  '🌸',
-  '🌈',
-  '🚀',
-  '🌊',
-  '⚡',
-  '🐰',
-  '🐶',
-  '🐱',
-  '🐵',
-  '🐸',
-  '🐮',
-  '🐔',
-])
-
 function RouteComponent() {
   const [label, setLabel] = React.useState('')
-  const [emojis, setEmojis] = React.useState<string[]>(emojisArray)
+  const [emojis, setEmojis] = React.useState<string[]>(Constants.emojisArray)
   const [selectedEmoji, setSelectedEmoji] = React.useState<string>(
     emojis[Math.floor(emojis.length / 2)]!, // middle item
   )

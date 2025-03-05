@@ -1,13 +1,14 @@
 import * as Ariakit from '@ariakit/react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import InboxIcon from '~icons/ic/outline-inbox'
+import MailIcon from '~icons/ic/outline-mail'
 import SecurityIcon from '~icons/ic/outline-security'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
 import WalletCardsIcon from '~icons/lucide/wallet-cards'
 
+import { Pill } from '~/components/Pill'
 import { cn } from '~/utils'
 
-export const Route = createFileRoute('/settings/recovery')({
+export const Route = createFileRoute('/settings/recovery/')({
   component: RouteComponent,
 })
 
@@ -32,7 +33,7 @@ function RouteComponent() {
       </header>
 
       <div className="mt-10 size-full sm:mt-1 sm:px-4">
-        <div className="m-auto flex size-14 items-center justify-center rounded-full bg-purple-200 p-2">
+        <div className="m-auto flex size-14 items-center justify-center rounded-full bg-purple-100 p-2">
           <SecurityIcon className="size-9 text-purple-600" />
         </div>
         <h1 className="mt-4 font-medium text-2xl">Add a recovery method</h1>
@@ -43,31 +44,41 @@ function RouteComponent() {
       </div>
 
       <div className="">
-        <div className="mb-3 w-full px-0.5">
-          <Link
-            to="/"
-            from="/settings/recovery"
-            className="mx-5 flex h-14 items-center justify-between space-x-3 rounded-md px-1 py-2 hover:bg-gray2"
-          >
-            <div className="rounded-full p-2 outline outline-gray5">
-              <WalletCardsIcon className="size-6" />
-            </div>
-            <span className="font-medium text-xl">Backup wallet</span>
-            <ChevronRightIcon className="ml-auto size-6 text-gray9" />
-          </Link>
+        <ul className="mb-3 w-full px-0.5">
+          <li>
+            <Link
+              to="/settings/recovery/wallet"
+              from="/settings/recovery"
+              className="mx-5 flex h-14 items-center justify-between space-x-3 rounded-md px-1 py-2"
+            >
+              <div className="rounded-full p-2 outline outline-gray5">
+                <WalletCardsIcon className="size-6" />
+              </div>
+              <span className="select-none font-medium text-xl">
+                Backup wallet
+              </span>
+              <ChevronRightIcon className="ml-auto size-6 text-gray9" />
+            </Link>
+          </li>
           <Ariakit.Separator className="mx-auto my-2 w-[calc(100%-40px)] text-gray6" />
-          <Link
-            to="/"
-            from="/settings/recovery"
-            className="mx-5 flex h-14 items-center justify-between space-x-3 rounded-md px-1 py-2 hover:bg-gray2"
-          >
-            <div className="rounded-full p-2 outline outline-gray5">
-              <InboxIcon className="size-6" />
-            </div>
-            <span className="font-medium text-xl">Email address</span>
-            <ChevronRightIcon className="ml-auto size-6 text-gray9" />
-          </Link>
-        </div>
+          <li>
+            <Link
+              to="/"
+              disabled={true}
+              from="/settings/recovery"
+              className="mx-5 flex h-14 items-center justify-between space-x-3 rounded-md px-1 py-2"
+            >
+              <div className="rounded-full p-2 outline outline-gray5">
+                <MailIcon className="size-6 text-gray9" />
+              </div>
+              <span className="select-none font-medium text-gray9 text-xl">
+                Email address
+              </span>
+              <Pill>coming soon</Pill>
+              <ChevronRightIcon className="ml-auto size-6 text-gray9" />
+            </Link>
+          </li>
+        </ul>
 
         <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center rounded-md bg-gray3 hover:bg-gray4 sm:mb-1">
           <Link

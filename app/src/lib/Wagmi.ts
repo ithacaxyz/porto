@@ -8,13 +8,11 @@ export const config = createConfig({
   storage: createStorage({ storage: localStorage }),
   connectors: [
     injected({
-      target() {
-        return {
-          name: 'Porto',
-          id: 'porto',
-          provider: porto.provider as never,
-        }
-      },
+      target: () => ({
+        name: 'Porto',
+        id: 'porto',
+        provider: porto.provider as never,
+      }),
     }),
   ],
   multiInjectedProviderDiscovery: false,

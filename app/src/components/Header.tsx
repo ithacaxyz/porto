@@ -55,12 +55,11 @@ export function Header() {
           </span>
           <Ariakit.MenuProvider>
             <Ariakit.MenuButton className="flex items-center gap-x-2">
-              <p className="mr-1 font-semibold text-lg text-primary">
-                {localStorage.getItem('_porto_account_label') ??
-                  StringFormatter.truncate(account?.address ?? '', {
-                    start: 6,
-                    end: 4,
-                  })}
+              <p className="mr-1 font-semibold text-gray10 text-lg">
+                {StringFormatter.truncate(account?.address ?? '', {
+                  start: 6,
+                  end: 4,
+                })}
               </p>
               <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
             </Ariakit.MenuButton>
