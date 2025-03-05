@@ -15,7 +15,7 @@ function RouteComponent() {
   return (
     <main
       className={cn(
-        'mx-auto flex h-screen max-h-[940px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
+        'mx-auto flex h-screen max-h-[940px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-white py-4 text-center',
         'sm:my-52 sm:h-[500px] sm:max-w-[400px] sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
@@ -46,6 +46,7 @@ function RouteComponent() {
         <div className="mb-3 w-full px-0.5">
           <Link
             to="/"
+            from="/settings/recovery"
             className="mx-5 flex h-14 items-center justify-between space-x-3 rounded-md px-1 py-2 hover:bg-gray2"
           >
             <div className="rounded-full p-2 outline outline-gray5">
@@ -57,6 +58,7 @@ function RouteComponent() {
           <Ariakit.Separator className="mx-auto my-2 w-[calc(100%-40px)] text-gray6" />
           <Link
             to="/"
+            from="/settings/recovery"
             className="mx-5 flex h-14 items-center justify-between space-x-3 rounded-md px-1 py-2 hover:bg-gray2"
           >
             <div className="rounded-full p-2 outline outline-gray5">
@@ -70,7 +72,8 @@ function RouteComponent() {
         <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center rounded-md bg-gray3 hover:bg-gray4 sm:mb-1">
           <Link
             to="/settings"
-            className="min-w-full rounded-md font-medium text-lg"
+            from="/settings/recovery"
+            className="my-auto mt-2 size-full min-w-full rounded-md font-medium text-lg"
           >
             I'll do this later
           </Link>
