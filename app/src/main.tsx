@@ -88,9 +88,10 @@ if (
       const devToolsElement = document.querySelector(
         'button[aria-label="Open TanStack Router Devtools"]',
       )
-      if (!devToolsElement) return
+      if (devToolsElement) devToolsElement.hidden = !devToolsElement.hidden
 
-      devToolsElement.hidden = !devToolsElement.hidden
+      const devTools = document.querySelector('div[data-item="dev-tools"]')
+      if (devTools) devTools.hidden = !devTools.hidden
     }
   })
 }
