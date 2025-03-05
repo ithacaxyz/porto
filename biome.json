@@ -3,6 +3,7 @@
   "files": {
     "ignore": [
       "contracts/lib",
+      "dist",
       "extension/.output",
       "extension/.wxt",
       "src/core/internal/generated.ts",

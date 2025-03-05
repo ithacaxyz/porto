@@ -229,7 +229,7 @@ export function usePermissions<
     [address, chainId, parameters.chainId, activeConnector],
   )
 
-  const provider = useRef<EIP1193Provider>()
+  const provider = useRef<EIP1193Provider | undefined>(undefined)
   // biome-ignore lint/correctness/useExhaustiveDependencies: `queryKey` not required
   useEffect(() => {
     if (!activeConnector) return

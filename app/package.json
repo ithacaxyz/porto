@@ -34,7 +34,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "^4.3.4",
     "globals": "^15.14.0",
-    "tailwindcss": "4.0.0-beta.9",
+    "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "unplugin-icons": "^22.0.0",
     "vite": "^6.0.5",

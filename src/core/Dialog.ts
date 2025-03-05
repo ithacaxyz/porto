@@ -113,6 +113,7 @@ export function iframe() {
         to: Messenger.fromWindow(iframe.contentWindow!, {
           targetOrigin: hostUrl.origin,
         }),
+        waitForReady: true,
       })
 
       messenger.on('ready', () => {
@@ -152,6 +153,8 @@ export function iframe() {
           root.showModal()
           document.addEventListener('keydown', onEscape)
           document.body.style.overflow = 'hidden'
+          iframe.removeAttribute('hidden')
+          iframe.removeAttribute('aria-closed')
           iframe.style.display = 'block'
         },
         close() {
@@ -161,6 +164,8 @@ export function iframe() {
           // firefox: explicitly restore/clear `overflow` directly
           document.body.style.overflow = bodyStyle.overflow ?? ''
           iframe.style.display = 'none'
+          iframe.setAttribute('hidden', 'true')
+          iframe.setAttribute('aria-closed', 'true')
         },
         destroy() {
           this.close()

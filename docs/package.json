@@ -1,0 +1,28 @@
+{
+  "name": "docs",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vocs dev",
+    "build": "vocs build",
+    "preview": "vocs preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "catalog:",
+    "cva": "npm:class-variance-authority@^0.7.1",
+    "porto": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "shiki": "^1",
+    "tailwindcss": "catalog:",
+    "viem": "catalog:",
+    "vocs": "latest",
+    "wagmi": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

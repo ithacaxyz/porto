@@ -18,6 +18,8 @@
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter playground --filter app --filter demo dev",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example dev",
+    "docs:build": "pnpm --filter docs build",
+    "docs:dev": "pnpm --filter docs dev",
     "format": "biome format --write",
     "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
     "preconstruct": "tsx ./scripts/preconstruct.ts",
@@ -64,6 +66,7 @@
     "ignore": [
       "app/**",
       "demo/**",
+      "docs/**",
       "extension/**",
       "**/internal/**",
       "playground/**",
@@ -81,7 +84,7 @@
   ],
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["@solana/web3.js", "bs58"]
+      "ignoreMissing": ["*web3.js", "bs58"]
     },
     "patchedDependencies": {
       "@rainbow-me/rainbowkit": "patches/@rainbow-me__rainbowkit.patch",

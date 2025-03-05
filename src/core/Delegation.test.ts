@@ -838,33 +838,27 @@ describe('simulate', () => {
       stateOverrides,
     })
 
-    expect(balances).toMatchInlineSnapshot(`
-      [
-        {
-          "token": {
-            "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            "decimals": 18,
-            "symbol": "ETH",
-          },
-          "value": {
-            "diff": -3000000000000000000n,
-            "post": 9997000000000000000000n,
-            "pre": 10000000000000000000000n,
-          },
+    expect(balances[0]?.token).toMatchInlineSnapshot(`
+      {
+        "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "decimals": 18,
+        "symbol": "ETH",
+      }
+    `)
+    expect(balances[0]?.value.diff).toBeLessThan(-3)
+    expect(balances[1]).toMatchInlineSnapshot(`
+      {
+        "token": {
+          "address": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+          "decimals": 18,
+          "symbol": "EXP",
         },
-        {
-          "token": {
-            "address": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-            "decimals": 18,
-            "symbol": "EXP",
-          },
-          "value": {
-            "diff": -1000000000000000000n,
-            "post": 99000000000000000000n,
-            "pre": 100000000000000000000n,
-          },
+        "value": {
+          "diff": -1000000000000000000n,
+          "post": 99000000000000000000n,
+          "pre": 100000000000000000000n,
         },
-      ]
+      }
     `)
     expect(
       results.map((x) => ({

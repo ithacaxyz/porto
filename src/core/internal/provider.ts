@@ -700,10 +700,14 @@ function getActivePermissions(
       if (key.role !== 'session') return undefined
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
-      return Schema.Encode(
-        Permissions.Schema,
-        Permissions.fromKey(key, { address, chainId }),
-      )
+      try {
+        return Schema.Encode(
+          Permissions.Schema,
+          Permissions.fromKey(key, { address, chainId }),
+        )
+      } catch {
+        return undefined
+      }
     })
     .filter(Boolean) as never
 }

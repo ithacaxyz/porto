@@ -599,14 +599,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (!account) throw new Error('no account found.')
 
             // Build keys to assign onto the account.
-            const keys = account.capabilities?.permissions?.map(
-              (permission) => {
+            const keys = account.capabilities?.permissions
+              ?.map((permission) => {
                 if (permission.id === key?.publicKey) return key
-                return Permissions.toKey(
-                  Schema.Decode(Permissions.Schema, permission),
-                )
-              },
-            )
+                try {
+                  return Permissions.toKey(
+                    Schema.Decode(Permissions.Schema, permission),
+                  )
+                } catch (err) {
+                  console.error(err)
+                  return undefined
+                }
+              })
+              .filter(Boolean) as readonly Key.Key[]
 
             return Account.from({
               address: account.address,
@@ -755,14 +760,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
             })
 
             return result.accounts.map((account) => {
-              const keys = account.capabilities?.permissions?.map(
-                (permission) => {
+              const keys = account.capabilities?.permissions
+                ?.map((permission) => {
                   if (permission.id === key?.publicKey) return key
-                  return Permissions.toKey(
-                    Schema.Decode(Permissions.Schema, permission),
-                  )
-                },
-              )
+                  try {
+                    return Permissions.toKey(
+                      Schema.Decode(Permissions.Schema, permission),
+                    )
+                  } catch (err) {
+                    console.error(err)
+                    return undefined
+                  }
+                })
+                .filter(Boolean) as readonly Key.Key[]
 
               return Account.from({
                 address: account.address,

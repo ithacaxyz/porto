@@ -8,6 +8,7 @@ import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
+import * as Value from 'ox/Value'
 import {
   type AbiStateMutability,
   type Account,
@@ -479,6 +480,8 @@ export async function simulate<
 
   const account = DelegatedAccount.from(parameters.account)
 
+  const balance_tmp = Value.fromEther('99999999')
+
   // Derive bytecode to extract ETH balance via a contract call.
   const getBalanceData = AbiConstructor.encode(
     AbiConstructor.from('constructor(bytes, bytes)'),
@@ -552,6 +555,9 @@ export async function simulate<
 
       // Perform calls
       {
+        blockOverrides: {
+          baseFeePerGas: 0n,
+        },
         calls: [...parameters.calls, {}].map((call, i) => ({
           ...(call as any),
           from: account.address,
@@ -560,6 +566,7 @@ export async function simulate<
         stateOverrides: [
           {
             address: account.address,
+            balance: balance_tmp,
             nonce: 0,
           },
         ],
@@ -632,8 +639,10 @@ export async function simulate<
   // Extract pre-execution ETH and ERC20 balances.
   const ethPre = block_ethPre?.calls ?? []
   const erc20Pre = block_erc20Pre?.calls ?? []
-  const balancesPre = [...ethPre, ...erc20Pre].map((call) =>
-    call.status === 'success' ? Hex.toBigInt(call.data) : null,
+  const balancesPre = [...ethPre, ...erc20Pre].map((call, index) =>
+    call.status === 'success'
+      ? Hex.toBigInt(call.data) + (index === 0 ? balance_tmp : 0n)
+      : null,
   )
 
   // Extract post-execution ETH and ERC20 balances.
@@ -680,12 +689,23 @@ export async function simulate<
     if (balances.some((balance) => balance.token.address === token.address))
       continue
 
+    let diff = balancePost - balancePre
+    const diff_abs = diff < 0n ? -diff : diff
+    // TODO: this is a temporary. we will remove this & execute
+    // via 7702 to get more accurate result
+    if (
+      token.address === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' &&
+      diff_abs >= 0 &&
+      diff_abs < Value.fromEther('0.000001')
+    )
+      diff = 0n
+
     balances.push({
       token,
       value: {
         pre: balancePre,
         post: balancePost,
-        diff: balancePost - balancePre,
+        diff,
       },
     })
   }
