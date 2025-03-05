@@ -1,34 +1,58 @@
-import { Implementation, Porto, Storage } from 'porto'
-import { custom, defineChain } from 'viem'
-import * as chains from 'viem/chains'
+import { Chains, Implementation, Porto, Storage } from 'porto'
+import { http, type Transport, custom, defineChain } from 'viem'
 
-import { anvilMainnet } from './anvil.js'
+import { type Chain, odysseyTestnet } from '../../src/core/Chains.js'
+import { anvilOdyssey } from './anvil.js'
+import { relayOdyssey } from './relay.js'
 
-const anvil = defineChain({
-  ...chains.mainnet,
+export const defaultChain = defineChain({
+  ...odysseyTestnet,
   contracts: {
-    ...chains.mainnet.contracts,
-    delegation: {
-      address: '0x0ff027b63351364071425cF65d4FEce75a8e17B8',
+    ...odysseyTestnet.contracts,
+    entryPoint: {
+      address: '0x307AF7d28AfEE82092aA95D35644898311CA5360',
     },
   },
   rpcUrls: {
-    default: { http: [anvilMainnet.rpcUrl] },
+    default: { http: [anvilOdyssey.rpcUrl] },
   },
 })
 
-export const createPorto = () =>
-  Porto.create({
-    chains: [anvil],
-    implementation: Implementation.mock(),
+export function getPorto(
+  parameters: {
+    chain?: Chain | undefined
+    transports?:
+      | {
+          default?: Transport | undefined
+          relay?: true | Transport | undefined
+        }
+      | undefined
+  } = {},
+) {
+  const { chain = defaultChain, transports = {} } = parameters
+  const porto = Porto.create({
+    chains: [chain],
+    implementation: Implementation.local({
+      mock: true,
+    }),
     storage: Storage.memory(),
     transports: {
-      [anvil.id]: custom(anvilMainnet),
+      [Chains.odysseyTestnet.id]: {
+        default: transports.default ?? custom(anvilOdyssey),
+        relay: transports.relay
+          ? transports.relay === true
+            ? http(relayOdyssey.rpcUrl)
+            : transports.relay
+          : undefined,
+      },
     },
   })
 
-export const porto = createPorto()
-export const client = Porto.getClient(porto).extend(() => ({
-  mode: 'anvil',
-}))
-export const delegation = client.chain.contracts.delegation.address
+  const client = Porto.getClient(porto).extend(() => ({
+    mode: 'anvil',
+  }))
+
+  const delegation = client.chain.contracts.delegation.address
+
+  return { client, delegation, porto }
+}

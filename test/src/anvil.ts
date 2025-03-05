@@ -10,12 +10,18 @@ import {
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { prepareTransactionRequest, signTransaction } from 'viem/actions'
+import { odysseyTestnet } from 'viem/chains'
 
-export const anvilMainnet = defineAnvil({
+export const anvilOdyssey = defineAnvil({
+  chainId: odysseyTestnet.id,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.merkle.io'),
   forkBlockNumber: 19868020n,
   port: 8545,
   loadState: resolve(import.meta.dirname, 'anvil.json'),
+  dumpState: resolve(
+    import.meta.dirname,
+    '.logs/anvil-' + new Date().getTime() + '.json',
+  ),
 })
 
 /////////////////////////////////////////////////////////////////
@@ -75,6 +81,7 @@ function defineAnvil(parameters: AnvilParameters) {
 
   return {
     config,
+    port,
     request: provider.request,
     async restart() {
       await fetch(`${rpcUrl}/restart`)
