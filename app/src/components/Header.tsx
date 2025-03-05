@@ -50,16 +50,17 @@ export function Header() {
           </>
         )}
         <div className="flex flex-row items-center gap-x-2">
-          <span className="rounded-full bg-accent/20 px-2 py-1">
-            {localStorage.getItem('_porto_emoji') ?? '🌀'}
+          <span className="rounded-full bg-accent/20 px-3 py-2 text-md">
+            {localStorage.getItem('_porto_account_emoji') ?? '🌀'}
           </span>
           <Ariakit.MenuProvider>
             <Ariakit.MenuButton className="flex items-center gap-x-2">
               <p className="mr-1 font-semibold text-lg text-primary">
-                {StringFormatter.truncate(account?.address ?? '', {
-                  start: 6,
-                  end: 4,
-                })}
+                {localStorage.getItem('_porto_account_label') ??
+                  StringFormatter.truncate(account?.address ?? '', {
+                    start: 6,
+                    end: 4,
+                  })}
               </p>
               <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
             </Ariakit.MenuButton>

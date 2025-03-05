@@ -49,7 +49,7 @@ function RouteComponent() {
 
   if (connect.isPending) {
     return (
-      <div className="-mt-48 mx-auto flex h-screen w-screen items-center justify-center">
+      <div className="-mt-68 mx-auto flex h-screen w-screen items-center justify-center">
         <IndeterminateLoader title="Signing up…" />
       </div>
     )
@@ -162,13 +162,18 @@ function RouteComponent() {
         <div className="mb-2 sm:mb-1 sm:px-5">
           <Button
             onClick={() => {
+              const selectedLabel =
+                label.length > 0 ? `${selectedEmoji}-${label}` : undefined
               connect.mutate({
                 connector: connector!,
                 createAccount: {
-                  label:
-                    label.length > 0 ? `${selectedEmoji}-${label}` : undefined,
+                  label: selectedLabel,
                 },
               })
+              if (selectedLabel) {
+                localStorage.setItem('_porto_account_label', label)
+                localStorage.setItem('_porto_account_emoji', selectedEmoji)
+              }
             }}
             variant="invert"
             className="w-full rounded-lg font-medium text-lg"
