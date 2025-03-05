@@ -6,13 +6,13 @@ import { useAccount, useConnectors } from 'wagmi'
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { config } from '~/lib/Wagmi'
-import { cn } from '~/utils'
+import { cn, shuffleArray } from '~/utils'
 
 export const Route = createFileRoute('/create-account')({
   component: RouteComponent,
 })
 
-const emojis = [
+const emojisArray = shuffleArray([
   '🍕',
   '🧁',
   '🦋',
@@ -24,13 +24,22 @@ const emojis = [
   '🌈',
   '🚀',
   '🌊',
-  '🧁',
+  '⚡',
   '🐰',
-]
+  '🐶',
+  '🐱',
+  '🐵',
+  '🐸',
+  '🐮',
+  '🐔',
+])
 
 function RouteComponent() {
   const [label, setLabel] = React.useState('')
-  const [selectedEmoji, setSelectedEmoji] = React.useState('🌀')
+  const [emojis, setEmojis] = React.useState<string[]>(emojisArray)
+  const [selectedEmoji, setSelectedEmoji] = React.useState<string>(
+    emojis[Math.floor(emojis.length / 2)]!, // middle item
+  )
 
   const account = useAccount()
   const connect = Hooks.useConnect({ config })
@@ -50,7 +59,7 @@ function RouteComponent() {
     <div
       className={cn(
         'mx-auto flex h-screen w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
-        'sm:my-52 sm:h-[500px] sm:shadow-2xs sm:outline sm:outline-gray4',
+        'sm:my-52 sm:h-[500px] sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
       <div className="flex justify-between sm:px-5">
@@ -95,18 +104,49 @@ function RouteComponent() {
               className={cn(
                 'my-2 flex items-center justify-center rounded-full text-2xl outline outline-white transition-colors',
                 selectedEmoji === emoji
-                  ? 'border-2 border-gray5 p-2 text-accent'
+                  ? 'border-2 border-gray3 p-2'
                   : 'border-gray9 hover:border-gray10',
               )}
             >
               <button
                 type="button"
-                onClick={() => setSelectedEmoji(emoji)}
+                onClick={() => {
+                  setSelectedEmoji(emoji)
+                  const currentIndex = emojis.indexOf(emoji)
+                  const newIndex = Math.floor(emojis.length / 2)
+                  const newEmojis = emojis.toSpliced(
+                    newIndex,
+                    0,
+                    emojis.splice(currentIndex, 1)[0]!,
+                  )
+                  setEmojis(newEmojis)
+
+                  // `requestAnimationFrame` to ensure the DOM has updated before scrolling
+                  requestAnimationFrame(() => {
+                    const button = document.querySelector(
+                      `button[data-emoji="${emoji}"]`,
+                    )
+                    const container = button?.closest('.scrollbar-none')
+                    if (button && container) {
+                      const containerRect = container.getBoundingClientRect()
+                      const buttonRect = button.getBoundingClientRect()
+                      const scrollLeft =
+                        container.scrollLeft +
+                        (buttonRect.left - containerRect.left) -
+                        (containerRect.width - buttonRect.width) / 2
+                      container.scrollTo({
+                        left: scrollLeft,
+                        behavior: 'smooth',
+                      })
+                    }
+                  })
+                }}
+                data-emoji={emoji}
                 className={cn(
-                  'flex size-12 shrink-0 items-center justify-center rounded-full text-2xl transition-colors',
+                  'my-auto flex shrink-0 items-center justify-center rounded-full transition-colors',
                   selectedEmoji === emoji
-                    ? 'bg-accent/20 text-white'
-                    : 'bg-gray3 hover:bg-gray4',
+                    ? 'size-16 bg-accent/20 text-4xl text-white'
+                    : 'size-12 bg-gray3 text-2xl hover:bg-gray4',
                 )}
               >
                 {emoji}
@@ -117,16 +157,16 @@ function RouteComponent() {
         <div className="mb-2 sm:mb-1 sm:px-5">
           <Button
             onClick={() => {
-              // setSignUp(true)
               connect.mutate({
                 connector: connector!,
                 createAccount: {
-                  label: `${selectedEmoji}-${label}`,
+                  label:
+                    label.length > 0 ? `${selectedEmoji}-${label}` : undefined,
                 },
               })
             }}
             variant="invert"
-            className="w-full rounded-lg font-medium"
+            className="w-full rounded-lg font-medium text-lg"
           >
             Continue
           </Button>

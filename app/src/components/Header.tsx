@@ -4,16 +4,18 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
-import { StringFormatter, cn } from '~/utils'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import ChevronLeftIcon from '~icons/lucide/chevron-left'
 import CopyIcon from '~icons/lucide/copy'
 import LogoutIcon from '~icons/lucide/log-out'
 import SettingsIcon from '~icons/lucide/settings'
+
+import { StringFormatter, cn } from '~/utils'
 import { DevOnly } from './DevOnly'
 
 export function Header() {
   const account = useAccount()
+
   const disconnect = Hooks.useDisconnect()
 
   const location = useLocation()
