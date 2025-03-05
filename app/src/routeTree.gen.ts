@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as WithdrawImport } from './routes/withdraw'
 import { Route as PlaygroundImport } from './routes/playground'
+import { Route as CreateAccountImport } from './routes/create-account'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as IndexImport } from './routes/index'
 import { Route as SettingsIndexImport } from './routes/settings/index'
@@ -38,6 +39,12 @@ const WithdrawRoute = WithdrawImport.update({
 const PlaygroundRoute = PlaygroundImport.update({
   id: '/playground',
   path: '/playground',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CreateAccountRoute = CreateAccountImport.update({
+  id: '/create-account',
+  path: '/create-account',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -139,6 +146,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof DialogImport
+      parentRoute: typeof rootRoute
+    }
+    '/create-account': {
+      id: '/create-account'
+      path: '/create-account'
+      fullPath: '/create-account'
+      preLoaderRoute: typeof CreateAccountImport
       parentRoute: typeof rootRoute
     }
     '/playground': {
@@ -267,6 +281,7 @@ const DialogRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof DialogRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
@@ -285,6 +300,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof DialogRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
@@ -304,6 +320,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_dialog': typeof DialogRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
@@ -324,6 +341,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | ''
+    | '/create-account'
     | '/playground'
     | '/withdraw'
     | '/settings/permissions'
@@ -341,6 +359,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | ''
+    | '/create-account'
     | '/playground'
     | '/withdraw'
     | '/settings/permissions'
@@ -358,6 +377,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_dialog'
+    | '/create-account'
     | '/playground'
     | '/withdraw'
     | '/settings/permissions'
@@ -377,6 +397,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DialogRoute: typeof DialogRouteWithChildren
+  CreateAccountRoute: typeof CreateAccountRoute
   PlaygroundRoute: typeof PlaygroundRoute
   WithdrawRoute: typeof WithdrawRoute
   SettingsPermissionsRoute: typeof SettingsPermissionsRoute
@@ -387,6 +408,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DialogRoute: DialogRouteWithChildren,
+  CreateAccountRoute: CreateAccountRoute,
   PlaygroundRoute: PlaygroundRoute,
   WithdrawRoute: WithdrawRoute,
   SettingsPermissionsRoute: SettingsPermissionsRoute,
@@ -406,6 +428,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_dialog",
+        "/create-account",
         "/playground",
         "/withdraw",
         "/settings/permissions",
@@ -428,6 +451,9 @@ export const routeTree = rootRoute
         "/_dialog/dialog/wallet_connect",
         "/_dialog/dialog/wallet_sendCalls"
       ]
+    },
+    "/create-account": {
+      "filePath": "create-account.tsx"
     },
     "/playground": {
       "filePath": "playground.tsx"

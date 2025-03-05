@@ -24,8 +24,6 @@ export const Route = createFileRoute('/settings/')({
   }),
 })
 
-const emojis = ['🌀', '🚀', '🌟', '🌈', '🌸']
-
 function RouteComponent() {
   const account = useAccount()
 

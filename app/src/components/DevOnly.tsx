@@ -32,7 +32,10 @@ export function DevOnly() {
 
   if (!NON_PRODUCTION) return null
   return (
-    <div className="fixed bottom-0 left-0 w-full border-t border-t-blackA8 bg-white pt-1 pb-3 pl-3">
+    <div
+      data-item="dev-tools"
+      className="fixed bottom-0 left-0 w-full border-t border-t-blackA8 bg-white pt-1 pb-3 pl-3"
+    >
       <pre className="mb-1">dev only</pre>
 
       <div className="flex gap-x-2">

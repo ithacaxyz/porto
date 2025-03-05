@@ -1,5 +1,5 @@
+import { useNavigate } from '@tanstack/react-router'
 import { Hooks } from 'porto/wagmi'
-import { useState } from 'react'
 import { useConnectors } from 'wagmi'
 
 import { Button } from '~/components/Button'
@@ -8,7 +8,8 @@ import { IthacaMark } from '~/components/IthacaMark'
 import { config } from '~/lib/Wagmi'
 
 export function Landing() {
-  const [signUp, setSignUp] = useState(false)
+  const navigate = useNavigate()
+
   const connect = Hooks.useConnect({ config })
   const [connector] = useConnectors({ config })
 
@@ -44,7 +45,7 @@ export function Landing() {
           {connect.isPending ? (
             <div>
               <IndeterminateLoader
-                title={signUp ? 'Signing up...' : 'Signing in...'}
+                title={'Signing in...'}
                 description=""
                 hint=""
               />
@@ -53,15 +54,7 @@ export function Landing() {
             <div className="space-y-3">
               <div className="flex gap-2">
                 <Button
-                  onClick={() => {
-                    setSignUp(true)
-                    connect
-                      .mutateAsync({
-                        connector: connector!,
-                        createAccount: true,
-                      })
-                      .finally(() => setSignUp(false))
-                  }}
+                  onClick={() => navigate({ to: '/create-account' })}
                   className="flex-grow"
                   variant="accent"
                 >
