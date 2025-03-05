@@ -286,10 +286,21 @@ importers:
         version: 4.0.10
       viem:
         specifier: 'catalog:'
+<<<<<<< HEAD
         version: 2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
       vocs:
         specifier: latest
         version: 1.0.5(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+=======
+<<<<<<< HEAD
+        version: 2.23.6(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2)
+=======
+        version: 2.23.1(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2)
+      vocs:
+        specifier: 1.0.4
+        version: 1.0.4(patch_hash=a35k3dwgeiybwvsnckqto7paqa)(@types/node@22.13.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.39.0)(tsx@4.19.3)(typescript@5.7.3)(yaml@2.7.0)
+>>>>>>> e162b44 (fix: lock)
+>>>>>>> 1c91a34 (fix: lock)
       wagmi:
         specifier: 'catalog:'
         version: 2.14.12(@tanstack/query-core@5.67.1)(@tanstack/react-query@5.67.1(react@19.0.0))(@types/react@19.0.10)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.0.0)(typescript@5.8.2)(utf-8-validate@5.0.10)(viem@2.23.6(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2))(zod@3.24.2)
@@ -8117,8 +8128,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@1.0.5:
-    resolution: {integrity: sha512-jrJGXmH64SGpS2XmX12qlKcgjHX3EDGVzLcCgDerEd0PGrQHhsibF2d0mymqFLlnlmQ08gN+tnK1xqaPW1KeeQ==}
+  vocs@1.0.4:
+    resolution: {integrity: sha512-YpGYM5UyP4I8bVh+qX6Y8sN2eDOeonwogSK6mjhtnJLx1EV/WNQhQGWm21Xgl01jAe6HLAkwvK+9rVsPNiph/A==}
     hasBin: true
     peerDependencies:
       react: ^19
@@ -18389,7 +18400,11 @@ snapshots:
       - supports-color
       - terser
 
+<<<<<<< HEAD
   vocs@1.0.5(@types/node@22.13.9)(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.1)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.7.0):
+=======
+  vocs@1.0.4(patch_hash=a35k3dwgeiybwvsnckqto7paqa)(@types/node@22.13.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.39.0)(tsx@4.19.3)(typescript@5.7.3)(yaml@2.7.0):
+>>>>>>> e162b44 (fix: lock)
     dependencies:
       '@floating-ui/react': 0.27.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.13.8(hono@4.7.4)
