@@ -2,6 +2,9 @@ import { type ClassValue, clsx } from 'clsx'
 import { Value } from 'ox'
 import { twMerge } from 'tailwind-merge'
 
+export const shuffleArray = <T>(array: T[]): T[] =>
+  array.sort(() => Math.random() - 0.5)
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
