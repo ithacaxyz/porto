@@ -193,7 +193,11 @@ export function Dashboard() {
                               !asset.price.change && 'text-secondary',
                             )}
                           >
-                            {asset.price.change > 0 ? '↑' : '↓'}
+                            {asset.price.change > 0
+                              ? '↑'
+                              : asset.price.change < 0
+                                ? '↓'
+                                : ''}
                             {PercentFormatter.format(asset.price.change)
                               .toString()
                               .replaceAll('-', '')}
