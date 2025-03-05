@@ -1,11 +1,14 @@
 import * as fs from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url' 
 import { getExports } from './utils/exports.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // biome-ignore lint/suspicious/noConsoleLog:
 console.log('Setting up packages for development.')
 
-const packagePath = resolve(import.meta.dirname, '../src/package.json')
+const packagePath = resolve(__dirname, '../src/package.json') 
 const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'))
 
 // biome-ignore lint/suspicious/noConsoleLog:
@@ -29,7 +32,7 @@ for (const [key, distExports] of Object.entries(exports.dist ?? {})) {
       ['default', distExports],
       ['types', distExports.replace('.js', '.d.ts')],
     ]
-  else entries = Object.entries(distExports as {})
+  else entries = Object.entries(distExports as Record<string, string>)
 
   // Link exports to dist locations
   for (const [, value] of entries as [
@@ -47,7 +50,9 @@ for (const [key, distExports] of Object.entries(exports.dist ?? {})) {
     // Symlink src to dist file
     try {
       fs.symlinkSync(srcFilePath, distFilePath, 'file')
-    } catch {}
+    } catch (error) {
+      console.error(`Failed to create symlink: ${error.message}`)
+    }
   }
 }
 
