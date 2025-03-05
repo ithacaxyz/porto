@@ -165,8 +165,6 @@
   --text-color-success: var(--color-green10);
   --text-color-warning: var(--color-amber8);
 
-  --height-button: 42px;
-  
   --radius-default: calc(infinity * 1px);
 }
 

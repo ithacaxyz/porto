@@ -9,22 +9,25 @@ import {
   useChainModal,
   useConnectModal,
 } from '@rainbow-me/rainbowkit'
-import { type VariantProps, cva, cx } from 'cva'
+import { type VariantProps, cva } from 'cva'
 import { Hooks as W } from 'porto/wagmi'
 import * as React from 'react'
+import type { Address } from 'viem'
 import { useAccount, useConnectors } from 'wagmi'
+import { odysseyTestnet } from 'wagmi/chains'
 import LucideBoxes from '~icons/lucide/boxes'
+import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 import OcticonMarkGithub16 from '~icons/octicon/mark-github-16'
 
 import '@rainbow-me/rainbowkit/styles.css'
 
-import { odysseyTestnet } from 'wagmi/chains'
 import { Wagmi } from '~/config'
 
 export function App() {
   const colorScheme = usePrefersColorScheme()
 
+  const { address } = useAccount()
   const [provider, setProvider] = React.useState<
     'wagmi' | 'privy' | 'rainbowkit'
   >('wagmi')
@@ -71,7 +74,7 @@ export function App() {
       </header>
 
       <div className="mt-8 flex gap-9">
-        <div className="flex max-w-[300px] flex-col">
+        <div className="flex w-full max-w-[300px] flex-col">
           <div className="mb-6">
             <Step>Install Porto</Step>
 
@@ -107,6 +110,7 @@ export function App() {
                     value="wagmi"
                     icon={<WagmiLogo />}
                     onChange={setProvider}
+                    disabled={Boolean(address)}
                   >
                     Wagmi
                   </Radio>
@@ -115,14 +119,16 @@ export function App() {
                     value="privy"
                     icon={<PrivyLogo />}
                     onChange={setProvider}
+                    disabled={Boolean(address)}
                   >
                     Privy
                   </Radio>
                   <Radio
                     checked={provider === 'rainbowkit'}
                     value="rainbowkit"
-                    icon={<div />}
+                    icon={<RainbowLogo />}
                     onChange={setProvider}
+                    disabled={Boolean(address)}
                   >
                     RainbowKit
                   </Radio>
@@ -132,7 +138,7 @@ export function App() {
 
             <div className="-tracking-[0.392px] mt-5 font-medium text-[14px] text-gray9 leading-none">
               Don’t see your provider?{' '}
-              <a href="TODO" className="text-blue9">
+              <a href="#TODO" className="text-blue9">
                 Reach out →
               </a>
             </div>
@@ -262,44 +268,72 @@ export function App() {
   )
 }
 
+function SignedIn(props: SignedIn.Props) {
+  const { address, icon, onDisconnect } = props
+  const disconnect = W.useDisconnect({
+    mutation: {
+      onSuccess() {
+        onDisconnect?.()
+      },
+    },
+  })
+  return (
+    <div className="flex gap-2">
+      <div className="-tracking-[0.448px] flex h-9.5 flex-grow items-center justify-center gap-1.25 rounded-full bg-gray4 px-2.75 font-medium text-[16px] text-gray12 leading-none">
+        <div className="flex size-6 items-center justify-center">{icon}</div>
+        <div>{StringFormatter.truncate(address, { start: 6, end: 4 })}</div>
+      </div>
+      <Button variant="destructive" onClick={() => disconnect.mutate({})}>
+        Sign out
+      </Button>
+    </div>
+  )
+}
+declare namespace SignedIn {
+  type Props = {
+    address: Address
+    icon: React.ReactElement
+    onDisconnect?: (() => void) | undefined
+  }
+}
+
 function CustomDemo() {
   const account = useAccount()
-  const disconnect = W.useDisconnect()
 
-  const [signUp, setSignUp] = React.useState(false)
   const connect = W.useConnect()
   const [connector] = useConnectors()
 
   if (account.status === 'connected')
-    return <Button onClick={() => disconnect.mutate({})}>Logout</Button>
+    return (
+      <SignedIn
+        icon={
+          <div className="flex size-6 items-center justify-center rounded-full bg-blueA3 text-center">
+            🌀
+          </div>
+        }
+        address={account.address}
+      />
+    )
 
   if (connect.isPending)
     return (
-      <div className="flex min-h-10.5 items-center">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-full bg-accentTint p-[6px] text-accent">
-            <Spinner />
-          </div>
-
-          <div className="font-medium text-[18px] text-primary">
-            {signUp ? 'Signing up...' : 'Signing in...'}
-          </div>
+      <div className="flex">
+        <div className="-tracking-[0.448px] flex h-9.5 flex-grow items-center justify-center gap-1.25 rounded-full bg-gray4 px-2.75 font-medium text-[16px] text-gray9 leading-none">
+          <LucidePictureInPicture2 className="mt-px size-5" />
+          <span>Check passkey prompt</span>
         </div>
       </div>
     )
 
   return (
-    <div className="space-x-3">
+    <div className="flex gap-2">
       <Button
-        onClick={() => {
-          setSignUp(true)
-          connect
-            .mutateAsync({
-              connector: connector!,
-              createAccount: true,
-            })
-            .finally(() => setSignUp(false))
-        }}
+        onClick={() =>
+          connect.mutateAsync({
+            connector: connector!,
+            createAccount: true,
+          })
+        }
         className="flex-grow"
         variant="accent"
       >
@@ -349,12 +383,26 @@ function RainbowKitDemo() {
   if (accountModalOpen || chainModalOpen) return null
   if ((connectModalOpen && !account.address) || active) return null
 
+  if (account.status === 'connected')
+    return (
+      <SignedIn
+        icon={
+          <div className="size-5">
+            <RainbowLogo />
+          </div>
+        }
+        address={account.address}
+        onDisconnect={() => {
+          openConnectModal?.()
+        }}
+      />
+    )
+
   return <ConnectButton />
 }
 
 function PrivyDemo() {
   const account = useAccount()
-  const disconnect = W.useDisconnect()
 
   const privy = usePrivy()
 
@@ -363,16 +411,19 @@ function PrivyDemo() {
     privy.connectWallet()
   }, [])
 
-  if (account.address)
+  if (account.status === 'connected')
     return (
-      <Button
-        onClick={async () => {
-          disconnect.mutate({})
+      <SignedIn
+        icon={
+          <div className="size-5">
+            <PrivyLogo />
+          </div>
+        }
+        address={account.address}
+        onDisconnect={async () => {
           privy.connectWallet()
         }}
-      >
-        Logout
-      </Button>
+      />
     )
 
   return (
@@ -380,6 +431,16 @@ function PrivyDemo() {
       <LoginModal open />
     </div>
   )
+}
+
+namespace StringFormatter {
+  export function truncate(
+    str: string,
+    { start = 8, end = 6 }: { start?: number; end?: number } = {},
+  ) {
+    if (str.length <= start + end) return str
+    return `${str.slice(0, start)}\u2026${str.slice(-end)}`
+  }
 }
 
 function Button(props: Button.Props) {
@@ -420,7 +481,7 @@ namespace Button {
           true: 'pointer-events-none opacity-50',
         },
         size: {
-          default: 'h-button px-5 text-[15px]',
+          default: 'h-9.5 px-5 -tracking-[0.448px] text-[16px] font-medium',
         },
       },
       defaultVariants: {
@@ -428,28 +489,6 @@ namespace Button {
         size: 'default',
       },
     },
-  )
-}
-
-function Spinner({ className }: { className?: string }) {
-  return (
-    <svg
-      className={cx('h-full w-full animate-spin', className)}
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 20 21"
-      fill="none"
-    >
-      <path
-        fill="currentColor"
-        opacity={0.3}
-        d="M10 0.5C8.02219 0.5 6.08879 1.08649 4.4443 2.1853C2.79981 3.28412 1.51809 4.8459 0.761209 6.67316C0.00433288 8.50043 -0.1937 10.5111 0.192152 12.4509C0.578004 14.3907 1.53041 16.1725 2.92894 17.5711C4.32746 18.9696 6.10929 19.922 8.0491 20.3078C9.98891 20.6937 11.9996 20.4957 13.8268 19.7388C15.6541 18.9819 17.2159 17.7002 18.3147 16.0557C19.4135 14.4112 20 12.4778 20 10.5C20 7.84783 18.9464 5.3043 17.0711 3.42893C15.1957 1.55357 12.6522 0.5 10 0.5ZM10 17.7727C8.56159 17.7727 7.15549 17.3462 5.95949 16.547C4.7635 15.7479 3.83134 14.6121 3.28088 13.2831C2.73042 11.9542 2.5864 10.4919 2.86702 9.08116C3.14764 7.67039 3.8403 6.37451 4.85741 5.3574C5.87452 4.3403 7.17039 3.64764 8.58116 3.36702C9.99193 3.0864 11.4542 3.23042 12.7832 3.78088C14.1121 4.33133 15.2479 5.26349 16.0471 6.45949C16.8462 7.65548 17.2727 9.06159 17.2727 10.5C17.2727 12.4288 16.5065 14.2787 15.1426 15.6426C13.7787 17.0065 11.9288 17.7727 10 17.7727Z"
-      />
-      <path
-        fill="currentColor"
-        d="M10 3.22767C11.7423 3.22846 13.4276 3.8412 14.7556 4.95667C16.0837 6.07214 16.9681 7.61784 17.2512 9.31825C17.3012 9.64364 17.4662 9.94096 17.7169 10.1573C17.9677 10.3737 18.2878 10.4951 18.6205 10.5C18.8211 10.5001 19.0193 10.457 19.2012 10.3735C19.3832 10.2901 19.5445 10.1684 19.674 10.017C19.8036 9.86549 19.8981 9.68789 19.9511 9.49656C20.004 9.30523 20.0141 9.10478 19.9807 8.90918C19.5986 6.56305 18.3843 4.42821 16.5554 2.88726C14.7265 1.34631 12.4025 0.5 10 0.5C7.59751 0.5 5.27354 1.34631 3.44461 2.88726C1.61569 4.42821 0.401366 6.56305 0.0192815 8.90918C-0.0141442 9.10478 -0.00402016 9.30523 0.0489472 9.49656C0.101914 9.68789 0.196449 9.86549 0.325956 10.017C0.455463 10.1684 0.616823 10.2901 0.798778 10.3735C0.980732 10.457 1.1789 10.5001 1.37945 10.5C1.71216 10.4951 2.03235 10.3737 2.28307 10.1573C2.5338 9.94096 2.69883 9.64364 2.74882 9.31825C3.03193 7.61784 3.91633 6.07214 5.24436 4.95667C6.57239 3.8412 8.25775 3.22846 10 3.22767Z"
-      />
-    </svg>
   )
 }
 
@@ -481,12 +520,13 @@ function Radio(props: Radio.Props) {
     // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
     <label
       {...(rest.checked ? { 'data-checked': true } : {})}
-      className="-tracking-[0.448px] flex w-full items-center gap-2 rounded-full border border-gray5 p-2.5 font-medium text-[16px] text-gray12 leading-none hover:bg-white data-checked:border-blue9 data-checked:bg-blue3 dark:hover:bg-gray3"
+      {...(rest.disabled ? { 'data-disabled': true } : {})}
+      className="-tracking-[0.448px] flex w-full items-center gap-2 rounded-full border border-gray5 p-2.5 font-medium text-[16px] text-gray12 leading-none not-data-disabled:hover:bg-white data-disabled:cursor-not-allowed data-checked:border-blue9 data-checked:bg-blue3 dark:not-data-disabled:not-data-checked:hover:bg-gray3"
     >
       <Ariakit.VisuallyHidden>
         <Ariakit.Radio {...rest} onChange={() => onChange(props.value)} />
       </Ariakit.VisuallyHidden>
-      <div className="w-6"> {icon}</div>
+      <div className="w-5">{icon}</div>
       <span>{children}</span>
     </label>
   )
@@ -638,18 +678,19 @@ function PortoLogo() {
 function WagmiLogo() {
   return (
     <svg
-      width="24"
-      height="11"
+      width="100%"
+      height="auto"
       viewBox="0 0 24 11"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      className="text-[#1B1B1B] dark:text-white"
     >
       <path
         fillRule="evenodd"
         clipRule="evenodd"
         d="M2.67052 6.6763C2.67052 7.41374 3.26834 8.01156 4.00578 8.01156H6.6763C7.41374 8.01156 8.01156 7.41374 8.01156 6.6763L8.01156 1.33526C8.01156 0.597817 8.60938 0 9.34682 0C10.0843 0 10.6821 0.597816 10.6821 1.33526V6.6763C10.6821 7.41374 11.2799 8.01156 12.0173 8.01156H14.6879C15.4253 8.01156 16.0231 7.41374 16.0231 6.6763V1.33526C16.0231 0.597816 16.6209 0 17.3584 0C18.0958 0 18.6936 0.597817 18.6936 1.33526V9.34682C18.6936 10.0843 18.0958 10.6821 17.3584 10.6821H1.33526C0.597816 10.6821 0 10.0843 0 9.34682L4.76837e-07 1.33526C5.21541e-07 0.597817 0.597817 0 1.33526 0C2.0727 0 2.67052 0.597816 2.67052 1.33526L2.67052 6.6763ZM21.6185 11C22.6018 11 23.3988 10.2029 23.3988 9.21965C23.3988 8.23639 22.6018 7.43931 21.6185 7.43931C20.6352 7.43931 19.8382 8.23639 19.8382 9.21965C19.8382 10.2029 20.6352 11 21.6185 11Z"
-        fill="#1B1B1B"
+        fill="currentColor"
       />
     </svg>
   )
@@ -658,21 +699,180 @@ function WagmiLogo() {
 function PrivyLogo() {
   return (
     <svg
-      width="21"
-      height="20"
+      width="100%"
+      height="auto"
       viewBox="0 0 21 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      className="text-[#010110] dark:text-white"
     >
       <path
         d="M11 15.4955C15.4176 15.4955 19 12.0261 19 7.74775C19 3.46944 15.4176 0 11 0C6.58239 0 3 3.46944 3 7.74775C3 12.0261 6.58239 15.4955 11 15.4955Z"
-        fill="#010110"
+        fill="currentColor"
       />
       <path
         d="M11 20C14.0192 20 16.4672 19.501 16.4672 18.889C16.4672 18.2769 14.0208 17.7779 11 17.7779C7.97919 17.7779 5.53279 18.2769 5.53279 18.889C5.53279 19.501 7.97919 20 11 20Z"
-        fill="#010110"
+        fill="currentColor"
       />
+    </svg>
+  )
+}
+
+function RainbowLogo() {
+  return (
+    <svg
+      className="rounded-sm"
+      width="100%"
+      height="auto"
+      viewBox="0 0 120 120"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path d="M120 0H0V120H120V0Z" fill="url(#paint0_linear_681_14)" />
+      <path
+        d="M20 38H26C56.9279 38 82 63.0721 82 94V100H94C97.3137 100 100 97.3137 100 94C100 53.1309 66.8691 20 26 20C22.6863 20 20 22.6863 20 26V38Z"
+        fill="url(#paint1_radial_681_14)"
+      />
+      <path
+        d="M84 94H100C100 97.3137 97.3137 100 94 100H84V94Z"
+        fill="url(#paint2_linear_681_14)"
+      />
+      <path
+        d="M26 20V36H20V26C20 22.6863 22.6863 20 26 20Z"
+        fill="url(#paint3_linear_681_14)"
+      />
+      <path
+        d="M20 36H26C58.0325 36 84 61.9675 84 94V100H66V94C66 71.9086 48.0914 54 26 54H20V36Z"
+        fill="url(#paint4_radial_681_14)"
+      />
+      <path d="M68 94H84V100H68V94Z" fill="url(#paint5_linear_681_14)" />
+      <path d="M20 52V36H26V52H20Z" fill="url(#paint6_linear_681_14)" />
+      <path
+        d="M20 62C20 65.3137 22.6863 68 26 68C40.3594 68 52 79.6406 52 94C52 97.3137 54.6863 100 58 100H68V94C68 70.804 49.196 52 26 52H20V62Z"
+        fill="url(#paint7_radial_681_14)"
+      />
+      <path
+        d="M52 94H68V100H58C54.6863 100 52 97.3137 52 94Z"
+        fill="url(#paint8_radial_681_14)"
+      />
+      <path
+        d="M26 68C22.6863 68 20 65.3137 20 62V52H26V68Z"
+        fill="url(#paint9_radial_681_14)"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_681_14"
+          x1="60"
+          y1="0"
+          x2="60"
+          y2="120"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#174299" />
+          <stop offset="1" stop-color="#001E59" />
+        </linearGradient>
+        <radialGradient
+          id="paint1_radial_681_14"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(26 94) rotate(-90) scale(74)"
+        >
+          <stop offset="0.770277" stop-color="#FF4000" />
+          <stop offset="1" stop-color="#8754C9" />
+        </radialGradient>
+        <linearGradient
+          id="paint2_linear_681_14"
+          x1="83"
+          y1="97"
+          x2="100"
+          y2="97"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#FF4000" />
+          <stop offset="1" stop-color="#8754C9" />
+        </linearGradient>
+        <linearGradient
+          id="paint3_linear_681_14"
+          x1="23"
+          y1="20"
+          x2="23"
+          y2="37"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#8754C9" />
+          <stop offset="1" stop-color="#FF4000" />
+        </linearGradient>
+        <radialGradient
+          id="paint4_radial_681_14"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(26 94) rotate(-90) scale(58)"
+        >
+          <stop offset="0.723929" stop-color="#FFF700" />
+          <stop offset="1" stop-color="#FF9901" />
+        </radialGradient>
+        <linearGradient
+          id="paint5_linear_681_14"
+          x1="68"
+          y1="97"
+          x2="84"
+          y2="97"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#FFF700" />
+          <stop offset="1" stop-color="#FF9901" />
+        </linearGradient>
+        <linearGradient
+          id="paint6_linear_681_14"
+          x1="23"
+          y1="52"
+          x2="23"
+          y2="36"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#FFF700" />
+          <stop offset="1" stop-color="#FF9901" />
+        </linearGradient>
+        <radialGradient
+          id="paint7_radial_681_14"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(26 94) rotate(-90) scale(42)"
+        >
+          <stop offset="0.59513" stop-color="#00AAFF" />
+          <stop offset="1" stop-color="#01DA40" />
+        </radialGradient>
+        <radialGradient
+          id="paint8_radial_681_14"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(51 97) scale(17 45.3333)"
+        >
+          <stop stop-color="#00AAFF" />
+          <stop offset="1" stop-color="#01DA40" />
+        </radialGradient>
+        <radialGradient
+          id="paint9_radial_681_14"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(23 69) rotate(-90) scale(17 322.37)"
+        >
+          <stop stop-color="#00AAFF" />
+          <stop offset="1" stop-color="#01DA40" />
+        </radialGradient>
+      </defs>
     </svg>
   )
 }
