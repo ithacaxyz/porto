@@ -14,7 +14,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "tailwindcss": "catalog:",
-    "vocs": "latest",
+    "vocs": "1.0.4",
     "wagmi": "catalog:",
     "viem": "catalog:",
     "cva": "npm:class-variance-authority@^0.7.1"

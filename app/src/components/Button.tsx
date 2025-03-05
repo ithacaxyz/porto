@@ -1,5 +1,5 @@
 import { type VariantProps, cva } from 'cva'
-import type * as React from 'react'
+import * as React from 'react'
 
 export function Button(props: Button.Props) {
   const { className, disabled, size, variant, asChild = false, ...rest } = props
@@ -11,6 +11,27 @@ export function Button(props: Button.Props) {
     />
   )
 }
+
+export const ButtonWithRef = React.forwardRef<HTMLButtonElement, Button.Props>(
+  (props, ref) => {
+    const {
+      className,
+      disabled,
+      size,
+      variant,
+      asChild = false,
+      ...rest
+    } = props
+    return (
+      <button
+        ref={ref}
+        className={Button.className({ className, disabled, size, variant })}
+        disabled={disabled ?? false}
+        {...rest}
+      />
+    )
+  },
+)
 
 export namespace Button {
   export const displayName = 'Button'
@@ -27,7 +48,9 @@ export namespace Button {
       variants: {
         variant: {
           default:
-            'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
+            'text-primary bg-gray5 hover:not-active:bg-surfaceHover text-surface border border-surface',
+          ghost:
+            'text-primary bg-transparent hover:not-active:bg-surfaceHover border border-gray8 hover:border-gray9 hover:active:border-gray10',
           invert:
             'text-invert bg-invert hover:not-active:bg-invertHover text-invert',
           accent: 'text-white bg-accent hover:not-active:bg-accentHover',
@@ -40,7 +63,7 @@ export namespace Button {
           true: 'pointer-events-none opacity-50',
         },
         size: {
-          default: 'h-button px-5 text-[15px]',
+          default: 'h-button px-4',
         },
       },
       defaultVariants: {

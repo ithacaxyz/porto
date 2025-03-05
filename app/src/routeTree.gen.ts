@@ -11,9 +11,14 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as WithdrawImport } from './routes/withdraw'
 import { Route as PlaygroundImport } from './routes/playground'
+import { Route as CreateAccountImport } from './routes/create-account'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as IndexImport } from './routes/index'
+import { Route as SettingsIndexImport } from './routes/settings/index'
+import { Route as SettingsRecoveryImport } from './routes/settings/recovery'
+import { Route as SettingsPermissionsImport } from './routes/settings/permissions'
 import { Route as DialogDialogWalletsendCallsImport } from './routes/_dialog.dialog/wallet_sendCalls'
 import { Route as DialogDialogWalletconnectImport } from './routes/_dialog.dialog/wallet_connect'
 import { Route as DialogDialogPersonalsignImport } from './routes/_dialog.dialog/personal_sign'
@@ -25,9 +30,21 @@ import { Route as DialogDialogSplatImport } from './routes/_dialog.dialog/$'
 
 // Create/Update Routes
 
+const WithdrawRoute = WithdrawImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const PlaygroundRoute = PlaygroundImport.update({
   id: '/playground',
   path: '/playground',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CreateAccountRoute = CreateAccountImport.update({
+  id: '/create-account',
+  path: '/create-account',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,6 +56,24 @@ const DialogRoute = DialogImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsIndexRoute = SettingsIndexImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsRecoveryRoute = SettingsRecoveryImport.update({
+  id: '/settings/recovery',
+  path: '/settings/recovery',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SettingsPermissionsRoute = SettingsPermissionsImport.update({
+  id: '/settings/permissions',
+  path: '/settings/permissions',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -113,11 +148,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogImport
       parentRoute: typeof rootRoute
     }
+    '/create-account': {
+      id: '/create-account'
+      path: '/create-account'
+      fullPath: '/create-account'
+      preLoaderRoute: typeof CreateAccountImport
+      parentRoute: typeof rootRoute
+    }
     '/playground': {
       id: '/playground'
       path: '/playground'
       fullPath: '/playground'
       preLoaderRoute: typeof PlaygroundImport
+      parentRoute: typeof rootRoute
+    }
+    '/withdraw': {
+      id: '/withdraw'
+      path: '/withdraw'
+      fullPath: '/withdraw'
+      preLoaderRoute: typeof WithdrawImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/permissions': {
+      id: '/settings/permissions'
+      path: '/settings/permissions'
+      fullPath: '/settings/permissions'
+      preLoaderRoute: typeof SettingsPermissionsImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/recovery': {
+      id: '/settings/recovery'
+      path: '/settings/recovery'
+      fullPath: '/settings/recovery'
+      preLoaderRoute: typeof SettingsRecoveryImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsIndexImport
       parentRoute: typeof rootRoute
     }
     '/_dialog/dialog/$': {
@@ -211,7 +281,12 @@ const DialogRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof DialogRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
+  '/withdraw': typeof WithdrawRoute
+  '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings/recovery': typeof SettingsRecoveryRoute
+  '/settings': typeof SettingsIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogDialogEthsendTransactionRoute
@@ -225,7 +300,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof DialogRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
+  '/withdraw': typeof WithdrawRoute
+  '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings/recovery': typeof SettingsRecoveryRoute
+  '/settings': typeof SettingsIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogDialogEthsendTransactionRoute
@@ -240,7 +320,12 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_dialog': typeof DialogRouteWithChildren
+  '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
+  '/withdraw': typeof WithdrawRoute
+  '/settings/permissions': typeof SettingsPermissionsRoute
+  '/settings/recovery': typeof SettingsRecoveryRoute
+  '/settings/': typeof SettingsIndexRoute
   '/_dialog/dialog/$': typeof DialogDialogSplatRoute
   '/_dialog/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
   '/_dialog/dialog/eth_sendTransaction': typeof DialogDialogEthsendTransactionRoute
@@ -256,7 +341,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | ''
+    | '/create-account'
     | '/playground'
+    | '/withdraw'
+    | '/settings/permissions'
+    | '/settings/recovery'
+    | '/settings'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
@@ -269,7 +359,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | ''
+    | '/create-account'
     | '/playground'
+    | '/withdraw'
+    | '/settings/permissions'
+    | '/settings/recovery'
+    | '/settings'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
@@ -282,7 +377,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_dialog'
+    | '/create-account'
     | '/playground'
+    | '/withdraw'
+    | '/settings/permissions'
+    | '/settings/recovery'
+    | '/settings/'
     | '/_dialog/dialog/$'
     | '/_dialog/dialog/eth_requestAccounts'
     | '/_dialog/dialog/eth_sendTransaction'
@@ -297,13 +397,23 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DialogRoute: typeof DialogRouteWithChildren
+  CreateAccountRoute: typeof CreateAccountRoute
   PlaygroundRoute: typeof PlaygroundRoute
+  WithdrawRoute: typeof WithdrawRoute
+  SettingsPermissionsRoute: typeof SettingsPermissionsRoute
+  SettingsRecoveryRoute: typeof SettingsRecoveryRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DialogRoute: DialogRouteWithChildren,
+  CreateAccountRoute: CreateAccountRoute,
   PlaygroundRoute: PlaygroundRoute,
+  WithdrawRoute: WithdrawRoute,
+  SettingsPermissionsRoute: SettingsPermissionsRoute,
+  SettingsRecoveryRoute: SettingsRecoveryRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -318,7 +428,12 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_dialog",
-        "/playground"
+        "/create-account",
+        "/playground",
+        "/withdraw",
+        "/settings/permissions",
+        "/settings/recovery",
+        "/settings/"
       ]
     },
     "/": {
@@ -337,8 +452,23 @@ export const routeTree = rootRoute
         "/_dialog/dialog/wallet_sendCalls"
       ]
     },
+    "/create-account": {
+      "filePath": "create-account.tsx"
+    },
     "/playground": {
       "filePath": "playground.tsx"
+    },
+    "/withdraw": {
+      "filePath": "withdraw.tsx"
+    },
+    "/settings/permissions": {
+      "filePath": "settings/permissions.tsx"
+    },
+    "/settings/recovery": {
+      "filePath": "settings/recovery.tsx"
+    },
+    "/settings/": {
+      "filePath": "settings/index.tsx"
     },
     "/_dialog/dialog/$": {
       "filePath": "_dialog.dialog/$.tsx",

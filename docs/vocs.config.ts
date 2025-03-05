@@ -381,6 +381,11 @@ export default defineConfig({
     },
   ],
   vite: {
+    resolve: {
+      alias: {
+        '~': resolve(import.meta.dirname, '.'),
+      },
+    },
     server: {
       https: enableHttps ? https : undefined,
       proxy: {},
