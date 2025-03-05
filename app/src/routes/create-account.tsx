@@ -56,13 +56,13 @@ function RouteComponent() {
   }
 
   return (
-    <div
+    <main
       className={cn(
-        'mx-auto flex h-screen w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
+        'mx-auto flex h-screen max-h-[840px] w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
         'sm:my-52 sm:h-[500px] sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
-      <div className="flex justify-between sm:px-5">
+      <header className="mt-4 flex justify-between sm:mt-1 sm:px-5">
         <img src="/icons/wallet.svg" alt="Porto" className="my-auto size-11" />
         <Link
           to="/create-account"
@@ -72,9 +72,9 @@ function RouteComponent() {
             Support <span className="ml-1">→</span>
           </p>
         </Link>
-      </div>
+      </header>
 
-      <div className="mt-10 size-full px-5 sm:mt-1">
+      <div className="mt-10 size-full sm:mt-1 sm:px-4">
         <h1 className="font-medium text-2xl">Name your passkey</h1>
         <p className="mx-6 my-3 text-pretty text-primary">
           This will be a simple, memorable identifier for your Ithaca wallet.
@@ -83,6 +83,11 @@ function RouteComponent() {
           <input
             type="text"
             value={label}
+            maxLength={32}
+            spellCheck={false}
+            autoCorrect="off"
+            autoComplete="off"
+            autoCapitalize="off"
             placeholder="Enter a name…"
             onChange={(event) => setLabel(event.target.value)}
             className="w-full rounded-lg border border-gray6 bg-gray1 px-3 py-2 text-gray12 text-lg focus:outline-none focus:ring-2 focus:ring-gray3"
@@ -172,6 +177,6 @@ function RouteComponent() {
           </Button>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
