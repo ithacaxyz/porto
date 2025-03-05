@@ -1,2 +1,7 @@
 @import "tailwindcss" important;
 @import "../app/src/theme.css";
+
+.vocs_Navigation,
+.vocs_NavigationMenu_list {
+  align-items: center;
+}

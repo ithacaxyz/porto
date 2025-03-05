@@ -134,6 +134,7 @@
   --background-color-accent: var(--color-blue9);
   --background-color-accentHover: var(--color-blue10);
   --background-color-accentTint: var(--color-blueA3);
+  --background-color-accentTintHover: var(--color-blueA4);
   --background-color-destructive: var(--color-red3);
   --background-color-destructiveHover: var(--color-red4);
   --background-color-destructiveTint: var(--color-red3);

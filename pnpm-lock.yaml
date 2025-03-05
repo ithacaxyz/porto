@@ -43,6 +43,11 @@ catalogs:
       specifier: ^2.14.9
       version: 2.14.9
 
+patchedDependencies:
+  vocs:
+    hash: a35k3dwgeiybwvsnckqto7paqa
+    path: patches/vocs.patch
+
 importers:
 
   .:
@@ -226,8 +231,8 @@ importers:
         specifier: 'catalog:'
         version: 2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1)
       vocs:
-        specifier: latest
-        version: 1.0.3(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
+        specifier: 1.0.4
+        version: 1.0.4(patch_hash=a35k3dwgeiybwvsnckqto7paqa)(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0)
       wagmi:
         specifier: 'catalog:'
         version: 2.14.9(@tanstack/query-core@5.65.0)(@tanstack/react-query@5.64.2(react@19.0.0))(@types/react@19.0.10)(bufferutil@4.0.8)(react@19.0.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.23.1(bufferutil@4.0.8)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.1))(zod@3.24.1)
@@ -7493,8 +7498,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@1.0.3:
-    resolution: {integrity: sha512-CJVWNag8GZwTJLoYa4ACUTQ/4NIuX57tsZb8kbsyKL0Wh62rCX24yYYArcwardNu/lxV+kCyZngxsfawXKPtGQ==}
+  vocs@1.0.4:
+    resolution: {integrity: sha512-YpGYM5UyP4I8bVh+qX6Y8sN2eDOeonwogSK6mjhtnJLx1EV/WNQhQGWm21Xgl01jAe6HLAkwvK+9rVsPNiph/A==}
     hasBin: true
     peerDependencies:
       react: ^19
@@ -15877,7 +15882,7 @@ snapshots:
       - supports-color
       - terser
 
-  vocs@1.0.3(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0):
+  vocs@1.0.4(patch_hash=a35k3dwgeiybwvsnckqto7paqa)(@types/node@22.10.7)(@types/react-dom@19.0.3(@types/react@19.0.10))(@types/react@19.0.10)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.9)(terser@5.37.0)(tsx@4.19.2)(typescript@5.7.3)(yaml@2.7.0):
     dependencies:
       '@floating-ui/react': 0.27.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.13.8(hono@4.7.2)

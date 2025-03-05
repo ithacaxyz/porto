@@ -80,5 +80,10 @@
       "import": "*",
       "limit": "85 kB"
     }
-  ]
+  ],
+  "pnpm": {
+    "patchedDependencies": {
+      "vocs": "patches/vocs.patch"
+    }
+  }
 }

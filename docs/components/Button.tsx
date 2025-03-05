@@ -31,10 +31,13 @@ export namespace Button {
           default:
             'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
           accent: 'text-white bg-accent hover:not-active:bg-accentHover',
+          accentTint:
+            'text-accent bg-accentTint hover:not-active:bg-accentTintHover',
           destructive:
             'text-destructive bg-destructive hover:not-active:bg-destructiveHover',
         },
         size: {
+          small: 'h-[32px] px-[14px] text-[13px]',
           default: 'h-[40px] px-[18px] text-[15px]',
         },
       },
