@@ -15,7 +15,8 @@ import * as React from 'react'
 import type { Address } from 'viem'
 import { useAccount, useConnectors } from 'wagmi'
 import { odysseyTestnet } from 'wagmi/chains'
-import LucideBoxes from '~icons/lucide/boxes'
+import LucideBook from '~icons/lucide/book'
+import LucideInfo from '~icons/lucide/info'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import LucideSendHorizontal from '~icons/lucide/send-horizontal'
 import OcticonMarkGithub16 from '~icons/octicon/mark-github-16'
@@ -33,24 +34,29 @@ export function App() {
   >('wagmi')
 
   return (
-    <div className="mx-auto max-w-[1070px] px-4 pt-13">
-      <header className="flex items-center justify-between">
+    <div className="mx-auto max-w-[1070px] px-4 pt-13 pb-4">
+      <header className="flex flex-col items-center justify-between gap-4 lg:flex-row">
         <div>
-          <div className="mb-3.5 flex items-center gap-2.5">
+          <div className="mb-3.5 flex items-center justify-center gap-2.5 lg:justify-start">
             <h1 className="-tracking-[1.064px] order-1 font-medium text-[28px] leading-none">
               Demo
             </h1>
             <PortoLogo />
           </div>
 
-          <p className="max-w-[288px] text-[18px] text-gray10 leading-[24px]">
+          <p className="max-w-[288px] text-center text-[18px] text-gray10 leading-[24px] lg:text-left">
             Preview how Porto integrates with your existing wallet providers.
           </p>
         </div>
 
         <div className="flex gap-3">
-          <Header.Link href="/" icon={<LucideBoxes />}>
-            Playground
+          <Header.Link
+            rel="noreferrer"
+            target="_blank"
+            href="https://porto.sh"
+            icon={<LucideBook />}
+          >
+            Docs
           </Header.Link>
 
           <Header.Link
@@ -73,8 +79,8 @@ export function App() {
         </div>
       </header>
 
-      <div className="mt-8 flex gap-9">
-        <div className="flex w-full max-w-[300px] flex-col">
+      <div className="mt-8 flex flex-col gap-9 lg:flex-row">
+        <div className="flex w-full flex-col lg:max-w-[300px]">
           <div className="mb-6">
             <Step>Install Porto</Step>
 
@@ -216,24 +222,48 @@ export function App() {
           </div>
         </div>
 
-        <div className="flex-1 rounded-2xl bg-gray3 px-9 pt-6.5 pb-9">
-          <div>
+        <div className="h-fit flex-1 rounded-2xl bg-gray3 px-9 pt-6.5 pb-9">
+          <div className="flex justify-between">
             <Step inset>Your application</Step>
+            <div className="flex gap-1">
+              <div className="-tracking-[0.392px] flex gap-1.25 rounded-full bg-gray1 px-2.5 py-1.5 font-medium text-[14px] leading-[17px]">
+                <span className="opacity-30">Balance</span>
+                <span>
+                  <span className="text-black dark:text-white">100</span>{' '}
+                  <span className="text-gray11">EXP</span>
+                </span>
+              </div>
+              <button
+                className="-tracking-[0.25px] flex gap-1.25 rounded-full bg-accent px-2.5 py-1.5 font-medium text-[14px] text-white leading-[17px] hover:not-active:bg-accentHover"
+                type="button"
+              >
+                Mint
+              </button>
+            </div>
           </div>
-          <div>
-            <div>Mint</div>
-            <div>Swap</div>
-            <div>Pay</div>
-            <div>Subscribe</div>
-            <div>Sponsor</div>
-            <div>Onramp</div>
-            <div>Send</div>
-            <div>Recover</div>
+
+          <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+            <Card title="Mint" description="Foo bar baz">
+              <div className="mt-2 h-24 bg-gray3" />
+            </Card>
+            <Card title="Swap" description="Foo bar baz">
+              <div className="mt-2 h-24 bg-gray3" />
+            </Card>
+            <Card title="Pay" description="Foo bar baz">
+              <div className="mt-2 h-24 bg-gray3" />
+            </Card>
+            <Card title="Subscribe" description="Foo bar baz">
+              <div className="mt-2 h-24 bg-gray3" />
+            </Card>
+            <Card title="Sponsor" comingSoon />
+            <Card title="Onramp" comingSoon />
+            <Card title="Send" comingSoon />
+            <Card title="Recover" comingSoon />
           </div>
         </div>
       </div>
 
-      <footer className="mt-8.5 flex justify-between rounded-[20px] border border-gray4 bg-white p-7.5 dark:bg-black">
+      <footer className="mt-8.5 flex flex-col justify-between gap-4 rounded-[20px] border border-gray4 bg-white p-7.5 lg:flex-row dark:bg-black">
         <div className="flex flex-col gap-3">
           <div className="-tracking-[0.392px] text-[14px] text-black opacity-50 dark:text-white">
             Upgrade your wallets
@@ -247,25 +277,73 @@ export function App() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 lg:max-w-[261px]">
           <div className="flex gap-3">
-            <Button variant="accent">Integrate now</Button>
-            <Button>Reach out</Button>
+            <Button className="flex-1" variant="accent">
+              Integrate now
+            </Button>
+            <Button className="flex-1">Reach out</Button>
           </div>
-          <form className="flex rounded-full border border-gray5 py-1.25 ps-3.25 pe-1.5">
-            <input placeholder="Get email updates..." />
+          <form className="flex items-center rounded-full border border-gray5 pe-1.5">
+            <input
+              className="-tracking-[0.448px] h-10 w-full flex-1 py-1.25 ps-3.25 pe-1.5 font-medium outline-none placeholder:text-gray8"
+              placeholder="Get email updates..."
+            />
             <button
               title="submit"
               type="submit"
-              className="flex size-[30px] items-center justify-center rounded-full bg-gray5"
+              className="flex size-[30px] min-w-[30px] items-center justify-center rounded-full bg-gray5"
             >
-              <LucideSendHorizontal />
+              <LucideSendHorizontal className="size-[14px] text-gray9" />
             </button>
           </form>
         </div>
       </footer>
     </div>
   )
+}
+
+function Card(props: Card.Props) {
+  const { children, comingSoon, description, title } = props
+  if (comingSoon)
+    return (
+      <div className="w-full rounded-xl bg-gray1 py-4.5 ps-5 pe-4">
+        <div className="flex items-center justify-between">
+          <div className="-tracking-[0.448px] font-medium text-[16px] opacity-30">
+            {title}
+          </div>
+          <div className="-tracking-[0.364px] w-fit! rounded-full bg-gray3 px-2.5 py-1.5 font-medium text-[13px] text-black leading-[16px] dark:text-white">
+            Coming soon
+          </div>
+        </div>
+      </div>
+    )
+
+  return (
+    <div className="h-fit w-full rounded-xl bg-gray1 px-5 pt-3.5 pb-5">
+      <div className="flex items-center justify-between">
+        <div className="-tracking-[0.448px] font-medium text-[16px] opacity-30">
+          {title}
+        </div>
+        {description && (
+          <Ariakit.TooltipProvider>
+            <Ariakit.TooltipAnchor className="flex size-7.5 items-center justify-center rounded-full border border-gray4">
+              <LucideInfo className="size-4.5 text-gray9" />
+            </Ariakit.TooltipAnchor>
+            <Ariakit.Tooltip className="tooltip">{description}</Ariakit.Tooltip>
+          </Ariakit.TooltipProvider>
+        )}
+      </div>
+      <div>{children}</div>
+    </div>
+  )
+}
+declare namespace Card {
+  type Props = React.PropsWithChildren<{
+    comingSoon?: boolean | undefined
+    description?: string | undefined
+    title: string
+  }>
 }
 
 function SignedIn(props: SignedIn.Props) {
@@ -521,7 +599,7 @@ function Radio(props: Radio.Props) {
     <label
       {...(rest.checked ? { 'data-checked': true } : {})}
       {...(rest.disabled ? { 'data-disabled': true } : {})}
-      className="-tracking-[0.448px] flex w-full items-center gap-2 rounded-full border border-gray5 p-2.5 font-medium text-[16px] text-gray12 leading-none not-data-disabled:hover:bg-white data-disabled:cursor-not-allowed data-checked:border-blue9 data-checked:bg-blue3 dark:not-data-disabled:not-data-checked:hover:bg-gray3"
+      className="-tracking-[0.448px] flex w-full items-center gap-2 rounded-full border border-gray5 p-2.5 font-medium text-[16px] text-gray12 leading-none not-data-checked:not-data-disabled:hover:bg-white data-disabled:cursor-not-allowed data-checked:border-blue9 data-checked:bg-blue3 dark:not-data-disabled:not-data-checked:hover:bg-gray3"
     >
       <Ariakit.VisuallyHidden>
         <Ariakit.Radio {...rest} onChange={() => onChange(props.value)} />
@@ -623,55 +701,135 @@ function IthacaLogo() {
 
 function PortoLogo() {
   return (
-    <svg
-      width="40"
-      height="33"
-      viewBox="0 0 40 33"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M1.15315 14.9144C1.15315 14.1183 1.79851 13.473 2.59459 13.473H37.1892C37.9853 13.473 38.6306 14.1183 38.6306 14.9144V29.9054C38.6306 30.7015 37.9853 31.3468 37.1892 31.3468H2.5946C1.79851 31.3468 1.15315 30.7015 1.15315 29.9054V14.9144Z"
-        fill="black"
-        fillOpacity="0.2"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M2.59459 12.3198H37.1892C38.6221 12.3198 39.7838 13.4815 39.7838 14.9144V29.9054C39.7838 31.3384 38.6221 32.5 37.1892 32.5H2.5946C1.16164 32.5 0 31.3384 0 29.9054V14.9144C0 13.4815 1.16164 12.3198 2.59459 12.3198ZM2.59459 13.473C1.79851 13.473 1.15315 14.1183 1.15315 14.9144V29.9054C1.15315 30.7015 1.79851 31.3468 2.5946 31.3468H37.1892C37.9853 31.3468 38.6306 30.7015 38.6306 29.9054V14.9144C38.6306 14.1183 37.9853 13.473 37.1892 13.473H2.59459Z"
-        fill="white"
-      />
-      <path
-        d="M1.15315 20.9685C1.15315 20.1724 1.79851 19.527 2.59459 19.527H37.1892C37.9853 19.527 38.6306 20.1724 38.6306 20.9685V29.9054C38.6306 30.7015 37.9853 31.3468 37.1892 31.3468H2.5946C1.79851 31.3468 1.15315 30.7015 1.15315 29.9054V20.9685Z"
-        fill="black"
-        fillOpacity="0.4"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M2.59459 18.3739H37.1892C38.6221 18.3739 39.7838 19.5355 39.7838 20.9685V29.9054C39.7838 31.3384 38.6221 32.5 37.1892 32.5H2.5946C1.16164 32.5 0 31.3384 0 29.9054V20.9685C0 19.5355 1.16164 18.3739 2.59459 18.3739ZM2.59459 19.527C1.79851 19.527 1.15315 20.1724 1.15315 20.9685V29.9054C1.15315 30.7015 1.79851 31.3468 2.5946 31.3468H37.1892C37.9853 31.3468 38.6306 30.7015 38.6306 29.9054V20.9685C38.6306 20.1724 37.9853 19.527 37.1892 19.527H2.59459Z"
-        fill="white"
-      />
-      <path
-        d="M1.15315 27.0225C1.15315 26.2264 1.79851 25.5811 2.59459 25.5811H37.1892C37.9853 25.5811 38.6306 26.2264 38.6306 27.0225V29.9054C38.6306 30.7015 37.9853 31.3469 37.1892 31.3469H2.5946C1.79851 31.3469 1.15315 30.7015 1.15315 29.9054V27.0225Z"
-        fill="black"
-        fillOpacity="0.5"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M2.59459 24.4279H37.1892C38.6221 24.4279 39.7838 25.5896 39.7838 27.0225V29.9054C39.7838 31.3384 38.6221 32.5 37.1892 32.5H2.5946C1.16164 32.5 0 31.3384 0 29.9054V27.0225C0 25.5896 1.16164 24.4279 2.59459 24.4279ZM2.59459 25.5811C1.79851 25.5811 1.15315 26.2264 1.15315 27.0225V29.9054C1.15315 30.7015 1.79851 31.3469 2.5946 31.3469H37.1892C37.9853 31.3469 38.6306 30.7015 38.6306 29.9054V27.0225C38.6306 26.2264 37.9853 25.5811 37.1892 25.5811H2.59459Z"
-        fill="white"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M3.74792 0.5C2.31496 0.5 1.15332 1.66164 1.15332 3.0946V29.9054C1.15332 30.7015 1.79868 31.3468 2.59476 31.3468H37.1894C37.9854 31.3468 38.6308 30.7015 38.6308 29.9054V3.09459C38.6308 1.66164 37.4692 0.5 36.0362 0.5H3.74792ZM32.1444 3.09459C30.1542 3.09459 28.5408 4.70798 28.5408 6.6982C28.5408 8.68841 30.1542 10.3018 32.1444 10.3018H32.4327C34.4229 10.3018 36.0363 8.68841 36.0363 6.6982C36.0363 4.70798 34.4229 3.09459 32.4327 3.09459H32.1444Z"
-        fill="black"
-        fillOpacity="0.2"
-      />
-    </svg>
+    <div className="h-8">
+      <svg
+        className="dark:hidden"
+        aria-hidden="true"
+        width="auto"
+        height="100%"
+        viewBox="0 0 95 80"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M6.5676 0.959473C2.9404 0.959473 0 3.89987 0 7.52697V75.3919C0 77.407 1.6336 79.041 3.6487 79.041H91.216C93.231 79.041 94.865 77.407 94.865 75.3919V7.52697C94.865 3.89987 91.924 0.959473 88.297 0.959473H6.5676ZM78.4461 7.52697C73.4084 7.52697 69.3245 11.6109 69.3245 16.6487C69.3245 21.6864 73.4084 25.7703 78.4461 25.7703H79.1758C84.2136 25.7703 88.297 21.6864 88.297 16.6487C88.297 11.6109 84.2136 7.52697 79.1758 7.52697H78.4461Z"
+          fill="#CCCCCC"
+        />
+        <mask
+          id="mask0_684_30"
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width="95"
+          height="80"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M6.5676 0.959473C2.9404 0.959473 0 3.89987 0 7.52697V75.3919C0 77.407 1.6336 79.041 3.6487 79.041H91.216C93.231 79.041 94.865 77.407 94.865 75.3919V7.52697C94.865 3.89987 91.924 0.959473 88.297 0.959473H6.5676ZM78.4461 7.52697C73.4084 7.52697 69.3245 11.6109 69.3245 16.6487C69.3245 21.6864 73.4084 25.7703 78.4461 25.7703H79.1758C84.2136 25.7703 88.297 21.6864 88.297 16.6487C88.297 11.6109 84.2136 7.52697 79.1758 7.52697H78.4461Z"
+            fill="white"
+          />
+        </mask>
+        <g mask="url(#mask0_684_30)">
+          <path
+            d="M0.000213623 37.446C0.000213623 35.431 1.63371 33.7974 3.64881 33.7974H91.216C93.231 33.7974 94.865 35.431 94.865 37.446V75.392C94.865 77.4071 93.231 79.0411 91.216 79.0411H3.64881C1.63371 79.0411 0.000213623 77.4071 0.000213623 75.392V37.446Z"
+            fill="#A3A3A3"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M3.6488 30.8784H91.216C94.844 30.8784 97.784 33.8188 97.784 37.4459V75.3919C97.784 79.019 94.844 81.959 91.216 81.959H3.6488C0.021699 81.959 -2.9187 79.019 -2.9187 75.3919V37.4459C-2.9187 33.8188 0.021699 30.8784 3.6488 30.8784ZM3.6488 33.7973C1.6337 33.7973 0.000199318 35.4309 0.000199318 37.4459V75.3919C0.000199318 77.407 1.6337 79.041 3.6488 79.041H91.216C93.231 79.041 94.865 77.407 94.865 75.3919V37.4459C94.865 35.4309 93.231 33.7973 91.216 33.7973H3.6488Z"
+            fill="#CCCCCC"
+          />
+          <path
+            d="M0.000213623 52.7703C0.000213623 50.7552 1.63371 49.1216 3.64881 49.1216H91.216C93.231 49.1216 94.865 50.7552 94.865 52.7703V75.3919C94.865 77.407 93.231 79.041 91.216 79.041H3.64881C1.63371 79.041 0.000213623 77.407 0.000213623 75.3919V52.7703Z"
+            fill="#626262"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M3.6488 46.2026H91.216C94.844 46.2026 97.784 49.143 97.784 52.7702V75.3918C97.784 79.0189 94.844 81.9589 91.216 81.9589H3.6488C0.021699 81.9589 -2.9187 79.0189 -2.9187 75.3918V52.7702C-2.9187 49.143 0.021699 46.2026 3.6488 46.2026ZM3.6488 49.1215C1.6337 49.1215 0.000199318 50.7551 0.000199318 52.7702V75.3918C0.000199318 77.4069 1.6337 79.0409 3.6488 79.0409H91.216C93.231 79.0409 94.865 77.4069 94.865 75.3918V52.7702C94.865 50.7551 93.231 49.1215 91.216 49.1215H3.6488Z"
+            fill="#CCCCCC"
+          />
+          <path
+            d="M0.000213623 68.0945C0.000213623 66.0794 1.63371 64.4458 3.64881 64.4458H91.216C93.231 64.4458 94.865 66.0794 94.865 68.0945V75.3918C94.865 77.4069 93.231 79.0409 91.216 79.0409H3.64881C1.63371 79.0409 0.000213623 77.4069 0.000213623 75.3918V68.0945Z"
+            fill="#313131"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M3.6488 61.5271H91.216C94.844 61.5271 97.784 64.4675 97.784 68.0947V75.392C97.784 79.0191 94.844 81.9591 91.216 81.9591H3.6488C0.021699 81.9591 -2.9187 79.0191 -2.9187 75.392V68.0947C-2.9187 64.4675 0.021699 61.5271 3.6488 61.5271ZM3.6488 64.446C1.6337 64.446 0.000199318 66.0796 0.000199318 68.0947V75.392C0.000199318 77.4071 1.6337 79.0411 3.6488 79.0411H91.216C93.231 79.0411 94.865 77.4071 94.865 75.392V68.0947C94.865 66.0796 93.231 64.446 91.216 64.446H3.6488Z"
+            fill="#CCCCCC"
+          />
+        </g>
+      </svg>
+
+      <svg
+        className="hidden dark:block"
+        aria-hidden="true"
+        width="auto"
+        height="100%"
+        viewBox="0 0 95 80"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M6.5676 0.959473C2.9404 0.959473 0 3.89987 0 7.52697V75.3919C0 77.407 1.6336 79.041 3.6487 79.041H91.216C93.231 79.041 94.865 77.407 94.865 75.3919V7.52697C94.865 3.89987 91.924 0.959473 88.297 0.959473H6.5676ZM78.4461 7.52697C73.4084 7.52697 69.3245 11.6109 69.3245 16.6487C69.3245 21.6864 73.4084 25.7703 78.4461 25.7703H79.1758C84.214 25.7703 88.297 21.6864 88.297 16.6487C88.297 11.6109 84.214 7.52697 79.1758 7.52697H78.4461Z"
+          fill="#999999"
+        />
+        <mask
+          id="mask0_684_45"
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width="95"
+          height="80"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M6.5676 0.959473C2.9404 0.959473 0 3.89987 0 7.52697V75.3919C0 77.407 1.6336 79.041 3.6487 79.041H91.216C93.231 79.041 94.865 77.407 94.865 75.3919V7.52697C94.865 3.89987 91.924 0.959473 88.297 0.959473H6.5676ZM78.4461 7.52697C73.4084 7.52697 69.3245 11.6109 69.3245 16.6487C69.3245 21.6864 73.4084 25.7703 78.4461 25.7703H79.1758C84.214 25.7703 88.297 21.6864 88.297 16.6487C88.297 11.6109 84.214 7.52697 79.1758 7.52697H78.4461Z"
+            fill="white"
+          />
+        </mask>
+        <g mask="url(#mask0_684_45)">
+          <path
+            d="M0.000213623 37.446C0.000213623 35.431 1.63371 33.7974 3.64881 33.7974H91.216C93.231 33.7974 94.865 35.431 94.865 37.446V75.392C94.865 77.4071 93.231 79.0411 91.216 79.0411H3.64881C1.63371 79.0411 0.000213623 77.4071 0.000213623 75.392V37.446Z"
+            fill="#CBCBCB"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M3.6488 30.8784H91.216C94.844 30.8784 97.784 33.8188 97.784 37.4459V75.3919C97.784 79.019 94.844 81.959 91.216 81.959H3.6488C0.021699 81.959 -2.9187 79.019 -2.9187 75.3919V37.4459C-2.9187 33.8188 0.021699 30.8784 3.6488 30.8784ZM3.6488 33.7973C1.6337 33.7973 0.000199318 35.4309 0.000199318 37.4459V75.3919C0.000199318 77.407 1.6337 79.041 3.6488 79.041H91.216C93.231 79.041 94.865 77.407 94.865 75.3919V37.4459C94.865 35.4309 93.231 33.7973 91.216 33.7973H3.6488Z"
+            fill="#999999"
+          />
+          <path
+            d="M0.000213623 52.7703C0.000213623 50.7552 1.63371 49.1216 3.64881 49.1216H91.216C93.231 49.1216 94.865 50.7552 94.865 52.7703V75.3919C94.865 77.407 93.231 79.041 91.216 79.041H3.64881C1.63371 79.041 0.000213623 77.407 0.000213623 75.3919V52.7703Z"
+            fill="#DDDDDD"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M3.6488 46.2026H91.216C94.844 46.2026 97.784 49.143 97.784 52.7702V75.3918C97.784 79.0189 94.844 81.9589 91.216 81.9589H3.6488C0.021699 81.9589 -2.9187 79.0189 -2.9187 75.3918V52.7702C-2.9187 49.143 0.021699 46.2026 3.6488 46.2026ZM3.6488 49.1215C1.6337 49.1215 0.000199318 50.7551 0.000199318 52.7702V75.3918C0.000199318 77.4069 1.6337 79.0409 3.6488 79.0409H91.216C93.231 79.0409 94.865 77.4069 94.865 75.3918V52.7702C94.865 50.7551 93.231 49.1215 91.216 49.1215H3.6488Z"
+            fill="#999999"
+          />
+          <path
+            d="M0.000213623 68.0945C0.000213623 66.0794 1.63371 64.4458 3.64881 64.4458H91.216C93.231 64.4458 94.865 66.0794 94.865 68.0945V75.3918C94.865 77.4069 93.231 79.0409 91.216 79.0409H3.64881C1.63371 79.0409 0.000213623 77.4069 0.000213623 75.3918V68.0945Z"
+            fill="white"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M3.6488 61.5271H91.216C94.844 61.5271 97.784 64.4675 97.784 68.0947V75.392C97.784 79.0191 94.844 81.9591 91.216 81.9591H3.6488C0.021699 81.9591 -2.9187 79.0191 -2.9187 75.392V68.0947C-2.9187 64.4675 0.021699 61.5271 3.6488 61.5271ZM3.6488 64.446C1.6337 64.446 0.000199318 66.0796 0.000199318 68.0947V75.392C0.000199318 77.4071 1.6337 79.0411 3.6488 79.0411H91.216C93.231 79.0411 94.865 77.4071 94.865 75.392V68.0947C94.865 66.0796 93.231 64.446 91.216 64.446H3.6488Z"
+            fill="#999999"
+          />
+        </g>
+      </svg>
+    </div>
   )
 }
 
@@ -770,8 +928,8 @@ function RainbowLogo() {
           y2="120"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#174299" />
-          <stop offset="1" stop-color="#001E59" />
+          <stop stopColor="#174299" />
+          <stop offset="1" stopColor="#001E59" />
         </linearGradient>
         <radialGradient
           id="paint1_radial_681_14"
@@ -781,8 +939,8 @@ function RainbowLogo() {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(26 94) rotate(-90) scale(74)"
         >
-          <stop offset="0.770277" stop-color="#FF4000" />
-          <stop offset="1" stop-color="#8754C9" />
+          <stop offset="0.770277" stopColor="#FF4000" />
+          <stop offset="1" stopColor="#8754C9" />
         </radialGradient>
         <linearGradient
           id="paint2_linear_681_14"
@@ -792,8 +950,8 @@ function RainbowLogo() {
           y2="97"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FF4000" />
-          <stop offset="1" stop-color="#8754C9" />
+          <stop stopColor="#FF4000" />
+          <stop offset="1" stopColor="#8754C9" />
         </linearGradient>
         <linearGradient
           id="paint3_linear_681_14"
@@ -803,8 +961,8 @@ function RainbowLogo() {
           y2="37"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#8754C9" />
-          <stop offset="1" stop-color="#FF4000" />
+          <stop stopColor="#8754C9" />
+          <stop offset="1" stopColor="#FF4000" />
         </linearGradient>
         <radialGradient
           id="paint4_radial_681_14"
@@ -814,8 +972,8 @@ function RainbowLogo() {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(26 94) rotate(-90) scale(58)"
         >
-          <stop offset="0.723929" stop-color="#FFF700" />
-          <stop offset="1" stop-color="#FF9901" />
+          <stop offset="0.723929" stopColor="#FFF700" />
+          <stop offset="1" stopColor="#FF9901" />
         </radialGradient>
         <linearGradient
           id="paint5_linear_681_14"
@@ -825,8 +983,8 @@ function RainbowLogo() {
           y2="97"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFF700" />
-          <stop offset="1" stop-color="#FF9901" />
+          <stop stopColor="#FFF700" />
+          <stop offset="1" stopColor="#FF9901" />
         </linearGradient>
         <linearGradient
           id="paint6_linear_681_14"
@@ -836,8 +994,8 @@ function RainbowLogo() {
           y2="36"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFF700" />
-          <stop offset="1" stop-color="#FF9901" />
+          <stop stopColor="#FFF700" />
+          <stop offset="1" stopColor="#FF9901" />
         </linearGradient>
         <radialGradient
           id="paint7_radial_681_14"
@@ -847,8 +1005,8 @@ function RainbowLogo() {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(26 94) rotate(-90) scale(42)"
         >
-          <stop offset="0.59513" stop-color="#00AAFF" />
-          <stop offset="1" stop-color="#01DA40" />
+          <stop offset="0.59513" stopColor="#00AAFF" />
+          <stop offset="1" stopColor="#01DA40" />
         </radialGradient>
         <radialGradient
           id="paint8_radial_681_14"
@@ -858,8 +1016,8 @@ function RainbowLogo() {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(51 97) scale(17 45.3333)"
         >
-          <stop stop-color="#00AAFF" />
-          <stop offset="1" stop-color="#01DA40" />
+          <stop stopColor="#00AAFF" />
+          <stop offset="1" stopColor="#01DA40" />
         </radialGradient>
         <radialGradient
           id="paint9_radial_681_14"
@@ -869,8 +1027,8 @@ function RainbowLogo() {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(23 69) rotate(-90) scale(17 322.37)"
         >
-          <stop stop-color="#00AAFF" />
-          <stop offset="1" stop-color="#01DA40" />
+          <stop stopColor="#00AAFF" />
+          <stop offset="1" stopColor="#01DA40" />
         </radialGradient>
       </defs>
     </svg>

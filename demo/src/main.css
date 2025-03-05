@@ -156,6 +156,7 @@
   --border-color-surface: light-dark(var(--color-gray4), var(--color-gray5));
 
   --font-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: "SF Pro Text", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   --text-color-accent: var(--color-blue10);
   --text-color-destructive: var(--color-red10);
