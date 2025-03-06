@@ -21,18 +21,25 @@ export const defaultChain = defineChain({
 export function getPorto(
   parameters: {
     chain?: Chain | undefined
+    implementation?: (parameters: {
+      mock: boolean
+    }) => Implementation.Implementation | undefined
     transports?:
       | {
           default?: Transport | undefined
-          relay?: true | Transport | undefined
+          relay?: boolean | Transport | undefined
         }
       | undefined
   } = {},
 ) {
-  const { chain = defaultChain, transports = {} } = parameters
+  const {
+    chain = defaultChain,
+    implementation = Implementation.local,
+    transports = {},
+  } = parameters
   const porto = Porto.create({
     chains: [chain],
-    implementation: Implementation.local({
+    implementation: implementation({
       mock: true,
     }),
     storage: Storage.memory(),

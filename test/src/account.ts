@@ -9,7 +9,7 @@ import {
 
 import * as Account from '../../src/core/internal/account.js'
 import * as Key from '../../src/core/internal/key.js'
-import * as Action from '../../src/core/internal/relay/action.js'
+import * as Action from '../../src/core/internal/relay_old/action.js'
 import { ExperimentERC20 } from './contracts.js'
 
 export async function getAccount(
