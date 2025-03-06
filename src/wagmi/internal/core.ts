@@ -21,7 +21,7 @@ import {
 } from 'viem'
 
 import type * as RpcSchema from '../../core/RpcSchema.js'
-import * as Capabilities from '../../core/internal/typebox/capabilities.js'
+import * as Request from '../../core/internal/typebox/request.js'
 import * as Rpc from '../../core/internal/typebox/rpc.js'
 import * as Schema from '../../core/internal/typebox/schema.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
@@ -71,7 +71,7 @@ export async function connect<config extends Config>(
       method,
       params: [
         {
-          capabilities: Schema.Encode(Capabilities.Connect, {
+          capabilities: Schema.Encode(Request.wallet_connect.Capabilities, {
             grantPermissions,
             createAccount,
           }),
@@ -116,13 +116,13 @@ export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
     grantPermissions?:
       | Schema.StaticDecode<
-          typeof Capabilities.Connect.properties.grantPermissions
+          typeof Request.wallet_connect.Capabilities.properties.grantPermissions
         >
       | undefined
     connector: Connector | CreateConnectorFn
     createAccount?:
       | Schema.StaticDecode<
-          typeof Capabilities.Connect.properties.createAccount
+          typeof Request.wallet_connect.Capabilities.properties.createAccount
         >
       | undefined
   }
@@ -282,25 +282,25 @@ export async function grantPermissions<config extends Config>(
   }>({
     method,
     params: [
-      Schema.Encode(Rpc.experimental_grantPermissionsParams0, {
+      Schema.Encode(Rpc.experimental_grantPermissions.Parameters, {
         address,
         ...key,
       }),
     ],
   })
 
-  return Schema.Decode(Rpc.experimental_grantPermissions.ReturnType, response)
+  return Schema.Decode(Rpc.experimental_grantPermissions.Response, response)
 }
 
 export declare namespace grantPermissions {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Schema.StaticDecode<typeof Rpc.experimental_grantPermissionsParams0> & {
+    Schema.StaticDecode<typeof Rpc.experimental_grantPermissions.Parameters> & {
       address?: Address | undefined
     }
 
   type ReturnType = Schema.StaticDecode<
-    typeof Rpc.experimental_grantPermissions.ReturnType
+    typeof Rpc.experimental_grantPermissions.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -330,7 +330,7 @@ export async function permissions<config extends Config>(
     params: [{ address }],
   })
 
-  return Schema.Decode(Rpc.experimental_permissions.ReturnType, response)
+  return Schema.Decode(Rpc.experimental_permissions.Response, response)
 }
 
 export declare namespace permissions {
@@ -340,7 +340,7 @@ export declare namespace permissions {
     }
 
   type ReturnType = Schema.StaticDecode<
-    typeof Rpc.experimental_permissions.ReturnType
+    typeof Rpc.experimental_permissions.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -376,7 +376,7 @@ export declare namespace revokePermissions {
     ConnectorParameter & {
       address?: Address | undefined
       id: Schema.StaticDecode<
-        typeof Rpc.experimental_revokePermissionsParams0
+        typeof Rpc.experimental_revokePermissions.Parameters
       >['id']
     }
 
@@ -433,7 +433,7 @@ export async function upgradeAccount<config extends Config>(
           address: account.address,
           capabilities: {
             grantPermissions: Schema.Encode(
-              Capabilities.Connect.properties.grantPermissions,
+              Request.wallet_connect.Capabilities.properties.grantPermissions,
               grantPermissions,
             ),
           },
@@ -453,9 +453,7 @@ export async function upgradeAccount<config extends Config>(
       Parameters?: Schema.Static<
         typeof Rpc.experimental_createAccount.Request.properties.params
       >
-      ReturnType: Schema.Static<
-        typeof Rpc.experimental_createAccount.ReturnType
-      >
+      ReturnType: Schema.Static<typeof Rpc.experimental_createAccount.Response>
     }>({
       method: experimental_createAccount,
       params: [{ context, signatures }],
@@ -499,7 +497,7 @@ export declare namespace upgradeAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
     grantPermissions?:
       | Schema.StaticDecode<
-          typeof Capabilities.Connect.properties.grantPermissions
+          typeof Request.wallet_connect.Capabilities.properties.grantPermissions
         >
       | undefined
     account: PrivateKeyAccount

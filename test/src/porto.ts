@@ -2,6 +2,7 @@ import { Chains, Implementation, Porto, Storage } from 'porto'
 import { http, type Transport, custom, defineChain } from 'viem'
 
 import { type Chain, odysseyTestnet } from '../../src/core/Chains.js'
+import * as Porto_internal from '../../src/core/internal/porto.js'
 import { anvilOdyssey } from './anvil.js'
 import { relayOdyssey } from './relay.js'
 
@@ -55,7 +56,7 @@ export function getPorto(
     },
   })
 
-  const client = Porto.getClient(porto).extend(() => ({
+  const client = Porto_internal.getClient(porto).extend(() => ({
     mode: 'anvil',
   }))
 
