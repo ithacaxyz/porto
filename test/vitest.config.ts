@@ -14,6 +14,8 @@ export default defineConfig({
     },
     globalSetup: [join(__dirname, './globalSetup.ts')],
     include: ['src/**/*.test.ts'],
+    // TODO(relay_old): remove
+    exclude: ['src/core/internal/relay_old'],
     passWithNoTests: true,
     setupFiles: [join(__dirname, './setup.ts')],
     testTimeout: 30_000,
