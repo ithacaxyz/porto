@@ -1,35 +1,38 @@
-import * as Capabilities from './capabilities.js'
+import * as C from './capabilities.js'
 import * as Permissions from './permissions.js'
 import * as Primitive from './primitive.js'
 import * as Schema from './schema.js'
 import { Type } from './schema.js'
 
-export const eth_accounts = {
-  Request: Type.Object({
+export namespace eth_accounts {
+  export const Request = Type.Object({
     method: Type.Literal('eth_accounts'),
     params: Schema.Optional(Type.Undefined()),
-  }),
-  ReturnType: Type.Array(Primitive.Address),
+  })
+
+  export const Response = Type.Array(Primitive.Address)
 }
 
-export const eth_chainId = {
-  Request: Type.Object({
+export namespace eth_chainId {
+  export const Request = Type.Object({
     method: Type.Literal('eth_chainId'),
     params: Schema.Optional(Type.Undefined()),
-  }),
-  ReturnType: Primitive.Hex,
+  })
+
+  export const Response = Primitive.Hex
 }
 
-export const eth_requestAccounts = {
-  Request: Type.Object({
+export namespace eth_requestAccounts {
+  export const Request = Type.Object({
     method: Type.Literal('eth_requestAccounts'),
     params: Schema.Optional(Type.Undefined()),
-  }),
-  ReturnType: Type.Array(Primitive.Address),
+  })
+
+  export const Response = Type.Array(Primitive.Address)
 }
 
-export const eth_sendTransaction = {
-  Request: Type.Object({
+export namespace eth_sendTransaction {
+  export const Request = Type.Object({
     method: Type.Literal('eth_sendTransaction'),
     params: Type.Tuple([
       Type.Object({
@@ -40,238 +43,206 @@ export const eth_sendTransaction = {
         value: Schema.Optional(Primitive.BigInt),
       }),
     ]),
-  }),
-  ReturnType: Primitive.Hex,
+  })
+
+  export const Response = Primitive.Hex
 }
 
-export const eth_signTypedData_v4 = {
-  Request: Type.Object({
+export namespace eth_signTypedData_v4 {
+  export const Request = Type.Object({
     method: Type.Literal('eth_signTypedData_v4'),
     params: Type.Tuple([Primitive.Address, Type.String()]),
-  }),
-  ReturnType: Primitive.Hex,
+  })
+
+  export const Response = Primitive.Hex
 }
 
-export const experimental_grantPermissionsParams0 = Permissions.Request
-export const experimental_grantPermissionsReturnType = Permissions.Permissions
-export const experimental_grantPermissions = {
-  Request: Type.Object({
+export namespace experimental_grantPermissions {
+  export const Parameters = Permissions.Request
+
+  export const Request = Type.Object({
     method: Type.Literal('experimental_grantPermissions'),
-    params: Type.Tuple([experimental_grantPermissionsParams0]),
-  }),
-  ReturnType: experimental_grantPermissionsReturnType,
+    params: Type.Tuple([Parameters]),
+  })
+
+  export const Response = Permissions.Permissions
 }
 
-export const experimental_permissionsParams0 = Type.Object({
-  address: Schema.Optional(Primitive.Address),
-})
-export const experimental_permissionsReturnType = Type.Array(
-  Type.Object({
-    address: Primitive.Address,
-    chainId: Schema.Optional(Primitive.Hex),
-    expiry: Type.Number(),
-    id: Primitive.Hex,
-    key: Type.Object({
-      publicKey: Primitive.Hex,
-      type: Type.String(),
-    }),
-    permissions: Type.Object({
-      calls: Schema.Optional(
-        Type.Array(
-          Type.Union([
-            Type.Object({
-              signature: Type.String(),
-              to: Primitive.Address,
-            }),
-            Type.Object({
-              signature: Type.String(),
-            }),
-            Type.Object({
-              to: Primitive.Address,
-            }),
-          ]),
-        ),
-      ),
-      signatureVerification: Schema.Optional(
-        Type.Object({
-          addresses: Type.Array(Primitive.Address),
-        }),
-      ),
-      spend: Schema.Optional(
-        Type.Array(
-          Type.Object({
-            limit: Primitive.BigInt,
-            period: Type.Union([
-              Type.Literal('minute'),
-              Type.Literal('hour'),
-              Type.Literal('day'),
-              Type.Literal('week'),
-              Type.Literal('month'),
-              Type.Literal('year'),
-            ]),
-            token: Schema.Optional(Primitive.Address),
-          }),
-        ),
-      ),
-    }),
-  }),
-)
-export const experimental_permissions = {
-  Request: Type.Object({
+export namespace experimental_permissions {
+  export const Parameters = Type.Object({
+    address: Schema.Optional(Primitive.Address),
+  })
+
+  export const Request = Type.Object({
     method: Type.Literal('experimental_permissions'),
-    params: Schema.Optional(Type.Tuple([experimental_permissionsParams0])),
-  }),
-  ReturnType: experimental_permissionsReturnType,
+    params: Schema.Optional(Type.Tuple([Parameters])),
+  })
+
+  export const Response = C.permissions.Response
 }
 
-export const experimental_prepareCreateAccountParams0 = Type.Object({
-  address: Primitive.Address,
-  chainId: Schema.Optional(Primitive.Number),
-  capabilities: Schema.Optional(
-    Type.Object({
-      grantPermissions: Schema.Optional(Permissions.Request),
-    }),
-  ),
-  label: Schema.Optional(Type.String()),
-})
-export const experimental_prepareCreateAccountReturnType = Type.Object({
-  context: Type.Unknown(),
-  signPayloads: Type.Array(Primitive.Hex),
-})
-export const experimental_prepareCreateAccount = {
-  Request: Type.Object({
-    method: Type.Literal('experimental_prepareCreateAccount'),
-    params: Type.Tuple([experimental_prepareCreateAccountParams0]),
-  }),
-  ReturnType: experimental_prepareCreateAccountReturnType,
-}
+export namespace experimental_prepareCreateAccount {
+  export const Capabilities = Type.Object({
+    grantPermissions: Schema.Optional(C.grantPermissions.Request),
+  })
 
-export const experimental_createAccountParams0 = Type.Intersect([
-  Type.Object({
+  export const Parameters = Type.Object({
+    address: Primitive.Address,
     chainId: Schema.Optional(Primitive.Number),
-  }),
-  Schema.OneOf([
+    capabilities: Schema.Optional(Capabilities),
+    label: Schema.Optional(Type.String()),
+  })
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_prepareCreateAccount'),
+    params: Type.Tuple([Parameters]),
+  })
+
+  export const Response = Type.Object({
+    context: Type.Unknown(),
+    signPayloads: Type.Array(Primitive.Hex),
+  })
+}
+
+export namespace experimental_createAccount {
+  export const Parameters = Type.Intersect([
     Type.Object({
-      label: Schema.Optional(Type.String()),
+      chainId: Schema.Optional(Primitive.Number),
     }),
-    Type.Object({
-      context: Type.Unknown(),
-      signatures: Type.Array(Primitive.Hex),
-    }),
-  ]),
-])
-export const experimental_createAccountReturnType = Type.Object({
-  address: Primitive.Address,
-  capabilities: Schema.Optional(
-    Type.Object({
-      permissions: Schema.Optional(experimental_permissionsReturnType),
-    }),
-  ),
-})
-export const experimental_createAccount = {
-  Request: Type.Object({
+    Schema.OneOf([
+      Type.Object({
+        label: Schema.Optional(Type.String()),
+      }),
+      Type.Object({
+        context: Type.Unknown(),
+        signatures: Type.Array(Primitive.Hex),
+      }),
+    ]),
+  ])
+
+  export const Request = Type.Object({
     method: Type.Literal('experimental_createAccount'),
-    params: Schema.Optional(Type.Tuple([experimental_createAccountParams0])),
-  }),
-  ReturnType: experimental_createAccountReturnType,
+    params: Schema.Optional(Type.Tuple([Parameters])),
+  })
+
+  export const ResponseCapabilities = Type.Object({
+    permissions: Schema.Optional(C.permissions.Response),
+  })
+
+  export const Response = Type.Object({
+    address: Primitive.Address,
+    capabilities: Schema.Optional(ResponseCapabilities),
+  })
 }
 
-export const experimental_revokePermissionsParams0 = Type.Object({
-  address: Schema.Optional(Primitive.Address),
-  id: Primitive.Hex,
-})
-export const experimental_revokePermissions = {
-  Request: Type.Object({
+export namespace experimental_revokePermissions {
+  export const Parameters = Type.Object({
+    address: Schema.Optional(Primitive.Address),
+    id: Primitive.Hex,
+  })
+
+  export const Request = Type.Object({
     method: Type.Literal('experimental_revokePermissions'),
-    params: Type.Tuple([experimental_revokePermissionsParams0]),
-  }),
-  ReturnType: undefined,
+    params: Type.Tuple([Parameters]),
+  })
+
+  export const Response = undefined
 }
 
-export const personal_sign = {
-  Request: Type.Object({
+export namespace personal_sign {
+  export const Request = Type.Object({
     method: Type.Literal('personal_sign'),
     params: Type.Tuple([Primitive.Hex, Primitive.Address]),
-  }),
-  ReturnType: Primitive.Hex,
+  })
+
+  export const Response = Primitive.Hex
 }
 
-export const porto_ping = {
-  Request: Type.Object({
+export namespace porto_ping {
+  export const Request = Type.Object({
     method: Type.Literal('porto_ping'),
     params: Schema.Optional(Type.Undefined()),
-  }),
-  ReturnType: Type.Literal('pong'),
+  })
+
+  export const Response = Type.Literal('pong')
 }
 
-export const wallet_connect = {
-  Request: Type.Object({
+export namespace wallet_connect {
+  export const Capabilities = Type.Object({
+    createAccount: Schema.Optional(C.createAccount.Request),
+    grantPermissions: Schema.Optional(C.grantPermissions.Request),
+  })
+
+  export const Request = Type.Object({
     method: Type.Literal('wallet_connect'),
     params: Schema.Optional(
       Type.Tuple([
         Type.Object({
-          capabilities: Schema.Optional(Capabilities.Connect),
+          capabilities: Schema.Optional(Capabilities),
         }),
       ]),
     ),
-  }),
-  ReturnType: Type.Object({
+  })
+
+  export const ResponseCapabilities = Type.Object({
+    permissions: Schema.Optional(C.permissions.Response),
+  })
+
+  export const Response = Type.Object({
     accounts: Type.Array(
       Type.Object({
         address: Primitive.Address,
-        capabilities: Schema.Optional(
-          Type.Object({
-            permissions: Schema.Optional(experimental_permissionsReturnType),
-          }),
-        ),
+        capabilities: Schema.Optional(ResponseCapabilities),
       }),
     ),
-  }),
+  })
 }
 
-export const wallet_disconnect = {
-  Request: Type.Object({
+export namespace wallet_disconnect {
+  export const Request = Type.Object({
     method: Type.Literal('wallet_disconnect'),
     params: Schema.Optional(Type.Undefined()),
-  }),
-  ReturnType: undefined,
+  })
+
+  export const Response = undefined
 }
 
-export const wallet_getCallsStatusReturnType = Type.Object({
-  receipts: Schema.Optional(
-    Type.Array(
-      Type.Object({
-        logs: Type.Array(
-          Type.Object({
-            address: Primitive.Address,
-            data: Primitive.Hex,
-            topics: Type.Array(Primitive.Hex),
-          }),
-        ),
-        status: Primitive.Hex,
-        blockHash: Primitive.Hex,
-        blockNumber: Primitive.Hex,
-        gasUsed: Primitive.Hex,
-        transactionHash: Primitive.Hex,
-      }),
-    ),
-  ),
-  status: Type.Union([Type.Literal('CONFIRMED'), Type.Literal('PENDING')]),
-})
-export const wallet_getCallsStatus = {
-  Request: Type.Object({
+export namespace wallet_getCallsStatus {
+  export const Request = Type.Object({
     method: Type.Literal('wallet_getCallsStatus'),
     params: Type.Tuple([Primitive.Hex]),
-  }),
-  ReturnType: wallet_getCallsStatusReturnType,
+  })
+
+  export const Response = Type.Object({
+    receipts: Schema.Optional(
+      Type.Array(
+        Type.Object({
+          logs: Type.Array(
+            Type.Object({
+              address: Primitive.Address,
+              data: Primitive.Hex,
+              topics: Type.Array(Primitive.Hex),
+            }),
+          ),
+          status: Primitive.Hex,
+          blockHash: Primitive.Hex,
+          blockNumber: Primitive.Hex,
+          gasUsed: Primitive.Hex,
+          transactionHash: Primitive.Hex,
+        }),
+      ),
+    ),
+    status: Type.Union([Type.Literal('CONFIRMED'), Type.Literal('PENDING')]),
+  })
 }
 
-export const wallet_getCapabilities = {
-  Request: Type.Object({
+export namespace wallet_getCapabilities {
+  export const Request = Type.Object({
     method: Type.Literal('wallet_getCapabilities'),
     params: Schema.Optional(Type.Undefined()),
-  }),
-  ReturnType: Type.Record(
+  })
+
+  export const Response = Type.Record(
     Primitive.Hex,
     Type.Object({
       atomicBatch: Type.Object({
@@ -284,74 +255,79 @@ export const wallet_getCapabilities = {
         supported: Type.Boolean(),
       }),
     }),
-  ),
+  )
 }
 
-export const wallet_prepareCallsParams0 = Type.Object({
-  calls: Type.Array(
-    Type.Object({
-      to: Primitive.Address,
-      data: Schema.Optional(Primitive.Hex),
-      value: Schema.Optional(Primitive.BigInt),
-    }),
-    { minItems: 1 },
-  ),
-  capabilities: Schema.Optional(Capabilities.SendCalls),
-  chainId: Schema.Optional(Primitive.Number),
-  from: Schema.Optional(Primitive.Address),
-  version: Schema.Optional(Type.Literal('1')),
-})
-export const wallet_prepareCallsReturnType = Type.Object({
-  capabilities: Schema.Optional(Type.Record(Type.String(), Type.Any())),
-  chainId: Schema.Optional(Primitive.Hex),
-  context: Type.Object({
-    account: Type.Object({
-      address: Primitive.Address,
-      type: Type.Literal('delegated'),
-    }),
-    calls: wallet_prepareCallsParams0.properties.calls,
-    nonce: Primitive.BigInt,
-  }),
-  digest: Primitive.Hex,
-  version: Schema.Optional(Type.String()),
-})
-export const wallet_prepareCalls = {
-  Request: Type.Object({
+export namespace wallet_prepareCalls {
+  export const Capabilities = Type.Object({
+    permissions: Schema.Optional(C.permissions.Request),
+  })
+
+  export const Parameters = Type.Object({
+    calls: Type.Array(
+      Type.Object({
+        to: Primitive.Address,
+        data: Schema.Optional(Primitive.Hex),
+        value: Schema.Optional(Primitive.BigInt),
+      }),
+    ),
+    capabilities: Schema.Optional(Capabilities),
+    chainId: Schema.Optional(Primitive.Number),
+    from: Schema.Optional(Primitive.Address),
+    version: Schema.Optional(Type.Literal('1')),
+  })
+
+  export const Request = Type.Object({
     method: Type.Literal('wallet_prepareCalls'),
-    params: Type.Tuple([wallet_prepareCallsParams0]),
-  }),
-  ReturnType: wallet_prepareCallsReturnType,
-}
+    params: Type.Tuple([Parameters]),
+  })
 
-export const wallet_sendCallsParams0 = wallet_prepareCallsParams0
-export const wallet_sendCalls = {
-  Request: Type.Object({
-    method: Type.Literal('wallet_sendCalls'),
-    params: Type.Tuple([wallet_sendCallsParams0]),
-  }),
-  ReturnType: Primitive.Hex,
-}
-
-export const wallet_sendPreparedCallsParams0 = Type.Intersect([
-  Type.Omit(wallet_prepareCallsReturnType, ['digest']),
-  Type.Object({
-    signature: Type.Object({
-      publicKey: Primitive.Hex,
-      type: Type.String(),
-      value: Primitive.Hex,
-    }),
-  }),
-])
-export const wallet_sendPreparedCallsReturnType = Type.Array(
-  Type.Object({
-    id: Type.String(),
+  export const Response = Type.Object({
     capabilities: Schema.Optional(Type.Record(Type.String(), Type.Any())),
-  }),
-)
-export const wallet_sendPreparedCalls = {
-  Request: Type.Object({
+    chainId: Schema.Optional(Primitive.Hex),
+    context: Type.Object({
+      account: Type.Object({
+        address: Primitive.Address,
+        type: Type.Literal('delegated'),
+      }),
+      calls: Parameters.properties.calls,
+      nonce: Primitive.BigInt,
+    }),
+    digest: Primitive.Hex,
+    version: Schema.Optional(Type.String()),
+  })
+}
+
+export namespace wallet_sendCalls {
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_sendCalls'),
+    params: Type.Tuple([wallet_prepareCalls.Parameters]),
+  })
+
+  export const Response = Primitive.Hex
+}
+
+export namespace wallet_sendPreparedCalls {
+  export const Parameters = Type.Intersect([
+    Type.Omit(wallet_prepareCalls.Response, ['digest']),
+    Type.Object({
+      signature: Type.Object({
+        publicKey: Primitive.Hex,
+        type: Type.String(),
+        value: Primitive.Hex,
+      }),
+    }),
+  ])
+
+  export const Request = Type.Object({
     method: Type.Literal('wallet_sendPreparedCalls'),
-    params: Type.Tuple([wallet_sendPreparedCallsParams0]),
-  }),
-  ReturnType: wallet_sendPreparedCallsReturnType,
+    params: Type.Tuple([Parameters]),
+  })
+
+  export const Response = Type.Array(
+    Type.Object({
+      id: Type.String(),
+      capabilities: Schema.Optional(Type.Record(Type.String(), Type.Any())),
+    }),
+  )
 }

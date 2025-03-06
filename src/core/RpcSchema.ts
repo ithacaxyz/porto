@@ -11,25 +11,23 @@ export type Schema = RpcSchema.From<
     >
   | {
       Request: Static<typeof Rpc.porto_ping.Request>
-      ReturnType: Static<typeof Rpc.porto_ping.ReturnType>
+      ReturnType: Static<typeof Rpc.porto_ping.Response>
     }
   | {
       Request: Static<typeof Rpc.experimental_createAccount.Request>
-      ReturnType: Static<typeof Rpc.experimental_createAccount.ReturnType>
+      ReturnType: Static<typeof Rpc.experimental_createAccount.Response>
     }
   | {
       Request: Static<typeof Rpc.experimental_grantPermissions.Request>
-      ReturnType: Static<typeof Rpc.experimental_grantPermissions.ReturnType>
+      ReturnType: Static<typeof Rpc.experimental_grantPermissions.Response>
     }
   | {
       Request: Static<typeof Rpc.experimental_prepareCreateAccount.Request>
-      ReturnType: Static<
-        typeof Rpc.experimental_prepareCreateAccount.ReturnType
-      >
+      ReturnType: Static<typeof Rpc.experimental_prepareCreateAccount.Response>
     }
   | {
       Request: Static<typeof Rpc.experimental_permissions.Request>
-      ReturnType: Static<typeof Rpc.experimental_permissions.ReturnType>
+      ReturnType: Static<typeof Rpc.experimental_permissions.Response>
     }
   | {
       Request: Static<typeof Rpc.experimental_revokePermissions.Request>
@@ -37,7 +35,7 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: Static<typeof Rpc.wallet_connect.Request>
-      ReturnType: Static<typeof Rpc.wallet_connect.ReturnType>
+      ReturnType: Static<typeof Rpc.wallet_connect.Response>
     }
   | {
       Request: Static<typeof Rpc.wallet_disconnect.Request>
@@ -45,14 +43,14 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: Static<typeof Rpc.wallet_prepareCalls.Request>
-      ReturnType: Static<typeof Rpc.wallet_prepareCalls.ReturnType>
+      ReturnType: Static<typeof Rpc.wallet_prepareCalls.Response>
     }
   | {
       Request: Static<typeof Rpc.wallet_sendPreparedCalls.Request>
-      ReturnType: Static<typeof Rpc.wallet_sendPreparedCalls.ReturnType>
+      ReturnType: Static<typeof Rpc.wallet_sendPreparedCalls.Response>
     }
   | {
       Request: Static<typeof Rpc.wallet_sendCalls.Request>
-      ReturnType: Static<typeof Rpc.wallet_sendCalls.ReturnType>
+      ReturnType: Static<typeof Rpc.wallet_sendCalls.Response>
     }
 >

@@ -4,11 +4,12 @@ import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 
 import type * as Chains from '../Chains.js'
-import * as Porto from '../Porto.js'
+import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Account from './account.js'
 import * as Key from './key.js'
 import * as Permissions from './permissions.js'
+import * as Porto_internal from './porto.js'
 import * as Rpc from './typebox/rpc.js'
 import * as Schema from './typebox/schema.js'
 
@@ -37,7 +38,7 @@ export function from<
   function getClient(chainId_?: Hex.Hex | number | undefined) {
     const chainId =
       typeof chainId_ === 'string' ? Hex.toNumber(chainId_) : chainId_
-    return Porto.getClient({ _internal: parameters }, { chainId })
+    return Porto_internal.getClient({ _internal: parameters }, { chainId })
   }
 
   const emitter = ox_Provider.createEmitter()
@@ -65,12 +66,12 @@ export function from<
             throw new ox_Provider.DisconnectedError()
           return state.accounts.map(
             (account) => account.address,
-          ) satisfies Schema.Static<typeof Rpc.eth_accounts.ReturnType>
+          ) satisfies Schema.Static<typeof Rpc.eth_accounts.Response>
         }
 
         case 'eth_chainId': {
           return Hex.fromNumber(state.chain.id) satisfies Schema.Static<
-            typeof Rpc.eth_chainId.ReturnType
+            typeof Rpc.eth_chainId.Response
           >
         }
 
@@ -78,7 +79,7 @@ export function from<
           if (state.accounts.length > 0)
             return state.accounts.map(
               (account) => account.address,
-            ) satisfies Schema.Static<typeof Rpc.eth_requestAccounts.ReturnType>
+            ) satisfies Schema.Static<typeof Rpc.eth_requestAccounts.Response>
 
           const client = getClient()
 
@@ -99,7 +100,7 @@ export function from<
 
           return accounts.map(
             (account) => account.address,
-          ) satisfies Schema.Static<typeof Rpc.eth_requestAccounts.ReturnType>
+          ) satisfies Schema.Static<typeof Rpc.eth_requestAccounts.Response>
         }
 
         case 'eth_sendTransaction': {
@@ -137,7 +138,7 @@ export function from<
           })
 
           return hash satisfies Schema.Static<
-            typeof Rpc.eth_sendTransaction.ReturnType
+            typeof Rpc.eth_sendTransaction.Response
           >
         }
 
@@ -166,7 +167,7 @@ export function from<
           })
 
           return signature satisfies Schema.Static<
-            typeof Rpc.eth_signTypedData_v4.ReturnType
+            typeof Rpc.eth_signTypedData_v4.Response
           >
         }
 
@@ -225,7 +226,7 @@ export function from<
               address: account.address,
             }),
           ) satisfies Schema.Static<
-            typeof Rpc.experimental_grantPermissions.ReturnType
+            typeof Rpc.experimental_grantPermissions.Response
           >
         }
 
@@ -262,7 +263,7 @@ export function from<
               ...(permissions.length > 0 ? { permissions } : {}),
             },
           } satisfies Schema.Static<
-            typeof Rpc.experimental_createAccount.ReturnType
+            typeof Rpc.experimental_createAccount.Response
           >
         }
 
@@ -291,7 +292,7 @@ export function from<
             context,
             signPayloads: signPayloads.map((x) => x as never),
           } satisfies Schema.Static<
-            typeof Rpc.experimental_prepareCreateAccount.ReturnType
+            typeof Rpc.experimental_prepareCreateAccount.Response
           >
         }
 
@@ -363,9 +364,7 @@ export function from<
         }
 
         case 'porto_ping': {
-          return 'pong' satisfies Schema.Static<
-            typeof Rpc.porto_ping.ReturnType
-          >
+          return 'pong' satisfies Schema.Static<typeof Rpc.porto_ping.Response>
         }
 
         case 'personal_sign': {
@@ -393,7 +392,7 @@ export function from<
           })
 
           return signature satisfies Schema.Static<
-            typeof Rpc.personal_sign.ReturnType
+            typeof Rpc.personal_sign.Response
           >
         }
 
@@ -475,7 +474,7 @@ export function from<
                   : [],
               },
             })),
-          } satisfies Schema.Static<typeof Rpc.wallet_connect.ReturnType>
+          } satisfies Schema.Static<typeof Rpc.wallet_connect.Response>
         }
 
         case 'wallet_disconnect': {
@@ -498,7 +497,7 @@ export function from<
           return {
             receipts: [receipt],
             status: 'CONFIRMED',
-          } satisfies Schema.Static<typeof Rpc.wallet_getCallsStatus.ReturnType>
+          } satisfies Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>
         }
 
         case 'wallet_getCapabilities': {
@@ -519,7 +518,7 @@ export function from<
             capabilities[Hex.fromNumber(chain.id)] = value
 
           return capabilities satisfies Schema.Static<
-            typeof Rpc.wallet_getCapabilities.ReturnType
+            typeof Rpc.wallet_getCapabilities.Response
           >
         }
 
@@ -553,7 +552,7 @@ export function from<
             version,
             context: context as never,
             digest: signPayloads[0]!,
-          } satisfies Schema.Static<typeof Rpc.wallet_prepareCalls.ReturnType>
+          } satisfies Schema.Static<typeof Rpc.wallet_prepareCalls.Response>
         }
 
         case 'wallet_sendPreparedCalls': {
@@ -585,7 +584,7 @@ export function from<
           })
 
           return [{ id: hash }] satisfies Schema.Static<
-            typeof Rpc.wallet_sendPreparedCalls.ReturnType
+            typeof Rpc.wallet_sendPreparedCalls.Response
           >
         }
 
@@ -621,7 +620,7 @@ export function from<
           })
 
           return hash satisfies Schema.Static<
-            typeof Rpc.wallet_sendCalls.ReturnType
+            typeof Rpc.wallet_sendCalls.Response
           >
         }
       }
@@ -694,7 +693,7 @@ function getActivePermissions(
     address,
     chainId,
   }: { address: Address.Address; chainId?: number | undefined },
-): Schema.Static<typeof Rpc.experimental_permissions.ReturnType> {
+): Schema.Static<typeof Rpc.experimental_permissions.Response> {
   return keys
     .map((key) => {
       if (key.role !== 'session') return undefined
