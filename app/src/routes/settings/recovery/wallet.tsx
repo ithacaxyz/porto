@@ -9,6 +9,7 @@ import CoinbaseIcon from '~icons/token-branded/coinbase'
 import PhantomIcon from '~icons/token-branded/phantom'
 
 import { Button } from '~/components/Button'
+import { Pill } from '~/components/Pill'
 import { cn } from '~/utils'
 
 export const Route = createFileRoute('/settings/recovery/wallet')({
@@ -20,7 +21,7 @@ function RouteComponent() {
     <main
       className={cn(
         'mx-auto flex h-screen max-h-[1200px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-transparent py-4 text-center',
-        'sm:my-32 sm:h-[620px] sm:max-w-[400px] sm:bg-white sm:shadow-sm sm:outline sm:outline-gray4',
+        'sm:my-32 sm:h-[625px] sm:max-w-[400px] sm:bg-white sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
       <header className="mt-4 flex justify-between px-5 sm:mt-1">
@@ -89,12 +90,13 @@ function RouteComponent() {
             >
               <WalletConnectIcon className="ml-1 size-7 text-accent" />
               <span className="select-none text-xl">WalletConnect</span>
+              <Pill className="text-[10px]">150+</Pill>
               <ChevronRightIcon className="ml-auto size-6 text-gray9" />
             </button>
           </li>
         </ul>
 
-        <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center rounded-md sm:mb-1">
+        <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center rounded-md">
           <Button
             variant="default"
             className="my-auto mt-2 size-full min-w-full rounded-md bg-gray3! font-medium text-lg hover:bg-gray4!"
