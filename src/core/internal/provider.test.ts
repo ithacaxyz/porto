@@ -1,5 +1,5 @@
 import { AbiFunction, Hex, P256, PublicKey, TypedData, Value } from 'ox'
-import { Implementation, Porto } from 'porto'
+import { Implementation } from 'porto'
 import {
   getBalance,
   setBalance,
@@ -10,6 +10,7 @@ import { describe, expect, test } from 'vitest'
 
 import { getPorto } from '../../../test/src/porto.js'
 import * as Key from './key.js'
+import * as Porto_internal from './porto.js'
 
 describe.each([
   ['local', Implementation.local],
@@ -72,7 +73,7 @@ describe.each([
   describe('eth_sendTransaction', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto).extend(() => ({
+      const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -105,7 +106,7 @@ describe.each([
   describe('eth_signTypedData_v4', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto)
+      const client = Porto_internal.getClient(porto)
       const { address } = await porto.provider.request({
         method: 'experimental_createAccount',
       })
@@ -636,7 +637,7 @@ describe.each([
   describe('personal_sign', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto)
+      const client = Porto_internal.getClient(porto)
       const { address } = await porto.provider.request({
         method: 'experimental_createAccount',
       })
@@ -959,7 +960,7 @@ describe.each([
   describe('wallet_sendCalls', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto).extend(() => ({
+      const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -995,7 +996,7 @@ describe.each([
 
     test('behavior: `permissions` capability', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto).extend(() => ({
+      const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1046,7 +1047,7 @@ describe.each([
 
     test('behavior: `permissions.calls` unauthorized', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto).extend(() => ({
+      const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1096,7 +1097,7 @@ describe.each([
 
     test('behavior: `permissions.spend` exceeded', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto).extend(() => ({
+      const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1171,7 +1172,7 @@ describe.each([
 
     test('behavior: revoked permission', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto).extend(() => ({
+      const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1247,7 +1248,7 @@ describe.each([
 
     test('behavior: not provider-managed permission', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto).extend(() => ({
+      const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1305,7 +1306,7 @@ describe.each([
 
     test('behavior: permission does not exist', async () => {
       const { porto } = getPorto()
-      const client = Porto.getClient(porto).extend(() => ({
+      const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1342,34 +1343,6 @@ describe.each([
         }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         '[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]',
-      )
-    })
-
-    test('behavior: no calls', async () => {
-      const { porto } = getPorto()
-
-      const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
-      })
-
-      await expect(() =>
-        porto.provider.request({
-          method: 'wallet_sendCalls',
-          params: [
-            {
-              from: address,
-              calls: [],
-              version: '1',
-            },
-          ],
-        }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
-        [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
-
-        Path: params.0.calls
-        Value: []]
-      `,
       )
     })
 

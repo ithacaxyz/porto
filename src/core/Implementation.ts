@@ -14,7 +14,7 @@ import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { readContract } from 'viem/actions'
 
 import * as Dialog from './Dialog.js'
-import type { Client, QueuedRequest } from './Porto.js'
+import type { QueuedRequest } from './Porto.js'
 import type * as RpcSchema_porto from './RpcSchema.js'
 import * as Account from './internal/account.js'
 import * as Call from './internal/call.js'
@@ -32,7 +32,7 @@ type Request = Rpc.parseRequest.ReturnType
 
 type ActionsInternal = Porto.Internal & {
   /** Viem Client. */
-  client: Client
+  client: Porto.Client
   /** RPC Request. */
   request: Request
 }
@@ -61,7 +61,7 @@ export type Implementation = {
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Viem Clients. */
-      client: Client
+      client: Porto.Client
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<{
@@ -630,7 +630,7 @@ export function local(parameters: local.Parameters = {}) {
 
   async function prepareCreateAccount(parameters: {
     address: Address.Address
-    client: Client
+    client: Porto.Client
     label?: string | undefined
     keystoreHost?: string | undefined
     mock?: boolean | undefined
