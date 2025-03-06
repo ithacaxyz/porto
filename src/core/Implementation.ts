@@ -628,6 +628,49 @@ export function local(parameters: local.Parameters = {}) {
     return parameters.keystoreHost
   })()
 
+  async function prepareCreateAccount(parameters: {
+    address: Address.Address
+    client: Client
+    label?: string | undefined
+    keystoreHost?: string | undefined
+    mock?: boolean | undefined
+    permissions: PermissionsRequest.PermissionsRequest | undefined
+  }) {
+    const { address, client, keystoreHost, mock, permissions } = parameters
+
+    const label =
+      parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+
+    const key = !mock
+      ? await Key.createWebAuthnP256({
+          label,
+          role: 'admin',
+          rpId: keystoreHost,
+          userId: Bytes.from(address),
+        })
+      : Key.createP256({
+          role: 'admin',
+        })
+
+    const extraKey = await PermissionsRequest.toKey(permissions)
+
+    const keys = [key, ...(extraKey ? [extraKey] : [])]
+
+    const account = Account.from({
+      address,
+      keys,
+    })
+    const delegation = client.chain.contracts.delegation.address
+
+    const { request, signPayloads } = await Delegation.prepareExecute(client, {
+      account,
+      calls: getAuthorizeCalls(account.keys),
+      delegation,
+    })
+
+    return { context: request, signPayloads }
+  }
+
   return from({
     actions: {
       async createAccount(parameters) {
@@ -915,49 +958,6 @@ export declare namespace local {
 ///////////////////////////////////////////////////////////////////////////
 // Internal
 ///////////////////////////////////////////////////////////////////////////
-
-async function prepareCreateAccount(parameters: {
-  address: Address.Address
-  client: Client
-  label?: string | undefined
-  keystoreHost?: string | undefined
-  mock?: boolean | undefined
-  permissions: PermissionsRequest.PermissionsRequest | undefined
-}) {
-  const { address, client, keystoreHost, mock, permissions } = parameters
-
-  const label =
-    parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
-
-  const key = !mock
-    ? await Key.createWebAuthnP256({
-        label,
-        role: 'admin',
-        rpId: keystoreHost,
-        userId: Bytes.from(address),
-      })
-    : Key.createP256({
-        role: 'admin',
-      })
-
-  const extraKey = await PermissionsRequest.toKey(permissions)
-
-  const keys = [key, ...(extraKey ? [extraKey] : [])]
-
-  const account = Account.from({
-    address,
-    keys,
-  })
-  const delegation = client.chain.contracts.delegation.address
-
-  const { request, signPayloads } = await Delegation.prepareExecute(client, {
-    account,
-    calls: getAuthorizeCalls(account.keys),
-    delegation,
-  })
-
-  return { context: request, signPayloads }
-}
 
 function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
   return keys.flatMap((key) => {
