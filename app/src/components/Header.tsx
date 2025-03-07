@@ -66,12 +66,12 @@ export function Header() {
             <Ariakit.Menu
               gutter={8}
               className={cn(
-                'w-full rounded-sm border border-gray6 bg-gray4 p-1 shadow-lg',
+                'w-full rounded-sm border border-gray6 bg-gray2 p-1 shadow-lg',
                 '*:tracking-wide',
               )}
             >
               <Ariakit.MenuItem
-                className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
+                className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray4"
                 onClick={() =>
                   navigator.clipboard
                     .writeText(account?.address ?? '')
@@ -82,15 +82,15 @@ export function Header() {
                 Copy
                 <CopyIcon className="ml-3 size-3.5" />
               </Ariakit.MenuItem>
-              <Ariakit.MenuSeparator className="my-1 text-secondary/60" />
+              <Ariakit.MenuSeparator className="my-1 text-secondary/40" />
               <Ariakit.MenuItem
                 render={(props) => (
                   <Link
                     {...props}
                     to="/settings"
                     className={cn(
-                      'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2',
-                      currentFullPath === '/settings' && 'bg-gray2',
+                      'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray4',
+                      currentFullPath === '/settings' && 'bg-gray4',
                     )}
                   >
                     Settings
@@ -98,9 +98,9 @@ export function Header() {
                   </Link>
                 )}
               />
-              <Ariakit.MenuSeparator className="my-1 text-secondary/60" />
+              <Ariakit.MenuSeparator className="my-1 text-secondary/40" />
               <Ariakit.MenuItem
-                className="flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2"
+                className="flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray4"
                 onClick={() => disconnect.mutate({})}
               >
                 Disconnect

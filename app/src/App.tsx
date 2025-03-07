@@ -19,7 +19,7 @@ export function App() {
           expand={true}
           theme="light"
           duration={3000}
-          position="bottom-right"
+          position="top-right"
           className="z-[42069] select-none"
           swipeDirections={['right', 'left', 'top', 'bottom']}
         />

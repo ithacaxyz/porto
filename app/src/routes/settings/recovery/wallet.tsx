@@ -1,5 +1,8 @@
 import * as Ariakit from '@ariakit/react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import * as React from 'react'
+import { toast } from 'sonner'
+import { useConnect, useConnectors } from 'wagmi'
 import MetamaskIcon from '~icons/logos/metamask-icon'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
 import WalletCardsIcon from '~icons/lucide/wallet-cards'
@@ -17,6 +20,29 @@ export const Route = createFileRoute('/settings/recovery/wallet')({
 })
 
 function RouteComponent() {
+  const connect = useConnect()
+  const connectors = useConnectors()
+
+  const metamaskConnector = React.useMemo(
+    () => connectors.find((connector) => connector.id === 'io.metamask'),
+    [connectors],
+  )
+
+  const phantomConnector = React.useMemo(
+    () => connectors.find((connector) => connector.id === 'app.phantom'),
+    [connectors],
+  )
+
+  const coinbaseConnector = React.useMemo(
+    () => connectors.find((connector) => connector.id === 'coinbase'),
+    [connectors],
+  )
+
+  const walletConnectConnector = React.useMemo(
+    () => connectors.find((connector) => connector.id === 'walletconnect'),
+    [connectors],
+  )
+
   return (
     <main
       className={cn(
@@ -48,10 +74,21 @@ function RouteComponent() {
 
       <div className="mx-auto w-full">
         <ul className="mb-2 w-full px-0.5">
-          <li className="mr-2 text-center *:w-full *:max-w-[92%]">
+          <li
+            className={cn(
+              'mr-2 text-center *:w-full *:max-w-[92%]',
+              !metamaskConnector && 'opacity-50',
+            )}
+          >
             <button
               type="button"
-              className="mx-5 flex h-12 max-w-full items-center justify-between space-x-3 rounded-md border-none px-1 py-2"
+              onClick={() =>
+                connect
+                  .connectAsync({ connector: metamaskConnector! })
+                  .then(() => toast.success('Connected to MetaMask'))
+                  .catch((error) => toast.error(error.message))
+              }
+              className="mx-5 flex h-12 max-w-full items-center justify-between space-x-3 rounded-md border-none px-1 py-2 hover:cursor-pointer"
             >
               <MetamaskIcon className="ml-1.5 size-6" />
               <span className="ml-1 select-none text-xl">MetaMask</span>
@@ -59,10 +96,21 @@ function RouteComponent() {
             </button>
           </li>
           <Ariakit.Separator className="mx-auto my-2 w-[calc(100%-40px)] text-gray6" />
-          <li className="text-center *:w-full *:max-w-[92%]">
+          <li
+            className={cn(
+              'text-center *:w-full *:max-w-[92%]',
+              !phantomConnector && 'opacity-50',
+            )}
+          >
             <button
               type="button"
-              className="mx-5 flex h-12 max-w-full items-center justify-between space-x-3 rounded-md border-none px-1 py-2"
+              onClick={() =>
+                connect
+                  .connectAsync({ connector: phantomConnector! })
+                  .then(() => toast.success('Connected to Phantom'))
+                  .catch((error) => toast.error(error.message))
+              }
+              className="mx-5 flex h-12 max-w-full items-center justify-between space-x-3 rounded-md border-none px-1 py-2 hover:cursor-pointer"
             >
               <PhantomIcon className="size-9" />
               <span className="select-none text-xl">Phantom</span>
@@ -70,10 +118,21 @@ function RouteComponent() {
             </button>
           </li>
           <Ariakit.Separator className="mx-auto my-2 w-[calc(100%-40px)] text-gray6" />
-          <li className="text-center *:w-full *:max-w-[92%]">
+          <li
+            className={cn(
+              'text-center *:w-full *:max-w-[92%]',
+              !coinbaseConnector && 'opacity-50',
+            )}
+          >
             <button
               type="button"
-              className="mx-5 flex h-12 max-w-full items-center justify-between space-x-3 rounded-md border-none px-1 py-2"
+              onClick={() =>
+                connect
+                  .connectAsync({ connector: coinbaseConnector! })
+                  .then(() => toast.success('Connected to Coinbase'))
+                  .catch((error) => toast.error(error.message))
+              }
+              className="mx-5 flex h-12 max-w-full items-center justify-between space-x-3 rounded-md border-none px-1 py-2 hover:cursor-pointer"
             >
               <CoinbaseIcon className="size-9" />
               <span className="-ml-0.75 select-none text-xl">
@@ -83,10 +142,21 @@ function RouteComponent() {
             </button>
           </li>
           <Ariakit.Separator className="mx-auto my-2 w-[calc(100%-40px)] text-gray6" />
-          <li className="text-center *:w-full *:max-w-[92%]">
+          <li
+            className={cn(
+              'text-center *:w-full *:max-w-[92%]',
+              !walletConnectConnector && 'opacity-50',
+            )}
+          >
             <button
               type="button"
-              className="mx-5 flex h-12 max-w-full items-center justify-between space-x-3 rounded-md border-none px-1 py-2"
+              onClick={() =>
+                connect
+                  .connectAsync({ connector: walletConnectConnector! })
+                  .then(() => toast.success('Connected to WalletConnect'))
+                  .catch((error) => toast.error(error.message))
+              }
+              className="mx-5 flex h-12 max-w-full items-center justify-between space-x-3 rounded-md border-none px-1 py-2 hover:cursor-pointer"
             >
               <WalletConnectIcon className="ml-1 size-7 text-accent" />
               <span className="select-none text-xl">WalletConnect</span>

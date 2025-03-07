@@ -15,7 +15,7 @@ export const config = createConfig({
       }),
     }),
   ],
-  multiInjectedProviderDiscovery: false,
+  multiInjectedProviderDiscovery: true,
   transports: {
     [odysseyTestnet.id]: http(),
   },
