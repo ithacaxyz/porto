@@ -1,9 +1,11 @@
-import type * as RpcSchema from 'ox/RpcSchema'
+import type * as RpcSchema_ox from 'ox/RpcSchema'
 
+import type * as RpcSchema from '../../RpcSchema.js'
 import type { Static } from '../typebox/schema.js'
+import type { UnionToTuple } from '../types.js'
 import type * as Rpc from './typebox/rpc.js'
 
-export type Schema = RpcSchema.From<
+export type Schema = RpcSchema_ox.From<
   | {
       Request: Static<typeof Rpc.wallet_createAccount.Request>
       ReturnType: Static<typeof Rpc.wallet_createAccount.Response>
@@ -29,3 +31,5 @@ export type Schema = RpcSchema.From<
       ReturnType: Static<typeof Rpc.wallet_upgradeAccount.Response>
     }
 >
+
+export type ToViem = RpcSchema.MapSchema<UnionToTuple<Schema>>
