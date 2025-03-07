@@ -107,7 +107,7 @@ function RouteComponent() {
         </div>
         <div>
           <p className="font-medium text-xl">Spending</p>
-          <p className="text-secondary ">
+          <p className="text-secondary">
             Control how apps can use your money, or revoke their ability.
           </p>
         </div>
@@ -129,7 +129,7 @@ function RouteComponent() {
 
       {/* footer */}
       <div className="mt-3 flex h-10 justify-between rounded-2xl bg-gray3 pl-5">
-        <p className="my-auto text-gray10">
+        <p className="my-auto text-gray11">
           {permissions?.data?.length ?? 0} app
           {permissions?.data?.length === 1 ? '' : 's'} authorized
         </p>
@@ -197,7 +197,7 @@ function Permission({
             target="_blank"
             rel="noreferrer"
             href="https://ithaca.xyz"
-            className="text-secondary hover:text-gray11"
+            className="text-gray11 hover:text-gray11"
           >
             ithaca.xyz
           </a>
@@ -232,7 +232,7 @@ function Permission({
             size={200}
             type="number"
             placeholder="100"
-            className="ml-1 h-full w-[3ch] bg-transparent text-gray9 text-lg tabular-nums focus:outline-none"
+            className="ml-1 h-full w-[3ch] bg-transparent text-gray11 text-lg tabular-nums placeholder:text-gray8 focus:outline-none"
             onInput={(event) => {
               const input = event.currentTarget.value
               const newWidth = input.length >= 3 ? `${input.length}ch` : '3ch'
@@ -246,7 +246,7 @@ function Permission({
         <span className="text-gray9 text-lg">per</span>
         <Ariakit.MenuProvider>
           <Ariakit.MenuButton className="ml-auto flex items-center gap-x-2 rounded-3xl border-2 border-gray-300/60 px-1 py-0.5">
-            <span className="mb-0.5 ml-2 text-gray9 text-lg">day</span>
+            <span className="mb-0.5 ml-2 text-gray11 text-lg">day</span>
             <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
           </Ariakit.MenuButton>
           <Ariakit.Menu

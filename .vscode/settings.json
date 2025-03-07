@@ -38,6 +38,8 @@
     ".vscode/*.json": "jsonc"
   },
   "files.exclude": {
+    "**/.vercel/**": true,
+    "**/.wrangler/**": true,
     "**/*.tsbuildinfo": true
   },
   "search.exclude": {

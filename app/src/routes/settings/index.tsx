@@ -87,7 +87,12 @@ function RouteComponent() {
             This is where you will receive funds.
           </p>
           <div className="mt-2 flex w-full flex-col items-center justify-between gap-2 sm:flex-row">
-            <p className="my-auto h-10 w-full overflow-auto rounded-default border border-gray6 px-3.5 pt-1.75 pb-1 text-[16.5px] text-secondary tracking-normal sm:mr-2 sm:text-[15.5px] md:tracking-wide">
+            <p
+              className={cn(
+                'sm:mr-2 sm:text-[15.5px] md:tracking-wide',
+                'my-auto h-10 w-full overflow-auto rounded-default border border-gray6 bg-surface px-3.5 pt-1.75 pb-1 text-[16.5px] text-gray11 tracking-normal',
+              )}
+            >
               {account?.address}
             </p>
             <div className="flex w-full items-center gap-x-2 *:text-lg sm:w-auto">

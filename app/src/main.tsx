@@ -53,10 +53,30 @@ if (
   document.addEventListener('keydown', (event) => {
     // ⌥ + 1: light/dark mode
     if (event.altKey && event.code === 'Digit1') {
+      if (document.documentElement.classList.contains('scheme-light-dark')) {
+        document.documentElement.classList.replace(
+          'scheme-light-dark',
+          'scheme-dark',
+        )
+        window.dispatchEvent(
+          new StorageEvent('storage', {
+            key: '__porto_theme',
+            newValue: 'light',
+            storageArea: window.localStorage,
+          }),
+        )
+      }
       if (document.documentElement.classList.contains('scheme-light')) {
         document.documentElement.classList.replace(
           'scheme-light',
           'scheme-light-dark',
+        )
+        window.dispatchEvent(
+          new StorageEvent('storage', {
+            key: '__porto_theme',
+            newValue: 'dark',
+            storageArea: window.localStorage,
+          }),
         )
       } else if (document.documentElement.classList.contains('scheme-dark')) {
         document.documentElement.classList.replace(
@@ -69,6 +89,13 @@ if (
           ? 'dark'
           : 'light'
         themePreference = themePreference === 'dark' ? 'light' : 'dark'
+        window.dispatchEvent(
+          new StorageEvent('storage', {
+            key: '__porto_theme',
+            newValue: themePreference,
+            storageArea: window.localStorage,
+          }),
+        )
 
         document.documentElement.classList.remove(
           'scheme-light',

@@ -61,6 +61,9 @@
     "formatter": {
       "enabled": true
     },
+    "parser": {
+      "allowTrailingCommas": true
+    },
     "linter": {
       "enabled": true
     }

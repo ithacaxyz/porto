@@ -4,6 +4,7 @@ import * as React from 'react'
 import { toast } from 'sonner'
 import { useConnect, useConnectors } from 'wagmi'
 import MetamaskIcon from '~icons/logos/metamask-icon'
+import ChevronLeftIcon from '~icons/lucide/chevron-left'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
 import WalletCardsIcon from '~icons/lucide/wallet-cards'
 import ThreeDotsIcon from '~icons/ph/dots-three-duotone'
@@ -47,11 +48,17 @@ function RouteComponent() {
     <main
       className={cn(
         'mx-auto flex h-screen max-h-[1200px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-transparent py-4 text-center',
-        'sm:my-32 sm:h-[625px] sm:max-w-[400px] sm:bg-white sm:shadow-sm sm:outline sm:outline-gray4',
+        'sm:my-32 sm:h-[625px] sm:max-w-[400px] sm:bg-gray1 sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
       <header className="mt-4 flex justify-between px-5 sm:mt-1">
-        <img src="/icons/wallet.svg" alt="Porto" className="my-auto size-11" />
+        <Link
+          to="/settings/recovery"
+          from="/settings/recovery/wallet"
+          className="rounded-full bg-gray4 p-1"
+        >
+          <ChevronLeftIcon className="my-auto size-7 text-gray-400 hover:text-gray-600" />
+        </Link>
         <Link
           to="/create-account"
           className="my-auto flex h-9 w-[110px] items-center justify-center rounded-2xl bg-gray3 font-medium"
