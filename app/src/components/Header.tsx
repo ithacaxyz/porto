@@ -55,7 +55,7 @@ export function Header() {
           </span>
           <Ariakit.MenuProvider>
             <Ariakit.MenuButton className="flex items-center gap-x-2">
-              <p className="mr-1 font-semibold text-gray10 text-lg">
+              <p className="mr-1 font-semibold text-lg">
                 {StringFormatter.truncate(account?.address ?? '', {
                   start: 6,
                   end: 4,

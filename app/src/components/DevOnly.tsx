@@ -23,12 +23,16 @@ const key = () =>
     },
   }) as const
 
+const enableDevTools =
+  import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEV_TOOLS === 'true'
+
 export function DevOnly() {
   const permissions = Hooks.usePermissions()
   const revokePermissions = Hooks.useRevokePermissions()
   const grantPermissions = Hooks.useGrantPermissions()
 
-  if (!import.meta.env.DEV) return null
+  if (!enableDevTools) return null
+
   return (
     <div
       data-item="dev-tools"
@@ -38,14 +42,14 @@ export function DevOnly() {
 
       <div className="flex gap-x-2">
         <Button
-          variant="invert"
+          variant="default"
           className="max-w-[200px] rounded-none!"
           onClick={() => grantPermissions.mutate(key())}
         >
           Grant permissions
         </Button>
         <Button
-          variant="invert"
+          variant="default"
           disabled={!permissions.data?.[0]}
           className="max-w-[200px] rounded-none!"
           onClick={() => {

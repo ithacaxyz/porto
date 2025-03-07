@@ -7,12 +7,12 @@ import { useAccount } from 'wagmi'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import CoinsIcon from '~icons/lucide/coins'
 import HistoryIcon from '~icons/lucide/history'
-import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
 
 import { Layout } from '~/components/AppLayout'
 import { Button, ButtonWithRef } from '~/components/Button'
 import { Header } from '~/components/Header'
+import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
 import { QrCode } from '~/components/QrCode'
 import { TokenIcon, assets } from '~/lib/fake'
@@ -20,12 +20,6 @@ import { PercentFormatter, StringFormatter, cn, sum } from '~/utils'
 
 export function Dashboard() {
   const { address } = useAccount()
-
-  const formStore = Ariakit.useFormStore({
-    defaultValues: {
-      email: '',
-    },
-  })
 
   const [search, setSearch] = React.useState('')
   const [filteredAssets, setFilteredAssets] = React.useState(assets)
@@ -134,13 +128,21 @@ export function Dashboard() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               className={cn(
-                'ml-2 w-full max-w-[50%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-black placeholder:text-secondary sm:ml-8',
+                'ml-2 w-full max-w-[50%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-gray12',
+                'placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-gray6 sm:ml-8',
               )}
             />
           </Ariakit.TabList>
           <div className="mt-5">
             <Ariakit.TabPanel tabId="assets">
-              <table className="md:table-none w-full ">
+              {filteredAssets.length === 0 && (
+                <p className="pt-5 text-center">You don't have any assets.</p>
+              )}
+              <table
+                className={cn('md:table-none w-full', {
+                  hidden: filteredAssets.length === 0,
+                })}
+              >
                 <thead className="">
                   <tr className="*:font-light *:text-secondary *:text-sm">
                     <th className="text-left">Name</th>
@@ -230,53 +232,7 @@ export function Dashboard() {
       </section>
       {/* ==== Footer ==== */}
       <footer className="mt-auto flex flex-col gap-y-5 p-2">
-        <Ariakit.Form
-          store={formStore}
-          className="flex flex-row justify-between gap-x-2 rounded-full bg-surface px-3 py-2"
-        >
-          <img
-            alt="icon"
-            src="/icons/mushroom.svg"
-            className="my-auto size-6"
-          />
-          <Ariakit.FormLabel
-            name={formStore.names.email}
-            className="my-auto mr-auto font-medium text-secondary"
-          >
-            Power up your wallet!
-          </Ariakit.FormLabel>
-          <Ariakit.TooltipProvider>
-            <Ariakit.TooltipAnchor
-              className="link"
-              render={(props) => {
-                const error = formStore.getError('email')
-                if (!error) return null
-                return (
-                  <XIcon
-                    {...props}
-                    className="my-auto size-6 rounded-full bg-rose-300 p-1 text-red-500"
-                  />
-                )
-              }}
-            />
-            <Ariakit.Tooltip className="tooltip">
-              <Ariakit.FormError name={formStore.names.email} />
-            </Ariakit.Tooltip>
-          </Ariakit.TooltipProvider>
-          <Ariakit.FormInput
-            type="email"
-            required={true}
-            name={formStore.names.email}
-            placeholder="Get email updates…"
-            className={cn(
-              'rounded-full border border-gray8 bg-white px-3 py-1 text-sm placeholder:text-secondary',
-            )}
-          />
-          <Ariakit.FormSubmit className="rounded-full bg-gray-300 p-2">
-            <span className="sr-only">Send</span>
-            <SendHorizontalIcon className=" text-gray-500 hover:text-accent" />
-          </Ariakit.FormSubmit>
-        </Ariakit.Form>
+        <MailListSignup />
         <div className="flex flex-row justify-between px-4">
           <p className="flex gap-x-2 text-secondary leading-[22px]">
             Built by
