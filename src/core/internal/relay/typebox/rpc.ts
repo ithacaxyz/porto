@@ -133,6 +133,12 @@ export namespace wallet_prepareUpgradeAccount {
     capabilities: Capabilities,
   })
 
+  /** Request for `wallet_prepareUpgradeAccount`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_prepareUpgradeAccount'),
+    params: Type.Tuple([Parameters]),
+  })
+
   /** Response for `wallet_prepareUpgradeAccount`. */
   export const Response = wallet_prepareCalls.Response
 }
