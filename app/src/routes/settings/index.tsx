@@ -185,7 +185,7 @@ function RouteComponent() {
             <p className="mt-2 h-full font-medium">Manage</p>
           </Link>
         </div>
-        <div className="mt-5 flex items-center justify-between gap-x-3 pt-1">
+        {/* <div className="mt-5 flex items-center justify-between gap-x-3 pt-1">
           <div>
             <div className="flex items-center gap-x-2">
               <p className="text-lg">Export wallet</p>
@@ -214,7 +214,7 @@ function RouteComponent() {
           <p className="text-secondary ">
             This phrase will grant access to all your funds.
           </p>
-        </div>
+        </div> */}
       </section>
     </Layout>
   )

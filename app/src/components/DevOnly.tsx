@@ -1,10 +1,8 @@
 import { Json } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import { parseEther } from 'viem'
-import { Button } from './Button'
 
-const NON_PRODUCTION =
-  import.meta.env.DEV || import.meta.env.VERCEL_ENV !== 'production'
+import { Button } from './Button'
 
 const key = () =>
   ({
@@ -30,7 +28,7 @@ export function DevOnly() {
   const revokePermissions = Hooks.useRevokePermissions()
   const grantPermissions = Hooks.useGrantPermissions()
 
-  if (!NON_PRODUCTION) return null
+  if (!import.meta.env.DEV) return null
   return (
     <div
       data-item="dev-tools"
