@@ -54,13 +54,15 @@ export namespace authorizeKeys {
   )
 
   /** Represents a key authorization response. */
-  export const Response = Type.Intersect([
-    Request,
-    Type.Object({
-      /** The hash of the authorized key. */
-      hash: Primitive.Hex,
-    }),
-  ])
+  export const Response = Type.Array(
+    Type.Intersect([
+      Request.items,
+      Type.Object({
+        /** The hash of the authorized key. */
+        hash: Primitive.Hex,
+      }),
+    ]),
+  )
 }
 
 export namespace meta {
