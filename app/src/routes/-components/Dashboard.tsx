@@ -52,19 +52,22 @@ export function Dashboard() {
             </Drawer.Trigger>
             <Drawer.Portal>
               <Drawer.Overlay className="fixed inset-0 bg-black/30" />
-              <Drawer.Content className="fixed right-0 bottom-0 left-0 mx-auto h-fit w-full rounded-t-3xl bg-gray-50 px-3 outline-none sm:w-[400px]">
-                <div className="rounded-t-3xl bg-gray-50 px-6 py-4">
+              <Drawer.Content className="fixed right-0 bottom-0 left-0 mx-auto h-fit w-full rounded-t-3xl bg-gray3 px-3 outline-none sm:w-[400px]">
+                <div className="rounded-t-3xl bg-gray3 px-6 py-4">
                   <Drawer.Title className="mb-2 font-medium text-2xl">
                     Deposit
                   </Drawer.Title>
                   <Drawer.Close className="absolute top-5 right-5">
                     <XIcon className="size-6 text-secondary" />
                   </Drawer.Close>
-                  <Drawer.Description className="text-lg text-secondary">
+                  <Drawer.Description className="text-gray11 text-lg">
                     Fund your Ithaca wallet with crypto.
                   </Drawer.Description>
                   <div className="mx-auto w-full">
-                    <QrCode key={address} contents={address} />
+                    <QrCode
+                      key={'0xf4212614C7Fe0B3feef75057E88b2E77a7E23e83'}
+                      contents={'0xf4212614C7Fe0B3feef75057E88b2E77a7E23e83'}
+                    />
                   </div>
                   <div className="relative flex items-center justify-around gap-x-4">
                     <p className="my-auto text-xl tracking-wider">
