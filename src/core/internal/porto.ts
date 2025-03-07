@@ -1,18 +1,22 @@
-import { fallback } from 'viem'
+import { type PublicRpcSchema, fallback } from 'viem'
 import {
   type TransportConfig,
   createClient,
   createTransport,
+  type Account as viem_Account,
   type Client as viem_Client,
   type Transport as viem_Transport,
 } from 'viem'
 
 import type * as Chains from '../Chains.js'
 import type { Config, Store } from '../Porto.js'
+import type * as RpcSchema_relay from './relay/rpcSchema.js'
 
 export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
   viem_Transport,
-  chain
+  chain,
+  viem_Account | undefined,
+  [...PublicRpcSchema, ...RpcSchema_relay.ToViem]
 >
 
 export type Internal<

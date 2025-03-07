@@ -22,8 +22,8 @@ catalogs:
       specifier: ^15.14.0
       version: 15.14.0
     ox:
-      specifier: ^0.6.4
-      version: 0.6.7
+      specifier: ^0.6.9
+      version: 0.6.9
     react:
       specifier: ^19
       version: 19.0.0
@@ -85,7 +85,7 @@ importers:
         version: 5.37.1(@types/node@22.10.7)(typescript@5.7.3)
       ox:
         specifier: 'catalog:'
-        version: 0.6.7(typescript@5.7.3)(zod@3.24.1)
+        version: 0.6.9(typescript@5.7.3)(zod@3.24.1)
       prool:
         specifier: ^0.0.23
         version: 0.0.23
@@ -136,7 +136,7 @@ importers:
         version: class-variance-authority@0.7.1
       ox:
         specifier: 'catalog:'
-        version: 0.6.7(typescript@5.7.3)(zod@3.24.1)
+        version: 0.6.9(typescript@5.7.3)(zod@3.24.1)
       porto:
         specifier: workspace:*
         version: link:../src
@@ -338,7 +338,7 @@ importers:
     dependencies:
       ox:
         specifier: 'catalog:'
-        version: 0.6.7(typescript@5.7.3)(zod@3.24.1)
+        version: 0.6.9(typescript@5.7.3)(zod@3.24.1)
       porto:
         specifier: workspace:*
         version: link:../src
@@ -5942,6 +5942,14 @@ packages:
 
   ox@0.6.7:
     resolution: {integrity: sha512-17Gk/eFsFRAZ80p5eKqv89a57uXjd3NgIf1CaXojATPBuujVc/fQSVhBeAU9JCRB+k7J50WQAyWTxK19T9GgbA==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@0.6.9:
+    resolution: {integrity: sha512-wi5ShvzE4eOcTwQVsIPdFr+8ycyX+5le/96iAJutaZAvCes1J0+RvpEPg5QDPDiaR0XQQAvZVl7AwqQcINuUug==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -14229,6 +14237,20 @@ snapshots:
       - zod
 
   ox@0.6.7(typescript@5.7.3)(zod@3.24.1):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+      '@scure/bip32': 1.6.2
+      '@scure/bip39': 1.5.4
+      abitype: 1.0.8(typescript@5.7.3)(zod@3.24.1)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.7.3
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.6.9(typescript@5.7.3)(zod@3.24.1):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.8.1
