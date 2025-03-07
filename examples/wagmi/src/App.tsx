@@ -231,7 +231,6 @@ function Balance() {
 
 function GrantPermissions() {
   const permissions = Hooks.usePermissions()
-
   const grantPermissions = Hooks.useGrantPermissions()
 
   if (permissions.data?.length !== 0) return null
