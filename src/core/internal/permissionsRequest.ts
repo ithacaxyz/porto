@@ -52,7 +52,7 @@ export async function toKey(
     permissions,
     publicKey,
     role: 'session',
-    type: type === 'contract' ? 'secp256k1' : type,
+    type: type === 'address' ? 'secp256k1' : type,
   } as const
   if (request?.key) return key
 
@@ -66,7 +66,7 @@ export declare namespace toKey {
   export type Options = {
     key: {
       publicKey: Hex.Hex
-      type: Key.Key['type'] | 'contract'
+      type: Key.Key['type'] | 'address'
     }
   }
 }

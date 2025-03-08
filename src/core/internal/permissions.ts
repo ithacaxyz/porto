@@ -39,6 +39,6 @@ export function toKey(permissions: Permissions): Key.Key {
     permissions: permissions.permissions ?? {},
     publicKey: key.publicKey,
     role: 'session',
-    type: key.type === 'contract' ? 'secp256k1' : key.type,
+    type: key.type === 'address' ? 'secp256k1' : key.type,
   }
 }

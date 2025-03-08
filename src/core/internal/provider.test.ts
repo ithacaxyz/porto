@@ -245,7 +245,7 @@ describe.each([
               expiry: 9999999999,
               key: {
                 publicKey: '0x0000000000000000000000000000000000000000',
-                type: 'contract',
+                type: 'address',
               },
               permissions: {
                 calls: [{ signature: 'mint()' }],
