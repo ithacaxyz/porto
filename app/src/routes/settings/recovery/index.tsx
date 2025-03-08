@@ -42,11 +42,11 @@ function RouteComponent() {
   return (
     <main
       className={cn(
-        'mx-auto flex h-screen max-h-[940px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
-        'sm:my-52 sm:h-[500px] sm:max-w-[400px] sm:shadow-sm sm:outline sm:outline-gray4',
+        'mx-auto flex h-screen max-h-[940px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl py-4 text-center',
+        'sm:my-52 sm:h-[500px] sm:max-w-[400px] sm:bg-gray1 sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
-      <header className="mt-4 flex justify-between sm:mt-1 sm:px-5">
+      <header className="mt-4 flex justify-between px-3 sm:mt-1">
         <Link to="/" from="/settings/recovery">
           <img
             alt="Porto wallet icon"
@@ -110,7 +110,7 @@ function RouteComponent() {
           ))}
         </ul>
 
-        <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center rounded-md bg-gray3 hover:bg-gray4 sm:mb-1">
+        <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center rounded-md bg-gray3 hover:bg-gray4 sm:mb-1 sm:h-12">
           <Link
             to="/settings"
             from="/settings/recovery"

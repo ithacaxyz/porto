@@ -48,7 +48,7 @@ function RouteComponent() {
     >
       <header className="mt-4 flex justify-between px-5 sm:mt-1">
         <Link
-          to="/settings/recovery"
+          to="/settings/recovery/wallet"
           from="/settings/recovery/wallet/phrase"
           className="rounded-full bg-gray4 p-1"
         >

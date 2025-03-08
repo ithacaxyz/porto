@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
@@ -18,9 +19,13 @@ export default defineConfig({
   server: {
     https: enableHttps ? https : undefined,
   },
+  define: {
+    'process.env': {},
+  },
   plugins: [
     Tailwindcss(),
     TanStackRouterVite(),
+    cloudflare(),
     React(),
     Icons({ compiler: 'jsx', jsx: 'react' }),
     TsconfigPaths(),

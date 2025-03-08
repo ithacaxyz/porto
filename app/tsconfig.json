@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "api"],
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
@@ -25,6 +25,7 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
-  }
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict", "@cloudflare/workers-types"]
+  },
+  "files": ["vite.config.ts","env.d.ts"]
 }

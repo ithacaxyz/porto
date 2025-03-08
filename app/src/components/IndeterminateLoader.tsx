@@ -1,3 +1,4 @@
+import { cn } from '~/utils'
 import { Spinner } from './Spinner'
 
 export function IndeterminateLoader(props: IndeterminateLoader.Props) {
@@ -5,9 +6,10 @@ export function IndeterminateLoader(props: IndeterminateLoader.Props) {
     title,
     description = 'This will only take a few moments.',
     hint = 'Please do not close the window.',
+    className,
   } = props
   return (
-    <div className="space-y-2">
+    <div className={cn(className, 'space-y-2')}>
       <div className="flex items-center gap-2">
         <div className="flex size-8 items-center justify-center rounded-full bg-accentTint p-[6px] text-accent">
           <Spinner />
@@ -26,6 +28,7 @@ export function IndeterminateLoader(props: IndeterminateLoader.Props) {
 
 export declare namespace IndeterminateLoader {
   type Props = {
+    className?: string
     description?: string
     title: string
     hint?: string

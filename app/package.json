@@ -4,15 +4,22 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build",
-    "check:types": "tsc --noEmit",
     "dev": "vite --port 5174",
-    "preview": "vite preview"
+    "build": "tsc --build && vite build",
+    "check": "biome check --write --unsafe",
+    "check:types": "tsc --noEmit",
+    "prepreview": "pnpm build",
+    "preview": "vite preview",
+    "predeploy": "/bin/bash ./scripts/deploy.sh",
+    "deploy": "pnpm wrangler deploy --config='wrangler.json' --var ENVIRONMENT:production"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.15",
     "@bitjson/qr-code": "^1.0.2",
     "@floating-ui/react": "^0.27.5",
+    "@reown/appkit": "^1.6.9",
+    "@reown/appkit-adapter-wagmi": "^1.6.9",
+    "@reown/appkit-wallet-button": "^1.6.9",
     "@tanstack/query-sync-storage-persister": "^5.67.2",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "^5.67.2",
@@ -31,6 +38,8 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^0.1.9",
+    "@cloudflare/workers-types": "^4.20250303.0",
     "@iconify/json": "^2.2.314",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
@@ -49,5 +58,10 @@
     "vite": "^6.2.1",
     "vite-tsconfig-paths": "^5.1.4"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.6.1",
+  "repository": {
+    "type": "git",
+    "directory": "app",
+    "url": "https://github.com/ithacaxyz/porto"
+  }
 }

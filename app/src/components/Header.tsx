@@ -27,7 +27,7 @@ export function Header() {
   return (
     <React.Fragment>
       <DevOnly />
-      <header className="mt-5 mb-2 flex items-center justify-between px-2 tabular-nums">
+      <header className="mb-2 flex items-center justify-between px-2 tabular-nums sm:mt-3">
         {currentFullPath === '/' ? (
           <Link to="/" className="font-medium text-2xl">
             Porto

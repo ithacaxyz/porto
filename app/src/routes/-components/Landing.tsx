@@ -13,7 +13,8 @@ export function Landing() {
   const navigate = useNavigate()
 
   const connect = Hooks.useConnect({ config })
-  const [connector] = useConnectors({ config })
+  const connectors = useConnectors({ config })
+  const connector = connectors.find((c) => c?.id === 'xyz.ithaca.porto')
 
   return (
     <div className="mx-auto flex h-screen w-full max-w-[768px] flex-col p-6 sm:ml-34">
