@@ -83,11 +83,19 @@ export namespace wallet_prepareCalls {
   /** Parameters for `wallet_prepareCalls` request. */
   export const Parameters = Type.Object({
     /** The calls to prepare. */
-    calls: RpcRequest.wallet_prepareCalls.Parameters.properties.calls,
+    calls: Type.Array(
+      Type.Object({
+        // TODO: `to`
+        target: Primitive.Address,
+        data: Schema.Optional(Primitive.Hex),
+        value: Schema.Optional(Primitive.BigInt),
+      }),
+    ),
     /** Capabilities for the account. */
     capabilities: Capabilities,
     /** The chain ID of the call bundle. */
-    chainId: Primitive.Number,
+    // TODO: `Primitive.Number`
+    chainId: Type.Number(),
     /** The address of the account to prepare the calls for. */
     from: Primitive.Address,
   })

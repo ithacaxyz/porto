@@ -18,5 +18,5 @@ catalog:
   react-dom: "^19"
   tailwindcss: "^4"
   typescript: "^5.7.3"
-  viem: "^2.23.1"
+  viem: "^2.23.8"
   wagmi: "^2.14.11"
