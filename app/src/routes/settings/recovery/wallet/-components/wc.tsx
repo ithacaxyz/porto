@@ -1,4 +1,5 @@
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import { useAppKitWallet } from '@reown/appkit-wallet-button/react'
 import {
   baseSepolia as wcBaseSepolia,
   odysseyTestnet as wcOdysseyTestnet,
@@ -12,8 +13,6 @@ import { useAppKitAccount, useDisconnect } from '@reown/appkit/react'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { WagmiProvider, useSignMessage } from 'wagmi'
-import '@reown/appkit-wallet-button/react'
-import { useAppKitWallet } from '@reown/appkit-wallet-button/react'
 
 import { cn } from '~/utils'
 
