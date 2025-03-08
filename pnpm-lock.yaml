@@ -37,7 +37,7 @@ catalogs:
       specifier: ^4.0.12
       version: 4.0.12
     typescript:
-      specifier: ^5.7.3
+      specifier: ^5.8.2
       version: 5.8.2
     viem:
       specifier: ^2.23.1

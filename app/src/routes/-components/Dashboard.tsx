@@ -236,7 +236,7 @@ export function Dashboard() {
         </Ariakit.TabProvider>
       </section>
       {/* ==== Footer ==== */}
-      <footer className="mt-auto flex flex-col gap-y-5 p-2">
+      <footer className="mt-auto flex flex-col gap-y-5 p-1 sm:p-2">
         <MailListSignup />
         <div className="flex flex-row justify-between px-4">
           <p className="flex gap-x-2 text-secondary leading-[22px]">

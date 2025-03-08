@@ -56,7 +56,7 @@ export function MailListSignup() {
       <img alt="icon" src="/icons/mushroom.svg" className="my-auto size-6" />
       <Ariakit.FormLabel
         name={store.names.email}
-        className="my-auto mr-auto font-medium text-gray11"
+        className="my-auto mr-auto font-medium text-gray11 text-xs sm:text-base"
       >
         Power up your wallet!
       </Ariakit.FormLabel>
@@ -86,13 +86,13 @@ export function MailListSignup() {
         onBlur={() => setFocused(false)}
         placeholder="Get email updates…"
         className={cn(
-          'rounded-full border border-gray8 bg-gray4 px-3 py-1 text-sm placeholder:text-secondary aria-invalid:border-red8',
-          'focus:outline-none focus:ring-2 focus:ring-gray6',
+          'w-[160px] rounded-full border border-gray8 bg-gray4 px-3 py-1 text-sm placeholder:text-secondary aria-invalid:border-red8 sm:w-[250px]',
+          'text-xs focus:outline-none focus:ring-2 focus:ring-gray6 sm:text-base',
         )}
       />
       <Ariakit.FormSubmit
         clickOnEnter={true}
-        className="rounded-full bg-gray-300 p-2"
+        className="ml-1 rounded-full bg-gray-300 p-2"
       >
         <span className="sr-only">Send</span>
         {status === 'SUBMITTING' ? (
