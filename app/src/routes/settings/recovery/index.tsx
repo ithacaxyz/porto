@@ -47,11 +47,13 @@ function RouteComponent() {
       )}
     >
       <header className="mt-4 flex justify-between sm:mt-1 sm:px-5">
-        <img
-          alt="Porto wallet icon"
-          className="my-auto size-11"
-          src={theme === 'light' ? '/icon-light.png' : '/icon-dark.png'}
-        />
+        <Link to="/" from="/settings/recovery">
+          <img
+            alt="Porto wallet icon"
+            className="my-auto size-11"
+            src={theme === 'light' ? '/icon-light.png' : '/icon-dark.png'}
+          />
+        </Link>
         <Link
           to="/create-account"
           className="my-auto flex h-9 w-[110px] items-center justify-center rounded-2xl bg-gray3 font-medium"

@@ -5,6 +5,7 @@ import { useAccount, useConnectors } from 'wagmi'
 
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
+import { useThemeMode } from '~/hooks/use-theme'
 import * as Constants from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 import { cn } from '~/utils'
@@ -14,6 +15,8 @@ export const Route = createFileRoute('/create-account')({
 })
 
 function RouteComponent() {
+  const { theme } = useThemeMode()
+
   const [label, setLabel] = React.useState('')
   const [emojis, setEmojis] = React.useState<string[]>(Constants.emojisArray)
   const [selectedEmoji, setSelectedEmoji] = React.useState<string>(
@@ -38,14 +41,20 @@ function RouteComponent() {
     <main
       className={cn(
         'mx-auto flex h-screen max-h-[840px] w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
-        'sm:my-52 sm:h-[500px] sm:shadow-sm sm:outline sm:outline-gray4',
+        'sm:my-52 sm:h-[550px] sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
-      <header className="mt-4 flex justify-between sm:mt-1 sm:px-5">
-        <img src="/icons/wallet.svg" alt="Porto" className="my-auto size-11" />
+      <header className="mt-4 flex justify-between px-5 sm:mt-1">
+        <Link to="/" from="/create-account" className="">
+          <img
+            alt="Porto wallet icon"
+            className="my-auto size-11"
+            src={theme === 'light' ? '/icon-light.png' : '/icon-dark.png'}
+          />
+        </Link>
         <Link
           to="/create-account"
-          className="my-auto flex h-9 w-[110px] items-center justify-center rounded-2xl bg-gray3 font-medium"
+          className="my-auto flex h-9 w-[120px] items-center justify-center rounded-2xl bg-gray3 font-medium"
         >
           <p className="my-auto">
             Support <span className="ml-1">→</span>
@@ -86,7 +95,7 @@ function RouteComponent() {
             <div
               key={emoji}
               className={cn(
-                'my-2 flex items-center justify-center rounded-full text-2xl outline outline-white transition-colors',
+                'my-2 flex items-center justify-center rounded-full text-2xl transition-colors',
                 selectedEmoji === emoji
                   ? 'border-2 border-gray3 p-2'
                   : 'border-gray9 hover:border-gray10',
@@ -142,7 +151,7 @@ function RouteComponent() {
           <Button
             onClick={() => {
               const selectedLabel =
-                label.length > 0 ? `${selectedEmoji}-${label}` : undefined
+                label.length > 0 ? `!${selectedEmoji}-${label}` : undefined
               connect.mutate({
                 connector: connector!,
                 createAccount: {

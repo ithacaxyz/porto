@@ -24,7 +24,8 @@ const key = () =>
   }) as const
 
 const enableDevTools =
-  import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEV_TOOLS === 'true'
+  import.meta.env.DEV &&
+  String(import.meta.env.VITE_ENABLE_DEV_TOOLS) === 'true'
 
 export function DevOnly() {
   const permissions = Hooks.usePermissions()
@@ -36,7 +37,7 @@ export function DevOnly() {
   return (
     <div
       data-item="dev-tools"
-      className="fixed bottom-0 left-0 w-full border-t border-t-blackA8 bg-white pt-1 pb-3 pl-3"
+      className="fixed bottom-0 left-0 w-full border-t border-t-gray6 bg-gray2 pt-1 pb-3 pl-3"
     >
       <pre className="mb-1">dev only</pre>
 

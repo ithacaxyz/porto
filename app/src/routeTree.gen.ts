@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as WithdrawImport } from './routes/withdraw'
+import { Route as TransferImport } from './routes/transfer'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as CreateAccountImport } from './routes/create-account'
 import { Route as DialogImport } from './routes/_dialog'
@@ -19,7 +20,6 @@ import { Route as IndexImport } from './routes/index'
 import { Route as SettingsIndexImport } from './routes/settings/index'
 import { Route as SettingsPermissionsImport } from './routes/settings/permissions'
 import { Route as SettingsRecoveryIndexImport } from './routes/settings/recovery/index'
-import { Route as SettingsRecoveryWalletImport } from './routes/settings/recovery/wallet'
 import { Route as DialogDialogWalletsendCallsImport } from './routes/_dialog.dialog/wallet_sendCalls'
 import { Route as DialogDialogWalletconnectImport } from './routes/_dialog.dialog/wallet_connect'
 import { Route as DialogDialogPersonalsignImport } from './routes/_dialog.dialog/personal_sign'
@@ -28,12 +28,20 @@ import { Route as DialogDialogExperimentalcreateAccountImport } from './routes/_
 import { Route as DialogDialogEthsendTransactionImport } from './routes/_dialog.dialog/eth_sendTransaction'
 import { Route as DialogDialogEthrequestAccountsImport } from './routes/_dialog.dialog/eth_requestAccounts'
 import { Route as DialogDialogSplatImport } from './routes/_dialog.dialog/$'
+import { Route as SettingsRecoveryWalletIndexImport } from './routes/settings/recovery/wallet/index'
+import { Route as SettingsRecoveryWalletPhraseImport } from './routes/settings/recovery/wallet/phrase'
 
 // Create/Update Routes
 
 const WithdrawRoute = WithdrawImport.update({
   id: '/withdraw',
   path: '/withdraw',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TransferRoute = TransferImport.update({
+  id: '/transfer',
+  path: '/transfer',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -75,12 +83,6 @@ const SettingsPermissionsRoute = SettingsPermissionsImport.update({
 const SettingsRecoveryIndexRoute = SettingsRecoveryIndexImport.update({
   id: '/settings/recovery/',
   path: '/settings/recovery/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const SettingsRecoveryWalletRoute = SettingsRecoveryWalletImport.update({
-  id: '/settings/recovery/wallet',
-  path: '/settings/recovery/wallet',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -137,6 +139,20 @@ const DialogDialogSplatRoute = DialogDialogSplatImport.update({
   getParentRoute: () => DialogRoute,
 } as any)
 
+const SettingsRecoveryWalletIndexRoute =
+  SettingsRecoveryWalletIndexImport.update({
+    id: '/settings/recovery/wallet/',
+    path: '/settings/recovery/wallet/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const SettingsRecoveryWalletPhraseRoute =
+  SettingsRecoveryWalletPhraseImport.update({
+    id: '/settings/recovery/wallet/phrase',
+    path: '/settings/recovery/wallet/phrase',
+    getParentRoute: () => rootRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -167,6 +183,13 @@ declare module '@tanstack/react-router' {
       path: '/playground'
       fullPath: '/playground'
       preLoaderRoute: typeof PlaygroundImport
+      parentRoute: typeof rootRoute
+    }
+    '/transfer': {
+      id: '/transfer'
+      path: '/transfer'
+      fullPath: '/transfer'
+      preLoaderRoute: typeof TransferImport
       parentRoute: typeof rootRoute
     }
     '/withdraw': {
@@ -246,18 +269,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogDialogWalletsendCallsImport
       parentRoute: typeof DialogImport
     }
-    '/settings/recovery/wallet': {
-      id: '/settings/recovery/wallet'
-      path: '/settings/recovery/wallet'
-      fullPath: '/settings/recovery/wallet'
-      preLoaderRoute: typeof SettingsRecoveryWalletImport
-      parentRoute: typeof rootRoute
-    }
     '/settings/recovery/': {
       id: '/settings/recovery/'
       path: '/settings/recovery'
       fullPath: '/settings/recovery'
       preLoaderRoute: typeof SettingsRecoveryIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/recovery/wallet/phrase': {
+      id: '/settings/recovery/wallet/phrase'
+      path: '/settings/recovery/wallet/phrase'
+      fullPath: '/settings/recovery/wallet/phrase'
+      preLoaderRoute: typeof SettingsRecoveryWalletPhraseImport
+      parentRoute: typeof rootRoute
+    }
+    '/settings/recovery/wallet/': {
+      id: '/settings/recovery/wallet/'
+      path: '/settings/recovery/wallet'
+      fullPath: '/settings/recovery/wallet'
+      preLoaderRoute: typeof SettingsRecoveryWalletIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -297,6 +327,7 @@ export interface FileRoutesByFullPath {
   '': typeof DialogRouteWithChildren
   '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
+  '/transfer': typeof TransferRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
   '/settings': typeof SettingsIndexRoute
@@ -308,8 +339,9 @@ export interface FileRoutesByFullPath {
   '/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
-  '/settings/recovery/wallet': typeof SettingsRecoveryWalletRoute
   '/settings/recovery': typeof SettingsRecoveryIndexRoute
+  '/settings/recovery/wallet/phrase': typeof SettingsRecoveryWalletPhraseRoute
+  '/settings/recovery/wallet': typeof SettingsRecoveryWalletIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -317,6 +349,7 @@ export interface FileRoutesByTo {
   '': typeof DialogRouteWithChildren
   '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
+  '/transfer': typeof TransferRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
   '/settings': typeof SettingsIndexRoute
@@ -328,8 +361,9 @@ export interface FileRoutesByTo {
   '/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
-  '/settings/recovery/wallet': typeof SettingsRecoveryWalletRoute
   '/settings/recovery': typeof SettingsRecoveryIndexRoute
+  '/settings/recovery/wallet/phrase': typeof SettingsRecoveryWalletPhraseRoute
+  '/settings/recovery/wallet': typeof SettingsRecoveryWalletIndexRoute
 }
 
 export interface FileRoutesById {
@@ -338,6 +372,7 @@ export interface FileRoutesById {
   '/_dialog': typeof DialogRouteWithChildren
   '/create-account': typeof CreateAccountRoute
   '/playground': typeof PlaygroundRoute
+  '/transfer': typeof TransferRoute
   '/withdraw': typeof WithdrawRoute
   '/settings/permissions': typeof SettingsPermissionsRoute
   '/settings/': typeof SettingsIndexRoute
@@ -349,8 +384,9 @@ export interface FileRoutesById {
   '/_dialog/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/_dialog/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
   '/_dialog/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
-  '/settings/recovery/wallet': typeof SettingsRecoveryWalletRoute
   '/settings/recovery/': typeof SettingsRecoveryIndexRoute
+  '/settings/recovery/wallet/phrase': typeof SettingsRecoveryWalletPhraseRoute
+  '/settings/recovery/wallet/': typeof SettingsRecoveryWalletIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -360,6 +396,7 @@ export interface FileRouteTypes {
     | ''
     | '/create-account'
     | '/playground'
+    | '/transfer'
     | '/withdraw'
     | '/settings/permissions'
     | '/settings'
@@ -371,14 +408,16 @@ export interface FileRouteTypes {
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
-    | '/settings/recovery/wallet'
     | '/settings/recovery'
+    | '/settings/recovery/wallet/phrase'
+    | '/settings/recovery/wallet'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | ''
     | '/create-account'
     | '/playground'
+    | '/transfer'
     | '/withdraw'
     | '/settings/permissions'
     | '/settings'
@@ -390,14 +429,16 @@ export interface FileRouteTypes {
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
-    | '/settings/recovery/wallet'
     | '/settings/recovery'
+    | '/settings/recovery/wallet/phrase'
+    | '/settings/recovery/wallet'
   id:
     | '__root__'
     | '/'
     | '/_dialog'
     | '/create-account'
     | '/playground'
+    | '/transfer'
     | '/withdraw'
     | '/settings/permissions'
     | '/settings/'
@@ -409,8 +450,9 @@ export interface FileRouteTypes {
     | '/_dialog/dialog/personal_sign'
     | '/_dialog/dialog/wallet_connect'
     | '/_dialog/dialog/wallet_sendCalls'
-    | '/settings/recovery/wallet'
     | '/settings/recovery/'
+    | '/settings/recovery/wallet/phrase'
+    | '/settings/recovery/wallet/'
   fileRoutesById: FileRoutesById
 }
 
@@ -419,11 +461,13 @@ export interface RootRouteChildren {
   DialogRoute: typeof DialogRouteWithChildren
   CreateAccountRoute: typeof CreateAccountRoute
   PlaygroundRoute: typeof PlaygroundRoute
+  TransferRoute: typeof TransferRoute
   WithdrawRoute: typeof WithdrawRoute
   SettingsPermissionsRoute: typeof SettingsPermissionsRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
-  SettingsRecoveryWalletRoute: typeof SettingsRecoveryWalletRoute
   SettingsRecoveryIndexRoute: typeof SettingsRecoveryIndexRoute
+  SettingsRecoveryWalletPhraseRoute: typeof SettingsRecoveryWalletPhraseRoute
+  SettingsRecoveryWalletIndexRoute: typeof SettingsRecoveryWalletIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -431,11 +475,13 @@ const rootRouteChildren: RootRouteChildren = {
   DialogRoute: DialogRouteWithChildren,
   CreateAccountRoute: CreateAccountRoute,
   PlaygroundRoute: PlaygroundRoute,
+  TransferRoute: TransferRoute,
   WithdrawRoute: WithdrawRoute,
   SettingsPermissionsRoute: SettingsPermissionsRoute,
   SettingsIndexRoute: SettingsIndexRoute,
-  SettingsRecoveryWalletRoute: SettingsRecoveryWalletRoute,
   SettingsRecoveryIndexRoute: SettingsRecoveryIndexRoute,
+  SettingsRecoveryWalletPhraseRoute: SettingsRecoveryWalletPhraseRoute,
+  SettingsRecoveryWalletIndexRoute: SettingsRecoveryWalletIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -452,11 +498,13 @@ export const routeTree = rootRoute
         "/_dialog",
         "/create-account",
         "/playground",
+        "/transfer",
         "/withdraw",
         "/settings/permissions",
         "/settings/",
-        "/settings/recovery/wallet",
-        "/settings/recovery/"
+        "/settings/recovery/",
+        "/settings/recovery/wallet/phrase",
+        "/settings/recovery/wallet/"
       ]
     },
     "/": {
@@ -480,6 +528,9 @@ export const routeTree = rootRoute
     },
     "/playground": {
       "filePath": "playground.tsx"
+    },
+    "/transfer": {
+      "filePath": "transfer.tsx"
     },
     "/withdraw": {
       "filePath": "withdraw.tsx"
@@ -522,11 +573,14 @@ export const routeTree = rootRoute
       "filePath": "_dialog.dialog/wallet_sendCalls.tsx",
       "parent": "/_dialog"
     },
-    "/settings/recovery/wallet": {
-      "filePath": "settings/recovery/wallet.tsx"
-    },
     "/settings/recovery/": {
       "filePath": "settings/recovery/index.tsx"
+    },
+    "/settings/recovery/wallet/phrase": {
+      "filePath": "settings/recovery/wallet/phrase.tsx"
+    },
+    "/settings/recovery/wallet/": {
+      "filePath": "settings/recovery/wallet/index.tsx"
     }
   }
 }

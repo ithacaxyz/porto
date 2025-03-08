@@ -48,7 +48,9 @@ export function Dashboard() {
         <div className="flex items-center gap-2">
           <Drawer.Root>
             <Drawer.Trigger asChild>
-              <ButtonWithRef variant="invert">Deposit</ButtonWithRef>
+              <ButtonWithRef variant="invert" className="w-[90px] text-center">
+                Deposit
+              </ButtonWithRef>
             </Drawer.Trigger>
             <Drawer.Portal>
               <Drawer.Overlay className="fixed inset-0 bg-black/30" />
@@ -96,10 +98,10 @@ export function Dashboard() {
             </Drawer.Portal>
           </Drawer.Root>
           <Link
-            to="/withdraw"
-            className="h-10 rounded-default bg-gray6 px-3.5 hover:bg-gray5"
+            to="/transfer"
+            className="h-10 w-[90px] rounded-default bg-gray6 px-3.5 text-center hover:bg-gray5"
           >
-            <p className="mt-2 h-full font-medium">Withdraw</p>
+            <p className="mt-2 h-full font-medium">Transfer</p>
           </Link>
         </div>
       </section>
@@ -147,7 +149,7 @@ export function Dashboard() {
                 })}
               >
                 <thead className="">
-                  <tr className="*:font-light *:text-secondary *:text-sm">
+                  <tr className="*:font-light *:text-gray12 *:text-sm">
                     <th className="text-left">Name</th>
                     <th className="text-right">Price</th>
                     <th className="text-right">Balance</th>
