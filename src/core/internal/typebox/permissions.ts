@@ -13,7 +13,7 @@ export const Permissions = Type.Object({
       Type.Literal('p256'),
       Type.Literal('secp256k1'),
       Type.Literal('webauthn-p256'),
-      Type.Literal('contract'),
+      Type.Literal('address'),
     ]),
   }),
   permissions: Type.Object(
