@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { getPorto } from '../../../../test/src/porto.js'
+import { getPorto } from '../../../test/src/porto.js'
 import { getEip712Domain } from './entryPoint.js'
 
 const { client } = getPorto({

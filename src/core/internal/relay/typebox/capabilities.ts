@@ -73,7 +73,7 @@ export namespace meta {
     /** The hash of the key that will be used to sign over the bundle. */
     keyHash: Primitive.Hex,
     /** The nonce for the bundle. */
-    nonce: Primitive.BigInt,
+    nonce: Schema.Optional(Primitive.BigInt),
   })
 }
 

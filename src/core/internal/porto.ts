@@ -83,7 +83,11 @@ export function getClient<
     'relay_estimateFee',
     'relay_sendAction',
     'wallet_createAccount',
+    'wallet_prepareCalls',
+    'wallet_prepareUpgradeAccount',
+    'wallet_sendPreparedCalls',
     'wallet_sendTransaction',
+    'wallet_upgradeAccount',
   ]
 
   if (clientCache.has(chain.id)) return clientCache.get(chain.id)!

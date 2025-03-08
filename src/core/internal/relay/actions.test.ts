@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import type { StaticDecode } from '../typebox/schema.js'
-import { createAccount } from './actions.js'
+import { createAccount, prepareCalls } from './actions.js'
 import type * as Capabilities from './typebox/capabilities.js'
 
 const { client } = getPorto({
@@ -50,21 +50,27 @@ describe('createAccount', () => {
     const publicKey = P256.getPublicKey({ privateKey })
 
     const result = await createAccount(client, {
-      keys: [
-        {
-          ...defaultKey,
-          publicKey: PublicKey.toHex(publicKey),
-        },
-      ],
+      capabilities: {
+        authorizeKeys: [
+          {
+            ...defaultKey,
+            publicKey: PublicKey.toHex(publicKey),
+          },
+        ],
+        delegation: client.chain.contracts.delegation.address,
+      },
     })
 
     expect(result.address).toBeDefined()
-    expect(result.delegation).toBe(client.chain.contracts.delegation.address)
-    expect(result.keys[0]?.expiry).toBe(defaultKey.expiry)
-    expect(result.keys[0]?.publicKey).toBe(PublicKey.toHex(publicKey))
-    expect(result.keys[0]?.role).toBe('admin')
-    expect(result.keys[0]?.type).toBe('p256')
-    expect(result.keys[0]?.permissions).toMatchInlineSnapshot(`
+    expect(result.capabilities.authorizeKeys[0]?.expiry).toBe(defaultKey.expiry)
+    expect(result.capabilities.authorizeKeys[0]?.publicKey).toBe(
+      PublicKey.toHex(publicKey),
+    )
+    expect(result.capabilities.authorizeKeys[0]?.role).toBe('admin')
+    expect(result.capabilities.authorizeKeys[0]?.type).toBe('p256')
+    expect(
+      result.capabilities.authorizeKeys[0]?.permissions,
+    ).toMatchInlineSnapshot(`
       [
         {
           "selector": "0x40c10f19",
@@ -89,13 +95,15 @@ describe('createAccount', () => {
   test('error: schema encoding', async () => {
     await expect(() =>
       createAccount(client, {
-        keys: [
-          {
-            ...defaultKey,
-            // @ts-expect-error
-            publicKey: 'INVALID!',
-          },
-        ],
+        capabilities: {
+          authorizeKeys: [
+            {
+              ...defaultKey,
+              // @ts-expect-error
+              publicKey: 'INVALID!',
+            },
+          ],
+        },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.SchemaCoderError: Expected string to match '^0x(.*)$'
@@ -108,13 +116,16 @@ describe('createAccount', () => {
 
     await expect(() =>
       createAccount(client, {
-        keys: [
-          {
-            ...defaultKey,
-            permissions: [],
-            publicKey: '0x0000000000000000000000000000000000000000',
-          },
-        ],
+        capabilities: {
+          authorizeKeys: [
+            {
+              ...defaultKey,
+              permissions: [],
+              publicKey: '0x0000000000000000000000000000000000000000',
+            },
+          ],
+          delegation: client.chain.contracts.delegation.address,
+        },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.SchemaCoderError: Expected array length to be greater or equal to 2
@@ -127,14 +138,16 @@ describe('createAccount', () => {
 
     await expect(() =>
       createAccount(client, {
-        keys: [
-          {
-            ...defaultKey,
-            // @ts-expect-error
-            role: 'beef',
-            publicKey: '0x0000000000000000000000000000000000000000',
-          },
-        ],
+        capabilities: {
+          authorizeKeys: [
+            {
+              ...defaultKey,
+              // @ts-expect-error
+              role: 'beef',
+              publicKey: '0x0000000000000000000000000000000000000000',
+            },
+          ],
+        },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.SchemaCoderError: Expected 'admin'
@@ -145,4 +158,47 @@ describe('createAccount', () => {
       Details: The encoded value does not match the expected schema]
     `)
   })
+})
+
+test.only('e2e', async () => {
+  const privateKey = P256.randomPrivateKey()
+  const publicKey = P256.getPublicKey({ privateKey })
+
+  const {
+    address,
+    capabilities: { authorizeKeys },
+  } = await createAccount(client, {
+    capabilities: {
+      authorizeKeys: [
+        {
+          ...defaultKey,
+          publicKey: PublicKey.toHex(publicKey),
+        },
+      ],
+      delegation: client.chain.contracts.delegation.address,
+    },
+  })
+
+  const key = authorizeKeys[0]!
+
+  const result = await prepareCalls(client, {
+    account: address,
+    calls: [
+      {
+        abi: ExperimentERC20.abi,
+        functionName: 'mint',
+        args: [address, Value.fromEther('100')],
+        to: ExperimentERC20.address[0],
+      },
+    ],
+    capabilities: {
+      meta: {
+        feeToken: ExperimentERC20.address[0],
+        keyHash: key.hash,
+        nonce: 1n,
+      },
+    },
+  })
+
+  console.log(result)
 })

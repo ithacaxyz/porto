@@ -2,7 +2,7 @@ import type * as Address from 'ox/Address'
 import type * as TypedData from 'ox/TypedData'
 import type { Chain, ChainContract, Client, Transport } from 'viem'
 
-import type * as Account from '../account.js'
+import type * as Account from './account.js'
 
 export const domainNameAndVersion = {
   name: 'EntryPoint',
