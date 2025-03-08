@@ -1,7 +1,6 @@
 // Ref: https://github.com/ithacaxyz/relay/tree/main/src/types/rpc
 
 import * as Primitive from '../../typebox/primitive.js'
-import * as RpcRequest from '../../typebox/request.js'
 import * as Schema from '../../typebox/schema.js'
 import { Type } from '../../typebox/schema.js'
 import * as C from './capabilities.js'
