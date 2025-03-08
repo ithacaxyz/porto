@@ -160,7 +160,7 @@ describe('createAccount', () => {
   })
 })
 
-test.only('e2e', async () => {
+test('e2e', async () => {
   const privateKey = P256.randomPrivateKey()
   const publicKey = P256.getPublicKey({ privateKey })
 
@@ -199,6 +199,4 @@ test.only('e2e', async () => {
       },
     },
   })
-
-  console.log(result)
 })
