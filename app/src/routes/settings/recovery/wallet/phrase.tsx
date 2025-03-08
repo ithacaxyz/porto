@@ -1,10 +1,13 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { Address, Hex, Mnemonic, P256, PublicKey } from 'ox'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Hex, Mnemonic, P256, PublicKey, Signature } from 'ox'
 import * as React from 'react'
+import { toast } from 'sonner'
 import CheckIcon from '~icons/lucide/check'
+import CheckMarkIcon from '~icons/lucide/check'
 import ChevronLeftIcon from '~icons/lucide/chevron-left'
 import XIcon from '~icons/lucide/x'
 
+import { Button } from '~/components/Button'
 import { cn } from '~/utils'
 
 export const Route = createFileRoute('/settings/recovery/wallet/phrase')({
@@ -12,44 +15,65 @@ export const Route = createFileRoute('/settings/recovery/wallet/phrase')({
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
+
   const [recoveryString, setRecoveryString] = React.useState('')
   const [status, setStatus] = React.useState<'VALID' | 'INVALID' | 'IDLE'>(
     'IDLE',
   )
 
+  const [privateKey, setPrivateKey] = React.useState<Hex.Hex | null>(null)
+  const [signature, setSignature] = React.useState<Hex.Hex | null>(null)
+
   const validInput = React.useCallback((input: string) => {
     try {
       let publicKey: Hex.Hex
       const sanitizedInput = input.trim()
-      if (sanitizedInput.length === 0) return
+      if (sanitizedInput.length === 0) {
+        setPrivateKey(null)
+        return
+      }
 
       if (sanitizedInput.includes(' ')) {
-        const privateKey = Mnemonic.toPrivateKey(sanitizedInput)
+        const valid = Mnemonic.validate(sanitizedInput, Mnemonic.english)
+        if (!valid) throw new Error('Invalid recovery phrase')
+        const privateKey = Mnemonic.toPrivateKey(sanitizedInput, { as: 'Hex' })
+        setPrivateKey(privateKey)
         publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }))
         if (!Hex.validate(publicKey)) throw new Error('Invalid recovery phrase')
         return true
       }
 
-      if (Address.validate(sanitizedInput))
-        throw new Error('Invalid private key')
+      if (!Hex.validate(sanitizedInput)) throw new Error('Invalid key')
 
+      setPrivateKey(sanitizedInput)
       publicKey = PublicKey.toHex(
-        P256.getPublicKey({ privateKey: sanitizedInput as Address.Address }),
+        P256.getPublicKey({ privateKey: sanitizedInput }),
       )
 
       return true
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : error
-      console.error(errorMessage)
+      console.error(error)
+      setPrivateKey(null)
       return false
     }
   }, [])
+
+  const signMessage = (message: string) => {
+    if (!privateKey) return
+    const signed = P256.sign({
+      privateKey,
+      payload: Hex.fromString(message),
+    })
+    const signature = Signature.toHex(signed)
+    return signature
+  }
 
   return (
     <main
       className={cn(
         'mx-auto flex h-screen max-h-[1200px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-transparent py-4 text-center',
-        'sm:my-32 sm:h-[550px] sm:max-w-[400px] sm:bg-gray1 sm:shadow-sm sm:outline sm:outline-gray4',
+        'sm:my-32 sm:h-[580px] sm:max-w-[400px] sm:bg-gray1 sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
       <header className="mt-4 flex justify-between px-5 sm:mt-1">
@@ -70,12 +94,27 @@ function RouteComponent() {
         </Link>
       </header>
 
-      <div className="mt-10 size-full sm:mt-1 sm:px-4">
-        <h1 className="mt-4 font-medium text-2xl">Import your wallet</h1>
-        <p className="mx-6 my-3 text-pretty text-primary">
-          This will import your existing wallet into Ithaca, allowing you to use
-          it seamlessly.
-        </p>
+      <div className="mb-auto w-full sm:px-4">
+        {signature ? (
+          <React.Fragment>
+            <div className="m-auto mt-4 flex size-15 items-center justify-center rounded-full bg-green4">
+              <CheckMarkIcon className="mx-auto size-9 text-green-600" />
+            </div>
+            <h1 className="mt-4 font-medium text-2xl">Added backup wallet</h1>
+            <p className="mx-6 my-3 text-pretty text-primary">
+              You can now use this wallet to recover your passkey if you ever
+              lose access to it.
+            </p>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <h1 className="mt-4 font-medium text-2xl">Import your wallet</h1>
+            <p className="mx-6 my-3 text-pretty text-primary">
+              This will import your existing wallet into Ithaca, allowing you to
+              use it seamlessly.
+            </p>
+          </React.Fragment>
+        )}
       </div>
 
       <div className="mx-auto w-full">
@@ -86,14 +125,13 @@ function RouteComponent() {
           autoComplete="off"
           autoCapitalize="off"
           value={recoveryString}
+          disabled={Hex.validate(signature)}
+          placeholder="Enter your recovery phrase or key here…"
           onBlur={(event) => {
             const value = event.target.value
             if (value.length === 0) return setStatus('IDLE')
-
-            if (validInput(recoveryString)) setStatus('VALID')
-            else setStatus('INVALID')
+            setStatus(validInput(value) ? 'VALID' : 'INVALID')
           }}
-          placeholder="Enter your recovery phrase or key here…"
           onChange={(event) => {
             const value = event.target.value
             setRecoveryString(value)
@@ -101,16 +139,17 @@ function RouteComponent() {
             setStatus(validInput(value) ? 'VALID' : 'INVALID')
           }}
           className={cn(
-            'h-[160px] w-full max-w-[90%] resize-none rounded-md border-2 p-3 text-gray12',
+            'h-[160px] w-full max-w-[90%] resize-none rounded-md border-[1.5px] p-3 text-gray12',
             'placeholder:text-gray9 focus:outline-none focus:ring-1 focus:ring-gray3',
             status === 'VALID'
               ? 'border-green6'
               : status === 'INVALID'
-                ? 'border-red-600'
+                ? 'border-red-400'
                 : 'border-gray4',
+            Hex.validate(signature) && 'opacity-50',
           )}
         />
-        <div className="mx-auto mt-2 flex h-[60px] flex-col">
+        <div className="mx-auto flex h-[60px] flex-col">
           {status === 'IDLE' ? (
             <p className="mx-6 mt-1.5 mb-3 text-pretty text-gray11">
               Recovery phrases are typically 16 or 24 words, and private keys
@@ -129,7 +168,7 @@ function RouteComponent() {
                 <XIcon className="size-5 text-red9" />
               </div>
               <span className="text-gray11 text-lg">
-                This one does not spark joy.
+                This one does is not valid.
               </span>
             </div>
           )}
@@ -137,13 +176,24 @@ function RouteComponent() {
 
         <div className="mx-auto mb-3 flex h-11 w-full max-w-[90%] items-center justify-center space-x-2.5 rounded-md">
           {status === 'VALID' ? (
-            <Link
-              to="/settings/recovery/wallet"
-              from="/settings/recovery/wallet/phrase"
-              className="my-auto mt-2 flex size-full items-center justify-center rounded-md bg-accent font-medium text-md text-white! hover:bg-gray4"
+            <Button
+              variant="accent"
+              onClick={(event) => {
+                event.preventDefault()
+                if (Hex.validate(signature))
+                  return navigate({ to: '/settings' })
+
+                const signed = signMessage(
+                  `${new Date().toISOString()}\nI'm the owner of this wallet\nSigning a message to confirm my ownership`,
+                )
+                if (!signed) return
+                setSignature(signed)
+                toast.success(`Signed\n${signed}`)
+              }}
+              className="my-auto mt-2 flex size-full items-center justify-center rounded-md bg-accent font-medium text-md text-white hover:bg-gray4"
             >
               Continue
-            </Link>
+            </Button>
           ) : (
             <React.Fragment>
               <Link
