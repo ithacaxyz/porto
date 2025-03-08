@@ -1,8 +1,9 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Hex, Mnemonic, P256, PublicKey } from 'ox'
+import { Address, Hex, Mnemonic, P256, PublicKey } from 'ox'
 import * as React from 'react'
-import { toast } from 'sonner'
+import CheckIcon from '~icons/lucide/check'
 import ChevronLeftIcon from '~icons/lucide/chevron-left'
+import XIcon from '~icons/lucide/x'
 
 import { cn } from '~/utils'
 
@@ -12,12 +13,15 @@ export const Route = createFileRoute('/settings/recovery/wallet/phrase')({
 
 function RouteComponent() {
   const [recoveryString, setRecoveryString] = React.useState('')
+  const [status, setStatus] = React.useState<'VALID' | 'INVALID' | 'IDLE'>(
+    'IDLE',
+  )
 
   const validInput = React.useCallback((input: string) => {
     try {
       let publicKey: Hex.Hex
       const sanitizedInput = input.trim()
-      if (sanitizedInput.length === 0) return false
+      if (sanitizedInput.length === 0) return
 
       if (sanitizedInput.includes(' ')) {
         const privateKey = Mnemonic.toPrivateKey(sanitizedInput)
@@ -26,12 +30,14 @@ function RouteComponent() {
         return true
       }
 
-      if (!Hex.validate(sanitizedInput)) throw new Error('Invalid private key')
+      if (Address.validate(sanitizedInput))
+        throw new Error('Invalid private key')
 
       publicKey = PublicKey.toHex(
-        P256.getPublicKey({ privateKey: sanitizedInput }),
+        P256.getPublicKey({ privateKey: sanitizedInput as Address.Address }),
       )
-      console.info(publicKey)
+
+      return true
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : error
       console.error(errorMessage)
@@ -80,37 +86,82 @@ function RouteComponent() {
           autoComplete="off"
           autoCapitalize="off"
           value={recoveryString}
-          onBlur={(_event) => {
-            if (!validInput(recoveryString)) {
-              toast.error('Invalid recovery phrase or key')
-            }
+          onBlur={(event) => {
+            const value = event.target.value
+            if (value.length === 0) return setStatus('IDLE')
+
+            if (validInput(recoveryString)) setStatus('VALID')
+            else setStatus('INVALID')
           }}
           placeholder="Enter your recovery phrase or key here…"
-          onChange={(event) => setRecoveryString(event.target.value)}
+          onChange={(event) => {
+            const value = event.target.value
+            setRecoveryString(value)
+            if (value.length === 0) return setStatus('IDLE')
+            setStatus(validInput(value) ? 'VALID' : 'INVALID')
+          }}
           className={cn(
-            'h-[160px] w-full max-w-[90%] resize-none rounded-md border border-gray-400/20 p-3 text-gray12',
+            'h-[160px] w-full max-w-[90%] resize-none rounded-md border-2 p-3 text-gray12',
             'placeholder:text-gray9 focus:outline-none focus:ring-1 focus:ring-gray3',
+            status === 'VALID'
+              ? 'border-green6'
+              : status === 'INVALID'
+                ? 'border-red-600'
+                : 'border-gray4',
           )}
         />
-        <p className="mx-6 mt-1.5 mb-3 text-pretty text-gray11">
-          Recovery phrases are typically 16 or 24 words, and private keys are 64
-          characters.
-        </p>
-        <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center space-x-2.5 rounded-md">
-          <Link
-            to="/settings/recovery/wallet"
-            from="/settings/recovery/wallet/phrase"
-            className="my-auto mt-2 flex size-full max-w-[50%] items-center justify-center rounded-md bg-gray3 font-medium text-md hover:bg-gray4"
-          >
-            Go back
-          </Link>
-          <Link
-            to="/"
-            from="/settings/recovery/wallet/phrase"
-            className="my-auto mt-2 flex size-full max-w-[50%] items-center justify-center rounded-md bg-gray3 font-medium text-md hover:bg-gray4"
-          >
-            I'll do this later
-          </Link>
+        <div className="mx-auto mt-2 flex h-[60px] flex-col">
+          {status === 'IDLE' ? (
+            <p className="mx-6 mt-1.5 mb-3 text-pretty text-gray11">
+              Recovery phrases are typically 16 or 24 words, and private keys
+              are 64 characters.
+            </p>
+          ) : status === 'VALID' ? (
+            <div className="my-auto flex flex-row items-center justify-center space-x-3">
+              <div className="rounded-full bg-green4 p-1">
+                <CheckIcon className="size-5 text-green11" />
+              </div>
+              <span className="text-gray11 text-lg">This looks valid!</span>
+            </div>
+          ) : (
+            <div className="my-auto flex flex-row items-center justify-center space-x-3">
+              <div className="rounded-full bg-red4 p-1">
+                <XIcon className="size-5 text-red9" />
+              </div>
+              <span className="text-gray11 text-lg">
+                This one does not spark joy.
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="mx-auto mb-3 flex h-11 w-full max-w-[90%] items-center justify-center space-x-2.5 rounded-md">
+          {status === 'VALID' ? (
+            <Link
+              to="/settings/recovery/wallet"
+              from="/settings/recovery/wallet/phrase"
+              className="my-auto mt-2 flex size-full items-center justify-center rounded-md bg-accent font-medium text-md text-white! hover:bg-gray4"
+            >
+              Continue
+            </Link>
+          ) : (
+            <React.Fragment>
+              <Link
+                to="/settings/recovery/wallet"
+                from="/settings/recovery/wallet/phrase"
+                className="my-auto mt-2 flex size-full max-w-[50%] items-center justify-center rounded-md bg-gray3 font-medium text-md hover:bg-gray4"
+              >
+                Go back
+              </Link>
+              <Link
+                to="/"
+                from="/settings/recovery/wallet/phrase"
+                className="my-auto mt-2 flex size-full max-w-[50%] items-center justify-center rounded-md bg-gray3 font-medium text-md hover:bg-gray4"
+              >
+                I'll do this later
+              </Link>
+            </React.Fragment>
+          )}
         </div>
       </div>
     </main>
