@@ -1,9 +1,9 @@
 import { AbiFunction, P256, PublicKey, Signature, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { writeContract } from 'viem/actions'
 import { signAuthorization } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
 
+import * as TestActions from '../../../../test/src/actions.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Key from '../key.js'
@@ -53,6 +53,8 @@ const defaultKey = {
 } as const satisfies StaticDecode<
   typeof Capabilities.authorizeKeys.Request
 >[number]
+
+const feeToken = ExperimentERC20.address[0]
 
 describe('createAccount', () => {
   test('default', async () => {
@@ -150,6 +152,54 @@ describe('createAccount', () => {
   })
 })
 
+describe('prepareCalls', () => {
+  test('default', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const publicKey = P256.getPublicKey({ privateKey })
+
+    const { address, capabilities } = await createAccount(client, {
+      capabilities: {
+        authorizeKeys: [
+          {
+            expiry: 0,
+            permissions: [],
+            role: 'admin',
+            type: 'p256',
+            publicKey: PublicKey.toHex(publicKey),
+          },
+        ],
+        delegation: client.chain.contracts.delegation.address,
+      },
+    })
+
+    await TestActions.setBalance(client, {
+      address,
+      value: Value.fromEther('10000'),
+    })
+
+    const keyHash = capabilities.authorizeKeys[0]!.hash
+
+    const result = await prepareCalls(client, {
+      account: address,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: 0n,
+        },
+      ],
+      capabilities: {
+        meta: {
+          feeToken,
+          keyHash,
+          nonce: 0n,
+        },
+      },
+    })
+
+    expect(result.digest).toBeDefined()
+  })
+})
+
 describe('e2e', () => {
   test('new account', async () => {
     const p256 = (() => {
@@ -183,15 +233,9 @@ describe('e2e', () => {
 
     const key = authorizeKeys[0]!
 
-    await writeContract(client, {
-      account: privateKeyToAccount(
-        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-      ),
-      chain: null,
-      address: ExperimentERC20.address[0],
-      abi: ExperimentERC20.abi,
-      functionName: 'mint',
-      args: [address, Value.fromEther('1000')],
+    await TestActions.setBalance(client, {
+      address,
+      value: Value.fromEther('10000'),
     })
 
     const request = await prepareCalls(client, {
@@ -199,7 +243,7 @@ describe('e2e', () => {
       calls: [],
       capabilities: {
         meta: {
-          feeToken: ExperimentERC20.address[0],
+          feeToken,
           keyHash: key.hash,
           nonce: 0n,
         },
@@ -242,15 +286,9 @@ describe('e2e', () => {
 
     const eoa = privateKeyToAccount(generatePrivateKey())
 
-    await writeContract(client, {
-      account: privateKeyToAccount(
-        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-      ),
-      chain: null,
-      address: ExperimentERC20.address[0],
-      abi: ExperimentERC20.abi,
-      functionName: 'mint',
-      args: [eoa.address, Value.fromEther('10000')],
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+      value: Value.fromEther('10000'),
     })
 
     const request = await prepareUpgradeAccount(client, {
@@ -266,7 +304,7 @@ describe('e2e', () => {
           },
         ],
         delegation: client.chain.contracts.delegation.address,
-        feeToken: ExperimentERC20.address[0],
+        feeToken,
       },
     })
 
