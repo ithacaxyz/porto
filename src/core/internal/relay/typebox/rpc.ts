@@ -1,4 +1,8 @@
-// Ref: https://github.com/ithacaxyz/relay/tree/main/src/types/rpc
+/**
+ * JSON-RPC Schemas for Relay.
+ *
+ * @see https://github.com/ithacaxyz/relay/tree/main/src/types/rpc
+ */
 
 import * as Primitive from '../../typebox/primitive.js'
 import * as Schema from '../../typebox/schema.js'
@@ -139,7 +143,8 @@ export namespace wallet_prepareUpgradeAccount {
     /** Address of the EOA to upgrade. */
     address: Primitive.Address,
     /** Chain ID to initialize the account on. */
-    chainId: Primitive.Number,
+    // TODO: `Primitive.Number`
+    chainId: Type.Number(),
     /** Capabilities. */
     capabilities: Capabilities,
   })
@@ -192,18 +197,13 @@ export namespace wallet_upgradeAccount {
       nonce: Primitive.Number,
       r: Primitive.Hex,
       s: Primitive.Hex,
-      v: Schema.Optional(Primitive.Hex),
-      yParity: Schema.Optional(Primitive.Hex),
+      v: Schema.Optional(Primitive.BigInt),
+      yParity: Schema.Optional(Primitive.Number),
     }),
     /** Signed quote of the prepared bundle. */
     context: Quote.Signed,
     /** Signature of the `wallet_prepareUpgradeAccount` digest. */
-    signature: Type.Object({
-      r: Primitive.Hex,
-      s: Primitive.Hex,
-      v: Schema.Optional(Primitive.Hex),
-      yParity: Schema.Optional(Primitive.Hex),
-    }),
+    signature: Primitive.Hex,
   })
 
   /** Request for `wallet_sendPreparedCalls`. */

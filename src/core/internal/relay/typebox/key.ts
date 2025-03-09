@@ -1,4 +1,8 @@
-// Ref: https://github.com/ithacaxyz/relay/blob/main/src/types/key.rs
+/**
+ * Relay key.
+ *
+ * @see https://github.com/ithacaxyz/relay/blob/main/src/types/key.rs
+ */
 
 import * as Primitive from '../../typebox/primitive.js'
 import { Type } from '../../typebox/schema.js'

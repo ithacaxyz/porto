@@ -1,4 +1,8 @@
-// Ref: https://github.com/ithacaxyz/relay/blob/main/src/types/capabilities.rs
+/**
+ * Relay capabilities.
+ *
+ * @see https://github.com/ithacaxyz/relay/blob/main/src/types/capabilities.rs
+ */
 
 import * as Primitive from '../../typebox/primitive.js'
 import * as Schema from '../../typebox/schema.js'
@@ -14,39 +18,37 @@ export namespace authorizeKeys {
       /** The permissions for the key. */
       Type.Object({
         /** Represents key permissions. */
-        permissions: Schema.Optional(
-          Type.Array(
-            Type.Union([
-              /** Call permission. */
-              Type.Object({
-                /** The selector of the function this permission applies to. */
-                selector: Primitive.Hex,
-                /** The address of the contract this permission applies to. */
-                to: Primitive.Address,
-                /** Permission type. */
-                type: Type.Literal('call'),
-              }),
+        permissions: Type.Array(
+          Type.Union([
+            /** Call permission. */
+            Type.Object({
+              /** The selector of the function this permission applies to. */
+              selector: Primitive.Hex,
+              /** The address of the contract this permission applies to. */
+              to: Primitive.Address,
+              /** Permission type. */
+              type: Type.Literal('call'),
+            }),
 
-              /** Spend permission. */
-              Type.Object({
-                /** The maximum amount that can be spent in the given period. */
-                limit: Primitive.BigInt,
-                /** The period of the limit. */
-                period: Type.Union([
-                  Type.Literal('minute'),
-                  Type.Literal('hour'),
-                  Type.Literal('day'),
-                  Type.Literal('week'),
-                  Type.Literal('month'),
-                  Type.Literal('year'),
-                ]),
-                /** The token this permission applies to. If `None`, defaults to native token (ETH). */
-                token: Schema.Optional(Primitive.Address),
-                /** Permission type. */
-                type: Type.Literal('spend'),
-              }),
-            ]),
-          ),
+            /** Spend permission. */
+            Type.Object({
+              /** The maximum amount that can be spent in the given period. */
+              limit: Primitive.BigInt,
+              /** The period of the limit. */
+              period: Type.Union([
+                Type.Literal('minute'),
+                Type.Literal('hour'),
+                Type.Literal('day'),
+                Type.Literal('week'),
+                Type.Literal('month'),
+                Type.Literal('year'),
+              ]),
+              /** The token this permission applies to. If `None`, defaults to native token (ETH). */
+              token: Schema.Optional(Primitive.Address),
+              /** Permission type. */
+              type: Type.Literal('spend'),
+            }),
+          ]),
         ),
       }),
     ]),

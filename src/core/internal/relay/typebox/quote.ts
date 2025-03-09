@@ -1,4 +1,8 @@
-// Ref: https://github.com/ithacaxyz/relay/blob/main/src/types/quote.rs
+/**
+ * Relay quote.
+ *
+ * @see https://github.com/ithacaxyz/relay/blob/main/src/types/quote.rs
+ */
 
 import * as Primitive from '../../typebox/primitive.js'
 import * as Schema from '../../typebox/schema.js'

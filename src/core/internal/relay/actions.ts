@@ -1,5 +1,8 @@
-// Ref:
-// https://github.com/ithacaxyz/relay/blob/main/src/rpc.rs
+/**
+ * Wrapper for Relay JSON-RPC methods.
+ *
+ * @see https://github.com/ithacaxyz/relay/blob/main/src/rpc.rs
+ */
 
 import { TransformEncodeCheckError } from '@sinclair/typebox/value'
 import * as AbiFunction from 'ox/AbiFunction'
@@ -186,6 +189,38 @@ export namespace sendPreparedCalls {
 
   export type ReturnType = StaticDecode<
     typeof Rpc.wallet_sendPreparedCalls.Response
+  >
+}
+
+export async function upgradeAccount(
+  client: Client,
+  parameters: upgradeAccount.Parameters,
+): Promise<upgradeAccount.ReturnType> {
+  const { authorization, context, signature } = parameters
+  try {
+    const result = await client.request({
+      method: 'wallet_upgradeAccount',
+      params: [
+        Value.Encode(Rpc.wallet_upgradeAccount.Parameters, {
+          authorization,
+          context,
+          signature,
+        }),
+      ],
+    })
+    return Value.Parse(Rpc.wallet_upgradeAccount.Response, result)
+  } catch (error) {
+    throw getError(error)
+  }
+}
+
+export namespace upgradeAccount {
+  export type Parameters = StaticDecode<
+    typeof Rpc.wallet_upgradeAccount.Parameters
+  >
+
+  export type ReturnType = StaticDecode<
+    typeof Rpc.wallet_upgradeAccount.Response
   >
 }
 
