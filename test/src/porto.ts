@@ -3,8 +3,8 @@ import { http, type Transport, custom, defineChain } from 'viem'
 
 import { type Chain, odysseyTestnet } from '../../src/core/Chains.js'
 import * as Porto_internal from '../../src/core/internal/porto.js'
-import { anvilOdyssey } from './anvil.js'
-import { relayOdyssey } from './relay.js'
+import * as Anvil from './anvil.js'
+import * as Relay from './relay.js'
 
 export const defaultChain = defineChain({
   ...odysseyTestnet,
@@ -15,7 +15,7 @@ export const defaultChain = defineChain({
     },
   },
   rpcUrls: {
-    default: { http: [anvilOdyssey.rpcUrl] },
+    default: { http: [Anvil.instances.odyssey.rpcUrl] },
   },
 })
 
@@ -46,10 +46,10 @@ export function getPorto(
     storage: Storage.memory(),
     transports: {
       [Chains.odysseyTestnet.id]: {
-        default: transports.default ?? custom(anvilOdyssey),
+        default: transports.default ?? custom(Anvil.instances.odyssey),
         relay: transports.relay
           ? transports.relay === true
-            ? http(relayOdyssey.rpcUrl)
+            ? http(Relay.instances.odyssey.rpcUrl)
             : transports.relay
           : undefined,
       },
