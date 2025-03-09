@@ -1,4 +1,8 @@
-// Ref: https://github.com/ithacaxyz/relay/blob/main/src/types/op.rs
+/**
+ * User operation.
+ *
+ * @see https://github.com/ithacaxyz/relay/blob/main/src/types/op.rs
+ */
 
 import * as Primitive from '../../typebox/primitive.js'
 import { Type } from '../../typebox/schema.js'
