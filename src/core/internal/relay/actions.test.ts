@@ -1,11 +1,27 @@
-import { AbiFunction, P256, PublicKey, Value } from 'ox'
+import {
+  AbiFunction,
+  Address,
+  P256,
+  PublicKey,
+  Secp256k1,
+  Signature,
+  Value,
+} from 'ox'
 import { describe, expect, test } from 'vitest'
+import { writeContract } from 'viem/actions'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import type { StaticDecode } from '../typebox/schema.js'
-import { createAccount, prepareCalls } from './actions.js'
+import {
+  createAccount,
+  prepareCalls,
+  prepareUpgradeAccount,
+  sendPreparedCalls,
+} from './actions.js'
 import type * as Capabilities from './typebox/capabilities.js'
+import * as Key from '../key.js'
 
 const { client } = getPorto({
   transports: {
@@ -160,43 +176,155 @@ describe('createAccount', () => {
   })
 })
 
-test('e2e', async () => {
-  const privateKey = P256.randomPrivateKey()
-  const publicKey = P256.getPublicKey({ privateKey })
+describe('e2e', () => {
+  test.skip('new account', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+      includePrefix: false,
+    })
 
-  const {
-    address,
-    capabilities: { authorizeKeys },
-  } = await createAccount(client, {
-    capabilities: {
-      authorizeKeys: [
+    const {
+      address,
+      capabilities: { authorizeKeys },
+    } = await createAccount(client, {
+      capabilities: {
+        authorizeKeys: [
+          {
+            expiry: 0,
+            role: 'admin',
+            type: 'p256',
+            publicKey,
+          },
+        ],
+        delegation: client.chain.contracts.delegation.address,
+      },
+    })
+
+    const key = authorizeKeys[0]!
+
+    await writeContract(client, {
+      account: privateKeyToAccount(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ),
+      chain: null,
+      address: ExperimentERC20.address[0],
+      abi: ExperimentERC20.abi,
+      functionName: 'mint',
+      args: [address, Value.fromEther('1000')],
+    })
+
+    const request = await prepareCalls(client, {
+      account: address,
+      calls: [
         {
-          ...defaultKey,
-          publicKey: PublicKey.toHex(publicKey),
+          abi: ExperimentERC20.abi,
+          functionName: 'mint',
+          args: [address, Value.fromEther('100')],
+          to: ExperimentERC20.address[0],
         },
       ],
-      delegation: client.chain.contracts.delegation.address,
-    },
+      capabilities: {
+        meta: {
+          feeToken: ExperimentERC20.address[0],
+          keyHash: key.hash,
+          nonce: 0n,
+        },
+      },
+    })
+
+    const signature = P256.sign({
+      payload: request.digest,
+      privateKey,
+    })
+
+    const wrapped = Key.wrapSignature(Signature.toHex(signature), {
+      keyType: 'p256',
+      publicKey,
+      prehash: false,
+    })
+
+    const result = await sendPreparedCalls(client, {
+      context: request.context,
+      signature: {
+        publicKey,
+        type: 'p256',
+        value: wrapped,
+      },
+    })
+
+    // console.log(result)
   })
 
-  const key = authorizeKeys[0]!
+  test.only('upgraded account', async () => {
+    const p256 = (() => {
+      const privateKey = P256.randomPrivateKey()
+      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+        includePrefix: false,
+      })
+      return {
+        privateKey,
+        publicKey,
+      } as const
+    })()
 
-  const result = await prepareCalls(client, {
-    account: address,
-    calls: [
-      {
-        abi: ExperimentERC20.abi,
-        functionName: 'mint',
-        args: [address, Value.fromEther('100')],
-        to: ExperimentERC20.address[0],
+    const eoa = (() => {
+      const privateKey = Secp256k1.randomPrivateKey()
+      const publicKey = Secp256k1.getPublicKey({ privateKey })
+      const address = Address.fromPublicKey(publicKey)
+      return {
+        address,
+        privateKey,
+        publicKey,
+      } as const
+    })()
+
+    await writeContract(client, {
+      account: privateKeyToAccount(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ),
+      chain: null,
+      address: ExperimentERC20.address[0],
+      abi: ExperimentERC20.abi,
+      functionName: 'mint',
+      args: [eoa.address, Value.fromEther('1000')],
+    })
+
+    const request = await prepareUpgradeAccount(client, {
+      address: eoa.address,
+      capabilities: {
+        authorizeKeys: [
+          {
+            expiry: 0,
+            permissions: [],
+            publicKey: p256.publicKey,
+            role: 'admin',
+            type: 'p256',
+          },
+        ],
+        delegation: client.chain.contracts.delegation.address,
       },
-    ],
-    capabilities: {
-      meta: {
-        feeToken: ExperimentERC20.address[0],
-        keyHash: key.hash,
-        nonce: 1n,
-      },
-    },
+    })
+
+    const signature = Secp256k1.sign({
+      payload: request.digest,
+      privateKey: eoa.privateKey,
+    })
+
+    // const wrapped = Key.wrapSignature(Signature.toHex(signature), {
+    //   keyType: 'p256',
+    //   publicKey: p256.publicKey,
+    //   prehash: false,
+    // })
+
+    // const result = await sendPreparedCalls(client, {
+    //   context: request.context,
+    //   signature: {
+    //     publicKey: eoa.address,
+    //     type: 'secp256k1',
+    //     value: Signature.toHex(signature),
+    //   },
+    // })
+
+    // console.log(result)
   })
 })

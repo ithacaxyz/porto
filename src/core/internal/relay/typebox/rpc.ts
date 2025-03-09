@@ -74,9 +74,13 @@ export namespace wallet_prepareCalls {
   /** Capabilities for `wallet_prepareCalls` response. */
   export const ResponseCapabilities = Type.Object({
     /** Keys authorized on the account. */
-    authorizeKeys: Schema.Optional(C.authorizeKeys.Response),
+    authorizeKeys: Schema.Optional(
+      Type.Union([C.authorizeKeys.Response, Type.Null()]),
+    ),
     /** Keys revoked on the account. */
-    revokeKeys: Schema.Optional(C.revokeKeys.Response),
+    revokeKeys: Schema.Optional(
+      Type.Union([C.revokeKeys.Response, Type.Null()]),
+    ),
   })
 
   /** Parameters for `wallet_prepareCalls` request. */

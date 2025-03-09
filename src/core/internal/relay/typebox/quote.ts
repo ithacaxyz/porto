@@ -13,7 +13,8 @@ export const Quote = Type.Object({
    */
   authorizationAddress: Schema.Optional(Primitive.Address),
   /** Chain ID the quote is for. */
-  chainId: Primitive.Number,
+  // TODO: `Primitive.Number`
+  chainId: Type.Number(),
   /** The `UserOp` the quote is for. */
   op: UserOp.UserOp,
   /** The fee estimate for the bundle in the destination chains native token. */
@@ -24,7 +25,7 @@ export const Quote = Type.Object({
     maxPriorityFeePerGas: Primitive.BigInt,
   }),
   /** The time-to-live of the quote. */
-  ttl: Primitive.Number,
+  ttl: Type.Number(),
   /** The recommended gas limit for the bundle. */
   txGas: Primitive.BigInt,
 })
