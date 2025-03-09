@@ -112,6 +112,83 @@ export namespace prepareCalls {
   export type ReturnType = StaticDecode<typeof Rpc.wallet_prepareCalls.Response>
 }
 
+export async function prepareUpgradeAccount(
+  client: Client,
+  parameters: prepareUpgradeAccount.Parameters,
+): Promise<prepareUpgradeAccount.ReturnType> {
+  const { address, capabilities, chainId = client.chain.id } = parameters
+
+  try {
+    const result = await client.request({
+      method: 'wallet_prepareUpgradeAccount',
+      params: [
+        Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
+          address,
+          capabilities,
+          chainId,
+        }),
+      ],
+    })
+    return Value.Parse(Rpc.wallet_prepareUpgradeAccount.Response, result)
+  } catch (error) {
+    throw getError(error)
+  }
+}
+export namespace prepareUpgradeAccount {
+  export type Parameters = {
+    address: Address.Address
+    capabilities: StaticDecode<
+      typeof Rpc.wallet_prepareUpgradeAccount.Capabilities
+    >
+    chainId?: number | undefined
+  }
+
+  export type ReturnType = StaticDecode<
+    typeof Rpc.wallet_prepareUpgradeAccount.Response
+  >
+}
+
+/**
+ * Broadcasts a signed call bundle.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function sendPreparedCalls(
+  client: Client,
+  parameters: sendPreparedCalls.Parameters,
+): Promise<sendPreparedCalls.ReturnType> {
+  const { context, signature } = parameters
+  try {
+    const result = await client.request({
+      method: 'wallet_sendPreparedCalls',
+      params: [
+        Value.Encode(Rpc.wallet_sendPreparedCalls.Parameters, {
+          context,
+          signature,
+        }),
+      ],
+    })
+    return Value.Parse(Rpc.wallet_sendPreparedCalls.Response, result)
+  } catch (error) {
+    throw getError(error)
+  }
+}
+
+export namespace sendPreparedCalls {
+  export type Parameters = StaticDecode<
+    typeof Rpc.wallet_sendPreparedCalls.Parameters
+  >
+
+  export type ReturnType = StaticDecode<
+    typeof Rpc.wallet_sendPreparedCalls.Response
+  >
+}
+
 function getError(error: unknown) {
   console.error(error)
   if (error instanceof TransformEncodeCheckError)
