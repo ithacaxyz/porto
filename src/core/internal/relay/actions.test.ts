@@ -1,14 +1,7 @@
-import {
-  AbiFunction,
-  Address,
-  P256,
-  PublicKey,
-  Secp256k1,
-  Signature,
-  Value,
-} from 'ox'
+import { AbiFunction, P256, PublicKey, Signature, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { writeContract } from 'viem/actions'
+import { signAuthorization } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
 
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
@@ -20,6 +13,7 @@ import {
   prepareCalls,
   prepareUpgradeAccount,
   sendPreparedCalls,
+  upgradeAccount,
 } from './actions.js'
 import type * as Capabilities from './typebox/capabilities.js'
 
@@ -119,35 +113,14 @@ describe('createAccount', () => {
               publicKey: 'INVALID!',
             },
           ],
+          delegation: client.chain.contracts.delegation.address,
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.SchemaCoderError: Expected string to match '^0x(.*)$'
 
-      Path: authorizeKeys.0.publicKey
+      Path: capabilities.authorizeKeys.0.publicKey
       Value: "INVALID!"
-
-      Details: The encoded value does not match the expected schema]
-    `)
-
-    await expect(() =>
-      createAccount(client, {
-        capabilities: {
-          authorizeKeys: [
-            {
-              ...defaultKey,
-              permissions: [],
-              publicKey: '0x0000000000000000000000000000000000000000',
-            },
-          ],
-          delegation: client.chain.contracts.delegation.address,
-        },
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Actions.SchemaCoderError: Expected array length to be greater or equal to 2
-
-      Path: authorizeKeys.0.permissions
-      Value: []
 
       Details: The encoded value does not match the expected schema]
     `)
@@ -163,12 +136,13 @@ describe('createAccount', () => {
               publicKey: '0x0000000000000000000000000000000000000000',
             },
           ],
+          delegation: client.chain.contracts.delegation.address,
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.SchemaCoderError: Expected 'admin'
 
-      Path: authorizeKeys.0.role
+      Path: capabilities.authorizeKeys.0.role
       Value: "beef"
 
       Details: The encoded value does not match the expected schema]
@@ -177,11 +151,17 @@ describe('createAccount', () => {
 })
 
 describe('e2e', () => {
-  test.skip('new account', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-      includePrefix: false,
-    })
+  test('new account', async () => {
+    const p256 = (() => {
+      const privateKey = P256.randomPrivateKey()
+      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+        includePrefix: false,
+      })
+      return {
+        privateKey,
+        publicKey,
+      } as const
+    })()
 
     const {
       address,
@@ -191,9 +171,10 @@ describe('e2e', () => {
         authorizeKeys: [
           {
             expiry: 0,
+            permissions: [],
             role: 'admin',
             type: 'p256',
-            publicKey,
+            publicKey: p256.publicKey,
           },
         ],
         delegation: client.chain.contracts.delegation.address,
@@ -215,14 +196,7 @@ describe('e2e', () => {
 
     const request = await prepareCalls(client, {
       account: address,
-      calls: [
-        {
-          abi: ExperimentERC20.abi,
-          functionName: 'mint',
-          args: [address, Value.fromEther('100')],
-          to: ExperimentERC20.address[0],
-        },
-      ],
+      calls: [],
       capabilities: {
         meta: {
           feeToken: ExperimentERC20.address[0],
@@ -234,25 +208,24 @@ describe('e2e', () => {
 
     const signature = P256.sign({
       payload: request.digest,
-      privateKey,
+      privateKey: p256.privateKey,
     })
 
+    // TODO: remove this once the signature gets wrapped on relay.
     const wrapped = Key.wrapSignature(Signature.toHex(signature), {
       keyType: 'p256',
-      publicKey,
+      publicKey: p256.publicKey,
       prehash: false,
     })
 
-    const result = await sendPreparedCalls(client, {
+    await sendPreparedCalls(client, {
       context: request.context,
       signature: {
-        publicKey,
+        publicKey: p256.publicKey,
         type: 'p256',
         value: wrapped,
       },
     })
-
-    // console.log(result)
   })
 
   test('upgraded account', async () => {
@@ -267,16 +240,7 @@ describe('e2e', () => {
       } as const
     })()
 
-    const eoa = (() => {
-      const privateKey = Secp256k1.randomPrivateKey()
-      const publicKey = Secp256k1.getPublicKey({ privateKey })
-      const address = Address.fromPublicKey(publicKey)
-      return {
-        address,
-        privateKey,
-        publicKey,
-      } as const
-    })()
+    const eoa = privateKeyToAccount(generatePrivateKey())
 
     await writeContract(client, {
       account: privateKeyToAccount(
@@ -286,7 +250,7 @@ describe('e2e', () => {
       address: ExperimentERC20.address[0],
       abi: ExperimentERC20.abi,
       functionName: 'mint',
-      args: [eoa.address, Value.fromEther('1000')],
+      args: [eoa.address, Value.fromEther('10000')],
     })
 
     const request = await prepareUpgradeAccount(client, {
@@ -302,29 +266,32 @@ describe('e2e', () => {
           },
         ],
         delegation: client.chain.contracts.delegation.address,
+        feeToken: ExperimentERC20.address[0],
       },
     })
 
-    const signature = Secp256k1.sign({
-      payload: request.digest,
-      privateKey: eoa.privateKey,
+    const signature = await eoa.sign({
+      hash: request.digest,
     })
 
-    // const wrapped = Key.wrapSignature(Signature.toHex(signature), {
-    //   keyType: 'p256',
-    //   publicKey: p256.publicKey,
-    //   prehash: false,
-    // })
+    const authorization = await signAuthorization(client, {
+      account: eoa,
+      chainId: 0,
+      contractAddress: request.context.authorizationAddress!,
+      sponsor: true,
+    })
 
-    // const result = await sendPreparedCalls(client, {
-    //   context: request.context,
-    //   signature: {
-    //     publicKey: eoa.address,
-    //     type: 'secp256k1',
-    //     value: Signature.toHex(signature),
-    //   },
-    // })
-
-    // console.log(result)
+    await upgradeAccount(client, {
+      authorization: {
+        address: authorization.contractAddress,
+        chainId: authorization.chainId,
+        nonce: authorization.nonce,
+        r: authorization.r,
+        s: authorization.s,
+        yParity: authorization.yParity,
+      },
+      context: request.context,
+      signature,
+    })
   })
 })
