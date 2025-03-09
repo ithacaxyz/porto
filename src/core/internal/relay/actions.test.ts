@@ -7,12 +7,13 @@ import {
   Signature,
   Value,
 } from 'ox'
-import { describe, expect, test } from 'vitest'
-import { writeContract } from 'viem/actions'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { writeContract } from 'viem/actions'
+import { describe, expect, test } from 'vitest'
 
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
+import * as Key from '../key.js'
 import type { StaticDecode } from '../typebox/schema.js'
 import {
   createAccount,
@@ -21,7 +22,6 @@ import {
   sendPreparedCalls,
 } from './actions.js'
 import type * as Capabilities from './typebox/capabilities.js'
-import * as Key from '../key.js'
 
 const { client } = getPorto({
   transports: {
@@ -255,7 +255,7 @@ describe('e2e', () => {
     // console.log(result)
   })
 
-  test.only('upgraded account', async () => {
+  test('upgraded account', async () => {
     const p256 = (() => {
       const privateKey = P256.randomPrivateKey()
       const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
