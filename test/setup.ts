@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, vi } from 'vitest'
 
-import * as anvilInstances from './src/anvil.js'
-import * as relayInstances from './src/relay.js'
+import * as Anvil from './src/anvil.js'
+import * as Relay from './src/relay.js'
 
 beforeAll(async () => {
   await Promise.all(
-    [...Object.values(anvilInstances), ...Object.values(relayInstances)].map(
+    [...Object.values(Anvil.instances), ...Object.values(Relay.instances)].map(
       async (instance) => {
         await fetch(`${instance.rpcUrl}/start`)
       },

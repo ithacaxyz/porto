@@ -2,7 +2,7 @@ import { Hex } from 'ox'
 import { verifyHash } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { getAccount } from '../../../test/src/account.js'
+import { getAccount } from '../../../test/src/actions.js'
 import { getPorto } from '../../../test/src/porto.js'
 import * as Account from './account.js'
 import * as Call from './call.js'

@@ -1,13 +1,13 @@
-import * as anvilInstances from './src/anvil.js'
-import * as relayInstances from './src/relay.js'
+import * as Anvil from './src/anvil.js'
+import * as Relay from './src/relay.js'
 
 export default async function () {
   // Set up Anvil instances
   const shutdownAnvil = await Promise.all(
-    Object.values(anvilInstances).map((instance) => instance.start()),
+    Object.values(Anvil.instances).map((instance) => instance.start()),
   )
   const shutdownRelay = await Promise.all(
-    Object.values(relayInstances).map((instance) => instance.start()),
+    Object.values(Relay.instances).map((instance) => instance.start()),
   )
 
   // Teardown

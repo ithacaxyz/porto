@@ -2,7 +2,7 @@ import { AbiFunction, Hex, Value } from 'ox'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { getAccount } from '../../../../test/src/account.js'
+import { getAccount } from '../../../../test/src/actions.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Account from '../account.js'
