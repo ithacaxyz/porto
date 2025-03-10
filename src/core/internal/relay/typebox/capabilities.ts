@@ -11,48 +11,8 @@ import * as Key from './key.js'
 
 export namespace authorizeKeys {
   /** Represents a key authorization request. */
-  export const Request = Type.Array(
-    Type.Intersect([
-      /** The key to authorize or modify permissions for. */
-      Key.Key,
-      /** The permissions for the key. */
-      Type.Object({
-        /** Represents key permissions. */
-        permissions: Type.Array(
-          Type.Union([
-            /** Call permission. */
-            Type.Object({
-              /** The selector of the function this permission applies to. */
-              selector: Primitive.Hex,
-              /** The address of the contract this permission applies to. */
-              to: Primitive.Address,
-              /** Permission type. */
-              type: Type.Literal('call'),
-            }),
-
-            /** Spend permission. */
-            Type.Object({
-              /** The maximum amount that can be spent in the given period. */
-              limit: Primitive.BigInt,
-              /** The period of the limit. */
-              period: Type.Union([
-                Type.Literal('minute'),
-                Type.Literal('hour'),
-                Type.Literal('day'),
-                Type.Literal('week'),
-                Type.Literal('month'),
-                Type.Literal('year'),
-              ]),
-              /** The token this permission applies to. If `None`, defaults to native token (ETH). */
-              token: Schema.Optional(Primitive.Address),
-              /** Permission type. */
-              type: Type.Literal('spend'),
-            }),
-          ]),
-        ),
-      }),
-    ]),
-  )
+  export const Request = Type.Array(Key.WithPermissions)
+  export type Request = Schema.StaticDecode<typeof Request>
 
   /** Represents a key authorization response. */
   export const Response = Type.Array(
@@ -64,6 +24,7 @@ export namespace authorizeKeys {
       }),
     ]),
   )
+  export type Response = Schema.StaticDecode<typeof Response>
 }
 
 export namespace meta {
@@ -76,6 +37,7 @@ export namespace meta {
     /** The nonce for the bundle. */
     nonce: Schema.Optional(Primitive.BigInt),
   })
+  export type Request = Schema.StaticDecode<typeof Request>
 }
 
 export namespace revokeKeys {
@@ -86,6 +48,7 @@ export namespace revokeKeys {
       hash: Primitive.Hex,
     }),
   )
+  export type Request = Schema.StaticDecode<typeof Request>
 
   /** Represents a key revocation response. */
   export const Response = Type.Array(
@@ -94,4 +57,5 @@ export namespace revokeKeys {
       hash: Primitive.Hex,
     }),
   )
+  export type Response = Schema.StaticDecode<typeof Response>
 }

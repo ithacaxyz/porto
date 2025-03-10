@@ -45,6 +45,7 @@ describe('execute', () => {
         canSign: false,
         expiry: key.expiry,
         publicKey: key.publicKey,
+        hash: key.hash,
         role: key.role,
         type: 'p256',
       })
@@ -81,6 +82,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         publicKey: key.publicKey,
+        hash: key.hash,
         role: key.role,
         canSign: false,
         type: 'p256',
@@ -114,6 +116,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         publicKey: key.publicKey,
+        hash: key.hash,
         role: key.role,
         canSign: false,
         type: 'p256',
@@ -152,6 +155,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         publicKey: key.publicKey,
+        hash: key.hash,
         role: key.role,
         canSign: false,
         type: 'p256',
@@ -198,6 +202,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: nextKey.expiry,
         publicKey: nextKey.publicKey,
+        hash: nextKey.hash,
         role: nextKey.role,
         canSign: false,
         type: 'p256',
@@ -244,6 +249,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: nextKey.expiry,
         publicKey: nextKey.publicKey,
+        hash: nextKey.hash,
         role: nextKey.role,
         canSign: false,
         type: 'p256',
@@ -702,6 +708,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         publicKey: keyToAuthorize.publicKey,
+        hash: keyToAuthorize.hash,
         role: keyToAuthorize.role,
         canSign: false,
         type: 'p256',
@@ -751,6 +758,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         publicKey: keyToAuthorize.publicKey,
+        hash: keyToAuthorize.hash,
         role: keyToAuthorize.role,
         canSign: false,
         type: 'p256',
@@ -796,6 +804,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         publicKey: keyToAuthorize.publicKey,
+        hash: keyToAuthorize.hash,
         role: keyToAuthorize.role,
         canSign: false,
         type: 'p256',

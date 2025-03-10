@@ -1,12 +1,36 @@
 import { type Address, Secp256k1 } from 'ox'
-import { type Client, parseEther } from 'viem'
+import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { setBalance as setBalance_viem, writeContract } from 'viem/actions'
 
 import * as Account from '../../src/core/internal/account.js'
 import type * as Key from '../../src/core/internal/key.js'
+import type { Client } from '../../src/core/internal/porto.js'
+import * as RelayAccount from '../../src/core/internal/relay/account.js'
 import * as Anvil from './anvil.js'
 import { ExperimentERC20 } from './contracts.js'
+
+export async function createRelayAccount(
+  client: Client,
+  parameters: {
+    keys: readonly Key.Key[]
+    setBalance?: false | bigint | undefined
+  },
+) {
+  const { keys, setBalance: balance = parseEther('10000') } = parameters
+
+  const account = await RelayAccount.create(client, { keys })
+
+  if (balance)
+    await setBalance(client, {
+      address: account.address,
+      value: balance,
+    })
+
+  return {
+    account,
+  }
+}
 
 export async function getAccount(
   client: Client,

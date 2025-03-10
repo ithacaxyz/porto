@@ -11,16 +11,19 @@ export namespace createAccount {
       label: Schema.Optional(Type.String()),
     }),
   ])
+  export type Request = Schema.StaticDecode<typeof Request>
 }
 
 export namespace grantPermissions {
   export const Request = Permissions.Request
+  export type Request = Schema.StaticDecode<typeof Request>
 }
 
 export namespace permissions {
   export const Request = Type.Object({
     id: Schema.Optional(Primitive.Hex),
   })
+  export type Request = Schema.StaticDecode<typeof Request>
 
   export const Response = Type.Array(
     Type.Object({
@@ -73,4 +76,5 @@ export namespace permissions {
       }),
     }),
   )
+  export type Response = Schema.StaticDecode<typeof Response>
 }

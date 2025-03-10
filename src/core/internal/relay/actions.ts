@@ -12,7 +12,7 @@ import * as Json from 'ox/Json'
 import type { Calls, Narrow } from 'viem'
 
 import type { Client } from '../porto.js'
-import { type StaticDecode, Value } from '../typebox/schema.js'
+import { Value } from '../typebox/schema.js'
 import * as Rpc from './typebox/rpc.js'
 
 /**
@@ -46,13 +46,8 @@ export async function createAccount(
 }
 
 export namespace createAccount {
-  export type Parameters = StaticDecode<
-    typeof Rpc.wallet_createAccount.Parameters
-  >
-
-  export type ReturnType = StaticDecode<
-    typeof Rpc.wallet_createAccount.Response
-  >
+  export type Parameters = Rpc.wallet_createAccount.Parameters
+  export type ReturnType = Rpc.wallet_createAccount.Response
 }
 
 /**
@@ -108,11 +103,11 @@ export namespace prepareCalls {
   > = {
     account: Address.Address
     calls: Calls<Narrow<calls>>
-    capabilities: StaticDecode<typeof Rpc.wallet_prepareCalls.Capabilities>
+    capabilities: Rpc.wallet_prepareCalls.Capabilities
     chainId?: number | undefined
   }
 
-  export type ReturnType = StaticDecode<typeof Rpc.wallet_prepareCalls.Response>
+  export type ReturnType = Rpc.wallet_prepareCalls.Response
 }
 
 export async function prepareUpgradeAccount(
@@ -140,15 +135,11 @@ export async function prepareUpgradeAccount(
 export namespace prepareUpgradeAccount {
   export type Parameters = {
     address: Address.Address
-    capabilities: StaticDecode<
-      typeof Rpc.wallet_prepareUpgradeAccount.Capabilities
-    >
+    capabilities: Rpc.wallet_prepareUpgradeAccount.Capabilities
     chainId?: number | undefined
   }
 
-  export type ReturnType = StaticDecode<
-    typeof Rpc.wallet_prepareUpgradeAccount.Response
-  >
+  export type ReturnType = Rpc.wallet_prepareUpgradeAccount.Response
 }
 
 /**
@@ -183,13 +174,8 @@ export async function sendPreparedCalls(
 }
 
 export namespace sendPreparedCalls {
-  export type Parameters = StaticDecode<
-    typeof Rpc.wallet_sendPreparedCalls.Parameters
-  >
-
-  export type ReturnType = StaticDecode<
-    typeof Rpc.wallet_sendPreparedCalls.Response
-  >
+  export type Parameters = Rpc.wallet_sendPreparedCalls.Parameters
+  export type ReturnType = Rpc.wallet_sendPreparedCalls.Response
 }
 
 export async function upgradeAccount(
@@ -215,13 +201,8 @@ export async function upgradeAccount(
 }
 
 export namespace upgradeAccount {
-  export type Parameters = StaticDecode<
-    typeof Rpc.wallet_upgradeAccount.Parameters
-  >
-
-  export type ReturnType = StaticDecode<
-    typeof Rpc.wallet_upgradeAccount.Response
-  >
+  export type Parameters = Rpc.wallet_upgradeAccount.Parameters
+  export type ReturnType = Rpc.wallet_upgradeAccount.Response
 }
 
 function getError(error: unknown) {

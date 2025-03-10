@@ -1,3 +1,4 @@
+import * as AbiFunction from 'ox/AbiFunction'
 import * as AbiParameters from 'ox/AbiParameters'
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
@@ -10,7 +11,11 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
-import type { OneOf, Undefined } from './types.js'
+
+import * as Call from './call.js'
+import type * as RelayKey from './relay/typebox/key.js'
+import type * as RelayPermission from './relay/typebox/permission.js'
+import type { Mutable, OneOf, Undefined } from './types.js'
 
 type PrivateKeyFn = () => Hex.Hex
 
@@ -37,6 +42,7 @@ export type WebAuthnKey = BaseKey<
 /** Key on a delegated account. */
 export type BaseKey<type extends string, properties> = {
   expiry: number
+  hash: Hex.Hex
   permissions?: Permissions | undefined
   publicKey: Hex.Hex
   role: 'admin' | 'session'
@@ -70,6 +76,9 @@ export type Permissions<bigintType = bigint> = {
   spend?: SpendLimits<bigintType> | undefined
 }
 
+/** RPC (relay-compatible) format of a key. */
+export type Relay = RelayKey.WithPermissions
+
 /** Serialized (contract-compatible) format of a key. */
 export type Serialized = {
   expiry: number
@@ -89,14 +98,27 @@ export type SpendLimit<bigintType = bigint> = {
 }
 export type SpendLimits<bigintType = bigint> = readonly SpendLimit<bigintType>[]
 
-/** Serialized key type to key type mapping. */
+/** Relay key type to key type mapping. */
+export const fromRelayKeyType = {
+  p256: 'p256',
+  webauthnp256: 'webauthn-p256',
+  secp256k1: 'secp256k1',
+} as const
+
+/** Relay key role to key role mapping. */
+export const fromRelayKeyRole = {
+  admin: 'admin',
+  normal: 'session',
+} as const
+
+/** Serialized (contract-compatible) key type to key type mapping. */
 export const fromSerializedKeyType = {
   0: 'p256',
   1: 'webauthn-p256',
   2: 'secp256k1',
 } as const
 
-/** Serialized spend period to period mapping. */
+/** Serialized (contract-compatible) spend period to period mapping. */
 export const fromSerializedSpendPeriod = {
   0: 'minute',
   1: 'hour',
@@ -106,14 +128,27 @@ export const fromSerializedSpendPeriod = {
   5: 'year',
 } as const
 
-/** Key type to serialized key type mapping. */
+/** Key type to relay key type mapping. */
+export const toRelayKeyType = {
+  p256: 'p256',
+  'webauthn-p256': 'webauthnp256',
+  secp256k1: 'secp256k1',
+} as const
+
+/** Key role to relay key role mapping. */
+export const toRelayKeyRole = {
+  admin: 'admin',
+  session: 'normal',
+} as const
+
+/** Key type to serialized (contract-compatible) key type mapping. */
 export const toSerializedKeyType = {
   p256: 0,
   'webauthn-p256': 1,
   secp256k1: 2,
 } as const
 
-/** Period to serialized period mapping. */
+/** Period to serialized (contract-compatible) spend period mapping. */
 export const toSerializedSpendPeriod = {
   minute: 0,
   hour: 1,
@@ -356,12 +391,18 @@ export declare namespace createWebCryptoP256 {
  * @returns Key.
  */
 export function deserialize(serialized: Serialized): Key {
+  const publicKey = serialized.publicKey
+  const type = (fromSerializedKeyType as any)[serialized.keyType]
   return {
     expiry: serialized.expiry,
-    publicKey: serialized.publicKey,
+    hash: hash({
+      publicKey,
+      type,
+    }),
+    publicKey,
     role: serialized.isSuperAdmin ? 'admin' : 'session',
     canSign: false,
-    type: (fromSerializedKeyType as any)[serialized.keyType],
+    type,
   }
 }
 
@@ -390,11 +431,22 @@ export function deserialize(serialized: Serialized): Key {
  * @param key - Key.
  * @returns Key.
  */
-export function from<const key extends Key>(
+export function from<const key extends from.Value>(
   key: key | Key | Serialized,
-): key extends Key ? key : Key {
+): key extends from.Value ? key & { hash: Hex.Hex } : Key {
   if ('isSuperAdmin' in key) return deserialize(key) as never
-  return { ...key, expiry: key.expiry ?? 0 } as never
+  return {
+    ...key,
+    hash: hash({
+      publicKey: key.publicKey,
+      type: key.type,
+    }),
+    expiry: key.expiry ?? 0,
+  } as never
+}
+
+export declare namespace from {
+  type Value = Omit<Key, 'hash'>
 }
 
 /**
@@ -452,6 +504,56 @@ export declare namespace fromP256 {
     privateKey: Hex.Hex
     /** Role. */
     role: role | Key['role']
+  }
+}
+
+/**
+ * Converts a relay-formatted key to a key.
+ *
+ * @example
+ * TODO
+ *
+ * @param relay - Relay key.
+ * @returns Key.
+ */
+export function fromRelay(relay: Relay): Key {
+  const permissions: {
+    calls?: Mutable<CallScopes> | undefined
+    spend?: Mutable<SpendLimits> | undefined
+  } = {}
+
+  for (const permission of relay.permissions) {
+    if (permission.type === 'call') {
+      permissions.calls ??= []
+      permissions.calls.push({
+        signature: permission.selector,
+        to: permission.to === Call.anyTarget ? undefined : permission.to,
+      })
+    }
+    if (permission.type === 'spend') {
+      permissions.spend ??= []
+      permissions.spend.push({
+        limit: permission.limit,
+        period: permission.period,
+        token: permission.token,
+      })
+    }
+  }
+
+  const publicKey = relay.publicKey
+  const type = fromRelayKeyType[relay.type]
+
+  return {
+    canSign: false,
+    expiry: relay.expiry,
+    hash: hash({
+      publicKey,
+      type,
+    }),
+    permissions,
+    publicKey,
+    role: fromRelayKeyRole[relay.role],
+    type: fromRelayKeyType[relay.type],
   }
 }
 
@@ -783,6 +885,62 @@ export async function sign(
     publicKey,
     prehash,
   })
+}
+
+/**
+ * Converts a key to a relay-compatible format.
+ *
+ * @example
+ * TODO
+ *
+ * @param key - Key.
+ * @returns Relay key.
+ */
+export function toRelay(key: Key): Relay {
+  const { expiry, publicKey, role, type } = key
+
+  // biome-ignore lint/complexity/useFlatMap:
+  const permissions = Object.entries(key.permissions ?? {})
+    .map(([key, v]) => {
+      if (key === 'calls') {
+        const calls = v as CallScopes
+        return calls.map(({ signature, to }) => {
+          const selector = (() => {
+            if (!signature) return Call.anySelector
+            if (Hex.validate(signature)) return signature
+            return AbiFunction.getSelector(signature)
+          })()
+          return {
+            type: 'call',
+            to: to ?? Call.anyTarget,
+            selector,
+          } as const satisfies RelayPermission.CallPermission
+        })
+      }
+
+      if (key === 'spend') {
+        const value = v as SpendLimits
+        return value.map(({ limit, period, token }) => {
+          return {
+            type: 'spend',
+            limit,
+            period,
+            token,
+          } as const satisfies RelayPermission.SpendPermission
+        })
+      }
+
+      throw new Error(`Invalid permission type "${key}".`)
+    })
+    .flat()
+
+  return {
+    expiry,
+    permissions: permissions ?? [],
+    publicKey,
+    role: toRelayKeyRole[role],
+    type: toRelayKeyType[type],
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
