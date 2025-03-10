@@ -16,7 +16,7 @@
     "check:types": "pnpm run --r --parallel check:types && tsc --noEmit",
     "clean": "rm -rf src/_dist ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
     "deps": "pnpx taze -r",
-    "dev": "pnpm preconstruct && pnpm --filter playground --filter app --filter demo dev",
+    "dev": "pnpm preconstruct && pnpm --filter playground --filter app",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter docs dev",
@@ -81,11 +81,5 @@
       "import": "*",
       "limit": "85 kB"
     }
-  ],
-  "pnpm": {
-    "patchedDependencies": {
-      "@rainbow-me/rainbowkit": "patches/@rainbow-me__rainbowkit.patch",
-      "@privy-io/react-auth": "patches/@privy-io__react-auth.patch"
-    }
-  }
+  ]
 }

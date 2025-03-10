@@ -12,41 +12,16 @@
  *** `/demo` sytles
  ***/
 
-/* Privy CSS Overrides */
-#privy-dialog-backdrop {
-  display: none;
-}
-#privy-modal-content {
-  box-shadow: none;
-}
-[data-headlessui-state],
-#headlessui-dialog-panel-\:rj\: {
-  box-shadow: none;
-}
-wcm-modal {
-  display: none;
-}
-h3 {
-  width: 100%;
-}
-#p-title {
-  color: var(--privy-color-foreground-2);
-  display: block;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  font-size: 14px;
-  line-height: 20px;
-  margin-top: -16px;
-  padding-bottom: 16px;
-  text-align: center;
-}
-#p-logo {
-  margin-top: -8px;
-  margin-bottom: 16px;
-  margin-left: auto;
-  margin-right: auto;
-  max-height: 90px;
-  max-width: 180px;
-  padding-top: 24px;
-  padding-bottom: 2px;
+@theme {
+  --animate-fade-pulse: fade-pulse 2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+
+  @keyframes fade-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
 }
