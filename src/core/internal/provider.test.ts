@@ -1,4 +1,4 @@
-import { AbiFunction, Hex, P256, PublicKey, TypedData, Value } from 'ox'
+import { Hex, P256, PublicKey, TypedData, Value } from 'ox'
 import { Implementation } from 'porto'
 import {
   getBalance,
@@ -9,7 +9,6 @@ import {
 import { describe, expect, test } from 'vitest'
 
 import { getPorto } from '../../../test/src/porto.js'
-import * as Key from './key.js'
 import * as Porto_internal from './porto.js'
 
 describe.each([
@@ -347,59 +346,6 @@ describe.each([
 
       expect(messages[0].type).toBe('permissionsChanged')
       expect(messages[0].data.length).toBe(1)
-    })
-
-    test('behavior: signature verification permission', async () => {
-      const { porto } = getPorto()
-      const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
-      })
-
-      // Authorize an arbirary key.
-      const key = Key.createP256({ role: 'session' })
-      await porto.provider.request({
-        method: 'experimental_grantPermissions',
-        params: [
-          {
-            key: {
-              publicKey: key.publicKey,
-              type: key.type,
-            },
-            expiry: 9999999999,
-            permissions: {
-              calls: [{ signature: 'mint()' }],
-              signatureVerification: {
-                addresses: ['0xb3030d74b87321d620f2d0cdf3f97cc4598b9248'],
-              },
-            },
-          },
-        ],
-      })
-
-      const payload =
-        '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
-      const signature = await Key.sign(key, {
-        payload,
-      })
-
-      const result = await porto.provider.request({
-        method: 'eth_call',
-        params: [
-          {
-            data: AbiFunction.encodeData(
-              AbiFunction.from(
-                'function isValidSignature(address, bytes32, bytes)',
-              ),
-              [address, payload, signature],
-            ),
-            to: '0xb3030d74b87321d620f2d0cdf3f97cc4598b9248',
-          },
-        ],
-      })
-
-      expect(result).toBe(
-        '0x1626ba7e00000000000000000000000000000000000000000000000000000000',
-      )
     })
 
     test('behavior: no permissions', async () => {

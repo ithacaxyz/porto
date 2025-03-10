@@ -1,26 +1,89 @@
+import { http, createTestClient } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import {
+  deployContract,
+  getCode,
+  getTransactionReceipt,
+  setCode,
+} from 'viem/actions'
 import { afterAll, beforeAll, vi } from 'vitest'
-import { createClient, http } from 'viem'
-import { deployContract } from 'viem/actions'
+
+import * as Chains from '../src/core/Chains.js'
+import * as Delegation from '../src/core/internal/_generated/contracts/Delegation.js'
+import * as EntryPoint from '../src/core/internal/_generated/contracts/EntryPoint.js'
 
 import * as Anvil from './src/anvil.js'
+import { ExperimentERC20 } from './src/contracts.js'
 import * as Relay from './src/relay.js'
 
 beforeAll(async () => {
   await Promise.all(
-    [...Object.values(Anvil.instances), ...Object.values(Relay.instances)].map(
-      async (instance) => {
-        await fetch(`${instance.rpcUrl}/start`)
-      },
-    ),
-  )
-
-  await Promise.all(
     Object.values(Anvil.instances).map(async (instance) => {
-      const client = createClient({
+      await fetch(`${instance.rpcUrl}/start`)
+
+      const chain = Object.values(Chains).find(
+        (x) => 'rpcUrls' in x && x.id === instance.config.chainId,
+      ) as Chains.Chain
+      if (!chain) throw new Error('Chain not found')
+
+      const client = createTestClient({
+        mode: 'anvil',
         transport: http(instance.rpcUrl),
       })
 
-      deployContract
+      {
+        // Deploy Delegation contract.
+        const hash = await deployContract(client, {
+          abi: Delegation.abi,
+          bytecode: Delegation.code,
+          account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),
+          chain: null,
+        })
+        const { contractAddress } = await getTransactionReceipt(client, {
+          hash,
+        })
+        const code = await getCode(client, {
+          address: contractAddress!,
+        })
+        await setCode(client, {
+          address: chain.contracts.delegation.address,
+          bytecode: code!,
+        })
+      }
+
+      {
+        // Deploy EntryPoint contract.
+        const hash = await deployContract(client, {
+          abi: EntryPoint.abi,
+          bytecode: EntryPoint.code,
+          account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),
+          chain: null,
+        })
+        const { contractAddress } = await getTransactionReceipt(client, {
+          hash,
+        })
+        const code = await getCode(client, {
+          address: contractAddress!,
+        })
+        await setCode(client, {
+          address: '0x307AF7d28AfEE82092aA95D35644898311CA5360',
+          bytecode: code!,
+        })
+      }
+
+      // Deploy ExperimentalERC20 contract.
+      for (const address of ExperimentERC20.address) {
+        await setCode(client, {
+          address,
+          bytecode: ExperimentERC20.code,
+        })
+      }
+    }),
+  )
+
+  await Promise.all(
+    Object.values(Relay.instances).map(async (instance) => {
+      await fetch(`${instance.rpcUrl}/start`)
     }),
   )
 })

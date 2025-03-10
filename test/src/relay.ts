@@ -10,8 +10,6 @@ export const instances = {
     endpoint: (key) =>
       `http://127.0.0.1:${Anvil.instances.odyssey.port}/${key}`,
     feeToken: ExperimentERC20.address[0],
-    txGasBuffer: 2_000_000n,
-    userOpGasBuffer: 2_000_000n,
   }),
 } as const
 
