@@ -1,4 +1,4 @@
-import { AbiFunction, P256, PublicKey, Signature, Value } from 'ox'
+import { AbiFunction, P256, PublicKey, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { signAuthorization } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
@@ -149,7 +149,7 @@ describe('createAccount', () => {
   })
 })
 
-describe('prepareCalls', () => {
+describe('prepareCalls + sendPreparedCalls', () => {
   test('default', async () => {
     const key = Key.createP256({
       role: 'admin',
@@ -158,7 +158,7 @@ describe('prepareCalls', () => {
       keys: [key],
     })
 
-    const result = await prepareCalls(client, {
+    const request = await prepareCalls(client, {
       account: account.address,
       calls: [
         {
@@ -175,7 +175,18 @@ describe('prepareCalls', () => {
       },
     })
 
-    expect(result.digest).toBeDefined()
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+    })
+
+    await sendPreparedCalls(client, {
+      context: request.context,
+      signature: {
+        publicKey: key.publicKey,
+        type: 'p256',
+        value: signature,
+      },
+    })
   })
 
   test('behavior: contract calls', async () => {
@@ -186,7 +197,7 @@ describe('prepareCalls', () => {
       keys: [key],
     })
 
-    const result = await prepareCalls(client, {
+    const request = await prepareCalls(client, {
       account: account.address,
       calls: [
         {
@@ -205,7 +216,18 @@ describe('prepareCalls', () => {
       },
     })
 
-    expect(result.digest).toBeDefined()
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+    })
+
+    await sendPreparedCalls(client, {
+      context: request.context,
+      signature: {
+        publicKey: key.publicKey,
+        type: 'p256',
+        value: signature,
+      },
+    })
   })
 
   test('error: schema encoding', async () => {
@@ -238,49 +260,23 @@ describe('prepareCalls', () => {
       Details: The encoded value does not match the expected schema]
     `)
   })
-})
 
-describe('e2e', () => {
-  test('new account', async () => {
-    const p256 = (() => {
-      const privateKey = P256.randomPrivateKey()
-      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-        includePrefix: false,
-      })
-      return {
-        privateKey,
-        publicKey,
-      } as const
-    })()
-
-    const {
-      address,
-      capabilities: { authorizeKeys },
-    } = await createAccount(client, {
-      capabilities: {
-        authorizeKeys: [
-          {
-            expiry: 0,
-            permissions: [],
-            role: 'admin',
-            type: 'p256',
-            publicKey: p256.publicKey,
-          },
-        ],
-        delegation: client.chain.contracts.delegation.address,
-      },
+  test('error: schema encoding', async () => {
+    const key = Key.createP256({
+      role: 'admin',
     })
-
-    const key = authorizeKeys[0]!
-
-    await TestActions.setBalance(client, {
-      address,
-      value: Value.fromEther('10000'),
+    const { account } = await TestActions.createRelayAccount(client, {
+      keys: [key],
     })
 
     const request = await prepareCalls(client, {
-      account: address,
-      calls: [],
+      account: account.address,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: 0n,
+        },
+      ],
       capabilities: {
         meta: {
           feeToken,
@@ -290,29 +286,33 @@ describe('e2e', () => {
       },
     })
 
-    const signature = P256.sign({
+    const signature = await Key.sign(key, {
       payload: request.digest,
-      privateKey: p256.privateKey,
     })
 
-    // TODO: remove this once the signature gets wrapped on relay.
-    const wrapped = Key.wrapSignature(Signature.toHex(signature), {
-      keyType: 'p256',
-      publicKey: p256.publicKey,
-      prehash: false,
-    })
+    await expect(() =>
+      sendPreparedCalls(client, {
+        context: request.context,
+        signature: {
+          publicKey: key.publicKey,
+          // @ts-expect-error
+          type: 'falcon',
+          value: signature,
+        },
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [Actions.SchemaCoderError: Expected 'p256'
 
-    await sendPreparedCalls(client, {
-      context: request.context,
-      signature: {
-        publicKey: p256.publicKey,
-        type: 'p256',
-        value: wrapped,
-      },
-    })
+      Path: signature.type
+      Value: "falcon"
+
+      Details: The encoded value does not match the expected schema]
+    `)
   })
+})
 
-  test('upgraded account', async () => {
+describe('prepareUpgradeAccount + upgradeAccount', () => {
+  test('default', async () => {
     const p256 = (() => {
       const privateKey = P256.randomPrivateKey()
       const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
