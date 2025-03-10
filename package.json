@@ -54,7 +54,7 @@
     "wagmi": "catalog:",
     "wrangler": "^3.114.0"
   },
-  "packageManager": "pnpm@10.6.1",
+  "packageManager": "pnpm@10.6.2",
   "engines": {
     "node": ">=22.5"
   },

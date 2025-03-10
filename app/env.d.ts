@@ -3,7 +3,3 @@ interface Environment {
   VITE_LAUNCH_MODE: 'app' | 'dialog'
   VITE_ENVIRONMENT: 'development' | 'production'
 }
-
-interface Env extends Environment {
-  ASSETS: Fetcher
-}

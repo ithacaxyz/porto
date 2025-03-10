@@ -54,7 +54,7 @@
     "vite": "^6.2.1",
     "vite-tsconfig-paths": "^5.1.4"
   },
-  "packageManager": "pnpm@10.6.1",
+  "packageManager": "pnpm@10.6.2",
   "repository": {
     "type": "git",
     "directory": "app",
