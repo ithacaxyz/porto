@@ -8,15 +8,16 @@ packages:
   - 'src'
 
 catalog:
-  "@tanstack/react-query": "^5.65.1"
+  "@tanstack/react-query": "^5.66.9"
   "@types/react": "^19"
   "@types/react-dom": "^19"
   "@wagmi/core": "^2.16.3"
-  globals: "^15.14.0"
+  globals: "^16.0.0"
   ox: "^0.6.4"
   react: "^19"
   react-dom: "^19"
-  tailwindcss: "^4"
-  typescript: "^5.7.3"
+  tailwindcss: "^4.0.12"
+  "@tailwindcss/vite": "^4.0.9"
+  typescript: "^5.8.2"
   viem: "^2.23.1"
   wagmi: "^2.14.11"

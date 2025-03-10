@@ -1,9 +1,9 @@
-import { cx } from 'cva'
+import { cn } from '~/utils'
 
 export function Spinner({ className }: { className?: string }) {
   return (
     <svg
-      className={cx('h-full w-full animate-spin', className)}
+      className={cn('h-full w-full animate-spin', className)}
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 21"

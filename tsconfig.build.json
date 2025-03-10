@@ -12,7 +12,7 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "module": "ES2020",
+    "module": "ES2022",
     "moduleResolution": "node",
     "outDir": "./src/_dist",
     "sourceMap": true,
