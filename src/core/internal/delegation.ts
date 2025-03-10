@@ -29,9 +29,9 @@ import {
   getExecuteError as getExecuteError_viem,
 } from 'viem/experimental/erc7821'
 
+import * as Delegation from './_generated/contracts/Delegation.js'
 import * as DelegatedAccount from './account.js'
 import * as Call from './call.js'
-import { delegationAbi } from './generated.js'
 import * as Key from './key.js'
 import type { OneOf } from './types.js'
 
@@ -225,7 +225,7 @@ export async function keyAt<chain extends Chain | undefined>(
   const account = DelegatedAccount.from(parameters.account)
 
   const key = await readContract(client, {
-    abi: delegationAbi,
+    abi: Delegation.abi,
     address: account.address,
     functionName: 'keyAt',
     args: [BigInt(index)],
@@ -413,7 +413,7 @@ export function getExecuteError<const calls extends readonly unknown[]>(
     try {
       if (data === '0xd0d5039b') return AbiError.from('error Unauthorized()')
       return AbiError.fromAbi(
-        [...delegationAbi, AbiError.from('error CallError()')],
+        [...Delegation.abi, AbiError.from('error CallError()')],
         data,
       )
     } catch {

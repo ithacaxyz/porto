@@ -2,7 +2,7 @@ import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 
-import { delegationAbi } from './generated.js'
+import * as Delegation from './_generated/contracts/Delegation.js'
 import * as Key from './key.js'
 
 /** Stub address for self-execution. */
@@ -24,7 +24,7 @@ export function authorize(parameters: authorize.Parameters) {
   const { key } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(delegationAbi, 'authorize'),
+      AbiFunction.fromAbi(Delegation.abi, 'authorize'),
       [Key.serialize(key)],
     ),
     to: self,
@@ -60,7 +60,7 @@ export function setCanExecute(parameters: setCanExecute.Parameters = {}) {
 
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(delegationAbi, 'setCanExecute'),
+      AbiFunction.fromAbi(Delegation.abi, 'setCanExecute'),
       [hash, to, selector, enabled],
     ),
     to: self,
@@ -90,7 +90,7 @@ export function setLabel(parameters: setLabel.Parameters) {
   const { label } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(delegationAbi, 'setLabel'),
+      AbiFunction.fromAbi(Delegation.abi, 'setLabel'),
       [label],
     ),
     to: self,
@@ -115,7 +115,7 @@ export function setSpendLimit(parameters: setSpendLimit.Parameters) {
   const token = parameters.token ?? '0x0000000000000000000000000000000000000000'
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(delegationAbi, 'setSpendLimit'),
+      AbiFunction.fromAbi(Delegation.abi, 'setSpendLimit'),
       [Key.hash(key), token, Key.toSerializedSpendPeriod[period], limit],
     ),
     to: self,
@@ -147,7 +147,7 @@ export function setSignatureCheckerApproval(
   const { address, key, enabled } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(delegationAbi, 'setSignatureCheckerApproval'),
+      AbiFunction.fromAbi(Delegation.abi, 'setSignatureCheckerApproval'),
       [Key.hash(key), address, enabled],
     ),
     to: self,
@@ -175,7 +175,7 @@ export function removeSpendLimit(parameters: removeSpendLimit.Parameters) {
   const { key, token, period } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(delegationAbi, 'removeSpendLimit'),
+      AbiFunction.fromAbi(Delegation.abi, 'removeSpendLimit'),
       [Key.hash(key), token, Key.toSerializedSpendPeriod[period]],
     ),
     to: self,

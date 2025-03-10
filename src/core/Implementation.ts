@@ -16,10 +16,10 @@ import { readContract } from 'viem/actions'
 import * as Dialog from './Dialog.js'
 import type { QueuedRequest } from './Porto.js'
 import type * as RpcSchema_porto from './RpcSchema.js'
+import * as DelegationContract from './internal/_generated/contracts/Delegation.js'
 import * as Account from './internal/account.js'
 import * as Call from './internal/call.js'
 import * as Delegation from './internal/delegation.js'
-import { delegationAbi } from './internal/generated.js'
 import * as Key from './internal/key.js'
 import * as Permissions from './internal/permissions.js'
 import * as PermissionsRequest from './internal/permissionsRequest.js'
@@ -828,7 +828,7 @@ export function local(parameters: local.Parameters = {}) {
         // Fetch the delegated account's keys.
         const [keyCount, extraKey] = await Promise.all([
           readContract(client, {
-            abi: delegationAbi,
+            abi: DelegationContract.abi,
             address,
             functionName: 'keyCount',
           }),
