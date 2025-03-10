@@ -1,4 +1,3 @@
-import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 
 import * as Account from '../account.js'
@@ -7,6 +6,16 @@ import type { Client } from '../porto.js'
 import * as Actions from './actions.js'
 import type * as Capabilities from './typebox/capabilities.js'
 
+/**
+ * Prepares the digest to sign over and fills the request to send a call bundle.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Prepare call bundle parameters.
+ * @returns Prepared properties.
+ */
 export async function prepare<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepare.Parameters<calls>,
@@ -42,7 +51,7 @@ export namespace prepare {
     /** Additional keys to authorize on the account. */
     authorizeKeys?: readonly Key.Key[] | undefined
     /** Account to prepare the calls for. */
-    account: Account.Account | Address.Address
+    account: Account.Account
     /** Key that will be used to sign the calls. */
     key: Key.Key
     /** Calls to prepare. */
@@ -60,6 +69,58 @@ export namespace prepare {
   }
 }
 
+/**
+ * Broadcasts a call bundle to the Relay.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Bundle identifier.
+ */
+export async function send<const calls extends readonly unknown[]>(
+  client: Client,
+  parameters: send.Parameters<calls>,
+) {
+  const account = Account.from(parameters.account)
+  const key = parameters.key ?? Account.getKey(account, parameters)
+
+  if (!key) throw new Error('key is required')
+
+  const { context, digest } = await prepare(client, {
+    ...parameters,
+    key,
+  })
+
+  const signature = await Key.sign(key, {
+    payload: digest,
+  })
+
+  return await sendPrepared(client, { context, signature })
+}
+
+export namespace send {
+  export type Parameters<
+    calls extends readonly unknown[] = readonly unknown[],
+  > = Omit<prepare.Parameters<calls>, 'key'> & {
+    /** Key to sign the call bundle with. */
+    key?: Key.Key | undefined
+  }
+
+  export type ReturnType = sendPrepared.ReturnType
+}
+
+/**
+ * Sends a prepared & signed call bundle to the Relay.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Bundle identifier.
+ */
 export async function sendPrepared(
   client: Client,
   parameters: sendPrepared.Parameters,
