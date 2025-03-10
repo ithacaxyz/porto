@@ -154,12 +154,14 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          hash: null,
         })),
       ).toMatchInlineSnapshot(`
         [
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -169,6 +171,7 @@ describe.each([
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": {
               "calls": [
                 {
@@ -295,12 +298,14 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          hash: null,
         })),
       ).toMatchInlineSnapshot(`
         [
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -310,6 +315,7 @@ describe.each([
           {
             "canSign": false,
             "expiry": null,
+            "hash": null,
             "permissions": {
               "calls": [
                 {
@@ -324,6 +330,7 @@ describe.each([
           {
             "canSign": false,
             "expiry": null,
+            "hash": null,
             "permissions": {
               "calls": [
                 {
@@ -492,12 +499,14 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          hash: null,
         })),
       ).toMatchInlineSnapshot(`
         [
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -507,6 +516,7 @@ describe.each([
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": {
               "calls": [
                 {
@@ -537,12 +547,14 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          hash: null,
         })),
       ).toMatchInlineSnapshot(`
         [
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -627,6 +639,7 @@ describe.each([
           credential: null,
           expiry: null,
           publicKey: null,
+          hash: null,
         })),
       ).toMatchInlineSnapshot(`
         [
@@ -634,6 +647,7 @@ describe.each([
             "canSign": false,
             "credential": null,
             "expiry": null,
+            "hash": null,
             "publicKey": null,
             "role": "admin",
             "type": "p256",
@@ -668,12 +682,14 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          hash: null,
         })),
       ).toMatchInlineSnapshot(`
         [
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -716,12 +732,14 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          hash: null,
         })),
       ).toMatchInlineSnapshot(`
         [
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -731,6 +749,7 @@ describe.each([
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": {
               "calls": [
                 {
@@ -789,12 +808,14 @@ describe.each([
           ...x,
           expiry: i === 0 ? null : x.expiry,
           publicKey: i === 0 ? null : x.publicKey,
+          hash: i === 0 ? null : x.hash,
         })),
       ).toMatchInlineSnapshot(`
         [
           {
             "canSign": true,
             "expiry": null,
+            "hash": null,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -804,6 +825,7 @@ describe.each([
           {
             "canSign": false,
             "expiry": 9999999999,
+            "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
             "permissions": {
               "calls": [
                 {
