@@ -4,9 +4,9 @@ import * as Hex from 'ox/Hex'
 import { encodeCalls } from 'viem/experimental/erc7821'
 import type { EncodeExecuteDataParameters } from 'viem/experimental/erc7821'
 
+import * as Delegation from '../_generated/contracts/Delegation.js'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
-import { delegationAbi } from '../generated.js'
 
 /**
  * Action request.
@@ -50,7 +50,7 @@ export function prepare<const calls extends readonly unknown[]>(
         multichain &&
         selector !==
           AbiFunction.getSelector(
-            AbiFunction.fromAbi(delegationAbi, 'authorize'),
+            AbiFunction.fromAbi(Delegation.abi, 'authorize'),
           )
       )
         throw new Error('multichain is only permitted on `authorize` calls.')
