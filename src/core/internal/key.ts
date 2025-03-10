@@ -15,7 +15,7 @@ import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as Call from './call.js'
 import type * as RelayKey from './relay/typebox/key.js'
 import type * as RelayPermission from './relay/typebox/permission.js'
-import type { Mutable, OneOf, Undefined } from './types.js'
+import type { Mutable, OneOf, Undefined, UnionOmit } from './types.js'
 
 type PrivateKeyFn = () => Hex.Hex
 
@@ -446,7 +446,7 @@ export function from<const key extends from.Value>(
 }
 
 export declare namespace from {
-  type Value = Omit<Key, 'hash'>
+  type Value = UnionOmit<Key, 'hash'>
 }
 
 /**

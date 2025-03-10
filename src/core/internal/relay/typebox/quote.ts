@@ -15,7 +15,10 @@ export const Quote = Type.Object({
    * An optional unsigned authorization item.
    * The account in `eoa` will be delegated to this address.
    */
-  authorizationAddress: Schema.Optional(Primitive.Address),
+  authorizationAddress: Schema.OneOf([
+    Schema.Optional(Primitive.Address),
+    Type.Null(),
+  ]),
   /** Chain ID the quote is for. */
   // TODO: `Primitive.Number`
   chainId: Type.Number(),

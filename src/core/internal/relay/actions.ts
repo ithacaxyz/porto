@@ -4,7 +4,7 @@
  * @see https://github.com/ithacaxyz/relay/blob/main/src/rpc.rs
  */
 
-import { TransformEncodeCheckError } from '@sinclair/typebox/value'
+import { AssertError, TransformEncodeCheckError } from '@sinclair/typebox/value'
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
@@ -208,15 +208,18 @@ export namespace upgradeAccount {
 function getError(error: unknown) {
   if (error instanceof TransformEncodeCheckError)
     return new SchemaCoderError(error)
+  if (error instanceof AssertError) return new SchemaCoderError(error)
   return error
 }
 
-export class SchemaCoderError extends Errors.BaseError<TransformEncodeCheckError> {
+export class SchemaCoderError extends Errors.BaseError<
+  AssertError | TransformEncodeCheckError
+> {
   override readonly name = 'Actions.SchemaCoderError'
 
-  constructor(cause: TransformEncodeCheckError) {
+  constructor(cause: AssertError | TransformEncodeCheckError) {
     const message = (() => {
-      let reason = cause.error.errors[0]?.First()
+      let reason = cause.error?.errors[0]?.First()
       if (!reason) reason = cause.error
       if (!reason) return cause.message
       return [
