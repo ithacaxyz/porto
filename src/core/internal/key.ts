@@ -56,7 +56,7 @@ export type BaseKey<type extends string, properties> = {
     } & Undefined<properties>)
 >
 
-export type CallScope = OneOf<
+export type CallPermission = OneOf<
   | {
       signature: string
       to: Address.Address
@@ -68,12 +68,12 @@ export type CallScope = OneOf<
       to: Address.Address
     }
 >
-export type CallScopes = readonly CallScope[]
+export type CallPermissions = readonly CallPermission[]
 
-export type Permissions<bigintType = bigint> = {
-  calls?: CallScopes | undefined
-  signatureVerification?: SignatureVerification | undefined
-  spend?: SpendLimits<bigintType> | undefined
+export type Permissions = {
+  calls?: CallPermissions | undefined
+  signatureVerification?: SignatureVerificationPermission | undefined
+  spend?: SpendPermissions | undefined
 }
 
 /** RPC (relay-compatible) format of a key. */
@@ -87,16 +87,16 @@ export type Serialized = {
   publicKey: Hex.Hex
 }
 
-export type SignatureVerification = {
+export type SignatureVerificationPermission = {
   addresses: readonly Address.Address[]
 }
 
-export type SpendLimit<bigintType = bigint> = {
-  limit: bigintType
+export type SpendPermission = {
+  limit: bigint
   period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
   token?: Address.Address | undefined
 }
-export type SpendLimits<bigintType = bigint> = readonly SpendLimit<bigintType>[]
+export type SpendPermissions = readonly SpendPermission[]
 
 /** Relay key type to key type mapping. */
 export const fromRelayKeyType = {
@@ -518,8 +518,8 @@ export declare namespace fromP256 {
  */
 export function fromRelay(relay: Relay): Key {
   const permissions: {
-    calls?: Mutable<CallScopes> | undefined
-    spend?: Mutable<SpendLimits> | undefined
+    calls?: Mutable<CallPermissions> | undefined
+    spend?: Mutable<SpendPermissions> | undefined
   } = {}
 
   for (const permission of relay.permissions) {
@@ -903,7 +903,7 @@ export function toRelay(key: Key): Relay {
   const permissions = Object.entries(key.permissions ?? {})
     .map(([key, v]) => {
       if (key === 'calls') {
-        const calls = v as CallScopes
+        const calls = v as CallPermissions
         return calls.map(({ signature, to }) => {
           const selector = (() => {
             if (!signature) return Call.anySelector
@@ -919,7 +919,7 @@ export function toRelay(key: Key): Relay {
       }
 
       if (key === 'spend') {
-        const value = v as SpendLimits
+        const value = v as SpendPermissions
         return value.map(({ limit, period, token }) => {
           return {
             type: 'spend',
