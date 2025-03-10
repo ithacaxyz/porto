@@ -2,12 +2,14 @@ import { Hex } from 'ox'
 import { verifyHash } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { getAccount } from '../../../test/src/account.js'
-import { client, delegation } from '../../../test/src/porto.js'
-import * as Delegation from '../Delegation.js'
+import { getAccount } from '../../../test/src/actions.js'
+import { getPorto } from '../../../test/src/porto.js'
 import * as Account from './account.js'
 import * as Call from './call.js'
+import * as Delegation from './delegation.js'
 import * as Key from './key.js'
+
+const { client, delegation } = getPorto()
 
 describe('from', () => {
   test('default', () => {
@@ -30,6 +32,7 @@ describe('from', () => {
           {
             "canSign": true,
             "expiry": 42069,
+            "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",

@@ -23,14 +23,6 @@ jobs:
 
       - name: Check types
         run: pnpm check:types
-      
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          commit_message: 'chore: format'
-          commit_user_name: 'github-actions[bot]'
-          commit_user_email: 'github-actions[bot]@users.noreply.github.com'
 
   build:
     name: Build
@@ -71,6 +63,20 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: jxom
+          password: ${{ secrets.RELAY_GH_TOKEN }}
+      
+      - name: Pull Relay
+        shell: bash
+        run: docker pull ghcr.io/ithacaxyz/relay:latest
 
       - name: Test
         run: pnpm test:ci

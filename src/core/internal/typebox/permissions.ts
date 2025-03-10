@@ -13,7 +13,7 @@ export const Permissions = Type.Object({
       Type.Literal('p256'),
       Type.Literal('secp256k1'),
       Type.Literal('webauthn-p256'),
-      Type.Literal('contract'),
+      Type.Literal('address'),
     ]),
   }),
   permissions: Type.Object(
@@ -58,6 +58,7 @@ export const Permissions = Type.Object({
     { minProperties: 1 },
   ),
 })
+export type Permissions = Schema.StaticDecode<typeof Permissions>
 
 export const Request = Type.Object({
   address: Schema.Optional(Primitive.Address),
@@ -66,3 +67,4 @@ export const Request = Type.Object({
   key: Schema.Optional(Permissions.properties.key),
   permissions: Permissions.properties.permissions,
 })
+export type Request = Schema.StaticDecode<typeof Request>
