@@ -6,7 +6,7 @@
       "dist",
       "extension/.output",
       "extension/.wxt",
-      "src/core/internal/generated.ts",
+      "src/core/internal/_generated",
       "tsconfig.json",
       "tsconfig.*.json",
       "app/src/routeTree.gen.ts",
