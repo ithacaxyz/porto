@@ -38,10 +38,10 @@ export declare namespace authorize {
   }
 }
 
-const anyHash =
+export const anyHash =
   '0x3232323232323232323232323232323232323232323232323232323232323232'
-const anyTarget = '0x3232323232323232323232323232323232323232'
-const anySelector = '0x32323232'
+export const anyTarget = '0x3232323232323232323232323232323232323232'
+export const anySelector = '0x32323232'
 
 /**
  * Instantiates values to populate a call to set the label of a delegated account.
@@ -56,7 +56,7 @@ export function setCanExecute(parameters: setCanExecute.Parameters = {}) {
     selector = anySelector,
     to = anyTarget,
   } = parameters
-  const hash = key ? Key.hash(key) : anyHash
+  const hash = key ? key.hash : anyHash
 
   return {
     data: AbiFunction.encodeData(
@@ -116,7 +116,7 @@ export function setSpendLimit(parameters: setSpendLimit.Parameters) {
   return {
     data: AbiFunction.encodeData(
       AbiFunction.fromAbi(Delegation.abi, 'setSpendLimit'),
-      [Key.hash(key), token, Key.toSerializedSpendPeriod[period], limit],
+      [key.hash, token, Key.toSerializedSpendPeriod[period], limit],
     ),
     to: self,
   } as const satisfies Call
@@ -148,7 +148,7 @@ export function setSignatureCheckerApproval(
   return {
     data: AbiFunction.encodeData(
       AbiFunction.fromAbi(Delegation.abi, 'setSignatureCheckerApproval'),
-      [Key.hash(key), address, enabled],
+      [key.hash, address, enabled],
     ),
     to: self,
   } as const satisfies Call
@@ -176,7 +176,7 @@ export function removeSpendLimit(parameters: removeSpendLimit.Parameters) {
   return {
     data: AbiFunction.encodeData(
       AbiFunction.fromAbi(Delegation.abi, 'removeSpendLimit'),
-      [Key.hash(key), token, Key.toSerializedSpendPeriod[period]],
+      [key.hash, token, Key.toSerializedSpendPeriod[period]],
     ),
     to: self,
   } as const satisfies Call

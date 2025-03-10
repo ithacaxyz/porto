@@ -19,6 +19,7 @@ export namespace wallet_createAccount {
     /** Contract address to delegate to. */
     delegation: Primitive.Address,
   })
+  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
 
   /** Capabilities for `wallet_createAccount` response. */
   export const ResponseCapabilities = Type.Object({
@@ -27,24 +28,30 @@ export namespace wallet_createAccount {
     /** Contract address delegated to. */
     delegation: Primitive.Address,
   })
+  export type ResponseCapabilities = Schema.StaticDecode<
+    typeof ResponseCapabilities
+  >
 
   /** Parameters for `wallet_createAccount` request. */
   export const Parameters = Type.Object({
     /** Capabilities for the account. */
     capabilities: Capabilities,
   })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_createAccount`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_createAccount'),
     params: Type.Tuple([Parameters]),
   })
+  export type Request = Schema.StaticDecode<typeof Request>
 
   /** Response for `wallet_createAccount`. */
   export const Response = Type.Object({
     address: Primitive.Address,
     capabilities: ResponseCapabilities,
   })
+  export type Response = Schema.StaticDecode<typeof Response>
 }
 
 export namespace wallet_getKeys {
@@ -53,15 +60,18 @@ export namespace wallet_getKeys {
     /** The address to get the keys for. */
     address: Primitive.Address,
   })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_getKeys`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_getKeys'),
     params: Type.Tuple([Parameters]),
   })
+  export type Request = Schema.StaticDecode<typeof Request>
 
   /** Response for `wallet_getKeys`. */
   export const Response = C.authorizeKeys.Response
+  export type Response = Schema.StaticDecode<typeof Response>
 }
 
 export namespace wallet_prepareCalls {
@@ -74,6 +84,7 @@ export namespace wallet_prepareCalls {
     /** Keys to revoke on the account. */
     revokeKeys: Schema.Optional(C.revokeKeys.Request),
   })
+  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
 
   /** Capabilities for `wallet_prepareCalls` response. */
   export const ResponseCapabilities = Type.Object({
@@ -86,6 +97,9 @@ export namespace wallet_prepareCalls {
       Type.Union([C.revokeKeys.Response, Type.Null()]),
     ),
   })
+  export type ResponseCapabilities = Schema.StaticDecode<
+    typeof ResponseCapabilities
+  >
 
   /** Parameters for `wallet_prepareCalls` request. */
   export const Parameters = Type.Object({
@@ -106,12 +120,14 @@ export namespace wallet_prepareCalls {
     /** The address of the account to prepare the calls for. */
     from: Primitive.Address,
   })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_prepareCalls`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_prepareCalls'),
     params: Type.Tuple([Parameters]),
   })
+  export type Request = Schema.StaticDecode<typeof Request>
 
   /** Response for `wallet_prepareCalls`. */
   export const Response = Type.Object({
@@ -122,6 +138,7 @@ export namespace wallet_prepareCalls {
     /** Capabilities. */
     capabilities: ResponseCapabilities,
   })
+  export type Response = Schema.StaticDecode<typeof Response>
 }
 
 export namespace wallet_prepareUpgradeAccount {
@@ -137,6 +154,7 @@ export namespace wallet_prepareUpgradeAccount {
      */
     feeToken: Schema.Optional(Primitive.Address),
   })
+  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
 
   /** Parameters for `wallet_prepareUpgradeAccount` request. */
   export const Parameters = Type.Object({
@@ -148,15 +166,18 @@ export namespace wallet_prepareUpgradeAccount {
     /** Capabilities. */
     capabilities: Capabilities,
   })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_prepareUpgradeAccount`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_prepareUpgradeAccount'),
     params: Type.Tuple([Parameters]),
   })
+  export type Request = Schema.StaticDecode<typeof Request>
 
   /** Response for `wallet_prepareUpgradeAccount`. */
   export const Response = wallet_prepareCalls.Response
+  export type Response = Schema.StaticDecode<typeof Response>
 }
 
 export namespace wallet_sendPreparedCalls {
@@ -174,18 +195,21 @@ export namespace wallet_sendPreparedCalls {
       value: Primitive.Hex,
     }),
   })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_sendPreparedCalls`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_sendPreparedCalls'),
     params: Type.Tuple([Parameters]),
   })
+  export type Request = Schema.StaticDecode<typeof Request>
 
   /** Response for `wallet_sendPreparedCalls`. */
   export const Response = Type.Object({
     /** The ID of the call bundle. */
     id: Type.String(),
   })
+  export type Response = Schema.StaticDecode<typeof Response>
 }
 
 export namespace wallet_upgradeAccount {
@@ -205,16 +229,19 @@ export namespace wallet_upgradeAccount {
     /** Signature of the `wallet_prepareUpgradeAccount` digest. */
     signature: Primitive.Hex,
   })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_sendPreparedCalls`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_upgradeAccount'),
     params: Type.Tuple([Parameters]),
   })
+  export type Request = Schema.StaticDecode<typeof Request>
 
   /** Response for `wallet_sendPreparedCalls`. */
   export const Response = Type.Object({
     /** Call bundles that were executed. */
     bundles: Type.Array(wallet_sendPreparedCalls.Response),
   })
+  export type Response = Schema.StaticDecode<typeof Response>
 }
