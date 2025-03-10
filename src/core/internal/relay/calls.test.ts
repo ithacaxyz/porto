@@ -1,3 +1,4 @@
+import { readContract } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import * as TestActions from '../../../../test/src/actions.js'
@@ -11,6 +12,41 @@ const { client } = getPorto({
     relay: true,
   },
 })
+
+describe('send', () => {
+  test('default', async () => {
+    const key = Key.createP256({ role: 'admin' })
+    const { account } = await TestActions.createRelayAccount(client, {
+      keys: [key],
+    })
+
+    const result = await Calls.send(client, {
+      account,
+      calls: [
+        {
+          to: ExperimentERC20.address[1],
+          abi: ExperimentERC20.abi,
+          functionName: 'mint',
+          args: [account.address, 100n],
+        },
+      ],
+      feeToken: ExperimentERC20.address[0],
+      nonce: 0n,
+    })
+
+    expect(result.id).toBeDefined()
+
+    expect(
+      await readContract(client, {
+        address: ExperimentERC20.address[1],
+        abi: ExperimentERC20.abi,
+        functionName: 'balanceOf',
+        args: [account.address],
+      }),
+    ).toBe(100n)
+  })
+})
+
 describe('prepare + sendPrepared', () => {
   test('default', async () => {
     const key = Key.createP256({ role: 'admin' })
@@ -22,7 +58,7 @@ describe('prepare + sendPrepared', () => {
       account,
       calls: [
         {
-          to: ExperimentERC20.address[0],
+          to: ExperimentERC20.address[1],
           abi: ExperimentERC20.abi,
           functionName: 'mint',
           args: [account.address, 100n],
@@ -43,5 +79,14 @@ describe('prepare + sendPrepared', () => {
     })
 
     expect(result.id).toBeDefined()
+
+    expect(
+      await readContract(client, {
+        address: ExperimentERC20.address[1],
+        abi: ExperimentERC20.abi,
+        functionName: 'balanceOf',
+        args: [account.address],
+      }),
+    ).toBe(100n)
   })
 })
