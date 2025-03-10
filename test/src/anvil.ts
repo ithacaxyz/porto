@@ -1,4 +1,3 @@
-import { resolve } from 'node:path'
 import { Provider, RpcTransport } from 'ox'
 import { createServer } from 'prool'
 import { type AnvilParameters, anvil } from 'prool/instances'
@@ -15,14 +14,7 @@ import { odysseyTestnet } from 'viem/chains'
 export const instances = {
   odyssey: defineAnvil({
     chainId: odysseyTestnet.id,
-    forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.merkle.io'),
-    forkBlockNumber: 19868020n,
     port: 8545,
-    loadState: resolve(import.meta.dirname, 'anvil.json'),
-    dumpState: resolve(
-      import.meta.dirname,
-      '.logs/anvil-' + new Date().getTime() + '.json',
-    ),
   }),
 } as const
 
@@ -111,7 +103,6 @@ function defineAnvil(parameters: AnvilParameters) {
   const config = {
     ...parameters,
     odyssey: true,
-    hardfork: 'Prague',
   } as const
 
   const client = createClient({
