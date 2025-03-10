@@ -323,7 +323,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     Schema.Decode(Permissions.Schema, permission),
                   )
                 } catch (err) {
-                  console.error(err)
                   return undefined
                 }
               })
@@ -484,7 +483,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       Schema.Decode(Permissions.Schema, permission),
                     )
                   } catch (err) {
-                    console.error(err)
                     return undefined
                   }
                 })

@@ -206,7 +206,6 @@ export namespace upgradeAccount {
 }
 
 function getError(error: unknown) {
-  console.error(error)
   if (error instanceof TransformEncodeCheckError)
     return new SchemaCoderError(error)
   return error
