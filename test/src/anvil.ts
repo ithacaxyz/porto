@@ -85,14 +85,6 @@ export const accounts = [
 // Utilities
 /////////////////////////////////////////////////////////////////
 
-function getEnv(key: string, fallback: string): string {
-  if (typeof process.env[key] === 'string') return process.env[key] as string
-  console.warn(
-    `\`process.env.${key}\` not found. Falling back to \`${fallback}\`.`,
-  )
-  return fallback
-}
-
 function defineAnvil(parameters: AnvilParameters) {
   const { port } = parameters
   const poolId =
