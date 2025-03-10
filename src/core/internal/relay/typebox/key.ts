@@ -5,7 +5,9 @@
  */
 
 import * as Primitive from '../../typebox/primitive.js'
+import type * as Schema from '../../typebox/schema.js'
 import { Type } from '../../typebox/schema.js'
+import * as Permission from './permission.js'
 
 export const Key = Type.Object({
   /** The expiry of the key. */
@@ -21,3 +23,15 @@ export const Key = Type.Object({
     Type.Literal('webauthnp256'),
   ]),
 })
+export type Key = Schema.StaticDecode<typeof Key>
+
+export const WithPermissions = Type.Intersect([
+  /** The key to authorize or modify permissions for. */
+  Key,
+  /** The permissions for the key. */
+  Type.Object({
+    /** Represents key permissions. */
+    permissions: Type.Array(Permission.Permission),
+  }),
+])
+export type WithPermissions = Schema.StaticDecode<typeof WithPermissions>

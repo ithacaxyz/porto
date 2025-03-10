@@ -5,6 +5,7 @@
  */
 
 import * as Primitive from '../../typebox/primitive.js'
+import type * as Schema from '../../typebox/schema.js'
 import { Type } from '../../typebox/schema.js'
 
 export const UserOp = Type.Object({
@@ -95,6 +96,7 @@ export const UserOp = Type.Object({
    */
   signature: Primitive.Hex,
 })
+export type UserOp = Schema.StaticDecode<typeof UserOp>
 
 export const Partial = Type.Object({
   eoa: Primitive.Address,
@@ -102,3 +104,4 @@ export const Partial = Type.Object({
   initData: Primitive.Hex,
   nonce: Primitive.BigInt,
 })
+export type Partial = Schema.StaticDecode<typeof Partial>

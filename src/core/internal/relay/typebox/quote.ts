@@ -33,6 +33,7 @@ export const Quote = Type.Object({
   /** The recommended gas limit for the bundle. */
   txGas: Primitive.BigInt,
 })
+export type Quote = Schema.StaticDecode<typeof Quote>
 
 export const Signed = Type.Intersect([
   Quote,
@@ -44,3 +45,4 @@ export const Signed = Type.Intersect([
     yParity: Schema.Optional(Primitive.Hex),
   }),
 ])
+export type Signed = Schema.StaticDecode<typeof Signed>

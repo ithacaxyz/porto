@@ -7,7 +7,6 @@ import * as TestActions from '../../../../test/src/actions.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Key from '../key.js'
-import type { StaticDecode } from '../typebox/schema.js'
 import {
   createAccount,
   prepareCalls,
@@ -23,40 +22,38 @@ const { client } = getPorto({
   },
 })
 
-const defaultKey = {
-  expiry: 6942069420,
-  permissions: [
-    {
-      selector: AbiFunction.getSelector(
-        AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
-      ),
-      to: ExperimentERC20.address[0],
-      type: 'call',
-    },
-    {
-      selector: AbiFunction.getSelector(
-        AbiFunction.fromAbi(ExperimentERC20.abi, 'transfer'),
-      ),
-      to: ExperimentERC20.address[0],
-      type: 'call',
-    },
-    {
-      limit: Value.fromEther('100'),
-      period: 'minute',
-      token: ExperimentERC20.address[0],
-      type: 'spend',
-    },
-  ],
-  publicKey: '0x0000000000000000000000000000000000000000',
-  role: 'admin',
-  type: 'p256',
-} as const satisfies StaticDecode<
-  typeof Capabilities.authorizeKeys.Request
->[number]
-
 const feeToken = ExperimentERC20.address[0]
 
 describe('createAccount', () => {
+  const defaultKey = {
+    expiry: 6942069420,
+    permissions: [
+      {
+        selector: AbiFunction.getSelector(
+          AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
+        ),
+        to: ExperimentERC20.address[0],
+        type: 'call',
+      },
+      {
+        selector: AbiFunction.getSelector(
+          AbiFunction.fromAbi(ExperimentERC20.abi, 'transfer'),
+        ),
+        to: ExperimentERC20.address[0],
+        type: 'call',
+      },
+      {
+        limit: Value.fromEther('100'),
+        period: 'minute',
+        token: ExperimentERC20.address[0],
+        type: 'spend',
+      },
+    ],
+    publicKey: '0x0000000000000000000000000000000000000000',
+    role: 'admin',
+    type: 'p256',
+  } as const satisfies Capabilities.authorizeKeys.Request[number]
+
   test('default', async () => {
     const privateKey = P256.randomPrivateKey()
     const publicKey = P256.getPublicKey({ privateKey })
@@ -154,33 +151,15 @@ describe('createAccount', () => {
 
 describe('prepareCalls', () => {
   test('default', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const publicKey = P256.getPublicKey({ privateKey })
-
-    const { address, capabilities } = await createAccount(client, {
-      capabilities: {
-        authorizeKeys: [
-          {
-            expiry: 0,
-            permissions: [],
-            role: 'admin',
-            type: 'p256',
-            publicKey: PublicKey.toHex(publicKey),
-          },
-        ],
-        delegation: client.chain.contracts.delegation.address,
-      },
+    const key = Key.createP256({
+      role: 'admin',
     })
-
-    await TestActions.setBalance(client, {
-      address,
-      value: Value.fromEther('10000'),
+    const { account } = await TestActions.createRelayAccount(client, {
+      keys: [key],
     })
-
-    const keyHash = capabilities.authorizeKeys[0]!.hash
 
     const result = await prepareCalls(client, {
-      account: address,
+      account: account.address,
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',
@@ -190,13 +169,74 @@ describe('prepareCalls', () => {
       capabilities: {
         meta: {
           feeToken,
-          keyHash,
+          keyHash: key.hash,
           nonce: 0n,
         },
       },
     })
 
     expect(result.digest).toBeDefined()
+  })
+
+  test('behavior: contract calls', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const { account } = await TestActions.createRelayAccount(client, {
+      keys: [key],
+    })
+
+    const result = await prepareCalls(client, {
+      account: account.address,
+      calls: [
+        {
+          abi: ExperimentERC20.abi,
+          functionName: 'mint',
+          args: [account.address, Value.fromEther('1')],
+          to: ExperimentERC20.address[0],
+        },
+      ],
+      capabilities: {
+        meta: {
+          feeToken,
+          keyHash: key.hash,
+          nonce: 0n,
+        },
+      },
+    })
+
+    expect(result.digest).toBeDefined()
+  })
+
+  test('error: schema encoding', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const { account } = await TestActions.createRelayAccount(client, {
+      keys: [key],
+    })
+
+    await expect(() =>
+      prepareCalls(client, {
+        account: account.address,
+        calls: [],
+        capabilities: {
+          meta: {
+            feeToken,
+            // @ts-expect-error
+            keyHash: 'cheese',
+            nonce: 0n,
+          },
+        },
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [Actions.SchemaCoderError: Expected string to match '^0x(.*)$'
+
+      Path: capabilities.meta.keyHash
+      Value: "cheese"
+
+      Details: The encoded value does not match the expected schema]
+    `)
   })
 })
 
