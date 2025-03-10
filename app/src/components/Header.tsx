@@ -9,11 +9,14 @@ import ChevronLeftIcon from '~icons/lucide/chevron-left'
 import CopyIcon from '~icons/lucide/copy'
 import LogoutIcon from '~icons/lucide/log-out'
 import SettingsIcon from '~icons/lucide/settings'
+import ThemeIcon from '~icons/mdi/theme-light-dark'
 
+import { useThemeMode } from '~/hooks/use-theme-mode'
 import { StringFormatter, cn } from '~/utils'
 import { DevOnly } from './DevOnly'
 
 export function Header() {
+  const { theme, setTheme } = useThemeMode()
   const account = useAccount()
 
   const disconnect = Hooks.useDisconnect()
@@ -27,10 +30,18 @@ export function Header() {
   return (
     <React.Fragment>
       <DevOnly />
-      <header className="mb-2 flex items-center justify-between px-2 tabular-nums sm:mt-3">
+      <header className="flex items-center justify-between tabular-nums sm:mt-3 sm:px-2">
         {currentFullPath === '/' ? (
-          <Link to="/" className="font-medium text-2xl">
-            Porto
+          <Link
+            to="/"
+            className="flex items-center gap-x-2 font-medium text-2xl"
+          >
+            <img
+              alt="Porto wallet icon"
+              className="my-auto size-9"
+              src={theme === 'light' ? '/icon-light.png' : '/icon-dark.png'}
+            />
+            <span>Porto</span>
           </Link>
         ) : (
           <>
@@ -66,7 +77,7 @@ export function Header() {
             <Ariakit.Menu
               gutter={8}
               className={cn(
-                'w-full rounded-sm border border-gray6 bg-gray3 p-1 shadow-lg',
+                'w-full rounded-lg border border-gray6 bg-gray3 p-1 shadow-lg',
                 '*:tracking-wide',
               )}
             >
@@ -80,7 +91,7 @@ export function Header() {
                 }
               >
                 Copy
-                <CopyIcon className="ml-3 size-3.5" />
+                <CopyIcon className="ml-3 size-5" />
               </Ariakit.MenuItem>
               <Ariakit.MenuSeparator className="my-1 text-secondary/40" />
               <Ariakit.MenuItem
@@ -94,17 +105,36 @@ export function Header() {
                     )}
                   >
                     Settings
-                    <SettingsIcon className="ml-3 size-4" />
+                    <SettingsIcon className="ml-3 size-5" />
                   </Link>
                 )}
               />
+              <Ariakit.MenuSeparator
+                className="my-1 text-secondary/40"
+                hidden={true}
+              />
+              <Ariakit.MenuItem
+                hidden={true}
+                data-theme={theme}
+                className="flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray4"
+                onClick={(event) => {
+                  const theme = event.currentTarget.dataset.theme
+                  if (theme === 'light') setTheme('dark')
+                  else setTheme('light')
+
+                  console.info(theme)
+                }}
+              >
+                <span>{theme === 'light' ? 'Dark' : 'Light'} mode</span>
+                <ThemeIcon className="size-5" />
+              </Ariakit.MenuItem>
               <Ariakit.MenuSeparator className="my-1 text-secondary/40" />
               <Ariakit.MenuItem
                 className="flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray4"
                 onClick={() => disconnect.mutate({})}
               >
                 Disconnect
-                <LogoutIcon className="ml-3 size-3.5" />
+                <LogoutIcon className="ml-3 size-4.5" />
               </Ariakit.MenuItem>
             </Ariakit.Menu>
           </Ariakit.MenuProvider>

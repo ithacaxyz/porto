@@ -72,11 +72,11 @@ function RouteComponent() {
   return (
     <main
       className={cn(
-        'mx-auto flex h-screen max-h-[1200px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-transparent py-4 text-center',
-        'sm:my-32 sm:h-[580px] sm:max-w-[400px] sm:bg-gray1 sm:shadow-sm sm:outline sm:outline-gray4',
+        'mx-auto flex h-full w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-transparent pt-2 pb-4 text-center',
+        'sm:my-32 sm:h-[580px] sm:max-w-[400px] sm:bg-gray1 sm:pt-3 sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
-      <header className="mt-4 flex justify-between px-5 sm:mt-1">
+      <header className="mt-4 flex justify-between px-4 sm:mt-1 sm:px-3">
         <Link
           to="/settings/recovery/wallet"
           from="/settings/recovery/wallet/phrase"

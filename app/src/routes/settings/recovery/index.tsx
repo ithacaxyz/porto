@@ -6,7 +6,7 @@ import ChevronRightIcon from '~icons/lucide/chevron-right'
 import WalletCardsIcon from '~icons/lucide/wallet-cards'
 
 import { Pill } from '~/components/Pill'
-import { useThemeMode } from '~/hooks/use-theme'
+import { useThemeMode } from '~/hooks/use-theme-mode'
 import { cn } from '~/utils'
 
 export const Route = createFileRoute('/settings/recovery/')({
@@ -42,12 +42,12 @@ function RouteComponent() {
   return (
     <main
       className={cn(
-        'mx-auto flex h-screen max-h-[940px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl py-4 text-center',
-        'sm:my-52 sm:h-[500px] sm:max-w-[400px] sm:bg-gray1 sm:shadow-sm sm:outline sm:outline-gray4',
+        'mx-auto flex h-full w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl pt-2 pb-4 text-center',
+        'sm:my-52 sm:h-[500px] sm:max-w-[400px] sm:bg-gray1 sm:pt-3 sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
-      <header className="mt-4 flex justify-between px-3 sm:mt-1">
-        <Link to="/" from="/settings/recovery">
+      <header className="mt-4 flex justify-between px-4 sm:mt-1 sm:px-3">
+        <Link to="/">
           <img
             alt="Porto wallet icon"
             className="my-auto size-11"
@@ -75,13 +75,12 @@ function RouteComponent() {
         </p>
       </div>
 
-      <div className="">
+      <div className="mb-auto">
         <ul className="mb-3 w-full px-0.5">
           {recoveryMethods.map((recoveryMethod, index) => (
             <li key={recoveryMethod.title}>
               <Link
                 to={recoveryMethod.path}
-                from="/settings/recovery"
                 className="mx-5 flex h-14 items-center justify-between space-x-3 rounded-md px-1 py-2"
               >
                 <div
@@ -113,7 +112,6 @@ function RouteComponent() {
         <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center rounded-md bg-gray3 hover:bg-gray4 sm:mb-1 sm:h-12">
           <Link
             to="/settings"
-            from="/settings/recovery"
             className="my-auto mt-2 size-full min-w-full rounded-md font-medium text-lg"
           >
             I'll do this later

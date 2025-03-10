@@ -19,7 +19,7 @@ import WalletConnectIcon from '~icons/simple-icons/walletconnect'
 
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { Pill } from '~/components/Pill'
-import { config } from '~/lib/Wagmi'
+import { mipdConfig as config } from '~/lib/Wagmi'
 import { cn } from '~/utils'
 
 const WalletConnect = React.lazy(() => import('./-components/wc'))
@@ -56,8 +56,8 @@ function RouteComponent() {
   return (
     <main
       className={cn(
-        'mx-auto flex h-screen max-h-[940px] w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-transparent py-4 text-center',
-        'sm:my-32 sm:max-w-[400px] sm:bg-gray1 sm:shadow-sm sm:outline sm:outline-gray4',
+        'mx-auto flex h-full w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-transparent pt-2 pb-4 text-center',
+        'sm:my-32 sm:max-w-[400px] sm:bg-gray1 sm:pt-3 sm:shadow-sm sm:outline sm:outline-gray4',
         'sm:h-[680px]',
       )}
     >

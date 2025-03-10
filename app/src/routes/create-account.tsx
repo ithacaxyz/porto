@@ -5,7 +5,7 @@ import { useAccount, useConnectors } from 'wagmi'
 
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
-import { useThemeMode } from '~/hooks/use-theme'
+import { useThemeMode } from '~/hooks/use-theme-mode'
 import * as Constants from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 import { cn } from '~/utils'

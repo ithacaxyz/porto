@@ -5,16 +5,15 @@ import { useConnectors } from 'wagmi'
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { IthacaMark } from '~/components/IthacaMark'
-import { useThemeMode } from '~/hooks/use-theme'
+import { useThemeMode } from '~/hooks/use-theme-mode'
 import { config } from '~/lib/Wagmi'
 
 export function Landing() {
   const { theme } = useThemeMode()
   const navigate = useNavigate()
 
-  const connect = Hooks.useConnect({ config })
-  const connectors = useConnectors({ config })
-  const connector = connectors.find((c) => c?.id === 'xyz.ithaca.porto')
+  const connect = Hooks.useConnect()
+  const [connector] = useConnectors({ config })
 
   return (
     <div className="mx-auto flex h-screen w-full max-w-[768px] flex-col p-6 sm:ml-34">

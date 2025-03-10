@@ -1,5 +1,5 @@
 {
-  "include": ["src", "api"],
+  "include": ["src"],
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,

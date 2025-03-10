@@ -119,7 +119,7 @@ function RouteComponent() {
           {permissions.data?.map((permission) => (
             <li
               key={permission.id}
-              className="flex w-full items-center gap-x-3 pt-1"
+              className="flex w-full items-center gap-x-3 px-2 pt-1 sm:px-0"
             >
               <Permission permission={permission} />
             </li>
@@ -181,29 +181,29 @@ function Permission({
       {/* <div className="mb-0.5 w-fit rounded-lg bg-pink-500 p-1">
                 <UniswapIcon className="size-10 text-white" />
               </div> */}
-      <div className="mb-0.5 w-fit rounded-lg bg-[#0688F1] p-1">
+      <div className="mb-0.5 hidden w-fit rounded-lg bg-[#0688F1] p-1 sm:block">
         <ExpIcon className="size-7 text-white sm:size-10" />
       </div>
       {/* <div className="mb-0.5 w-fit rounded-3xl bg-gray9 p-1">
                 <WebIcon className="size-9 text-white" />
               </div> */}
       <div>
-        <p className="text-lg">
+        <p className="text-base sm:text-lg">
           {/* TODO: replace with name */}
           {StringFormatter.truncate(permission.address)}
         </p>
-        <div className="flex items-center gap-x-2 text-md">
+        <div className="flex items-center gap-x-2 text-sm sm:text-md">
           <a
             target="_blank"
             rel="noreferrer"
             href="https://ithaca.xyz"
-            className="text-gray11 hover:text-gray11"
+            className="text-gray11 text-sm hover:text-gray11 sm:text-md"
           >
             ithaca.xyz
           </a>
           <Ariakit.TooltipProvider>
             <Ariakit.TooltipAnchor className="">
-              <Pill className="cursor-default text-sm">
+              <Pill className="cursor-default text-xs sm:text-sm">
                 <TimeIcon className="mr-0.5 size-4" />
                 {permission.permissions.spend[0]?.period}
               </Pill>
@@ -226,13 +226,13 @@ function Permission({
         </div>
       </div>
       <div className="ml-auto flex items-center gap-x-2">
-        <div className="flex h-9 w-min min-w-[70px] items-center rounded-full border-2 border-gray-300/60 py-1 pr-3 pl-3 text-center text-gray9 text-lg">
+        <div className="flex h-9 w-min min-w-[70px] items-center rounded-full border-2 border-gray-300/60 py-1 pr-3 pl-3 text-center text-gray9 text-md sm:text-lg">
           <span className="-mr-0.5 text-gray9">$</span>
           <input
             size={200}
             type="number"
             placeholder="100"
-            className="ml-1 h-full w-[3ch] bg-transparent text-gray11 text-lg tabular-nums placeholder:text-gray8 focus:outline-none"
+            className="ml-1 h-full w-[3ch] bg-transparent text-gray11 text-md tabular-nums placeholder:text-gray8 focus:outline-none sm:text-lg"
             onInput={(event) => {
               const input = event.currentTarget.value
               const newWidth = input.length >= 3 ? `${input.length}ch` : '3ch'
@@ -243,10 +243,12 @@ function Permission({
             }}
           />
         </div>
-        <span className="text-gray9 text-lg">per</span>
+        <span className="text-base text-gray9 sm:text-lg">per</span>
         <Ariakit.MenuProvider>
           <Ariakit.MenuButton className="ml-auto flex items-center gap-x-2 rounded-3xl border-2 border-gray-300/60 px-1 py-0.5">
-            <span className="mb-0.5 ml-2 text-gray11 text-lg">day</span>
+            <span className="mb-0.5 ml-2 text-gray11 text-md sm:text-lg">
+              day
+            </span>
             <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
           </Ariakit.MenuButton>
           <Ariakit.Menu
@@ -267,25 +269,25 @@ function Permission({
           </Ariakit.Menu>
         </Ariakit.MenuProvider>
       </div>
-      <Ariakit.Separator
+      {/* <Ariakit.Separator
         orientation="horizontal"
-        className="h-[30px] min-h-full w-0.5 bg-gray6 text-gray6"
-      />
-
+        className="min-h-[30px] min-w-0.25 bg-gray9 p-0 text-gray6"
+      /> */}
+      <div className="-ml-0.5 -mr-1.5 min-h-[30px] min-w-0.5 bg-gray6 text-gray6 sm:mr-0 sm:ml-1" />
       <Drawer.Root>
         <Drawer.Trigger asChild>
           <button
             type="button"
             className="rounded-2xl rounded-br-2xl text-gray8 hover:text-red-500"
           >
-            <XIcon className="size-6" />
+            <XIcon className="size-5 sm:size-6" />
           </button>
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/40" />
           <Drawer.Handle />
           <Drawer.Content className="fixed right-0 bottom-0 left-0 mx-auto h-fit w-full rounded-t-3xl bg-gray1 px-6 py-4 outline-none sm:w-[330px]">
-            <Drawer.Title className="mb-2 font-medium text-2xl">
+            <Drawer.Title className="mb-2 font-medium text-lg sm:text-2xl">
               Revoke permissions?
             </Drawer.Title>
             <Drawer.Close className="absolute top-5 right-5">

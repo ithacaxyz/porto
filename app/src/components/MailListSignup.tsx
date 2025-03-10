@@ -92,7 +92,7 @@ export function MailListSignup() {
       />
       <Ariakit.FormSubmit
         clickOnEnter={true}
-        className="ml-1 rounded-full bg-gray-300 p-2"
+        className="rounded-full bg-gray-300 p-2 sm:ml-1"
       >
         <span className="sr-only">Send</span>
         {status === 'SUBMITTING' ? (
@@ -100,6 +100,7 @@ export function MailListSignup() {
         ) : (
           <SendHorizontalIcon
             className={cn(
+              'size-3.5 sm:size-5',
               status === 'VALID' ? 'text-blue-400' : 'text-gray-400',
             )}
           />

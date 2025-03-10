@@ -9,9 +9,7 @@
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
     "prepreview": "pnpm build",
-    "preview": "vite preview",
-    "predeploy": "/bin/bash ./scripts/deploy.sh",
-    "deploy": "pnpm wrangler deploy --config='wrangler.json' --var ENVIRONMENT:production"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.15",
@@ -38,8 +36,6 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^0.1.9",
-    "@cloudflare/workers-types": "^4.20250303.0",
     "@iconify/json": "^2.2.314",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",

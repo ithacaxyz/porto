@@ -4,9 +4,11 @@ import * as React from 'react'
 import { toast } from 'sonner'
 import { Drawer } from 'vaul'
 import { useAccount } from 'wagmi'
+import ReceiveIcon from '~icons/bitcoin-icons/receive-filled'
 import ChevronDownIcon from '~icons/lucide/chevron-down'
 import CoinsIcon from '~icons/lucide/coins'
 import HistoryIcon from '~icons/lucide/history'
+import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
 
 import { Layout } from '~/components/AppLayout'
@@ -15,6 +17,7 @@ import { Header } from '~/components/Header'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
 import { QrCode } from '~/components/QrCode'
+import { ThemeToggle } from '~/components/ThemeToggle'
 import { TokenIcon, assets } from '~/lib/fake'
 import { PercentFormatter, StringFormatter, cn, sum } from '~/utils'
 
@@ -33,23 +36,35 @@ export function Dashboard() {
   }, [search])
 
   return (
-    <Layout>
+    <Layout className="">
       <Header />
-      <section className="flex justify-between gap-2 rounded-xl bg-gray3 p-4">
-        <div>
-          <p className="font-semibold text-xl">
+      <section
+        className={cn(
+          'flex flex-col items-center justify-center gap-2 rounded-xl bg-gray4 p-4',
+          'sm:justify-between! sm:flex-row sm:p-6',
+        )}
+      >
+        <div className="text-center tabular-nums sm:text-left">
+          <p className="font-semibold text-4xl sm:text-3xl">
             ${sum(assets.map((asset) => asset.balance.value)).toLocaleString()}
           </p>
-          <p className="my-auto text-primary text-sm">
+          <p className="my-2 text-lg text-secondary sm:my-auto sm:text-md">
             {sum(assets.map((asset) => asset.balance.native)).toLocaleString()}
             <Pill className="ml-1.5">{assets[0]?.symbol}</Pill>
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Drawer.Root>
             <Drawer.Trigger asChild>
-              <ButtonWithRef variant="invert" className="w-[90px] text-center">
-                Deposit
+              <ButtonWithRef
+                variant="invert"
+                className={cn(
+                  'w-[140px] text-center text-lg sm:w-[120px] sm:text-md',
+                  'flex h-11! items-center justify-center gap-x-1 sm:h-10',
+                )}
+              >
+                <SendHorizontalIcon className="size-5" />
+                <span>Send</span>
               </ButtonWithRef>
             </Drawer.Trigger>
             <Drawer.Portal>
@@ -99,22 +114,29 @@ export function Dashboard() {
           </Drawer.Root>
           <Link
             to="/transfer"
-            className="h-10 w-[90px] rounded-default bg-gray6 px-3.5 text-center hover:bg-gray5"
+            className={cn(
+              'w-[140px] text-center text-lg sm:w-[120px] sm:text-md',
+              'flex h-11! items-center justify-center gap-x-1 rounded-default bg-gray6 px-3.5 text-center hover:bg-gray5 sm:h-10',
+            )}
           >
-            <p className="mt-2 h-full font-medium">Transfer</p>
+            <ReceiveIcon className="size-5" />
+            <span>Receive</span>
           </Link>
         </div>
       </section>
-      <section className="mt-1 items-center gap-2 pr-1 pl-1.5">
+      <section className="mt-1 items-center gap-2 px-1">
         <Ariakit.TabProvider defaultSelectedId="assets">
           <Ariakit.TabList
             aria-label="tabs"
-            className="tab-list flex justify-between gap-x-2"
+            className="tab-list flex justify-between gap-x-2 *:gap-x-1 *:px-3 sm:gap-x-3 *:sm:gap-x-2 *:sm:px-4"
           >
             <Ariakit.Tab
               id="assets"
               tabbable={true}
-              className="tab flex gap-x-1 rounded-4xl border-[1.5px] border-gray-400/50 px-3 data-[active-item=true]:border-accent data-[active-item=true]:text-accent"
+              className={cn(
+                'tab flex rounded-4xl border-2 border-gray-400/50',
+                'data-[active-item=true]:border-blue9 data-[active-item=true]:text-accent',
+              )}
             >
               <CoinsIcon className="my-auto size-5" />
               <span className="my-auto">Assets</span>
@@ -122,7 +144,10 @@ export function Dashboard() {
             <Ariakit.Tab
               id="history"
               tabbable={true}
-              className="tab mr-auto flex gap-x-1 rounded-4xl border-[1.5px] border-gray-400/50 px-3 data-[active-item=true]:border-accent data-[active-item=true]:text-accent"
+              className={cn(
+                'tab mr-auto flex rounded-4xl border-2 border-gray-400/50',
+                'data-[active-item=true]:border-blue9 data-[active-item=true]:text-accent',
+              )}
             >
               <HistoryIcon className="my-auto size-5" />
               <span className="my-auto">History</span>
@@ -134,7 +159,7 @@ export function Dashboard() {
               onChange={(event) => setSearch(event.target.value)}
               className={cn(
                 'ml-2 w-full max-w-[50%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-gray12',
-                'placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-gray6 sm:ml-8',
+                'placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-gray6 sm:ml-8 sm:max-w-[300px]',
               )}
             />
           </Ariakit.TabList>
@@ -236,7 +261,7 @@ export function Dashboard() {
         </Ariakit.TabProvider>
       </section>
       {/* ==== Footer ==== */}
-      <footer className="mt-auto flex flex-col gap-y-5 p-1 sm:p-2">
+      <section className="mt-auto flex flex-col gap-y-5 p-1 sm:p-2">
         <MailListSignup />
         <div className="flex flex-row justify-between px-4">
           <p className="flex gap-x-2 text-secondary leading-[22px]">
@@ -268,7 +293,9 @@ export function Dashboard() {
             </a>
           </nav>
         </div>
-      </footer>
+      </section>
+
+      <ThemeToggle />
     </Layout>
   )
 }
