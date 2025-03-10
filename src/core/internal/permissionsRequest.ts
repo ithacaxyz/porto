@@ -46,14 +46,14 @@ export async function toKey(
   )
     publicKey = Address.fromPublicKey(publicKey)
 
-  const key = {
+  const key = Key.from({
     canSign: false,
     expiry,
     permissions,
     publicKey,
     role: 'session',
     type: type === 'address' ? 'secp256k1' : type,
-  } as const
+  })
   if (request?.key) return key
 
   return await Key.createWebCryptoP256({
