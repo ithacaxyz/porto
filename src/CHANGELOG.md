@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.16
+
+### Patch Changes
+
+- [`df20f1b`](https://github.com/ithacaxyz/porto/commit/df20f1b68e619904dd7fcffcb9a13b06637cb40a) Thanks [@jxom](https://github.com/jxom)! - Added `Storage.combine`.
+
+- [`df20f1b`](https://github.com/ithacaxyz/porto/commit/df20f1b68e619904dd7fcffcb9a13b06637cb40a) Thanks [@jxom](https://github.com/jxom)! - Added default `max-age` to `Storage.cookie`.
+
 ## 0.0.15
 
 ### Patch Changes
