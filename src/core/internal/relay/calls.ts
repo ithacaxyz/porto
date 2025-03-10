@@ -24,7 +24,7 @@ export async function prepare<const calls extends readonly unknown[]>(
   const account = Account.from(parameters.account)
   const { capabilities, context, digest } = await Actions.prepareCalls(client, {
     account: account.address,
-    calls,
+    calls: (calls ?? []) as any,
     capabilities: {
       authorizeKeys: authorizeKeys?.map(Key.toRelay),
       meta: {
@@ -55,7 +55,7 @@ export namespace prepare {
     /** Key that will be used to sign the calls. */
     key: Key.Key
     /** Calls to prepare. */
-    calls: Actions.prepareCalls.Parameters<calls>['calls']
+    calls?: Actions.prepareCalls.Parameters<calls>['calls'] | undefined
     /** Additional keys to revoke from the account. */
     revokeKeys?: readonly Key.Key[] | undefined
   } & Omit<Capabilities.meta.Request, 'keyHash'>
