@@ -1,4 +1,16 @@
+import { type ClassValue, clsx } from 'clsx'
 import { Value } from 'ox'
+import { twMerge } from 'tailwind-merge'
+
+export const shuffleArray = <T>(array: T[]): T[] =>
+  array.sort(() => Math.random() - 0.5)
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+export const sum = (array: number[]) =>
+  array.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
 
 export namespace StringFormatter {
   export function truncate(
@@ -20,5 +32,18 @@ export namespace ValueFormatter {
     return numberIntl.format(
       typeof num === 'bigint' ? Number(Value.format(num, units)) : num,
     )
+  }
+}
+
+export namespace PercentFormatter {
+  const numberIntl = new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  })
+
+  export function format(num: number | undefined) {
+    if (!num) return '0%'
+    return numberIntl.format(Number(num / 100))
   }
 }
