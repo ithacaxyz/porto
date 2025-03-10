@@ -13,13 +13,13 @@ import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { readContract } from 'viem/actions'
 
-import * as Delegation from './Delegation.js'
 import * as Dialog from './Dialog.js'
-import type { Client, QueuedRequest } from './Porto.js'
+import type { QueuedRequest } from './Porto.js'
 import type * as RpcSchema_porto from './RpcSchema.js'
+import * as DelegationContract from './internal/_generated/contracts/Delegation.js'
 import * as Account from './internal/account.js'
 import * as Call from './internal/call.js'
-import { delegationAbi } from './internal/generated.js'
+import * as Delegation from './internal/delegation.js'
 import * as Key from './internal/key.js'
 import * as Permissions from './internal/permissions.js'
 import * as PermissionsRequest from './internal/permissionsRequest.js'
@@ -32,7 +32,7 @@ type Request = Rpc.parseRequest.ReturnType
 
 type ActionsInternal = Porto.Internal & {
   /** Viem Client. */
-  client: Client
+  client: Porto.Client
   /** RPC Request. */
   request: Request
 }
@@ -61,7 +61,7 @@ export type Implementation = {
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Viem Clients. */
-      client: Client
+      client: Porto.Client
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<{
@@ -175,290 +175,6 @@ export function from<const implementation extends from.Parameters>(
 
 export declare namespace from {
   type Parameters = PartialBy<Implementation, 'setup'>
-}
-
-/**
- * Implementation for a WebAuthn-based local environment. Account management
- * and signing is handled locally.
- *
- * @param parameters - Parameters.
- * @returns Implementation.
- */
-export function local(parameters: local.Parameters = {}) {
-  const keystoreHost = (() => {
-    if (parameters.keystoreHost === 'self') return undefined
-    if (
-      typeof window !== 'undefined' &&
-      window.location.hostname === 'localhost'
-    )
-      return undefined
-    return parameters.keystoreHost
-  })()
-
-  return from({
-    actions: {
-      async createAccount(parameters) {
-        const { label, internal, permissions } = parameters
-        const { client } = internal
-
-        const { account, context, signatures } = await (async () => {
-          // If the context and signatures are provided, we can skip
-          // the preparation step (likely `wallet_prepareCreateAccount` has
-          // been called).
-          if (parameters.context && parameters.signatures)
-            return {
-              account: (parameters.context as any).account,
-              context: parameters.context,
-              signatures: parameters.signatures,
-            }
-
-          // Generate a random private key and derive the address.
-          // The address here will be the address of the account.
-          const privateKey = Secp256k1.randomPrivateKey()
-          const address = Address.fromPublicKey(
-            Secp256k1.getPublicKey({ privateKey }),
-          )
-
-          // Prepare the account for creation.
-          const { context, signPayloads } = await prepareCreateAccount({
-            address,
-            client,
-            keystoreHost,
-            label,
-            permissions,
-          })
-
-          // Assign any keys to the account and sign over the payloads
-          // required for account creation (e.g. 7702 auth and/or account initdata).
-          const account = Account.fromPrivateKey(privateKey, {
-            keys: context.account.keys,
-          })
-          const signatures = await Account.sign(account, {
-            payloads: signPayloads,
-          })
-
-          return { account, context, signatures }
-        })()
-
-        // Execute the account creation.
-        // TODO: wait for tx to be included?
-        await Delegation.execute(client, {
-          ...(context as any),
-          account,
-          signatures,
-        })
-
-        return { account }
-      },
-
-      async prepareExecute(parameters) {
-        const { client } = parameters
-
-        const { request, signPayloads } = await Delegation.prepareExecute(
-          client,
-          parameters,
-        )
-
-        return {
-          request,
-          signPayloads,
-        }
-      },
-
-      async execute(parameters) {
-        const { account, calls, internal, nonce, signature } = parameters
-        const { client } = internal
-
-        // Try and extract an authorized key to sign the calls with.
-        const key = await getAuthorizedExecuteKey({
-          account,
-          calls,
-          permissionsId: parameters.permissionsId,
-        })
-
-        // Execute the calls (with the key if provided, otherwise it will
-        // fall back to an admin key).
-        const hash = await Delegation.execute(client, {
-          account,
-          calls,
-          ...(nonce && signature
-            ? {
-                nonce,
-                signatures: [signature],
-              }
-            : {
-                key,
-              }),
-        })
-
-        return hash
-      },
-
-      async grantPermissions(parameters) {
-        const { account, permissions, internal } = parameters
-        const { client } = internal
-
-        // Parse permissions request into a structured key.
-        const key = await PermissionsRequest.toKey(permissions)
-        if (!key) throw new Error('key not found.')
-
-        // TODO: wait for tx to be included?
-        await Delegation.execute(client, {
-          account,
-          // Extract calls to authorize the key.
-          calls: getAuthorizeCalls([key]),
-        })
-
-        return { key }
-      },
-
-      async loadAccounts(parameters) {
-        const { internal, permissions } = parameters
-        const { client } = internal
-
-        const { address, credentialId } = await (async () => {
-          // If the address and credentialId are provided, we can skip the
-          // WebAuthn discovery step.
-          if (parameters.address && parameters.credentialId)
-            return {
-              address: parameters.address,
-              credentialId: parameters.credentialId,
-            }
-
-          // Discovery step. We will sign a random challenge. We need to do this
-          // to extract the user id (ie. the address) to query for the Account's keys.
-          const credential = await WebAuthnP256.sign({
-            challenge: '0x',
-            rpId: keystoreHost,
-          })
-          const response = credential.raw
-            .response as AuthenticatorAssertionResponse
-
-          const address = Bytes.toHex(new Uint8Array(response.userHandle!))
-          const credentialId = credential.raw.id
-
-          return { address, credentialId }
-        })()
-
-        // Fetch the delegated account's keys.
-        const [keyCount, extraKey] = await Promise.all([
-          readContract(client, {
-            abi: delegationAbi,
-            address,
-            functionName: 'keyCount',
-          }),
-          PermissionsRequest.toKey(permissions),
-        ])
-        const keys = await Promise.all(
-          Array.from({ length: Number(keyCount) }, (_, index) =>
-            Delegation.keyAt(client, { account: address, index }),
-          ),
-        )
-
-        // Instantiate the account based off the extracted address and keys.
-        const account = Account.from({
-          address,
-          keys: [...keys, ...(extraKey ? [extraKey] : [])].map((key, i) => {
-            const credential = {
-              id: credentialId,
-              publicKey: PublicKey.fromHex(key.publicKey),
-            }
-            // Assume that the first key is the admin WebAuthn key.
-            if (i === 0 && key.type === 'webauthn-p256')
-              return Key.fromWebAuthnP256({ ...key, credential })
-            // Add credential to session key to be able to restore from storage later
-            if (key.type === 'p256' && key.role === 'session')
-              return { ...key, credential } as typeof key
-            return key
-          }),
-        })
-
-        // If there is an extra key to authorize, we need to authorize it.
-        if (extraKey)
-          // TODO: wait for tx to be included?
-          await Delegation.execute(client, {
-            account,
-            calls: getAuthorizeCalls([extraKey]),
-          })
-
-        return {
-          accounts: [account],
-        }
-      },
-
-      async prepareCreateAccount(parameters) {
-        const { address, label, internal, permissions } = parameters
-        const { client } = internal
-        return await prepareCreateAccount({
-          address,
-          client,
-          keystoreHost,
-          label,
-          permissions,
-        })
-      },
-
-      async revokePermissions(parameters) {
-        const { account, id, internal } = parameters
-        const { client } = internal
-
-        const key = account.keys?.find((key) => key.publicKey === id)
-        if (!key) return
-
-        // We shouldn't be able to revoke the admin keys.
-        if (key.role === 'admin') throw new Error('cannot revoke permissions.')
-
-        await Delegation.execute(client, {
-          account,
-          calls: [Call.setCanExecute({ key, enabled: false })],
-        })
-      },
-
-      async signPersonalMessage(parameters) {
-        const { account, data } = parameters
-
-        // Only admin keys can sign personal messages.
-        const key = account.keys?.find(
-          (key) => key.role === 'admin' && key.canSign,
-        )
-        if (!key) throw new Error('cannot find admin key to sign with.')
-
-        const [signature] = await Account.sign(account, {
-          key,
-          payloads: [PersonalMessage.getSignPayload(data)],
-        })
-
-        return signature
-      },
-
-      async signTypedData(parameters) {
-        const { account, data } = parameters
-
-        // Only admin keys can sign typed data.
-        const key = account.keys?.find(
-          (key) => key.role === 'admin' && key.canSign,
-        )
-        if (!key) throw new Error('cannot find admin key to sign with.')
-
-        const [signature] = await Account.sign(account, {
-          key,
-          payloads: [TypedData.getSignPayload(Json.parse(data))],
-        })
-
-        return signature
-      },
-    },
-  })
-}
-
-export declare namespace local {
-  type Parameters = {
-    /**
-     * Keystore host (WebAuthn relying party).
-     * @default 'self'
-     */
-    keystoreHost?: 'self' | (string & {}) | undefined
-  }
 }
 
 export function dialog(parameters: dialog.Parameters = {}) {
@@ -607,7 +323,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     Schema.Decode(Permissions.Schema, permission),
                   )
                 } catch (err) {
-                  console.error(err)
                   return undefined
                 }
               })
@@ -768,7 +483,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       Schema.Decode(Permissions.Schema, permission),
                     )
                   } catch (err) {
-                    console.error(err)
                     return undefined
                   }
                 })
@@ -891,117 +605,357 @@ export declare namespace dialog {
 }
 
 /**
- * Mock P256 implementation for testing.
+ * Implementation for a WebAuthn-based local environment. Account management
+ * and signing is handled locally.
  *
  * @param parameters - Parameters.
  * @returns Implementation.
  */
-export function mock() {
-  let address: Address.Address | undefined
+export function local(parameters: local.Parameters = {}) {
+  const { mock } = parameters
 
-  return from({
-    actions: {
-      ...local().actions,
+  let address_internal: Address.Address | undefined
 
-      async createAccount(parameters) {
-        const { internal, permissions } = parameters
-        const { client } = internal
+  const keystoreHost = (() => {
+    if (parameters.keystoreHost === 'self') return undefined
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname === 'localhost'
+    )
+      return undefined
+    return parameters.keystoreHost
+  })()
 
-        const privateKey = Secp256k1.randomPrivateKey()
+  async function prepareCreateAccount(parameters: {
+    address: Address.Address
+    client: Porto.Client
+    label?: string | undefined
+    keystoreHost?: string | undefined
+    mock?: boolean | undefined
+    permissions: PermissionsRequest.PermissionsRequest | undefined
+  }) {
+    const { address, client, keystoreHost, mock, permissions } = parameters
 
-        const key = Key.createP256({
+    const label =
+      parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+
+    const key = !mock
+      ? await Key.createWebAuthnP256({
+          label,
+          role: 'admin',
+          rpId: keystoreHost,
+          userId: Bytes.from(address),
+        })
+      : Key.createP256({
           role: 'admin',
         })
 
-        const extraKey = await PermissionsRequest.toKey(permissions)
+    const extraKey = await PermissionsRequest.toKey(permissions)
 
-        const account = Account.fromPrivateKey(privateKey, {
-          keys: [key, ...(extraKey ? [extraKey] : [])],
+    const keys = [key, ...(extraKey ? [extraKey] : [])]
+
+    const account = Account.from({
+      address,
+      keys,
+    })
+    const delegation = client.chain.contracts.delegation.address
+
+    const { request, signPayloads } = await Delegation.prepareExecute(client, {
+      account,
+      calls: getAuthorizeCalls(account.keys),
+      delegation,
+    })
+
+    return { context: request, signPayloads }
+  }
+
+  return from({
+    actions: {
+      async createAccount(parameters) {
+        const { label, internal, permissions } = parameters
+        const { client } = internal
+
+        const { account, context, signatures } = await (async () => {
+          // If the context and signatures are provided, we can skip
+          // the preparation step (likely `wallet_prepareCreateAccount` has
+          // been called).
+          if (parameters.context && parameters.signatures)
+            return {
+              account: (parameters.context as any).account,
+              context: parameters.context,
+              signatures: parameters.signatures,
+            }
+
+          // Generate a random private key and derive the address.
+          // The address here will be the address of the account.
+          const privateKey = Secp256k1.randomPrivateKey()
+          const address = Address.fromPublicKey(
+            Secp256k1.getPublicKey({ privateKey }),
+          )
+
+          // Prepare the account for creation.
+          const { context, signPayloads } = await prepareCreateAccount({
+            address,
+            client,
+            keystoreHost,
+            label,
+            mock,
+            permissions,
+          })
+
+          // Assign any keys to the account and sign over the payloads
+          // required for account creation (e.g. 7702 auth and/or account initdata).
+          const account = Account.fromPrivateKey(privateKey, {
+            keys: context.account.keys,
+          })
+          const signatures = await Account.sign(account, {
+            payloads: signPayloads,
+          })
+
+          return { account, context, signatures }
+        })()
+
+        // Execute the account creation.
+        // TODO: wait for tx to be included?
+        await Delegation.execute(client, {
+          ...(context as any),
+          account,
+          signatures,
         })
-        const delegation = client.chain.contracts.delegation.address
 
-        address = account.address
+        address_internal = account.address
 
+        return { account }
+      },
+
+      async prepareExecute(parameters) {
+        const { client } = parameters
+
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
+        }
+      },
+
+      async execute(parameters) {
+        const { account, calls, internal, nonce, signature } = parameters
+        const { client } = internal
+
+        // Try and extract an authorized key to sign the calls with.
+        const key = await getAuthorizedExecuteKey({
+          account,
+          calls,
+          permissionsId: parameters.permissionsId,
+        })
+
+        // Execute the calls (with the key if provided, otherwise it will
+        // fall back to an admin key).
         const hash = await Delegation.execute(client, {
           account,
-          calls: getAuthorizeCalls(account.keys),
-          delegation,
+          calls,
+          ...(nonce && signature
+            ? {
+                nonce,
+                signatures: [signature],
+              }
+            : {
+                key,
+              }),
         })
 
-        return { account, hash }
+        return hash
+      },
+
+      async grantPermissions(parameters) {
+        const { account, permissions, internal } = parameters
+        const { client } = internal
+
+        // Parse permissions request into a structured key.
+        const key = await PermissionsRequest.toKey(permissions)
+        if (!key) throw new Error('key not found.')
+
+        // TODO: wait for tx to be included?
+        await Delegation.execute(client, {
+          account,
+          // Extract calls to authorize the key.
+          calls: getAuthorizeCalls([key]),
+        })
+
+        return { key }
       },
 
       async loadAccounts(parameters) {
-        const { internal } = parameters
+        const { internal, permissions } = parameters
         const { client } = internal
 
-        if (!address) throw new Error('no address found.')
+        const { address, credentialId } = await (async () => {
+          if (mock && address_internal)
+            return {
+              address: address_internal,
+              credentialId: undefined,
+            } as const
 
-        const keyCount = await readContract(client, {
-          abi: delegationAbi,
-          address,
-          functionName: 'keyCount',
-        })
+          // If the address and credentialId are provided, we can skip the
+          // WebAuthn discovery step.
+          if (parameters.address && parameters.credentialId)
+            return {
+              address: parameters.address,
+              credentialId: parameters.credentialId,
+            }
+
+          // Discovery step. We will sign a random challenge. We need to do this
+          // to extract the user id (ie. the address) to query for the Account's keys.
+          const credential = await WebAuthnP256.sign({
+            challenge: '0x',
+            rpId: keystoreHost,
+          })
+          const response = credential.raw
+            .response as AuthenticatorAssertionResponse
+
+          const address = Bytes.toHex(new Uint8Array(response.userHandle!))
+          const credentialId = credential.raw.id
+
+          return { address, credentialId }
+        })()
+
+        // Fetch the delegated account's keys.
+        const [keyCount, extraKey] = await Promise.all([
+          readContract(client, {
+            abi: DelegationContract.abi,
+            address,
+            functionName: 'keyCount',
+          }),
+          PermissionsRequest.toKey(permissions),
+        ])
         const keys = await Promise.all(
           Array.from({ length: Number(keyCount) }, (_, index) =>
-            Delegation.keyAt(client, { account: address!, index }),
+            Delegation.keyAt(client, { account: address, index }),
           ),
         )
 
+        // Instantiate the account based off the extracted address and keys.
         const account = Account.from({
           address,
-          keys,
+          keys: [...keys, ...(extraKey ? [extraKey] : [])].map((key, i) => {
+            const credential = {
+              id: credentialId!,
+              publicKey: PublicKey.fromHex(key.publicKey),
+            }
+            // Assume that the first key is the admin WebAuthn key.
+            if (i === 0) {
+              if (key.type === 'webauthn-p256')
+                return Key.fromWebAuthnP256({ ...key, credential })
+            }
+            // Add credential to session key to be able to restore from storage later
+            if ((key.type === 'p256' && key.role === 'session') || mock)
+              return { ...key, credential } as typeof key
+            return key
+          }),
         })
+
+        // If there is an extra key to authorize, we need to authorize it.
+        if (extraKey)
+          // TODO: wait for tx to be included?
+          await Delegation.execute(client, {
+            account,
+            calls: getAuthorizeCalls([extraKey]),
+          })
 
         return {
           accounts: [account],
         }
       },
+
+      async prepareCreateAccount(parameters) {
+        const { address, label, internal, permissions } = parameters
+        const { client } = internal
+        return await prepareCreateAccount({
+          address,
+          client,
+          keystoreHost,
+          label,
+          mock,
+          permissions,
+        })
+      },
+
+      async revokePermissions(parameters) {
+        const { account, id, internal } = parameters
+        const { client } = internal
+
+        const key = account.keys?.find((key) => key.publicKey === id)
+        if (!key) return
+
+        // We shouldn't be able to revoke the admin keys.
+        if (key.role === 'admin') throw new Error('cannot revoke permissions.')
+
+        await Delegation.execute(client, {
+          account,
+          calls: [Call.setCanExecute({ key, enabled: false })],
+        })
+      },
+
+      async signPersonalMessage(parameters) {
+        const { account, data } = parameters
+
+        // Only admin keys can sign personal messages.
+        const key = account.keys?.find(
+          (key) => key.role === 'admin' && key.canSign,
+        )
+        if (!key) throw new Error('cannot find admin key to sign with.')
+
+        const [signature] = await Account.sign(account, {
+          key,
+          payloads: [PersonalMessage.getSignPayload(data)],
+        })
+
+        return signature
+      },
+
+      async signTypedData(parameters) {
+        const { account, data } = parameters
+
+        // Only admin keys can sign typed data.
+        const key = account.keys?.find(
+          (key) => key.role === 'admin' && key.canSign,
+        )
+        if (!key) throw new Error('cannot find admin key to sign with.')
+
+        const [signature] = await Account.sign(account, {
+          key,
+          payloads: [TypedData.getSignPayload(Json.parse(data))],
+        })
+
+        return signature
+      },
     },
   })
+}
+
+export declare namespace local {
+  type Parameters = {
+    /**
+     * Mock implementation. Testing purposes only.
+     * @default false
+     * @deprecated
+     */
+    mock?: boolean | undefined
+    /**
+     * Keystore host (WebAuthn relying party).
+     * @default 'self'
+     */
+    keystoreHost?: 'self' | (string & {}) | undefined
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////
 // Internal
 ///////////////////////////////////////////////////////////////////////////
-
-async function prepareCreateAccount(parameters: {
-  address: Address.Address
-  client: Client
-  label?: string | undefined
-  keystoreHost?: string | undefined
-  permissions: PermissionsRequest.PermissionsRequest | undefined
-}) {
-  const { address, client, keystoreHost, permissions } = parameters
-
-  const label =
-    parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
-
-  const key = await Key.createWebAuthnP256({
-    label,
-    role: 'admin',
-    rpId: keystoreHost,
-    userId: Bytes.from(address),
-  })
-
-  const extraKey = await PermissionsRequest.toKey(permissions)
-
-  const keys = [key, ...(extraKey ? [extraKey] : [])]
-
-  const account = Account.from({
-    address,
-    keys,
-  })
-  const delegation = client.chain.contracts.delegation.address
-
-  const { request, signPayloads } = await Delegation.prepareExecute(client, {
-    account,
-    calls: getAuthorizeCalls(account.keys),
-    delegation,
-  })
-
-  return { context: request, signPayloads }
-}
 
 function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
   return keys.flatMap((key) => {
@@ -1026,7 +980,8 @@ function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
           })
         }),
       )
-    else permissionCalls.push(Call.setCanExecute({ key }))
+    else if (role === 'session')
+      permissionCalls.push(Call.setCanExecute({ key }))
 
     // Set spend limits.
     if (permissions?.spend)
@@ -1056,7 +1011,7 @@ function getAuthorizeCalls(keys: readonly Key.Key[]): readonly Call.Call[] {
       )
     }
 
-    return [...permissionCalls, Call.authorize({ key })]
+    return [Call.authorize({ key }), ...permissionCalls]
   })
 }
 

@@ -1,6 +1,6 @@
 import type * as Address from 'ox/Address'
 
-import type * as Key from './key.js'
+import * as Key from './key.js'
 import * as Permissions_ from './typebox/permissions.js'
 import type { StaticDecode } from './typebox/schema.js'
 
@@ -33,12 +33,12 @@ export declare namespace fromKey {
 
 export function toKey(permissions: Permissions): Key.Key {
   const { expiry, key } = permissions
-  return {
+  return Key.from({
     canSign: false,
     expiry,
     permissions: permissions.permissions ?? {},
     publicKey: key.publicKey,
     role: 'session',
-    type: key.type === 'contract' ? 'secp256k1' : key.type,
-  }
+    type: key.type === 'address' ? 'secp256k1' : key.type,
+  })
 }

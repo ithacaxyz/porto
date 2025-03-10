@@ -1,34 +1,66 @@
-import { Implementation, Porto, Storage } from 'porto'
-import { custom, defineChain } from 'viem'
-import * as chains from 'viem/chains'
+import { Chains, Implementation, Porto, Storage } from 'porto'
+import { http, type Transport, custom, defineChain } from 'viem'
 
-import { anvilMainnet } from './anvil.js'
+import { type Chain, odysseyTestnet } from '../../src/core/Chains.js'
+import * as Porto_internal from '../../src/core/internal/porto.js'
+import * as Anvil from './anvil.js'
+import * as Relay from './relay.js'
 
-const anvil = defineChain({
-  ...chains.mainnet,
+export const defaultChain = defineChain({
+  ...odysseyTestnet,
   contracts: {
-    ...chains.mainnet.contracts,
-    delegation: {
-      address: '0x0ff027b63351364071425cF65d4FEce75a8e17B8',
+    ...odysseyTestnet.contracts,
+    entryPoint: {
+      address: '0x307AF7d28AfEE82092aA95D35644898311CA5360',
     },
   },
   rpcUrls: {
-    default: { http: [anvilMainnet.rpcUrl] },
+    default: { http: [Anvil.instances.odyssey.rpcUrl] },
   },
 })
 
-export const createPorto = () =>
-  Porto.create({
-    chains: [anvil],
-    implementation: Implementation.mock(),
+export function getPorto(
+  parameters: {
+    chain?: Chain | undefined
+    implementation?: (parameters: {
+      mock: boolean
+    }) => Implementation.Implementation | undefined
+    transports?:
+      | {
+          default?: Transport | undefined
+          relay?: boolean | Transport | undefined
+        }
+      | undefined
+  } = {},
+) {
+  const {
+    chain = defaultChain,
+    implementation = Implementation.local,
+    transports = {},
+  } = parameters
+  const porto = Porto.create({
+    chains: [chain],
+    implementation: implementation({
+      mock: true,
+    }),
     storage: Storage.memory(),
     transports: {
-      [anvil.id]: custom(anvilMainnet),
+      [Chains.odysseyTestnet.id]: {
+        default: transports.default ?? custom(Anvil.instances.odyssey),
+        relay: transports.relay
+          ? transports.relay === true
+            ? http(Relay.instances.odyssey.rpcUrl)
+            : transports.relay
+          : undefined,
+      },
     },
   })
 
-export const porto = createPorto()
-export const client = Porto.getClient(porto).extend(() => ({
-  mode: 'anvil',
-}))
-export const delegation = client.chain.contracts.delegation.address
+  const client = Porto_internal.getClient(porto).extend(() => ({
+    mode: 'anvil',
+  }))
+
+  const delegation = client.chain.contracts.delegation.address
+
+  return { client, delegation, porto }
+}

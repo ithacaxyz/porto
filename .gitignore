@@ -5,6 +5,7 @@ node_modules
 .pnp
 .pnp.js
 .yarn/install-state.gz
+.logs
 
 # testing
 /coverage
@@ -32,7 +33,6 @@ contracts/out
 
 # lib
 src/_dist
-src/_generated
 
 # next.js
 .next
