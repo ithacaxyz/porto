@@ -49,7 +49,7 @@ export async function createAccount(
   const { capabilities } = parameters
   try {
     const method = 'wallet_createAccount' as const
-    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
     const result = await client.request<Schema>({
       method,
       params: [
@@ -104,7 +104,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 
   try {
     const method = 'wallet_prepareCalls' as const
-    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
     const result = await client.request<Schema>({
       method,
       params: [
@@ -160,7 +160,7 @@ export async function prepareUpgradeAccount(
 
   try {
     const method = 'wallet_prepareUpgradeAccount' as const
-    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
     const [result, [authorization, authorizationDigest]] = await Promise.all([
       client.request<Schema>({
         method,
@@ -247,7 +247,7 @@ export async function sendPreparedCalls(
   const { context, signature } = parameters
   try {
     const method = 'wallet_sendPreparedCalls' as const
-    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
     const result = await client.request<Schema>({
       method,
       params: [
@@ -307,7 +307,7 @@ export async function upgradeAccount(
 
   try {
     const method = 'wallet_upgradeAccount' as const
-    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
     const result = await client.request<Schema>({
       method,
       params: [

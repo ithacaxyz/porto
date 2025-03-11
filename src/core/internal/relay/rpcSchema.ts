@@ -8,7 +8,6 @@ import type * as RpcSchema_ox from 'ox/RpcSchema'
 
 import type * as RpcSchema from '../../RpcSchema.js'
 import type { Static } from '../typebox/schema.js'
-import type { UnionToTuple } from '../types.js'
 import type * as Rpc from './typebox/rpc.js'
 
 export type Schema = RpcSchema_ox.From<
@@ -38,4 +37,4 @@ export type Schema = RpcSchema_ox.From<
     }
 >
 
-export type ToViem = RpcSchema.MapSchema<UnionToTuple<Schema>>
+export type Viem = RpcSchema.ToViem<Schema>

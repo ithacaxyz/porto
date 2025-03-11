@@ -16,7 +16,7 @@ export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
   viem_Transport,
   chain,
   viem_Account | undefined,
-  [...PublicRpcSchema, ...RpcSchema_relay.ToViem]
+  [...PublicRpcSchema, ...RpcSchema_relay.Viem]
 >
 
 export type Internal<
