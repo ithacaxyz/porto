@@ -106,8 +106,7 @@ export namespace wallet_prepareCalls {
     /** The calls to prepare. */
     calls: Type.Array(
       Type.Object({
-        // TODO: `to`
-        target: Primitive.Address,
+        to: Primitive.Address,
         data: Schema.Optional(Primitive.Hex),
         value: Schema.Optional(Primitive.BigInt),
       }),

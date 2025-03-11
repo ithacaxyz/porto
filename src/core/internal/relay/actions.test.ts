@@ -355,7 +355,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const authorization = await signAuthorization(client, {
       account: eoa,
       chainId: 0,
-      contractAddress: request.context.authorizationAddress!,
+      contractAddress: request.context.authorizationAddress! as `0x${string}`,
       sponsor: true,
     })
 

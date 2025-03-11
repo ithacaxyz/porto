@@ -16,6 +16,8 @@ import * as Anvil from './src/anvil.js'
 import { ExperimentERC20 } from './src/contracts.js'
 import * as Relay from './src/relay.js'
 
+const account = privateKeyToAccount(Anvil.accounts[0]!.privateKey)
+
 beforeAll(async () => {
   await Promise.all(
     Object.values(Anvil.instances).map(async (instance) => {
@@ -32,11 +34,33 @@ beforeAll(async () => {
       })
 
       {
+        // Deploy EntryPoint contract.
+        const hash = await deployContract(client, {
+          abi: EntryPoint.abi,
+          bytecode: EntryPoint.code,
+          account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),
+          chain: null,
+          args: [account.address],
+        })
+        const { contractAddress } = await getTransactionReceipt(client, {
+          hash,
+        })
+        const code = await getCode(client, {
+          address: contractAddress!,
+        })
+        await setCode(client, {
+          address: chain.contracts.entryPoint.address,
+          bytecode: code!,
+        })
+      }
+
+      {
         // Deploy Delegation contract.
         const hash = await deployContract(client, {
           abi: Delegation.abi,
           bytecode: Delegation.code,
-          account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),
+          args: [chain.contracts.entryPoint.address],
+          account,
           chain: null,
         })
         const { contractAddress } = await getTransactionReceipt(client, {
@@ -47,26 +71,6 @@ beforeAll(async () => {
         })
         await setCode(client, {
           address: chain.contracts.delegation.address,
-          bytecode: code!,
-        })
-      }
-
-      {
-        // Deploy EntryPoint contract.
-        const hash = await deployContract(client, {
-          abi: EntryPoint.abi,
-          bytecode: EntryPoint.code,
-          account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),
-          chain: null,
-        })
-        const { contractAddress } = await getTransactionReceipt(client, {
-          hash,
-        })
-        const code = await getCode(client, {
-          address: contractAddress!,
-        })
-        await setCode(client, {
-          address: '0x307AF7d28AfEE82092aA95D35644898311CA5360',
           bytecode: code!,
         })
       }

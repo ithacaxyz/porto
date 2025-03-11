@@ -74,7 +74,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
             call.args,
           )
         : (call.data ?? '0x'),
-      target: call.to,
+      to: call.to,
       value: call.value ?? 0n,
     }
   })
