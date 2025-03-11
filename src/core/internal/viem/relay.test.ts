@@ -115,7 +115,7 @@ describe('createAccount', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Actions.SchemaCoderError: Expected string to match '^0x(.*)$'
+      [Relay.SchemaCoderError: Expected string to match '^0x(.*)$'
 
       Path: capabilities.authorizeKeys.0.publicKey
       Value: "INVALID!"
@@ -138,7 +138,7 @@ describe('createAccount', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Actions.SchemaCoderError: Expected 'admin'
+      [Relay.SchemaCoderError: Expected 'admin'
 
       Path: capabilities.authorizeKeys.0.role
       Value: "beef"
@@ -251,7 +251,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Actions.SchemaCoderError: Expected string to match '^0x(.*)$'
+      [Relay.SchemaCoderError: Expected string to match '^0x(.*)$'
 
       Path: capabilities.meta.keyHash
       Value: "cheese"
@@ -300,7 +300,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Actions.SchemaCoderError: Expected 'p256'
+      [Relay.SchemaCoderError: Expected 'p256'
 
       Path: signature.type
       Value: "falcon"

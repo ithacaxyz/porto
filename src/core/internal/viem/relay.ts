@@ -5,6 +5,7 @@
  */
 
 import { AssertError, TransformEncodeCheckError } from '@sinclair/typebox/value'
+import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import * as Authorization from 'ox/Authorization'
@@ -12,14 +13,22 @@ import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as Signature from 'ox/Signature'
-import type { Calls, Narrow } from 'viem'
+import {
+  BaseError,
+  type Calls,
+  type Chain,
+  type Client,
+  type Narrow,
+} from 'viem'
 import {
   type Authorization as Authorization_viem,
   prepareAuthorization,
 } from 'viem/experimental'
+import { getExecuteError } from 'viem/experimental/erc7821'
 
-import * as Delegation from '../delegation.js'
-import type { Client } from '../porto.js'
+import * as Delegation from '../_generated/contracts/Delegation.js'
+import type { sendCalls } from '../relay.js'
+import type * as RpcSchema from '../relay/rpcSchema.js'
 import * as Rpc from '../relay/typebox/rpc.js'
 import { Value } from '../typebox/schema.js'
 
@@ -39,8 +48,10 @@ export async function createAccount(
 ): Promise<createAccount.ReturnType> {
   const { capabilities } = parameters
   try {
-    const result = await client.request({
-      method: 'wallet_createAccount',
+    const method = 'wallet_createAccount' as const
+    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
       params: [
         Value.Encode(Rpc.wallet_createAccount.Parameters, {
           capabilities,
@@ -76,7 +87,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
-  const { account, capabilities, chainId = client.chain.id } = parameters
+  const { account, capabilities, chain = client.chain } = parameters
 
   const calls = parameters.calls.map((call: any) => {
     return {
@@ -92,13 +103,15 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   })
 
   try {
-    const result = await client.request({
-      method: 'wallet_prepareCalls',
+    const method = 'wallet_prepareCalls' as const
+    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
       params: [
         Value.Encode(Rpc.wallet_prepareCalls.Parameters, {
           calls,
           capabilities,
-          chainId,
+          chainId: chain?.id,
           from: account,
         }),
       ],
@@ -106,7 +119,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     return Value.Parse(Rpc.wallet_prepareCalls.Response, result)
   } catch (error) {
     parseSchemaError(error)
-    Delegation.parseExecutionError(error, { calls: parameters.calls })
+    parseExecutionError(error, { calls: parameters.calls })
     throw error
   }
 }
@@ -118,14 +131,14 @@ export namespace prepareCalls {
     account: Address.Address
     calls: Calls<Narrow<calls>>
     capabilities: Rpc.wallet_prepareCalls.Capabilities
-    chainId?: number | undefined
+    chain?: Chain | undefined
   }
 
   export type ReturnType = Rpc.wallet_prepareCalls.Response
 
   export type ErrorType =
     | parseSchemaError.ErrorType
-    | Delegation.parseExecutionError.ErrorType
+    | parseExecutionError.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -143,17 +156,19 @@ export async function prepareUpgradeAccount(
   client: Client,
   parameters: prepareUpgradeAccount.Parameters,
 ): Promise<prepareUpgradeAccount.ReturnType> {
-  const { address, capabilities, chainId = client.chain.id } = parameters
+  const { address, capabilities, chain = client.chain } = parameters
 
   try {
+    const method = 'wallet_prepareUpgradeAccount' as const
+    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
     const [result, [authorization, authorizationDigest]] = await Promise.all([
-      client.request({
-        method: 'wallet_prepareUpgradeAccount',
+      client.request<Schema>({
+        method,
         params: [
           Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
             address,
             capabilities,
-            chainId,
+            chainId: chain?.id,
           }),
         ],
       }),
@@ -188,7 +203,7 @@ export async function prepareUpgradeAccount(
     }
   } catch (error) {
     parseSchemaError(error)
-    Delegation.parseExecutionError(error)
+    parseExecutionError(error)
     throw error
   }
 }
@@ -196,7 +211,7 @@ export namespace prepareUpgradeAccount {
   export type Parameters = {
     address: Address.Address
     capabilities: Rpc.wallet_prepareUpgradeAccount.Capabilities
-    chainId?: number | undefined
+    chain?: Chain | undefined
   }
 
   export type ReturnType = Omit<
@@ -211,7 +226,7 @@ export namespace prepareUpgradeAccount {
 
   export type ErrorType =
     | parseSchemaError.ErrorType
-    | Delegation.parseExecutionError.ErrorType
+    | parseExecutionError.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -231,8 +246,10 @@ export async function sendPreparedCalls(
 ): Promise<sendPreparedCalls.ReturnType> {
   const { context, signature } = parameters
   try {
-    const result = await client.request({
-      method: 'wallet_sendPreparedCalls',
+    const method = 'wallet_sendPreparedCalls' as const
+    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
       params: [
         Value.Encode(Rpc.wallet_sendPreparedCalls.Parameters, {
           context,
@@ -243,7 +260,7 @@ export async function sendPreparedCalls(
     return Value.Parse(Rpc.wallet_sendPreparedCalls.Response, result)
   } catch (error) {
     parseSchemaError(error)
-    Delegation.parseExecutionError(error)
+    parseExecutionError(error)
     throw error
   }
 }
@@ -255,7 +272,7 @@ export namespace sendPreparedCalls {
 
   export type ErrorType =
     | parseSchemaError.ErrorType
-    | Delegation.parseExecutionError.ErrorType
+    | parseExecutionError.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -289,8 +306,10 @@ export async function upgradeAccount(
   })()
 
   try {
-    const result = await client.request({
-      method: 'wallet_upgradeAccount',
+    const method = 'wallet_upgradeAccount' as const
+    type Schema = Extract<RpcSchema.ToViem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
       params: [
         Value.Encode(Rpc.wallet_upgradeAccount.Parameters, {
           authorization,
@@ -302,7 +321,7 @@ export async function upgradeAccount(
     return Value.Parse(Rpc.wallet_upgradeAccount.Response, result)
   } catch (error) {
     parseSchemaError(error)
-    Delegation.parseExecutionError(error)
+    parseExecutionError(error)
     throw error
   }
 }
@@ -319,8 +338,54 @@ export namespace upgradeAccount {
 
   export type ErrorType =
     | parseSchemaError.ErrorType
-    | Delegation.parseExecutionError.ErrorType
+    | parseExecutionError.ErrorType
     | Errors.GlobalErrorType
+}
+
+export function parseExecutionError<const calls extends readonly unknown[]>(
+  e: unknown,
+  { calls }: { calls?: sendCalls.Parameters<calls>['calls'] | undefined } = {},
+) {
+  if (!(e instanceof BaseError)) return
+
+  const getAbiError = (error: BaseError) => {
+    const cause = error.walk((e) => 'data' in (e as BaseError))
+    if (!cause) return undefined
+
+    let data: Hex.Hex | undefined
+    if (cause instanceof BaseError) {
+      const [, match] = cause.details?.match(/"(0x[0-9a-f]{8})"/) || []
+      if (match) data = match as Hex.Hex
+    }
+
+    if (!data) {
+      if (!('data' in cause)) return undefined
+      if (cause.data instanceof BaseError) return getAbiError(cause.data)
+      if (typeof cause.data !== 'string') return undefined
+      if (cause.data === '0x') return undefined
+      data = cause.data as Hex.Hex
+    }
+
+    try {
+      if (data === '0xd0d5039b') return AbiError.from('error Unauthorized()')
+      return AbiError.fromAbi(
+        [...Delegation.abi, AbiError.from('error CallError()')],
+        data,
+      )
+    } catch {
+      return undefined
+    }
+  }
+  const error = getExecuteError(e as BaseError, {
+    calls: (calls ?? []) as any,
+  })
+  const abiError = getAbiError(error)
+  if (error === e && !abiError) return
+  throw new ExecutionError(Object.assign(error, { abiError }))
+}
+
+export declare namespace parseExecutionError {
+  export type ErrorType = ExecutionError | Errors.GlobalErrorType
 }
 
 export function parseSchemaError(e: unknown) {
@@ -339,10 +404,28 @@ export declare namespace parseSchemaError {
   }
 }
 
+/** Thrown when the execution fails. */
+export class ExecutionError extends Errors.BaseError<BaseError> {
+  override readonly name = 'Relay.ExecutionError'
+
+  abiError?: AbiError.AbiError | undefined
+
+  constructor(cause: BaseError & { abiError?: AbiError.AbiError | undefined }) {
+    super('An error occurred while executing calls.', {
+      cause,
+      metaMessages: [cause.abiError && 'Reason: ' + cause.abiError.name].filter(
+        Boolean,
+      ),
+    })
+
+    this.abiError = cause.abiError
+  }
+}
+
 export class SchemaCoderError extends Errors.BaseError<
   AssertError | TransformEncodeCheckError
 > {
-  override readonly name = 'Actions.SchemaCoderError'
+  override readonly name = 'Relay.SchemaCoderError'
 
   constructor(cause: AssertError | TransformEncodeCheckError) {
     const message = (() => {
