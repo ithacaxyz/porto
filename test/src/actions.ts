@@ -10,7 +10,7 @@ import * as RelayAccount from '../../src/core/internal/relay/account.js'
 import * as Anvil from './anvil.js'
 import { ExperimentERC20 } from './contracts.js'
 
-export async function createRelayAccount(
+export async function createAccount(
   client: Client,
   parameters: {
     keys: readonly Key.Key[]

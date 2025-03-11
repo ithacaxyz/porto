@@ -925,7 +925,7 @@ export function toRelay(key: Key): Relay {
             type: 'spend',
             limit,
             period,
-            token,
+            token: token ?? '0x0000000000000000000000000000000000000000',
           } as const satisfies RelayPermission.SpendPermission
         })
       }

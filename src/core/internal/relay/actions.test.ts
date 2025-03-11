@@ -154,7 +154,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { account } = await TestActions.createRelayAccount(client, {
+    const { account } = await TestActions.createAccount(client, {
       keys: [key],
     })
 
@@ -193,7 +193,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { account } = await TestActions.createRelayAccount(client, {
+    const { account } = await TestActions.createAccount(client, {
       keys: [key],
     })
 
@@ -234,7 +234,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { account } = await TestActions.createRelayAccount(client, {
+    const { account } = await TestActions.createAccount(client, {
       keys: [key],
     })
 
@@ -265,7 +265,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { account } = await TestActions.createRelayAccount(client, {
+    const { account } = await TestActions.createAccount(client, {
       keys: [key],
     })
 
