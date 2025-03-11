@@ -1,5 +1,5 @@
 /**
- * Wrapper for Relay JSON-RPC methods.
+ * Viem Actions for Relay JSON-RPC methods.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/rpc.rs
  */

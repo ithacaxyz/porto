@@ -6,7 +6,7 @@ import { setBalance as setBalance_viem, writeContract } from 'viem/actions'
 import * as Account from '../../src/core/internal/account.js'
 import type * as Key from '../../src/core/internal/key.js'
 import type { Client } from '../../src/core/internal/porto.js'
-import * as RelayAccount from '../../src/core/internal/relay/account.js'
+import * as Relay from '../../src/core/internal/relay.js'
 import * as Anvil from './anvil.js'
 import { ExperimentERC20 } from './contracts.js'
 
@@ -19,7 +19,7 @@ export async function createAccount(
 ) {
   const { keys, setBalance: balance = parseEther('10000') } = parameters
 
-  const account = await RelayAccount.create(client, { keys })
+  const account = await Relay.createAccount(client, { keys })
 
   if (balance)
     await setBalance(client, {
@@ -67,7 +67,7 @@ export async function getUpgradedAccount(
 
   const { account } = await getAccount(client, { keys, setBalance })
 
-  const request = await RelayAccount.prepareUpgrade(client, {
+  const request = await Relay.prepareUpgradeAccount(client, {
     address: account.address,
     keys,
     feeToken: ExperimentERC20.address[0],
@@ -77,7 +77,7 @@ export async function getUpgradedAccount(
     request.digests.map((payload) => account.sign({ payload })),
   )
 
-  await RelayAccount.upgrade(client, {
+  await Relay.upgradeAccount(client, {
     ...request,
     signatures,
   })

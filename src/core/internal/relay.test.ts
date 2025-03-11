@@ -2,17 +2,202 @@ import { Hex, Value } from 'ox'
 import { readContract } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import * as TestActions from '../../../../test/src/actions.js'
-import { ExperimentERC20 } from '../../../../test/src/contracts.js'
-import { getPorto } from '../../../../test/src/porto.js'
-import * as Delegation from '../delegation.js'
-import * as Key from '../key.js'
-import * as Calls from './calls.js'
+import { generatePrivateKey } from 'viem/accounts'
+import { privateKeyToAccount } from 'viem/accounts'
+import * as TestActions from '../../../test/src/actions.js'
+import { ExperimentERC20 } from '../../../test/src/contracts.js'
+import { getPorto } from '../../../test/src/porto.js'
+import * as Delegation from './delegation.js'
+import * as Key from './key.js'
+import * as Relay from './relay.js'
 
 const { client } = getPorto({
   transports: {
     relay: true,
   },
+})
+
+describe('createAccount', () => {
+  test('default', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const account = await Relay.createAccount(client, {
+      keys: [key],
+    })
+
+    expect(account.address).toBeDefined()
+    expect(account.keys).toContain(key)
+  })
+
+  test('behavior: multiple keys', async () => {
+    const key1 = Key.createP256({
+      role: 'admin',
+    })
+
+    const key2 = await Key.createWebCryptoP256({
+      role: 'admin',
+    })
+
+    const account = await Relay.createAccount(client, {
+      keys: [key1, key2],
+    })
+
+    expect(account.address).toBeDefined()
+    expect(account.keys).toContain(key1)
+    expect(account.keys).toContain(key2)
+  })
+
+  test('behavior: permissions', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+      permissions: {
+        calls: [
+          {
+            signature: 'mint()',
+          },
+        ],
+        spend: [
+          {
+            limit: 100n,
+            period: 'minute',
+          },
+        ],
+      },
+    })
+
+    const account = await Relay.createAccount(client, {
+      keys: [key],
+    })
+
+    expect(account.address).toBeDefined()
+    expect(account.keys).toContain(key)
+    expect(account.keys[0]?.permissions).toMatchInlineSnapshot(`
+      {
+        "calls": [
+          {
+            "signature": "mint()",
+          },
+        ],
+        "spend": [
+          {
+            "limit": 100n,
+            "period": "minute",
+          },
+        ],
+      }
+    `)
+  })
+})
+
+describe('prepareUpgradeAccount + upgradeAccount', () => {
+  test('default', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const eoa = privateKeyToAccount(generatePrivateKey())
+
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+      value: Value.fromEther('10'),
+    })
+
+    const request = await Relay.prepareUpgradeAccount(client, {
+      address: eoa.address,
+      keys: [key],
+      feeToken: ExperimentERC20.address[0],
+    })
+
+    const signatures = await Promise.all(
+      request.digests.map((hash) => eoa.sign({ hash })),
+    )
+
+    const result = await Relay.upgradeAccount(client, {
+      ...request,
+      signatures,
+    })
+
+    expect(result.account.keys).toContain(key)
+  })
+})
+
+describe('sendCalls', () => {
+  test('default', async () => {
+    const key = Key.createP256({ role: 'admin' })
+    const { account } = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const { id } = await Relay.sendCalls(client, {
+      account,
+      calls: [
+        {
+          to: ExperimentERC20.address[1],
+          abi: ExperimentERC20.abi,
+          functionName: 'mint',
+          args: [account.address, 100n],
+        },
+      ],
+      feeToken: ExperimentERC20.address[0],
+      nonce: randomNonce(),
+    })
+
+    expect(id).toBeDefined()
+
+    expect(
+      await readContract(client, {
+        address: ExperimentERC20.address[1],
+        abi: ExperimentERC20.abi,
+        functionName: 'balanceOf',
+        args: [account.address],
+      }),
+    ).toBe(100n)
+  })
+})
+
+describe('prepareCalls + sendPreparedCalls', () => {
+  test('default', async () => {
+    const key = Key.createP256({ role: 'admin' })
+    const { account } = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const request = await Relay.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          to: ExperimentERC20.address[1],
+          abi: ExperimentERC20.abi,
+          functionName: 'mint',
+          args: [account.address, 100n],
+        },
+      ],
+      feeToken: ExperimentERC20.address[0],
+      key,
+      nonce: randomNonce(),
+    })
+
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+    })
+
+    const { id } = await Relay.sendPreparedCalls(client, {
+      ...request,
+      signature,
+    })
+
+    expect(id).toBeDefined()
+
+    expect(
+      await readContract(client, {
+        address: ExperimentERC20.address[1],
+        abi: ExperimentERC20.abi,
+        functionName: 'balanceOf',
+        args: [account.address],
+      }),
+    ).toBe(100n)
+  })
 })
 
 describe.each([
@@ -31,7 +216,7 @@ describe.each([
       })
 
       // 2. Mint 100 ERC20 tokens to Account.
-      const { id } = await Calls.send(client, {
+      const { id } = await Relay.sendCalls(client, {
         account,
         calls: [
           {
@@ -66,7 +251,7 @@ describe.each([
       })
 
       // 2. Mint 100 ERC20 tokens to Account – no `feeToken` specified.
-      const { id } = await Calls.send(client, {
+      const { id } = await Relay.sendCalls(client, {
         account,
         calls: [
           {
@@ -99,7 +284,7 @@ describe.each([
       })
 
       // 2. Perform a no-op call.
-      const { id } = await Calls.send(client, {
+      const { id } = await Relay.sendCalls(client, {
         account,
         calls: [
           {
@@ -122,7 +307,7 @@ describe.each([
 
       // 2. Try to transfer 100 ERC20 tokens to the zero address.
       await expect(() =>
-        Calls.send(client, {
+        Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -147,7 +332,7 @@ describe.each([
 
       // 2. Try to transfer 100000000 ETH tokens to the zero address.
       await expect(() =>
-        Calls.send(client, {
+        Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -177,7 +362,7 @@ describe.each([
       ] as const
 
       // 3. Authorize additional Admin Keys.
-      const { id } = await Calls.send(client, {
+      const { id } = await Relay.sendCalls(client, {
         account,
         authorizeKeys: keys,
         calls: [],
@@ -217,7 +402,7 @@ describe.each([
       // 2. Authorize a new Admin Key.
       const newKey = Key.createP256({ role: 'admin' })
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           authorizeKeys: [newKey],
           feeToken: ExperimentERC20.address[0],
@@ -228,7 +413,7 @@ describe.each([
 
       // 3. Mint 100 ERC20 tokens to Account with new Admin Key.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -271,7 +456,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -317,7 +502,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -364,7 +549,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -393,7 +578,7 @@ describe.each([
 
       // 4. Mint another 100 ERC20 tokens to Account.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -440,7 +625,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account with Admin Key.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -469,7 +654,7 @@ describe.each([
 
       // 4. Mint another 100 ERC20 tokens to Account with Session Key.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -521,7 +706,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -572,7 +757,7 @@ describe.each([
 
       // 2. Try to mint ERC20 tokens to Account with Session Key.
       await expect(() =>
-        Calls.send(client, {
+        Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -609,7 +794,7 @@ describe.each([
       // 2. Try to mint ERC20 tokens to Account with Session Key.
       await expect(
         () =>
-          Calls.send(client, {
+          Relay.sendCalls(client, {
             account,
             calls: [
               {
@@ -644,7 +829,7 @@ describe.each([
       })
 
       // 2. Mint 100 ERC20 tokens to Account.
-      await Calls.send(client, {
+      await Relay.sendCalls(client, {
         account,
         calls: [
           {
@@ -659,7 +844,7 @@ describe.each([
       })
 
       // 3. Transfer 50 ERC20 tokens from Account.
-      await Calls.send(client, {
+      await Relay.sendCalls(client, {
         account,
         calls: [
           {
@@ -675,7 +860,7 @@ describe.each([
 
       // 4. Try transfer another 50 ERC20 tokens from Account.
       await expect(() =>
-        Calls.send(client, {
+        Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -713,7 +898,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account with Session Key.
       {
-        const { id } = await Calls.send(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           calls: [
             {
@@ -741,7 +926,7 @@ describe.each([
       }
 
       // 4. Transfer 50 ERC20 token from Account.
-      await Calls.send(client, {
+      await Relay.sendCalls(client, {
         account,
         calls: [
           {
@@ -758,7 +943,7 @@ describe.each([
 
       // 5. Try to transfer another 50 ERC20 tokens from Account.
       await expect(() =>
-        Calls.send(client, {
+        Relay.sendCalls(client, {
           account,
           calls: [
             {
