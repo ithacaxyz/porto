@@ -9,7 +9,11 @@ export const instances = {
   odyssey: defineRelay({
     endpoint: (key) =>
       `http://127.0.0.1:${Anvil.instances.odyssey.port}/${key}`,
-    feeToken: ExperimentERC20.address[0],
+    feeTokens: [
+      '0x0000000000000000000000000000000000000000',
+      ExperimentERC20.address[0],
+    ],
+    userOpGasBuffer: 100_000n,
   }),
 } as const
 
@@ -19,7 +23,7 @@ export const instances = {
 
 function defineRelay(parameters: {
   endpoint: (key: number) => string
-  feeToken: string
+  feeTokens: string[]
   txGasBuffer?: bigint | undefined
   userOpGasBuffer?: bigint | undefined
   port?: number | undefined

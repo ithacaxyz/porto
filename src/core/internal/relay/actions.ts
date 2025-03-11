@@ -11,6 +11,7 @@ import * as Errors from 'ox/Errors'
 import * as Json from 'ox/Json'
 import type { Calls, Narrow } from 'viem'
 
+import * as Delegation from '../delegation.js'
 import type { Client } from '../porto.js'
 import { Value } from '../typebox/schema.js'
 import * as Rpc from './typebox/rpc.js'
@@ -41,13 +42,17 @@ export async function createAccount(
     })
     return Value.Parse(Rpc.wallet_createAccount.Response, result)
   } catch (error) {
-    throw getError(error)
+    parseSchemaError(error)
+    throw error
   }
 }
 
 export namespace createAccount {
   export type Parameters = Rpc.wallet_createAccount.Parameters
+
   export type ReturnType = Rpc.wallet_createAccount.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
 
 /**
@@ -93,7 +98,9 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     })
     return Value.Parse(Rpc.wallet_prepareCalls.Response, result)
   } catch (error) {
-    throw getError(error)
+    parseSchemaError(error)
+    Delegation.parseExecutionError(error, { calls: parameters.calls })
+    throw error
   }
 }
 
@@ -108,6 +115,11 @@ export namespace prepareCalls {
   }
 
   export type ReturnType = Rpc.wallet_prepareCalls.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | Delegation.parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
 }
 
 export async function prepareUpgradeAccount(
@@ -129,7 +141,9 @@ export async function prepareUpgradeAccount(
     })
     return Value.Parse(Rpc.wallet_prepareUpgradeAccount.Response, result)
   } catch (error) {
-    throw getError(error)
+    parseSchemaError(error)
+    Delegation.parseExecutionError(error)
+    throw error
   }
 }
 export namespace prepareUpgradeAccount {
@@ -140,6 +154,11 @@ export namespace prepareUpgradeAccount {
   }
 
   export type ReturnType = Rpc.wallet_prepareUpgradeAccount.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | Delegation.parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -169,13 +188,21 @@ export async function sendPreparedCalls(
     })
     return Value.Parse(Rpc.wallet_sendPreparedCalls.Response, result)
   } catch (error) {
-    throw getError(error)
+    parseSchemaError(error)
+    Delegation.parseExecutionError(error)
+    throw error
   }
 }
 
 export namespace sendPreparedCalls {
   export type Parameters = Rpc.wallet_sendPreparedCalls.Parameters
+
   export type ReturnType = Rpc.wallet_sendPreparedCalls.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | Delegation.parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
 }
 
 export async function upgradeAccount(
@@ -196,20 +223,37 @@ export async function upgradeAccount(
     })
     return Value.Parse(Rpc.wallet_upgradeAccount.Response, result)
   } catch (error) {
-    throw getError(error)
+    parseSchemaError(error)
+    Delegation.parseExecutionError(error)
+    throw error
   }
 }
 
 export namespace upgradeAccount {
   export type Parameters = Rpc.wallet_upgradeAccount.Parameters
+
   export type ReturnType = Rpc.wallet_upgradeAccount.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | Delegation.parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
 }
 
-function getError(error: unknown) {
-  if (error instanceof TransformEncodeCheckError)
-    return new SchemaCoderError(error)
-  if (error instanceof AssertError) return new SchemaCoderError(error)
-  return error
+export function parseSchemaError(e: unknown) {
+  if (e instanceof TransformEncodeCheckError) throw new SchemaCoderError(e)
+  if (e instanceof AssertError) throw new SchemaCoderError(e)
+}
+
+export declare namespace parseSchemaError {
+  type ErrorType = SchemaCoderError
+}
+
+/** Thrown when schema validation fails. */
+export declare namespace parseSchemaError {
+  type Options = {
+    calls?: readonly unknown[] | undefined
+  }
 }
 
 export class SchemaCoderError extends Errors.BaseError<

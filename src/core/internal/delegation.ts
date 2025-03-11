@@ -116,7 +116,8 @@ export async function execute<
       to: account.address,
     } as SendTransactionParameters)
   } catch (e) {
-    throw getExecuteError(e as BaseError, { calls })
+    parseExecutionError(e, { calls })
+    throw e
   }
 }
 
@@ -365,33 +366,12 @@ export declare namespace prepareExecute {
   }
 }
 
-/** Thrown when the execution fails. */
-export class ExecutionError extends Errors.BaseError<BaseError> {
-  override readonly name = 'Delegation.ExecutionError'
-
-  abiError?: AbiError.AbiError | undefined
-
-  constructor(
-    cause: BaseError,
-    { abiError }: { abiError?: AbiError.AbiError | undefined } = {},
-  ) {
-    super('An error occurred while executing calls.', {
-      cause,
-      metaMessages: [abiError && 'Reason: ' + abiError.name].filter(Boolean),
-    })
-
-    this.abiError = abiError
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Internal
-///////////////////////////////////////////////////////////////////////////
-
-export function getExecuteError<const calls extends readonly unknown[]>(
-  e: Error,
-  { calls }: { calls: execute.Parameters<calls>['calls'] },
+export function parseExecutionError<const calls extends readonly unknown[]>(
+  e: unknown,
+  { calls }: { calls?: execute.Parameters<calls>['calls'] | undefined } = {},
 ) {
+  if (!(e instanceof BaseError)) return
+
   const getAbiError = (error: BaseError) => {
     const cause = error.walk((e) => 'data' in (e as BaseError))
     if (!cause) return undefined
@@ -420,9 +400,39 @@ export function getExecuteError<const calls extends readonly unknown[]>(
       return undefined
     }
   }
-  const error = getExecuteError_viem(e as BaseError, { calls })
-  return new ExecutionError(error, { abiError: getAbiError(error) })
+  const error = getExecuteError_viem(e as BaseError, {
+    calls: (calls ?? []) as any,
+  })
+  const abiError = getAbiError(error)
+  if (error === e && !abiError) return
+  throw new ExecutionError(Object.assign(error, { abiError }))
 }
+
+export declare namespace parseExecutionError {
+  export type ErrorType = ExecutionError | Errors.GlobalErrorType
+}
+
+/** Thrown when the execution fails. */
+export class ExecutionError extends Errors.BaseError<BaseError> {
+  override readonly name = 'Delegation.ExecutionError'
+
+  abiError?: AbiError.AbiError | undefined
+
+  constructor(cause: BaseError & { abiError?: AbiError.AbiError | undefined }) {
+    super('An error occurred while executing calls.', {
+      cause,
+      metaMessages: [cause.abiError && 'Reason: ' + cause.abiError.name].filter(
+        Boolean,
+      ),
+    })
+
+    this.abiError = cause.abiError
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Internal
+///////////////////////////////////////////////////////////////////////////
 
 /** @internal */
 async function getExecuteSignPayload<

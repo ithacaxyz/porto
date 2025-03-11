@@ -535,7 +535,7 @@ export function fromRelay(relay: Relay): Key {
       permissions.spend.push({
         limit: permission.limit,
         period: permission.period,
-        token: permission.token,
+        token: permission.token as Address.Address,
       })
     }
   }
@@ -925,7 +925,7 @@ export function toRelay(key: Key): Relay {
             type: 'spend',
             limit,
             period,
-            token: token ?? '0x0000000000000000000000000000000000000000',
+            token,
           } as const satisfies RelayPermission.SpendPermission
         })
       }

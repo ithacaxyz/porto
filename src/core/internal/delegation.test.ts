@@ -613,7 +613,7 @@ describe('execute', () => {
         ],
         delegation,
       }),
-    ).rejects.toThrowError('An error occurred while executing calls.')
+    ).rejects.toThrowError('Reason: Unauthorized')
   })
 
   test('error: unauthorized', async () => {

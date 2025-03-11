@@ -27,7 +27,7 @@ export const SpendPermission = Type.Object({
     Type.Literal('year'),
   ]),
   /** The token this permission applies to. If `None`, defaults to native token (ETH). */
-  token: Schema.OneOf([Schema.Optional(Primitive.Address), Type.Null()]),
+  token: Schema.Optional(Schema.OneOf([Primitive.Address, Type.Null()])),
   /** Permission type. */
   type: Type.Literal('spend'),
 })
