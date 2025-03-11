@@ -625,6 +625,7 @@ export function local(parameters: local.Parameters = {}) {
   const { mock } = parameters
 
   let address_internal: Address.Address | undefined
+  const preparedAccounts_internal: Account.Account[] = []
 
   const keystoreHost = (() => {
     if (parameters.keystoreHost === 'self') return undefined
@@ -668,6 +669,8 @@ export function local(parameters: local.Parameters = {}) {
       address,
       keys,
     })
+    preparedAccounts_internal.push(account)
+
     const delegation = client.chain.contracts.delegation.address
 
     const { request, signPayloads } = await Delegation.prepareExecute(client, {
@@ -934,17 +937,21 @@ export function local(parameters: local.Parameters = {}) {
         const { context, internal, signatures } = parameters
         const { client } = internal
 
-        const account = (context as any).account as Account.Account
+        const address = (context as any).account.address
 
         // Execute the account creation.
         // TODO: wait for tx to be included?
         await Delegation.execute(client, {
           ...(context as any),
-          account,
           signatures,
         })
 
-        address_internal = account.address
+        const account = preparedAccounts_internal.find(
+          (account) => account.address === address,
+        )
+        if (!account) throw new Error('prepared account not found')
+
+        address_internal = address
 
         return { account }
       },
