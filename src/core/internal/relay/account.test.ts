@@ -1,5 +1,10 @@
+import { Value } from 'ox'
 import { describe, expect, test } from 'vitest'
 
+import { generatePrivateKey } from 'viem/accounts'
+import { privateKeyToAccount } from 'viem/accounts'
+import * as TestActions from '../../../../test/src/actions.js'
+import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Key from '../key.js'
 import * as Account from './account.js'
@@ -81,5 +86,36 @@ describe('create', () => {
         ],
       }
     `)
+  })
+})
+
+describe('prepareUpgrade + upgrade', () => {
+  test('default', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const eoa = privateKeyToAccount(generatePrivateKey())
+
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+      value: Value.fromEther('10'),
+    })
+
+    const request = await Account.prepareUpgrade(client, {
+      address: eoa.address,
+      keys: [key],
+      feeToken: ExperimentERC20.address[0],
+    })
+
+    const signatures = await Promise.all(
+      request.digests.map((hash) => eoa.sign({ hash })),
+    )
+
+    const result = await Account.upgrade(client, {
+      ...request,
+      signatures,
+    })
+
+    expect(result.account.keys).toContain(key)
   })
 })

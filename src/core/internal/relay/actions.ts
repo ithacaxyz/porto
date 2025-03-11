@@ -7,9 +7,16 @@
 import { AssertError, TransformEncodeCheckError } from '@sinclair/typebox/value'
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
+import * as Authorization from 'ox/Authorization'
 import * as Errors from 'ox/Errors'
+import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
+import * as Signature from 'ox/Signature'
 import type { Calls, Narrow } from 'viem'
+import {
+  type Authorization as Authorization_viem,
+  prepareAuthorization,
+} from 'viem/experimental'
 
 import * as Delegation from '../delegation.js'
 import type { Client } from '../porto.js'
@@ -122,6 +129,16 @@ export namespace prepareCalls {
     | Errors.GlobalErrorType
 }
 
+/**
+ * Prepares an account upgrade.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
 export async function prepareUpgradeAccount(
   client: Client,
   parameters: prepareUpgradeAccount.Parameters,
@@ -129,17 +146,46 @@ export async function prepareUpgradeAccount(
   const { address, capabilities, chainId = client.chain.id } = parameters
 
   try {
-    const result = await client.request({
-      method: 'wallet_prepareUpgradeAccount',
-      params: [
-        Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
-          address,
-          capabilities,
-          chainId,
-        }),
-      ],
-    })
-    return Value.Parse(Rpc.wallet_prepareUpgradeAccount.Response, result)
+    const [result, [authorization, authorizationDigest]] = await Promise.all([
+      client.request({
+        method: 'wallet_prepareUpgradeAccount',
+        params: [
+          Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
+            address,
+            capabilities,
+            chainId,
+          }),
+        ],
+      }),
+      (async () => {
+        const authorization = await prepareAuthorization(client, {
+          account: address,
+          chainId: 0,
+          contractAddress: capabilities.delegation,
+          sponsor: true,
+        })
+        return [
+          authorization,
+          Authorization.getSignPayload({
+            address: authorization.contractAddress,
+            chainId: authorization.chainId,
+            nonce: BigInt(authorization.nonce),
+          }),
+        ]
+      })(),
+    ])
+    const parsed = Value.Parse(
+      Rpc.wallet_prepareUpgradeAccount.Response,
+      result,
+    )
+    return {
+      ...parsed,
+      context: {
+        ...parsed.context,
+        authorization,
+      },
+      digests: [parsed.digest, authorizationDigest],
+    }
   } catch (error) {
     parseSchemaError(error)
     Delegation.parseExecutionError(error)
@@ -153,7 +199,15 @@ export namespace prepareUpgradeAccount {
     chainId?: number | undefined
   }
 
-  export type ReturnType = Rpc.wallet_prepareUpgradeAccount.Response
+  export type ReturnType = Omit<
+    Rpc.wallet_prepareUpgradeAccount.Response,
+    'context' | 'digest'
+  > & {
+    context: Rpc.wallet_prepareUpgradeAccount.Response['context'] & {
+      authorization: Authorization_viem
+    }
+    digests: [execute: Hex.Hex, auth: Hex.Hex]
+  }
 
   export type ErrorType =
     | parseSchemaError.ErrorType
@@ -205,11 +259,35 @@ export namespace sendPreparedCalls {
     | Errors.GlobalErrorType
 }
 
+/**
+ * Broadcasts an account upgrade.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
 export async function upgradeAccount(
   client: Client,
   parameters: upgradeAccount.Parameters,
 ): Promise<upgradeAccount.ReturnType> {
-  const { authorization, context, signature } = parameters
+  const { context, signatures } = parameters
+
+  const authorization = (() => {
+    const { contractAddress, chainId, nonce } = context.authorization
+    const signature = Signature.from(signatures[1]!)
+    return {
+      address: contractAddress,
+      chainId,
+      nonce,
+      r: Hex.fromNumber(signature.r),
+      s: Hex.fromNumber(signature.s),
+      yParity: signature.yParity,
+    } as const
+  })()
+
   try {
     const result = await client.request({
       method: 'wallet_upgradeAccount',
@@ -217,7 +295,7 @@ export async function upgradeAccount(
         Value.Encode(Rpc.wallet_upgradeAccount.Parameters, {
           authorization,
           context,
-          signature,
+          signature: signatures[0],
         }),
       ],
     })
@@ -230,7 +308,12 @@ export async function upgradeAccount(
 }
 
 export namespace upgradeAccount {
-  export type Parameters = Rpc.wallet_upgradeAccount.Parameters
+  export type Parameters = {
+    context: Rpc.wallet_upgradeAccount.Parameters['context'] & {
+      authorization: Authorization_viem<number, false>
+    }
+    signatures: readonly Hex.Hex[]
+  }
 
   export type ReturnType = Rpc.wallet_upgradeAccount.Response
 

@@ -17,14 +17,10 @@ const { client } = getPorto({
 
 describe.each([
   ['e2e: new account', { mode: 'new' }],
-  // TODO: ['e2e: upgraded account', { mode: 'upgraded' }],
+  ['e2e: upgraded account', { mode: 'upgraded' }],
 ])('%s', (_, { mode }) => {
   const initializeAccount =
-    mode === 'new'
-      ? TestActions.createAccount
-      : /* TODO: TestActions.upgradeAccount */ () => ({
-          account: undefined as any,
-        })
+    mode === 'new' ? TestActions.createAccount : TestActions.getUpgradedAccount
 
   describe('behavior: arbitrary calls', () => {
     test('mint erc20', async () => {

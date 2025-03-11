@@ -1,6 +1,5 @@
 import { AbiFunction, P256, PublicKey, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { signAuthorization } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
 
 import * as TestActions from '../../../../test/src/actions.js'
@@ -348,28 +347,17 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       },
     })
 
-    const signature = await eoa.sign({
-      hash: request.digest,
-    })
-
-    const authorization = await signAuthorization(client, {
-      account: eoa,
-      chainId: 0,
-      contractAddress: request.context.authorizationAddress! as `0x${string}`,
-      sponsor: true,
-    })
+    const signatures = await Promise.all(
+      request.digests.map((digest) =>
+        eoa.sign({
+          hash: digest,
+        }),
+      ),
+    )
 
     await upgradeAccount(client, {
-      authorization: {
-        address: authorization.contractAddress,
-        chainId: authorization.chainId,
-        nonce: authorization.nonce,
-        r: authorization.r,
-        s: authorization.s,
-        yParity: authorization.yParity,
-      },
       context: request.context,
-      signature,
+      signatures,
     })
   })
 })

@@ -1,3 +1,4 @@
+import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 
 import * as Account from '../account.js'
@@ -67,6 +68,10 @@ export namespace prepare {
     }
     digest: Actions.prepareCalls.ReturnType['digest']
   }
+
+  export type ErrorType =
+    | Actions.prepareCalls.ErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -109,6 +114,11 @@ export namespace send {
   }
 
   export type ReturnType = sendPrepared.ReturnType
+
+  export type ErrorType =
+    | prepare.ErrorType
+    | sendPrepared.ErrorType
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -146,4 +156,8 @@ export namespace sendPrepared {
   }
 
   export type ReturnType = Actions.sendPreparedCalls.ReturnType
+
+  export type ErrorType =
+    | Actions.sendPreparedCalls.ErrorType
+    | Errors.GlobalErrorType
 }

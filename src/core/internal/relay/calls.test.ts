@@ -1,4 +1,4 @@
-import { Hex } from 'ox'
+import * as Hex from 'ox/Hex'
 import { readContract } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 

@@ -56,6 +56,37 @@ export async function getAccount(
   }
 }
 
+export async function getUpgradedAccount(
+  client: Client,
+  parameters: {
+    keys: readonly Key.Key[]
+    setBalance?: false | bigint | undefined
+  },
+) {
+  const { keys, setBalance } = parameters
+
+  const { account } = await getAccount(client, { keys, setBalance })
+
+  const request = await RelayAccount.prepareUpgrade(client, {
+    address: account.address,
+    keys,
+    feeToken: ExperimentERC20.address[0],
+  })
+
+  const signatures = await Promise.all(
+    request.digests.map((payload) => account.sign({ payload })),
+  )
+
+  await RelayAccount.upgrade(client, {
+    ...request,
+    signatures,
+  })
+
+  return {
+    account,
+  }
+}
+
 export async function setBalance(
   client: Client,
   parameters: {
