@@ -410,7 +410,7 @@ function UpgradeAccount() {
 
   return (
     <div>
-      <h3>experimental_prepareCreateAccount</h3>
+      <h3>experimental_upgradeAccount</h3>
       <p>
         <button
           onClick={() => {
@@ -450,7 +450,7 @@ function UpgradeAccount() {
             const account = privateKeyToAccount(privateKey as Hex.Hex)
 
             const { context, signPayloads } = await porto.provider.request({
-              method: 'experimental_prepareCreateAccount',
+              method: 'experimental_prepareUpgradeAccount',
               params: [
                 {
                   address: account.address,
@@ -468,7 +468,7 @@ function UpgradeAccount() {
             )
 
             const address = await porto.provider.request({
-              method: 'experimental_createAccount',
+              method: 'experimental_upgradeAccount',
               params: [{ context, signatures }],
             })
             setResult(address)
@@ -869,7 +869,7 @@ function GrantKeyPermissions() {
   return (
     <div>
       <button
-        onClick={async (e) => {
+        onClick={async () => {
           const privateKey = P256.randomPrivateKey()
           const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
             includePrefix: false,

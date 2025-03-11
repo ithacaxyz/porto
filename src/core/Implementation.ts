@@ -40,16 +40,12 @@ type ActionsInternal = Porto.Internal & {
 export type Implementation = {
   actions: {
     createAccount: (parameters: {
-      /** Preparation context (from `prepareCreateAccount`). */
-      context?: unknown | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Label to associate with the WebAuthn credential. */
       label?: string | undefined
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
-      /** Preparation signatures (from `prepareCreateAccount`). */
-      signatures?: readonly Hex.Hex[] | undefined
     }) => Promise<{
       /** Account. */
       account: Account.Account
@@ -109,7 +105,7 @@ export type Implementation = {
       accounts: readonly Account.Account[]
     }>
 
-    prepareCreateAccount: (parameters: {
+    prepareUpgradeAccount: (parameters: {
       /** Address of the account to import. */
       address: Address.Address
       /** Label to associate with the account. */
@@ -151,6 +147,18 @@ export type Implementation = {
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
+
+    upgradeAccount: (parameters: {
+      /** Preparation context (from `prepareUpgradeAccount`). */
+      context: unknown
+      /** Internal properties. */
+      internal: ActionsInternal
+      /** Preparation signatures (from `prepareUpgradeAccount`). */
+      signatures: readonly Hex.Hex[]
+    }) => Promise<{
+      /** Account. */
+      account: Account.Account
+    }>
   }
   setup: (parameters: {
     /** Internal properties. */
@@ -252,28 +260,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
     actions: {
       async createAccount(parameters) {
         const { internal } = parameters
-        const { client, request, store } = internal
+        const { request, store } = internal
 
         const provider = getProvider(store)
 
         const account = await (async () => {
           if (request.method === 'experimental_createAccount') {
-            // Extract the capabilities from the request.
-            const [{ context, signatures }] = request._decoded.params ?? [{}]
-
-            // If the context and signatures are provided, we can create
-            // the account without sending a request to the dialog.
-            if (context && signatures) {
-              const request = context as Delegation.execute.Parameters & {
-                nonce: bigint
-              }
-              await Delegation.execute(client, {
-                ...request,
-                signatures,
-              })
-              return Account.from(request.account)
-            }
-
             // Send a request off to the dialog to create an account.
             const { address } = await provider.request(request)
             return Account.from({
@@ -503,11 +495,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
-      async prepareCreateAccount(parameters) {
+      async prepareUpgradeAccount(parameters) {
         const { internal } = parameters
         const { store, request } = internal
 
-        if (request.method !== 'experimental_prepareCreateAccount')
+        if (request.method !== 'experimental_prepareUpgradeAccount')
           throw new Error(
             'Cannot prepare create account for method: ' + request.method,
           )
@@ -559,6 +551,24 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
         return await provider.request(request)
+      },
+
+      async upgradeAccount(parameters) {
+        const { context, internal, signatures } = parameters
+        const { client } = internal
+
+        const request = context as Delegation.execute.Parameters & {
+          nonce: bigint
+        }
+
+        await Delegation.execute(client, {
+          ...request,
+          signatures,
+        })
+
+        const account = Account.from(request.account)
+
+        return { account }
       },
     },
     setup(parameters) {
@@ -626,7 +636,7 @@ export function local(parameters: local.Parameters = {}) {
     return parameters.keystoreHost
   })()
 
-  async function prepareCreateAccount(parameters: {
+  async function prepareUpgradeAccount(parameters: {
     address: Address.Address
     client: Porto.Client
     label?: string | undefined
@@ -675,45 +685,31 @@ export function local(parameters: local.Parameters = {}) {
         const { label, internal, permissions } = parameters
         const { client } = internal
 
-        const { account, context, signatures } = await (async () => {
-          // If the context and signatures are provided, we can skip
-          // the preparation step (likely `wallet_prepareCreateAccount` has
-          // been called).
-          if (parameters.context && parameters.signatures)
-            return {
-              account: (parameters.context as any).account,
-              context: parameters.context,
-              signatures: parameters.signatures,
-            }
+        // Generate a random private key and derive the address.
+        // The address here will be the address of the account.
+        const privateKey = Secp256k1.randomPrivateKey()
+        const address = Address.fromPublicKey(
+          Secp256k1.getPublicKey({ privateKey }),
+        )
 
-          // Generate a random private key and derive the address.
-          // The address here will be the address of the account.
-          const privateKey = Secp256k1.randomPrivateKey()
-          const address = Address.fromPublicKey(
-            Secp256k1.getPublicKey({ privateKey }),
-          )
+        // Prepare the account for creation.
+        const { context, signPayloads } = await prepareUpgradeAccount({
+          address,
+          client,
+          keystoreHost,
+          label,
+          mock,
+          permissions,
+        })
 
-          // Prepare the account for creation.
-          const { context, signPayloads } = await prepareCreateAccount({
-            address,
-            client,
-            keystoreHost,
-            label,
-            mock,
-            permissions,
-          })
-
-          // Assign any keys to the account and sign over the payloads
-          // required for account creation (e.g. 7702 auth and/or account initdata).
-          const account = Account.fromPrivateKey(privateKey, {
-            keys: context.account.keys,
-          })
-          const signatures = await Account.sign(account, {
-            payloads: signPayloads,
-          })
-
-          return { account, context, signatures }
-        })()
+        // Assign any keys to the account and sign over the payloads
+        // required for account creation (e.g. 7702 auth and/or account initdata).
+        const account = Account.fromPrivateKey(privateKey, {
+          keys: context.account.keys,
+        })
+        const signatures = await Account.sign(account, {
+          payloads: signPayloads,
+        })
 
         // Execute the account creation.
         // TODO: wait for tx to be included?
@@ -871,10 +867,10 @@ export function local(parameters: local.Parameters = {}) {
         }
       },
 
-      async prepareCreateAccount(parameters) {
+      async prepareUpgradeAccount(parameters) {
         const { address, label, internal, permissions } = parameters
         const { client } = internal
-        return await prepareCreateAccount({
+        return await prepareUpgradeAccount({
           address,
           client,
           keystoreHost,
@@ -932,6 +928,25 @@ export function local(parameters: local.Parameters = {}) {
         })
 
         return signature
+      },
+
+      async upgradeAccount(parameters) {
+        const { context, internal, signatures } = parameters
+        const { client } = internal
+
+        const account = (context as any).account as Account.Account
+
+        // Execute the account creation.
+        // TODO: wait for tx to be included?
+        await Delegation.execute(client, {
+          ...(context as any),
+          account,
+          signatures,
+        })
+
+        address_internal = account.address
+
+        return { account }
       },
     },
   })

@@ -851,7 +851,7 @@ export async function sign(
 
       const response = raw.response as AuthenticatorAssertionResponse
       const userHandle = Bytes.toHex(new Uint8Array(response.userHandle!))
-      if (address !== userHandle)
+      if (address && !Address.isEqual(address, userHandle))
         throw new Error(
           `supplied address "${address}" does not match signature address "${userHandle}"`,
         )

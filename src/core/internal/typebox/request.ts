@@ -66,6 +66,35 @@ export namespace eth_signTypedData_v4 {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
+export namespace experimental_createAccount {
+  export const Parameters = Type.Intersect([
+    Type.Object({
+      chainId: Schema.Optional(Primitive.Number),
+      label: Schema.Optional(Type.String()),
+    }),
+  ])
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_createAccount'),
+    params: Schema.Optional(Type.Tuple([Parameters])),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const ResponseCapabilities = Type.Object({
+    permissions: Schema.Optional(C.permissions.Response),
+  })
+  export type ResponseCapabilities = Schema.StaticDecode<
+    typeof ResponseCapabilities
+  >
+
+  export const Response = Type.Object({
+    address: Primitive.Address,
+    capabilities: Schema.Optional(ResponseCapabilities),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace experimental_grantPermissions {
   export const Parameters = Permissions.Request
   export type Parameters = Schema.StaticDecode<typeof Parameters>
@@ -96,7 +125,7 @@ export namespace experimental_permissions {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
-export namespace experimental_prepareCreateAccount {
+export namespace experimental_prepareUpgradeAccount {
   export const Capabilities = Type.Object({
     grantPermissions: Schema.Optional(C.grantPermissions.Request),
   })
@@ -111,7 +140,7 @@ export namespace experimental_prepareCreateAccount {
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_prepareCreateAccount'),
+    method: Type.Literal('experimental_prepareUpgradeAccount'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Schema.StaticDecode<typeof Request>
@@ -119,43 +148,6 @@ export namespace experimental_prepareCreateAccount {
   export const Response = Type.Object({
     context: Type.Unknown(),
     signPayloads: Type.Array(Primitive.Hex),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_createAccount {
-  export const Parameters = Type.Intersect([
-    Type.Object({
-      chainId: Schema.Optional(Primitive.Number),
-    }),
-    Schema.OneOf([
-      Type.Object({
-        label: Schema.Optional(Type.String()),
-      }),
-      Type.Object({
-        context: Type.Unknown(),
-        signatures: Type.Array(Primitive.Hex),
-      }),
-    ]),
-  ])
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_createAccount'),
-    params: Schema.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const ResponseCapabilities = Type.Object({
-    permissions: Schema.Optional(C.permissions.Response),
-  })
-  export type ResponseCapabilities = Schema.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    capabilities: Schema.Optional(ResponseCapabilities),
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
@@ -174,6 +166,33 @@ export namespace experimental_revokePermissions {
   export type Request = Schema.StaticDecode<typeof Request>
 
   export const Response = undefined
+}
+
+export namespace experimental_upgradeAccount {
+  export const Parameters = Type.Object({
+    context: Type.Unknown(),
+    signatures: Type.Array(Primitive.Hex),
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_upgradeAccount'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const ResponseCapabilities = Type.Object({
+    permissions: Schema.Optional(C.permissions.Response),
+  })
+  export type ResponseCapabilities = Schema.StaticDecode<
+    typeof ResponseCapabilities
+  >
+
+  export const Response = Type.Object({
+    address: Primitive.Address,
+    capabilities: Schema.Optional(ResponseCapabilities),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
 }
 
 export namespace personal_sign {

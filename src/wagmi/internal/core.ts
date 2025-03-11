@@ -420,7 +420,7 @@ export async function upgradeAccount<config extends Config>(
 
     const { account, grantPermissions, label } = parameters
 
-    const method = 'experimental_prepareCreateAccount'
+    const method = 'experimental_prepareUpgradeAccount'
     type method = typeof method
     const { context, signPayloads } = await provider.request<{
       Method: method
@@ -446,16 +446,16 @@ export async function upgradeAccount<config extends Config>(
       signPayloads.map((hash) => account.sign({ hash })),
     )
 
-    const experimental_createAccount = 'experimental_createAccount'
-    type experimental_createAccount = typeof experimental_createAccount
+    const experimental_upgradeAccount = 'experimental_upgradeAccount'
+    type experimental_upgradeAccount = typeof experimental_upgradeAccount
     await provider.request<{
-      Method: experimental_createAccount
+      Method: experimental_upgradeAccount
       Parameters?: Schema.Static<
-        typeof Rpc.experimental_createAccount.Request.properties.params
+        typeof Rpc.experimental_upgradeAccount.Request.properties.params
       >
-      ReturnType: Schema.Static<typeof Rpc.experimental_createAccount.Response>
+      ReturnType: Schema.Static<typeof Rpc.experimental_upgradeAccount.Response>
     }>({
-      method: experimental_createAccount,
+      method: experimental_upgradeAccount,
       params: [{ context, signatures }],
     })
 

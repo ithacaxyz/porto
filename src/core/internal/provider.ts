@@ -231,15 +231,12 @@ export function from<
         }
 
         case 'experimental_createAccount': {
-          const [{ chainId, label, context, signatures }] = request._decoded
-            .params ?? [{}]
+          const [{ chainId, label }] = request._decoded.params ?? [{}]
 
           const client = getClient(chainId)
 
           const { account } = await implementation.actions.createAccount({
-            context,
             label,
-            signatures,
             internal: {
               client,
               config,
@@ -267,7 +264,7 @@ export function from<
           >
         }
 
-        case 'experimental_prepareCreateAccount': {
+        case 'experimental_prepareUpgradeAccount': {
           const [{ address, capabilities, chainId, label }] = request._decoded
             .params ?? [{}]
 
@@ -276,7 +273,7 @@ export function from<
           const client = getClient(chainId)
 
           const { context, signPayloads } =
-            await implementation.actions.prepareCreateAccount({
+            await implementation.actions.prepareUpgradeAccount({
               address,
               permissions,
               label,
@@ -292,7 +289,7 @@ export function from<
             context,
             signPayloads: signPayloads.map((x) => x as never),
           } satisfies Schema.Static<
-            typeof Rpc.experimental_prepareCreateAccount.Response
+            typeof Rpc.experimental_prepareUpgradeAccount.Response
           >
         }
 
@@ -361,6 +358,41 @@ export function from<
           })
 
           return
+        }
+
+        case 'experimental_upgradeAccount': {
+          const [{ context, signatures }] = request._decoded.params ?? [{}]
+
+          const client = getClient()
+
+          const { account } = await implementation.actions.upgradeAccount({
+            context,
+            signatures,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          const permissions = getActivePermissions(account.keys ?? [], {
+            address: account.address,
+          })
+
+          store.setState((x) => ({ ...x, accounts: [account] }))
+
+          emitter.emit('connect', {
+            chainId: Hex.fromNumber(client.chain.id),
+          })
+          return {
+            address: account.address,
+            capabilities: {
+              ...(permissions.length > 0 ? { permissions } : {}),
+            },
+          } satisfies Schema.Static<
+            typeof Rpc.experimental_createAccount.Response
+          >
         }
 
         case 'porto_ping': {
