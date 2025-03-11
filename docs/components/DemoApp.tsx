@@ -696,7 +696,7 @@ function PayDemo(props: PayDemo.Props) {
             Amount
           </label>
           <input
-            className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 px-3 py-3 font-medium text-[15px] text-gray12 [appearance:textfield] placeholder:text-gray8"
+            className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 px-3 py-3 font-medium text-[15px] text-gray12 [appearance:textfield] placeholder:text-gray8 disabled:cursor-not-allowed"
             disabled={!address}
             max={balance ? Value.formatEther(balance) : 0}
             min="0"
@@ -720,7 +720,10 @@ function PayDemo(props: PayDemo.Props) {
               Select token
             </Ariakit.SelectLabel>
 
-            <Ariakit.Select className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 font-medium text-[15px] text-gray12 lg:w-[118px]">
+            <Ariakit.Select
+              disabled={!address}
+              className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 font-medium text-[15px] text-gray12 disabled:cursor-not-allowed lg:w-[118px]"
+            >
               <div className="flex h-10.5 items-center gap-1.5 px-3">
                 <div className="size-5">{active.icon}</div>
                 <div className="-tracking-[0.42px] font-medium text-[15px] text-gray12 uppercase tabular-nums">
@@ -775,7 +778,7 @@ function PayDemo(props: PayDemo.Props) {
 
         <button
           className={cx(buttonClassName({ variant: status }), 'max-w-[68px]')}
-          disabled={status === 'pending'}
+          disabled={!address || status === 'pending'}
           type="submit"
         >
           {(() => {
@@ -927,6 +930,7 @@ function LimitDemo(props: LimitDemo.Props) {
       </div>
 
       <button
+        disabled={!address}
         className={buttonClassName({ size: 'medium', variant: 'default' })}
         onClick={() => setCustomize(true)}
         type="button"
@@ -1322,8 +1326,8 @@ function PrivyDemo() {
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M253.808 41.4359H252.758L239.096 1.81787H223.094V3.45587L242.366 58.7819H263.618L282.896 3.45587V1.81787H267.59L253.802 41.4359H253.808Z"
             fill="currentColor"
           />
@@ -1332,20 +1336,20 @@ function PrivyDemo() {
             fill="currentColor"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M330.164 1.81215H330.176L316.388 41.4422H315.338L301.676 1.81815H285.674V3.46815L306.608 63.5762H286.784V76.7702H306.158C314.432 76.7702 320.876 73.9802 324.002 65.0762C324.422 63.8882 345.47 3.45615 345.47 3.45615V1.80615H330.164V1.81215Z"
             fill="currentColor"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M121.832 0.27002C114.596 0.27002 107.834 3.95402 103.616 10.878H102.638V1.87802H87.47V76.752H103.586V51.528H104.576C104.684 51.678 104.792 51.834 104.9 51.96C107.618 55.266 113.966 60.306 121.862 60.306C136.232 60.306 146.06 47.886 146.06 30.294C146.06 12.702 135.746 0.27002 121.832 0.27002ZM117.02 47.958C109.52 47.958 104.342 42.114 104.342 30.3C104.342 18.486 109.52 12.642 117.02 12.642C124.52 12.642 129.95 18.612 129.95 30.3C129.95 41.988 124.646 47.958 117.02 47.958Z"
             fill="currentColor"
           />
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M186.032 1.81201C178.562 1.81201 173.768 3.06001 170.966 10.878H170.006V1.81801H146.936V14.898H152.084C153.782 14.898 154.616 15.498 154.832 16.89V27.762H154.892V58.782H171.008V28.566C171.008 20.742 173.132 15.948 180.956 15.948H197.84V1.81201H186.038H186.032Z"
             fill="currentColor"
           />
