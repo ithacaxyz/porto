@@ -5,8 +5,8 @@ import type * as Hex from 'ox/Hex'
 import * as Account from './account.js'
 import * as Key from './key.js'
 import type { Client } from './porto.js'
-import * as Actions from './relay/actions.js'
 import type * as Capabilities from './relay/typebox/capabilities.js'
+import * as Actions from './viem/relay.js'
 
 /**
  * Creates a new Porto Account via the Relay.

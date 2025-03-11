@@ -6,14 +6,14 @@ import * as TestActions from '../../../../test/src/actions.js'
 import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Key from '../key.js'
+import type * as Capabilities from '../relay/typebox/capabilities.js'
 import {
   createAccount,
   prepareCalls,
   prepareUpgradeAccount,
   sendPreparedCalls,
   upgradeAccount,
-} from './actions.js'
-import type * as Capabilities from './typebox/capabilities.js'
+} from './relay.js'
 
 const { client } = getPorto({
   transports: {

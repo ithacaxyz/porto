@@ -20,8 +20,8 @@ import {
 
 import * as Delegation from '../delegation.js'
 import type { Client } from '../porto.js'
+import * as Rpc from '../relay/typebox/rpc.js'
 import { Value } from '../typebox/schema.js'
-import * as Rpc from './typebox/rpc.js'
 
 /**
  * Creates a new account.
