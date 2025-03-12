@@ -9,8 +9,6 @@ import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { readContract } from 'viem/actions'
 
-import { setBalance } from '../../../../test/src/actions.js'
-import { ExperimentERC20 } from '../../../../test/src/contracts.js'
 import * as DelegationContract from '../_generated/contracts/Delegation.js'
 import * as Account from '../account.js'
 import * as Delegation from '../delegation.js'
@@ -19,6 +17,13 @@ import * as Key from '../key.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as Relay from '../relay.js'
 
+// TODO: remove this
+export const tmp: {
+  setBalance: ((address: Address.Address) => Promise<void>) | null
+} = {
+  setBalance: null,
+}
+
 /**
  * Implementation for a WebAuthn-based Relay environment. Account management,
  * signing, and execution is coordinated between the library and the Relay.
@@ -26,21 +31,21 @@ import * as Relay from '../relay.js'
  * @param parameters - Parameters.
  * @returns Implementation.
  */
-export function relay(parameters: relay.Parameters = {}) {
-  const { mock } = parameters
+export function relay(config: relay.Parameters = {}) {
+  const { feeToken, mock } = config
 
   let address_internal: Address.Address | undefined
   // TODO
   // const preparedAccounts_internal: Account.Account[] = []
 
   const keystoreHost = (() => {
-    if (parameters.keystoreHost === 'self') return undefined
+    if (config.keystoreHost === 'self') return undefined
     if (
       typeof window !== 'undefined' &&
       window.location.hostname === 'localhost'
     )
       return undefined
-    return parameters.keystoreHost
+    return config.keystoreHost
   })()
 
   async function prepareAccountKeys(parameters: {
@@ -109,14 +114,7 @@ export function relay(parameters: relay.Parameters = {}) {
         // START TODO: remove this when refactored to Relay.createAccount
         ///////////////////////////////////////////////////////////////////////////
 
-        const feeToken = ExperimentERC20.address[0]
-        await setBalance(
-          client.extend(() => ({ mode: 'anvil' })),
-          {
-            address,
-            value: 10000000000000000000000n,
-          },
-        )
+        await tmp.setBalance?.(address)
 
         const { context, digests } = await Relay.prepareUpgradeAccount(client, {
           address,
@@ -152,7 +150,13 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async execute(parameters) {
-        const { account, calls, feeToken, internal, nonce } = parameters
+        const {
+          account,
+          calls,
+          internal,
+          feeToken = config.feeToken,
+          nonce,
+        } = parameters
         const { client } = internal
 
         // Try and extract an authorized key to sign the calls with.
@@ -170,7 +174,7 @@ export function relay(parameters: relay.Parameters = {}) {
           account,
           authorizeKeys,
           // TODO: remove this when relay supports native eth token
-          feeToken: ExperimentERC20.address[0] ?? feeToken,
+          feeToken,
           // TODO: remove this when relay supports optional nonce
           nonce: randomNonce() ?? nonce,
         })
@@ -181,7 +185,7 @@ export function relay(parameters: relay.Parameters = {}) {
           account,
           calls,
           // TODO: remove this when relay supports native eth token
-          feeToken: ExperimentERC20.address[0] ?? feeToken,
+          feeToken,
           key,
           // TODO: remove this when relay supports optional nonce
           nonce: randomNonce() ?? nonce,
@@ -288,7 +292,7 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async revokePermissions(parameters) {
-        const { account, id, internal } = parameters
+        const { account, id, feeToken = config.feeToken, internal } = parameters
         const { client } = internal
 
         const key = account.keys?.find((key) => key.publicKey === id)
@@ -301,7 +305,7 @@ export function relay(parameters: relay.Parameters = {}) {
           account,
           revokeKeys: [key],
           // TODO: remove this when relay supports native eth token
-          feeToken: ExperimentERC20.address[0],
+          feeToken,
           // TODO: remove this when relay supports optional nonce
           nonce: randomNonce(),
         })
@@ -351,6 +355,10 @@ export function relay(parameters: relay.Parameters = {}) {
 
 export declare namespace relay {
   type Parameters = {
+    /**
+     * ERC20 token to use for fees. Defaults to ETH.
+     */
+    feeToken?: Address.Address | undefined
     /**
      * Mock implementation. Testing purposes only.
      * @default false

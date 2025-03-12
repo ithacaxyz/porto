@@ -1,9 +1,11 @@
+import type { Address } from 'ox'
 import { Chains, Implementation, Porto, Storage } from 'porto'
 import { http, type Transport, custom, defineChain } from 'viem'
 
 import { type Chain, odysseyTestnet } from '../../src/core/Chains.js'
 import * as Porto_internal from '../../src/core/internal/porto.js'
 import * as Anvil from './anvil.js'
+import { ExperimentERC20 } from './contracts.js'
 import * as Relay from './relay.js'
 
 export const defaultChain = defineChain({
@@ -17,6 +19,7 @@ export function getPorto(
   parameters: {
     chain?: Chain | undefined
     implementation?: (parameters: {
+      feeToken?: Address.Address | undefined
       mock: boolean
     }) => Implementation.Implementation | undefined
     transports?:
@@ -35,6 +38,7 @@ export function getPorto(
   const porto = Porto.create({
     chains: [chain],
     implementation: implementation({
+      feeToken: ExperimentERC20.address[0],
       mock: true,
     }),
     storage: Storage.memory(),

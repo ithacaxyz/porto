@@ -1,14 +1,11 @@
 import { Hex, P256, PublicKey, TypedData, Value } from 'ox'
 import { Implementation } from 'porto'
-import {
-  getBalance,
-  setBalance,
-  verifyMessage,
-  verifyTypedData,
-} from 'viem/actions'
+import { getBalance, verifyMessage, verifyTypedData } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
+import { setBalance } from '../../../test/src/actions.js'
 import { getPorto as getPorto_ } from '../../../test/src/porto.js'
+import { tmp } from './implementations/relay.js'
 import * as Porto_internal from './porto.js'
 
 describe.each([
@@ -22,6 +19,14 @@ describe.each([
         relay: mode === 'relay',
       },
     })
+
+  // TODO: remove this
+  tmp.setBalance = async (address) => {
+    await setBalance(getPorto().client, {
+      address,
+      value: 10000000000000000000000n,
+    })
+  }
 
   describe('eth_accounts', () => {
     test('default', async () => {

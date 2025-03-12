@@ -107,6 +107,8 @@ export type Implementation = {
     revokePermissions: (parameters: {
       /** Account to revoke the permissions for. */
       account: Account.Account
+      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
+      feeToken?: Address.Address | undefined
       /** ID of the permissions to revoke. */
       id: Hex.Hex
       /** Internal properties. */
