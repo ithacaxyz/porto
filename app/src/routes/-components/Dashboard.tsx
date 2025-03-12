@@ -1,10 +1,10 @@
 import * as Ariakit from '@ariakit/react'
-import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 
 import { useAccount } from 'wagmi'
 import { Layout } from '~/components/AppLayout'
 
+import { Value } from 'ox'
 import { Header } from '~/components/Header'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
@@ -12,36 +12,39 @@ import { Pill } from '~/components/Pill'
 import { ThemeToggle } from '~/components/ThemeToggle'
 
 import { useTokenBalance } from '~/hooks/use-address-token-balances'
-
-import { TokenIcon, assets } from '~/lib/fake'
 import { PercentFormatter, cn, sum } from '~/utils'
-import ChevronDownIcon from '~icons/lucide/chevron-down'
 import CoinsIcon from '~icons/lucide/coins'
 
 import HistoryIcon from '~icons/lucide/history'
 
-import DollarSignIcon from '~icons/majesticons/dollar-circle-line'
-import { Deposit } from './Deposit'
-import { Send } from './Send'
+import { AddMoneyDialog } from './dialogs/Add'
+import { DepositDialog } from './dialogs/Deposit'
+import { SendDialog } from './dialogs/Send'
+
+const PRICES = {
+  EXP: 10 * Math.random(),
+  EXP2: 10 * Math.random(),
+} as const
 
 export function Dashboard() {
   const { address } = useAccount()
 
   const tokenBalances = useTokenBalance({ address: address! })
-  console.info(tokenBalances)
+  const tokenBalancesData = tokenBalances.data
+  console.info(JSON.stringify(tokenBalancesData, undefined, 2))
+
+  const assets = tokenBalances.data
 
   const [search, setSearch] = React.useState('')
-  const [filteredAssets, setFilteredAssets] = React.useState([] as any)
+  const [filteredAssets, setFilteredAssets] = React.useState(assets)
 
   React.useEffect(() => {
     setFilteredAssets(
-      assets.filter((asset) =>
-        asset.name.toLowerCase().includes(search.toLowerCase()),
+      assets?.filter((asset) =>
+        asset.token.name.toLowerCase().includes(search.toLowerCase()),
       ),
     )
-  }, [search])
-
-  const TOTAL_BALANCE = 1
+  }, [search, assets])
 
   return (
     <Layout className="max-w-2xl!">
@@ -49,21 +52,30 @@ export function Dashboard() {
       <section
         className={cn(
           'h-lg',
-          TOTAL_BALANCE > 0 && 'gap-2 pt-10 *:w-1/2',
+          tokenBalancesData &&
+            tokenBalancesData.length > 0 &&
+            'gap-2 pt-10 *:w-1/2',
           'flex flex-col items-center gap-5 rounded-2xl bg-[#F0F0F0] px-4 py-6',
           'sm:flex-row sm:justify-between sm:px-6',
         )}
       >
         <div className="w-full gap-y-2 text-center tabular-nums sm:text-left">
           <p className="font-semibold text-5xl sm:font-semibold sm:text-4xl">
-            $0.00
+            $23,35.05
           </p>
-          {TOTAL_BALANCE > 0 ? (
+          {assets && assets?.length > 0 ? (
             <p className="text-md text-secondary sm:my-auto sm:text-md">
               {sum(
-                assets.map((asset) => asset.balance.native),
+                assets?.map((asset) =>
+                  Number(
+                    Value.format(
+                      BigInt(asset.value),
+                      Number(asset.token.decimals),
+                    ),
+                  ),
+                ),
               ).toLocaleString()}
-              <Pill className="ml-1.5">{assets[0]?.symbol}</Pill>
+              <Pill className="ml-1.5">{assets?.[0]?.token.symbol}</Pill>
             </p>
           ) : (
             <p className="min-[300px]! w-full text-secondary">
@@ -76,35 +88,26 @@ export function Dashboard() {
           className={cn(
             'size-full min-w-full gap-3 max-[400px]:gap-x-4.5',
             'context-stretch items-stretch justify-items-center',
-            TOTAL_BALANCE > 0
+            tokenBalancesData && tokenBalancesData.length > 0
               ? 'grid grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2'
               : 'flex max-w-[300px] items-center justify-center gap-2! *:w-full',
           )}
         >
           {/* ==== SEND ==== */}
 
-          <Send />
+          <SendDialog />
 
           {/* ==== RECEIVE ==== */}
-          <Deposit />
+          <DepositDialog />
 
           {/* ==== ADD ==== */}
-          <Link
-            to="/"
+          <AddMoneyDialog
             className={cn(
-              'col-span-1 col-start-3',
-              'sm:col-start-2 sm:row-span-1 sm:row-start-1',
-              'w-[110px] text-center font-semibold text-lg sm:w-[120px] sm:text-md',
-              'flex h-11! items-center justify-center gap-x-1 rounded-default px-3.5 text-center sm:h-10',
-              TOTAL_BALANCE > 0
+              tokenBalancesData && tokenBalancesData.length > 0
                 ? 'bg-gray7 hover:bg-gray6'
                 : 'bg-accent text-white',
             )}
-          >
-            <DollarSignIcon className="size-6" />
-
-            <span>Add</span>
-          </Link>
+          />
         </div>
       </section>
 
@@ -159,80 +162,92 @@ export function Dashboard() {
                 </thead>
                 <tbody className="w-full">
                   {/* @ts-ignore */}
-                  {filteredAssets.map((asset, index) => (
-                    <tr
-                      key={asset.name}
-                      className={cn(
-                        'border-gray-400/50 border-b *:px-1',
-                        index === filteredAssets.length - 1 && 'border-b-0',
-                      )}
-                    >
-                      <td className="text-left">
-                        <div className="flex items-center gap-x-2 py-4">
-                          {asset.icon}
+                  {filteredAssets?.map((asset, index) => {
+                    const token = asset.token
+
+                    return (
+                      <tr
+                        key={asset.token.name}
+                        className={cn(
+                          'border-gray-400/50 border-b *:px-1',
+                          !filteredAssets ||
+                            (index === filteredAssets.length - 1 &&
+                              'border-b-0'),
+                        )}
+                      >
+                        <td className="text-left">
+                          <div className="flex items-center gap-x-2 py-4">
+                            {/* {token.icon_url} */}
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-lg">
+                                {token.name}
+                              </span>
+                              <span className="text-secondary text-xs">
+                                {token.symbol}
+                              </span>
+                            </div>
+                            {/* {index === 0 && (
+                              <Ariakit.MenuProvider>
+                                <Ariakit.MenuButton className="-space-x-1 mb-auto flex gap-x-0.5 rounded-2xl bg-gray4 py-1.5 pr-1 pl-1.5">
+                                  <TokenIcon.Op className="size-5 text-gray10" />
+                                  <TokenIcon.Eth className="size-5 text-gray10" />
+                                  <ChevronDownIcon className="size-5 text-gray10" />
+                                </Ariakit.MenuButton>
+                                <Ariakit.Menu>
+                                  <Ariakit.MenuItem>WIP</Ariakit.MenuItem>
+                                </Ariakit.Menu>
+                              </Ariakit.MenuProvider>
+                            )} */}
+                          </div>
+                        </td>
+                        <td className="text-right">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-lg">
-                              {asset.name}
+                            <span className="text-lg">
+                              $
+                              {PRICES[
+                                token.symbol as keyof typeof PRICES
+                              ].toLocaleString()}
                             </span>
-                            <span className="text-secondary text-xs">
-                              {asset.symbol}
+                            <span
+                              className={cn(
+                                'text-sm tracking-wider',
+                                // asset?.price.change > 0 && 'text-emerald-500',
+                                // asset?.price.change < 0 && 'text-red-500',
+                                // !asset?.price.change && 'text-secondary',
+                                Math.random() > 0.5 && 'text-emerald-500',
+                                Math.random() < 0.5 && 'text-red-500',
+                                !Math.random() && 'text-secondary',
+                              )}
+                            >
+                              {/* {asset?.price.change > 0
+                                ? '↑'
+                                : asset?.price.change < 0
+                                  ? '↓'
+                                  : ''} */}
+                              {PercentFormatter.format(Math.random() * 100)
+                                .toString()
+                                .replaceAll('-', '')}
                             </span>
                           </div>
-                          {index === 0 && (
-                            <Ariakit.MenuProvider>
-                              <Ariakit.MenuButton className="-space-x-1 mb-auto flex gap-x-0.5 rounded-2xl bg-gray4 py-1.5 pr-1 pl-1.5">
-                                <TokenIcon.Op className="size-5 text-gray10" />
-                                <TokenIcon.Eth className="size-5 text-gray10" />
-                                <ChevronDownIcon className="size-5 text-gray10" />
-                              </Ariakit.MenuButton>
-                              <Ariakit.Menu>
-                                <Ariakit.MenuItem>WIP</Ariakit.MenuItem>
-                              </Ariakit.Menu>
-                            </Ariakit.MenuProvider>
-                          )}
-                        </div>
-                      </td>
-                      <td className="text-right">
-                        <div className="flex flex-col">
-                          <span className="text-lg">
-                            ${asset.price.value.toLocaleString()}
-                          </span>
-                          <span
-                            className={cn(
-                              'text-sm tracking-wider',
-                              asset.price.change > 0 && 'text-emerald-500',
-                              asset.price.change < 0 && 'text-red-500',
-                              !asset.price.change && 'text-secondary',
-                            )}
-                          >
-                            {asset.price.change > 0
-                              ? '↑'
-                              : asset.price.change < 0
-                                ? '↓'
-                                : ''}
-                            {PercentFormatter.format(asset.price.change)
-                              .toString()
-                              .replaceAll('-', '')}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="text-right">
-                        <div className="flex flex-col">
-                          <span className="text-lg">
-                            ${asset.balance.value.toLocaleString()}
-                          </span>
-                          <span className="text-secondary text-sm">
-                            {asset.balance.native.toLocaleString()}{' '}
-                            <Pill className="">{asset.symbol}</Pill>
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="text-right">
+                          <div className="flex flex-col">
+                            <span className="text-lg">
+                              ${asset.value.toLocaleString()}
+                            </span>
+                            <span className="text-secondary text-sm">
+                              {asset.value.toLocaleString()}{' '}
+                              <Pill className="">{token.symbol}</Pill>
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
 
-              {filteredAssets.length === 0 && (
+              {filteredAssets?.length === 0 && (
                 <div className="mt-32 flex h-full min-h-full flex-col items-center">
                   <div className="flex size-16 items-center justify-center rounded-full border-3 border-gray9 border-dashed">
                     <span className="m-auto size-2 rounded-full border-3 border-gray9" />

@@ -187,6 +187,7 @@ function RouteComponent() {
           {success ? (
             <div className="mx-auto mb-2 flex h-11 w-full max-w-[90%] items-center justify-center space-x-2.5 rounded-md">
               <Link
+                reloadDocument
                 to="/settings/recovery/wallet"
                 from="/settings/recovery/wallet"
                 className="my-auto mt-2 flex size-full max-w-[50%] items-center justify-center rounded-md bg-gray3 font-medium text-md hover:bg-gray4"

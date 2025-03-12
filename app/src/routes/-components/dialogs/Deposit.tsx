@@ -14,7 +14,7 @@ import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import XIcon from '~icons/lucide/x'
 
-export function Deposit() {
+export function DepositDialog() {
   const { address } = useAccount()
 
   return (

@@ -2,7 +2,7 @@ import { http, createConfig, createStorage } from 'wagmi'
 import { odysseyTestnet } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 
-import { appPorto } from './Porto'
+import { porto } from './Porto'
 
 export const config = createConfig({
   chains: [odysseyTestnet],
@@ -13,7 +13,7 @@ export const config = createConfig({
       target: () => ({
         id: 'porto',
         name: 'Porto',
-        provider: appPorto.provider as never,
+        provider: porto.provider as never,
       }),
     }),
   ],
