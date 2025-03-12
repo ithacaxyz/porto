@@ -31,6 +31,10 @@ export type Schema =
           >
         }
       | {
+          Request: Static<typeof Rpc.experimental_upgradeAccount.Request>
+          ReturnType: Static<typeof Rpc.experimental_upgradeAccount.Response>
+        }
+      | {
           Request: Static<typeof Rpc.experimental_permissions.Request>
           ReturnType: Static<typeof Rpc.experimental_permissions.Response>
         }
