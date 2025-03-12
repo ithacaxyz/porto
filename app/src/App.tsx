@@ -2,7 +2,6 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { RouterProvider } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
 import { WagmiProvider } from 'wagmi'
-import '@radix-ui/themes/styles.css'
 
 import * as Query from './lib/Query.ts'
 import * as Router from './lib/Router.ts'
@@ -20,7 +19,7 @@ export function App() {
           expand={true}
           theme="light"
           duration={3000}
-          position="bottom-right"
+          position="top-right"
           className="z-[42069] select-none"
           swipeDirections={['right', 'left', 'top', 'bottom']}
         />

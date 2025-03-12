@@ -5,38 +5,20 @@ import { useAccount, useConnectors } from 'wagmi'
 
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
+import { useThemeMode } from '~/hooks/use-theme-mode'
+import * as Constants from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
-import { cn, shuffleArray } from '~/utils'
+import { cn } from '~/utils'
 
 export const Route = createFileRoute('/create-account')({
   component: RouteComponent,
 })
 
-const emojisArray = shuffleArray([
-  '🍕',
-  '🧁',
-  '🦋',
-  '❤️',
-  '😈',
-  '🌟',
-  '🌀',
-  '🌸',
-  '🌈',
-  '🚀',
-  '🌊',
-  '⚡',
-  '🐰',
-  '🐶',
-  '🐱',
-  '🐵',
-  '🐸',
-  '🐮',
-  '🐔',
-])
-
 function RouteComponent() {
+  const { theme } = useThemeMode()
+
   const [label, setLabel] = React.useState('')
-  const [emojis, setEmojis] = React.useState<string[]>(emojisArray)
+  const [emojis, setEmojis] = React.useState<string[]>(Constants.emojisArray)
   const [selectedEmoji, setSelectedEmoji] = React.useState<string>(
     emojis[Math.floor(emojis.length / 2)]!, // middle item
   )
@@ -49,32 +31,38 @@ function RouteComponent() {
 
   if (connect.isPending) {
     return (
-      <div className="-mt-48 mx-auto flex h-screen w-screen items-center justify-center">
+      <div className="-mt-68 mx-auto flex h-screen w-screen items-center justify-center">
         <IndeterminateLoader title="Signing up…" />
       </div>
     )
   }
 
   return (
-    <div
+    <main
       className={cn(
-        'mx-auto flex h-screen w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
-        'sm:my-52 sm:h-[500px] sm:shadow-sm sm:outline sm:outline-gray4',
+        'mx-auto flex h-screen max-h-[840px] w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
+        'sm:my-52 sm:h-[550px] sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
-      <div className="flex justify-between sm:px-5">
-        <img src="/icons/wallet.svg" alt="Porto" className="my-auto size-11" />
+      <header className="mt-4 flex justify-between px-5 sm:mt-1">
+        <Link to="/" from="/create-account" className="">
+          <img
+            alt="Porto wallet icon"
+            className="my-auto size-11"
+            src={theme === 'light' ? '/icon-light.png' : '/icon-dark.png'}
+          />
+        </Link>
         <Link
           to="/create-account"
-          className="my-auto flex h-9 w-[110px] items-center justify-center rounded-2xl bg-gray3 font-medium"
+          className="my-auto flex h-9 w-[120px] items-center justify-center rounded-2xl bg-gray3 font-medium"
         >
           <p className="my-auto">
             Support <span className="ml-1">→</span>
           </p>
         </Link>
-      </div>
+      </header>
 
-      <div className="mt-10 size-full px-5 sm:mt-1">
+      <div className="mt-10 size-full sm:mt-1 sm:px-4">
         <h1 className="font-medium text-2xl">Name your passkey</h1>
         <p className="mx-6 my-3 text-pretty text-primary">
           This will be a simple, memorable identifier for your Ithaca wallet.
@@ -83,6 +71,11 @@ function RouteComponent() {
           <input
             type="text"
             value={label}
+            maxLength={32}
+            spellCheck={false}
+            autoCorrect="off"
+            autoComplete="off"
+            autoCapitalize="off"
             placeholder="Enter a name…"
             onChange={(event) => setLabel(event.target.value)}
             className="w-full rounded-lg border border-gray6 bg-gray1 px-3 py-2 text-gray12 text-lg focus:outline-none focus:ring-2 focus:ring-gray3"
@@ -102,7 +95,7 @@ function RouteComponent() {
             <div
               key={emoji}
               className={cn(
-                'my-2 flex items-center justify-center rounded-full text-2xl outline outline-white transition-colors',
+                'my-2 flex items-center justify-center rounded-full text-2xl transition-colors',
                 selectedEmoji === emoji
                   ? 'border-2 border-gray3 p-2'
                   : 'border-gray9 hover:border-gray10',
@@ -157,13 +150,18 @@ function RouteComponent() {
         <div className="mb-2 sm:mb-1 sm:px-5">
           <Button
             onClick={() => {
+              const selectedLabel =
+                label.length > 0 ? `!${selectedEmoji}-${label}` : undefined
               connect.mutate({
                 connector: connector!,
                 createAccount: {
-                  label:
-                    label.length > 0 ? `${selectedEmoji}-${label}` : undefined,
+                  label,
                 },
               })
+              if (selectedLabel) {
+                localStorage.setItem('_porto_account_label', label)
+                localStorage.setItem('_porto_account_emoji', selectedEmoji)
+              }
             }}
             variant="invert"
             className="w-full rounded-lg font-medium text-lg"
@@ -172,6 +170,6 @@ function RouteComponent() {
           </Button>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

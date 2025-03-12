@@ -24,7 +24,7 @@ import { ExperimentERC20 } from './contracts'
 
 const DISABLE_DIALOG = import.meta.env.VITE_DISABLE_DIALOG === 'true'
 
-const implementation = DISABLE_DIALOG
+const implementation = !DISABLE_DIALOG
   ? Implementation.local()
   : Implementation.dialog({
       host: import.meta.env.VITE_DIALOG_HOST ?? 'https://exp.porto.sh/dialog',

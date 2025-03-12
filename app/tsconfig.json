@@ -26,5 +26,6 @@
       "~/*": ["./src/*"]
     },
     "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
-  }
+  },
+  "files": ["vite.config.ts","env.d.ts"]
 }

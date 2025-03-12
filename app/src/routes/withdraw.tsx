@@ -6,6 +6,8 @@ import ChevronRightIcon from '~icons/lucide/chevron-right'
 import CircleCheckIcon from '~icons/lucide/circle-check'
 import OctagonAlertIcon from '~icons/lucide/octagon-alert'
 
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
 import { Layout } from '~/components/AppLayout'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
@@ -13,6 +15,11 @@ import { StringFormatter, cn } from '~/utils'
 
 export const Route = createFileRoute('/withdraw')({
   component: RouteComponent,
+})
+
+const publicClient = createPublicClient({
+  transport: http(),
+  chain: mainnet,
 })
 
 function RouteComponent() {
@@ -25,6 +32,23 @@ function RouteComponent() {
   const form = Ariakit.useFormStore({
     values,
     setValues,
+  })
+
+  form.useValidate(async (state) => {
+    if (state.values.recipient.endsWith('.eth')) {
+      console.info('ens name', state.values.recipient)
+      const address = await publicClient.getEnsAddress({
+        name: state.values.recipient,
+      })
+      console.info('ens address', address)
+      if (!address) {
+        return form.setErrors((errors) => ({
+          ...errors,
+          recipient: 'Invalid ENS name',
+        }))
+      }
+      setValues({ ...state.values, recipient: address })
+    }
   })
 
   const [formIsValid, setFormIsValid] = React.useState(false)
@@ -62,22 +86,22 @@ function RouteComponent() {
         <Ariakit.Form
           store={form}
           aria-labelledby="withdraw-funds"
-          className="w-full max-w-[400px] rounded-xl bg-gray1 px-4.5 py-3 shadow-sm outline outline-gray3"
+          className="h-min max-h-[600px] w-full max-w-[400px] rounded-xl bg-gray1 px-4.5 py-3 shadow-sm outline outline-gray3"
         >
           <h3 className="font-medium text-lg">Withdraw</h3>
-          <p id="withdraw-funds" className="text-gray9 text-sm">
+          <p id="withdraw-funds" className="text-gray10 text-sm">
             Move your funds to another address.
           </p>
           <div className="mt-3 mb-1 flex flex-col gap-y-1.5">
             <Ariakit.FormLabel
               name={form.names.asset}
-              className="ml-0.5 text-gray9 text-xs"
+              className="ml-0.5 text-gray10 text-xs"
             >
               Select asset
             </Ariakit.FormLabel>
             <Ariakit.FormControl
               name={form.names.asset}
-              className="text-gray9"
+              className="text-gray10"
               render={(props) => (
                 <Ariakit.MenuProvider>
                   <Ariakit.MenuButton
@@ -133,17 +157,17 @@ function RouteComponent() {
             <div className="flex items-center justify-between gap-x-2">
               <Ariakit.FormLabel
                 name={form.names.amount}
-                className="ml-0.5 text-gray9 text-xs"
+                className="ml-0.5 text-gray10 text-xs"
               >
                 Enter amount
               </Ariakit.FormLabel>
               <p className="ml-auto text-gray11 text-sm">
-                3,002.41 <span className="text-gray9">held</span>
+                3,002.41 <span className="text-gray10">held</span>
               </p>
               <Pill className="rounded-2xl font-medium">
                 <button
                   type="button"
-                  className="px-0.5 text-gray9 text-xs"
+                  className="px-0.5 text-xs"
                   onClick={() => form.setValue(form.names.amount, 3_002.41)}
                 >
                   Max
@@ -178,7 +202,7 @@ function RouteComponent() {
                 alt="ithaca"
                 className="size-5 rounded-full"
               />
-              <span className="ml-2 text-gray9 text-lg">EXP</span>
+              <span className="ml-2 text-gray10 text-lg">EXP</span>
             </div>
             <Ariakit.FormError
               name={form.names.amount}
@@ -211,7 +235,7 @@ function RouteComponent() {
           <div className="my-3 flex flex-col gap-y-1">
             <Ariakit.FormLabel
               name={form.names.recipient}
-              className="pointer-events-none ml-0.5 text-gray9 text-xs"
+              className="pointer-events-none ml-0.5 text-gray10 text-xs"
             >
               Send to...
             </Ariakit.FormLabel>
@@ -230,7 +254,6 @@ function RouteComponent() {
                 autoCapitalize="off"
                 placeholder="0xAbCd..."
                 name={form.names.recipient}
-                pattern="^0x[a-fA-F0-9]{40}$"
                 onFocus={() => setIsRecipientFocused(true)}
                 onBlur={(event) => {
                   const input = event.currentTarget
@@ -270,9 +293,9 @@ function RouteComponent() {
                 return (
                   <div
                     {...props}
-                    className="mt-1 rounded-2xl bg-[#FEEBEC] px-4 py-1.5 text-gray11"
+                    className="mt-1 rounded-2xl bg-red4 px-4 py-1.5 text-gray11 text-sm"
                   >
-                    Must be a valid Ethereum address.
+                    Must be a valid Ethereum address or ENS name.
                   </div>
                 )
               }}

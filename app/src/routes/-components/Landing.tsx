@@ -5,12 +5,14 @@ import { useConnectors } from 'wagmi'
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { IthacaMark } from '~/components/IthacaMark'
+import { useThemeMode } from '~/hooks/use-theme-mode'
 import { config } from '~/lib/Wagmi'
 
 export function Landing() {
+  const { theme } = useThemeMode()
   const navigate = useNavigate()
 
-  const connect = Hooks.useConnect({ config })
+  const connect = Hooks.useConnect()
   const [connector] = useConnectors({ config })
 
   return (
@@ -23,7 +25,11 @@ export function Landing() {
       <div className="w-full flex-grow content-end space-y-6 px-4 pb-10 sm:max-w-[350px] sm:justify-center sm:pb-[18dvh]">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <img src="/icons/wallet.svg" alt="Porto" className="size-9" />
+            <img
+              alt="Porto"
+              className="size-9"
+              src={theme === 'light' ? '/icon-light.png' : '/icon-dark.png'}
+            />
             <p className="font-medium text-[34px] leading-[24px]">Porto</p>
           </div>
           <p className="font-normal text-[19px] text-secondary leading-[22px]">

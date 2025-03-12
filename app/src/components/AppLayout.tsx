@@ -3,11 +3,11 @@ import { Hooks } from 'porto/remote'
 import type * as React from 'react'
 
 import { porto } from '~/lib/Porto'
-import { StringFormatter } from '~/utils'
+import { StringFormatter, cn } from '~/utils'
 import { IndeterminateLoader } from './IndeterminateLoader'
 
 export function Layout(props: Layout.Props) {
-  const { children, loading, loadingTitle } = props
+  const { children, loading, loadingTitle, className } = props
 
   if (loading)
     return (
@@ -16,7 +16,12 @@ export function Layout(props: Layout.Props) {
       </div>
     )
   return (
-    <div className="mx-auto flex size-full min-h-screen max-w-2xl flex-col gap-y-4 p-4">
+    <div
+      className={cn(
+        className,
+        'mx-auto flex size-full max-w-3xl flex-col gap-y-4 px-3.5 py-4 sm:px-4 sm:py-5',
+      )}
+    >
       {children}
     </div>
   )
@@ -24,6 +29,7 @@ export function Layout(props: Layout.Props) {
 
 export namespace Layout {
   export type Props = {
+    className?: string
     children: React.ReactNode
   } & (
     | {

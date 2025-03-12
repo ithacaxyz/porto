@@ -2,17 +2,20 @@ import * as Ariakit from '@ariakit/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import { Hooks } from 'porto/wagmi'
+import * as React from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
-import PermissionIcon from '~icons/arcticons/permissionsmanager'
+import SecurityIcon from '~icons/ic/outline-security'
+import ChevronDownIcon from '~icons/lucide/chevron-down'
 import LockIcon from '~icons/lucide/lock'
 import SettingsIcon from '~icons/lucide/settings'
-// import WarningIcon from '~icons/ph/warning-octagon'
 
 import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
+import * as Constants from '~/lib/Constants'
+import { cn } from '~/utils'
 
 export const Route = createFileRoute('/settings/')({
   component: RouteComponent,
@@ -26,6 +29,9 @@ export const Route = createFileRoute('/settings/')({
 
 function RouteComponent() {
   const account = useAccount()
+  const [userEmoji, setUserEmoji] = React.useState<string>(
+    localStorage.getItem('_porto_account_emoji') ?? Constants.emojisArray[0]!,
+  )
 
   const permissions = Hooks.usePermissions()
 
@@ -43,7 +49,7 @@ function RouteComponent() {
           </div>
           <p className="font-medium text-xl">General</p>
         </div>
-        {/* <div className="flex items-center gap-x-3 pt-1">
+        <div className="flex items-center gap-x-3 pt-1">
           <div>
             <p className="text-lg">Emoji</p>
             <p className="text-secondary ">A visual motif for your wallet.</p>
@@ -57,12 +63,12 @@ function RouteComponent() {
               gutter={4}
               className="ml-2 space-y-1 rounded-sm bg-gray4 p-1"
             >
-              {emojis.map((emoji) => (
+              {Constants.emojisArray.map((emoji) => (
                 <Ariakit.MenuItem
                   key={emoji}
                   onClick={() => {
                     setUserEmoji(emoji)
-                    localStorage.setItem('_porto_emoji', emoji)
+                    localStorage.setItem('_porto_account_emoji', emoji)
                   }}
                   className={cn(
                     'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2',
@@ -74,42 +80,51 @@ function RouteComponent() {
               ))}
             </Ariakit.Menu>
           </Ariakit.MenuProvider>
-        </div> */}
+        </div>
         <div className="mt-5 flex w-full flex-col gap-x-3 pt-1">
           <p className="text-lg">Wallet address</p>
           <p className="text-secondary ">
             This is where you will receive funds.
           </p>
-          <div className="mt-2 flex w-full flex-row items-center justify-between gap-x-2">
-            <p className="mr-2 w-full overflow-auto rounded-default border border-gray6 px-3.5 py-1 text-secondary tracking-normal md:tracking-wide ">
+          <div className="mt-2 flex w-full flex-col items-center justify-between gap-2 sm:flex-row">
+            <p
+              className={cn(
+                'sm:mr-2 sm:text-[15.5px] md:tracking-wide',
+                'no-scrollbar my-auto h-10 w-full overflow-auto rounded-default border border-gray6 px-3.5 pt-1.75 pb-1 text-[16.5px] text-gray11 tracking-normal',
+              )}
+            >
               {account?.address}
             </p>
-            <Button
-              variant="default"
-              className="ml-auto"
-              onClick={() =>
-                navigator.clipboard
-                  .writeText(account?.address ?? '')
-                  .then(() => toast.success('Copied to clipboard'))
-                  .catch(() => toast.error('Failed to copy to clipboard'))
-              }
-            >
-              Copy
-            </Button>
-            {navigator?.canShare && (
+            <div className="flex w-full items-center gap-x-2 *:text-lg sm:w-auto">
               <Button
-                variant="accent"
-                onClick={(_event) => {
-                  if (!navigator.canShare) return
-                  navigator.share({
-                    text: account?.address,
-                    title: "Here's my Porto address:",
-                  })
-                }}
+                variant="default"
+                className="w-full sm:ml-auto"
+                onClick={() =>
+                  navigator.clipboard
+                    .writeText(account?.address ?? '')
+                    .then(() => toast.success('Copied to clipboard'))
+                    .catch(() => toast.error('Failed to copy to clipboard'))
+                }
               >
-                Share
+                Copy
               </Button>
-            )}
+              {navigator?.canShare && (
+                <Button
+                  variant="accent"
+                  className="w-full sm:w-auto"
+                  onClick={(_event) => {
+                    if (!navigator.canShare) return
+                    navigator.share({
+                      text: account?.address,
+                      url: import.meta.env.BASE_URL,
+                      title: "Here's my Porto address:",
+                    })
+                  }}
+                >
+                  Share
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -120,7 +135,7 @@ function RouteComponent() {
       <section className="px-3">
         <div className="mb-4 flex items-center gap-x-3">
           <div className="w-min rounded-full bg-gray-200 p-2">
-            <PermissionIcon className="size-5 font-bold text-black" />
+            <SecurityIcon className="size-5 font-bold text-black" />
           </div>
           <p className="font-medium text-xl">Permissions</p>
         </div>
@@ -206,10 +221,6 @@ function RouteComponent() {
           </p>
         </div> */}
       </section>
-      <Ariakit.Separator
-        orientation="horizontal"
-        className="mx-auto my-3 w-full text-gray6"
-      />
     </Layout>
   )
 }

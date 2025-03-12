@@ -1,2 +1,0 @@
-# "app"/"dialog" (undefined defaults to "dialog")
-VITE_LAUNCH_MODE="app"

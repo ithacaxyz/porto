@@ -10,7 +10,8 @@
       "tsconfig.json",
       "tsconfig.*.json",
       "app/src/routeTree.gen.ts",
-      "app/dist"
+      "app/dist",
+      "app/src/components/ui"
     ]
   },
   "organizeImports": {
@@ -27,6 +28,9 @@
       "recommended": true,
       "complexity": {
         "noBannedTypes": "off"
+      },
+      "a11y": {
+        "useKeyWithClickEvents": "off"
       },
       "nursery": {
         "useSortedClasses": {
@@ -60,6 +64,9 @@
   "json": {
     "formatter": {
       "enabled": true
+    },
+    "parser": {
+      "allowTrailingCommas": true
     },
     "linter": {
       "enabled": true

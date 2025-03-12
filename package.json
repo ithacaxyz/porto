@@ -52,9 +52,9 @@
     "viem": "catalog:",
     "vitest": "^2.1.8",
     "wagmi": "catalog:",
-    "wrangler": "^3.111.0"
+    "wrangler": "^3.114.0"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.6.2",
   "engines": {
     "node": ">=22.5"
   },

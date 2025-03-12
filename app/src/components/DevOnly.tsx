@@ -1,10 +1,8 @@
 import { Json } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import { parseEther } from 'viem'
-import { Button } from './Button'
 
-const NON_PRODUCTION =
-  import.meta.env.DEV || import.meta.env.VERCEL_ENV !== 'production'
+import { Button } from './Button'
 
 const key = () =>
   ({
@@ -25,29 +23,34 @@ const key = () =>
     },
   }) as const
 
+const enableDevTools =
+  import.meta.env.DEV &&
+  String(import.meta.env.VITE_ENABLE_DEV_TOOLS) === 'true'
+
 export function DevOnly() {
   const permissions = Hooks.usePermissions()
   const revokePermissions = Hooks.useRevokePermissions()
   const grantPermissions = Hooks.useGrantPermissions()
 
-  if (!NON_PRODUCTION) return null
+  if (!enableDevTools) return null
+
   return (
     <div
       data-item="dev-tools"
-      className="fixed bottom-0 left-0 w-full border-t border-t-blackA8 bg-white pt-1 pb-3 pl-3"
+      className="fixed bottom-0 left-0 w-full border-t border-t-gray6 bg-gray2 pt-1 pb-3 pl-3"
     >
       <pre className="mb-1">dev only</pre>
 
       <div className="flex gap-x-2">
         <Button
-          variant="invert"
+          variant="default"
           className="max-w-[200px] rounded-none!"
           onClick={() => grantPermissions.mutate(key())}
         >
           Grant permissions
         </Button>
         <Button
-          variant="invert"
+          variant="default"
           disabled={!permissions.data?.[0]}
           className="max-w-[200px] rounded-none!"
           onClick={() => {
