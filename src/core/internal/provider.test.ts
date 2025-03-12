@@ -8,22 +8,24 @@ import {
 } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { getPorto } from '../../../test/src/porto.js'
+import { getPorto as getPorto_ } from '../../../test/src/porto.js'
 import * as Porto_internal from './porto.js'
 
 describe.each([
   ['local', Implementation.local],
-  // ['relay', Implementation.relay],
+  ['relay', Implementation.relay],
 ] as const)('%s', (mode, implementation) => {
+  const getPorto = () =>
+    getPorto_({
+      implementation,
+      transports: {
+        relay: mode === 'relay',
+      },
+    })
+
   describe('eth_accounts', () => {
     test('default', async () => {
-      const { porto } = getPorto({
-        implementation,
-        transports: {
-          // @ts-expect-error: TODO(relay_old): remove
-          relay: mode === 'relay',
-        },
-      })
+      const { porto } = getPorto()
       await porto.provider.request({
         method: 'wallet_connect',
         params: [
@@ -47,9 +49,7 @@ describe.each([
         porto.provider.request({
           method: 'eth_accounts',
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        '[Provider.DisconnectedError: The provider is disconnected from all chains.]',
-      )
+      ).rejects.matchSnapshot()
     })
   })
 
@@ -84,7 +84,7 @@ describe.each([
         value: Value.fromEther('10000'),
       })
 
-      const alice = '0x0000000000000000000000000000000000069420'
+      const alice = Hex.random(20)
 
       const hash = await porto.provider.request({
         method: 'eth_sendTransaction',
@@ -156,36 +156,7 @@ describe.each([
           publicKey: null,
           hash: null,
         })),
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": undefined,
-            "privateKey": [Function],
-            "publicKey": null,
-            "role": "admin",
-            "type": "p256",
-          },
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": {
-              "calls": [
-                {
-                  "signature": "mint()",
-                },
-              ],
-            },
-            "privateKey": CryptoKey {},
-            "publicKey": null,
-            "role": "session",
-            "type": "p256",
-          },
-        ]
-      `)
+      ).matchSnapshot()
 
       expect(messages[0].type).toBe('permissionsChanged')
       expect(messages[0].data.length).toBe(1)
@@ -219,25 +190,7 @@ describe.each([
       })
 
       expect(permissions.address).toBeDefined()
-      expect({ ...permissions, address: null }).toMatchInlineSnapshot(`
-        {
-          "address": null,
-          "chainId": undefined,
-          "expiry": 9999999999,
-          "id": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
-          "key": {
-            "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
-            "type": "p256",
-          },
-          "permissions": {
-            "calls": [
-              {
-                "signature": "mint()",
-              },
-            ],
-          },
-        }
-      `)
+      expect({ ...permissions, address: null }).matchSnapshot()
 
       {
         const permissions = await porto.provider.request({
@@ -263,31 +216,7 @@ describe.each([
         })
 
         expect(permissions.address).toBeDefined()
-        expect({ ...permissions, address: null }).toMatchInlineSnapshot(`
-          {
-            "address": null,
-            "chainId": undefined,
-            "expiry": 9999999999,
-            "id": "0x0000000000000000000000000000000000000000",
-            "key": {
-              "publicKey": "0x0000000000000000000000000000000000000000",
-              "type": "secp256k1",
-            },
-            "permissions": {
-              "calls": [
-                {
-                  "signature": "mint()",
-                },
-              ],
-              "spend": [
-                {
-                  "limit": "0x14d1120d7b160000",
-                  "period": "day",
-                },
-              ],
-            },
-          }
-        `)
+        expect({ ...permissions, address: null }).matchSnapshot()
       }
 
       const accounts = porto._internal.store.getState().accounts
@@ -300,56 +229,7 @@ describe.each([
           publicKey: null,
           hash: null,
         })),
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": undefined,
-            "privateKey": [Function],
-            "publicKey": null,
-            "role": "admin",
-            "type": "p256",
-          },
-          {
-            "canSign": false,
-            "expiry": null,
-            "hash": null,
-            "permissions": {
-              "calls": [
-                {
-                  "signature": "mint()",
-                },
-              ],
-            },
-            "publicKey": null,
-            "role": "session",
-            "type": "p256",
-          },
-          {
-            "canSign": false,
-            "expiry": null,
-            "hash": null,
-            "permissions": {
-              "calls": [
-                {
-                  "signature": "mint()",
-                },
-              ],
-              "spend": [
-                {
-                  "limit": 1500000000000000000n,
-                  "period": "day",
-                },
-              ],
-            },
-            "publicKey": null,
-            "role": "session",
-            "type": "secp256k1",
-          },
-        ]
-      `)
+      ).matchSnapshot()
 
       expect(messages[0].type).toBe('permissionsChanged')
       expect(messages[0].data.length).toBe(1)
@@ -377,14 +257,7 @@ describe.each([
             },
           ],
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
-        [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
-
-        Path: params.0.permissions.calls
-        Value: []]
-      `,
-      )
+      ).rejects.matchSnapshot()
     })
 
     test('behavior: unlimited expiry', async () => {
@@ -409,13 +282,7 @@ describe.each([
             },
           ],
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
-        [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
-
-        Path: params.0.expiry]
-      `,
-      )
+      ).rejects.matchSnapshot()
     })
   })
 
@@ -501,36 +368,7 @@ describe.each([
           publicKey: null,
           hash: null,
         })),
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": undefined,
-            "privateKey": [Function],
-            "publicKey": null,
-            "role": "admin",
-            "type": "p256",
-          },
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": {
-              "calls": [
-                {
-                  "signature": "mint()",
-                },
-              ],
-            },
-            "privateKey": CryptoKey {},
-            "publicKey": null,
-            "role": "session",
-            "type": "p256",
-          },
-        ]
-      `)
+      ).matchSnapshot()
 
       expect(messages[0].type).toBe('permissionsChanged')
       expect(messages[0].data.length).toBe(1)
@@ -549,20 +387,7 @@ describe.each([
           publicKey: null,
           hash: null,
         })),
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": undefined,
-            "privateKey": [Function],
-            "publicKey": null,
-            "role": "admin",
-            "type": "p256",
-          },
-        ]
-      `)
+      ).matchSnapshot()
 
       expect(messages[1].type).toBe('permissionsChanged')
       expect(messages[1].data.length).toBe(0)
@@ -586,9 +411,7 @@ describe.each([
           method: 'experimental_revokePermissions',
           params: [{ id }],
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        '[RpcResponse.InternalError: cannot revoke permissions.]',
-      )
+      ).rejects.matchSnapshot()
     })
   })
 
@@ -641,19 +464,7 @@ describe.each([
           publicKey: null,
           hash: null,
         })),
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "canSign": false,
-            "credential": null,
-            "expiry": null,
-            "hash": null,
-            "publicKey": null,
-            "role": "admin",
-            "type": "p256",
-          },
-        ]
-      `)
+      ).matchSnapshot()
 
       expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
     })
@@ -684,12 +495,13 @@ describe.each([
           publicKey: null,
           hash: null,
         })),
-      ).toMatchInlineSnapshot(`
+      ).matchSnapshot(`
         [
           {
             "canSign": true,
             "expiry": null,
             "hash": null,
+            "initialized": true,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -734,36 +546,7 @@ describe.each([
           publicKey: null,
           hash: null,
         })),
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": undefined,
-            "privateKey": [Function],
-            "publicKey": null,
-            "role": "admin",
-            "type": "p256",
-          },
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": {
-              "calls": [
-                {
-                  "signature": "mint()",
-                },
-              ],
-            },
-            "privateKey": CryptoKey {},
-            "publicKey": null,
-            "role": "session",
-            "type": "p256",
-          },
-        ]
-      `)
+      ).matchSnapshot()
 
       expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
     })
@@ -810,35 +593,7 @@ describe.each([
           publicKey: i === 0 ? null : x.publicKey,
           hash: i === 0 ? null : x.hash,
         })),
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "canSign": true,
-            "expiry": null,
-            "hash": null,
-            "permissions": undefined,
-            "privateKey": [Function],
-            "publicKey": null,
-            "role": "admin",
-            "type": "p256",
-          },
-          {
-            "canSign": false,
-            "expiry": 9999999999,
-            "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
-            "permissions": {
-              "calls": [
-                {
-                  "signature": "mint()",
-                },
-              ],
-            },
-            "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
-            "role": "session",
-            "type": "p256",
-          },
-        ]
-      `)
+      ).matchSnapshot()
 
       expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
     })
@@ -862,13 +617,7 @@ describe.each([
             },
           ],
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
-        [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
-
-        Path: params.0.capabilities.grantPermissions.expiry]
-      `,
-      )
+      ).rejects.matchSnapshot()
     })
 
     test('behavior: `grantPermissions` capability (no permissions)', async () => {
@@ -890,14 +639,7 @@ describe.each([
             },
           ],
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
-        [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
-
-        Path: params.0.capabilities.grantPermissions.permissions.calls
-        Value: []]
-      `,
-      )
+      ).rejects.matchSnapshot()
     })
   })
 
@@ -917,11 +659,7 @@ describe.each([
 
       const accounts = porto._internal.store.getState().accounts
       expect(accounts.length).toBe(0)
-      expect(messages).toMatchInlineSnapshot(`
-        [
-          [Provider.DisconnectedError: The provider is disconnected from all chains.],
-        ]
-      `)
+      expect(messages).matchSnapshot()
     })
   })
 
@@ -940,7 +678,56 @@ describe.each([
         value: Value.fromEther('10000'),
       })
 
-      const alice = '0x0000000000000000000000000000000000069421'
+      const alice = Hex.random(20)
+
+      const hash = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            from: address,
+            calls: [
+              {
+                to: alice,
+                value: Hex.fromNumber(69420),
+              },
+            ],
+            version: '1',
+          },
+        ],
+      })
+
+      expect(hash).toBeDefined()
+      expect(await getBalance(client, { address: alice })).toBe(69420n)
+    })
+
+    test('behavior: use inferred permissions', async () => {
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
+
+      const { address } = await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const alice = Hex.random(20)
+
+      await porto.provider.request({
+        method: 'experimental_grantPermissions',
+        params: [
+          {
+            expiry: 9999999999,
+            permissions: {
+              calls: [{ to: alice }],
+              spend: [{ limit: Hex.fromNumber(69420), period: 'day' }],
+            },
+          },
+        ],
+      })
 
       const hash = await porto.provider.request({
         method: 'wallet_sendCalls',
@@ -976,7 +763,7 @@ describe.each([
         value: Value.fromEther('10000'),
       })
 
-      const alice = '0x0000000000000000000000000000000000069422'
+      const alice = Hex.random(20)
 
       const permissions = await porto.provider.request({
         method: 'experimental_grantPermissions',
@@ -1077,7 +864,7 @@ describe.each([
         value: Value.fromEther('10000'),
       })
 
-      const alice = '0x0000000000000000000000000000000000069422'
+      const alice = Hex.random(20)
 
       const permissions = await porto.provider.request({
         method: 'experimental_grantPermissions',
@@ -1152,7 +939,7 @@ describe.each([
         value: Value.fromEther('10000'),
       })
 
-      const alice = '0x0000000000000000000000000000000000069423'
+      const alice = Hex.random(20)
 
       const permissions = await porto.provider.request({
         method: 'experimental_grantPermissions',
@@ -1228,7 +1015,7 @@ describe.each([
         value: Value.fromEther('10000'),
       })
 
-      const alice = '0x0000000000000000000000000000000000069421'
+      const alice = Hex.random(20)
 
       const { id } = await porto.provider.request({
         method: 'experimental_grantPermissions',
@@ -1267,9 +1054,7 @@ describe.each([
             },
           ],
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        '[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]',
-      )
+      ).rejects.matchSnapshot()
     })
 
     test('behavior: permission does not exist', async () => {
@@ -1286,7 +1071,7 @@ describe.each([
         value: Value.fromEther('10000'),
       })
 
-      const alice = '0x0000000000000000000000000000000000069421'
+      const alice = Hex.random(20)
 
       await expect(() =>
         porto.provider.request({
@@ -1309,9 +1094,7 @@ describe.each([
             },
           ],
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        '[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]',
-      )
+      ).rejects.matchSnapshot()
     })
 
     test('behavior: no calls.to', async () => {
@@ -1337,13 +1120,7 @@ describe.each([
             },
           ],
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `
-        [RpcResponse.InvalidParamsError: Expected required property
-
-        Path: params.0.calls.0.to]
-      `,
-      )
+      ).rejects.matchSnapshot()
     })
   })
 

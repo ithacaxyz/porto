@@ -11,7 +11,7 @@ import type { Compute, PartialBy } from './types.js'
 
 type Request = Rpc.parseRequest.ReturnType
 
-type ActionsInternal = Porto.Internal & {
+type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
   /** Viem Client. */
   client: Porto.Client
   /** RPC Request. */
@@ -53,6 +53,8 @@ export type Implementation = {
       account: Account.Account
       /** Calls to execute. */
       calls: readonly Call.Call[]
+      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
+      feeToken?: Address.Address | undefined
       /** Permissions ID to use to execute the calls. */
       permissionsId?: Hex.Hex | undefined
       /** Nonce to use for execution. */
@@ -233,10 +235,9 @@ export function getAuthorizeCalls(
 }
 
 /**
- * Returns the key that should be used to execute the given calls.
  *
- * @param parameters - Parameters.
- * @returns Key to execute the given calls.
+ * @param parameters
+ * @returns
  */
 export async function getAuthorizedExecuteKey(parameters: {
   account: Account.Account

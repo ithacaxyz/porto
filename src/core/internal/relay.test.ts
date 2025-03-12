@@ -440,6 +440,45 @@ describe.each([
         ).toBe(100n)
       }
     })
+
+    test.skip('batch authorize + mint', async () => {
+      // 1. Initialize Account with Admin Key.
+      const key = Key.createP256({ role: 'admin' })
+      const { account } = await initializeAccount(client, {
+        keys: [key],
+      })
+
+      const newKey = Key.createP256({ role: 'admin' })
+      // 2. Authorize a new Admin Key + mint 100 ERC20 tokens to Account with new Admin Key.
+      {
+        const { id } = await Relay.sendCalls(client, {
+          account,
+          authorizeKeys: [newKey],
+          calls: [
+            {
+              to: ExperimentERC20.address[1],
+              abi: ExperimentERC20.abi,
+              functionName: 'mint',
+              args: [account.address, 100n],
+            },
+          ],
+          key: newKey,
+          feeToken: ExperimentERC20.address[0],
+          nonce: randomNonce(),
+        })
+        expect(id).toBeDefined()
+
+        // 4. Verify that Account has 100 ERC20 tokens.
+        expect(
+          await readContract(client, {
+            address: ExperimentERC20.address[1],
+            abi: ExperimentERC20.abi,
+            functionName: 'balanceOf',
+            args: [account.address],
+          }),
+        ).toBe(100n)
+      }
+    })
   })
 
   describe('behavior: call permissions', () => {
@@ -962,6 +1001,7 @@ describe.each([
   })
 })
 
+// TODO: remove this
 function randomNonce() {
   return Hex.toBigInt(
     Hex.concat(

@@ -97,6 +97,7 @@ export function create(
 
   const internal = {
     config,
+    id: crypto.randomUUID(),
     store,
   } satisfies internal.Internal
 

@@ -15,7 +15,13 @@ import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as Call from './call.js'
 import type * as RelayKey from './relay/typebox/key.js'
 import type * as RelayPermission from './relay/typebox/permission.js'
-import type { Mutable, OneOf, Undefined, UnionOmit } from './types.js'
+import type {
+  Mutable,
+  OneOf,
+  Undefined,
+  UnionOmit,
+  UnionPartialBy,
+} from './types.js'
 
 type PrivateKeyFn = () => Hex.Hex
 
@@ -43,6 +49,7 @@ export type WebAuthnKey = BaseKey<
 export type BaseKey<type extends string, properties> = {
   expiry: number
   hash: Hex.Hex
+  initialized: boolean
   permissions?: Permissions | undefined
   publicKey: Hex.Hex
   role: 'admin' | 'session'
@@ -399,6 +406,7 @@ export function deserialize(serialized: Serialized): Key {
       publicKey,
       type,
     }),
+    initialized: true,
     publicKey,
     role: serialized.isSuperAdmin ? 'admin' : 'session',
     canSign: false,
@@ -432,11 +440,12 @@ export function deserialize(serialized: Serialized): Key {
  * @returns Key.
  */
 export function from<const key extends from.Value>(
-  key: key | Key | Serialized,
-): key extends from.Value ? key & { hash: Hex.Hex } : Key {
+  key: from.Parameters<key>,
+): from.ReturnType<key> {
   if ('isSuperAdmin' in key) return deserialize(key) as never
   return {
     ...key,
+    initialized: key.initialized ?? true,
     hash: hash({
       publicKey: key.publicKey,
       type: key.type,
@@ -446,7 +455,13 @@ export function from<const key extends from.Value>(
 }
 
 export declare namespace from {
-  type Value = UnionOmit<Key, 'hash'>
+  type Value = UnionPartialBy<UnionOmit<Key, 'hash'>, 'initialized'>
+
+  type Parameters<key extends from.Value> = key | Key | Serialized
+
+  type ReturnType<key extends from.Value> = key extends from.Value
+    ? key & Pick<Key, 'initialized' | 'hash'>
+    : Key
 }
 
 /**
@@ -484,6 +499,7 @@ export function fromP256<const role extends Key['role']>(
   return from({
     canSign: true,
     expiry: parameters.expiry ?? 0,
+    initialized: parameters.initialized,
     publicKey,
     role: parameters.role as Key['role'],
     permissions: parameters.permissions,
@@ -498,6 +514,8 @@ export declare namespace fromP256 {
   type Parameters<role extends Key['role'] = Key['role']> = {
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
+    /** Whether the key has been initialized on the Account. */
+    initialized?: boolean | undefined
     /** Permissions. */
     permissions?: Permissions | undefined
     /** P256 private key. */
@@ -540,21 +558,14 @@ export function fromRelay(relay: Relay): Key {
     }
   }
 
-  const publicKey = relay.publicKey
-  const type = fromRelayKeyType[relay.type]
-
-  return {
+  return from({
     canSign: false,
     expiry: relay.expiry,
-    hash: hash({
-      publicKey,
-      type,
-    }),
     permissions,
-    publicKey,
+    publicKey: relay.publicKey,
     role: fromRelayKeyRole[relay.role],
     type: fromRelayKeyType[relay.type],
-  }
+  })
 }
 
 /**
@@ -597,6 +608,7 @@ export function fromSecp256k1<const role extends Key['role']>(
   return from({
     canSign: Boolean(privateKey),
     expiry: parameters.expiry ?? 0,
+    initialized: parameters.initialized,
     publicKey,
     role,
     permissions: parameters.permissions,
@@ -609,6 +621,8 @@ export declare namespace fromSecp256k1 {
   type Parameters<role extends Key['role'] = Key['role']> = {
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
+    /** Whether the key has been initialized on the Account. */
+    initialized?: boolean | undefined
     /** Permissions. */
     permissions?: Permissions | undefined
     /** Role. */
@@ -667,6 +681,7 @@ export function fromWebAuthnP256<const role extends Key['role']>(
     canSign: true,
     credential,
     expiry: parameters.expiry ?? 0,
+    initialized: parameters.initialized,
     permissions: parameters.permissions,
     publicKey,
     role: parameters.role as Key['role'],
@@ -681,6 +696,8 @@ export declare namespace fromWebAuthnP256 {
     expiry?: Key['expiry'] | undefined
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+    /** Whether the key has been initialized on the Account. */
+    initialized?: boolean | undefined
     /** Permissions. */
     permissions?: Permissions | undefined
     /** Role. */
@@ -728,6 +745,7 @@ export function fromWebCryptoP256<const role extends Key['role']>(
   return from({
     canSign: true,
     expiry: parameters.expiry ?? 0,
+    initialized: parameters.initialized,
     permissions: parameters.permissions,
     publicKey,
     role: parameters.role as Key['role'],
@@ -740,6 +758,8 @@ export declare namespace fromWebCryptoP256 {
   type Parameters<role extends Key['role']> = {
     /** Expiry. */
     expiry?: Key['expiry'] | undefined
+    /** Whether the key has been initialized on the Account. */
+    initialized?: boolean | undefined
     /** P256 private key. */
     keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
     /** Permissions. */

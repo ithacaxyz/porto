@@ -702,6 +702,7 @@ export declare namespace from {
     ],
   > = {
     config: Porto.Config<chains>
+    id: string
     store: Porto.Store
   }
 }

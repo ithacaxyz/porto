@@ -1,4 +1,4 @@
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -15,6 +15,8 @@ export default defineConfig({
     globalSetup: [join(__dirname, './globalSetup.ts')],
     include: ['src/**/*.test.ts'],
     passWithNoTests: true,
+    resolveSnapshotPath: (path, ext) =>
+      join(join(dirname(path), '_snapshots'), `${basename(path)}${ext}`),
     setupFiles: [join(__dirname, './setup.ts')],
     testTimeout: 30_000,
   },
