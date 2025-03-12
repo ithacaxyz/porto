@@ -31,7 +31,6 @@ export function Dashboard() {
 
   const tokenBalances = useTokenBalance({ address: address! })
   const tokenBalancesData = tokenBalances.data
-  console.info(JSON.stringify(tokenBalancesData, undefined, 2))
 
   const assets = tokenBalances.data
 
@@ -211,12 +210,14 @@ export function Dashboard() {
                             <span
                               className={cn(
                                 'text-sm tracking-wider',
-                                // asset?.price.change > 0 && 'text-emerald-500',
-                                // asset?.price.change < 0 && 'text-red-500',
-                                // !asset?.price.change && 'text-secondary',
-                                Math.random() > 0.5 && 'text-emerald-500',
-                                Math.random() < 0.5 && 'text-red-500',
-                                !Math.random() && 'text-secondary',
+                                token.symbol.toLowerCase() === 'exp' ||
+                                  token.symbol.toLowerCase() === 'exp2'
+                                  ? [
+                                      // asset?.price.change > 0 && 'text-emerald-500',
+                                      //         asset?.price.change < 0 && 'text-red-500',
+                                      //         !asset?.price.change && 'text-secondary'
+                                    ]
+                                  : [],
                               )}
                             >
                               {/* {asset?.price.change > 0
@@ -233,10 +234,17 @@ export function Dashboard() {
                         <td className="text-right">
                           <div className="flex flex-col">
                             <span className="text-lg">
-                              ${asset.value.toLocaleString()}
+                              $
+                              {Value.format(
+                                BigInt(asset.value),
+                                Number(token.decimals),
+                              )}
                             </span>
                             <span className="text-secondary text-sm">
-                              {asset.value.toLocaleString()}{' '}
+                              {Value.format(
+                                BigInt(asset.value),
+                                Number(token.decimals),
+                              )}{' '}
                               <Pill className="">{token.symbol}</Pill>
                             </span>
                           </div>

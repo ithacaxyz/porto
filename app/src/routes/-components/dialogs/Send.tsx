@@ -1,7 +1,7 @@
-import * as Ariakit from '@ariakit/react'
-import { Address, Value } from 'ox'
+import { AbiFunction, Address, Value } from 'ox'
 import { useEffect, useState } from 'react'
-import { useAccount } from 'wagmi'
+import { useAccount, useConnectors } from 'wagmi'
+import { useSendCalls } from 'wagmi/experimental'
 import { Button as OurButton } from '~/components/Button'
 import { Pill } from '~/components/Pill'
 import {
@@ -18,12 +18,13 @@ import CircleCheckIcon from '~icons/lucide/circle-check'
 import OctagonAlertIcon from '~icons/lucide/octagon-alert'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 
+import { parseEther } from 'viem'
 import {
   type TokenBalance,
   useTokenBalance,
 } from '~/hooks/use-address-token-balances'
+import { ExperimentERC20 } from '~/lib/Constants'
 import { StringFormatter, ValueFormatter, cn } from '~/utils'
-// import { Hooks } from 'porto/wagmi'
 
 type SendStep = 'mainForm' | 'assetSelector' | 'sending' | 'success'
 
@@ -33,145 +34,88 @@ export function SendDialog({
   className?: string
 }) {
   const { address } = useAccount()
+  const sendCalls = useSendCalls()
   const { data: tokenData } = useTokenBalance({ address })
   const [step, setStep] = useState<SendStep>('mainForm')
+  const [connector] = useConnectors()
 
-  // const availableAssets = useMemo<Asset[]>(() => {
-  //   if (!tokenData?.length) return []
-
-  //   console.info(tokenData)
-
-  //   return tokenData
-  //     ?.map((token) => {
-  //       const balance =
-  //         Number.parseFloat(token.value) /
-  //         10 ** Number.parseInt(token.token.decimals)
-  //       const usdBalance =
-  //         balance * Number.parseFloat(token.token.exchange_rate || '0')
-
-  //       // Get appropriate icon based on token symbol
-  //       let icon = token.token_instance?.token?.icon_url || ''
-  //       if (!icon) {
-  //         icon = '/icons/exp.svg'
-  //       }
-
-  //       return {
-  //         id: token.token.address,
-  //         name: token.token.name,
-  //         symbol: token.token.symbol,
-  //         balance,
-  //         usdBalance,
-  //         icon,
-  //         address: token.token.address,
-  //       }
-  //     })
-  //     .filter((asset) => asset.balance > 0)
-  // }, [tokenData])
-
-  // Don't create a default asset if no assets are available
+  // State for form values
   const [selectedAsset, setSelectedAsset] = useState<TokenBalance | null>(null)
-
-  const [values, setValues] = useState<{
-    asset: string
-    recipient: string
-    amount: string
-  }>({ asset: '', recipient: '', amount: '' })
-
-  const form = Ariakit.useFormStore({
-    values,
-    setValues,
-  })
-
-  const [formIsValid, setFormIsValid] = useState(false)
-  const [truncatedRecipient, setTruncatedRecipient] = useState('')
+  const [recipient, setRecipient] = useState('')
+  const [amount, setAmount] = useState('')
   const [isRecipientFocused, setIsRecipientFocused] = useState(false)
+  const [truncatedRecipient, setTruncatedRecipient] = useState('')
 
-  const validRecipient = Address.validate(form.getValue(form.names.recipient))
+  const validRecipient = Address.validate(recipient)
 
-  // For real implementation: send transaction logic would go here
-  const sendTransaction = async (
-    to: string,
-    amount: string,
-    tokenAddress: string,
-  ) => {
-    // This would be replaced with actual wallet transaction code
-    console.info('Sending transaction:', { to, amount, tokenAddress })
-    // Simulate successful transaction
-    return new Promise<void>((resolve) => setTimeout(resolve, 2000))
-  }
+  // Check if form is valid
+  const formIsValid =
+    selectedAsset &&
+    amount &&
+    Number(amount) > 0 &&
+    Number(amount) <= Number(selectedAsset.value) &&
+    validRecipient
 
-  // Update selected asset when availableAssets changes
+  // Update selected asset when token data changes
   useEffect(() => {
     if (tokenData?.length) {
       setSelectedAsset(tokenData[0]!)
-      setValues((prev) => ({ ...prev, asset: tokenData[0]!.token.address }))
     } else {
       setSelectedAsset(null)
-      setValues((prev) => ({ ...prev, asset: '' }))
     }
   }, [tokenData])
 
-  // Validate form
+  // Update truncated recipient for display
   useEffect(() => {
-    const asset = values.asset
-    const amount = Number(values.amount)
-    const recipient = values.recipient
-
-    const hasAsset = Boolean(asset)
-    const hasValidAmount =
-      selectedAsset && amount > 0 && amount <= Number(selectedAsset.value)
-    const hasValidRecipient = Boolean(recipient && Address.validate(recipient))
-
-    setFormIsValid(
-      // @ts-expect-error
-      hasAsset && hasValidAmount && hasValidRecipient && amount > 0,
-    )
-
-    // Update truncated recipient
     if (recipient && recipient.length > 14) {
       setTruncatedRecipient(
         StringFormatter.truncate(recipient, { start: 8, end: 6 }),
       )
     }
-  }, [values, selectedAsset])
+  }, [recipient])
 
   const handleAssetSelect = (asset: TokenBalance) => {
     setSelectedAsset(asset)
-    setValues({ ...values, asset: asset.token.address })
     setStep('mainForm')
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (formIsValid && selectedAsset) {
-      setStep('sending')
-      try {
-        await sendTransaction(
-          values.recipient,
-          values.amount,
-          selectedAsset.token.address,
-        )
-        setStep('success')
-      } catch (error) {
-        console.error('Transaction failed:', error)
-        // In a real implementation, you would handle the error state here
-        // For now, we'll just simulate success
-        setStep('success')
-      }
-    }
   }
 
   const handleReset = () => {
-    form.reset()
+    setRecipient('')
+    setAmount('')
     setStep('mainForm')
-    // if (tokenData?.length > 0) {
-    //   setSelectedAsset(tokenData[0]!)
-    //   setValues({ asset: tokenData[0]!.token.address, recipient: '', amount: '' })
-    // } else {
-    //   setSelectedAsset(null)
-    //   setValues({ asset: '', recipient: '', amount: '' })
-    // }
     setIsRecipientFocused(false)
+
+    if (tokenData?.length) {
+      setSelectedAsset(tokenData[0]!)
+    }
+  }
+
+  const handleSendTransaction = () => {
+    if (!formIsValid || !selectedAsset) return
+
+    setStep('sending')
+
+    const transfer = AbiFunction.fromAbi(ExperimentERC20.abi, 'transfer')
+    const data = AbiFunction.encodeData(transfer, [
+      recipient,
+      parseEther(amount),
+    ])
+
+    // Use wagmi sendCalls to execute the transaction
+    sendCalls.sendCalls({
+      account: address,
+      connector: connector!,
+      calls: [
+        {
+          data,
+          value: 0n,
+          to: selectedAsset.token.address,
+        },
+      ],
+    })
+
+    // Show success view (in a real app, you'd wait for transaction confirmation)
+    setTimeout(() => setStep('success'), 2000)
   }
 
   // Asset selector view
@@ -305,15 +249,13 @@ export function SendDialog({
     }
 
     return (
-      <Ariakit.Form
-        store={form}
-        aria-labelledby="send-funds"
+      <form
         className="w-full max-w-[400px]"
-        onSubmit={handleSubmit}
+        onSubmit={(e) => e.preventDefault()}
       >
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h3 className="font-medium text-lg ">Send</h3>
+            <h3 className="font-medium text-lg">Send</h3>
             <p id="send-funds" className="text-gray10 text-sm">
               Transfer funds to another address.
             </p>
@@ -322,12 +264,9 @@ export function SendDialog({
 
         {/* Asset Selector */}
         <div className="mt-3 mb-1 flex flex-col gap-y-1.5">
-          <Ariakit.FormLabel
-            name={form.names.asset}
-            className="ml-0.5 text-gray10 text-xs"
-          >
+          <label htmlFor="asset" className="ml-0.5 text-gray10 text-xs">
             Select asset
-          </Ariakit.FormLabel>
+          </label>
           <button
             type="button"
             className="flex h-14 items-center gap-x-2 rounded-xl border-2 border-gray4 px-3.5 py-2.5 text-left font-medium text-lg text-primary hover:bg-secondary"
@@ -341,33 +280,14 @@ export function SendDialog({
             <span className="mb-0.5">{selectedAsset.token.name}</span>
             <ChevronRightIcon className="ml-auto size-6 rounded-full bg-gray4 p-1" />
           </button>
-          <Ariakit.FormError
-            className=""
-            name={form.names.asset}
-            render={(props) => {
-              const error = form.getError(form.names.asset)
-              if (!error) return null
-              return (
-                <div
-                  {...props}
-                  className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11"
-                >
-                  {error}
-                </div>
-              )
-            }}
-          />
         </div>
 
         {/* Amount Input */}
         <div className="mt-3 mb-1 flex flex-col gap-y-1.5">
           <div className="flex items-center justify-between gap-x-2">
-            <Ariakit.FormLabel
-              name={form.names.amount}
-              className="ml-0.5 text-gray10 text-xs"
-            >
+            <label htmlFor="amount" className="ml-0.5 text-gray10 text-xs">
               Enter amount
-            </Ariakit.FormLabel>
+            </label>
             <p className="ml-auto text-gray11 text-sm">
               {ValueFormatter.format(BigInt(selectedAsset.value))}
               <span className="text-gray10">held</span>
@@ -376,12 +296,7 @@ export function SendDialog({
               <button
                 type="button"
                 className="px-0.5 text-xs"
-                onClick={() =>
-                  form.setValue(
-                    form.names.amount,
-                    selectedAsset.value.toString(),
-                  )
-                }
+                onClick={() => setAmount(selectedAsset.value.toString())}
               >
                 Max
               </button>
@@ -393,7 +308,7 @@ export function SendDialog({
               'h-12 rounded-xl border-2 border-gray4 px-3.5 py-2 text-left font-medium hover:bg-secondary',
             )}
           >
-            <Ariakit.FormInput
+            <input
               type="number"
               inputMode="decimal"
               className={cn(
@@ -402,12 +317,13 @@ export function SendDialog({
               )}
               min={0}
               max={Number(selectedAsset.value)}
-              required={true}
+              required
               placeholder="0.00"
               autoCorrect="off"
               autoComplete="off"
               autoCapitalize="off"
-              name={form.names.amount}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
             />
 
             <img
@@ -419,48 +335,35 @@ export function SendDialog({
               {selectedAsset.token.symbol}
             </span>
           </div>
-          <Ariakit.FormError
-            name={form.names.amount}
-            render={(props) => {
-              const value = form.getValue(form.names.amount)
-              if (!value) return null
-              const max = Number(selectedAsset.value)
-
-              if (Number.parseFloat(value) <= max) return null
-
-              return (
-                <div
-                  {...props}
-                  className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11"
-                >
-                  <p className="flex items-center justify-center gap-x-1">
-                    <OctagonAlertIcon className="size-5 text-red-500" />
-                    <span className="font-semibold text-red-500">
-                      Exceeds balance.
-                    </span>
-                    You hold {max} {selectedAsset.token.symbol}.
-                  </p>
-                </div>
-              )
-            }}
-          />
+          {amount && Number(amount) > Number(selectedAsset.value) && (
+            <div className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11">
+              <p className="flex items-center justify-center gap-x-1">
+                <OctagonAlertIcon className="size-5 text-red-500" />
+                <span className="font-semibold text-red-500">
+                  Exceeds balance.
+                </span>
+                You hold {Number(selectedAsset.value)}{' '}
+                {selectedAsset.token.symbol}.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Recipient Address */}
         <div className="my-3 flex flex-col gap-y-1">
-          <Ariakit.FormLabel
-            name={form.names.recipient}
+          <label
+            htmlFor="recipient"
             className="pointer-events-none ml-0.5 text-left text-gray10 text-xs"
           >
             Send to...
-          </Ariakit.FormLabel>
+          </label>
           <div
             className={cn(
               'flex w-full items-center',
               'h-12 rounded-xl border-2 border-gray4 py-2 pl-3.5 text-left font-medium hover:bg-secondary',
             )}
           >
-            <Ariakit.FormInput
+            <input
               maxLength={42}
               minLength={42}
               autoCorrect="off"
@@ -468,14 +371,11 @@ export function SendDialog({
               autoComplete="off"
               autoCapitalize="off"
               placeholder="0xAbCd..."
-              name={form.names.recipient}
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
               onFocus={() => setIsRecipientFocused(true)}
-              onBlur={(event) => {
-                const input = event.currentTarget
-                if (input.value.length <= 14) return
-                setTruncatedRecipient(
-                  StringFormatter.truncate(input.value, { start: 8, end: 6 }),
-                )
+              onBlur={(e) => {
+                if (e.target.value.length <= 14) return
                 setIsRecipientFocused(false)
               }}
               className={cn(
@@ -498,22 +398,6 @@ export function SendDialog({
               <CircleCheckIcon className="my-auto mr-3 ml-auto size-6 rounded-full text-emerald-600" />
             )}
           </div>
-          {/* <Ariakit.FormError
-          className=""
-          name={form.names.recipient}
-          render={(props) => {
-            const error = form.getError(form.names.recipient)
-            if (!error) return null
-            return (
-              <div
-                {...props}
-                className="mt-1 rounded-2xl bg-red4 px-4 py-1.5 text-gray11 text-sm"
-              >
-                Must be a valid Ethereum address or ENS name.
-              </div>
-            )
-          }}
-        /> */}
         </div>
 
         {/* Action Buttons */}
@@ -528,7 +412,8 @@ export function SendDialog({
             </OurButton>
           </DialogClose>
           <OurButton
-            type="submit"
+            type="button"
+            onClick={handleSendTransaction}
             variant={formIsValid ? 'accent' : 'ghost'}
             disabled={!formIsValid}
             className={cn(
@@ -541,7 +426,7 @@ export function SendDialog({
             Send
           </OurButton>
         </div>
-      </Ariakit.Form>
+      </form>
     )
   }
 
