@@ -343,7 +343,7 @@ export namespace wallet_prepareCalls {
     capabilities: Schema.Optional(Capabilities),
     chainId: Schema.Optional(Primitive.Number),
     from: Schema.Optional(Primitive.Address),
-    version: Schema.Optional(Type.Literal('1')),
+    version: Schema.Optional(Type.String()),
   })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 

@@ -6,7 +6,7 @@ import { App } from './App.js'
 import * as Dialog from './lib/Dialog.ts'
 import { porto } from './lib/Porto.ts'
 import * as Router from './lib/Router.ts'
-import './index.css'
+import './styles/index.css'
 
 const offInitialized = Events.onInitialized(porto, (payload) => {
   const { mode, referrer } = payload
@@ -29,40 +29,90 @@ const offRequests = Events.onRequests(porto, (requests) => {
 
 porto.ready()
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.querySelector('div#root')
+
+if (!rootElement) throw new Error('Root element not found')
+
+createRoot(rootElement).render(
   <StrictMode>
     <App />
   </StrictMode>,
 )
 
-if (import.meta.hot)
+if (import.meta.hot && import.meta.env.VITE_LAUNCH_MODE !== 'app')
   import.meta.hot.on('vite:beforeUpdate', () => {
     offInitialized()
     offRequests()
   })
 
-if (import.meta.env.DEV) {
-  let theme = 'system'
-  document.addEventListener('keydown', (event) => {
-    // ⌥ + 1: light/dark mode
-    if (event.altKey && event.code === 'Digit1') {
-      if (theme === 'system') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        theme = isDark ? 'dark' : 'light'
-      } else theme = theme === 'dark' ? 'light' : 'dark'
-
-      document.documentElement.classList.remove('scheme-light-dark')
-      document.documentElement.classList.remove('scheme-light')
-      if (theme === 'dark')
-        document.documentElement.classList.add('scheme-light')
-      else document.documentElement.classList.add('scheme-light-dark')
+document.addEventListener('keydown', (event) => {
+  // ⌥ + 1: light/dark mode
+  if (event.altKey && event.code === 'Digit1') {
+    if (document.documentElement.classList.contains('scheme-light-dark')) {
+      document.documentElement.classList.replace(
+        'scheme-light-dark',
+        'scheme-dark',
+      )
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: '__porto_theme',
+          newValue: 'light',
+          storageArea: window.localStorage,
+        }),
+      )
     }
+    if (document.documentElement.classList.contains('scheme-light')) {
+      document.documentElement.classList.replace(
+        'scheme-light',
+        'scheme-light-dark',
+      )
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: '__porto_theme',
+          newValue: 'dark',
+          storageArea: window.localStorage,
+        }),
+      )
+    } else if (document.documentElement.classList.contains('scheme-dark')) {
+      document.documentElement.classList.replace('scheme-dark', 'scheme-light')
+    } else {
+      let themePreference = window.matchMedia('(prefers-color-scheme: dark)')
+        .matches
+        ? 'dark'
+        : 'light'
+      themePreference = themePreference === 'dark' ? 'light' : 'dark'
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: '__porto_theme',
+          newValue: themePreference,
+          storageArea: window.localStorage,
+        }),
+      )
 
-    // ⌥ + 2: toggle dialog mode
-    if (event.altKey && event.code === 'Digit2')
-      document.documentElement.toggleAttribute('data-dialog')
-  })
-}
+      document.documentElement.classList.remove(
+        'scheme-light',
+        'scheme-light-dark',
+      )
+      document.documentElement.classList.add('scheme-light')
+    }
+  }
+
+  // ⌥ + 2: toggle dialog mode
+  if (event.altKey && event.code === 'Digit2') {
+    document.documentElement.toggleAttribute('data-dialog')
+  }
+
+  // ⌥ + h: hide dev tools
+  if (event.altKey && event.code === 'KeyH') {
+    const devToolsElement = document.querySelector(
+      'button[aria-label="Open TanStack Router Devtools"]',
+    )
+    if (devToolsElement) devToolsElement.hidden = !devToolsElement.hidden
+
+    const devTools = document.querySelector('div[data-item="dev-tools"]')
+    if (devTools) devTools.hidden = !devTools.hidden
+  }
+})
 
 declare module 'react' {
   interface CSSProperties {

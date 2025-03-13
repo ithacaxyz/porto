@@ -1,5 +1,15 @@
 # porto
 
+## 0.0.16
+
+### Patch Changes
+
+- [`df20f1b`](https://github.com/ithacaxyz/porto/commit/df20f1b68e619904dd7fcffcb9a13b06637cb40a) Thanks [@jxom](https://github.com/jxom)! - Added `Storage.combine`.
+
+- [`3ea75ee`](https://github.com/ithacaxyz/porto/commit/3ea75ee8ba63aaf859112a940b3a4e594aa83169) Thanks [@jxom](https://github.com/jxom)! - Loosened `version` validator on `wallet_sendCalls`.
+
+- [`df20f1b`](https://github.com/ithacaxyz/porto/commit/df20f1b68e619904dd7fcffcb9a13b06637cb40a) Thanks [@jxom](https://github.com/jxom)! - Added default `max-age` to `Storage.cookie`.
+
 ## 0.0.15
 
 ### Patch Changes

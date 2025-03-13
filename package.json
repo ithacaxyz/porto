@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
-    "@biomejs/biome": "^1.8.3",
+    "@biomejs/biome": "^1.9.4",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.7",
     "@size-limit/preset-big-lib": "^11.1.6",
@@ -47,13 +47,14 @@
     "sherif": "^0.11.0",
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
-    "tsx": "^4.19.2",
+    "tsx": "^4.19.3",
     "typescript": "catalog:",
     "viem": "catalog:",
     "vitest": "^2.1.8",
-    "wagmi": "catalog:"
+    "wagmi": "catalog:",
+    "wrangler": "^3.114.0"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.6.2",
   "engines": {
     "node": ">=22.5"
   },
@@ -81,5 +82,10 @@
       "import": "*",
       "limit": "90 kB"
     }
-  ]
+  ],
+  "pnpm": {
+    "patchedDependencies": {
+      "@tanstack/react-router": "patches/@tanstack__react-router.patch"
+    }
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
     "ignore": [
       "contracts/lib",
@@ -10,7 +10,8 @@
       "tsconfig.json",
       "tsconfig.*.json",
       "app/src/routeTree.gen.ts",
-      "app/dist"
+      "app/dist",
+      "app/src/components/ui"
     ]
   },
   "organizeImports": {
@@ -28,9 +29,14 @@
       "complexity": {
         "noBannedTypes": "off"
       },
+      "a11y": {
+        "useKeyWithClickEvents": "off"
+      },
       "nursery": {
         "useSortedClasses": {
-          "level": "error"
+          "fix": "unsafe",
+          "level": "error",
+          "options": {}
         }
       },
       "performance": {
@@ -53,6 +59,25 @@
       "quoteStyle": "single",
       "trailingCommas": "all",
       "semicolons": "asNeeded"
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true
+    },
+    "parser": {
+      "allowTrailingCommas": true
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
+  "css": {
+    "formatter": {
+      "enabled": true
+    },
+    "linter": {
+      "enabled": true
     }
   },
   "vcs": {

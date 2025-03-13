@@ -1,4 +1,4 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Outlet, createRootRoute } from '@tanstack/react-router'
 import * as React from 'react'
 
 import { porto } from '../lib/Porto'
@@ -16,6 +16,8 @@ function RouteComponent() {
 
   return (
     <>
+      <HeadContent />
+
       <Outlet />
 
       <React.Suspense>

@@ -1,9 +1,9 @@
 {
   "include": ["src"],
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -25,6 +25,7 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["unplugin-icons/types/react"]
-  }
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
+  },
+  "files": ["vite.config.ts","env.d.ts"]
 }
