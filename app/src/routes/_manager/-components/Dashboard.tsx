@@ -1,22 +1,18 @@
 import * as Ariakit from '@ariakit/react'
+import { Value } from 'ox'
 import * as React from 'react'
-
 import { useAccount } from 'wagmi'
 import { Layout } from '~/components/AppLayout'
 
-import { Value } from 'ox'
+import { odysseyTestnet } from 'porto/core/Chains'
 import { Header } from '~/components/Header'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
-
 import { ThemeToggle } from '~/components/ThemeToggle'
-
 import { useTokenBalance } from '~/hooks/use-address-token-balances'
 import { PercentFormatter, cn, sum } from '~/utils'
 import CoinsIcon from '~icons/lucide/coins'
-
 import HistoryIcon from '~icons/lucide/history'
-
 import { AddMoneyDialog } from './dialogs/Add'
 import { DepositDialog } from './dialogs/Deposit'
 import { SendDialog } from './dialogs/Send'
@@ -29,7 +25,10 @@ const PRICES = {
 export function Dashboard() {
   const { address } = useAccount()
 
-  const tokenBalances = useTokenBalance({ address: address! })
+  const tokenBalances = useTokenBalance({
+    address: address!,
+    chainId: odysseyTestnet.id,
+  })
   const tokenBalancesData = tokenBalances.data
 
   const assets = tokenBalances.data
@@ -177,6 +176,11 @@ export function Dashboard() {
                         <td className="text-left">
                           <div className="flex items-center gap-x-2 py-4">
                             {/* {token.icon_url} */}
+                            <img
+                              alt={token.name}
+                              className="mb-2 size-7"
+                              src={`/icons/${token.symbol.toLowerCase()}.svg`}
+                            />
                             <div className="flex flex-col">
                               <span className="font-semibold text-lg">
                                 {token.name}
