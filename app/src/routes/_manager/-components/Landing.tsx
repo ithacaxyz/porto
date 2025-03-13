@@ -67,7 +67,7 @@ export function Landing() {
                   Create wallet
                 </Button>
                 <Button
-                  onClick={() => connect.mutate({ connector: connector! })}
+                  onClick={() => connect.mutate({ connector: connector as never })}
                   className="flex-grow"
                   variant="invert"
                 >

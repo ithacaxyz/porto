@@ -23,7 +23,7 @@ export const config = createConfig({
   },
 })
 
-export const wagmiClient = config.getClient().extend(publicActions)
+export const wagmiClient = config.getClient().extend(publicActions as never)
 
 declare module 'wagmi' {
   interface Register {

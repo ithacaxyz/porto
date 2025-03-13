@@ -24,7 +24,7 @@ function RouteComponent() {
   )
 
   const account = useAccount()
-  const connect = Hooks.useConnect({ config })
+  const connect = Hooks.useConnect()
   const [connector] = useConnectors({ config })
 
   if (account.isConnected) return <Navigate to="/" />
@@ -153,7 +153,7 @@ function RouteComponent() {
               const selectedLabel =
                 label.length > 0 ? `!${selectedEmoji}-${label}` : undefined
               connect.mutate({
-                connector: connector!,
+                connector: connector as never,
                 createAccount: {
                   label,
                 },
