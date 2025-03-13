@@ -605,7 +605,7 @@ export function from<
 
         case 'wallet_sendPreparedCalls': {
           const [parameters] = request._decoded.params
-          const { chainId, key, signature } = parameters
+          const { chainId, signature } = parameters
           const { account } = parameters.context
 
           const client = getClient(chainId)
@@ -613,13 +613,18 @@ export function from<
           if (chainId && Hex.toNumber(chainId) !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
+          const key = {
+            publicKey: parameters.key.publicKey,
+            type:
+              parameters.key.type === 'address'
+                ? 'secp256k1'
+                : parameters.key.type,
+          } as const
+
           const hash = await implementation.actions.sendPreparedCalls({
             account,
             context: parameters.context,
-            key: {
-              publicKey: key.publicKey,
-              type: key.type === 'address' ? 'secp256k1' : (key.type as never),
-            },
+            key,
             signature: signature,
             internal: {
               client,
