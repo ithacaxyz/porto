@@ -48,11 +48,7 @@ export function DepositDialog() {
                   <span className="mt-0.5 mb-auto">Porto</span>
                 </span>
                 <div className="col-span-1 col-start-3 row-span-1 row-start-1 flex size-full h-[85px] w-[85px] items-center justify-center place-self-end pt-5 text-white normal-case">
-                  <QrCode
-                    key={'0xf4212614C7Fe0B3feef75057E88b2E77a7E23e83'}
-                    contents={'0xf4212614C7Fe0B3feef75057E88b2E77a7E23e83'}
-                  />
-                  {/* <img src="/icons/qr-code.png" alt="." className="" /> */}
+                  <QrCode key={address} contents={address} />
                 </div>
 
                 <button

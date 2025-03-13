@@ -1,18 +1,18 @@
-import { AbiFunction, Address, Value } from 'ox'
+import { Address } from 'ox'
 import { useEffect, useState } from 'react'
 import { encodeFunctionData, isHex, parseEther } from 'viem'
 import { useAccount, useConnectors, useWaitForTransactionReceipt } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
+import CircleCheckIcon from '~icons/lucide/circle-check'
+import OctagonAlertIcon from '~icons/lucide/octagon-alert'
+import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 
 import { Button as OurButton } from '~/components/Button'
 import { Pill } from '~/components/Pill'
-import { Button } from '~/components/ui/button'
 import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -23,26 +23,16 @@ import {
   useTokenBalance,
 } from '~/hooks/use-address-token-balances'
 import { ExperimentERC20 } from '~/lib/Constants'
-import { porto } from '~/lib/Porto'
 import { config, wagmiClient } from '~/lib/Wagmi'
 import { StringFormatter, ValueFormatter, cn } from '~/utils'
-import ChevronLeftIcon from '~icons/lucide/chevron-left'
-import ChevronRightIcon from '~icons/lucide/chevron-right'
-import CircleCheckIcon from '~icons/lucide/circle-check'
-import OctagonAlertIcon from '~icons/lucide/octagon-alert'
-import SendHorizontalIcon from '~icons/lucide/send-horizontal'
-
-type SendStep = 'mainForm' | 'assetSelector' | 'sending' | 'success'
 
 export function SendDialog({
   className,
 }: {
   className?: string
 }) {
-  const send = useSendCalls({ config: config })
-  console.info(send)
   const { address } = useAccount()
-  const [connector] = useConnectors()
+  const send = useSendCalls({ config: config })
   const { data: tokenData } = useTokenBalance({ address })
 
   const receiptQuery = useWaitForTransactionReceipt({
@@ -57,7 +47,7 @@ export function SendDialog({
     tokenData?.[0] ?? null,
   )
 
-  const isSwapping = send.isPending || receiptQuery.fetchStatus === 'fetching'
+  const isSending = send.isPending || receiptQuery.fetchStatus === 'fetching'
 
   const [amount, setAmount] = useState('')
 
@@ -73,26 +63,6 @@ export function SendDialog({
       )
     }
   }, [recipient])
-
-  // if (!selectedAsset) {
-  //   return (
-  //     <div className="flex min-h-[300px] flex-col items-center justify-center p-4 text-center">
-  //       <h3 className="mb-2 font-medium text-lg">No Assets Available</h3>
-  //       <p className="text-gray10">
-  //         You don't have any assets in your wallet to send.
-  //       </p>
-  //       <DialogClose asChild>
-  //         <OurButton
-  //           variant="default"
-  //           className="mt-6 w-full rounded-full"
-  //           // onClick={handleReset}
-  //         >
-  //           Close
-  //         </OurButton>
-  //       </DialogClose>
-  //     </div>
-  //   )
-  // }
 
   return (
     <Dialog>
@@ -118,6 +88,7 @@ export function SendDialog({
       >
         <DialogHeader className="p-0">
           <form
+            name="send"
             className="w-full max-w-[400px]"
             onSubmit={async (event) => {
               event.preventDefault()
@@ -133,8 +104,6 @@ export function SendDialog({
               const tokenAddress = selectedAsset?.token.address
               if (!tokenAddress || !Address.validate(tokenAddress)) return
 
-              console.info({ to, amount })
-
               send.sendCalls({
                 calls: [
                   {
@@ -149,43 +118,7 @@ export function SendDialog({
                 ],
               })
 
-              console.info({ tokenAddress, to, amount })
-
-              // const result = await porto.provider.request({
-              //   method: 'wallet_sendCalls',
-              //   params: [
-              //     {
-              //       calls: [
-              //         {
-              //           to: tokenAddress,
-              //           data: encodeFunctionData({
-              //             abi: ExperimentERC20.abi,
-              //             functionName: 'transfer',
-              //             args: [to, parseEther(amount)],
-              //           }),
-              //         },
-              //       ],
-              //     },
-              //   ],
-              // })
-
-              // console.info(result)
-
-              send.sendCalls({
-                calls: [
-                  {
-                    to: tokenAddress,
-
-                    data: encodeFunctionData({
-                      abi: ExperimentERC20.abi,
-                      functionName: 'transfer',
-                      args: [to, parseEther(amount)],
-                    }),
-                  },
-                ],
-              })
-
-              console.info(send)
+              console.info(send.status)
             }}
           >
             <div className="mb-3 flex items-center justify-between">
@@ -296,6 +229,7 @@ export function SendDialog({
                   autoCapitalize="off"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
+                  disabled={isSending}
                 />
 
                 <img
@@ -375,29 +309,34 @@ export function SendDialog({
                 )}
               </div>
             </div>
-            <pre>{send.status}</pre>
+            <pre>
+              {JSON.stringify(
+                { status: send.status, success: send.isSuccess },
+                undefined,
+                2,
+              )}
+            </pre>
             {/* Action Buttons */}
             <div className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg">
               <DialogClose asChild>
                 <OurButton
+                  form="send"
+                  type="reset"
+                  name="cancel"
                   variant="default"
+                  disabled={isSending}
                   className="rounded-full border-2 border-gray6 bg-gray5 text-primary hover:bg-gray4"
-                  // onClick={handleReset}
                 >
                   Cancel
                 </OurButton>
               </DialogClose>
               <OurButton
                 type="submit"
-                // onClick={handleSendTransaction}
-                // variant={formIsValid ? 'accent' : 'ghost'}
-                // disabled={!formIsValid}
-                className={cn(
-                  // formIsValid
-                  //   ? 'bg-accent text-white hover:bg-accent/90'
-                  //   : 'border-gray6 text-gray10 hover:bg-gray2',
-                  'rounded-full border-2',
-                )}
+                className={cn('rounded-full border-2')}
+                disabled={!!amount || validRecipient || isSending}
+                variant={
+                  !!amount && validRecipient && !isSending ? 'accent' : 'ghost'
+                }
               >
                 Send
               </OurButton>
