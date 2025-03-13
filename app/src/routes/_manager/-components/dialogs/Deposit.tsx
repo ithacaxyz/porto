@@ -1,7 +1,8 @@
-import { toast } from 'sonner'
+import * as React from 'react'
 import { useAccount } from 'wagmi'
 import ReceiveIcon from '~icons/bitcoin-icons/receive-filled'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
+import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
 import XIcon from '~icons/lucide/x'
 
@@ -12,6 +13,17 @@ import { StringFormatter, cn } from '~/utils'
 export function DepositDialog() {
   const { address } = useAccount()
 
+  const [isCopied, setIsCopied] = React.useState(false)
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(address ?? '')
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 1_500)
+    } catch (error) {
+      console.error('Failed to copy text:', error)
+    }
+  }
   return (
     <Dialog.Dialog>
       <Dialog.DialogTrigger
@@ -53,12 +65,7 @@ export function DepositDialog() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    navigator.clipboard
-                      .writeText(address ?? '')
-                      .then(() => toast.success('Copied to clipboard'))
-                      .catch(() => toast.error('Failed to copy to clipboard'))
-                  }
+                  onClick={handleCopy}
                   className={cn(
                     'col-span-3 col-start-1 row-span-1 row-start-2 mt-auto mb-2.5 flex h-[10px] items-center gap-x-2.5 text-md sm:col-span-2',
                   )}
@@ -70,7 +77,11 @@ export function DepositDialog() {
                     })}
                   </span>
                   <span className="mt-auto flex size-6 items-center justify-center rounded-full bg-[#3C92DD]">
-                    <CopyIcon className="m-auto size-3.5" />
+                    {isCopied ? (
+                      <CheckIcon className="m-auto size-3.5" />
+                    ) : (
+                      <CopyIcon className="m-auto size-3.5" />
+                    )}
                   </span>
                 </button>
               </div>
