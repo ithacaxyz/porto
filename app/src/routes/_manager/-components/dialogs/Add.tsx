@@ -1,12 +1,7 @@
 import DollarSignIcon from '~icons/majesticons/dollar-circle-line'
 
 import { Button as OurButton } from '~/components/Button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from '~/components/ui/dialog'
+import { Dialog } from '~/components/ui/dialog'
 import { cn } from '~/utils'
 
 export function AddMoneyDialog({
@@ -15,8 +10,8 @@ export function AddMoneyDialog({
   className?: string
 }) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Dialog.Dialog>
+      <Dialog.DialogTrigger asChild>
         <OurButton
           variant="default"
           className={cn(
@@ -30,13 +25,15 @@ export function AddMoneyDialog({
           <DollarSignIcon className="size-6" />
           <span>Add</span>
         </OurButton>
-      </DialogTrigger>
-      <DialogContent
+      </Dialog.DialogTrigger>
+      <Dialog.DialogContent
         className="rounded-xl border-0 bg-primary p-5 shadow-xl sm:max-w-[400px]"
         title="Send"
       >
-        <DialogHeader className="p-0 text-center">Comint soon…</DialogHeader>
-      </DialogContent>
-    </Dialog>
+        <Dialog.DialogHeader className="p-0 text-center">
+          Coming soon…
+        </Dialog.DialogHeader>
+      </Dialog.DialogContent>
+    </Dialog.Dialog>
   )
 }

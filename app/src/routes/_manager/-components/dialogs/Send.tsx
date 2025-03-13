@@ -9,14 +9,8 @@ import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 
 import { Button as OurButton } from '~/components/Button'
 import { Pill } from '~/components/Pill'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '~/components/ui/dialog'
+import { Dialog } from '~/components/ui/dialog'
+
 import * as Select from '~/components/ui/select'
 import {
   type TokenBalance,
@@ -55,8 +49,8 @@ export function SendDialog({
   // const validRecipient = Address.validate(recipient)
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Dialog.Dialog>
+      <Dialog.DialogTrigger asChild>
         <OurButton
           variant="invert"
           className={cn(
@@ -68,10 +62,10 @@ export function SendDialog({
           )}
         >
           <SendHorizontalIcon className="size-6" />
-          <DialogTitle>Send</DialogTitle>
+          <Dialog.DialogTitle>Send</Dialog.DialogTitle>
         </OurButton>
-      </DialogTrigger>
-      <DialogContent
+      </Dialog.DialogTrigger>
+      <Dialog.DialogContent
         onPointerDownOutside={(event) => event.preventDefault()}
         onCloseAutoFocus={(event) => event.preventDefault()}
         title="Send"
@@ -83,7 +77,7 @@ export function SendDialog({
         ) : send.isSuccess ? (
           <SuccessView hash={send.data} handleReset={() => {}} />
         ) : (
-          <DialogHeader className="p-0">
+          <Dialog.DialogHeader className="p-0">
             <form
               name="send"
               className="w-full max-w-[400px]"
@@ -296,7 +290,7 @@ export function SendDialog({
               </pre>
               {/* Action Buttons */}
               <div className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg">
-                <DialogClose asChild>
+                <Dialog.DialogClose asChild>
                   <OurButton
                     form="send"
                     type="reset"
@@ -307,7 +301,7 @@ export function SendDialog({
                   >
                     Cancel
                   </OurButton>
-                </DialogClose>
+                </Dialog.DialogClose>
                 <OurButton
                   type="submit"
                   className={cn('rounded-full border-2')}
@@ -318,10 +312,10 @@ export function SendDialog({
                 </OurButton>
               </div>
             </form>
-          </DialogHeader>
+          </Dialog.DialogHeader>
         )}
-      </DialogContent>
-    </Dialog>
+      </Dialog.DialogContent>
+    </Dialog.Dialog>
   )
 }
 
@@ -393,7 +387,7 @@ function SendingView({
       <p className="text-balance text-center text-gray10">
         This won't take long at all. You can safely close this window now.
       </p>
-      <DialogClose asChild>
+      <Dialog.DialogClose asChild>
         <OurButton
           variant="default"
           className="mt-4 h-12! w-full rounded-full bg-gray4! text-xl!"
@@ -401,7 +395,7 @@ function SendingView({
         >
           Close
         </OurButton>
-      </DialogClose>
+      </Dialog.DialogClose>
     </div>
   )
 }
@@ -433,7 +427,7 @@ function SuccessView({
         </a>
         .
       </p>
-      <DialogClose asChild>
+      <Dialog.DialogClose asChild>
         <OurButton
           variant="default"
           onClick={handleReset}
@@ -441,7 +435,7 @@ function SuccessView({
         >
           Done
         </OurButton>
-      </DialogClose>
+      </Dialog.DialogClose>
     </div>
   )
 }

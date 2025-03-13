@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5174",
-    "build": "tsc --build && vite build",
+    "prebuild": "tsc --build",
+    "build": "vite build",
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
     "prepreview": "pnpm build",
