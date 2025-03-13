@@ -1,20 +1,33 @@
 import * as Ariakit from '@ariakit/react'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { type VariantProps, cva, cx } from 'cva'
-import { AbiFunction, type Address, Value } from 'ox'
+import {
+  AbiFunction,
+  type Address,
+  Hex,
+  type RpcSchema as Schema,
+  Value,
+} from 'ox'
+import type { Porto, RpcSchema } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import {
+  deepEqual,
   useAccount,
   useBlockNumber,
   useConnectors,
   useReadContract,
 } from 'wagmi'
-import { useCallsStatus, useSendCalls } from 'wagmi/experimental'
+import { useCallsStatus } from 'wagmi/experimental'
 import LucideCheck from '~icons/lucide/check'
 import LucideInfo from '~icons/lucide/info'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 
 import { exp1Config, exp2Config } from '../generated'
+
+type Provider = Porto.Porto['provider']
+const pollingInterval = 800
+const successTimeout = 2_000 // time to wait until reseting success state back to default
 
 export function DemoApp() {
   const isMountedFn = useIsMounted()
@@ -25,39 +38,43 @@ export function DemoApp() {
   const { address, status } = useAccount()
 
   const { data: blockNumber } = useBlockNumber({
-    watch: status === 'connected',
+    watch: { enabled: status === 'connected', pollingInterval },
   })
-  const { data: exp1Balance, refetch: expBalanceRefetch } = useReadContract({
-    ...exp1Config,
+  const shared = {
     functionName: 'balanceOf',
     args: [address!],
-    query: {
-      enabled: Boolean(address),
-    },
+    query: { enabled: Boolean(address) },
+  } as const
+  const { data: exp1Balance, refetch: expBalanceRefetch } = useReadContract({
+    ...exp1Config,
+    ...shared,
   })
   const { data: exp2Balance, refetch: exp2BalanceRefetch } = useReadContract({
     ...exp2Config,
-    functionName: 'balanceOf',
-    args: [address!],
-    query: {
-      enabled: Boolean(address),
-    },
+    ...shared,
   })
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
   React.useEffect(() => {
     expBalanceRefetch()
     exp2BalanceRefetch()
   }, [blockNumber])
 
-  const mint = useSendCalls({
-    mutation: {
-      onError(error) {
-        console.error(error)
-      },
-      onSuccess() {
-        setTimeout(() => mint.reset(), 2_000)
-      },
+  const mint = createUseSendCalls<{ amount: string }>((variables) => [
+    {
+      to: exp1Config.address,
+      data: AbiFunction.encodeData(
+        AbiFunction.fromAbi(exp1Config.abi, 'mint'),
+        [address!, Value.fromEther(variables.amount)],
+      ),
+    },
+  ])({
+    onError(error) {
+      // TODO: Error toast
+      console.error('mint', error)
+    },
+    onSuccess() {
+      mint.reset()
     },
   })
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } = useCallsStatus(
@@ -67,7 +84,7 @@ export function DemoApp() {
         enabled: !!mint.data,
         refetchInterval({ state }) {
           if (state.data?.status === 'CONFIRMED') return false
-          return 1_000
+          return pollingInterval
         },
       },
     },
@@ -201,7 +218,7 @@ export function DemoApp() {
                   <span className="text-black dark:text-white">
                     {exp1Balance ? Value.formatEther(exp1Balance) : 0}
                   </span>{' '}
-                  <span className="text-gray11">EXP</span>
+                  <span className="text-gray11">EXP1</span>
                 </span>
               </div>
 
@@ -236,19 +253,7 @@ export function DemoApp() {
                         : 'default',
                 })}
                 type="submit"
-                onClick={() => {
-                  mint.sendCalls({
-                    calls: [
-                      {
-                        to: exp1Config.address,
-                        data: AbiFunction.encodeData(
-                          AbiFunction.fromAbi(exp1Config.abi, 'mint'),
-                          [address!, Value.fromEther('10')],
-                        ),
-                      },
-                    ],
-                  })
-                }}
+                onClick={() => mint.mutate({ amount: '100' })}
               >
                 {mint.isPending || mintIsLoading ? 'Minting' : 'Mint'}
               </button>
@@ -261,6 +266,7 @@ export function DemoApp() {
                 <Card title="Mint" description="TODO">
                   <MintDemo address={address} exp1Balance={exp1Balance} />
                 </Card>
+
                 <Card title="Pay" description="TODO">
                   <PayDemo
                     address={address}
@@ -278,6 +284,7 @@ export function DemoApp() {
                     exp2Balance={exp2Balance}
                   />
                 </Card>
+
                 <Card title="Limit" description="TODO">
                   <LimitDemo address={address} />
                 </Card>
@@ -300,11 +307,23 @@ export function DemoApp() {
 function MintDemo(props: MintDemo.Props) {
   const { address, exp1Balance } = props
 
-  const mint = useSendCalls({
-    mutation: {
-      onSuccess() {
-        setTimeout(() => mint.reset(), 2_000)
+  const mint = createUseSendCalls<{ amount: string; symbol: string }>(
+    (variables) => [
+      {
+        to: exp1Config.address,
+        data: AbiFunction.encodeData(
+          AbiFunction.fromAbi(exp1Config.abi, 'mint'),
+          [address!, Value.fromEther(variables.amount)],
+        ),
       },
+    ],
+  )({
+    onError(error) {
+      // TODO: Error toast
+      console.error('mint', error)
+    },
+    onSuccess() {
+      setTimeout(() => mint.reset(), successTimeout)
     },
   })
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } = useCallsStatus(
@@ -314,10 +333,17 @@ function MintDemo(props: MintDemo.Props) {
         enabled: !!mint.data,
         refetchInterval({ state }) {
           if (state.data?.status === 'CONFIRMED') return false
-          return 1_000
+          return pollingInterval
         },
       },
     },
+  )
+
+  const amount = '100'
+  const symbol = 'exp1'
+  const onClick = React.useCallback(
+    () => mint.mutate({ amount, symbol }),
+    [mint.mutate],
   )
 
   const status =
@@ -346,21 +372,11 @@ function MintDemo(props: MintDemo.Props) {
       </div>
 
       <MintButton
+        amount={amount}
         disabled={!address}
         status={status}
-        mint={() => {
-          mint.sendCalls({
-            calls: [
-              {
-                to: exp1Config.address,
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Config.abi, 'mint'),
-                  [address!, Value.fromEther('10')],
-                ),
-              },
-            ],
-          })
-        }}
+        symbol={symbol}
+        onClick={onClick}
       />
 
       <div className="-tracking-[0.322px] text-center text-[11.5px] text-gray9 leading-[14px]">
@@ -377,15 +393,14 @@ declare namespace MintDemo {
 }
 
 function MintButton(props: MintButton.Props) {
-  const { disabled, mint, status } = props
+  const { amount, status, symbol, ...rest } = props
   return (
     <button
-      disabled={disabled}
       type="button"
       className={buttonClassName({
         variant: status === 'default' ? 'invert' : status,
       })}
-      onClick={() => mint()}
+      {...rest}
     >
       {(() => {
         if (status === 'pending') return 'Minting tokens...'
@@ -397,8 +412,10 @@ function MintButton(props: MintButton.Props) {
               <Exp1Token />
             </div>
             <span>
-              <span>100</span>{' '}
-              <span className="text-whiteA8 dark:text-blackA8">EXP</span>
+              <span>{amount}</span>{' '}
+              <span className="text-whiteA8 uppercase dark:text-blackA8">
+                {symbol}
+              </span>
             </span>
           </span>
         )
@@ -407,47 +424,46 @@ function MintButton(props: MintButton.Props) {
   )
 }
 declare namespace MintButton {
-  type Props = {
-    disabled?: boolean | undefined
-    mint: () => void
+  interface Props
+    extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
+    amount: string
     status: 'default' | 'pending' | 'success'
+    symbol: string
   }
 }
 
 function SwapDemo(props: SwapDemo.Props) {
   const { address, exp1Balance, exp2Balance } = props
 
-  const [fromSymbol, setFromSymbol] = React.useState<'exp1' | 'exp2'>('exp1')
-  const [fromValue, setFromValue] = React.useState<string | undefined>('')
-  const [toValue, setToValue] = React.useState<string | undefined>('')
-
-  const mint = useSendCalls({
-    mutation: {
-      onSuccess() {
-        setTimeout(() => mint.reset(), 2_000)
+  const swap = createUseSendCalls<Variables>((variables) => {
+    const expFromConfig =
+      variables.fromSymbol === 'exp1' ? exp1Config : exp2Config
+    const expToConfig =
+      variables.fromSymbol === 'exp1' ? exp2Config : exp1Config
+    return [
+      {
+        to: expFromConfig.address,
+        data: AbiFunction.encodeData(
+          AbiFunction.fromAbi(expFromConfig.abi, 'swap'),
+          [expToConfig.address, address!, Value.fromEther(variables.fromValue)],
+        ),
       },
+    ]
+  })({
+    onError(error) {
+      // TODO: Error toast
+      console.error('swap', error)
+    },
+    onSuccess() {
+      form.setValues((x) => ({ ...x, toValue: '', fromValue: '' }))
+      setTimeout(() => swap.reset(), successTimeout)
     },
   })
-  const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } = useCallsStatus(
-    {
-      id: mint.data as string,
-      query: {
-        enabled: !!mint.data,
-        refetchInterval({ state }) {
-          if (state.data?.status === 'CONFIRMED') return false
-          return 1_000
-        },
-      },
-    },
-  )
-
-  const swap = useSendCalls({
-    mutation: {
-      onSuccess() {
-        setTimeout(() => mint.reset(), 2_000)
-      },
-    },
-  })
+  type Variables = {
+    fromSymbol: 'exp1' | 'exp2'
+    toValue: string
+    fromValue: string
+  }
   const { isLoading: swapIsLoading, isSuccess: swapIsSuccess } = useCallsStatus(
     {
       id: swap.data as string,
@@ -455,18 +471,23 @@ function SwapDemo(props: SwapDemo.Props) {
         enabled: !!swap.data,
         refetchInterval({ state }) {
           if (state.data?.status === 'CONFIRMED') return false
-          return 1_000
+          return pollingInterval
         },
       },
     },
   )
 
-  const mintStatus =
-    mint.isPending || mintIsLoading
-      ? 'pending'
-      : mintIsSuccess
-        ? 'success'
-        : 'default'
+  const form = Ariakit.useFormStore<Variables>({
+    defaultValues: {
+      fromSymbol: 'exp1',
+      fromValue: '',
+      toValue: '',
+    },
+  })
+  form.useSubmit(async (state) => {
+    await swap.mutateAsync(state.values)
+  })
+
   const swapStatus =
     swap.isPending || swapIsLoading
       ? 'pending'
@@ -474,6 +495,9 @@ function SwapDemo(props: SwapDemo.Props) {
         ? 'success'
         : 'default'
 
+  const fromSymbol = form.useValue('fromSymbol')
+  const fromValue = form.useValue('toValue')
+  const toValue = form.useValue('toValue')
   const from = {
     symbol: fromSymbol,
     balance: fromSymbol === 'exp1' ? exp1Balance : exp2Balance,
@@ -489,40 +513,46 @@ function SwapDemo(props: SwapDemo.Props) {
 
   const noFunds = (exp1Balance ?? 0n) === 0n && (exp2Balance ?? 0n) === 0n
 
-  return (
-    <form
-      className="mt-2 pb-4"
-      onSubmit={(event) => {
-        event.preventDefault()
-        const formData = new FormData(event.currentTarget)
-        const amount = formData.get('from') as string
+  const mint = createUseSendCalls<{ amount: string; symbol: string }>(
+    (variables) => [
+      {
+        to: exp1Config.address,
+        data: AbiFunction.encodeData(
+          AbiFunction.fromAbi(exp1Config.abi, 'mint'),
+          [address!, Value.fromEther(variables.amount)],
+        ),
+      },
+    ],
+  )({
+    onError(error) {
+      // TODO: Error toast
+      console.error('mint', error)
+    },
+    onSuccess() {
+      setTimeout(() => mint.reset(), successTimeout)
+    },
+  })
+  const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } = useCallsStatus(
+    {
+      id: mint.data as string,
+      query: {
+        enabled: !!mint.data,
+        refetchInterval({ state }) {
+          if (state.data?.status === 'CONFIRMED') return false
+          return pollingInterval
+        },
+      },
+    },
+  )
+  const mintAmount = '100'
+  const mintSymbol = 'exp1'
+  const onClickMint = React.useCallback(
+    () => mint.mutate({ amount: mintAmount, symbol: mintSymbol }),
+    [mint.mutate],
+  )
 
-        if (fromSymbol === 'exp1')
-          swap.sendCalls({
-            calls: [
-              {
-                to: exp1Config.address,
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Config.abi, 'swap'),
-                  [exp1Config.address, address!, Value.fromEther(amount)],
-                ),
-              },
-            ],
-          })
-        else if (fromSymbol === 'exp2')
-          swap.sendCalls({
-            calls: [
-              {
-                to: exp2Config.address,
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp2Config.abi, 'swap'),
-                  [exp2Config.address, address!, Value.fromEther(amount)],
-                ),
-              },
-            ],
-          })
-      }}
-    >
+  return (
+    <Ariakit.Form store={form} className="mt-2 pb-4" resetOnSubmit={false}>
       <div
         className={cx(
           'relative mb-2 flex items-center justify-center gap-1',
@@ -530,22 +560,29 @@ function SwapDemo(props: SwapDemo.Props) {
         )}
       >
         <div className="relative flex flex-1 items-center">
-          <input
+          <Ariakit.VisuallyHidden>
+            <Ariakit.FormLabel name={form.names.fromValue}>
+              From value
+            </Ariakit.FormLabel>
+          </Ariakit.VisuallyHidden>
+
+          <Ariakit.FormInput
             className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 py-3 ps-3 pe-[76px] font-medium text-[15px] text-gray12 placeholder:text-gray8"
             disabled={!address || noFunds || swapStatus === 'pending'}
             max={from.balance ? Value.formatEther(from.balance) : 0}
             min="0"
+            name={form.names.fromValue}
             placeholder="0.0"
-            name="from"
             required
             step="any"
             type="number"
-            value={from.value}
             onChange={(e) => {
               const value = e.target.value
               const scalar = fromSymbol === 'exp1' ? 0.01 : 100
-              setFromValue(value)
-              setToValue(value ? (Number(value) * scalar).toString() : '')
+              form.setValue(
+                'toValue',
+                value ? (Number(value) * scalar).toString() : '',
+              )
             }}
           />
           <div className="absolute end-4 flex items-center gap-1">
@@ -557,21 +594,28 @@ function SwapDemo(props: SwapDemo.Props) {
         </div>
 
         <div className="relative flex flex-1 items-center">
-          <input
+          <Ariakit.VisuallyHidden>
+            <Ariakit.FormLabel name={form.names.toValue}>
+              To value
+            </Ariakit.FormLabel>
+          </Ariakit.VisuallyHidden>
+
+          <Ariakit.FormInput
             className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 py-3 ps-4 pe-[76px] font-medium text-[15px] text-gray12 placeholder:text-gray8"
             disabled={!address || noFunds || swapStatus === 'pending'}
             placeholder="0.0"
             min="0"
-            name="to"
+            name={form.names.toValue}
             required
             step="any"
             type="number"
-            value={to.value}
             onChange={(e) => {
               const value = e.target.value
               const scalar = fromSymbol === 'exp1' ? 100 : 0.01
-              setToValue(value)
-              setFromValue(value ? (Number(value) * scalar).toString() : '')
+              form.setValue(
+                'fromValue',
+                value ? (Number(value) * scalar).toString() : '',
+              )
             }}
           />
           <div className="absolute end-3 flex items-center gap-1">
@@ -584,13 +628,16 @@ function SwapDemo(props: SwapDemo.Props) {
 
         <button
           type="button"
+          tabIndex={-1}
           disabled={!address || noFunds || swapStatus === 'pending'}
           aria-label="Switch from and to inputs"
           className="absolute flex size-5.5 min-w-5.5 items-center justify-center rounded-full bg-gray4"
           onClick={() => {
-            setFromSymbol((x) => (x === 'exp1' ? 'exp2' : 'exp1'))
-            setFromValue(toValue)
-            setToValue(fromValue)
+            form.setValues((x) => ({
+              fromSymbol: x.fromSymbol === 'exp1' ? 'exp2' : 'exp1',
+              fromValue: x.toValue,
+              toValue: x.fromValue,
+            }))
           }}
         >
           <svg
@@ -615,34 +662,29 @@ function SwapDemo(props: SwapDemo.Props) {
 
       {noFunds ? (
         <MintButton
+          amount={mintAmount}
           disabled={!address}
-          status={mintStatus}
-          mint={() => {
-            mint.sendCalls({
-              calls: [
-                {
-                  to: exp1Config.address,
-                  data: AbiFunction.encodeData(
-                    AbiFunction.fromAbi(exp1Config.abi, 'mint'),
-                    [address!, Value.fromEther('10')],
-                  ),
-                },
-              ],
-            })
-          }}
+          status={
+            mint.isPending || mintIsLoading
+              ? 'pending'
+              : mintIsSuccess
+                ? 'success'
+                : 'default'
+          }
+          symbol={mintSymbol}
+          onClick={onClickMint}
         />
       ) : (
-        <button
+        <Ariakit.FormSubmit
           className={buttonClassName({ variant: swapStatus })}
           disabled={swapStatus === 'pending'}
-          type="submit"
         >
           {(() => {
             if (swapStatus === 'pending') return 'Swapping...'
             if (swapStatus === 'success') return 'Completed!'
             return 'Swap'
           })()}
-        </button>
+        </Ariakit.FormSubmit>
       )}
 
       <div className="-tracking-[0.25px] mt-3 flex h-[18.5px] items-center justify-between text-[13px]">
@@ -663,7 +705,7 @@ function SwapDemo(props: SwapDemo.Props) {
           </div>
         </div>
       </div>
-    </form>
+    </Ariakit.Form>
   )
 }
 declare namespace SwapDemo {
@@ -677,109 +719,186 @@ declare namespace SwapDemo {
 function PayDemo(props: PayDemo.Props) {
   const { address, exp1Balance, exp2Balance } = props
 
-  const [symbol, setSymbol] = React.useState<'exp1' | 'exp2'>('exp1')
-  const [value, setValue] = React.useState<string | undefined>('')
-  const options = [
-    { symbol: 'exp1', icon: <Exp1Token /> },
-    { symbol: 'exp2', icon: <Exp2Token /> },
-  ]
-  const active = options.find((option) => option.symbol === symbol)!
+  const pay = createUseSendCalls<{ amount: string; symbol: typeof symbol }>(
+    (variables) => {
+      const expConfig = variables.symbol === 'exp1' ? exp1Config : exp2Config
+      return [
+        {
+          to: expConfig.address,
+          data: AbiFunction.encodeData(
+            AbiFunction.fromAbi(expConfig.abi, 'approve'),
+            [address!, Value.fromEther(variables.amount)],
+          ),
+        },
+        {
+          to: expConfig.address,
+          data: AbiFunction.encodeData(
+            AbiFunction.fromAbi(expConfig.abi, 'transferFrom'),
+            [
+              address!,
+              '0x0000000000000000000000000000000000000000',
+              Value.fromEther(variables.amount),
+            ],
+          ),
+        },
+      ]
+    },
+  )({
+    onError(error) {
+      // TODO: Error toast
+      console.error('pay', error)
+    },
+    onSuccess() {
+      form.setValue('amount', '')
+      setTimeout(() => pay.reset(), successTimeout)
+    },
+  })
+  const { isLoading: payIsLoading, isSuccess: payIsSuccess } = useCallsStatus({
+    id: pay.data as string,
+    query: {
+      enabled: !!pay.data,
+      refetchInterval({ state }) {
+        if (state.data?.status === 'CONFIRMED') return false
+        return pollingInterval
+      },
+    },
+  })
+
+  const form = Ariakit.useFormStore({
+    defaultValues: {
+      amount: '',
+      symbol: 'exp1',
+    },
+  })
+  form.useSubmit(async (state) => {
+    await pay.mutateAsync(state.values)
+  })
+
+  const symbol = form.useValue('symbol')
+  const options = React.useMemo(
+    () => [
+      { symbol: 'exp1', icon: <Exp1Token /> },
+      { symbol: 'exp2', icon: <Exp2Token /> },
+    ],
+    [],
+  )
+  const active = React.useMemo(
+    () => options.find((option) => option.symbol === symbol)!,
+    [options, symbol],
+  )
   const balance = (symbol === 'exp1' ? exp1Balance : exp2Balance) ?? 0n
 
-  const status = 'default' as 'default' | 'pending' | 'success'
+  const status =
+    pay.isPending || payIsLoading
+      ? 'pending'
+      : payIsSuccess
+        ? 'success'
+        : 'default'
 
   return (
     <div className="mt-3 flex flex-col pb-[19px]">
-      <div className="flex items-end gap-3">
+      <Ariakit.Form
+        store={form}
+        className="flex items-end gap-3"
+        resetOnSubmit={false}
+      >
         <div className="flex max-w-[68px] flex-1 flex-col gap-2">
-          <label
-            htmlFor="amount"
+          <Ariakit.FormLabel
+            name={form.names.amount}
             className="-tracking-[0.322px;] h-[14px] text-[11.5px] text-gray9 leading-none"
           >
             Amount
-          </label>
-          <input
+          </Ariakit.FormLabel>
+          <Ariakit.FormInput
             className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 px-3 py-3 font-medium text-[15px] text-gray12 placeholder:text-gray8 disabled:cursor-not-allowed"
             disabled={!address}
             max={balance ? Value.formatEther(balance) : 0}
             min="0"
             placeholder="0.0"
-            id="amount"
-            name="amount"
+            name={form.names.amount}
             required
             step="any"
             type="number"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
           />
         </div>
 
-        <div className="flex flex-1 flex-col gap-2">
-          <Ariakit.SelectProvider
-            value={symbol}
-            setValue={(value) => setSymbol(value as typeof symbol)}
+        <div className="flex flex-1 select-none flex-col gap-2">
+          <Ariakit.FormLabel
+            className="-tracking-[0.322px;] h-[14px] text-[11.5px] text-gray9 leading-none"
+            name={form.names.symbol}
           >
-            <Ariakit.SelectLabel className="-tracking-[0.322px;] h-[14px] text-[11.5px] text-gray9 leading-none">
-              Select token
-            </Ariakit.SelectLabel>
-
-            <Ariakit.Select
-              disabled={!address}
-              className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 font-medium text-[15px] text-gray12 disabled:cursor-not-allowed lg:w-[118px]"
-            >
-              <div className="flex h-10.5 items-center gap-1.5 px-3">
-                <div className="size-5">{active.icon}</div>
-                <div className="-tracking-[0.42px] font-medium text-[15px] text-gray12 uppercase tabular-nums">
-                  {active.symbol}
-                </div>
-                <div className="ms-auto flex size-5.5 items-center justify-center rounded-full bg-gray4">
-                  <svg
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
+            Select token
+          </Ariakit.FormLabel>
+          <Ariakit.Role.button
+            render={
+              <Ariakit.FormControl
+                name={form.names.symbol}
+                render={
+                  <Ariakit.SelectProvider
+                    setValue={(value) => form.setValue('symbol', value)}
                   >
-                    <path
-                      d="M3.5 5.25L7 8.75L10.5 5.25"
-                      stroke="#8D8D8D"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </Ariakit.Select>
+                    <Ariakit.Select
+                      disabled={!address}
+                      className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 font-medium text-[15px] text-gray12 disabled:cursor-not-allowed lg:w-[118px]"
+                      value={symbol}
+                    >
+                      <div className="flex h-10.5 items-center gap-1.5 px-3">
+                        <div className="size-5">{active.icon}</div>
+                        <div className="-tracking-[0.42px] font-medium text-[15px] text-gray12 uppercase tabular-nums">
+                          {active.symbol}
+                        </div>
+                        <div className="ms-auto flex size-5.5 items-center justify-center rounded-full bg-gray4">
+                          <svg
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                          >
+                            <path
+                              d="M3.5 5.25L7 8.75L10.5 5.25"
+                              stroke="#8D8D8D"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </Ariakit.Select>
 
-            <Ariakit.SelectPopover
-              gutter={-42}
-              className="overflow-hidden rounded-[10px] border border-gray5 bg-gray1"
-              sameWidth
-            >
-              {options.map((option) => (
-                <Ariakit.SelectItem
-                  className="flex h-10.5 items-center gap-1.5 px-3 hover:bg-gray3"
-                  value={option.symbol}
-                  key={option.symbol}
-                >
-                  <div className="size-5">{option.icon}</div>
-                  <div className="-tracking-[0.42px] font-medium text-[15px] text-gray12 uppercase tabular-nums leading-none">
-                    {option.symbol}
-                  </div>
-                  <div className="ms-auto flex size-5.5 items-center justify-end">
-                    {option.symbol === active.symbol && (
-                      <div className="size-1.5 rounded-full bg-gray7" />
-                    )}
-                  </div>
-                </Ariakit.SelectItem>
-              ))}
-            </Ariakit.SelectPopover>
-          </Ariakit.SelectProvider>
+                    <Ariakit.SelectPopover
+                      gutter={-42}
+                      className="overflow-hidden rounded-[10px] border border-gray5 bg-gray1 outline-none"
+                      sameWidth
+                    >
+                      {options.map((option) => (
+                        <Ariakit.SelectItem
+                          className="flex h-10.5 items-center gap-1.5 px-3 hover:bg-gray3 data-focus-visible:bg-gray4"
+                          value={option.symbol}
+                          key={option.symbol}
+                        >
+                          <div className="size-5">{option.icon}</div>
+                          <div className="-tracking-[0.42px] font-medium text-[15px] text-gray12 uppercase tabular-nums leading-none">
+                            {option.symbol}
+                          </div>
+                          <div className="ms-auto flex size-5.5 items-center justify-end">
+                            {option.symbol === active.symbol && (
+                              <div className="size-1.5 rounded-full bg-gray7" />
+                            )}
+                          </div>
+                        </Ariakit.SelectItem>
+                      ))}
+                    </Ariakit.SelectPopover>
+                  </Ariakit.SelectProvider>
+                }
+              />
+            }
+          />
         </div>
 
-        <button
+        <Ariakit.FormSubmit
           className={cx(buttonClassName({ variant: status }), 'max-w-[68px]')}
           disabled={!address || status === 'pending'}
           type="submit"
@@ -798,15 +917,16 @@ function PayDemo(props: PayDemo.Props) {
             if (status === 'success') return 'Done!'
             return 'Send'
           })()}
-        </button>
-      </div>
+        </Ariakit.FormSubmit>
+      </Ariakit.Form>
 
       <div className="-tracking-[0.25px] mt-5 flex h-[18.5px] items-center justify-between gap-3 text-[13px]">
         <div className="flex flex-1 justify-between">
           <div className="text-gray9">Fee</div>
           <div className="text-gray10">
             <span className="text-black tabular-nums dark:text-white">
-              {Value.formatEther(balance)}
+              {/* TODO: Calculate custom token fee */}
+              {1}
             </span>{' '}
             <span className="uppercase tabular-nums">{symbol}</span>
           </div>
@@ -838,84 +958,211 @@ declare namespace PayDemo {
 function LimitDemo(props: LimitDemo.Props) {
   const { address } = props
 
-  const [customize, setCustomize] = React.useState(false)
-  const [value, setValue] = React.useState<string | undefined>('100')
-  const symbol = 'exp1'
+  const { connector } = useAccount()
+  const revoke = useMutation<undefined, Error, { id: Hex.Hex }>({
+    async mutationFn(variables) {
+      const provider = (await connector?.getProvider()) as Provider | undefined
+      if (!provider) throw new Error('connector not connected')
+      if (variables.id)
+        return provider.request({
+          method: 'experimental_revokePermissions',
+          params: [{ id: variables.id }],
+        })
+    },
+    onError(error) {
+      // TODO: Error toast
+      console.error('revoke', error)
+    },
+    onSuccess() {
+      refetch()
+      setTimeout(() => revoke.reset(), successTimeout)
+    },
+  })
+  const revokeStatus = revoke.isPending
+    ? 'pending'
+    : revoke.isSuccess
+      ? 'success'
+      : 'default'
 
-  const [duration, setDuration] = React.useState<'s' | 'm' | 'h' | 'd'>('m')
-  const options = ['s', 'm', 'h', 'd'] as (typeof duration)[]
+  const grant = useMutation<
+    Schema.ExtractReturnType<RpcSchema.Schema, 'experimental_grantPermissions'>,
+    Error,
+    Variables
+  >({
+    async mutationFn(variables) {
+      const provider = (await connector?.getProvider()) as Provider | undefined
+      if (!provider) throw new Error('connector not connected')
+      return provider.request({
+        method: 'experimental_grantPermissions',
+        params: [
+          {
+            expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+            permissions: {
+              calls: [{ to: exp1Config.address }, { to: exp2Config.address }],
+              spend: [
+                {
+                  limit: Hex.fromNumber(Value.fromEther(variables.limit)),
+                  period: variables.period,
+                  token: exp1Config.address,
+                },
+              ],
+            },
+          },
+        ],
+      })
+    },
+    onError(error) {
+      // TODO: Error toast
+      console.error('grant', error)
+    },
+    onSuccess() {
+      refetch()
+    },
+  })
+  type Variables = {
+    limit: string
+    period: 'minute' | 'hour' | 'day' | 'week'
+  }
+
+  const [customize, setCustomize] = React.useState(false)
+  const defaultValues = React.useMemo(
+    () =>
+      ({
+        limit: '0',
+        period: 'minute',
+      }) as const satisfies Variables,
+    [],
+  )
+  const [spend, setSpend] = React.useState<
+    Variables & { id: Hex.Hex | undefined }
+  >({ ...defaultValues, id: undefined })
+  const form = Ariakit.useFormStore<Variables>({ defaultValues })
+  form.useSubmit(async (state) => {
+    await grant.mutateAsync(state.values)
+    setCustomize(false)
+  })
+
+  const { data, refetch } = useQuery({
+    queryKey: [address],
+    async queryFn() {
+      const provider = (await connector?.getProvider()) as Provider | undefined
+      if (!provider) throw new Error('connector not connected')
+      return provider.request({ method: 'experimental_permissions' })
+    },
+    enabled: Boolean(address),
+  })
+  React.useEffect(() => {
+    const permission = data?.find(
+      (x) =>
+        x.permissions.spend?.length === 1 &&
+        x.permissions.spend?.some(
+          (y) =>
+            y.token === exp1Config.address &&
+            ['minute', 'hour', 'day', 'week'].includes(y.period),
+        ) &&
+        deepEqual(x.permissions.calls, [
+          { to: exp1Config.address },
+          { to: exp2Config.address },
+        ]),
+    )
+    const spend_ = permission?.permissions.spend?.[0]
+    if (spend_) {
+      const values = {
+        limit: Value.formatEther(Hex.toBigInt(spend_.limit)),
+        period: spend_.period,
+      } as Variables
+      setSpend({ ...values, id: permission.id })
+      form.setValues(values)
+    } else {
+      setSpend({ ...defaultValues, id: undefined })
+      form.setValues(defaultValues)
+    }
+  }, [data, defaultValues, form])
+
+  const symbol = 'exp1'
+  const periods = React.useMemo(
+    () => ['minute', 'hour', 'day', 'week'] as Variables['period'][],
+    [],
+  )
 
   if (customize)
     return (
-      <form className="mt-1.5 flex flex-col gap-[11px] pb-[17px]">
+      <Ariakit.Form
+        store={form}
+        className="mt-1.5 flex flex-col gap-[11px] pb-[17px]"
+      >
         <div className="flex items-center gap-2.5">
           <div className="relative flex flex-1 items-center gap-2 lg:max-w-[79px]">
             <Ariakit.VisuallyHidden>
-              <label htmlFor="amount">Amount</label>
+              <Ariakit.FormLabel name={form.names.limit}>
+                Limit
+              </Ariakit.FormLabel>
             </Ariakit.VisuallyHidden>
-            <input
+            <Ariakit.FormInput
               className="-tracking-[0.42px] h-9.5 w-full rounded-[10px] border border-gray5 ps-[28px] pe-3.25 text-right font-medium text-[15px] text-gray12 placeholder:text-gray8"
               disabled={!address}
               min="0"
               placeholder="0.0"
-              id="amount"
-              name="amount"
+              name={form.names.limit}
               required
               step="any"
               type="number"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
             />
             <div className="absolute start-2 size-4.5">
               <Exp1Token />
             </div>
           </div>
 
-          <div className="-tracking-[0.42px] text-[15px] text-gray9">per</div>
+          <div className="-tracking-[0.42px] select-none text-[15px] text-gray9">
+            per
+          </div>
 
-          <Ariakit.RadioProvider>
-            <Ariakit.RadioGroup className="flex flex-1 gap-[3px]">
-              {options.map((option) => (
-                // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
-                <label
-                  key={option}
-                  {...(option === duration ? { 'data-checked': true } : {})}
-                  className="-tracking-[0.42px] flex h-9.5 flex-1 items-center justify-center rounded-[10px] border border-gray5 px-3.5 text-[15px] text-gray9 data-checked:border-gray12 data-checked:bg-gray3 data-checked:text-gray12 lg:max-w-[36.5px]"
-                >
-                  <Ariakit.VisuallyHidden>
-                    <Ariakit.Radio
-                      value={duration}
-                      onChange={() => setDuration(option)}
-                    />
-                  </Ariakit.VisuallyHidden>
-                  <span>{option}</span>
-                </label>
-              ))}
-            </Ariakit.RadioGroup>
-          </Ariakit.RadioProvider>
+          <Ariakit.FormRadioGroup className="flex flex-1 select-none gap-[3px]">
+            <Ariakit.VisuallyHidden>
+              <Ariakit.FormGroupLabel className="radio-group-label">
+                Select period
+              </Ariakit.FormGroupLabel>
+            </Ariakit.VisuallyHidden>
+            {periods.map((p) => (
+              // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
+              <label
+                key={p}
+                className="-tracking-[0.42px] flex h-9.5 flex-1 items-center justify-center rounded-[10px] border border-gray5 px-3.5 text-[15px] text-gray9 lg:max-w-[36.5px] [&:has(input:checked)]:border-gray12 [&:has(input:checked)]:bg-gray3 [&:has(input:checked)]:text-gray12"
+              >
+                <Ariakit.VisuallyHidden>
+                  <Ariakit.FormRadio name={form.names.period} value={p} />
+                </Ariakit.VisuallyHidden>
+                <span>{p[0]}</span>
+              </label>
+            ))}
+          </Ariakit.FormRadioGroup>
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Ariakit.Button
             className={buttonClassName({
               size: 'medium',
               variant: 'secondary',
             })}
-            onClick={() => setCustomize(false)}
             type="button"
+            onClick={() => {
+              form.setValues(spend)
+              setCustomize(false)
+            }}
           >
             Cancel
-          </button>
+          </Ariakit.Button>
 
-          <button
-            className={buttonClassName({ size: 'medium', variant: 'default' })}
-            onClick={() => setCustomize(false)}
-            type="button"
+          <Ariakit.FormSubmit
+            className={buttonClassName({
+              size: 'medium',
+              variant: 'default',
+            })}
           >
             Save
-          </button>
+          </Ariakit.FormSubmit>
         </div>
-      </form>
+      </Ariakit.Form>
     )
 
   return (
@@ -926,20 +1173,38 @@ function LimitDemo(props: LimitDemo.Props) {
         </div>
         <div>
           <span>
-            {value} <span className="uppercase">{symbol}</span>
+            {spend.limit} <span className="uppercase">{symbol}</span>
           </span>{' '}
-          <span className="text-gray9">per minute</span>
+          <span className="text-gray9">per {spend.period}</span>
         </div>
       </div>
 
-      <button
-        disabled={!address}
-        className={buttonClassName({ size: 'medium', variant: 'default' })}
-        onClick={() => setCustomize(true)}
-        type="button"
-      >
-        Customize
-      </button>
+      {spend.id ? (
+        <button
+          disabled={!address || revoke.isPending}
+          className={buttonClassName({
+            size: 'medium',
+            variant: revokeStatus,
+          })}
+          onClick={() => spend.id && revoke.mutate({ id: spend.id })}
+          type="button"
+        >
+          {(() => {
+            if (revokeStatus === 'pending') return 'Revoking'
+            if (revokeStatus === 'success') return 'Revoked!'
+            return 'Revoke'
+          })()}
+        </button>
+      ) : (
+        <button
+          disabled={!address}
+          className={buttonClassName({ size: 'medium', variant: 'default' })}
+          onClick={() => setCustomize(true)}
+          type="button"
+        >
+          Customize
+        </button>
+      )}
     </div>
   )
 }
@@ -1056,10 +1321,24 @@ function WagmiDemo() {
       </div>
     )
 
+  // const grantPermissions = {
+  //   expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+  //   permissions: {
+  //     calls: [{ to: exp1Config.address }, { to: exp2Config.address }],
+  //     spend: [],
+  //   },
+  // } as const
+
   return (
     <div className="flex gap-2">
       <Button
-        onClick={() => connect.mutateAsync({ connector, createAccount: true })}
+        onClick={() =>
+          connect.mutateAsync({
+            // grantPermissions,
+            connector,
+            createAccount: true,
+          })
+        }
         className="flex-grow"
         variant="accent"
       >
@@ -1067,7 +1346,12 @@ function WagmiDemo() {
       </Button>
 
       <Button
-        onClick={() => connect.mutate({ connector })}
+        onClick={() =>
+          connect.mutate({
+            // grantPermissions,
+            connector,
+          })
+        }
         className="flex-grow"
         variant="invert"
       >
@@ -1824,4 +2108,33 @@ function useIsMounted() {
 function usePortoConnector() {
   const connectors = useConnectors()
   return connectors.find((connector) => connector.id === 'xyz.ithaca.porto')!
+}
+
+function createUseSendCalls<variables>(
+  getCalls: (
+    variables: variables,
+  ) => Schema.ExtractParams<RpcSchema.Schema, 'wallet_sendCalls'>[0]['calls'],
+) {
+  return (parameters: Parameters<typeof useMutation>[0]) => {
+    const { address, connector } = useAccount()
+    return useMutation({
+      ...parameters,
+      async mutationFn(variables: variables) {
+        const provider = (await connector?.getProvider()) as
+          | Provider
+          | undefined
+        if (!provider) throw new Error('connector not connected')
+        return provider.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              calls: getCalls(variables),
+              from: address,
+              version: '1',
+            },
+          ],
+        })
+      },
+    })
+  }
 }

@@ -379,6 +379,14 @@ export default defineConfig({
     },
   ],
   vite: {
+    define:
+      process.env.NODE_ENV === 'development'
+        ? {
+            'import.meta.env.VITE_DIALOG_HOST': JSON.stringify(
+              (enableHttps ? 'https' : 'http') + '://localhost:5174/dialog',
+            ),
+          }
+        : undefined,
     plugins: [Icons({ compiler: 'jsx', jsx: 'react' }) as never],
     server: {
       https: enableHttps ? https : undefined,
