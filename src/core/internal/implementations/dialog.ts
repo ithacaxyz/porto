@@ -165,64 +165,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
-      async prepareExecute(parameters) {
-        const { client } = parameters
-        const { request, signPayloads } = await Delegation.prepareExecute(
-          client,
-          parameters,
-        )
-
-        return {
-          request,
-          signPayloads,
-        }
-      },
-
-      async execute(parameters) {
-        const { account, calls, internal, nonce, signature } = parameters
-        const { client, store, request } = internal
-
-        // Try and extract an authorized key to sign the calls with.
-        const key = await Implementation.getAuthorizedExecuteKey({
-          account,
-          calls,
-          permissionsId: parameters.permissionsId,
-        })
-
-        // If a key is found, execute the calls with it.
-        // No need to send a request to the dialog.
-        if (key)
-          return await Delegation.execute(client, {
-            account,
-            calls,
-            key,
-          })
-
-        const provider = getProvider(store)
-
-        if (request.method === 'eth_sendTransaction')
-          // Send a transaction request to the dialog.
-          return await provider.request(request)
-
-        if (request.method === 'wallet_sendCalls')
-          // Send calls request to the dialog.
-          return await provider.request(request)
-
-        // execute prepared calls directly with Delegation.execute
-        if (request.method === 'wallet_sendPreparedCalls') {
-          const hash = await Delegation.execute(client, {
-            account,
-            calls,
-            nonce: nonce!,
-            signatures: [signature!],
-          })
-
-          return hash
-        }
-
-        throw new Error('Cannot execute for method: ' + request.method)
-      },
-
       async grantPermissions(parameters) {
         const { internal } = parameters
         const { request, store } = internal
@@ -324,6 +266,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
+      async prepareCalls(parameters) {
+        const { internal } = parameters
+        const { client } = internal
+
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
+        }
+      },
+
       async prepareUpgradeAccount(parameters) {
         const { internal } = parameters
         const { store, request } = internal
@@ -354,6 +311,51 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
         return await provider.request(request)
+      },
+
+      async sendCalls(parameters) {
+        const { account, calls, internal, nonce, signature } = parameters
+        const { client, store, request } = internal
+
+        // Try and extract an authorized key to sign the calls with.
+        const key = await Implementation.getAuthorizedExecuteKey({
+          account,
+          calls,
+          permissionsId: parameters.permissionsId,
+        })
+
+        // If a key is found, execute the calls with it.
+        // No need to send a request to the dialog.
+        if (key)
+          return await Delegation.execute(client, {
+            account,
+            calls,
+            key,
+          })
+
+        const provider = getProvider(store)
+
+        if (request.method === 'eth_sendTransaction')
+          // Send a transaction request to the dialog.
+          return await provider.request(request)
+
+        if (request.method === 'wallet_sendCalls')
+          // Send calls request to the dialog.
+          return await provider.request(request)
+
+        // execute prepared calls directly with Delegation.execute
+        if (request.method === 'wallet_sendPreparedCalls') {
+          const hash = await Delegation.execute(client, {
+            account,
+            calls,
+            nonce: nonce!,
+            signatures: [signature!],
+          })
+
+          return hash
+        }
+
+        throw new Error('Cannot execute for method: ' + request.method)
       },
 
       async signPersonalMessage(parameters) {

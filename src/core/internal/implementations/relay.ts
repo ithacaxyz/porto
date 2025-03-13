@@ -144,71 +144,6 @@ export function relay(config: relay.Parameters = {}) {
         return { account }
       },
 
-      async prepareExecute(parameters) {
-        const { account, calls, client, feeToken, key, nonce } = parameters
-
-        const { context, digest } = await Relay.prepareCalls(client, {
-          account,
-          calls,
-          feeToken,
-          key,
-          nonce,
-        })
-
-        return {
-          request: {
-            ...context,
-            account,
-            calls,
-            nonce: context.op.nonce,
-          },
-          signPayloads: [digest],
-        }
-      },
-
-      async execute(parameters) {
-        const {
-          account,
-          calls,
-          internal,
-          feeToken = config.feeToken,
-          nonce,
-        } = parameters
-        const { client } = internal
-
-        // Try and extract an authorized key to sign the calls with.
-        const key = await Implementation.getAuthorizedExecuteKey({
-          account,
-          calls,
-          permissionsId: parameters.permissionsId,
-        })
-
-        // Get uninitialized keys to authorize.
-        const authorizeKeys = account.keys?.filter((key) => !key.initialized)
-
-        // TODO: remove this when relay support batch authorize + calls
-        await Relay.sendCalls(client, {
-          account,
-          authorizeKeys,
-          feeToken,
-          // TODO: remove this when relay supports optional nonce
-          nonce: randomNonce() ?? nonce,
-        })
-
-        // Execute the calls (with the key if provided, otherwise it will
-        // fall back to an admin key).
-        const { id } = await Relay.sendCalls(client, {
-          account,
-          calls,
-          feeToken,
-          key,
-          // TODO: remove this when relay supports optional nonce
-          nonce: randomNonce() ?? nonce,
-        })
-
-        return id as Hex.Hex
-      },
-
       async grantPermissions(parameters) {
         const { permissions } = parameters
 
@@ -301,6 +236,29 @@ export function relay(config: relay.Parameters = {}) {
         }
       },
 
+      async prepareCalls(parameters) {
+        const { account, calls, internal, feeToken, key, nonce } = parameters
+        const { client } = internal
+
+        const { context, digest } = await Relay.prepareCalls(client, {
+          account,
+          calls,
+          feeToken,
+          key,
+          nonce,
+        })
+
+        return {
+          request: {
+            ...context,
+            account,
+            calls,
+            nonce: context.op.nonce,
+          },
+          signPayloads: [digest],
+        }
+      },
+
       async prepareUpgradeAccount(_parameters) {
         // TODO: implement
         return null as any
@@ -323,6 +281,49 @@ export function relay(config: relay.Parameters = {}) {
           // TODO: remove this when relay supports optional nonce
           nonce: randomNonce(),
         })
+      },
+
+      async sendCalls(parameters) {
+        const {
+          account,
+          calls,
+          internal,
+          feeToken = config.feeToken,
+          nonce,
+        } = parameters
+        const { client } = internal
+
+        // Try and extract an authorized key to sign the calls with.
+        const key = await Implementation.getAuthorizedExecuteKey({
+          account,
+          calls,
+          permissionsId: parameters.permissionsId,
+        })
+
+        // Get uninitialized keys to authorize.
+        const authorizeKeys = account.keys?.filter((key) => !key.initialized)
+
+        // TODO: remove this when relay support batch authorize + calls
+        await Relay.sendCalls(client, {
+          account,
+          authorizeKeys,
+          feeToken,
+          // TODO: remove this when relay supports optional nonce
+          nonce: randomNonce() ?? nonce,
+        })
+
+        // Execute the calls (with the key if provided, otherwise it will
+        // fall back to an admin key).
+        const { id } = await Relay.sendCalls(client, {
+          account,
+          calls,
+          feeToken,
+          key,
+          // TODO: remove this when relay supports optional nonce
+          nonce: randomNonce() ?? nonce,
+        })
+
+        return id as Hex.Hex
       },
 
       async signPersonalMessage(parameters) {

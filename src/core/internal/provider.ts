@@ -120,7 +120,7 @@ export function from<
           )
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const hash = await implementation.actions.execute({
+          const hash = await implementation.actions.sendCalls({
             account,
             calls: [
               {
@@ -567,9 +567,8 @@ export function from<
             throw new ox_Provider.ChainDisconnectedError()
 
           const { signPayloads, request: context } =
-            await implementation.actions.prepareExecute({
+            await implementation.actions.prepareCalls({
               calls,
-              client,
               // TODO
               key: {} as never,
               internal: {
@@ -614,7 +613,7 @@ export function from<
             publicKey: signature.publicKey,
           })
 
-          const hash = await implementation.actions.execute({
+          const hash = await implementation.actions.sendCalls({
             account,
             calls,
             nonce,
@@ -651,7 +650,7 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const hash = await implementation.actions.execute({
+          const hash = await implementation.actions.sendCalls({
             account,
             calls,
             permissionsId: capabilities?.permissions?.id,

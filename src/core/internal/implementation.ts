@@ -32,49 +32,6 @@ export type Implementation = {
       account: Account.Account
     }>
 
-    prepareExecute: (parameters: {
-      /** Account to execute the calls with. */
-      account: Account.Account
-      /** Calls to execute. */
-      calls: readonly Call.Call[]
-      /** Viem Clients. */
-      client: Porto.Client
-      /** Key that will be used to sign over the digest. */
-      key: Key.Key
-      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
-      /** Internal properties. */
-      internal: ActionsInternal
-      /** Nonce to use for execution. */
-      nonce?: bigint | undefined
-    }) => Promise<{
-      /** RPC Request. */
-      request: {
-        account: Account.Account
-        calls: readonly Call.Call[]
-        nonce: bigint
-      }
-      /** Hex payloads to sign over. */
-      signPayloads: readonly Hex.Hex[]
-    }>
-
-    execute: (parameters: {
-      /** Account to execute the calls with. */
-      account: Account.Account
-      /** Calls to execute. */
-      calls: readonly Call.Call[]
-      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
-      /** Permissions ID to use to execute the calls. */
-      permissionsId?: Hex.Hex | undefined
-      /** Nonce to use for execution. */
-      nonce?: bigint | undefined
-      /** Signature for execution. */
-      signature?: Hex.Hex | undefined
-      /** Internal properties. */
-      internal: ActionsInternal
-    }) => Promise<Hex.Hex>
-
     grantPermissions: (parameters: {
       /** Account to authorize the keys for. */
       account: Account.Account
@@ -96,6 +53,30 @@ export type Implementation = {
     }) => Promise<{
       /** Accounts. */
       accounts: readonly Account.Account[]
+    }>
+
+    prepareCalls: (parameters: {
+      /** Account to execute the calls with. */
+      account: Account.Account
+      /** Calls to execute. */
+      calls: readonly Call.Call[]
+      /** Key that will be used to sign over the digest. */
+      key: Key.Key
+      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
+      feeToken?: Address.Address | undefined
+      /** Internal properties. */
+      internal: ActionsInternal
+      /** Nonce to use for execution. */
+      nonce?: bigint | undefined
+    }) => Promise<{
+      /** RPC Request. */
+      request: {
+        account: Account.Account
+        calls: readonly Call.Call[]
+        nonce: bigint
+      }
+      /** Hex payloads to sign over. */
+      signPayloads: readonly Hex.Hex[]
     }>
 
     prepareUpgradeAccount: (parameters: {
@@ -124,6 +105,23 @@ export type Implementation = {
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<void>
+
+    sendCalls: (parameters: {
+      /** Account to execute the calls with. */
+      account: Account.Account
+      /** Calls to execute. */
+      calls: readonly Call.Call[]
+      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
+      feeToken?: Address.Address | undefined
+      /** Permissions ID to use to execute the calls. */
+      permissionsId?: Hex.Hex | undefined
+      /** Nonce to use for execution. */
+      nonce?: bigint | undefined
+      /** Signature for execution. */
+      signature?: Hex.Hex | undefined
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<Hex.Hex>
 
     signPersonalMessage: (parameters: {
       /** Account to sign the message with. */

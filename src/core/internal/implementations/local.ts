@@ -130,49 +130,6 @@ export function local(parameters: local.Parameters = {}) {
         return { account }
       },
 
-      async prepareExecute(parameters) {
-        const { client } = parameters
-
-        const { request, signPayloads } = await Delegation.prepareExecute(
-          client,
-          parameters,
-        )
-
-        return {
-          request,
-          signPayloads,
-        }
-      },
-
-      async execute(parameters) {
-        const { account, calls, internal, nonce, signature } = parameters
-        const { client } = internal
-
-        // Try and extract an authorized key to sign the calls with.
-        const key = await Implementation.getAuthorizedExecuteKey({
-          account,
-          calls,
-          permissionsId: parameters.permissionsId,
-        })
-
-        // Execute the calls (with the key if provided, otherwise it will
-        // fall back to an admin key).
-        const hash = await Delegation.execute(client, {
-          account,
-          calls,
-          ...(nonce && signature
-            ? {
-                nonce,
-                signatures: [signature],
-              }
-            : {
-                key,
-              }),
-        })
-
-        return hash
-      },
-
       async grantPermissions(parameters) {
         const { account, permissions, internal } = parameters
         const { client } = internal
@@ -273,6 +230,21 @@ export function local(parameters: local.Parameters = {}) {
         }
       },
 
+      async prepareCalls(parameters) {
+        const { internal } = parameters
+        const { client } = internal
+
+        const { request, signPayloads } = await Delegation.prepareExecute(
+          client,
+          parameters,
+        )
+
+        return {
+          request,
+          signPayloads,
+        }
+      },
+
       async prepareUpgradeAccount(parameters) {
         const { address, label, internal, permissions } = parameters
         const { client } = internal
@@ -300,6 +272,35 @@ export function local(parameters: local.Parameters = {}) {
           account,
           calls: [Call.setCanExecute({ key, enabled: false })],
         })
+      },
+
+      async sendCalls(parameters) {
+        const { account, calls, internal, nonce, signature } = parameters
+        const { client } = internal
+
+        // Try and extract an authorized key to sign the calls with.
+        const key = await Implementation.getAuthorizedExecuteKey({
+          account,
+          calls,
+          permissionsId: parameters.permissionsId,
+        })
+
+        // Execute the calls (with the key if provided, otherwise it will
+        // fall back to an admin key).
+        const hash = await Delegation.execute(client, {
+          account,
+          calls,
+          ...(nonce && signature
+            ? {
+                nonce,
+                signatures: [signature],
+              }
+            : {
+                key,
+              }),
+        })
+
+        return hash
       },
 
       async signPersonalMessage(parameters) {
