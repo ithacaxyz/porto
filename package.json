@@ -51,8 +51,7 @@
     "typescript": "catalog:",
     "viem": "catalog:",
     "vitest": "^2.1.8",
-    "wagmi": "catalog:",
-    "wrangler": "^3.114.0"
+    "wagmi": "catalog:"
   },
   "packageManager": "pnpm@10.6.2",
   "engines": {
