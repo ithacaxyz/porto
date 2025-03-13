@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@import "./shared.css";
+@import "./theme.css";
+
+[data-dialog] {
+  --height-button: 36px;
+
+  --radius-default: 8px;
+}

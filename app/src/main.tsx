@@ -6,7 +6,6 @@ import { App } from './App.js'
 import * as Dialog from './lib/Dialog.ts'
 import { porto } from './lib/Porto.ts'
 import * as Router from './lib/Router.ts'
-import './index.css'
 
 const offInitialized = Events.onInitialized(porto, (payload) => {
   const { mode, referrer } = payload

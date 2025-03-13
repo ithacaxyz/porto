@@ -20,7 +20,7 @@ import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { cn } from '~/utils'
 import { mipdConfig as config } from './-MipdWagmi'
 
-export const Route = createFileRoute('/settings/recovery/wallet/')({
+export const Route = createFileRoute('/_app/settings/recovery/wallet/')({
   component: RouteComponent,
 })
 

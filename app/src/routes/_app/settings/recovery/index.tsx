@@ -9,7 +9,7 @@ import { Pill } from '~/components/Pill'
 import { useThemeMode } from '~/hooks/use-theme-mode'
 import { cn } from '~/utils'
 
-export const Route = createFileRoute('/settings/recovery/')({
+export const Route = createFileRoute('/_app/settings/recovery/')({
   component: RouteComponent,
 })
 

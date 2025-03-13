@@ -1,6 +1,5 @@
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { RouterProvider } from '@tanstack/react-router'
-import { Toaster } from 'sonner'
 import { WagmiProvider } from 'wagmi'
 
 import * as Query from './lib/Query.ts'
@@ -15,14 +14,6 @@ export function App() {
         persistOptions={{ persister: Query.persister }}
       >
         <RouterProvider router={Router.router} />
-        <Toaster
-          expand={true}
-          theme="light"
-          duration={3000}
-          position="top-right"
-          className="z-[42069] select-none"
-          swipeDirections={['right', 'left', 'top', 'bottom']}
-        />
       </PersistQueryClientProvider>
     </WagmiProvider>
   )

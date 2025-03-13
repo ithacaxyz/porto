@@ -1,0 +1,4 @@
+html,
+:host {
+  background-color: var(--background-color-primary);
+}

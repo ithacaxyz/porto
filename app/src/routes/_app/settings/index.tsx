@@ -17,7 +17,7 @@ import { Pill } from '~/components/Pill'
 import * as Constants from '~/lib/Constants'
 import { cn } from '~/utils'
 
-export const Route = createFileRoute('/settings/')({
+export const Route = createFileRoute('/_app/settings/')({
   component: RouteComponent,
   head: (_context) => ({
     meta: [

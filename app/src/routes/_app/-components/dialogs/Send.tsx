@@ -463,7 +463,7 @@ export function SendDialog({
       <DialogContent
         title="Send"
         aria-describedby="Transfer funds to another address."
-        className="rounded-xl border-0 bg-white p-5 shadow-xl sm:max-w-[400px]"
+        className="rounded-xl border-0 bg-primary p-5 shadow-xl sm:max-w-[400px]"
       >
         <DialogHeader className="p-0">{renderContent()}</DialogHeader>
       </DialogContent>

@@ -82,5 +82,10 @@
       "import": "*",
       "limit": "85 kB"
     }
-  ]
+  ],
+  "pnpm": {
+    "patchedDependencies": {
+      "@tanstack/react-router": "patches/@tanstack__react-router.patch"
+    }
+  }
 }

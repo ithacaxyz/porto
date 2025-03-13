@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./shared.css";
 @import "./theme.css";
 
 @plugin "tailwindcss-animate";
@@ -41,11 +42,6 @@ body,
 #root {
   width: 100%;
   height: 100%;
-}
-
-html,
-:host {
-  background-color: var(--background-color-primary);
 }
 
 @layer base {

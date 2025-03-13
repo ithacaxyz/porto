@@ -6,6 +6,7 @@ import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import LucideGlobe from '~icons/lucide/globe'
 import LucideX from '~icons/lucide/x'
+import '../styles/dialog.css'
 
 export const Route = createFileRoute('/_dialog')({
   component: RouteComponent,

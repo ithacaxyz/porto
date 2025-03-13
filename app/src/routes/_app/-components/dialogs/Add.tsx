@@ -31,7 +31,7 @@ export function AddMoneyDialog({
         </OurButton>
       </DialogTrigger>
       <DialogContent
-        className="rounded-xl border-0 bg-white p-5 shadow-xl sm:max-w-[400px]"
+        className="rounded-xl border-0 bg-primary p-5 shadow-xl sm:max-w-[400px]"
         title="Send"
       >
         <DialogHeader className="p-0 text-center">Comint soon…</DialogHeader>

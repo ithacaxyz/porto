@@ -24,7 +24,7 @@ export default defineConfig({
   },
   plugins: [
     Tailwindcss(),
-    TanStackRouterVite(),
+    TanStackRouterVite({ autoCodeSplitting: true }),
     React(),
     Icons({ compiler: 'jsx', jsx: 'react' }),
     TsconfigPaths(),

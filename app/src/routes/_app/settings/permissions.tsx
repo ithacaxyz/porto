@@ -22,7 +22,7 @@ import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
 import { StringFormatter, cn } from '~/utils'
 
-export const Route = createFileRoute('/settings/permissions')({
+export const Route = createFileRoute('/_app/settings/permissions')({
   component: RouteComponent,
   head: (_context) => ({
     meta: [

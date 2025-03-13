@@ -54,7 +54,7 @@ export function Dashboard() {
           tokenBalancesData &&
             tokenBalancesData.length > 0 &&
             'gap-2 pt-10 *:w-1/2',
-          'flex flex-col items-center gap-5 rounded-2xl bg-[#F0F0F0] px-4 py-6',
+          'flex flex-col items-center gap-5 rounded-2xl bg-surface px-4 py-6',
           'sm:flex-row sm:justify-between sm:px-6',
         )}
       >

@@ -10,7 +10,7 @@ import * as Constants from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 import { cn } from '~/utils'
 
-export const Route = createFileRoute('/create-account')({
+export const Route = createFileRoute('/_app/create-account')({
   component: RouteComponent,
 })
 

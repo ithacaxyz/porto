@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi'
 import { Dashboard } from './-components/Dashboard'
 import { Landing } from './-components/Landing'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_app/')({
   component: RouteComponent,
 })
 
