@@ -171,11 +171,14 @@ function SelectScrollDownButton({
   )
 }
 
+const SelectItemText = SelectPrimitive.ItemText
+
 export {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectItemText,
   SelectLabel,
   SelectScrollDownButton,
   SelectScrollUpButton,
