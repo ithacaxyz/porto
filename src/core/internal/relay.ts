@@ -71,6 +71,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 ) {
   const { authorizeKeys, calls, key, feeToken, nonce, revokeKeys } = parameters
   const account = Account.from(parameters.account)
+  const hash = Key.hash(key)
   const { capabilities, context, digest } = await Actions.prepareCalls(client, {
     account: account.address,
     calls: (calls ?? []) as any,
@@ -78,7 +79,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
       authorizeKeys: authorizeKeys?.map(Key.toRelay),
       meta: {
         feeToken,
-        keyHash: key.hash,
+        keyHash: hash,
         nonce,
       },
       revokeKeys: revokeKeys?.map((key) => ({
@@ -102,7 +103,7 @@ export namespace prepareCalls {
     /** Account to prepare the calls for. */
     account: Account.Account
     /** Key that will be used to sign the calls. */
-    key: Key.Key
+    key: Pick<Key.Key, 'publicKey' | 'type'>
     /** Calls to prepare. */
     calls?: Actions.prepareCalls.Parameters<calls>['calls'] | undefined
     /** Additional keys to revoke from the account. */
@@ -112,7 +113,7 @@ export namespace prepareCalls {
   export type ReturnType = {
     capabilities: Actions.prepareCalls.ReturnType['capabilities']
     context: Actions.prepareCalls.ReturnType['context'] & {
-      key: Key.Key
+      key: Parameters['key']
     }
     digest: Actions.prepareCalls.ReturnType['digest']
   }
@@ -258,7 +259,11 @@ export async function sendPreparedCalls(
   parameters: sendPrepared.Parameters,
 ) {
   const { context, signature } = parameters
-  const key = Key.toRelay(context.key)
+  const key = Key.toRelay({
+    ...context.key,
+    expiry: 0,
+    role: 'session',
+  })
   return await Actions.sendPreparedCalls(client, {
     context,
     signature: {

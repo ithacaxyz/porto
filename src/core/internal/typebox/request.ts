@@ -331,6 +331,15 @@ export namespace wallet_prepareCalls {
         value: Schema.Optional(Primitive.BigInt),
       }),
     ),
+    key: Type.Object({
+      publicKey: Primitive.Hex,
+      type: Type.Union([
+        Type.Literal('p256'),
+        Type.Literal('secp256k1'),
+        Type.Literal('webauthn-p256'),
+        Type.Literal('address'),
+      ]),
+    }),
     capabilities: Schema.Optional(Capabilities),
     chainId: Schema.Optional(Primitive.Number),
     from: Schema.Optional(Primitive.Address),
@@ -346,7 +355,7 @@ export namespace wallet_prepareCalls {
 
   export const Response = Type.Object({
     capabilities: Schema.Optional(Type.Record(Type.String(), Type.Any())),
-    chainId: Schema.Optional(Primitive.Hex),
+    chainId: Primitive.Hex,
     context: Type.Object({
       account: Type.Object({
         address: Primitive.Address,
@@ -356,7 +365,7 @@ export namespace wallet_prepareCalls {
       nonce: Primitive.BigInt,
     }),
     digest: Primitive.Hex,
-    version: Schema.Optional(Type.String()),
+    key: Parameters.properties.key,
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
@@ -364,7 +373,7 @@ export namespace wallet_prepareCalls {
 export namespace wallet_sendCalls {
   export const Request = Type.Object({
     method: Type.Literal('wallet_sendCalls'),
-    params: Type.Tuple([wallet_prepareCalls.Parameters]),
+    params: Type.Tuple([Type.Omit(wallet_prepareCalls.Parameters, ['key'])]),
   })
   export type Request = Schema.StaticDecode<typeof Request>
 
@@ -373,16 +382,13 @@ export namespace wallet_sendCalls {
 }
 
 export namespace wallet_sendPreparedCalls {
-  export const Parameters = Type.Intersect([
-    Type.Omit(wallet_prepareCalls.Response, ['digest']),
-    Type.Object({
-      signature: Type.Object({
-        publicKey: Primitive.Hex,
-        type: Type.String(),
-        value: Primitive.Hex,
-      }),
-    }),
-  ])
+  export const Parameters = Type.Object({
+    capabilities: wallet_prepareCalls.Response.properties.capabilities,
+    chainId: Primitive.Hex,
+    context: wallet_prepareCalls.Response.properties.context,
+    key: wallet_prepareCalls.Response.properties.key,
+    signature: Primitive.Hex,
+  })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({

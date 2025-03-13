@@ -8,7 +8,7 @@ import type * as RpcSchema_porto from '../../RpcSchema.js'
 import * as Account from '../account.js'
 import * as Delegation from '../delegation.js'
 import * as Implementation from '../implementation.js'
-import type * as Key from '../key.js'
+import * as Key from '../key.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
@@ -267,7 +267,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { internal } = parameters
+        const { internal, key } = parameters
         const { client } = internal
 
         const { request, signPayloads } = await Delegation.prepareExecute(
@@ -276,7 +276,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         )
 
         return {
-          request,
+          account: request.account,
+          context: { calls: request.calls, nonce: request.nonce },
+          key,
           signPayloads,
         }
       },
@@ -314,7 +316,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, nonce, signature } = parameters
+        const { account, calls, internal } = parameters
         const { client, store, request } = internal
 
         // Try and extract an authorized key to sign the calls with.
@@ -343,19 +345,29 @@ export function dialog(parameters: dialog.Parameters = {}) {
           // Send calls request to the dialog.
           return await provider.request(request)
 
-        // execute prepared calls directly with Delegation.execute
-        if (request.method === 'wallet_sendPreparedCalls') {
-          const hash = await Delegation.execute(client, {
-            account,
-            calls,
-            nonce: nonce!,
-            signatures: [signature!],
-          })
-
-          return hash
-        }
-
         throw new Error('Cannot execute for method: ' + request.method)
+      },
+
+      async sendPreparedCalls(parameters) {
+        const { account, context, key, internal } = parameters
+        const { client } = internal
+
+        if (!context.calls) throw new Error('calls is required')
+        if (!context.nonce) throw new Error('nonce is required')
+
+        const signature = Key.wrapSignature(parameters.signature, {
+          keyType: key.type,
+          publicKey: key.publicKey,
+        })
+
+        const hash = await Delegation.execute(client, {
+          account,
+          calls: context.calls,
+          nonce: context.nonce,
+          signatures: [signature],
+        })
+
+        return hash
       },
 
       async signPersonalMessage(parameters) {

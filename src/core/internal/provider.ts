@@ -7,7 +7,7 @@ import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Account from './account.js'
-import * as Key from './key.js'
+import type * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import * as Porto_internal from './porto.js'
 import * as Rpc from './typebox/rpc.js'
@@ -556,7 +556,7 @@ export function from<
 
         case 'wallet_prepareCalls': {
           const [parameters] = request._decoded.params
-          const { calls, chainId, from, version = '1.0' } = parameters
+          const { calls, chainId, from } = parameters
 
           const client = getClient(chainId)
 
@@ -566,11 +566,18 @@ export function from<
           if (chainId && chainId !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
-          const { signPayloads, request: context } =
+          const key = {
+            publicKey: parameters.key.publicKey,
+            type:
+              parameters.key.type === 'address'
+                ? 'secp256k1'
+                : parameters.key.type,
+          } as const
+
+          const { signPayloads, ...rest } =
             await implementation.actions.prepareCalls({
               calls,
-              // TODO
-              key: {} as never,
+              key,
               internal: {
                 client,
                 config,
@@ -581,43 +588,39 @@ export function from<
             })
 
           return Schema.Encode(Rpc.wallet_prepareCalls.Response, {
-            chainId: chainId ? Hex.fromNumber(chainId) : undefined,
-            version,
+            chainId: Hex.fromNumber(client.chain.id),
             context: {
+              ...rest.context,
               account: {
-                address: context.account.address,
-                type: context.account.type,
+                address: rest.account.address,
+                type: rest.account.type,
               },
-              calls: context.calls,
-              nonce: context.nonce,
+              calls: rest.context.calls,
+              nonce: rest.context.nonce,
             },
             digest: signPayloads[0]!,
+            key,
           }) satisfies Schema.Static<typeof Rpc.wallet_prepareCalls.Response>
         }
 
         case 'wallet_sendPreparedCalls': {
           const [parameters] = request._decoded.params
-          const { signature, chainId } = parameters
-          const { account, calls, nonce } = parameters.context
+          const { chainId, key, signature } = parameters
+          const { account } = parameters.context
 
           const client = getClient(chainId)
 
           if (chainId && Hex.toNumber(chainId) !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
-          const wrappedSignature = Key.wrapSignature(signature.value, {
-            keyType:
-              signature.type === 'address'
-                ? 'secp256k1'
-                : (signature.type as never),
-            publicKey: signature.publicKey,
-          })
-
-          const hash = await implementation.actions.sendCalls({
+          const hash = await implementation.actions.sendPreparedCalls({
             account,
-            calls,
-            nonce,
-            signature: wrappedSignature,
+            context: parameters.context,
+            key: {
+              publicKey: key.publicKey,
+              type: key.type === 'address' ? 'secp256k1' : (key.type as never),
+            },
+            signature: signature,
             internal: {
               client,
               config,

@@ -231,7 +231,7 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { internal } = parameters
+        const { internal, key } = parameters
         const { client } = internal
 
         const { request, signPayloads } = await Delegation.prepareExecute(
@@ -240,7 +240,9 @@ export function local(parameters: local.Parameters = {}) {
         )
 
         return {
-          request,
+          account: request.account,
+          context: { calls: request.calls, nonce: request.nonce },
+          key,
           signPayloads,
         }
       },
@@ -275,7 +277,7 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, nonce, signature } = parameters
+        const { account, calls, internal } = parameters
         const { client } = internal
 
         // Try and extract an authorized key to sign the calls with.
@@ -290,14 +292,29 @@ export function local(parameters: local.Parameters = {}) {
         const hash = await Delegation.execute(client, {
           account,
           calls,
-          ...(nonce && signature
-            ? {
-                nonce,
-                signatures: [signature],
-              }
-            : {
-                key,
-              }),
+          key,
+        })
+
+        return hash
+      },
+
+      async sendPreparedCalls(parameters) {
+        const { account, context, key, internal } = parameters
+        const { client } = internal
+
+        if (!context.calls) throw new Error('calls is required.')
+        if (!context.nonce) throw new Error('nonce is required.')
+
+        const signature = Key.wrapSignature(parameters.signature, {
+          keyType: key.type,
+          publicKey: key.publicKey,
+        })
+
+        const hash = await Delegation.execute(client, {
+          account,
+          calls: context.calls,
+          nonce: context.nonce,
+          signatures: [signature],
         })
 
         return hash

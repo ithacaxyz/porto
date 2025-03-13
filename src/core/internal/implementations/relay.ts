@@ -237,7 +237,13 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, feeToken, key, nonce } = parameters
+        const {
+          account,
+          calls,
+          internal,
+          feeToken = config.feeToken,
+          key,
+        } = parameters
         const { client } = internal
 
         const { context, digest } = await Relay.prepareCalls(client, {
@@ -245,16 +251,19 @@ export function relay(config: relay.Parameters = {}) {
           calls,
           feeToken,
           key,
-          nonce,
+          // TODO: remove this when relay supports optional nonce
+          nonce: randomNonce(),
         })
 
         return {
-          request: {
+          account,
+          context: {
             ...context,
             account,
             calls,
             nonce: context.op.nonce,
           },
+          key,
           signPayloads: [digest],
         }
       },
@@ -289,7 +298,6 @@ export function relay(config: relay.Parameters = {}) {
           calls,
           internal,
           feeToken = config.feeToken,
-          nonce,
         } = parameters
         const { client } = internal
 
@@ -309,7 +317,7 @@ export function relay(config: relay.Parameters = {}) {
           authorizeKeys,
           feeToken,
           // TODO: remove this when relay supports optional nonce
-          nonce: randomNonce() ?? nonce,
+          nonce: randomNonce(),
         })
 
         // Execute the calls (with the key if provided, otherwise it will
@@ -320,7 +328,30 @@ export function relay(config: relay.Parameters = {}) {
           feeToken,
           key,
           // TODO: remove this when relay supports optional nonce
-          nonce: randomNonce() ?? nonce,
+          nonce: randomNonce(),
+        })
+
+        return id as Hex.Hex
+      },
+
+      async sendPreparedCalls(parameters) {
+        const { context, key, internal } = parameters
+        const { client } = internal
+
+        // TODO: remove this once relay uses `innerSignature` as signature.
+        const signature = Key.wrapSignature(parameters.signature, {
+          keyType: key.type,
+          publicKey: key.publicKey,
+        })
+
+        // Execute the calls (with the key if provided, otherwise it will
+        // fall back to an admin key).
+        const { id } = await Relay.sendPreparedCalls(client, {
+          context: {
+            ...context,
+            key,
+          } as never,
+          signature,
         })
 
         return id as Hex.Hex

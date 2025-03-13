@@ -971,17 +971,21 @@ function PrepareCalls() {
           ] as const
         })()
 
+        if (!keyPair) throw new Error('create key first.')
+
         const { digest, ...request } = await porto.provider.request({
           method: 'wallet_prepareCalls',
           params: [
             {
               calls,
               chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
+              key: {
+                type: 'p256',
+                publicKey: keyPair.publicKey,
+              },
             },
           ],
         })
-
-        if (!keyPair) throw new Error('create key first.')
 
         const signature = Signature.toHex(
           P256.sign({
@@ -995,11 +999,7 @@ function PrepareCalls() {
           params: [
             {
               ...request,
-              signature: {
-                type: 'p256',
-                publicKey: keyPair.publicKey,
-                value: signature,
-              },
+              signature,
             },
           ],
         })

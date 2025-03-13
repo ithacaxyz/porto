@@ -18,6 +18,12 @@ type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
   request: Request
 }
 
+type PrepareCallsContext = {
+  calls?: readonly Call.Call[] | undefined
+  nonce?: bigint | undefined
+  [key: string]: unknown
+}
+
 export type Implementation = {
   actions: {
     createAccount: (parameters: {
@@ -61,21 +67,19 @@ export type Implementation = {
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Key that will be used to sign over the digest. */
-      key: Key.Key
+      key: Pick<Key.Key, 'publicKey' | 'type'>
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
       feeToken?: Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
-      /** Nonce to use for execution. */
-      nonce?: bigint | undefined
     }) => Promise<{
-      /** RPC Request. */
-      request: {
-        account: Account.Account
-        calls: readonly Call.Call[]
-        nonce: bigint
-      }
-      /** Hex payloads to sign over. */
+      /** Account to execute the calls with. */
+      account: Account.Account
+      /** Context for `sendPreparedCalls` */
+      context: PrepareCallsContext
+      /** Key that will sign over the digest. */
+      key: Pick<Key.Key, 'publicKey' | 'type'>
+      /** Payloads to sign. */
       signPayloads: readonly Hex.Hex[]
     }>
 
@@ -115,10 +119,19 @@ export type Implementation = {
       feeToken?: Address.Address | undefined
       /** Permissions ID to use to execute the calls. */
       permissionsId?: Hex.Hex | undefined
-      /** Nonce to use for execution. */
-      nonce?: bigint | undefined
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<Hex.Hex>
+
+    sendPreparedCalls: (parameters: {
+      /** Account. */
+      account: Account.Account
+      /** Context. */
+      context: PrepareCallsContext
+      /** Key. */
+      key: Pick<Key.Key, 'publicKey' | 'type'>
       /** Signature for execution. */
-      signature?: Hex.Hex | undefined
+      signature: Hex.Hex
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<Hex.Hex>

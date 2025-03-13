@@ -916,7 +916,9 @@ export async function sign(
  * @param key - Key.
  * @returns Relay key.
  */
-export function toRelay(key: Key): Relay {
+export function toRelay(
+  key: Pick<Key, 'expiry' | 'permissions' | 'publicKey' | 'role' | 'type'>,
+): Relay {
   const { expiry, publicKey, role, type } = key
 
   // biome-ignore lint/complexity/useFlatMap:

@@ -1129,7 +1129,7 @@ describe.each([
     })
   })
 
-  describe.skip('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
+  describe('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
     test('default', async () => {
       const { porto } = getPorto()
       const client = Porto_internal.getClient(porto).extend(() => ({
@@ -1175,7 +1175,12 @@ describe.each([
         value: Value.fromEther('10000'),
       })
 
-      const { context, digest } = await porto.provider.request({
+      const key = {
+        publicKey,
+        type: 'p256',
+      } as const
+
+      const { digest, ...request } = await porto.provider.request({
         method: 'wallet_prepareCalls',
         params: [
           {
@@ -1185,6 +1190,7 @@ describe.each([
                 value: Hex.fromNumber(42069n),
               },
             ],
+            key,
           },
         ],
       })
@@ -1195,12 +1201,9 @@ describe.each([
         method: 'wallet_sendPreparedCalls',
         params: [
           {
-            context,
-            signature: {
-              publicKey,
-              type: 'p256',
-              value: Signature.toHex(signature),
-            },
+            ...request,
+            key,
+            signature: Signature.toHex(signature),
           },
         ],
       })
