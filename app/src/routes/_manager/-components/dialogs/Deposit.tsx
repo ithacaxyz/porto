@@ -6,7 +6,7 @@ import CopyIcon from '~icons/lucide/copy'
 import XIcon from '~icons/lucide/x'
 
 import { QrCode } from '~/components/QrCode'
-import * as Dialog from '~/components/ui/dialog'
+import { Dialog } from '~/components/ui/dialog'
 import { StringFormatter, cn } from '~/utils'
 
 export function DepositDialog() {
