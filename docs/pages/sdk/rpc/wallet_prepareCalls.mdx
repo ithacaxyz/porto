@@ -32,18 +32,18 @@ type Request = {
      * If not provided, the current chain will be used.
      */
     chainId?: `0x${string}`;
+    /**
+     * Key that will be used to sign over the digest.
+     */
+    key: {
+      publicKey: `0x${string}`,
+      type: 'address' | 'secp256k1' | 'p256' | 'webauthn-256'
+    };
     /** 
      * Address of the account to send the calls from.
      * If not provided, the Account will be filled by the Wallet.
      */
     from?: `0x${string}`;
-    /** Capabilities. */
-    capabilities?: {
-      permissions?: {
-        /** ID of the permission to use. */
-        id: `0x${string}`;
-      };
-    };
   }]
 }
 ```
@@ -60,11 +60,17 @@ type Response = {
   chainId: `0x${string}`;
   /** 
    * Data to be forwarded to `wallet_sendPreparedCalls`.
-   * For Porto, this will include the signed quote. 
    */
-  context: { quote: unknown };
+  context: unknown;
   /** Digest to sign over. */
   digest: `0x${string}`;
+  /**
+   * Key that will be used to sign over the digest.
+   */
+  key: {
+    publicKey: `0x${string}`;
+    type: 'address' | 'secp256k1' | 'p256' | 'webauthn-256';
+  };
 }
 ```
 
@@ -82,6 +88,10 @@ const response = await provider.request({ // [!code focus]
       to: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code focus]
       value: '0x12345678', // [!code focus]
     }], // [!code focus]
+    key: { // [!code focus]
+      publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef', // [!code focus]
+      type: 'p256' // [!code focus]
+    }, // [!code focus]
   }] // [!code focus]
 }) // [!code focus]
 ``` 

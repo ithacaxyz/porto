@@ -20,16 +20,13 @@ type Request = {
     chainId: `0x${string}`;
     /** Data to be forwarded from `wallet_prepareCalls`. */
     context: { quote: unknown };
-    /** Properties of the signature. */
-    signature: {
-      /** Public key that generated the signature. */
+    /** Key that signed the digest and produced the signature. */
+    key: {
       publicKey: `0x${string}`;
-      /** Signature type (e.g. secp256k1, p256, etc). */
-      type: 'secp256k1' | 'p256' | 'webauthn-p256';
-      /** Signature value. */
-      value: `0x${string}`;
+      type: 'address' | 'secp256k1' | 'p256' | 'webauthn-256';
     };
-    
+    /** Signature. */
+    signature: `0x${string}`;
   }]
 }
 ```
@@ -53,18 +50,22 @@ const { provider } = Porto.create()
 
 const { publicKey, privateKey } = await WebCryptoP256.createKeyPair()
 
-const request = await provider.request({
+const { digest, ...request } = await provider.request({
   method: 'wallet_prepareCalls',
   params: [{
     calls: [{
       to: '0xcafebabecafebabecafebabecafebabecafebabe',
       value: '0x12345678',
     }],
+    key: {
+      publicKey,
+      type: 'p256'
+    }
   }]
 })
 
 const signature = await WebCryptoP256.sign({
-  payload: request.digest,
+  payload: digest,
   privateKey,
 })
 
@@ -72,11 +73,7 @@ const response = await provider.request({ // [!code focus]
   method: 'wallet_sendPreparedCalls', // [!code focus]
   params: [{ // [!code focus]
     ...request, // [!code focus]
-    signature: { // [!code focus]
-      publicKey: PublicKey.toHex(publicKey), // [!code focus]
-      type: 'p256', // [!code focus]
-      value: Signature.toHex(signature), // [!code focus]
-    } // [!code focus]
+    signature: Signature.toHex(signature) // [!code focus]
   }] // [!code focus]
 }) // [!code focus]
 ```
