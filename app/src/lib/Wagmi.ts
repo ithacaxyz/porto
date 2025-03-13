@@ -1,3 +1,4 @@
+import { publicActions } from 'viem'
 import { http, createConfig, createStorage } from 'wagmi'
 import { odysseyTestnet } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
@@ -21,6 +22,8 @@ export const config = createConfig({
     [odysseyTestnet.id]: http(),
   },
 })
+
+export const wagmiClient = config.getClient().extend(publicActions)
 
 declare module 'wagmi' {
   interface Register {

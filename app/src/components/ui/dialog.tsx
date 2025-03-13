@@ -1,7 +1,7 @@
 'use client'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { XIcon } from 'lucide-react'
+import XIcon from '~icons/lucide/x'
 import type * as React from 'react'
 
 import { cn } from '~/utils'
@@ -65,8 +65,7 @@ function DialogContent({
         {children}
         <DialogPrimitive.Close className="group absolute top-3 right-3 flex size-7 items-center justify-center rounded outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none">
           <XIcon
-            size={16}
-            className="opacity-60 transition-opacity group-hover:opacity-100"
+            className="opacity-60 transition-opacity group-hover:opacity-100 size-4"
           />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
