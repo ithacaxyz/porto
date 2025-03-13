@@ -58,7 +58,7 @@ const { digest, ...request } = await provider.request({
       value: '0x12345678',
     }],
     key: {
-      publicKey,
+      publicKey: PublicKey.toHex(publicKey),
       type: 'p256'
     }
   }]
