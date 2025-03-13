@@ -34,10 +34,7 @@ export type Transport =
   | viem_Transport
   | { default: viem_Transport; relay?: viem_Transport | undefined }
 
-const clientCache = new WeakMap<
-  { chainId: number | undefined; id: string },
-  Client
->()
+const clientCache = new Map<string, Client>()
 
 /**
  * Extracts a Viem Client from a Porto instance, and an optional chain ID.
@@ -94,7 +91,8 @@ export function getClient<
     'wallet_upgradeAccount',
   ]
 
-  if (clientCache.has({ id, chainId })) return clientCache.get({ id, chainId })!
+  const key = [id, chainId].filter(Boolean).join(':')
+  if (clientCache.has(key)) return clientCache.get(key)!
   const client = createClient({
     chain,
     transport: relay
@@ -109,6 +107,6 @@ export function getClient<
       : default_,
     pollingInterval: 1_000,
   })
-  clientCache.set({ id, chainId }, client)
+  clientCache.set(key, client)
   return client
 }
