@@ -1,3 +1,4 @@
+import { config } from '~/lib/Wagmi'
 import { Address } from 'ox'
 import * as React from 'react'
 import { encodeFunctionData, isHex, parseEther } from 'viem'
@@ -10,14 +11,12 @@ import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import { Button as OurButton } from '~/components/Button'
 import { Pill } from '~/components/Pill'
 import { Dialog } from '~/components/ui/dialog'
-
 import * as Select from '~/components/ui/select'
 import {
   type TokenBalance,
   useTokenBalance,
 } from '~/hooks/use-address-token-balances'
 import { ExperimentERC20 } from '~/lib/Constants'
-import { config, wagmiClient } from '~/lib/Wagmi'
 import { StringFormatter, ValueFormatter, cn } from '~/utils'
 
 export function SendDialog({
@@ -29,8 +28,10 @@ export function SendDialog({
   const send = useSendCalls({ config: config })
   const { data: tokenData } = useTokenBalance({ address })
 
+  const account = useAccount()
+
   const receiptQuery = useWaitForTransactionReceipt({
-    chainId: wagmiClient.chain.id,
+    chainId: account.chain?.id,
     hash: send.data as never,
     query: {
       enabled: isHex(send.data),
@@ -44,9 +45,6 @@ export function SendDialog({
   const isSending = send.isPending || receiptQuery.fetchStatus === 'fetching'
 
   const [amount, setAmount] = React.useState('')
-  // const parsedAmount = ValueFormatter.format(BigInt(amount))
-
-  // const validRecipient = Address.validate(recipient)
 
   return (
     <Dialog.Dialog>
