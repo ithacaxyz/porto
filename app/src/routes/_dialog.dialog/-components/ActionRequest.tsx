@@ -58,107 +58,126 @@ export function ActionRequest(props: ActionRequest.Props) {
           title="Action Request"
           icon={simulate.status === 'error' ? TriangleAlert : Star}
           content={<>Review the action to perform below.</>}
-          variant={simulate.status === 'error' ? 'destructive' : 'default'}
+          variant={simulate.status === 'error' ? 'warning' : 'default'}
         />
       </Layout.Header>
 
       <Layout.Content>
-        {simulate.status === 'pending' && (
-          <div className="space-y-2 rounded-lg bg-surface p-3">
-            <div className="flex size-[24px] w-full items-center justify-center">
-              <Spinner className="text-secondary" />
+        <div className="space-y-3">
+          {simulate.isPending && (
+            <div className="space-y-2 rounded-lg bg-surface p-3">
+              <div className="flex size-[24px] w-full items-center justify-center">
+                <Spinner className="text-secondary" />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {simulate.status === 'success' && (
-          <div className="space-y-3 rounded-lg bg-surface p-3">
-            <div className="space-y-2">
-              {balances.map((balance) => {
-                const { token, value } = balance
-                if (value.diff === BigInt(0)) return null
+          {simulate.isError && (
+            <div className="rounded-lg bg-warningTint px-3 py-2 text-warning">
+              <div className="font-medium text-[14px]">Error</div>
+              <div className="space-y-2 text-[14px] text-primary">
+                <p>
+                  An error occurred while simulating the action. Proceed with
+                  caution.
+                </p>
+                <p>
+                  Contact{' '}
+                  <span className="font-medium">{origin?.hostname}</span> for
+                  more information.
+                </p>
+              </div>
+            </div>
+          )}
 
-                const { decimals, symbol } = token
+          {(simulate.isSuccess || simulate.isError) && (
+            <div className="space-y-3 rounded-lg bg-surface p-3">
+              {balances.length > 0 && (
+                <>
+                  <div className="space-y-2">
+                    {balances.map((balance) => {
+                      const { token, value } = balance
+                      if (value.diff === BigInt(0)) return null
 
-                const receiving = value.diff > BigInt(0)
-                const formatted = ValueFormatter.format(value.diff, decimals)
+                      const { decimals, symbol } = token
 
-                const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+                      const receiving = value.diff > BigInt(0)
+                      const formatted = ValueFormatter.format(
+                        value.diff,
+                        decimals,
+                      )
 
-                return (
-                  <div key={token.address} className="flex gap-2 font-medium">
-                    <div
-                      className={cx(
-                        'flex size-[24px] items-center justify-center rounded-full',
-                        {
-                          'bg-successTint': receiving,
-                          'bg-destructiveTint': !receiving,
-                        },
-                      )}
-                    >
-                      <Icon
-                        className={cx('size-4 text-current', {
-                          'text-success': receiving,
-                          'text-destructive': !receiving,
-                        })}
-                      />
-                    </div>
-                    <div>
-                      {receiving ? 'Receive' : 'Send'}{' '}
-                      <span
-                        className={
-                          receiving ? 'text-success' : 'text-destructive'
-                        }
-                      >
-                        {formatted}
-                      </span>{' '}
-                      {symbol}
-                    </div>
+                      const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+
+                      return (
+                        <div
+                          key={token.address}
+                          className="flex gap-2 font-medium"
+                        >
+                          <div
+                            className={cx(
+                              'flex size-[24px] items-center justify-center rounded-full',
+                              {
+                                'bg-successTint': receiving,
+                                'bg-destructiveTint': !receiving,
+                              },
+                            )}
+                          >
+                            <Icon
+                              className={cx('size-4 text-current', {
+                                'text-success': receiving,
+                                'text-destructive': !receiving,
+                              })}
+                            />
+                          </div>
+                          <div>
+                            {receiving ? 'Receive' : 'Send'}{' '}
+                            <span
+                              className={
+                                receiving ? 'text-success' : 'text-destructive'
+                              }
+                            >
+                              {formatted}
+                            </span>{' '}
+                            {symbol}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                )
-              })}
-            </div>
+                  <div className="h-[1px] w-full bg-gray6" />
+                </>
+              )}
 
-            <div className="h-[1px] w-full bg-gray6" />
+              <div className="space-y-1">
+                {/* TODO: Fees */}
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-[14px] text-secondary">
+                    Fees (est.)
+                  </span>
+                  <span className="font-medium">$0.01</span>
+                </div>
 
-            <div className="space-y-1">
-              {/* TODO: Fees */}
-              <div className="flex justify-between text-[14px]">
-                <span className="text-[14px] text-secondary">Fees (est.)</span>
-                <span className="font-medium">$0.01</span>
+                {/* TODO: Duration */}
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-[14px] text-secondary">
+                    Duration (est.)
+                  </span>
+                  <span className="font-medium">2 seconds</span>
+                </div>
+
+                {/* TODO: Network */}
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-[14px] text-secondary">Network</span>
+                  <span className="font-medium">Odyssey Testnet</span>
+                </div>
               </div>
-
-              {/* TODO: Duration */}
-              <div className="flex justify-between text-[14px]">
-                <span className="text-[14px] text-secondary">
-                  Duration (est.)
-                </span>
-                <span className="font-medium">2 seconds</span>
-              </div>
-
-              {/* TODO: Network */}
-              <div className="flex justify-between text-[14px]">
-                <span className="text-[14px] text-secondary">Network</span>
-                <span className="font-medium">Odyssey Testnet</span>
-              </div>
             </div>
-          </div>
-        )}
-
-        {simulate.status === 'error' && (
-          <div className="rounded-lg bg-destructiveTint px-3 py-2 text-destructive">
-            <div className="font-medium text-[14px]">Error</div>
-            <div className="text-[14px] text-primary">
-              An error occurred while simulating the action. Contact{' '}
-              <span className="font-medium">{origin?.hostname}</span> for more
-              information.
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </Layout.Content>
 
       <Layout.Footer>
-        {simulate.status === 'success' && (
+        {simulate.isSuccess && (
           <Layout.Footer.Actions>
             <Button
               className="flex-grow"
@@ -180,14 +199,23 @@ export function ActionRequest(props: ActionRequest.Props) {
           </Layout.Footer.Actions>
         )}
 
-        {simulate.status === 'error' && (
+        {simulate.isError && (
           <Layout.Footer.Actions>
             <Button
               className="flex-grow"
               type="button"
+              variant="destructive"
               onClick={() => Actions.reject(porto, request!)}
             >
-              Close
+              Deny
+            </Button>
+            <Button
+              className="flex-grow"
+              type="button"
+              variant="default"
+              onClick={() => respond.mutate()}
+            >
+              Approve anyway
             </Button>
           </Layout.Footer.Actions>
         )}
