@@ -144,9 +144,26 @@ export function relay(config: relay.Parameters = {}) {
         return { account }
       },
 
-      async prepareExecute(_parameters) {
-        // TODO: implement
-        return null as any
+      async prepareExecute(parameters) {
+        const { account, calls, client, feeToken, key, nonce } = parameters
+
+        const { context, digest } = await Relay.prepareCalls(client, {
+          account,
+          calls,
+          feeToken,
+          key,
+          nonce,
+        })
+
+        return {
+          request: {
+            ...context,
+            account,
+            calls,
+            nonce: context.op.nonce,
+          },
+          signPayloads: [digest],
+        }
       },
 
       async execute(parameters) {
@@ -173,7 +190,6 @@ export function relay(config: relay.Parameters = {}) {
         await Relay.sendCalls(client, {
           account,
           authorizeKeys,
-          // TODO: remove this when relay supports native eth token
           feeToken,
           // TODO: remove this when relay supports optional nonce
           nonce: randomNonce() ?? nonce,
@@ -184,7 +200,6 @@ export function relay(config: relay.Parameters = {}) {
         const { id } = await Relay.sendCalls(client, {
           account,
           calls,
-          // TODO: remove this when relay supports native eth token
           feeToken,
           key,
           // TODO: remove this when relay supports optional nonce
@@ -304,7 +319,6 @@ export function relay(config: relay.Parameters = {}) {
         await Relay.sendCalls(client, {
           account,
           revokeKeys: [key],
-          // TODO: remove this when relay supports native eth token
           feeToken,
           // TODO: remove this when relay supports optional nonce
           nonce: randomNonce(),

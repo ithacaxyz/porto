@@ -39,11 +39,21 @@ export type Implementation = {
       calls: readonly Call.Call[]
       /** Viem Clients. */
       client: Porto.Client
+      /** Key that will be used to sign over the digest. */
+      key: Key.Key
+      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
+      feeToken?: Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Nonce to use for execution. */
+      nonce?: bigint | undefined
     }) => Promise<{
       /** RPC Request. */
-      request: unknown
+      request: {
+        account: Account.Account
+        calls: readonly Call.Call[]
+        nonce: bigint
+      }
       /** Hex payloads to sign over. */
       signPayloads: readonly Hex.Hex[]
     }>

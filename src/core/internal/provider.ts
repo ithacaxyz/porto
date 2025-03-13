@@ -570,6 +570,8 @@ export function from<
             await implementation.actions.prepareExecute({
               calls,
               client,
+              // TODO
+              key: {} as never,
               internal: {
                 client,
                 config,
@@ -579,12 +581,19 @@ export function from<
               account: Account.from(account),
             })
 
-          return {
+          return Schema.Encode(Rpc.wallet_prepareCalls.Response, {
             chainId: chainId ? Hex.fromNumber(chainId) : undefined,
             version,
-            context: context as never,
+            context: {
+              account: {
+                address: context.account.address,
+                type: context.account.type,
+              },
+              calls: context.calls,
+              nonce: context.nonce,
+            },
             digest: signPayloads[0]!,
-          } satisfies Schema.Static<typeof Rpc.wallet_prepareCalls.Response>
+          }) satisfies Schema.Static<typeof Rpc.wallet_prepareCalls.Response>
         }
 
         case 'wallet_sendPreparedCalls': {
@@ -598,7 +607,10 @@ export function from<
             throw new ox_Provider.ChainDisconnectedError()
 
           const wrappedSignature = Key.wrapSignature(signature.value, {
-            keyType: signature.type as never,
+            keyType:
+              signature.type === 'address'
+                ? 'secp256k1'
+                : (signature.type as never),
             publicKey: signature.publicKey,
           })
 
