@@ -97,8 +97,8 @@ export function Landing() {
           )}
         </div>
       </div>
-      <div className="-z-50 fixed right-0 mt-3 hidden size-full h-[80dvh] max-w-[868px] max-[568px]:hidden max-[1024px]:h-[70dvh] sm:block">
-        <IthacaMark className="bg-accent text-black" />
+      <div className="fixed right-0 mt-3 hidden size-full h-[80dvh] max-w-[868px] max-[568px]:hidden max-[1024px]:h-[70dvh] sm:block">
+        <IthacaMark className="text-black" />
       </div>
     </div>
   )
