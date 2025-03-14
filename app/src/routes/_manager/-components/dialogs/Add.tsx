@@ -31,7 +31,7 @@ export function AddMoneyDialog({
         open={isOpen}
         onClose={() => setIsOpen(false)}
         className={cn('dialog min-h-[200px] max-w-[400px]')}
-        backdrop={<div className="bg-gray12/70 backdrop-blur-xs" />}
+        backdrop={<div className="bg-gray12/40 backdrop-blur-xs" />}
       >
         <div>
           <Ariakit.DialogHeading className="flex items-center justify-between">
