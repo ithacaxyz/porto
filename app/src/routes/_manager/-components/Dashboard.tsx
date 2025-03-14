@@ -84,16 +84,16 @@ export function Dashboard() {
 
         <div
           className={cn(
-            'size-full min-w-full gap-3 max-[400px]:gap-x-4.5',
+            'gap-3 max-[300px]:gap-x-4.5',
             'context-stretch items-stretch justify-items-center',
             tokenBalancesData && tokenBalancesData.length > 0
-              ? 'grid grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2'
+              ? 'grid size-full min-w-full grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2'
               : 'flex max-w-[300px] items-center justify-center gap-2! *:w-full',
           )}
         >
           {/* ==== SEND ==== */}
 
-          <SendDialog />
+          {tokenBalancesData && tokenBalancesData.length > 0 && <SendDialog />}
 
           {/* ==== RECEIVE ==== */}
           <DepositDialog />
@@ -103,7 +103,7 @@ export function Dashboard() {
             className={cn(
               tokenBalancesData && tokenBalancesData.length > 0
                 ? 'bg-gray7 hover:bg-gray6'
-                : 'bg-accent text-white',
+                : 'bg-accent! text-white hover:bg-accent/90!',
             )}
           />
         </div>
@@ -191,7 +191,7 @@ export function Dashboard() {
                             </div>
                             {/* {index === 0 && (
                               <Ariakit.MenuProvider>
-                                <Ariakit.MenuButton className="-space-x-1 mb-auto flex gap-x-0.5 rounded-2xl bg-gray4 py-1.5 pr-1 pl-1.5">
+                                 <Ariakit.MenuButton className="-space-x-1 mb-auto flex gap-x-0.5 rounded-2xl bg-gray4 py-1.5 pr-1 pl-1.5">
                                   <TokenIcon.Op className="size-5 text-gray10" />
                                   <TokenIcon.Eth className="size-5 text-gray10" />
                                   <ChevronDownIcon className="size-5 text-gray10" />
