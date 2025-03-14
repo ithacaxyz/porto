@@ -47,3 +47,19 @@ export namespace PercentFormatter {
     return numberIntl.format(Number(num / 100))
   }
 }
+
+export namespace DateFormatter {
+  const dateIntl = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+
+  export function format(date: string) {
+    return dateIntl.format(new Date(date))
+  }
+}
