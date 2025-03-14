@@ -35,7 +35,7 @@ export function useTokenBalances({
                 async (chain) => {
                   const apiEndpoint = addressApiEndpoint(chain.id)
                   const url = `${apiEndpoint}/addresses/${userAddress}/token-balances`
-                  const response = await fetch(urlWithLocalCorsBypass(url))
+                  const response = await fetch(url)
                   if (!response.ok) {
                     throw new Error(
                       `Failed to fetch token balances: ${response.statusText}`,
