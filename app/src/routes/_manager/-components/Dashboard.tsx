@@ -9,7 +9,7 @@ import { Header } from '~/components/Header'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
 import { ThemeToggle } from '~/components/ThemeToggle'
-import { useTokenBalance } from '~/hooks/use-address-token-balances'
+import { useTokenBalances } from '~/hooks/use-address-token-balances'
 import { PercentFormatter, cn, sum } from '~/utils'
 import CoinsIcon from '~icons/lucide/coins'
 import HistoryIcon from '~icons/lucide/history'
@@ -25,7 +25,7 @@ const PRICES = {
 export function Dashboard() {
   const { address } = useAccount()
 
-  const tokenBalances = useTokenBalance({
+  const tokenBalances = useTokenBalances({
     address: address!,
     chainId: odysseyTestnet.id,
   })
