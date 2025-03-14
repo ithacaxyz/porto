@@ -29,7 +29,7 @@ export function HomePage() {
           <div className="flex items-center border-gray5 border-b p-[16px]">
             <Install />
           </div>
-          <div className="bg-gray3/50 p-[16px] font-mono dark:bg-gray1">
+          <div className="bg-gray3/50 p-[16px] font-mono max-[486px]:p-[12px] max-[486px]:text-[13px] dark:bg-gray1">
             <p className={`before:mr-3 before:text-gray8 before:content-['1']`}>
               import {'{'} Porto {'}'} from 'porto'
             </p>
@@ -42,7 +42,7 @@ export function HomePage() {
 
         <div className="h-4" />
 
-        <div className="grid w-full grid-cols-2 gap-2">
+        <div className="grid w-full grid-cols-2 gap-2 max-[486px]:grid-cols-1">
           <div className="rounded-[13px] border border-gray4 p-[16px]">
             <div className="size-[24px]">
               <WorksAnywhereIcon />
@@ -106,7 +106,7 @@ export function HomePage() {
 
         <div className="h-4" />
 
-        <div className="flex w-full gap-2">
+        <div className="flex w-full gap-2 max-[486px]:flex-col">
           <Ariakit.Button
             className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400]"
             render={<Link to="/sdk" />}
@@ -160,7 +160,7 @@ function Install() {
           <Install.Radio value="pnpm" />
           <Install.Radio value="yarn" />
         </Ariakit.RadioGroup>
-        <div className="font-[300] font-mono text-[15px] text-gray12 tracking-[-2.8%]">
+        <div className="font-[300] font-mono text-[15px] text-gray12 tracking-[-2.8%] max-[486px]:text-[12px]">
           <span className="text-gray8">{'>'}</span>{' '}
           <span className="text-blue9">{state.value}</span> install porto
         </div>
