@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { useAccount, useChainId } from 'wagmi'
+import { useAccount, useBalance, useChainId } from 'wagmi'
 import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
 
 import { addressApiEndpoint, urlWithLocalCorsBypass } from '~/lib/Constants'
@@ -17,6 +17,10 @@ export function useTokenBalances({
 
   const chainId = providedChainId ?? connectedChainId
   const userAddress = address ?? account.address
+
+  const { data: balance } = useBalance({
+    address: userAddress,
+  })
 
   const { data, status, error, refetch, isError, isSuccess, isPending } =
     useQuery({
@@ -62,9 +66,30 @@ export function useTokenBalances({
           throw error
         }
       },
+      select: (data) =>
+        [
+          ...(data ?? []),
+          {
+            value: balance?.value,
+            token: {
+              decimals: balance?.decimals,
+              name: balance?.symbol,
+              symbol: balance?.symbol,
+              icon_url: '/icons/eth.svg',
+            },
+          } as unknown as TokenBalance,
+        ].sort((a, b) => a.token.symbol.localeCompare(b.value)),
     })
 
-  return { data, status, error, refetch, isError, isSuccess, isPending }
+  return {
+    data,
+    status,
+    error,
+    refetch,
+    isError,
+    isSuccess,
+    isPending,
+  }
 }
 
 export interface TokenBalance {
