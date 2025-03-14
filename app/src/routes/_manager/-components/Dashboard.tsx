@@ -44,7 +44,7 @@ export function Dashboard() {
   }, [assets])
 
   return (
-    <Layout className="max-w-2xl!">
+    <Layout className="font-sf-pro">
       <Header />
       <section
         className={cn(
@@ -87,7 +87,7 @@ export function Dashboard() {
             'context-stretch items-stretch justify-items-center',
             tokenBalancesData && tokenBalancesData.length > 0
               ? 'grid size-full min-w-full grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2'
-              : 'flex max-w-[300px] items-center justify-center gap-2! *:w-full',
+              : 'flex w-[260px] max-w-[300px] items-center justify-center gap-2! *:w-full',
           )}
         >
           {status === 'pending' ? (
@@ -108,7 +108,7 @@ export function Dashboard() {
                   status === 'success' &&
                     tokenBalancesData &&
                     tokenBalancesData.length > 0
-                    ? 'bg-gray7! hover:bg-gray6'
+                    ? 'bg-gray7! hover:bg-gray6!'
                     : 'bg-accent! text-white hover:bg-accent/90!',
                 )}
               />

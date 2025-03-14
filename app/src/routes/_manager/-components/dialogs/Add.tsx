@@ -1,6 +1,8 @@
+import * as Ariakit from '@ariakit/react'
+import * as React from 'react'
+import XIcon from '~icons/lucide/x'
 import DollarSignIcon from '~icons/majesticons/dollar-circle-line'
 
-import { Dialog } from '~/components/ui/dialog'
 import { cn } from '~/utils'
 
 export function AddMoneyDialog({
@@ -8,11 +10,15 @@ export function AddMoneyDialog({
 }: {
   className?: string
 }) {
+  const [isOpen, setIsOpen] = React.useState(false)
+
   return (
-    <Dialog>
-      <Dialog.Trigger
+    <Ariakit.DialogProvider>
+      <Ariakit.Button
+        onClick={() => setIsOpen(true)}
         className={cn(
           className,
+          '',
           'col-span-1 col-start-3',
           'sm:col-start-2 sm:row-span-1 sm:row-start-1',
           'w-[105px] text-center font-semibold text-lg sm:w-[120px] sm:text-md',
@@ -21,13 +27,28 @@ export function AddMoneyDialog({
       >
         <DollarSignIcon className="size-6" />
         Add
-      </Dialog.Trigger>
-      <Dialog.Content
-        className="rounded-xl border-0 bg-primary p-5 shadow-xl sm:max-w-[400px]"
-        title="Send"
+      </Ariakit.Button>
+      <Ariakit.Dialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className={cn(
+          'dialog min-h-[200px]',
+          'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-0 sm:mb-0!',
+        )}
+        backdrop={<div className="bg-black/60 backdrop-blur-xs" />}
       >
-        <Dialog.Header className="p-0 text-center">Coming soon…</Dialog.Header>
-      </Dialog.Content>
-    </Dialog>
+        <div>
+          <Ariakit.DialogHeading className="flex items-center justify-between">
+            <span className="font-semibold text-xl">Send</span>
+            <Ariakit.DialogDismiss className="text-secondary/50">
+              <XIcon className="size-4" />
+            </Ariakit.DialogDismiss>
+          </Ariakit.DialogHeading>
+          <Ariakit.DialogDescription className="p-0 text-center">
+            Coming soon…
+          </Ariakit.DialogDescription>
+        </div>
+      </Ariakit.Dialog>
+    </Ariakit.DialogProvider>
   )
 }

@@ -1,11 +1,11 @@
 import { http, createConfig, createStorage } from 'wagmi'
-import { odysseyTestnet } from 'wagmi/chains'
+import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 
 import { porto } from './Porto'
 
 export const config = createConfig({
-  chains: [odysseyTestnet],
+  chains: [odysseyTestnet, optimismSepolia, baseSepolia],
   storage: createStorage({ storage: localStorage }),
   multiInjectedProviderDiscovery: false,
   connectors: [
@@ -19,6 +19,8 @@ export const config = createConfig({
   ],
   transports: {
     [odysseyTestnet.id]: http(),
+    [optimismSepolia.id]: http(),
+    [baseSepolia.id]: http(),
   },
 })
 
