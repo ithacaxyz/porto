@@ -25,15 +25,12 @@ export function SendDialog({
   className?: string
 }) {
   const { address } = useAccount()
-  const [error, setError] = React.useState<string | null>(null)
   const send = useSendCalls({
     config: config,
-    mutation: {
-      onError: (error) => setError(error.message),
-    },
   })
-  const { data: tokenData, isError } = useTokenBalances({
-    address: '0x91FC1B9fA8f4cbc324606368f2A9Ed2f582b0704',
+
+  const { data: tokenData, status: tokenStatus } = useTokenBalances({
+    address,
   })
 
   const account = useAccount()
@@ -56,6 +53,7 @@ export function SendDialog({
   const amountExceedsBalance =
     parseEther(amount) > BigInt(selectedAsset?.value ?? 0)
 
+  if (tokenStatus === 'pending') return null
   return (
     <Dialog.Dialog>
       <Dialog.DialogTrigger asChild>
@@ -308,7 +306,9 @@ export function SendDialog({
               <div>
                 {send.isError && (
                   <div className="bg-red3 p-2">
-                    <p className="text-pretty font-mono text-xs">{error}</p>
+                    <p className="text-pretty font-mono text-xs">
+                      {send.error.message}
+                    </p>
                   </div>
                 )}
               </div>
