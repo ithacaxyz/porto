@@ -95,9 +95,9 @@ export function Dashboard() {
           ) : (
             <React.Fragment>
               {/* ==== SEND ==== */}
-              {tokenBalancesData && tokenBalancesData.length > 0 && (
-                <SendDialog />
-              )}
+              {status === 'success' &&
+                tokenBalancesData &&
+                tokenBalancesData.length > 0 && <SendDialog />}
 
               {/* ==== RECEIVE ==== */}
               <DepositDialog />
@@ -105,7 +105,9 @@ export function Dashboard() {
               {/* ==== ADD ==== */}
               <AddMoneyDialog
                 className={cn(
-                  tokenBalancesData && tokenBalancesData.length > 0
+                  status === 'success' &&
+                    tokenBalancesData &&
+                    tokenBalancesData.length > 0
                     ? 'bg-gray7! hover:bg-gray6'
                     : 'bg-accent! text-white hover:bg-accent/90!',
                 )}
