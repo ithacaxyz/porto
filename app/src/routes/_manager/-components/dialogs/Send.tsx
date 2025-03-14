@@ -62,7 +62,7 @@ export function SendDialog({
           'flex h-11! items-center justify-center gap-x-1 sm:h-10',
           'sm:col-span-2 sm:col-start-1 sm:row-span-1 sm:place-self-stretch',
           'col-span-1 col-start-1',
-          'rounded-default bg-gray12!',
+          'rounded-default bg-gray12! hover:bg-gray11!',
         )}
       >
         <SendHorizontalIcon className="size-6 text-gray1" />

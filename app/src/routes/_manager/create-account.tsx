@@ -40,11 +40,11 @@ function RouteComponent() {
   return (
     <main
       className={cn(
-        'mx-auto flex h-screen max-h-[840px] w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl bg-gray1 py-4 text-center',
+        'mx-auto flex h-screen w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl py-4 text-center sm:bg-gray1',
         'sm:my-52 sm:h-[550px] sm:shadow-sm sm:outline sm:outline-gray4',
       )}
     >
-      <header className="mt-4 flex justify-between px-5 sm:mt-1">
+      <header className="mt-4 flex justify-between px-2 sm:mt-1 sm:px-5">
         <Link to="/" from="/create-account" className="">
           <img
             alt="Porto wallet icon"

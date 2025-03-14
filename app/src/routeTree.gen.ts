@@ -15,8 +15,6 @@ import { Route as PlaygroundImport } from './routes/playground'
 import { Route as ManagerImport } from './routes/_manager'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as ManagerIndexImport } from './routes/_manager/index'
-import { Route as ManagerWithdrawImport } from './routes/_manager/withdraw'
-import { Route as ManagerTransferImport } from './routes/_manager/transfer'
 import { Route as ManagerCreateAccountImport } from './routes/_manager/create-account'
 import { Route as ManagerSettingsIndexImport } from './routes/_manager/settings/index'
 import { Route as ManagerSettingsPermissionsImport } from './routes/_manager/settings/permissions'
@@ -53,18 +51,6 @@ const DialogRoute = DialogImport.update({
 const ManagerIndexRoute = ManagerIndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ManagerRoute,
-} as any)
-
-const ManagerWithdrawRoute = ManagerWithdrawImport.update({
-  id: '/withdraw',
-  path: '/withdraw',
-  getParentRoute: () => ManagerRoute,
-} as any)
-
-const ManagerTransferRoute = ManagerTransferImport.update({
-  id: '/transfer',
-  path: '/transfer',
   getParentRoute: () => ManagerRoute,
 } as any)
 
@@ -192,20 +178,6 @@ declare module '@tanstack/react-router' {
       path: '/create-account'
       fullPath: '/create-account'
       preLoaderRoute: typeof ManagerCreateAccountImport
-      parentRoute: typeof ManagerImport
-    }
-    '/_manager/transfer': {
-      id: '/_manager/transfer'
-      path: '/transfer'
-      fullPath: '/transfer'
-      preLoaderRoute: typeof ManagerTransferImport
-      parentRoute: typeof ManagerImport
-    }
-    '/_manager/withdraw': {
-      id: '/_manager/withdraw'
-      path: '/withdraw'
-      fullPath: '/withdraw'
-      preLoaderRoute: typeof ManagerWithdrawImport
       parentRoute: typeof ManagerImport
     }
     '/_manager/': {
@@ -340,8 +312,6 @@ const DialogRouteWithChildren =
 
 interface ManagerRouteChildren {
   ManagerCreateAccountRoute: typeof ManagerCreateAccountRoute
-  ManagerTransferRoute: typeof ManagerTransferRoute
-  ManagerWithdrawRoute: typeof ManagerWithdrawRoute
   ManagerIndexRoute: typeof ManagerIndexRoute
   ManagerSettingsPermissionsRoute: typeof ManagerSettingsPermissionsRoute
   ManagerSettingsIndexRoute: typeof ManagerSettingsIndexRoute
@@ -352,8 +322,6 @@ interface ManagerRouteChildren {
 
 const ManagerRouteChildren: ManagerRouteChildren = {
   ManagerCreateAccountRoute: ManagerCreateAccountRoute,
-  ManagerTransferRoute: ManagerTransferRoute,
-  ManagerWithdrawRoute: ManagerWithdrawRoute,
   ManagerIndexRoute: ManagerIndexRoute,
   ManagerSettingsPermissionsRoute: ManagerSettingsPermissionsRoute,
   ManagerSettingsIndexRoute: ManagerSettingsIndexRoute,
@@ -371,8 +339,6 @@ export interface FileRoutesByFullPath {
   '': typeof ManagerRouteWithChildren
   '/playground': typeof PlaygroundRoute
   '/create-account': typeof ManagerCreateAccountRoute
-  '/transfer': typeof ManagerTransferRoute
-  '/withdraw': typeof ManagerWithdrawRoute
   '/': typeof ManagerIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
@@ -393,8 +359,6 @@ export interface FileRoutesByTo {
   '': typeof DialogRouteWithChildren
   '/playground': typeof PlaygroundRoute
   '/create-account': typeof ManagerCreateAccountRoute
-  '/transfer': typeof ManagerTransferRoute
-  '/withdraw': typeof ManagerWithdrawRoute
   '/': typeof ManagerIndexRoute
   '/dialog/$': typeof DialogDialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
@@ -417,8 +381,6 @@ export interface FileRoutesById {
   '/_manager': typeof ManagerRouteWithChildren
   '/playground': typeof PlaygroundRoute
   '/_manager/create-account': typeof ManagerCreateAccountRoute
-  '/_manager/transfer': typeof ManagerTransferRoute
-  '/_manager/withdraw': typeof ManagerWithdrawRoute
   '/_manager/': typeof ManagerIndexRoute
   '/_dialog/dialog/$': typeof DialogDialogSplatRoute
   '/_dialog/dialog/eth_requestAccounts': typeof DialogDialogEthrequestAccountsRoute
@@ -441,8 +403,6 @@ export interface FileRouteTypes {
     | ''
     | '/playground'
     | '/create-account'
-    | '/transfer'
-    | '/withdraw'
     | '/'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
@@ -462,8 +422,6 @@ export interface FileRouteTypes {
     | ''
     | '/playground'
     | '/create-account'
-    | '/transfer'
-    | '/withdraw'
     | '/'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
@@ -484,8 +442,6 @@ export interface FileRouteTypes {
     | '/_manager'
     | '/playground'
     | '/_manager/create-account'
-    | '/_manager/transfer'
-    | '/_manager/withdraw'
     | '/_manager/'
     | '/_dialog/dialog/$'
     | '/_dialog/dialog/eth_requestAccounts'
@@ -547,8 +503,6 @@ export const routeTree = rootRoute
       "filePath": "_manager.tsx",
       "children": [
         "/_manager/create-account",
-        "/_manager/transfer",
-        "/_manager/withdraw",
         "/_manager/",
         "/_manager/settings/permissions",
         "/_manager/settings/",
@@ -562,14 +516,6 @@ export const routeTree = rootRoute
     },
     "/_manager/create-account": {
       "filePath": "_manager/create-account.tsx",
-      "parent": "/_manager"
-    },
-    "/_manager/transfer": {
-      "filePath": "_manager/transfer.tsx",
-      "parent": "/_manager"
-    },
-    "/_manager/withdraw": {
-      "filePath": "_manager/withdraw.tsx",
       "parent": "/_manager"
     },
     "/_manager/": {

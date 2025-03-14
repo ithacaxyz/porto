@@ -86,7 +86,7 @@ function RouteComponent() {
           <p className="text-secondary ">
             This is where you will receive funds.
           </p>
-          <div className="mt-2 flex w-full flex-col items-center justify-between gap-2 sm:flex-row">
+          <div className="mt-2 flex w-full flex-col items-center justify-between gap-x-2 gap-y-3.5 sm:flex-row">
             <p
               className={cn(
                 'sm:mr-2 sm:text-[15.5px] md:tracking-wide',

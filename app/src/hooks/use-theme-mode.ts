@@ -15,12 +15,6 @@ export function useThemeMode(): {
       if (window.matchMedia('(prefers-color-scheme: dark)').matches)
         return 'dark'
     }
-    return 'light'
-  })
-
-  // Only update classes and localStorage when theme changes
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return
 
     if (theme === 'dark') {
       document.documentElement.classList.remove('scheme-light', 'scheme-light')
@@ -30,7 +24,7 @@ export function useThemeMode(): {
       document.documentElement.classList.add('scheme-light')
     }
     localStorage.setItem('__porto_theme', theme)
-  }, [theme])
-
+    return 'light'
+  })
   return { theme, setTheme }
 }
