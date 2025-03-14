@@ -57,8 +57,7 @@ export function SendDialog({
   if (tokenStatus === 'pending') return null
   return (
     <Ariakit.DialogProvider>
-      <OurButton
-        variant="invert"
+      <Ariakit.Button
         onClick={() => setIsOpen(true)}
         className={cn(
           className,
@@ -66,19 +65,20 @@ export function SendDialog({
           'flex h-11! items-center justify-center gap-x-1 sm:h-10',
           'sm:col-span-2 sm:col-start-1 sm:row-span-1 sm:place-self-stretch',
           'col-span-1 col-start-1',
+          'rounded-default bg-gray12!',
         )}
       >
-        <SendHorizontalIcon className="size-6" />
-        <span>Send</span>
-      </OurButton>
+        <SendHorizontalIcon className="size-6 text-gray1" />
+        <span className="text-gray1">Send</span>
+      </Ariakit.Button>
       <Ariakit.Dialog
         open={isOpen}
         onClose={() => setIsOpen(false)}
         className={cn(
           'dialog',
           'w-full sm:max-w-[420px]',
-          'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-0 sm:mb-0!',
-          'w-full max-w-[90%] rounded-xl border-0 bg-primary px-0 py-5 shadow-xl',
+          'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-35! sm:mb-0!',
+          'w-full max-w-[90%] rounded-xl border-0 px-0 py-5 shadow-xl',
         )}
         backdrop={<div className="bg-black/60 backdrop-blur-xs" />}
       >
@@ -98,10 +98,10 @@ export function SendDialog({
                   >
                     <ChevronLeftIcon className="mr-0.5 size-6 text-gray10" />
                   </button>
-                  <h3 className="font-medium text-xl">Select asset</h3>
+                  <p className="font-medium text-xl">Select asset</p>
                 </div>
               ) : (
-                <h3 className="font-medium text-lg">Send</h3>
+                <p className="font-medium text-lg">Send</p>
               )}
               {!isAssetSelectorOpen && (
                 <Ariakit.DialogDismiss className="text-secondary/50">
@@ -144,7 +144,7 @@ export function SendDialog({
                 }
               }}
             >
-              <div className="mb-3 flex items-center justify-between ">
+              <div className="mb-3 flex items-center justify-between">
                 <div>
                   <p id="send-funds" className="text-gray10 text-sm">
                     Select asset
@@ -305,23 +305,20 @@ export function SendDialog({
                 className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg"
                 hidden={isAssetSelectorOpen}
               >
-                <Ariakit.DialogDismiss>
-                  <OurButton
-                    form="send"
-                    type="reset"
-                    name="cancel"
-                    variant="default"
-                    disabled={isSending}
-                    className="rounded-full border-2 border-gray6 bg-gray5 text-primary hover:bg-gray4"
-                  >
-                    Cancel
-                  </OurButton>
+                <Ariakit.DialogDismiss
+                  form="send"
+                  type="reset"
+                  name="cancel"
+                  disabled={isSending}
+                  className="rounded-full border-2 border-gray6 bg-gray5 text-primary hover:bg-gray4"
+                >
+                  Cancel
                 </Ariakit.DialogDismiss>
                 <OurButton
                   type="submit"
                   className={cn('rounded-full border-2')}
                   disabled={!amount || isSending}
-                  variant={!!amount && !isSending ? 'accent' : 'ghost'}
+                  variant={!!amount && !isSending ? 'accent' : 'default'}
                 >
                   Send
                 </OurButton>

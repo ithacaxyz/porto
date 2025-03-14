@@ -18,7 +18,6 @@ export function AddMoneyDialog({
         onClick={() => setIsOpen(true)}
         className={cn(
           className,
-          '',
           'col-span-1 col-start-3',
           'sm:col-start-2 sm:row-span-1 sm:row-start-1',
           'w-[105px] text-center font-semibold text-lg sm:w-[120px] sm:text-md',
@@ -31,10 +30,7 @@ export function AddMoneyDialog({
       <Ariakit.Dialog
         open={isOpen}
         onClose={() => setIsOpen(false)}
-        className={cn(
-          'dialog min-h-[200px]',
-          'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-0 sm:mb-0!',
-        )}
+        className={cn('dialog min-h-[200px] max-w-[400px]')}
         backdrop={<div className="bg-black/60 backdrop-blur-xs" />}
       >
         <div>
