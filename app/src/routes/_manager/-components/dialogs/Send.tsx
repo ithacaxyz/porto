@@ -1,6 +1,6 @@
 import { Address, Value } from 'ox'
 import * as React from 'react'
-import { erc20Abi, isHex, parseEther } from 'viem'
+import { encodeFunctionData, erc20Abi, isHex, parseEther } from 'viem'
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import ChevronLeftIcon from '~icons/lucide/chevron-left'
@@ -79,7 +79,6 @@ export function SendDialog({
         className={cn(
           'w-full max-w-[420px]',
           'rounded-xl border-0 bg-primary px-0 py-5 shadow-xl sm:max-w-[400px]',
-          'sm:-translate-y-1/2 -translate-y-1/4',
         )}
       >
         {send.isPending ? (
@@ -124,11 +123,11 @@ export function SendDialog({
                     calls: [
                       {
                         to: tokenAddress,
-                        data: {
+                        data: encodeFunctionData({
                           abi: erc20Abi,
                           functionName: 'transfer',
                           args: [to, parseEther(amount)],
-                        },
+                        }),
                       },
                     ],
                   })
@@ -285,17 +284,10 @@ export function SendDialog({
                   <ReceiverInput />
                 </div>
               </div>
-              <pre hidden={isAssetSelectorOpen} className="px-5">
-                {import.meta.env.DEV &&
-                  JSON.stringify(
-                    { status: send.status, success: send.isSuccess },
-                    undefined,
-                    2,
-                  )}
-              </pre>
-              <div className="px-5">
+
+              <div className="max-h-[350px] max-w-[400px] overflow-x-auto px-5">
                 {send.isError && (
-                  <div className="bg-red3 p-2">
+                  <div className="overflow-x-auto bg-red3 p-2">
                     <p className="text-pretty font-mono text-xs">
                       {send.error.message}
                     </p>
@@ -345,7 +337,6 @@ function AssetSelectionView({
   setIsAssetSelectorOpen: (open: boolean) => void
   handleAssetSelect: (asset: TokenBalance) => void
 }) {
-  console.info(tokenData)
   return (
     <div className="mt-auto flex size-full flex-col">
       {tokenData?.length === 0 ? (
@@ -463,8 +454,8 @@ function ReceiverInput() {
 
 function SendingView() {
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-blue-100">
+    <div className="flex flex-col items-center justify-center px-5">
+      <div className="mt-4 mb-4 flex size-16 items-center justify-center rounded-full bg-blue-100">
         <div className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
       </div>
       <h2 className="mb-2 font-medium text-2xl">Sending funds</h2>
@@ -485,7 +476,7 @@ function SendingView() {
 
 function SuccessView({ hash }: { hash: string }) {
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center px-5">
       <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-green-100">
         <CircleCheckIcon className="size-12 text-green-500" />
       </div>
