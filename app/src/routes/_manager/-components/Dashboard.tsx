@@ -17,8 +17,9 @@ import { DepositDialog } from './dialogs/Deposit'
 import { SendDialog } from './dialogs/Send'
 
 const PRICES = {
-  EXP: 10 * Math.random(),
-  EXP2: 10 * Math.random(),
+  EXP: 100 * Math.random(),
+  EXP2: 100 * Math.random(),
+  ETH: 100 * Math.random(),
 } as const
 
 export function Dashboard() {
@@ -35,9 +36,10 @@ export function Dashboard() {
   const [filteredAssets, setFilteredAssets] = React.useState(assets)
 
   React.useEffect(() => {
+    // console.info(assets)
     setFilteredAssets(
       assets?.filter((asset) =>
-        asset.token.name.toLowerCase().includes(search.toLowerCase()),
+        asset.token.name?.toLowerCase().includes(search.toLowerCase()),
       ),
     )
   }, [search, assets])
@@ -56,7 +58,7 @@ export function Dashboard() {
         )}
       >
         <div className="w-full gap-y-2 text-center tabular-nums sm:text-left">
-          <p className="text-center font-semibold text-4xl sm:font-semibold sm:text-4xl">
+          <p className="text-center font-semibold text-4xl sm:text-left sm:font-semibold sm:text-4xl">
             $23,35.05
           </p>
           {assets && assets?.length > 0 ? (
@@ -65,7 +67,7 @@ export function Dashboard() {
                 assets?.map((asset) =>
                   Number(
                     Value.format(
-                      BigInt(asset.value),
+                      BigInt(asset?.value ?? 0),
                       Number(asset.token.decimals),
                     ),
                   ),
@@ -82,7 +84,7 @@ export function Dashboard() {
 
         <div
           className={cn(
-            'gap-6 max-[300px]:gap-x-4.5',
+            'gap-6 max-[300px]:gap-x-4.5 sm:gap-2',
             'context-stretch items-stretch justify-items-center',
             tokenBalancesData && tokenBalancesData.length > 0
               ? 'grid size-full min-w-full grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2'
@@ -163,7 +165,7 @@ export function Dashboard() {
 
                     return (
                       <tr
-                        key={asset.token.name}
+                        key={`${asset.token.name + index}`}
                         className={cn(
                           'border-gray-400/50 border-b *:px-1',
                           !filteredAssets ||
@@ -177,7 +179,7 @@ export function Dashboard() {
                             <img
                               alt={token.name}
                               className="mb-2 size-7"
-                              src={`/icons/${token.symbol.toLowerCase()}.svg`}
+                              src={`/icons/${token?.symbol?.toLowerCase()}.svg`}
                             />
                             <div className="flex flex-col">
                               <span className="font-semibold text-lg">
@@ -203,17 +205,21 @@ export function Dashboard() {
                         </td>
                         <td className="text-right">
                           <div className="flex flex-col">
-                            <span className="text-lg">
-                              $
-                              {PRICES[
-                                token.symbol as keyof typeof PRICES
-                              ].toLocaleString()}
-                            </span>
+                            {token?.symbol && (
+                              <span className="text-lg">
+                                $
+                                {PRICES[
+                                  token?.symbol as keyof typeof PRICES
+                                ]?.toLocaleString('en-US', {
+                                  maximumFractionDigits: 2,
+                                })}
+                              </span>
+                            )}
                             <span
                               className={cn(
                                 'text-sm tracking-wider',
-                                token.symbol.toLowerCase() === 'exp' ||
-                                  token.symbol.toLowerCase() === 'exp2'
+                                token?.symbol?.toLowerCase() === 'exp' ||
+                                  token?.symbol?.toLowerCase() === 'exp2'
                                   ? [
                                       // asset?.price.change > 0 && 'text-emerald-500',
                                       //         asset?.price.change < 0 && 'text-red-500',
@@ -238,16 +244,16 @@ export function Dashboard() {
                             <span className="text-lg">
                               $
                               {Value.format(
-                                BigInt(asset.value),
-                                Number(token.decimals),
+                                BigInt(asset?.value),
+                                Number(token?.decimals),
                               )}
                             </span>
                             <span className="text-secondary text-sm">
                               {Value.format(
-                                BigInt(asset.value),
-                                Number(token.decimals),
+                                BigInt(asset?.value),
+                                Number(token?.decimals),
                               )}{' '}
-                              <Pill className="">{token.symbol}</Pill>
+                              <Pill className="">{token?.symbol}</Pill>
                             </span>
                           </div>
                         </td>

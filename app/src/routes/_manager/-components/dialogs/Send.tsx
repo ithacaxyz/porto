@@ -79,7 +79,7 @@ export function SendDialog({
         className={cn(
           'w-full max-w-[420px]',
           'rounded-xl border-0 bg-primary px-0 py-5 shadow-xl sm:max-w-[400px]',
-          'sm:-translate-y-1/2 -translate-y-1/5',
+          'sm:-translate-y-1/2 -translate-y-1/4',
         )}
       >
         {send.isPending ? (
@@ -158,16 +158,16 @@ export function SendDialog({
                   >
                     <img
                       src={
-                        selectedAsset?.token.icon_url ||
-                        `/icons/${selectedAsset?.token.symbol.toLowerCase()}.svg`
+                        selectedAsset?.token?.icon_url ||
+                        `/icons/${selectedAsset?.token?.symbol?.toLowerCase()}.svg`
                       }
-                      alt={selectedAsset?.token.name}
+                      alt={selectedAsset?.token?.name}
                       className="my-auto size-8 rounded-full"
                     />
                     <p className="my-auto mr-auto text-left font-medium text-xl">
-                      {selectedAsset?.token.name}
+                      {selectedAsset?.token.name ?? selectedAsset?.token.symbol}
                     </p>
-                    <div className="my-auto flex size-8 items-center justify-center rounded-full bg-gray4">
+                    <div className="my-auto flex size-7 items-center justify-center rounded-full bg-gray4">
                       <ChevronRightIcon className="size-6 text-gray10" />
                     </div>
                   </button>
@@ -240,11 +240,11 @@ export function SendDialog({
 
                   <img
                     src={
-                      selectedAsset?.token.icon_url ||
-                      `/icons/${selectedAsset?.token.symbol.toLowerCase()}.svg`
+                      selectedAsset?.token?.icon_url ||
+                      `/icons/${selectedAsset?.token?.symbol?.toLowerCase()}.svg`
                     }
-                    alt={selectedAsset?.token.name}
-                    className="size-5 rounded-full"
+                    alt={selectedAsset?.token?.name}
+                    className="size-6 rounded-full"
                   />
                   <span className="ml-2 text-gray10 text-lg">
                     {selectedAsset?.token.symbol}
@@ -285,7 +285,7 @@ export function SendDialog({
                   <ReceiverInput />
                 </div>
               </div>
-              <pre hidden={isAssetSelectorOpen}>
+              <pre hidden={isAssetSelectorOpen} className="px-5">
                 {import.meta.env.DEV &&
                   JSON.stringify(
                     { status: send.status, success: send.isSuccess },
@@ -293,7 +293,7 @@ export function SendDialog({
                     2,
                   )}
               </pre>
-              <div>
+              <div className="px-5">
                 {send.isError && (
                   <div className="bg-red3 p-2">
                     <p className="text-pretty font-mono text-xs">
@@ -304,7 +304,7 @@ export function SendDialog({
               </div>
               {/* Action Buttons */}
               <div
-                className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg"
+                className="mt-4 mb-3 flex flex-row gap-x-3 px-5 *:h-12 *:w-full *:select-none *:font-medium *:text-lg"
                 hidden={isAssetSelectorOpen}
               >
                 <Dialog.Close asChild>
@@ -345,6 +345,7 @@ function AssetSelectionView({
   setIsAssetSelectorOpen: (open: boolean) => void
   handleAssetSelect: (asset: TokenBalance) => void
 }) {
+  console.info(tokenData)
   return (
     <div className="mt-auto flex size-full flex-col">
       {tokenData?.length === 0 ? (
@@ -356,10 +357,10 @@ function AssetSelectionView({
           {tokenData?.map((asset, index) => (
             <button
               type="button"
-              key={asset.token.address}
+              key={asset.token.symbol}
               className={cn(
-                'flex w-full flex-row items-center justify-between border-y-2 py-3 hover:bg-gray4',
-                index % 2 === 0 && 'border-gray4 border-b-transparent',
+                'flex w-full flex-row items-center justify-between border-gray4 border-b-2 py-3 hover:bg-gray4',
+                index === 0 && 'border-t-2',
               )}
               onClick={() => {
                 handleAssetSelect(asset)
@@ -377,10 +378,10 @@ function AssetSelectionView({
                 />
                 <div className="flex flex-col">
                   <span className="font-medium text-xl">
-                    {asset.token.name}
+                    {asset.token.name ?? asset.token.symbol}
                   </span>
                   <span className="mr-auto text-gray10 text-sm">
-                    {asset.token.symbol}
+                    {asset.token.symbol ?? asset.token.name}
                   </span>
                 </div>
               </div>
