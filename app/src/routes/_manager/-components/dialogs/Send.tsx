@@ -3,7 +3,6 @@ import * as React from 'react'
 import { encodeFunctionData, isHex, parseEther } from 'viem'
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
-import { config } from '~/lib/Wagmi'
 import CircleCheckIcon from '~icons/lucide/circle-check'
 import OctagonAlertIcon from '~icons/lucide/octagon-alert'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
@@ -11,12 +10,13 @@ import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import { Button as OurButton } from '~/components/Button'
 import { Pill } from '~/components/Pill'
 import { Dialog } from '~/components/ui/dialog'
-import * as Select from '~/components/ui/select'
+import { Select } from '~/components/ui/select'
 import {
   type TokenBalance,
   useTokenBalance,
 } from '~/hooks/use-address-token-balances'
 import { ExperimentERC20 } from '~/lib/Constants'
+import { config } from '~/lib/Wagmi'
 import { StringFormatter, ValueFormatter, cn } from '~/utils'
 
 export function SendDialog({
@@ -25,7 +25,16 @@ export function SendDialog({
   className?: string
 }) {
   const { address } = useAccount()
-  const send = useSendCalls({ config: config })
+  const [error, setError] = React.useState<string | null>(null)
+  const send = useSendCalls({
+    config: config,
+    mutation: {
+      onError: (error) => {
+        setError(error.message)
+      },
+    },
+  })
+  console.info(error)
   const { data: tokenData } = useTokenBalance({ address })
 
   const account = useAccount()
@@ -45,6 +54,13 @@ export function SendDialog({
   const isSending = send.isPending || receiptQuery.fetchStatus === 'fetching'
 
   const [amount, setAmount] = React.useState('')
+  // console.info(
+  //   amount,
+  //   selectedAsset?.value,
+  //   parseEther(amount) > BigInt(selectedAsset?.value ?? 0),
+  // )
+  const amountExceedsBalance =
+    parseEther(amount) > BigInt(selectedAsset?.value ?? 0)
 
   return (
     <Dialog.Dialog>
@@ -107,7 +123,7 @@ export function SendDialog({
                   ],
                 })
 
-                console.info(send.status)
+                console.info(send.status, send.error)
               }}
             >
               <div className="mb-3 flex items-center justify-between">
@@ -120,10 +136,7 @@ export function SendDialog({
               </div>
 
               {/* Asset Selector */}
-              <div className="mt-3 mb-1 flex flex-col gap-y-1.5">
-                <label htmlFor="asset" className="ml-0.5 text-gray10 text-xs">
-                  Select asset
-                </label>
+              <div className="mt-3 mb-1 flex w-full flex-col gap-y-1.5">
                 <Select.Select
                   defaultValue={selectedAsset?.token.name}
                   value={selectedAsset?.token.address}
@@ -153,7 +166,7 @@ export function SendDialog({
                   </Select.SelectTrigger>
 
                   <Select.SelectContent
-                    className="bg-gray1"
+                    className="bg-gray2"
                     defaultValue={selectedAsset?.token.address}
                   >
                     <Select.SelectGroup>
@@ -161,16 +174,30 @@ export function SendDialog({
                         <Select.SelectItem
                           key={token.token.address}
                           value={token.token.address}
-                          className="px-4 text-lg"
+                          className="group flex w-full! items-center justify-between gap-2 pr-2! hover:bg-gray4"
                         >
-                          {/* <Select.SelectItemText> */}
-                          {/* <img
-                              src={token.token.icon_url || '/icons/exp.svg'}
-                              alt={token.token.name}
-                              className="size-6 rounded-full"
-                            /> */}
-                          {token.token.name}
-                          {/* </Select.SelectItemText> */}
+                          <img
+                            src={
+                              token.token.icon_url ||
+                              `/icons/${token.token.symbol.toLowerCase()}.svg`
+                            }
+                            alt={token.token.name}
+                            className="size-7 rounded-full"
+                          />
+                          <Select.SelectItemText className="font-medium">
+                            <span className="text-lg">{token.token.name}</span>
+                          </Select.SelectItemText>
+                          <div className="ml-auto flex flex-col items-center gap-x-1">
+                            <span className="ml-auto">
+                              ${ValueFormatter.format(BigInt(token.value))}
+                            </span>
+                            <div className="flex items-start justify-start gap-x-1">
+                              <span className="text-gray9 group-hover:text-gray1">
+                                {ValueFormatter.format(BigInt(token.value))}
+                              </span>
+                              <Pill className="">{token.token.symbol}</Pill>
+                            </div>
+                          </div>
                         </Select.SelectItem>
                       ))}
                     </Select.SelectGroup>
@@ -243,22 +270,19 @@ export function SendDialog({
                     {selectedAsset?.token.symbol}
                   </span>
                 </div>
-                {amount &&
-                  BigInt(amount) > BigInt(selectedAsset?.value ?? '0') && (
-                    <div className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11">
-                      <p className="flex items-center justify-center gap-x-1">
-                        <OctagonAlertIcon className="size-5 text-red-500" />
-                        <span className="font-semibold text-red-500">
-                          Exceeds balance.
-                        </span>
-                        You hold{' '}
-                        {ValueFormatter.format(
-                          BigInt(selectedAsset?.value ?? 0),
-                        )}{' '}
-                        {selectedAsset?.token.symbol}.
-                      </p>
-                    </div>
-                  )}
+                {amount && amountExceedsBalance && (
+                  <div className="mt-1 rounded-2xl bg-[#FEEBEC] px-2 py-1.5 text-gray11">
+                    <p className="flex items-center justify-center gap-x-1">
+                      <OctagonAlertIcon className="size-5 text-red-500" />
+                      <span className="font-semibold text-red-500">
+                        Exceeds balance.
+                      </span>
+                      You hold{' '}
+                      {ValueFormatter.format(BigInt(selectedAsset?.value ?? 0))}{' '}
+                      {selectedAsset?.token.symbol}.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Recipient Address */}
@@ -286,6 +310,13 @@ export function SendDialog({
                     2,
                   )}
               </pre>
+              <div>
+                {send.isError && (
+                  <div className="bg-red3 p-2">
+                    <p className="text-pretty font-mono text-xs">{error}</p>
+                  </div>
+                )}
+              </div>
               {/* Action Buttons */}
               <div className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg">
                 <Dialog.DialogClose asChild>
