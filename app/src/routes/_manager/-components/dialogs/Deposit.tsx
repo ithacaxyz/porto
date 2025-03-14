@@ -6,6 +6,7 @@ import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
 import XIcon from '~icons/lucide/x'
 
+import { toast } from 'sonner'
 import { QrCode } from '~/components/QrCode'
 import { Dialog } from '~/components/ui/dialog'
 import { StringFormatter, cn } from '~/utils'
@@ -21,7 +22,7 @@ export function DepositDialog() {
       setIsCopied(true)
       setTimeout(() => setIsCopied(false), 1_500)
     } catch (error) {
-      console.error('Failed to copy text:', error)
+      toast.error('Failed to copy text')
     }
   }
   return (
