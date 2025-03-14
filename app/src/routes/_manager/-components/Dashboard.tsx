@@ -10,7 +10,16 @@ import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
 import { ThemeToggle } from '~/components/ThemeToggle'
 import { useTokenBalances } from '~/hooks/use-address-token-balances'
-import { PercentFormatter, ValueFormatter, cn, sum } from '~/utils'
+import { useAddressTransfers } from '~/hooks/use-address-transfers'
+import { config } from '~/lib/Wagmi'
+import {
+  DateFormatter,
+  PercentFormatter,
+  StringFormatter,
+  ValueFormatter,
+  cn,
+  sum,
+} from '~/utils'
 import CoinsIcon from '~icons/lucide/coins'
 import HistoryIcon from '~icons/lucide/history'
 import { AddMoneyDialog } from './dialogs/Add'
@@ -20,11 +29,11 @@ import { SendDialog } from './dialogs/Send'
 export function Dashboard() {
   const { address } = useAccount()
 
-  const { data: tokenBalancesData, status } = useTokenBalances({
+  const { data: assets, status } = useTokenBalances({
     address: address!,
   })
 
-  const assets = tokenBalancesData
+  const { data: transfers } = useAddressTransfers()
 
   const [search, setSearch] = React.useState('')
   const [filteredAssets, setFilteredAssets] = React.useState(assets)
@@ -43,15 +52,30 @@ export function Dashboard() {
     return ValueFormatter.format(total, 18)
   }, [assets])
 
+  const [selectedChains, setSelectedChains] = React.useState(
+    config.chains.map((c) => c.id.toString()),
+  )
+
+  const filteredTransfers = React.useMemo(() => {
+    return transfers
+      ?.filter((c) =>
+        selectedChains.some((cc) => cc === c?.chainId?.toString()),
+      )
+      .flatMap((chainTransfer) =>
+        chainTransfer?.items.map((item) => ({
+          chainId: chainTransfer.chainId,
+          ...item,
+        })),
+      )
+  }, [transfers, selectedChains])
+
   return (
     <Layout className="font-sf-pro">
       <Header />
       <section
         className={cn(
           'h-lg',
-          tokenBalancesData &&
-            tokenBalancesData.length > 0 &&
-            'gap-2 pt-10 *:w-1/2',
+          assets && assets.length > 0 && 'gap-2 pt-10 *:w-1/2',
           'flex flex-col items-center gap-5 rounded-2xl bg-surface px-4 py-6',
           'sm:flex-row sm:justify-between sm:px-6',
         )}
@@ -85,7 +109,7 @@ export function Dashboard() {
           className={cn(
             'gap-6 max-[300px]:gap-x-4.5 sm:gap-2',
             'context-stretch items-stretch justify-items-center',
-            tokenBalancesData && tokenBalancesData.length > 0
+            assets && assets.length > 0
               ? 'grid size-full min-w-full grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2'
               : 'flex w-[260px] max-w-[300px] items-center justify-center gap-2! *:w-full',
           )}
@@ -95,9 +119,9 @@ export function Dashboard() {
           ) : (
             <React.Fragment>
               {/* ==== SEND ==== */}
-              {status === 'success' &&
-                tokenBalancesData &&
-                tokenBalancesData.length > 0 && <SendDialog />}
+              {status === 'success' && assets && assets.length > 0 && (
+                <SendDialog />
+              )}
 
               {/* ==== RECEIVE ==== */}
               <DepositDialog />
@@ -105,9 +129,7 @@ export function Dashboard() {
               {/* ==== ADD ==== */}
               <AddMoneyDialog
                 className={cn(
-                  status === 'success' &&
-                    tokenBalancesData &&
-                    tokenBalancesData.length > 0
+                  status === 'success' && assets && assets.length > 0
                     ? 'bg-gray7! hover:bg-gray6!'
                     : 'bg-accent! text-white hover:bg-accent/90!',
                 )}
@@ -156,8 +178,8 @@ export function Dashboard() {
               )}
             />
           </Ariakit.TabList>
-          <div className="mt-5">
-            <Ariakit.TabPanel tabId="assets">
+          <div className="">
+            <Ariakit.TabPanel tabId="assets" className="mt-5">
               <table className={cn('md:table-none w-full')}>
                 <thead className="">
                   <tr className="*:font-light *:text-gray12 *:text-sm">
@@ -167,7 +189,6 @@ export function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="w-full">
-                  {/* @ts-ignore */}
                   {filteredAssets?.map((asset, index) => {
                     const token = asset.token
 
@@ -275,7 +296,91 @@ export function Dashboard() {
                 </div>
               )}
             </Ariakit.TabPanel>
-            <Ariakit.TabPanel tabId="history" />
+            <Ariakit.TabPanel
+              tabId="history"
+              className="mt-2 space-y-2"
+              hidden={!import.meta.env.DEV}
+            >
+              <div className="pt-3 pb-2">
+                <SelectChains
+                  values={selectedChains}
+                  setValues={setSelectedChains}
+                />
+              </div>
+              <div className="inline-block min-w-full overflow-x-scroll rounded-md bg-gray3 py-3 align-middle shadow-gray1 shadow-md outline outline-gray5">
+                <div className="min-w-full overflow-x-scroll px-2">
+                  <table className="table-none w-full min-w-full tabular-nums sm:table-fixed">
+                    <thead className="min-w-full border-b border-b-gray9">
+                      <tr className="*:px-2 *:py-1">
+                        <th scope="col" className="w-[75px] text-left">
+                          timestamp
+                        </th>
+                        <th scope="col" className="w-[25px] text-left">
+                          asset
+                        </th>
+                        <th scope="col" className="w-[30px] text-left">
+                          amount
+                        </th>
+                        <th scope="col" className="w-[50px] text-left">
+                          type
+                        </th>
+                        <th scope="col" className="w-[80px] text-right">
+                          hash
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="">
+                      {filteredTransfers?.map((transfer) => (
+                        <tr
+                          key={transfer?.transaction_hash}
+                          className="border-gray-400/50 border-b *:p-1 hover:bg-gray5"
+                        >
+                          <td>
+                            {DateFormatter.format(
+                              transfer?.timestamp ?? '',
+                            ).replaceAll(',', '')}
+                          </td>
+                          <td>
+                            <a
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-accent"
+                              href={`https://explorer.ithaca.xyz/token/${transfer?.token.address}`}
+                            >
+                              {transfer?.token.symbol}
+                            </a>
+                          </td>
+                          <td>
+                            {Value.format(
+                              BigInt(transfer?.total.value ?? 0),
+                              Number(transfer?.token.decimals ?? 0),
+                            )}
+                          </td>
+
+                          <td>{transfer?.type}</td>
+                          <td className="ml-auto text-right">
+                            <a
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-accent"
+                              href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
+                            >
+                              {StringFormatter.truncate(
+                                transfer?.transaction_hash ?? '',
+                                {
+                                  end: 8,
+                                  start: 8,
+                                },
+                              )}
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </Ariakit.TabPanel>
           </div>
         </Ariakit.TabProvider>
       </section>
@@ -316,5 +421,46 @@ export function Dashboard() {
 
       <ThemeToggle />
     </Layout>
+  )
+}
+
+function renderValue(value: string[]) {
+  if (value.length === 0) return 'No chain selected'
+  if (value.length === 1) return value[0]
+  return `${value.length} chains selected`
+}
+
+function SelectChains({
+  values,
+  setValues,
+}: {
+  values: string[]
+  setValues: (values: string[]) => void
+}) {
+  return (
+    <Ariakit.SelectProvider value={values} setValue={setValues}>
+      <Ariakit.Select className="flex w-full max-w-[220px] items-center justify-between rounded-xl bg-gray5 px-3 py-3 shadow-gray1 shadow-md outline outline-gray7 hover:bg-gray4">
+        <span>{renderValue(values)}</span>
+        <Ariakit.SelectArrow />
+      </Ariakit.Select>
+      <Ariakit.SelectPopover
+        gutter={4}
+        sameWidth
+        unmountOnHide
+        className="popover w-[260px] space-y-2 rounded-lg bg-gray4 px-1.5 py-3"
+      >
+        {config.chains.map((chain) => (
+          <Ariakit.SelectItem
+            key={chain.name}
+            value={chain.id.toString()}
+            className="select-item flex cursor-default items-center justify-between gap-x-2 bg-gray5 px-2 py-4 hover:bg-gray6"
+          >
+            <span>{chain.name}</span>
+            <span className="ml-auto">{chain.id}</span>
+            <Ariakit.SelectItemCheck />
+          </Ariakit.SelectItem>
+        ))}
+      </Ariakit.SelectPopover>
+    </Ariakit.SelectProvider>
   )
 }

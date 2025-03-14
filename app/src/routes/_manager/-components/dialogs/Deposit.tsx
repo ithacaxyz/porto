@@ -60,7 +60,7 @@ export function DepositDialog() {
             'flex h-min max-h-min flex-col gap-y-5 border-transparent bg-transparent',
           )}
         >
-          <Ariakit.DialogHeading className="h-[320px] rounded-2xl bg-gray1 p-4">
+          <Ariakit.DialogHeading className="h-[325px] rounded-2xl bg-gray1 p-4">
             <Ariakit.DialogDescription className="flex items-center justify-between text-left">
               <span className="font-semibold text-primary text-xl">
                 Receive

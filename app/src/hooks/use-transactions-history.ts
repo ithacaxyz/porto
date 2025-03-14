@@ -1,74 +1,56 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { useAccount, useChainId } from 'wagmi'
-import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
+import { useAccount } from 'wagmi'
 
 import { addressApiEndpoint, urlWithLocalCorsBypass } from '~/lib/Constants'
+import { config } from '~/lib/Wagmi'
 
 export function useTransactionsHistory({
-  chainId: providedChainId,
   address,
 }: {
-  chainId?: number
   address?: Address.Address
 } = {}) {
   const account = useAccount()
-  const connectedChainId = useChainId()
 
-  const chainId = providedChainId ?? connectedChainId
   const userAddress = address ?? account.address
 
-  const { data, status, error, refetch, isError, isSuccess, isPending } =
-    useQuery({
-      queryKey: ['transactions-history', userAddress],
+  const { data, error, isError, isPending, isSuccess } = useQueries({
+    combine: (result) => ({
+      error: result.map((query) => query.error),
+      data: result.flatMap((query) => query.data),
+      isError: result.some((query) => query.isError),
+      isPending: result.some((query) => query.isPending),
+      isSuccess: result.every((query) => query.isSuccess),
+    }),
+    queries: config.chains.map((chain) => ({
       enabled: !!userAddress && Address.validate(userAddress),
+      queryKey: ['transactions-history', userAddress, chain.id],
       queryFn: async () => {
-        try {
-          // if no chainId then fetch from all 3 chains
-          if (!chainId) {
-            const responses = await Promise.all(
-              [baseSepolia, odysseyTestnet, optimismSepolia].map(
-                async (chain) => {
-                  const apiEndpoint = addressApiEndpoint(chain.id)
-                  const url = `${apiEndpoint}/addresses/${userAddress}/transactions`
-                  const response = await fetch(url)
-                  if (!response.ok) {
-                    throw new Error(
-                      `Failed to fetch transactions history: ${response.statusText}`,
-                    )
-                  }
-                  return { id: chain.id, data: await response.json() }
-                },
-              ),
-            )
-            const data = await Promise.all(
-              responses.map((response) => response.data),
-            )
-            return data as Array<TokenTransfer>
-          }
-
-          const apiEndpoint = addressApiEndpoint(chainId)
-          const url = `${apiEndpoint}/addresses/${userAddress}/transactions`
-          const response = await fetch(urlWithLocalCorsBypass(url))
-          if (!response.ok) {
-            throw new Error(
-              `Failed to fetch transactions history: ${response.statusText}`,
-            )
-          }
-          const data = await response.json()
-          return data as Array<TokenTransfer>
-        } catch (error) {
-          console.error('Error fetching transactions history:', error)
-          throw error
+        const apiEndpoint = addressApiEndpoint(chain.id)
+        const url = `${apiEndpoint}/addresses/${userAddress}/transactions`
+        const response = await fetch(urlWithLocalCorsBypass(url))
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch transactions history: ${response.statusText}`,
+          )
+        }
+        const data = await response.json()
+        return {
+          chainId: chain.id,
+          items: data.items,
+          next_page_params: data.next_page_params,
+        } as {
+          chainId: number
+          items: Array<TokenTransfer>
+          next_page_params: null
         }
       },
-    })
+    })),
+  })
 
   return {
     data,
-    status,
     error,
-    refetch,
     isError,
     isSuccess,
     isPending,
