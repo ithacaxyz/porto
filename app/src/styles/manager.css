@@ -76,11 +76,15 @@ body,
   gap: 1rem;
   overflow: auto;
   border-radius: 0.75rem;
-  /* background-color: white; */
   padding: 1rem;
-  /* color: black; */
   --inset: 0.75rem;
   @apply bg-gray1;
+  transform-origin: center;
+  opacity: 0;
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  transform: scale(0.95);
 }
 
 .heading {
@@ -88,6 +92,16 @@ body,
   font-size: 1.25rem;
   line-height: 1.75rem;
   font-weight: 600;
+}
+
+.backdrop[data-enter] {
+  opacity: 1;
+  backdrop-filter: blur(4px);
+}
+
+.dialog[data-enter] {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* hide ugly arrows for number inputs */

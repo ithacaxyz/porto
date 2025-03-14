@@ -50,7 +50,7 @@ export function DepositDialog() {
           'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-35! sm:mb-0!',
           'w-full max-w-[90%] rounded-xl border-0 px-0 py-5 shadow-xl',
         )}
-        backdrop={<div className="bg-gray12/70 backdrop-blur-xs" />}
+        backdrop={<div className="bg-gray12/40 backdrop-blur-xs" />}
       >
         <div
           className={cn(
