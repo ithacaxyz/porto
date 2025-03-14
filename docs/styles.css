@@ -3,13 +3,25 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+[data-layout="landing"] {
+  --vocs-content_width: calc(957px + var(--vocs-space_16) * 2);
+  --vocs-content_horizontalPadding: var(--vocs-space_16);
+  --vocs-content_verticalPadding: var(--vocs-space_32);
+}
+
+.vocs_DesktopTopNav {
+  max-width: var(--vocs-content_width);
+  margin: 0 auto;
+  padding: 0 var(--vocs-content_horizontalPadding);
+}
+
 .vocs_Navigation,
 .vocs_NavigationMenu_list {
   align-items: center;
 }
 
 /***
- *** `/demo` sytles
+ *** `/demo` styles
  ***/
 
 button,
