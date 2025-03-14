@@ -21,27 +21,17 @@ function RouteComponent() {
       <Outlet />
 
       <React.Suspense>
-        <TanStackQueryDevtools position="left" />
         <TanStackRouterDevtools position="bottom-right" />
       </React.Suspense>
     </>
   )
 }
 
-const TanStackQueryDevtools =
-  import.meta.env.PROD || window !== window.parent || Boolean(window.opener)
-    ? () => null
-    : React.lazy(() =>
-        import('@tanstack/react-query-devtools').then((res) => ({
-          default: res.ReactQueryDevtools,
-        })),
-      )
-
 const TanStackRouterDevtools =
   import.meta.env.PROD || window !== window.parent || Boolean(window.opener)
     ? () => null
     : React.lazy(() =>
-        import('@tanstack/react-router-devtools').then((res) => ({
+        import('@tanstack/router-devtools').then((res) => ({
           default: res.TanStackRouterDevtools,
         })),
       )
