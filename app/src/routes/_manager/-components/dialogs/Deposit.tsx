@@ -35,7 +35,7 @@ export function DepositDialog() {
           'col-span-1 col-start-2',
           'sm:col-start-1 sm:row-span-1 sm:row-start-1',
           'w-[125px] text-center font-semibold text-lg sm:w-[120px] sm:text-md',
-          'flex h-11! items-center justify-center gap-x-1 rounded-default bg-gray7 px-1 text-center outline hover:bg-gray6 sm:h-10',
+          'flex h-11! items-center justify-center gap-x-1 rounded-default bg-gray7 px-1 text-center hover:bg-gray6 sm:h-10',
         )}
       >
         <ReceiveIcon className="size-6" />
@@ -45,11 +45,12 @@ export function DepositDialog() {
         open={isOpen}
         onClose={() => setIsOpen(false)}
         className={cn(
-          'bottom-0! mt-auto! h-full! p-0!',
-          'mb-4! sm:bottom-auto! sm:mt-0 sm:mb-0!',
-          'dialog max-h-full! bg-transparent! sm:max-h-fit!',
+          'dialog bg-transparent!',
+          'w-full sm:max-w-[420px]',
+          'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-35! sm:mb-0!',
+          'w-full max-w-[90%] rounded-xl border-0 px-0 py-5 shadow-xl',
         )}
-        backdrop={<div className="bg-black/60 backdrop-blur-xs" />}
+        backdrop={<div className="bg-gray12/70 backdrop-blur-xs" />}
       >
         <div
           className={cn(
@@ -61,7 +62,9 @@ export function DepositDialog() {
         >
           <Ariakit.DialogHeading className="h-[320px] rounded-2xl bg-gray1 p-4">
             <Ariakit.DialogDescription className="flex items-center justify-between text-left">
-              <span className="font-semibold text-xl">Receive</span>
+              <span className="font-semibold text-primary text-xl">
+                Receive
+              </span>
 
               <Ariakit.DialogDismiss className="text-secondary/50">
                 <XIcon className="size-4" />
@@ -121,9 +124,9 @@ export function DepositDialog() {
           <Ariakit.DialogHeading className="gap-y-2 rounded-2xl bg-gray1 p-4">
             <Ariakit.DialogDescription className="flex items-center gap-x-2">
               <img src="/icons/usdc-eth.png" alt="." />
-              <span className="">Supported assets</span>
+              <span className="text-md text-primary">Supported assets</span>
             </Ariakit.DialogDescription>
-            <div className="text-black">
+            <div className="text-gray12">
               <span>
                 You can deposit any ERC20 asset, but we recommend ETH or USDC.{' '}
                 <span className="text-secondary">
