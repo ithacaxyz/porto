@@ -30,8 +30,8 @@ export function DepositDialog() {
         className={cn(
           'col-span-1 col-start-2',
           'sm:col-start-1 sm:row-span-1 sm:row-start-1',
-          'w-[110px] text-center font-semibold text-lg sm:w-[120px] sm:text-md',
-          'flex h-11! items-center justify-center gap-x-1 rounded-default bg-gray7 px-3.5 text-center outline hover:bg-gray6 sm:h-10',
+          'w-[115px] text-center font-semibold text-lg sm:w-[120px] sm:text-md',
+          'flex h-11! items-center justify-center gap-x-1 rounded-default bg-gray7 px-1 text-center outline hover:bg-gray6 sm:h-10',
         )}
       >
         <ReceiveIcon className="size-6" />
