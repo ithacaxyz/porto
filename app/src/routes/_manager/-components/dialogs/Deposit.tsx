@@ -45,7 +45,7 @@ export function DepositDialog() {
         open={isOpen}
         onClose={() => setIsOpen(false)}
         className={cn(
-          'dialog bg-transparent!',
+          'dialog bg-transparent! shadow-none!',
           'w-full sm:max-w-[420px]',
           'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-35! sm:mb-0!',
           'w-full max-w-[90%] rounded-xl border-0 px-0 py-5 shadow-xl',
