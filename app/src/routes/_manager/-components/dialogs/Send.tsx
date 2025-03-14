@@ -63,7 +63,7 @@ export function SendDialog({
           variant="invert"
           className={cn(
             className,
-            'w-[110px] text-center font-semibold text-lg sm:mt-0.75 sm:w-[252px] sm:text-md',
+            'w-[105px] text-center font-semibold text-lg sm:mt-0.75 sm:w-[252px] sm:text-md',
             'flex h-11! items-center justify-center gap-x-1 sm:h-10',
             'sm:col-span-2 sm:col-start-1 sm:row-span-1 sm:place-self-stretch',
             'col-span-1 col-start-1',
