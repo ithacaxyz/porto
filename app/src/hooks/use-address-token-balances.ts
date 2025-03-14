@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { useAccount, useBalance, useChainId } from 'wagmi'
-import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
 
 import { addressApiEndpoint, urlWithLocalCorsBypass } from '~/lib/Constants'
+import { config } from '~/lib/Wagmi'
 
 export function useTokenBalances({
   chainId: providedChainId,
@@ -31,23 +31,20 @@ export function useTokenBalances({
           // if no chainId then fetch from all 3 chains
           if (!chainId) {
             const responses = await Promise.all(
-              [baseSepolia, odysseyTestnet, optimismSepolia].map(
-                async (chain) => {
-                  const apiEndpoint = addressApiEndpoint(chain.id)
-                  const url = `${apiEndpoint}/addresses/${userAddress}/token-balances`
-                  const response = await fetch(url)
-                  if (!response.ok) {
-                    throw new Error(
-                      `Failed to fetch token balances: ${response.statusText}`,
-                    )
-                  }
-                  return { id: chain.id, data: await response.json() }
-                },
-              ),
+              config.chains.map(async (chain) => {
+                const apiEndpoint = addressApiEndpoint(chain.id)
+                const url = `${apiEndpoint}/addresses/${userAddress}/token-balances`
+                const response = await fetch(url)
+                if (!response.ok) {
+                  throw new Error(
+                    `Failed to fetch token balances: ${response.statusText}`,
+                  )
+                }
+                return { id: chain.id, data: await response.json() }
+              }),
             )
-            const data = await Promise.all(
-              responses.map((response) => response.data),
-            )
+            const data = responses.map((response) => response.data)
+
             return data as Array<TokenBalance>
           }
 

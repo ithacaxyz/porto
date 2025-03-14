@@ -1,3 +1,4 @@
+import * as Ariakit from '@ariakit/react'
 import { Address, Value } from 'ox'
 import * as React from 'react'
 import { encodeFunctionData, erc20Abi, isHex, parseEther } from 'viem'
@@ -8,15 +9,14 @@ import ChevronRightIcon from '~icons/lucide/chevron-right'
 import CircleCheckIcon from '~icons/lucide/circle-check'
 import OctagonAlertIcon from '~icons/lucide/octagon-alert'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
+import XIcon from '~icons/lucide/x'
 
 import { Button as OurButton } from '~/components/Button'
 import { Pill } from '~/components/Pill'
-import { Dialog } from '~/components/ui/dialog'
 import {
   type TokenBalance,
   useTokenBalances,
 } from '~/hooks/use-address-token-balances'
-import { config } from '~/lib/Wagmi'
 import { StringFormatter, ValueFormatter, cn } from '~/utils'
 
 export function SendDialog({
@@ -25,9 +25,7 @@ export function SendDialog({
   className?: string
 }) {
   const { address } = useAccount()
-  const send = useSendCalls({
-    config: config,
-  })
+  const send = useSendCalls()
 
   const { data: tokenData, status: tokenStatus } = useTokenBalances({
     address,
@@ -43,6 +41,7 @@ export function SendDialog({
     },
   })
 
+  const [isOpen, setIsOpen] = React.useState(false)
   const [isAssetSelectorOpen, setIsAssetSelectorOpen] = React.useState(false)
 
   const [selectedAsset, setSelectedAsset] = React.useState<TokenBalance | null>(
@@ -57,29 +56,31 @@ export function SendDialog({
 
   if (tokenStatus === 'pending') return null
   return (
-    <Dialog>
-      <Dialog.Trigger asChild>
-        <OurButton
-          variant="invert"
-          className={cn(
-            className,
-            'w-[105px] text-center font-semibold text-lg sm:mt-0.75 sm:w-[252px] sm:text-md',
-            'flex h-11! items-center justify-center gap-x-1 sm:h-10',
-            'sm:col-span-2 sm:col-start-1 sm:row-span-1 sm:place-self-stretch',
-            'col-span-1 col-start-1',
-          )}
-        >
-          <SendHorizontalIcon className="size-6" />
-          <Dialog.Title>Send</Dialog.Title>
-        </OurButton>
-      </Dialog.Trigger>
-      <Dialog.Content
-        title="Send"
-        aria-describedby="Transfer funds to another address."
+    <Ariakit.DialogProvider>
+      <OurButton
+        variant="invert"
+        onClick={() => setIsOpen(true)}
         className={cn(
-          'w-full max-w-[420px]',
-          'rounded-xl border-0 bg-primary px-0 py-5 shadow-xl sm:max-w-[400px]',
+          className,
+          'w-[105px] text-center font-semibold text-lg sm:mt-0.75 sm:w-[252px] sm:text-md',
+          'flex h-11! items-center justify-center gap-x-1 sm:h-10',
+          'sm:col-span-2 sm:col-start-1 sm:row-span-1 sm:place-self-stretch',
+          'col-span-1 col-start-1',
         )}
+      >
+        <SendHorizontalIcon className="size-6" />
+        <span>Send</span>
+      </OurButton>
+      <Ariakit.Dialog
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className={cn(
+          'dialog',
+          'w-full sm:max-w-[420px]',
+          'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-0 sm:mb-0!',
+          'w-full max-w-[90%] rounded-xl border-0 bg-primary px-0 py-5 shadow-xl',
+        )}
+        backdrop={<div className="bg-black/60 backdrop-blur-xs" />}
       >
         {send.isPending ? (
           <SendingView />
@@ -87,7 +88,7 @@ export function SendDialog({
           <SuccessView hash={send.data} />
         ) : (
           <React.Fragment>
-            <Dialog.Header className="px-5 py-0 text-left">
+            <Ariakit.DialogHeading className="flex items-center justify-between py-0 text-left">
               {isAssetSelectorOpen ? (
                 <div className="flex flex-row items-center gap-x-2">
                   <button
@@ -102,7 +103,12 @@ export function SendDialog({
               ) : (
                 <h3 className="font-medium text-lg">Send</h3>
               )}
-            </Dialog.Header>
+              {!isAssetSelectorOpen && (
+                <Ariakit.DialogDismiss className="text-secondary/50">
+                  <XIcon className="size-4" />
+                </Ariakit.DialogDismiss>
+              )}
+            </Ariakit.DialogHeading>
             <form
               name="send"
               className="w-full"
@@ -138,7 +144,7 @@ export function SendDialog({
                 }
               }}
             >
-              <div className="mb-3 flex items-center justify-between px-5">
+              <div className="mb-3 flex items-center justify-between ">
                 <div>
                   <p id="send-funds" className="text-gray10 text-sm">
                     Select asset
@@ -148,12 +154,12 @@ export function SendDialog({
 
               {/* Asset Selector */}
               <div className="mt-3 mb-1 flex w-full flex-col gap-y-1.5">
-                <div className="px-5">
+                <div className="">
                   <button
                     type="button"
                     hidden={isAssetSelectorOpen}
                     onClick={() => setIsAssetSelectorOpen(!isAssetSelectorOpen)}
-                    className="flex h-14! w-full justify-between gap-x-2 rounded-xl border-2 border-gray4 px-5 py-2.5 text-left font-medium text-lg text-primary shadow-none! hover:bg-secondary"
+                    className="flex h-14! w-full justify-between gap-x-2 rounded-xl border-2 border-gray4 px-3 py-2.5 text-left font-medium text-lg text-primary shadow-none! hover:bg-secondary"
                   >
                     <img
                       src={
@@ -183,7 +189,7 @@ export function SendDialog({
 
               {/* Amount Input */}
               <div
-                className="mt-3 mb-1 flex flex-col gap-y-1.5 px-5"
+                className="mt-3 mb-1 flex flex-col gap-y-1.5 "
                 hidden={isAssetSelectorOpen}
               >
                 <div className="flex items-center justify-between gap-x-2">
@@ -266,7 +272,7 @@ export function SendDialog({
 
               {/* Recipient Address */}
               <div
-                className="my-3 flex flex-col gap-y-1 px-5"
+                className="my-3 flex flex-col gap-y-1 "
                 hidden={isAssetSelectorOpen}
               >
                 <label
@@ -285,7 +291,7 @@ export function SendDialog({
                 </div>
               </div>
 
-              <div className="max-h-[350px] max-w-[400px] overflow-x-auto px-5">
+              <div className="max-h-[350px] max-w-[400px] overflow-x-auto ">
                 {send.isError && (
                   <div className="overflow-x-auto bg-red3 p-2">
                     <p className="text-pretty font-mono text-xs">
@@ -296,10 +302,10 @@ export function SendDialog({
               </div>
               {/* Action Buttons */}
               <div
-                className="mt-4 mb-3 flex flex-row gap-x-3 px-5 *:h-12 *:w-full *:select-none *:font-medium *:text-lg"
+                className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg"
                 hidden={isAssetSelectorOpen}
               >
-                <Dialog.Close asChild>
+                <Ariakit.DialogDismiss>
                   <OurButton
                     form="send"
                     type="reset"
@@ -310,7 +316,7 @@ export function SendDialog({
                   >
                     Cancel
                   </OurButton>
-                </Dialog.Close>
+                </Ariakit.DialogDismiss>
                 <OurButton
                   type="submit"
                   className={cn('rounded-full border-2')}
@@ -323,8 +329,8 @@ export function SendDialog({
             </form>
           </React.Fragment>
         )}
-      </Dialog.Content>
-    </Dialog>
+      </Ariakit.Dialog>
+    </Ariakit.DialogProvider>
   )
 }
 
@@ -358,7 +364,7 @@ function AssetSelectionView({
                 setIsAssetSelectorOpen(false)
               }}
             >
-              <div className="flex items-center gap-2 px-5">
+              <div className="flex items-center gap-2 ">
                 <img
                   src={
                     asset.token.icon_url ||
@@ -376,7 +382,7 @@ function AssetSelectionView({
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col items-end px-5">
+              <div className="flex flex-col items-end ">
                 <span className="text-2xl">
                   ${ValueFormatter.format(BigInt(asset.value))}
                 </span>
@@ -454,7 +460,7 @@ function ReceiverInput() {
 
 function SendingView() {
   return (
-    <div className="flex flex-col items-center justify-center px-5">
+    <div className="flex flex-col items-center justify-center ">
       <div className="mt-4 mb-4 flex size-16 items-center justify-center rounded-full bg-blue-100">
         <div className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
       </div>
@@ -462,21 +468,21 @@ function SendingView() {
       <p className="text-balance text-center text-gray10">
         This won't take long at all. You can safely close this window now.
       </p>
-      <Dialog.Close asChild>
+      <Ariakit.DialogDismiss>
         <OurButton
           variant="default"
           className="mt-4 h-12! w-full rounded-full bg-gray4! text-xl!"
         >
           Close
         </OurButton>
-      </Dialog.Close>
+      </Ariakit.DialogDismiss>
     </div>
   )
 }
 
 function SuccessView({ hash }: { hash: string }) {
   return (
-    <div className="flex flex-col items-center justify-center px-5">
+    <div className="flex flex-col items-center justify-center ">
       <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-green-100">
         <CircleCheckIcon className="size-12 text-green-500" />
       </div>
@@ -495,14 +501,14 @@ function SuccessView({ hash }: { hash: string }) {
         </a>
         .
       </p>
-      <Dialog.Close asChild>
+      <Ariakit.DialogDismiss>
         <OurButton
           variant="default"
           className="mt-4 h-12! w-full rounded-full bg-gray4! text-xl!"
         >
           Done
         </OurButton>
-      </Dialog.Close>
+      </Ariakit.DialogDismiss>
     </div>
   )
 }
