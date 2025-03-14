@@ -296,91 +296,89 @@ export function Dashboard() {
                 </div>
               )}
             </Ariakit.TabPanel>
-            <Ariakit.TabPanel
-              tabId="history"
-              className="mt-2 space-y-2"
-              hidden={!import.meta.env.DEV}
-            >
-              <div className="pt-3 pb-2">
-                <SelectChains
-                  values={selectedChains}
-                  setValues={setSelectedChains}
-                />
-              </div>
-              <div className="inline-block min-w-full overflow-x-scroll rounded-md bg-gray3 py-3 align-middle shadow-gray1 shadow-md outline outline-gray5">
-                <div className="min-w-full overflow-x-scroll px-2">
-                  <table className="table-none w-full min-w-full tabular-nums sm:table-fixed">
-                    <thead className="min-w-full border-b border-b-gray9">
-                      <tr className="*:px-2 *:py-1">
-                        <th scope="col" className="w-[75px] text-left">
-                          timestamp
-                        </th>
-                        <th scope="col" className="w-[25px] text-left">
-                          asset
-                        </th>
-                        <th scope="col" className="w-[30px] text-left">
-                          amount
-                        </th>
-                        <th scope="col" className="w-[50px] text-left">
-                          type
-                        </th>
-                        <th scope="col" className="w-[80px] text-right">
-                          hash
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="">
-                      {filteredTransfers?.map((transfer) => (
-                        <tr
-                          key={transfer?.transaction_hash}
-                          className="border-gray-400/50 border-b *:p-1 hover:bg-gray5"
-                        >
-                          <td>
-                            {DateFormatter.format(
-                              transfer?.timestamp ?? '',
-                            ).replaceAll(',', '')}
-                          </td>
-                          <td>
-                            <a
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-accent"
-                              href={`https://explorer.ithaca.xyz/token/${transfer?.token.address}`}
-                            >
-                              {transfer?.token.symbol}
-                            </a>
-                          </td>
-                          <td>
-                            {Value.format(
-                              BigInt(transfer?.total.value ?? 0),
-                              Number(transfer?.token.decimals ?? 0),
-                            )}
-                          </td>
-
-                          <td>{transfer?.type}</td>
-                          <td className="ml-auto text-right">
-                            <a
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-accent"
-                              href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
-                            >
-                              {StringFormatter.truncate(
-                                transfer?.transaction_hash ?? '',
-                                {
-                                  end: 8,
-                                  start: 8,
-                                },
-                              )}
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {import.meta.env.DEV && (
+              <Ariakit.TabPanel tabId="history" className="mt-2 space-y-2">
+                <div className="pt-3 pb-2">
+                  <SelectChains
+                    values={selectedChains}
+                    setValues={setSelectedChains}
+                  />
                 </div>
-              </div>
-            </Ariakit.TabPanel>
+                <div className="inline-block min-w-full overflow-x-scroll rounded-md bg-gray3 py-3 align-middle shadow-gray1 shadow-md outline outline-gray5">
+                  <div className="min-w-full overflow-x-scroll px-2">
+                    <table className="table-none w-full min-w-full tabular-nums sm:table-fixed">
+                      <thead className="min-w-full border-b border-b-gray9">
+                        <tr className="*:px-2 *:py-1">
+                          <th scope="col" className="w-[75px] text-left">
+                            timestamp
+                          </th>
+                          <th scope="col" className="w-[25px] text-left">
+                            asset
+                          </th>
+                          <th scope="col" className="w-[30px] text-left">
+                            amount
+                          </th>
+                          <th scope="col" className="w-[50px] text-left">
+                            type
+                          </th>
+                          <th scope="col" className="w-[80px] text-right">
+                            hash
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="">
+                        {filteredTransfers?.map((transfer) => (
+                          <tr
+                            key={transfer?.transaction_hash}
+                            className="border-gray-400/50 border-b *:p-1 hover:bg-gray5"
+                          >
+                            <td>
+                              {DateFormatter.format(
+                                transfer?.timestamp ?? '',
+                              ).replaceAll(',', '')}
+                            </td>
+                            <td>
+                              <a
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-accent"
+                                href={`https://explorer.ithaca.xyz/token/${transfer?.token.address}`}
+                              >
+                                {transfer?.token.symbol}
+                              </a>
+                            </td>
+                            <td>
+                              {Value.format(
+                                BigInt(transfer?.total.value ?? 0),
+                                Number(transfer?.token.decimals ?? 0),
+                              )}
+                            </td>
+
+                            <td>{transfer?.type}</td>
+                            <td className="ml-auto text-right">
+                              <a
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-accent"
+                                href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
+                              >
+                                {StringFormatter.truncate(
+                                  transfer?.transaction_hash ?? '',
+                                  {
+                                    end: 8,
+                                    start: 8,
+                                  },
+                                )}
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </Ariakit.TabPanel>
+            )}
           </div>
         </Ariakit.TabProvider>
       </section>
@@ -439,7 +437,11 @@ function SelectChains({
 }) {
   return (
     <Ariakit.SelectProvider value={values} setValue={setValues}>
-      <Ariakit.Select className="flex w-full max-w-[220px] items-center justify-between rounded-xl bg-gray5 px-3 py-3 shadow-gray1 shadow-md outline outline-gray7 hover:bg-gray4">
+      <Ariakit.Select
+        className={cn(
+          'flex w-full max-w-[220px] items-center justify-between rounded-xl bg-gray3 px-3 py-3 shadow-gray1 shadow-md outline outline-gray7 hover:bg-gray4',
+        )}
+      >
         <span>{renderValue(values)}</span>
         <Ariakit.SelectArrow />
       </Ariakit.Select>
@@ -447,13 +449,14 @@ function SelectChains({
         gutter={4}
         sameWidth
         unmountOnHide
-        className="popover w-[260px] space-y-2 rounded-lg bg-gray4 px-1.5 py-3"
+        backdrop={<div className="fixed inset-0 bg-black/40" />}
+        className="popover w-[260px] space-y-2 rounded-lg bg-gray3 px-2.5 py-3 outline outline-gray5"
       >
         {config.chains.map((chain) => (
           <Ariakit.SelectItem
             key={chain.name}
             value={chain.id.toString()}
-            className="select-item flex cursor-default items-center justify-between gap-x-2 bg-gray5 px-2 py-4 hover:bg-gray6"
+            className="select-item flex cursor-default items-center justify-between gap-x-2 rounded-md px-2 py-4 hover:bg-gray6 aria-[selected=true]:bg-gray6"
           >
             <span>{chain.name}</span>
             <span className="ml-auto">{chain.id}</span>

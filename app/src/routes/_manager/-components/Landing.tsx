@@ -12,7 +12,7 @@ export function Landing() {
   const { theme } = useThemeMode()
   const navigate = useNavigate()
 
-  const connect = Hooks.useConnect()
+  const connect = Hooks.useConnect({ config })
   const [connector] = useConnectors({ config })
 
   return (
