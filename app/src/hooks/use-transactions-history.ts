@@ -31,7 +31,7 @@ export function useTransactionsHistory({
                 async (chain) => {
                   const apiEndpoint = addressApiEndpoint(chain.id)
                   const url = `${apiEndpoint}/addresses/${userAddress}/transactions`
-                  const response = await fetch(urlWithLocalCorsBypass(url))
+                  const response = await fetch(url)
                   if (!response.ok) {
                     throw new Error(
                       `Failed to fetch transactions history: ${response.statusText}`,
