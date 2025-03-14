@@ -24,14 +24,11 @@ export function SendDialog({
 }: {
   className?: string
 }) {
-  const { address } = useAccount()
   const send = useSendCalls()
-
-  const { data: tokenData, status: tokenStatus } = useTokenBalances({
-    address,
-  })
-
   const account = useAccount()
+  const { data: tokenData, status: tokenStatus } = useTokenBalances({
+    address: account.address,
+  })
 
   const receiptQuery = useWaitForTransactionReceipt({
     chainId: account.chain?.id!,
@@ -75,12 +72,12 @@ export function SendDialog({
         open={isOpen}
         onClose={() => setIsOpen(false)}
         className={cn(
-          'dialog',
+          'dialog bg-gray',
           'w-full sm:max-w-[420px]',
           'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-35! sm:mb-0!',
-          'w-full max-w-[90%] rounded-xl border-0 px-0 py-5 shadow-xl',
+          'w-full max-w-[90%] rounded-xl border-0 px-0 px-0! py-5 shadow-xl',
         )}
-        backdrop={<div className="bg-black/60 backdrop-blur-xs" />}
+        backdrop={<div className="bg-gray12/70 backdrop-blur-xs" />}
       >
         {send.isPending ? (
           <SendingView />
@@ -88,7 +85,7 @@ export function SendDialog({
           <SuccessView hash={send.data} />
         ) : (
           <React.Fragment>
-            <Ariakit.DialogHeading className="flex items-center justify-between py-0 text-left">
+            <Ariakit.DialogHeading className="flex items-center justify-between px-5 py-0 text-left">
               {isAssetSelectorOpen ? (
                 <div className="flex flex-row items-center gap-x-2">
                   <button
@@ -115,7 +112,8 @@ export function SendDialog({
               onSubmit={async (event) => {
                 event.preventDefault()
                 try {
-                  if (!address || !Address.validate(address)) return
+                  if (!account.address || !Address.validate(account.address))
+                    return
 
                   const formData = new FormData(event.currentTarget)
                   const to = formData.get('to') as string
@@ -144,17 +142,15 @@ export function SendDialog({
                 }
               }}
             >
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <p id="send-funds" className="text-gray10 text-sm">
-                    Select asset
-                  </p>
-                </div>
+              <div className="mb-3 flex items-center justify-between px-5">
+                <p id="send-funds" className="text-gray10 text-sm">
+                  Select asset
+                </p>
               </div>
 
               {/* Asset Selector */}
               <div className="mt-3 mb-1 flex w-full flex-col gap-y-1.5">
-                <div className="">
+                <div className="px-5">
                   <button
                     type="button"
                     hidden={isAssetSelectorOpen}
@@ -189,7 +185,7 @@ export function SendDialog({
 
               {/* Amount Input */}
               <div
-                className="mt-3 mb-1 flex flex-col gap-y-1.5 "
+                className="mt-3 mb-1 flex flex-col gap-y-1.5 px-5"
                 hidden={isAssetSelectorOpen}
               >
                 <div className="flex items-center justify-between gap-x-2">
@@ -272,7 +268,7 @@ export function SendDialog({
 
               {/* Recipient Address */}
               <div
-                className="my-3 flex flex-col gap-y-1 "
+                className="my-3 flex flex-col gap-y-1 px-5"
                 hidden={isAssetSelectorOpen}
               >
                 <label
@@ -291,7 +287,7 @@ export function SendDialog({
                 </div>
               </div>
 
-              <div className="max-h-[350px] max-w-[400px] overflow-x-auto ">
+              <div className="max-h-[350px] max-w-[400px] overflow-x-auto pl-5">
                 {send.isError && (
                   <div className="overflow-x-auto bg-red3 p-2">
                     <p className="text-pretty font-mono text-xs">
@@ -302,7 +298,7 @@ export function SendDialog({
               </div>
               {/* Action Buttons */}
               <div
-                className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg"
+                className="mt-4 mb-3 flex flex-row gap-x-3 px-5 *:h-12 *:w-full *:select-none *:font-medium *:text-lg"
                 hidden={isAssetSelectorOpen}
               >
                 <Ariakit.DialogDismiss
@@ -316,8 +312,8 @@ export function SendDialog({
                 </Ariakit.DialogDismiss>
                 <OurButton
                   type="submit"
-                  className={cn('rounded-full border-2')}
                   disabled={!amount || isSending}
+                  className={cn('rounded-full border-2 border-gray6')}
                   variant={!!amount && !isSending ? 'accent' : 'default'}
                 >
                   Send
@@ -343,7 +339,7 @@ function AssetSelectionView({
   return (
     <div className="mt-auto flex size-full flex-col">
       {tokenData?.length === 0 ? (
-        <div className="flex min-h-[200px] flex-col items-center justify-center text-gray10">
+        <div className="flex min-h-[200px] flex-col items-center justify-center px-5 text-gray10">
           <p>No assets available</p>
         </div>
       ) : (
@@ -353,7 +349,7 @@ function AssetSelectionView({
               type="button"
               key={asset.token.symbol}
               className={cn(
-                'flex w-full flex-row items-center justify-between border-gray4 border-b-2 py-3 hover:bg-gray4',
+                'flex w-full flex-row items-center justify-between border-gray4 border-b-2 px-5 py-3 hover:bg-gray4',
                 index === 0 && 'border-t-2',
               )}
               onClick={() => {

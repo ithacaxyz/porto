@@ -77,7 +77,7 @@ export function Header() {
             <Ariakit.Menu
               gutter={8}
               className={cn(
-                'w-full rounded-lg bg-white p-1 shadow-sm outline-[1.5px] outline-gray4',
+                'w-full rounded-lg bg-gray1 p-1 shadow-sm outline-[1.5px] outline-gray4',
                 '*:tracking-wide',
               )}
             >
