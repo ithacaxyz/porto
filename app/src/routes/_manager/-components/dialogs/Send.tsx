@@ -1,8 +1,10 @@
-import { Address } from 'ox'
+import { Address, Value } from 'ox'
 import * as React from 'react'
-import { encodeFunctionData, isHex, parseEther } from 'viem'
+import { erc20Abi, isHex, parseEther } from 'viem'
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
+import ChevronLeftIcon from '~icons/lucide/chevron-left'
+import ChevronRightIcon from '~icons/lucide/chevron-right'
 import CircleCheckIcon from '~icons/lucide/circle-check'
 import OctagonAlertIcon from '~icons/lucide/octagon-alert'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
@@ -10,12 +12,10 @@ import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import { Button as OurButton } from '~/components/Button'
 import { Pill } from '~/components/Pill'
 import { Dialog } from '~/components/ui/dialog'
-import { Select } from '~/components/ui/select'
 import {
   type TokenBalance,
   useTokenBalances,
 } from '~/hooks/use-address-token-balances'
-import { ExperimentERC20 } from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 import { StringFormatter, ValueFormatter, cn } from '~/utils'
 
@@ -36,12 +36,14 @@ export function SendDialog({
   const account = useAccount()
 
   const receiptQuery = useWaitForTransactionReceipt({
-    chainId: account.chain?.id,
+    chainId: account.chain?.id!,
     hash: send.data as never,
     query: {
       enabled: isHex(send.data),
     },
   })
+
+  const [isAssetSelectorOpen, setIsAssetSelectorOpen] = React.useState(false)
 
   const [selectedAsset, setSelectedAsset] = React.useState<TokenBalance | null>(
     tokenData?.[0] ?? null,
@@ -55,38 +57,56 @@ export function SendDialog({
 
   if (tokenStatus === 'pending') return null
   return (
-    <Dialog.Dialog>
-      <Dialog.DialogTrigger asChild>
+    <Dialog>
+      <Dialog.Trigger asChild>
         <OurButton
           variant="invert"
           className={cn(
             className,
-            'mt-0.75 w-[110px] text-center font-semibold text-lg sm:w-[252px] sm:text-md',
+            'w-[110px] text-center font-semibold text-lg sm:mt-0.75 sm:w-[252px] sm:text-md',
             'flex h-11! items-center justify-center gap-x-1 sm:h-10',
             'sm:col-span-2 sm:col-start-1 sm:row-span-1 sm:place-self-stretch',
             'col-span-1 col-start-1',
           )}
         >
           <SendHorizontalIcon className="size-6" />
-          <Dialog.DialogTitle>Send</Dialog.DialogTitle>
+          <Dialog.Title>Send</Dialog.Title>
         </OurButton>
-      </Dialog.DialogTrigger>
-      <Dialog.DialogContent
-        onPointerDownOutside={(event) => event.preventDefault()}
-        onCloseAutoFocus={(event) => event.preventDefault()}
+      </Dialog.Trigger>
+      <Dialog.Content
         title="Send"
         aria-describedby="Transfer funds to another address."
-        className="rounded-xl border-0 bg-primary p-5 shadow-xl sm:max-w-[400px]"
+        className={cn(
+          'w-full max-w-[420px]',
+          'rounded-xl border-0 bg-primary px-0 py-5 shadow-xl sm:max-w-[400px]',
+          'sm:-translate-y-1/2 -translate-y-1/5',
+        )}
       >
         {send.isPending ? (
           <SendingView />
         ) : send.isSuccess ? (
           <SuccessView hash={send.data} />
         ) : (
-          <Dialog.DialogHeader className="p-0">
+          <React.Fragment>
+            <Dialog.Header className="px-5 py-0 text-left">
+              {isAssetSelectorOpen ? (
+                <div className="flex flex-row items-center gap-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAssetSelectorOpen(false)}
+                    className="my-auto flex size-7 items-center justify-center rounded-full bg-gray4"
+                  >
+                    <ChevronLeftIcon className="mr-0.5 size-6 text-gray10" />
+                  </button>
+                  <h3 className="font-medium text-xl">Select asset</h3>
+                </div>
+              ) : (
+                <h3 className="font-medium text-lg">Send</h3>
+              )}
+            </Dialog.Header>
             <form
               name="send"
-              className="w-full max-w-[400px]"
+              className="w-full"
               onSubmit={async (event) => {
                 event.preventDefault()
                 try {
@@ -104,11 +124,11 @@ export function SendDialog({
                     calls: [
                       {
                         to: tokenAddress,
-                        data: encodeFunctionData({
-                          abi: ExperimentERC20.abi,
+                        data: {
+                          abi: erc20Abi,
                           functionName: 'transfer',
                           args: [to, parseEther(amount)],
-                        }),
+                        },
                       },
                     ],
                   })
@@ -119,87 +139,54 @@ export function SendDialog({
                 }
               }}
             >
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex items-center justify-between px-5">
                 <div>
-                  <h3 className="font-medium text-lg">Send</h3>
                   <p id="send-funds" className="text-gray10 text-sm">
-                    Transfer funds to another address.
+                    Select asset
                   </p>
                 </div>
               </div>
 
               {/* Asset Selector */}
               <div className="mt-3 mb-1 flex w-full flex-col gap-y-1.5">
-                <Select.Select
-                  defaultValue={selectedAsset?.token.name}
-                  value={selectedAsset?.token.address}
-                  onValueChange={(value) => {
-                    const token = tokenData?.find(
-                      (token) => token.token.address === value,
-                    )
-                    setSelectedAsset(token ?? null)
-                  }}
-                >
-                  <Select.SelectTrigger className="flex h-12! w-full justify-between gap-x-2 rounded-xl border-2 border-gray4 px-3.5 py-2.5 text-left font-medium text-lg text-primary hover:bg-secondary">
+                <div className="px-5">
+                  <button
+                    type="button"
+                    hidden={isAssetSelectorOpen}
+                    onClick={() => setIsAssetSelectorOpen(!isAssetSelectorOpen)}
+                    className="flex h-14! w-full justify-between gap-x-2 rounded-xl border-2 border-gray4 px-5 py-2.5 text-left font-medium text-lg text-primary shadow-none! hover:bg-secondary"
+                  >
                     <img
                       src={
                         selectedAsset?.token.icon_url ||
                         `/icons/${selectedAsset?.token.symbol.toLowerCase()}.svg`
                       }
                       alt={selectedAsset?.token.name}
-                      className="size-6 rounded-full"
+                      className="my-auto size-8 rounded-full"
                     />
-
-                    <p className="mr-auto text-left">
-                      <Select.SelectValue
-                        defaultValue={selectedAsset?.token.address}
-                        placeholder={selectedAsset?.token.name}
-                      />
+                    <p className="my-auto mr-auto text-left font-medium text-xl">
+                      {selectedAsset?.token.name}
                     </p>
-                  </Select.SelectTrigger>
+                    <div className="my-auto flex size-8 items-center justify-center rounded-full bg-gray4">
+                      <ChevronRightIcon className="size-6 text-gray10" />
+                    </div>
+                  </button>
+                </div>
 
-                  <Select.SelectContent
-                    className="bg-gray2"
-                    defaultValue={selectedAsset?.token.address}
-                  >
-                    <Select.SelectGroup>
-                      {tokenData?.map((token) => (
-                        <Select.SelectItem
-                          key={token.token.address}
-                          value={token.token.address}
-                          className="group flex w-full! items-center justify-between gap-2 pr-2! hover:bg-gray4"
-                        >
-                          <img
-                            src={
-                              token.token.icon_url ||
-                              `/icons/${token.token.symbol.toLowerCase()}.svg`
-                            }
-                            alt={token.token.name}
-                            className="size-7 rounded-full"
-                          />
-                          <Select.SelectItemText className="font-medium">
-                            <span className="text-lg">{token.token.name}</span>
-                          </Select.SelectItemText>
-                          <div className="ml-auto flex flex-col items-center gap-x-1">
-                            <span className="ml-auto">
-                              ${ValueFormatter.format(BigInt(token.value))}
-                            </span>
-                            <div className="flex items-start justify-start gap-x-1">
-                              <span className="text-gray9 group-hover:text-gray1">
-                                {ValueFormatter.format(BigInt(token.value))}
-                              </span>
-                              <Pill className="">{token.token.symbol}</Pill>
-                            </div>
-                          </div>
-                        </Select.SelectItem>
-                      ))}
-                    </Select.SelectGroup>
-                  </Select.SelectContent>
-                </Select.Select>
+                {isAssetSelectorOpen && (
+                  <AssetSelectionView
+                    tokenData={tokenData}
+                    handleAssetSelect={setSelectedAsset}
+                    setIsAssetSelectorOpen={setIsAssetSelectorOpen}
+                  />
+                )}
               </div>
 
               {/* Amount Input */}
-              <div className="mt-3 mb-1 flex flex-col gap-y-1.5">
+              <div
+                className="mt-3 mb-1 flex flex-col gap-y-1.5 px-5"
+                hidden={isAssetSelectorOpen}
+              >
                 <div className="flex items-center justify-between gap-x-2">
                   <label
                     htmlFor="amount"
@@ -228,7 +215,7 @@ export function SendDialog({
                 <div
                   className={cn(
                     'flex w-full items-center',
-                    'h-12 rounded-xl border-2 border-gray4 px-3.5 py-2 text-left font-medium hover:bg-secondary',
+                    'h-14 rounded-xl border-2 border-gray4 px-3.5 py-2 text-left font-medium hover:bg-secondary',
                   )}
                 >
                   <input
@@ -279,7 +266,10 @@ export function SendDialog({
               </div>
 
               {/* Recipient Address */}
-              <div className="my-3 flex flex-col gap-y-1">
+              <div
+                className="my-3 flex flex-col gap-y-1 px-5"
+                hidden={isAssetSelectorOpen}
+              >
                 <label
                   htmlFor="recipient"
                   className="pointer-events-none ml-0.5 text-left text-gray10 text-xs"
@@ -289,13 +279,13 @@ export function SendDialog({
                 <div
                   className={cn(
                     'flex w-full items-center',
-                    'h-12 rounded-xl border-2 border-gray4 py-2 pl-3.5 text-left font-medium hover:bg-secondary',
+                    'h-14 rounded-xl border-2 border-gray4 py-2 pl-3.5 text-left font-medium hover:bg-secondary',
                   )}
                 >
                   <ReceiverInput />
                 </div>
               </div>
-              <pre>
+              <pre hidden={isAssetSelectorOpen}>
                 {import.meta.env.DEV &&
                   JSON.stringify(
                     { status: send.status, success: send.isSuccess },
@@ -313,8 +303,11 @@ export function SendDialog({
                 )}
               </div>
               {/* Action Buttons */}
-              <div className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg">
-                <Dialog.DialogClose asChild>
+              <div
+                className="mt-4 mb-3 flex flex-row gap-x-3 *:h-12 *:w-full *:select-none *:font-medium *:text-lg"
+                hidden={isAssetSelectorOpen}
+              >
+                <Dialog.Close asChild>
                   <OurButton
                     form="send"
                     type="reset"
@@ -325,7 +318,7 @@ export function SendDialog({
                   >
                     Cancel
                   </OurButton>
-                </Dialog.DialogClose>
+                </Dialog.Close>
                 <OurButton
                   type="submit"
                   className={cn('rounded-full border-2')}
@@ -336,10 +329,80 @@ export function SendDialog({
                 </OurButton>
               </div>
             </form>
-          </Dialog.DialogHeader>
+          </React.Fragment>
         )}
-      </Dialog.DialogContent>
-    </Dialog.Dialog>
+      </Dialog.Content>
+    </Dialog>
+  )
+}
+
+function AssetSelectionView({
+  tokenData,
+  handleAssetSelect,
+  setIsAssetSelectorOpen,
+}: {
+  tokenData: TokenBalance[] | undefined
+  setIsAssetSelectorOpen: (open: boolean) => void
+  handleAssetSelect: (asset: TokenBalance) => void
+}) {
+  return (
+    <div className="mt-auto flex size-full flex-col">
+      {tokenData?.length === 0 ? (
+        <div className="flex min-h-[200px] flex-col items-center justify-center text-gray10">
+          <p>No assets available</p>
+        </div>
+      ) : (
+        <div className="overflow-y-auto">
+          {tokenData?.map((asset, index) => (
+            <button
+              type="button"
+              key={asset.token.address}
+              className={cn(
+                'flex w-full flex-row items-center justify-between border-y-2 py-3 hover:bg-gray4',
+                index % 2 === 0 && 'border-gray4 border-b-transparent',
+              )}
+              onClick={() => {
+                handleAssetSelect(asset)
+                setIsAssetSelectorOpen(false)
+              }}
+            >
+              <div className="flex items-center gap-2 px-5">
+                <img
+                  src={
+                    asset.token.icon_url ||
+                    `/icons/${asset.token.symbol.toLowerCase()}.svg`
+                  }
+                  alt={asset.token.name}
+                  className="mr-1 size-10 rounded-full"
+                />
+                <div className="flex flex-col">
+                  <span className="font-medium text-xl">
+                    {asset.token.name}
+                  </span>
+                  <span className="mr-auto text-gray10 text-sm">
+                    {asset.token.symbol}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col items-end px-5">
+                <span className="text-2xl">
+                  ${ValueFormatter.format(BigInt(asset.value))}
+                </span>
+                <div className="flex items-start justify-start gap-x-1">
+                  <span className="mt-0.25 text-gray10 text-sm">
+                    {Value.format(
+                      BigInt(asset.value),
+                      Number(asset.token.decimals),
+                    )}
+                  </span>
+                  <Pill className="">{asset.token.symbol}</Pill>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -407,14 +470,14 @@ function SendingView() {
       <p className="text-balance text-center text-gray10">
         This won't take long at all. You can safely close this window now.
       </p>
-      <Dialog.DialogClose asChild>
+      <Dialog.Close asChild>
         <OurButton
           variant="default"
           className="mt-4 h-12! w-full rounded-full bg-gray4! text-xl!"
         >
           Close
         </OurButton>
-      </Dialog.DialogClose>
+      </Dialog.Close>
     </div>
   )
 }
@@ -440,14 +503,14 @@ function SuccessView({ hash }: { hash: string }) {
         </a>
         .
       </p>
-      <Dialog.DialogClose asChild>
+      <Dialog.Close asChild>
         <OurButton
           variant="default"
           className="mt-4 h-12! w-full rounded-full bg-gray4! text-xl!"
         >
           Done
         </OurButton>
-      </Dialog.DialogClose>
+      </Dialog.Close>
     </div>
   )
 }

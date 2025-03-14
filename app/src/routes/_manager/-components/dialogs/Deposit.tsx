@@ -25,8 +25,8 @@ export function DepositDialog() {
     }
   }
   return (
-    <Dialog.Dialog>
-      <Dialog.DialogTrigger
+    <Dialog>
+      <Dialog.Trigger
         className={cn(
           'col-span-1 col-start-2',
           'sm:col-start-1 sm:row-span-1 sm:row-start-1',
@@ -36,17 +36,23 @@ export function DepositDialog() {
       >
         <ReceiveIcon className="size-6" />
         <span>Receive</span>
-      </Dialog.DialogTrigger>
-      <Dialog.DialogContent className="mt-auto flex h-min max-h-min flex-col gap-y-5 border-transparent bg-transparent">
-        <Dialog.DialogHeader className="rounded-2xl bg-secondary p-4">
-          <Dialog.DialogTitle className="flex items-center justify-between text-left">
+      </Dialog.Trigger>
+      <Dialog.Content
+        className={cn(
+          'max-w-[450px]',
+          'm flex h-min max-h-min flex-col gap-y-5 border-transparent bg-transparent',
+          'sm:-translate-y-1/2 -translate-y-1/5',
+        )}
+      >
+        <Dialog.Header className="rounded-2xl bg-secondary p-4">
+          <Dialog.Title className="flex items-center justify-between text-left">
             <span>Receive</span>
 
-            <Dialog.DialogClose className="text-secondary/50">
+            <Dialog.Close className="text-secondary/50">
               <XIcon className="size-4" />
-            </Dialog.DialogClose>
-          </Dialog.DialogTitle>
-          <Dialog.DialogDescription className="text-left" asChild>
+            </Dialog.Close>
+          </Dialog.Title>
+          <Dialog.Description className="text-left" asChild>
             <div>
               <span className="text-sm">Fund your wallet with crypto.</span>
 
@@ -86,15 +92,15 @@ export function DepositDialog() {
                 </button>
               </div>
             </div>
-          </Dialog.DialogDescription>
-        </Dialog.DialogHeader>
+          </Dialog.Description>
+        </Dialog.Header>
 
-        <Dialog.DialogHeader className="gap-y-2 rounded-2xl bg-secondary p-4">
-          <Dialog.DialogTitle className="flex items-center gap-x-2">
+        <Dialog.Header className="gap-y-2 rounded-2xl bg-secondary p-4">
+          <Dialog.Title className="flex items-center gap-x-2">
             <img src="/icons/usdc-eth.png" alt="." />
             <span className="">Supported assets</span>
-          </Dialog.DialogTitle>
-          <Dialog.DialogDescription className="text-black">
+          </Dialog.Title>
+          <Dialog.Description className="text-black">
             <span>
               You can deposit any ERC20 asset, but we recommend ETH or USDC.{' '}
               <span className="text-secondary">
@@ -110,9 +116,9 @@ export function DepositDialog() {
               <span className="mb-0.5">Learn more</span>
               <ArrowRightIcon className="size-3.5" />
             </a>
-          </Dialog.DialogDescription>
-        </Dialog.DialogHeader>
-      </Dialog.DialogContent>
-    </Dialog.Dialog>
+          </Dialog.Description>
+        </Dialog.Header>
+      </Dialog.Content>
+    </Dialog>
   )
 }

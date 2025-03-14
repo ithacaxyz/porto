@@ -4,7 +4,6 @@ import * as React from 'react'
 import { useAccount } from 'wagmi'
 import { Layout } from '~/components/AppLayout'
 
-import { odysseyTestnet } from 'porto/core/Chains'
 import { Header } from '~/components/Header'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
@@ -27,7 +26,6 @@ export function Dashboard() {
 
   const tokenBalances = useTokenBalances({
     address: address!,
-    chainId: odysseyTestnet.id,
   })
   const tokenBalancesData = tokenBalances.data
 
@@ -58,7 +56,7 @@ export function Dashboard() {
         )}
       >
         <div className="w-full gap-y-2 text-center tabular-nums sm:text-left">
-          <p className="font-semibold text-5xl sm:font-semibold sm:text-4xl">
+          <p className="text-center font-semibold text-4xl sm:font-semibold sm:text-4xl">
             $23,35.05
           </p>
           {assets && assets?.length > 0 ? (
@@ -84,7 +82,7 @@ export function Dashboard() {
 
         <div
           className={cn(
-            'gap-3 max-[300px]:gap-x-4.5',
+            'gap-6 max-[300px]:gap-x-4.5',
             'context-stretch items-stretch justify-items-center',
             tokenBalancesData && tokenBalancesData.length > 0
               ? 'grid size-full min-w-full grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2'
@@ -102,7 +100,7 @@ export function Dashboard() {
           <AddMoneyDialog
             className={cn(
               tokenBalancesData && tokenBalancesData.length > 0
-                ? 'bg-gray7 hover:bg-gray6'
+                ? 'bg-gray7! hover:bg-gray6'
                 : 'bg-accent! text-white hover:bg-accent/90!',
             )}
           />
