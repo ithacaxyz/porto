@@ -52,7 +52,7 @@ export function Connect(props: Connect.Props) {
     )
   if (connect.isPending)
     return (
-      <div className="*:min-w-[116px]">
+      <div>
         <Button disabled size={size}>
           Check prompt
         </Button>
@@ -60,7 +60,7 @@ export function Connect(props: Connect.Props) {
     )
   if (!connector) return null
   return (
-    <div className="*:min-w-[116px]">
+    <div>
       <Button
         onClick={() => connect.mutate({ connector: connector! })}
         size={size}

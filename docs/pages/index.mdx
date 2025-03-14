@@ -3,14 +3,6 @@ layout: landing
 showLogo: false
 ---
 
-import { HomePage } from 'vocs/components'
- 
-<HomePage.Root>
-  <HomePage.Logo className="h-[80px]" />
-  <HomePage.Tagline className="-mt-4">Next-gen Account for Ethereum</HomePage.Tagline>
-  <HomePage.InstallPackage name="porto" type="install" />
-  <HomePage.Buttons>
-    <HomePage.Button href="/sdk" variant="accent">Get started</HomePage.Button>
-    <HomePage.Button href="https://github.com/ithacaxyz/porto">GitHub</HomePage.Button>
-  </HomePage.Buttons>
-</HomePage.Root>
+import { HomePage } from '../components/HomePage.tsx'
+
+<HomePage />
