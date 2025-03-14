@@ -13,7 +13,7 @@ import { Dialog } from '~/components/ui/dialog'
 import { Select } from '~/components/ui/select'
 import {
   type TokenBalance,
-  useTokenBalance,
+  useTokenBalances,
 } from '~/hooks/use-address-token-balances'
 import { ExperimentERC20 } from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
@@ -29,13 +29,12 @@ export function SendDialog({
   const send = useSendCalls({
     config: config,
     mutation: {
-      onError: (error) => {
-        setError(error.message)
-      },
+      onError: (error) => setError(error.message),
     },
   })
-  console.info(error)
-  const { data: tokenData } = useTokenBalance({ address })
+  const { data: tokenData, isError } = useTokenBalances({
+    address: '0x91FC1B9fA8f4cbc324606368f2A9Ed2f582b0704',
+  })
 
   const account = useAccount()
 
@@ -54,11 +53,6 @@ export function SendDialog({
   const isSending = send.isPending || receiptQuery.fetchStatus === 'fetching'
 
   const [amount, setAmount] = React.useState('')
-  // console.info(
-  //   amount,
-  //   selectedAsset?.value,
-  //   parseEther(amount) > BigInt(selectedAsset?.value ?? 0),
-  // )
   const amountExceedsBalance =
     parseEther(amount) > BigInt(selectedAsset?.value ?? 0)
 
@@ -87,9 +81,9 @@ export function SendDialog({
         className="rounded-xl border-0 bg-primary p-5 shadow-xl sm:max-w-[400px]"
       >
         {send.isPending ? (
-          <SendingView handleReset={() => {}} />
+          <SendingView />
         ) : send.isSuccess ? (
-          <SuccessView hash={send.data} handleReset={() => {}} />
+          <SuccessView hash={send.data} />
         ) : (
           <Dialog.DialogHeader className="p-0">
             <form
@@ -97,33 +91,34 @@ export function SendDialog({
               className="w-full max-w-[400px]"
               onSubmit={async (event) => {
                 event.preventDefault()
-                console.info('submit')
+                try {
+                  if (!address || !Address.validate(address)) return
 
-                if (!address || !Address.validate(address)) return
+                  const formData = new FormData(event.currentTarget)
+                  const to = formData.get('to') as string
+                  if (!to || !Address.validate(to)) return
+                  const amount = formData.get('amount') as string
 
-                const formData = new FormData(event.currentTarget)
-                const to = formData.get('to') as string
-                if (!to || !Address.validate(to)) return
-                const amount = formData.get('amount') as string
+                  const tokenAddress = selectedAsset?.token.address
+                  if (!tokenAddress || !Address.validate(tokenAddress)) return
 
-                const tokenAddress = selectedAsset?.token.address
-                if (!tokenAddress || !Address.validate(tokenAddress)) return
-
-                send.sendCalls({
-                  calls: [
-                    {
-                      to: tokenAddress,
-
-                      data: encodeFunctionData({
-                        abi: ExperimentERC20.abi,
-                        functionName: 'transfer',
-                        args: [to, parseEther(amount)],
-                      }),
-                    },
-                  ],
-                })
-
-                console.info(send.status, send.error)
+                  send.sendCalls({
+                    calls: [
+                      {
+                        to: tokenAddress,
+                        data: encodeFunctionData({
+                          abi: ExperimentERC20.abi,
+                          functionName: 'transfer',
+                          args: [to, parseEther(amount)],
+                        }),
+                      },
+                    ],
+                  })
+                } catch (error) {
+                  console.error(
+                    error instanceof Error ? error.message : 'unknown error',
+                  )
+                }
               }}
             >
               <div className="mb-3 flex items-center justify-between">
@@ -402,11 +397,7 @@ function ReceiverInput() {
   )
 }
 
-function SendingView({
-  handleReset,
-}: {
-  handleReset: () => void
-}) {
+function SendingView() {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-blue-100">
@@ -420,7 +411,6 @@ function SendingView({
         <OurButton
           variant="default"
           className="mt-4 h-12! w-full rounded-full bg-gray4! text-xl!"
-          onClick={handleReset}
         >
           Close
         </OurButton>
@@ -429,13 +419,7 @@ function SendingView({
   )
 }
 
-function SuccessView({
-  handleReset,
-  hash,
-}: {
-  handleReset: () => void
-  hash: string
-}) {
+function SuccessView({ hash }: { hash: string }) {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-green-100">
@@ -459,7 +443,6 @@ function SuccessView({
       <Dialog.DialogClose asChild>
         <OurButton
           variant="default"
-          onClick={handleReset}
           className="mt-4 h-12! w-full rounded-full bg-gray4! text-xl!"
         >
           Done
