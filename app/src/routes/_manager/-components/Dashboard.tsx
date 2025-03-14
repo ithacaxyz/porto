@@ -5,44 +5,43 @@ import { useAccount } from 'wagmi'
 import { Layout } from '~/components/AppLayout'
 
 import { Header } from '~/components/Header'
+import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
 import { ThemeToggle } from '~/components/ThemeToggle'
 import { useTokenBalances } from '~/hooks/use-address-token-balances'
-import { PercentFormatter, cn, sum } from '~/utils'
+import { PercentFormatter, ValueFormatter, cn, sum } from '~/utils'
 import CoinsIcon from '~icons/lucide/coins'
 import HistoryIcon from '~icons/lucide/history'
 import { AddMoneyDialog } from './dialogs/Add'
 import { DepositDialog } from './dialogs/Deposit'
 import { SendDialog } from './dialogs/Send'
 
-const PRICES = {
-  EXP: 100 * Math.random(),
-  EXP2: 100 * Math.random(),
-  ETH: 100 * Math.random(),
-} as const
-
 export function Dashboard() {
   const { address } = useAccount()
 
-  const tokenBalances = useTokenBalances({
+  const { data: tokenBalancesData, status } = useTokenBalances({
     address: address!,
   })
-  const tokenBalancesData = tokenBalances.data
 
-  const assets = tokenBalances.data
+  const assets = tokenBalancesData
 
   const [search, setSearch] = React.useState('')
   const [filteredAssets, setFilteredAssets] = React.useState(assets)
 
   React.useEffect(() => {
-    // console.info(assets)
     setFilteredAssets(
       assets?.filter((asset) =>
         asset.token.name?.toLowerCase().includes(search.toLowerCase()),
       ),
     )
   }, [search, assets])
+
+  const totalBalance = React.useMemo(() => {
+    if (!assets) return 0n
+    const total = BigInt(sum(assets?.map((asset) => Number(asset?.value ?? 0))))
+    return ValueFormatter.format(total, 18)
+  }, [assets])
 
   return (
     <Layout className="max-w-2xl!">
@@ -59,7 +58,7 @@ export function Dashboard() {
       >
         <div className="w-full gap-y-2 text-center tabular-nums sm:text-left">
           <p className="text-center font-semibold text-4xl sm:text-left sm:font-semibold sm:text-4xl">
-            $23,35.05
+            ${totalBalance}
           </p>
           {assets && assets?.length > 0 ? (
             <p className="text-md text-secondary sm:my-auto sm:text-md">
@@ -91,21 +90,28 @@ export function Dashboard() {
               : 'flex max-w-[300px] items-center justify-center gap-2! *:w-full',
           )}
         >
-          {/* ==== SEND ==== */}
+          {status === 'pending' ? (
+            <IndeterminateLoader title="Loading assets" />
+          ) : (
+            <React.Fragment>
+              {/* ==== SEND ==== */}
+              {tokenBalancesData && tokenBalancesData.length > 0 && (
+                <SendDialog />
+              )}
 
-          {tokenBalancesData && tokenBalancesData.length > 0 && <SendDialog />}
+              {/* ==== RECEIVE ==== */}
+              <DepositDialog />
 
-          {/* ==== RECEIVE ==== */}
-          <DepositDialog />
-
-          {/* ==== ADD ==== */}
-          <AddMoneyDialog
-            className={cn(
-              tokenBalancesData && tokenBalancesData.length > 0
-                ? 'bg-gray7! hover:bg-gray6'
-                : 'bg-accent! text-white hover:bg-accent/90!',
-            )}
-          />
+              {/* ==== ADD ==== */}
+              <AddMoneyDialog
+                className={cn(
+                  tokenBalancesData && tokenBalancesData.length > 0
+                    ? 'bg-gray7! hover:bg-gray6'
+                    : 'bg-accent! text-white hover:bg-accent/90!',
+                )}
+              />
+            </React.Fragment>
+          )}
         </div>
       </section>
 
@@ -178,7 +184,7 @@ export function Dashboard() {
                             {/* {token.icon_url} */}
                             <img
                               alt={token.name}
-                              className="mb-2 size-7"
+                              className=" size-9"
                               src={`/icons/${token?.symbol?.toLowerCase()}.svg`}
                             />
                             <div className="flex flex-col">
@@ -206,14 +212,7 @@ export function Dashboard() {
                         <td className="text-right">
                           <div className="flex flex-col">
                             {token?.symbol && (
-                              <span className="text-lg">
-                                $
-                                {PRICES[
-                                  token?.symbol as keyof typeof PRICES
-                                ]?.toLocaleString('en-US', {
-                                  maximumFractionDigits: 2,
-                                })}
-                              </span>
+                              <span className="text-lg">$1</span>
                             )}
                             <span
                               className={cn(
@@ -274,11 +273,7 @@ export function Dashboard() {
                 </div>
               )}
             </Ariakit.TabPanel>
-            <Ariakit.TabPanel tabId="history">
-              <ul>
-                <li>WIP</li>
-              </ul>
-            </Ariakit.TabPanel>
+            <Ariakit.TabPanel tabId="history" />
           </div>
         </Ariakit.TabProvider>
       </section>
