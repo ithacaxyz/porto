@@ -1,8 +1,12 @@
-import { Json } from 'ox'
+import { AbiFunction, Json, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import { parseEther } from 'viem'
 
+import { useAccount } from 'wagmi'
+import { useSendCalls } from 'wagmi/experimental'
+import { ExperimentERC20 } from '~/lib/Constants'
 import { Button } from './Button'
+import { IndeterminateLoader } from './IndeterminateLoader'
 
 const key = () =>
   ({
@@ -28,16 +32,26 @@ const enableDevTools =
   String(import.meta.env.VITE_ENABLE_DEV_TOOLS) === 'true'
 
 export function DevOnly() {
+  const account = useAccount()
   const permissions = Hooks.usePermissions()
   const revokePermissions = Hooks.useRevokePermissions()
   const grantPermissions = Hooks.useGrantPermissions()
 
+  const send = useSendCalls()
+
   if (!enableDevTools) return null
+
+  const isBusy =
+    permissions.isPending ||
+    revokePermissions.isPending ||
+    grantPermissions.isPending
+
+  if (isBusy) return <IndeterminateLoader title="cooking" />
 
   return (
     <div
       data-item="dev-tools"
-      className="fixed bottom-0 left-0 w-full border-t border-t-gray6 bg-gray2 pt-1 pb-3 pl-3"
+      className="fixed bottom-0 left-0 w-full border-t border-t-gray6 bg-zinc-400 pt-1 pb-3 pl-3 *:text-black"
     >
       <pre className="mb-1">dev only</pre>
 
@@ -59,6 +73,35 @@ export function DevOnly() {
           }}
         >
           Revoke permissions
+        </Button>
+        <Button
+          disabled={!account.address}
+          className="max-w-[200px] rounded-none!"
+          variant="default"
+          onClick={() => {
+            if (!account.address) return
+
+            send.sendCalls({
+              calls: [
+                {
+                  to: ExperimentERC20.address[0],
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
+                    [account.address, Value.fromEther('100')],
+                  ),
+                },
+                {
+                  to: ExperimentERC20.address[1],
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(ExperimentERC20.abi, 'mint'),
+                    [account.address, Value.fromEther('100')],
+                  ),
+                },
+              ],
+            })
+          }}
+        >
+          Mint EXP & EXP2
         </Button>
       </div>
       <details>

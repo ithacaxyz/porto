@@ -51,8 +51,7 @@ export namespace Button {
             'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
           ghost:
             'text-primary bg-transparent hover:not-active:bg-surfaceHover border border-gray8 hover:border-gray9 hover:active:border-gray10',
-          invert:
-            'text-invert bg-invert hover:not-active:bg-invertHover text-invert',
+          invert: 'text-invert bg-invert hover:not-active:bg-invertHover',
           accent: 'text-white bg-accent hover:not-active:bg-accentHover',
           destructive:
             'text-destructive bg-destructive hover:not-active:bg-destructiveHover',
