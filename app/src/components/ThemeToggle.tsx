@@ -15,7 +15,7 @@ export function ThemeToggle({
     <div className={cx(className, 'fixed bottom-0 left-0')}>
       <button
         type="button"
-        className="group relative rounded-full p-3 text-gray11 *:size-4 sm:*:size-6.5"
+        className="group relative rounded-full p-3 text-gray10 *:size-4 sm:*:size-6.5"
         onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
       >
         <ThemeIcon className="block group-hover:hidden" />

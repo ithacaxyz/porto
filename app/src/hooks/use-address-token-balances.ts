@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { useMemo } from 'react'
+import { formatEther } from 'viem'
 import { useAccount, useBalance } from 'wagmi'
 
 import { addressApiEndpoint, urlWithLocalCorsBypass } from '~/lib/Constants'
@@ -63,7 +64,7 @@ export function useTokenBalances({
   const balances = useMemo(() => {
     if (gasStatus !== 'success') return []
     const gas = {
-      value: gasBalance?.value,
+      value: formatEther(gasBalance?.value ?? 0n),
       token: {
         token_id: 'eth',
         decimals: gasBalance?.decimals,

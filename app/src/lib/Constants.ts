@@ -1,7 +1,7 @@
 import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
 import { shuffleArray } from '~/utils'
 
-const CORS_DESTROYER_URL = 'https://cors.porto.workers.dev'
+export const CORS_DESTROYER_URL = 'https://cors.porto.workers.dev'
 
 export const emojisArray = shuffleArray([
   '🍕',

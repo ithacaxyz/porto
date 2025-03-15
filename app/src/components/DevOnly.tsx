@@ -51,7 +51,7 @@ export function DevOnly() {
 
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="absolute top-0 right-0 p-10 font-mono text-gray11 text-md">
+      <Drawer.Trigger className="absolute top-0 right-0 p-4 font-mono text-gray11 text-md sm:p-10">
         {!import.meta.env.DEV ? 'dev tools' : ''}
       </Drawer.Trigger>
       <Drawer.Portal>
