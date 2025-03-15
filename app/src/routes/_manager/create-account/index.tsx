@@ -10,7 +10,7 @@ import { useThemeMode } from '~/hooks/use-theme-mode'
 import * as Constants from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 
-export const Route = createFileRoute('/_manager/create-account')({
+export const Route = createFileRoute('/_manager/create-account/')({
   component: RouteComponent,
 })
 

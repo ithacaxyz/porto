@@ -76,7 +76,7 @@ export function Landing() {
                   Sign in
                 </Button>
               </div>
-              <Button asChild className="w-full">
+              <Button asChild className="w-full bg-gray6!" variant="default">
                 <a
                   target="_blank"
                   rel="noreferrer"
