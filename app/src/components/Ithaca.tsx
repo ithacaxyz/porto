@@ -17,7 +17,7 @@ export function IthacaIcon({ className }: { className?: string }) {
     }
   </style> */}
       <title>Ithaca</title>
-      <g fill="currentColor" clip-path="url(#a)">
+      <g fill="currentColor" clipPath="url(#a)">
         <path d="M10.66 7.3c.38-.12.8.04 1 .37l2.24 3.65c.28.47-.07 1.05-.63 1.05H1.73c-.6 0-.94-.64-.6-1.1L2.15 9.9a.87.87 0 0 1 .47-.32l8.04-2.29Z" />
         <path
           d="M6.51 2.14c.17-.29.6-.22.67.1l.95 4.72c.05.24-.1.48-.35.55L3.3 8.82c-.31.1-.58-.23-.42-.5l3.63-6.18Z"

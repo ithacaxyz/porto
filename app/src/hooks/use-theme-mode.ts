@@ -15,6 +15,13 @@ export function useThemeMode(): {
       if (window.matchMedia('(prefers-color-scheme: dark)').matches)
         return 'dark'
     }
+    return 'light'
+  })
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const localTheme = localStorage.getItem('__porto_theme')
+    if (localTheme === theme) return
 
     if (theme === 'dark') {
       document.documentElement.classList.remove('scheme-light', 'scheme-light')
@@ -24,7 +31,7 @@ export function useThemeMode(): {
       document.documentElement.classList.add('scheme-light')
     }
     localStorage.setItem('__porto_theme', theme)
-    return 'light'
-  })
+  }, [theme])
+
   return { theme, setTheme }
 }

@@ -28,7 +28,7 @@ export function SendDialog({
   const send = useSendCalls()
 
   const account = useAccount()
-  const { data: tokenData, status: tokenStatus } = useTokenBalances({
+  const { data: tokenData } = useTokenBalances({
     address: account.address,
   })
 
@@ -52,7 +52,6 @@ export function SendDialog({
   const amountExceedsBalance =
     parseEther(amount) > BigInt(selectedAsset?.value ?? 0)
 
-  if (tokenStatus === 'pending') return null
   return (
     <Ariakit.DialogProvider>
       <Ariakit.Button

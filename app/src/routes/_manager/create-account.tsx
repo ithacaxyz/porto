@@ -65,7 +65,7 @@ function RouteComponent() {
 
         <div className="mt-10 size-full sm:mt-1 sm:px-4">
           <h1 className="font-medium text-2xl">Name your passkey</h1>
-          <p className="mx-6 my-3 text-pretty text-primary">
+          <p className="mx-6 my-3 text-pretty text-gray10">
             This will be a simple, memorable identifier for your Ithaca wallet.
           </p>
           <div className="relative pt-3 sm:mx-2">
@@ -79,17 +79,17 @@ function RouteComponent() {
               autoCapitalize="off"
               placeholder="Enter a name…"
               onChange={(event) => setLabel(event.target.value)}
-              className="h-12.5 w-full rounded-lg border border-gray6 bg-gray1 px-3 py-2 text-gray12 text-lg focus:outline-none focus:ring-2 focus:ring-gray3"
+              className="h-12.5 w-full rounded-2xl border border-gray6 bg-gray1 px-4 py-2 text-gray12 text-lg focus:outline-none focus:ring-2 focus:ring-blue3"
             />
           </div>
         </div>
 
         <div className="">
-          <p className="-mt-1 text-secondary">Add a memorable icon</p>
+          <p className="-mt-1 text-gray10">Add a memorable icon</p>
 
           <div
             className={cx(
-              'scrollbar-none mt-3 mb-6 flex w-full select-none justify-center gap-2.5 overflow-hidden overflow-x-auto',
+              'scrollbar-none mt-3 mb-6 flex w-full select-none justify-center gap-2.5 overflow-hidden overflow-x-auto sm:gap-4',
             )}
           >
             {emojis.map((emoji) => (
@@ -98,7 +98,7 @@ function RouteComponent() {
                 className={cx(
                   'my-2 flex items-center justify-center rounded-full text-2xl transition-colors',
                   selectedEmoji === emoji
-                    ? 'border-2 border-gray3 p-2'
+                    ? 'border-2 border-blue9 p-2'
                     : 'border-gray9 hover:border-gray10',
                 )}
               >
@@ -137,7 +137,7 @@ function RouteComponent() {
                   className={cx(
                     'my-auto flex shrink-0 items-center justify-center rounded-full transition-colors',
                     selectedEmoji === emoji
-                      ? 'size-16 bg-accent/20 text-4xl text-white'
+                      ? 'size-16 bg-blue9 text-4xl text-white'
                       : 'size-12 bg-gray3 text-2xl hover:bg-gray4',
                   )}
                 >
@@ -162,8 +162,9 @@ function RouteComponent() {
                   localStorage.setItem('_porto_account_emoji', selectedEmoji)
                 }
               }}
-              variant="invert"
-              className="w-full rounded-lg font-medium text-xl"
+              variant="accent"
+              size="md"
+              className="mb-2 h-12 w-full rounded-2xl font-medium text-xl"
             >
               Continue
             </Button>

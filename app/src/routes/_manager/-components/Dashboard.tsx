@@ -27,8 +27,7 @@ import { DepositDialog } from './dialogs/Deposit'
 import { SendDialog } from './dialogs/Send'
 
 export function Dashboard() {
-  const { theme } = useThemeMode()
-  const { data: assets, status } = useTokenBalances()
+  const { data: assets } = useTokenBalances()
   const { data: transfers } = useAddressTransfers()
 
   const [search, setSearch] = React.useState('')
@@ -65,71 +64,59 @@ export function Dashboard() {
       )
   }, [transfers, selectedChains])
 
+  const noAssets = Boolean(
+    filteredAssets.length === 0 ||
+      (filteredAssets.length === 1 && filteredAssets[0]?.value === '0'),
+  )
   return (
-    <Layout className="font-sf-pro">
+    <Layout className="">
       <Header />
       <section
         className={cx(
           assets && assets.length > 0 && 'gap-2 pt-10 *:w-1/2',
-          'flex flex-col items-center gap-5 rounded-2xl bg-surface px-4 py-6',
+          'flex flex-col items-center gap-5 rounded-2xl bg-gray3 px-2 py-6',
           'sm:flex-row sm:justify-between sm:px-6',
         )}
       >
         <div className="w-full space-y-2 text-center tabular-nums sm:text-left">
-          <p className="text-center font-semibold text-4xl sm:text-left sm:font-semibold sm:text-5xl">
-            ${totalBalance}
+          <p className="text-center font-semibold text-5xl sm:text-left sm:font-semibold sm:text-[3.5rem]">
+            ${ValueFormatter.formatToPrice(totalBalance)}
           </p>
-          {assets && assets?.length > 0 ? (
+          {assets?.length && BigInt(totalBalance) > 0n ? (
             <p className="ml-1.5 text-lg text-secondary sm:my-auto sm:text-md">
-              {sum(
-                assets?.map((asset) =>
-                  Number(
-                    Value.format(
-                      BigInt(asset?.value ?? 0),
-                      Number(asset.token.decimals),
-                    ),
-                  ),
-                ),
-              ).toLocaleString()}
+              {totalBalance.toLocaleString()}
               <Pill className="ml-1.5">{assets?.[0]?.token.symbol}</Pill>
             </p>
           ) : (
-            <p className="min-[300px]! w-full text-secondary">
+            <p className="min-[300px]! w-full text-gray10">
               Add funds to get started
             </p>
           )}
         </div>
 
-        <div
-          className={cx(
-            'gap-6 max-[300px]:gap-x-4.5 sm:gap-2',
-            'context-stretch items-stretch justify-items-center',
-            assets && assets.length > 0
-              ? 'grid size-full min-w-full grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2'
-              : 'flex w-[260px] max-w-[300px] items-center justify-center gap-2! *:w-full',
-          )}
-        >
-          {
-            <React.Fragment>
-              {/* ==== SEND ==== */}
-              {status === 'success' && assets && assets.length > 0 && (
-                <SendDialog />
-              )}
-
-              {/* ==== RECEIVE ==== */}
-              <DepositDialog />
-
-              {/* ==== ADD ==== */}
-              <AddMoneyDialog
-                className={cx(
-                  status === 'success' && assets && assets.length > 0
-                    ? 'bg-gray7! hover:bg-gray6!'
-                    : 'bg-accent! text-white hover:bg-accent/90!',
-                )}
-              />
-            </React.Fragment>
-          }
-        </div>
+        {!noAssets ? (
+          <div
+            className={cx(
+              'gap-6 max-[300px]:gap-x-4.5 sm:gap-2',
+              'context-stretch items-stretch justify-items-center',
+              'grid size-full min-w-full grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2',
+            )}
+          >
+            <SendDialog />
+            <DepositDialog />
+            <AddMoneyDialog className="rounded-full! bg-gray7! hover:bg-gray6!" />
+          </div>
+        ) : (
+          <div
+            className={cx(
+              'flex w-full min-w-full flex-row items-center justify-center gap-x-4 gap-y-2 px-4',
+              'sm:w-min sm:min-w-min sm:justify-end sm:gap-4 sm:px-2',
+            )}
+          >
+            <DepositDialog className="w-full rounded-full! bg-gray5! text-gray12! hover:bg-gray6! sm:w-[45%]" />
+            <AddMoneyDialog className="w-full rounded-full! bg-blue9! text-white hover:bg-blue10! sm:w-[45%]" />
+          </div>
+        )}
       </section>
 
       <section className="mt-1 items-center gap-2 px-1">
@@ -143,7 +130,7 @@ export function Dashboard() {
               tabbable={true}
               className={cx(
                 'tab flex rounded-4xl border-2 border-gray6',
-                'data-[active-item=true]:border-blue9 data-[active-item=true]:text-accent',
+                'data-[active-item=true]:border-blue9 data-[active-item=true]:text-blue9',
               )}
             >
               <CoinsIcon className="my-auto size-5" />
@@ -154,7 +141,7 @@ export function Dashboard() {
               tabbable={true}
               className={cx(
                 'tab mr-auto flex rounded-4xl border-2 border-gray6',
-                'data-[active-item=true]:border-blue9 data-[active-item=true]:text-accent',
+                'data-[active-item=true]:border-blue9 data-[active-item=true]:text-blue9',
               )}
             >
               <HistoryIcon className="my-auto size-5" />
@@ -167,7 +154,7 @@ export function Dashboard() {
               onChange={(event) => setSearch(event.target.value)}
               className={cx(
                 'ml-2 w-full max-w-[50%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-gray12',
-                'placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-gray6 sm:ml-8 sm:max-w-[300px]',
+                'placeholder:text-gray10 focus:outline-none focus:ring-2 focus:ring-blue9 sm:ml-8 sm:max-w-[300px]',
               )}
             />
           </Ariakit.TabList>
@@ -182,36 +169,37 @@ export function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="w-full">
-                  {filteredAssets?.map((asset, index) => {
-                    const token = asset.token
+                  {!noAssets &&
+                    filteredAssets?.map((asset, index) => {
+                      const token = asset.token
 
-                    return (
-                      <tr
-                        key={`${asset.token.name + index}`}
-                        className={cx(
-                          'border-gray-400/50 border-b *:px-1',
-                          !filteredAssets ||
-                            (index === filteredAssets.length - 1 &&
-                              'border-b-0'),
-                        )}
-                      >
-                        <td className="text-left">
-                          <div className="flex items-center gap-x-2 py-4">
-                            {/* {token.icon_url} */}
-                            <img
-                              alt={token.name}
-                              className=" size-9"
-                              src={`/icons/${token?.symbol?.toLowerCase()}.svg`}
-                            />
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-lg">
-                                {token.name}
-                              </span>
-                              <span className="text-secondary text-xs">
-                                {token.symbol}
-                              </span>
-                            </div>
-                            {/* {index === 0 && (
+                      return (
+                        <tr
+                          key={`${asset.token.name + index}`}
+                          className={cx(
+                            'border-gray-400/50 border-b *:px-1',
+                            !filteredAssets ||
+                              (index === filteredAssets.length - 1 &&
+                                'border-b-0'),
+                          )}
+                        >
+                          <td className="text-left">
+                            <div className="flex items-center gap-x-2 py-4">
+                              {/* {token.icon_url} */}
+                              <img
+                                alt={token.name}
+                                className=" size-9"
+                                src={`/icons/${token?.symbol?.toLowerCase()}.svg`}
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-lg">
+                                  {token.name}
+                                </span>
+                                <span className="text-gray10 text-xs">
+                                  {token.symbol}
+                                </span>
+                              </div>
+                              {/* {index === 0 && (
                               <Ariakit.MenuProvider>
                                  <Ariakit.MenuButton className="-space-x-1 mb-auto flex gap-x-0.5 rounded-2xl bg-gray4 py-1.5 pr-1 pl-1.5">
                                   <TokenIcon.Op className="size-5 text-gray10" />
@@ -223,69 +211,73 @@ export function Dashboard() {
                                 </Ariakit.Menu>
                               </Ariakit.MenuProvider>
                             )} */}
-                          </div>
-                        </td>
-                        <td className="text-right">
-                          <div className="flex flex-col">
-                            {token?.symbol && (
-                              <span className="text-lg">$1</span>
-                            )}
-                            <span
-                              className={cx(
-                                'text-sm tracking-wider',
-                                token?.symbol?.toLowerCase() === 'exp' ||
-                                  token?.symbol?.toLowerCase() === 'exp2'
-                                  ? [
-                                      // asset?.price.change > 0 && 'text-emerald-500',
-                                      //         asset?.price.change < 0 && 'text-red-500',
-                                      //         !asset?.price.change && 'text-secondary'
-                                    ]
-                                  : [],
+                            </div>
+                          </td>
+                          <td className="text-right">
+                            <div className="flex flex-col">
+                              {token?.symbol && (
+                                <span className="text-lg">$1</span>
                               )}
-                            >
-                              {/* {asset?.price.change > 0
+                              <span
+                                className={cx(
+                                  'text-sm tracking-wider',
+                                  token?.symbol?.toLowerCase() === 'exp' ||
+                                    token?.symbol?.toLowerCase() === 'exp2'
+                                    ? [
+                                        // asset?.price.change > 0 && 'text-emerald-500',
+                                        //         asset?.price.change < 0 && 'text-red-500',
+                                        //         !asset?.price.change && 'text-secondary'
+                                      ]
+                                    : [],
+                                )}
+                              >
+                                {/* {asset?.price.change > 0
                                 ? '↑'
                                 : asset?.price.change < 0
                                   ? '↓'
                                   : ''} */}
-                              {PercentFormatter.format(Math.random() * 100)
-                                .toString()
-                                .replaceAll('-', '')}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="text-right">
-                          <div className="flex flex-col">
-                            <span className="text-lg">
-                              $
-                              {Value.format(
-                                BigInt(asset?.value),
-                                Number(token?.decimals),
-                              )}
-                            </span>
-                            <span className="text-secondary text-sm">
-                              {Value.format(
-                                BigInt(asset?.value),
-                                Number(token?.decimals),
-                              )}{' '}
-                              <Pill className="">{token?.symbol}</Pill>
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
+                                {PercentFormatter.format(Math.random() * 100)
+                                  .toString()
+                                  .replaceAll('-', '')}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="text-right">
+                            <div className="flex flex-col">
+                              <span className="text-lg">
+                                $
+                                {Value.format(
+                                  BigInt(asset?.value),
+                                  Number(token?.decimals),
+                                )}
+                              </span>
+                              <span className="text-gray10 text-sm">
+                                {Value.format(
+                                  BigInt(asset?.value),
+                                  Number(token?.decimals),
+                                )}{' '}
+                                <Pill className="">{token?.symbol}</Pill>
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
                 </tbody>
               </table>
 
-              {filteredAssets?.length === 0 && (
+              {noAssets && (
                 <div className="mt-32 flex h-full min-h-full flex-col items-center">
                   <div className="flex size-16 items-center justify-center rounded-full border-3 border-gray9 border-dashed">
                     <span className="m-auto size-2 rounded-full border-3 border-gray9" />
                   </div>
-                  <p className="max-w-[200px] pt-5 text-center font-medium text-gray10 text-xl sm:max-w-[150px] sm:text-md">
+                  <p className="max-w-[200px] pt-5 text-center font-medium text-gray11 text-xl sm:max-w-[150px] sm:text-md">
                     You have no assets in this wallet.
                   </p>
+                  <div className="mt-2 flex gap-2">
+                    <AddMoneyDialog className="bg-gray6" />
+                    <DepositDialog />
+                  </div>
                 </div>
               )}
             </Ariakit.TabPanel>
@@ -343,7 +335,7 @@ export function Dashboard() {
                               <a
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-accent"
+                                className="text-blue9"
                                 href={`https://explorer.ithaca.xyz/token/${transfer?.token.address}`}
                               >
                                 {transfer?.token.symbol}
@@ -361,7 +353,7 @@ export function Dashboard() {
                               <a
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-accent"
+                                className="text-blue9"
                                 href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
                               >
                                 {StringFormatter.truncate(
@@ -388,7 +380,7 @@ export function Dashboard() {
       <section className="mt-auto flex flex-col gap-y-5 p-1 sm:p-2">
         <MailListSignup />
         <div className="flex flex-row justify-between px-4">
-          <p className="flex gap-x-2 text-secondary leading-[22px]">
+          <p className="flex gap-x-2 text-gray10 leading-[22px]">
             Built by
             <a
               className="my-auto flex font-mono text-primary"
@@ -396,11 +388,8 @@ export function Dashboard() {
               rel="noreferrer"
               target="_blank"
             >
-              {theme === 'light' ? (
-                <IthacaIcon className="mr-2 size-5 text-black" />
-              ) : (
-                <IthacaIcon className="mr-2 size-5 text-white" />
-              )}
+              <IthacaIcon className="mr-2 size-5 fill-gray1 text-gray12" />
+              {/* <IthacaIcon className="mr-2 size-5 fill-white text-white" /> */}
               Ithaca
             </a>
           </p>
