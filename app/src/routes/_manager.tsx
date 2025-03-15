@@ -1,7 +1,6 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
 
-import { NavigationProgress } from '~/components/NavigationProgress'
 import managerCss from '~/styles/manager.css?url'
 
 export const Route = createFileRoute('/_manager')({
@@ -15,7 +14,6 @@ function RouteComponent() {
   return (
     <>
       <Outlet />
-      <NavigationProgress />
 
       <Toaster
         expand={true}
