@@ -24,7 +24,8 @@ export function useTokenBalances({
     isPending,
   } = useQuery({
     queryKey: ['token-balances', userAddress],
-    enabled: !!userAddress && Address.validate(userAddress),
+    refetchInterval: 2_500,
+    enabled: userAddress && Address.validate(userAddress),
     queryFn: async () => {
       try {
         // return data
