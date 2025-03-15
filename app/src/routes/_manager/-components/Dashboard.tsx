@@ -13,7 +13,6 @@ import { Pill } from '~/components/Pill'
 import { ThemeToggle } from '~/components/ThemeToggle'
 import { useTokenBalances } from '~/hooks/use-address-token-balances'
 import { useAddressTransfers } from '~/hooks/use-address-transfers'
-import { useThemeMode } from '~/hooks/use-theme-mode'
 import { config } from '~/lib/Wagmi'
 import {
   DateFormatter,

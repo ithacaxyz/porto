@@ -163,7 +163,6 @@ function RouteComponent() {
                 }
               }}
               variant="accent"
-              size="md"
               className="mb-2 h-12 w-full rounded-2xl font-medium text-xl"
             >
               Continue
