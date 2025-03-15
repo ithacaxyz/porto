@@ -17,6 +17,7 @@
     "cva": "npm:class-variance-authority@^0.7.1",
     "porto": "workspace:*",
     "react": "catalog:",
+    "react-router": "^7",
     "react-dom": "catalog:",
     "shiki": "^1",
     "tailwindcss": "catalog:",
