@@ -65,12 +65,13 @@ export function useTokenBalances({
     const gas = {
       value: gasBalance?.value,
       token: {
+        token_id: 'eth',
         decimals: gasBalance?.decimals,
         name: gasBalance?.symbol,
         symbol: gasBalance?.symbol,
         icon_url: '/icons/eth.svg',
       },
-    }
+    } as unknown as TokenBalance
     if (!tokenBalances) return [gas]
 
     return [gas, ...tokenBalances]
