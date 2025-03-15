@@ -55,7 +55,7 @@ function RouteComponent() {
             <p className="text-secondary ">A visual motif for your wallet.</p>
           </div>
           <Ariakit.MenuProvider>
-            <Ariakit.MenuButton className="ml-auto flex items-center gap-x-3 rounded-3xl border-2 border-gray-300/60 px-1 py-0.5">
+            <Ariakit.MenuButton className="ml-auto flex items-center gap-x-3 rounded-3xl border-[1.5px] border-gray10 px-1 py-0.5">
               <p className="ml-1 text-xl">{userEmoji}</p>
               <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
             </Ariakit.MenuButton>

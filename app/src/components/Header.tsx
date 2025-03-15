@@ -8,6 +8,7 @@ import ChevronDownIcon from '~icons/lucide/chevron-down'
 import ChevronLeftIcon from '~icons/lucide/chevron-left'
 import CopyIcon from '~icons/lucide/copy'
 import LogoutIcon from '~icons/lucide/log-out'
+import SettingsIcon from '~icons/lucide/settings'
 import ThemeIcon from '~icons/mdi/theme-light-dark'
 
 import { cx } from 'cva'
@@ -79,7 +80,7 @@ export function Header() {
               gutter={8}
               backdrop={<div className="fixed inset-0 bg-black/10" />}
               className={cx(
-                'w-full rounded-lg bg-gray1 p-1 shadow-sm outline-[1.5px] outline-gray4',
+                'w-full rounded-lg bg-gray2 p-1 shadow-sm outline-[1.5px] outline-gray4',
                 '*:tracking-wide',
               )}
             >
@@ -107,11 +108,7 @@ export function Header() {
                       currentFullPath === '/settings' && 'bg-gray3',
                     )}
                   >
-                    <img
-                      src="/icons/settings.svg"
-                      alt="Settings"
-                      className="size-5.5"
-                    />
+                    <SettingsIcon className="size-5" />
                     <span className="mr-auto">Settings</span>
                   </Link>
                 )}

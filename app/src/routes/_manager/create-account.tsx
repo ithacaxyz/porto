@@ -38,10 +38,10 @@ function RouteComponent() {
   }
 
   return (
-    <main className="flex size-full items-center justify-center">
+    <main className="flex size-full max-h-[90%] max-w-full items-center justify-center">
       <div
         className={cx(
-          'mx-auto flex h-screen w-full max-w-[420px] flex-col content-between items-stretch space-y-6 rounded-xl py-4 text-center sm:bg-gray1',
+          'mx-auto flex size-full w-[85%] flex-col content-between items-stretch space-y-6 rounded-xl py-4 text-center sm:w-[420px] sm:bg-gray1',
           'sm:h-[550px] sm:shadow-sm sm:outline sm:outline-gray4',
         )}
       >

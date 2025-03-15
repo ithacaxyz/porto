@@ -76,7 +76,7 @@ export function SendDialog({
           'dialog',
           'w-full sm:max-w-[420px]',
           'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-35! sm:mb-0!',
-          'w-full max-w-[90%] rounded-xl border-0 px-0! py-5 shadow-xl',
+          'w-full max-w-[90%] rounded-3xl! border-0 px-0! py-5 shadow-xl',
         )}
         backdrop={<div className="bg-gray12/40 backdrop-blur-xs" />}
       >
@@ -455,7 +455,7 @@ function ReceiverInput() {
 
 function SendingView() {
   return (
-    <div className="flex flex-col justify-center pt-3 pb-4">
+    <div className="flex flex-col justify-center pt-3 pb-2.5">
       <Ariakit.DialogDismiss className="ml-auto pr-5" />
       <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-blue-100">
         <div className="size-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
@@ -464,7 +464,7 @@ function SendingView() {
       <p className="mx-auto text-balance text-center text-gray10">
         This won't take long at all. You can safely close this window now.
       </p>
-      <Ariakit.DialogDismiss className="mx-auto mt-4 h-12! w-full max-w-[100px] rounded-full bg-gray5 text-xl! hover:bg-gray5">
+      <Ariakit.DialogDismiss className="mx-auto mt-4 h-12! w-full max-w-[85%] rounded-full bg-gray5 text-xl! hover:bg-gray5">
         Close
       </Ariakit.DialogDismiss>
     </div>
@@ -473,7 +473,7 @@ function SendingView() {
 
 function SuccessView({ hash }: { hash: string }) {
   return (
-    <div className="flex flex-col items-center justify-center pt-3 pb-4">
+    <div className="flex flex-col items-center justify-center pt-3 pb-2.5">
       <Ariakit.DialogDismiss className="ml-auto pr-5" />
 
       <div className="mt-4 mb-4 flex size-16 items-center justify-center rounded-full bg-green-100">
@@ -494,7 +494,7 @@ function SuccessView({ hash }: { hash: string }) {
         </a>
         .
       </p>
-      <Ariakit.DialogDismiss className="mt-4 h-12! w-full max-w-[100px] rounded-full bg-gray5 text-xl! hover:bg-gray5">
+      <Ariakit.DialogDismiss className="mt-4 h-12! w-full max-w-[85%] rounded-full bg-gray5 text-xl! hover:bg-gray5">
         Done
       </Ariakit.DialogDismiss>
     </div>
