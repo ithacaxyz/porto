@@ -7,11 +7,13 @@ import HistoryIcon from '~icons/lucide/history'
 
 import { Layout } from '~/components/AppLayout'
 import { Header } from '~/components/Header'
+import { IthacaIcon } from '~/components/Ithaca'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
 import { ThemeToggle } from '~/components/ThemeToggle'
 import { useTokenBalances } from '~/hooks/use-address-token-balances'
 import { useAddressTransfers } from '~/hooks/use-address-transfers'
+import { useThemeMode } from '~/hooks/use-theme-mode'
 import { config } from '~/lib/Wagmi'
 import {
   DateFormatter,
@@ -25,6 +27,7 @@ import { DepositDialog } from './dialogs/Deposit'
 import { SendDialog } from './dialogs/Send'
 
 export function Dashboard() {
+  const { theme } = useThemeMode()
   const { data: assets, status } = useTokenBalances()
   const { data: transfers } = useAddressTransfers()
 
@@ -393,11 +396,11 @@ export function Dashboard() {
               rel="noreferrer"
               target="_blank"
             >
-              <img
-                src="/icons/ithaca-light.svg"
-                alt="icon"
-                className="mr-1 size-5"
-              />
+              {theme === 'light' ? (
+                <IthacaIcon className="mr-2 size-5 text-black" />
+              ) : (
+                <IthacaIcon className="mr-2 size-5 text-white" />
+              )}
               Ithaca
             </a>
           </p>

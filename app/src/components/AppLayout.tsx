@@ -16,13 +16,15 @@ export function Layout(props: Layout.Props) {
       </div>
     )
   return (
-    <div
-      className={cx(
-        className,
-        'mx-auto flex size-full max-w-3xl flex-col gap-y-4 px-3.5 py-4 sm:px-4 sm:py-5',
-      )}
-    >
-      {children}
+    <div className="mx-auto size-full max-w-[98%]">
+      <div
+        className={cx(
+          className,
+          'mx-auto flex size-full max-w-3xl flex-col gap-y-4 px-3.5 py-4 sm:px-4 sm:py-5',
+        )}
+      >
+        {children}
+      </div>
     </div>
   )
 }
