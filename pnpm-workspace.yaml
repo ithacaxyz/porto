@@ -8,7 +8,7 @@ packages:
   - 'src'
 
 catalog:
-  "@tanstack/react-query": "^5.66.9"
+  "@tanstack/react-query": "^5.68.0"
   "@types/react": "^19"
   "@types/react-dom": "^19"
   "@wagmi/core": "^2.16.3"
