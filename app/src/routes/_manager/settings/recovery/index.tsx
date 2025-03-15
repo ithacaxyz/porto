@@ -5,9 +5,9 @@ import SecurityIcon from '~icons/ic/outline-security'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
 import WalletCardsIcon from '~icons/lucide/wallet-cards'
 
+import { cx } from 'cva'
 import { Pill } from '~/components/Pill'
 import { useThemeMode } from '~/hooks/use-theme-mode'
-import { cn } from '~/utils'
 
 export const Route = createFileRoute('/_manager/settings/recovery/')({
   component: RouteComponent,
@@ -41,7 +41,7 @@ function RouteComponent() {
 
   return (
     <main
-      className={cn(
+      className={cx(
         'mx-auto flex h-full w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl pt-2 pb-4 text-center',
         'sm:my-52 sm:h-[500px] sm:max-w-[400px] sm:bg-gray1 sm:pt-3 sm:shadow-sm sm:outline sm:outline-gray4',
       )}
@@ -84,7 +84,7 @@ function RouteComponent() {
                 className="mx-5 flex h-14 items-center justify-between space-x-3 rounded-md px-1 py-2"
               >
                 <div
-                  className={cn(
+                  className={cx(
                     'rounded-full p-2 outline outline-gray5',
                     recoveryMethod.disabled && 'text-gray9',
                   )}
@@ -92,7 +92,7 @@ function RouteComponent() {
                   {recoveryMethod.icon}
                 </div>
                 <span
-                  className={cn(
+                  className={cx(
                     'select-none font-medium text-xl',
                     recoveryMethod.disabled && 'text-gray9',
                   )}

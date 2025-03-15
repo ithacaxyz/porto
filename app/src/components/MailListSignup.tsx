@@ -3,7 +3,7 @@ import * as React from 'react'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
 
-import { cn } from '~/utils'
+import { cx } from 'cva'
 import { Spinner } from './Spinner'
 
 export function MailListSignup() {
@@ -85,8 +85,8 @@ export function MailListSignup() {
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         placeholder="Get email updates…"
-        className={cn(
-          'w-[160px] rounded-full border border-gray8 bg-gray1 px-3 py-1 text-sm placeholder:text-secondary aria-invalid:border-red8 sm:w-[250px]',
+        className={cx(
+          'w-[160px] rounded-full border border-gray8 bg-gray2 px-3 py-1 text-sm placeholder:text-secondary aria-invalid:border-red8 sm:w-[250px]',
           'text-xs focus:outline-none focus:ring-2 focus:ring-gray6 sm:text-base',
         )}
       />
@@ -99,7 +99,7 @@ export function MailListSignup() {
           <Spinner className="size-5 animate-spin text-gray5 hover:cursor-wait" />
         ) : (
           <SendHorizontalIcon
-            className={cn(
+            className={cx(
               'size-3.5 sm:size-5',
               status === 'VALID' ? 'text-blue-400' : 'text-gray9',
             )}

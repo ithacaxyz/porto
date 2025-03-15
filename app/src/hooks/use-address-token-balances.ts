@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
+import { useMemo } from 'react'
 import { useAccount, useBalance } from 'wagmi'
 
 import { addressApiEndpoint, urlWithLocalCorsBypass } from '~/lib/Constants'
@@ -13,10 +14,6 @@ export function useTokenBalances({
   const account = useAccount()
   const userAddress = address ?? account.address
 
-  const { data: balance, status: gasStatus } = useBalance({
-    address: userAddress,
-  })
-
   const {
     data: tokenBalances,
     status,
@@ -27,8 +24,7 @@ export function useTokenBalances({
     isPending,
   } = useQuery({
     queryKey: ['token-balances', userAddress],
-    enabled:
-      !!userAddress && Address.validate(userAddress) && gasStatus === 'success',
+    enabled: !!userAddress && Address.validate(userAddress),
     queryFn: async () => {
       try {
         // return data
@@ -37,6 +33,9 @@ export function useTokenBalances({
             const apiEndpoint = addressApiEndpoint(chain.id)
             const url = `${apiEndpoint}/addresses/${userAddress}/token-balances`
             const response = await fetch(urlWithLocalCorsBypass(url))
+            if (response.status === 404) {
+              return { id: chain.id, data: [] }
+            }
             if (!response.ok) {
               throw new Error(
                 `Failed to fetch token balances: ${response.statusText}`,
@@ -53,24 +52,31 @@ export function useTokenBalances({
         throw error
       }
     },
-    select: (data) => {
-      return [
-        ...(data.flat() ?? []),
-        {
-          value: balance?.value,
-          token: {
-            decimals: balance?.decimals,
-            name: balance?.symbol,
-            symbol: balance?.symbol,
-            icon_url: '/icons/eth.svg',
-          },
-        } as unknown as TokenBalance,
-      ].sort((a, b) => a.token.symbol.localeCompare(b.value))
-    },
+    select: (data) => data.flat(),
   })
 
+  const { data: gasBalance, status: gasStatus } = useBalance({
+    address: userAddress,
+  })
+
+  const balances = useMemo(() => {
+    if (gasStatus !== 'success') return []
+    const gas = {
+      value: gasBalance?.value,
+      token: {
+        decimals: gasBalance?.decimals,
+        name: gasBalance?.symbol,
+        symbol: gasBalance?.symbol,
+        icon_url: '/icons/eth.svg',
+      },
+    }
+    if (!tokenBalances) return [gas]
+
+    return [gas, ...tokenBalances]
+  }, [tokenBalances, gasBalance, gasStatus])
+
   return {
-    data: tokenBalances,
+    data: balances,
     status,
     error,
     refetch,

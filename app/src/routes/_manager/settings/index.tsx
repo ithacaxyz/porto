@@ -10,12 +10,12 @@ import ChevronDownIcon from '~icons/lucide/chevron-down'
 import LockIcon from '~icons/lucide/lock'
 import SettingsIcon from '~icons/lucide/settings'
 
+import { cx } from 'cva'
 import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
 import * as Constants from '~/lib/Constants'
-import { cn } from '~/utils'
 
 export const Route = createFileRoute('/_manager/settings/')({
   component: RouteComponent,
@@ -61,7 +61,7 @@ function RouteComponent() {
             </Ariakit.MenuButton>
             <Ariakit.Menu
               gutter={4}
-              className="ml-2 space-y-1 rounded-sm bg-gray4 p-1"
+              className="ml-2 max-h-[225px] space-y-1 overflow-y-auto rounded-sm bg-gray4 p-1"
             >
               {Constants.emojisArray.map((emoji) => (
                 <Ariakit.MenuItem
@@ -70,7 +70,7 @@ function RouteComponent() {
                     setUserEmoji(emoji)
                     localStorage.setItem('_porto_account_emoji', emoji)
                   }}
-                  className={cn(
+                  className={cx(
                     'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2',
                     userEmoji === emoji && 'bg-gray2',
                   )}
@@ -88,7 +88,7 @@ function RouteComponent() {
           </p>
           <div className="mt-2 flex w-full flex-col items-center justify-between gap-x-2 gap-y-3.5 sm:flex-row">
             <p
-              className={cn(
+              className={cx(
                 'sm:mr-2 sm:text-[15.5px] md:tracking-wide',
                 'no-scrollbar my-auto h-10 w-full overflow-auto rounded-default border border-gray6 px-3.5 pt-1.75 pb-1 text-[16.5px] text-gray11 tracking-normal',
               )}

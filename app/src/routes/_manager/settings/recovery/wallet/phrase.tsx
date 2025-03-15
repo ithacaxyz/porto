@@ -7,8 +7,8 @@ import CheckMarkIcon from '~icons/lucide/check'
 import ChevronLeftIcon from '~icons/lucide/chevron-left'
 import XIcon from '~icons/lucide/x'
 
+import { cx } from 'cva'
 import { Button } from '~/components/Button'
-import { cn } from '~/utils'
 
 export const Route = createFileRoute(
   '/_manager/settings/recovery/wallet/phrase',
@@ -73,7 +73,7 @@ function RouteComponent() {
 
   return (
     <main
-      className={cn(
+      className={cx(
         'mx-auto flex h-full w-full max-w-[460px] flex-col content-between items-stretch space-y-6 rounded-xl bg-transparent pt-2 pb-4 text-center',
         'sm:my-32 sm:h-[580px] sm:max-w-[400px] sm:bg-gray1 sm:pt-3 sm:shadow-sm sm:outline sm:outline-gray4',
       )}
@@ -140,7 +140,7 @@ function RouteComponent() {
             if (value.length === 0) return setStatus('IDLE')
             setStatus(validInput(value) ? 'VALID' : 'INVALID')
           }}
-          className={cn(
+          className={cx(
             'h-[160px] w-full max-w-[90%] resize-none rounded-md border-[1.5px] p-3 text-gray12',
             'placeholder:text-gray9 focus:outline-none focus:ring-1 focus:ring-gray3',
             status === 'VALID'

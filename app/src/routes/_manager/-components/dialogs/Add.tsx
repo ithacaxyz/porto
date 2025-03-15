@@ -3,7 +3,7 @@ import * as React from 'react'
 import XIcon from '~icons/lucide/x'
 import DollarSignIcon from '~icons/majesticons/dollar-circle-line'
 
-import { cn } from '~/utils'
+import { cx } from 'cva'
 
 export function AddMoneyDialog({
   className,
@@ -16,7 +16,7 @@ export function AddMoneyDialog({
     <Ariakit.DialogProvider>
       <Ariakit.Button
         onClick={() => setIsOpen(true)}
-        className={cn(
+        className={cx(
           className,
           'col-span-1 col-start-3',
           'sm:col-start-2 sm:row-span-1 sm:row-start-1',
@@ -30,7 +30,7 @@ export function AddMoneyDialog({
       <Ariakit.Dialog
         open={isOpen}
         onClose={() => setIsOpen(false)}
-        className={cn('dialog min-h-[200px] max-w-[400px]')}
+        className={cx('dialog min-h-[200px] max-w-[400px]')}
         backdrop={<div className="bg-gray12/40 backdrop-blur-xs" />}
       >
         <div>

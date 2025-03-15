@@ -1,4 +1,5 @@
 import * as Ariakit from '@ariakit/react'
+import { cx } from 'cva'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
@@ -9,7 +10,7 @@ import CopyIcon from '~icons/lucide/copy'
 import XIcon from '~icons/lucide/x'
 
 import { QrCode } from '~/components/QrCode'
-import { StringFormatter, cn } from '~/utils'
+import { StringFormatter } from '~/utils'
 
 export function DepositDialog() {
   const [isOpen, setIsOpen] = React.useState(false)
@@ -31,7 +32,7 @@ export function DepositDialog() {
     <Ariakit.DialogProvider>
       <Ariakit.Button
         onClick={() => setIsOpen(true)}
-        className={cn(
+        className={cx(
           'col-span-1 col-start-2',
           'sm:col-start-1 sm:row-span-1 sm:row-start-1',
           'w-[125px] text-center font-semibold text-lg sm:w-[120px] sm:text-md',
@@ -44,7 +45,7 @@ export function DepositDialog() {
       <Ariakit.Dialog
         open={isOpen}
         onClose={() => setIsOpen(false)}
-        className={cn(
+        className={cx(
           'dialog bg-transparent! shadow-none!',
           'w-full sm:max-w-[420px]',
           'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-35! sm:mb-0!',
@@ -53,7 +54,7 @@ export function DepositDialog() {
         backdrop={<div className="bg-gray12/40 backdrop-blur-xs" />}
       >
         <div
-          className={cn(
+          className={cx(
             'bottom-0! mt-auto!',
             'sm:bottom-auto sm:mt-0',
             'mx-auto max-w-[450px]',
@@ -77,7 +78,7 @@ export function DepositDialog() {
                 </span>
 
                 <div
-                  className={cn(
+                  className={cx(
                     'mt-2 grid h-full max-h-[230px] grid-cols-3 grid-rows-2 rounded-xl p-5 text-white',
 
                     'bg-linear-to-b from-[#0090FF] via-[#0588F0] to-[#0D74CE]',
@@ -98,7 +99,7 @@ export function DepositDialog() {
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className={cn(
+                    className={cx(
                       'col-span-3 col-start-1 row-span-1 row-start-2 mt-auto mb-2.5 flex h-[10px] items-center gap-x-2.5 text-md sm:col-span-2',
                     )}
                   >
@@ -110,9 +111,9 @@ export function DepositDialog() {
                     </span>
                     <span className="mt-auto flex size-6 items-center justify-center rounded-full bg-[#3C92DD]">
                       {isCopied ? (
-                        <CheckIcon className="m-auto size-3.5" />
+                        <CheckIcon className="m-auto size-3" />
                       ) : (
-                        <CopyIcon className="m-auto size-3.5" />
+                        <CopyIcon className="m-auto size-3" />
                       )}
                     </span>
                   </button>

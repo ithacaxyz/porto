@@ -10,8 +10,9 @@ import CopyIcon from '~icons/lucide/copy'
 import LogoutIcon from '~icons/lucide/log-out'
 import ThemeIcon from '~icons/mdi/theme-light-dark'
 
+import { cx } from 'cva'
 import { useThemeMode } from '~/hooks/use-theme-mode'
-import { StringFormatter, cn } from '~/utils'
+import { StringFormatter } from '~/utils'
 import { DevOnly } from './DevOnly'
 
 export function Header() {
@@ -76,7 +77,8 @@ export function Header() {
 
             <Ariakit.Menu
               gutter={8}
-              className={cn(
+              backdrop={<div className="fixed inset-0 bg-black/10" />}
+              className={cx(
                 'w-full rounded-lg bg-gray1 p-1 shadow-sm outline-[1.5px] outline-gray4',
                 '*:tracking-wide',
               )}
@@ -99,7 +101,7 @@ export function Header() {
                   <Link
                     {...props}
                     to="/settings"
-                    className={cn(
+                    className={cx(
                       'text-left',
                       'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray3',
                       currentFullPath === '/settings' && 'bg-gray3',

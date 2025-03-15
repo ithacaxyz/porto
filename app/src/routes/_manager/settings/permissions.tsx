@@ -1,5 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { Navigate, createFileRoute } from '@tanstack/react-router'
+import { cx } from 'cva'
 import type { Hex } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
@@ -9,14 +10,14 @@ import ChevronDownIcon from '~icons/lucide/chevron-down'
 import HandCoinsIcon from '~icons/lucide/hand-coins'
 import XIcon from '~icons/lucide/x'
 import TimeIcon from '~icons/mingcute/time-line'
+import WebIcon from '~icons/streamline/web'
 
 import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
-import { ExpIcon } from '~/components/Exp'
 import { Header } from '~/components/Header'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { Pill } from '~/components/Pill'
-import { StringFormatter, cn } from '~/utils'
+import { DateFormatter, StringFormatter } from '~/utils'
 
 export const Route = createFileRoute('/_manager/settings/permissions')({
   component: RouteComponent,
@@ -89,7 +90,7 @@ function RouteComponent() {
               ),
             )
           }}
-          className={cn(
+          className={cx(
             'select-none rounded-tr-2xl rounded-br-2xl px-5 py-2 text-red-500 hover:bg-destructive',
             permissions.data && 'hover:bg-destructive',
             !permissions.data?.length && 'invisible',
@@ -131,8 +132,8 @@ function Permission({
 
   return (
     <React.Fragment>
-      <div className="mb-0.5 hidden w-fit rounded-lg bg-[#0688F1] p-1 sm:block">
-        <ExpIcon className="size-7 text-white sm:size-10" />
+      <div className="mb-0.5 hidden w-fit rounded-lg bg-secondary p-1 sm:block">
+        <WebIcon className="text size-7 sm:size-9" />
       </div>
       <div>
         <p className="text-base sm:text-lg">
@@ -150,9 +151,9 @@ function Permission({
           </a>
           <Ariakit.TooltipProvider>
             <Ariakit.TooltipAnchor className="">
-              <Pill className="cursor-default text-xs sm:text-sm">
+              <Pill className="cursor-default rounded-full text-xs sm:text-sm">
                 <TimeIcon className="mr-0.5 size-4" />
-                {period}
+                {DateFormatter.timeToDuration(permission.expiry * 1000)}
               </Pill>
             </Ariakit.TooltipAnchor>
             <Ariakit.Tooltip className="max-w-[210px] text-pretty rounded-xl border border-gray6 bg-gray1 px-3.5 py-2 text-gray9 shadow-xs">
@@ -205,12 +206,12 @@ function Permission({
           </Ariakit.Select>
           <Ariakit.SelectPopover
             gutter={5}
-            className="popover space-y-1 rounded-sm border-2 border-gray-300/60 bg-gray1 p-1 shadow-lg"
+            className="popover ml-2 space-y-1 rounded-md border-1 border-gray5 bg-gray1 p-1 shadow-lg"
           >
             {['minute', 'hour', 'day', 'week', 'month', 'year'].map((unit) => (
               <Ariakit.SelectItem
                 key={unit}
-                className={cn(
+                className={cx(
                   'select-none rounded-sm px-3.5 py-1 text-gray12 hover:bg-gray3',
                   unit === period && 'bg-gray4',
                 )}
@@ -223,11 +224,11 @@ function Permission({
       <div className="-ml-0.5 -mr-1.5 min-h-[30px] min-w-0.5 bg-gray6 text-gray6 sm:mr-0 sm:ml-1" />
       <Ariakit.PopoverProvider>
         <Ariakit.PopoverDisclosure className="">
-          <XIcon className="size-5 hover:text-red9 sm:size-6" />
+          <XIcon className="size-5 text-secondary hover:text-red9 sm:size-6" />
         </Ariakit.PopoverDisclosure>
         <Ariakit.Popover
-          className="popover flex max-w-[250px] flex-col items-center justify-center gap-y-2 rounded-xl bg-gray2 px-4.5 py-3.5 shadow-sm outline-1 outline-gray4"
-          backdrop={<div className="fixed inset-0 bg-black/20" />}
+          className="popover flex max-w-[250px] flex-col items-center justify-center gap-y-2 rounded-xl border border-gray6 bg-gray1 px-4.5 py-3.5 text-gray9 shadow-sm"
+          backdrop={<div className="fixed inset-0 bg-black/10" />}
         >
           {revokePermissions.isPending ? (
             <IndeterminateLoader
@@ -238,7 +239,7 @@ function Permission({
             />
           ) : (
             <div>
-              <Ariakit.PopoverHeading className="mr-auto font-semibold text-xl">
+              <Ariakit.PopoverHeading className="mr-auto font-semibold text-gray12 text-xl">
                 Revoke permission?
               </Ariakit.PopoverHeading>
               <Ariakit.PopoverDescription className="w-full text-balance text-md text-secondary">
@@ -251,12 +252,12 @@ function Permission({
                 will no longer be able to spend without your explicit
                 permission.
               </Ariakit.PopoverDescription>
-              <div className="mt-auto flex w-full gap-x-3 pt-1 *:h-9 *:text-lg">
-                <Ariakit.PopoverDismiss className="w-[50%]! rounded-2xl bg-gray5 px-2 py-1 hover:bg-gray6">
+              <div className="mt-auto flex w-full gap-x-3 pt-3 *:h-9 *:text-lg">
+                <Ariakit.PopoverDismiss className="w-[50%]! rounded-3xl bg-gray5 px-2 py-1 hover:bg-gray6">
                   Cancel
                 </Ariakit.PopoverDismiss>
                 <Ariakit.Button
-                  className="w-[50%]! rounded-2xl bg-red9 px-2 py-1 text-gray1 hover:bg-red8"
+                  className="w-[50%]! rounded-3xl bg-red9 px-2 py-1 text-gray1 hover:bg-red8"
                   onClick={() =>
                     revokePermissions.mutate({ id: permission.id as Hex.Hex })
                   }
