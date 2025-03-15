@@ -70,8 +70,8 @@ export function Landing() {
                   onClick={() =>
                     connect.mutate({ connector: connector as never })
                   }
-                  className="flex-grow bg-secondary!"
-                  variant="ghost"
+                  className="flex-grow bg-gray6!"
+                  variant="default2"
                 >
                   Sign in
                 </Button>

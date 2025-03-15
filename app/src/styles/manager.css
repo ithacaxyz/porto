@@ -3,9 +3,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
-[role="button"],
-button:not([type="submit"]) {
-  cursor: default;
+@font-face {
+  font-family: "SF Pro";
+  src: url("/SF-Pro.woff2") format("woff2");
+  font-display: swap;
+}
+
+:root {
+  --font-serif: "SF Pro", "serif";
+  --font-sans: "SF Pro", "sans-serif";
+  --font-sf-pro: "SF Pro", "sans-serif";
+}
+
+@theme {
+  --font-serif: "SF Pro", "serif";
+  --font-sans: "SF Pro", "sans-serif";
+  --font-sf-pro: "SF Pro", "sans-serif";
 }
 
 html,
@@ -18,12 +31,21 @@ body,
 }
 
 @layer base {
-  /* html {
-    color-scheme: light !important;
-  } */
+  html {
+    color-scheme: light dark;
+  }
 }
 
 @layer utilities {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    @apply appearance-none;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button {
+    @apply appearance-none;
+  }
+
   .size-max {
     width: 100%;
     height: 100%;
@@ -119,10 +141,7 @@ body,
     inset 0 -1px 0 var(--shadow), 0 1px 1px var(--shadow);
 }
 
-/* hide ugly arrows for number inputs */
-@layer utilities {
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    @apply appearance-none;
-  }
+[role="button"],
+button:not([type="submit"]) {
+  cursor: default;
 }

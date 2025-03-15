@@ -50,7 +50,7 @@ export namespace Button {
           default:
             'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
           default2:
-            'text-primary bg-gray6 hover:not-active:bg-gray7 text-surface border border-surface',
+            'text-primary bg-gray5 hover:not-active:bg-gray7 text-surface border border-surface',
           ghost:
             'text-primary bg-transparent hover:not-active:bg-surfaceHover border border-gray8 hover:border-gray9 hover:active:border-gray10',
           invert: 'text-invert bg-invert hover:not-active:bg-invertHover',
