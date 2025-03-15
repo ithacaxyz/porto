@@ -18,9 +18,10 @@ export function useThemeMode(): {
     return 'light'
   })
 
-  // Only update classes and localStorage when theme changes
   React.useEffect(() => {
     if (typeof window === 'undefined') return
+    const localTheme = localStorage.getItem('__porto_theme')
+    if (localTheme === theme) return
 
     if (theme === 'dark') {
       document.documentElement.classList.remove('scheme-light', 'scheme-light')

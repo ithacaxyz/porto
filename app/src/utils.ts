@@ -1,13 +1,10 @@
-import { type ClassValue, clsx } from 'clsx'
 import { Value } from 'ox'
-import { twMerge } from 'tailwind-merge'
+
+export const randomArrayElement = <T>(array: T[]): T =>
+  array[Math.floor(Math.random() * array.length)] as T
 
 export const shuffleArray = <T>(array: T[]): T[] =>
   array.sort(() => Math.random() - 0.5)
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
 
 export const sum = (array: number[]) =>
   array.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
@@ -33,6 +30,21 @@ export namespace ValueFormatter {
       typeof num === 'bigint' ? Number(Value.format(num, units)) : num,
     )
   }
+
+  const priceIntl = new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  })
+
+  export function formatToPrice(
+    num: string | bigint | number | undefined,
+    units = 18,
+  ) {
+    if (!num) return '0'
+    return priceIntl.format(
+      typeof num === 'bigint' ? Number(Value.format(num, units)) : Number(num),
+    )
+  }
 }
 
 export namespace PercentFormatter {
@@ -45,5 +57,45 @@ export namespace PercentFormatter {
   export function format(num: number | undefined) {
     if (!num) return '0%'
     return numberIntl.format(Number(num / 100))
+  }
+}
+
+export namespace DateFormatter {
+  const dateIntl = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+
+  export function format(date: string) {
+    return dateIntl.format(new Date(date))
+  }
+
+  export function timeToDuration(timestamp: number) {
+    const now = Date.now()
+    const targetTime = new Date(timestamp)
+    const diff = targetTime.getTime() - now
+
+    if (diff < 0) return 'expired'
+
+    const seconds = Math.floor(diff / 1_000)
+    const minutes = Math.floor(seconds / 60)
+    const hours = Math.floor(minutes / 60)
+    const days = Math.floor(hours / 24)
+    const weeks = Math.floor(days / 7)
+    const months = Math.floor(days / 30)
+    const years = Math.floor(days / 365)
+
+    if (years > 0) return `${years}y`
+    if (months > 0) return `${months}M`
+    if (weeks > 0) return `${weeks}w`
+    if (days > 0) return `${days}d`
+    if (hours > 0) return `${hours}h`
+    if (minutes > 0) return `${minutes}m`
+    return `${seconds}s`
   }
 }

@@ -16,13 +16,13 @@ export function Landing() {
   const [connector] = useConnectors({ config })
 
   return (
-    <div className="mx-auto flex h-screen w-full max-w-[768px] flex-col p-6 sm:ml-34">
-      <nav className="flex gap-6 pt-5 font-medium text-gray11">
+    <main className="mx-auto flex size-full max-w-[768px] flex-col p-6 sm:ml-34">
+      <nav className="flex gap-6 pt-5 font-medium text-gray10">
         <a href="https://ithaca.xyz">Home ↗</a>
         <a href="https://ithaca.xyz/contact">Careers ↗</a>
       </nav>
 
-      <div className="w-full flex-grow content-end space-y-6 px-4 pb-10 sm:max-w-[350px] sm:justify-center sm:pb-[18dvh]">
+      <div className="mt-auto w-full flex-grow content-end space-y-6 px-4 pb-10 sm:max-w-[350px] sm:justify-center sm:pb-[18dvh]">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <img
@@ -32,12 +32,12 @@ export function Landing() {
             />
             <p className="font-medium text-[34px] leading-[24px]">Porto</p>
           </div>
-          <p className="font-normal text-[19px] text-secondary leading-[22px]">
+          <p className="font-normal text-[19px] text-gray10 leading-[22px]">
             A home for your digital assets,
             <br />
             powered by{' '}
             <a
-              className="text-accent"
+              className="text-blue9"
               href="https://ithaca.xyz"
               rel="noreferrer"
               target="_blank"
@@ -58,18 +58,20 @@ export function Landing() {
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="flex gap-2">
+              <div className="flex gap-4 sm:gap-2">
                 <Button
                   onClick={() => navigate({ to: '/create-account' })}
-                  className="flex-grow"
+                  className="flex-grow rounded-2xl"
                   variant="accent"
                 >
                   Create wallet
                 </Button>
                 <Button
-                  onClick={() => connect.mutate({ connector: connector! })}
-                  className="flex-grow"
-                  variant="invert"
+                  onClick={() =>
+                    connect.mutate({ connector: connector as never })
+                  }
+                  className="flex-grow bg-secondary!"
+                  variant="ghost"
                 >
                   Sign in
                 </Button>
@@ -86,7 +88,7 @@ export function Landing() {
               <a
                 target="_blank"
                 rel="noreferrer"
-                className="mx-1 text-secondary"
+                className="mx-1 text-gray10"
                 href="https://ithaca.xyz/recover"
               >
                 Recover my account →
@@ -96,8 +98,8 @@ export function Landing() {
         </div>
       </div>
       <div className="-z-50 fixed right-0 mt-3 hidden size-full h-[80dvh] max-w-[868px] max-[568px]:hidden max-[1024px]:h-[70dvh] sm:block">
-        <IthacaMark className="bg-accent text-black" />
+        <IthacaMark className="text-black" />
       </div>
-    </div>
+    </main>
   )
 }

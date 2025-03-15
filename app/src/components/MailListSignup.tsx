@@ -3,7 +3,7 @@ import * as React from 'react'
 import SendHorizontalIcon from '~icons/lucide/send-horizontal'
 import XIcon from '~icons/lucide/x'
 
-import { cn } from '~/utils'
+import { cx } from 'cva'
 import { Spinner } from './Spinner'
 
 export function MailListSignup() {
@@ -51,12 +51,12 @@ export function MailListSignup() {
   return (
     <Ariakit.Form
       store={store}
-      className="flex flex-row justify-between gap-x-2 rounded-full bg-surface px-3 py-2"
+      className="flex flex-row justify-between gap-x-2 rounded-full bg-gray3 px-3 py-2"
     >
       <img alt="icon" src="/icons/mushroom.svg" className="my-auto size-6" />
       <Ariakit.FormLabel
         name={store.names.email}
-        className="my-auto mr-auto font-medium text-gray11 text-xs sm:text-base"
+        className="my-auto mr-auto font-medium text-gray10 text-xs sm:text-base"
       >
         Power up your wallet!
       </Ariakit.FormLabel>
@@ -69,7 +69,7 @@ export function MailListSignup() {
             return (
               <XIcon
                 {...props}
-                className="my-auto size-6 rounded-full bg-rose-300 p-1 text-red-500"
+                className="my-auto size-6 rounded-full bg-red3 p-1 text-red9"
               />
             )
           }}
@@ -79,29 +79,31 @@ export function MailListSignup() {
         </Ariakit.Tooltip>
       </Ariakit.TooltipProvider>
       <Ariakit.FormInput
+        disabled
         type="email"
         required={true}
         name={store.names.email}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         placeholder="Get email updates…"
-        className={cn(
-          'w-[160px] rounded-full border border-gray8 bg-gray1 px-3 py-1 text-sm placeholder:text-secondary aria-invalid:border-red8 sm:w-[250px]',
-          'text-xs focus:outline-none focus:ring-2 focus:ring-gray6 sm:text-base',
+        className={cx(
+          'w-[160px] rounded-full border border-gray8 bg-gray2 px-3 py-1 text-sm placeholder:text-gray10 aria-invalid:border-red8 sm:w-[250px]',
+          'text-xs focus:outline-none focus:ring-2 focus:ring-blue9 sm:text-base',
         )}
       />
       <Ariakit.FormSubmit
+        disabled
         clickOnEnter={true}
-        className="rounded-full bg-gray6 p-2 sm:ml-1"
+        className="rounded-full bg-gray5 p-2 sm:ml-1"
       >
         <span className="sr-only">Send</span>
         {status === 'SUBMITTING' ? (
           <Spinner className="size-5 animate-spin text-gray5 hover:cursor-wait" />
         ) : (
           <SendHorizontalIcon
-            className={cn(
+            className={cx(
               'size-3.5 sm:size-5',
-              status === 'VALID' ? 'text-blue-400' : 'text-gray9',
+              status === 'VALID' ? 'text-blue9' : 'text-gray9',
             )}
           />
         )}

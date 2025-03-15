@@ -16,8 +16,8 @@ import ChevronRightIcon from '~icons/lucide/chevron-right'
 import WalletCardsIcon from '~icons/lucide/wallet-cards'
 import ThreeDotsIcon from '~icons/ph/dots-three-duotone'
 
+import { cx } from 'cva'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
-import { cn } from '~/utils'
 import { mipdConfig as config } from './-MipdWagmi'
 
 export const Route = createFileRoute('/_manager/settings/recovery/wallet/')({
@@ -55,13 +55,13 @@ function RouteComponent() {
 
   return (
     <main
-      className={cn(
+      className={cx(
         'mx-auto flex w-full flex-col items-center justify-center bg-transparent',
         'pt-32',
       )}
     >
       <div
-        className={cn([
+        className={cx([
           'sm:max-h-full',
           'content-between items-stretch space-y-6 rounded-xl',
           'max-w-[460px] pt-2 pb-4 text-center sm:max-w-[400px] sm:bg-gray1 sm:pt-3 sm:shadow-sm sm:outline sm:outline-gray4',
@@ -130,9 +130,9 @@ function RouteComponent() {
           )}
         </div>
 
-        <div className={cn('mx-auto w-full')}>
+        <div className={cx('mx-auto w-full')}>
           <ul
-            className={cn(
+            className={cx(
               'mb-5 w-full px-0.5',
               'max-h-[350px] overflow-y-scroll',
               (isLoading || success) && 'invisible hidden',

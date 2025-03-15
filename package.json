@@ -38,7 +38,7 @@
     "@types/node": "^22.13.10",
     "@types/react": "catalog:",
     "@vitest/coverage-v8": "2.1.8",
-    "@wagmi/cli": "^2.1.18",
+    "@wagmi/cli": "^2.2.0",
     "@wagmi/core": "catalog:",
     "knip": "^5.30.6",
     "ox": "catalog:",
@@ -51,10 +51,9 @@
     "typescript": "catalog:",
     "viem": "catalog:",
     "vitest": "^2.1.8",
-    "wagmi": "catalog:",
-    "wrangler": "^3.114.0"
+    "wagmi": "catalog:"
   },
-  "packageManager": "pnpm@10.6.2",
+  "packageManager": "pnpm@10.6.3",
   "engines": {
     "node": ">=22.5"
   },

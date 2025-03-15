@@ -1,4 +1,4 @@
-import { cn } from '~/utils'
+import { cx } from 'cva'
 import { Spinner } from './Spinner'
 
 export function IndeterminateLoader(props: IndeterminateLoader.Props) {
@@ -11,9 +11,9 @@ export function IndeterminateLoader(props: IndeterminateLoader.Props) {
   } = props
   return (
     <div className="space-y-2">
-      <div className={cn(className, 'flex items-center gap-2')}>
+      <div className={cx(className, 'flex items-center gap-2')}>
         <div
-          className={cn(
+          className={cx(
             'flex items-center justify-center rounded-full bg-accentTint p-[6px] text-accent',
             `size-${spinnerSize}`,
           )}

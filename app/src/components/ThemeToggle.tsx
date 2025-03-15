@@ -1,8 +1,8 @@
 import ThemeLoopIcon from '~icons/line-md/light-dark-loop'
 import ThemeIcon from '~icons/mdi/theme-light-dark'
 
+import { cx } from 'cva'
 import { useThemeMode } from '~/hooks/use-theme-mode'
-import { cn } from '~/utils'
 
 export function ThemeToggle({
   className,
@@ -12,10 +12,10 @@ export function ThemeToggle({
   const { theme, setTheme } = useThemeMode()
 
   return (
-    <div className={cn(className, 'fixed bottom-0 left-0')}>
+    <div className={cx(className, 'fixed bottom-0 left-0')}>
       <button
         type="button"
-        className="group relative rounded-full p-3 text-gray11 *:size-4 sm:*:size-6.5"
+        className="group relative rounded-full p-3 text-gray10 *:size-4 sm:*:size-6.5"
         onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
       >
         <ThemeIcon className="block group-hover:hidden" />

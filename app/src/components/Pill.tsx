@@ -1,4 +1,4 @@
-import { cn } from '~/utils'
+import { cx } from 'cva'
 
 export function Pill({
   children,
@@ -6,8 +6,8 @@ export function Pill({
 }: { children: React.ReactNode; className?: string }) {
   return (
     <span
-      className={cn(
-        'inline-flex items-center rounded-sm bg-gray5 px-1 py-0.5 font-medium text-gray9 text-xs ring-1 ring-gray6 ring-inset',
+      className={cx(
+        'inline-flex items-center rounded-sm bg-gray4 px-1 py-0.5 font-medium text-gray11 text-xs ring-1 ring-gray6 ring-inset',
         className,
       )}
     >

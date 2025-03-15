@@ -1,5 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { Link, Navigate, useLocation } from '@tanstack/react-router'
+import { cx } from 'cva'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -12,11 +13,12 @@ import SettingsIcon from '~icons/lucide/settings'
 import ThemeIcon from '~icons/mdi/theme-light-dark'
 
 import { useThemeMode } from '~/hooks/use-theme-mode'
-import { StringFormatter, cn } from '~/utils'
+import { StringFormatter } from '~/utils'
 import { DevOnly } from './DevOnly'
 
 export function Header() {
   const { theme, setTheme } = useThemeMode()
+
   const account = useAccount()
 
   const disconnect = Hooks.useDisconnect()
@@ -36,11 +38,19 @@ export function Header() {
             to="/"
             className="flex items-center gap-x-2 font-medium text-2xl"
           >
-            <img
-              alt="Porto wallet icon"
-              className="my-auto size-9"
-              src={theme === 'light' ? '/icon-light.png' : '/icon-dark.png'}
-            />
+            {theme === 'light' ? (
+              <img
+                alt="Porto wallet icon"
+                src="/icon-light.png"
+                className="my-auto size-9"
+              />
+            ) : (
+              <img
+                alt="Porto wallet icon"
+                src="/icon-dark.png"
+                className="my-auto size-9"
+              />
+            )}
             <span>Porto</span>
           </Link>
         ) : (
@@ -53,7 +63,7 @@ export function Header() {
               }
               className="mr-3"
             >
-              <ChevronLeftIcon className="mt-0.5 size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
+              <ChevronLeftIcon className="mt-0.5 size-6 rounded-full bg-gray3 p-1 text-gray11 hover:bg-gray4" />
             </Link>
             <span className="mr-auto font-medium text-2xl capitalize">
               {currentPathSegment}
@@ -61,7 +71,7 @@ export function Header() {
           </>
         )}
         <div className="flex flex-row items-center gap-x-2">
-          <span className="rounded-full bg-accent/20 px-3 py-2 text-md">
+          <span className="rounded-full bg-blue9/20 px-3 py-2 text-md">
             {localStorage.getItem('_porto_account_emoji') ?? '🌀'}
           </span>
           <Ariakit.MenuProvider>
@@ -72,18 +82,19 @@ export function Header() {
                   end: 4,
                 })}
               </p>
-              <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
+              <ChevronDownIcon className="size-7 rounded-full bg-gray3 p-1 text-gray11 hover:bg-gray4" />
             </Ariakit.MenuButton>
 
             <Ariakit.Menu
               gutter={8}
-              className={cn(
-                'w-full rounded-lg bg-gray1 p-1 shadow-lg outline-[1.5px] outline-gray4',
+              backdrop={<div className="fixed inset-0 bg-black/10" />}
+              className={cx(
+                'w-full rounded-lg bg-gray2 p-1 shadow-sm outline-[1.5px] outline-gray4',
                 '*:tracking-wide',
               )}
             >
               <Ariakit.MenuItem
-                className="flex items-center justify-between gap-x-2 rounded-sm px-3.5 py-3 hover:bg-gray4"
+                className="flex items-center justify-between gap-x-2 rounded-sm px-3 py-3 hover:bg-gray3"
                 onClick={() =>
                   navigator.clipboard
                     .writeText(account?.address ?? '')
@@ -100,13 +111,13 @@ export function Header() {
                   <Link
                     {...props}
                     to="/settings"
-                    className={cn(
+                    className={cx(
                       'text-left',
-                      'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray4',
-                      currentFullPath === '/settings' && 'bg-gray4',
+                      'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray3',
+                      currentFullPath === '/settings' && 'bg-gray3',
                     )}
                   >
-                    <SettingsIcon className="size-5.5" />
+                    <SettingsIcon className="size-5" />
                     <span className="mr-auto">Settings</span>
                   </Link>
                 )}
@@ -118,7 +129,7 @@ export function Header() {
               <Ariakit.MenuItem
                 hidden={true}
                 data-theme={theme}
-                className="flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray4"
+                className="flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray3"
                 onClick={(event) => {
                   const theme = event.currentTarget.dataset.theme
                   if (theme === 'light') setTheme('dark')
@@ -132,10 +143,10 @@ export function Header() {
               </Ariakit.MenuItem>
               <Ariakit.MenuSeparator className="mx-auto my-1 w-[85%] text-secondary/40" />
               <Ariakit.MenuItem
-                className="flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray4"
+                className="ml-0.5 flex cursor-default items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray3"
                 onClick={() => disconnect.mutate({})}
               >
-                <LogoutIcon className="size-4.5 text-red-400" />
+                <LogoutIcon className="size-4.5 text-red9" />
                 Disconnect
               </Ariakit.MenuItem>
             </Ariakit.Menu>

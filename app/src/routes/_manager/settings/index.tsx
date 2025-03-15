@@ -10,12 +10,12 @@ import ChevronDownIcon from '~icons/lucide/chevron-down'
 import LockIcon from '~icons/lucide/lock'
 import SettingsIcon from '~icons/lucide/settings'
 
+import { cx } from 'cva'
 import { Layout } from '~/components/AppLayout'
 import { Button } from '~/components/Button'
 import { Header } from '~/components/Header'
 import { Pill } from '~/components/Pill'
 import * as Constants from '~/lib/Constants'
-import { cn } from '~/utils'
 
 export const Route = createFileRoute('/_manager/settings/')({
   component: RouteComponent,
@@ -44,24 +44,24 @@ function RouteComponent() {
       />
       <section className="px-3">
         <div className="mb-4 flex items-center gap-x-3">
-          <div className="w-min rounded-full bg-gray-200 p-2">
-            <SettingsIcon className="size-5 text-gray-700" />
+          <div className="w-min rounded-full bg-gray3 p-2">
+            <SettingsIcon className="size-5 text-gray11" />
           </div>
           <p className="font-medium text-xl">General</p>
         </div>
         <div className="flex items-center gap-x-3 pt-1">
           <div>
             <p className="text-lg">Emoji</p>
-            <p className="text-secondary ">A visual motif for your wallet.</p>
+            <p className="text-gray10 ">A visual motif for your wallet.</p>
           </div>
           <Ariakit.MenuProvider>
-            <Ariakit.MenuButton className="ml-auto flex items-center gap-x-3 rounded-3xl border-2 border-gray-300/60 px-1 py-0.5">
+            <Ariakit.MenuButton className="ml-auto flex items-center gap-x-3 rounded-3xl border-[1.5px] border-gray6 px-1 py-0.5">
               <p className="ml-1 text-xl">{userEmoji}</p>
-              <ChevronDownIcon className="size-6 rounded-full bg-gray-200 p-1 text-gray-700 hover:bg-gray-300" />
+              <ChevronDownIcon className="size-6 rounded-full bg-gray3 p-1 text-gray11 hover:bg-gray4" />
             </Ariakit.MenuButton>
             <Ariakit.Menu
               gutter={4}
-              className="ml-2 space-y-1 rounded-sm bg-gray4 p-1"
+              className="ml-2 max-h-[225px] space-y-1 overflow-y-auto rounded-sm bg-gray4 p-1"
             >
               {Constants.emojisArray.map((emoji) => (
                 <Ariakit.MenuItem
@@ -70,7 +70,7 @@ function RouteComponent() {
                     setUserEmoji(emoji)
                     localStorage.setItem('_porto_account_emoji', emoji)
                   }}
-                  className={cn(
+                  className={cx(
                     'flex items-center justify-between gap-x-2 rounded-sm px-3 py-2 hover:bg-gray2',
                     userEmoji === emoji && 'bg-gray2',
                   )}
@@ -83,12 +83,10 @@ function RouteComponent() {
         </div>
         <div className="mt-5 flex w-full flex-col gap-x-3 pt-1">
           <p className="text-lg">Wallet address</p>
-          <p className="text-secondary ">
-            This is where you will receive funds.
-          </p>
-          <div className="mt-2 flex w-full flex-col items-center justify-between gap-2 sm:flex-row">
+          <p className="text-gray10 ">This is where you will receive funds.</p>
+          <div className="mt-2 flex w-full flex-col items-center justify-between gap-x-2 gap-y-3.5 sm:flex-row">
             <p
-              className={cn(
+              className={cx(
                 'sm:mr-2 sm:text-[15.5px] md:tracking-wide',
                 'no-scrollbar my-auto h-10 w-full overflow-auto rounded-default border border-gray6 px-3.5 pt-1.75 pb-1 text-[16.5px] text-gray11 tracking-normal',
               )}
@@ -98,7 +96,7 @@ function RouteComponent() {
             <div className="flex w-full items-center gap-x-2 *:text-lg sm:w-auto">
               <Button
                 variant="default"
-                className="w-full sm:ml-auto"
+                className="w-full rounded-full sm:ml-auto"
                 onClick={() =>
                   navigator.clipboard
                     .writeText(account?.address ?? '')
@@ -111,7 +109,7 @@ function RouteComponent() {
               {navigator?.canShare && (
                 <Button
                   variant="accent"
-                  className="w-full sm:w-auto"
+                  className="w-full rounded-full sm:w-auto"
                   onClick={(_event) => {
                     if (!navigator.canShare) return
                     navigator.share({
@@ -134,8 +132,8 @@ function RouteComponent() {
       />
       <section className="px-3">
         <div className="mb-4 flex items-center gap-x-3">
-          <div className="w-min rounded-full bg-gray-200 p-2">
-            <SecurityIcon className="size-5 font-bold text-black" />
+          <div className="w-min rounded-full bg-gray3 p-2">
+            <SecurityIcon className="size-5 font-bold text-gray11" />
           </div>
           <p className="font-medium text-xl">Permissions</p>
         </div>
@@ -148,13 +146,13 @@ function RouteComponent() {
                 {permissions.data?.length === 1 ? 'app' : 'apps'}
               </Pill>
             </div>
-            <p className="text-secondary ">
+            <p className="text-gray10 ">
               Manage spend permissions you have granted.
             </p>
           </div>
           <Link
             to="/settings/permissions"
-            className="h-10 rounded-default bg-gray4 px-3.5 hover:bg-gray3"
+            className="h-10 rounded-full bg-gray4 px-3.5 hover:bg-gray3"
           >
             <p className="mt-2 h-full font-medium">Manage</p>
           </Link>
@@ -166,8 +164,8 @@ function RouteComponent() {
       />
       <section className="px-3">
         <div className="mb-4 flex items-center gap-x-3">
-          <div className="w-min rounded-full bg-gray-200 p-2">
-            <LockIcon className="size-5 font-bold text-black" />
+          <div className="w-min rounded-full bg-gray3 p-2">
+            <LockIcon className="size-5 font-bold text-gray11" />
           </div>
           <p className="font-medium text-xl">Security</p>
         </div>
@@ -179,13 +177,13 @@ function RouteComponent() {
                 0 added
               </Pill>
             </div>
-            <p className="text-secondary ">
+            <p className="text-gray10 ">
               These are used to restore access to your wallet.
             </p>
           </div>
           <Link
             to="/settings/recovery"
-            className="h-10 rounded-default bg-gray4 px-3.5 hover:bg-gray3"
+            className="h-10 rounded-full bg-gray4 px-3.5 hover:bg-gray3"
           >
             <p className="mt-2 h-full font-medium">Manage</p>
           </Link>
