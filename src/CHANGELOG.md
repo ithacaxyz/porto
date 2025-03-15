@@ -1,5 +1,69 @@
 # porto
 
+## 0.0.17
+
+### Patch Changes
+
+- [#53](https://github.com/ithacaxyz/porto/pull/53) [`77d743e`](https://github.com/ithacaxyz/porto/commit/77d743e8671f5788b295c4180fa56d9fcd00df50) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `"contract"` to `"address"` on `key.type` on the `grantPermissions` capability & `wallet_grantPermissions` method.
+
+  Example:
+
+  ```diff
+  type Request = {
+    method: 'experimental_grantPermissions',
+    params: [{
+      // ...
+      key?: {
+        publicKey?: `0x${string}`,
+  -     type?: 'contract' | 'p256' | 'secp256k1' | 'webauthn-p256',
+  +     type?: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256',
+      }
+    }]
+  }
+  ```
+
+- [#53](https://github.com/ithacaxyz/porto/pull/53) [`77d743e`](https://github.com/ithacaxyz/porto/commit/77d743e8671f5788b295c4180fa56d9fcd00df50) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `wallet_prepareCreateAccount`. Use `wallet_prepareUpgradeAccount` and `wallet_upgradeAccount` instead.
+
+- [#53](https://github.com/ithacaxyz/porto/pull/53) [`77d743e`](https://github.com/ithacaxyz/porto/commit/77d743e8671f5788b295c4180fa56d9fcd00df50) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Updated to [latest ERC-7836 edits](https://github.com/lukasrosario/ERCs/pull/2/commits/bc63d3ff07ac71c56719ffbfd47194cd986c393c).
+
+  - Added required `key` parameter to `wallet_prepareCalls` + `wallet_sendPreparedCalls`.
+
+  Example:
+
+  ```diff
+  type Request = {
+    method: 'wallet_prepareCalls',
+    params: [{
+      // ...
+  +   key: {
+  +     publicKey: `0x${string}`,
+  +     type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256',
+  +   }
+    }]
+  }
+  ```
+
+  - Modified `signature` parameters on `wallet_sendPreparedCalls` to be a hex value.
+
+  ```diff
+  type Request = {
+    method: 'wallet_sendPreparedCalls',
+    params: [{
+      // ...
+      key: {
+        publicKey: `0x${string}`,
+        type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256',
+      }
+  +   signature: `0x${string}`,
+  -   signature: {
+  -     publicKey: `0x${string}`,
+  -     type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256',
+  -     value: `0x${string}`,
+  -   },
+    }]
+  }
+  ```
+
 ## 0.0.16
 
 ### Patch Changes
