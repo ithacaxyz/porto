@@ -2,7 +2,7 @@ import { defineCustomElements } from '@bitjson/qr-code'
 import * as React from 'react'
 import { toast } from 'sonner'
 
-import { cn } from '~/utils'
+import { cx } from 'cva'
 
 export function QrCode(props: {
   protocol?: string
@@ -19,9 +19,9 @@ export function QrCode(props: {
   return (
     <button
       type="button"
-      className={cn(
+      className={cx(
         'text-white',
-        'mt-3 mb-4 size-full rounded-xl shadow-sm',
+        'mb-12 size-full rounded-xl shadow-sm',
         'hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0',
       )}
       onClick={() =>

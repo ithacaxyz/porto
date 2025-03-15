@@ -2,8 +2,9 @@ import * as Ariakit from '@ariakit/react'
 import { Value } from 'ox'
 import * as React from 'react'
 import { useAccount } from 'wagmi'
-import { Layout } from '~/components/AppLayout'
 
+import { cx } from 'cva'
+import { Layout } from '~/components/AppLayout'
 import { Header } from '~/components/Header'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { MailListSignup } from '~/components/MailListSignup'
@@ -17,7 +18,6 @@ import {
   PercentFormatter,
   StringFormatter,
   ValueFormatter,
-  cn,
   sum,
 } from '~/utils'
 import CoinsIcon from '~icons/lucide/coins'
@@ -27,12 +27,7 @@ import { DepositDialog } from './dialogs/Deposit'
 import { SendDialog } from './dialogs/Send'
 
 export function Dashboard() {
-  const { address } = useAccount()
-
-  const { data: assets, status } = useTokenBalances({
-    address: address!,
-  })
-
+  const { data: assets, status } = useTokenBalances()
   const { data: transfers } = useAddressTransfers()
 
   const [search, setSearch] = React.useState('')
@@ -73,19 +68,19 @@ export function Dashboard() {
     <Layout className="font-sf-pro">
       <Header />
       <section
-        className={cn(
+        className={cx(
           'h-lg',
           assets && assets.length > 0 && 'gap-2 pt-10 *:w-1/2',
           'flex flex-col items-center gap-5 rounded-2xl bg-surface px-4 py-6',
           'sm:flex-row sm:justify-between sm:px-6',
         )}
       >
-        <div className="w-full gap-y-2 text-center tabular-nums sm:text-left">
-          <p className="text-center font-semibold text-4xl sm:text-left sm:font-semibold sm:text-4xl">
+        <div className="w-full space-y-2 text-center tabular-nums sm:text-left">
+          <p className="text-center font-semibold text-4xl sm:text-left sm:font-semibold sm:text-5xl">
             ${totalBalance}
           </p>
           {assets && assets?.length > 0 ? (
-            <p className="text-md text-secondary sm:my-auto sm:text-md">
+            <p className="ml-1.5 text-lg text-secondary sm:my-auto sm:text-md">
               {sum(
                 assets?.map((asset) =>
                   Number(
@@ -106,7 +101,7 @@ export function Dashboard() {
         </div>
 
         <div
-          className={cn(
+          className={cx(
             'gap-6 max-[300px]:gap-x-4.5 sm:gap-2',
             'context-stretch items-stretch justify-items-center',
             assets && assets.length > 0
@@ -128,7 +123,7 @@ export function Dashboard() {
 
               {/* ==== ADD ==== */}
               <AddMoneyDialog
-                className={cn(
+                className={cx(
                   status === 'success' && assets && assets.length > 0
                     ? 'bg-gray7! hover:bg-gray6!'
                     : 'bg-accent! text-white hover:bg-accent/90!',
@@ -148,7 +143,7 @@ export function Dashboard() {
             <Ariakit.Tab
               id="assets"
               tabbable={true}
-              className={cn(
+              className={cx(
                 'tab flex rounded-4xl border-2 border-gray6',
                 'data-[active-item=true]:border-blue9 data-[active-item=true]:text-accent',
               )}
@@ -159,7 +154,7 @@ export function Dashboard() {
             <Ariakit.Tab
               id="history"
               tabbable={true}
-              className={cn(
+              className={cx(
                 'tab mr-auto flex rounded-4xl border-2 border-gray6',
                 'data-[active-item=true]:border-blue9 data-[active-item=true]:text-accent',
               )}
@@ -172,7 +167,7 @@ export function Dashboard() {
               placeholder="Search…"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className={cn(
+              className={cx(
                 'ml-2 w-full max-w-[50%] rounded-full border border-gray8 bg-transparent px-4 py-2 text-gray12',
                 'placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-gray6 sm:ml-8 sm:max-w-[300px]',
               )}
@@ -180,7 +175,7 @@ export function Dashboard() {
           </Ariakit.TabList>
           <div className="">
             <Ariakit.TabPanel tabId="assets" className="mt-5">
-              <table className={cn('md:table-none w-full')}>
+              <table className={cx('md:table-none w-full')}>
                 <thead className="">
                   <tr className="*:font-light *:text-gray12 *:text-sm">
                     <th className="text-left">Name</th>
@@ -195,7 +190,7 @@ export function Dashboard() {
                     return (
                       <tr
                         key={`${asset.token.name + index}`}
-                        className={cn(
+                        className={cx(
                           'border-gray-400/50 border-b *:px-1',
                           !filteredAssets ||
                             (index === filteredAssets.length - 1 &&
@@ -238,7 +233,7 @@ export function Dashboard() {
                               <span className="text-lg">$1</span>
                             )}
                             <span
-                              className={cn(
+                              className={cx(
                                 'text-sm tracking-wider',
                                 token?.symbol?.toLowerCase() === 'exp' ||
                                   token?.symbol?.toLowerCase() === 'exp2'
@@ -327,9 +322,9 @@ export function Dashboard() {
                         </tr>
                       </thead>
                       <tbody className="">
-                        {filteredTransfers?.map((transfer) => (
+                        {filteredTransfers?.map((transfer, index) => (
                           <tr
-                            key={transfer?.transaction_hash}
+                            key={`${transfer?.transaction_hash}-${index}`}
                             className="border-gray-400/50 border-b *:p-1 hover:bg-gray5"
                           >
                             <td>
@@ -438,7 +433,7 @@ function SelectChains({
   return (
     <Ariakit.SelectProvider value={values} setValue={setValues}>
       <Ariakit.Select
-        className={cn(
+        className={cx(
           'flex w-full max-w-[220px] items-center justify-between rounded-xl bg-gray3 px-3 py-3 shadow-gray1 shadow-md outline outline-gray7 hover:bg-gray4',
         )}
       >

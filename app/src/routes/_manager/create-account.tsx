@@ -3,12 +3,12 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { useAccount, useConnectors } from 'wagmi'
 
+import { cx } from 'cva'
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { useThemeMode } from '~/hooks/use-theme-mode'
 import * as Constants from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
-import { cn } from '~/utils'
 
 export const Route = createFileRoute('/_manager/create-account')({
   component: RouteComponent,
@@ -39,7 +39,7 @@ function RouteComponent() {
 
   return (
     <main
-      className={cn(
+      className={cx(
         'mx-auto flex h-screen w-full max-w-[400px] flex-col content-between items-stretch space-y-6 rounded-xl py-4 text-center sm:bg-gray1',
         'sm:my-52 sm:h-[550px] sm:shadow-sm sm:outline sm:outline-gray4',
       )}
@@ -87,14 +87,14 @@ function RouteComponent() {
         <p className="-mt-1 text-secondary">Add a memorable icon</p>
 
         <div
-          className={cn(
+          className={cx(
             'scrollbar-none mt-3 mb-6 flex w-full select-none justify-center gap-2.5 overflow-hidden overflow-x-auto',
           )}
         >
           {emojis.map((emoji) => (
             <div
               key={emoji}
-              className={cn(
+              className={cx(
                 'my-2 flex items-center justify-center rounded-full text-2xl transition-colors',
                 selectedEmoji === emoji
                   ? 'border-2 border-gray3 p-2'
@@ -135,7 +135,7 @@ function RouteComponent() {
                   })
                 }}
                 data-emoji={emoji}
-                className={cn(
+                className={cx(
                   'my-auto flex shrink-0 items-center justify-center rounded-full transition-colors',
                   selectedEmoji === emoji
                     ? 'size-16 bg-accent/20 text-4xl text-white'

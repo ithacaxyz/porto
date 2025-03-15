@@ -3,7 +3,7 @@ import { Hooks } from 'porto/remote'
 import type * as React from 'react'
 
 import { porto } from '~/lib/Porto'
-import { StringFormatter, cn } from '~/utils'
+import { StringFormatter } from '~/utils'
 import { IndeterminateLoader } from './IndeterminateLoader'
 
 export function Layout(props: Layout.Props) {
@@ -17,7 +17,7 @@ export function Layout(props: Layout.Props) {
     )
   return (
     <div
-      className={cn(
+      className={cx(
         className,
         'mx-auto flex size-full max-w-3xl flex-col gap-y-4 px-3.5 py-4 sm:px-4 sm:py-5',
       )}

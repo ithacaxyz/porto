@@ -1,4 +1,5 @@
 import * as Ariakit from '@ariakit/react'
+import { cx } from 'cva'
 import { Address, type Hex, Value } from 'ox'
 import * as React from 'react'
 import { encodeFunctionData, erc20Abi, isHex, parseEther } from 'viem'
@@ -17,7 +18,7 @@ import {
   type TokenBalance,
   useTokenBalances,
 } from '~/hooks/use-address-token-balances'
-import { StringFormatter, ValueFormatter, cn } from '~/utils'
+import { StringFormatter, ValueFormatter } from '~/utils'
 
 export function SendDialog({
   className,
@@ -56,7 +57,7 @@ export function SendDialog({
     <Ariakit.DialogProvider>
       <Ariakit.Button
         onClick={() => setIsOpen(true)}
-        className={cn(
+        className={cx(
           className,
           'w-[105px] text-center font-semibold text-lg sm:mt-0.75 sm:w-[252px] sm:text-md',
           'flex h-11! items-center justify-center gap-x-1 sm:h-10',
@@ -71,7 +72,7 @@ export function SendDialog({
       <Ariakit.Dialog
         open={isOpen}
         onClose={() => [send.reset(), setIsOpen(false)]}
-        className={cn(
+        className={cx(
           'dialog',
           'w-full sm:max-w-[420px]',
           'bottom-0! mt-auto! mb-4! sm:bottom-auto! sm:mt-35! sm:mb-0!',
@@ -215,7 +216,7 @@ export function SendDialog({
                   </Pill>
                 </div>
                 <div
-                  className={cn(
+                  className={cx(
                     'flex w-full items-center',
                     'h-14 rounded-xl border-2 border-gray4 px-3.5 py-2 text-left font-medium hover:bg-secondary',
                   )}
@@ -224,7 +225,7 @@ export function SendDialog({
                     name="amount"
                     type="number"
                     inputMode="decimal"
-                    className={cn(
+                    className={cx(
                       'slashed-zero tabular-nums placeholder:slashed-zero',
                       'size-full text-left font-medium text-2xl text-primary/80 hover:bg-secondary focus:outline-none',
                     )}
@@ -279,7 +280,7 @@ export function SendDialog({
                   Send to...
                 </label>
                 <div
-                  className={cn(
+                  className={cx(
                     'flex w-full items-center',
                     'h-14 rounded-xl border-2 border-gray4 py-2 pl-3.5 text-left font-medium hover:bg-secondary',
                   )}
@@ -314,7 +315,7 @@ export function SendDialog({
                 <OurButton
                   type="submit"
                   disabled={!amount || isSending}
-                  className={cn('rounded-full border-2 border-gray6')}
+                  className={cx('rounded-full border-2 border-gray6')}
                   variant={!!amount && !isSending ? 'accent' : 'default'}
                 >
                   Send
@@ -349,7 +350,7 @@ function AssetSelectionView({
             <button
               type="button"
               key={asset.token.symbol}
-              className={cn(
+              className={cx(
                 'flex w-full flex-row items-center justify-between border-gray4 border-b-2 px-5 py-3 hover:bg-gray4',
                 index === 0 && 'border-t-2',
               )}
@@ -429,7 +430,7 @@ function ReceiverInput() {
           if (event.target.value.length <= 14) return
           setIsFocused(false)
         }}
-        className={cn(
+        className={cx(
           'slashed-zero tabular-nums placeholder:slashed-zero',
           'size-full text-left font-medium text-lg text-primary hover:bg-secondary focus:outline-none',
           validRecipient && !isFocused && 'text-transparent',
@@ -438,7 +439,7 @@ function ReceiverInput() {
 
       <span
         data-item="recipient"
-        className={cn(
+        className={cx(
           'pointer-events-none absolute font-medium text-lg text-primary',
           (!validRecipient || isFocused) && 'invisible hidden text-transparent',
         )}
