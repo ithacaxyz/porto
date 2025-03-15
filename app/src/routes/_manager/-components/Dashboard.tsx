@@ -1,12 +1,12 @@
 import * as Ariakit from '@ariakit/react'
+import { cx } from 'cva'
 import { Value } from 'ox'
 import * as React from 'react'
-import { useAccount } from 'wagmi'
+import CoinsIcon from '~icons/lucide/coins'
+import HistoryIcon from '~icons/lucide/history'
 
-import { cx } from 'cva'
 import { Layout } from '~/components/AppLayout'
 import { Header } from '~/components/Header'
-import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
 import { ThemeToggle } from '~/components/ThemeToggle'
@@ -20,8 +20,6 @@ import {
   ValueFormatter,
   sum,
 } from '~/utils'
-import CoinsIcon from '~icons/lucide/coins'
-import HistoryIcon from '~icons/lucide/history'
 import { AddMoneyDialog } from './dialogs/Add'
 import { DepositDialog } from './dialogs/Deposit'
 import { SendDialog } from './dialogs/Send'
@@ -69,7 +67,6 @@ export function Dashboard() {
       <Header />
       <section
         className={cx(
-          'h-lg',
           assets && assets.length > 0 && 'gap-2 pt-10 *:w-1/2',
           'flex flex-col items-center gap-5 rounded-2xl bg-surface px-4 py-6',
           'sm:flex-row sm:justify-between sm:px-6',
@@ -109,9 +106,7 @@ export function Dashboard() {
               : 'flex w-[260px] max-w-[300px] items-center justify-center gap-2! *:w-full',
           )}
         >
-          {status === 'pending' ? (
-            <IndeterminateLoader title="Loading assets" />
-          ) : (
+          {
             <React.Fragment>
               {/* ==== SEND ==== */}
               {status === 'success' && assets && assets.length > 0 && (
@@ -130,7 +125,7 @@ export function Dashboard() {
                 )}
               />
             </React.Fragment>
-          )}
+          }
         </div>
       </section>
 
@@ -322,6 +317,15 @@ export function Dashboard() {
                         </tr>
                       </thead>
                       <tbody className="">
+                        <React.Fragment>
+                          {!filteredTransfers?.length && (
+                            <tr>
+                              <td colSpan={5} className="pt-3 text-center">
+                                No transfers found
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
                         {filteredTransfers?.map((transfer, index) => (
                           <tr
                             key={`${transfer?.transaction_hash}-${index}`}
@@ -434,7 +438,7 @@ function SelectChains({
     <Ariakit.SelectProvider value={values} setValue={setValues}>
       <Ariakit.Select
         className={cx(
-          'flex w-full max-w-[220px] items-center justify-between rounded-xl bg-gray3 px-3 py-3 shadow-gray1 shadow-md outline outline-gray7 hover:bg-gray4',
+          'flex w-full max-w-[220px] items-center justify-between rounded-xl bg-gray3 px-3 py-3 shadow-gray1 shadow-sm outline outline-gray5 hover:bg-gray4',
         )}
       >
         <span>{renderValue(values)}</span>
