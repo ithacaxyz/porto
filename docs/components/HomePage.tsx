@@ -2,14 +2,17 @@ import * as Ariakit from '@ariakit/react'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
-import { parseEther } from 'viem'
-import { useAccount, useConnectors, useDisconnect } from 'wagmi'
+import {
+  useAccount,
+  useAccountEffect,
+  useConnectors,
+  useReadContract,
+} from 'wagmi'
 
-import { useCallsStatus, useSendCalls } from 'wagmi/experimental'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
-import { exp1Abi, exp1Address } from '../_generated/contracts'
+import { exp1Config, exp2Config } from '../_generated/contracts'
 import { Button } from './Button'
-import { MintButton } from './DemoApp'
+import { MintDemo, SwapDemo, LimitDemo, PayDemo } from './DemoApp'
 import { Logo } from './Logo'
 
 export function HomePage() {
@@ -202,19 +205,46 @@ namespace Install {
   }
 }
 
-const steps = ['mint', 'swap', 'spend']
-const delayToNextStep = 1000
+const steps = ['sign-in', 'mint', 'swap', 'send', 'spend']
 
 function Demo() {
   const account = useAccount()
-  const disconnect = useDisconnect()
-  const [step, setStep] = React.useState<(typeof steps)[number]>('mint')
+  const [step, setStep] = React.useState<(typeof steps)[number]>('sign-in')
 
   const [isMounted, setIsMounted] = React.useState(false)
 
   React.useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  useAccountEffect({
+    onConnect() {
+      setStep('mint')
+    },
+    onDisconnect() {
+      setStep('sign-in')
+    },
+  })
+
+  const shared = {
+    functionName: 'balanceOf',
+    args: [account.address!],
+    query: { enabled: Boolean(account.address) },
+  } as const
+  const { data: exp1Balance } = useReadContract({
+    ...exp1Config,
+    ...shared,
+    query: {
+      refetchInterval: 1000,
+    },
+  })
+  const { data: exp2Balance } = useReadContract({
+    ...exp2Config,
+    ...shared,
+    query: {
+      refetchInterval: 1000,
+    },
+  })
 
   return (
     <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4">
@@ -228,18 +258,41 @@ function Demo() {
       </div>
       <div className="flex-1">
         {isMounted && (
-          <div className="relative flex h-full w-full items-center justify-center px-10">
-            {!account.isConnected && <SignIn />}
-            {account.isConnected && step === 'mint' && (
-              <Mint next={() => setStep('swap')} />
-            )}
+          <div className="relative flex h-full w-full items-center justify-center">
+            <div className="w-full max-w-[277px]">
+              {step === 'sign-in' && <SignIn />}
+              {step === 'mint' && (
+                <MintDemo
+                  address={account.address}
+                  exp1Balance={exp1Balance}
+                  next={() => setStep('swap')}
+                />
+              )}
+              {step === 'swap' && (
+                <SwapDemo
+                  address={account.address}
+                  exp1Balance={exp1Balance}
+                  exp2Balance={exp2Balance}
+                  next={() => setStep('send')}
+                />
+              )}
+              {step === 'send' && (
+                <PayDemo
+                  address={account.address}
+                  exp1Balance={exp1Balance}
+                  exp2Balance={exp2Balance}
+                  next={() => setStep('spend')}
+                />
+              )}
+              {step === 'spend' && <LimitDemo address={account.address} />}
+            </div>
           </div>
         )}
       </div>
       <div className="flex w-full flex-col items-center justify-center">
         {isMounted && (
           <div className="max-w-[24ch] space-y-1">
-            {!account.isConnected && (
+            {step === 'sign-in' && (
               <>
                 <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                   Sign in or sign up
@@ -249,36 +302,57 @@ function Demo() {
                 </p>
               </>
             )}
-            {account.isConnected && (
+            {step === 'mint' && (
               <>
-                {step === 'mint' && (
-                  <>
-                    <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Transact with ease
-                    </p>
-                    <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      Simple, friendly transaction previews that get out of the
-                      way.
-                    </p>
-                  </>
-                )}
-                <div />
+                <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
+                  Transact with ease
+                </p>
+                <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
+                  Simple, friendly transaction previews that get out of the way.
+                </p>
+              </>
+            )}
+            {step === 'swap' && (
+              <>
+                <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
+                  Swap spontaneously
+                </p>
+                <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
+                  Transactions like swaps are simple, easy, and fast.
+                </p>
+              </>
+            )}
+            {step === 'send' && (
+              <>
+                <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
+                  Flexibility with fees
+                </p>
+                <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
+                  Pay network or transaction fees in the token of your choice.
+                </p>
+              </>
+            )}
+            {step === 'spend' && (
+              <>
+                <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
+                  Get rid of clicks
+                </p>
+                <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
+                  Allow applications to spend on your behalf with custom rules.
+                </p>
               </>
             )}
             <div className="h-4" />
             <div className="flex items-center justify-center gap-1">
-              <div
-                data-active={!account.isConnected}
-                className="size-[7px] rounded-full bg-gray6 transition-all duration-150 hover:not-data-[active=true]:scale-150 hover:bg-gray9 data-[active=true]:w-6 data-[active=true]:bg-gray9"
-                onClick={() => disconnect.disconnect()}
-              />
               {steps.map((s) => (
                 <div
                   key={s}
-                  data-active={account.isConnected && s === step}
+                  data-active={s === step}
                   data-disabled={!account.isConnected}
                   className="size-[7px] rounded-full bg-gray6 transition-all duration-150 hover:not-data-[active=true]:not-data-[disabled=true]:scale-150 hover:not-data-[disabled=true]:bg-gray9 data-[active=true]:w-6 data-[active=true]:bg-gray9"
-                  onClick={() => setStep(s)}
+                  onClick={() => {
+                    if (account.isConnected) setStep(s)
+                  }}
                 />
               ))}
             </div>
@@ -327,58 +401,6 @@ function SignIn() {
       >
         Sign in
       </Button>
-    </div>
-  )
-}
-
-function Mint({ next }: { next: () => void }) {
-  const account = useAccount()
-
-  const amount = '100'
-  const symbol = 'exp1'
-
-  const mint = useSendCalls()
-  const mintStatus = useCallsStatus({
-    id: mint.data as string,
-    query: {
-      enabled: !!mint.data,
-      refetchInterval({ state }) {
-        if (state.data?.status === 'CONFIRMED') return false
-        return 800
-      },
-    },
-  })
-
-  const status = React.useMemo(() => {
-    if (mint.isPending) return 'pending'
-    if (mintStatus.isLoading) return 'pending'
-    if (mintStatus.isSuccess) return 'success'
-    return 'default'
-  }, [mint.isPending, mintStatus.isLoading, mintStatus.isSuccess])
-
-  React.useEffect(() => {
-    if (status === 'success') setTimeout(next, delayToNextStep)
-  }, [next, status])
-
-  return (
-    <div className="flex w-[277px]">
-      <MintButton
-        amount={amount}
-        status={status}
-        symbol={symbol}
-        onClick={() =>
-          mint.sendCalls({
-            calls: [
-              {
-                abi: exp1Abi,
-                to: exp1Address,
-                functionName: 'mint',
-                args: [account.address, parseEther(amount)],
-              },
-            ],
-          })
-        }
-      />
     </div>
   )
 }

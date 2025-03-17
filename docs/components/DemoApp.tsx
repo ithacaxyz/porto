@@ -304,8 +304,8 @@ export function DemoApp() {
   )
 }
 
-function MintDemo(props: MintDemo.Props) {
-  const { address, exp1Balance } = props
+export function MintDemo(props: MintDemo.Props) {
+  const { address, exp1Balance, next } = props
 
   const mint = createUseSendCalls<{ amount: string; symbol: string }>(
     (variables) => [
@@ -321,9 +321,6 @@ function MintDemo(props: MintDemo.Props) {
     onError(error) {
       // TODO: Error toast
       console.error('mint', error)
-    },
-    onSuccess() {
-      setTimeout(() => mint.reset(), successTimeout)
     },
   })
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } = useCallsStatus(
@@ -352,6 +349,14 @@ function MintDemo(props: MintDemo.Props) {
       : mintIsSuccess
         ? 'success'
         : 'default'
+
+  React.useEffect(() => {
+    if (status === 'success')
+      setTimeout(() => {
+        if (next) next()
+        else mint.reset()
+      }, successTimeout)
+  }, [next, mint.reset, status])
 
   return (
     <div className="mt-[3px] flex flex-col gap-3 pb-[18px]">
@@ -389,10 +394,11 @@ declare namespace MintDemo {
   type Props = {
     address: Address.Address | undefined
     exp1Balance: bigint | undefined
+    next?: () => void
   }
 }
 
-export function MintButton(props: MintButton.Props) {
+function MintButton(props: MintButton.Props) {
   const { amount, status, symbol, ...rest } = props
   return (
     <button
@@ -432,8 +438,8 @@ declare namespace MintButton {
   }
 }
 
-function SwapDemo(props: SwapDemo.Props) {
-  const { address, exp1Balance, exp2Balance } = props
+export function SwapDemo(props: SwapDemo.Props) {
+  const { address, exp1Balance, exp2Balance, next } = props
 
   const swap = createUseSendCalls<Variables>((variables) => {
     const expFromConfig =
@@ -456,7 +462,6 @@ function SwapDemo(props: SwapDemo.Props) {
     },
     onSuccess() {
       form.setValues((x) => ({ ...x, toValue: '', fromValue: '' }))
-      setTimeout(() => swap.reset(), successTimeout)
     },
   })
   type Variables = {
@@ -494,6 +499,14 @@ function SwapDemo(props: SwapDemo.Props) {
       : swapIsSuccess
         ? 'success'
         : 'default'
+
+  React.useEffect(() => {
+    if (swapStatus === 'success')
+      setTimeout(() => {
+        if (next) next()
+        else swap.reset()
+      }, successTimeout)
+  }, [next, swap.reset, swapStatus])
 
   const fromSymbol = form.useValue('fromSymbol')
   const fromValue = form.useValue('toValue')
@@ -713,11 +726,12 @@ declare namespace SwapDemo {
     address: Address.Address | undefined
     exp1Balance: bigint | undefined
     exp2Balance: bigint | undefined
+    next?: () => void
   }
 }
 
-function PayDemo(props: PayDemo.Props) {
-  const { address, exp1Balance, exp2Balance } = props
+export function PayDemo(props: PayDemo.Props) {
+  const { address, exp1Balance, exp2Balance, next } = props
 
   const pay = createUseSendCalls<{ amount: string; symbol: typeof symbol }>(
     (variables) => {
@@ -747,10 +761,6 @@ function PayDemo(props: PayDemo.Props) {
     onError(error) {
       // TODO: Error toast
       console.error('pay', error)
-    },
-    onSuccess() {
-      form.setValue('amount', '')
-      setTimeout(() => pay.reset(), successTimeout)
     },
   })
   const { isLoading: payIsLoading, isSuccess: payIsSuccess } = useCallsStatus({
@@ -794,6 +804,15 @@ function PayDemo(props: PayDemo.Props) {
       : payIsSuccess
         ? 'success'
         : 'default'
+
+  React.useEffect(() => {
+    if (status === 'success') {
+      setTimeout(() => {
+        if (next) next()
+        else pay.reset()
+      }, successTimeout)
+    }
+  }, [next, pay.reset, status])
 
   return (
     <div className="mt-3 flex flex-col pb-[19px]">
@@ -952,10 +971,11 @@ declare namespace PayDemo {
     address: Address.Address | undefined
     exp1Balance: bigint | undefined
     exp2Balance: bigint | undefined
+    next?: () => void
   }
 }
 
-function LimitDemo(props: LimitDemo.Props) {
+export function LimitDemo(props: LimitDemo.Props) {
   const { address } = props
 
   const { connector } = useAccount()
@@ -1089,7 +1109,7 @@ function LimitDemo(props: LimitDemo.Props) {
     return (
       <Ariakit.Form
         store={form}
-        className="mt-1.5 flex flex-col gap-[11px] pb-[17px]"
+        className="mt-1.5 flex w-full flex-col gap-[11px] pb-[17px]"
       >
         <div className="flex items-center gap-2.5">
           <div className="relative flex flex-1 items-center gap-2 lg:max-w-[79px]">
@@ -1166,7 +1186,7 @@ function LimitDemo(props: LimitDemo.Props) {
     )
 
   return (
-    <div className="mt-1.5 flex flex-col gap-[11px] pb-[19px]">
+    <div className="mt-1.5 flex w-full flex-col gap-[11px] pb-[19px]">
       <div className="-tracking-[0.42px] flex h-9 items-center justify-center gap-1.5 rounded-[6px] bg-gray3 font-medium text-[15px]">
         <div className="mt-px size-4.5">
           <Exp1Token />
