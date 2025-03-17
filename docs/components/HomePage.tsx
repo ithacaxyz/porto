@@ -12,7 +12,7 @@ import {
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import { exp1Config, exp2Config } from '../_generated/contracts'
 import { Button } from './Button'
-import { MintDemo, SwapDemo, LimitDemo, PayDemo } from './DemoApp'
+import { LimitDemo, MintDemo, PayDemo, SwapDemo } from './DemoApp'
 import { Logo } from './Logo'
 
 export function HomePage() {
