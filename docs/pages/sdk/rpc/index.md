@@ -94,7 +94,7 @@ Example:
 
 #### Granting permissions via `wallet_connect`
 
-Permissions may be granted upon connection with the `grantPermissions` capability on the [`wallet_connect`]([#wallet_connect](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)) JSON-RPC method.
+Permissions may be granted upon connection with the `grantPermissions` capability on the [`wallet_connect`](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md#wallet_connect) JSON-RPC method.
 
 Example:
 
