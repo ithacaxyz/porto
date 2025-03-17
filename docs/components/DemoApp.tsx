@@ -392,7 +392,7 @@ declare namespace MintDemo {
   }
 }
 
-function MintButton(props: MintButton.Props) {
+export function MintButton(props: MintButton.Props) {
   const { amount, status, symbol, ...rest } = props
   return (
     <button

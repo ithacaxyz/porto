@@ -1,6 +1,16 @@
 import * as Ariakit from '@ariakit/react'
+import { Hooks } from 'porto/wagmi'
+import * as React from 'react'
 import { Link } from 'react-router'
+import { useAccount, useConnectors, useDisconnect } from 'wagmi'
+import { parseEther } from 'viem'
+
+import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import { Logo } from './Logo'
+import { Button } from './Button'
+import { MintButton } from './DemoApp'
+import { useCallsStatus, useSendCalls } from 'wagmi/experimental'
+import { exp1Abi, exp1Address } from '../_generated/contracts'
 
 export function HomePage() {
   return (
@@ -108,7 +118,7 @@ export function HomePage() {
 
         <div className="flex w-full gap-2 max-[486px]:flex-col">
           <Ariakit.Button
-            className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400]"
+            className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
             render={<Link to="/sdk" />}
           >
             <div className="size-[1em]">
@@ -117,7 +127,7 @@ export function HomePage() {
             Documentation
           </Ariakit.Button>
           <Ariakit.Button
-            className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400]"
+            className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
             render={<Link to="/demo" />}
           >
             <div className="size-[1em]">
@@ -126,7 +136,7 @@ export function HomePage() {
             Demo
           </Ariakit.Button>
           <Ariakit.Button
-            className="flex h-[40px] items-center justify-center gap-[6px] rounded-full border border-gray7 px-4 font-[400]"
+            className="flex h-[40px] items-center justify-center gap-[6px] rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
             render={
               // biome-ignore lint/a11y/useAnchorContent: <explanation>
               <a
@@ -144,7 +154,9 @@ export function HomePage() {
         </div>
       </div>
 
-      <div className="flex-1 rounded-[20px] bg-gray3/50 max-[1024px]:hidden" />
+      <div className="flex-1 max-[1024px]:hidden">
+        <Demo />
+      </div>
     </div>
   )
 }
@@ -188,6 +200,187 @@ namespace Install {
       value: 'npm' | 'pnpm' | 'yarn'
     }
   }
+}
+
+const steps = ['mint', 'swap', 'spend']
+const delayToNextStep = 1000
+
+function Demo() {
+  const account = useAccount()
+  const disconnect = useDisconnect()
+  const [step, setStep] = React.useState<(typeof steps)[number]>('mint')
+
+  const [isMounted, setIsMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  return (
+    <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4">
+      <div className="flex w-full justify-end">
+        <Link
+          className="flex items-center gap-1 font-[400] text-[14px] text-blue9 tracking-[-2.8%]"
+          to="/demo"
+        >
+          Full Demo →
+        </Link>
+      </div>
+      <div className="flex-1">
+        {isMounted && (
+          <div className="relative flex h-full w-full items-center justify-center px-10">
+            {!account.isConnected && <SignIn />}
+            {account.isConnected && step === 'mint' && (
+              <Mint next={() => setStep('swap')} />
+            )}
+          </div>
+        )}
+      </div>
+      <div className="flex w-full flex-col items-center justify-center">
+        {isMounted && (
+          <div className="max-w-[24ch] space-y-1">
+            {!account.isConnected && (
+              <>
+                <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
+                  Sign in or sign up
+                </p>
+                <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
+                  With Ithaca, you can create a wallet within seconds.
+                </p>
+              </>
+            )}
+            {account.isConnected && (
+              <>
+                {step === 'mint' && (
+                  <>
+                    <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
+                      Transact with ease
+                    </p>
+                    <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
+                      Simple, friendly transaction previews that get out of the
+                      way.
+                    </p>
+                  </>
+                )}
+                <div />
+              </>
+            )}
+            <div className="h-4" />
+            <div className="flex items-center justify-center gap-1">
+              <div
+                data-active={!account.isConnected}
+                className="size-[7px] rounded-full bg-gray6 transition-all duration-150 hover:not-data-[active=true]:scale-150 hover:bg-gray9 data-[active=true]:w-6 data-[active=true]:bg-gray9"
+                onClick={() => disconnect.disconnect()}
+              />
+              {steps.map((s) => (
+                <div
+                  key={s}
+                  data-active={account.isConnected && s === step}
+                  data-disabled={!account.isConnected}
+                  className="size-[7px] rounded-full bg-gray6 transition-all duration-150 hover:not-data-[active=true]:not-data-[disabled=true]:scale-150 hover:not-data-[disabled=true]:bg-gray9 data-[active=true]:w-6 data-[active=true]:bg-gray9"
+                  onClick={() => setStep(s)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SignIn() {
+  const connect = Hooks.useConnect()
+  const connector = usePortoConnector()
+
+  if (connect.isPending)
+    return (
+      <Button disabled className="flex flex-grow gap-2">
+        <LucidePictureInPicture2 className="size-5" />
+        Check passkey prompt
+      </Button>
+    )
+
+  return (
+    <div className="flex w-full gap-2">
+      <Button
+        onClick={() =>
+          connect.mutateAsync({
+            connector,
+            createAccount: true,
+          })
+        }
+        className="flex-grow"
+        variant="accent"
+      >
+        Sign up
+      </Button>
+
+      <Button
+        onClick={() =>
+          connect.mutate({
+            connector,
+          })
+        }
+        className="flex-grow"
+        variant="invert"
+      >
+        Sign in
+      </Button>
+    </div>
+  )
+}
+
+function Mint({ next }: { next: () => void }) {
+  const account = useAccount()
+
+  const amount = '100'
+  const symbol = 'exp1'
+
+  const mint = useSendCalls()
+  const mintStatus = useCallsStatus({
+    id: mint.data as string,
+    query: {
+      enabled: !!mint.data,
+      refetchInterval({ state }) {
+        if (state.data?.status === 'CONFIRMED') return false
+        return 800
+      },
+    },
+  })
+
+  const status = React.useMemo(() => {
+    if (mint.isPending) return 'pending'
+    if (mintStatus.isLoading) return 'pending'
+    if (mintStatus.isSuccess) return 'success'
+    return 'default'
+  }, [mint.isPending, mintStatus.isLoading, mintStatus.isSuccess])
+
+  React.useEffect(() => {
+    if (status === 'success') setTimeout(next, delayToNextStep)
+  }, [next, status])
+
+  return (
+    <div className="flex w-[277px]">
+      <MintButton
+        amount={amount}
+        status={status}
+        symbol={symbol}
+        onClick={() =>
+          mint.sendCalls({
+            calls: [
+              {
+                abi: exp1Abi,
+                to: exp1Address,
+                functionName: 'mint',
+                args: [account.address, parseEther(amount)],
+              },
+            ],
+          })
+        }
+      />
+    </div>
+  )
 }
 
 function WorksAnywhereIcon() {
@@ -562,4 +755,9 @@ function GitHubIcon() {
       />
     </svg>
   )
+}
+
+function usePortoConnector() {
+  const connectors = useConnectors()
+  return connectors.find((connector) => connector.id === 'xyz.ithaca.porto')!
 }

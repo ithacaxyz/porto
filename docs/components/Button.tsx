@@ -53,10 +53,12 @@ export namespace Button {
           destructive:
             'text-destructive bg-destructive hover:not-active:bg-destructiveHover',
           ghost: 'text-primary bg-transparent hover:not-active:bg-surfaceHover',
+          invert:
+            'text-invert bg-invert hover:not-active:bg-invertHover text-invert',
         },
         size: {
           small: 'h-[32px] px-[14px] text-[13px]',
-          default: 'h-[40px] px-[18px] text-[15px]',
+          default: 'h-[40px] px-[18px]',
         },
       },
       defaultVariants: {
