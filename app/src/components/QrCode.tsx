@@ -14,7 +14,6 @@ export function QrCode(props: {
   positionCenterColor?: string
   onCodeRendered?: (event: CustomEvent) => void
 }) {
-  
   React.useEffect(() => defineCustomElement.defineCustomElements(window), [])
 
   return (
