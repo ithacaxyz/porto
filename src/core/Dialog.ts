@@ -8,8 +8,6 @@ import type { Internal } from './internal/porto.js'
 /** Dialog interface. */
 export type Dialog = {
   setup: (parameters: { host: string; internal: Internal }) => {
-    messenger: Messenger.Messenger
-
     close: () => void
     destroy: () => void
     open: () => void
@@ -160,8 +158,6 @@ export function iframe() {
       const bodyStyle = Object.assign({}, document.body.style)
 
       return {
-        messenger,
-
         open() {
           if (open) return
           open = true
@@ -238,11 +234,6 @@ export function popup() {
       let messenger: Messenger.Messenger | undefined
 
       return {
-        get messenger() {
-          if (!messenger) throw new Error('messenger not initialized')
-          return messenger
-        },
-
         open() {
           const left = (window.innerWidth - width) / 2 + window.screenX
           const top = window.screenY + 100
@@ -362,8 +353,6 @@ export function experimental_inline(options: inline.Options) {
       })
 
       return {
-        messenger,
-
         open() {
           if (open) return
           open = true
