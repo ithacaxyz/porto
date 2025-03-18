@@ -60,24 +60,29 @@ export function iframe() {
       root.style.top = '-10000px'
       document.body.appendChild(root)
 
-      const iframe = document.createElement('iframe')
-      iframe.setAttribute(
-        'allow',
-        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`,
-      )
-      iframe.setAttribute('aria-closed', 'true')
-      iframe.setAttribute('aria-label', 'Porto Wallet')
-      iframe.setAttribute('hidden', 'until-found')
-      iframe.setAttribute('role', 'dialog')
-      iframe.setAttribute('tabindex', '0')
-      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
-      iframe.setAttribute('src', host)
-      iframe.setAttribute('title', 'Porto')
-      Object.assign(iframe.style, {
-        ...styles.iframe,
-        display: 'none',
-        position: 'fixed',
-      })
+      function initIframe() {
+        const iframe = document.createElement('iframe')
+        iframe.setAttribute(
+          'allow',
+          `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`,
+        )
+        iframe.setAttribute('aria-closed', 'true')
+        iframe.setAttribute('aria-label', 'Porto Wallet')
+        iframe.setAttribute('hidden', 'until-found')
+        iframe.setAttribute('role', 'dialog')
+        iframe.setAttribute('tabindex', '0')
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
+        iframe.setAttribute('src', host)
+        iframe.setAttribute('title', 'Porto')
+        Object.assign(iframe.style, {
+          ...styles.iframe,
+          display: 'none',
+          position: 'fixed',
+        })
+        root.appendChild(iframe)
+        return iframe
+      }
+      const iframe = initIframe()
 
       root.appendChild(document.createElement('style')).textContent = `
         dialog[data-porto]::backdrop {
@@ -114,7 +119,6 @@ export function iframe() {
           to { opacity: 1; transform: translateY(0); }
         }
       `
-      root.appendChild(iframe)
 
       function onBlur() {
         handleBlur(store)
@@ -137,12 +141,16 @@ export function iframe() {
         })
       })
       messenger.on('rpc-response', (response) => {
-        if (includesUnsupported([response._request]))
+        if (includesUnsupported([response._request])) {
           // reload iframe to rehydrate storage state if an
           // unsupported request routed via another renderer.
-          // biome-ignore lint/correctness/noSelfAssign:
-          iframe.src = iframe.src
-        else handleResponse(store, response)
+          const src = iframe.src
+          iframe.src = ''
+          setTimeout(() => {
+            iframe.src = src
+          }, 100)
+        }
+        handleResponse(store, response)
       })
       messenger.on('__internal', (payload) => {
         if (payload.type === 'resize') {
