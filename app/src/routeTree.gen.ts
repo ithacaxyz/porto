@@ -16,11 +16,8 @@ import { Route as ManagerImport } from './routes/_manager'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as ManagerIndexImport } from './routes/_manager/index'
 import { Route as ManagerSettingsIndexImport } from './routes/_manager/settings/index'
-<<<<<<< HEAD
-import { Route as DialogDialogIndexImport } from './routes/_dialog.dialog/index'
-=======
 import { Route as ManagerCreateAccountIndexImport } from './routes/_manager/create-account/index'
->>>>>>> a0d7a62 (chore: save)
+import { Route as DialogDialogIndexImport } from './routes/_dialog.dialog/index'
 import { Route as ManagerSettingsPermissionsImport } from './routes/_manager/settings/permissions'
 import { Route as ManagerCreateAccountPasskeyImport } from './routes/_manager/create-account/passkey'
 import { Route as DialogDialogWalletsendCallsImport } from './routes/_dialog.dialog/wallet_sendCalls'
@@ -65,17 +62,16 @@ const ManagerSettingsIndexRoute = ManagerSettingsIndexImport.update({
   getParentRoute: () => ManagerRoute,
 } as any)
 
-<<<<<<< HEAD
-const DialogDialogIndexRoute = DialogDialogIndexImport.update({
-  id: '/dialog/',
-  path: '/dialog/',
-  getParentRoute: () => DialogRoute,
-=======
 const ManagerCreateAccountIndexRoute = ManagerCreateAccountIndexImport.update({
   id: '/create-account/',
   path: '/create-account/',
   getParentRoute: () => ManagerRoute,
->>>>>>> a0d7a62 (chore: save)
+} as any)
+
+const DialogDialogIndexRoute = DialogDialogIndexImport.update({
+  id: '/dialog/',
+  path: '/dialog/',
+  getParentRoute: () => DialogRoute,
 } as any)
 
 const ManagerSettingsPermissionsRoute = ManagerSettingsPermissionsImport.update(
@@ -269,21 +265,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerSettingsPermissionsImport
       parentRoute: typeof ManagerImport
     }
-<<<<<<< HEAD
     '/_dialog/dialog/': {
       id: '/_dialog/dialog/'
       path: '/dialog'
       fullPath: '/dialog'
       preLoaderRoute: typeof DialogDialogIndexImport
       parentRoute: typeof DialogImport
-=======
+    }
     '/_manager/create-account/': {
       id: '/_manager/create-account/'
       path: '/create-account'
       fullPath: '/create-account'
       preLoaderRoute: typeof ManagerCreateAccountIndexImport
       parentRoute: typeof ManagerImport
->>>>>>> a0d7a62 (chore: save)
     }
     '/_manager/settings/': {
       id: '/_manager/settings/'
@@ -388,11 +382,8 @@ export interface FileRoutesByFullPath {
   '/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
   '/create-account/passkey': typeof ManagerCreateAccountPasskeyRoute
   '/settings/permissions': typeof ManagerSettingsPermissionsRoute
-<<<<<<< HEAD
   '/dialog': typeof DialogDialogIndexRoute
-=======
   '/create-account': typeof ManagerCreateAccountIndexRoute
->>>>>>> a0d7a62 (chore: save)
   '/settings': typeof ManagerSettingsIndexRoute
   '/settings/recovery': typeof ManagerSettingsRecoveryIndexRoute
   '/settings/recovery/wallet/phrase': typeof ManagerSettingsRecoveryWalletPhraseRoute
@@ -413,11 +404,8 @@ export interface FileRoutesByTo {
   '/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
   '/create-account/passkey': typeof ManagerCreateAccountPasskeyRoute
   '/settings/permissions': typeof ManagerSettingsPermissionsRoute
-<<<<<<< HEAD
   '/dialog': typeof DialogDialogIndexRoute
-=======
   '/create-account': typeof ManagerCreateAccountIndexRoute
->>>>>>> a0d7a62 (chore: save)
   '/settings': typeof ManagerSettingsIndexRoute
   '/settings/recovery': typeof ManagerSettingsRecoveryIndexRoute
   '/settings/recovery/wallet/phrase': typeof ManagerSettingsRecoveryWalletPhraseRoute
@@ -440,11 +428,8 @@ export interface FileRoutesById {
   '/_dialog/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
   '/_manager/create-account/passkey': typeof ManagerCreateAccountPasskeyRoute
   '/_manager/settings/permissions': typeof ManagerSettingsPermissionsRoute
-<<<<<<< HEAD
   '/_dialog/dialog/': typeof DialogDialogIndexRoute
-=======
   '/_manager/create-account/': typeof ManagerCreateAccountIndexRoute
->>>>>>> a0d7a62 (chore: save)
   '/_manager/settings/': typeof ManagerSettingsIndexRoute
   '/_manager/settings/recovery/': typeof ManagerSettingsRecoveryIndexRoute
   '/_manager/settings/recovery/wallet/phrase': typeof ManagerSettingsRecoveryWalletPhraseRoute
@@ -467,11 +452,8 @@ export interface FileRouteTypes {
     | '/dialog/wallet_sendCalls'
     | '/create-account/passkey'
     | '/settings/permissions'
-<<<<<<< HEAD
     | '/dialog'
-=======
     | '/create-account'
->>>>>>> a0d7a62 (chore: save)
     | '/settings'
     | '/settings/recovery'
     | '/settings/recovery/wallet/phrase'
@@ -491,11 +473,8 @@ export interface FileRouteTypes {
     | '/dialog/wallet_sendCalls'
     | '/create-account/passkey'
     | '/settings/permissions'
-<<<<<<< HEAD
     | '/dialog'
-=======
     | '/create-account'
->>>>>>> a0d7a62 (chore: save)
     | '/settings'
     | '/settings/recovery'
     | '/settings/recovery/wallet/phrase'
@@ -516,11 +495,8 @@ export interface FileRouteTypes {
     | '/_dialog/dialog/wallet_sendCalls'
     | '/_manager/create-account/passkey'
     | '/_manager/settings/permissions'
-<<<<<<< HEAD
     | '/_dialog/dialog/'
-=======
     | '/_manager/create-account/'
->>>>>>> a0d7a62 (chore: save)
     | '/_manager/settings/'
     | '/_manager/settings/recovery/'
     | '/_manager/settings/recovery/wallet/phrase'
@@ -629,15 +605,13 @@ export const routeTree = rootRoute
       "filePath": "_manager/settings/permissions.tsx",
       "parent": "/_manager"
     },
-<<<<<<< HEAD
     "/_dialog/dialog/": {
       "filePath": "_dialog.dialog/index.tsx",
       "parent": "/_dialog"
-=======
+    },
     "/_manager/create-account/": {
       "filePath": "_manager/create-account/index.tsx",
       "parent": "/_manager"
->>>>>>> a0d7a62 (chore: save)
     },
     "/_manager/settings/": {
       "filePath": "_manager/settings/index.tsx",
