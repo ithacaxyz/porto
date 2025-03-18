@@ -45,7 +45,9 @@ export type Schema = [
   },
   {
     topic: 'rpc-response'
-    payload: RpcResponse.RpcResponse
+    payload: RpcResponse.RpcResponse & {
+      _request: Porto.QueuedRequest
+    }
     response: undefined
   },
   {

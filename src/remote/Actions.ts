@@ -17,14 +17,19 @@ export async function reject(
   const { messenger } = porto
   messenger.send(
     'rpc-response',
-    RpcResponse.from({
-      id: request.request.id,
-      jsonrpc: '2.0',
-      error: {
-        code: Provider.UserRejectedRequestError.code,
-        message: 'User rejected the request.',
+    Object.assign(
+      RpcResponse.from({
+        id: request.request.id,
+        jsonrpc: '2.0',
+        error: {
+          code: Provider.UserRejectedRequestError.code,
+          message: 'User rejected the request.',
+        },
+      }),
+      {
+        _request: request,
       },
-    }),
+    ),
   )
 }
 
@@ -60,10 +65,20 @@ export async function respond<result>(
   try {
     let result = await provider.request(request.request)
     if (selector) result = selector(result as never)
-    messenger.send('rpc-response', RpcResponse.from({ ...shared, result }))
+    messenger.send(
+      'rpc-response',
+      Object.assign(RpcResponse.from({ ...shared, result }), {
+        _request: request,
+      }),
+    )
   } catch (e) {
     const error = e as RpcResponse.BaseError
-    messenger.send('rpc-response', RpcResponse.from({ ...shared, error }))
+    messenger.send(
+      'rpc-response',
+      Object.assign(RpcResponse.from({ ...shared, error }), {
+        _request: request,
+      }),
+    )
     throw error
   }
 }

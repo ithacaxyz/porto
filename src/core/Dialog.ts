@@ -8,6 +8,8 @@ import type { Internal } from './internal/porto.js'
 /** Dialog interface. */
 export type Dialog = {
   setup: (parameters: { host: string; internal: Internal }) => {
+    messenger: Messenger.Messenger
+
     close: () => void
     destroy: () => void
     open: () => void
@@ -35,12 +37,21 @@ export function iframe() {
   // Fall back to popup dialog.
   // Tracking: https://github.com/WebKit/standards-positions/issues/304
   const ua = navigator.userAgent.toLowerCase()
-  if (ua.includes('safari') && !ua.includes('chrome')) return popup()
+  const isSafari = ua.includes('safari') && !ua.includes('chrome')
+  const includesUnsupported = (
+    requests: readonly QueuedRequest[] | undefined,
+  ) =>
+    isSafari &&
+    requests?.some((x) =>
+      ['wallet_connect', 'eth_requestAccounts'].includes(x.request.method),
+    )
 
   return from({
     setup(parameters) {
       const { host, internal } = parameters
       const { store } = internal
+
+      const fallback = popup()?.setup(parameters)
 
       let open = false
 
@@ -127,9 +138,14 @@ export function iframe() {
           referrer: getReferrer(),
         })
       })
-      messenger.on('rpc-response', (response) =>
-        handleResponse(store, response),
-      )
+      messenger.on('rpc-response', (response) => {
+        if (includesUnsupported([response._request]))
+          // reload iframe to rehydrate storage state if an
+          // unsupported request routed via another renderer.
+          // biome-ignore lint/correctness/noSelfAssign:
+          iframe.src = iframe.src
+        else handleResponse(store, response)
+      })
       messenger.on('__internal', (payload) => {
         if (payload.type === 'resize') {
           iframe.style.height = `${payload.height}px`
@@ -144,6 +160,8 @@ export function iframe() {
       const bodyStyle = Object.assign({}, document.body.style)
 
       return {
+        messenger,
+
         open() {
           if (open) return
           open = true
@@ -162,6 +180,7 @@ export function iframe() {
           iframe.style.display = 'block'
         },
         close() {
+          fallback?.close()
           open = false
           root.close()
           Object.assign(document.body.style, bodyStyle ?? '')
@@ -172,14 +191,18 @@ export function iframe() {
           iframe.setAttribute('aria-closed', 'true')
         },
         destroy() {
+          fallback?.destroy()
           this.close()
           document.removeEventListener('keydown', onEscape)
           messenger.destroy()
           root.remove()
         },
         async syncRequests(requests) {
-          if (!open) this.open()
-          messenger.send('rpc-requests', requests)
+          if (includesUnsupported(requests)) fallback.syncRequests(requests)
+          else {
+            if (!open) this.open()
+            messenger.send('rpc-requests', requests)
+          }
         },
       }
     },
@@ -215,6 +238,11 @@ export function popup() {
       let messenger: Messenger.Messenger | undefined
 
       return {
+        get messenger() {
+          if (!messenger) throw new Error('messenger not initialized')
+          return messenger
+        },
+
         open() {
           const left = (window.innerWidth - width) / 2 + window.screenX
           const top = window.screenY + 100
@@ -334,6 +362,8 @@ export function experimental_inline(options: inline.Options) {
       })
 
       return {
+        messenger,
+
         open() {
           if (open) return
           open = true
