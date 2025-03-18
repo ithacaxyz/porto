@@ -1,4 +1,4 @@
-import defineCustomElement from '@bitjson/qr-code'
+import { defineCustomElements } from '@bitjson/qr-code'
 import * as React from 'react'
 import { toast } from 'sonner'
 
@@ -14,7 +14,7 @@ export function QrCode(props: {
   positionCenterColor?: string
   onCodeRendered?: (event: CustomEvent) => void
 }) {
-  React.useEffect(() => defineCustomElement.defineCustomElements(window), [])
+  React.useEffect(() => defineCustomElements(window), [])
 
   return (
     <button

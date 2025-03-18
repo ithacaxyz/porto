@@ -277,8 +277,8 @@ export function Dashboard() {
                     You have no assets in this wallet.
                   </p>
                   <div className="mt-2 flex gap-2">
-                    <AddMoneyDialog className="bg-gray6!" />
-                    <DepositDialog className="bg-gray6!" />
+                    <AddMoneyDialog className="bg-gray7! hover:bg-gray6!" />
+                    <DepositDialog className="bg-gray7! hover:bg-gray6!" />
                   </div>
                 </div>
               )}
