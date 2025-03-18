@@ -21,6 +21,12 @@
   --font-sf-pro: "SF Pro", "sans-serif";
 }
 
+@layer base {
+  html {
+    /* color-scheme: light !important; */
+  }
+}
+
 html,
 body,
 #root {

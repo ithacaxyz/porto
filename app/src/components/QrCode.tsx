@@ -1,8 +1,10 @@
-import { defineCustomElements } from '@bitjson/qr-code'
+// import { defineCustomElement } from '@bitjson/qr-code'
 import * as React from 'react'
 import { toast } from 'sonner'
 
 import { cx } from 'cva'
+
+const defineCustomElement = await import('@bitjson/qr-code')
 
 export function QrCode(props: {
   protocol?: string
@@ -14,7 +16,7 @@ export function QrCode(props: {
   positionCenterColor?: string
   onCodeRendered?: (event: CustomEvent) => void
 }) {
-  React.useEffect(() => defineCustomElements(window), [])
+  React.useEffect(() => defineCustomElement.defineCustomElements(window), [])
 
   return (
     <button

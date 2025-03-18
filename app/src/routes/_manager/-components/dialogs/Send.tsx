@@ -14,10 +14,7 @@ import XIcon from '~icons/lucide/x'
 
 import { Button as OurButton } from '~/components/Button'
 import { Pill } from '~/components/Pill'
-import {
-  type TokenBalance,
-  useTokenBalances,
-} from '~/hooks/use-address-token-balances'
+import { type TokenBalance, useTokenBalances } from '~/hooks/use-blockscout-api'
 import { StringFormatter, ValueFormatter } from '~/utils'
 
 export function SendDialog({
@@ -58,7 +55,7 @@ export function SendDialog({
         onClick={() => setIsOpen(true)}
         className={cx(
           className,
-          'w-[105px] text-center font-semibold text-lg sm:mt-0.75 sm:w-[252px] sm:text-md',
+          'w-[105px] text-center font-semibold text-lg sm:mt-0.75 sm:w-[260px] sm:text-md',
           'flex h-11! items-center justify-center gap-x-1 sm:h-10',
           'sm:col-span-2 sm:col-start-1 sm:row-span-1 sm:place-self-stretch',
           'col-span-1 col-start-1',

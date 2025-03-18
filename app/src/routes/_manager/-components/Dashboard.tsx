@@ -11,8 +11,11 @@ import { IthacaIcon } from '~/components/Ithaca'
 import { MailListSignup } from '~/components/MailListSignup'
 import { Pill } from '~/components/Pill'
 import { ThemeToggle } from '~/components/ThemeToggle'
-import { useTokenBalances } from '~/hooks/use-address-token-balances'
-import { useAddressTransfers } from '~/hooks/use-address-transfers'
+import {
+  useAddressTransfers,
+  useTokenBalances,
+} from '~/hooks/use-blockscout-api'
+
 import { config } from '~/lib/Wagmi'
 import {
   DateFormatter,
@@ -97,11 +100,11 @@ export function Dashboard() {
           <div
             className={cx(
               'gap-6 max-[300px]:gap-x-4.5 sm:gap-2',
-              'context-stretch items-stretch justify-items-center',
+              'items-stretch justify-items-stretch',
               'grid size-full min-w-full grid-cols-3 grid-rows-1 sm:size-auto sm:min-w-min sm:grid-cols-2 sm:grid-rows-2',
             )}
           >
-            <SendDialog />
+            <SendDialog className="w-full" />
             <DepositDialog />
             <AddMoneyDialog className="rounded-full! bg-gray7! hover:bg-gray6!" />
           </div>
@@ -274,8 +277,8 @@ export function Dashboard() {
                     You have no assets in this wallet.
                   </p>
                   <div className="mt-2 flex gap-2">
-                    <AddMoneyDialog className="bg-gray6" />
-                    <DepositDialog />
+                    <AddMoneyDialog className="bg-gray6!" />
+                    <DepositDialog className="bg-gray6!" />
                   </div>
                 </div>
               )}

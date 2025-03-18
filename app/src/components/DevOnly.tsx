@@ -1,6 +1,6 @@
 import { AbiFunction, Json, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
-import { Drawer } from 'vaul'
+import { Drawer } from 'vaul-base'
 import { parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
@@ -28,10 +28,6 @@ const key = () =>
     },
   }) as const
 
-const enableDevTools =
-  import.meta.env.DEV &&
-  String(import.meta.env.VITE_ENABLE_DEV_TOOLS) === 'true'
-
 export function DevOnly() {
   const account = useAccount()
   const permissions = Hooks.usePermissions()
@@ -39,8 +35,6 @@ export function DevOnly() {
   const grantPermissions = Hooks.useGrantPermissions()
 
   const send = useSendCalls()
-
-  if (!enableDevTools) return null
 
   const isBusy =
     permissions.isPending ||
@@ -51,8 +45,8 @@ export function DevOnly() {
 
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="absolute top-0 right-0 p-4 font-mono text-gray11 text-md sm:p-10">
-        {!import.meta.env.DEV ? 'dev tools' : ''}
+      <Drawer.Trigger className="absolute top-0 right-0 p-4 font-mono text-gray11 text-md sm:p-3">
+        {import.meta.env.DEV ? 'dev tools' : ''}
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />

@@ -27,7 +27,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "sonner": "^2.0.1",
-    "vaul": "^1.1.2",
+    "vaul-base": "^0.0.4",
     "wagmi": "catalog:",
     "zustand": "^5.0.3"
   },
