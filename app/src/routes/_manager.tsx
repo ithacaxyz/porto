@@ -20,7 +20,7 @@ function RouteComponent() {
         expand={false}
         duration={3_000}
         position="top-right"
-        className="z-[42069] select-none rounded-2xl!"
+        className="z-[42069] select-none"
         swipeDirections={['right', 'left', 'top', 'bottom']}
         toastOptions={{
           style: {

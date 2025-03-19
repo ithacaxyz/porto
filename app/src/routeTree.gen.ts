@@ -15,11 +15,7 @@ import { Route as PlaygroundImport } from './routes/playground'
 import { Route as ManagerImport } from './routes/_manager'
 import { Route as DialogImport } from './routes/_dialog'
 import { Route as ManagerIndexImport } from './routes/_manager/index'
-import { Route as ManagerSettingsIndexImport } from './routes/_manager/settings/index'
-import { Route as ManagerCreateAccountIndexImport } from './routes/_manager/create-account/index'
 import { Route as DialogDialogIndexImport } from './routes/_dialog.dialog/index'
-import { Route as ManagerSettingsPermissionsImport } from './routes/_manager/settings/permissions'
-import { Route as ManagerCreateAccountPasskeyImport } from './routes/_manager/create-account/passkey'
 import { Route as DialogDialogWalletsendCallsImport } from './routes/_dialog.dialog/wallet_sendCalls'
 import { Route as DialogDialogWalletconnectImport } from './routes/_dialog.dialog/wallet_connect'
 import { Route as DialogDialogPersonalsignImport } from './routes/_dialog.dialog/personal_sign'
@@ -28,9 +24,6 @@ import { Route as DialogDialogExperimentalcreateAccountImport } from './routes/_
 import { Route as DialogDialogEthsendTransactionImport } from './routes/_dialog.dialog/eth_sendTransaction'
 import { Route as DialogDialogEthrequestAccountsImport } from './routes/_dialog.dialog/eth_requestAccounts'
 import { Route as DialogDialogSplatImport } from './routes/_dialog.dialog/$'
-import { Route as ManagerSettingsRecoveryIndexImport } from './routes/_manager/settings/recovery/index'
-import { Route as ManagerSettingsRecoveryWalletIndexImport } from './routes/_manager/settings/recovery/wallet/index'
-import { Route as ManagerSettingsRecoveryWalletPhraseImport } from './routes/_manager/settings/recovery/wallet/phrase'
 
 // Create/Update Routes
 
@@ -56,38 +49,11 @@ const ManagerIndexRoute = ManagerIndexImport.update({
   getParentRoute: () => ManagerRoute,
 } as any)
 
-const ManagerSettingsIndexRoute = ManagerSettingsIndexImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => ManagerRoute,
-} as any)
-
-const ManagerCreateAccountIndexRoute = ManagerCreateAccountIndexImport.update({
-  id: '/create-account/',
-  path: '/create-account/',
-  getParentRoute: () => ManagerRoute,
-} as any)
-
 const DialogDialogIndexRoute = DialogDialogIndexImport.update({
   id: '/dialog/',
   path: '/dialog/',
   getParentRoute: () => DialogRoute,
 } as any)
-
-const ManagerSettingsPermissionsRoute = ManagerSettingsPermissionsImport.update(
-  {
-    id: '/settings/permissions',
-    path: '/settings/permissions',
-    getParentRoute: () => ManagerRoute,
-  } as any,
-)
-
-const ManagerCreateAccountPasskeyRoute =
-  ManagerCreateAccountPasskeyImport.update({
-    id: '/create-account/passkey',
-    path: '/create-account/passkey',
-    getParentRoute: () => ManagerRoute,
-  } as any)
 
 const DialogDialogWalletsendCallsRoute =
   DialogDialogWalletsendCallsImport.update({
@@ -141,27 +107,6 @@ const DialogDialogSplatRoute = DialogDialogSplatImport.update({
   path: '/dialog/$',
   getParentRoute: () => DialogRoute,
 } as any)
-
-const ManagerSettingsRecoveryIndexRoute =
-  ManagerSettingsRecoveryIndexImport.update({
-    id: '/settings/recovery/',
-    path: '/settings/recovery/',
-    getParentRoute: () => ManagerRoute,
-  } as any)
-
-const ManagerSettingsRecoveryWalletIndexRoute =
-  ManagerSettingsRecoveryWalletIndexImport.update({
-    id: '/settings/recovery/wallet/',
-    path: '/settings/recovery/wallet/',
-    getParentRoute: () => ManagerRoute,
-  } as any)
-
-const ManagerSettingsRecoveryWalletPhraseRoute =
-  ManagerSettingsRecoveryWalletPhraseImport.update({
-    id: '/settings/recovery/wallet/phrase',
-    path: '/settings/recovery/wallet/phrase',
-    getParentRoute: () => ManagerRoute,
-  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -251,61 +196,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogDialogWalletsendCallsImport
       parentRoute: typeof DialogImport
     }
-    '/_manager/create-account/passkey': {
-      id: '/_manager/create-account/passkey'
-      path: '/create-account/passkey'
-      fullPath: '/create-account/passkey'
-      preLoaderRoute: typeof ManagerCreateAccountPasskeyImport
-      parentRoute: typeof ManagerImport
-    }
-    '/_manager/settings/permissions': {
-      id: '/_manager/settings/permissions'
-      path: '/settings/permissions'
-      fullPath: '/settings/permissions'
-      preLoaderRoute: typeof ManagerSettingsPermissionsImport
-      parentRoute: typeof ManagerImport
-    }
     '/_dialog/dialog/': {
       id: '/_dialog/dialog/'
       path: '/dialog'
       fullPath: '/dialog'
       preLoaderRoute: typeof DialogDialogIndexImport
       parentRoute: typeof DialogImport
-    }
-    '/_manager/create-account/': {
-      id: '/_manager/create-account/'
-      path: '/create-account'
-      fullPath: '/create-account'
-      preLoaderRoute: typeof ManagerCreateAccountIndexImport
-      parentRoute: typeof ManagerImport
-    }
-    '/_manager/settings/': {
-      id: '/_manager/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof ManagerSettingsIndexImport
-      parentRoute: typeof ManagerImport
-    }
-    '/_manager/settings/recovery/': {
-      id: '/_manager/settings/recovery/'
-      path: '/settings/recovery'
-      fullPath: '/settings/recovery'
-      preLoaderRoute: typeof ManagerSettingsRecoveryIndexImport
-      parentRoute: typeof ManagerImport
-    }
-    '/_manager/settings/recovery/wallet/phrase': {
-      id: '/_manager/settings/recovery/wallet/phrase'
-      path: '/settings/recovery/wallet/phrase'
-      fullPath: '/settings/recovery/wallet/phrase'
-      preLoaderRoute: typeof ManagerSettingsRecoveryWalletPhraseImport
-      parentRoute: typeof ManagerImport
-    }
-    '/_manager/settings/recovery/wallet/': {
-      id: '/_manager/settings/recovery/wallet/'
-      path: '/settings/recovery/wallet'
-      fullPath: '/settings/recovery/wallet'
-      preLoaderRoute: typeof ManagerSettingsRecoveryWalletIndexImport
-      parentRoute: typeof ManagerImport
     }
   }
 }
@@ -343,26 +239,10 @@ const DialogRouteWithChildren =
 
 interface ManagerRouteChildren {
   ManagerIndexRoute: typeof ManagerIndexRoute
-  ManagerCreateAccountPasskeyRoute: typeof ManagerCreateAccountPasskeyRoute
-  ManagerSettingsPermissionsRoute: typeof ManagerSettingsPermissionsRoute
-  ManagerCreateAccountIndexRoute: typeof ManagerCreateAccountIndexRoute
-  ManagerSettingsIndexRoute: typeof ManagerSettingsIndexRoute
-  ManagerSettingsRecoveryIndexRoute: typeof ManagerSettingsRecoveryIndexRoute
-  ManagerSettingsRecoveryWalletPhraseRoute: typeof ManagerSettingsRecoveryWalletPhraseRoute
-  ManagerSettingsRecoveryWalletIndexRoute: typeof ManagerSettingsRecoveryWalletIndexRoute
 }
 
 const ManagerRouteChildren: ManagerRouteChildren = {
   ManagerIndexRoute: ManagerIndexRoute,
-  ManagerCreateAccountPasskeyRoute: ManagerCreateAccountPasskeyRoute,
-  ManagerSettingsPermissionsRoute: ManagerSettingsPermissionsRoute,
-  ManagerCreateAccountIndexRoute: ManagerCreateAccountIndexRoute,
-  ManagerSettingsIndexRoute: ManagerSettingsIndexRoute,
-  ManagerSettingsRecoveryIndexRoute: ManagerSettingsRecoveryIndexRoute,
-  ManagerSettingsRecoveryWalletPhraseRoute:
-    ManagerSettingsRecoveryWalletPhraseRoute,
-  ManagerSettingsRecoveryWalletIndexRoute:
-    ManagerSettingsRecoveryWalletIndexRoute,
 }
 
 const ManagerRouteWithChildren =
@@ -380,14 +260,7 @@ export interface FileRoutesByFullPath {
   '/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
-  '/create-account/passkey': typeof ManagerCreateAccountPasskeyRoute
-  '/settings/permissions': typeof ManagerSettingsPermissionsRoute
   '/dialog': typeof DialogDialogIndexRoute
-  '/create-account': typeof ManagerCreateAccountIndexRoute
-  '/settings': typeof ManagerSettingsIndexRoute
-  '/settings/recovery': typeof ManagerSettingsRecoveryIndexRoute
-  '/settings/recovery/wallet/phrase': typeof ManagerSettingsRecoveryWalletPhraseRoute
-  '/settings/recovery/wallet': typeof ManagerSettingsRecoveryWalletIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -402,14 +275,7 @@ export interface FileRoutesByTo {
   '/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
-  '/create-account/passkey': typeof ManagerCreateAccountPasskeyRoute
-  '/settings/permissions': typeof ManagerSettingsPermissionsRoute
   '/dialog': typeof DialogDialogIndexRoute
-  '/create-account': typeof ManagerCreateAccountIndexRoute
-  '/settings': typeof ManagerSettingsIndexRoute
-  '/settings/recovery': typeof ManagerSettingsRecoveryIndexRoute
-  '/settings/recovery/wallet/phrase': typeof ManagerSettingsRecoveryWalletPhraseRoute
-  '/settings/recovery/wallet': typeof ManagerSettingsRecoveryWalletIndexRoute
 }
 
 export interface FileRoutesById {
@@ -426,14 +292,7 @@ export interface FileRoutesById {
   '/_dialog/dialog/personal_sign': typeof DialogDialogPersonalsignRoute
   '/_dialog/dialog/wallet_connect': typeof DialogDialogWalletconnectRoute
   '/_dialog/dialog/wallet_sendCalls': typeof DialogDialogWalletsendCallsRoute
-  '/_manager/create-account/passkey': typeof ManagerCreateAccountPasskeyRoute
-  '/_manager/settings/permissions': typeof ManagerSettingsPermissionsRoute
   '/_dialog/dialog/': typeof DialogDialogIndexRoute
-  '/_manager/create-account/': typeof ManagerCreateAccountIndexRoute
-  '/_manager/settings/': typeof ManagerSettingsIndexRoute
-  '/_manager/settings/recovery/': typeof ManagerSettingsRecoveryIndexRoute
-  '/_manager/settings/recovery/wallet/phrase': typeof ManagerSettingsRecoveryWalletPhraseRoute
-  '/_manager/settings/recovery/wallet/': typeof ManagerSettingsRecoveryWalletIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -450,14 +309,7 @@ export interface FileRouteTypes {
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
-    | '/create-account/passkey'
-    | '/settings/permissions'
     | '/dialog'
-    | '/create-account'
-    | '/settings'
-    | '/settings/recovery'
-    | '/settings/recovery/wallet/phrase'
-    | '/settings/recovery/wallet'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
@@ -471,14 +323,7 @@ export interface FileRouteTypes {
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
-    | '/create-account/passkey'
-    | '/settings/permissions'
     | '/dialog'
-    | '/create-account'
-    | '/settings'
-    | '/settings/recovery'
-    | '/settings/recovery/wallet/phrase'
-    | '/settings/recovery/wallet'
   id:
     | '__root__'
     | '/_dialog'
@@ -493,14 +338,7 @@ export interface FileRouteTypes {
     | '/_dialog/dialog/personal_sign'
     | '/_dialog/dialog/wallet_connect'
     | '/_dialog/dialog/wallet_sendCalls'
-    | '/_manager/create-account/passkey'
-    | '/_manager/settings/permissions'
     | '/_dialog/dialog/'
-    | '/_manager/create-account/'
-    | '/_manager/settings/'
-    | '/_manager/settings/recovery/'
-    | '/_manager/settings/recovery/wallet/phrase'
-    | '/_manager/settings/recovery/wallet/'
   fileRoutesById: FileRoutesById
 }
 
@@ -548,14 +386,7 @@ export const routeTree = rootRoute
     "/_manager": {
       "filePath": "_manager.tsx",
       "children": [
-        "/_manager/",
-        "/_manager/create-account/passkey",
-        "/_manager/settings/permissions",
-        "/_manager/create-account/",
-        "/_manager/settings/",
-        "/_manager/settings/recovery/",
-        "/_manager/settings/recovery/wallet/phrase",
-        "/_manager/settings/recovery/wallet/"
+        "/_manager/"
       ]
     },
     "/playground": {
@@ -597,37 +428,9 @@ export const routeTree = rootRoute
       "filePath": "_dialog.dialog/wallet_sendCalls.tsx",
       "parent": "/_dialog"
     },
-    "/_manager/create-account/passkey": {
-      "filePath": "_manager/create-account/passkey.tsx",
-      "parent": "/_manager"
-    },
-    "/_manager/settings/permissions": {
-      "filePath": "_manager/settings/permissions.tsx",
-      "parent": "/_manager"
-    },
     "/_dialog/dialog/": {
       "filePath": "_dialog.dialog/index.tsx",
       "parent": "/_dialog"
-    },
-    "/_manager/create-account/": {
-      "filePath": "_manager/create-account/index.tsx",
-      "parent": "/_manager"
-    },
-    "/_manager/settings/": {
-      "filePath": "_manager/settings/index.tsx",
-      "parent": "/_manager"
-    },
-    "/_manager/settings/recovery/": {
-      "filePath": "_manager/settings/recovery/index.tsx",
-      "parent": "/_manager"
-    },
-    "/_manager/settings/recovery/wallet/phrase": {
-      "filePath": "_manager/settings/recovery/wallet/phrase.tsx",
-      "parent": "/_manager"
-    },
-    "/_manager/settings/recovery/wallet/": {
-      "filePath": "_manager/settings/recovery/wallet/index.tsx",
-      "parent": "/_manager"
     }
   }
 }
