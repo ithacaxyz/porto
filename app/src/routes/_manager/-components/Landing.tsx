@@ -23,7 +23,7 @@ export function Landing() {
   return (
     <section
       className={cx(
-        'flex flex-col items-center justify-center gap-y-4 rounded-3xl px-3 py-16 md:mr-6 md:px-6 lg:px-14',
+        'flex flex-col items-center justify-center gap-y-4 rounded-3xl px-6 py-16 md:mr-6 lg:px-14',
       )}
     >
       {account.isConnecting ? (

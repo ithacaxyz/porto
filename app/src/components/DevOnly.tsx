@@ -1,13 +1,12 @@
 import { AbiFunction, Json, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import { Drawer } from 'vaul-base'
-import { parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 
+import { parseEther } from 'viem'
 import { ExperimentERC20 } from '~/lib/Constants'
 import { Button } from './Button'
-// import { IndeterminateLoader } from './IndeterminateLoader'
 
 const key = () =>
   ({
@@ -36,12 +35,7 @@ export function DevOnly() {
 
   const send = useSendCalls()
 
-  // const isBusy =
-  //   permissions.isPending ||
-  //   revokePermissions.isPending ||
-  //   grantPermissions.isPending
-
-  // if (isBusy) return <IndeterminateLoader title="cooking" />
+  if (!account.isConnected) return null
 
   return (
     <Drawer.Root>

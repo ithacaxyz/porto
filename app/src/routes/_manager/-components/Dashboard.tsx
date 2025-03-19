@@ -1,9 +1,11 @@
 import * as Ariakit from '@ariakit/react'
 import { cx } from 'cva'
-import { Value } from 'ox'
+import { Address, Value } from 'ox'
 import { formatEther } from 'ox/Value'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
+import { toast } from 'sonner'
+import { encodeFunctionData, erc20Abi } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import { config } from '~/lib/Wagmi'
@@ -12,6 +14,7 @@ import ExternalLinkIcon from '~icons/lucide/external-link'
 import XIcon from '~icons/lucide/x'
 
 import { ExpIcon } from '~/components/Exp'
+import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { QrCode } from '~/components/QrCode'
 import {
   useAddressTransfers,
@@ -24,7 +27,7 @@ export function Dashboard() {
   const disconnect = Hooks.useDisconnect()
 
   const permissions = Hooks.usePermissions()
-  // const revokePermissions = Hooks.useRevokePermissions()
+  const revokePermissions = Hooks.useRevokePermissions()
 
   const { data: assets } = useTokenBalances()
   const { data: transfers } = useAddressTransfers()
@@ -55,7 +58,29 @@ export function Dashboard() {
 
   const [sendAmount, setSendAmount] = React.useState<string>('')
   const [sendRecipient, setSendRecipient] = React.useState<string>('')
-  const sendCalls = useSendCalls({ mutation: {} })
+  const sendCalls = useSendCalls({
+    mutation: {
+      onSuccess: (data) => {
+        setSendAmount('')
+        setSendRecipient('')
+        toast.success('Tokens sent', {
+          description: () => (
+            <a
+              href={`https://explorer.ithaca.xyz/tx/${data}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View on explorer
+            </a>
+          ),
+        })
+      },
+      onError: (error) =>
+        toast.error('Failed to send tokens', {
+          description: error.message,
+        }),
+    },
+  })
 
   return (
     <React.Fragment>
@@ -90,58 +115,82 @@ export function Dashboard() {
         <div className="flex w-full flex-col divide-y-2 divide-gray5 border-gray5 border-y-2 lg:flex-row lg:divide-x-2 lg:divide-y-0 lg:*:w-1/2">
           <div className="py-3 lg:pr-4">
             <h2 className="font-semibold text-lg">Send</h2>
-            <div className="flex flex-col gap-y-2">
-              <div className="flex items-center justify-between gap-x-2">
-                <input
-                  type="number"
-                  value={sendAmount}
-                  onChange={(e) => setSendAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="mt-2 w-full max-w-[120px] rounded-full px-4 py-2 font-mono text-gray12 text-xl tabular-nums"
+            {sendCalls.isPending ? (
+              <div className="flex h-full w-full items-start justify-center pt-14">
+                <IndeterminateLoader
+                  hint=""
+                  description=""
+                  title="Sending…"
+                  className="m-auto"
                 />
-                <div className="mt-2 flex items-center gap-x-2 rounded-full border border-gray6 p-2">
-                  <ExpIcon className="size-5" />
-                  <span className="font-mono text-md">EXP</span>
-                </div>
               </div>
+            ) : (
+              <div className="flex flex-col gap-y-2">
+                <div className="flex items-center justify-between gap-x-2">
+                  <input
+                    type="number"
+                    value={sendAmount}
+                    onChange={(e) => setSendAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="mt-2 w-full max-w-[120px] rounded-full px-4 py-2 font-mono text-gray12 text-xl tabular-nums"
+                  />
+                  <div className="mt-2 flex items-center gap-x-2 rounded-full border border-gray6 p-2">
+                    <ExpIcon className="size-5" />
+                    <span className="font-mono text-md">EXP</span>
+                  </div>
+                </div>
 
-              <div
-                className={cx(
-                  'flex flex-row items-center gap-x-3',
-                  'lg:flex-col',
-                )}
-              >
-                <input
-                  placeholder="Recipient address…"
-                  value={sendRecipient}
-                  onChange={(e) => setSendRecipient(e.target.value)}
+                <div
                   className={cx(
-                    'mt-2 h-11 w-[80%] rounded-full border border-gray6 px-4 py-2 text-gray12 text-lg tabular-nums sm:text-sm',
-                    'lg:w-full',
-                  )}
-                />
-                <Ariakit.Button
-                  disabled={!sendRecipient || !sendAmount}
-                  onClick={() =>
-                    sendCalls.sendCalls({
-                      calls: [
-                        {
-                          to: sendRecipient,
-                          value: sendAmount,
-                        },
-                      ],
-                    })
-                  }
-                  className={cx(
-                    'mt-3 w-[20%] rounded-full bg-sky-500 px-4 py-2 font-normal text-lg text-white hover:bg-sky-600',
-                    'lg:w-full',
-                    'disabled:opacity-70',
+                    'flex flex-row items-center gap-x-3 gap-y-2',
+                    '*:my-auto sm:mt-2 lg:flex-col',
                   )}
                 >
-                  Send
-                </Ariakit.Button>
+                  <input
+                    placeholder="Recipient address…"
+                    value={sendRecipient}
+                    onChange={(e) => setSendRecipient(e.target.value)}
+                    className={cx(
+                      'mt-2 h-10 w-[80%] rounded-full border border-gray6 px-4 py-2 text-gray12 text-lg tabular-nums sm:text-sm',
+                      'lg:w-full',
+                    )}
+                  />
+                  <Ariakit.Button
+                    disabled={!sendRecipient || !sendAmount}
+                    onClick={() => {
+                      if (
+                        !sendAmount ||
+                        !account.address ||
+                        !Address.validate(sendRecipient)
+                      )
+                        return
+                      sendCalls.sendCalls({
+                        calls: [
+                          {
+                            to: '0x706Aa5C8e5cC2c67Da21ee220718f6f6B154E75c',
+                            data: encodeFunctionData({
+                              abi: erc20Abi,
+                              functionName: 'transfer',
+                              args: [
+                                sendRecipient,
+                                Value.fromEther(sendAmount),
+                              ],
+                            }),
+                          },
+                        ],
+                      })
+                    }}
+                    className={cx(
+                      'w-[20%] rounded-full bg-sky-500 px-4 py-2 font-normal text-lg text-white hover:bg-sky-600',
+                      'lg:w-full',
+                      'disabled:opacity-70',
+                    )}
+                  >
+                    Send
+                  </Ariakit.Button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
           <div className={cx('flex flex-row py-3', 'lg:flex-col lg:pl-4')}>
             <div className="flex w-full justify-between gap-x-3">
@@ -156,7 +205,7 @@ export function Dashboard() {
                 Copy
               </button>
             </div>
-            <div className="flex flex-row items-center justify-center gap-x-4 py-4">
+            <div className="flex flex-row items-center justify-center gap-x-4 pt-4 pb-2">
               <div>
                 <QrCode contents={account.address} />
               </div>
@@ -166,18 +215,18 @@ export function Dashboard() {
             </div>
           </div>
         </div>
-        <div className="border-gray5 border-b-2 pb-3">
+        <div className="border-gray5 border-b-2 pb-2">
           <details className="deets" open>
             <summary className="font-semibold text-lg">Assets</summary>
 
-            <table className="mt-4 mb-3 w-full">
+            <table className="my-3 w-full">
               <thead>
                 <tr className="text-gray10 *:font-normal *:text-sm">
                   <th className="text-left">Name</th>
                   <th className="text-right">Balance</th>
                 </tr>
               </thead>
-              <tbody className="border-transparent border-t-16 font-semibold">
+              <tbody className="border-transparent border-t-10 font-semibold">
                 {assets?.map((asset, index) => (
                   <tr
                     key={`${asset.token.address}-${index}`}
@@ -195,11 +244,11 @@ export function Dashboard() {
             </table>
           </details>
         </div>
-        <div className="border-gray5 border-b-2 pb-3">
+        <div className="border-gray5 border-b-2 pb-2">
           <details className="deets" open={filteredTransfers?.length > 0}>
             <summary className="font-semibold text-lg">History</summary>
 
-            <table className="mt-4 mb-3 w-full">
+            <table className="my-3 w-full">
               <thead>
                 <tr className="text-gray10 *:font-normal *:text-sm">
                   <th className="text-left">Timestamp</th>
@@ -208,18 +257,20 @@ export function Dashboard() {
                   <th className="text-right">Amount</th>
                 </tr>
               </thead>
-              <tbody className="border-transparent border-t-16">
-                {filteredTransfers?.slice(0, 5).map((transfer, _index) => (
+              <tbody className="border-transparent border-t-10">
+                {filteredTransfers?.slice(0, 5).map((transfer, index) => (
                   <tr
-                    key={transfer?.transaction_hash}
+                    key={`${transfer?.transaction_hash}-${index}`}
                     className="text-xs sm:text-sm"
                   >
                     <td className="text-left">
                       <a
-                        href={'https://etherscan.io/tx/'}
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
                         className="flex flex-row items-center gap-x-2 text-gray11"
                       >
-                        <span>
+                        <span className="min-w-[60px]">
                           {DateFormatter.ago(
                             new Date(transfer?.timestamp ?? ''),
                           )}{' '}
@@ -229,9 +280,12 @@ export function Dashboard() {
                       </a>
                     </td>
                     <td className="text-left">
-                      {StringFormatter.truncate(transfer?.to.hash ?? '')}
+                      {StringFormatter.truncate(transfer?.to.hash ?? '', {
+                        start: 4,
+                        end: 4,
+                      })}
                     </td>
-                    <td className="text-left">____</td>
+                    <td className="text-left">{transfer?.type}</td>
                     <td className="text-right">
                       {Value.format(
                         BigInt(transfer?.total.value ?? 0),
@@ -244,7 +298,7 @@ export function Dashboard() {
             </table>
           </details>
         </div>
-        <div className="border-gray5 border-b-2 pb-3">
+        <div className="border-gray5 border-b-2 pb-2">
           <details
             className="deets"
             open={!!permissions?.data?.length && permissions?.data?.length > 0}
@@ -253,6 +307,11 @@ export function Dashboard() {
               Permissions
               <button
                 type="button"
+                onClick={() => {
+                  permissions?.data?.map((permission) => {
+                    revokePermissions.mutate({ id: permission.id })
+                  })
+                }}
                 className={cx(
                   'rounded-2xl bg-pink-100 px-2 py-1 text-red-500 text-sm hover:bg-pink-200',
                   'ml-2',
@@ -262,7 +321,7 @@ export function Dashboard() {
               </button>
             </summary>
 
-            <table className="mt-4 mb-3 w-full">
+            <table className="my-3 w-full">
               <thead>
                 <tr className="text-gray10 *:font-normal *:text-sm">
                   <th className="text-left">Name</th>
@@ -271,7 +330,7 @@ export function Dashboard() {
                   <th className="text-right">Expiry</th>
                 </tr>
               </thead>
-              <tbody className="border-transparent border-t-16">
+              <tbody className="border-transparent border-t-10">
                 {permissions?.data?.map((permission, index) => {
                   return (
                     <tr
@@ -285,9 +344,8 @@ export function Dashboard() {
                         {permission?.permissions?.spend?.[0]?.period}
                       </td>
                       <td className="text-right">
-                        $
-                        {ValueFormatter.format(
-                          permission?.permissions?.spend?.[0]?.limit,
+                        {formatEther(
+                          permission?.permissions?.spend?.[0]?.limit ?? 0n,
                         )}{' '}
                         / {permission?.permissions?.spend?.[0]?.period}
                       </td>
@@ -322,7 +380,7 @@ export function Dashboard() {
                   <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="w-full border-transparent border-t-16">
+              <tbody className="w-full border-transparent border-t-10">
                 <tr className="text-xs sm:text-sm">
                   <td className="">
                     <div className="flex flex-row items-center gap-x-2">
