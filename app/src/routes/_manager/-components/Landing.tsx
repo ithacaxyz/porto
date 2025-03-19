@@ -1,105 +1,105 @@
-import { useNavigate } from '@tanstack/react-router'
+import { cx } from 'cva'
 import { Hooks } from 'porto/wagmi'
-import { useConnectors } from 'wagmi'
+import * as React from 'react'
+import { useAccount, useConnectors } from 'wagmi'
+import SparkIcon from '~icons/lucide/sparkles'
 
 import { Button } from '~/components/Button'
 import { IndeterminateLoader } from '~/components/IndeterminateLoader'
-import { IthacaMark } from '~/components/IthacaMark'
-import { useThemeMode } from '~/hooks/use-theme-mode'
+import { PassphraseGenerator } from '~/lib/Phrase'
 import { config } from '~/lib/Wagmi'
 
 export function Landing() {
-  const { theme } = useThemeMode()
-  const navigate = useNavigate()
-
+  const account = useAccount()
   const connect = Hooks.useConnect()
   const [connector] = useConnectors({ config })
 
-  return (
-    <main className="mx-auto flex size-full max-w-[768px] flex-col p-6 sm:ml-34">
-      <nav className="flex gap-6 pt-5 font-medium text-gray10">
-        <a href="https://ithaca.xyz">Home ↗</a>
-        <a href="https://ithaca.xyz/contact">Careers ↗</a>
-      </nav>
+  const [label, setLabel] = React.useState(
+    new PassphraseGenerator().generatePhrase({
+      count: 4,
+    }),
+  )
 
-      <div className="mt-auto w-full flex-grow content-end space-y-6 px-4 pb-10 sm:max-w-[350px] sm:justify-center sm:pb-[18dvh]">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <img
-              alt="Porto"
-              className="size-9"
-              src={theme === 'light' ? '/icon-light.png' : '/icon-dark.png'}
-            />
-            <p className="font-medium text-[34px] leading-[24px]">Porto</p>
-          </div>
-          <p className="font-normal text-[19px] text-gray10 leading-[22px]">
-            A home for your digital assets,
-            <br />
-            powered by{' '}
-            <a
-              className="text-blue9"
-              href="https://ithaca.xyz"
-              rel="noreferrer"
-              target="_blank"
-            >
-              Ithaca
-            </a>
-            .
+  return (
+    <section
+      className={cx(
+        'flex flex-col items-center justify-center gap-y-4 rounded-3xl px-3 py-16 md:mr-6 md:px-6 lg:px-14',
+      )}
+    >
+      {account.isConnecting ? (
+        <IndeterminateLoader title="Signing in…" className="mt-20" />
+      ) : (
+        <form className="mt-auto flex w-full max-w-[400px] flex-col gap-y-4">
+          <p className="text-center text-3xl">Create account</p>
+          <p className="text-center text-base text-gray10">
+            Give your Ithaca account a simple,
+            <br /> memorable nickname.
           </p>
-        </div>
-        <div className="h-[100px]">
-          {connect.isPending ? (
-            <div>
-              <IndeterminateLoader
-                title={'Signing in...'}
-                description=""
-                hint=""
-              />
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex gap-4 sm:gap-2">
-                <Button
-                  onClick={() => navigate({ to: '/create-account' })}
-                  className="flex-grow rounded-2xl"
-                  variant="accent"
-                >
-                  Create wallet
-                </Button>
-                <Button
-                  onClick={() =>
-                    connect.mutate({ connector: connector as never })
-                  }
-                  className="flex-grow bg-gray6!"
-                  variant="default2"
-                >
-                  Sign in
-                </Button>
-              </div>
-              <Button asChild className="w-full bg-gray6!" variant="default">
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href="https://ithaca.xyz/updates/introducing-ithaca"
-                >
-                  Learn more
-                </a>
-              </Button>
-              <a
-                target="_blank"
-                rel="noreferrer"
-                className="mx-1 text-gray10"
-                href="https://ithaca.xyz/recover"
-              >
-                Recover my account →
-              </a>
-            </div>
-          )}
-        </div>
+          <div className="flex h-12.5 items-center rounded-4xl border border-gray7 bg-gray1 py-2 pr-2 pl-4">
+            <input
+              type="text"
+              maxLength={32}
+              spellCheck={false}
+              autoCorrect="off"
+              autoComplete="off"
+              autoCapitalize="off"
+              placeholder="Enter a name…"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              className="w-full text-[16.5px] text-gray12 focus:outline-none focus:ring-0"
+            />
+            <button
+              type="button"
+              onClick={() =>
+                setLabel(
+                  new PassphraseGenerator().generatePhrase({
+                    count: 4,
+                  }),
+                )
+              }
+              className="rounded-full bg-violet-700/10 p-2 hover:bg-violet-700/20"
+            >
+              <SparkIcon className="size-5 text-indigo-700" />
+            </button>
+          </div>
+          <Button
+            type="button"
+            variant="default"
+            className="h-12.5! w-full bg-gray12! text-gray1! text-lg! hover:bg-gray12/90!"
+            onClick={() =>
+              connect.mutate({
+                connector: connector!,
+                createAccount: { label },
+              })
+            }
+          >
+            Create
+          </Button>
+          <div className="mb-2 h-3.5 border-gray7 border-b-1 text-center">
+            <span className="my-auto bg-gray2 px-2 text-gray10">or</span>
+          </div>
+          <Button
+            type="button"
+            variant="accent"
+            className="h-12.5! w-full text-lg!"
+            onClick={() =>
+              connect.mutate({
+                connector: connector!,
+              })
+            }
+          >
+            Sign in
+          </Button>
+        </form>
+      )}
+      <div className="mt-auto hidden h-min items-center gap-x-3 md:flex">
+        <p>Want to integrate Porto with your application?</p>
+        <Button className="h-min w-min! px-2! py-1" asChild>
+          <a href="https://porto.sh" target="_blank" rel="noreferrer">
+            Learn more
+          </a>
+        </Button>
       </div>
-      <div className="-z-50 fixed right-0 mt-3 hidden size-full h-[80dvh] max-w-[868px] max-[568px]:hidden max-[1024px]:h-[70dvh] sm:block">
-        <IthacaMark className="text-black" />
-      </div>
-    </main>
+    </section>
   )
 }

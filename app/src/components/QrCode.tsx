@@ -1,8 +1,7 @@
 import { defineCustomElements } from '@bitjson/qr-code'
+import { cx } from 'cva'
 import * as React from 'react'
 import { toast } from 'sonner'
-
-import { cx } from 'cva'
 
 export function QrCode(props: {
   protocol?: string
@@ -20,8 +19,8 @@ export function QrCode(props: {
     <button
       type="button"
       className={cx(
-        'text-white',
-        'mb-12 size-full rounded-xl shadow-sm',
+        'bg-white text-black',
+        'w-[150px] rounded-2xl shadow-sm outline outline-gray5',
         'hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0',
       )}
       onClick={() =>
@@ -35,14 +34,14 @@ export function QrCode(props: {
       <qr-code
         key={props.contents}
         {...props}
-        module-color="#F7F7F7"
-        position-ring-color="#F7F7F7"
-        position-center-color="#F7F7F7"
+        module-color="#000"
+        position-ring-color="#000"
+        position-center-color="#000"
         style={{
-          margin: '-10px',
+          marginBottom: '-10px',
         }}
       >
-        <img src={'/icons/exp.svg'} alt="icon" slot="icon" />
+        <img src={'/icons/exp.svg'} alt="icon" slot="icon" className="-mt-1" />
         {/* @ts-ignore because it's a web component. This extra ts-ignore is on purpose. */}
       </qr-code>
     </button>

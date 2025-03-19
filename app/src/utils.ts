@@ -75,6 +75,27 @@ export namespace DateFormatter {
     return dateIntl.format(new Date(date))
   }
 
+  // given a timestamp, return a string that says how long ago it was
+  export function ago(timestamp: Date) {
+    const now = Date.now()
+    const diff = now - timestamp.getTime()
+    const seconds = Math.floor(diff / 1_000)
+    const minutes = Math.floor(seconds / 60)
+    const hours = Math.floor(minutes / 60)
+    const days = Math.floor(hours / 24)
+    const weeks = Math.floor(days / 7)
+    const months = Math.floor(days / 30)
+    const years = Math.floor(days / 365)
+
+    if (years > 0) return `${years}y`
+    if (months > 0) return `${months}M`
+    if (weeks > 0) return `${weeks}w`
+    if (days > 0) return `${days}d`
+    if (hours > 0) return `${hours}h`
+    if (minutes > 0) return `${minutes}m`
+    return `${seconds}s`
+  }
+
   export function timeToDuration(timestamp: number) {
     const now = Date.now()
     const targetTime = new Date(timestamp)

@@ -23,7 +23,28 @@
 
 @layer base {
   html {
-    /* color-scheme: light !important; */
+    color-scheme: light !important;
+  }
+}
+
+.deets summary {
+  list-style: none;
+  cursor: default;
+  padding-right: 1.5em;
+  position: relative;
+
+  &::after {
+    content: "[–]";
+    position: absolute;
+    right: 0.75em;
+    height: 0.75em;
+    width: 0.75em;
+    font-size: 0.85em;
+    @apply text-gray9 font-normal;
+  }
+
+  &:focus {
+    outline-offset: 1px;
   }
 }
 
