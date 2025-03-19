@@ -420,7 +420,7 @@ export function Dashboard() {
           className="group pb-1"
           open={!!permissions?.data?.length && permissions?.data?.length > 0}
         >
-          <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold font-semibold text-lg text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+          <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
             <span>Permissions</span>
             <Ariakit.Button
               type="button"
@@ -475,7 +475,7 @@ export function Dashboard() {
       </div>
       <div className="pb-3">
         <details className="group" open>
-          <summary className='relative cursor-default list-none pr-1 font-semibold font-semibold text-lg text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+          <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
             Recovery
             <Ariakit.Button
               type="button"
