@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { cx } from 'cva'
 import { useAccount } from 'wagmi'
 
 import { DevOnly } from '~/components/DevOnly'
@@ -15,7 +14,7 @@ function RouteComponent() {
   const account = useAccount()
 
   return (
-    <main className="mx-auto flex size-full max-w-[1400px] flex-col bg-gray2 px-4 md:flex-row md:py-6 md:*:w-1/2">
+    <main className="mx-auto flex size-full max-w-[1400px] flex-col bg-gray2 *:px-4 md:flex-row md:py-6 md:*:w-1/2">
       <DevOnly />
 
       <Intro />

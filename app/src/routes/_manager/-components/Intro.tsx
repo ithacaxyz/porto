@@ -15,7 +15,7 @@ export function Intro() {
         'relative',
       )}
     >
-      <div className="pointer-events-none absolute inset-0 right-0 my-auto ml-auto max-h-[800px] w-[400px] bg-[url(/porto.svg)] bg-contain bg-right-bottom bg-no-repeat" />
+      <div className="pointer-events-none absolute inset-0 my-auto ml-auto hidden max-h-[750px] w-[400px] bg-[url(/porto.svg)] bg-contain bg-right-bottom bg-no-repeat md:block" />
       <p
         className={cx(
           'ml-8 flex gap-x-2 font-medium text-sm leading-[22px] sm:ml-12',
