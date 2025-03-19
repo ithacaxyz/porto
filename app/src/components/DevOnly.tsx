@@ -40,7 +40,7 @@ export function DevOnly() {
   return (
     <Drawer.Root>
       <Drawer.Trigger className="absolute top-0 right-0 font-mono text-gray11 text-md">
-        {import.meta.env.DEV ? 'dev tools' : ''}
+        --
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0" />
