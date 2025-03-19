@@ -16,12 +16,17 @@ function RouteComponent() {
       <Outlet />
 
       <Toaster
-        expand={true}
         theme="light"
-        duration={3000}
+        expand={false}
+        duration={3_000}
         position="top-right"
-        className="z-[42069] select-none"
+        className="z-[42069] select-none rounded-2xl!"
         swipeDirections={['right', 'left', 'top', 'bottom']}
+        toastOptions={{
+          style: {
+            borderRadius: '1.5rem',
+          },
+        }}
       />
     </>
   )
