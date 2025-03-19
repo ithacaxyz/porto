@@ -83,34 +83,51 @@ export function Dashboard() {
   })
 
   return (
-    <section className="z-50 flex flex-col gap-y-4 overflow-y-auto rounded-3xl bg-gray2 px-3 py-2 tabular-nums sm:px-6 lg:px-8">
-      <nav className="flex items-center gap-x-2 pt-3">
-        <p className="font-medium text-xl">Account</p>
-        <a
+    <section className="z-50 flex flex-col gap-y-4 overflow-y-auto bg-grayA1 px-3 py-2 tabular-nums sm:px-6 lg:px-8">
+      <nav className="mt-4 mb-2 grid grid-flow-row-dense grid-cols-3 grid-rows-2 gap-y-8">
+        <div className="my-auto block md:hidden">
+          <img src="/logo-light.svg" alt="Porto" className="w-24" />
+        </div>
+        <p
           className={cx(
-            'rounded-3xl bg-gray-200 px-4 py-2 font-semibold text-md text-neutral-800 hover:bg-gray-300',
-            'ml-auto',
-          )}
-          href="/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Help
-        </a>
-        <button
-          type="button"
-          onClick={() => disconnect.mutate({})}
-          className={cx(
-            'rounded-3xl bg-pink-100 px-4 py-2 font-semibold text-md text-red-500 hover:bg-pink-200',
-            'ml-2',
+            'my-auto font-medium text-xl md:row-start-1',
+            'col-start-1 row-start-2',
           )}
         >
-          Sign out
-        </button>
+          Account
+        </p>
+        <div className={cx('col-span-2 col-start-2 space-x-2 place-self-end')}>
+          <a
+            className={cx(
+              'rounded-3xl bg-gray-200 px-4 py-2 font-semibold text-md text-neutral-800 hover:bg-gray-300',
+              'ml-auto',
+            )}
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Help
+          </a>
+          <button
+            type="button"
+            onClick={() => disconnect.mutate({})}
+            className={cx(
+              'rounded-3xl bg-pink-100 px-4 py-2 font-semibold text-md text-red-500 hover:bg-pink-200',
+              'ml-2',
+            )}
+          >
+            Sign out
+          </button>
+        </div>
+        <h1
+          className={cx(
+            'font-medium text-2x md:col-auto md:place-self-auto md:text-3xl',
+            'col-start-3 row-start-2 mr-1 place-self-end',
+          )}
+        >
+          ${ValueFormatter.formatToPrice(totalBalance.toLocaleString())}
+        </h1>
       </nav>
-      <h1 className="font-semibold text-3xl">
-        ${totalBalance.toLocaleString()}
-      </h1>
       <div className="flex w-full flex-col divide-y-2 divide-gray5 border-gray5 border-y-2 lg:flex-row lg:divide-x-2 lg:divide-y-0 lg:*:w-1/2">
         <div className="py-3 lg:pr-4">
           <h2 className="font-semibold text-lg">Send</h2>
@@ -131,7 +148,7 @@ export function Dashboard() {
                   value={sendAmount}
                   onChange={(e) => setSendAmount(e.target.value)}
                   placeholder="0.00"
-                  className="mt-2 w-full max-w-[120px] rounded-full px-4 py-2 font-mono text-gray12 text-xl tabular-nums"
+                  className="mt-2 w-full max-w-[120px] rounded-full px-4 py-2 font-mono text-gray12 text-xl tabular-nums focus:outline-gray5"
                 />
                 <div className="mt-2 flex items-center gap-x-2 rounded-full border border-gray6 p-2">
                   <ExpIcon className="size-5" />
@@ -146,8 +163,8 @@ export function Dashboard() {
                 )}
               >
                 <input
-                  placeholder="Recipient address…"
                   value={sendRecipient}
+                  placeholder="Recipient address…"
                   onChange={(e) => setSendRecipient(e.target.value)}
                   className={cx(
                     'mt-2 h-10 w-[80%] rounded-full border border-gray6 px-4 py-2 text-gray12 text-lg tabular-nums sm:text-sm',
@@ -207,11 +224,11 @@ export function Dashboard() {
               Copy
             </Ariakit.Button>
           </div>
-          <div className="flex flex-row items-center justify-center gap-x-4 pt-2 md:pt-4 md:pb-2">
+          <div className="flex flex-row items-center justify-center gap-x-4 md:pt-4 md:pb-2">
             <div>
               <QrCode contents={account.address} />
             </div>
-            <p className="min-w-[55px] max-w-[55px] text-pretty break-all font-mono text-gray10 text-sm">
+            <p className="min-w-[55px] max-w-[55px] text-pretty break-all font-mono font-normal text-gray10 text-sm">
               {account.address}
             </p>
           </div>

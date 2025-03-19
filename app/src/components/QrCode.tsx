@@ -20,7 +20,7 @@ export function QrCode(props: {
       type="button"
       className={cx(
         'bg-white text-black',
-        'w-[150px] rounded-2xl shadow-sm outline outline-gray5',
+        'rounded-2xl shadow-sm outline outline-gray5',
         'hover:cursor-pointer focus-visible:outline-none focus-visible:ring-0',
       )}
       onClick={() =>
@@ -30,6 +30,7 @@ export function QrCode(props: {
           .catch(() => toast.error('Failed to copy to clipboard'))
       }
     >
+      {/** @see https://qr.bitjson.com */}
       {/* @ts-ignore because it's a web component */}
       <qr-code
         key={props.contents}
@@ -38,7 +39,8 @@ export function QrCode(props: {
         position-ring-color="#000"
         position-center-color="#000"
         style={{
-          marginBottom: '-10px',
+          width: '125px',
+          height: '125px',
         }}
       >
         <img src={'/icons/exp.svg'} alt="icon" slot="icon" className="-mt-1" />
