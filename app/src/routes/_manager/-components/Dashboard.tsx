@@ -311,7 +311,7 @@ export function Dashboard() {
       </div>
       <div className="border-gray5 border-b-2 pb-2">
         <details
-          className="deets"
+          className="deets pb-1"
           open={!!permissions?.data?.length && permissions?.data?.length > 0}
         >
           <summary className="my-auto font-semibold text-lg">
@@ -381,7 +381,7 @@ export function Dashboard() {
               Add wallet
             </button>
           </summary>
-          <table className="my-4 w-full">
+          <table className="my-3 w-full">
             <thead>
               <tr className="text-gray10 *:font-normal *:text-sm">
                 <th className="text-left">Name</th>
