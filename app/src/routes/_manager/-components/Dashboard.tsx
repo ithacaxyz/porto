@@ -207,7 +207,7 @@ export function Dashboard() {
               Copy
             </Ariakit.Button>
           </div>
-          <div className="flex flex-row items-center justify-center gap-x-4 pt-4 pb-2">
+          <div className="flex flex-row items-center justify-center gap-x-4 pt-2 md:pt-4 md:pb-2">
             <div>
               <QrCode contents={account.address} />
             </div>
@@ -343,6 +343,7 @@ export function Dashboard() {
             </thead>
             <tbody className="border-transparent border-t-10">
               {permissions?.data?.map((permission, index) => {
+                const [spend] = permission?.permissions?.spend ?? []
                 return (
                   <tr
                     key={`${permission.id}-${index}`}
@@ -351,14 +352,10 @@ export function Dashboard() {
                     <td className="text-left">
                       {StringFormatter.truncate(permission?.address ?? '')}
                     </td>
+                    <td className="text-right">{spend?.period}</td>
                     <td className="text-right">
-                      {permission?.permissions?.spend?.[0]?.period}
-                    </td>
-                    <td className="text-right">
-                      {formatEther(
-                        permission?.permissions?.spend?.[0]?.limit ?? 0n,
-                      )}{' '}
-                      / {permission?.permissions?.spend?.[0]?.period}
+                      {spend?.limit ? Value.format(spend?.limit ?? 0n, 18) : 0}{' '}
+                      / {spend?.period}
                     </td>
                     <td className="text-right">
                       {DateFormatter.timeToDuration(permission.expiry * 1000)}
