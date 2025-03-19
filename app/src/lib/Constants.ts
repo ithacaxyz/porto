@@ -25,8 +25,6 @@ export const emojisArray = shuffleArray([
 ])
 
 export function urlWithLocalCorsBypass(url: string) {
-  if (!import.meta.env.DEV) return url
-
   return `${CORS_DESTROYER_URL}?url=${url}`
 }
 
