@@ -320,8 +320,10 @@ export function Dashboard() {
         </div>
       </div>
       <div className="border-gray5 border-b-2 pb-2">
-        <details className="deets" open>
-          <summary className="font-semibold text-lg">Assets</summary>
+        <details className="group" open>
+          <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+            Assets
+          </summary>
 
           <table className="my-3 w-full">
             <thead>
@@ -360,8 +362,10 @@ export function Dashboard() {
         </details>
       </div>
       <div className="border-gray5 border-b-2 pb-2">
-        <details className="deets" open={filteredTransfers?.length > 0}>
-          <summary className="font-semibold text-lg">History</summary>
+        <details className="group" open={filteredTransfers?.length > 0}>
+          <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+            History
+          </summary>
 
           <table className="my-3 w-full table-fixed">
             <thead>
@@ -413,10 +417,10 @@ export function Dashboard() {
       </div>
       <div className="border-gray5 border-b-2 pb-2">
         <details
-          className="deets pb-1"
+          className="group pb-1"
           open={!!permissions?.data?.length && permissions?.data?.length > 0}
         >
-          <summary className="my-auto space-x-1 font-semibold text-lg">
+          <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold font-semibold text-lg text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
             <span>Permissions</span>
             <Ariakit.Button
               type="button"
@@ -470,8 +474,8 @@ export function Dashboard() {
         </details>
       </div>
       <div className="pb-3">
-        <details className="deets" open>
-          <summary className="font-semibold text-lg">
+        <details className="group" open>
+          <summary className='relative cursor-default list-none pr-1 font-semibold font-semibold text-lg text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
             Recovery
             <Ariakit.Button
               type="button"
