@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useAccount, useBalance } from 'wagmi'
 import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
 
-import { urlWithLocalCorsBypass } from '~/lib/Constants'
+import { urlWithCorsBypass } from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 
 export function addressApiEndpoint(chainId: number) {
@@ -49,7 +49,7 @@ export function useTokenBalances({
           config.chains.map(async (chain) => {
             const apiEndpoint = addressApiEndpoint(chain.id)
             const url = `${apiEndpoint}/addresses/${userAddress}/token-balances`
-            const response = await fetch(urlWithLocalCorsBypass(url))
+            const response = await fetch(urlWithCorsBypass(url))
             if (response.status === 404) {
               return { id: chain.id, data: [] }
             }
@@ -145,7 +145,7 @@ export function useAddressTransfers({
       queryFn: async () => {
         const apiEndpoint = addressApiEndpoint(chain.id)
         const url = `${apiEndpoint}/addresses/${userAddress}/token-transfers`
-        const response = await fetch(urlWithLocalCorsBypass(url))
+        const response = await fetch(urlWithCorsBypass(url))
         if (!response.ok) {
           throw new Error(
             `Failed to fetch address transfers: ${response.statusText}`,
@@ -255,7 +255,7 @@ export function useTransactionsHistory({
       queryFn: async () => {
         const apiEndpoint = addressApiEndpoint(chain.id)
         const url = `${apiEndpoint}/addresses/${userAddress}/transactions`
-        const response = await fetch(urlWithLocalCorsBypass(url))
+        const response = await fetch(urlWithCorsBypass(url))
         if (!response.ok) {
           throw new Error(
             `Failed to fetch transactions history: ${response.statusText}`,
