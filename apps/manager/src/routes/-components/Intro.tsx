@@ -11,7 +11,7 @@ export function Intro() {
       className={cx(
         account.isConnected && 'hidden',
         'shadow-[0px_4px_34px_0px_rgba(0,0,0,0.10)]',
-        'flex-col items-start justify-between bg-blue11 py-6 text-white md:ml-5',
+        'flex-col items-start justify-between bg-[#0D74CE] py-6 text-white md:ml-5',
         'md:flex md:min-h-full md:rounded-2xl md:py-16',
         'relative',
       )}
@@ -41,7 +41,7 @@ export function Intro() {
           powered by Ithaca.
         </p>
       </div>
-      <ul className="ml-8 flex gap-x-8 font-medium text-gray5 text-xs sm:ml-12">
+      <ul className="ml-8 flex gap-x-8 font-medium text-gray-300 text-xs sm:ml-12">
         <li>
           <a href="https://porto.sh" target="_blank" rel="noreferrer">
             Documentation

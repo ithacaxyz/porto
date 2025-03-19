@@ -2,6 +2,10 @@ import { shuffleArray } from '~/utils'
 
 export const CORS_DESTROYER_URL = 'https://cors.porto.workers.dev'
 
+export function urlWithLocalCorsBypass(url: string) {
+  return `${CORS_DESTROYER_URL}?url=${url}`
+}
+
 export const emojisArray = shuffleArray([
   '🍕',
   '🧁',
@@ -23,10 +27,6 @@ export const emojisArray = shuffleArray([
   '🐮',
   '🐔',
 ])
-
-export function urlWithLocalCorsBypass(url: string) {
-  return `${CORS_DESTROYER_URL}?url=${url}`
-}
 
 export const ExperimentERC20 = {
   abi: [
@@ -220,3 +220,5 @@ export const ExperimentERC20 = {
     '0x390dd40042a844f92b499069cfe983236d9fe204',
   ],
 } as const
+
+export const [exp1Address] = ExperimentERC20.address[0]

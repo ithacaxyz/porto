@@ -34,7 +34,7 @@ html,
 
 @layer base {
   html {
-    color-scheme: light !important;
+    color-scheme: light dark;
   }
 }
 
@@ -43,9 +43,8 @@ html,
   cursor: default;
   padding-right: 1.5em;
   position: relative;
-
+  user-select: none;
   &::after {
-    content: "[–]";
     position: absolute;
     right: 0.75em;
     height: 0.75em;
@@ -53,10 +52,36 @@ html,
     font-size: 0.85em;
     @apply text-gray9 font-normal;
   }
-
   &:focus {
     outline-offset: 1px;
   }
+}
+
+.deets[open] summary {
+  &::after {
+    content: "[–]";
+  }
+}
+
+.deets summary {
+  &::after {
+    content: "[+]";
+  }
+}
+
+@keyframes details-show {
+  from {
+    opacity: 0;
+    transform: var(--details-translate, translateY(-0.5em));
+  }
+}
+
+details[open] > *:not(summary) {
+  animation: details-show 150ms ease-in-out;
+}
+
+details:not([open]) > *:not(summary) {
+  animation: details-show 150ms ease-in-out;
 }
 
 html,
