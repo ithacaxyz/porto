@@ -10,15 +10,21 @@
 }
 
 :root {
-  --font-serif: "SF Pro", "serif";
-  --font-sans: "SF Pro", "sans-serif";
-  --font-sf-pro: "SF Pro", "sans-serif";
+  --font-serif: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, serif;
+  --font-sans: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sf-pro: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", sans-serif;
 }
 
 @theme {
-  --font-serif: "SF Pro", "serif";
-  --font-sans: "SF Pro", "sans-serif";
-  --font-sf-pro: "SF Pro", "sans-serif";
+  --font-serif: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, serif;
+  --font-sans: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sf-pro: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", sans-serif;
 }
 
 @layer base {
@@ -55,12 +61,6 @@ body,
   height: 100%;
   overflow-x: hidden;
   max-width: 100vw;
-}
-
-@layer base {
-  html {
-    color-scheme: light dark;
-  }
 }
 
 @layer utilities {

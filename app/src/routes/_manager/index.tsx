@@ -15,12 +15,7 @@ function RouteComponent() {
   const account = useAccount()
 
   return (
-    <main
-      className={cx(
-        'bg-gray2 font-["SF_Pro_Text"]',
-        'mx-auto flex size-full max-w-[1400px] flex-col px-4 md:flex-row md:py-6 md:*:w-1/2',
-      )}
-    >
+    <main className="mx-auto flex size-full max-w-[1400px] flex-col bg-gray2 px-4 md:flex-row md:py-6 md:*:w-1/2">
       <DevOnly />
 
       <Intro />
