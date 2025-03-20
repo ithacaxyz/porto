@@ -387,23 +387,23 @@ export function Dashboard() {
                       target="_blank"
                       rel="noreferrer"
                       href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
-                      className="flex flex-row items-center gap-x-2"
+                      className="flex flex-row items-center"
                     >
-                      <span className="min-w-[60px] text-gray11">
+                      <span className="min-w-[55px] text-gray11">
                         {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))}{' '}
                         ago
                       </span>
                       <ExternalLinkIcon className="size-4" />
                     </a>
                   </td>
-                  <td className="text-left">
+                  <td className="text-left font-medium">
                     {StringFormatter.truncate(transfer?.to.hash ?? '', {
                       start: 4,
                       end: 4,
                     })}
                   </td>
-                  <td className="text-left">{transfer?.type}</td>
-                  <td className="text-right">
+                  <td className="text-left text-gray10">{transfer?.type}</td>
+                  <td className="text-right text-gray10">
                     {Value.format(
                       BigInt(transfer?.total.value ?? 0),
                       Number(transfer?.token.decimals ?? 0),
@@ -450,6 +450,7 @@ export function Dashboard() {
             <tbody className="border-transparent border-t-10">
               {permissions?.data?.map((permission, index) => {
                 const [spend] = permission?.permissions?.spend ?? []
+                const [calls] = permission?.permissions?.calls ?? []
                 return (
                   <tr
                     key={`${permission.id}-${index}`}
@@ -458,7 +459,7 @@ export function Dashboard() {
                     <td className="text-left">
                       {StringFormatter.truncate(permission?.address ?? '')}
                     </td>
-                    <td className="text-right">{spend?.period}</td>
+                    <td className="text-right">{calls?.signature ?? '––'}</td>
                     <td className="text-right">
                       {spend?.limit ? Value.format(spend?.limit ?? 0n, 18) : 0}{' '}
                       / {spend?.period}
