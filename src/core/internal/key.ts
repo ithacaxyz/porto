@@ -834,6 +834,16 @@ export async function sign(
     }
     if (keyType === 'webauthn-p256') {
       const { credential, rpId } = key
+
+      const cacheKey = `webauthn_verified_${address}`
+      const lastVerified = localStorage.getItem(cacheKey)
+      const now = Date.now()
+      const VERIFICATION_TIMEOUT = 10 * 60 * 1000 // 10 minutes in milliseconds
+
+      const requireVerification =
+        !lastVerified ||
+        now - Number.parseInt(lastVerified) > VERIFICATION_TIMEOUT
+
       const {
         signature: { r, s },
         raw,
@@ -842,6 +852,7 @@ export async function sign(
         challenge: payload,
         credentialId: credential.id,
         rpId,
+        userVerification: requireVerification ? 'required' : 'preferred',
       })
 
       const response = raw.response as AuthenticatorAssertionResponse
@@ -850,6 +861,10 @@ export async function sign(
         throw new Error(
           `supplied address "${address}" does not match signature address "${userHandle}"`,
         )
+
+      if (requireVerification) {
+        localStorage.setItem(cacheKey, now.toString())
+      }
 
       const signature = AbiParameters.encode(
         AbiParameters.from([
