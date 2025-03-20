@@ -4,7 +4,7 @@
 
 From root, run:
 
-```
+```sh
 pnpm i
 pnpm dev:manager
 ```

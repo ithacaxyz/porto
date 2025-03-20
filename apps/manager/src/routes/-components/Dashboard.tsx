@@ -343,11 +343,11 @@ export function Dashboard() {
               {assets?.map((asset, index) => (
                 <tr
                   key={`${asset.token.address}-${index}`}
-                  className="py text-xs sm:text-sm"
+                  className="text-xs sm:text-sm"
                 >
                   <td
                     className={cx(
-                      'my-0.5 flex flex-row items-center gap-x-2 text-left',
+                      'my-1.5 flex flex-row items-center gap-x-2 text-left',
                     )}
                   >
                     <img
@@ -357,7 +357,7 @@ export function Dashboard() {
                     />
                     <span>{asset.token.name}</span>
                   </td>
-                  <td className="text-right">
+                  <td className="text-right text-sm">
                     {Number(asset.value) < 1
                       ? 1
                       : formatEther(BigInt(asset.value))}
@@ -396,7 +396,7 @@ export function Dashboard() {
                       href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
                       className="flex flex-row items-center"
                     >
-                      <span className="min-w-[55px] text-gray11">
+                      <span className="min-w-[65px] text-gray11">
                         {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))}{' '}
                         ago
                       </span>
@@ -409,8 +409,8 @@ export function Dashboard() {
                       end: 4,
                     })}
                   </td>
-                  <td className="text-left text-gray10">{transfer?.type}</td>
-                  <td className="text-right text-gray10">
+                  <td className="text-left text-gray12">{transfer?.type}</td>
+                  <td className="text-right text-gray12">
                     {Value.format(
                       BigInt(transfer?.total.value ?? 0),
                       Number(transfer?.token.decimals ?? 0),
@@ -506,7 +506,6 @@ export function Dashboard() {
               <tr className="text-xs sm:text-sm">
                 <td className="">
                   <div className="flex flex-row items-center gap-x-2">
-                    <span className="hidden size-6 rounded-lg bg-gray6 sm:block" />
                     <span>0x1234...235</span>
                     <span className="rounded-full border border-gray7 px-2 py-1 font-medium text-gray10 text-sm">
                       3h ago
