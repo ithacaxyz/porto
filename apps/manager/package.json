@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.15",
+    "@wagmi/core": "catalog:",
     "@ariakit/tailwind": "^0.1.4",
     "@bitjson/qr-code": "^1.0.2",
     "@porto/apps": "workspace:*",
@@ -30,9 +31,10 @@
     "wagmi": "catalog:"
   },
   "devDependencies": {
-    "@iconify/json": "^2.2.318",
-    "@svgr/core": "^8.1.0",
-    "@svgr/plugin-jsx": "^8.1.0",
+    "@iconify/json": "catalog:",
+    "@svgr/core": "catalog:",
+    "@svgr/plugin-jsx": "catalog:",
+
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query-devtools": "catalog:",
     "@tanstack/react-router-devtools": "catalog:",

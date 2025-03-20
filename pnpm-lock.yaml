@@ -363,6 +363,9 @@ importers:
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.114.25(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@wagmi/core':
+        specifier: 'catalog:'
+        version: 2.16.5(@tanstack/query-core@5.69.0)(@types/react@19.0.10)(react@19.0.0)(typescript@5.8.2)(use-sync-external-store@1.4.0(react@19.0.0))(viem@2.23.12(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2))
       cva:
         specifier: 'catalog:'
         version: class-variance-authority@0.7.1
@@ -389,13 +392,13 @@ importers:
         version: 2.14.15(@tanstack/query-core@5.69.0)(@tanstack/react-query@5.69.0(react@19.0.0))(@types/react@19.0.10)(bufferutil@4.0.9)(react@19.0.0)(typescript@5.8.2)(utf-8-validate@5.0.10)(viem@2.23.12(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2))(zod@3.24.2)
     devDependencies:
       '@iconify/json':
-        specifier: ^2.2.318
+        specifier: 'catalog:'
         version: 2.2.318
       '@svgr/core':
-        specifier: ^8.1.0
+        specifier: 'catalog:'
         version: 8.1.0(typescript@5.8.2)
       '@svgr/plugin-jsx':
-        specifier: ^8.1.0
+        specifier: 'catalog:'
         version: 8.1.0(@svgr/core@8.1.0(typescript@5.8.2))
       '@tailwindcss/vite':
         specifier: 'catalog:'
