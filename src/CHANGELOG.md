@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.18
+
+### Patch Changes
+
+- [`cbddfab`](https://github.com/ithacaxyz/porto/commit/cbddfab87ea77b70eccf0b787782656665f5c73e) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Updated RP from `exp.porto.sh` to `id.porto.sh`.
+
+- [`cbddfab`](https://github.com/ithacaxyz/porto/commit/cbddfab87ea77b70eccf0b787782656665f5c73e) Thanks [@jxom](https://github.com/jxom)! - Added Safari dialog fallback & misc. tweaks.
+
 ## 0.0.17
 
 ### Patch Changes
