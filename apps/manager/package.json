@@ -40,7 +40,7 @@
     "@tanstack/router-plugin": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
     "tailwindcss": "catalog:",
     "tailwindcss-animate": "^1.0.7",
