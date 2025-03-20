@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as IndexImport } from './routes/index'
 import { Route as DialogIndexImport } from './routes/dialog/index'
 import { Route as DialogWalletsendCallsImport } from './routes/dialog/wallet_sendCalls'
 import { Route as DialogWalletconnectImport } from './routes/dialog/wallet_connect'
@@ -22,6 +23,12 @@ import { Route as DialogEthrequestAccountsImport } from './routes/dialog/eth_req
 import { Route as DialogSplatImport } from './routes/dialog/$'
 
 // Create/Update Routes
+
+const IndexRoute = IndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const DialogIndexRoute = DialogIndexImport.update({
   id: '/dialog/',
@@ -83,6 +90,13 @@ const DialogSplatRoute = DialogSplatImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
     '/dialog/$': {
       id: '/dialog/$'
       path: '/dialog/$'
@@ -152,6 +166,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
@@ -164,6 +179,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
@@ -177,6 +193,7 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
@@ -191,6 +208,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
@@ -202,6 +220,7 @@ export interface FileRouteTypes {
     | '/dialog'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
@@ -213,6 +232,7 @@ export interface FileRouteTypes {
     | '/dialog'
   id:
     | '__root__'
+    | '/'
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
@@ -226,6 +246,7 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   DialogSplatRoute: typeof DialogSplatRoute
   DialogEthrequestAccountsRoute: typeof DialogEthrequestAccountsRoute
   DialogEthsendTransactionRoute: typeof DialogEthsendTransactionRoute
@@ -238,6 +259,7 @@ export interface RootRouteChildren {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   DialogSplatRoute: DialogSplatRoute,
   DialogEthrequestAccountsRoute: DialogEthrequestAccountsRoute,
   DialogEthsendTransactionRoute: DialogEthsendTransactionRoute,
@@ -260,6 +282,7 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/",
         "/dialog/$",
         "/dialog/eth_requestAccounts",
         "/dialog/eth_sendTransaction",
@@ -270,6 +293,9 @@ export const routeTree = rootRoute
         "/dialog/wallet_sendCalls",
         "/dialog/"
       ]
+    },
+    "/": {
+      "filePath": "index.tsx"
     },
     "/dialog/$": {
       "filePath": "dialog/$.tsx"
