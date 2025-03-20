@@ -28,8 +28,7 @@
     "react-dom": "catalog:",
     "sonner": "^2.0.1",
     "vaul-base": "^0.0.4",
-    "wagmi": "catalog:",
-    "zustand": "catalog:"
+    "wagmi": "catalog:"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.318",
@@ -52,10 +51,9 @@
     "vite-plugin-mkcert": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
   },
-  "packageManager": "pnpm@10.6.3",
   "repository": {
     "type": "git",
-    "directory": "app",
+    "directory": "apps/manager",
     "url": "https://github.com/ithacaxyz/porto"
   }
 }

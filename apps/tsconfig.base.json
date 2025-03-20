@@ -19,13 +19,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
-    "noFallthroughCasesInSwitch": true,
-
-    "paths": {
-      "~/*": ["./src/*"],
-      "@generated/*": ["./_generated/*"]
-    },
-    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
-  },
-  "files": ["vite.config.ts","env.d.ts"]
+    "noFallthroughCasesInSwitch": true
+  }
 }

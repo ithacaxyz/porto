@@ -5,9 +5,9 @@ import * as React from 'react'
 import { useAccount, useConnectors } from 'wagmi'
 import SparkIcon from '~icons/lucide/sparkles'
 
+import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { PassphraseGenerator } from '~/lib/Phrase'
 import { config } from '~/lib/Wagmi'
-import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 
 export function Landing() {
   const account = useAccount()
@@ -29,7 +29,7 @@ export function Landing() {
       {account.isConnecting ? (
         <IndeterminateLoader
           title="Signing in…"
-          className="mt-20 flex-col text-center text-nowrap mx-auto max-w-[60px]"
+          className="mx-auto mt-20 max-w-[60px] flex-col text-nowrap text-center"
         />
       ) : (
         <form className="mt-auto flex w-full max-w-[400px] flex-col gap-y-4">
