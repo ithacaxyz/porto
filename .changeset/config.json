@@ -5,7 +5,7 @@
   "changelog": ["@changesets/changelog-github", { "repo": "ithacaxyz/porto" }],
   "commit": false,
   "fixed": [],
-  "ignore": ["app", "*-example", "extension"],
+  "ignore": ["apps", "*-example", "extension"],
   "linked": [],
   "updateInternalDependencies": "patch"
 }

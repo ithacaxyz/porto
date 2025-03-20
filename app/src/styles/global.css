@@ -1,9 +1,0 @@
-html,
-:host {
-  background-color: var(--background-color-primary);
-}
-
-[data-dialog] {
-  --height-button: 36px;
-  --radius-default: 8px;
-}

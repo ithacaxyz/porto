@@ -1,0 +1,58 @@
+{
+  "name": "dialog",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5174",
+    "prebuild": "tsc --build",
+    "build": "vite build",
+    "check": "biome check --write --unsafe",
+    "check:types": "tsc --noEmit",
+    "prepreview": "pnpm build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@porto/apps": "workspace:*",
+    "@tanstack/query-sync-storage-persister": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-query-persist-client": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@wagmi/core": "catalog:",
+    "cva": "catalog:",
+    "ox": "catalog:",
+    "porto": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "wagmi": "catalog:",
+    "zustand": "catalog:"
+  },
+  "devDependencies": {
+    "@porto/apps": "workspace:*",
+    "@iconify/json": "catalog:",
+    "@svgr/core": "catalog:",
+    "@svgr/plugin-jsx": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@tanstack/react-query-devtools": "catalog:",
+    "@tanstack/react-router-devtools": "catalog:",
+    "@tanstack/router-plugin": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "^4.3.4",
+    "globals": "catalog:",
+    "tailwindcss": "catalog:",
+    "tailwindcss-animate": "^1.0.7",
+    "typed-query-selector": "^2.12.0",
+    "typescript": "catalog:",
+    "unplugin-icons": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-mkcert": "catalog:",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "packageManager": "pnpm@10.6.3",
+  "repository": {
+    "type": "git",
+    "directory": "app",
+    "url": "https://github.com/ithacaxyz/porto"
+  }
+}

@@ -1,17 +1,25 @@
 packages:
-  - 'app'
+  - 'apps/*'
   - 'demo'
-  - 'docs'
   - 'examples/*'
   - 'extension'
-  - 'playground'
   - 'src'
 
 catalog:
+  "@iconify/json": "^2.2.298"
+  "@svgr/core": "^8.1.0"
+  "@svgr/plugin-jsx": "^8.1.0"
+  "@tanstack/query-sync-storage-persister": "^5.68.0"
   "@tanstack/react-query": "^5.68.0"
+  "@tanstack/react-query-persist-client": "^5.68.0"
+  "@tanstack/react-router": "^1.114.25"
+  "@tanstack/router-plugin": "^1.114.17"
+  "@tanstack/react-query-devtools": "^5.68.0"
+  "@tanstack/react-router-devtools": "^1.114.25"
   "@types/react": "^19"
   "@types/react-dom": "^19"
   "@wagmi/core": "^2.16.3"
+  cva: "npm:class-variance-authority@^0.7.1"
   globals: "^16.0.0"
   ox: "^0.6.10"
   react: "^19"
@@ -19,7 +27,9 @@ catalog:
   tailwindcss: "^4.0.12"
   "@tailwindcss/vite": "^4.0.9"
   typescript: "^5.8.2"
+  unplugin-icons: "^22.0.0"
   viem: "^2.23.12"
   vite: "^6.0.7"
   vite-plugin-mkcert: "^1.17.8"
   wagmi: "^2.14.15"
+  zustand: "^5.0.3"

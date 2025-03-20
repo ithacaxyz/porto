@@ -1,0 +1,64 @@
+import { TryItOut } from '../../../components/TryItOut'
+
+# `personal_sign`
+
+Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal message.
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const [account] = await provider.request({ method: 'eth_accounts' })
+    return await provider.request({ method: 'personal_sign', params: ['0x68656c6c6f', account] })
+  }}
+  transformResultCode={(code) => {
+    return 'const signature = ' + code
+  }}
+/>
+
+## Request
+
+```ts
+type Request = {
+  method: 'personal_sign',
+  params: [
+    /** Message to sign. */
+    message: string,
+    /** Address of the signer. */
+    address: `0x${string}`,
+  ],
+}
+```
+
+## Response
+
+Signature.
+
+```ts
+type Response = `0x${string}`
+```
+
+## Example
+
+```ts twoslash
+import { Porto } from 'porto'
+
+const { provider } = Porto.create()
+
+const signature = await provider.request({ // [!code focus]
+  method: 'personal_sign', // [!code focus]
+  params: [ // [!code focus]
+    '0xcafebabe', // [!code focus]
+    '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef', // [!code focus]
+  ], // [!code focus]
+}) // [!code focus]
+```
+
+<TryItOut
+  fn={async ({ provider }) => {
+    const [account] = await provider.request({ method: 'eth_accounts' })
+    return await provider.request({ method: 'personal_sign', params: ['0x68656c6c6f', account] })
+  }}
+  transformResultCode={(code) => {
+    return 'const signature = ' + code
+  }}
+/>

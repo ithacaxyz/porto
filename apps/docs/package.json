@@ -1,0 +1,38 @@
+{
+  "name": "docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vocs build",
+    "check:types": "tsc --noEmit",
+    "dev": "vocs dev",
+    "preview": "vocs preview"
+  },
+  "dependencies": {
+    "@ariakit/react": "^0.4.15",
+    "@porto/apps": "workspace:*",
+    "@tanstack/query-sync-storage-persister": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-query-persist-client": "catalog:",
+    "cva": "catalog:",
+    "porto": "workspace:*",
+    "react": "catalog:",
+    "react-router": "^7",
+    "react-dom": "catalog:",
+    "shiki": "^1",
+    "tailwindcss": "catalog:",
+    "viem": "catalog:",
+    "vocs": "latest",
+    "wagmi": "catalog:"
+  },
+  "devDependencies": {
+    "@iconify/json": "catalog:",
+    "@svgr/core": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-icons": "catalog:",
+    "vite-plugin-mkcert": "catalog:"
+  },
+  "packageManager": "pnpm@10.5.2"
+}

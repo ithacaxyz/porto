@@ -9,8 +9,8 @@
       "src/core/internal/_generated",
       "tsconfig.json",
       "tsconfig.*.json",
-      "app/src/routeTree.gen.ts",
-      "app/dist"
+      "apps/**/routeTree.gen.ts",
+      "apps/**/dist"
     ]
   },
   "organizeImports": {
@@ -30,6 +30,9 @@
       },
       "a11y": {
         "useKeyWithClickEvents": "off"
+      },
+      "correctness": {
+        "noInvalidPositionAtImportRule": "off"
       },
       "nursery": {
         "useSortedClasses": {
