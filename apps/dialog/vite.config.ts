@@ -11,6 +11,7 @@ export default defineConfig({
   define: {
     'process.env': {},
   },
+  base: '/dialog/',
   plugins: [
     Mkcert(),
     Tailwindcss(),
