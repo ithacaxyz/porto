@@ -1,5 +1,6 @@
-import * as Ariakit from '@ariakit/react'
 import { IndeterminateLoader } from '@porto/apps/components'
+
+import * as Ariakit from '@ariakit/react'
 import { cx } from 'cva'
 import { Address, Value } from 'ox'
 import { formatEther } from 'ox/Value'
@@ -9,18 +10,17 @@ import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
+import { config } from '~/lib/Wagmi'
+import CopyIcon from '~icons/lucide/copy'
+import ExternalLinkIcon from '~icons/lucide/external-link'
+import XIcon from '~icons/lucide/x'
 
-import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { QrCode } from '~/components/QrCode'
 import {
   useAddressTransfers,
   useTokenBalances,
 } from '~/hooks/use-blockscout-api'
-import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
-import CopyIcon from '~icons/lucide/copy'
-import ExternalLinkIcon from '~icons/lucide/external-link'
-import XIcon from '~icons/lucide/x'
 
 export function Dashboard() {
   const account = useAccount()
@@ -174,12 +174,12 @@ export function Dashboard() {
         <div className="pt-3 pb-6 lg:pr-4">
           <h2 className="font-semibold text-lg">Send</h2>
           {sendCalls.isPending ? (
-            <div className="flex h-full w-full items-start justify-center pt-14">
+            <div className="flex h-full w-full items-start justify-center pt-6">
               <IndeterminateLoader
                 hint=""
                 description=""
                 title="Sending…"
-                className="m-auto"
+                className="max-w-[40px] flex-col"
               />
             </div>
           ) : (

@@ -21,6 +21,7 @@
     "@tanstack/react-router": "^1.114.25",
     "@wagmi/core": "catalog:",
     "cva": "catalog:",
+    "@porto/apps": "workspace:*",
     "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",

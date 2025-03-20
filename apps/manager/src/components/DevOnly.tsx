@@ -2,7 +2,6 @@ import { Button } from '@porto/apps/components'
 import { AbiFunction, Json, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import { Drawer } from 'vaul-base'
-import { parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 
@@ -11,9 +10,8 @@ import {
   exp1Address,
   exp2Abi,
   exp2Address,
-} from '@generated/contracts'
+} from '../../_generated/contracts'
 import { parseEther } from 'viem'
-import { Button } from './Button'
 
 const key = () =>
   ({

@@ -3,11 +3,11 @@ import { blockExplorer, foundry } from '@wagmi/cli/plugins'
 import { odysseyTestnet } from 'viem/chains'
 
 const paths = [
-  'docs',
+  'apps/docs',
   'examples/wagmi/src',
-  'playground/src',
+  'apps/playground/src',
   'test/src',
-  'app',
+  'apps/manager',
 ]
 
 export default defineConfig(

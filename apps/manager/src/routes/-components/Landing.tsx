@@ -1,4 +1,4 @@
-import { Button, IndeterminateLoader } from '@porto/apps/components'
+import { Button } from '@porto/apps/components'
 import { cx } from 'cva'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
@@ -7,6 +7,7 @@ import SparkIcon from '~icons/lucide/sparkles'
 
 import { PassphraseGenerator } from '~/lib/Phrase'
 import { config } from '~/lib/Wagmi'
+import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 
 export function Landing() {
   const account = useAccount()
@@ -26,7 +27,10 @@ export function Landing() {
       )}
     >
       {account.isConnecting ? (
-        <IndeterminateLoader title="Signing in…" className="mt-20" />
+        <IndeterminateLoader
+          title="Signing in…"
+          className="mt-20 flex-col text-center text-nowrap mx-auto max-w-[60px]"
+        />
       ) : (
         <form className="mt-auto flex w-full max-w-[400px] flex-col gap-y-4">
           <p className="text-center text-3xl">Create account</p>
