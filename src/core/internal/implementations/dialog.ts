@@ -15,7 +15,7 @@ import type * as Porto from '../porto.js'
 import * as Schema from '../typebox/schema.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
-  const { host = 'https://exp.porto.sh/dialog', renderer = Dialog.iframe() } =
+  const { host = 'https://id.porto.sh/dialog', renderer = Dialog.iframe() } =
     parameters
 
   const requestStore = RpcRequest.createStore()
@@ -446,7 +446,7 @@ export declare namespace dialog {
   type Parameters = {
     /**
      * Wallet embed host.
-     * @default 'http://exp.porto.sh/dialog'
+     * @default 'http://id.porto.sh/dialog'
      */
     host?: string | undefined
     /**
