@@ -173,17 +173,24 @@ export function Dashboard() {
       <div className="flex w-full flex-col divide-y-2 divide-gray5 border-gray5 border-y-2 lg:flex-row lg:divide-x-2 lg:divide-y-0 lg:*:w-1/2">
         <div className="pt-3 pb-6 lg:pr-4">
           <h2 className="font-semibold text-lg">Send</h2>
-          {sendCalls.isPending ? (
-            <div className="flex h-full w-full items-start justify-center pt-6">
-              <IndeterminateLoader
-                hint=""
-                description=""
-                title="Sending…"
-                className="max-w-[40px] flex-col"
-              />
-            </div>
-          ) : (
-            <Ariakit.Form className="flex flex-col gap-y-2" store={form}>
+          <div className="relative">
+            {sendCalls.isPending && (
+              <div className="-mt-2 -mb-6 -mx-4 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
+                <IndeterminateLoader
+                  hint=""
+                  description=""
+                  title="Sending…"
+                  className="mb-10 max-w-[60px] flex-col"
+                />
+              </div>
+            )}
+            <Ariakit.Form
+              className={cx(
+                'flex flex-col gap-y-2',
+                sendCalls.isPending && ' bg-opacity-70',
+              )}
+              store={form}
+            >
               <div className="flex items-center justify-between gap-x-2">
                 <Ariakit.VisuallyHidden>
                   <Ariakit.FormLabel name={form.names.amount}>
@@ -288,7 +295,7 @@ export function Dashboard() {
                 </Ariakit.FormSubmit>
               </div>
             </Ariakit.Form>
-          )}
+          </div>
         </div>
         <div className={cx('flex flex-row py-3', 'lg:flex-col lg:pl-4')}>
           <div className="flex w-full justify-between gap-x-3">

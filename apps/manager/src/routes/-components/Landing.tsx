@@ -1,11 +1,10 @@
-import { Button } from '@porto/apps/components'
+import { Button, IndeterminateLoader } from '@porto/apps/components'
 import { cx } from 'cva'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { useAccount, useConnectors } from 'wagmi'
 import SparkIcon from '~icons/lucide/sparkles'
 
-import { IndeterminateLoader } from '~/components/IndeterminateLoader'
 import { PassphraseGenerator } from '~/lib/Phrase'
 import { config } from '~/lib/Wagmi'
 

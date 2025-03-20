@@ -29,7 +29,7 @@ next-env.d.ts
 
 # forge
 contracts/cache
-contracts/outq
+contracts/out
 
 # lib
 src/_dist

@@ -1,4 +1,4 @@
-# app
+# manager
 
 ## dev
 
@@ -6,9 +6,9 @@ From root, run:
 
 ```
 pnpm i
-pnpm dev
+pnpm dev:manager
 ```
 
-### Icons 
+### Icons
 
 Browse icons on [Icônes](https://icones.js.org/collection/lucide) and click "Unplugin Icons" to copy import.
