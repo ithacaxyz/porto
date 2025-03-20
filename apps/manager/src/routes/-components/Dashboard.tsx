@@ -167,7 +167,7 @@ export function Dashboard() {
             'col-start-3 row-start-2 mr-1 place-self-end',
           )}
         >
-          ${(totalBalance.toLocaleString())}
+          ${totalBalance.toLocaleString()}
         </h1>
       </nav>
       <div className="flex w-full flex-col divide-y-2 divide-gray5 border-gray5 border-y-2 lg:flex-row lg:divide-x-2 lg:divide-y-0 lg:*:w-1/2">
