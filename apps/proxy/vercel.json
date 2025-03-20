@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/dialog/", "destination": "https://dialog.porto.sh/dialog/" },
+    {
+      "source": "/dialog/:match*",
+      "destination": "https://dialog.porto.sh/dialog/:match*"
+    },
+    { "source": "/", "destination": "https://manage.porto.sh/" },
+    {
+      "source": "/:match*",
+      "destination": "https://manage.porto.sh/:match*"
+    }
+  ]
+}
