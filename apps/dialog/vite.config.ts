@@ -12,6 +12,9 @@ export default defineConfig({
     'process.env': {},
   },
   base: '/dialog/',
+  build: {
+    outDir: './dist/dialog',
+  },
   plugins: [
     Mkcert(),
     Tailwindcss(),
