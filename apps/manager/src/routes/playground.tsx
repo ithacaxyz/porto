@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button, IndeterminateLoader } from '@porto/apps/components'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/playground')({
@@ -104,6 +104,17 @@ function RouteComponent() {
           <Button variant="destructive">Destructive</Button>
           <Button variant="success">Success</Button>
           <Button variant="warning">Warning</Button>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <h1 className="font-bold text-2xl">Indeterminate Loader</h1>
+        <div className="flex gap-2">
+          <div className="flex items-center rounded-xl bg-gray3 p-6">
+            <IndeterminateLoader title="Loading…" />
+          </div>
+          <div className="flex items-center rounded-xl bg-gray3 p-6">
+            <IndeterminateLoader align="vertical" title="Loading…" />
+          </div>
         </div>
       </div>
     </div>

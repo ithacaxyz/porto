@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.15",
-    "@wagmi/core": "catalog:",
     "@ariakit/tailwind": "^0.1.4",
     "@bitjson/qr-code": "^1.0.2",
     "@porto/apps": "workspace:*",
@@ -21,7 +20,9 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/react-router": "catalog:",
+    "@wagmi/core": "catalog:",
     "cva": "catalog:",
+    "human-id": "^4.1.1",
     "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",

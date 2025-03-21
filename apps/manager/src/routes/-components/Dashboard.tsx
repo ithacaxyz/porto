@@ -125,7 +125,7 @@ export function Dashboard() {
   })
 
   return (
-    <section className="z-50 flex flex-col gap-y-4 overflow-y-auto bg-grayA1 px-3 py-2 tabular-nums sm:px-6 lg:px-8">
+    <>
       <nav className="mt-4 mb-2 grid grid-flow-row-dense grid-cols-3 grid-rows-2 gap-y-8">
         <div className="my-auto block md:hidden">
           <img src="/logo-light.svg" alt="Porto" className="w-24" />
@@ -527,6 +527,6 @@ export function Dashboard() {
           </table>
         </details>
       </div>
-    </section>
+    </>
   )
 }

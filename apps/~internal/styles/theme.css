@@ -1,6 +1,9 @@
 /* https://github.com/radix-ui/colors */
 /* biome-ignore format: <explanation> */
 @theme {
+  --color-black: #000000;
+  --color-white: #ffffff;
+
   --color-gray1: light-dark(#fcfcfc, #111111);
   --color-gray2: light-dark(#f9f9f9, #191919);
   --color-gray3: light-dark(#f0f0f0, #222222);
@@ -141,6 +144,7 @@
   --background-color-invert: light-dark(var(--color-black), var(--color-white));
   --background-color-invertHover: light-dark(var(--color-blackA10), var(--color-whiteA10));
   --background-color-primary: light-dark(var(--color-gray1), var(--color-gray2));
+  --background-color-primaryHover: var(--color-gray3);
   --background-color-secondary: light-dark(var(--color-gray2), var(--color-gray3));
   --background-color-surface: var(--color-gray3);
   --background-color-surfaceHover: var(--color-gray4);

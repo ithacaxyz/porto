@@ -1,9 +1,13 @@
 import { type VariantProps, cva } from 'cva'
+import { cloneElement } from 'react'
 
 export function Button(props: Button.Props) {
-  const { className, disabled, size, variant, asChild = false, ...rest } = props
+  const { className, disabled, size, render, variant, ...rest } = props
+  const Element = render
+    ? (props: Button.Props) => cloneElement(render, props)
+    : 'button'
   return (
-    <button
+    <Element
       className={Button.className({ className, disabled, size, variant })}
       disabled={disabled ?? false}
       {...rest}
@@ -17,7 +21,7 @@ export namespace Button {
   export interface Props
     extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'disabled'>,
       VariantProps<typeof className> {
-    asChild?: boolean
+    render?: React.ReactElement
   }
 
   export const className = cva(
@@ -29,8 +33,8 @@ export namespace Button {
             'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
           default2:
             'text-primary bg-gray5 hover:not-active:bg-gray7 text-surface border border-surface',
-          ghost:
-            'text-primary bg-transparent hover:not-active:bg-surfaceHover border border-gray8 hover:border-gray9 hover:active:border-gray10',
+          outline:
+            'text-primary bg-transparent hover:not-active:bg-primaryHover border border-gray6',
           invert: 'text-invert bg-invert hover:not-active:bg-invertHover',
           accent: 'text-white bg-accent hover:not-active:bg-accentHover',
           destructive:
@@ -43,9 +47,7 @@ export namespace Button {
         },
         size: {
           default: 'h-button px-5 text-[15px]',
-          sm: 'h-11 px-4 text-[15px]',
-          lg: 'h-13 px-6 text-[17px]',
-          xl: 'h-15 px-8 text-[19px]',
+          square: 'size-[var(--height-button)] text-[15px]',
         },
       },
       defaultVariants: {

@@ -1,35 +1,11 @@
 @import "@porto/apps/styles.css";
 @import "@ariakit/tailwind";
 
-@custom-variant dark (&:is(.dark *));
-
-@font-face {
-  font-family: "SF Pro";
-  src: url("/SF-Pro.woff2") format("woff2");
-  font-display: swap;
-}
+@custom-variant dark (&:is(.scheme-light-dark *));
 
 html,
 :host {
   background-color: var(--background-color-primary);
-}
-
-:root {
-  --font-serif: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, serif;
-  --font-sans: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-sf-pro: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
-    "Helvetica Neue", sans-serif;
-}
-
-@theme {
-  --font-serif: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, serif;
-  --font-sans: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-sf-pro: "SF Pro", system-ui, -apple-system, BlinkMacSystemFont,
-    "Helvetica Neue", sans-serif;
 }
 
 @layer base {

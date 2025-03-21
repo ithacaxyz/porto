@@ -1,4 +1,5 @@
 import * as Ariakit from '@ariakit/react'
+import { LogoLockup } from '@porto/apps/components'
 import { exp1Config, exp2Config } from '@porto/apps/contracts'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
@@ -16,7 +17,6 @@ import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import { Button } from './Button'
 import { LimitDemo, MintDemo, PayDemo, SwapDemo } from './DemoApp'
-import { Logo } from './Logo'
 
 export function HomePage() {
   return (
@@ -29,7 +29,7 @@ export function HomePage() {
         <div className="h-1" />
 
         <div className="w-[128px]">
-          <Logo />
+          <LogoLockup />
         </div>
 
         <div className="h-2" />
