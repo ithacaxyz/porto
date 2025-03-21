@@ -17,7 +17,7 @@ export namespace Layout {
   export function Content(props: PropsWithChildren) {
     return (
       <div
-        className="ml-[45vw] flex w-full flex-1 flex-col gap-y-4 p-6 px-10 tabular-nums max-lg:ml-0"
+        className="ml-[45vw] flex w-full flex-1 flex-col gap-y-4 p-6 px-10 tabular-nums max-md:p-4 max-lg:ml-0"
         {...props}
       />
     )
