@@ -3,6 +3,10 @@
 
 @custom-variant dark (&:is(.scheme-light-dark *));
 
+@theme {
+  --spacing-hero: 45vw;
+}
+
 html,
 :host {
   background-color: var(--background-color-primary);

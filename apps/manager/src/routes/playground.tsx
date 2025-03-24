@@ -1,5 +1,6 @@
 import { Button, IndeterminateLoader } from '@porto/apps/components'
 import { createFileRoute } from '@tanstack/react-router'
+import LucideBone from '~icons/lucide/bone'
 
 export const Route = createFileRoute('/playground')({
   component: RouteComponent,
@@ -104,6 +105,12 @@ function RouteComponent() {
           <Button variant="destructive">Destructive</Button>
           <Button variant="success">Success</Button>
           <Button variant="warning">Warning</Button>
+        </div>
+        <div className="flex gap-2">
+          <Button size="square">
+            <LucideBone />
+          </Button>
+          <Button size="small">Help</Button>
         </div>
       </div>
       <div className="space-y-2">

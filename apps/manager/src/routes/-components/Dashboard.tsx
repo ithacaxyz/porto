@@ -1,52 +1,44 @@
-import { IndeterminateLoader } from '@porto/apps/components'
+import { Button } from '@porto/apps/components'
 
 import * as Ariakit from '@ariakit/react'
-import { cx } from 'cva'
+import { Cuer } from 'cuer'
 import { Address, Value } from 'ox'
-import { formatEther } from 'ox/Value'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
-import { config } from '~/lib/Wagmi'
-import CopyIcon from '~icons/lucide/copy'
-import ExternalLinkIcon from '~icons/lucide/external-link'
-import XIcon from '~icons/lucide/x'
 
-import { QrCode } from '~/components/QrCode'
-import {
-  useAddressTransfers,
-  useTokenBalances,
-} from '~/hooks/use-blockscout-api'
-import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
+import { useTokenBalances } from '~/hooks/use-blockscout-api'
+import { ValueFormatter, sum } from '~/utils'
+import { Layout } from './Layout'
 
 export function Dashboard() {
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
 
-  const permissions = Hooks.usePermissions()
-  const revokePermissions = Hooks.useRevokePermissions()
+  // const permissions = Hooks.usePermissions()
+  // const revokePermissions = Hooks.useRevokePermissions()
 
   const { data: assets } = useTokenBalances()
-  const { data: transfers } = useAddressTransfers()
-  const [selectedChains, _setSelectedChains] = React.useState(
-    config.chains.map((c) => c.id.toString()),
-  )
+  // const { data: transfers } = useAddressTransfers()
+  // const [selectedChains, _setSelectedChains] = React.useState(
+  //   config.chains.map((c) => c.id.toString()),
+  // )
 
-  const filteredTransfers = React.useMemo(() => {
-    return transfers
-      ?.filter((c) =>
-        selectedChains.some((cc) => cc === c?.chainId?.toString()),
-      )
-      .flatMap((chainTransfer) =>
-        chainTransfer?.items.map((item) => ({
-          chainId: chainTransfer.chainId,
-          ...item,
-        })),
-      )
-  }, [transfers, selectedChains])
+  // const filteredTransfers = React.useMemo(() => {
+  //   return transfers
+  //     ?.filter((c) =>
+  //       selectedChains.some((cc) => cc === c?.chainId?.toString()),
+  //     )
+  //     .flatMap((chainTransfer) =>
+  //       chainTransfer?.items.map((item) => ({
+  //         chainId: chainTransfer.chainId,
+  //         ...item,
+  //       })),
+  //     )
+  // }, [transfers, selectedChains])
 
   const totalBalance = React.useMemo(() => {
     if (!assets) return 0n
@@ -98,7 +90,7 @@ export function Dashboard() {
     },
   })
 
-  const selectedAsset = form.useValue(form.names.asset)
+  // const selectedAsset = form.useValue(form.names.asset)
 
   form.useSubmit((state) => {
     if (!Address.validate(state.values.recipient) || !state.values.amount)
@@ -126,51 +118,61 @@ export function Dashboard() {
 
   return (
     <>
-      <nav className="mt-4 mb-2 grid grid-flow-row-dense grid-cols-3 grid-rows-2 gap-y-8">
-        <div className="my-auto block md:hidden">
-          <img src="/logo-light.svg" alt="Porto" className="w-24" />
+      <Layout.Header
+        right={
+          <div className="flex gap-2">
+            <Button size="small">Help</Button>
+            <Button
+              onClick={() => disconnect.mutate({})}
+              size="small"
+              variant="destructive"
+            >
+              Sign out
+            </Button>
+          </div>
+        }
+      />
+
+      <div className="h-8" />
+
+      <div className="flex max-h-[100px] w-full">
+        <div className="flex flex-1 flex-col justify-between">
+          <div className="font-[500] text-[13px] text-gray10">Your account</div>
+          <div>
+            <div className="font-[500] text-[22px] tracking-[-2.8%]">
+              ${totalBalance}
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="font-[500] text-[13px] text-gray10 tracking-[-0.25px]">
+                ≈ X.XXX
+              </div>
+              <div className="rounded-full bg-gray3 px-[6px] py-[2px] font-[600] text-[10px] text-gray10 tracking-[-2.8%]">
+                ETH
+              </div>
+            </div>
+          </div>
         </div>
-        <p
-          className={cx(
-            'my-auto font-medium text-xl md:row-start-1',
-            'col-start-1 row-start-2',
-          )}
-        >
-          Account
-        </p>
-        <div className={cx('col-span-2 col-start-2 space-x-2 place-self-end')}>
-          <a
-            className={cx(
-              'rounded-3xl bg-gray-200 px-4 py-2 font-semibold text-md text-neutral-800 hover:bg-gray-300',
-              'ml-auto',
-            )}
-            href="/"
-            target="_blank"
-            rel="noreferrer"
+        <div className="flex items-center justify-center gap-3">
+          <Cuer.Root
+            className="rounded-lg border border-surface bg-primary p-3 dark:bg-secondary"
+            value={account.address ?? ''}
           >
-            Help
-          </a>
-          <Ariakit.Button
-            type="button"
-            onClick={() => disconnect.mutate({})}
-            className={cx(
-              'rounded-3xl bg-pink-100 px-4 py-2 font-semibold text-md text-red-500 hover:bg-pink-200',
-              'ml-2',
-            )}
-          >
-            Sign out
-          </Ariakit.Button>
+            <Cuer.Finder radius={1} />
+            <Cuer.Cells />
+          </Cuer.Root>
+          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-[10px] text-gray10">
+            {account.address}
+          </p>
         </div>
-        <h1
-          className={cx(
-            'font-medium text-2x md:col-auto md:place-self-auto md:text-3xl',
-            'col-start-3 row-start-2 mr-1 place-self-end',
-          )}
-        >
-          ${totalBalance.toLocaleString()}
-        </h1>
-      </nav>
-      <div className="flex w-full flex-col divide-y-2 divide-gray5 border-gray5 border-y-2 lg:flex-row lg:divide-x-2 lg:divide-y-0 lg:*:w-1/2">
+      </div>
+
+      <div className="h-6" />
+
+      <hr className="border-gray5" />
+
+      <div className="h-6" />
+
+      {/* <div className="flex w-full flex-col divide-y-2 divide-gray5 border-gray5 border-y-2 lg:flex-row lg:divide-x-2 lg:divide-y-0 lg:*:w-1/2">
         <div className="pt-3 pb-6 lg:pr-4">
           <h2 className="font-semibold text-lg">Send</h2>
           <div className="relative">
@@ -526,7 +528,7 @@ export function Dashboard() {
             </tbody>
           </table>
         </details>
-      </div>
+      </div> */}
     </>
   )
 }

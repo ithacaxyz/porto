@@ -12,9 +12,9 @@ function RouteComponent() {
   return (
     <>
       <Layout.Header
-        title="About Porto"
-        titleClassName="min-[460px]:hidden"
-        action={
+        left="About Porto"
+        leftClassName="min-[460px]:hidden"
+        right={
           <Button render={<Link to=".." />} variant="outline" size="square">
             <LucideX className="size-5 text-gray10" />
           </Button>

@@ -19,7 +19,7 @@ export function Landing() {
 
   return (
     <>
-      <Layout.Header />
+      <Layout.Header left={false} />
 
       <div className="flex h-full flex-col items-center justify-between gap-y-4 rounded-3xl">
         <form className="flex h-full w-full max-w-[328px] flex-col justify-center gap-y-6 max-lg:gap-y-20">

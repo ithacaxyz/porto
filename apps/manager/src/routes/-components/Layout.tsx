@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button, LogoMark } from '@porto/apps/components'
 import { Link } from '@tanstack/react-router'
 import { cx } from 'cva'
 import type { PropsWithChildren } from 'react'
@@ -11,37 +11,43 @@ export function Layout(props: PropsWithChildren) {
 
 export namespace Layout {
   export function Hero(props: PropsWithChildren) {
-    return <div className="fixed inset-4 w-[45vw] max-lg:hidden" {...props} />
+    return <div className="fixed inset-4 w-hero max-lg:hidden" {...props} />
   }
 
   export function Content(props: PropsWithChildren) {
+    const { children, ...rest } = props
     return (
       <div
-        className="ml-[45vw] flex w-full flex-1 flex-col gap-y-4 p-6 px-10 tabular-nums max-md:p-4 max-lg:ml-0"
-        {...props}
-      />
+        className="ml-[calc(var(--spacing-hero)+1rem)] flex w-full flex-1 flex-col py-6 max-md:py-4 max-lg:ml-0"
+        {...rest}
+      >
+        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-10 max-md:px-4">
+          {props.children}
+        </div>
+      </div>
     )
   }
 
   export function Header(props: {
-    action?: React.ReactNode | undefined
-    title?: string | undefined
-    titleClassName?: string | undefined
+    left?: boolean | string | undefined
+    leftClassName?: string | undefined
+    right?: React.ReactNode | undefined
   }) {
-    const { action, title = 'Porto', titleClassName } = props
+    const { right, left, leftClassName } = props
     return (
       <div className="flex items-center justify-between">
-        <div>
-          <div
-            className={cx(
-              titleClassName,
-              'font-[500] text-[24px] min-lg:opacity-0',
-            )}
-          >
-            {title}
-          </div>
+        <div className="min-lg:opacity-0">
+          {left ? (
+            <div className={cx(leftClassName, 'font-[500] text-[24px]')}>
+              {left}
+            </div>
+          ) : left === false ? null : (
+            <div className="h-[28px]">
+              <LogoMark />
+            </div>
+          )}
         </div>
-        {action ?? (
+        {right ?? (
           <Button render={<Link to="/about" />} variant="outline" size="square">
             <CircleHelp className="size-5 text-gray10" />
           </Button>
