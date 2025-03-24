@@ -842,7 +842,7 @@ export async function sign(
 
       const cacheKey = `webauthnVerified.${key.hash}`
       const now = Date.now()
-      const VERIFICATION_TIMEOUT = 10 * 60 * 1000 // 10 minutes in milliseconds
+      const verificationTimeout = 10 * 60 * 1000 // 10 minutes in milliseconds
 
       let requireVerification = true
       if (storage) {
