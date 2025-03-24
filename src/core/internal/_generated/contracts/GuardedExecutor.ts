@@ -216,7 +216,7 @@ export const abi = [
     ],
     "outputs": [
       {
-        "name": "spend",
+        "name": "spends",
         "type": "tuple[][]",
         "internalType": "struct GuardedExecutor.SpendInfo[][]",
         "components": [
@@ -258,7 +258,7 @@ export const abi = [
         ]
       },
       {
-        "name": "canExecute",
+        "name": "executes",
         "type": "bytes32[][]",
         "internalType": "bytes32[][]"
       }
