@@ -46,19 +46,20 @@ export async function createAccount(
   client: Client,
   parameters: createAccount.Parameters,
 ): Promise<createAccount.ReturnType> {
-  const { capabilities } = parameters
+  const { context, signatures } = parameters
   try {
     const method = 'wallet_createAccount' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>({
+    await client.request<Schema>({
       method,
       params: [
         Value.Encode(Rpc.wallet_createAccount.Parameters, {
-          capabilities,
+          context,
+          signatures,
         }),
       ],
     })
-    return Value.Parse(Rpc.wallet_createAccount.Response, result)
+    return undefined
   } catch (error) {
     parseSchemaError(error)
     throw error

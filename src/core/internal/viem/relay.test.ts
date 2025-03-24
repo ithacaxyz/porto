@@ -1,4 +1,12 @@
-import { AbiFunction, P256, PublicKey, Value } from 'ox'
+import {
+  AbiFunction,
+  AbiParameters,
+  Hash,
+  type Hex,
+  P256,
+  PublicKey,
+  Value,
+} from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 
@@ -27,60 +35,62 @@ const { client } = getPorto({
 
 const feeToken = exp1Address
 
-describe('prepareCreateAccount', () => {
-  const defaultKey = {
-    expiry: 6942069420,
-    permissions: [
-      {
-        selector: AbiFunction.getSelector(AbiFunction.fromAbi(exp1Abi, 'mint')),
-        to: exp1Address,
-        type: 'call',
-      },
-      {
-        selector: AbiFunction.getSelector(
-          AbiFunction.fromAbi(exp1Abi, 'transfer'),
-        ),
-        to: exp1Address,
-        type: 'call',
-      },
-      {
-        limit: Value.fromEther('100'),
-        period: 'minute',
-        token: exp1Address,
-        type: 'spend',
-      },
-    ],
-    publicKey: '0x0000000000000000000000000000000000000000',
-    role: 'admin',
-    type: 'p256',
-  } as const satisfies Capabilities.authorizeKeys.Request[number]
+describe('prepareCreateAccount + createAccount', () => {
+  const getKey = (publicKey: Hex.Hex) =>
+    ({
+      expiry: 6942069420,
+      permissions: [
+        {
+          selector: AbiFunction.getSelector(
+            AbiFunction.fromAbi(exp1Abi, 'mint'),
+          ),
+          to: exp1Address,
+          type: 'call',
+        },
+        {
+          selector: AbiFunction.getSelector(
+            AbiFunction.fromAbi(exp1Abi, 'transfer'),
+          ),
+          to: exp1Address,
+          type: 'call',
+        },
+        {
+          limit: Value.fromEther('100'),
+          period: 'minute',
+          token: exp1Address,
+          type: 'spend',
+        },
+      ],
+      publicKey,
+      role: 'admin',
+      type: 'p256',
+    }) as const satisfies Capabilities.authorizeKeys.Request[number]
 
   // biome-ignore lint/suspicious/noFocusedTests: TODO(relay2): undo
   test.only('default', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const publicKey = P256.getPublicKey({ privateKey })
+    const tmp = privateKeyToAccount(generatePrivateKey())
 
-    const result = await prepareCreateAccount(client, {
+    const privateKey = P256.randomPrivateKey()
+    const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+      includePrefix: false,
+    })
+
+    const key = getKey(publicKey)
+
+    const request = await prepareCreateAccount(client, {
       capabilities: {
-        authorizeKeys: [
-          {
-            ...defaultKey,
-            publicKey: PublicKey.toHex(publicKey),
-          },
-        ],
+        authorizeKeys: [key],
         delegation: client.chain.contracts.delegation.address,
       },
     })
 
-    expect(result.context).toBeDefined()
-    expect(result.capabilities.authorizeKeys[0]?.expiry).toBe(defaultKey.expiry)
-    expect(result.capabilities.authorizeKeys[0]?.publicKey).toBe(
-      PublicKey.toHex(publicKey),
-    )
-    expect(result.capabilities.authorizeKeys[0]?.role).toBe('admin')
-    expect(result.capabilities.authorizeKeys[0]?.type).toBe('p256')
+    expect(request.context).toBeDefined()
+    expect(request.capabilities.authorizeKeys[0]?.expiry).toBe(key.expiry)
+    expect(request.capabilities.authorizeKeys[0]?.publicKey).toBe(publicKey)
+    expect(request.capabilities.authorizeKeys[0]?.role).toBe(key.role)
+    expect(request.capabilities.authorizeKeys[0]?.type).toBe(key.type)
     expect(
-      result.capabilities.authorizeKeys[0]?.permissions,
+      request.capabilities.authorizeKeys[0]?.permissions,
     ).toMatchInlineSnapshot(`
       [
         {
@@ -101,131 +111,150 @@ describe('prepareCreateAccount', () => {
         },
       ]
     `)
-  })
-})
 
-describe('createAccount', () => {
-  const defaultKey = {
-    expiry: 6942069420,
-    permissions: [
-      {
-        selector: AbiFunction.getSelector(AbiFunction.fromAbi(exp1Abi, 'mint')),
-        to: exp1Address,
-        type: 'call',
-      },
-      {
-        selector: AbiFunction.getSelector(
-          AbiFunction.fromAbi(exp1Abi, 'transfer'),
-        ),
-        to: exp1Address,
-        type: 'call',
-      },
-      {
-        limit: Value.fromEther('100'),
-        period: 'minute',
-        token: exp1Address,
-        type: 'spend',
-      },
-    ],
-    publicKey: '0x0000000000000000000000000000000000000000',
-    role: 'admin',
-    type: 'p256',
-  } as const satisfies Capabilities.authorizeKeys.Request[number]
-
-  test('default', async () => {
-    const privateKey = P256.randomPrivateKey()
-    const publicKey = P256.getPublicKey({ privateKey })
-
-    const result = await createAccount(client, {
-      capabilities: {
-        authorizeKeys: [
-          {
-            ...defaultKey,
-            publicKey: PublicKey.toHex(publicKey),
-          },
-        ],
-        delegation: client.chain.contracts.delegation.address,
-      },
-    })
-
-    expect(result.address).toBeDefined()
-    expect(result.capabilities.authorizeKeys[0]?.expiry).toBe(defaultKey.expiry)
-    expect(result.capabilities.authorizeKeys[0]?.publicKey).toBe(
-      PublicKey.toHex(publicKey),
+    const hash = Key.hash(key)
+    const digest = Hash.keccak256(
+      AbiParameters.encodePacked(
+        ['bytes32', 'address'],
+        [hash, request.context.address],
+      ),
     )
-    expect(result.capabilities.authorizeKeys[0]?.role).toBe('admin')
-    expect(result.capabilities.authorizeKeys[0]?.type).toBe('p256')
-    expect(
-      result.capabilities.authorizeKeys[0]?.permissions,
-    ).toMatchInlineSnapshot(`
-      [
+    const idSignature = await tmp.sign({ hash: digest })
+
+    await createAccount(client, {
+      ...request,
+      signatures: [
         {
-          "selector": "0x40c10f19",
-          "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "call",
+          hash,
+          idSignature,
         },
-        {
-          "selector": "0xa9059cbb",
-          "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "call",
-        },
-        {
-          "limit": 100000000000000000000n,
-          "period": "minute",
-          "token": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "spend",
-        },
-      ]
-    `)
-  })
-
-  test('error: schema encoding', async () => {
-    await expect(() =>
-      createAccount(client, {
-        capabilities: {
-          authorizeKeys: [
-            {
-              ...defaultKey,
-              // @ts-expect-error
-              publicKey: 'INVALID!',
-            },
-          ],
-          delegation: client.chain.contracts.delegation.address,
-        },
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Relay.SchemaCoderError: Expected string to match '^0x(.*)$'
-
-      Path: capabilities.authorizeKeys.0.publicKey
-      Value: "INVALID!"
-
-      Details: The encoded value does not match the expected schema]
-    `)
-
-    await expect(() =>
-      createAccount(client, {
-        capabilities: {
-          authorizeKeys: [
-            {
-              ...defaultKey,
-              // @ts-expect-error
-              role: 'beef',
-              publicKey: '0x0000000000000000000000000000000000000000',
-            },
-          ],
-          delegation: client.chain.contracts.delegation.address,
-        },
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Relay.SchemaCoderError: Expected 'admin'
-
-      Path: capabilities.authorizeKeys.0.role
-      Value: "beef"
-
-      Details: The encoded value does not match the expected schema]
-    `)
+      ],
+    })
   })
 })
+
+// describe('createAccount', () => {
+//   const defaultKey = {
+//     expiry: 6942069420,
+//     permissions: [
+//       {
+//         selector: AbiFunction.getSelector(AbiFunction.fromAbi(exp1Abi, 'mint')),
+//         to: exp1Address,
+//         type: 'call',
+//       },
+//       {
+//         selector: AbiFunction.getSelector(
+//           AbiFunction.fromAbi(exp1Abi, 'transfer'),
+//         ),
+//         to: exp1Address,
+//         type: 'call',
+//       },
+//       {
+//         limit: Value.fromEther('100'),
+//         period: 'minute',
+//         token: exp1Address,
+//         type: 'spend',
+//       },
+//     ],
+//     publicKey: '0x0000000000000000000000000000000000000000',
+//     role: 'admin',
+//     type: 'p256',
+//   } as const satisfies Capabilities.authorizeKeys.Request[number]
+
+//   test('default', async () => {
+//     const privateKey = P256.randomPrivateKey()
+//     const publicKey = P256.getPublicKey({ privateKey })
+
+//     const result = await createAccount(client, {
+//       capabilities: {
+//         authorizeKeys: [
+//           {
+//             ...defaultKey,
+//             publicKey: PublicKey.toHex(publicKey),
+//           },
+//         ],
+//         delegation: client.chain.contracts.delegation.address,
+//       },
+//     })
+
+//     expect(result.address).toBeDefined()
+//     expect(result.capabilities.authorizeKeys[0]?.expiry).toBe(defaultKey.expiry)
+//     expect(result.capabilities.authorizeKeys[0]?.publicKey).toBe(
+//       PublicKey.toHex(publicKey),
+//     )
+//     expect(result.capabilities.authorizeKeys[0]?.role).toBe('admin')
+//     expect(result.capabilities.authorizeKeys[0]?.type).toBe('p256')
+//     expect(
+//       result.capabilities.authorizeKeys[0]?.permissions,
+//     ).toMatchInlineSnapshot(`
+//       [
+//         {
+//           "selector": "0x40c10f19",
+//           "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+//           "type": "call",
+//         },
+//         {
+//           "selector": "0xa9059cbb",
+//           "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+//           "type": "call",
+//         },
+//         {
+//           "limit": 100000000000000000000n,
+//           "period": "minute",
+//           "token": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+//           "type": "spend",
+//         },
+//       ]
+//     `)
+//   })
+
+//   test('error: schema encoding', async () => {
+//     await expect(() =>
+//       createAccount(client, {
+//         capabilities: {
+//           authorizeKeys: [
+//             {
+//               ...defaultKey,
+//               // @ts-expect-error
+//               publicKey: 'INVALID!',
+//             },
+//           ],
+//           delegation: client.chain.contracts.delegation.address,
+//         },
+//       }),
+//     ).rejects.toThrowErrorMatchingInlineSnapshot(`
+//       [Relay.SchemaCoderError: Expected string to match '^0x(.*)$'
+
+//       Path: capabilities.authorizeKeys.0.publicKey
+//       Value: "INVALID!"
+
+//       Details: The encoded value does not match the expected schema]
+//     `)
+
+//     await expect(() =>
+//       createAccount(client, {
+//         capabilities: {
+//           authorizeKeys: [
+//             {
+//               ...defaultKey,
+//               // @ts-expect-error
+//               role: 'beef',
+//               publicKey: '0x0000000000000000000000000000000000000000',
+//             },
+//           ],
+//           delegation: client.chain.contracts.delegation.address,
+//         },
+//       }),
+//     ).rejects.toThrowErrorMatchingInlineSnapshot(`
+//       [Relay.SchemaCoderError: Expected 'admin'
+
+//       Path: capabilities.authorizeKeys.0.role
+//       Value: "beef"
+
+//       Details: The encoded value does not match the expected schema]
+//     `)
+//   })
+// })
 
 describe('prepareCalls + sendPreparedCalls', () => {
   test('default', async () => {

@@ -27,49 +27,6 @@ const Call = Type.Object({
   value: Schema.Optional(Primitive.BigInt),
 })
 
-export namespace wallet_createAccount {
-  /** Capabilities for `wallet_createAccount` request. */
-  export const Capabilities = Type.Object({
-    /** Keys to authorize on the account. */
-    authorizeKeys: C.authorizeKeys.Request,
-    /** Contract address to delegate to. */
-    delegation: Primitive.Address,
-  })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
-
-  /** Capabilities for `wallet_createAccount` response. */
-  export const ResponseCapabilities = Type.Object({
-    /** Keys authorized on the account. */
-    authorizeKeys: C.authorizeKeys.Response,
-    /** Contract address delegated to. */
-    delegation: Primitive.Address,
-  })
-  export type ResponseCapabilities = Schema.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  /** Parameters for `wallet_createAccount` request. */
-  export const Parameters = Type.Object({
-    /** Capabilities for the account. */
-    capabilities: Capabilities,
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  /** Request for `wallet_createAccount`. */
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_createAccount'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  /** Response for `wallet_createAccount`. */
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    capabilities: ResponseCapabilities,
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
 export namespace wallet_getKeys {
   /** Parameters for `wallet_getKeys` request. */
   export const Parameters = Type.Object({
@@ -137,6 +94,53 @@ export namespace wallet_prepareCreateAccount {
       init_calls: Type.Array(Call),
     }),
   })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
+export namespace wallet_createAccount {
+  /** Capabilities for `wallet_createAccount` request. */
+  export const Capabilities = Type.Object({
+    /** Keys to authorize on the account. */
+    authorizeKeys: C.authorizeKeys.Request,
+    /** Contract address to delegate to. */
+    delegation: Primitive.Address,
+  })
+  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
+
+  /** Capabilities for `wallet_createAccount` response. */
+  export const ResponseCapabilities = Type.Object({
+    /** Keys authorized on the account. */
+    authorizeKeys: C.authorizeKeys.Response,
+    /** Contract address delegated to. */
+    delegation: Primitive.Address,
+  })
+  export type ResponseCapabilities = Schema.StaticDecode<
+    typeof ResponseCapabilities
+  >
+
+  /** Parameters for `wallet_createAccount` request. */
+  export const Parameters = Type.Object({
+    /** Context. */
+    context: wallet_prepareCreateAccount.Response.properties.context,
+    /** Signatures. */
+    signatures: Type.Array(
+      Type.Object({
+        hash: Primitive.Hex,
+        idSignature: Primitive.Hex,
+      }),
+    ),
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  /** Request for `wallet_createAccount`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_createAccount'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  /** Response for `wallet_createAccount`. */
+  export const Response = Type.Undefined()
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
