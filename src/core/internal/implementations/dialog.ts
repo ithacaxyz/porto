@@ -13,7 +13,6 @@ import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
 import * as Schema from '../typebox/schema.js'
-import * as Storage from '../../Storage.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const { host = 'https://id.porto.sh/dialog', renderer = Dialog.iframe() } =
