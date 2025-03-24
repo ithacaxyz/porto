@@ -848,7 +848,7 @@ export async function sign(
       if (storage) {
         const lastVerified = await storage.getItem<number>(cacheKey)
         requireVerification =
-          !lastVerified || now - lastVerified > VERIFICATION_TIMEOUT
+          !lastVerified || now - lastVerified > verificationTimeout
       }
 
       const {
