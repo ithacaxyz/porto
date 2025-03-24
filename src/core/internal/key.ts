@@ -12,6 +12,7 @@ import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 
+import type * as Storage from '../Storage.js'
 import * as Call from './call.js'
 import type * as RelayKey_typebox from './relay/typebox/key.js'
 import type * as RelayPermission_typebox from './relay/typebox/permission.js'
@@ -24,7 +25,6 @@ import type {
   UnionOmit,
   UnionPartialBy,
 } from './types.js'
-import type * as Storage from '../Storage.js'
 
 type PrivateKeyFn = () => Hex.Hex
 
@@ -801,15 +801,14 @@ export function serialize(key: Key): Serialized {
 
 export async function sign(
   key: Key,
-  parameters: { 
+  parameters: {
     address?: Hex.Hex | undefined
     payload: Hex.Hex
-    storage?: Storage.Storage | undefined 
+    storage?: Storage.Storage | undefined
   },
 ) {
   const { address, payload, storage } = parameters
   const { canSign, publicKey, type: keyType } = key
-
 
   if (!canSign)
     throw new Error(
@@ -848,8 +847,8 @@ export async function sign(
       let requireVerification = true
       if (storage) {
         const lastVerified = await storage.getItem<number>(cacheKey)
-        console.log('lastVerified', lastVerified)
-        requireVerification = !lastVerified || now - lastVerified > VERIFICATION_TIMEOUT
+        requireVerification =
+          !lastVerified || now - lastVerified > VERIFICATION_TIMEOUT
       }
 
       const {
