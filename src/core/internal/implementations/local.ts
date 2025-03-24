@@ -124,6 +124,7 @@ export function local(parameters: local.Parameters = {}) {
           ...(context as any),
           account,
           signatures,
+          storage: internal.config.storage,
         })
 
         address_internal = account.address
@@ -144,6 +145,7 @@ export function local(parameters: local.Parameters = {}) {
           account,
           // Extract calls to authorize the key.
           calls: Implementation.getAuthorizeCalls([key]),
+          storage: internal.config.storage,
         })
 
         return { key }
@@ -224,6 +226,7 @@ export function local(parameters: local.Parameters = {}) {
           await Delegation.execute(client, {
             account,
             calls: Implementation.getAuthorizeCalls([extraKey]),
+            storage: internal.config.storage,
           })
 
         return {
@@ -274,6 +277,7 @@ export function local(parameters: local.Parameters = {}) {
         await Delegation.execute(client, {
           account,
           calls: [Call.setCanExecute({ key, enabled: false })],
+          storage: internal.config.storage,
         })
       },
 
@@ -294,6 +298,7 @@ export function local(parameters: local.Parameters = {}) {
           account,
           calls,
           key,
+          storage: internal.config.storage,
         })
 
         return hash
@@ -316,6 +321,7 @@ export function local(parameters: local.Parameters = {}) {
           calls: context.calls,
           nonce: context.nonce,
           signatures: [signature],
+          storage: internal.config.storage,
         })
 
         return hash
@@ -368,6 +374,7 @@ export function local(parameters: local.Parameters = {}) {
         await Delegation.execute(client, {
           ...(context as any),
           signatures,
+          storage: internal.config.storage,
         })
 
         const account = preparedAccounts_internal.find(
