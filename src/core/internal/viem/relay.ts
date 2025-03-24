@@ -157,7 +157,7 @@ export async function prepareCreateAccount(
   client: Client,
   parameters: prepareCreateAccount.Parameters,
 ): Promise<prepareCreateAccount.ReturnType> {
-  const { capabilities } = parameters
+  const { capabilities, chain = client.chain } = parameters
   try {
     const method = 'wallet_prepareCreateAccount' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -166,6 +166,7 @@ export async function prepareCreateAccount(
       params: [
         Value.Encode(Rpc.wallet_prepareCreateAccount.Parameters, {
           capabilities,
+          chainId: chain?.id,
         }),
       ],
     })
@@ -177,7 +178,12 @@ export async function prepareCreateAccount(
 }
 
 export namespace prepareCreateAccount {
-  export type Parameters = Rpc.wallet_prepareCreateAccount.Parameters
+  export type Parameters = Omit<
+    Rpc.wallet_prepareCreateAccount.Parameters,
+    'chainId'
+  > & {
+    chain?: Chain | undefined
+  }
 
   export type ReturnType = Rpc.wallet_prepareCreateAccount.Response
 
@@ -391,12 +397,16 @@ export function parseExecutionError<const calls extends readonly unknown[]>(
   if (!(e instanceof BaseError)) return
 
   const getAbiError = (error: BaseError) => {
-    const cause = error.walk((e) => 'data' in (e as BaseError))
+    const cause = error.walk(
+      (e) =>
+        'data' in (e as BaseError) ||
+        Boolean((e as BaseError).details?.match(/(0x[0-9a-f]{8})/)),
+    )
     if (!cause) return undefined
 
     let data: Hex.Hex | undefined
     if (cause instanceof BaseError) {
-      const [, match] = cause.details?.match(/"(0x[0-9a-f]{8})"/) || []
+      const [, match] = cause.details?.match(/(0x[0-9a-f]{8})/) || []
       if (match) data = match as Hex.Hex
     }
 

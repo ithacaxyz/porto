@@ -89,12 +89,5 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await Promise.all(
-    [...Object.values(Anvil.instances), ...Object.values(Relay.instances)].map(
-      async (instance) => {
-        await fetch(`${instance.rpcUrl}/destroy`)
-      },
-    ),
-  )
   vi.restoreAllMocks()
 })

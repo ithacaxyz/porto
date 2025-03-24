@@ -346,7 +346,7 @@ export function relay(config: relay.Parameters = {}) {
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
-        const { id } = await Relay.sendPreparedCalls(client, {
+        const { id } = await Relay.sendCalls(client, {
           context: {
             ...context,
             key,

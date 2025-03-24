@@ -70,6 +70,8 @@ export namespace wallet_prepareCreateAccount {
 
   /** Parameters for `wallet_prepareCreateAccount` request. */
   export const Parameters = Type.Object({
+    /** The chain ID to create the account on. */
+    chainId: Primitive.Number,
     /** Capabilities for the account. */
     capabilities: Capabilities,
   })
@@ -84,15 +86,18 @@ export namespace wallet_prepareCreateAccount {
 
   /** Response for `wallet_prepareCreateAccount`. */
   export const Response = Type.Object({
+    address: Primitive.Address,
     capabilities: ResponseCapabilities,
     context: Type.Object({
-      address: Primitive.Address,
-      // TODO(relay2): camel
-      signed_authorization: Authorization,
-      salt: Type.Number(),
-      // TODO(relay2): camel
-      init_calls: Type.Array(Call),
+      account: Type.Object({
+        address: Primitive.Address,
+        salt: Type.Number(),
+        signedAuthorization: Authorization,
+        initCalls: Type.Array(Call),
+      }),
+      chainId: Primitive.Number,
     }),
+    digests: Type.Array(Primitive.Hex),
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
@@ -126,7 +131,8 @@ export namespace wallet_createAccount {
     signatures: Type.Array(
       Type.Object({
         hash: Primitive.Hex,
-        idSignature: Primitive.Hex,
+        id: Primitive.Address,
+        signature: Primitive.Hex,
       }),
     ),
   })

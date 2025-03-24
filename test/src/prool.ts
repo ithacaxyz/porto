@@ -8,6 +8,7 @@ type RelayParameters = {
   feeTokens: string[]
   http?: {
     port?: number | undefined
+    metricsPort?: number | undefined
   }
   quoteSecretKey?: string | undefined
   secretKey?: string | undefined
@@ -26,8 +27,8 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
     endpoint,
     entrypoint,
     feeTokens,
-    secretKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', // anvil key
-    quoteSecretKey = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d', // anvil key
+    secretKey = '0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356', // anvil key
+    quoteSecretKey = '0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97', // anvil key
     ...rest
   } = args
 
@@ -74,6 +75,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
           entrypoint,
           http: {
             port,
+            metricsPort: port + 1,
           },
           secretKey,
           quoteSecretKey,
