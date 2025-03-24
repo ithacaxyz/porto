@@ -115,6 +115,7 @@ export function local(parameters: local.Parameters = {}) {
         })
         const signatures = await Account.sign(account, {
           payloads: signPayloads,
+          storage: internal.config.storage,
         })
 
         // Execute the account creation.
@@ -321,7 +322,7 @@ export function local(parameters: local.Parameters = {}) {
       },
 
       async signPersonalMessage(parameters) {
-        const { account, data } = parameters
+        const { account, data, internal } = parameters
 
         // Only admin keys can sign personal messages.
         const key = account.keys?.find(
@@ -332,13 +333,14 @@ export function local(parameters: local.Parameters = {}) {
         const [signature] = await Account.sign(account, {
           key,
           payloads: [PersonalMessage.getSignPayload(data)],
+          storage: internal.config.storage,
         })
 
         return signature
       },
 
       async signTypedData(parameters) {
-        const { account, data } = parameters
+        const { account, data, internal } = parameters
 
         // Only admin keys can sign typed data.
         const key = account.keys?.find(
@@ -349,6 +351,7 @@ export function local(parameters: local.Parameters = {}) {
         const [signature] = await Account.sign(account, {
           key,
           payloads: [TypedData.getSignPayload(Json.parse(data))],
+          storage: internal.config.storage,
         })
 
         return signature

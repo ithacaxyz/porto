@@ -4,6 +4,7 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 
 import * as Key from './key.js'
+import type * as Storage from '../Storage.js'
 import type { Compute, RequiredBy } from './types.js'
 
 /** A delegated account. */
@@ -134,7 +135,7 @@ export async function sign<
   account: account | Account,
   parameters: sign.Parameters<account, payloads>,
 ): Promise<Compute<payloads>> {
-  const { payloads } = parameters
+  const { payloads, storage } = parameters
 
   const [payload, authorizationPayload] = payloads as {} as [Hex.Hex, Hex.Hex]
 
@@ -152,6 +153,7 @@ export async function sign<
       Key.sign(key, {
         ...parameters,
         address: account.address,
+        storage,
       })
   })()
 
@@ -185,6 +187,10 @@ export declare namespace sign {
       (account extends { sign: NonNullable<Account['sign']> }
         ? Payloads
         : readonly [execute: Hex.Hex])
+    /**
+     * Storage to use for WebAuthn verification caching.
+     */
+    storage?: Storage.Storage | undefined
   }
 
   type Payloads =

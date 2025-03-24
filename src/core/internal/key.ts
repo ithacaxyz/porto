@@ -24,6 +24,7 @@ import type {
   UnionOmit,
   UnionPartialBy,
 } from './types.js'
+import type * as Storage from '../Storage.js'
 
 type PrivateKeyFn = () => Hex.Hex
 
@@ -800,10 +801,15 @@ export function serialize(key: Key): Serialized {
 
 export async function sign(
   key: Key,
-  parameters: { address?: Hex.Hex | undefined; payload: Hex.Hex },
+  parameters: { 
+    address?: Hex.Hex | undefined
+    payload: Hex.Hex
+    storage?: Storage.Storage | undefined 
+  },
 ) {
-  const { address, payload } = parameters
+  const { address, payload, storage } = parameters
   const { canSign, publicKey, type: keyType } = key
+
 
   if (!canSign)
     throw new Error(
@@ -836,13 +842,15 @@ export async function sign(
       const { credential, rpId } = key
 
       const cacheKey = `webauthn_verified_${address}`
-      const lastVerified = localStorage.getItem(cacheKey)
       const now = Date.now()
       const VERIFICATION_TIMEOUT = 10 * 60 * 1000 // 10 minutes in milliseconds
 
-      const requireVerification =
-        !lastVerified ||
-        now - Number.parseInt(lastVerified) > VERIFICATION_TIMEOUT
+      let requireVerification = true
+      if (storage) {
+        const lastVerified = await storage.getItem<number>(cacheKey)
+        console.log('lastVerified', lastVerified)
+        requireVerification = !lastVerified || now - lastVerified > VERIFICATION_TIMEOUT
+      }
 
       const {
         signature: { r, s },
@@ -862,8 +870,8 @@ export async function sign(
           `supplied address "${address}" does not match signature address "${userHandle}"`,
         )
 
-      if (requireVerification) {
-        localStorage.setItem(cacheKey, now.toString())
+      if (requireVerification && storage) {
+        await storage.setItem(cacheKey, now)
       }
 
       const signature = AbiParameters.encode(
