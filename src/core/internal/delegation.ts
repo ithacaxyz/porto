@@ -33,6 +33,7 @@ import * as Delegation from './_generated/contracts/Delegation.js'
 import * as DelegatedAccount from './account.js'
 import * as Call from './call.js'
 import * as Key from './key.js'
+import type * as Storage from '../Storage.js'
 import type { OneOf } from './types.js'
 
 export const domainNameAndVersion = {
@@ -60,7 +61,7 @@ export async function execute<
 ): Promise<execute.ReturnType> {
   // Block expression to obtain the execution request and signatures.
   const { request, signatures } = await (async () => {
-    const { account, nonce, key, signatures } = parameters
+    const { account, nonce, key, signatures, storage } = parameters
 
     // If an execution has been prepared, we can early return the request and signatures.
     if (nonce && signatures) return { request: parameters, signatures }
@@ -75,6 +76,7 @@ export async function execute<
       signatures: await DelegatedAccount.sign(account, {
         key,
         payloads: payloads as any,
+        storage,
       }),
     }
   })()
@@ -145,6 +147,10 @@ export declare namespace execute {
      * - `undefined`: the transaction will be filled by the JSON-RPC server.
      */
     executor?: Account | undefined
+    /**
+     * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
+     */
+    storage?: Storage.Storage | undefined
   } & OneOf<
       | {
           /**
