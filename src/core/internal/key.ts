@@ -840,7 +840,7 @@ export async function sign(
     if (keyType === 'webauthn-p256') {
       const { credential, rpId } = key
 
-      const cacheKey = `webauthnVerified.${key.hash}`
+      const cacheKey = `porto.webauthnVerified.${key.hash}`
       const now = Date.now()
       const verificationTimeout = 10 * 60 * 1000 // 10 minutes in milliseconds
 
