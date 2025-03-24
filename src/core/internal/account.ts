@@ -188,7 +188,7 @@ export declare namespace sign {
         ? Payloads
         : readonly [execute: Hex.Hex])
     /**
-     * Storage to use for WebAuthn verification caching.
+     * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
      */
     storage?: Storage.Storage | undefined
   }
