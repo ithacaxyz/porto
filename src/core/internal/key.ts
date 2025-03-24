@@ -869,8 +869,7 @@ export async function sign(
           `supplied address "${address}" does not match signature address "${userHandle}"`,
         )
 
-      if (requireVerification && storage)
-        await storage.setItem(cacheKey, now)
+      if (requireVerification && storage) await storage.setItem(cacheKey, now)
 
       const signature = AbiParameters.encode(
         AbiParameters.from([
