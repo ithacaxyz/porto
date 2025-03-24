@@ -1,14 +1,16 @@
 import { RpcTransport } from 'ox'
 import { createServer } from 'prool'
 
+import * as Chains from '../../src/core/Chains.js'
 import { exp1Address } from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
-import { relay } from './prool.js'
+import { poolId, relay } from './prool.js'
 
 export const instances = {
   odyssey: defineRelay({
     endpoint: (key) =>
       `http://127.0.0.1:${Anvil.instances.odyssey.port}/${key}`,
+    entrypoint: Chains.odysseyTestnet.contracts.entryPoint.address,
     feeTokens: ['0x0000000000000000000000000000000000000000', exp1Address],
     userOpGasBuffer: 100_000n,
   }),
@@ -20,15 +22,13 @@ export const instances = {
 
 function defineRelay(parameters: {
   endpoint: (key: number) => string
+  entrypoint: string
   feeTokens: string[]
   txGasBuffer?: bigint | undefined
   userOpGasBuffer?: bigint | undefined
   port?: number | undefined
 }) {
   const { endpoint, port = 9119 } = parameters
-  const poolId =
-    Number(process.env.VITEST_POOL_ID ?? 1) *
-    Number(process.env.VITEST_SHARD_ID ?? 1)
   const rpcUrl = `http://127.0.0.1:${port}/${poolId}`
 
   const transport = RpcTransport.fromHttp(rpcUrl)

@@ -18,12 +18,7 @@ await Fs.mkdir(
   },
 )
 
-for await (const file of Fs.glob(
-  Path.resolve(import.meta.dirname, '../contracts/src/**/*.sol'),
-)) {
-  const name = Path.basename(file)
-  const outPath = Path.resolve(import.meta.dirname, '../contracts/out/' + name)
-
+async function buildContracts(outPath: string) {
   for await (const file of await Fs.readdir(outPath)) {
     const path = Path.resolve(outPath, file)
     const name = Path.basename(path, '.json')
@@ -46,3 +41,15 @@ for await (const file of Fs.glob(
     await Fs.appendFile(out, code)
   }
 }
+
+for await (const file of Fs.glob(
+  Path.resolve(import.meta.dirname, '../contracts/src/**/*.sol'),
+)) {
+  const name = Path.basename(file)
+  const outPath = Path.resolve(import.meta.dirname, '../contracts/out/' + name)
+  await buildContracts(outPath)
+}
+
+await buildContracts(
+  Path.resolve(import.meta.dirname, '../contracts/out/EIP7702Proxy.sol'),
+)

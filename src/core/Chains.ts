@@ -21,11 +21,12 @@ export const odysseyTestnet = /*#__PURE__*/ define({
   ...chains.odysseyTestnet,
   contracts: {
     ...chains.odysseyTestnet.contracts,
+    // TODO(relay2): use EIP7702Proxy
     delegation: {
-      address: '0x766dd4f7d39233d0c46e241011e18de4207197d8',
+      address: '0xfa7c48c1cf01fad4ad16b17b5ae8ba3bd4bcedce',
     },
     entryPoint: {
-      address: '0xB28AF4994867Faf0be7aa6b1bfD6477a0d282410',
+      address: '0x5197adb49b4ecaa8e00f60f43757d3f5ad630227',
     },
   },
 })

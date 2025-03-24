@@ -13,6 +13,7 @@ import type * as Capabilities from '../relay/typebox/capabilities.js'
 import {
   createAccount,
   prepareCalls,
+  prepareCreateAccount,
   prepareUpgradeAccount,
   sendPreparedCalls,
   upgradeAccount,
@@ -25,6 +26,83 @@ const { client } = getPorto({
 })
 
 const feeToken = exp1Address
+
+describe('prepareCreateAccount', () => {
+  const defaultKey = {
+    expiry: 6942069420,
+    permissions: [
+      {
+        selector: AbiFunction.getSelector(AbiFunction.fromAbi(exp1Abi, 'mint')),
+        to: exp1Address,
+        type: 'call',
+      },
+      {
+        selector: AbiFunction.getSelector(
+          AbiFunction.fromAbi(exp1Abi, 'transfer'),
+        ),
+        to: exp1Address,
+        type: 'call',
+      },
+      {
+        limit: Value.fromEther('100'),
+        period: 'minute',
+        token: exp1Address,
+        type: 'spend',
+      },
+    ],
+    publicKey: '0x0000000000000000000000000000000000000000',
+    role: 'admin',
+    type: 'p256',
+  } as const satisfies Capabilities.authorizeKeys.Request[number]
+
+  // biome-ignore lint/suspicious/noFocusedTests: TODO(relay2): undo
+  test.only('default', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const publicKey = P256.getPublicKey({ privateKey })
+
+    const result = await prepareCreateAccount(client, {
+      capabilities: {
+        authorizeKeys: [
+          {
+            ...defaultKey,
+            publicKey: PublicKey.toHex(publicKey),
+          },
+        ],
+        delegation: client.chain.contracts.delegation.address,
+      },
+    })
+
+    expect(result.context).toBeDefined()
+    expect(result.capabilities.authorizeKeys[0]?.expiry).toBe(defaultKey.expiry)
+    expect(result.capabilities.authorizeKeys[0]?.publicKey).toBe(
+      PublicKey.toHex(publicKey),
+    )
+    expect(result.capabilities.authorizeKeys[0]?.role).toBe('admin')
+    expect(result.capabilities.authorizeKeys[0]?.type).toBe('p256')
+    expect(
+      result.capabilities.authorizeKeys[0]?.permissions,
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "selector": "0x40c10f19",
+          "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+          "type": "call",
+        },
+        {
+          "selector": "0xa9059cbb",
+          "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+          "type": "call",
+        },
+        {
+          "limit": 100000000000000000000n,
+          "period": "minute",
+          "token": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+          "type": "spend",
+        },
+      ]
+    `)
+  })
+})
 
 describe('createAccount', () => {
   const defaultKey = {

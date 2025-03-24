@@ -10,6 +10,7 @@ import {
 import { privateKeyToAccount } from 'viem/accounts'
 import { prepareTransactionRequest, signTransaction } from 'viem/actions'
 import { odysseyTestnet } from 'viem/chains'
+import { poolId } from './prool.js'
 
 export const instances = {
   odyssey: defineAnvil({
@@ -87,9 +88,6 @@ export const accounts = [
 
 function defineAnvil(parameters: AnvilParameters) {
   const { port } = parameters
-  const poolId =
-    Number(process.env.VITEST_POOL_ID ?? 1) *
-    Number(process.env.VITEST_SHARD_ID ?? 1)
   const rpcUrl = `http://127.0.0.1:${port}/${poolId}`
 
   const config = {

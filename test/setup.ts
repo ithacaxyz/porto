@@ -27,12 +27,10 @@ beforeAll(async () => {
         (x) => 'rpcUrls' in x && x.id === instance.config.chainId,
       ) as Chains.Chain
       if (!chain) throw new Error('Chain not found')
-
       const client = createTestClient({
         mode: 'anvil',
         transport: http(instance.rpcUrl),
       })
-
       {
         // Deploy EntryPoint contract.
         const hash = await deployContract(client, {
@@ -53,7 +51,6 @@ beforeAll(async () => {
           bytecode: code!,
         })
       }
-
       {
         // Deploy Delegation contract.
         const hash = await deployContract(client, {
@@ -74,7 +71,6 @@ beforeAll(async () => {
           bytecode: code!,
         })
       }
-
       // Deploy ExperimentalERC20 contract.
       for (const address of [exp1Address, exp2Address]) {
         await setCode(client, {
@@ -85,7 +81,6 @@ beforeAll(async () => {
       }
     }),
   )
-
   await Promise.all(
     Object.values(Relay.instances).map(async (instance) => {
       await fetch(`${instance.rpcUrl}/start`)
@@ -94,5 +89,12 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await Promise.all(
+    [...Object.values(Anvil.instances), ...Object.values(Relay.instances)].map(
+      async (instance) => {
+        await fetch(`${instance.rpcUrl}/destroy`)
+      },
+    ),
+  )
   vi.restoreAllMocks()
 })

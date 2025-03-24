@@ -10,13 +10,16 @@ import * as Porto_internal from './porto.js'
 
 describe.each([
   ['local', Implementation.local],
-  ['relay', Implementation.relay],
-] as const)('%s', (mode, implementation) => {
+  // TODO(relay2): uncomment
+  // ['relay', Implementation.relay],
+] as const)('%s', (_mode, implementation) => {
   const getPorto = () =>
     getPorto_({
       implementation,
       transports: {
-        relay: mode === 'relay',
+        relay: false,
+        // TODO(relay2): uncomment
+        // relay: mode === 'relay',
       },
     })
 

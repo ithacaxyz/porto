@@ -24,6 +24,10 @@ export type Schema = RpcSchema_ox.From<
       ReturnType: Static<typeof Rpc.wallet_prepareCalls.Response>
     }
   | {
+      Request: Static<typeof Rpc.wallet_prepareCreateAccount.Request>
+      ReturnType: Static<typeof Rpc.wallet_prepareCreateAccount.Response>
+    }
+  | {
       Request: Static<typeof Rpc.wallet_prepareUpgradeAccount.Request>
       ReturnType: Static<typeof Rpc.wallet_prepareUpgradeAccount.Response>
     }

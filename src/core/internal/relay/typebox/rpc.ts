@@ -11,6 +11,22 @@ import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Quote from './quote.js'
 
+const Authorization = Type.Object({
+  address: Primitive.Address,
+  chainId: Primitive.Number,
+  nonce: Primitive.Number,
+  r: Primitive.Hex,
+  s: Primitive.Hex,
+  v: Schema.Optional(Primitive.BigInt),
+  yParity: Schema.Optional(Primitive.Number),
+})
+
+const Call = Type.Object({
+  to: Primitive.Address,
+  data: Schema.Optional(Primitive.Hex),
+  value: Schema.Optional(Primitive.BigInt),
+})
+
 export namespace wallet_createAccount {
   /** Capabilities for `wallet_createAccount` request. */
   export const Capabilities = Type.Object({
@@ -74,6 +90,56 @@ export namespace wallet_getKeys {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
+export namespace wallet_prepareCreateAccount {
+  /** Capabilities for `wallet_prepareCreateAccount` request. */
+  export const Capabilities = Type.Object({
+    /** Keys to authorize on the account. */
+    authorizeKeys: C.authorizeKeys.Request,
+    /** Contract address to delegate to. */
+    delegation: Primitive.Address,
+  })
+  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
+
+  /** Capabilities for `wallet_prepareCreateAccount` response. */
+  export const ResponseCapabilities = Type.Object({
+    /** Keys authorized on the account. */
+    authorizeKeys: C.authorizeKeys.Response,
+    /** Contract address delegated to. */
+    delegation: Primitive.Address,
+  })
+  export type ResponseCapabilities = Schema.StaticDecode<
+    typeof ResponseCapabilities
+  >
+
+  /** Parameters for `wallet_prepareCreateAccount` request. */
+  export const Parameters = Type.Object({
+    /** Capabilities for the account. */
+    capabilities: Capabilities,
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  /** Request for `wallet_prepareCreateAccount`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_prepareCreateAccount'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  /** Response for `wallet_prepareCreateAccount`. */
+  export const Response = Type.Object({
+    capabilities: ResponseCapabilities,
+    context: Type.Object({
+      address: Primitive.Address,
+      // TODO(relay2): camel
+      signed_authorization: Authorization,
+      salt: Type.Number(),
+      // TODO(relay2): camel
+      init_calls: Type.Array(Call),
+    }),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace wallet_prepareCalls {
   /** Capabilities for `wallet_prepareCalls` request. */
   export const Capabilities = Type.Object({
@@ -104,13 +170,7 @@ export namespace wallet_prepareCalls {
   /** Parameters for `wallet_prepareCalls` request. */
   export const Parameters = Type.Object({
     /** The calls to prepare. */
-    calls: Type.Array(
-      Type.Object({
-        to: Primitive.Address,
-        data: Schema.Optional(Primitive.Hex),
-        value: Schema.Optional(Primitive.BigInt),
-      }),
-    ),
+    calls: Type.Array(Call),
     /** Capabilities for the account. */
     capabilities: Capabilities,
     /** The chain ID of the call bundle. */
@@ -214,15 +274,7 @@ export namespace wallet_sendPreparedCalls {
 export namespace wallet_upgradeAccount {
   export const Parameters = Type.Object({
     /** Signed authorization. */
-    authorization: Type.Object({
-      address: Primitive.Address,
-      chainId: Primitive.Number,
-      nonce: Primitive.Number,
-      r: Primitive.Hex,
-      s: Primitive.Hex,
-      v: Schema.Optional(Primitive.BigInt),
-      yParity: Schema.Optional(Primitive.Number),
-    }),
+    authorization: Authorization,
     /** Signed quote of the prepared bundle. */
     context: Quote.Signed,
     /** Signature of the `wallet_prepareUpgradeAccount` digest. */

@@ -143,6 +143,47 @@ export namespace prepareCalls {
 }
 
 /**
+ * Prepares a new account creation.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function prepareCreateAccount(
+  client: Client,
+  parameters: prepareCreateAccount.Parameters,
+): Promise<prepareCreateAccount.ReturnType> {
+  const { capabilities } = parameters
+  try {
+    const method = 'wallet_prepareCreateAccount' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
+      params: [
+        Value.Encode(Rpc.wallet_prepareCreateAccount.Parameters, {
+          capabilities,
+        }),
+      ],
+    })
+    return Value.Parse(Rpc.wallet_prepareCreateAccount.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace prepareCreateAccount {
+  export type Parameters = Rpc.wallet_prepareCreateAccount.Parameters
+
+  export type ReturnType = Rpc.wallet_prepareCreateAccount.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
  * Prepares an account upgrade.
  *
  * @example
