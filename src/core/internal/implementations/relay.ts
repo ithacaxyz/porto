@@ -1,10 +1,9 @@
-import * as Address from 'ox/Address'
+import type * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
-import * as Secp256k1 from 'ox/Secp256k1'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { readContract } from 'viem/actions'
@@ -32,9 +31,9 @@ export const tmp: {
  * @returns Implementation.
  */
 export function relay(config: relay.Parameters = {}) {
-  const { feeToken, mock } = config
+  const { mock } = config
 
-  let address_internal: Address.Address | undefined
+  let id_internal: Address.Address | undefined
   // TODO(relay)
   // const preparedAccounts_internal: Account.Account[] = []
 
@@ -49,23 +48,22 @@ export function relay(config: relay.Parameters = {}) {
   })()
 
   async function prepareAccountKeys(parameters: {
-    address: Address.Address
     label?: string | undefined
+    id: string
     keystoreHost?: string | undefined
     mock?: boolean | undefined
     permissions: PermissionsRequest.PermissionsRequest | undefined
   }) {
-    const { address, keystoreHost, mock, permissions } = parameters
+    const { keystoreHost, id, mock, permissions } = parameters
 
-    const label =
-      parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+    const label = parameters.label ?? `${id.slice(0, 8)}\u2026${id.slice(-6)}`
 
     const key = !mock
       ? await Key.createWebAuthnP256({
           label,
           role: 'admin',
           rpId: keystoreHost,
-          userId: Bytes.from(address),
+          userId: Bytes.fromString(id),
         })
       : Key.createP256({
           role: 'admin',
@@ -84,62 +82,18 @@ export function relay(config: relay.Parameters = {}) {
         const { label, internal, permissions } = parameters
         const { client } = internal
 
-        ///////////////////////////////////////////////////////////////////////////
-        // START TODO: remove this when refactored to Relay.createAccount
-        ///////////////////////////////////////////////////////////////////////////
-
-        // Generate a random private key and derive the address.
-        // The address here will be the address of the account.
-        const privateKey = Secp256k1.randomPrivateKey()
-        const address = Address.fromPublicKey(
-          Secp256k1.getPublicKey({ privateKey }),
-        )
-
-        ///////////////////////////////////////////////////////////////////////////
-        // END TODO
-        ///////////////////////////////////////////////////////////////////////////
-
-        // Prepare account keys to be authorized.
-        const keys = await prepareAccountKeys({
-          address,
-          keystoreHost,
-          label,
-          mock,
-          permissions,
+        const account = await Relay.createAccount(client, {
+          keys: ({ id }) => {
+            id_internal = id as Address.Address
+            return prepareAccountKeys({
+              keystoreHost,
+              id,
+              label,
+              mock,
+              permissions,
+            })
+          },
         })
-
-        const delegation = client.chain.contracts.delegation.address
-
-        ///////////////////////////////////////////////////////////////////////////
-        // START TODO: remove this when refactored to Relay.createAccount
-        ///////////////////////////////////////////////////////////////////////////
-
-        await tmp.setBalance?.(address)
-
-        const { context, digests } = await Relay.prepareUpgradeAccount(client, {
-          address,
-          keys,
-          delegation,
-          feeToken,
-        })
-
-        const account = Account.fromPrivateKey(privateKey, {
-          keys: context.account.keys,
-        })
-        const signatures = await Account.sign(account, {
-          payloads: digests,
-        })
-
-        await Relay.upgradeAccount(client, {
-          context,
-          signatures,
-        })
-
-        ///////////////////////////////////////////////////////////////////////////
-        // END TODO
-        ///////////////////////////////////////////////////////////////////////////
-
-        address_internal = address
 
         return { account }
       },
@@ -163,9 +117,9 @@ export function relay(config: relay.Parameters = {}) {
         const { client } = internal
 
         const { address, credentialId } = await (async () => {
-          if (mock && address_internal)
+          if (mock && id_internal)
             return {
-              address: address_internal,
+              address: id_internal,
               credentialId: undefined,
             } as const
 
