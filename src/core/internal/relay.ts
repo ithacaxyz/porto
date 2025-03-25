@@ -9,7 +9,7 @@ import * as Account from './account.js'
 import * as Key from './key.js'
 import type { Client } from './porto.js'
 import type * as Capabilities from './relay/typebox/capabilities.js'
-import type { OneOf, RequiredBy } from './types.js'
+import type { MaybePromise, OneOf, RequiredBy } from './types.js'
 import * as Actions from './viem/relay.js'
 
 /**
@@ -35,8 +35,6 @@ export async function createAccount(
     return parameters.account
   }
 
-  const { keys } = parameters
-
   // Create ephemeral signing key.
   const { id, privateKey } = (() => {
     const privateKey = Secp256k1.randomPrivateKey()
@@ -48,7 +46,12 @@ export async function createAccount(
     } as const
   })()
 
-  const request = await prepareCreateAccount(client, parameters)
+  const keys =
+    typeof parameters.keys === 'function'
+      ? await parameters.keys({ id })
+      : parameters.keys
+
+  const request = await prepareCreateAccount(client, { ...parameters, keys })
 
   const hashes = keys.map(Key.hash)
   const signatures = request.digests.map((payload) =>
@@ -74,7 +77,19 @@ export namespace createAccount {
         context: Actions.createAccount.Parameters['context']
         signatures: Actions.createAccount.Parameters['signatures']
       }
-    | prepareCreateAccount.Parameters
+    | (Omit<prepareCreateAccount.Parameters, 'keys'> & {
+        /**
+         * Keys to authorize.
+         *
+         * Accepts:
+         * - An array of keys.
+         * - A function that returns an array of keys. The function will be called
+         *   with the key's unique `id` as a parameter.
+         */
+        keys:
+          | readonly Key.Key[]
+          | ((p: { id: string }) => MaybePromise<readonly Key.Key[]>)
+      })
   >
 
   export type ReturnType = RequiredBy<Account.Account, 'keys'>

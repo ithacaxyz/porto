@@ -33,6 +33,23 @@ describe('createAccount', () => {
     expect(account.keys).toContain(key)
   })
 
+  test('behavior: keys function', async () => {
+    let id: string | undefined
+    const account = await Relay.createAccount(client, {
+      keys(p) {
+        id = p.id
+        return [
+          Key.createP256({
+            role: 'admin',
+          }),
+        ]
+      },
+    })
+
+    expect(account.address).toBeDefined()
+    expect(id).toBeDefined()
+  })
+
   test('behavior: multiple keys', async () => {
     const key1 = Key.createP256({
       role: 'admin',
