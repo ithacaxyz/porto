@@ -240,7 +240,7 @@ describe.each([
       ).toBe(100n)
     })
 
-    // TODO(relay2): fix
+    // TODO(relay): fix
     test.skip('mint erc20; no fee token (ETH)', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
@@ -480,7 +480,7 @@ describe.each([
   })
 
   describe('behavior: call permissions', () => {
-    // TODO(relay2): fix
+    // TODO(relay): fix
     test.skip('admin key', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({
@@ -520,7 +520,7 @@ describe.each([
       }
     })
 
-    // TODO(relay2): fix
+    // TODO(relay): fix
     describe.skip('session key', () => {
       test('default', async () => {
         // 1. Initialize account with Admin Key and Session Key (with call permission).
@@ -850,7 +850,7 @@ describe.each([
       })
     })
 
-    // TODO(relay2): waiting on BoB
+    // TODO(relay): waiting on BoB
     describe.todo('session key; deferred auth')
   })
 
@@ -915,7 +915,7 @@ describe.each([
       ).rejects.toThrowError('Error: InsufficientBalance()')
     })
 
-    // TODO(relay2): fix
+    // TODO(relay): fix
     test.skip('session key; auth on initialization', async () => {
       // 1. Initialize account with Admin Key and Session Key (with permissions).
       const adminKey = Key.createP256({ role: 'admin' })
@@ -998,12 +998,12 @@ describe.each([
       ).rejects.toThrowError('Error: InsufficientBalance()')
     })
 
-    // TODO(relay2): waiting on BoB
+    // TODO(relay): waiting on BoB
     describe.todo('session key; deferred auth')
   })
 })
 
-// TODO(relay2): remove this
+// TODO(relay): remove this
 function randomNonce() {
   return Hex.toBigInt(
     Hex.concat(

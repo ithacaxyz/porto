@@ -17,7 +17,7 @@ import * as Key from '../key.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as Relay from '../relay.js'
 
-// TODO: remove this
+// TODO(relay): remove this
 export const tmp: {
   setBalance: ((address: Address.Address) => Promise<void>) | null
 } = {
@@ -35,7 +35,7 @@ export function relay(config: relay.Parameters = {}) {
   const { feeToken, mock } = config
 
   let address_internal: Address.Address | undefined
-  // TODO
+  // TODO(relay)
   // const preparedAccounts_internal: Account.Account[] = []
 
   const keystoreHost = (() => {
@@ -251,7 +251,7 @@ export function relay(config: relay.Parameters = {}) {
           calls,
           feeToken,
           key,
-          // TODO: remove this when relay supports optional nonce
+          // TODO(relay): remove this when relay supports optional nonce
           nonce: randomNonce(),
         })
 
@@ -269,7 +269,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async prepareUpgradeAccount(_parameters) {
-        // TODO: implement
+        // TODO(relay): implement
         return null as any
       },
 
@@ -287,7 +287,7 @@ export function relay(config: relay.Parameters = {}) {
           account,
           revokeKeys: [key],
           feeToken,
-          // TODO: remove this when relay supports optional nonce
+          // TODO(relay): remove this when relay supports optional nonce
           nonce: randomNonce(),
         })
       },
@@ -311,12 +311,12 @@ export function relay(config: relay.Parameters = {}) {
         // Get uninitialized keys to authorize.
         const authorizeKeys = account.keys?.filter((key) => !key.initialized)
 
-        // TODO: remove this when relay support batch authorize + calls
+        // TODO(relay): remove this when relay support batch authorize + calls
         await Relay.sendCalls(client, {
           account,
           authorizeKeys,
           feeToken,
-          // TODO: remove this when relay supports optional nonce
+          // TODO(relay): remove this when relay supports optional nonce
           nonce: randomNonce(),
         })
 
@@ -327,7 +327,7 @@ export function relay(config: relay.Parameters = {}) {
           calls,
           feeToken,
           key,
-          // TODO: remove this when relay supports optional nonce
+          // TODO(relay): remove this when relay supports optional nonce
           nonce: randomNonce(),
         })
 
@@ -338,7 +338,7 @@ export function relay(config: relay.Parameters = {}) {
         const { context, key, internal } = parameters
         const { client } = internal
 
-        // TODO: remove this once relay uses `innerSignature` as signature.
+        // TODO(relay): remove this once relay uses `innerSignature` as signature.
         const signature = Key.wrapSignature(parameters.signature, {
           keyType: key.type,
           publicKey: key.publicKey,
@@ -392,7 +392,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async upgradeAccount(_parameters) {
-        // TODO: implement
+        // TODO(relay): implement
         return null as any
       },
     },
@@ -419,7 +419,7 @@ export declare namespace relay {
   }
 }
 
-// TODO: remove this
+// TODO(relay): remove this
 function randomNonce() {
   return Hex.toBigInt(
     Hex.concat(

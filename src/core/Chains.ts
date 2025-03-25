@@ -21,7 +21,7 @@ export const odysseyTestnet = /*#__PURE__*/ define({
   ...chains.odysseyTestnet,
   contracts: {
     ...chains.odysseyTestnet.contracts,
-    // TODO(relay2): use EIP7702Proxy
+    // TODO(relay): use EIP7702Proxy
     delegation: {
       address: '0xfa7c48c1cf01fad4ad16b17b5ae8ba3bd4bcedce',
     },
