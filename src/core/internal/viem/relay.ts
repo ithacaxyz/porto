@@ -306,11 +306,7 @@ export async function prepareUpgradeAccount(
         params: [
           Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
             address,
-            capabilities: {
-              ...capabilities,
-              // TODO(relay): rm
-              preOps: capabilities.preOps ?? [],
-            },
+            capabilities,
             chainId: chain?.id,
           }),
         ],
