@@ -16,13 +16,6 @@ import * as Key from '../key.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as Relay from '../relay.js'
 
-// TODO(relay): remove this
-export const tmp: {
-  setBalance: ((address: Address.Address) => Promise<void>) | null
-} = {
-  setBalance: null,
-}
-
 /**
  * Implementation for a WebAuthn-based Relay environment. Account management,
  * signing, and execution is coordinated between the library and the Relay.
