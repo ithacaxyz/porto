@@ -111,12 +111,12 @@ export namespace DateFormatter {
     const months = Math.floor(days / 30)
     const years = Math.floor(days / 365)
 
-    if (years > 0) return `${years} years`
-    if (months > 0) return `${months} months`
-    if (weeks > 0) return `${weeks} weeks`
-    if (days > 0) return `${days} days`
-    if (hours > 0) return `${hours} hours`
-    if (minutes > 0) return `${minutes} minutes`
-    return `${seconds} seconds`
+    if (years > 0) return `${years}y`
+    if (months > 0) return `${months}M`
+    if (weeks > 0) return `${weeks}w`
+    if (days > 0) return `${days}d`
+    if (hours > 0) return `${hours}h`
+    if (minutes > 0) return `${minutes}m`
+    return `${seconds}s`
   }
 }
