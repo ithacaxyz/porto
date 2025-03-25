@@ -33,7 +33,7 @@ export const tmp: {
 export function relay(config: relay.Parameters = {}) {
   const { mock } = config
 
-  let id_internal: Address.Address | undefined
+  let id_internal: Hex.Hex | undefined
   // TODO(relay)
   // const preparedAccounts_internal: Account.Account[] = []
 
@@ -49,7 +49,7 @@ export function relay(config: relay.Parameters = {}) {
 
   async function prepareAccountKeys(parameters: {
     label?: string | undefined
-    id: string
+    id: Hex.Hex
     keystoreHost?: string | undefined
     mock?: boolean | undefined
     permissions: PermissionsRequest.PermissionsRequest | undefined
@@ -63,7 +63,7 @@ export function relay(config: relay.Parameters = {}) {
           label,
           role: 'admin',
           rpId: keystoreHost,
-          userId: Bytes.fromString(id),
+          userId: Bytes.from(id),
         })
       : Key.createP256({
           role: 'admin',

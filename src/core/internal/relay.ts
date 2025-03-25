@@ -88,7 +88,7 @@ export namespace createAccount {
          */
         keys:
           | readonly Key.Key[]
-          | ((p: { id: string }) => MaybePromise<readonly Key.Key[]>)
+          | ((p: { id: Hex.Hex }) => MaybePromise<readonly Key.Key[]>)
       })
   >
 
