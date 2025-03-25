@@ -27,12 +27,12 @@ export async function createAccount(
   parameters: createAccount.Parameters,
 ) {
   if (parameters.signatures) {
-    const { context, signatures } = parameters
+    const { account, context, signatures } = parameters
     await Actions.createAccount(client, {
       context,
       signatures,
     })
-    return parameters.account
+    return { account }
   }
 
   // Create ephemeral signing key.
@@ -67,7 +67,7 @@ export async function createAccount(
     })),
   })
 
-  return request.account
+  return { account: request.account, id }
 }
 
 export namespace createAccount {
@@ -92,7 +92,10 @@ export namespace createAccount {
       })
   >
 
-  export type ReturnType = RequiredBy<Account.Account, 'keys'>
+  export type ReturnType = {
+    account: RequiredBy<Account.Account, 'keys'>
+    id?: Hex.Hex | undefined
+  }
 
   export type ErrorType =
     | Actions.createAccount.ErrorType

@@ -19,6 +19,7 @@ import * as Key from '../key.js'
 import type * as Capabilities from '../relay/typebox/capabilities.js'
 import {
   createAccount,
+  getAccounts,
   prepareCalls,
   prepareCreateAccount,
   prepareUpgradeAccount,
@@ -169,6 +170,24 @@ describe('prepareCreateAccount + createAccount', () => {
 
       Details: The encoded value does not match the expected schema]
     `)
+  })
+})
+
+describe('getAccounts', () => {
+  // TODO(relay): wait for counterfactual support
+  test.skip('default', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const { id } = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const result = await getAccounts(client, {
+      id: id!,
+    })
+
+    expect(result).toMatchInlineSnapshot()
   })
 })
 

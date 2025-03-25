@@ -75,6 +75,53 @@ export namespace createAccount {
 }
 
 /**
+ * Gets the accounts for a given key identifier.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getAccounts(
+  client: Client,
+  parameters: getAccounts.Parameters,
+): Promise<getAccounts.ReturnType> {
+  const { chain = client.chain, id } = parameters
+  try {
+    const method = 'wallet_getAccounts' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
+      params: [
+        Value.Encode(Rpc.wallet_getAccounts.Parameters, {
+          chain_id: chain?.id,
+          id,
+        }),
+      ],
+    })
+    return Value.Parse(Rpc.wallet_getAccounts.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getAccounts {
+  export type Parameters = Omit<
+    Rpc.wallet_getAccounts.Parameters,
+    'chain_id'
+  > & {
+    chain?: Chain | undefined
+  }
+
+  export type ReturnType = Rpc.wallet_getAccounts.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
  * Prepares a call bundle.
  *
  * @example

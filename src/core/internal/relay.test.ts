@@ -27,7 +27,7 @@ describe('createAccount', () => {
       role: 'admin',
     })
 
-    const account = await Relay.createAccount(client, { keys: [key] })
+    const { account } = await Relay.createAccount(client, { keys: [key] })
 
     expect(account.address).toBeDefined()
     expect(account.keys).toContain(key)
@@ -35,7 +35,7 @@ describe('createAccount', () => {
 
   test('behavior: keys function', async () => {
     let id: string | undefined
-    const account = await Relay.createAccount(client, {
+    const { account } = await Relay.createAccount(client, {
       keys(p) {
         id = p.id
         return [
@@ -59,7 +59,7 @@ describe('createAccount', () => {
       role: 'admin',
     })
 
-    const account = await Relay.createAccount(client, {
+    const { account } = await Relay.createAccount(client, {
       keys: [key1, key2],
     })
 
@@ -86,7 +86,7 @@ describe('createAccount', () => {
       },
     })
 
-    const account = await Relay.createAccount(client, {
+    const { account } = await Relay.createAccount(client, {
       keys: [key],
     })
 

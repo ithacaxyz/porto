@@ -13,13 +13,13 @@ import * as Anvil from './anvil.js'
 export async function createAccount(
   client: Client,
   parameters: {
-    keys: readonly Key.Key[]
+    keys: NonNullable<Relay.createAccount.Parameters['keys']>
     setBalance?: false | bigint | undefined
   },
 ) {
   const { keys, setBalance: balance = parseEther('10000') } = parameters
 
-  const account = await Relay.createAccount(client, { keys })
+  const { account, id } = await Relay.createAccount(client, { keys })
 
   if (balance)
     await setBalance(client, {
@@ -29,6 +29,7 @@ export async function createAccount(
 
   return {
     account,
+    id,
   }
 }
 

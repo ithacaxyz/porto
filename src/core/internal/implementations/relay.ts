@@ -75,9 +75,8 @@ export function relay(config: relay.Parameters = {}) {
         const { label, internal, permissions } = parameters
         const { client } = internal
 
-        const account = await Relay.createAccount(client, {
+        const { account, id } = await Relay.createAccount(client, {
           keys: ({ id }) => {
-            id_internal = id as Address.Address
             return prepareAccountKeys({
               keystoreHost,
               id,
@@ -87,6 +86,8 @@ export function relay(config: relay.Parameters = {}) {
             })
           },
         })
+
+        if (id) id_internal = id
 
         return { account }
       },

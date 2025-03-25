@@ -27,11 +27,43 @@ const Call = Type.Object({
   value: Schema.Optional(Primitive.BigInt),
 })
 
+export namespace wallet_getAccounts {
+  /** Parameters for `wallet_getAccounts` request. */
+  export const Parameters = Type.Object({
+    /** Key identifier. */
+    id: Primitive.Hex,
+    /** Target chain ID. */
+    // TODO: `Primitive.Number`
+    chain_id: Type.Number(),
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  /** Request for `wallet_getAccounts`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_getAccounts'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  /** Response for `wallet_getAccounts`. */
+  export const Response = Type.Array(
+    Type.Object({
+      /** Account address. */
+      address: Primitive.Address,
+      /** Keys authorized on the account. */
+      keys: C.authorizeKeys.Response,
+    }),
+  )
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace wallet_getKeys {
   /** Parameters for `wallet_getKeys` request. */
   export const Parameters = Type.Object({
     /** The address to get the keys for. */
     address: Primitive.Address,
+    /** Target chain ID. */
+    chainId: Primitive.Number,
   })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
