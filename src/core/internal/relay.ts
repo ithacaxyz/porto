@@ -25,49 +25,50 @@ import * as Actions from './viem/relay.js'
 export async function createAccount(
   client: Client,
   parameters: createAccount.Parameters,
-) {
+): Promise<createAccount.ReturnType> {
   if (parameters.signatures) {
     const { account, context, signatures } = parameters
     await Actions.createAccount(client, {
       context,
       signatures,
     })
-    return { account }
+    return account
   }
 
-  // Create ephemeral signing key.
-  const { id, privateKey } = (() => {
-    const privateKey = Secp256k1.randomPrivateKey()
-    const publicKey = Secp256k1.getPublicKey({ privateKey })
-    const id = Address.fromPublicKey(publicKey)
-    return {
-      id,
-      privateKey,
-    } as const
-  })()
+  // Create root id signer
+  const idSigner_root = createIdSigner()
 
   const keys =
     typeof parameters.keys === 'function'
-      ? await parameters.keys({ id })
+      ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
+  const hashes = keys.map(Key.hash)
+  const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
   const request = await prepareCreateAccount(client, { ...parameters, keys })
 
-  const hashes = keys.map(Key.hash)
-  const signatures = request.digests.map((payload) =>
-    Signature.toHex(Secp256k1.sign({ payload, privateKey })),
+  const signatures = signers.map((signer, index) =>
+    signer.sign({ digest: request.digests[index]! }),
   )
 
   await createAccount(client, {
     ...request,
     signatures: signatures.map((signature, index) => ({
       hash: hashes[index]!,
-      id,
+      id: signers[index]!.id,
       signature,
     })),
   })
 
-  return { account: request.account, id }
+  const account = Account.from({
+    address: request.account.address,
+    keys: keys.map((key, index) => ({
+      ...key,
+      id: signers[index]!.id,
+    })),
+  })
+
+  return account
 }
 
 export namespace createAccount {
@@ -88,18 +89,41 @@ export namespace createAccount {
          */
         keys:
           | readonly Key.Key[]
-          | ((p: { id: Hex.Hex }) => MaybePromise<readonly Key.Key[]>)
+          | ((p: { ids: readonly Hex.Hex[] }) => MaybePromise<
+              readonly Key.Key[]
+            >)
       })
   >
 
-  export type ReturnType = {
-    account: RequiredBy<Account.Account, 'keys'>
-    id?: Hex.Hex | undefined
-  }
+  export type ReturnType = RequiredBy<Account.Account, 'keys'>
 
   export type ErrorType =
     | Actions.createAccount.ErrorType
     | Errors.GlobalErrorType
+}
+
+/**
+ * Creates an ephemeral signer to sign over an Account's key identifier.
+ *
+ * @returns ID Signer.
+ */
+function createIdSigner(): createIdSigner.ReturnType {
+  const privateKey = Secp256k1.randomPrivateKey()
+  const publicKey = Secp256k1.getPublicKey({ privateKey })
+  const id = Address.fromPublicKey(publicKey)
+  return {
+    id,
+    sign({ digest }) {
+      return Signature.toHex(Secp256k1.sign({ payload: digest, privateKey }))
+    },
+  } as const
+}
+
+export namespace createIdSigner {
+  export type ReturnType = {
+    id: Hex.Hex
+    sign(p: { digest: Hex.Hex }): Hex.Hex
+  }
 }
 
 /**
@@ -120,7 +144,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   const account = Account.from(parameters.account)
   const hash = Key.hash(key)
   const { capabilities, context, digest } = await Actions.prepareCalls(client, {
-    account: account.address,
+    address: account.address,
     calls: (calls ?? []) as any,
     capabilities: {
       authorizeKeys: authorizeKeys?.map(Key.toRelay),

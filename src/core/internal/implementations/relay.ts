@@ -75,19 +75,21 @@ export function relay(config: relay.Parameters = {}) {
         const { label, internal, permissions } = parameters
         const { client } = internal
 
-        const { account, id } = await Relay.createAccount(client, {
-          keys: ({ id }) => {
-            return prepareAccountKeys({
+        const account = await Relay.createAccount(client, {
+          async keys({ ids }) {
+            const [key] = await prepareAccountKeys({
               keystoreHost,
-              id,
+              id: ids[0]!,
               label,
               mock,
               permissions,
             })
+            return [key!]
           },
         })
 
-        if (id) id_internal = id
+        // Extract the WebAuthn key id.
+        if (account.keys[0]?.id) id_internal = account.keys[0]!.id
 
         return { account }
       },

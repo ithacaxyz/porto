@@ -16,10 +16,12 @@ import {
 import * as TestActions from '../../../../test/src/actions.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Key from '../key.js'
+import { sendCalls } from '../relay.js'
 import type * as Capabilities from '../relay/typebox/capabilities.js'
 import {
   createAccount,
   getAccounts,
+  getKeys,
   prepareCalls,
   prepareCreateAccount,
   prepareUpgradeAccount,
@@ -125,6 +127,57 @@ describe('prepareCreateAccount + createAccount', () => {
     })
   })
 
+  test('behavior: multiple keys', async () => {
+    const key_1 = await (async () => {
+      const keyPair = await WebCryptoP256.createKeyPair()
+      const publicKey = PublicKey.toHex(keyPair.publicKey, {
+        includePrefix: false,
+      })
+      return {
+        ...getKey(publicKey),
+        tmp: privateKeyToAccount(generatePrivateKey()),
+      } as const
+    })()
+    const key_2 = await (async () => {
+      const privateKey = P256.randomPrivateKey()
+      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+        includePrefix: false,
+      })
+      return {
+        ...getKey(publicKey),
+        tmp: privateKeyToAccount(generatePrivateKey()),
+      } as const
+    })()
+    const keys = [key_1, key_2] as const
+
+    const request = await prepareCreateAccount(client, {
+      capabilities: {
+        authorizeKeys: keys,
+        delegation: client.chain.contracts.delegation.address,
+      },
+    })
+
+    expect(request.context).toBeDefined()
+    expect(request.capabilities.authorizeKeys.length).toBe(keys.length)
+
+    const signatures = await Promise.all(
+      keys.map(async (key, index) => {
+        const hash = Key.hash(key)
+        const signature = await key.tmp.sign({ hash: request.digests[index]! })
+        return {
+          hash,
+          id: key.tmp.address,
+          signature,
+        } as const
+      }),
+    )
+
+    await createAccount(client, {
+      ...request,
+      signatures,
+    })
+  })
+
   test('error: schema encoding', async () => {
     await expect(() =>
       prepareCreateAccount(client, {
@@ -174,20 +227,162 @@ describe('prepareCreateAccount + createAccount', () => {
 })
 
 describe('getAccounts', () => {
-  // TODO(relay): wait for counterfactual support
-  test.skip('default', async () => {
+  test('default', async () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { id } = await TestActions.createAccount(client, {
+    const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
     const result = await getAccounts(client, {
-      id: id!,
+      id: account.keys[0]!.id!,
     })
 
-    expect(result).toMatchInlineSnapshot()
+    expect(result.length).toBe(1)
+    expect(result[0]?.address).toBe(account.address)
+    expect(result[0]?.keys.length).toBe(1)
+    expect(result[0]?.keys[0]?.hash).toBe(key.hash)
+    expect(result[0]?.keys[0]?.publicKey).toBe(key.publicKey)
+    expect(result[0]?.keys[0]?.role).toBe(key.role)
+    expect(result[0]?.keys[0]?.type).toBe(key.type)
+  })
+
+  test('behavior: deployed account', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await sendCalls(client, {
+      account,
+      calls: [],
+      nonce: 0n,
+      feeToken,
+    })
+
+    const result = await getAccounts(client, {
+      id: account.keys[0]!.id!,
+    })
+
+    expect(result.length).toBe(1)
+    expect(result[0]?.address).toBe(account.address)
+    expect(result[0]?.keys.length).toBe(1)
+    expect(result[0]?.keys[0]?.hash).toBe(key.hash)
+    expect(result[0]?.keys[0]?.publicKey).toBe(key.publicKey)
+    expect(result[0]?.keys[0]?.role).toBe(key.role)
+    expect(result[0]?.keys[0]?.type).toBe(key.type)
+  })
+})
+
+describe('getKeys', () => {
+  test('default', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await sendCalls(client, {
+      account,
+      calls: [],
+      nonce: 0n,
+      feeToken,
+    })
+
+    const result = await getKeys(client, {
+      address: account.address,
+    })
+
+    expect(result[0]?.hash).toBe(key.hash)
+    expect(result[0]?.publicKey).toBe(key.publicKey)
+    expect(result[0]?.role).toBe(key.role)
+    expect(result[0]?.type).toBe(key.type)
+  })
+
+  test('behavior: multiple keys', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const key_2 = Key.createSecp256k1({
+      role: 'admin',
+    })
+    const account = await TestActions.createAccount(client, {
+      keys: [key, key_2],
+    })
+
+    const result = await getKeys(client, {
+      address: account.address,
+    })
+
+    expect(result[0]?.hash).toBe(key.hash)
+    expect(result[0]?.publicKey).toBe(key.publicKey)
+    expect(result[0]?.role).toBe(key.role)
+    expect(result[0]?.type).toBe(key.type)
+    expect(result[1]?.hash).toBe(key_2.hash)
+    expect(result[1]?.publicKey).toBe(key_2.publicKey)
+    expect(result[1]?.role).toBe(key_2.role)
+    expect(result[1]?.type).toBe(key_2.type)
+  })
+
+  test('behavior: deployed account', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await sendCalls(client, {
+      account,
+      calls: [],
+      nonce: 0n,
+      feeToken,
+    })
+
+    const result = await getKeys(client, {
+      address: account.address,
+    })
+
+    expect(result[0]?.hash).toBe(key.hash)
+    expect(result[0]?.publicKey).toBe(key.publicKey)
+    expect(result[0]?.role).toBe(key.role)
+    expect(result[0]?.type).toBe(key.type)
+  })
+
+  test('behavior: deployed account; multiple keys', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+    const key_2 = Key.createSecp256k1({
+      role: 'admin',
+    })
+    const account = await TestActions.createAccount(client, {
+      keys: [key, key_2],
+    })
+
+    await sendCalls(client, {
+      account,
+      calls: [],
+      nonce: 0n,
+      feeToken,
+    })
+
+    const result = await getKeys(client, {
+      address: account.address,
+    })
+
+    expect(result[0]?.hash).toBe(key.hash)
+    expect(result[0]?.publicKey).toBe(key.publicKey)
+    expect(result[0]?.role).toBe(key.role)
+    expect(result[0]?.type).toBe(key.type)
+    expect(result[1]?.hash).toBe(key_2.hash)
+    expect(result[1]?.publicKey).toBe(key_2.publicKey)
+    expect(result[1]?.role).toBe(key_2.role)
+    expect(result[1]?.type).toBe(key_2.type)
   })
 })
 
@@ -196,12 +391,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { account } = await TestActions.createAccount(client, {
+    const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
     const request = await prepareCalls(client, {
-      account: account.address,
+      address: account.address,
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',
@@ -235,12 +430,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { account } = await TestActions.createAccount(client, {
+    const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
     const request = await prepareCalls(client, {
-      account: account.address,
+      address: account.address,
       calls: [
         {
           abi: exp1Abi,
@@ -276,13 +471,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { account } = await TestActions.createAccount(client, {
+    const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
     await expect(() =>
       prepareCalls(client, {
-        account: account.address,
+        address: account.address,
         calls: [],
         capabilities: {
           meta: {
@@ -307,12 +502,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
     const key = Key.createP256({
       role: 'admin',
     })
-    const { account } = await TestActions.createAccount(client, {
+    const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
     const request = await prepareCalls(client, {
-      account: account.address,
+      address: account.address,
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',

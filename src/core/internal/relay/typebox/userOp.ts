@@ -14,6 +14,11 @@ export const UserOp = Type.Object({
   /** Users address. */
   eoa: Primitive.Address,
   /**
+   * Optional array of encoded UserOps that will be verified and executed
+   * after PREP (if any) and before the validation of the overall UserOp.
+   */
+  encodedPreOps: Type.Array(Primitive.Hex),
+  /**
    * An encoded array of calls, using ERC7579 batch execution encoding.
    *
    * The format is `abi.encode(calls)`, where `calls` is an array of type `Call[]`.

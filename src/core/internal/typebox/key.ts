@@ -7,6 +7,8 @@ export const Base = Type.Object({
   expiry: Primitive.Number,
   /** The hash of the key. */
   hash: Primitive.Hex,
+  /** The id of the key. */
+  id: Schema.Optional(Primitive.Hex),
   /** Public key. */
   publicKey: Primitive.Hex,
   /** Role. */

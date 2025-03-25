@@ -122,6 +122,50 @@ export namespace getAccounts {
 }
 
 /**
+ * Gets the keys for a given account.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getKeys(
+  client: Client,
+  parameters: getKeys.Parameters,
+): Promise<getKeys.ReturnType> {
+  const { address, chain = client.chain } = parameters
+  try {
+    const method = 'wallet_getKeys' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
+      params: [
+        Value.Encode(Rpc.wallet_getKeys.Parameters, {
+          address,
+          chain_id: chain?.id,
+        }),
+      ],
+    })
+    return Value.Parse(Rpc.wallet_getKeys.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getKeys {
+  export type Parameters = Omit<Rpc.wallet_getKeys.Parameters, 'chain_id'> & {
+    chain?: Chain | undefined
+  }
+
+  export type ReturnType = Rpc.wallet_getKeys.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
  * Prepares a call bundle.
  *
  * @example
@@ -135,7 +179,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
-  const { account, capabilities, chain = client.chain } = parameters
+  const { address, capabilities, chain = client.chain } = parameters
 
   const calls = parameters.calls.map((call: any) => {
     return {
@@ -160,7 +204,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
           calls,
           capabilities,
           chainId: chain?.id,
-          from: account,
+          from: address,
         }),
       ],
     })
@@ -176,7 +220,7 @@ export namespace prepareCalls {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
   > = {
-    account: Address.Address
+    address: Address.Address
     calls: Calls<Narrow<calls>>
     capabilities: Rpc.wallet_prepareCalls.Capabilities
     chain?: Chain | undefined
@@ -262,7 +306,11 @@ export async function prepareUpgradeAccount(
         params: [
           Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
             address,
-            capabilities,
+            capabilities: {
+              ...capabilities,
+              // TODO(relay): rm
+              preOps: capabilities.preOps ?? [],
+            },
             chainId: chain?.id,
           }),
         ],

@@ -19,7 +19,7 @@ export async function createAccount(
 ) {
   const { keys, setBalance: balance = parseEther('10000') } = parameters
 
-  const { account, id } = await Relay.createAccount(client, { keys })
+  const account = await Relay.createAccount(client, { keys })
 
   if (balance)
     await setBalance(client, {
@@ -27,10 +27,7 @@ export async function createAccount(
       value: balance,
     })
 
-  return {
-    account,
-    id,
-  }
+  return account
 }
 
 export async function getAccount(
@@ -83,9 +80,7 @@ export async function getUpgradedAccount(
     signatures,
   })
 
-  return {
-    account,
-  }
+  return account
 }
 
 export async function setBalance(

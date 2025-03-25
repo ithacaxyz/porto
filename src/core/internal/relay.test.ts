@@ -27,17 +27,17 @@ describe('createAccount', () => {
       role: 'admin',
     })
 
-    const { account } = await Relay.createAccount(client, { keys: [key] })
+    const account = await Relay.createAccount(client, { keys: [key] })
 
     expect(account.address).toBeDefined()
-    expect(account.keys).toContain(key)
+    expect(account.keys[0]?.publicKey).toBe(key.publicKey)
   })
 
   test('behavior: keys function', async () => {
     let id: string | undefined
-    const { account } = await Relay.createAccount(client, {
+    const account = await Relay.createAccount(client, {
       keys(p) {
-        id = p.id
+        id = p.ids[0]
         return [
           Key.createP256({
             role: 'admin',
@@ -59,13 +59,13 @@ describe('createAccount', () => {
       role: 'admin',
     })
 
-    const { account } = await Relay.createAccount(client, {
+    const account = await Relay.createAccount(client, {
       keys: [key1, key2],
     })
 
     expect(account.address).toBeDefined()
-    expect(account.keys).toContain(key1)
-    expect(account.keys).toContain(key2)
+    expect(account.keys[0]?.publicKey).toBe(key1.publicKey)
+    expect(account.keys[1]?.publicKey).toBe(key2.publicKey)
   })
 
   test('behavior: permissions', async () => {
@@ -86,12 +86,12 @@ describe('createAccount', () => {
       },
     })
 
-    const { account } = await Relay.createAccount(client, {
+    const account = await Relay.createAccount(client, {
       keys: [key],
     })
 
     expect(account.address).toBeDefined()
-    expect(account.keys).toContain(key)
+    expect(account.keys[0]?.publicKey).toBe(key.publicKey)
     expect(account.keys[0]?.permissions).toMatchInlineSnapshot(`
       {
         "calls": [
@@ -144,7 +144,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
 describe('sendCalls', () => {
   test('default', async () => {
     const key = Key.createP256({ role: 'admin' })
-    const { account } = await TestActions.createAccount(client, {
+    const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
@@ -175,7 +175,7 @@ describe('sendCalls', () => {
 
   test('behavior: prepared', async () => {
     const key = Key.createP256({ role: 'admin' })
-    const { account } = await TestActions.createAccount(client, {
+    const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
@@ -226,7 +226,7 @@ describe.each([
     test('mint erc20', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -261,7 +261,7 @@ describe.each([
     test.skip('mint erc20; no fee token (ETH)', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -294,7 +294,7 @@ describe.each([
     test('noop', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -316,7 +316,7 @@ describe.each([
     test('error: contract error (insufficient erc20 balance)', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -341,7 +341,7 @@ describe.each([
     test('error: contract error (insufficient eth balance)', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -366,7 +366,7 @@ describe.each([
     test('authorize admin keys', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -410,7 +410,7 @@ describe.each([
     test('authorize key with previous key', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -459,7 +459,7 @@ describe.each([
     test.skip('batch authorize + mint', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -504,7 +504,7 @@ describe.each([
         permissions: { calls: [{ to: exp2Address }] },
         role: 'admin',
       })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [key],
       })
 
@@ -552,7 +552,7 @@ describe.each([
             ],
           },
         })
-        const { account } = await initializeAccount(client, {
+        const account = await initializeAccount(client, {
           keys: [adminKey, sessionKey],
         })
 
@@ -599,7 +599,7 @@ describe.each([
             ],
           },
         })
-        const { account } = await initializeAccount(client, {
+        const account = await initializeAccount(client, {
           keys: [adminKey, sessionKey],
         })
 
@@ -675,7 +675,7 @@ describe.each([
             ],
           },
         })
-        const { account } = await initializeAccount(client, {
+        const account = await initializeAccount(client, {
           keys: [adminKey, sessionKey],
         })
 
@@ -756,7 +756,7 @@ describe.each([
             ],
           },
         })
-        const { account } = await initializeAccount(client, {
+        const account = await initializeAccount(client, {
           keys: [adminKey, sessionKey],
         })
 
@@ -807,7 +807,7 @@ describe.each([
             ],
           },
         })
-        const { account } = await initializeAccount(client, {
+        const account = await initializeAccount(client, {
           keys: [adminKey, sessionKey],
         })
 
@@ -843,7 +843,7 @@ describe.each([
             ],
           },
         })
-        const { account } = await initializeAccount(client, {
+        const account = await initializeAccount(client, {
           keys: [adminKey, sessionKey],
         })
 
@@ -880,7 +880,7 @@ describe.each([
         },
         role: 'admin',
       })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [adminKey],
       })
 
@@ -947,7 +947,7 @@ describe.each([
           spend: [{ limit: 100n, token: exp2Address, period: 'day' }],
         },
       })
-      const { account } = await initializeAccount(client, {
+      const account = await initializeAccount(client, {
         keys: [adminKey, sessionKey],
       })
 

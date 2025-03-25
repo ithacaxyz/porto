@@ -10,6 +10,7 @@ import { Type } from '../../typebox/schema.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Quote from './quote.js'
+import * as UserOp from './userOp.js'
 
 const Authorization = Type.Object({
   address: Primitive.Address,
@@ -63,7 +64,8 @@ export namespace wallet_getKeys {
     /** The address to get the keys for. */
     address: Primitive.Address,
     /** Target chain ID. */
-    chainId: Primitive.Number,
+    // TODO: `Primitive.Number`
+    chain_id: Type.Number(),
   })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
@@ -189,6 +191,10 @@ export namespace wallet_prepareCalls {
     authorizeKeys: Schema.Optional(C.authorizeKeys.Request),
     /** Metadata for the call bundle. */
     meta: C.meta.Request,
+    /** Optional preOps to execute before signature verification. */
+    preOps: Schema.Optional(Type.Array(UserOp.UserOp)),
+    /** Whether the call bundle is to be considered a preop. */
+    preOp: Schema.Optional(Type.Boolean()),
     /** Keys to revoke on the account. */
     revokeKeys: Schema.Optional(C.revokeKeys.Request),
   })
@@ -254,6 +260,8 @@ export namespace wallet_prepareUpgradeAccount {
      * If `None`, the native token will be used.
      */
     feeToken: Schema.Optional(Primitive.Address),
+    /** Optional preOps to execute before signature verification. */
+    preOps: Schema.Optional(Type.Array(UserOp.UserOp)),
   })
   export type Capabilities = Schema.StaticDecode<typeof Capabilities>
 
