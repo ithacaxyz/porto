@@ -431,9 +431,6 @@ export function Dashboard() {
   )
 }
 
-/**
- * {"json":[{"token":{"address":"0x390dD40042a844F92b499069CFe983236d9fe204","circulating_market_cap":null,"decimals":"18","exchange_rate":null,"holders":"21984","icon_url":null,"name":"Exp2","symbol":"EXP2","total_supply":"8411512945962899999991","type":"ERC-20","volume_24h":null},"token_id":null,"token_instance":null,"value":"299000000000000000000"},{"token":{"address":"0x706Aa5C8e5cC2c67Da21ee220718f6f6B154E75c","circulating_market_cap":null,"decimals":"18","exchange_rate":null,"holders":"23286","icon_url":null,"name":"Exp","symbol":"EXP","total_supply":"50481964705403710000002396","type":"ERC-20","volume_24h":null},"token_id":null,"token_instance":null,"value":"298000000000000000000"}]}
- */
 const swapAssets = [
   {
     logo: '/icons/eth.svg',
@@ -483,7 +480,7 @@ function AssetRow({
   address: string
 }) {
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
-    'default',
+    'swap',
   )
 
   const sendCalls = useSendCalls({
@@ -673,7 +670,17 @@ function AssetRow({
                   <Ariakit.SelectPopover
                     gutter={24}
                     sameWidth={true}
-                    className="-ml-3 -mr-2 rounded-xl border border-gray6 bg-white shadow-sm dark:bg-gray1"
+                    className={cx(
+                      'rounded-xl border border-gray6 bg-white shadow-sm dark:bg-gray1',
+                      'scale-[0.95] opacity-0 data-[enter]:scale-[1] data-[enter]:opacity-100',
+                    )}
+                    style={{
+                      transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                      transitionDuration: '150ms',
+                      transitionProperty: 'opacity, scale, translate',
+                      transformOrigin: 'top',
+                      translate: '0 -0.5rem',
+                    }}
                   >
                     <div className="flex flex-row items-center gap-x-2">
                       <Ariakit.Combobox
@@ -708,12 +715,10 @@ function AssetRow({
                               <span className="overflow-hidden text-ellipsis whitespace-nowrap text-md">
                                 {value.name}
                               </span>
-                              <span className="rounded-2xl bg-gray3 px-2 py-1 font-[600] text-gray10 text-xs">
+                              <span className="rounded-2xl bg-gray2 px-2 py-1 font-[600] text-gray10 text-xs">
                                 {value.symbol}
                               </span>
-                              <span className="ml-auto text-gray10 text-xs">
-                                100
-                              </span>
+                              <span className="ml-auto text-gray10">100</span>
                             </Ariakit.ComboboxItem>
                           }
                         />
