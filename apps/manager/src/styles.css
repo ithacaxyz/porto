@@ -18,6 +18,15 @@ html,
   }
 }
 
+.popover {
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.popover[data-enter] {
+  opacity: 1;
+}
+
 html,
 body,
 #root {
@@ -30,10 +39,6 @@ body,
 @layer utilities {
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
-    @apply appearance-none;
-  }
-
-  input[type="number"]::-webkit-inner-spin-button {
     @apply appearance-none;
   }
 

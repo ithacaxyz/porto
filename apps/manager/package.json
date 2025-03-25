@@ -24,6 +24,7 @@
     "cuer": "^0.0.2",
     "cva": "catalog:",
     "human-id": "^4.1.1",
+    "match-sorter": "^8.0.0",
     "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
