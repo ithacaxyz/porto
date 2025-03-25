@@ -1,9 +1,14 @@
-import { Porto } from '@porto/apps'
+import { Porto as SharedPorto } from '@porto/apps'
+import { Implementation, Porto } from 'porto'
 import { http, createConfig, createStorage } from 'wagmi'
 import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 
-const porto = Porto.porto
+export const porto = import.meta.env.DEV
+  ? Porto.create({
+      implementation: Implementation.local(),
+    })
+  : SharedPorto.porto
 
 export const config = createConfig({
   chains: [odysseyTestnet, optimismSepolia, baseSepolia],

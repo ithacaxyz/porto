@@ -37,6 +37,10 @@ body,
     @apply appearance-none;
   }
 
+  input[type="number"] {
+    appearance: textfield;
+  }
+
   .text-md {
     font-size: 16px;
     line-height: 1.25rem;

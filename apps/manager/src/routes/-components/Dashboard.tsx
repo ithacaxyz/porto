@@ -6,39 +6,47 @@ import { Address, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi } from 'viem'
+import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
+import CopyIcon from '~icons/lucide/clipboard-copy'
+import ExternalLinkIcon from '~icons/lucide/external-link'
+import SendIcon from '~icons/lucide/send-horizontal'
 
-import { useTokenBalances } from '~/hooks/use-blockscout-api'
-import { ValueFormatter, sum } from '~/utils'
+import { DevOnly } from '~/components/DevOnly'
+import {
+  useAddressTransfers,
+  useTokenBalances,
+} from '~/hooks/use-blockscout-api'
+import { config } from '~/lib/Wagmi'
+import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
 
 export function Dashboard() {
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
 
-  // const permissions = Hooks.usePermissions()
-  // const revokePermissions = Hooks.useRevokePermissions()
+  const permissions = Hooks.usePermissions()
+  const revokePermissions = Hooks.useRevokePermissions()
 
   const { data: assets } = useTokenBalances()
-  // const { data: transfers } = useAddressTransfers()
-  // const [selectedChains, _setSelectedChains] = React.useState(
-  //   config.chains.map((c) => c.id.toString()),
-  // )
+  const { data: transfers } = useAddressTransfers()
+  const [selectedChains, _setSelectedChains] = React.useState(
+    config.chains.map((c) => c.id.toString()),
+  )
 
-  // const filteredTransfers = React.useMemo(() => {
-  //   return transfers
-  //     ?.filter((c) =>
-  //       selectedChains.some((cc) => cc === c?.chainId?.toString()),
-  //     )
-  //     .flatMap((chainTransfer) =>
-  //       chainTransfer?.items.map((item) => ({
-  //         chainId: chainTransfer.chainId,
-  //         ...item,
-  //       })),
-  //     )
-  // }, [transfers, selectedChains])
+  const filteredTransfers = React.useMemo(() => {
+    return transfers
+      ?.filter((c) =>
+        selectedChains.some((cc) => cc === c?.chainId?.toString()),
+      )
+      .flatMap((chainTransfer) =>
+        chainTransfer?.items.map((item) => ({
+          chainId: chainTransfer.chainId,
+          ...item,
+        })),
+      )
+  }, [transfers, selectedChains])
 
   const totalBalance = React.useMemo(() => {
     if (!assets) return 0n
@@ -47,28 +55,6 @@ export function Dashboard() {
     const total = BigInt(summed) ?? 0n
     return ValueFormatter.format(total, 18)
   }, [assets])
-
-  const sendCalls = useSendCalls({
-    mutation: {
-      onSuccess: (data) => {
-        toast.success('Tokens sent', {
-          description: () => (
-            <a
-              href={`https://explorer.ithaca.xyz/tx/${data}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              View on explorer
-            </a>
-          ),
-        })
-      },
-      onError: (error) =>
-        toast.error('Failed to send tokens', {
-          description: error.message,
-        }),
-    },
-  })
 
   const selectAssets = React.useMemo(() => {
     return assets
@@ -82,42 +68,9 @@ export function Dashboard() {
       .reverse()
   }, [assets])
 
-  const form = Ariakit.useFormStore({
-    defaultValues: {
-      amount: '',
-      recipient: '',
-      asset: selectAssets.at(0)?.label,
-    },
-  })
-
-  // const selectedAsset = form.useValue(form.names.asset)
-
-  form.useSubmit((state) => {
-    if (!Address.validate(state.values.recipient) || !state.values.amount)
-      return
-    const asset = selectAssets.find(
-      (a) => a.label.toLowerCase() === state.values.asset?.toLowerCase(),
-    )
-    if (!asset) return
-    sendCalls.sendCalls({
-      calls: [
-        {
-          to: asset.value,
-          data: encodeFunctionData({
-            abi: erc20Abi,
-            functionName: 'transfer',
-            args: [
-              state.values.recipient,
-              Value.fromEther(state.values.amount),
-            ],
-          }),
-        },
-      ],
-    })
-  })
-
   return (
     <>
+      <DevOnly />
       <Layout.Header
         right={
           <div className="flex gap-2">
@@ -139,7 +92,7 @@ export function Dashboard() {
         <div className="flex flex-1 flex-col justify-between">
           <div className="font-[500] text-[13px] text-gray10">Your account</div>
           <div>
-            <div className="font-[500] text-[22px] tracking-[-2.8%]">
+            <div className="font-[500] text-[24px] tracking-[-2.8%]">
               ${totalBalance}
             </div>
             <div className="flex items-center gap-1">
@@ -152,7 +105,7 @@ export function Dashboard() {
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex w-[150px] items-center justify-center gap-3">
           <Cuer.Root
             className="rounded-lg border border-surface bg-primary p-3 dark:bg-secondary"
             value={account.address ?? ''}
@@ -167,167 +120,155 @@ export function Dashboard() {
       </div>
 
       <div className="h-6" />
-
       <hr className="border-gray5" />
+      <div className="h-4" />
 
-      <div className="h-6" />
+      <details className="group" open>
+        <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+          Assets
+        </summary>
 
-      {/* <div className="flex w-full flex-col divide-y-2 divide-gray5 border-gray5 border-y-2 lg:flex-row lg:divide-x-2 lg:divide-y-0 lg:*:w-1/2">
-        <div className="pt-3 pb-6 lg:pr-4">
-          <h2 className="font-semibold text-lg">Send</h2>
-          <div className="relative">
-            {sendCalls.isPending && (
-              <div className="-mt-2 -mb-6 -mx-4 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm">
-                <IndeterminateLoader
-                  hint=""
-                  description=""
-                  title="Sending…"
-                  className="mb-10 max-w-[60px] flex-col"
-                />
-              </div>
-            )}
-            <Ariakit.Form
-              className={cx(
-                'flex flex-col gap-y-2',
-                sendCalls.isPending && ' bg-opacity-70',
-              )}
-              store={form}
-            >
-              <div className="flex items-center justify-between gap-x-2">
-                <Ariakit.VisuallyHidden>
-                  <Ariakit.FormLabel name={form.names.amount}>
-                    Amount
-                  </Ariakit.FormLabel>
-                </Ariakit.VisuallyHidden>
-                <Ariakit.FormInput
-                  required
-                  name={form.names.amount}
-                  type="number"
-                  placeholder="0.00"
-                  className="mt-2 w-full max-w-[120px] rounded-full px-4 py-2 font-mono text-gray12 text-xl tabular-nums focus:outline-none focus:ring-0"
-                />
+        <table className="my-3 w-full">
+          <thead>
+            <tr className="text-gray10 *:font-normal *:text-sm">
+              <th className="w-[40%] text-left">Name</th>
+              <th className="w-[20%] text-right" data-label="balance" />
+              <th className="w-[20%] text-right" data-label="symbol" />
+              <th className="w-[20%] text-right" data-label="action" />
+            </tr>
+          </thead>
+          <tbody className="border-transparent border-t-10 font-semibold">
+            {assets?.map((asset, index) => (
+              <AssetRow
+                key={`${asset.token.address}-${index}`}
+                address={asset.token.address}
+                logo={`/icons/${asset.token.name.toLowerCase()}.svg`}
+                symbol={asset.token.symbol}
+                name={asset.token.name}
+                value={asset.value}
+              />
+            ))}
+          </tbody>
+        </table>
+      </details>
 
-                <Ariakit.VisuallyHidden>
-                  <Ariakit.FormLabel name={form.names.asset}>
-                    Asset
-                  </Ariakit.FormLabel>
-                </Ariakit.VisuallyHidden>
-                <Ariakit.FormControl
-                  name={form.names.asset}
-                  render={
-                    <Ariakit.SelectProvider
-                      setValueOnMove
-                      value={selectedAsset}
-                      setValue={(value) =>
-                        form.setValue(form.names.asset, value)
-                      }
-                    >
-                      <Ariakit.Select className="mt-2 flex items-center gap-x-2 rounded-full border border-gray6 px-2.5 py-2 uppercase">
-                        <img
-                          alt="asset icon"
-                          className="size-6"
-                          src={`/icons/${selectedAsset?.toLowerCase()}.svg`}
-                        />
-                        <Ariakit.SelectValue />
-                      </Ariakit.Select>
-                      <Ariakit.SelectPopover
-                        gutter={8}
-                        className="z-[999999] w-full rounded-lg outline outline-gray6"
-                      >
-                        <Ariakit.SelectList className="rounded-xl">
-                          <Ariakit.SelectGroup className="rounded-xl">
-                            {selectAssets.map((asset) => (
-                              <Ariakit.SelectItem
-                                key={asset.label}
-                                value={asset.label}
-                                className="flex items-center justify-start gap-2 space-y-1 bg-gray2 px-3 py-2 hover:bg-gray4"
-                              >
-                                <img
-                                  src={asset.icon}
-                                  alt={asset.label}
-                                  className="size-6"
-                                />
-                                <span className="my-auto font-mono text-md">
-                                  {asset.label.toUpperCase()}
-                                </span>
-                              </Ariakit.SelectItem>
-                            ))}
-                          </Ariakit.SelectGroup>
-                        </Ariakit.SelectList>
-                      </Ariakit.SelectPopover>
-                    </Ariakit.SelectProvider>
-                  }
-                />
-              </div>
+      <div className="h-4" />
+      <hr className="border-gray5" />
+      <div className="h-4" />
 
-              <div
-                className={cx(
-                  'flex flex-row items-center gap-x-3 gap-y-3',
-                  '*:my-auto sm:mt-2 lg:flex-col',
-                )}
+      <details className="group" open={filteredTransfers?.length > 0}>
+        <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+          History
+        </summary>
+
+        <table className="my-3 w-full table-fixed">
+          <thead>
+            <tr className="text-gray10 *:font-normal *:text-sm">
+              <th className="text-left">Time</th>
+              <th className="text-left">Recipient</th>
+              <th className="text-left">Note</th>
+              <th className="text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody className="border-transparent border-t-10">
+            {filteredTransfers?.slice(0, 5).map((transfer, index) => (
+              <tr
+                key={`${transfer?.transaction_hash}-${index}`}
+                className="text-xs sm:text-sm"
               >
-                <Ariakit.VisuallyHidden>
-                  <Ariakit.FormLabel name={form.names.recipient}>
-                    Recipient
-                  </Ariakit.FormLabel>
-                </Ariakit.VisuallyHidden>
-                <Ariakit.FormInput
-                  required
-                  type="text"
-                  name={form.names.recipient}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  autoCapitalize="off"
-                  pattern="^0x[a-fA-F0-9]{40}$"
-                  placeholder="Recipient address…"
-                  className={cx(
-                    'mt-2 h-10 w-[80%] rounded-full border border-gray6 px-4 py-2 text-gray12 text-lg tabular-nums focus:outline-gray6 sm:text-sm',
-                    'lg:w-full',
+                <td className="text-left">
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
+                    className="flex flex-row items-center"
+                  >
+                    <span className="min-w-[65px] text-gray11">
+                      {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))}{' '}
+                      ago
+                    </span>
+                    <ExternalLinkIcon className="size-4 text-gray10" />
+                  </a>
+                </td>
+                <td className="text-left font-medium">
+                  {StringFormatter.truncate(transfer?.to.hash ?? '', {
+                    start: 4,
+                    end: 4,
+                  })}
+                </td>
+                <td className="text-left text-gray12">{transfer?.type}</td>
+                <td className="text-right text-gray12">
+                  {Value.format(
+                    BigInt(transfer?.total.value ?? 0),
+                    Number(transfer?.token.decimals ?? 0),
                   )}
-                />
-                <Ariakit.FormSubmit
-                  className={cx(
-                    'w-[20%] rounded-full bg-sky-500 px-4 py-2 font-normal text-lg text-white hover:bg-sky-600',
-                    'lg:w-full',
-                    'disabled:opacity-70',
-                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
+
+      <div className="h-4" />
+      <hr className="border-gray5" />
+      <div className="h-4" />
+
+      <details className="group pb-1" open>
+        <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+          <span>Permissions</span>
+          <Button
+            variant="destructive"
+            size="small"
+            type="button"
+            onClick={() => {
+              permissions?.data?.map((permission) => {
+                revokePermissions.mutate({ id: permission.id })
+              })
+            }}
+            className="ml-2"
+          >
+            Revoke all
+          </Button>
+        </summary>
+
+        <table className="my-3 w-full">
+          <thead>
+            <tr className="text-gray10 *:font-normal *:text-sm">
+              <th className="text-left">Name</th>
+              <th className="text-right">Scope</th>
+              <th className="text-right">Permission</th>
+              <th className="text-right">Expiry</th>
+            </tr>
+          </thead>
+          <tbody className="border-transparent border-t-10">
+            {permissions?.data?.map((permission, index) => {
+              const [spend] = permission?.permissions?.spend ?? []
+              const [calls] = permission?.permissions?.calls ?? []
+              return (
+                <tr
+                  key={`${permission.id}-${index}`}
+                  className="text-xs sm:text-sm"
                 >
-                  Send
-                </Ariakit.FormSubmit>
-              </div>
-            </Ariakit.Form>
-          </div>
-        </div>
-        <div className={cx('flex flex-row py-3', 'lg:flex-col lg:pl-4')}>
-          <div className="flex w-full justify-between gap-x-3">
-            <h2 className="font-semibold text-lg">Receive</h2>
-            <Ariakit.Button
-              type="button"
-              onClick={() => {
-                navigator.clipboard
-                  .writeText(account?.address ?? '')
-                  .then(() => toast.success('Address copied to clipboard'))
-                  .catch(() => toast.error('Failed to copy address'))
-              }}
-              className={cx(
-                'max-h-8 rounded-2xl bg-gray4 px-2 py-1 font-semibold text-gray10 text-sm hover:bg-zinc-200',
-                'mr-auto lg:mr-0 lg:ml-auto',
-              )}
-            >
-              Copy
-            </Ariakit.Button>
-          </div>
-          <div className="flex flex-row items-center justify-center gap-x-4 md:pt-4 md:pb-2">
-            <div>
-              <QrCode contents={account.address} />
-            </div>
-            <p className="min-w-[55px] max-w-[55px] text-pretty break-all font-mono font-normal text-gray10 text-sm">
-              {account.address}
-            </p>
-          </div>
-        </div>
-      </div>
+                  <td className="text-left">
+                    {StringFormatter.truncate(permission?.address ?? '')}
+                  </td>
+                  <td className="text-right">{calls?.signature ?? '––'}</td>
+                  <td className="text-right">
+                    {spend?.limit ? Value.format(spend?.limit ?? 0n, 18) : 0} /{' '}
+                    {spend?.period}
+                  </td>
+                  <td className="text-right">
+                    {DateFormatter.timeToDuration(permission.expiry * 1000)}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </details>
+
+      {/* 
+
       <div className="border-gray5 border-b-2 pb-2">
         <details className="group" open>
           <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
@@ -530,5 +471,161 @@ export function Dashboard() {
         </details>
       </div> */}
     </>
+  )
+}
+
+function AssetRow({
+  logo,
+  symbol,
+  name,
+  value,
+  address,
+}: {
+  logo: string
+  symbol: string
+  name: string
+  value: string
+  address: string
+}) {
+  const [showSendForm, setShowSendForm] = React.useState(false)
+
+  const sendCalls = useSendCalls({
+    mutation: {
+      onSuccess: (data) => {
+        toast.success('Tokens sent', {
+          description: () => (
+            <a
+              href={`https://explorer.ithaca.xyz/tx/${data}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View on explorer
+            </a>
+          ),
+        })
+      },
+      onError: (error) =>
+        toast.error('Failed to send tokens', {
+          description: error.message,
+        }),
+    },
+  })
+
+  const form = Ariakit.useFormStore({
+    defaultValues: {
+      amount: '',
+      recipient: '',
+      asset: address,
+    },
+  })
+
+  const selectedAsset = form.useValue(form.names.asset)
+
+  form.useSubmit((state) => {
+    if (!Address.validate(state.values.recipient) || !state.values.amount)
+      return
+    sendCalls.sendCalls({
+      calls: [
+        {
+          to: address,
+          data: encodeFunctionData({
+            abi: erc20Abi,
+            functionName: 'transfer',
+            args: [
+              state.values.recipient,
+              Value.fromEther(state.values.amount),
+            ],
+          }),
+        },
+      ],
+    })
+  })
+
+  return (
+    <tr className="font-normal sm:text-sm">
+      {!showSendForm ? (
+        <>
+          <td className="w-[80%]">
+            <div className="flex items-center gap-x-2">
+              <img alt="asset icon" className="size-6" src={logo} />
+              <span className="text-md">{name}</span>
+            </div>
+          </td>
+          <td className="w-[20%] text-right text-md">
+            {Number(value) < 1 ? 1 : formatEther(BigInt(value))}
+          </td>
+          <td className="w-[20%] pr-1.5 pl-3 text-left text-sm">
+            <span className="rounded-2xl bg-gray4 px-2 py-1 font-[500] text-gray10 text-xs">
+              {symbol}
+            </span>
+          </td>
+          <td className="w-[20%] text-right text-sm">
+            <Ariakit.Button
+              className="rounded-full p-2 hover:cursor-pointer hover:bg-gray4"
+              onClick={() => setShowSendForm(true)}
+            >
+              <SendIcon className="size-4 text-gray9" />
+            </Ariakit.Button>
+          </td>
+        </>
+      ) : (
+        <td colSpan={4} className="w-full">
+          <Ariakit.Form
+            store={form}
+            className="my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 p-2"
+          >
+            <div className="flex w-[85px] flex-row items-center gap-x-2 border-gray6 border-r pr-3 pl-1.5">
+              <img alt="asset icon" className="size-7" src={logo} />
+            </div>
+            <div className="ml-3 flex w-full flex-row gap-y-1 border-gray7 border-r pr-3">
+              <div className="flex flex-col gap-y-1">
+                <span className="text-[12px] text-gray10">Recipient</span>
+                <Ariakit.FormInput
+                  name={form.names.recipient}
+                  type="text"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  placeholder="0xAbcD..."
+                  className="text-gray10 text-sm focus:outline-none"
+                />
+              </div>
+              <Ariakit.Button className="my-auto ml-auto rounded-full bg-gray4 p-2">
+                <CopyIcon className="size-4 text-gray10" />
+              </Ariakit.Button>
+            </div>
+            <div className="flex w-[60px] max-w-min flex-col gap-y-1 px-2.5 sm:w-[80px]">
+              <span className="text-[12px] text-gray10">Amount</span>
+              <div className="flex flex-row gap-x-1">
+                <Ariakit.FormInput
+                  name={form.names.amount}
+                  type="text"
+                  spellCheck={false}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  placeholder="0.00"
+                  className="w-min text-gray10 text-md focus:outline-none"
+                />
+              </div>
+            </div>
+            <Button
+              size="small"
+              variant="default"
+              className="mx-1 my-auto text-gray11! text-xs!"
+              onClick={() => {
+                form.setValue(form.names.amount, value)
+              }}
+            >
+              Max
+            </Button>
+            <Ariakit.FormSubmit className="my-auto mr-1 ml-2 rounded-full bg-accent p-2 hover:bg-accentHover">
+              <SendIcon className="size-4 text-white sm:size-4.5" />
+            </Ariakit.FormSubmit>
+          </Ariakit.Form>
+        </td>
+      )}
+    </tr>
   )
 }
