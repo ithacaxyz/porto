@@ -480,7 +480,7 @@ function AssetRow({
   address: string
 }) {
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
-    'swap',
+    'default',
   )
 
   const sendCalls = useSendCalls({
