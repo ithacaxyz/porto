@@ -562,8 +562,10 @@ function AssetRow({
     },
   })
 
-  swapForm.useSubmit((state) => {
+  swapForm.useSubmit(async (state) => {
     console.info(state)
+    if (!(await swapForm.validate())) return
+
     swapCalls.sendCalls({
       calls: [
         {
@@ -624,15 +626,15 @@ function AssetRow({
           </td>
         </>
       ) : viewState === 'swap' ? (
-        <td colSpan={4} className="w-full">
+        <td colSpan={4} className="w-full py-2">
           <Ariakit.Form
             store={swapForm}
             className={cx(
-              'flex gap-x-2 py-1',
-              '*:w-1/2 *:rounded-xl *:border-1 *:border-gray7 *:bg-white *:py-2.5 *:focus:outline-sky-500 *:dark:bg-gray1',
+              'flex gap-x-2 ',
+              '*:w-1/2 *:rounded-xl *:border-1 *:border-gray7 *:bg-white *:focus:outline-sky-500 *:dark:bg-gray1',
             )}
           >
-            <div className="z-[10000] flex items-center gap-x-2 py-0">
+            <div className="z-[10000] flex items-center gap-x-2">
               <Ariakit.ComboboxProvider
                 resetValueOnHide={true}
                 setValue={(value) => {
@@ -645,7 +647,7 @@ function AssetRow({
                   <Ariakit.VisuallyHidden>
                     <Ariakit.SelectLabel>Select asset</Ariakit.SelectLabel>
                   </Ariakit.VisuallyHidden>
-                  <Ariakit.Select className="flex w-full pr-2 pl-3">
+                  <Ariakit.Select className="flex w-full rounded-xl py-2.5 pr-2 pl-3">
                     <img
                       src={logo}
                       alt="asset icon"
@@ -728,7 +730,14 @@ function AssetRow({
                 </Ariakit.SelectProvider>
               </Ariakit.ComboboxProvider>
             </div>
-            <div className="flex w-full flex-row items-center gap-x-2 pr-3 pl-3.5">
+            <div className="relative flex w-full flex-row items-center gap-x-2 pr-3 pl-3.5">
+              <button
+                className="-right-1.5 -top-1 absolute flex size-3 items-center justify-center rounded-full bg-gray2 text-gray10 hover:bg-gray4"
+                type="button"
+                onClick={() => setViewState('default')}
+              >
+                <XIcon />
+              </button>
               <div className="flex w-full flex-col gap-y-1">
                 <Ariakit.FormLabel
                   name={swapForm.names.amount}
@@ -768,9 +777,9 @@ function AssetRow({
               </Button>
               <Ariakit.FormSubmit className="mx-1 my-auto rounded-full bg-accent p-2 hover:cursor-pointer! hover:bg-accentHover">
                 {swapCalls.isPending ? (
-                  <Spinner className="size-4! text-white sm:size-4.5" />
+                  <Spinner className="size-4! text-white" />
                 ) : (
-                  <SendIcon className="size-4 text-white sm:size-4.5" />
+                  <SendIcon className="size-4 text-white" />
                 )}
               </Ariakit.FormSubmit>
             </div>
@@ -780,8 +789,15 @@ function AssetRow({
         <td colSpan={4} className="w-full">
           <Ariakit.Form
             store={sendForm}
-            className="my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 bg-white p-2 dark:bg-gray1"
+            className="relative my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 bg-white p-2 dark:bg-gray1"
           >
+            <button
+              className="-right-1 -top-1 absolute flex size-3 items-center justify-center rounded-full bg-gray2 text-gray10 hover:bg-gray4"
+              type="button"
+              onClick={() => setViewState('default')}
+            >
+              <XIcon />
+            </button>
             <div className="flex w-[85px] flex-row items-center gap-x-2 border-gray6 border-r pr-3 pl-1.5">
               <img alt="asset icon" className="size-7" src={logo} />
             </div>
@@ -805,8 +821,14 @@ function AssetRow({
                 <ClipboardCopyIcon className="size-4 text-gray10" />
               </Ariakit.Button>
             </div>
+
             <div className="flex w-[60px] max-w-min flex-col gap-y-1 px-2.5 sm:w-[90px]">
-              <span className="text-[12px] text-gray10">Amount</span>
+              <Ariakit.FormLabel
+                name={sendForm.names.amount}
+                className="text-[12px] text-gray10"
+              >
+                Amount
+              </Ariakit.FormLabel>
               <div className="flex flex-row gap-x-1">
                 <Ariakit.FormInput
                   name={sendForm.names.amount}
@@ -841,9 +863,9 @@ function AssetRow({
             </Button>
             <Ariakit.FormSubmit className="my-auto mr-1 ml-2 rounded-full bg-accent p-2 hover:cursor-pointer! hover:bg-accentHover">
               {sendCalls.isPending ? (
-                <Spinner className="size-4 text-white sm:size-4.5" />
+                <Spinner className="size-4 text-white" />
               ) : (
-                <SendIcon className="size-4 text-white sm:size-4.5" />
+                <SendIcon className="size-4 text-white" />
               )}
             </Ariakit.FormSubmit>
           </Ariakit.Form>
