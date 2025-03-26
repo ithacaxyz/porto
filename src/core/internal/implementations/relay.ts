@@ -196,9 +196,9 @@ export function relay(config: relay.Parameters = {}) {
         } = internal
 
         // Get pre-authorized keys to assign to the call bundle.
-        const pre = await getPreBundles({
-          account,
-          storage: internal.config.storage,
+        const pre = await PreBundles.get({
+          address: account.address,
+          storage,
         })
 
         const { context, digest } = await Relay.prepareCalls(client, {
@@ -209,8 +209,8 @@ export function relay(config: relay.Parameters = {}) {
           pre,
         })
 
-        await clearPreBundles({
-          account,
+        await PreBundles.clear({
+          address: account.address,
           storage,
         })
 
@@ -269,8 +269,8 @@ export function relay(config: relay.Parameters = {}) {
         })
 
         // Get pre-authorized keys to assign to the call bundle.
-        const pre = await getPreBundles({
-          account,
+        const pre = await PreBundles.get({
+          address: account.address,
           storage,
         })
 
@@ -284,8 +284,8 @@ export function relay(config: relay.Parameters = {}) {
           pre,
         })
 
-        await clearPreBundles({
-          account,
+        await PreBundles.clear({
+          address: account.address,
           storage,
         })
 
@@ -377,9 +377,6 @@ export declare namespace relay {
   }
 }
 
-const preBundlesStorageKey = (address: Address.Address) =>
-  `porto.pre.${address}`
-
 async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
   const { account, authorizeKey, feeToken } = parameters
 
@@ -399,9 +396,8 @@ async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
     payload: digest,
   })
 
-  await upsertPreBundles({
-    account,
-    pre: [{ context, signature }],
+  await PreBundles.upsert([{ context, signature }], {
+    address: account.address,
     storage: parameters.storage,
   })
 }
@@ -415,49 +411,55 @@ namespace preauthKey {
   }
 }
 
-async function upsertPreBundles(parameters: upsertPreBundles.Parameters) {
-  const { account, pre } = parameters
+export namespace PreBundles {
+  export type PreBundles = readonly {
+    context: Relay.prepareCalls.ReturnType['context']
+    signature: Hex.Hex
+  }[]
 
-  const storage = (() => {
-    const storages = parameters.storage.storages ?? [parameters.storage]
-    return storages.find((x) => x.sizeLimit > 1024 * 1024 * 5)
-  })()
+  export const storageKey = (address: Address.Address) => `porto.pre.${address}`
 
-  const value = await storage?.getItem<upsertPreBundles.Parameters['pre']>(
-    preBundlesStorageKey(account.address),
-  )
-  await storage?.setItem(preBundlesStorageKey(account.address), [
-    ...(value ?? []),
-    ...pre,
-  ])
-}
+  export async function upsert(pre: PreBundles, parameters: upsert.Parameters) {
+    const { address } = parameters
 
-namespace upsertPreBundles {
-  export type Parameters = {
-    account: Account.Account
-    pre: readonly {
-      context: Relay.prepareCalls.ReturnType['context']
-      signature: Hex.Hex
-    }[]
-    storage: Storage.Storage
+    const storage = (() => {
+      const storages = parameters.storage.storages ?? [parameters.storage]
+      return storages.find((x) => x.sizeLimit > 1024 * 1024 * 5)
+    })()
+
+    const value = await storage?.getItem<PreBundles>(storageKey(address))
+    await storage?.setItem(storageKey(address), [...(value ?? []), ...pre])
   }
-}
 
-async function getPreBundles(parameters: {
-  account: Account.Account
-  storage: Storage.Storage
-}) {
-  const { account, storage } = parameters
-  const pre = await storage?.getItem<upsertPreBundles.Parameters['pre']>(
-    preBundlesStorageKey(account.address),
-  )
-  return pre || undefined
-}
+  namespace upsert {
+    export type Parameters = {
+      address: Address.Address
+      storage: Storage.Storage
+    }
+  }
 
-async function clearPreBundles(parameters: {
-  account: Account.Account
-  storage: Storage.Storage
-}) {
-  const { account, storage } = parameters
-  await storage?.removeItem(preBundlesStorageKey(account.address))
+  export async function get(parameters: get.Parameters) {
+    const { address, storage } = parameters
+    const pre = await storage?.getItem<PreBundles>(storageKey(address))
+    return pre || undefined
+  }
+
+  export namespace get {
+    export type Parameters = {
+      address: Address.Address
+      storage: Storage.Storage
+    }
+  }
+
+  export async function clear(parameters: clear.Parameters) {
+    const { address, storage } = parameters
+    await storage?.removeItem(storageKey(address))
+  }
+
+  namespace clear {
+    export type Parameters = {
+      address: Address.Address
+      storage: Storage.Storage
+    }
+  }
 }
