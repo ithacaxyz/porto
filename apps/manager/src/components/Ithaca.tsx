@@ -8,14 +8,6 @@ export function IthacaIcon({ className }: { className?: string }) {
       height="100%"
       width="100%"
     >
-      {/* <style>
-    path {
-      fill: black;
-    }
-    @media (prefers-color-scheme: dark) {
-      path { fill: white; }
-    }
-  </style> */}
       <title>Ithaca</title>
       <g fill="currentColor" clipPath="url(#a)">
         <path d="M10.66 7.3c.38-.12.8.04 1 .37l2.24 3.65c.28.47-.07 1.05-.63 1.05H1.73c-.6 0-.94-.64-.6-1.1L2.15 9.9a.87.87 0 0 1 .47-.32l8.04-2.29Z" />

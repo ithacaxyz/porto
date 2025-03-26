@@ -58,7 +58,7 @@ export namespace Layout {
 
   export function IntegrateFooter() {
     return (
-      <div className="mt-auto flex h-min min-w-[500px] items-center justify-center gap-x-3 max-lg:hidden">
+      <div className="mt-auto mb-4 flex h-min min-w-[500px] items-center justify-center gap-x-3 max-lg:hidden">
         <p className="font-[500] text-gray10 text-sm">
           Want to integrate Porto with your application?
         </p>

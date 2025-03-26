@@ -23,6 +23,7 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 
+import { Link } from '@tanstack/react-router'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
@@ -457,7 +458,7 @@ export function Dashboard() {
             type="button"
             className="ml-2"
             variant="default"
-            onClick={() => console.info('add wallet')}
+            render={<Link to="/recovery" />}
           >
             Add wallet
           </Button>

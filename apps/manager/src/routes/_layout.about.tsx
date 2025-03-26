@@ -1,7 +1,7 @@
 import { Button } from '@porto/apps/components'
 import { Link, createFileRoute } from '@tanstack/react-router'
-
 import LucideX from '~icons/lucide/x'
+
 import { Layout } from './-components/Layout'
 
 export const Route = createFileRoute('/_layout/about')({
@@ -13,7 +13,7 @@ function RouteComponent() {
     <>
       <Layout.Header
         left="About Porto"
-        leftClassName="min-[460px]:hidden"
+        leftClassName="min-[460px]:hidden ml-4"
         right={
           <Button render={<Link to=".." />} variant="outline" size="square">
             <LucideX className="size-5 text-gray10" />
@@ -21,18 +21,18 @@ function RouteComponent() {
         }
       />
 
-      <div className="mx-auto flex h-full max-w-[38ch] flex-col justify-center space-y-4 py-10 align-center max-lg:justify-start max-[460px]:py-4">
-        <h1 className="font-[500] text-[27px] tracking-[-2.8%] max-[460px]:hidden">
+      <div className="mx-auto flex h-full max-w-[38ch] flex-col justify-center space-y-4 px-4 py-10 align-center max-lg:justify-start max-[460px]:py-4 sm:px-0">
+        <h1 className="font-medium text-2xl tracking-[-2.8%] max-[460px]:hidden">
           About Porto
         </h1>
 
-        <p className="text-[17px] leading-[24px] tracking-[-2.8%]">
+        <p className="text-pretty text-base leading-normal tracking-wide">
           Our goal is to make web3 apps as easy to use as possible. We built a
           home for your digital assets which works instantly with apps, and can
           be created & used within seconds.
         </p>
 
-        <p className="text-[17px] leading-[24px] tracking-[-2.8%]">
+        <p className="text-pretty text-base leading-normal tracking-wide">
           Our story starts with{' '}
           <a
             className="text-accent"
@@ -46,7 +46,7 @@ function RouteComponent() {
           leveraging emergent EIPs, Passkeys, iFrames, and more.
         </p>
 
-        <p className="text-[17px] leading-[24px] tracking-[-2.8%]">
+        <p className="text-pretty text-base leading-normal tracking-wide">
           If you have feedback on Porto, please share below. If you’d like to
           contribute, please visit our{' '}
           <a
@@ -59,9 +59,21 @@ function RouteComponent() {
           </a>
         </p>
 
-        <div />
+        <p className="flex items-center gap-2 pt-5 font-medium text-base leading-[22px]">
+          <span className="text-gray10 dark:text-white/50">Built by</span>
+          <a
+            className="h-[16px] "
+            href="https://ithaca.xyz"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <img src="/ithaca.svg" alt="Ithaca" className="h-3.5" />
+          </a>
+        </p>
 
-        <div className="flex w-full gap-x-2">
+        <br />
+
+        <div className="flex w-full flex-col gap-4 *:mx-auto *:h-12 *:w-full *:max-w-full *:font-medium *:text-lg sm:flex-row sm:*:max-w-[90%]">
           <Button
             className="flex-grow"
             // biome-ignore lint/a11y/useAnchorContent: <explanation>

@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout.index'
+import { Route as LayoutRecoveryImport } from './routes/_layout.recovery'
 import { Route as LayoutAboutImport } from './routes/_layout.about'
 
 // Create/Update Routes
@@ -32,6 +33,12 @@ const LayoutRoute = LayoutImport.update({
 const LayoutIndexRoute = LayoutIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutRecoveryRoute = LayoutRecoveryImport.update({
+  id: '/recovery',
+  path: '/recovery',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -66,6 +73,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAboutImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/recovery': {
+      id: '/_layout/recovery'
+      path: '/recovery'
+      fullPath: '/recovery'
+      preLoaderRoute: typeof LayoutRecoveryImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/': {
       id: '/_layout/'
       path: '/'
@@ -80,11 +94,13 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteChildren {
   LayoutAboutRoute: typeof LayoutAboutRoute
+  LayoutRecoveryRoute: typeof LayoutRecoveryRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAboutRoute: LayoutAboutRoute,
+  LayoutRecoveryRoute: LayoutRecoveryRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }
 
@@ -95,12 +111,14 @@ export interface FileRoutesByFullPath {
   '': typeof LayoutRouteWithChildren
   '/playground': typeof PlaygroundRoute
   '/about': typeof LayoutAboutRoute
+  '/recovery': typeof LayoutRecoveryRoute
   '/': typeof LayoutIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/playground': typeof PlaygroundRoute
   '/about': typeof LayoutAboutRoute
+  '/recovery': typeof LayoutRecoveryRoute
   '/': typeof LayoutIndexRoute
 }
 
@@ -109,15 +127,22 @@ export interface FileRoutesById {
   '/_layout': typeof LayoutRouteWithChildren
   '/playground': typeof PlaygroundRoute
   '/_layout/about': typeof LayoutAboutRoute
+  '/_layout/recovery': typeof LayoutRecoveryRoute
   '/_layout/': typeof LayoutIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/playground' | '/about' | '/'
+  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/playground' | '/about' | '/'
-  id: '__root__' | '/_layout' | '/playground' | '/_layout/about' | '/_layout/'
+  to: '/playground' | '/about' | '/recovery' | '/'
+  id:
+    | '__root__'
+    | '/_layout'
+    | '/playground'
+    | '/_layout/about'
+    | '/_layout/recovery'
+    | '/_layout/'
   fileRoutesById: FileRoutesById
 }
 
@@ -149,6 +174,7 @@ export const routeTree = rootRoute
       "filePath": "_layout.tsx",
       "children": [
         "/_layout/about",
+        "/_layout/recovery",
         "/_layout/"
       ]
     },
@@ -157,6 +183,10 @@ export const routeTree = rootRoute
     },
     "/_layout/about": {
       "filePath": "_layout.about.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/recovery": {
+      "filePath": "_layout.recovery.tsx",
       "parent": "/_layout"
     },
     "/_layout/": {
