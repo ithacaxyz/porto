@@ -2,17 +2,20 @@ import { Button, Spinner } from '@porto/apps/components'
 
 import * as Ariakit from '@ariakit/react'
 import { Cuer } from 'cuer'
-import { cx } from 'cva'
+
+import clsx from 'clsx'
 import { matchSorter } from 'match-sorter'
 import { Address, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi, formatEther, parseEther } from 'viem'
+import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import ArrowLeftRightIcon from '~icons/lucide/arrow-left-right'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
+import CircleAlertIcon from '~icons/lucide/circle-alert'
+import CheckCircleIcon from '~icons/lucide/circle-check'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
 import ExternalLinkIcon from '~icons/lucide/external-link'
@@ -29,7 +32,6 @@ import {
   useAddressTransfers,
   useTokenBalances,
 } from '~/hooks/use-blockscout-api'
-import { useClickOutside } from '~/hooks/use-click-outside'
 import { swapAssets } from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
@@ -325,7 +327,7 @@ export function Dashboard() {
                       {time === 'expired' ? (
                         <NullIcon className="m-auto size-5 text-gray10" />
                       ) : (
-                        <XIcon className={cx('m-auto size-5 text-red-500')} />
+                        <XIcon className={clsx('m-auto size-5 text-red-500')} />
                       )}
                     </Ariakit.Button>
                   </td>
@@ -393,7 +395,7 @@ export function Dashboard() {
                     console.info('')
                   }}
                 >
-                  <CopyIcon className={cx('m-auto size-5 text-gray10')} />
+                  <CopyIcon className={clsx('m-auto size-5 text-gray10')} />
                 </Ariakit.Button>
                 <Ariakit.Button
                   className="size-8 rounded-full p-1 hover:bg-red-100"
@@ -401,7 +403,7 @@ export function Dashboard() {
                     console.info('')
                   }}
                 >
-                  <XIcon className={cx('m-auto size-5 text-red-500')} />
+                  <XIcon className={clsx('m-auto size-5 text-red-500')} />
                 </Ariakit.Button>
               </td>
             </tr>
@@ -409,6 +411,44 @@ export function Dashboard() {
         </table>
       </details>
     </>
+  )
+}
+
+function CustomToast({
+  kind,
+  title,
+  description,
+  className,
+}: {
+  title: string
+  description: string | React.ReactNode
+  className?: string | number
+  kind: 'SUCCESS' | 'ERROR' | 'WARN'
+}) {
+  return (
+    <div
+      className={clsx(
+        className,
+        'm-1 w-[250px] rounded-xl border bg-white px-4 py-3 shadow-sm dark:bg-gray1',
+        kind === 'SUCCESS' && 'border-green8',
+        kind === 'ERROR' && 'border-red8',
+        kind === 'WARN' && 'border-amber8',
+      )}
+    >
+      <div className="flex items-center gap-x-2 pb-1.5">
+        {(kind === 'SUCCESS' && (
+          <CheckCircleIcon className="size-6 text-green8" />
+        )) ||
+          (kind === 'ERROR' && (
+            <CircleAlertIcon className="size-6 text-red-500" />
+          )) ||
+          (kind === 'WARN' && (
+            <CircleAlertIcon className="size-6 text-amber8" />
+          ))}
+        <span className="font-[550] text-gray12">{title}</span>
+      </div>
+      <div className="text-gray10 text-sm">{description}</div>
+    </div>
   )
 }
 
@@ -434,22 +474,58 @@ function AssetRow({
   const sendCalls = useSendCalls({
     mutation: {
       onSuccess: (data) => {
-        toast.success('Tokens sent', {
-          description: () => (
-            <a
-              href={`https://explorer.ithaca.xyz/tx/${data}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              View on explorer
-            </a>
+        toast.custom(
+          (t) => (
+            <CustomToast
+              className={t}
+              kind="SUCCESS"
+              title="Transaction completed"
+              description={
+                <p>
+                  You successfully sent {sendFormState.values.sendAmount}{' '}
+                  {selectedAsset?.symbol}
+                  <br />
+                  <a
+                    href={`https://explorer.ithaca.xyz/tx/${data}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-gray12 underline"
+                  >
+                    View on explorer
+                  </a>
+                </p>
+              }
+            />
           ),
-        })
+
+          { duration: 3_500 },
+        )
+        sendForm.setState('submitSucceed', (count) => +count + 1)
+        sendForm.setState('submitFailed', 0)
       },
-      onError: (error) =>
-        toast.error('Failed to send tokens', {
-          description: error.message,
-        }),
+      onError: (error) => {
+        const notAllowed = error.message.includes('not allowed')
+        toast.custom(
+          (t) => (
+            <CustomToast
+              className={t}
+              kind={notAllowed ? 'WARN' : 'ERROR'}
+              title={
+                notAllowed ? 'Transaction cancelled' : 'Transaction failed'
+              }
+              description={
+                notAllowed
+                  ? 'Transaction submission was cancelled.'
+                  : 'You do not have enough balance to complete this transaction.'
+              }
+            />
+          ),
+
+          { duration: 3_500 },
+        )
+        sendForm.setState('submitFailed', (count) => +count + 1)
+        sendForm.setState('submitSucceed', 0)
+      },
     },
   })
 
@@ -460,6 +536,7 @@ function AssetRow({
       sendAsset: address,
     },
   })
+  const sendFormState = Ariakit.useStoreState(sendForm)
 
   sendForm.useSubmit((state) => {
     if (
@@ -487,22 +564,56 @@ function AssetRow({
   const swapCalls = useSendCalls({
     mutation: {
       onSuccess: (data) => {
-        toast.success('Tokens sent', {
-          description: () => (
-            <a
-              href={`https://explorer.ithaca.xyz/tx/${data}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              View on explorer
-            </a>
+        toast.custom(
+          (t) => (
+            <CustomToast
+              className={t}
+              kind="SUCCESS"
+              title="Transaction completed"
+              description={
+                <p>
+                  You successfully received {swapFormState.values.swapAmount}{' '}
+                  {selectedAsset?.symbol}
+                  <br />
+                  <a
+                    href={`https://explorer.ithaca.xyz/tx/${data}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-gray12 underline"
+                  >
+                    View on explorer
+                  </a>
+                </p>
+              }
+            />
           ),
-        })
+          { duration: 3_500 },
+        )
+        swapForm.setState('submitSucceed', (count) => +count + 1)
+        swapForm.setState('submitFailed', 0)
       },
-      onError: (error) =>
-        toast.error('Failed to send tokens', {
-          description: error.message,
-        }),
+      onError: (error) => {
+        const notAllowed = error.message.includes('not allowed')
+        toast.custom(
+          (t) => (
+            <CustomToast
+              className={t}
+              kind={notAllowed ? 'WARN' : 'ERROR'}
+              title={
+                notAllowed ? 'Transaction cancelled' : 'Transaction failed'
+              }
+              description={
+                notAllowed
+                  ? 'Transaction submission was cancelled.'
+                  : 'You do not have enough balance to complete this transaction.'
+              }
+            />
+          ),
+          { duration: 3_500 },
+        )
+        swapForm.setState('submitFailed', (count) => +count + 1)
+        swapForm.setState('submitSucceed', 0)
+      },
     },
   })
 
@@ -512,9 +623,9 @@ function AssetRow({
       swapAsset: address,
     },
   })
+  const swapFormState = Ariakit.useStoreState(swapForm)
 
-  swapForm.useSubmit(async (state) => {
-    console.info(state)
+  swapForm.useSubmit(async (_state) => {
     if (!(await swapForm.validate())) return
 
     swapCalls.sendCalls({
@@ -543,12 +654,13 @@ function AssetRow({
   })
 
   const matches = React.useMemo(
-    () => matchSorter(swapAssetsExcludingCurrent, swapSearchValue),
+    () =>
+      matchSorter(swapAssetsExcludingCurrent, swapSearchValue, {
+        keys: ['symbol', 'name', 'address'],
+        baseSort: (a, b) => (a.index < b.index ? -1 : 1),
+      }),
     [swapSearchValue, swapAssetsExcludingCurrent],
   )
-
-  const clickOutsideRef = React.useRef<HTMLTableCellElement>(null)
-  useClickOutside([clickOutsideRef], () => setViewState('default'))
 
   return (
     <tr className="font-normal sm:text-sm">
@@ -586,23 +698,26 @@ function AssetRow({
           </td>
         </>
       ) : viewState === 'swap' ? (
-        <td colSpan={4} className="w-full py-2" ref={clickOutsideRef}>
+        <td colSpan={4} className="w-full py-2">
           <Ariakit.Form
             store={swapForm}
-            className={cx(
+            validateOnBlur={true}
+            validateOnChange={true}
+            className={clsx(
               'flex gap-x-2',
-              '*:w-1/2 *:rounded-xl *:border-1 *:border-gray7 *:bg-white *:focus:outline-sky-500 *:dark:bg-gray1',
+              '*:w-1/2 *:rounded-xl *:border-1 *:border-gray6 *:bg-white *:dark:bg-gray1',
             )}
           >
-            <div className="z-[10000] flex items-center gap-x-2 shadow-xs">
+            <div className="z-[10000] flex items-center gap-x-2 shadow-xs focus-within:border-gray8 focus:outline-sky-500">
               <Ariakit.ComboboxProvider
                 resetValueOnHide={true}
                 setValue={(value) => {
-                  React.startTransition(() => {
-                    setSwapSearchValue(value)
-                  })
+                  React.startTransition(() => setSwapSearchValue(value))
                 }}
               >
+                <Ariakit.VisuallyHidden>
+                  <Ariakit.ComboboxLabel>Select asset</Ariakit.ComboboxLabel>
+                </Ariakit.VisuallyHidden>
                 <Ariakit.SelectProvider defaultValue={selectedAsset?.symbol}>
                   <Ariakit.VisuallyHidden>
                     <Ariakit.SelectLabel>Select asset</Ariakit.SelectLabel>
@@ -625,15 +740,16 @@ function AssetRow({
                       <span className="text-gray10 text-xs">Swap to</span>
                       <span className="text-sm">{selectedAsset?.name}</span>
                     </div>
-                    <div className="mx-2 ml-auto flex items-center">
-                      <Ariakit.SelectArrow className="text-gray8 *:size-5" />
+                    <div className="my-auto mr-2 ml-auto flex h-full items-center">
+                      <Ariakit.SelectArrow className="mb-1.5 text-gray8 *:size-5" />
                     </div>
                   </Ariakit.Select>
                   <Ariakit.SelectPopover
                     gutter={24}
                     sameWidth={true}
-                    className={cx(
-                      'rounded-xl border border-gray6 bg-white shadow-sm dark:bg-gray1',
+                    unmountOnHide={true}
+                    className={clsx(
+                      'rounded-xl border border-gray6 bg-white shadow-sm dark:border-gray4 dark:bg-gray1',
                       'scale-[0.95] opacity-0 data-[enter]:scale-[1] data-[enter]:opacity-100',
                     )}
                     style={{
@@ -661,43 +777,43 @@ function AssetRow({
                           className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-sky-900 dark:focus:bg-sky-900"
                           render={
                             <Ariakit.ComboboxItem
-                              className={cx(
+                              className={clsx(
                                 'flex flex-row items-center gap-x-2 px-3 py-3.5',
                                 index === matches.length - 1 ||
                                   matches.length === 0
                                   ? ''
                                   : 'border-b border-b-gray6',
                               )}
-                            >
-                              <img
-                                alt="asset icon"
-                                className="size-7"
-                                src={value.logo}
-                              />
-                              <span className="overflow-hidden text-ellipsis whitespace-nowrap text-md">
-                                {value.name}
-                              </span>
-                              <span className="rounded-2xl bg-gray2 px-2 py-1 font-[600] text-gray10 text-xs">
-                                {value.symbol}
-                              </span>
-                              <span className="ml-auto text-gray10">100</span>
-                            </Ariakit.ComboboxItem>
+                            />
                           }
-                        />
+                        >
+                          <img
+                            alt="asset icon"
+                            className="size-7"
+                            src={value.logo}
+                          />
+                          <span className="overflow-hidden text-ellipsis whitespace-nowrap text-md">
+                            {value.name}
+                          </span>
+                          <span className="rounded-2xl bg-gray2 px-2 py-1 font-[600] text-gray10 text-xs">
+                            {value.symbol}
+                          </span>
+                          <span className="ml-auto text-gray10">100</span>
+                        </Ariakit.SelectItem>
                       ))}
                     </Ariakit.ComboboxList>
                   </Ariakit.SelectPopover>
                 </Ariakit.SelectProvider>
               </Ariakit.ComboboxProvider>
             </div>
-            <div className="relative flex w-full flex-row items-center pr-3 pl-3.5 shadow-xs focus-within:rounded-lg focus-within:outline-1 focus-within:outline-sky-500">
-              <button
-                className="-right-1.5 -top-1 absolute flex size-3 items-center justify-center rounded-full bg-gray2 text-gray10 hover:bg-gray4"
-                type="button"
-                onClick={() => setViewState('default')}
-              >
-                <XIcon />
-              </button>
+            <div
+              className={clsx(
+                'relative flex w-full flex-row items-center pr-3 pl-3.5 shadow-xs',
+                swapFormState.errors.swapAmount?.length
+                  ? 'focus-within:rounded-lg focus-within:outline-1 focus-within:outline-red-500'
+                  : 'focus-within:rounded-lg focus-within:outline-1 focus-within:outline-sky-500',
+              )}
+            >
               <div className="flex w-full flex-col gap-y-1">
                 <Ariakit.FormLabel
                   name={swapForm.names.swapAmount}
@@ -707,7 +823,9 @@ function AssetRow({
                 </Ariakit.FormLabel>
                 <Ariakit.FormInput
                   type="number"
+                  inputMode="decimal"
                   required={true}
+                  step="any"
                   autoCorrect="off"
                   autoComplete="off"
                   spellCheck={false}
@@ -715,19 +833,7 @@ function AssetRow({
                   autoCapitalize="off"
                   name={swapForm.names.swapAmount}
                   data-field={`${address}-amount`}
-                  max={Number(value)}
-                  onChange={(event) => {
-                    const inputValue = event.currentTarget.value
-                    if (parseEther(inputValue) > BigInt(value)) {
-                      swapForm.setError('swapAmount', 'Amount is too high')
-                    }
-                    console.info(
-                      swapForm.getError('swapAmount')?.length,
-                      parseEther(inputValue),
-                      BigInt(value),
-                      parseEther(inputValue) > BigInt(value),
-                    )
-                  }}
+                  max={formatEther(BigInt(value))}
                   className="w-full font-mono text-md placeholder:text-gray10 focus:outline-none"
                 />
               </div>
@@ -751,9 +857,18 @@ function AssetRow({
                 Max
               </Button>
               <Ariakit.FormSubmit
-                className={cx(
-                  'mx-1 my-auto rounded-full bg-accent p-2 *:text-white/80 hover:bg-accentHover',
-                  swapCalls.isPending && 'animate-pulse',
+                className={clsx(
+                  'mx-1 my-auto rounded-full p-2',
+                  {
+                    'animate-pulse bg-accent text-white hover:bg-accentHover':
+                      swapCalls.isPending,
+                    'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7':
+                      swapFormState.errors.swapAmount?.length,
+                  },
+                  (swapFormState.valid && swapFormState.values.swapAmount) ||
+                    swapCalls.isPending
+                    ? 'bg-accent text-white hover:bg-accentHover'
+                    : 'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7',
                 )}
               >
                 {swapCalls.isPending ? (
@@ -762,11 +877,19 @@ function AssetRow({
                   <SendIcon className="size-4!" />
                 )}
               </Ariakit.FormSubmit>
+              <button
+                tabIndex={0}
+                className="-right-1.5 -top-1 absolute flex size-3 items-center justify-center rounded-full bg-gray2 text-gray10 hover:bg-gray4"
+                type="button"
+                onClick={() => setViewState('default')}
+              >
+                <XIcon />
+              </button>
             </div>
           </Ariakit.Form>
         </td>
       ) : viewState === 'send' ? (
-        <td colSpan={4} className="w-full" ref={clickOutsideRef}>
+        <td colSpan={4} className="w-full">
           <Ariakit.Form
             store={sendForm}
             className="relative my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 bg-white p-2 dark:bg-gray1"
@@ -778,7 +901,7 @@ function AssetRow({
             >
               <XIcon />
             </button>
-            <div className="flex w-[75px] flex-row items-center gap-x-2 border-gray6 border-r pr-1.5 pl-0.5 sm:w-[85px] sm:pl-1.5">
+            <div className="flex w-[75px] flex-row items-center gap-x-2 border-gray6 border-r pr-1.5 pl-0.5 sm:w-[85px] sm:pl-2">
               <img alt="asset icon" className="size-7" src={logo} />
             </div>
             <div className="ml-3 flex w-full flex-row gap-y-1 border-gray7 border-r pr-3">
@@ -789,17 +912,62 @@ function AssetRow({
                 >
                   Recipient
                 </Ariakit.FormLabel>
-                <Ariakit.FormInput
-                  type="text"
-                  required={true}
-                  autoFocus={true}
-                  autoCorrect="off"
-                  spellCheck={false}
-                  autoComplete="off"
-                  autoCapitalize="off"
-                  placeholder="0xAbcD..."
+
+                <Ariakit.FormControl
                   name={sendForm.names.sendRecipient}
-                  className="w-full font-mono text-xs placeholder:text-gray10 focus:outline-none sm:text-[13px] dark:text-gray12"
+                  type="text"
+                  render={(props) => {
+                    const valid = Address.validate(
+                      sendFormState.values.sendRecipient,
+                    )
+
+                    return (
+                      <div className="relative">
+                        <Ariakit.FormInput
+                          {...props}
+                          type="text"
+                          required={true}
+                          autoFocus={true}
+                          autoCorrect="off"
+                          spellCheck={false}
+                          autoComplete="off"
+                          autoCapitalize="off"
+                          placeholder="0xAbcD..."
+                          pattern="^0x[a-fA-F0-9]{40}$"
+                          data-field={`${address}-recipient`}
+                          name={sendForm.names.sendRecipient}
+                          onInput={(value) =>
+                            sendForm.setValue(
+                              sendForm.names.sendRecipient,
+                              value,
+                            )
+                          }
+                          className={clsx(
+                            'peer',
+                            'w-full font-mono text-xs placeholder:text-gray10 focus:outline-none sm:text-[13px] dark:text-gray12',
+                            valid &&
+                              'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
+                          )}
+                        />
+                        <TruncatedAddress
+                          end={5}
+                          start={5}
+                          className={clsx(
+                            '-top-0 absolute w-min cursor-pointer text-left peer-focus:hidden',
+                            !valid && 'hidden',
+                          )}
+                          address={sendFormState.values.sendRecipient}
+                          onClick={() =>
+                            document
+                              .querySelector(
+                                `input[data-field="${address}-recipient"]`,
+                              )
+                              ?.focus()
+                          }
+                        />
+                      </div>
+                    )
+                  }}
                 />
               </div>
               <Ariakit.Button className="my-auto ml-auto rounded-full bg-gray4 p-2">
@@ -816,16 +984,21 @@ function AssetRow({
               </Ariakit.FormLabel>
               <div className="flex flex-row gap-x-1">
                 <Ariakit.FormInput
-                  type="text"
+                  type="number"
+                  step="any"
                   required={true}
                   autoCorrect="off"
                   placeholder="0.00"
+                  inputMode="decimal"
                   spellCheck={false}
+                  max={formatEther(BigInt(value))}
                   autoComplete="off"
                   autoCapitalize="off"
                   name={sendForm.names.sendAmount}
                   data-field={`${address}-amount`}
-                  className="w-min font-mono text-sm placeholder:text-gray10 focus:outline-none sm:text-md"
+                  className={clsx(
+                    'w-min font-mono text-sm placeholder:text-gray10 focus:outline-none sm:text-md',
+                  )}
                 />
               </div>
             </div>
@@ -846,7 +1019,22 @@ function AssetRow({
             >
               Max
             </Button>
-            <Ariakit.FormSubmit className="my-auto mr-0.5 ml-1 rounded-full bg-accent p-2 hover:cursor-pointer! hover:bg-accentHover sm:mr-1 sm:ml-2">
+            <Ariakit.FormSubmit
+              className={clsx(
+                'my-auto mr-0.5 ml-1 rounded-full p-2 hover:cursor-pointer! sm:mr-1 sm:ml-2',
+                {
+                  'animate-pulse bg-accent text-white hover:bg-accentHover':
+                    sendCalls.isPending,
+                  'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7':
+                    sendFormState.errors.sendAmount?.length ||
+                    sendFormState.errors.sendRecipient?.length,
+                },
+                (sendFormState.valid && sendFormState.values.sendAmount) ||
+                  sendCalls.isPending
+                  ? 'bg-accent text-white hover:bg-accentHover'
+                  : 'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7',
+              )}
+            >
               {sendCalls.isPending ? (
                 <Spinner className="size-3! text-white sm:size-4!" />
               ) : (
