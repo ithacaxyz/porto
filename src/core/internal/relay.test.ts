@@ -566,7 +566,7 @@ describe.each([
           calls: [{ to: '0x3232323232323232323232323232323232323232' }],
         },
       })
-      const request_1 = await Relay.prepareCalls(client, {
+      const request = await Relay.prepareCalls(client, {
         account,
         authorizeKeys: [newKey],
         calls: [],
@@ -574,8 +574,8 @@ describe.each([
         pre: true,
         feeToken: exp1Address,
       })
-      const signature_1 = await Key.sign(key, {
-        payload: request_1.digest,
+      const signature = await Key.sign(key, {
+        payload: request.digest,
       })
 
       // 3. Mint 100 ERC20 tokens to Account with new Session Key.
@@ -592,7 +592,7 @@ describe.each([
         ],
         key: newKey,
         feeToken: exp1Address,
-        pre: [{ ...request_1, signature: signature_1 }],
+        pre: [{ ...request, signature }],
       })
       expect(id).toBeDefined()
 
