@@ -88,7 +88,7 @@ export async function getAccounts(
   client: Client,
   parameters: getAccounts.Parameters,
 ): Promise<getAccounts.ReturnType> {
-  const { chain = client.chain, id } = parameters
+  const { chain = client.chain, keyId: id } = parameters
   try {
     const method = 'wallet_getAccounts' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -109,11 +109,9 @@ export async function getAccounts(
 }
 
 export namespace getAccounts {
-  export type Parameters = Omit<
-    Rpc.wallet_getAccounts.Parameters,
-    'chain_id'
-  > & {
+  export type Parameters = {
     chain?: Chain | undefined
+    keyId: Hex.Hex
   }
 
   export type ReturnType = Rpc.wallet_getAccounts.Response

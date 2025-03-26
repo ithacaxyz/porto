@@ -127,6 +127,70 @@ export namespace createIdSigner {
 }
 
 /**
+ * Gets the accounts for a given key identifier.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Accounts.
+ */
+export async function getAccounts(
+  client: Client,
+  parameters: getAccounts.Parameters,
+): Promise<getAccounts.ReturnType> {
+  const { keyId } = parameters
+  const accounts = await Actions.getAccounts(client, { keyId })
+  return accounts.map((account) => {
+    const keys = account.keys.map(Key.fromRelay)
+    return Account.from({
+      address: account.address,
+      keys,
+    })
+  })
+}
+
+export namespace getAccounts {
+  export type Parameters = Omit<Actions.getAccounts.Parameters, 'id'> & {
+    keyId: Hex.Hex
+  }
+
+  export type ReturnType = readonly RequiredBy<Account.Account, 'keys'>[]
+
+  export type ErrorType = Actions.getAccounts.ErrorType
+}
+
+/**
+ * Gets the keys for an account.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Account keys.
+ */
+export async function getKeys(
+  client: Client,
+  parameters: getKeys.Parameters,
+): Promise<getKeys.ReturnType> {
+  const account = Account.from(parameters.account)
+  const keys = await Actions.getKeys(client, { address: account.address })
+  return keys.map(Key.fromRelay)
+}
+
+export namespace getKeys {
+  export type Parameters = Omit<Actions.getKeys.Parameters, 'address'> & {
+    account: Account.Account | Address.Address
+  }
+
+  export type ReturnType = readonly Key.Key[]
+
+  export type ErrorType = Actions.getKeys.ErrorType
+}
+
+/**
  * Prepares the digest to sign over and fills the request to send a call bundle.
  *
  * @example

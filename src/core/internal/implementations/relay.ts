@@ -1,16 +1,13 @@
 import type * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
-import * as Hex from 'ox/Hex'
+import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
-import { readContract } from 'viem/actions'
 
-import * as DelegationContract from '../_generated/contracts/Delegation.js'
 import * as Account from '../account.js'
-import * as Delegation from '../delegation.js'
 import * as Implementation from '../implementation.js'
 import * as Key from '../key.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -112,10 +109,10 @@ export function relay(config: relay.Parameters = {}) {
         const { internal, permissions } = parameters
         const { client } = internal
 
-        const { address, credentialId } = await (async () => {
+        const { credentialId, keyId } = await (async () => {
           if (mock && id_internal)
             return {
-              address: id_internal,
+              keyId: id_internal,
               credentialId: undefined,
             } as const
 
@@ -123,7 +120,7 @@ export function relay(config: relay.Parameters = {}) {
           // WebAuthn discovery step.
           if (parameters.address && parameters.credentialId)
             return {
-              address: parameters.address,
+              keyId: parameters.address,
               credentialId: parameters.credentialId,
             }
 
@@ -136,49 +133,42 @@ export function relay(config: relay.Parameters = {}) {
           const response = credential.raw
             .response as AuthenticatorAssertionResponse
 
-          const address = Bytes.toHex(new Uint8Array(response.userHandle!))
+          const keyId = Bytes.toHex(new Uint8Array(response.userHandle!))
           const credentialId = credential.raw.id
 
-          return { address, credentialId }
+          return { credentialId, keyId }
         })()
 
-        // Fetch the delegated account's keys.
-        const [keyCount, extraKey] = await Promise.all([
-          readContract(client, {
-            abi: DelegationContract.abi,
-            address,
-            functionName: 'keyCount',
-          }),
+        const [accounts, extraKey] = await Promise.all([
+          Relay.getAccounts(client, { keyId }),
           PermissionsRequest.toKey(permissions, {
             // We are going to authorize the key at time of next call bundle
             // so the user doesn't need to pay fees.
             initialized: false,
           }),
         ])
-        const keys = await Promise.all(
-          Array.from({ length: Number(keyCount) }, (_, index) =>
-            Delegation.keyAt(client, { account: address, index }),
-          ),
-        )
+        if (!accounts[0]) throw new Error('account not found')
 
         // Instantiate the account based off the extracted address and keys.
         const account = Account.from({
-          address,
-          keys: [...keys, ...(extraKey ? [extraKey] : [])].map((key, i) => {
-            const credential = {
-              id: credentialId!,
-              publicKey: PublicKey.fromHex(key.publicKey),
-            }
-            // Assume that the first key is the admin WebAuthn key.
-            if (i === 0) {
-              if (key.type === 'webauthn-p256')
-                return Key.fromWebAuthnP256({ ...key, credential })
-            }
-            // Add credential to session key to be able to restore from storage later
-            if ((key.type === 'p256' && key.role === 'session') || mock)
-              return { ...key, credential } as typeof key
-            return key
-          }),
+          ...accounts[0],
+          keys: [...accounts[0].keys, ...(extraKey ? [extraKey] : [])].map(
+            (key, i) => {
+              const credential = {
+                id: credentialId!,
+                publicKey: PublicKey.fromHex(key.publicKey),
+              }
+              // Assume that the first key is the admin WebAuthn key.
+              if (i === 0) {
+                if (key.type === 'webauthn-p256')
+                  return Key.fromWebAuthnP256({ ...key, credential })
+              }
+              // Add credential to session key to be able to restore from storage later
+              if ((key.type === 'p256' && key.role === 'session') || mock)
+                return { ...key, credential } as typeof key
+              return key
+            },
+          ),
         })
 
         return {
@@ -201,8 +191,6 @@ export function relay(config: relay.Parameters = {}) {
           calls,
           feeToken,
           key,
-          // TODO(relay): remove this when relay supports optional nonce
-          nonce: randomNonce(),
         })
 
         return {
@@ -237,8 +225,6 @@ export function relay(config: relay.Parameters = {}) {
           account,
           revokeKeys: [key],
           feeToken,
-          // TODO(relay): remove this when relay supports optional nonce
-          nonce: randomNonce(),
         })
       },
 
@@ -266,8 +252,6 @@ export function relay(config: relay.Parameters = {}) {
           account,
           authorizeKeys,
           feeToken,
-          // TODO(relay): remove this when relay supports optional nonce
-          nonce: randomNonce(),
         })
 
         // Execute the calls (with the key if provided, otherwise it will
@@ -277,8 +261,6 @@ export function relay(config: relay.Parameters = {}) {
           calls,
           feeToken,
           key,
-          // TODO(relay): remove this when relay supports optional nonce
-          nonce: randomNonce(),
         })
 
         return id as Hex.Hex
@@ -367,18 +349,4 @@ export declare namespace relay {
      */
     keystoreHost?: 'self' | (string & {}) | undefined
   }
-}
-
-// TODO(relay): remove this
-function randomNonce() {
-  return Hex.toBigInt(
-    Hex.concat(
-      // multichain flag (0 = single chain, 0xc1d0 = multi-chain)
-      Hex.fromNumber(0, { size: 2 }),
-      // sequence key
-      Hex.random(22),
-      // sequential nonce
-      Hex.fromNumber(0, { size: 8 }),
-    ),
-  )
 }

@@ -236,7 +236,7 @@ describe('getAccounts', () => {
     })
 
     const result = await getAccounts(client, {
-      id: account.keys[0]!.id!,
+      keyId: account.keys[0]!.id!,
     })
 
     expect(result.length).toBe(1)
@@ -264,7 +264,7 @@ describe('getAccounts', () => {
     })
 
     const result = await getAccounts(client, {
-      id: account.keys[0]!.id!,
+      keyId: account.keys[0]!.id!,
     })
 
     expect(result.length).toBe(1)

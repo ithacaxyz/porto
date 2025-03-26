@@ -110,6 +110,52 @@ describe('createAccount', () => {
   })
 })
 
+describe('getAccounts', () => {
+  test('default', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const account = await Relay.createAccount(client, { keys: [key] })
+    const accounts = await Relay.getAccounts(client, {
+      keyId: account.keys[0]!.id!,
+    })
+
+    expect(accounts[0]!.address).toBe(account.address)
+    expect(accounts[0]!.keys[0]?.publicKey).toBe(key.publicKey)
+  })
+})
+
+describe('getKeys', () => {
+  test('default', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const account = await Relay.createAccount(client, { keys: [key] })
+    const keys = await Relay.getKeys(client, {
+      account,
+    })
+
+    expect(keys.length).toBe(1)
+    expect(keys[0]!.publicKey).toBe(key.publicKey)
+  })
+
+  test('behavior: address', async () => {
+    const key = Key.createP256({
+      role: 'admin',
+    })
+
+    const account = await Relay.createAccount(client, { keys: [key] })
+    const keys = await Relay.getKeys(client, {
+      account: account.address,
+    })
+
+    expect(keys.length).toBe(1)
+    expect(keys[0]!.publicKey).toBe(key.publicKey)
+  })
+})
+
 describe('prepareUpgradeAccount + upgradeAccount', () => {
   test('default', async () => {
     const key = Key.createP256({

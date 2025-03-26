@@ -50,8 +50,7 @@ describe.each([
   })
 
   describe('eth_requestAccounts', () => {
-    // TODO(relay): implement wallet_getAccounts internally
-    test.skipIf(mode === 'relay')('default', async () => {
+    test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
         method: 'experimental_createAccount',
@@ -440,8 +439,7 @@ describe.each([
   })
 
   describe('wallet_connect', () => {
-    // TODO(relay): implement wallet_getAccounts internally
-    test.skipIf(mode === 'relay')('default', async () => {
+    test('default', async () => {
       const messages: any[] = []
 
       const { client, porto } = getPorto()
