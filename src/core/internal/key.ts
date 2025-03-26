@@ -951,6 +951,14 @@ export function toRelay(
     })
     .flat()
 
+  // TODO(relay): remove temporary call scope on EntryPoint.
+  if (key.role === 'session')
+    permissions.push({
+      selector: Call.anySelector,
+      to: '0x5197adb49b4ecaa8e00f60f43757d3f5ad630227',
+      type: 'call',
+    })
+
   return {
     expiry,
     permissions: permissions ?? [],

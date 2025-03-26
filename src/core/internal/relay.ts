@@ -206,8 +206,18 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 ) {
   const { authorizeKeys, calls, key, feeToken, nonce, pre, revokeKeys } =
     parameters
+
   const account = Account.from(parameters.account)
   const hash = Key.hash(key)
+  const preOp = typeof pre === 'boolean' ? pre : false
+  const preOps =
+    typeof pre === 'object'
+      ? pre.map(({ context, signature }) => ({
+          ...context.op,
+          signature,
+        }))
+      : undefined
+
   const { capabilities, context, digest } = await Actions.prepareCalls(client, {
     address: account.address,
     calls: (calls ?? []) as any,
@@ -218,14 +228,8 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         keyHash: hash,
         nonce,
       },
-      preOp: typeof pre === 'boolean' ? pre : false,
-      preOps:
-        typeof pre === 'object'
-          ? pre.map(({ context, signature }) => ({
-              ...context.op,
-              signature,
-            }))
-          : undefined,
+      preOp,
+      preOps,
       revokeKeys: revokeKeys?.map((key) => ({
         hash: key.hash,
       })),
@@ -251,12 +255,12 @@ export namespace prepareCalls {
     /** Key that will be used to sign the calls. */
     key: Pick<Key.Key, 'publicKey' | 'type'>
     /**
-     * Indicator if the calls are considered "pre-calls", and should be
-     * executed before the main calls.
+     * Indicates if the bundle is a pre-bundle, and should be executed before
+     * the main bundle.
      *
      * Accepts:
-     * - `true`: Indicates this batch is a pre-call batch.
-     * - An array: Set of prepared pre-calls.
+     * - `true`: Indicates this is a pre-bundle.
+     * - An array: Set of prepared pre-bundles.
      */
     pre?:
       | true
@@ -436,6 +440,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: sendCalls.Parameters<calls>,
 ) {
+  // If a signature is provided, broadcast the calls to the Relay.
   if (parameters.signature) {
     const { context, signature } = parameters
     const key = Key.toRelay({
@@ -453,20 +458,46 @@ export async function sendCalls<const calls extends readonly unknown[]>(
     })
   }
 
+  // If no signature is provided, prepare the calls and sign them.
+
   const account = Account.from(parameters.account)
   const key = parameters.key ?? Account.getKey(account, parameters)
 
   if (!key) throw new Error('key is required')
 
+  // Prepare pre-bundles.
+  const pre = await Promise.all(
+    (parameters.pre ?? []).map(async (pre) => {
+      const { authorizeKeys, key, calls, revokeKeys } = pre
+      const { context, digest } = await prepareCalls(client, {
+        account,
+        authorizeKeys,
+        feeToken: parameters.feeToken,
+        calls,
+        key,
+        pre: true,
+        revokeKeys,
+      })
+      const signature = await Key.sign(key, {
+        payload: digest,
+      })
+      return { context, signature }
+    }),
+  )
+
+  // Prepare main bundle.
   const { context, digest } = await prepareCalls(client, {
     ...parameters,
     key,
+    pre,
   })
 
+  // Sign over the bundles.
   const signature = await Key.sign(key, {
     payload: digest,
   })
 
+  // Broadcast the bundle to the Relay.
   return await sendCalls(client, { context, signature })
 }
 
@@ -480,9 +511,18 @@ export namespace sendCalls {
         /** Signature. */
         signature: Hex.Hex
       }
-    | (Omit<prepareCalls.Parameters<calls>, 'key'> & {
-        /** Key to sign the call bundle with. */
+    | (Omit<prepareCalls.Parameters<calls>, 'key' | 'pre'> & {
+        /** Key to sign the bundle with. */
         key?: Key.Key | undefined
+        /** Pre-bundle to execute before the main bundle. */
+        pre?:
+          | readonly (Pick<
+              prepareCalls.Parameters<calls>,
+              'authorizeKeys' | 'calls' | 'revokeKeys'
+            > & {
+              key: Key.Key
+            })[]
+          | undefined
       })
   >
 
