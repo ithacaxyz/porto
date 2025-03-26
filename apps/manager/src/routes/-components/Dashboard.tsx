@@ -287,7 +287,7 @@ export function Dashboard() {
                   className="flex flex-row items-center"
                   href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
                 >
-                  <span className="min-w-[60px] text-gray11">
+                  <span className="min-w-[65px] text-gray11">
                     {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))} ago
                   </span>
                   <ExternalLinkIcon className="size-4 text-gray10" />
