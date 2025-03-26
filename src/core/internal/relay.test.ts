@@ -551,17 +551,20 @@ describe.each([
       }
     })
 
-    test.skip('batch authorize + mint', async () => {
+    test('batch authorize + mint', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createP256({ role: 'admin' })
       const account = await initializeAccount(client, {
         keys: [key],
       })
 
-      // 1. Authorize a new Session Key.
+      // 2. Authorize a new Session Key.
       const newKey = Key.createP256({
         role: 'session',
-        permissions: { calls: [{ to: exp2Address }] },
+        permissions: {
+          // TODO(relay): scope to `exp1Address`
+          calls: [{ to: '0x3232323232323232323232323232323232323232' }],
+        },
       })
       const request_1 = await Relay.prepareCalls(client, {
         account,
@@ -575,9 +578,10 @@ describe.each([
         payload: request_1.digest,
       })
 
-      // 2. Mint 100 ERC20 tokens to Account with new Session Key.
+      // 3. Mint 100 ERC20 tokens to Account with new Session Key.
       const { id } = await Relay.sendCalls(client, {
         account,
+        authorizeKeys: [newKey],
         calls: [
           {
             to: exp2Address,
@@ -592,7 +596,7 @@ describe.each([
       })
       expect(id).toBeDefined()
 
-      // 3. Verify that Account has 100 ERC20 tokens.
+      // 4. Verify that Account has 100 ERC20 tokens.
       expect(
         await readContract(client, {
           address: exp2Address,
