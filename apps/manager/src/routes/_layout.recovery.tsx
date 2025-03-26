@@ -95,7 +95,7 @@ function RouteComponent() {
     [_connectors],
   )
 
-  const { signMessageAsync, status: signMessageStatus } = useSignMessage({
+  const { signMessageAsync, status: _signMessageStatus } = useSignMessage({
     mutation: {
       onMutate: (_) => setView('LOADING'),
       onSuccess: (_, __, ___) => setView('SUCCESS'),
@@ -103,28 +103,14 @@ function RouteComponent() {
     },
   })
 
+  // @ts-expect-error
   const createAccount = Hooks.useCreateAccount({
     mutation: {
-      onMutate: (_) => setView('LOADING'),
       onSuccess: (_, __, ___) => setView('SUCCESS'),
       onError: (error, _, __) => console.info(error),
+      onMutate: (_) => [console.info('mutate'), setView('LOADING')],
     },
   })
-
-  const isLoading =
-    connect.status === 'pending' ||
-    disconnect.status === 'pending' ||
-    signMessageStatus === 'pending' ||
-    createAccount.status === 'pending'
-
-  const isError =
-    connect.status === 'error' ||
-    disconnect.status === 'error' ||
-    signMessageStatus === 'error' ||
-    createAccount.status === 'error'
-
-  const success =
-    signMessageStatus === 'success' || createAccount.status === 'success'
 
   if (!connectors.length) return null
 
