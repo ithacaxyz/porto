@@ -4,7 +4,7 @@ import * as Ariakit from '@ariakit/react'
 import clsx from 'clsx'
 import { Cuer } from 'cuer'
 import { matchSorter } from 'match-sorter'
-import { Address, Value } from 'ox'
+import { Address, Hex, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -66,7 +66,7 @@ type TableProps<T> = {
   columns: {
     header: string
     key: string
-    align?: 'left' | 'right'
+    align?: 'left' | 'right' | 'center'
     width?: string
   }[]
   renderRow: (item: T) => React.ReactNode
@@ -132,6 +132,7 @@ export function Dashboard() {
   const disconnect = Hooks.useDisconnect()
 
   const permissions = Hooks.usePermissions()
+  console.info(permissions)
   const revokePermissions = Hooks.useRevokePermissions()
 
   const { data: assets } = useTokenBalances()
@@ -283,7 +284,7 @@ export function Dashboard() {
                   className="flex flex-row items-center"
                   href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
                 >
-                  <span className="min-w-[70px] text-gray11">
+                  <span className="min-w-[60px] text-gray11">
                     {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))} ago
                   </span>
                   <ExternalLinkIcon className="size-4 text-gray10" />
@@ -348,9 +349,15 @@ export function Dashboard() {
           showMoreText="more permissions"
           columns={[
             { header: 'Time', key: 'time' },
-            { header: 'Name', key: 'name' },
-            { header: 'Scope', key: 'scope', align: 'right' },
-            { header: 'Amount', key: 'amount' },
+            { header: 'Name', key: 'name', width: '' },
+            { header: 'Scope', key: 'scope', align: 'left', width: 'w-[70px]' },
+            {
+              header: 'Amount',
+              key: 'amount',
+              align: 'left',
+              width: 'w-[120px]',
+            },
+            { header: '', key: 'period', align: 'left', width: 'w-[60px]' },
             { header: '', key: 'action', align: 'right' },
           ]}
           renderRow={(permission) => {
@@ -363,14 +370,14 @@ export function Dashboard() {
                 key={`${permission.id}-${permission.expiry}`}
                 className="text-xs sm:text-sm"
               >
-                <td className="py-3 text-left">
+                <td className="max-w-[50px] py-3 text-left">
                   <a
                     target="_blank"
                     rel="noreferrer"
                     href={`https://explorer.ithaca.xyz/address/${permission.address}`}
                     className="flex flex-row items-center"
                   >
-                    <span className="min-w-[35px] text-gray11">{time}</span>
+                    <span className="min-w-[37px] text-gray11">{time}</span>
                     <ExternalLinkIcon className="mr-2 size-4 text-gray10" />
                   </a>
                 </td>
@@ -386,21 +393,30 @@ export function Dashboard() {
                     />
                   </div>
                 </td>
-                <td className="text-right">
+                <td className="text-left">
                   <span className="text-gray11">
                     {calls?.signature ?? '––'}
                   </span>
                 </td>
-                <td className="text-right">
-                  <span className="mr-2 rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10">
-                    {StringFormatter.truncate(spend?.token ?? '', {
-                      start: 4,
-                      end: 4,
-                    })}
-                  </span>
+                <td className="w-[50px] text-right">
+                  <div className="flex w-full max-w-[105px] flex-row items-end justify-end gap-x-2 rounded-2xl bg-gray3 px-1.5 py-1 text-right font-[500] text-gray10">
+                    <span>
+                      {formatEther(
+                        Hex.toBigInt(spend?.limit as unknown as Hex.Hex),
+                      )}
+                    </span>
+                    <span className="">
+                      {StringFormatter.truncate(spend?.token ?? '', {
+                        start: 4,
+                        end: 4,
+                      })}
+                    </span>
+                  </div>
+                </td>
+                <td className="w-[30px]">
                   <span className="text-gray11">{spend?.period}ly</span>
                 </td>
-                <td className="w-[40px] text-right">
+                <td className="w-min max-w-[20px] text-right">
                   <Ariakit.Button
                     disabled={time === 'expired'}
                     className={clsx(
