@@ -1,9 +1,8 @@
 import { Button, Spinner } from '@porto/apps/components'
 
 import * as Ariakit from '@ariakit/react'
-import { Cuer } from 'cuer'
-
 import clsx from 'clsx'
+import { Cuer } from 'cuer'
 import { matchSorter } from 'match-sorter'
 import { Address, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
@@ -61,6 +60,73 @@ function ShowMore({
     </Ariakit.Checkbox>
   )
 }
+
+type TableProps<T> = {
+  data: ReadonlyArray<T> | undefined
+  columns: {
+    header: string
+    key: string
+    align?: 'left' | 'right'
+    width?: string
+  }[]
+  renderRow: (item: T) => React.ReactNode
+  showMoreText: string
+  initialCount?: number
+}
+
+function PaginatedTable<T>({
+  data,
+  columns,
+  renderRow,
+  showMoreText,
+  initialCount = 5,
+}: TableProps<T>) {
+  const [firstItems, remainingItems] = React.useMemo(
+    () =>
+      !data
+        ? [[], []]
+        : [data.slice(0, initialCount), data.slice(initialCount)],
+    [data, initialCount],
+  )
+
+  const [showAll, setShowAll] = React.useState<'ALL' | 'DEFAULT'>('DEFAULT')
+  const itemsToShow = showAll === 'ALL' ? data : firstItems
+
+  return (
+    <>
+      <table className="my-3 w-full table-auto">
+        <thead>
+          <tr className="text-gray10 *:font-normal *:text-sm">
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                className={clsx(
+                  col.width,
+                  col.align === 'right' ? 'text-right' : 'text-left',
+                )}
+              >
+                {col.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="border-transparent border-t-10">
+          {itemsToShow?.map(renderRow)}
+        </tbody>
+      </table>
+      {remainingItems.length > 0 && (
+        <div className="flex justify-start">
+          <ShowMore
+            onChange={() => setShowAll(showAll === 'ALL' ? 'DEFAULT' : 'ALL')}
+            text={`Show ${remainingItems.length} ${showMoreText}`}
+            className="cursor-default font-medium text-gray10 text-sm"
+          />
+        </div>
+      )}
+    </>
+  )
+}
+
 export function Dashboard() {
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
@@ -69,15 +135,6 @@ export function Dashboard() {
   const revokePermissions = Hooks.useRevokePermissions()
 
   const { data: assets } = useTokenBalances()
-
-  const [firstFiveBalances, remainingBalances] = React.useMemo(
-    () => (!assets ? [[], []] : [assets.slice(0, 5), assets.slice(5)]),
-    [assets],
-  )
-
-  const [showAssets, setShowAssets] = React.useState<'ALL' | 'DEFAULT'>(
-    'DEFAULT',
-  )
 
   const { data: transfers } = useAddressTransfers()
   const [selectedChains, _setSelectedChains] = React.useState(
@@ -104,30 +161,6 @@ export function Dashboard() {
     const total = BigInt(summed) ?? 0n
     return ValueFormatter.format(total, 18)
   }, [assets])
-
-  const [firstFiveTransfers, remainingTransfers] = React.useMemo(
-    () =>
-      !filteredTransfers
-        ? [[], []]
-        : [filteredTransfers.slice(0, 5), filteredTransfers.slice(5)],
-    [filteredTransfers],
-  )
-
-  const [showTransfers, setShowTransfers] = React.useState<'ALL' | 'DEFAULT'>(
-    'DEFAULT',
-  )
-
-  const [firstFivePermissions, remainingPermissions] = React.useMemo(
-    () =>
-      !permissions?.data
-        ? [[], []]
-        : [permissions.data.slice(0, 5), permissions.data.slice(5)],
-    [permissions?.data],
-  )
-
-  const [showPermissions, setShowPermissions] = React.useState<
-    'ALL' | 'DEFAULT'
-  >('DEFAULT')
 
   return (
     <>
@@ -185,7 +218,7 @@ export function Dashboard() {
             <Cuer.Finder radius={1} />
             <Cuer.Cells />
           </Cuer.Root>
-          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-[10px] text-gray10">
+          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-[11px] text-gray10">
             {account.address}
           </p>
         </Ariakit.Button>
@@ -200,41 +233,26 @@ export function Dashboard() {
           Assets
         </summary>
 
-        <table className="my-3 w-full table-auto">
-          <thead>
-            <tr className="text-gray10 *:font-normal *:text-sm">
-              <th className="w-[40%] text-left">Name</th>
-              <th className="w-[20%] text-right" data-label="balance" />
-              <th className="w-[20%] text-right" data-label="symbol" />
-              <th className="w-[20%] text-right" data-label="action" />
-            </tr>
-          </thead>
-          <tbody className="border-transparent border-t-10 font-semibold">
-            {(showAssets === 'ALL' ? assets : firstFiveBalances)?.map(
-              (asset, index) => (
-                <AssetRow
-                  key={`${asset.token.address}-${index}`}
-                  address={asset.token.address}
-                  logo={`/icons/${asset.token.name.toLowerCase()}.svg`}
-                  symbol={asset.token.symbol}
-                  name={asset.token.name}
-                  value={asset.value}
-                />
-              ),
-            )}
-          </tbody>
-        </table>
-        {remainingBalances.length > 0 && (
-          <div className="flex justify-start">
-            <ShowMore
-              onChange={() =>
-                setShowAssets(showAssets === 'ALL' ? 'DEFAULT' : 'ALL')
-              }
-              text={`Show ${remainingBalances.length} more assets`}
-              className="cursor-default font-medium text-gray10 text-sm"
+        <PaginatedTable
+          data={assets}
+          columns={[
+            { header: 'Name', key: 'name', width: 'w-[40%]' },
+            { header: '', key: 'balance', width: 'w-[20%]', align: 'right' },
+            { header: '', key: 'symbol', width: 'w-[20%]', align: 'right' },
+            { header: '', key: 'action', width: 'w-[20%]', align: 'right' },
+          ]}
+          renderRow={(asset) => (
+            <AssetRow
+              key={asset.token.address}
+              address={asset.token.address}
+              logo={`/icons/${asset.token.name.toLowerCase()}.svg`}
+              symbol={asset.token.symbol}
+              name={asset.token.name}
+              value={asset.value}
             />
-          </div>
-        )}
+          )}
+          showMoreText="more assets"
+        />
       </details>
 
       <div className="h-4" />
@@ -246,74 +264,57 @@ export function Dashboard() {
           History
         </summary>
 
-        <table className="my-3 w-full table-fixed">
-          <thead>
-            <tr className="text-gray10 *:font-normal *:text-sm">
-              <th className="text-left">Time</th>
-              <th className="text-left">Recipient</th>
-              <th className="text-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody className="border-transparent border-t-10">
-            {(showTransfers === 'ALL'
-              ? filteredTransfers
-              : firstFiveTransfers
-            )?.map((transfer, index) => (
-              <tr
-                key={`${transfer?.transaction_hash}-${index}`}
-                className="text-xs sm:text-sm "
-              >
-                <td className="py-1 text-left">
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex flex-row items-center"
-                    href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
-                  >
-                    <span className="min-w-[80px] text-gray11">
-                      {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))}{' '}
-                      ago
-                    </span>
-                    <ExternalLinkIcon className="size-4 text-gray10" />
-                  </a>
-                </td>
-                <td className="flex min-w-full items-center py-1 text-left font-medium">
-                  <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3 p-0.5">
-                    <AccountIcon className="size-4 rounded-full text-gray10" />
-                  </div>
-                  <TruncatedAddress
-                    className="ml-2"
-                    address={transfer?.to.hash ?? ''}
-                  />
-                </td>
-                <td className="py-1 text-right text-gray12">
-                  <span className="mr-2 text-md">
-                    {Value.format(
-                      BigInt(transfer?.total.value ?? 0),
-                      Number(transfer?.token.decimals ?? 0),
-                    )}
+        <PaginatedTable
+          data={filteredTransfers}
+          columns={[
+            { header: 'Time', key: 'time' },
+            { header: 'Recipient', key: 'recipient' },
+            { header: 'Amount', key: 'amount', align: 'right' },
+          ]}
+          renderRow={(transfer) => (
+            <tr
+              key={`${transfer?.transaction_hash}-${transfer?.block_number}`}
+              className="text-xs sm:text-sm "
+            >
+              <td className="py-1 text-left">
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex flex-row items-center"
+                  href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
+                >
+                  <span className="min-w-[70px] text-gray11">
+                    {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))} ago
                   </span>
-                  <div className="inline-block w-[70px]">
-                    <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
-                      {transfer?.token.symbol}
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {remainingTransfers.length > 0 && (
-          <div className="flex justify-start">
-            <ShowMore
-              onChange={() =>
-                setShowTransfers(showTransfers === 'ALL' ? 'DEFAULT' : 'ALL')
-              }
-              text={`Show ${remainingTransfers.length} more transactions`}
-              className="cursor-default font-medium text-gray10 text-sm"
-            />
-          </div>
-        )}
+                  <ExternalLinkIcon className="size-4 text-gray10" />
+                </a>
+              </td>
+              <td className="flex min-w-full items-center py-1 text-left font-medium">
+                <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3 p-0.5">
+                  <AccountIcon className="size-4 rounded-full text-gray10" />
+                </div>
+                <TruncatedAddress
+                  className="ml-2"
+                  address={transfer?.to.hash ?? ''}
+                />
+              </td>
+              <td className="py-1 text-right text-gray12">
+                <span className="text-md">
+                  {Value.format(
+                    BigInt(transfer?.total.value ?? 0),
+                    Number(transfer?.token.decimals ?? 0),
+                  )}
+                </span>
+                <div className="inline-block w-[65px]">
+                  <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
+                    {transfer?.token.symbol}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          )}
+          showMoreText="more transactions"
+        />
       </details>
 
       <div className="h-4" />
@@ -341,102 +342,88 @@ export function Dashboard() {
           </Button>
         </summary>
 
-        <table className="my-3 w-full">
-          <thead>
-            <tr className="text-gray10 *:font-normal *:text-sm">
-              <th className="text-left">Time</th>
-              <th className="text-left">Name</th>
-              <th className="text-right">Scope</th>
-              <th className="">Amount</th>
-              <th className="invisible text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="border-transparent border-t-10">
-            {(showPermissions === 'ALL'
-              ? permissions?.data
-              : firstFivePermissions
-            )?.map((permission, index) => {
-              const [spend] = permission?.permissions?.spend ?? []
-              const [calls] = permission?.permissions?.calls ?? []
+        <PaginatedTable
+          data={permissions?.data}
+          initialCount={3}
+          showMoreText="more permissions"
+          columns={[
+            { header: 'Time', key: 'time' },
+            { header: 'Name', key: 'name' },
+            { header: 'Scope', key: 'scope', align: 'right' },
+            { header: 'Amount', key: 'amount' },
+            { header: '', key: 'action', align: 'right' },
+          ]}
+          renderRow={(permission) => {
+            const [spend] = permission?.permissions?.spend ?? []
+            const [calls] = permission?.permissions?.calls ?? []
 
-              const time = DateFormatter.timeToDuration(
-                permission.expiry * 1_000,
-              )
-              return (
-                <tr
-                  key={`${permission.id}-${index}`}
-                  className="text-xs sm:text-sm"
-                >
-                  <td className="py-3 text-left">
-                    <a
-                      target="_blank"
-                      rel="noreferrer"
-                      href={`https://explorer.ithaca.xyz/address/${permission.address}`}
-                      className="flex flex-row items-center"
-                    >
-                      <span className="min-w-[35px] text-gray11">{time}</span>
-                      <ExternalLinkIcon className="mr-2 size-4 text-gray10" />
-                    </a>
-                  </td>
-                  <td className="text-right">
-                    <div className="flex flex-row items-center gap-x-2">
-                      <div className="flex size-7 items-center justify-center rounded-full bg-blue-100">
-                        <WorldIcon className="m-auto size-5 text-blue-400" />
-                      </div>
-
-                      <TruncatedAddress
-                        className="ml-1 font-medium"
-                        address={permission.address}
-                      />
+            const time = DateFormatter.timeToDuration(permission.expiry * 1_000)
+            return (
+              <tr
+                key={`${permission.id}-${permission.expiry}`}
+                className="text-xs sm:text-sm"
+              >
+                <td className="py-3 text-left">
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`https://explorer.ithaca.xyz/address/${permission.address}`}
+                    className="flex flex-row items-center"
+                  >
+                    <span className="min-w-[35px] text-gray11">{time}</span>
+                    <ExternalLinkIcon className="mr-2 size-4 text-gray10" />
+                  </a>
+                </td>
+                <td className="text-right">
+                  <div className="flex flex-row items-center gap-x-2">
+                    <div className="flex size-7 items-center justify-center rounded-full bg-blue-100">
+                      <WorldIcon className="m-auto size-5 text-blue-400" />
                     </div>
-                  </td>
-                  <td className="text-right">
-                    <span className="text-gray11">
-                      {calls?.signature ?? '––'}
-                    </span>
-                  </td>
-                  <td className="text-right">
-                    <span className="mr-2 rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10">
-                      {StringFormatter.truncate(spend?.token ?? '', {
-                        start: 4,
-                        end: 4,
-                      })}
-                    </span>
-                    <span className="text-gray11">{spend?.period}ly</span>
-                  </td>
-                  <td className="text-right">
-                    <Ariakit.Button
-                      disabled={time === 'expired'}
-                      className="size-8 rounded-full p-1 hover:bg-red-100"
-                      onClick={() => {
-                        revokePermissions.mutate({ id: permission.id })
-                      }}
-                    >
-                      {time === 'expired' ? (
-                        <NullIcon className="m-auto size-5 text-gray10" />
-                      ) : (
-                        <XIcon className={clsx('m-auto size-5 text-red-500')} />
-                      )}
-                    </Ariakit.Button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-        {remainingPermissions.length > 0 && (
-          <div className="flex justify-start">
-            <ShowMore
-              onChange={() =>
-                setShowPermissions(
-                  showPermissions === 'ALL' ? 'DEFAULT' : 'ALL',
-                )
-              }
-              text={`Show ${remainingPermissions.length} more permissions`}
-              className="cursor-default font-medium text-gray10 text-sm"
-            />
-          </div>
-        )}
+
+                    <TruncatedAddress
+                      className="ml-1 font-medium"
+                      address={permission.address}
+                    />
+                  </div>
+                </td>
+                <td className="text-right">
+                  <span className="text-gray11">
+                    {calls?.signature ?? '––'}
+                  </span>
+                </td>
+                <td className="text-right">
+                  <span className="mr-2 rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10">
+                    {StringFormatter.truncate(spend?.token ?? '', {
+                      start: 4,
+                      end: 4,
+                    })}
+                  </span>
+                  <span className="text-gray11">{spend?.period}ly</span>
+                </td>
+                <td className="w-[40px] text-right">
+                  <Ariakit.Button
+                    disabled={time === 'expired'}
+                    className={clsx(
+                      'size-8 rounded-full p-1',
+                      time === 'expired'
+                        ? 'text-gray10'
+                        : 'text-gray11 hover:bg-red-100 hover:text-red-500',
+                    )}
+                    onClick={() => {
+                      revokePermissions.mutate({ id: permission.id })
+                    }}
+                  >
+                    {time === 'expired' ? (
+                      <NullIcon className="m-auto size-5" />
+                    ) : (
+                      <XIcon className={clsx('m-auto size-5')} />
+                    )}
+                  </Ariakit.Button>
+                </td>
+              </tr>
+            )
+          }}
+        />
       </details>
 
       <div className="h-4" />
@@ -537,6 +524,7 @@ function AssetRow({
   const sendCalls = useSendCalls({
     mutation: {
       onSuccess: (data) => {
+        console.info(sendFormState.values.sendAmount)
         toast.custom(
           (t) => (
             <CustomToast
@@ -546,7 +534,7 @@ function AssetRow({
               description={
                 <p>
                   You successfully sent {sendFormState.values.sendAmount}{' '}
-                  {selectedAsset?.symbol}
+                  {symbol}
                   <br />
                   <a
                     href={`https://explorer.ithaca.xyz/tx/${data}`}
@@ -561,7 +549,7 @@ function AssetRow({
             />
           ),
 
-          { duration: 3_500 },
+          { duration: 4_500 },
         )
         sendForm.setState('submitSucceed', (count) => +count + 1)
         sendForm.setState('submitFailed', 0)
@@ -636,7 +624,7 @@ function AssetRow({
               description={
                 <p>
                   You successfully received {swapFormState.values.swapAmount}{' '}
-                  {selectedAsset?.symbol}
+                  {symbol}
                   <br />
                   <a
                     href={`https://explorer.ithaca.xyz/tx/${data}`}

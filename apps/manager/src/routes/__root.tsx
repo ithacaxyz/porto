@@ -16,7 +16,6 @@ function RouteComponent() {
       <Toaster
         theme="light"
         expand={false}
-        duration={3_000}
         position="bottom-right"
         className="z-[42069] select-none"
         swipeDirections={['right', 'left', 'top', 'bottom']}
