@@ -10,6 +10,7 @@ import { afterAll, beforeAll, vi } from 'vitest'
 
 import * as Chains from '../src/core/Chains.js'
 import * as Delegation from '../src/core/internal/_generated/contracts/Delegation.js'
+import * as EIP7702Proxy from '../src/core/internal/_generated/contracts/EIP7702Proxy.js'
 import * as EntryPoint from '../src/core/internal/_generated/contracts/EntryPoint.js'
 
 import { exp1Address, exp2Address } from './src/_generated/contracts.js'
@@ -63,8 +64,21 @@ beforeAll(async () => {
         const { contractAddress } = await getTransactionReceipt(client, {
           hash,
         })
+
+        // Deploy EIP7702Proxy contract.
+        const hash_2 = await deployContract(client, {
+          abi: EIP7702Proxy.abi,
+          bytecode: EIP7702Proxy.code,
+          args: [contractAddress!, account.address],
+          account,
+          chain: null,
+        })
+        const { contractAddress: contractAddress_2 } =
+          await getTransactionReceipt(client, {
+            hash: hash_2,
+          })
         const code = await getCode(client, {
-          address: contractAddress!,
+          address: contractAddress_2!,
         })
         await setCode(client, {
           address: chain.contracts.delegation.address,
