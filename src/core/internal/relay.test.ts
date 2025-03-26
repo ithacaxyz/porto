@@ -562,7 +562,7 @@ describe.each([
       const newKey = Key.createP256({
         role: 'session',
         permissions: {
-          // TODO(relay): scope to `exp1Address`
+          // TODO(relay): scope to `exp2Address`
           calls: [{ to: '0x3232323232323232323232323232323232323232' }],
         },
       })
