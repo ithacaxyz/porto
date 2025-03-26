@@ -143,3 +143,14 @@ body,
 button:not([type="submit"]) {
   cursor: default;
 }
+
+/* Hide the default arrow for details in major browsers */
+
+details > summary {
+  list-style: none;
+}
+
+details > summary::marker /* Latest Chrome, Edge, Firefox */,
+details > summary::-webkit-details-marker /* Safari */ {
+  display: none;
+}

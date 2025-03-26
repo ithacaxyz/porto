@@ -778,12 +778,17 @@ function AssetRow({
             >
               <XIcon />
             </button>
-            <div className="flex w-[85px] flex-row items-center gap-x-2 border-gray6 border-r pr-3 pl-1.5">
+            <div className="flex w-[75px] flex-row items-center gap-x-2 border-gray6 border-r pr-1.5 pl-0.5 sm:w-[85px] sm:pl-1.5">
               <img alt="asset icon" className="size-7" src={logo} />
             </div>
             <div className="ml-3 flex w-full flex-row gap-y-1 border-gray7 border-r pr-3">
               <div className="flex w-full flex-col gap-y-1">
-                <span className="text-[12px] text-gray10">Recipient</span>
+                <Ariakit.FormLabel
+                  name={sendForm.names.sendRecipient}
+                  className="mt-1 text-gray10 text-xs sm:text-[12px]"
+                >
+                  Recipient
+                </Ariakit.FormLabel>
                 <Ariakit.FormInput
                   type="text"
                   required={true}
@@ -794,7 +799,7 @@ function AssetRow({
                   autoCapitalize="off"
                   placeholder="0xAbcD..."
                   name={sendForm.names.sendRecipient}
-                  className="w-full font-mono text-[13px] placeholder:text-gray10 focus:outline-none dark:text-gray12"
+                  className="w-full font-mono text-xs placeholder:text-gray10 focus:outline-none sm:text-[13px] dark:text-gray12"
                 />
               </div>
               <Ariakit.Button className="my-auto ml-auto rounded-full bg-gray4 p-2">
@@ -802,10 +807,10 @@ function AssetRow({
               </Ariakit.Button>
             </div>
 
-            <div className="flex w-[60px] max-w-min flex-col gap-y-1 px-2.5 sm:w-[90px]">
+            <div className="flex w-[65px] max-w-min flex-col gap-y-1 px-2.5 sm:w-[90px]">
               <Ariakit.FormLabel
                 name={sendForm.names.sendAmount}
-                className="text-[12px] text-gray10"
+                className="text-gray10 text-xs sm:text-[12px]"
               >
                 Amount
               </Ariakit.FormLabel>
@@ -820,14 +825,14 @@ function AssetRow({
                   autoCapitalize="off"
                   name={sendForm.names.sendAmount}
                   data-field={`${address}-amount`}
-                  className="w-min font-mono text-md placeholder:text-gray10 focus:outline-none"
+                  className="w-min font-mono text-sm placeholder:text-gray10 focus:outline-none sm:text-md"
                 />
               </div>
             </div>
             <Button
               size="small"
               variant="default"
-              className="mx-1 my-auto text-gray11! text-xs!"
+              className="mx-0.5 my-auto text-gray11! text-xs! sm:mx-1"
               onClick={() => {
                 console.info(value)
                 const amountField = document.querySelector(
@@ -841,11 +846,11 @@ function AssetRow({
             >
               Max
             </Button>
-            <Ariakit.FormSubmit className="my-auto mr-1 ml-2 rounded-full bg-accent p-2 hover:cursor-pointer! hover:bg-accentHover">
+            <Ariakit.FormSubmit className="my-auto mr-0.5 ml-1 rounded-full bg-accent p-2 hover:cursor-pointer! hover:bg-accentHover sm:mr-1 sm:ml-2">
               {sendCalls.isPending ? (
-                <Spinner className="size-4! text-white" />
+                <Spinner className="size-3! text-white sm:size-4!" />
               ) : (
-                <SendIcon className="size-4 text-white" />
+                <SendIcon className="size-3 text-white sm:size-4!" />
               )}
             </Ariakit.FormSubmit>
           </Ariakit.Form>

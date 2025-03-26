@@ -42,7 +42,7 @@ export namespace Layout {
               {left}
             </div>
           ) : left === false ? null : (
-            <div className="h-[28px]">
+            <div className="h-[28px] w-[40px]">
               <LogoMark />
             </div>
           )}
