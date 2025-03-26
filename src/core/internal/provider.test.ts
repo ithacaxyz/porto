@@ -516,97 +516,89 @@ describe.each([
       expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
     })
 
-    // TODO(relay): add support
-    test.skipIf(mode === 'relay')(
-      'behavior: `createAccount` + `grantPermissions` capability',
-      async () => {
-        const messages: any[] = []
+    test('behavior: `createAccount` + `grantPermissions` capability', async () => {
+      const messages: any[] = []
 
-        const { client, porto } = getPorto()
-        porto.provider.on('connect', (message) => messages.push(message))
+      const { client, porto } = getPorto()
+      porto.provider.on('connect', (message) => messages.push(message))
 
-        await porto.provider.request({
-          method: 'wallet_connect',
-          params: [
-            {
-              capabilities: {
-                createAccount: true,
-                grantPermissions: {
-                  expiry: 9999999999,
-                  permissions: {
-                    calls: [{ signature: 'mint()' }],
-                  },
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+              grantPermissions: {
+                expiry: 9999999999,
+                permissions: {
+                  calls: [{ signature: 'mint()' }],
                 },
               },
             },
-          ],
-        })
-        const accounts = porto._internal.store.getState().accounts
-        expect(accounts.length).toBe(1)
-        expect(accounts![0]!.keys?.length).toBe(2)
-        expect(
-          accounts![0]!.keys?.map((x) => ({
-            ...x,
-            expiry: null,
-            publicKey: null,
-            hash: null,
-          })),
-        ).matchSnapshot()
+          },
+        ],
+      })
+      const accounts = porto._internal.store.getState().accounts
+      expect(accounts.length).toBe(1)
+      expect(accounts![0]!.keys?.length).toBe(2)
+      expect(
+        accounts![0]!.keys?.map((x) => ({
+          ...x,
+          expiry: null,
+          publicKey: null,
+          hash: null,
+        })),
+      ).matchSnapshot()
 
-        expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
-      },
-    )
+      expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
+    })
 
-    // TODO(relay): add support
-    test.skipIf(mode === 'relay')(
-      'behavior: `createAccount` + `grantPermissions` capability (provided key)',
-      async () => {
-        const messages: any[] = []
+    test('behavior: `createAccount` + `grantPermissions` capability (provided key)', async () => {
+      const messages: any[] = []
 
-        const { client, porto } = getPorto()
-        porto.provider.on('connect', (message) => messages.push(message))
+      const { client, porto } = getPorto()
+      porto.provider.on('connect', (message) => messages.push(message))
 
-        const privateKey =
-          '0x1e8dd87f21bc6bbfc86e726ca9c21a285c13984461cf2e3adb265019fb78203d'
-        const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-          includePrefix: false,
-        })
+      const privateKey =
+        '0x1e8dd87f21bc6bbfc86e726ca9c21a285c13984461cf2e3adb265019fb78203d'
+      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+        includePrefix: false,
+      })
 
-        await porto.provider.request({
-          method: 'wallet_connect',
-          params: [
-            {
-              capabilities: {
-                createAccount: true,
-                grantPermissions: {
-                  expiry: 9999999999,
-                  key: {
-                    publicKey,
-                    type: 'p256',
-                  },
-                  permissions: {
-                    calls: [{ signature: 'mint()' }],
-                  },
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+              grantPermissions: {
+                expiry: 9999999999,
+                key: {
+                  publicKey,
+                  type: 'p256',
+                },
+                permissions: {
+                  calls: [{ signature: 'mint()' }],
                 },
               },
             },
-          ],
-        })
-        const accounts = porto._internal.store.getState().accounts
-        expect(accounts.length).toBe(1)
-        expect(accounts![0]!.keys?.length).toBe(2)
-        expect(
-          accounts![0]!.keys?.map((x, i) => ({
-            ...x,
-            expiry: i === 0 ? null : x.expiry,
-            publicKey: i === 0 ? null : x.publicKey,
-            hash: i === 0 ? null : x.hash,
-          })),
-        ).matchSnapshot()
+          },
+        ],
+      })
+      const accounts = porto._internal.store.getState().accounts
+      expect(accounts.length).toBe(1)
+      expect(accounts![0]!.keys?.length).toBe(2)
+      expect(
+        accounts![0]!.keys?.map((x, i) => ({
+          ...x,
+          expiry: i === 0 ? null : x.expiry,
+          publicKey: i === 0 ? null : x.publicKey,
+          hash: i === 0 ? null : x.hash,
+        })),
+      ).matchSnapshot()
 
-        expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
-      },
-    )
+      expect(messages[0].chainId).toBe(Hex.fromNumber(client.chain.id))
+    })
 
     test('behavior: `grantPermissions` capability (unlimited expiry)', async () => {
       const { porto } = getPorto()
@@ -1135,7 +1127,7 @@ describe.each([
   })
 
   describe('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
-    // TODO(relay): wait for BoB
+    // TODO(relay): fix
     test.skipIf(mode === 'relay')('default', async () => {
       const { porto } = getPorto()
       const client = Porto_internal.getClient(porto).extend(() => ({

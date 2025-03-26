@@ -59,7 +59,11 @@ export function relay(config: relay.Parameters = {}) {
           role: 'admin',
         })
 
-    const extraKey = await PermissionsRequest.toKey(permissions)
+    const extraKey = await PermissionsRequest.toKey(permissions, {
+      // We are going to authorize the key at time of next call bundle
+      // so the user doesn't need to pay fees.
+      initialized: false,
+    })
 
     const keys = [key, ...(extraKey ? [extraKey] : [])]
 
@@ -72,23 +76,25 @@ export function relay(config: relay.Parameters = {}) {
         const { label, internal, permissions } = parameters
         const { client } = internal
 
+        let keys: Key.Key[] = []
         const account = await Relay.createAccount(client, {
           async keys({ ids }) {
-            const [key] = await prepareAccountKeys({
+            const keys_ = await prepareAccountKeys({
               keystoreHost,
               id: ids[0]!,
               label,
               mock,
               permissions,
             })
-            return [key!]
+            keys = keys_
+            return [keys[0]!]
           },
         })
 
         // Extract the WebAuthn key id.
         if (account.keys[0]?.id) id_internal = account.keys[0]!.id
 
-        return { account }
+        return { account: Account.from({ ...account, keys }) }
       },
 
       async grantPermissions(parameters) {
@@ -110,11 +116,13 @@ export function relay(config: relay.Parameters = {}) {
         const { client } = internal
 
         const { credentialId, keyId } = await (async () => {
-          if (mock && id_internal)
+          if (mock) {
+            if (!id_internal) throw new Error('id_internal not found.')
             return {
               keyId: id_internal,
               credentialId: undefined,
             } as const
+          }
 
           // If the address and credentialId are provided, we can skip the
           // WebAuthn discovery step.
@@ -247,12 +255,14 @@ export function relay(config: relay.Parameters = {}) {
         // Get uninitialized keys to authorize.
         const authorizeKeys = account.keys?.filter((key) => !key.initialized)
 
-        // TODO(relay): remove this when relay support batch authorize + calls
-        await Relay.sendCalls(client, {
-          account,
-          authorizeKeys,
-          feeToken,
-        })
+        // We will need an admin key to authorize uninitialized keys.
+        const adminKey = account.keys?.find(
+          (key) => key.role === 'admin' && key.canSign,
+        )
+        if (!adminKey && authorizeKeys?.length)
+          throw new Error(
+            'cannot find admin key to authorize uninitialized key(s).',
+          )
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
@@ -261,6 +271,14 @@ export function relay(config: relay.Parameters = {}) {
           calls,
           feeToken,
           key,
+          pre: authorizeKeys?.length
+            ? [
+                {
+                  authorizeKeys,
+                  key: adminKey!,
+                },
+              ]
+            : [],
         })
 
         return id as Hex.Hex

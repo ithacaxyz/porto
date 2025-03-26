@@ -548,6 +548,71 @@ exports[`relay > experimental_revokePermissions > default 2`] = `
 ]
 `;
 
+exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
+[
+  {
+    "canSign": true,
+    "expiry": null,
+    "hash": null,
+    "initialized": true,
+    "permissions": undefined,
+    "privateKey": [Function],
+    "publicKey": null,
+    "role": "admin",
+    "type": "p256",
+  },
+  {
+    "canSign": false,
+    "expiry": 9999999999,
+    "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
+    "initialized": false,
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+    "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
+    "role": "session",
+    "type": "p256",
+  },
+]
+`;
+
+exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
+[
+  {
+    "canSign": true,
+    "expiry": null,
+    "hash": null,
+    "initialized": true,
+    "permissions": undefined,
+    "privateKey": [Function],
+    "publicKey": null,
+    "role": "admin",
+    "type": "p256",
+  },
+  {
+    "canSign": true,
+    "expiry": null,
+    "hash": null,
+    "initialized": false,
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+    "privateKey": CryptoKey {},
+    "publicKey": null,
+    "role": "session",
+    "type": "p256",
+  },
+]
+`;
+
 exports[`relay > wallet_connect > behavior: \`createAccount\` capability > 
         [
           {
