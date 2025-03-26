@@ -14,8 +14,6 @@ import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import ArrowLeftRightIcon from '~icons/lucide/arrow-left-right'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
-import CircleAlertIcon from '~icons/lucide/circle-alert'
-import CheckCircleIcon from '~icons/lucide/circle-check'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
 import ExternalLinkIcon from '~icons/lucide/external-link'
@@ -26,6 +24,7 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 
+import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import {
@@ -37,6 +36,31 @@ import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
 
+function ShowMore({
+  text,
+  className,
+  onChange,
+}: {
+  text: string
+  className?: string
+  onChange: React.ChangeEventHandler<HTMLInputElement>
+}) {
+  const checkbox = Ariakit.useCheckboxStore()
+  const label = Ariakit.useStoreState(checkbox, (state) =>
+    state.value ? 'Show less' : text,
+  )
+
+  return (
+    <Ariakit.Checkbox
+      render={<p />}
+      store={checkbox}
+      onChange={onChange}
+      className={clsx(className, '')}
+    >
+      {label}
+    </Ariakit.Checkbox>
+  )
+}
 export function Dashboard() {
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
@@ -45,6 +69,16 @@ export function Dashboard() {
   const revokePermissions = Hooks.useRevokePermissions()
 
   const { data: assets } = useTokenBalances()
+
+  const [firstFiveBalances, remainingBalances] = React.useMemo(
+    () => (!assets ? [[], []] : [assets.slice(0, 5), assets.slice(5)]),
+    [assets],
+  )
+
+  const [showAssets, setShowAssets] = React.useState<'ALL' | 'DEFAULT'>(
+    'DEFAULT',
+  )
+
   const { data: transfers } = useAddressTransfers()
   const [selectedChains, _setSelectedChains] = React.useState(
     config.chains.map((c) => c.id.toString()),
@@ -70,6 +104,30 @@ export function Dashboard() {
     const total = BigInt(summed) ?? 0n
     return ValueFormatter.format(total, 18)
   }, [assets])
+
+  const [firstFiveTransfers, remainingTransfers] = React.useMemo(
+    () =>
+      !filteredTransfers
+        ? [[], []]
+        : [filteredTransfers.slice(0, 5), filteredTransfers.slice(5)],
+    [filteredTransfers],
+  )
+
+  const [showTransfers, setShowTransfers] = React.useState<'ALL' | 'DEFAULT'>(
+    'DEFAULT',
+  )
+
+  const [firstFivePermissions, remainingPermissions] = React.useMemo(
+    () =>
+      !permissions?.data
+        ? [[], []]
+        : [permissions.data.slice(0, 5), permissions.data.slice(5)],
+    [permissions?.data],
+  )
+
+  const [showPermissions, setShowPermissions] = React.useState<
+    'ALL' | 'DEFAULT'
+  >('DEFAULT')
 
   return (
     <>
@@ -152,18 +210,31 @@ export function Dashboard() {
             </tr>
           </thead>
           <tbody className="border-transparent border-t-10 font-semibold">
-            {assets?.map((asset, index) => (
-              <AssetRow
-                key={`${asset.token.address}-${index}`}
-                address={asset.token.address}
-                logo={`/icons/${asset.token.name.toLowerCase()}.svg`}
-                symbol={asset.token.symbol}
-                name={asset.token.name}
-                value={asset.value}
-              />
-            ))}
+            {(showAssets === 'ALL' ? assets : firstFiveBalances)?.map(
+              (asset, index) => (
+                <AssetRow
+                  key={`${asset.token.address}-${index}`}
+                  address={asset.token.address}
+                  logo={`/icons/${asset.token.name.toLowerCase()}.svg`}
+                  symbol={asset.token.symbol}
+                  name={asset.token.name}
+                  value={asset.value}
+                />
+              ),
+            )}
           </tbody>
         </table>
+        {remainingBalances.length > 0 && (
+          <div className="flex justify-start">
+            <ShowMore
+              onChange={() =>
+                setShowAssets(showAssets === 'ALL' ? 'DEFAULT' : 'ALL')
+              }
+              text={`Show ${remainingBalances.length} more assets`}
+              className="cursor-default font-medium text-gray10 text-sm"
+            />
+          </div>
+        )}
       </details>
 
       <div className="h-4" />
@@ -184,7 +255,10 @@ export function Dashboard() {
             </tr>
           </thead>
           <tbody className="border-transparent border-t-10">
-            {filteredTransfers?.slice(0, 5).map((transfer, index) => (
+            {(showTransfers === 'ALL'
+              ? filteredTransfers
+              : firstFiveTransfers
+            )?.map((transfer, index) => (
               <tr
                 key={`${transfer?.transaction_hash}-${index}`}
                 className="text-xs sm:text-sm "
@@ -229,6 +303,17 @@ export function Dashboard() {
             ))}
           </tbody>
         </table>
+        {remainingTransfers.length > 0 && (
+          <div className="flex justify-start">
+            <ShowMore
+              onChange={() =>
+                setShowTransfers(showTransfers === 'ALL' ? 'DEFAULT' : 'ALL')
+              }
+              text={`Show ${remainingTransfers.length} more transactions`}
+              className="cursor-default font-medium text-gray10 text-sm"
+            />
+          </div>
+        )}
       </details>
 
       <div className="h-4" />
@@ -267,7 +352,10 @@ export function Dashboard() {
             </tr>
           </thead>
           <tbody className="border-transparent border-t-10">
-            {permissions?.data?.map((permission, index) => {
+            {(showPermissions === 'ALL'
+              ? permissions?.data
+              : firstFivePermissions
+            )?.map((permission, index) => {
               const [spend] = permission?.permissions?.spend ?? []
               const [calls] = permission?.permissions?.calls ?? []
 
@@ -336,6 +424,19 @@ export function Dashboard() {
             })}
           </tbody>
         </table>
+        {remainingPermissions.length > 0 && (
+          <div className="flex justify-start">
+            <ShowMore
+              onChange={() =>
+                setShowPermissions(
+                  showPermissions === 'ALL' ? 'DEFAULT' : 'ALL',
+                )
+              }
+              text={`Show ${remainingPermissions.length} more permissions`}
+              className="cursor-default font-medium text-gray10 text-sm"
+            />
+          </div>
+        )}
       </details>
 
       <div className="h-4" />
@@ -411,44 +512,6 @@ export function Dashboard() {
         </table>
       </details>
     </>
-  )
-}
-
-function CustomToast({
-  kind,
-  title,
-  description,
-  className,
-}: {
-  title: string
-  description: string | React.ReactNode
-  className?: string | number
-  kind: 'SUCCESS' | 'ERROR' | 'WARN'
-}) {
-  return (
-    <div
-      className={clsx(
-        className,
-        'm-1 w-[250px] rounded-xl border bg-white px-4 py-3 shadow-sm dark:bg-gray1',
-        kind === 'SUCCESS' && 'border-green8',
-        kind === 'ERROR' && 'border-red8',
-        kind === 'WARN' && 'border-amber8',
-      )}
-    >
-      <div className="flex items-center gap-x-2 pb-1.5">
-        {(kind === 'SUCCESS' && (
-          <CheckCircleIcon className="size-6 text-green8" />
-        )) ||
-          (kind === 'ERROR' && (
-            <CircleAlertIcon className="size-6 text-red-500" />
-          )) ||
-          (kind === 'WARN' && (
-            <CircleAlertIcon className="size-6 text-amber8" />
-          ))}
-        <span className="font-[550] text-gray12">{title}</span>
-      </div>
-      <div className="text-gray10 text-sm">{description}</div>
-    </div>
   )
 }
 
@@ -669,7 +732,7 @@ function AssetRow({
           <td className="w-[80%]">
             <div className="flex items-center gap-x-2 py-2">
               <img alt="asset icon" className="size-7" src={logo} />
-              <span className="text-md">{name}</span>
+              <span className="font-medium text-md">{name}</span>
             </div>
           </td>
           <td className="w-[20%] text-right text-md">
@@ -705,7 +768,7 @@ function AssetRow({
             validateOnChange={true}
             className={clsx(
               'flex gap-x-2',
-              '*:w-1/2 *:rounded-xl *:border-1 *:border-gray6 *:bg-white *:dark:bg-gray1',
+              '*:h-[62px] *:w-1/2 *:rounded-xl *:border-1 *:border-gray6 *:bg-white *:dark:bg-gray1',
             )}
           >
             <div className="z-[10000] flex items-center gap-x-2 shadow-xs focus-within:border-gray8 focus:outline-sky-500">
@@ -737,8 +800,12 @@ function AssetRow({
                       className="my-auto size-7"
                     />
                     <div className="my-auto ml-2 flex flex-col items-start overflow-hidden text-ellipsis whitespace-nowrap">
-                      <span className="text-gray10 text-xs">Swap to</span>
-                      <span className="text-sm">{selectedAsset?.name}</span>
+                      <span className="font-normal text-gray10 text-xs">
+                        Swap to
+                      </span>
+                      <span className="font-medium text-xs sm:text-sm">
+                        {selectedAsset?.name}
+                      </span>
                     </div>
                     <div className="my-auto mr-2 ml-auto flex h-full items-center">
                       <Ariakit.SelectArrow className="mb-1.5 text-gray8 *:size-5" />
@@ -901,8 +968,8 @@ function AssetRow({
             >
               <XIcon />
             </button>
-            <div className="flex w-[75px] flex-row items-center gap-x-2 border-gray6 border-r pr-1.5 pl-0.5 sm:w-[85px] sm:pl-2">
-              <img alt="asset icon" className="size-7" src={logo} />
+            <div className="flex w-[75px] flex-row items-center gap-x-2 border-gray6 border-r pr-1.5 pl-1 sm:w-[85px] sm:pl-2">
+              <img alt="asset icon" className="size-8" src={logo} />
             </div>
             <div className="ml-3 flex w-full flex-row gap-y-1 border-gray7 border-r pr-3">
               <div className="flex w-full flex-col gap-y-1">
@@ -936,6 +1003,7 @@ function AssetRow({
                           pattern="^0x[a-fA-F0-9]{40}$"
                           data-field={`${address}-recipient`}
                           name={sendForm.names.sendRecipient}
+                          value={sendFormState.values.sendRecipient}
                           onInput={(value) =>
                             sendForm.setValue(
                               sendForm.names.sendRecipient,
@@ -944,7 +1012,7 @@ function AssetRow({
                           }
                           className={clsx(
                             'peer',
-                            'w-full font-mono text-xs placeholder:text-gray10 focus:outline-none sm:text-[13px] dark:text-gray12',
+                            'w-full font-mono text-sm placeholder:text-gray10 focus:outline-none dark:text-gray12',
                             valid &&
                               'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
                           )}
@@ -975,7 +1043,7 @@ function AssetRow({
               </Ariakit.Button>
             </div>
 
-            <div className="flex w-[65px] max-w-min flex-col gap-y-1 px-2.5 sm:w-[90px]">
+            <div className="flex w-[65px] max-w-min flex-col gap-y-1 px-2.5 sm:w-[80px]">
               <Ariakit.FormLabel
                 name={sendForm.names.sendAmount}
                 className="text-gray10 text-xs sm:text-[12px]"
@@ -1021,7 +1089,7 @@ function AssetRow({
             </Button>
             <Ariakit.FormSubmit
               className={clsx(
-                'my-auto mr-0.5 ml-1 rounded-full p-2 hover:cursor-pointer! sm:mr-1 sm:ml-2',
+                'my-auto mr-0.5 ml-1 rounded-full p-2 sm:mr-1 sm:ml-2',
                 {
                   'animate-pulse bg-accent text-white hover:bg-accentHover':
                     sendCalls.isPending,
@@ -1036,9 +1104,9 @@ function AssetRow({
               )}
             >
               {sendCalls.isPending ? (
-                <Spinner className="size-3! text-white sm:size-4!" />
+                <Spinner className="size-3! sm:size-4!" />
               ) : (
-                <SendIcon className="size-3 text-white sm:size-4!" />
+                <SendIcon className="size-3 sm:size-4!" />
               )}
             </Ariakit.FormSubmit>
           </Ariakit.Form>
