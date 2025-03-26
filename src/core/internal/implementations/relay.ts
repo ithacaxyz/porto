@@ -7,10 +7,12 @@ import * as PublicKey from 'ox/PublicKey'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 
+import type * as Storage from '../../Storage.js'
 import * as Account from '../account.js'
 import * as Implementation from '../implementation.js'
 import * as Key from '../key.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
+import type { Client } from '../porto.js'
 import * as Relay from '../relay.js'
 
 /**
@@ -37,78 +39,69 @@ export function relay(config: relay.Parameters = {}) {
     return config.keystoreHost
   })()
 
-  async function prepareAccountKeys(parameters: {
-    label?: string | undefined
-    id: Hex.Hex
-    keystoreHost?: string | undefined
-    mock?: boolean | undefined
-    permissions: PermissionsRequest.PermissionsRequest | undefined
-  }) {
-    const { keystoreHost, id, mock, permissions } = parameters
-
-    const label = parameters.label ?? `${id.slice(0, 8)}\u2026${id.slice(-6)}`
-
-    const key = !mock
-      ? await Key.createWebAuthnP256({
-          label,
-          role: 'admin',
-          rpId: keystoreHost,
-          userId: Bytes.from(id),
-        })
-      : Key.createP256({
-          role: 'admin',
-        })
-
-    const extraKey = await PermissionsRequest.toKey(permissions, {
-      // We are going to authorize the key at time of next call bundle
-      // so the user doesn't need to pay fees.
-      initialized: false,
-    })
-
-    const keys = [key, ...(extraKey ? [extraKey] : [])]
-
-    return keys
-  }
-
   return Implementation.from({
     actions: {
       async createAccount(parameters) {
-        const { label, internal, permissions } = parameters
-        const { client } = internal
+        const { permissions } = parameters
+        const { client } = parameters.internal
 
-        let keys: Key.Key[] = []
+        let id: Hex.Hex | undefined
         const account = await Relay.createAccount(client, {
           async keys({ ids }) {
-            const keys_ = await prepareAccountKeys({
-              keystoreHost,
-              id: ids[0]!,
-              label,
-              mock,
-              permissions,
-            })
-            keys = keys_
-            return [keys[0]!]
+            id = ids[0]!
+            const label =
+              parameters.label ?? `${id.slice(0, 8)}\u2026${id.slice(-6)}`
+
+            const key = !mock
+              ? await Key.createWebAuthnP256({
+                  label,
+                  role: 'admin',
+                  rpId: keystoreHost,
+                  userId: Bytes.from(id),
+                })
+              : Key.createP256({
+                  role: 'admin',
+                })
+
+            return [key]
           },
         })
 
-        // Extract the WebAuthn key id.
-        if (account.keys[0]?.id) id_internal = account.keys[0]!.id
+        if (id) id_internal = id
 
-        return { account: Account.from({ ...account, keys }) }
+        const authorizeKey = await PermissionsRequest.toKey(permissions)
+        if (authorizeKey)
+          await preauthKey(client, {
+            account,
+            authorizeKey,
+            feeToken: config.feeToken,
+            storage: parameters.internal.config.storage,
+          })
+
+        return {
+          account: Account.from({
+            ...account,
+            keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
+          }),
+        }
       },
 
       async grantPermissions(parameters) {
-        const { permissions } = parameters
+        const { account, permissions, internal } = parameters
+        const { client } = internal
 
         // Parse permissions request into a structured key.
-        const key = await PermissionsRequest.toKey(permissions, {
-          // We are going to authorize the key at time of next call bundle
-          // so the user doesn't need to pay fees.
-          initialized: false,
-        })
-        if (!key) throw new Error('key not found.')
+        const authorizeKey = await PermissionsRequest.toKey(permissions)
+        if (!authorizeKey) throw new Error('key to authorize not found.')
 
-        return { key }
+        await preauthKey(client, {
+          account,
+          authorizeKey,
+          feeToken: config.feeToken,
+          storage: internal.config.storage,
+        })
+
+        return { key: authorizeKey }
       },
 
       async loadAccounts(parameters) {
@@ -147,37 +140,42 @@ export function relay(config: relay.Parameters = {}) {
           return { credentialId, keyId }
         })()
 
-        const [accounts, extraKey] = await Promise.all([
+        const [accounts, authorizeKey] = await Promise.all([
           Relay.getAccounts(client, { keyId }),
-          PermissionsRequest.toKey(permissions, {
-            // We are going to authorize the key at time of next call bundle
-            // so the user doesn't need to pay fees.
-            initialized: false,
-          }),
+          PermissionsRequest.toKey(permissions),
         ])
         if (!accounts[0]) throw new Error('account not found')
 
         // Instantiate the account based off the extracted address and keys.
         const account = Account.from({
           ...accounts[0],
-          keys: [...accounts[0].keys, ...(extraKey ? [extraKey] : [])].map(
-            (key, i) => {
-              const credential = {
-                id: credentialId!,
-                publicKey: PublicKey.fromHex(key.publicKey),
-              }
-              // Assume that the first key is the admin WebAuthn key.
-              if (i === 0) {
-                if (key.type === 'webauthn-p256')
-                  return Key.fromWebAuthnP256({ ...key, credential })
-              }
-              // Add credential to session key to be able to restore from storage later
-              if ((key.type === 'p256' && key.role === 'session') || mock)
-                return { ...key, credential } as typeof key
-              return key
-            },
-          ),
+          keys: [
+            ...accounts[0].keys,
+            ...(authorizeKey ? [authorizeKey] : []),
+          ].map((key, i) => {
+            const credential = {
+              id: credentialId!,
+              publicKey: PublicKey.fromHex(key.publicKey),
+            }
+            // Assume that the first key is the admin WebAuthn key.
+            if (i === 0) {
+              if (key.type === 'webauthn-p256')
+                return Key.fromWebAuthnP256({ ...key, credential })
+            }
+            // Add credential to session key to be able to restore from storage later
+            if ((key.type === 'p256' && key.role === 'session') || mock)
+              return { ...key, credential } as typeof key
+            return key
+          }),
         })
+
+        if (authorizeKey)
+          preauthKey(client, {
+            account,
+            authorizeKey,
+            feeToken: config.feeToken,
+            storage: internal.config.storage,
+          })
 
         return {
           accounts: [account],
@@ -192,13 +190,28 @@ export function relay(config: relay.Parameters = {}) {
           feeToken = config.feeToken,
           key,
         } = parameters
-        const { client } = internal
+        const {
+          client,
+          config: { storage },
+        } = internal
+
+        // Get pre-authorized keys to assign to the call bundle.
+        const pre = await getPreBundles({
+          account,
+          storage: internal.config.storage,
+        })
 
         const { context, digest } = await Relay.prepareCalls(client, {
           account,
           calls,
           feeToken,
           key,
+          pre,
+        })
+
+        await clearPreBundles({
+          account,
+          storage,
         })
 
         return {
@@ -243,7 +256,10 @@ export function relay(config: relay.Parameters = {}) {
           internal,
           feeToken = config.feeToken,
         } = parameters
-        const { client } = internal
+        const {
+          client,
+          config: { storage },
+        } = internal
 
         // Try and extract an authorized key to sign the calls with.
         const key = await Implementation.getAuthorizedExecuteKey({
@@ -252,17 +268,11 @@ export function relay(config: relay.Parameters = {}) {
           permissionsId: parameters.permissionsId,
         })
 
-        // Get uninitialized keys to authorize.
-        const authorizeKeys = account.keys?.filter((key) => !key.initialized)
-
-        // We will need an admin key to authorize uninitialized keys.
-        const adminKey = account.keys?.find(
-          (key) => key.role === 'admin' && key.canSign,
-        )
-        if (!adminKey && authorizeKeys?.length)
-          throw new Error(
-            'cannot find admin key to authorize uninitialized key(s).',
-          )
+        // Get pre-authorized keys to assign to the call bundle.
+        const pre = await getPreBundles({
+          account,
+          storage,
+        })
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
@@ -271,14 +281,12 @@ export function relay(config: relay.Parameters = {}) {
           calls,
           feeToken,
           key,
-          pre: authorizeKeys?.length
-            ? [
-                {
-                  authorizeKeys,
-                  key: adminKey!,
-                },
-              ]
-            : [],
+          pre,
+        })
+
+        await clearPreBundles({
+          account,
+          storage,
         })
 
         return id as Hex.Hex
@@ -367,4 +375,89 @@ export declare namespace relay {
      */
     keystoreHost?: 'self' | (string & {}) | undefined
   }
+}
+
+const preBundlesStorageKey = (address: Address.Address) =>
+  `porto.pre.${address}`
+
+async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
+  const { account, authorizeKey, feeToken } = parameters
+
+  const adminKey = account.keys?.find(
+    (key) => key.role === 'admin' && key.canSign,
+  )
+  if (!adminKey) throw new Error('admin key not found.')
+
+  const { context, digest } = await Relay.prepareCalls(client, {
+    account,
+    authorizeKeys: [authorizeKey],
+    key: adminKey,
+    pre: true,
+    feeToken,
+  })
+  const signature = await Key.sign(adminKey, {
+    payload: digest,
+  })
+
+  await upsertPreBundles({
+    account,
+    pre: [{ context, signature }],
+    storage: parameters.storage,
+  })
+}
+
+namespace preauthKey {
+  export type Parameters = {
+    account: Account.Account
+    authorizeKey: Key.Key
+    feeToken?: Address.Address | undefined
+    storage: Storage.Storage
+  }
+}
+
+async function upsertPreBundles(parameters: upsertPreBundles.Parameters) {
+  const { account, pre } = parameters
+
+  const storage = (() => {
+    const storages = parameters.storage.storages ?? [parameters.storage]
+    return storages.find((x) => x.sizeLimit > 1024 * 1024 * 5)
+  })()
+
+  const value = await storage?.getItem<upsertPreBundles.Parameters['pre']>(
+    preBundlesStorageKey(account.address),
+  )
+  await storage?.setItem(preBundlesStorageKey(account.address), [
+    ...(value ?? []),
+    ...pre,
+  ])
+}
+
+namespace upsertPreBundles {
+  export type Parameters = {
+    account: Account.Account
+    pre: readonly {
+      context: Relay.prepareCalls.ReturnType['context']
+      signature: Hex.Hex
+    }[]
+    storage: Storage.Storage
+  }
+}
+
+async function getPreBundles(parameters: {
+  account: Account.Account
+  storage: Storage.Storage
+}) {
+  const { account, storage } = parameters
+  const pre = await storage?.getItem<upsertPreBundles.Parameters['pre']>(
+    preBundlesStorageKey(account.address),
+  )
+  return pre || undefined
+}
+
+async function clearPreBundles(parameters: {
+  account: Account.Account
+  storage: Storage.Storage
+}) {
+  const { account, storage } = parameters
+  await storage?.removeItem(preBundlesStorageKey(account.address))
 }

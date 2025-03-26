@@ -30,10 +30,7 @@ export declare namespace fromKey {
 
 export async function toKey(
   request: PermissionsRequest | undefined,
-  options: toKey.Options = {},
 ): Promise<Key.Key | undefined> {
-  const { initialized = true } = options
-
   if (!request) return undefined
 
   const expiry = request.expiry ?? 0
@@ -52,7 +49,6 @@ export async function toKey(
   const key = Key.from({
     canSign: false,
     expiry,
-    initialized,
     permissions,
     publicKey,
     role: 'session',
@@ -64,11 +60,4 @@ export async function toKey(
     ...key,
     role: 'session',
   })
-}
-
-export declare namespace toKey {
-  export type Options = {
-    /** Whether the Key has been initialized on the Account. */
-    initialized?: boolean | undefined
-  }
 }

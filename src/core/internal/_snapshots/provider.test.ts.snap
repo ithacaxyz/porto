@@ -62,7 +62,6 @@ exports[`local > experimental_grantPermissions > behavior: provided key 3`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -74,7 +73,6 @@ exports[`local > experimental_grantPermissions > behavior: provided key 3`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": {
       "calls": [
         {
@@ -91,7 +89,6 @@ exports[`local > experimental_grantPermissions > behavior: provided key 3`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": {
       "calls": [
         {
@@ -125,7 +122,6 @@ exports[`local > experimental_grantPermissions > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -137,7 +133,6 @@ exports[`local > experimental_grantPermissions > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": {
       "calls": [
         {
@@ -161,7 +156,7 @@ exports[`local > experimental_revokePermissions > default 1`] = `
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -172,7 +167,7 @@ exports[`local > experimental_revokePermissions > default 1`] = `
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": {
       "calls": [
         {
@@ -194,7 +189,7 @@ exports[`local > experimental_revokePermissions > default 2`] = `
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -210,7 +205,7 @@ exports[`local > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -221,7 +216,7 @@ exports[`local > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "canSign": false,
     "expiry": 9999999999,
     "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
-    "initialized": true,
+    "id": undefined,
     "permissions": {
       "calls": [
         {
@@ -242,7 +237,7 @@ exports[`local > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -253,7 +248,7 @@ exports[`local > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": {
       "calls": [
         {
@@ -275,7 +270,6 @@ exports[`local > wallet_connect > behavior: \`createAccount\` capability >
             "canSign": true,
             "expiry": null,
             "hash": null,
-            "initialized": true,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -290,7 +284,6 @@ exports[`local > wallet_connect > behavior: \`createAccount\` capability >
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -320,7 +313,6 @@ exports[`local > wallet_connect > default 1`] = `
     "credential": null,
     "expiry": null,
     "hash": null,
-    "initialized": true,
     "publicKey": null,
     "role": "admin",
     "type": "p256",
@@ -406,7 +398,6 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -418,7 +409,6 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": false,
     "permissions": {
       "calls": [
         {
@@ -435,7 +425,6 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": false,
     "permissions": {
       "calls": [
         {
@@ -469,7 +458,6 @@ exports[`relay > experimental_grantPermissions > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -481,7 +469,6 @@ exports[`relay > experimental_grantPermissions > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": false,
     "permissions": {
       "calls": [
         {
@@ -505,7 +492,7 @@ exports[`relay > experimental_revokePermissions > default 1`] = `
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -516,7 +503,7 @@ exports[`relay > experimental_revokePermissions > default 1`] = `
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": false,
+    "id": null,
     "permissions": {
       "calls": [
         {
@@ -538,7 +525,7 @@ exports[`relay > experimental_revokePermissions > default 2`] = `
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -554,7 +541,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -565,7 +552,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "canSign": false,
     "expiry": 9999999999,
     "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
-    "initialized": false,
+    "id": undefined,
     "permissions": {
       "calls": [
         {
@@ -586,7 +573,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": true,
+    "id": null,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -597,7 +584,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
     "canSign": true,
     "expiry": null,
     "hash": null,
-    "initialized": false,
+    "id": null,
     "permissions": {
       "calls": [
         {
@@ -619,7 +606,6 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` capability >
             "canSign": true,
             "expiry": null,
             "hash": null,
-            "initialized": true,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -634,7 +620,6 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` capability >
     "expiry": null,
     "hash": null,
     "id": null,
-    "initialized": true,
     "permissions": undefined,
     "privateKey": [Function],
     "publicKey": null,
@@ -664,7 +649,6 @@ exports[`relay > wallet_connect > default 1`] = `
     "credential": null,
     "expiry": null,
     "hash": null,
-    "initialized": true,
     "permissions": {},
     "publicKey": null,
     "role": "admin",

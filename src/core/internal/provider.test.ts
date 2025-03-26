@@ -337,16 +337,24 @@ describe.each([
   })
 
   describe('experimental_revokePermissions', () => {
-    // TODO(relay): fix
-    test.skipIf(mode === 'relay')('default', async () => {
+    test('default', async () => {
       const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
 
       const messages: any[] = []
       porto.provider.on('message', (message) => messages.push(message))
 
-      await porto.provider.request({
+      const { address } = await porto.provider.request({
         method: 'experimental_createAccount',
       })
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
       const { id } = await porto.provider.request({
         method: 'experimental_grantPermissions',
         params: [
@@ -366,6 +374,7 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          id: null,
           hash: null,
         })),
       ).matchSnapshot()
@@ -385,6 +394,7 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          id: null,
           hash: null,
         })),
       ).matchSnapshot()
@@ -503,7 +513,6 @@ describe.each([
             "canSign": true,
             "expiry": null,
             "hash": null,
-            "initialized": true,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": null,
@@ -546,6 +555,7 @@ describe.each([
           ...x,
           expiry: null,
           publicKey: null,
+          id: null,
           hash: null,
         })),
       ).matchSnapshot()
@@ -591,6 +601,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x, i) => ({
           ...x,
+          id: i === 0 ? null : x.id,
           expiry: i === 0 ? null : x.expiry,
           publicKey: i === 0 ? null : x.publicKey,
           hash: i === 0 ? null : x.hash,
@@ -1127,8 +1138,7 @@ describe.each([
   })
 
   describe('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
-    // TODO(relay): fix
-    test.skipIf(mode === 'relay')('default', async () => {
+    test('default', async () => {
       const { porto } = getPorto()
       const client = Porto_internal.getClient(porto).extend(() => ({
         mode: 'anvil',

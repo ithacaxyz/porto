@@ -33,7 +33,6 @@ describe('from', () => {
             "canSign": true,
             "expiry": 42069,
             "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
-            "initialized": true,
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",

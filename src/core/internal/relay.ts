@@ -468,6 +468,8 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   // Prepare pre-bundles.
   const pre = await Promise.all(
     (parameters.pre ?? []).map(async (pre) => {
+      if (pre.signature) return pre
+
       const { authorizeKeys, key, calls, revokeKeys } = pre
       const { context, digest } = await prepareCalls(client, {
         account,
@@ -516,12 +518,18 @@ export namespace sendCalls {
         key?: Key.Key | undefined
         /** Pre-bundle to execute before the main bundle. */
         pre?:
-          | readonly (Pick<
-              prepareCalls.Parameters<calls>,
-              'authorizeKeys' | 'calls' | 'revokeKeys'
-            > & {
-              key: Key.Key
-            })[]
+          | readonly OneOf<
+              | {
+                  context: prepareCalls.ReturnType['context']
+                  signature: Hex.Hex
+                }
+              | (Pick<
+                  prepareCalls.Parameters<calls>,
+                  'authorizeKeys' | 'calls' | 'revokeKeys'
+                > & {
+                  key: Key.Key
+                })
+            >[]
           | undefined
       })
   >
