@@ -260,7 +260,10 @@ export function Dashboard() {
       <hr className="border-gray5" />
       <div className="h-4" />
 
-      <details className="group" open={filteredTransfers?.length > 0}>
+      <details
+        className="group tabular-nums"
+        open={filteredTransfers?.length > 0}
+      >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           History
         </summary>
@@ -269,7 +272,7 @@ export function Dashboard() {
           data={filteredTransfers}
           columns={[
             { header: 'Time', key: 'time' },
-            { header: 'Recipient', key: 'recipient' },
+            { header: 'Account', key: 'recipient' },
             { header: 'Amount', key: 'amount', align: 'right' },
           ]}
           renderRow={(transfer) => (
@@ -323,7 +326,7 @@ export function Dashboard() {
       <div className="h-4" />
 
       <details
-        className="group pb-1"
+        className="group pb-1 tabular-nums"
         open={permissions?.data && permissions?.data?.length > 0}
       >
         <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
@@ -350,7 +353,7 @@ export function Dashboard() {
           columns={[
             { header: 'Time', key: 'time' },
             { header: 'Name', key: 'name', width: '' },
-            { header: 'Scope', key: 'scope', align: 'left', width: 'w-[70px]' },
+            { header: 'Scope', key: 'scope', align: 'left' },
             {
               header: 'Amount',
               key: 'amount',
@@ -368,7 +371,7 @@ export function Dashboard() {
             return (
               <tr
                 key={`${permission.id}-${permission.expiry}`}
-                className="text-xs sm:text-sm"
+                className="*:text-xs! *:sm:text-sm!"
               >
                 <td className="max-w-[50px] py-3 text-left">
                   <a
@@ -382,7 +385,7 @@ export function Dashboard() {
                   </a>
                 </td>
                 <td className="text-right">
-                  <div className="flex flex-row items-center gap-x-2">
+                  <div className="flex flex-row items-center gap-x-0 sm:gap-x-2">
                     <div className="flex size-7 items-center justify-center rounded-full bg-blue-100">
                       <WorldIcon className="m-auto size-5 text-blue-400" />
                     </div>
@@ -394,18 +397,18 @@ export function Dashboard() {
                   </div>
                 </td>
                 <td className="text-left">
-                  <span className="text-gray11">
+                  <span className="ml-1 text-gray11">
                     {calls?.signature ?? '––'}
                   </span>
                 </td>
                 <td className="w-[50px] text-right">
-                  <div className="flex w-full max-w-[105px] flex-row items-end justify-end gap-x-2 rounded-2xl bg-gray3 px-1.5 py-1 text-right font-[500] text-gray10">
-                    <span>
+                  <div className="flex w-fit min-w-fit max-w-[105px] flex-row items-end justify-end gap-x-2 overflow-hidden whitespace-nowrap rounded-2xl bg-gray3 px-1.5 py-1 text-right font-[500] text-gray10">
+                    <span className="truncate">
                       {formatEther(
                         Hex.toBigInt(spend?.limit as unknown as Hex.Hex),
                       )}
                     </span>
-                    <span className="">
+                    <span className="truncate">
                       {StringFormatter.truncate(spend?.token ?? '', {
                         start: 4,
                         end: 4,
@@ -413,10 +416,10 @@ export function Dashboard() {
                     </span>
                   </div>
                 </td>
-                <td className="w-[30px]">
+                <td className="w-[30px] pl-1">
                   <span className="text-gray11">{spend?.period}ly</span>
                 </td>
-                <td className="w-min max-w-[20px] text-right">
+                <td className="w-min max-w-[25px] text-right">
                   <Ariakit.Button
                     disabled={time === 'expired'}
                     className={clsx(
