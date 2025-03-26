@@ -348,9 +348,6 @@ importers:
       '@ariakit/tailwind':
         specifier: ^0.1.4
         version: 0.1.4(tailwindcss@4.0.15)
-      '@bitjson/qr-code':
-        specifier: ^1.0.2
-        version: 1.0.2
       '@porto/apps':
         specifier: workspace:*
         version: link:../~internal
@@ -879,9 +876,6 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
-
-  '@bitjson/qr-code@1.0.2':
-    resolution: {integrity: sha512-oqcTWhzMs8Dt/xrHKDUzYglccgjVX2GleASd4FsE7TGGUkW8n57tBjKmfwkAVWa722+v6ijS81EmWbd07ebsmQ==}
 
   '@braidai/lang@1.1.0':
     resolution: {integrity: sha512-xyJYkiyNQtTyCLeHxZmOs7rnB94D+N1IjKNArQIh8+8lTBOY7TFgwEV+Ow5a1uaBi5j2w9fLbWcJFTWLDItl5g==}
@@ -8521,8 +8515,6 @@ snapshots:
 
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
-
-  '@bitjson/qr-code@1.0.2': {}
 
   '@braidai/lang@1.1.0': {}
 

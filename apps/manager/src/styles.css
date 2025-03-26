@@ -3,6 +3,8 @@
 
 @custom-variant dark (&:is(.scheme-light-dark *));
 
+@custom-variant hocus (&:hover, &:focus);
+
 @theme {
   --spacing-hero: 45vw;
 }

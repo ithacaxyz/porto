@@ -8,12 +8,11 @@ import { Address, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
+import { encodeFunctionData, erc20Abi, formatEther, parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import ArrowLeftRightIcon from '~icons/lucide/arrow-left-right'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
-// import ChevronDownIcon from '~icons/lucide/chevron-down'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
 import ExternalLinkIcon from '~icons/lucide/external-link'
@@ -25,10 +24,13 @@ import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 
 import { DevOnly } from '~/components/DevOnly'
+import { TruncatedAddress } from '~/components/TruncatedAddress'
 import {
   useAddressTransfers,
   useTokenBalances,
 } from '~/hooks/use-blockscout-api'
+import { useClickOutside } from '~/hooks/use-click-outside'
+import { swapAssets } from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
@@ -66,18 +68,6 @@ export function Dashboard() {
     const total = BigInt(summed) ?? 0n
     return ValueFormatter.format(total, 18)
   }, [assets])
-
-  // const selectAssets = React.useMemo(() => {
-  //   return assets
-  //     ?.map((asset) => ({
-  //       label: asset.token.name,
-  //       value: asset.token.address,
-  //       icon:
-  //         asset.token.icon_url ??
-  //         `/icons/${asset.token.name.toLowerCase()}.svg`,
-  //     }))
-  //     .reverse()
-  // }, [assets])
 
   return (
     <>
@@ -215,12 +205,10 @@ export function Dashboard() {
                   <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3 p-0.5">
                     <AccountIcon className="size-4 rounded-full text-gray10" />
                   </div>
-                  <span className="ml-2">
-                    {StringFormatter.truncate(transfer?.to.hash ?? '', {
-                      start: 4,
-                      end: 4,
-                    })}
-                  </span>
+                  <TruncatedAddress
+                    className="ml-2"
+                    address={transfer?.to.hash ?? ''}
+                  />
                 </td>
                 <td className="py-1 text-right text-gray12">
                   <span className="mr-2 text-md">
@@ -272,7 +260,7 @@ export function Dashboard() {
               <th className="text-left">Time</th>
               <th className="text-left">Name</th>
               <th className="text-right">Scope</th>
-              <th className="pr-18 text-right">Amount</th>
+              <th className="">Amount</th>
               <th className="invisible text-right">Action</th>
             </tr>
           </thead>
@@ -305,12 +293,11 @@ export function Dashboard() {
                       <div className="flex size-7 items-center justify-center rounded-full bg-blue-100">
                         <WorldIcon className="m-auto size-5 text-blue-400" />
                       </div>
-                      <span className="font-medium text-gray12">
-                        {StringFormatter.truncate(permission.address, {
-                          start: 4,
-                          end: 4,
-                        })}
-                      </span>
+
+                      <TruncatedAddress
+                        className="ml-1 font-medium"
+                        address={permission.address}
+                      />
                     </div>
                   </td>
                   <td className="text-right">
@@ -394,13 +381,7 @@ export function Dashboard() {
                     <WalletIcon className="m-auto size-5 text-teal-600" />
                   </div>
                   <span className="font-medium text-gray12">
-                    {StringFormatter.truncate(
-                      '0x0f7fda40Cad1D2966C77428cc2c7A9Bcc73961B5',
-                      {
-                        start: 4,
-                        end: 4,
-                      },
-                    )}
+                    <TruncatedAddress address="0x0f7fda40Cad1D2966C77428cc2c7A9Bcc73961B5" />
                   </span>
                 </div>
               </td>
@@ -430,39 +411,6 @@ export function Dashboard() {
     </>
   )
 }
-
-const swapAssets = [
-  {
-    logo: '/icons/eth.svg',
-    symbol: 'ETH',
-    name: 'Ethereum',
-    address: '0x0000000000000000000000000000000000000000',
-  },
-  {
-    logo: '/icons/exp.svg',
-    symbol: 'EXP',
-    name: 'Experiment',
-    address: '0x706Aa5C8e5cC2c67Da21ee220718f6f6B154E75c',
-  },
-  {
-    logo: '/icons/exp2.svg',
-    symbol: 'EXP2',
-    name: 'Experiment 2',
-    address: '0x390dD40042a844F92b499069CFe983236d9fe204',
-  },
-  {
-    logo: '/icons/cbbtc.png',
-    symbol: 'CBBTC',
-    name: 'Coinbase Wrapped BTC',
-    address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
-  },
-  {
-    logo: '/icons/usdc.svg',
-    symbol: 'USDC',
-    name: 'USD Coin',
-    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-  },
-]
 
 function AssetRow({
   logo,
@@ -507,14 +455,17 @@ function AssetRow({
 
   const sendForm = Ariakit.useFormStore({
     defaultValues: {
-      amount: '',
-      recipient: '',
-      asset: address,
+      sendAmount: '',
+      sendRecipient: '',
+      sendAsset: address,
     },
   })
 
   sendForm.useSubmit((state) => {
-    if (!Address.validate(state.values.recipient) || !state.values.amount)
+    if (
+      !Address.validate(state.values.sendRecipient) ||
+      !state.values.sendAmount
+    )
       return
     sendCalls.sendCalls({
       calls: [
@@ -524,8 +475,8 @@ function AssetRow({
             abi: erc20Abi,
             functionName: 'transfer',
             args: [
-              state.values.recipient,
-              Value.fromEther(state.values.amount),
+              state.values.sendRecipient,
+              Value.fromEther(state.values.sendAmount),
             ],
           }),
         },
@@ -557,8 +508,8 @@ function AssetRow({
 
   const swapForm = Ariakit.useFormStore({
     defaultValues: {
-      amount: '',
-      asset: address,
+      swapAmount: '',
+      swapAsset: address,
     },
   })
 
@@ -585,10 +536,19 @@ function AssetRow({
     swapAssetsExcludingCurrent[0],
   )
 
+  swapForm.useValidate(async (state) => {
+    if (Number(value) <= Number(state.values.swapAmount)) {
+      swapForm.setError('swapAmount', 'Amount is too high')
+    }
+  })
+
   const matches = React.useMemo(
     () => matchSorter(swapAssetsExcludingCurrent, swapSearchValue),
     [swapSearchValue, swapAssetsExcludingCurrent],
   )
+
+  const clickOutsideRef = React.useRef<HTMLTableCellElement>(null)
+  useClickOutside([clickOutsideRef], () => setViewState('default'))
 
   return (
     <tr className="font-normal sm:text-sm">
@@ -626,15 +586,15 @@ function AssetRow({
           </td>
         </>
       ) : viewState === 'swap' ? (
-        <td colSpan={4} className="w-full py-2">
+        <td colSpan={4} className="w-full py-2" ref={clickOutsideRef}>
           <Ariakit.Form
             store={swapForm}
             className={cx(
-              'flex gap-x-2 ',
+              'flex gap-x-2',
               '*:w-1/2 *:rounded-xl *:border-1 *:border-gray7 *:bg-white *:focus:outline-sky-500 *:dark:bg-gray1',
             )}
           >
-            <div className="z-[10000] flex items-center gap-x-2">
+            <div className="z-[10000] flex items-center gap-x-2 shadow-xs">
               <Ariakit.ComboboxProvider
                 resetValueOnHide={true}
                 setValue={(value) => {
@@ -661,7 +621,7 @@ function AssetRow({
                       alt="asset icon"
                       className="my-auto size-7"
                     />
-                    <div className="my-auto ml-3 flex flex-col items-start overflow-hidden text-ellipsis whitespace-nowrap">
+                    <div className="my-auto ml-2 flex flex-col items-start overflow-hidden text-ellipsis whitespace-nowrap">
                       <span className="text-gray10 text-xs">Swap to</span>
                       <span className="text-sm">{selectedAsset?.name}</span>
                     </div>
@@ -730,7 +690,7 @@ function AssetRow({
                 </Ariakit.SelectProvider>
               </Ariakit.ComboboxProvider>
             </div>
-            <div className="relative flex w-full flex-row items-center gap-x-2 pr-3 pl-3.5">
+            <div className="relative flex w-full flex-row items-center pr-3 pl-3.5 shadow-xs focus-within:rounded-lg focus-within:outline-1 focus-within:outline-sky-500">
               <button
                 className="-right-1.5 -top-1 absolute flex size-3 items-center justify-center rounded-full bg-gray2 text-gray10 hover:bg-gray4"
                 type="button"
@@ -740,20 +700,35 @@ function AssetRow({
               </button>
               <div className="flex w-full flex-col gap-y-1">
                 <Ariakit.FormLabel
-                  name={swapForm.names.amount}
+                  name={swapForm.names.swapAmount}
                   className="text-gray10 text-xs"
                 >
                   Amount
                 </Ariakit.FormLabel>
                 <Ariakit.FormInput
-                  name={swapForm.names.amount}
                   type="number"
+                  required={true}
                   autoCorrect="off"
+                  autoComplete="off"
                   spellCheck={false}
                   placeholder="0.00"
-                  required={true}
+                  autoCapitalize="off"
+                  name={swapForm.names.swapAmount}
                   data-field={`${address}-amount`}
-                  className="w-full text-gray10 text-md focus:outline-none"
+                  max={Number(value)}
+                  onChange={(event) => {
+                    const inputValue = event.currentTarget.value
+                    if (parseEther(inputValue) > BigInt(value)) {
+                      swapForm.setError('swapAmount', 'Amount is too high')
+                    }
+                    console.info(
+                      swapForm.getError('swapAmount')?.length,
+                      parseEther(inputValue),
+                      BigInt(value),
+                      parseEther(inputValue) > BigInt(value),
+                    )
+                  }}
+                  className="w-full font-mono text-md placeholder:text-gray10 focus:outline-none"
                 />
               </div>
 
@@ -761,7 +736,7 @@ function AssetRow({
                 size="small"
                 type="button"
                 variant="default"
-                className="mx-1 my-auto text-gray11! text-xs!"
+                className="mx-1 my-auto font-[600]! text-gray11! text-xs!"
                 onClick={() => {
                   console.info(value)
                   const amountField = document.querySelector(
@@ -775,18 +750,23 @@ function AssetRow({
               >
                 Max
               </Button>
-              <Ariakit.FormSubmit className="mx-1 my-auto rounded-full bg-accent p-2 hover:cursor-pointer! hover:bg-accentHover">
+              <Ariakit.FormSubmit
+                className={cx(
+                  'mx-1 my-auto rounded-full bg-accent p-2 *:text-white/80 hover:bg-accentHover',
+                  swapCalls.isPending && 'animate-pulse',
+                )}
+              >
                 {swapCalls.isPending ? (
-                  <Spinner className="size-4! text-white" />
+                  <Spinner className="size-4!" />
                 ) : (
-                  <SendIcon className="size-4 text-white" />
+                  <SendIcon className="size-4!" />
                 )}
               </Ariakit.FormSubmit>
             </div>
           </Ariakit.Form>
         </td>
       ) : viewState === 'send' ? (
-        <td colSpan={4} className="w-full">
+        <td colSpan={4} className="w-full" ref={clickOutsideRef}>
           <Ariakit.Form
             store={sendForm}
             className="relative my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 bg-white p-2 dark:bg-gray1"
@@ -805,16 +785,16 @@ function AssetRow({
               <div className="flex w-full flex-col gap-y-1">
                 <span className="text-[12px] text-gray10">Recipient</span>
                 <Ariakit.FormInput
-                  name={sendForm.names.recipient}
                   type="text"
+                  required={true}
+                  autoFocus={true}
                   autoCorrect="off"
                   spellCheck={false}
                   autoComplete="off"
                   autoCapitalize="off"
                   placeholder="0xAbcD..."
-                  required={true}
-                  autoFocus={true}
-                  className="w-full text-[13px] text-gray10 focus:outline-none dark:text-gray12"
+                  name={sendForm.names.sendRecipient}
+                  className="w-full font-mono text-[13px] placeholder:text-gray10 focus:outline-none dark:text-gray12"
                 />
               </div>
               <Ariakit.Button className="my-auto ml-auto rounded-full bg-gray4 p-2">
@@ -824,23 +804,23 @@ function AssetRow({
 
             <div className="flex w-[60px] max-w-min flex-col gap-y-1 px-2.5 sm:w-[90px]">
               <Ariakit.FormLabel
-                name={sendForm.names.amount}
+                name={sendForm.names.sendAmount}
                 className="text-[12px] text-gray10"
               >
                 Amount
               </Ariakit.FormLabel>
               <div className="flex flex-row gap-x-1">
                 <Ariakit.FormInput
-                  name={sendForm.names.amount}
                   type="text"
-                  data-field={`${address}-amount`}
+                  required={true}
+                  autoCorrect="off"
+                  placeholder="0.00"
                   spellCheck={false}
                   autoComplete="off"
                   autoCapitalize="off"
-                  autoCorrect="off"
-                  required={true}
-                  placeholder="0.00"
-                  className="w-min text-gray10 text-md focus:outline-none"
+                  name={sendForm.names.sendAmount}
+                  data-field={`${address}-amount`}
+                  className="w-min font-mono text-md placeholder:text-gray10 focus:outline-none"
                 />
               </div>
             </div>
@@ -863,7 +843,7 @@ function AssetRow({
             </Button>
             <Ariakit.FormSubmit className="my-auto mr-1 ml-2 rounded-full bg-accent p-2 hover:cursor-pointer! hover:bg-accentHover">
               {sendCalls.isPending ? (
-                <Spinner className="size-4 text-white" />
+                <Spinner className="size-4! text-white" />
               ) : (
                 <SendIcon className="size-4 text-white" />
               )}
