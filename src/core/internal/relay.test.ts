@@ -205,7 +205,6 @@ describe('sendCalls', () => {
         },
       ],
       feeToken: exp1Address,
-      nonce: randomNonce(),
     })
 
     expect(id).toBeDefined()
@@ -237,7 +236,6 @@ describe('sendCalls', () => {
       ],
       feeToken: exp1Address,
       key,
-      nonce: randomNonce(),
     })
 
     const signature = await Key.sign(key, {
@@ -258,6 +256,65 @@ describe('sendCalls', () => {
         args: [account.address],
       }),
     ).toBe(100n)
+  })
+
+  test('behavior: pre calls', async () => {
+    const key = Key.createP256({ role: 'admin' })
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const request_1 = await Relay.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          to: exp2Address,
+          abi: exp2Abi,
+          functionName: 'mint',
+          args: [account.address, 100n],
+        },
+      ],
+      key,
+      feeToken: exp1Address,
+      pre: true,
+    })
+    const signature_1 = await Key.sign(key, {
+      payload: request_1.digest,
+    })
+
+    const request_2 = await Relay.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          to: exp2Address,
+          abi: exp2Abi,
+          functionName: 'mint',
+          args: [account.address, 100n],
+        },
+      ],
+      feeToken: exp1Address,
+      pre: [{ ...request_1, signature: signature_1 }],
+      key,
+    })
+
+    const signature_2 = await Key.sign(key, {
+      payload: request_2.digest,
+    })
+
+    const { id } = await Relay.sendCalls(client, {
+      ...request_2,
+      signature: signature_2,
+    })
+
+    expect(id).toBeDefined()
+
+    expect(
+      await readContract(client, {
+        ...exp2Config,
+        functionName: 'balanceOf',
+        args: [account.address],
+      }),
+    ).toBe(200n)
   })
 })
 
@@ -288,7 +345,6 @@ describe.each([
           },
         ],
         feeToken: exp1Address,
-        nonce: randomNonce(),
       })
       expect(id).toBeDefined()
 
@@ -322,7 +378,6 @@ describe.each([
             args: [account.address, 100n],
           },
         ],
-        nonce: randomNonce(),
       })
       expect(id).toBeDefined()
 
@@ -353,7 +408,6 @@ describe.each([
           },
         ],
         feeToken: exp1Address,
-        nonce: randomNonce(),
       })
 
       expect(id).toBeDefined()
@@ -379,7 +433,6 @@ describe.each([
             },
           ],
           feeToken: exp1Address,
-          nonce: randomNonce(),
         }),
       ).rejects.toThrowError('Error: InsufficientBalance()')
     })
@@ -402,7 +455,6 @@ describe.each([
             },
           ],
           feeToken: exp1Address,
-          nonce: randomNonce(),
         }),
       ).rejects.toThrowError('Reason: CallError')
     })
@@ -428,7 +480,6 @@ describe.each([
         authorizeKeys: keys,
         calls: [],
         feeToken: exp1Address,
-        nonce: randomNonce(),
       })
       expect(id).toBeDefined()
 
@@ -467,7 +518,6 @@ describe.each([
           account,
           authorizeKeys: [newKey],
           feeToken: exp1Address,
-          nonce: randomNonce(),
         })
         expect(id).toBeDefined()
       }
@@ -486,7 +536,6 @@ describe.each([
           ],
           key: newKey,
           feeToken: exp1Address,
-          nonce: randomNonce(),
         })
         expect(id).toBeDefined()
 
@@ -509,36 +558,49 @@ describe.each([
         keys: [key],
       })
 
-      const newKey = Key.createP256({ role: 'admin' })
-      // 2. Authorize a new Admin Key + mint 100 ERC20 tokens to Account with new Admin Key.
-      {
-        const { id } = await Relay.sendCalls(client, {
-          account,
-          authorizeKeys: [newKey],
-          calls: [
-            {
-              to: exp2Address,
-              abi: exp2Abi,
-              functionName: 'mint',
-              args: [account.address, 100n],
-            },
-          ],
-          key: newKey,
-          feeToken: exp1Address,
-          nonce: randomNonce(),
-        })
-        expect(id).toBeDefined()
+      // 1. Authorize a new Session Key.
+      const newKey = Key.createP256({
+        role: 'session',
+        permissions: { calls: [{ to: exp2Address }] },
+      })
+      const request_1 = await Relay.prepareCalls(client, {
+        account,
+        authorizeKeys: [newKey],
+        calls: [],
+        key,
+        pre: true,
+        feeToken: exp1Address,
+      })
+      const signature_1 = await Key.sign(key, {
+        payload: request_1.digest,
+      })
 
-        // 4. Verify that Account has 100 ERC20 tokens.
-        expect(
-          await readContract(client, {
-            address: exp2Address,
+      // 2. Mint 100 ERC20 tokens to Account with new Session Key.
+      const { id } = await Relay.sendCalls(client, {
+        account,
+        calls: [
+          {
+            to: exp2Address,
             abi: exp2Abi,
-            functionName: 'balanceOf',
-            args: [account.address],
-          }),
-        ).toBe(100n)
-      }
+            functionName: 'mint',
+            args: [account.address, 100n],
+          },
+        ],
+        key: newKey,
+        feeToken: exp1Address,
+        pre: [{ ...request_1, signature: signature_1 }],
+      })
+      expect(id).toBeDefined()
+
+      // 3. Verify that Account has 100 ERC20 tokens.
+      expect(
+        await readContract(client, {
+          address: exp2Address,
+          abi: exp2Abi,
+          functionName: 'balanceOf',
+          args: [account.address],
+        }),
+      ).toBe(100n)
     })
   })
 
@@ -567,7 +629,6 @@ describe.each([
             },
           ],
           feeToken: exp1Address,
-          nonce: randomNonce(),
         })
         expect(id).toBeDefined()
 
@@ -584,7 +645,7 @@ describe.each([
     })
 
     // TODO(relay): fix
-    describe.skip('session key', () => {
+    describe.skipIf(mode === 'new')('session key', () => {
       test('default', async () => {
         // 1. Initialize account with Admin Key and Session Key (with call permission).
         const adminKey = Key.createP256({ role: 'admin' })
@@ -616,7 +677,6 @@ describe.each([
             ],
             key: sessionKey,
             feeToken: exp1Address,
-            nonce: randomNonce(),
           })
           expect(id).toBeDefined()
 
@@ -663,7 +723,6 @@ describe.each([
             ],
             key: sessionKey,
             feeToken: exp1Address,
-            nonce: randomNonce(),
           })
           expect(id).toBeDefined()
 
@@ -692,7 +751,6 @@ describe.each([
             ],
             key: sessionKey,
             feeToken: exp1Address,
-            nonce: randomNonce(),
           })
           expect(id).toBeDefined()
 
@@ -739,7 +797,6 @@ describe.each([
             ],
             key: adminKey,
             feeToken: exp1Address,
-            nonce: randomNonce(),
           })
           expect(id).toBeDefined()
 
@@ -768,7 +825,6 @@ describe.each([
             ],
             key: sessionKey,
             feeToken: exp1Address,
-            nonce: randomNonce(),
           })
           expect(id).toBeDefined()
 
@@ -824,7 +880,6 @@ describe.each([
             ],
             key: sessionKey,
             feeToken: exp1Address,
-            nonce: randomNonce(),
           })
           expect(id).toBeDefined()
 
@@ -871,7 +926,6 @@ describe.each([
             ],
             key: sessionKey,
             feeToken: exp1Address,
-            nonce: randomNonce(),
           }),
         ).rejects.toThrowError('Reason: Unauthorized')
       })
@@ -907,7 +961,6 @@ describe.each([
             ],
             key: sessionKey,
             feeToken: exp1Address,
-            nonce: randomNonce(),
           }),
         ).rejects.toThrowError('Reason: Unauthorized')
       })
@@ -942,7 +995,6 @@ describe.each([
           },
         ],
         feeToken: exp1Address,
-        nonce: randomNonce(),
       })
 
       // 3. Transfer 50 ERC20 tokens from Account.
@@ -957,7 +1009,6 @@ describe.each([
           },
         ],
         feeToken: exp1Address,
-        nonce: randomNonce(),
       })
 
       // 4. Try transfer another 50 ERC20 tokens from Account.
@@ -973,109 +1024,94 @@ describe.each([
             },
           ],
           feeToken: exp1Address,
-          nonce: randomNonce(),
         }),
       ).rejects.toThrowError('Error: InsufficientBalance()')
     })
 
     // TODO(relay): fix
-    test.skip('session key; auth on initialization', async () => {
-      // 1. Initialize account with Admin Key and Session Key (with permissions).
-      const adminKey = Key.createP256({ role: 'admin' })
-      const sessionKey = Key.createP256({
-        role: 'session',
-        permissions: {
-          calls: [
-            {
-              to: exp2Address,
-            },
-          ],
-          spend: [{ limit: 100n, token: exp2Address, period: 'day' }],
-        },
-      })
-      const account = await initializeAccount(client, {
-        keys: [adminKey, sessionKey],
-      })
-
-      // 2. Mint 100 ERC20 tokens to Account with Session Key.
-      {
-        const { id } = await Relay.sendCalls(client, {
-          account,
-          calls: [
-            {
-              to: exp2Address,
-              abi: exp2Abi,
-              functionName: 'mint',
-              args: [account.address, 100n],
-            },
-          ],
-          key: sessionKey,
-          feeToken: exp1Address,
-          nonce: randomNonce(),
-        })
-        expect(id).toBeDefined()
-
-        // 3. Verify that Account has 100 ERC20 tokens.
-        expect(
-          await readContract(client, {
-            address: exp2Address,
-            abi: exp2Abi,
-            functionName: 'balanceOf',
-            args: [account.address],
-          }),
-        ).toBe(100n)
-      }
-
-      // 4. Transfer 50 ERC20 token from Account.
-      await Relay.sendCalls(client, {
-        account,
-        calls: [
-          {
-            to: exp2Address,
-            abi: exp2Abi,
-            functionName: 'transfer',
-            args: ['0x0000000000000000000000000000000000000000', 50n],
+    test.skipIf(mode === 'new')(
+      'session key; auth on initialization',
+      async () => {
+        // 1. Initialize account with Admin Key and Session Key (with permissions).
+        const adminKey = Key.createP256({ role: 'admin' })
+        const sessionKey = Key.createP256({
+          role: 'session',
+          permissions: {
+            calls: [
+              {
+                to: exp2Address,
+              },
+            ],
+            spend: [{ limit: 100n, token: exp2Address, period: 'day' }],
           },
-        ],
-        key: sessionKey,
-        feeToken: exp1Address,
-        nonce: randomNonce(),
-      })
+        })
+        const account = await initializeAccount(client, {
+          keys: [adminKey, sessionKey],
+        })
 
-      // 5. Try to transfer another 50 ERC20 tokens from Account.
-      await expect(() =>
-        Relay.sendCalls(client, {
+        // 2. Mint 100 ERC20 tokens to Account with Session Key.
+        {
+          const { id } = await Relay.sendCalls(client, {
+            account,
+            calls: [
+              {
+                to: exp2Address,
+                abi: exp2Abi,
+                functionName: 'mint',
+                args: [account.address, 100n],
+              },
+            ],
+            key: sessionKey,
+            feeToken: exp1Address,
+          })
+          expect(id).toBeDefined()
+
+          // 3. Verify that Account has 100 ERC20 tokens.
+          expect(
+            await readContract(client, {
+              address: exp2Address,
+              abi: exp2Abi,
+              functionName: 'balanceOf',
+              args: [account.address],
+            }),
+          ).toBe(100n)
+        }
+
+        // 4. Transfer 50 ERC20 token from Account.
+        await Relay.sendCalls(client, {
           account,
           calls: [
             {
               to: exp2Address,
               abi: exp2Abi,
               functionName: 'transfer',
-              args: ['0x0000000000000000000000000000000000000000', 100n],
+              args: ['0x0000000000000000000000000000000000000000', 50n],
             },
           ],
           key: sessionKey,
           feeToken: exp1Address,
-          nonce: randomNonce(),
-        }),
-      ).rejects.toThrowError('Error: InsufficientBalance()')
-    })
+        })
+
+        // 5. Try to transfer another 50 ERC20 tokens from Account.
+        await expect(() =>
+          Relay.sendCalls(client, {
+            account,
+            calls: [
+              {
+                to: exp2Address,
+                abi: exp2Abi,
+                functionName: 'transfer',
+                args: ['0x0000000000000000000000000000000000000000', 100n],
+              },
+            ],
+            key: sessionKey,
+            feeToken: exp1Address,
+          }),
+        ).rejects.toThrowError('Error: InsufficientBalance()')
+      },
+    )
 
     // TODO(relay): waiting on BoB
     describe.todo('session key; deferred auth')
   })
 })
-
-// TODO(relay): remove this
-function randomNonce() {
-  return Hex.toBigInt(
-    Hex.concat(
-      // multichain flag (0 = single chain, 0xc1d0 = multi-chain)
-      Hex.fromNumber(0, { size: 2 }),
-      // sequence key
-      Hex.random(22),
-      // sequential nonce
-      Hex.fromNumber(0, { size: 8 }),
-    ),
-  )
-}

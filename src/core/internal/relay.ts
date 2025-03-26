@@ -204,7 +204,8 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ) {
-  const { authorizeKeys, calls, key, feeToken, nonce, revokeKeys } = parameters
+  const { authorizeKeys, calls, key, feeToken, nonce, pre, revokeKeys } =
+    parameters
   const account = Account.from(parameters.account)
   const hash = Key.hash(key)
   const { capabilities, context, digest } = await Actions.prepareCalls(client, {
@@ -217,6 +218,14 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         keyHash: hash,
         nonce,
       },
+      preOp: typeof pre === 'boolean' ? pre : false,
+      preOps:
+        typeof pre === 'object'
+          ? pre.map(({ context, signature }) => ({
+              ...context.op,
+              signature,
+            }))
+          : undefined,
       revokeKeys: revokeKeys?.map((key) => ({
         hash: key.hash,
       })),
@@ -237,10 +246,25 @@ export namespace prepareCalls {
     authorizeKeys?: readonly Key.Key[] | undefined
     /** Account to prepare the calls for. */
     account: Account.Account
-    /** Key that will be used to sign the calls. */
-    key: Pick<Key.Key, 'publicKey' | 'type'>
     /** Calls to prepare. */
     calls?: Actions.prepareCalls.Parameters<calls>['calls'] | undefined
+    /** Key that will be used to sign the calls. */
+    key: Pick<Key.Key, 'publicKey' | 'type'>
+    /**
+     * Indicator if the calls are considered "pre-calls", and should be
+     * executed before the main calls.
+     *
+     * Accepts:
+     * - `true`: Indicates this batch is a pre-call batch.
+     * - An array: Set of prepared pre-calls.
+     */
+    pre?:
+      | true
+      | readonly {
+          context: prepareCalls.ReturnType['context']
+          signature: Hex.Hex
+        }[]
+      | undefined
     /** Additional keys to revoke from the account. */
     revokeKeys?: readonly Key.Key[] | undefined
   } & Omit<Capabilities.meta.Request, 'keyHash'>

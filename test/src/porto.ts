@@ -47,7 +47,18 @@ export function getPorto(
         default: transports.default ?? custom(Anvil.instances.odyssey),
         relay: transports.relay
           ? transports.relay === true
-            ? http(Relay.instances.odyssey.rpcUrl)
+            ? http(Relay.instances.odyssey.rpcUrl, {
+                // async onFetchRequest(request, init) {
+                //   console.log(
+                //     JSON.stringify(JSON.parse(await init.body), null, 2),
+                //   )
+                // },
+                // async onFetchResponse(response, init) {
+                //   console.log(
+                //     JSON.stringify(await response.clone().json(), null, 2),
+                //   )
+                // },
+              })
             : transports.relay
           : undefined,
       },
