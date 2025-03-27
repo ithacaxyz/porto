@@ -73,6 +73,14 @@ function ActionableFeedback({
 }
 
 function RouteComponent() {
+  React.useEffect(() => {
+    toast.warning('Not implemented', {
+      position: 'top-right',
+      duration: Number.POSITIVE_INFINITY,
+      description: 'Will be implemented soon after relay is ready',
+    })
+  })
+
   const [view, setView] = React.useState<'DEFAULT' | 'SUCCESS' | 'LOADING'>(
     'DEFAULT',
   )

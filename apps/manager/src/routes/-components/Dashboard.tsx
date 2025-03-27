@@ -119,7 +119,7 @@ function PaginatedTable<T>({
           ) : (
             <tr>
               <td colSpan={columns.length} className="text-center text-gray12">
-                <p className="mt-2 text-sm">No {emptyMessage}</p>
+                <p className="mt-2 text-sm">{emptyMessage}</p>
               </td>
             </tr>
           )}
@@ -169,10 +169,12 @@ export function Dashboard() {
 
   const totalBalance = React.useMemo(() => {
     if (!assets) return 0n
-    const summed = sum(assets?.map((asset) => Number(asset?.balance ?? 0)))
-
-    const total = BigInt(summed) ?? 0n
-    return ValueFormatter.format(total, 18)
+    return sum(
+      assets.map(
+        (asset) =>
+          Number(Value.format(asset.balance, asset.decimals)) * asset.price,
+      ),
+    )
   }, [assets])
 
   return (
@@ -203,7 +205,7 @@ export function Dashboard() {
           <div className="font-[500] text-[13px] text-gray10">Your account</div>
           <div>
             <div className="font-[500] text-[24px] tracking-[-2.8%]">
-              ${totalBalance}
+              ${ValueFormatter.formatToPrice(totalBalance)}
             </div>
             <div className="flex items-center gap-1">
               <div className="font-[500] text-[13px] text-gray10 tracking-[-0.25px]">
