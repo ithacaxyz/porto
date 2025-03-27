@@ -1,7 +1,7 @@
 import { Porto as SharedPorto } from '@porto/apps'
 import { Mode, Porto } from 'porto'
 import { http, createConfig, createStorage } from 'wagmi'
-import { base, baseSepolia } from 'wagmi/chains'
+import { base } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 
 export const porto = import.meta.env.DEV
