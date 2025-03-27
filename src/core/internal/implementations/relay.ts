@@ -9,6 +9,7 @@ import * as WebAuthnP256 from 'ox/WebAuthnP256'
 
 import type * as Storage from '../../Storage.js'
 import * as Account from '../account.js'
+import * as HumanId from '../humanId.js'
 import * as Implementation from '../implementation.js'
 import * as Key from '../key.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -50,7 +51,11 @@ export function relay(config: relay.Parameters = {}) {
           async keys({ ids }) {
             id = ids[0]!
             const label =
-              parameters.label ?? `${id.slice(0, 8)}\u2026${id.slice(-6)}`
+              parameters.label ??
+              HumanId.create({
+                capitalize: true,
+                separator: ' ',
+              })
 
             const key = !mock
               ? await Key.createWebAuthnP256({

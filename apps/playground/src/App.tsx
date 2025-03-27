@@ -547,10 +547,12 @@ function SendCalls() {
         e.preventDefault()
         const formData = new FormData(e.target as HTMLFormElement)
         const action = formData.get('action') as string | null
+        const address = formData.get('address') as `0x${string}` | null
 
-        const [account] = await porto.provider.request({
+        const result = await porto.provider.request({
           method: 'eth_accounts',
         })
+        const account = address || result[0]!
 
         const calls = (() => {
           if (action === 'mint')
@@ -664,6 +666,7 @@ function SendCalls() {
           <option value="revert">Revert</option>
           <option value="noop">Noop Calls</option>
         </select>
+        <input name="address" placeholder="address" type="text" />
         <button type="submit">Send</button>
       </div>
       {hash && (
