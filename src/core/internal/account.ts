@@ -152,7 +152,6 @@ export async function sign<
     return (parameters: { payload: Hex.Hex }) =>
       Key.sign(key, {
         ...parameters,
-        address: account.address,
         storage,
       })
   })()

@@ -277,6 +277,7 @@ export async function createWebAuthnP256<const role extends Key['role']>(
       id: credential.id,
       publicKey: credential.publicKey,
     },
+    id: Bytes.toHex(userId),
   })
 }
 
@@ -633,7 +634,7 @@ export declare namespace fromSecp256k1 {
 export function fromWebAuthnP256<const role extends Key['role']>(
   parameters: fromWebAuthnP256.Parameters<role>,
 ) {
-  const { credential, rpId } = parameters
+  const { credential, id, rpId } = parameters
   const publicKey = PublicKey.toHex(credential.publicKey, {
     includePrefix: false,
   })
@@ -641,6 +642,7 @@ export function fromWebAuthnP256<const role extends Key['role']>(
     canSign: true,
     credential,
     expiry: parameters.expiry ?? 0,
+    id,
     permissions: parameters.permissions,
     publicKey,
     role: parameters.role as Key['role'],
@@ -655,6 +657,8 @@ export declare namespace fromWebAuthnP256 {
     expiry?: Key['expiry'] | undefined
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
+    /** Key ID. */
+    id: Key['id']
     /** Permissions. */
     permissions?: Permissions | undefined
     /** Role. */
@@ -780,12 +784,11 @@ export function serialize(key: Key): Serialized {
 export async function sign(
   key: Key,
   parameters: {
-    address?: Hex.Hex | undefined
     payload: Hex.Hex
     storage?: Storage.Storage | undefined
   },
 ) {
-  const { address, payload, storage } = parameters
+  const { payload, storage } = parameters
   const { canSign, publicKey, type: keyType } = key
 
   if (!canSign)
@@ -841,10 +844,10 @@ export async function sign(
       })
 
       const response = raw.response as AuthenticatorAssertionResponse
-      const userHandle = Bytes.toHex(new Uint8Array(response.userHandle!))
-      if (address && !Address.isEqual(address, userHandle))
+      const id = Bytes.toHex(new Uint8Array(response.userHandle!))
+      if (key.id && !Address.isEqual(key.id, id))
         throw new Error(
-          `supplied address "${address}" does not match signature address "${userHandle}"`,
+          `supplied webauthn key "${key.id}" does not match signature webauthn key "${id}"`,
         )
 
       if (requireVerification && storage) await storage.setItem(cacheKey, now)

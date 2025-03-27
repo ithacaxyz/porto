@@ -211,7 +211,11 @@ export function local(parameters: local.Parameters = {}) {
             // Assume that the first key is the admin WebAuthn key.
             if (i === 0) {
               if (key.type === 'webauthn-p256')
-                return Key.fromWebAuthnP256({ ...key, credential })
+                return Key.fromWebAuthnP256({
+                  ...key,
+                  credential,
+                  id: address,
+                })
             }
             // Add credential to session key to be able to restore from storage later
             if ((key.type === 'p256' && key.role === 'session') || mock)

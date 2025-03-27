@@ -550,6 +550,7 @@ describe('fromWebAuthnP256', () => {
 
     const key = Key.fromWebAuthnP256({
       credential,
+      id: '0x0000000000000000000000000000000000000000',
       role: 'admin',
     })
 
