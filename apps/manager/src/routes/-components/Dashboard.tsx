@@ -64,6 +64,7 @@ function ShowMore({
 
 type TableProps<T> = {
   data: ReadonlyArray<T> | undefined
+  emptyMessage: string
   columns: {
     header: string
     key: string
@@ -77,6 +78,7 @@ type TableProps<T> = {
 
 function PaginatedTable<T>({
   data,
+  emptyMessage,
   columns,
   renderRow,
   showMoreText,
@@ -112,7 +114,15 @@ function PaginatedTable<T>({
           </tr>
         </thead>
         <tbody className="border-transparent border-t-10">
-          {itemsToShow?.map(renderRow)}
+          {itemsToShow && itemsToShow?.length > 0 ? (
+            itemsToShow?.map(renderRow)
+          ) : (
+            <tr>
+              <td colSpan={columns.length} className="text-center text-gray12">
+                <p className="mt-2 text-sm">No {emptyMessage}</p>
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
       {remainingItems.length > 0 && (
@@ -127,6 +137,8 @@ function PaginatedTable<T>({
     </>
   )
 }
+
+const recoveryMethods: Array<{ address: string; name: string }> = []
 
 export function Dashboard() {
   const account = useAccount()
@@ -236,6 +248,7 @@ export function Dashboard() {
         </summary>
 
         <PaginatedTable
+          emptyMessage="No balances available for this account"
           data={assets}
           columns={[
             { header: 'Name', key: 'name', width: 'w-[40%]' },
@@ -271,6 +284,7 @@ export function Dashboard() {
 
         <PaginatedTable
           data={filteredTransfers}
+          emptyMessage="No transactions yet"
           columns={[
             { header: 'Time', key: 'time' },
             { header: 'Account', key: 'recipient' },
@@ -349,6 +363,7 @@ export function Dashboard() {
 
         <PaginatedTable
           data={permissions?.data}
+          emptyMessage="No permissions added yet"
           initialCount={3}
           showMoreText="more permissions"
           columns={[
@@ -450,7 +465,7 @@ export function Dashboard() {
       <hr className="border-gray5" />
       <div className="h-4" />
 
-      <details className="group pb-1" open>
+      <details className="group pb-1" open={recoveryMethods.length > 0}>
         <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Recovery</span>
           <Button
@@ -467,54 +482,52 @@ export function Dashboard() {
         <table className="my-3 w-full">
           <thead>
             <tr className="text-gray10 *:font-normal *:text-sm">
-              <th className="text-left">Time</th>
               <th className="text-left">Name</th>
               <th className="invisible text-right">Action</th>
             </tr>
           </thead>
           <tbody className="border-transparent border-t-10">
-            <tr className="text-xs sm:text-sm">
-              <td className="py-3 text-left">
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href={'https://explorer.ithaca.xyz/address/'}
-                  className="flex flex-row items-center"
-                >
-                  <span className="min-w-[30px] text-gray11">3d</span>
-                  <ExternalLinkIcon className="size-4 text-gray10" />
-                </a>
-              </td>
-              <td className="w-[73%] text-right">
-                <div className="flex flex-row items-center gap-x-2">
-                  <div className="flex size-7 items-center justify-center rounded-full bg-emerald-100">
-                    <WalletIcon className="m-auto size-5 text-teal-600" />
-                  </div>
-                  <span className="font-medium text-gray12">
-                    <TruncatedAddress address="0x0f7fda40Cad1D2966C77428cc2c7A9Bcc73961B5" />
-                  </span>
-                </div>
-              </td>
+            {recoveryMethods.length ? (
+              recoveryMethods.map((method) => (
+                <tr key={method.address} className="text-xs sm:text-sm">
+                  <td className="w-[73%] text-right">
+                    <div className="flex flex-row items-center gap-x-2">
+                      <div className="flex size-7 items-center justify-center rounded-full bg-emerald-100">
+                        <WalletIcon className="m-auto size-5 text-teal-600" />
+                      </div>
+                      <span className="font-medium text-gray12">
+                        <TruncatedAddress address={method.address} />
+                      </span>
+                    </div>
+                  </td>
 
-              <td className="text-right">
-                <Ariakit.Button
-                  className="size-8 rounded-full p-1 hover:bg-gray4"
-                  onClick={() => {
-                    console.info('')
-                  }}
-                >
-                  <CopyIcon className={clsx('m-auto size-5 text-gray10')} />
-                </Ariakit.Button>
-                <Ariakit.Button
-                  className="size-8 rounded-full p-1 hover:bg-red-100"
-                  onClick={() => {
-                    console.info('')
-                  }}
-                >
-                  <XIcon className={clsx('m-auto size-5 text-red-500')} />
-                </Ariakit.Button>
-              </td>
-            </tr>
+                  <td className="text-right">
+                    <Ariakit.Button
+                      className="size-8 rounded-full p-1 hover:bg-gray4"
+                      onClick={() => {
+                        console.info('')
+                      }}
+                    >
+                      <CopyIcon className={clsx('m-auto size-5 text-gray10')} />
+                    </Ariakit.Button>
+                    <Ariakit.Button
+                      className="size-8 rounded-full p-1 hover:bg-red-100"
+                      onClick={() => {
+                        console.info('')
+                      }}
+                    >
+                      <XIcon className={clsx('m-auto size-5 text-red-500')} />
+                    </Ariakit.Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={2} className="text-center text-gray12">
+                  <p className="text-sm">No recovery methods added yet</p>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </details>
@@ -527,18 +540,16 @@ function AssetRow({
   symbol,
   name,
   value,
-  // decimals,
   address,
 }: {
   logo: string
   symbol: string
   name: string
   value: string
-  // decimals: number
   address: string
 }) {
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
-    'default',
+    'swap',
   )
 
   const sendCalls = useSendCalls({
@@ -849,7 +860,7 @@ function AssetRow({
                           key={value.symbol}
                           value={value.symbol}
                           onClick={() => setSelectedAsset(value)}
-                          className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-sky-900 dark:focus:bg-sky-900"
+                          className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-gray3 dark:focus:bg-sky-900"
                           render={
                             <Ariakit.ComboboxItem
                               className={clsx(
@@ -897,14 +908,14 @@ function AssetRow({
                   Amount
                 </Ariakit.FormLabel>
                 <Ariakit.FormInput
-                  type="number"
-                  inputMode="decimal"
-                  required={true}
                   step="any"
+                  type="number"
+                  required={true}
                   autoCorrect="off"
                   autoComplete="off"
                   spellCheck={false}
                   placeholder="0.00"
+                  inputMode="decimal"
                   autoCapitalize="off"
                   name={swapForm.names.swapAmount}
                   data-field={`${address}-amount`}
@@ -952,14 +963,6 @@ function AssetRow({
                   <SendIcon className="size-4!" />
                 )}
               </Ariakit.FormSubmit>
-              <button
-                tabIndex={0}
-                className="-right-1.5 -top-1 absolute flex size-3 items-center justify-center rounded-full bg-gray2 text-gray10 hover:bg-gray4"
-                type="button"
-                onClick={() => setViewState('default')}
-              >
-                <XIcon />
-              </button>
             </div>
           </Ariakit.Form>
         </td>
@@ -969,13 +972,6 @@ function AssetRow({
             store={sendForm}
             className="relative my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 bg-white p-2 dark:bg-gray1"
           >
-            <button
-              className="-right-1 -top-1 absolute flex size-3 items-center justify-center rounded-full bg-gray2 text-gray10 hover:bg-gray4"
-              type="button"
-              onClick={() => setViewState('default')}
-            >
-              <XIcon />
-            </button>
             <div className="flex w-[75px] flex-row items-center gap-x-2 border-gray6 border-r pr-1.5 pl-1 sm:w-[85px] sm:pl-2">
               <img alt="asset icon" className="size-8" src={logo} />
             </div>

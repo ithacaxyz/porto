@@ -6,7 +6,9 @@ import { injected } from 'wagmi/connectors'
 
 export const porto = import.meta.env.DEV
   ? Porto.create({
-      implementation: Implementation.local(),
+      implementation: Implementation.dialog({
+        host: 'https://id.porto.sh/dialog',
+      }),
     })
   : SharedPorto.porto
 
