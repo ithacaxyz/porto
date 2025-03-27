@@ -536,11 +536,16 @@ function AssetRow({
   symbol: string
   name: string
   value: bigint
-  address: string
   decimals: number
+  address: Address.Address
 }) {
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
     'default',
+  )
+
+  const formattedBalance = React.useMemo(
+    () => ValueFormatter.format(value, decimals),
+    [value, decimals],
   )
 
   const sendCalls = useSendCalls({
@@ -611,7 +616,14 @@ function AssetRow({
   })
   const sendFormState = Ariakit.useStoreState(sendForm)
 
-  sendForm.useSubmit((state) => {
+  sendForm.useValidate(async (state) => {
+    if (Number(state.values.sendAmount) > Number(formattedBalance)) {
+      sendForm.setError('sendAmount', 'Amount is too high')
+    }
+  })
+
+  sendForm.useSubmit(async (state) => {
+    console.info(state)
     if (
       !Address.validate(state.values.sendRecipient) ||
       !state.values.sendAmount
@@ -626,7 +638,7 @@ function AssetRow({
             functionName: 'transfer',
             args: [
               state.values.sendRecipient,
-              Value.fromEther(state.values.sendAmount),
+              Value.from(state.values.sendAmount, decimals),
             ],
           }),
         },
@@ -724,7 +736,7 @@ function AssetRow({
   )
 
   swapForm.useValidate(async (state) => {
-    if (Number(value) <= Number(state.values.swapAmount)) {
+    if (Number(state.values.swapAmount) > Number(formattedBalance)) {
       swapForm.setError('swapAmount', 'Amount is too high')
     }
   })
@@ -748,9 +760,7 @@ function AssetRow({
               <span className="font-medium text-md">{name}</span>
             </div>
           </td>
-          <td className="w-[20%] text-right text-md">
-            {ValueFormatter.format(value, decimals)}
-          </td>
+          <td className="w-[20%] text-right text-md">{formattedBalance}</td>
           <td className="w-[20%] pr-1.5 pl-3 text-left text-sm">
             <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
               {symbol}
@@ -879,10 +889,7 @@ function AssetRow({
                             {value.symbol}
                           </span>
                           <span className="ml-auto text-gray10">
-                            {ValueFormatter.format(
-                              value.balance,
-                              value.decimals,
-                            )}
+                            {formattedBalance}
                           </span>
                         </Ariakit.SelectItem>
                       ))}
@@ -916,9 +923,9 @@ function AssetRow({
                   placeholder="0.00"
                   inputMode="decimal"
                   autoCapitalize="off"
+                  max={formattedBalance}
                   name={swapForm.names.swapAmount}
                   data-field={`${address}-amount`}
-                  max={formatEther(BigInt(value))}
                   className="w-full font-mono text-md placeholder:text-gray10 focus:outline-none"
                 />
               </div>
@@ -928,16 +935,12 @@ function AssetRow({
                 type="button"
                 variant="default"
                 className="mx-1 my-auto font-[600]! text-gray11! text-xs!"
-                onClick={() => {
-                  console.info(value)
-                  const amountField = document.querySelector(
-                    `input[data-field="${address}-amount"]`,
+                onClick={() =>
+                  swapForm.setValue(
+                    swapForm.names.swapAmount,
+                    Number(formattedBalance),
                   )
-                  if (amountField) {
-                    amountField.value =
-                      Number(value) < 1 ? '1' : formatEther(BigInt(value))
-                  }
-                }}
+                }
               >
                 Max
               </Button>
@@ -1061,9 +1064,9 @@ function AssetRow({
                   placeholder="0.00"
                   inputMode="decimal"
                   spellCheck={false}
-                  max={formatEther(BigInt(value))}
                   autoComplete="off"
                   autoCapitalize="off"
+                  max={formattedBalance}
                   name={sendForm.names.sendAmount}
                   data-field={`${address}-amount`}
                   className={cx(
@@ -1076,15 +1079,12 @@ function AssetRow({
               size="small"
               variant="default"
               className="mx-0.5 my-auto text-gray11! text-xs! sm:mx-1"
-              onClick={() => {
-                console.info(value)
-                const amountField = document.querySelector(
-                  `input[data-field="${address}-amount"]`,
+              onClick={(event) => {
+                event.preventDefault()
+                sendForm.setValue(
+                  sendForm.names.sendAmount,
+                  Number(formattedBalance),
                 )
-                if (amountField) {
-                  amountField.value =
-                    Number(value) < 1 ? '1' : formatEther(BigInt(value))
-                }
               }}
             >
               Max

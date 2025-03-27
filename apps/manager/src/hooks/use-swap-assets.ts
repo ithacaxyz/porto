@@ -41,9 +41,12 @@ export function useSwapAssets({ chain }: { chain: 'base' }) {
           ...(prices.coins['coingecko:ethereum'] as LlamaFiPrice),
         })
 
-        return assets.map((_, index) => ({
-          ...assets[index],
-          ...balancesAssets[index],
+        const balancesMap = new Map(
+          balancesAssets.map((asset) => [asset.address, asset]),
+        )
+        return assets.map((asset) => ({
+          ...asset,
+          ...balancesMap.get(asset.address),
         })) as ReadonlyArray<Prettify<AssetWithPrice>>
       } catch (error) {
         console.error(error instanceof Error ? error.message : 'Unknown error')
