@@ -9,7 +9,7 @@ export function useSwapAssets({ chain }: { chain: 'base' }) {
   const { data: balances } = useReadBalances({ chain })
 
   const { data, isLoading, isPending, refetch } = useQuery({
-    queryKey: ['swap-assets', 'base'] as const,
+    queryKey: ['swap-assets', chain] as const,
     queryFn: async ({ queryKey: [, chain] }) => {
       const defaultAssets_ = defaultAssets[chain]
       if (!defaultAssets_) return []

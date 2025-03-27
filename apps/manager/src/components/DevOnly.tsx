@@ -1,3 +1,4 @@
+import * as AriaKit from '@ariakit/react'
 import { Button } from '@porto/apps/components'
 import {
   exp1Abi,
@@ -5,12 +6,14 @@ import {
   exp2Abi,
   exp2Address,
 } from '@porto/apps/contracts'
+import { cx } from 'cva'
 import { AbiFunction, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
-import { Drawer } from 'vaul-base'
+import * as React from 'react'
 import { parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
+import { useClickOutside } from '~/hooks/use-click-outside'
 
 const key = () =>
   ({
@@ -39,16 +42,23 @@ export function DevOnly() {
 
   const send = useSendCalls()
 
+  const [open, setOpen] = React.useState(false)
+
   if (!account.isConnected) return null
 
+  const ref = React.useRef<HTMLDivElement>(null)
+  useClickOutside([ref], () => setOpen(false))
+
   return (
-    <Drawer.Root>
-      <Drawer.Trigger className="absolute top-0 right-0 font-mono text-md text-transparent hover:text-gray11">
+    <div>
+      <AriaKit.Button
+        onClick={() => setOpen(true)}
+        className="absolute top-0 right-0 font-mono text-md text-transparent hover:text-gray11"
+      >
         --
-      </Drawer.Trigger>
-      <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0" />
-        <Drawer.Content className="fixed right-0 bottom-0 left-0 flex h-fit justify-center gap-x-2 bg-gray1 p-4 outline-none">
+      </AriaKit.Button>
+      <div className={cx(open ? 'block' : 'hidden')} ref={ref}>
+        <div className="fixed right-0 bottom-0 left-0 mx-16 flex h-fit w-min justify-start gap-x-2 bg-gray1 p-4 outline-none">
           <Button
             variant="default"
             className="w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
@@ -98,9 +108,14 @@ export function DevOnly() {
           >
             Mint EXP&EXP2
           </Button>
-          <Drawer.Close className="size-3 text-red-500">❌</Drawer.Close>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+          <AriaKit.Button
+            onClick={() => setOpen(false)}
+            className="size-3 text-red-500"
+          >
+            ❌
+          </AriaKit.Button>
+        </div>
+      </div>
+    </div>
   )
 }

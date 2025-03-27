@@ -878,7 +878,12 @@ function AssetRow({
                           <span className="rounded-2xl bg-gray2 px-2 py-1 font-[600] text-gray10 text-xs">
                             {value.symbol}
                           </span>
-                          <span className="ml-auto text-gray10">{}</span>
+                          <span className="ml-auto text-gray10">
+                            {ValueFormatter.format(
+                              value.balance,
+                              value.decimals,
+                            )}
+                          </span>
                         </Ariakit.SelectItem>
                       ))}
                     </Ariakit.ComboboxList>
