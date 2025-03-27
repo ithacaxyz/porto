@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
+import type { Address } from 'ox'
 import type { Prettify } from 'viem'
 import { defaultAssets, ethAsset } from '~/lib/Constants'
 import { useReadBalances } from './use-read-balances'
 
 /** returns assets with prices: default assets + assets from balances */
-export function useSwapAssets() {
-  const { data: balances } = useReadBalances({ chain: 'base' })
+export function useSwapAssets({ chain }: { chain: 'base' }) {
+  const { data: balances } = useReadBalances({ chain })
 
   const { data, isLoading, isPending, refetch } = useQuery({
     queryKey: ['swap-assets', 'base'] as const,
@@ -46,7 +47,13 @@ export function useSwapAssets() {
         })) as ReadonlyArray<Prettify<AssetWithPrice>>
       } catch (error) {
         console.error(error instanceof Error ? error.message : 'Unknown error')
-        return [ethAsset, ...defaultAssets_]
+        return [ethAsset, ...defaultAssets_].map((asset) => ({
+          ...asset,
+          balance: 0n,
+          price: 0,
+          timestamp: 0,
+          confidence: 0,
+        }))
       }
     },
   })
@@ -58,7 +65,8 @@ export interface AssetWithPrice extends LlamaFiPrice {
   logo: string
   symbol: string
   name: string
-  address: string
+  address: Address.Address
+  balance: bigint
 }
 
 async function getAssetsPrices({

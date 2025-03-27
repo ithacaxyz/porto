@@ -27,13 +27,8 @@ import { Link } from '@tanstack/react-router'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
-import {
-  useAddressTransfers,
-  useTokenBalances,
-} from '~/hooks/use-blockscout-api'
-import { useReadBalances } from '~/hooks/use-read-balances'
+import { useAddressTransfers } from '~/hooks/use-blockscout-api'
 import { useSwapAssets } from '~/hooks/use-swap-assets'
-// import { swapAssets } from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
@@ -152,9 +147,7 @@ export function Dashboard() {
   const permissions = Hooks.usePermissions()
   const revokePermissions = Hooks.useRevokePermissions()
 
-  const { data: assets } = useTokenBalances()
-
-  const { data: balances } = useReadBalances({ chain: 'base' })
+  const { data: assets } = useSwapAssets({ chain: 'base' })
 
   const { data: transfers } = useAddressTransfers()
   const [selectedChains, _setSelectedChains] = React.useState(
@@ -176,7 +169,7 @@ export function Dashboard() {
 
   const totalBalance = React.useMemo(() => {
     if (!assets) return 0n
-    const summed = sum(assets?.map((asset) => Number(asset?.value ?? 0)))
+    const summed = sum(assets?.map((asset) => Number(asset?.balance ?? 0)))
 
     const total = BigInt(summed) ?? 0n
     return ValueFormatter.format(total, 18)
@@ -248,7 +241,7 @@ export function Dashboard() {
       <hr className="border-gray5" />
       <div className="h-4" />
 
-      <details className="group" open={assets?.length > 0}>
+      <details className="group" open={assets && assets?.length > 0}>
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           Assets
         </summary>
@@ -264,12 +257,13 @@ export function Dashboard() {
           ]}
           renderRow={(asset) => (
             <AssetRow
-              key={asset.token.address}
-              address={asset.token.address}
-              logo={`/icons/${asset.token.name.toLowerCase()}.svg`}
-              symbol={asset.token.symbol}
-              name={asset.token.name}
-              value={asset.value}
+              key={asset.address}
+              address={asset.address}
+              logo={asset.logo}
+              symbol={asset.symbol}
+              name={asset.name}
+              value={asset.balance}
+              decimals={asset.decimals}
             />
           )}
           showMoreText="more assets"
@@ -534,12 +528,14 @@ function AssetRow({
   name,
   value,
   address,
+  decimals,
 }: {
   logo: string
   symbol: string
   name: string
-  value: string
+  value: bigint
   address: string
+  decimals: number
 }) {
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
     'default',
@@ -714,7 +710,7 @@ function AssetRow({
 
   const [swapSearchValue, setSwapSearchValue] = React.useState('')
 
-  const { data: swapAssets } = useSwapAssets()
+  const { data: swapAssets } = useSwapAssets({ chain: 'base' })
 
   const swapAssetsExcludingCurrent =
     swapAssets?.filter(
@@ -751,7 +747,7 @@ function AssetRow({
             </div>
           </td>
           <td className="w-[20%] text-right text-md">
-            {Number(value) < 1 ? 1 : formatEther(BigInt(value))}
+            {ValueFormatter.format(value, decimals)}
           </td>
           <td className="w-[20%] pr-1.5 pl-3 text-left text-sm">
             <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
