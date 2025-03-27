@@ -1,5 +1,16 @@
 import { Value } from 'ox'
 
+export function zipArrays<T, U>(array1: T[], array2: U[]): [T, U][] {
+  const minLength = Math.min(array1.length, array2.length)
+  const result: [T, U][] = []
+
+  for (let index = 0; index < minLength; index++) {
+    result.push([array1[index] as T, array2[index] as U])
+  }
+
+  return result
+}
+
 export const randomArrayElement = <T>(array: T[]): T =>
   array[Math.floor(Math.random() * array.length)] as T
 

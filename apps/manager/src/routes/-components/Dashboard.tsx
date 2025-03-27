@@ -31,7 +31,9 @@ import {
   useAddressTransfers,
   useTokenBalances,
 } from '~/hooks/use-blockscout-api'
-import { swapAssets } from '~/lib/Constants'
+import { useReadBalances } from '~/hooks/use-read-balances'
+import { useSwapAssets } from '~/hooks/use-swap-assets'
+// import { swapAssets } from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
@@ -115,15 +117,9 @@ function PaginatedTable<T>({
         </thead>
         <tbody className="border-transparent border-t-10">
           {itemsToShow && itemsToShow?.length > 0 ? (
-            itemsToShow?.map((row, index) => (
-              <React.Fragment
-                key={
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                  `${index}`
-                }
-              >
-                {renderRow(row)}
-              </React.Fragment>
+            itemsToShow?.map((item, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
             ))
           ) : (
             <tr>
@@ -154,10 +150,11 @@ export function Dashboard() {
   const disconnect = Hooks.useDisconnect()
 
   const permissions = Hooks.usePermissions()
-
   const revokePermissions = Hooks.useRevokePermissions()
 
   const { data: assets } = useTokenBalances()
+
+  const { data: balances } = useReadBalances({ chain: 'base' })
 
   const { data: transfers } = useAddressTransfers()
   const [selectedChains, _setSelectedChains] = React.useState(
@@ -717,12 +714,15 @@ function AssetRow({
 
   const [swapSearchValue, setSwapSearchValue] = React.useState('')
 
-  const swapAssetsExcludingCurrent = swapAssets.filter(
-    (asset) => asset.symbol.toLowerCase() !== symbol.toLowerCase(),
-  )
+  const { data: swapAssets } = useSwapAssets()
+
+  const swapAssetsExcludingCurrent =
+    swapAssets?.filter(
+      (asset) => asset.symbol.toLowerCase() !== symbol.toLowerCase(),
+    ) ?? []
 
   const [selectedAsset, setSelectedAsset] = React.useState(
-    swapAssetsExcludingCurrent[0],
+    swapAssetsExcludingCurrent?.[0],
   )
 
   swapForm.useValidate(async (state) => {
@@ -880,7 +880,7 @@ function AssetRow({
                           <span className="rounded-2xl bg-gray2 px-2 py-1 font-[600] text-gray10 text-xs">
                             {value.symbol}
                           </span>
-                          <span className="ml-auto text-gray10">100</span>
+                          <span className="ml-auto text-gray10">{}</span>
                         </Ariakit.SelectItem>
                       ))}
                     </Ariakit.ComboboxList>
@@ -987,7 +987,6 @@ function AssetRow({
                     const valid = Address.validate(
                       sendFormState.values.sendRecipient,
                     )
-
                     return (
                       <div className="relative">
                         <Ariakit.FormInput

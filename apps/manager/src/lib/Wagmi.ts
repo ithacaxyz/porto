@@ -1,7 +1,7 @@
 import { Porto as SharedPorto } from '@porto/apps'
 import { Mode, Porto } from 'porto'
 import { http, createConfig, createStorage } from 'wagmi'
-import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
+import { base, baseSepolia } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 
 export const porto = import.meta.env.DEV
@@ -13,7 +13,7 @@ export const porto = import.meta.env.DEV
   : SharedPorto.porto
 
 export const config = createConfig({
-  chains: [odysseyTestnet, optimismSepolia, baseSepolia],
+  chains: [base],
   storage: createStorage({ storage: localStorage }),
   multiInjectedProviderDiscovery: false,
   connectors: [
@@ -26,9 +26,7 @@ export const config = createConfig({
     }),
   ],
   transports: {
-    [odysseyTestnet.id]: http(),
-    [optimismSepolia.id]: http(),
-    [baseSepolia.id]: http(),
+    [base.id]: http(),
   },
 })
 

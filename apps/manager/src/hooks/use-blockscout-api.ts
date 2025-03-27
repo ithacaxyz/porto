@@ -3,14 +3,22 @@ import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { useMemo } from 'react'
 import { useAccount, useBalance } from 'wagmi'
-import { baseSepolia, odysseyTestnet, optimismSepolia } from 'wagmi/chains'
+import {
+  base,
+  baseSepolia,
+  odysseyTestnet,
+  optimismSepolia,
+} from 'wagmi/chains'
 
 import { urlWithCorsBypass } from '~/lib/Constants'
 import { config } from '~/lib/Wagmi'
 
 export function addressApiEndpoint(chainId: number) {
-  if (chainId === baseSepolia.id) {
+  if (chainId === base.id) {
     return 'https://base.blockscout.com/api/v2'
+  }
+  if (chainId === baseSepolia.id) {
+    return 'https://base-sepolia.blockscout.com/api/v2'
   }
   if (chainId === odysseyTestnet.id) {
     return 'https://explorer.ithaca.xyz/api/v2'
@@ -24,8 +32,10 @@ export function addressApiEndpoint(chainId: number) {
 
 export function useTokenBalances({
   address,
+  chain,
 }: {
   address?: Address.Address
+  chain?: 'base'
 } = {}) {
   const account = useAccount()
   const userAddress = address ?? account.address
@@ -39,14 +49,14 @@ export function useTokenBalances({
     isSuccess,
     isPending,
   } = useQuery({
-    queryKey: ['token-balances', userAddress],
     refetchInterval: 2_500,
+    queryKey: ['token-balances', userAddress, chain],
     enabled: userAddress && Address.validate(userAddress),
     queryFn: async () => {
+      const chains = config.chains.filter((c) => c.name.toLowerCase() === chain)
       try {
-        // return data
         const responses = await Promise.all(
-          config.chains.map(async (chain) => {
+          chains.map(async (chain) => {
             const apiEndpoint = addressApiEndpoint(chain.id)
             const url = `${apiEndpoint}/addresses/${userAddress}/token-balances`
             const response = await fetch(urlWithCorsBypass(url))
