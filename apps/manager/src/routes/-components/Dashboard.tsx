@@ -115,7 +115,16 @@ function PaginatedTable<T>({
         </thead>
         <tbody className="border-transparent border-t-10">
           {itemsToShow && itemsToShow?.length > 0 ? (
-            itemsToShow?.map(renderRow)
+            itemsToShow?.map((row, index) => (
+              <React.Fragment
+                key={
+                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                  `${index}`
+                }
+              >
+                {renderRow(row)}
+              </React.Fragment>
+            ))
           ) : (
             <tr>
               <td colSpan={columns.length} className="text-center text-gray12">
@@ -145,7 +154,7 @@ export function Dashboard() {
   const disconnect = Hooks.useDisconnect()
 
   const permissions = Hooks.usePermissions()
-  console.info(permissions)
+
   const revokePermissions = Hooks.useRevokePermissions()
 
   const { data: assets } = useTokenBalances()
@@ -346,19 +355,6 @@ export function Dashboard() {
       >
         <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Permissions</span>
-          <Button
-            variant="destructive"
-            size="small"
-            type="button"
-            onClick={() => {
-              permissions?.data?.map((permission) => {
-                revokePermissions.mutate({ id: permission.id })
-              })
-            }}
-            className="ml-2"
-          >
-            Revoke all
-          </Button>
         </summary>
 
         <PaginatedTable
@@ -549,7 +545,7 @@ function AssetRow({
   address: string
 }) {
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
-    'swap',
+    'default',
   )
 
   const sendCalls = useSendCalls({
