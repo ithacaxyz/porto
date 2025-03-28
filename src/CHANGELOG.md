@@ -1,5 +1,33 @@
 # porto
 
+## 0.0.19
+
+### Patch Changes
+
+- [`79e1099`](https://github.com/ithacaxyz/porto/commit/79e10993ac164e381c2c1742536e751e16b561d3) Thanks [@jxom](https://github.com/jxom)! - Renamed `Implementation.local` to `Mode.contract`.
+
+  ```diff
+  - import { Implementation } from 'porto'
+  + import { Mode } from 'porto'
+
+  const porto = Porto.create({
+  - implementation: Implementation.local(),
+  + mode: Mode.contract(),
+  })
+  ```
+
+- [`79e1099`](https://github.com/ithacaxyz/porto/commit/79e10993ac164e381c2c1742536e751e16b561d3) Thanks [@jxom](https://github.com/jxom)! - Renamed `implementation` to `mode`. It's cleaner.
+
+  ```diff
+  - import { Porto, Implementation } from 'porto'
+  + import { Porto, Mode } from 'porto'
+
+  const porto = Porto.create({
+  - implementation: Implementation.dialog(),
+  + mode: Mode.dialog(),
+  })
+  ```
+
 ## 0.0.18
 
 ### Patch Changes
