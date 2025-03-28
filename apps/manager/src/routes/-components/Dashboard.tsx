@@ -1,6 +1,7 @@
 import { Button, Spinner } from '@porto/apps/components'
 
 import * as Ariakit from '@ariakit/react'
+import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { matchSorter } from 'match-sorter'
@@ -9,7 +10,7 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
-import { useAccount } from 'wagmi'
+import { useAccount, useBlockNumber } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import ArrowLeftRightIcon from '~icons/lucide/arrow-left-right'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -23,41 +24,15 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 
-import { Link } from '@tanstack/react-router'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
+import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
-import { useAddressTransfers } from '~/hooks/use-blockscout-api'
-import { useSwapAssets } from '~/hooks/use-swap-assets'
+import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
+import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
-
-function ShowMore({
-  text,
-  className,
-  onChange,
-}: {
-  text: string
-  className?: string
-  onChange: React.ChangeEventHandler<HTMLInputElement>
-}) {
-  const checkbox = Ariakit.useCheckboxStore()
-  const label = Ariakit.useStoreState(checkbox, (state) =>
-    state.value ? 'Show less' : text,
-  )
-
-  return (
-    <Ariakit.Checkbox
-      render={<p />}
-      store={checkbox}
-      onChange={onChange}
-      className={cx(className, '')}
-    >
-      {label}
-    </Ariakit.Checkbox>
-  )
-}
 
 type TableProps<T> = {
   data: ReadonlyArray<T> | undefined
@@ -143,13 +118,26 @@ const recoveryMethods: Array<{ address: string; name: string }> = []
 export function Dashboard() {
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
-
   const permissions = Hooks.usePermissions()
+
+  const { data: transfers } = useAddressTransfers({
+    chainIds: [911_867],
+  })
+  const { data: assets, refetch: refetchSwapAssets } = useSwapAssets({
+    chainId: 911_867,
+  })
+
+  const { data: blockNumber } = useBlockNumber({
+    watch: { enabled: account.status === 'connected', pollingInterval: 800 },
+  })
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
+  React.useEffect(() => {
+    refetchSwapAssets()
+  }, [blockNumber])
+
   const revokePermissions = Hooks.useRevokePermissions()
 
-  const { data: assets } = useSwapAssets({ chain: 'base' })
-
-  const { data: transfers } = useAddressTransfers()
   const [selectedChains, _setSelectedChains] = React.useState(
     config.chains.map((c) => c.id.toString()),
   )
@@ -543,6 +531,10 @@ function AssetRow({
     'default',
   )
 
+  const { data: swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
+    chainId: 911_867,
+  })
+
   const formattedBalance = React.useMemo(
     () => ValueFormatter.format(value, decimals),
     [value, decimals],
@@ -551,7 +543,7 @@ function AssetRow({
   const sendCalls = useSendCalls({
     mutation: {
       onSuccess: (data) => {
-        console.info(sendFormState.values.sendAmount)
+        refetchSwapAssets()
         toast.custom(
           (t) => (
             <CustomToast
@@ -649,6 +641,7 @@ function AssetRow({
   const swapCalls = useSendCalls({
     mutation: {
       onSuccess: (data) => {
+        refetchSwapAssets()
         toast.custom(
           (t) => (
             <CustomToast
@@ -723,8 +716,6 @@ function AssetRow({
   })
 
   const [swapSearchValue, setSwapSearchValue] = React.useState('')
-
-  const { data: swapAssets } = useSwapAssets({ chain: 'base' })
 
   const swapAssetsExcludingCurrent =
     swapAssets?.filter(

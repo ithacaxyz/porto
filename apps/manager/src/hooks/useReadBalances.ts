@@ -1,21 +1,25 @@
 import type { Address } from 'ox'
 import { erc20Abi } from 'viem'
 import { useAccount, useBalance, useReadContracts } from 'wagmi'
+
 import { defaultAssets, ethAsset } from '~/lib/Constants'
+import type { ChainId } from '~/lib/Wagmi'
 
 export function useReadBalances({
   address,
-  chain,
+  chainId,
 }: {
-  address?: Address.Address
-  chain: 'base'
+  address?: Address.Address | undefined
+  chainId: ChainId
 }) {
-  const assets = defaultAssets[chain]
-  if (!assets) throw new Error(`Unsupported chain: ${chain}`)
+  const assets = defaultAssets[chainId]?.filter(
+    (asset) => asset.address !== '0x0000000000000000000000000000000000000000',
+  )
+  if (!assets) throw new Error(`Unsupported chainId: ${chainId}`)
 
   const account = useAccount()
   const accountAddress = address ?? account.address
-  const { data: ethBalance } = useBalance({ address: accountAddress })
+  const { data: ethBalance } = useBalance({ address: accountAddress, chainId })
 
   const { data, isLoading, isPending, refetch } = useReadContracts({
     contracts: assets.map((asset) => ({

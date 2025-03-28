@@ -13,7 +13,9 @@ import * as React from 'react'
 import { parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
-import { useClickOutside } from '~/hooks/use-click-outside'
+
+import { Query } from '@porto/apps'
+import { useClickOutside } from '~/hooks/useClickOutside'
 
 const key = () =>
   ({
@@ -37,8 +39,8 @@ const key = () =>
 export function DevOnly() {
   const account = useAccount()
   const permissions = Hooks.usePermissions()
-  const revokePermissions = Hooks.useRevokePermissions()
   const grantPermissions = Hooks.useGrantPermissions()
+  const revokePermissions = Hooks.useRevokePermissions()
 
   const send = useSendCalls()
 
@@ -58,56 +60,78 @@ export function DevOnly() {
         --
       </AriaKit.Button>
       <div className={cx(open ? 'block' : 'hidden')} ref={ref}>
-        <div className="fixed right-0 bottom-0 left-0 mx-16 flex h-fit w-min justify-start gap-x-2 bg-gray1 p-4 outline-none">
-          <Button
-            variant="default"
-            className="w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
-            onClick={() => grantPermissions.mutate(key())}
-          >
-            Grant
-          </Button>
-          <Button
-            variant="default"
-            disabled={!permissions.data?.[0]}
-            className="w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
-            onClick={() => {
-              if (permissions.data?.[0])
-                revokePermissions.mutate({ id: permissions.data[0].id })
-            }}
-          >
-            Revoke
-          </Button>
-          <Button
-            disabled={!account.address}
-            className="w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
-            variant="default"
-            onClick={() => {
-              if (!account.address) return
-              console.info('minting EXP&EXP2')
-              send.sendCalls({
-                calls: [
-                  {
-                    to: exp1Address,
-                    data: AbiFunction.encodeData(
-                      AbiFunction.fromAbi(exp1Abi, 'mint'),
-                      [account.address, Value.fromEther('100')],
-                    ),
-                  },
-                  {
-                    to: exp2Address,
-                    data: AbiFunction.encodeData(
-                      AbiFunction.fromAbi(exp2Abi, 'mint'),
-                      [account.address, Value.fromEther('100')],
-                    ),
-                  },
-                ],
-              })
+        <div className="fixed right-0 bottom-0 mx-16 flex h-fit max-w-1/2 justify-start gap-x-2 bg-gray1 p-4 outline-none">
+          <div className="grid w-full grid-cols-3 gap-x-2">
+            <Button
+              variant="default"
+              className="max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
+              onClick={() => grantPermissions.mutate(key())}
+            >
+              Grant
+            </Button>
+            <Button
+              variant="default"
+              disabled={!permissions.data?.[0]}
+              className="max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
+              onClick={() => {
+                if (permissions.data?.[0])
+                  revokePermissions.mutate({ id: permissions.data[0].id })
+              }}
+            >
+              Revoke
+            </Button>
+            <Button
+              disabled={!account.address}
+              className="max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
+              variant="default"
+              onClick={() => {
+                if (!account.address) return
+                console.info('minting EXP&EXP2')
+                send.sendCalls({
+                  calls: [
+                    {
+                      to: exp1Address,
+                      data: AbiFunction.encodeData(
+                        AbiFunction.fromAbi(exp1Abi, 'mint'),
+                        [account.address, Value.fromEther('100')],
+                      ),
+                    },
+                    {
+                      to: exp2Address,
+                      data: AbiFunction.encodeData(
+                        AbiFunction.fromAbi(exp2Abi, 'mint'),
+                        [account.address, Value.fromEther('100')],
+                      ),
+                    },
+                  ],
+                })
 
-              console.info(send)
-            }}
-          >
-            Mint EXP&EXP2
-          </Button>
+                console.info(send)
+              }}
+            >
+              Mint EXP&EXP2
+            </Button>
+            <Button
+              onClick={() => {
+                Query.client
+                  .invalidateQueries()
+                  .then(() => Query.client.refetchQueries())
+              }}
+              variant="default"
+              className="w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
+            >
+              refetch all
+            </Button>
+          </div>
+          <pre>
+            {JSON.stringify(
+              {
+                chain: { name: account.chain?.name, id: account.chainId },
+              },
+              undefined,
+              2,
+            )}
+          </pre>
           <AriaKit.Button
             onClick={() => setOpen(false)}
             className="size-3 text-red-500"
