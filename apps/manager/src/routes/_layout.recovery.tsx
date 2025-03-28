@@ -228,6 +228,7 @@ function RouteComponent() {
 
             <Button
               className="my-4 h-11! w-full font-medium text-lg!"
+              onClick={() => toast.dismiss()}
               render={
                 <Link className="" to="..">
                   I'll do this later
