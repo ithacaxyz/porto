@@ -73,7 +73,7 @@ function ActionableFeedback({
 }
 
 function RouteComponent() {
-  React.useEffect(() => {
+  React.useInsertionEffect(() => {
     toast.warning('Not implemented', {
       position: 'top-right',
       duration: Number.POSITIVE_INFINITY,
