@@ -16,6 +16,8 @@ import { useSendCalls } from 'wagmi/experimental'
 
 import { Query } from '@porto/apps'
 import { useClickOutside } from '~/hooks/useClickOutside'
+import { useSwapAssets } from '~/hooks/useSwapAssets'
+import type { ChainId } from '~/lib/Wagmi'
 
 const key = () =>
   ({
@@ -42,7 +44,15 @@ export function DevOnly() {
   const grantPermissions = Hooks.useGrantPermissions()
   const revokePermissions = Hooks.useRevokePermissions()
 
-  const send = useSendCalls()
+  const { refetch: refetchAssets } = useSwapAssets({
+    chainId: account.chainId as ChainId,
+  })
+
+  const send = useSendCalls({
+    mutation: {
+      onSuccess: () => refetchAssets(),
+    },
+  })
 
   const [open, setOpen] = React.useState(false)
 
@@ -60,11 +70,11 @@ export function DevOnly() {
         --
       </AriaKit.Button>
       <div className={cx(open ? 'block' : 'hidden')} ref={ref}>
-        <div className="fixed right-0 bottom-0 mx-16 flex h-fit max-w-1/2 justify-start gap-x-2 bg-gray1 p-4 outline-none">
-          <div className="grid w-full grid-cols-3 gap-x-2">
+        <div className="fixed right-0 bottom-0 flex h-fit max-w-full flex-col justify-start gap-x-2 bg-gray1 p-4 outline-none lg:mx-16 lg:max-w-1/2 lg:flex-row">
+          <div className="grid w-full grid-cols-1 gap-x-2 lg:grid-cols-3">
             <Button
               variant="default"
-              className="max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
+              className="min-w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
               onClick={() => grantPermissions.mutate(key())}
             >
               Grant
@@ -72,7 +82,7 @@ export function DevOnly() {
             <Button
               variant="default"
               disabled={!permissions.data?.[0]}
-              className="max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
+              className="min-w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
               onClick={() => {
                 if (permissions.data?.[0])
                   revokePermissions.mutate({ id: permissions.data[0].id })
@@ -82,7 +92,7 @@ export function DevOnly() {
             </Button>
             <Button
               disabled={!account.address}
-              className="max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
+              className="min-w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
               variant="default"
               onClick={() => {
                 if (!account.address) return
@@ -123,7 +133,7 @@ export function DevOnly() {
               refetch all
             </Button>
           </div>
-          <pre>
+          <pre className="text-xs">
             {JSON.stringify(
               {
                 chain: { name: account.chain?.name, id: account.chainId },

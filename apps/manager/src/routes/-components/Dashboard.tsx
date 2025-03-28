@@ -170,6 +170,7 @@ export function Dashboard() {
       <DevOnly />
       <div className="h-3" />
       <Layout.Header
+        left={undefined}
         right={
           <div className="flex gap-2">
             <Button size="small" className="">
@@ -241,19 +242,19 @@ export function Dashboard() {
           data={assets}
           columns={[
             { header: 'Name', key: 'name', width: 'w-[40%]' },
-            { header: '', key: 'balance', width: 'w-[20%]', align: 'right' },
-            { header: '', key: 'symbol', width: 'w-[20%]', align: 'right' },
-            { header: '', key: 'action', width: 'w-[20%]', align: 'right' },
+            { align: 'right', header: '', key: 'balance', width: 'w-[20%]' },
+            { align: 'right', header: '', key: 'symbol', width: 'w-[20%]' },
+            { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
           renderRow={(asset) => (
             <AssetRow
-              key={asset.address}
               address={asset.address}
-              logo={asset.logo}
-              symbol={asset.symbol}
-              name={asset.name}
-              value={asset.balance}
               decimals={asset.decimals}
+              key={asset.address}
+              logo={asset.logo}
+              name={asset.name}
+              symbol={asset.symbol}
+              value={asset.balance}
             />
           )}
           showMoreText="more assets"
@@ -278,7 +279,7 @@ export function Dashboard() {
           columns={[
             { header: 'Time', key: 'time' },
             { header: 'Account', key: 'recipient' },
-            { header: 'Amount', key: 'amount', align: 'right' },
+            { align: 'right', header: 'Amount', key: 'amount' },
           ]}
           renderRow={(transfer) => (
             <tr
@@ -346,15 +347,15 @@ export function Dashboard() {
           columns={[
             { header: 'Time', key: 'time' },
             { header: 'Name', key: 'name', width: '' },
-            { header: 'Scope', key: 'scope', align: 'left' },
+            { align: 'left', header: 'Scope', key: 'scope' },
             {
+              align: 'left',
               header: 'Amount',
               key: 'amount',
-              align: 'left',
               width: 'w-[120px]',
             },
-            { header: '', key: 'period', align: 'left', width: 'w-[60px]' },
-            { header: '', key: 'action', align: 'right' },
+            { align: 'left', header: '', key: 'period', width: 'w-[60px]' },
+            { align: 'right', header: '', key: 'action' },
           ]}
           renderRow={(permission) => {
             const [spend] = permission?.permissions?.spend ?? []
@@ -513,19 +514,19 @@ export function Dashboard() {
 }
 
 function AssetRow({
-  logo,
-  symbol,
-  name,
-  value,
   address,
   decimals,
+  logo,
+  name,
+  symbol,
+  value,
 }: {
-  logo: string
-  symbol: string
-  name: string
-  value: bigint
-  decimals: number
   address: Address.Address
+  decimals: number
+  logo: string
+  name: string
+  symbol: string
+  value: bigint
 }) {
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
     'default',

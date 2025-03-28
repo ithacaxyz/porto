@@ -14,6 +14,7 @@ import {
 import { Query } from '@porto/apps'
 import { urlWithCorsBypass } from '~/lib/Constants'
 import { type ChainId, config } from '~/lib/Wagmi'
+import { useReadBalances } from './useReadBalances'
 
 export function addressApiEndpoint(chainId: ChainId) {
   if (chainId === base.id) return 'https://base.blockscout.com/api/v2'
@@ -104,12 +105,12 @@ export function useTokenBalances({
 
   return {
     data: balances,
-    status,
     error,
-    refetch,
     isError,
-    isSuccess,
     isPending,
+    isSuccess,
+    refetch,
+    status,
   }
 }
 
@@ -142,6 +143,11 @@ export function useAddressTransfers({
 
   const userAddress = address ?? account.address
   const userChainIds = (chainIds ?? [account.chainId]) as Array<ChainId>
+
+  const { refetch: refetchBalances } = useReadBalances({
+    address: userAddress,
+    chainId: userChainIds[0] as ChainId,
+  })
 
   const results = useQueries({
     combine: (result) => ({
@@ -185,11 +191,13 @@ export function useAddressTransfers({
           queryKey: ['address-transfers', userAddress],
         })
         .then(() =>
-          Query.client.refetchQueries({
-            queryKey: ['address-transfers', userAddress],
-          }),
+          Query.client
+            .refetchQueries({
+              queryKey: ['address-transfers', userAddress],
+            })
+            .then(() => refetchBalances()),
         ),
-    [userAddress],
+    [userAddress, refetchBalances],
   )
 
   const { data: blockNumber } = useBlockNumber({
@@ -210,10 +218,10 @@ export function useAddressTransfers({
   return {
     data,
     error,
-    refetch,
     isError,
-    isSuccess,
     isPending,
+    isSuccess,
+    refetch,
   }
 }
 
@@ -322,7 +330,7 @@ export function useTransactionsHistory({
     data,
     error,
     isError,
-    isSuccess,
     isPending,
+    isSuccess,
   }
 }

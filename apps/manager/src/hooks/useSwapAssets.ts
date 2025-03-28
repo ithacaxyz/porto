@@ -69,11 +69,11 @@ export function useSwapAssets({ chainId }: { chainId: ChainId }) {
 }
 
 export type AssetWithPrice = LlamaFiPrice & {
-  logo: string
-  symbol: string
-  name: string
   address: Address.Address
   balance: bigint
+  logo: string
+  name: string
+  symbol: string
 }
 
 async function getAssetsPrices({
@@ -97,11 +97,11 @@ async function getAssetsPrices({
 }
 
 type LlamaFiPrice = {
+  confidence: number
+  decimals: number
   price: number
   symbol: string
-  decimals: number
   timestamp: number
-  confidence: number
 }
 
 type LlamaFiPrices = {

@@ -1,6 +1,11 @@
 import type { Address } from 'ox'
 import { erc20Abi } from 'viem'
-import { useAccount, useBalance, useReadContracts } from 'wagmi'
+import {
+  useAccount,
+  useBalance,
+  useReadContracts,
+  useWatchBlockNumber,
+} from 'wagmi'
 
 import { defaultAssets, ethAsset } from '~/lib/Constants'
 import type { ChainId } from '~/lib/Wagmi'
@@ -46,6 +51,11 @@ export function useReadBalances({
         }>
       },
     },
+  })
+
+  useWatchBlockNumber({
+    onBlockNumber: () => refetch(),
+    enabled: account.status === 'connected',
   })
 
   return {
