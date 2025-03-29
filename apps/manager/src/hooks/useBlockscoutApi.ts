@@ -152,7 +152,6 @@ export function useAddressTransfers({
       isSuccess: result.every((query) => query.isSuccess),
     }),
     queries: userChainIds.map((chainId) => ({
-      refetchInterval: 6_000,
       enabled: account.status === 'connected',
       queryFn: async () => {
         const apiEndpoint = addressApiEndpoint(chainId)

@@ -1,5 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner } from '@porto/apps/components'
+import { exp1Config, exp2Config } from '@porto/apps/contracts'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
@@ -14,12 +15,12 @@ import { useSendCalls } from 'wagmi/experimental'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
+import { TokenSymbol } from '~/components/Token'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
-import { useErc20Info } from '~/hooks/useTokenInfo'
 import { config } from '~/lib/Wagmi'
-import { DateFormatter, StringFormatter, sum, ValueFormatter } from '~/utils'
+import { DateFormatter, sum, ValueFormatter } from '~/utils'
 import ArrowLeftRightIcon from '~icons/lucide/arrow-left-right'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
@@ -31,17 +32,6 @@ import XIcon from '~icons/lucide/x'
 import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
-
-import { exp1Config, exp2Config } from '@porto/apps/contracts'
-import { CustomToast } from '~/components/CustomToast'
-import { DevOnly } from '~/components/DevOnly'
-import { ShowMore } from '~/components/ShowMore'
-import { TokenSymbol } from '~/components/Token'
-import { TruncatedAddress } from '~/components/TruncatedAddress'
-import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
-import { useSwapAssets } from '~/hooks/useSwapAssets'
-import { config } from '~/lib/Wagmi'
-import { DateFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
 
 const recoveryMethods: Array<{ address: string; name: string }> = []
@@ -105,16 +95,16 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
-              size="small"
               render={
                 <a
-                  target="_blank"
-                  rel="noreferrer"
                   href="https://t.me/porto_devs"
+                  rel="noreferrer"
+                  target="_blank"
                 >
                   Help
                 </a>
               }
+              size="small"
             />
 
             <Button
@@ -706,28 +696,6 @@ function AssetRow({
         swapForm.setState('submitSucceed', (count) => +count + 1)
         swapForm.setState('submitFailed', 0)
       },
-      onError: (error) => {
-        const notAllowed = error.message.includes('not allowed')
-        toast.custom(
-          (t) => (
-            <CustomToast
-              className={t}
-              kind={notAllowed ? 'WARN' : 'ERROR'}
-              title={
-                notAllowed ? 'Transaction cancelled' : 'Transaction failed'
-              }
-              description={
-                notAllowed
-                  ? 'Transaction submission was cancelled.'
-                  : 'You do not have enough balance to complete this transaction.'
-              }
-            />
-          ),
-          { duration: 3_500 },
-        )
-        swapForm.setState('submitFailed', (count) => +count + 1)
-        swapForm.setState('submitSucceed', 0)
-      },
     },
   })
 
@@ -747,16 +715,16 @@ function AssetRow({
   const matches = React.useMemo(
     () =>
       matchSorter(swapAssetsExcludingCurrent, swapSearchValue, {
-        keys: ['symbol', 'name', 'address'],
         baseSort: (a, b) => (a.index < b.index ? -1 : 1),
+        keys: ['symbol', 'name', 'address'],
       }),
     [swapSearchValue, swapAssetsExcludingCurrent],
   )
 
   const swapForm = Ariakit.useFormStore({
     defaultValues: {
-      swapAmount: '',
       fromAsset: address,
+      swapAmount: '',
       toAsset: swapAssetsExcludingCurrent?.[0]?.address,
     },
   })
@@ -780,17 +748,17 @@ function AssetRow({
     swapCalls.sendCalls({
       calls: [
         {
-          to: config.address,
           data: encodeFunctionData({
             abi: config.abi,
-            functionName: 'swap',
             args: [
               // swapFormState.values.toAsset,
               '0xf242cE588b030d0895C51C0730F2368680f80644',
               account.address,
               Value.fromEther(swapFormState.values.swapAmount),
             ],
+            functionName: 'swap',
           }),
+          to: config.address,
         },
       ],
     })
@@ -872,10 +840,9 @@ function AssetRow({
                       <ArrowRightIcon className="size-5 text-gray10" />
                     </div>
                     <img
-                      src={selectedSwapAsset?.logo}
                       alt="asset icon"
                       className="my-auto size-7"
-                      src={selectedAsset?.logo}
+                      src={selectedSwapAsset?.logo}
                     />
                     <div className="my-auto ml-2 flex flex-col items-start overflow-hidden text-ellipsis whitespace-nowrap">
                       <span className="font-normal text-gray10 text-xs">
@@ -918,14 +885,12 @@ function AssetRow({
                         <Ariakit.SelectItem
                           className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-gray3 dark:focus:bg-sky-900"
                           key={value.symbol}
-                          value={value.symbol}
                           onClick={() =>
                             swapForm.setValue(
                               swapForm.names.toAsset,
                               value.address,
                             )
                           }
-                          className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-gray3 dark:focus:bg-sky-900"
                           render={
                             <Ariakit.ComboboxItem
                               className={cx(

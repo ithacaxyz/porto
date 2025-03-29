@@ -15,7 +15,7 @@ export function TokenSymbol({
   if (!address) return null
 
   if (!tokenInfo?.symbol || display === 'ADDRESS')
-    return StringFormatter.truncate(address, { start: 4, end: 4 })
+    return StringFormatter.truncate(address, { end: 4, start: 4 })
 
   return display === 'NAME' ? tokenInfo.name : tokenInfo.symbol
 }
