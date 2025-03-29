@@ -73,7 +73,7 @@ function ActionableFeedback({
 }
 
 function RouteComponent() {
-  React.useEffect(() => {
+  React.useInsertionEffect(() => {
     toast.warning('Not implemented', {
       position: 'top-right',
       duration: Number.POSITIVE_INFINITY,
@@ -233,6 +233,7 @@ function RouteComponent() {
 
             <Button
               className="my-4 h-11! w-full font-medium text-lg!"
+              onClick={() => toast.dismiss()}
               render={
                 <Link to=".." className="">
                   I'll do this later

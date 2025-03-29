@@ -24,94 +24,17 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 
+import { exp1Config, exp2Config } from '@porto/apps/contracts'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
+import { TokenSymbol } from '~/components/Token'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { config } from '~/lib/Wagmi'
-import { DateFormatter, StringFormatter, ValueFormatter, sum } from '~/utils'
+import { DateFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
-
-type TableProps<T> = {
-  data: ReadonlyArray<T> | undefined
-  emptyMessage: string
-  columns: {
-    header: string
-    key: string
-    align?: 'left' | 'right' | 'center'
-    width?: string
-  }[]
-  renderRow: (item: T) => React.ReactNode
-  showMoreText: string
-  initialCount?: number
-}
-
-function PaginatedTable<T>({
-  data,
-  emptyMessage,
-  columns,
-  renderRow,
-  showMoreText,
-  initialCount = 5,
-}: TableProps<T>) {
-  const [firstItems, remainingItems] = React.useMemo(
-    () =>
-      !data
-        ? [[], []]
-        : [data.slice(0, initialCount), data.slice(initialCount)],
-    [data, initialCount],
-  )
-
-  const [showAll, setShowAll] = React.useState<'ALL' | 'DEFAULT'>('DEFAULT')
-  const itemsToShow = showAll === 'ALL' ? data : firstItems
-
-  return (
-    <>
-      <table className="my-3 w-full table-auto">
-        <thead>
-          <tr className="text-gray10 *:font-normal *:text-sm">
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className={cx(
-                  col.width,
-                  col.align === 'right' ? 'text-right' : 'text-left',
-                )}
-              >
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="border-transparent border-t-10">
-          {itemsToShow && itemsToShow?.length > 0 ? (
-            itemsToShow?.map((item, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={columns.length} className="text-center text-gray12">
-                <p className="mt-2 text-sm">{emptyMessage}</p>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      {remainingItems.length > 0 && (
-        <div className="flex justify-start">
-          <ShowMore
-            onChange={() => setShowAll(showAll === 'ALL' ? 'DEFAULT' : 'ALL')}
-            text={`Show ${remainingItems.length} ${showMoreText}`}
-            className="cursor-default font-medium text-gray10 text-sm"
-          />
-        </div>
-      )}
-    </>
-  )
-}
 
 const recoveryMethods: Array<{ address: string; name: string }> = []
 
@@ -173,9 +96,19 @@ export function Dashboard() {
         left={undefined}
         right={
           <div className="flex gap-2">
-            <Button size="small" className="">
-              Help
-            </Button>
+            <Button
+              size="small"
+              render={
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://t.me/porto_devs"
+                >
+                  Help
+                </a>
+              }
+            />
+
             <Button
               onClick={() => disconnect.mutate({})}
               size="small"
@@ -362,6 +295,7 @@ export function Dashboard() {
             const [calls] = permission?.permissions?.calls ?? []
 
             const time = DateFormatter.timeToDuration(permission.expiry * 1_000)
+
             return (
               <tr
                 key={`${permission.id}-${permission.expiry}`}
@@ -403,10 +337,7 @@ export function Dashboard() {
                       )}
                     </span>
                     <span className="truncate">
-                      {StringFormatter.truncate(spend?.token ?? '', {
-                        start: 4,
-                        end: 4,
-                      })}
+                      <TokenSymbol address={spend?.token} />
                     </span>
                   </div>
                 </td>
@@ -513,6 +444,83 @@ export function Dashboard() {
   )
 }
 
+function PaginatedTable<T>({
+  data,
+  emptyMessage,
+  columns,
+  renderRow,
+  showMoreText,
+  initialCount = 5,
+}: {
+  data: ReadonlyArray<T> | undefined
+  emptyMessage: string
+  columns: {
+    header: string
+    key: string
+    align?: 'left' | 'right' | 'center'
+    width?: string
+  }[]
+  renderRow: (item: T) => React.ReactNode
+  showMoreText: string
+  initialCount?: number
+}) {
+  const [firstItems, remainingItems] = React.useMemo(
+    () =>
+      !data
+        ? [[], []]
+        : [data.slice(0, initialCount), data.slice(initialCount)],
+    [data, initialCount],
+  )
+
+  const [showAll, setShowAll] = React.useState<'ALL' | 'DEFAULT'>('DEFAULT')
+  const itemsToShow = showAll === 'ALL' ? data : firstItems
+
+  return (
+    <>
+      <table className="my-3 w-full table-auto">
+        <thead>
+          <tr className="text-gray10 *:font-normal *:text-sm">
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                className={cx(
+                  col.width,
+                  col.align === 'right' ? 'text-right' : 'text-left',
+                )}
+              >
+                {col.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="border-transparent border-t-10">
+          {itemsToShow && itemsToShow?.length > 0 ? (
+            itemsToShow?.map((item, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={columns.length} className="text-center text-gray12">
+                <p className="mt-2 text-sm">{emptyMessage}</p>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      {remainingItems.length > 0 && (
+        <div className="flex justify-start">
+          <ShowMore
+            onChange={() => setShowAll(showAll === 'ALL' ? 'DEFAULT' : 'ALL')}
+            text={`Show ${remainingItems.length} ${showMoreText}`}
+            className="cursor-default font-medium text-gray10 text-sm"
+          />
+        </div>
+      )}
+    </>
+  )
+}
+
 function AssetRow({
   address,
   decimals,
@@ -531,6 +539,8 @@ function AssetRow({
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
     'default',
   )
+
+  const account = useAccount()
 
   const { data: swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
     chainId: 911_867,
@@ -696,42 +706,18 @@ function AssetRow({
     },
   })
 
-  const swapForm = Ariakit.useFormStore({
-    defaultValues: {
-      swapAmount: '',
-      swapAsset: address,
-    },
-  })
-  const swapFormState = Ariakit.useStoreState(swapForm)
+  const swapAssetsExcludingCurrent = React.useMemo(() => {
+    const filtered =
+      swapAssets?.filter(
+        (asset) => asset.symbol.toLowerCase() !== symbol.toLowerCase(),
+      ) ?? []
 
-  swapForm.useSubmit(async (_state) => {
-    if (!(await swapForm.validate())) return
-
-    swapCalls.sendCalls({
-      calls: [
-        {
-          to: address,
-        },
-      ],
-    })
-  })
+    return account.chainId === 911_867
+      ? filtered.filter((a) => a.symbol !== 'ETH')
+      : filtered
+  }, [swapAssets, symbol, account.chainId])
 
   const [swapSearchValue, setSwapSearchValue] = React.useState('')
-
-  const swapAssetsExcludingCurrent =
-    swapAssets?.filter(
-      (asset) => asset.symbol.toLowerCase() !== symbol.toLowerCase(),
-    ) ?? []
-
-  const [selectedAsset, setSelectedAsset] = React.useState(
-    swapAssetsExcludingCurrent?.[0],
-  )
-
-  swapForm.useValidate(async (state) => {
-    if (Number(state.values.swapAmount) > Number(formattedBalance)) {
-      swapForm.setError('swapAmount', 'Amount is too high')
-    }
-  })
 
   const matches = React.useMemo(
     () =>
@@ -741,6 +727,52 @@ function AssetRow({
       }),
     [swapSearchValue, swapAssetsExcludingCurrent],
   )
+
+  const swapForm = Ariakit.useFormStore({
+    defaultValues: {
+      swapAmount: '',
+      fromAsset: address,
+      toAsset: swapAssetsExcludingCurrent?.[0]?.address,
+    },
+  })
+  const swapFormState = Ariakit.useStoreState(swapForm)
+  const selectedSwapAsset = swapAssets?.find(
+    (asset) => asset.address === swapFormState.values.toAsset,
+  )
+
+  swapForm.useSubmit(async (_state) => {
+    if (!(await swapForm.validate())) return
+
+    if (!account.address || !swapFormState.values.toAsset) return
+
+    const config =
+      swapFormState.values.fromAsset === exp1Config.address
+        ? exp1Config
+        : exp2Config
+
+    swapCalls.sendCalls({
+      calls: [
+        {
+          to: config.address,
+          data: encodeFunctionData({
+            abi: config.abi,
+            functionName: 'swap',
+            args: [
+              swapFormState.values.toAsset,
+              account.address,
+              Value.fromEther(swapFormState.values.swapAmount),
+            ],
+          }),
+        },
+      ],
+    })
+  })
+
+  swapForm.useValidate(async (state) => {
+    if (Number(state.values.swapAmount) > Number(formattedBalance)) {
+      swapForm.setError('swapAmount', 'Amount is too high')
+    }
+  })
 
   return (
     <tr className="font-normal sm:text-sm">
@@ -786,7 +818,7 @@ function AssetRow({
               '*:h-[62px] *:w-1/2 *:rounded-xl *:border-1 *:border-gray6 *:bg-white *:dark:bg-gray1',
             )}
           >
-            <div className="z-[10000] flex items-center gap-x-2 shadow-xs focus-within:border-gray8 focus:outline-sky-500">
+            <div className="relative flex items-center gap-x-2 shadow-xs focus-within:border-gray8 focus:outline-sky-500">
               <Ariakit.ComboboxProvider
                 resetValueOnHide={true}
                 setValue={(value) => {
@@ -796,7 +828,9 @@ function AssetRow({
                 <Ariakit.VisuallyHidden>
                   <Ariakit.ComboboxLabel>Select asset</Ariakit.ComboboxLabel>
                 </Ariakit.VisuallyHidden>
-                <Ariakit.SelectProvider defaultValue={selectedAsset?.symbol}>
+                <Ariakit.SelectProvider
+                  defaultValue={selectedSwapAsset?.address}
+                >
                   <Ariakit.VisuallyHidden>
                     <Ariakit.SelectLabel>Select asset</Ariakit.SelectLabel>
                   </Ariakit.VisuallyHidden>
@@ -810,7 +844,7 @@ function AssetRow({
                       <ArrowRightIcon className="size-5 text-gray10" />
                     </div>
                     <img
-                      src={selectedAsset?.logo}
+                      src={selectedSwapAsset?.logo}
                       alt="asset icon"
                       className="my-auto size-7"
                     />
@@ -819,7 +853,7 @@ function AssetRow({
                         Swap to
                       </span>
                       <span className="font-medium text-xs sm:text-sm">
-                        {selectedAsset?.name}
+                        {selectedSwapAsset?.name}
                       </span>
                     </div>
                     <div className="my-auto mr-2 ml-auto flex h-full items-center">
@@ -831,7 +865,7 @@ function AssetRow({
                     sameWidth={true}
                     unmountOnHide={true}
                     className={cx(
-                      'rounded-xl border border-gray6 bg-white shadow-sm dark:border-gray4 dark:bg-gray1',
+                      'fixed z-[100] rounded-xl border border-gray6 bg-white shadow-sm dark:border-gray4 dark:bg-gray1',
                       'scale-[0.95] opacity-0 data-[enter]:scale-[1] data-[enter]:opacity-100',
                     )}
                     style={{
@@ -855,7 +889,12 @@ function AssetRow({
                         <Ariakit.SelectItem
                           key={value.symbol}
                           value={value.symbol}
-                          onClick={() => setSelectedAsset(value)}
+                          onClick={() =>
+                            swapForm.setValue(
+                              swapForm.names.toAsset,
+                              value.address,
+                            )
+                          }
                           className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-gray3 dark:focus:bg-sky-900"
                           render={
                             <Ariakit.ComboboxItem
@@ -881,7 +920,7 @@ function AssetRow({
                             {value.symbol}
                           </span>
                           <span className="ml-auto text-gray10">
-                            {formattedBalance}
+                            {Value.format(value.balance, value.decimals)}
                           </span>
                         </Ariakit.SelectItem>
                       ))}
