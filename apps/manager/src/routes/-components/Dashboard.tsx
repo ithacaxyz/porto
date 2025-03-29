@@ -736,9 +736,7 @@ function AssetRow({
   swapForm.useSubmit(async (_state) => {
     if (!(await swapForm.validate())) return
 
-    if (!account.address) return
-
-    console.info(swapFormState.values, address)
+    if (!account.address || !swapFormState.values.toAsset) return
 
     const config =
       swapFormState.values.fromAsset === exp1Config.address
@@ -751,8 +749,7 @@ function AssetRow({
           data: encodeFunctionData({
             abi: config.abi,
             args: [
-              // swapFormState.values.toAsset,
-              '0xf242cE588b030d0895C51C0730F2368680f80644',
+              swapFormState.values.toAsset,
               account.address,
               Value.fromEther(swapFormState.values.swapAmount),
             ],
@@ -814,7 +811,7 @@ function AssetRow({
             validateOnBlur={true}
             validateOnChange={true}
           >
-            <div className="z-[10000] flex items-center gap-x-2 shadow-xs focus-within:border-gray8 focus:outline-sky-500">
+            <div className="relative flex items-center gap-x-2 shadow-xs focus-within:border-gray8 focus:outline-sky-500">
               <Ariakit.ComboboxProvider
                 resetValueOnHide={true}
                 setValue={(value) => {
@@ -858,7 +855,7 @@ function AssetRow({
                   </Ariakit.Select>
                   <Ariakit.SelectPopover
                     className={cx(
-                      'rounded-xl border border-gray6 bg-white shadow-sm dark:border-gray4 dark:bg-gray1',
+                      'fixed z-[100] rounded-xl border border-gray6 bg-white shadow-sm dark:border-gray4 dark:bg-gray1',
                       'scale-[0.95] opacity-0 data-[enter]:scale-[1] data-[enter]:opacity-100',
                     )}
                     gutter={24}
