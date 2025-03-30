@@ -6,10 +6,6 @@ import { anvil } from 'prool/instances'
 import { defineConfig } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 
-import * as Chains from '../../src/core/Chains.js'
-import * as Anvil from '../../test/src/anvil.js'
-import { relay } from '../../test/src/prool.js'
-
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -26,6 +22,12 @@ export default defineConfig({
       name: 'anvil',
       async configureServer() {
         if (process.env.ANVIL !== 'true') return
+
+        const [Chains, Anvil, { relay }] = await Promise.all([
+          import('../../src/core/Chains.js'),
+          import('../../test/src/anvil.js'),
+          import('../../test/src/prool.js'),
+        ])
 
         const anvilConfig = {
           port: 8545,
