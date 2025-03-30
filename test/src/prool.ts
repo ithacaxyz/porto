@@ -11,6 +11,7 @@ type RelayParameters = {
     metricsPort?: number | undefined
   }
   quoteSecretKey?: string | undefined
+  quoteTtl?: number | undefined
   secretKey?: string | undefined
   txGasBuffer?: bigint | undefined
   userOpGasBuffer?: bigint | undefined
@@ -77,8 +78,9 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
             port,
             metricsPort: port + 1,
           },
-          secretKey,
           quoteSecretKey,
+          quoteTtl: 30,
+          secretKey,
         } satisfies Partial<RelayParameters>),
         ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),
       ]
@@ -91,7 +93,8 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
             if (message.includes('Started relay service')) resolve()
           })
           process.stderr.on('data', (data) => {
-            if (data.toString().includes('WARNING')) return
+            const message = data.toString()
+            if (message.includes('WARNING')) return
             reject(data)
           })
         },

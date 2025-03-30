@@ -6,7 +6,7 @@ import { exp1Address } from '../_generated/contracts'
 import * as Env from './Env'
 
 export const config = {
-  local: {
+  anvil: {
     chains: [Chains.odysseyTestnet],
     mode: Mode.relay({
       feeToken: exp1Address,
@@ -43,9 +43,9 @@ export const config = {
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
 
 export const dialogHosts = {
-  local: import.meta.env.PROD
+  anvil: import.meta.env.PROD
     ? undefined
-    : 'https://local.localhost:5174/dialog/',
+    : 'https://anvil.localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
     : 'https://stg.localhost:5174/dialog/',
@@ -55,7 +55,7 @@ export const dialogHosts = {
 } as const satisfies Record<Env.Env, string | undefined>
 
 export const dialogModes = {
-  local: Mode.relay({
+  anvil: Mode.relay({
     feeToken: exp1Address,
   }),
   stg: Mode.relay({
