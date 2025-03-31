@@ -169,28 +169,31 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
-      async grantAdmin(parameters) {
-        const { internal } = parameters
-        const { request, store } = internal
+      async grantAdmin() {
+        // Note: we probably don't want to support this yet.
+        throw new Provider.UnsupportedMethodError()
 
-        if (request.method !== 'experimental_grantAdmin')
-          throw new Error(
-            'Cannot authorize admin for method: ' + request.method,
-          )
+        // const { internal } = parameters
+        // const { request, store } = internal
 
-        const [params] = request._decoded.params
+        // if (request.method !== 'experimental_grantAdmin')
+        //   throw new Error(
+        //     'Cannot authorize admin for method: ' + request.method,
+        //   )
 
-        const key = Key.from({ ...params.key, role: 'admin' } as Key.Key)
-        if (!key) throw new Error('no key found.')
+        // const [params] = request._decoded.params
 
-        // Send a request off to the dialog to authorize the admin.
-        const provider = getProvider(store)
-        await provider.request({
-          method: 'experimental_grantAdmin',
-          params: request.params,
-        })
+        // const key = Key.from({ ...params.key, role: 'admin' } as Key.Key)
+        // if (!key) throw new Error('no key found.')
 
-        return { key }
+        // // Send a request off to the dialog to authorize the admin.
+        // const provider = getProvider(store)
+        // await provider.request({
+        //   method: 'experimental_grantAdmin',
+        //   params: request.params,
+        // })
+
+        // return { key }
       },
 
       async grantPermissions(parameters) {
@@ -270,6 +273,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ?.map((key) =>
                   Key.from({
                     ...key,
+                    canSign: true,
                     role: 'admin',
                   }),
                 )
