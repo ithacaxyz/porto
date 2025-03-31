@@ -6,7 +6,6 @@ exports[`contract > experimental_getAdmins > behavior: disconnected 1`] = `[Prov
 
 exports[`contract > experimental_grantAdmin > default 1`] = `
 {
-  "expiry": "0x0",
   "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
   "type": "address",
@@ -397,7 +396,6 @@ exports[`relay > experimental_getAdmins > behavior: disconnected 1`] = `[Provide
 
 exports[`relay > experimental_grantAdmin > default 1`] = `
 {
-  "expiry": "0x0",
   "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
   "type": "address",
