@@ -81,9 +81,7 @@ export namespace experimental_getAdmins {
 
   export const Response = Type.Object({
     address: Primitive.Address,
-    keys: Type.Array(
-      Type.Pick(Key.Base, ['expiry', 'id', 'publicKey', 'type']),
-    ),
+    keys: Type.Array(Type.Pick(Key.Base, ['id', 'publicKey', 'type'])),
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
@@ -103,10 +101,6 @@ export namespace experimental_grantAdmin {
     chainId: Schema.Optional(Primitive.Number),
     /** Admin Key to authorize. */
     key: Type.Object({
-      /** Expiry. */
-      expiry: Schema.Optional(Key.Base.properties.expiry),
-      /** Whether the key will need its digest (SHA256) prehashed when signing. */
-      prehash: Schema.Optional(Type.Boolean()),
       /** Public key. */
       publicKey: Key.Base.properties.publicKey,
       /** Key type. */

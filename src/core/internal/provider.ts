@@ -216,7 +216,7 @@ export function from<
             }
           })
 
-          const admins = getActiveAdmins([...(account.keys ?? []), key])
+          const admins = getAdmins([...(account.keys ?? []), key])
 
           emitter.emit('message', {
             data: admins,
@@ -338,7 +338,7 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const keys = getActiveAdmins(account.keys ?? [])
+          const keys = getAdmins(account.keys ?? [])
 
           return Schema.Encode(Rpc.experimental_getAdmins.Response, {
             address: account.address,
@@ -439,7 +439,7 @@ export function from<
           }))
 
           emitter.emit('message', {
-            data: getActiveAdmins(keys ?? []),
+            data: getAdmins(keys ?? []),
             type: 'adminsChanged',
           })
 
@@ -649,7 +649,7 @@ export function from<
             accounts: accounts.map((account) => ({
               address: account.address,
               capabilities: {
-                admins: account.keys ? getActiveAdmins(account.keys) : [],
+                admins: account.keys ? getAdmins(account.keys) : [],
                 permissions: account.keys
                   ? getActivePermissions(account.keys, {
                       address: account.address,
@@ -873,19 +873,16 @@ function announce(provider: Provider) {
   })
 }
 
-function getActiveAdmins(
+function getAdmins(
   keys: readonly Key.Key[],
 ): Schema.Static<(typeof Rpc.experimental_getAdmins.Response)['keys']> {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
-      if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
-        return undefined
       try {
         return Schema.Encode(
           Rpc.experimental_getAdmins.Response.properties.keys.items,
           {
-            expiry: key.expiry,
             id: key.id ?? key.publicKey,
             publicKey: key.publicKey,
             type: key.type,

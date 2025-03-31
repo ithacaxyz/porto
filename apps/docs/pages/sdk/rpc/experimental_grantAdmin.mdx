@@ -38,10 +38,6 @@ type Request = {
     chainId?: `0x${string}`
     /** The admin key. */
     key?: {
-      /** Expiry. */
-      expiry?: `0x${string}`,
-      /** Whether the key will need its digest (SHA256) prehashed when signing. */
-      prehash?: boolean,
       /** Public key. Accepts an address for `address` & `secp256k1` types. */
       publicKey: `0x${string}`,
       /** Key type. */
@@ -58,7 +54,6 @@ type Response = {
   address: `0x${string}`,
   chainId: `0x${string}`,
   key: {
-    expiry: `0x${string}`,
     id: `0x${string}`,
     publicKey: `0x${string}`,
     type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256',
