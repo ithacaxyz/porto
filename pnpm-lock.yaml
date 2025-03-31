@@ -465,7 +465,7 @@ importers:
         version: link:../~internal
       '@tailwindcss/vite':
         specifier: 'catalog:'
-        version: 4.0.15(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.0.17(vite@6.2.3(@types/node@22.13.14)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       mipd:
         specifier: ^0.0.7
         version: 0.0.7(typescript@5.8.2)
