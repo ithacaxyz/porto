@@ -262,9 +262,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
             })
 
             return result.accounts.map((account) => {
-              const keys = account.capabilities?.permissions
+              const adminKeys = account.capabilities?.admins
+                ?.map((admin) =>
+                  Key.from({
+                    ...admin,
+                    expiry: Number(admin.expiry),
+                    role: 'admin',
+                  }),
+                )
+                .filter(Boolean) as readonly Key.Key[]
+              const sessionKeys = account.capabilities?.permissions
                 ?.map((permission) => {
-                  if (permission.id === key?.publicKey) return key
                   try {
                     return Permissions.toKey(
                       Schema.Decode(Permissions.Schema, permission),
@@ -277,7 +285,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
               return Account.from({
                 address: account.address,
-                keys,
+                keys: [...adminKeys, ...sessionKeys],
               })
             })
           }

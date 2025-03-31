@@ -2,16 +2,16 @@
 
 exports[`contract > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`contract > experimental_authorizeAdmin > default 1`] = `
+exports[`contract > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
+exports[`contract > experimental_grantAdmin > default 1`] = `
 {
   "expiry": "0x0",
-  "id": undefined,
+  "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
   "type": "address",
 }
 `;
-
-exports[`contract > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
 exports[`contract > experimental_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
@@ -393,16 +393,16 @@ exports[`contract > wallet_sendCalls > behavior: permission does not exist 1`] =
 
 exports[`relay > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`relay > experimental_authorizeAdmin > default 1`] = `
+exports[`relay > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
+exports[`relay > experimental_grantAdmin > default 1`] = `
 {
   "expiry": "0x0",
-  "id": undefined,
+  "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
   "type": "address",
 }
 `;
-
-exports[`relay > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
 exports[`relay > experimental_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1

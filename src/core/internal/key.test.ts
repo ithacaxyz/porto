@@ -268,6 +268,47 @@ describe('deserialize', () => {
       }
     `)
   })
+
+  test('secp256k1', () => {
+    const key = Key.fromSecp256k1({
+      publicKey:
+        '0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008',
+      role: 'admin',
+    })
+    const serialized = Key.serialize(key)
+    const deserialized = Key.deserialize(serialized)
+
+    expect(deserialized).toMatchInlineSnapshot(`
+      {
+        "canSign": false,
+        "expiry": 0,
+        "hash": "0x6364f61156f50881a6e5b27442a97c2f218cba981f5bcd1a398750515212b1ab",
+        "publicKey": "0xe9cf8e14602e9f081668f2839e63ceb23c6e0e5a",
+        "role": "admin",
+        "type": "secp256k1",
+      }
+    `)
+  })
+
+  test('address', () => {
+    const key = Key.fromSecp256k1({
+      address: '0xed7ac7c7b35b77e97be67b84f5889e0ab3412222',
+      role: 'admin',
+    })
+    const serialized = Key.serialize(key)
+    const deserialized = Key.deserialize(serialized)
+
+    expect(deserialized).toMatchInlineSnapshot(`
+      {
+        "canSign": false,
+        "expiry": 0,
+        "hash": "0xf3d20b7404e4008e6a4df9ffbce26e5f275296eda26b4e82e6c6ea05ad85b650",
+        "publicKey": "0xed7ac7c7b35b77e97be67b84f5889e0ab3412222",
+        "role": "admin",
+        "type": "secp256k1",
+      }
+    `)
+  })
 })
 
 describe('from', () => {

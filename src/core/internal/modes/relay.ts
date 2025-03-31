@@ -176,22 +176,18 @@ export function relay(config: relay.Parameters = {}) {
             ...accounts[0].keys,
             ...(authorizeKey ? [authorizeKey] : []),
           ].map((key, i) => {
-            const credential = {
-              id: credentialId!,
-              publicKey: PublicKey.fromHex(key.publicKey),
-            }
             // Assume that the first key is the admin WebAuthn key.
             if (i === 0) {
               if (key.type === 'webauthn-p256')
                 return Key.fromWebAuthnP256({
                   ...key,
-                  credential,
+                  credential: {
+                    id: credentialId!,
+                    publicKey: PublicKey.fromHex(key.publicKey),
+                  },
                   id: keyId,
                 })
             }
-            // Add credential to session key to be able to restore from storage later
-            if ((key.type === 'p256' && key.role === 'session') || mock)
-              return { ...key, credential } as typeof key
             return key
           }),
         })

@@ -1,5 +1,6 @@
 import { Env, Porto as PortoConfig } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
+import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
 import { Dialog, Mode, Porto } from 'porto'
 
@@ -33,16 +34,17 @@ export const modes = {
   'iframe-dialog': Mode.dialog({
     host,
   }),
-  'popup-dialog': Mode.dialog({
-    host,
-    renderer: Dialog.popup(),
-  }),
   'inline-dialog': Mode.dialog({
     host,
     renderer: Dialog.experimental_inline({
       element: () => document.getElementById('porto')!,
     }),
   }),
+  'popup-dialog': Mode.dialog({
+    host,
+    renderer: Dialog.popup(),
+  }),
+  relay: Mode.relay(),
 }
 export type ModeType = keyof typeof modes
 
@@ -51,3 +53,5 @@ export const porto = Porto.create({
   // We will be deferring mode setup until after hydration.
   mode: null,
 })
+
+export const mipd = createStore()

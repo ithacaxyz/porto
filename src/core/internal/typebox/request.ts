@@ -323,6 +323,7 @@ export namespace wallet_connect {
   export type Request = Schema.StaticDecode<typeof Request>
 
   export const ResponseCapabilities = Type.Object({
+    admins: Schema.Optional(experimental_getAdmins.Response.properties.keys),
     permissions: Schema.Optional(C.permissions.Response),
   })
   export type ResponseCapabilities = Schema.StaticDecode<

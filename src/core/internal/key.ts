@@ -383,17 +383,13 @@ export declare namespace createWebCryptoP256 {
 export function deserialize(serialized: Serialized): Key {
   const publicKey = serialized.publicKey
   const type = (fromSerializedKeyType as any)[serialized.keyType]
-  return {
+  return from({
     expiry: serialized.expiry,
-    hash: hash({
-      publicKey,
-      type,
-    }),
     publicKey,
     role: serialized.isSuperAdmin ? 'admin' : 'session',
     canSign: false,
     type,
-  }
+  })
 }
 
 /**

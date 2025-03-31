@@ -466,6 +466,9 @@ importers:
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.0.15(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+      mipd:
+        specifier: ^0.0.7
+        version: 0.0.7(typescript@5.8.2)
       ox:
         specifier: 'catalog:'
         version: 0.6.10(typescript@5.8.2)(zod@3.24.2)
@@ -1810,6 +1813,7 @@ packages:
 
   '@paulmillr/qr@0.2.1':
     resolution: {integrity: sha512-IHnV6A+zxU7XwmKFinmYjUcwlyK9+xkG3/s9KcQhI9BjQKycrJ1JRO+FbNYPwZiPKW3je/DR0k7w8/gLa5eaxQ==}
+    deprecated: 'The package is now available as "qr": npm install qr'
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}

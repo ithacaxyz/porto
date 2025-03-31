@@ -9,6 +9,7 @@
   "dependencies": {
     "@porto/apps": "workspace:*",
     "@tailwindcss/vite": "catalog:",
+    "mipd": "^0.0.7",
     "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",

@@ -649,6 +649,7 @@ export function from<
             accounts: accounts.map((account) => ({
               address: account.address,
               capabilities: {
+                admins: account.keys ? getActiveAdmins(account.keys) : [],
                 permissions: account.keys
                   ? getActivePermissions(account.keys, {
                       address: account.address,
@@ -874,7 +875,7 @@ function announce(provider: Provider) {
 
 function getActiveAdmins(
   keys: readonly Key.Key[],
-): Rpc.experimental_getAdmins.Response['keys'] {
+): Schema.Static<(typeof Rpc.experimental_getAdmins.Response)['keys']> {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
@@ -885,7 +886,7 @@ function getActiveAdmins(
           Rpc.experimental_getAdmins.Response.properties.keys.items,
           {
             expiry: key.expiry,
-            id: key.id,
+            id: key.id ?? key.publicKey,
             publicKey: key.publicKey,
             type: key.type,
           } satisfies Rpc.experimental_getAdmins.Response['keys'][number],

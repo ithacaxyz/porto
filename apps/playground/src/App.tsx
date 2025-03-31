@@ -1,3 +1,4 @@
+import 'viem/window'
 import { exp1Abi, exp1Address, exp2Address } from '@porto/apps/contracts'
 import {
   AbiFunction,
@@ -20,7 +21,7 @@ import {
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
-import { type ModeType, modes, permissions, porto } from './config'
+import { type ModeType, mipd, modes, permissions, porto } from './config'
 
 export function App() {
   const [mode, setMode] = React.useState<ModeType>('iframe-dialog')
@@ -39,7 +40,8 @@ export function App() {
             <option value="iframe-dialog">Dialog (iframe)</option>
             <option value="popup-dialog">Dialog (popup)</option>
             <option value="inline-dialog">Dialog (inline)</option>
-            <option value="local">Local</option>
+            <option value="contract">Contract</option>
+            <option value="relay">Relay</option>
           </select>
         </div>
         <hr />
@@ -72,9 +74,9 @@ export function App() {
           <br />
         </div>
         <h2>Admins</h2>
-        {/* <GrantAdmin />
+        <GrantAdmin />
         <GetAdmins />
-        <RevokeAdmin /> */}
+        <RevokeAdmin />
         <div>
           <br />
           <hr />
@@ -394,6 +396,93 @@ function GetPermissions() {
         Get Permissions
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+    </div>
+  )
+}
+
+function GrantAdmin() {
+  const providers = React.useSyncExternalStore(
+    mipd.subscribe,
+    mipd.getProviders,
+    mipd.getProviders,
+  )
+  const [result, setResult] = React.useState<any | null>(null)
+  return (
+    <div>
+      <h3>experimental_grantAdmin</h3>
+      {providers.map(({ info, provider }) => (
+        <button
+          key={info.uuid}
+          onClick={async () => {
+            const [address] = await provider.request({
+              method: 'eth_requestAccounts',
+            })
+            const result = await porto.provider.request({
+              method: 'experimental_grantAdmin',
+              params: [
+                {
+                  key: {
+                    publicKey: address,
+                    type: 'address',
+                  },
+                },
+              ],
+            })
+            setResult(result)
+          }}
+          type="button"
+        >
+          {info.name}
+        </button>
+      ))}
+      {result && <pre>result: {JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  )
+}
+
+function GetAdmins() {
+  const [result, setResult] = React.useState<any | null>(null)
+  return (
+    <div>
+      <h3>experimental_getAdmins</h3>
+      <button
+        onClick={() => {
+          porto.provider
+            .request({ method: 'experimental_getAdmins' })
+            .then(setResult)
+        }}
+        type="button"
+      >
+        Get Admins
+      </button>
+      {result && <pre>result: {JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  )
+}
+
+function RevokeAdmin() {
+  const [revoked, setRevoked] = React.useState(false)
+  return (
+    <div>
+      <h3>experimental_revokeAdmin</h3>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          const formData = new FormData(e.target as HTMLFormElement)
+          const id = formData.get('id') as `0x${string}`
+
+          setRevoked(false)
+          await porto.provider.request({
+            method: 'experimental_revokeAdmin',
+            params: [{ id }],
+          })
+          setRevoked(true)
+        }}
+      >
+        <input name="id" placeholder="Admin ID (0x...)" type="text" />
+        <button type="submit">Revoke Admin</button>
+      </form>
+      {revoked && <p>Admin revoked.</p>}
     </div>
   )
 }

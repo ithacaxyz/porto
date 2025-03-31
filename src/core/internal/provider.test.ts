@@ -131,7 +131,7 @@ describe.each([
     })
   })
 
-  describe('experimental_authorizeAdmin', () => {
+  describe('experimental_grantAdmin', () => {
     test('default', async () => {
       const messages: any[] = []
 
@@ -152,7 +152,7 @@ describe.each([
       })
 
       const response = await porto.provider.request({
-        method: 'experimental_authorizeAdmin',
+        method: 'experimental_grantAdmin',
         params: [
           {
             key: {
@@ -440,7 +440,7 @@ describe.each([
       })
 
       const { key } = await porto.provider.request({
-        method: 'experimental_authorizeAdmin',
+        method: 'experimental_grantAdmin',
         params: [
           {
             key: {
@@ -1574,7 +1574,7 @@ describe.each([
         } as const
 
         await porto.provider.request({
-          method: 'experimental_authorizeAdmin',
+          method: 'experimental_grantAdmin',
           params: [
             {
               key,
@@ -1649,7 +1649,7 @@ describe.each([
         } as const
 
         await porto.provider.request({
-          method: 'experimental_authorizeAdmin',
+          method: 'experimental_grantAdmin',
           params: [
             {
               key,
@@ -1725,7 +1725,7 @@ describe.each([
         } as const
 
         await porto.provider.request({
-          method: 'experimental_authorizeAdmin',
+          method: 'experimental_grantAdmin',
           params: [
             {
               key,
