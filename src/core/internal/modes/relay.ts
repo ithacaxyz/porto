@@ -41,8 +41,22 @@ export function relay(config: relay.Parameters = {}) {
 
   return Mode.from({
     actions: {
-      async authorizeAdmin() {
-        throw new Error('not implemented')
+      async authorizeAdmin(parameters) {
+        const { account, feeToken = config.feeToken, internal } = parameters
+        const { client } = internal
+
+        const authorizeKey = Key.from({
+          ...parameters.key,
+          role: 'admin',
+        } as Key.Key)
+
+        await Relay.sendCalls(client, {
+          account,
+          authorizeKeys: [authorizeKey],
+          feeToken,
+        })
+
+        return { key: authorizeKey }
       },
 
       async createAccount(parameters) {

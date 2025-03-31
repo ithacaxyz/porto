@@ -29,7 +29,7 @@ import type {
 
 type PrivateKeyFn = () => Hex.Hex
 
-export type BaseKey<type extends string, properties = {}> = Compute<
+export type BaseKey<type extends string = string, properties = {}> = Compute<
   Key_typebox.Base & {
     /** Permissions. */
     permissions?: Permissions | undefined

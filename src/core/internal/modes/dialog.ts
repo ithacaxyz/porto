@@ -87,8 +87,28 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   return Mode.from({
     actions: {
-      async authorizeAdmin() {
-        throw new Error('not implemented')
+      async authorizeAdmin(parameters) {
+        const { internal } = parameters
+        const { request, store } = internal
+
+        if (request.method !== 'experimental_authorizeAdmin')
+          throw new Error(
+            'Cannot authorize admin for method: ' + request.method,
+          )
+
+        const [params] = request._decoded.params
+
+        const key = Key.from({ ...params.key, role: 'admin' } as Key.Key)
+        if (!key) throw new Error('no key found.')
+
+        // Send a request off to the dialog to authorize the admin.
+        const provider = getProvider(store)
+        await provider.request({
+          method: 'experimental_authorizeAdmin',
+          params: request.params,
+        })
+
+        return { key }
       },
 
       async createAccount(parameters) {

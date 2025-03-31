@@ -517,7 +517,6 @@ export async function sendCalls<const calls extends readonly unknown[]>(
 
   const account = Account.from(parameters.account)
   const key = parameters.key ?? Account.getKey(account, parameters)
-
   if (!key) throw new Error('key is required')
 
   // Prepare pre-bundles.

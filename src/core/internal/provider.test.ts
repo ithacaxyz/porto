@@ -131,6 +131,49 @@ describe.each([
     })
   })
 
+  describe('experimental_authorizeAdmin', () => {
+    test('default', async () => {
+      const messages: any[] = []
+
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
+
+      porto.provider.on('message', (message) => messages.push(message))
+
+      const { address } = await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const response = await porto.provider.request({
+        method: 'experimental_authorizeAdmin',
+        params: [
+          {
+            key: {
+              publicKey: '0x0000000000000000000000000000000000069420',
+              type: 'address',
+            },
+          },
+        ],
+      })
+
+      expect(response.key).matchSnapshot()
+
+      const accounts = porto._internal.store.getState().accounts
+      expect(accounts.length).toBe(1)
+      expect(accounts[0]!.keys?.length).toBe(2)
+
+      expect(messages[0].type).toBe('adminsChanged')
+      expect(messages[0].data.length).toBe(2)
+    })
+  })
+
   describe('experimental_getAdmins', () => {
     test('default', async () => {
       const { porto } = getPorto()
@@ -1179,250 +1222,479 @@ describe.each([
   })
 
   describe('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
-    test('default', async () => {
-      const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+    describe('behavior: permissions', () => {
+      test('default', async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
 
-      const alice = Hex.random(20)
+        const alice = Hex.random(20)
 
-      const privateKey = P256.randomPrivateKey()
-      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-        includePrefix: false,
-      })
+        const privateKey = P256.randomPrivateKey()
+        const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+          includePrefix: false,
+        })
 
-      const { accounts } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            capabilities: {
-              createAccount: true,
-              grantPermissions: {
-                expiry: 9999999999,
-                key: {
-                  publicKey: publicKey,
-                  type: 'p256',
-                },
-                permissions: {
-                  calls: [{ to: alice }],
-                  spend: [
-                    {
-                      limit: Hex.fromNumber(42069n),
-                      period: 'day',
-                    },
-                  ],
+        const { accounts } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: true,
+                grantPermissions: {
+                  expiry: 9999999999,
+                  key: {
+                    publicKey: publicKey,
+                    type: 'p256',
+                  },
+                  permissions: {
+                    calls: [{ to: alice }],
+                    spend: [
+                      {
+                        limit: Hex.fromNumber(42069n),
+                        period: 'day',
+                      },
+                    ],
+                  },
                 },
               },
             },
-          },
-        ],
+          ],
+        })
+
+        await setBalance(client, {
+          address: accounts[0]?.address!,
+          value: Value.fromEther('10000'),
+        })
+
+        const key = {
+          publicKey,
+          type: 'p256',
+        } as const
+
+        const { digest, ...request } = await porto.provider.request({
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              calls: [
+                {
+                  to: alice,
+                  value: Hex.fromNumber(42069n),
+                },
+              ],
+              key,
+            },
+          ],
+        })
+
+        const signature = P256.sign({ payload: digest, privateKey })
+
+        await porto.provider.request({
+          method: 'wallet_sendPreparedCalls',
+          params: [
+            {
+              ...request,
+              key,
+              signature: Signature.toHex(signature),
+            },
+          ],
+        })
+
+        expect(await getBalance(client, { address: alice })).toBe(42069n)
       })
 
-      await setBalance(client, {
-        address: accounts[0]?.address!,
-        value: Value.fromEther('10000'),
-      })
+      test('WebCryptoP256', async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
 
-      const key = {
-        publicKey,
-        type: 'p256',
-      } as const
+        const alice = Hex.random(20)
 
-      const { digest, ...request } = await porto.provider.request({
-        method: 'wallet_prepareCalls',
-        params: [
-          {
-            calls: [
-              {
-                to: alice,
-                value: Hex.fromNumber(42069n),
+        const keyPair = await WebCryptoP256.createKeyPair()
+        const publicKey = PublicKey.toHex(keyPair.publicKey, {
+          includePrefix: false,
+        })
+
+        const { accounts } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: true,
+                grantPermissions: {
+                  expiry: 9999999999,
+                  key: {
+                    publicKey: publicKey,
+                    type: 'p256',
+                  },
+                  permissions: {
+                    calls: [{ to: alice }],
+                    spend: [
+                      {
+                        limit: Hex.fromNumber(42069n),
+                        period: 'day',
+                      },
+                    ],
+                  },
+                },
               },
-            ],
-            key,
-          },
-        ],
+            },
+          ],
+        })
+
+        await setBalance(client, {
+          address: accounts[0]?.address!,
+          value: Value.fromEther('10000'),
+        })
+
+        const key = {
+          prehash: true,
+          publicKey,
+          type: 'p256',
+        } as const
+
+        const { digest, ...request } = await porto.provider.request({
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              calls: [
+                {
+                  to: alice,
+                  value: Hex.fromNumber(42069n),
+                },
+              ],
+              key,
+            },
+          ],
+        })
+
+        const signature = await WebCryptoP256.sign({
+          payload: digest,
+          privateKey: keyPair.privateKey,
+        })
+
+        await porto.provider.request({
+          method: 'wallet_sendPreparedCalls',
+          params: [
+            {
+              ...request,
+              key,
+              signature: Signature.toHex(signature),
+            },
+          ],
+        })
+
+        expect(await getBalance(client, { address: alice })).toBe(42069n)
       })
 
-      const signature = P256.sign({ payload: digest, privateKey })
+      test('Secp256k1', async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
 
-      await porto.provider.request({
-        method: 'wallet_sendPreparedCalls',
-        params: [
-          {
-            ...request,
-            key,
-            signature: Signature.toHex(signature),
-          },
-        ],
+        const alice = Hex.random(20)
+
+        const privateKey = Secp256k1.randomPrivateKey()
+        const publicKey = Secp256k1.getPublicKey({ privateKey })
+        const address = Address.fromPublicKey(publicKey)
+
+        const { accounts } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: true,
+                grantPermissions: {
+                  expiry: 9999999999,
+                  key: {
+                    publicKey: address,
+                    type: 'address',
+                  },
+                  permissions: {
+                    calls: [{ to: alice }],
+                    spend: [
+                      {
+                        limit: Hex.fromNumber(42069n),
+                        period: 'day',
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        })
+
+        await setBalance(client, {
+          address: accounts[0]?.address!,
+          value: Value.fromEther('10000'),
+        })
+
+        const key = {
+          publicKey: address,
+          type: 'secp256k1',
+        } as const
+
+        const { digest, ...request } = await porto.provider.request({
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              calls: [
+                {
+                  to: alice,
+                  value: Hex.fromNumber(42069n),
+                },
+              ],
+              key,
+            },
+          ],
+        })
+
+        const signature = Secp256k1.sign({ payload: digest, privateKey })
+
+        await porto.provider.request({
+          method: 'wallet_sendPreparedCalls',
+          params: [
+            {
+              ...request,
+              key,
+              signature: Signature.toHex(signature),
+            },
+          ],
+        })
+
+        expect(await getBalance(client, { address: alice })).toBe(42069n)
       })
-
-      expect(await getBalance(client, { address: alice })).toBe(42069n)
     })
 
-    test('behavior: WebCryptoP256', async () => {
-      const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+    describe('behavior: admin', () => {
+      test('default', async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
 
-      const alice = Hex.random(20)
+        const alice = Hex.random(20)
 
-      const keyPair = await WebCryptoP256.createKeyPair()
-      const publicKey = PublicKey.toHex(keyPair.publicKey, {
-        includePrefix: false,
-      })
+        const privateKey = P256.randomPrivateKey()
+        const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+          includePrefix: false,
+        })
 
-      const { accounts } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            capabilities: {
-              createAccount: true,
-              grantPermissions: {
-                expiry: 9999999999,
-                key: {
-                  publicKey: publicKey,
-                  type: 'p256',
-                },
-                permissions: {
-                  calls: [{ to: alice }],
-                  spend: [
-                    {
-                      limit: Hex.fromNumber(42069n),
-                      period: 'day',
-                    },
-                  ],
-                },
+        const { accounts } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: true,
               },
             },
-          },
-        ],
-      })
+          ],
+        })
 
-      await setBalance(client, {
-        address: accounts[0]?.address!,
-        value: Value.fromEther('10000'),
-      })
+        await setBalance(client, {
+          address: accounts[0]?.address!,
+          value: Value.fromEther('10000'),
+        })
 
-      const key = {
-        prehash: true,
-        publicKey,
-        type: 'p256',
-      } as const
+        const key = {
+          publicKey,
+          type: 'p256',
+        } as const
 
-      const { digest, ...request } = await porto.provider.request({
-        method: 'wallet_prepareCalls',
-        params: [
-          {
-            calls: [
-              {
-                to: alice,
-                value: Hex.fromNumber(42069n),
-              },
-            ],
-            key,
-          },
-        ],
-      })
+        await porto.provider.request({
+          method: 'experimental_authorizeAdmin',
+          params: [
+            {
+              key,
+            },
+          ],
+        })
 
-      const signature = await WebCryptoP256.sign({
-        payload: digest,
-        privateKey: keyPair.privateKey,
-      })
-
-      await porto.provider.request({
-        method: 'wallet_sendPreparedCalls',
-        params: [
-          {
-            ...request,
-            key,
-            signature: Signature.toHex(signature),
-          },
-        ],
-      })
-
-      expect(await getBalance(client, { address: alice })).toBe(42069n)
-    })
-
-    test('behavior: Secp256k1', async () => {
-      const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
-        mode: 'anvil',
-      }))
-
-      const alice = Hex.random(20)
-
-      const privateKey = Secp256k1.randomPrivateKey()
-      const publicKey = Secp256k1.getPublicKey({ privateKey })
-      const address = Address.fromPublicKey(publicKey)
-
-      const { accounts } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            capabilities: {
-              createAccount: true,
-              grantPermissions: {
-                expiry: 9999999999,
-                key: {
-                  publicKey: address,
-                  type: 'address',
+        const { digest, ...request } = await porto.provider.request({
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              calls: [
+                {
+                  to: alice,
+                  value: Hex.fromNumber(42069n),
                 },
-                permissions: {
-                  calls: [{ to: alice }],
-                  spend: [
-                    {
-                      limit: Hex.fromNumber(42069n),
-                      period: 'day',
-                    },
-                  ],
-                },
+              ],
+              key,
+            },
+          ],
+        })
+
+        const signature = P256.sign({ payload: digest, privateKey })
+
+        await porto.provider.request({
+          method: 'wallet_sendPreparedCalls',
+          params: [
+            {
+              ...request,
+              key,
+              signature: Signature.toHex(signature),
+            },
+          ],
+        })
+
+        expect(await getBalance(client, { address: alice })).toBe(42069n)
+      })
+
+      test('WebCryptoP256', async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
+
+        const alice = Hex.random(20)
+
+        const keyPair = await WebCryptoP256.createKeyPair()
+        const publicKey = PublicKey.toHex(keyPair.publicKey, {
+          includePrefix: false,
+        })
+
+        const { accounts } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: true,
               },
             },
-          },
-        ],
+          ],
+        })
+
+        await setBalance(client, {
+          address: accounts[0]?.address!,
+          value: Value.fromEther('10000'),
+        })
+
+        const key = {
+          prehash: true,
+          publicKey,
+          type: 'p256',
+        } as const
+
+        await porto.provider.request({
+          method: 'experimental_authorizeAdmin',
+          params: [
+            {
+              key,
+            },
+          ],
+        })
+
+        const { digest, ...request } = await porto.provider.request({
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              calls: [
+                {
+                  to: alice,
+                  value: Hex.fromNumber(42069n),
+                },
+              ],
+              key,
+            },
+          ],
+        })
+
+        const signature = await WebCryptoP256.sign({
+          payload: digest,
+          privateKey: keyPair.privateKey,
+        })
+
+        await porto.provider.request({
+          method: 'wallet_sendPreparedCalls',
+          params: [
+            {
+              ...request,
+              key,
+              signature: Signature.toHex(signature),
+            },
+          ],
+        })
+
+        expect(await getBalance(client, { address: alice })).toBe(42069n)
       })
 
-      await setBalance(client, {
-        address: accounts[0]?.address!,
-        value: Value.fromEther('10000'),
-      })
+      test('Secp256k1', async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
 
-      const key = {
-        publicKey: address,
-        type: 'secp256k1',
-      } as const
+        const alice = Hex.random(20)
 
-      const { digest, ...request } = await porto.provider.request({
-        method: 'wallet_prepareCalls',
-        params: [
-          {
-            calls: [
-              {
-                to: alice,
-                value: Hex.fromNumber(42069n),
+        const privateKey = Secp256k1.randomPrivateKey()
+        const publicKey = Secp256k1.getPublicKey({ privateKey })
+        const address = Address.fromPublicKey(publicKey)
+
+        const { accounts } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: {
+                createAccount: true,
               },
-            ],
-            key,
-          },
-        ],
+            },
+          ],
+        })
+
+        await setBalance(client, {
+          address: accounts[0]?.address!,
+          value: Value.fromEther('10000'),
+        })
+
+        const key = {
+          publicKey: address,
+          type: 'secp256k1',
+        } as const
+
+        await porto.provider.request({
+          method: 'experimental_authorizeAdmin',
+          params: [
+            {
+              key,
+            },
+          ],
+        })
+
+        const { digest, ...request } = await porto.provider.request({
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              calls: [
+                {
+                  to: alice,
+                  value: Hex.fromNumber(42069n),
+                },
+              ],
+              key,
+            },
+          ],
+        })
+
+        const signature = Secp256k1.sign({ payload: digest, privateKey })
+
+        await porto.provider.request({
+          method: 'wallet_sendPreparedCalls',
+          params: [
+            {
+              ...request,
+              key,
+              signature: Signature.toHex(signature),
+            },
+          ],
+        })
+
+        expect(await getBalance(client, { address: alice })).toBe(42069n)
       })
-
-      const signature = Secp256k1.sign({ payload: digest, privateKey })
-
-      await porto.provider.request({
-        method: 'wallet_sendPreparedCalls',
-        params: [
-          {
-            ...request,
-            key,
-            signature: Signature.toHex(signature),
-          },
-        ],
-      })
-
-      expect(await getBalance(client, { address: alice })).toBe(42069n)
     })
   })
 

@@ -17,6 +17,10 @@ export type Schema =
           ReturnType: Static<typeof Rpc.porto_ping.Response>
         }
       | {
+          Request: Static<typeof Rpc.experimental_authorizeAdmin.Request>
+          ReturnType: Static<typeof Rpc.experimental_authorizeAdmin.Response>
+        }
+      | {
           Request: Static<typeof Rpc.experimental_createAccount.Request>
           ReturnType: Static<typeof Rpc.experimental_createAccount.Response>
         }

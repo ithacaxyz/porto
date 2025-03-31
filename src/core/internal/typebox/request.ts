@@ -67,10 +67,38 @@ export namespace eth_signTypedData_v4 {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
+export namespace experimental_getAdmins {
+  export const Parameters = Type.Object({
+    address: Schema.Optional(Primitive.Address),
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_getAdmins'),
+    params: Schema.Optional(Type.Tuple([Parameters])),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    address: Primitive.Address,
+    keys: Type.Array(
+      Type.Pick(Key.Base, ['expiry', 'id', 'publicKey', 'type']),
+    ),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace experimental_authorizeAdmin {
+  export const Capabilities = Type.Object({
+    feeToken: Schema.Optional(Primitive.Address),
+  })
+  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
+
   export const Parameters = Type.Object({
     /** Address of the account to authorize the admin for. */
     address: Schema.Optional(Primitive.Address),
+    /** Capabilities. */
+    capabilities: Schema.Optional(Capabilities),
     /** Chain ID. */
     chainId: Schema.Optional(Primitive.Number),
     /** Admin Key to authorize. */
@@ -96,7 +124,7 @@ export namespace experimental_authorizeAdmin {
   export const Response = Type.Object({
     address: Primitive.Address,
     chainId: Primitive.Hex,
-    key: Key.Base,
+    key: experimental_getAdmins.Response.properties.keys.items,
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
@@ -126,27 +154,6 @@ export namespace experimental_createAccount {
   export const Response = Type.Object({
     address: Primitive.Address,
     capabilities: Schema.Optional(ResponseCapabilities),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_getAdmins {
-  export const Parameters = Type.Object({
-    address: Schema.Optional(Primitive.Address),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_getAdmins'),
-    params: Schema.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    keys: Type.Array(
-      Type.Pick(Key.Base, ['expiry', 'id', 'publicKey', 'type']),
-    ),
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }

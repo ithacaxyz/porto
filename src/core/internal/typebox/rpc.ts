@@ -13,6 +13,7 @@ export const Request = Type.Union([
   RpcRequest.eth_requestAccounts.Request,
   RpcRequest.eth_sendTransaction.Request,
   RpcRequest.eth_signTypedData_v4.Request,
+  RpcRequest.experimental_authorizeAdmin.Request,
   RpcRequest.experimental_createAccount.Request,
   RpcRequest.experimental_getAdmins.Request,
   RpcRequest.experimental_getPermissions.Request,
