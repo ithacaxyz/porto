@@ -47,6 +47,10 @@ export type Schema =
           ReturnType: Static<typeof Rpc.experimental_getPermissions.Response>
         }
       | {
+          Request: Static<typeof Rpc.experimental_revokeAdmin.Request>
+          ReturnType: undefined
+        }
+      | {
           Request: Static<typeof Rpc.experimental_revokePermissions.Request>
           ReturnType: undefined
         }

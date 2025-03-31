@@ -320,6 +320,20 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return await provider.request(request)
       },
 
+      async revokeAdmin(parameters) {
+        const { account, id, internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'experimental_revokeAdmin')
+          throw new Error('Cannot revoke admin for method: ' + request.method)
+
+        const key = account.keys?.find((key) => key.publicKey === id)
+        if (!key) return
+
+        const provider = getProvider(store)
+        return await provider.request(request)
+      },
+
       async revokePermissions(parameters) {
         const { account, id, internal } = parameters
         const { store, request } = internal

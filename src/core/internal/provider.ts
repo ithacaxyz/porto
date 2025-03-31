@@ -396,6 +396,56 @@ export function from<
           })
         }
 
+        case 'experimental_revokeAdmin': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, id }] = request._decoded.params
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const client = getClient()
+
+          await getMode().actions.revokeAdmin({
+            account,
+            id,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          const keys = account.keys?.filter(
+            (key) => key.publicKey !== id && key.id !== id,
+          )
+
+          store.setState((x) => ({
+            ...x,
+            accounts: x.accounts.map((x) =>
+              Address.isEqual(x.address, account.address)
+                ? {
+                    ...x,
+                    keys,
+                  }
+                : x,
+            ),
+          }))
+
+          emitter.emit('message', {
+            data: getActiveAdmins(keys ?? []),
+            type: 'adminsChanged',
+          })
+
+          return
+        }
+
         case 'experimental_revokePermissions': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
@@ -422,7 +472,9 @@ export function from<
             },
           })
 
-          const keys = account.keys?.filter((key) => key.publicKey !== id)
+          const keys = account.keys?.filter(
+            (key) => key.publicKey !== id && key.id !== id,
+          )
 
           store.setState((x) => ({
             ...x,
@@ -834,10 +886,7 @@ function getActiveAdmins(
           {
             expiry: key.expiry,
             id: key.id,
-            publicKey:
-              key.type === 'address'
-                ? Hex.slice(key.publicKey, -20)
-                : key.publicKey,
+            publicKey: key.publicKey,
             type: key.type,
           } satisfies Rpc.experimental_getAdmins.Response['keys'][number],
         )

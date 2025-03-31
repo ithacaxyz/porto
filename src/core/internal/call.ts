@@ -192,3 +192,27 @@ export declare namespace removeSpendLimit {
     token: Address.Address
   }
 }
+
+/**
+ * Instantiates values to populate a call to revoke a key.
+ *
+ * @param parameters - Parameters.
+ * @returns Instantiated values.
+ */
+export function revoke(parameters: revoke.Parameters) {
+  const { keyHash } = parameters
+  return {
+    data: AbiFunction.encodeData(
+      AbiFunction.fromAbi(Delegation.abi, 'revoke'),
+      [keyHash],
+    ),
+    to: self,
+  } as const satisfies Call
+}
+
+export declare namespace revoke {
+  export type Parameters = {
+    /** Key hash to revoke. */
+    keyHash: Hex.Hex
+  }
+}

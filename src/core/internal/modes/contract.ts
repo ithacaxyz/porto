@@ -286,6 +286,20 @@ export function contract(parameters: contract.Parameters = {}) {
         })
       },
 
+      async revokeAdmin(parameters) {
+        const { account, id, internal } = parameters
+        const { client } = internal
+
+        const key = account.keys?.find((key) => key.publicKey === id)
+        if (!key) return
+
+        await Delegation.execute(client, {
+          account,
+          calls: [Call.revoke({ keyHash: key.hash })],
+          storage: internal.config.storage,
+        })
+      },
+
       async revokePermissions(parameters) {
         const { account, id, internal } = parameters
         const { client } = internal

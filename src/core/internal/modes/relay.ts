@@ -293,15 +293,43 @@ export function relay(config: relay.Parameters = {}) {
         }
       },
 
+      async revokeAdmin(parameters) {
+        const { account, id, feeToken = config.feeToken, internal } = parameters
+        const { client } = internal
+
+        const key = account.keys?.find(
+          (key) => key.publicKey === id || key.id === id,
+        )
+        if (!key) return
+
+        try {
+          await Relay.sendCalls(client, {
+            account,
+            revokeKeys: [key],
+            feeToken,
+          })
+        } catch (e) {
+          const error = e as Relay.sendCalls.ErrorType
+          if (
+            error.name === 'Relay.ExecutionError' &&
+            error.abiError?.name === 'KeyDoesNotExist'
+          )
+            return
+          throw e
+        }
+      },
+
       async revokePermissions(parameters) {
         const { account, id, feeToken = config.feeToken, internal } = parameters
         const { client } = internal
 
-        const key = account.keys?.find((key) => key.publicKey === id)
+        const key = account.keys?.find(
+          (key) => key.publicKey === id || key.id === id,
+        )
         if (!key) return
 
         // We shouldn't be able to revoke the admin keys.
-        if (key.role === 'admin') throw new Error('cannot revoke permissions.')
+        if (key.role === 'admin') throw new Error('cannot revoke admins.')
 
         try {
           await Relay.sendCalls(client, {

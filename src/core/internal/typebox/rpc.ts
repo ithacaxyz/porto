@@ -19,6 +19,7 @@ export const Request = Type.Union([
   RpcRequest.experimental_getPermissions.Request,
   RpcRequest.experimental_grantPermissions.Request,
   RpcRequest.experimental_prepareUpgradeAccount.Request,
+  RpcRequest.experimental_revokeAdmin.Request,
   RpcRequest.experimental_revokePermissions.Request,
   RpcRequest.experimental_upgradeAccount.Request,
   RpcRequest.personal_sign.Request,

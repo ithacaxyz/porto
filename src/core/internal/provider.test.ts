@@ -420,6 +420,74 @@ describe.each([
     })
   })
 
+  describe('experimental_revokeAdmin', () => {
+    test('default', async () => {
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
+
+      const messages: any[] = []
+      porto.provider.on('message', (message) => messages.push(message))
+
+      const { address } = await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const { key } = await porto.provider.request({
+        method: 'experimental_authorizeAdmin',
+        params: [
+          {
+            key: {
+              publicKey: '0x0000000000000000000000000000000000069420',
+              type: 'address',
+            },
+          },
+        ],
+      })
+      let accounts = porto._internal.store.getState().accounts
+      expect(accounts.length).toBe(1)
+      expect(accounts![0]!.keys?.length).toBe(2)
+      expect(
+        accounts![0]!.keys?.map((x) => ({
+          ...x,
+          expiry: null,
+          publicKey: null,
+          id: null,
+          hash: null,
+        })),
+      ).matchSnapshot()
+
+      expect(messages[0].type).toBe('adminsChanged')
+      expect(messages[0].data.length).toBe(2)
+
+      await porto.provider.request({
+        method: 'experimental_revokeAdmin',
+        params: [{ id: key.publicKey }],
+      })
+
+      accounts = porto._internal.store.getState().accounts
+      expect(accounts![0]!.keys?.length).toBe(1)
+      expect(
+        accounts![0]!.keys?.map((x) => ({
+          ...x,
+          expiry: null,
+          publicKey: null,
+          id: null,
+          hash: null,
+        })),
+      ).matchSnapshot()
+
+      expect(messages[1].type).toBe('adminsChanged')
+      expect(messages[1].data.length).toBe(1)
+    })
+  })
+
   describe('experimental_revokePermissions', () => {
     test('default', async () => {
       const { porto } = getPorto()

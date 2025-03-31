@@ -112,6 +112,17 @@ export type Mode = {
       signPayloads: readonly Hex.Hex[]
     }>
 
+    revokeAdmin: (parameters: {
+      /** Account to revoke the permissions for. */
+      account: Account.Account
+      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
+      feeToken?: Address.Address | undefined
+      /** ID of the admin to revoke. */
+      id: Hex.Hex
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<void>
+
     revokePermissions: (parameters: {
       /** Account to revoke the permissions for. */
       account: Account.Account
