@@ -85,26 +85,6 @@ export function contract(parameters: contract.Parameters = {}) {
 
   return Mode.from({
     actions: {
-      async authorizeAdmin(parameters) {
-        const { account, internal } = parameters
-        const { client } = internal
-
-        const authorizeKey = Key.from({
-          ...parameters.key,
-          role: 'admin',
-        } as Key.Key)
-
-        // TODO: wait for tx to be included?
-        await Delegation.execute(client, {
-          account,
-          // Extract calls to authorize the key.
-          calls: Mode.getAuthorizeCalls([authorizeKey as Key.Key]),
-          storage: internal.config.storage,
-        })
-
-        return { key: authorizeKey }
-      },
-
       async createAccount(parameters) {
         const { label, internal, permissions } = parameters
         const { client } = internal
@@ -148,6 +128,26 @@ export function contract(parameters: contract.Parameters = {}) {
         address_internal = account.address
 
         return { account }
+      },
+
+      async grantAdmin(parameters) {
+        const { account, internal } = parameters
+        const { client } = internal
+
+        const authorizeKey = Key.from({
+          ...parameters.key,
+          role: 'admin',
+        } as Key.Key)
+
+        // TODO: wait for tx to be included?
+        await Delegation.execute(client, {
+          account,
+          // Extract calls to authorize the key.
+          calls: Mode.getAuthorizeCalls([authorizeKey as Key.Key]),
+          storage: internal.config.storage,
+        })
+
+        return { key: authorizeKey }
       },
 
       async grantPermissions(parameters) {

@@ -71,6 +71,15 @@ export function App() {
           <hr />
           <br />
         </div>
+        <h2>Admins</h2>
+        {/* <GrantAdmin />
+        <GetAdmins />
+        <RevokeAdmin /> */}
+        <div>
+          <br />
+          <hr />
+          <br />
+        </div>
         <h2>Actions</h2>
         <SendCalls />
         <SendTransaction />

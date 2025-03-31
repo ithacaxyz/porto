@@ -26,17 +26,6 @@ type PrepareCallsContext = {
 
 export type Mode = {
   actions: {
-    authorizeAdmin: (parameters: {
-      /** Account to authorize the keys for. */
-      account: Account.Account
-      /** Internal properties. */
-      internal: ActionsInternal
-      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
-      /** Key to authorize. */
-      key: Key.from.Value
-    }) => Promise<{ key: Key.Key }>
-
     createAccount: (parameters: {
       /** Internal properties. */
       internal: ActionsInternal
@@ -48,6 +37,17 @@ export type Mode = {
       /** Account. */
       account: Account.Account
     }>
+
+    grantAdmin: (parameters: {
+      /** Account to authorize the keys for. */
+      account: Account.Account
+      /** Internal properties. */
+      internal: ActionsInternal
+      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
+      feeToken?: Address.Address | undefined
+      /** Key to authorize. */
+      key: Key.from.Value
+    }) => Promise<{ key: Key.Key }>
 
     grantPermissions: (parameters: {
       /** Account to authorize the keys for. */

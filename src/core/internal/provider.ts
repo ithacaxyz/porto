@@ -173,7 +173,7 @@ export function from<
           >
         }
 
-        case 'experimental_authorizeAdmin': {
+        case 'experimental_grantAdmin': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -189,7 +189,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { key } = await getMode().actions.authorizeAdmin({
+          const { key } = await getMode().actions.grantAdmin({
             account,
             feeToken: capabilities?.feeToken,
             key: keyToAuthorize,
@@ -223,12 +223,12 @@ export function from<
             type: 'adminsChanged',
           })
 
-          return Schema.Encode(Rpc.experimental_authorizeAdmin.Response, {
+          return Schema.Encode(Rpc.experimental_grantAdmin.Response, {
             address: account.address,
             chainId: Hex.fromNumber(client.chain.id),
             key: admins.at(-1)!,
-          } satisfies Rpc.experimental_authorizeAdmin.Response) satisfies Schema.Static<
-            typeof Rpc.experimental_authorizeAdmin.Response
+          } satisfies Rpc.experimental_grantAdmin.Response) satisfies Schema.Static<
+            typeof Rpc.experimental_grantAdmin.Response
           >
         }
 

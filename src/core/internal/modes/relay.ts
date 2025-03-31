@@ -41,24 +41,6 @@ export function relay(config: relay.Parameters = {}) {
 
   return Mode.from({
     actions: {
-      async authorizeAdmin(parameters) {
-        const { account, feeToken = config.feeToken, internal } = parameters
-        const { client } = internal
-
-        const authorizeKey = Key.from({
-          ...parameters.key,
-          role: 'admin',
-        } as Key.Key)
-
-        await Relay.sendCalls(client, {
-          account,
-          authorizeKeys: [authorizeKey],
-          feeToken,
-        })
-
-        return { key: authorizeKey }
-      },
-
       async createAccount(parameters) {
         const { permissions } = parameters
         const { client } = parameters.internal
@@ -107,6 +89,24 @@ export function relay(config: relay.Parameters = {}) {
             keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
           }),
         }
+      },
+
+      async grantAdmin(parameters) {
+        const { account, feeToken = config.feeToken, internal } = parameters
+        const { client } = internal
+
+        const authorizeKey = Key.from({
+          ...parameters.key,
+          role: 'admin',
+        } as Key.Key)
+
+        await Relay.sendCalls(client, {
+          account,
+          authorizeKeys: [authorizeKey],
+          feeToken,
+        })
+
+        return { key: authorizeKey }
       },
 
       async grantPermissions(parameters) {

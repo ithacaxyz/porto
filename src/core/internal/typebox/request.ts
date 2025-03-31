@@ -88,7 +88,7 @@ export namespace experimental_getAdmins {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
-export namespace experimental_authorizeAdmin {
+export namespace experimental_grantAdmin {
   export const Capabilities = Type.Object({
     feeToken: Schema.Optional(Primitive.Address),
   })
@@ -116,7 +116,7 @@ export namespace experimental_authorizeAdmin {
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_authorizeAdmin'),
+    method: Type.Literal('experimental_grantAdmin'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Schema.StaticDecode<typeof Request>
