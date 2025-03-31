@@ -99,14 +99,14 @@ export function DevOnly() {
                     {
                       data: AbiFunction.encodeData(
                         AbiFunction.fromAbi(exp1Abi, 'mint'),
-                        [account.address, Value.fromEther('100')],
+                        [account.address, Value.fromEther('1000')],
                       ),
                       to: exp1Address,
                     },
                     {
                       data: AbiFunction.encodeData(
                         AbiFunction.fromAbi(exp2Abi, 'mint'),
-                        [account.address, Value.fromEther('100')],
+                        [account.address, Value.fromEther('1000')],
                       ),
                       to: exp2Address,
                     },

@@ -1,4 +1,6 @@
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import * as React from 'react'
 import { Toaster } from 'sonner'
 
@@ -28,7 +30,7 @@ function RouteComponent() {
 
       <React.Suspense>
         <TanStackRouterDevtools position="bottom-right" />
-        <TanStackQueryDevtools
+        <ReactQueryDevtools
           buttonPosition="bottom-left"
           initialIsOpen={false}
           position="left"
@@ -37,21 +39,3 @@ function RouteComponent() {
     </>
   )
 }
-
-const TanStackRouterDevtools =
-  import.meta.env.PROD || window !== window.parent || Boolean(window.opener)
-    ? () => null
-    : React.lazy(() =>
-        import('@tanstack/react-router-devtools').then((res) => ({
-          default: res.TanStackRouterDevtools,
-        })),
-      )
-
-const TanStackQueryDevtools =
-  import.meta.env.PROD || window !== window.parent || Boolean(window.opener)
-    ? () => null
-    : React.lazy(() =>
-        import('@tanstack/react-query-devtools').then((res) => ({
-          default: res.ReactQueryDevtools,
-        })),
-      )
