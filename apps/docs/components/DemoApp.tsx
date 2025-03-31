@@ -1028,7 +1028,7 @@ export function LimitDemo(props: LimitDemo.Props) {
     async queryFn() {
       const provider = (await connector?.getProvider()) as Provider | undefined
       if (!provider) throw new Error('connector not connected')
-      return provider.request({ method: 'experimental_permissions' })
+      return provider.request({ method: 'experimental_getPermissions' })
     },
     enabled: Boolean(address),
   })

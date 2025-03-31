@@ -2,8 +2,8 @@ export {
   connect,
   createAccount,
   disconnect,
+  getPermissions,
   grantPermissions,
-  permissions,
   revokePermissions,
   upgradeAccount,
 } from './internal/core.js'

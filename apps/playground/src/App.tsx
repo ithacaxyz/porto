@@ -373,11 +373,11 @@ function GetPermissions() {
 
   return (
     <div>
-      <h3>experimental_permissions</h3>
+      <h3>experimental_getPermissions</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_permissions' })
+            .request({ method: 'experimental_getPermissions' })
             .then(setResult)
         }
         type="button"

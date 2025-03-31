@@ -257,12 +257,12 @@ export default defineConfig({
             link: '/sdk/rpc/experimental_createAccount',
           },
           {
-            text: 'experimental_grantPermissions',
-            link: '/sdk/rpc/experimental_grantPermissions',
+            text: 'experimental_getPermissions',
+            link: '/sdk/rpc/experimental_getPermissions',
           },
           {
-            text: 'experimental_permissions',
-            link: '/sdk/rpc/experimental_permissions',
+            text: 'experimental_grantPermissions',
+            link: '/sdk/rpc/experimental_grantPermissions',
           },
           {
             text: 'experimental_revokePermissions',

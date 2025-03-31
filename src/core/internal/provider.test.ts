@@ -131,6 +131,37 @@ describe.each([
     })
   })
 
+  describe('experimental_getAdmins', () => {
+    test('default', async () => {
+      const { porto } = getPorto()
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+
+      const { address, keys } = await porto.provider.request({
+        method: 'experimental_getAdmins',
+      })
+      expect(address).toBeDefined()
+      expect(keys.length).toBe(1)
+    })
+
+    test('behavior: disconnected', async () => {
+      const { porto } = getPorto()
+      await expect(
+        porto.provider.request({
+          method: 'experimental_getAdmins',
+        }),
+      ).rejects.matchSnapshot()
+    })
+  })
+
   describe('experimental_grantPermissions', () => {
     test('default', async () => {
       const messages: any[] = []
@@ -305,7 +336,7 @@ describe.each([
     })
   })
 
-  describe('experimental_permissions', () => {
+  describe('experimental_getPermissions', () => {
     test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
@@ -340,7 +371,7 @@ describe.each([
         ],
       })
       const permissions = await porto.provider.request({
-        method: 'experimental_permissions',
+        method: 'experimental_getPermissions',
       })
       expect(permissions.length).toBe(2)
     })

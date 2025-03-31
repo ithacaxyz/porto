@@ -1,4 +1,5 @@
 import * as C from './capabilities.js'
+import * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import * as Primitive from './primitive.js'
 import * as Schema from './schema.js'
@@ -66,6 +67,40 @@ export namespace eth_signTypedData_v4 {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
+export namespace experimental_authorizeAdmin {
+  export const Parameters = Type.Object({
+    /** Address of the account to authorize the admin for. */
+    address: Schema.Optional(Primitive.Address),
+    /** Chain ID. */
+    chainId: Schema.Optional(Primitive.Number),
+    /** Admin Key to authorize. */
+    key: Type.Object({
+      /** Expiry. */
+      expiry: Schema.Optional(Key.Base.properties.expiry),
+      /** Whether the key will need its digest (SHA256) prehashed when signing. */
+      prehash: Schema.Optional(Type.Boolean()),
+      /** Public key. */
+      publicKey: Key.Base.properties.publicKey,
+      /** Key type. */
+      type: Key.Base.properties.type,
+    }),
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_authorizeAdmin'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    address: Primitive.Address,
+    chainId: Primitive.Hex,
+    key: Key.Base,
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace experimental_createAccount {
   export const Parameters = Type.Intersect([
     Type.Object({
@@ -95,6 +130,27 @@ export namespace experimental_createAccount {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
+export namespace experimental_getAdmins {
+  export const Parameters = Type.Object({
+    address: Schema.Optional(Primitive.Address),
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_getAdmins'),
+    params: Schema.Optional(Type.Tuple([Parameters])),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    address: Primitive.Address,
+    keys: Type.Array(
+      Type.Pick(Key.Base, ['expiry', 'id', 'publicKey', 'type']),
+    ),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace experimental_grantPermissions {
   export const Parameters = Permissions.Request
   export type Parameters = Schema.StaticDecode<typeof Parameters>
@@ -109,14 +165,14 @@ export namespace experimental_grantPermissions {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
-export namespace experimental_permissions {
+export namespace experimental_getPermissions {
   export const Parameters = Type.Object({
     address: Schema.Optional(Primitive.Address),
   })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_permissions'),
+    method: Type.Literal('experimental_getPermissions'),
     params: Schema.Optional(Type.Tuple([Parameters])),
   })
   export type Request = Schema.StaticDecode<typeof Request>
@@ -151,6 +207,23 @@ export namespace experimental_prepareUpgradeAccount {
     signPayloads: Type.Array(Primitive.Hex),
   })
   export type Response = Schema.StaticDecode<typeof Response>
+}
+
+export namespace experimental_revokeAdmin {
+  export const Parameters = Type.Object({
+    address: Schema.Optional(Primitive.Address),
+    chainId: Schema.Optional(Primitive.Number),
+    id: Primitive.Hex,
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_revokeAdmin'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const Response = undefined
 }
 
 export namespace experimental_revokePermissions {

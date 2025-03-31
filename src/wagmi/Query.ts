@@ -1,1 +1,1 @@
-export { permissionsQueryKey } from './internal/query.js'
+export { getPermissionsQueryKey } from './internal/query.js'

@@ -2,6 +2,8 @@
 
 exports[`contract > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
+exports[`contract > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
 exports[`contract > experimental_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
 
@@ -679,6 +681,8 @@ exports[`local > wallet_sendCalls > behavior: not provider-managed permission 1`
 exports[`local > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
 
 exports[`relay > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
+exports[`relay > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
 exports[`relay > experimental_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1

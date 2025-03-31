@@ -85,6 +85,10 @@ export function contract(parameters: contract.Parameters = {}) {
 
   return Mode.from({
     actions: {
+      async authorizeAdmin() {
+        throw new Error('not implemented')
+      },
+
       async createAccount(parameters) {
         const { label, internal, permissions } = parameters
         const { client } = internal

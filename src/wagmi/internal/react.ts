@@ -26,12 +26,12 @@ import {
   connect,
   createAccount,
   disconnect,
+  getPermissions,
   grantPermissions,
-  permissions,
   revokePermissions,
   upgradeAccount,
 } from './core.js'
-import { permissionsQueryKey } from './query.js'
+import { getPermissionsQueryKey } from './query.js'
 import type { ConfigParameter } from './types.js'
 
 export function useConnect<
@@ -202,7 +202,7 @@ export declare namespace useGrantPermissions {
 
 export function usePermissions<
   config extends Config = ResolvedRegister['config'],
-  selectData = permissions.ReturnType,
+  selectData = getPermissions.ReturnType,
 >(
   parameters: usePermissions.Parameters<config, selectData> = {},
 ): usePermissions.ReturnType<selectData> {
@@ -221,7 +221,7 @@ export function usePermissions<
   )
   const queryKey = useMemo(
     () =>
-      permissionsQueryKey({
+      getPermissionsQueryKey({
         address,
         chainId: parameters.chainId ?? chainId,
         connector: activeConnector,
@@ -255,7 +255,7 @@ export function usePermissions<
           )[1]
           provider.current ??=
             (await activeConnector.getProvider()) as EIP1193Provider
-          return await permissions(config, {
+          return await getPermissions(config, {
             ...options,
             connector: activeConnector,
           })
@@ -268,25 +268,25 @@ export function usePermissions<
 export declare namespace usePermissions {
   type Parameters<
     config extends Config = Config,
-    selectData = permissions.ReturnType,
-  > = permissions.Parameters<config> &
+    selectData = getPermissions.ReturnType,
+  > = getPermissions.Parameters<config> &
     ConfigParameter<config> & {
       query?:
         | Omit<
             UseQueryParameters<
-              permissions.ReturnType,
-              permissions.ErrorType,
+              getPermissions.ReturnType,
+              getPermissions.ErrorType,
               selectData,
-              permissionsQueryKey.Value<config>
+              getPermissionsQueryKey.Value<config>
             >,
             'gcTime' | 'staleTime'
           >
         | undefined
     }
 
-  type ReturnType<selectData = permissions.ReturnType> = UseQueryReturnType<
+  type ReturnType<selectData = getPermissions.ReturnType> = UseQueryReturnType<
     selectData,
-    permissions.ErrorType
+    getPermissions.ErrorType
   >
 }
 

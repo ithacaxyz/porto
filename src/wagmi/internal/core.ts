@@ -307,10 +307,10 @@ export declare namespace grantPermissions {
   type ErrorType = BaseError
 }
 
-export async function permissions<config extends Config>(
+export async function getPermissions<config extends Config>(
   config: config,
-  parameters: permissions.Parameters<config>,
-): Promise<permissions.ReturnType> {
+  parameters: getPermissions.Parameters<config>,
+): Promise<getPermissions.ReturnType> {
   const { address, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
@@ -319,7 +319,7 @@ export async function permissions<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_permissions'
+  const method = 'experimental_getPermissions'
   type method = typeof method
   const response = await client.request<{
     Method: method
@@ -330,17 +330,17 @@ export async function permissions<config extends Config>(
     params: [{ address }],
   })
 
-  return Schema.Decode(Rpc.experimental_permissions.Response, response)
+  return Schema.Decode(Rpc.experimental_getPermissions.Response, response)
 }
 
-export declare namespace permissions {
+export declare namespace getPermissions {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter & {
       address?: Address | undefined
     }
 
   type ReturnType = Schema.StaticDecode<
-    typeof Rpc.experimental_permissions.Response
+    typeof Rpc.experimental_getPermissions.Response
   >
 
   // TODO: Exhaustive ErrorType

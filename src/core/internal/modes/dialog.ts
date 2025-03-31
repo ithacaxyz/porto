@@ -87,6 +87,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   return Mode.from({
     actions: {
+      async authorizeAdmin() {
+        throw new Error('not implemented')
+      },
+
       async createAccount(parameters) {
         const { internal } = parameters
         const { request, store } = internal
