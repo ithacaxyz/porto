@@ -136,7 +136,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (!account) throw new Error('no account found.')
 
             // Build keys to assign onto the account.
-            const keys = account.capabilities?.permissions
+            const adminKeys = account.capabilities?.admins
+              ?.map((key) => Key.from({ ...key, role: 'admin' }))
+              .filter(Boolean) as readonly Key.Key[]
+
+            const sessionKeys = account.capabilities?.permissions
               ?.map((permission) => {
                 if (permission.id === key?.publicKey) return key
                 try {
@@ -151,7 +155,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             return Account.from({
               address: account.address,
-              keys,
+              keys: [...adminKeys, ...sessionKeys],
             })
           }
 
@@ -263,10 +267,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             return result.accounts.map((account) => {
               const adminKeys = account.capabilities?.admins
-                ?.map((admin) =>
+                ?.map((key) =>
                   Key.from({
-                    ...admin,
-                    expiry: Number(admin.expiry),
+                    ...key,
                     role: 'admin',
                   }),
                 )
