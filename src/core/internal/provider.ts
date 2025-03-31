@@ -400,7 +400,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address, id }] = request._decoded.params
+          const [{ address, capabilities, id }] = request._decoded.params
 
           const account = address
             ? state.accounts.find((account) =>
@@ -413,6 +413,7 @@ export function from<
 
           await getMode().actions.revokeAdmin({
             account,
+            feeToken: capabilities?.feeToken,
             id,
             internal: {
               client,

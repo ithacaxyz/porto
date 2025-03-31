@@ -8,7 +8,7 @@ export default defineConfig({
     process.env.NODE_ENV === 'development'
       ? {
           'import.meta.env.VITE_DIALOG_HOST': JSON.stringify(
-            'https://localhost:5174/dialog',
+            'https://localhost:5174/dialog/',
           ),
         }
       : undefined,

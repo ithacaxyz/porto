@@ -261,11 +261,11 @@ export declare namespace disconnect {
   type ErrorType = BaseError
 }
 
-export async function grantPermissions<config extends Config>(
+export async function getAdmins<config extends Config>(
   config: config,
-  parameters: grantPermissions.Parameters<config>,
-): Promise<grantPermissions.ReturnType> {
-  const { address, chainId, connector, ...key } = parameters
+  parameters: getAdmins.Parameters<config>,
+): Promise<getAdmins.ReturnType> {
+  const { address, chainId, connector } = parameters
 
   const client = await getConnectorClient(config, {
     account: address,
@@ -273,34 +273,28 @@ export async function grantPermissions<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_grantPermissions'
+  const method = 'experimental_getAdmins'
   type method = typeof method
-  const response = client.request<{
+  const response = await client.request<{
     Method: method
     Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
     ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
   }>({
     method,
-    params: [
-      Schema.Encode(Rpc.experimental_grantPermissions.Parameters, {
-        address,
-        ...key,
-      } satisfies Rpc.experimental_grantPermissions.Parameters),
-    ],
+    params: [{ address }],
   })
 
-  return Schema.Decode(Rpc.experimental_grantPermissions.Response, response)
+  return Schema.Decode(Rpc.experimental_getAdmins.Response, response)
 }
 
-export declare namespace grantPermissions {
+export declare namespace getAdmins {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    ConnectorParameter &
-    Schema.StaticDecode<typeof Rpc.experimental_grantPermissions.Parameters> & {
+    ConnectorParameter & {
       address?: Address | undefined
     }
 
   type ReturnType = Schema.StaticDecode<
-    typeof Rpc.experimental_grantPermissions.Response
+    typeof Rpc.experimental_getAdmins.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -342,6 +336,138 @@ export declare namespace getPermissions {
   type ReturnType = Schema.StaticDecode<
     typeof Rpc.experimental_getPermissions.Response
   >
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
+export async function grantAdmin<config extends Config>(
+  config: config,
+  parameters: grantAdmin.Parameters<config>,
+): Promise<grantAdmin.ReturnType> {
+  const { address, chainId, connector, ...key } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: address,
+    chainId,
+    connector,
+  })
+
+  const method = 'experimental_grantAdmin'
+  type method = typeof method
+  const response = client.request<{
+    Method: method
+    Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+    ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
+  }>({
+    method,
+    params: [
+      Schema.Encode(Rpc.experimental_grantAdmin.Parameters, {
+        address,
+        ...key,
+      } satisfies Rpc.experimental_grantAdmin.Parameters),
+    ],
+  })
+
+  return Schema.Decode(Rpc.experimental_grantAdmin.Response, response)
+}
+
+export declare namespace grantAdmin {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    Schema.StaticDecode<typeof Rpc.experimental_grantAdmin.Parameters> & {
+      address?: Address | undefined
+    }
+
+  type ReturnType = Schema.StaticDecode<
+    typeof Rpc.experimental_grantAdmin.Response
+  >
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
+export async function grantPermissions<config extends Config>(
+  config: config,
+  parameters: grantPermissions.Parameters<config>,
+): Promise<grantPermissions.ReturnType> {
+  const { address, chainId, connector, ...key } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: address,
+    chainId,
+    connector,
+  })
+
+  const method = 'experimental_grantPermissions'
+  type method = typeof method
+  const response = await client.request<{
+    Method: method
+    Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+    ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
+  }>({
+    method,
+    params: [
+      Schema.Encode(Rpc.experimental_grantPermissions.Parameters, {
+        address,
+        ...key,
+      } satisfies Rpc.experimental_grantPermissions.Parameters),
+    ],
+  })
+
+  return Schema.Decode(Rpc.experimental_grantPermissions.Response, response)
+}
+
+export declare namespace grantPermissions {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    Schema.StaticDecode<typeof Rpc.experimental_grantPermissions.Parameters> & {
+      address?: Address | undefined
+    }
+
+  type ReturnType = Schema.StaticDecode<
+    typeof Rpc.experimental_grantPermissions.Response
+  >
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
+export async function revokeAdmin<config extends Config>(
+  config: config,
+  parameters: revokeAdmin.Parameters<config>,
+) {
+  const { address, chainId, connector, feeToken, id } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: address,
+    chainId,
+    connector,
+  })
+
+  const method = 'experimental_revokeAdmin'
+  type method = typeof method
+  return client.request<{
+    Method: method
+    Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
+    ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
+  }>({
+    method,
+    params: [{ address, capabilities: { feeToken }, id }],
+  })
+}
+
+export declare namespace revokeAdmin {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    Schema.StaticDecode<
+      typeof Request.experimental_revokeAdmin.Capabilities
+    > & {
+      address?: Address | undefined
+      id: Schema.StaticDecode<
+        typeof Rpc.experimental_revokeAdmin.Parameters
+      >['id']
+    }
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError

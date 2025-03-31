@@ -26,13 +26,109 @@ import {
   connect,
   createAccount,
   disconnect,
+  getAdmins,
   getPermissions,
+  grantAdmin,
   grantPermissions,
+  revokeAdmin,
   revokePermissions,
   upgradeAccount,
 } from './core.js'
-import { getPermissionsQueryKey } from './query.js'
+import { getAdminsQueryKey, getPermissionsQueryKey } from './query.js'
 import type { ConfigParameter } from './types.js'
+
+export function useAdmins<
+  config extends Config = ResolvedRegister['config'],
+  selectData = getAdmins.ReturnType,
+>(
+  parameters: useAdmins.Parameters<config, selectData> = {},
+): useAdmins.ReturnType<selectData> {
+  const { query = {}, ...rest } = parameters
+
+  const config = useConfig(rest)
+  const queryClient = useQueryClient()
+  const chainId = useChainId({ config })
+  const { address, connector, status } = useAccount()
+  const activeConnector = parameters.connector ?? connector
+
+  const enabled = Boolean(
+    (status === 'connected' ||
+      (status === 'reconnecting' && activeConnector?.getProvider)) &&
+      (query.enabled ?? true),
+  )
+  const queryKey = useMemo(
+    () =>
+      getAdminsQueryKey({
+        address,
+        chainId: parameters.chainId ?? chainId,
+        connector: activeConnector,
+      }),
+    [address, chainId, parameters.chainId, activeConnector],
+  )
+
+  const provider = useRef<EIP1193Provider | undefined>(undefined)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `queryKey` not required
+  useEffect(() => {
+    if (!activeConnector) return
+    ;(async () => {
+      provider.current ??=
+        (await activeConnector.getProvider?.()) as EIP1193Provider
+      provider.current?.on('message', (event) => {
+        if (event.type !== 'adminsChanged') return
+        queryClient.setQueryData(queryKey, (data: any) => ({
+          ...data,
+          keys: event.data,
+        }))
+      })
+    })()
+  }, [address, activeConnector, queryClient])
+
+  return useQuery({
+    ...(query as any),
+    enabled,
+    gcTime: 0,
+    queryKey,
+    queryFn: activeConnector
+      ? async (context) => {
+          const { connectorUid: _, ...options } = (
+            context.queryKey as typeof queryKey
+          )[1]
+          provider.current ??=
+            (await activeConnector.getProvider()) as EIP1193Provider
+          return await getAdmins(config, {
+            ...options,
+            connector: activeConnector,
+          })
+        }
+      : skipToken,
+    staleTime: Number.POSITIVE_INFINITY,
+  }) as never
+}
+
+export declare namespace useAdmins {
+  type Parameters<
+    config extends Config = Config,
+    selectData = getAdmins.ReturnType,
+  > = getAdmins.Parameters<config> &
+    ConfigParameter<config> & {
+      query?:
+        | Omit<
+            UseQueryParameters<
+              getAdmins.ReturnType,
+              getAdmins.ErrorType,
+              selectData,
+              getAdminsQueryKey.Value<config>
+            >,
+            'gcTime' | 'staleTime'
+          >
+        | undefined
+    }
+
+  type ReturnType<selectData = getAdmins.ReturnType> = UseQueryReturnType<
+    selectData,
+    getAdmins.ErrorType
+  >
+}
 
 export function useConnect<
   config extends Config = ResolvedRegister['config'],
@@ -153,6 +249,49 @@ export declare namespace useDisconnect {
     disconnect.ReturnType,
     disconnect.ErrorType,
     disconnect.Parameters,
+    context
+  >
+}
+
+export function useGrantAdmin<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useGrantAdmin.Parameters<config, context> = {},
+): useGrantAdmin.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return grantAdmin(config, variables)
+    },
+    mutationKey: ['grantAdmin'],
+  })
+}
+
+export declare namespace useGrantAdmin {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          grantAdmin.ReturnType,
+          grantAdmin.ErrorType,
+          grantAdmin.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    grantAdmin.ReturnType,
+    grantAdmin.ErrorType,
+    grantAdmin.Parameters<config>,
     context
   >
 }
@@ -287,6 +426,49 @@ export declare namespace usePermissions {
   type ReturnType<selectData = getPermissions.ReturnType> = UseQueryReturnType<
     selectData,
     getPermissions.ErrorType
+  >
+}
+
+export function useRevokeAdmin<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useRevokeAdmin.Parameters<config, context> = {},
+): useRevokeAdmin.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return revokeAdmin(config, variables)
+    },
+    mutationKey: ['revokeAdmin'],
+  })
+}
+
+export declare namespace useRevokeAdmin {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          undefined,
+          revokeAdmin.ErrorType,
+          revokeAdmin.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    undefined,
+    revokeAdmin.ErrorType,
+    revokeAdmin.Parameters<config>,
+    context
   >
 }
 

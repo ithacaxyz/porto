@@ -211,8 +211,14 @@ export namespace experimental_prepareUpgradeAccount {
 }
 
 export namespace experimental_revokeAdmin {
+  export const Capabilities = Type.Object({
+    feeToken: Schema.Optional(Primitive.Address),
+  })
+  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
+
   export const Parameters = Type.Object({
     address: Schema.Optional(Primitive.Address),
+    capabilities: Schema.Optional(Capabilities),
     chainId: Schema.Optional(Primitive.Number),
     id: Primitive.Hex,
   })

@@ -1,5 +1,11 @@
 import { Hooks } from 'porto/wagmi'
-import { type Hex, formatEther, parseEther } from 'viem'
+import {
+  type EIP1193Provider,
+  type Hex,
+  formatEther,
+  parseEther,
+  stringify,
+} from 'viem'
 import {
   type BaseError,
   useAccount,
@@ -44,6 +50,7 @@ export function App() {
         <>
           <Balance />
           <GrantPermissions />
+          <GrantAdmin />
           <Mint />
         </>
       ) : (
@@ -72,7 +79,7 @@ function Account() {
         <br />
         status: {account.status}
         <br />
-        permissions: {JSON.stringify(permissions)}
+        permissions: {stringify(permissions)}
       </div>
 
       {account.status !== 'disconnected' && (
@@ -165,7 +172,7 @@ function UpgradeAccount() {
         >
           Create EOA
         </button>
-        {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
+        {accountData && <pre>{stringify(accountData, null, 2)}</pre>}
       </p>
       <div>
         <input
@@ -233,9 +240,10 @@ function GrantPermissions() {
   const permissions = Hooks.usePermissions()
   const grantPermissions = Hooks.useGrantPermissions()
 
-  if (permissions.data?.length !== 0) return null
   return (
     <div>
+      <h2>Permissions</h2>
+      <pre>{stringify(permissions.data, null, 2)}</pre>
       <h2>Grant Permissions</h2>
       <button onClick={() => grantPermissions.mutate(key())} type="button">
         Grant Permissions
@@ -248,6 +256,40 @@ function GrantPermissions() {
             grantPermissions.error.message}
         </div>
       )}
+    </div>
+  )
+}
+
+function GrantAdmin() {
+  const connectors = useConnectors()
+  const admins = Hooks.useAdmins()
+  const grantAdmin = Hooks.useGrantAdmin()
+
+  return (
+    <div>
+      <h2>Admins</h2>
+      <pre>{stringify(admins.data, null, 2)}</pre>
+      <h2>Grant Admin</h2>
+      {connectors?.map((connector) => (
+        <button
+          key={connector.uid}
+          onClick={async () => {
+            const provider = (await connector.getProvider()) as EIP1193Provider
+            const [address] = await provider.request({
+              method: 'eth_requestAccounts',
+            })
+            grantAdmin.mutate({
+              key: {
+                publicKey: address,
+                type: 'address',
+              },
+            })
+          }}
+          type="button"
+        >
+          {connector.name}
+        </button>
+      ))}
     </div>
   )
 }
