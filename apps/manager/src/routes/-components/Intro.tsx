@@ -12,7 +12,7 @@ export function Intro() {
           rel="noreferrer"
           target="_blank"
         >
-          <IthacaMono className="w-fit max-w-[75px]" />
+          <IthacaMono />
         </a>
       </p>
       <div className="flex flex-col gap-y-10">
