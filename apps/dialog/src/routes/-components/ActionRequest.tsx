@@ -78,7 +78,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     chainId,
     context: prepareCalls.data?.context,
   })
-  const { data: feePrice } = Quote.useFeePrice(quote)
+  const feePrice = Quote.useFeePrice(quote)
 
   const simulate = useQuery({
     queryFn: async () => {
@@ -193,14 +193,24 @@ export function ActionRequest(props: ActionRequest.Props) {
               )}
 
               <div className="space-y-1">
-                <div className="flex h-[32px] justify-between text-[14px]">
+                <div
+                  className={cx(
+                    'flex h-[32px] justify-between text-[14px] leading-4',
+                    {
+                      'h-[inherit] leading-[inherit]':
+                        feePrice.isFetched && !feePrice.data,
+                    },
+                  )}
+                >
                   <span className="text-[14px] text-secondary">
                     Fees (est.)
                   </span>
-                  <div className="text-right leading-4">
-                    {feePrice ? (
+                  <div className="text-right">
+                    {feePrice.isFetched ? (
                       <>
-                        <div className="font-medium">{feePrice?.display}</div>
+                        <div className="font-medium">
+                          {feePrice?.data?.display ?? 'Unknown'}
+                        </div>
                         {quote?.fee && (
                           <div>
                             <span className="text-secondary text-xs">
