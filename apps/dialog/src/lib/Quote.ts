@@ -8,11 +8,7 @@ import * as Hooks from './Hooks'
 import { ValueFormatter } from '../utils'
 import * as Price from './Price'
 
-export type Fee = {
-  display: string
-  formatted: string
-  value: bigint
-}
+export type Fee = Price.Price
 
 export type Quote = {
   fee: Fee
@@ -42,13 +38,22 @@ export function useQuote<
     if (!nativeFeeEstimate || !txGas) return undefined
     const value = nativeFeeEstimate.maxFeePerGas * txGas
     const formatted = ValueFormatter.format(value, 18)
-    const display = `${formatted} ${chain.nativeCurrency.symbol}`
+    const decimals = chain.nativeCurrency.decimals
+    const symbol = chain.nativeCurrency.symbol
+    const display = `${formatted} ${symbol}`
     return {
+      decimals,
       display,
       formatted,
+      symbol,
       value,
     }
-  }, [nativeFeeEstimate, txGas, chain.nativeCurrency.symbol])
+  }, [
+    nativeFeeEstimate,
+    txGas,
+    chain.nativeCurrency.symbol,
+    chain.nativeCurrency.decimals,
+  ])
 
   if (!fee) return undefined
   if (!ttl) return undefined
@@ -75,14 +80,14 @@ export function useFeePrice(quote: Quote | undefined) {
 
       const feePrice = Number(ethFee) * Number(price.formatted)
 
-      const currency = price.currency
+      const symbol = price.symbol
       const formatted = Price.format(feePrice)
-      const display = `${formatted} ${currency}`
+      const display = `${formatted} ${symbol}`
 
       return {
-        currency,
         display,
         formatted,
+        symbol,
       }
     },
   })

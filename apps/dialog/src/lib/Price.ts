@@ -5,10 +5,10 @@ import { Value } from 'ox'
 export type Pair = keyof typeof priceFeedAddress
 
 export type Price = {
-  currency: string
   decimals: number
   display: string
   formatted: string
+  symbol: string
   value: bigint
 }
 
@@ -49,10 +49,10 @@ export function usePrice<selectData = Price>(
         const decimals = 8
         const formatted = Value.format(value, decimals)
         return select({
-          currency: pair.split('/')[1] as string,
           decimals,
           display: format(Number(formatted)),
           formatted,
+          symbol: pair.split('/')[1] as string,
           value,
         } as const satisfies Price) as selectData
       },
