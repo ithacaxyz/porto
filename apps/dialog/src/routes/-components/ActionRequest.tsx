@@ -70,7 +70,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
       return Schema.Decode(Rpc.wallet_prepareCalls.Response, raw)
     },
-    refetchInterval: 30_000,
+    refetchInterval: 15_000,
   })
 
   // TODO: extract from a `quote` capability on `wallet_prepareCalls` response
@@ -201,7 +201,9 @@ export function ActionRequest(props: ActionRequest.Props) {
                     'flex h-[32px] justify-between text-[14px] leading-4',
                     {
                       'h-[inherit] leading-[inherit]':
-                        fee_fiat.isFetched && !fee_fiat.data,
+                        prepareCalls.isFetched &&
+                        fee_fiat.isFetched &&
+                        !fee_fiat.data,
                     },
                   )}
                 >
@@ -209,7 +211,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                     Fees (est.)
                   </span>
                   <div className="text-right">
-                    {fee_fiat.isFetched ? (
+                    {prepareCalls.isFetched && fee_fiat.isFetched ? (
                       <>
                         <div className="font-medium">
                           {fee_fiat?.data?.display ?? 'Unknown'}
