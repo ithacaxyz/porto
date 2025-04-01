@@ -1,4 +1,5 @@
 import { Porto } from '@porto/apps'
+import * as Sentry from '@sentry/react'
 import { Dialog as Dialog_porto } from 'porto'
 import { Actions, Events } from 'porto/remote'
 import { StrictMode } from 'react'
@@ -8,6 +9,11 @@ import * as Dialog from '~/lib/Dialog.ts'
 import * as Router from '~/lib/Router.ts'
 import { App } from './App.js'
 import './styles.css'
+
+Sentry.init({
+  dsn: 'https://457697aad11614a3f667c8e61f6b9e20@o4509056062849024.ingest.us.sentry.io/4509080285741056',
+  integrations: [Sentry.tanstackRouterBrowserTracingIntegration(Router.router)],
+})
 
 const porto = Porto.porto
 
@@ -40,7 +46,13 @@ const rootElement = document.querySelector('div#root')
 
 if (!rootElement) throw new Error('Root element not found')
 
-createRoot(rootElement).render(
+createRoot(rootElement, {
+  onCaughtError: Sentry.reactErrorHandler(),
+  onRecoverableError: Sentry.reactErrorHandler(),
+  onUncaughtError: Sentry.reactErrorHandler((error, errorInfo) => {
+    console.warn('Uncaught error', error, errorInfo.componentStack)
+  }),
+}).render(
   <StrictMode>
     <App />
   </StrictMode>,

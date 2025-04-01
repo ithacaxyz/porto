@@ -1,3 +1,4 @@
+import { sentryVitePlugin as SentryVitePlugin } from '@sentry/vite-plugin'
 import Tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
@@ -11,6 +12,7 @@ export default defineConfig({
   base: '/dialog/',
   build: {
     outDir: './dist/dialog',
+    sourcemap: true,
   },
   plugins: [
     Mkcert({
@@ -24,6 +26,11 @@ export default defineConfig({
     Tailwindcss(),
     React(),
     Icons({ compiler: 'jsx', jsx: 'react' }),
+    SentryVitePlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      org: 'ithaca',
+      project: 'porto-dialog',
+    }),
     TsconfigPaths(),
     TanStackRouterVite(),
   ],

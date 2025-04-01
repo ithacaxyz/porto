@@ -17,6 +17,8 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/react-router": "catalog:",
+    "@sentry/react": "catalog:",
+    "@sentry/vite-plugin": "catalog:",
     "@wagmi/core": "catalog:",
     "cva": "catalog:",
     "ox": "catalog:",

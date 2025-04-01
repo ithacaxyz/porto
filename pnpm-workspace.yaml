@@ -7,6 +7,8 @@ packages:
 
 catalog:
   "@iconify/json": "^2.2.318"
+  "@sentry/react": "^9"
+  "@sentry/vite-plugin": "^3"
   "@svgr/core": "^8.1.0"
   "@svgr/plugin-jsx": "^8.1.0"
   "@tanstack/query-sync-storage-persister": "^5.68.0"
