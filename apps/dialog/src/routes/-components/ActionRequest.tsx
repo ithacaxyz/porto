@@ -193,17 +193,28 @@ export function ActionRequest(props: ActionRequest.Props) {
               )}
 
               <div className="space-y-1">
-                <div className="flex justify-between text-[14px]">
+                <div className="flex h-[32px] justify-between text-[14px]">
                   <span className="text-[14px] text-secondary">
                     Fees (est.)
                   </span>
-                  {feePrice ? (
-                    <span className="font-medium">{feePrice?.display}</span>
-                  ) : (
-                    <span className="font-medium text-secondary">
-                      Loading...
-                    </span>
-                  )}
+                  <div className="text-right leading-4">
+                    {feePrice ? (
+                      <>
+                        <div className="font-medium">{feePrice?.display}</div>
+                        {quote?.fee && (
+                          <div>
+                            <span className="text-secondary text-xs">
+                              {quote.fee.display}
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <span className="font-medium text-secondary">
+                        Loading...
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex justify-between text-[14px]">
