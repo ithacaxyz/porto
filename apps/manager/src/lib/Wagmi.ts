@@ -1,7 +1,14 @@
-import { Porto } from '@porto/apps'
+import { Porto as SharedPorto } from '@porto/apps'
+import { Mode, Porto } from 'porto'
 import { createConfig, createStorage, http } from 'wagmi'
 import { base, baseSepolia, odysseyTestnet } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
+
+export const porto = import.meta.env.DEV
+  ? Porto.create({
+      mode: Mode.contract(),
+    })
+  : SharedPorto.porto
 
 export const chainIds = [base.id, odysseyTestnet.id, baseSepolia.id] as const
 export type ChainId = (typeof chainIds)[number]
@@ -13,7 +20,7 @@ export const config = createConfig({
       target: () => ({
         id: 'porto',
         name: 'Porto',
-        provider: Porto.porto.provider as never,
+        provider: porto.provider as never,
       }),
     }),
   ],

@@ -77,7 +77,6 @@ function RouteComponent() {
   const _connectors = useConnectors({ config })
 
   const connectors = React.useMemo(() => {
-    console.info(_connectors)
     const uniqueConnectorsNames = new Set()
     const uniqueConnectors = []
     for (const connector of _connectors) {

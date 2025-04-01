@@ -88,7 +88,17 @@ export function Dashboard() {
   const admins = Hooks.useAdmins()
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
-      onSuccess: () => admins.refetch(),
+      onSuccess: () => {
+        toast.custom((t) => (
+          <CustomToast
+            className={t}
+            description="You have revoked a recovery admin"
+            kind="SUCCESS"
+            title="Recovery Revoked"
+          />
+        ))
+        admins.refetch()
+      },
     },
   })
 
@@ -632,6 +642,7 @@ function AssetRow({
 
           { duration: 4_500 },
         )
+        refetchSwapAssets()
         sendForm.setState('submitSucceed', (count) => +count + 1)
         sendForm.setState('submitFailed', 0)
       },
@@ -705,6 +716,7 @@ function AssetRow({
           ),
           { duration: 3_500 },
         )
+        refetchSwapAssets()
         swapForm.setState('submitSucceed', (count) => +count + 1)
         swapForm.setState('submitFailed', 0)
       },
