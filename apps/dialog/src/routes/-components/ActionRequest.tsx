@@ -4,17 +4,16 @@ import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { Delegation, RpcSchema as RpcSchema_porto } from 'porto'
 import { Hooks } from 'porto/remote'
-import { RpcSchema, Value } from 'ox'
-import * as React from 'react'
+import { RpcSchema } from 'ox'
 import * as Schema from 'porto/core/internal/typebox/schema'
 import * as Rpc from 'porto/core/internal/typebox/request'
 import { Call } from 'viem'
 
 import * as Dialog from '~/lib/Dialog'
-import { useChain, useEthPrice } from '~/lib/Hooks'
+import { useChain } from '~/lib/Hooks'
 import * as Quote from '~/lib/Quote'
 import { Layout } from '~/routes/-components/Layout'
-import { PriceFormatter, ValueFormatter } from '~/utils'
+import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
 import ArrowUpRight from '~icons/lucide/arrow-up-right'
 import TriangleAlert from '~icons/lucide/triangle-alert'
@@ -79,23 +78,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     chainId,
     context: prepareCalls.data?.context,
   })
-
-  const ethPrice = useEthPrice()
-  const feePrice = React.useMemo(() => {
-    if (!quote) return undefined
-    if (!ethPrice.data) return undefined
-
-    const weiFee = quote.fee.value
-    const ethFee = Value.formatEther(weiFee)
-
-    const price = ethPrice.data
-    const feePrice = Number(ethFee) * Number(price.formatted)
-
-    return {
-      currency: price.currency,
-      formatted: PriceFormatter.format(feePrice),
-    }
-  }, [quote, ethPrice])
+  const { data: feePrice } = Quote.useFeePrice(quote)
 
   const simulate = useQuery({
     queryFn: async () => {
@@ -215,9 +198,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                     Fees (est.)
                   </span>
                   {feePrice ? (
-                    <span className="font-medium">
-                      {feePrice?.formatted} {feePrice?.currency}
-                    </span>
+                    <span className="font-medium">{feePrice?.display}</span>
                   ) : (
                     <span className="font-medium text-secondary">
                       Loading...

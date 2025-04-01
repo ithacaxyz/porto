@@ -2,9 +2,11 @@ import * as React from 'react'
 import { Chains } from 'porto'
 import { Porto } from 'porto/remote'
 import * as Quote_relay from 'porto/core/internal/relay/typebox/quote'
+import { Value } from 'ox'
 
 import * as Hooks from './Hooks'
 import { ValueFormatter } from '../utils'
+import * as Price from './Price'
 
 export type Fee = {
   display: string
@@ -61,4 +63,27 @@ export namespace useQuote {
     chainId?: number | undefined
     context: unknown
   }
+}
+
+export function useFeePrice(quote: Quote | undefined) {
+  return Price.usePrice({
+    select(price) {
+      if (!quote) return undefined
+
+      const weiFee = quote.fee.value
+      const ethFee = Value.formatEther(weiFee)
+
+      const feePrice = Number(ethFee) * Number(price.formatted)
+
+      const currency = price.currency
+      const formatted = Price.format(feePrice)
+      const display = `${formatted} ${currency}`
+
+      return {
+        currency,
+        display,
+        formatted,
+      }
+    },
+  })
 }
