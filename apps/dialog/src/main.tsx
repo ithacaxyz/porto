@@ -1,4 +1,4 @@
-import { Porto } from '@porto/apps'
+import { Env, Porto } from '@porto/apps'
 import * as Sentry from '@sentry/react'
 import { Dialog as Dialog_porto } from 'porto'
 import { Actions, Events } from 'porto/remote'
@@ -12,6 +12,7 @@ import './styles.css'
 
 Sentry.init({
   dsn: 'https://457697aad11614a3f667c8e61f6b9e20@o4509056062849024.ingest.us.sentry.io/4509080285741056',
+  environment: Env.get(),
   integrations: [Sentry.tanstackRouterBrowserTracingIntegration(Router.router)],
 })
 

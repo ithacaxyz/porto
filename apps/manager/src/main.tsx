@@ -1,3 +1,4 @@
+import { Env } from '@porto/apps'
 import * as Sentry from '@sentry/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -8,6 +9,7 @@ import './styles.css'
 
 Sentry.init({
   dsn: 'https://1b4e28921c688e2b03d1b63f8d018913@o4509056062849024.ingest.us.sentry.io/4509080371724288',
+  environment: Env.get(),
   integrations: [Sentry.tanstackRouterBrowserTracingIntegration(Router.router)],
 })
 
