@@ -21,7 +21,7 @@ export function getPorto(
   parameters: {
     chain?: Chain | undefined
     mode?: (parameters: {
-      feeToken?: Address.Address | undefined
+      feeToken?: Record<number, Address.Address> | undefined
       mock: boolean
     }) => Mode.Mode | undefined
     transports?:
@@ -40,7 +40,9 @@ export function getPorto(
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
-      feeToken: exp1Address,
+      feeToken: {
+        [Chains.odysseyTestnet.id]: exp1Address,
+      },
       mock: true,
     }),
     storage: Storage.memory(),

@@ -1,15 +1,22 @@
 import { Chains, Mode, Storage } from 'porto'
 import { Porto } from 'porto/remote'
 import { http } from 'viem'
+import { Address } from 'ox'
 
 import { exp1Address } from '../_generated/contracts'
 import * as Env from './Env'
 
+export const chains = Porto.defaultConfig.chains
+
+export const feeToken = {
+  [Chains.odysseyTestnet.id]: exp1Address,
+} satisfies Record<number, Address.Address>
+
 export const config = {
   anvil: {
-    chains: [Chains.odysseyTestnet],
+    chains,
     mode: Mode.relay({
-      feeToken: exp1Address,
+      feeToken,
     }),
     transports: {
       [Chains.odysseyTestnet.id]: {
@@ -19,7 +26,7 @@ export const config = {
     },
   },
   prod: {
-    chains: [Chains.odysseyTestnet],
+    chains,
     mode: Mode.contract(),
     transports: {
       [Chains.odysseyTestnet.id]: {
@@ -29,9 +36,9 @@ export const config = {
     },
   },
   stg: {
-    chains: [Chains.odysseyTestnet],
+    chains,
     mode: Mode.relay({
-      feeToken: exp1Address,
+      feeToken,
     }),
     transports: {
       [Chains.odysseyTestnet.id]: {
