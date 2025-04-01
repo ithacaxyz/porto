@@ -30,6 +30,23 @@ import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
 
+function TokenSymbol({
+  address,
+  display,
+}: {
+  address?: Address.Address | undefined
+  display?: 'symbol' | 'name' | 'address'
+}) {
+  const { data: tokenInfo } = useErc20Info(address)
+
+  if (!address) return null
+
+  if (!tokenInfo?.symbol || display === 'address')
+    return StringFormatter.truncate(address, { end: 4, start: 4 })
+
+  return display === 'name' ? tokenInfo.name : tokenInfo.symbol
+}
+
 export function Dashboard() {
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
@@ -251,7 +268,10 @@ export function Dashboard() {
                 </span>
                 <div className="inline-block w-[65px]">
                   <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
-                    {transfer?.token.symbol}
+                    <TokenSymbol
+                      address={transfer?.token.address as Address.Address}
+                      display="symbol"
+                    />
                   </span>
                 </div>
               </td>
@@ -296,8 +316,6 @@ export function Dashboard() {
 
             const time = DateFormatter.timeToDuration(permission.expiry * 1_000)
 
-            const { data: tokenInfo } = useErc20Info(spend?.token)
-
             return (
               <tr
                 className="*:text-xs! *:sm:text-sm!"
@@ -339,11 +357,7 @@ export function Dashboard() {
                       )}
                     </span>
                     <span className="truncate">
-                      {tokenInfo?.symbol ??
-                        StringFormatter.truncate(spend?.token ?? '', {
-                          end: 4,
-                          start: 4,
-                        })}
+                      <TokenSymbol address={spend?.token} display="symbol" />
                     </span>
                   </div>
                 </td>

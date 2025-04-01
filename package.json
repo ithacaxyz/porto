@@ -19,6 +19,7 @@
     "dev": "pnpm preconstruct && pnpm --filter playground --filter dialog dev",
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog dev",
     "dev:manager": "pnpm preconstruct && pnpm --filter manager --filter dialog dev",
+    "dev:manager:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter manager --filter dialog dev",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example --filter dialog dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter docs --filter dialog dev",

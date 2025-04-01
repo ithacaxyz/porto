@@ -24,14 +24,17 @@ const key = () =>
     permissions: {
       calls: [
         {
-          to: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+          to: exp1Address,
+        },
+        {
+          to: exp2Address,
         },
       ],
       spend: [
         {
           limit: parseEther('50'),
           period: 'minute',
-          token: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+          token: exp1Address,
         },
       ],
     },
