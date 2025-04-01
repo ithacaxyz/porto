@@ -1,5 +1,16 @@
 import { Value } from 'ox'
 
+export namespace PriceFormatter {
+  const numberIntl = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  })
+
+  export function format(value: number | bigint) {
+    return numberIntl.format(value)
+  }
+}
+
 export namespace StringFormatter {
   export function truncate(
     str: string,
@@ -12,7 +23,7 @@ export namespace StringFormatter {
 
 export namespace ValueFormatter {
   const numberIntl = new Intl.NumberFormat('en-US', {
-    maximumSignificantDigits: 6,
+    maximumSignificantDigits: 4,
   })
 
   export function format(num: bigint | number | undefined, units = 18) {

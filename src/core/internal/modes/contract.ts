@@ -414,6 +414,7 @@ export function contract(parameters: contract.Parameters = {}) {
         return { account }
       },
     },
+    name: 'contract',
   })
 }
 

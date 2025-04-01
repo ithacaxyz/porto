@@ -1,4 +1,4 @@
-import { fallback, type PublicRpcSchema } from 'viem'
+import { custom, fallback, type PublicRpcSchema } from 'viem'
 import {
   createClient,
   createTransport,
@@ -11,7 +11,9 @@ import {
 import type * as Chains from '../Chains.js'
 import type * as Mode from '../Mode.js'
 import type { Config, Store } from '../Porto.js'
+import type * as RpcSchema from '../RpcSchema.js'
 import type * as RpcSchema_relay from './relay/rpcSchema.js'
+import type * as Provider from './provider.js'
 
 export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
   viem_Transport,
@@ -19,6 +21,14 @@ export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
   viem_Account | undefined,
   [...PublicRpcSchema, ...RpcSchema_relay.Viem]
 >
+
+export type ProviderClient<chain extends Chains.Chain = Chains.Chain> =
+  viem_Client<
+    viem_Transport,
+    chain,
+    viem_Account | undefined,
+    [...PublicRpcSchema, ...RpcSchema.Viem]
+  >
 
 export type Internal<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
@@ -37,7 +47,7 @@ export type Transport =
   | viem_Transport
   | { default: viem_Transport; relay?: viem_Transport | undefined }
 
-const clientCache = new Map<string, Client>()
+const clientCache = new Map<string, Client<any>>()
 
 /**
  * Extracts a Viem Client from a Porto instance, and an optional chain ID.
@@ -116,4 +126,29 @@ export function getClient<
   })
   clientCache.set(key, client)
   return client
+}
+
+/**
+ * Extracts a Viem Client from a Porto EIP-1193 Provider instance.
+ *
+ * @param porto - Porto instance.
+ * @returns Client.
+ */
+export function getProviderClient<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(porto: {
+  _internal: Internal<chains>
+  provider: Provider.Provider
+}): ProviderClient<chains[number]> {
+  const { provider } = porto
+  const { id } = porto._internal
+
+  const key = ['provider', id].filter(Boolean).join(':')
+  if (clientCache.has(key)) return clientCache.get(key)!
+  const client = createClient({
+    pollingInterval: 1_000,
+    transport: custom(provider),
+  })
+  clientCache.set(key, client)
+  return client as never
 }

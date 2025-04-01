@@ -21,6 +21,7 @@ function RouteComponent() {
 
   const respond = useMutation({
     mutationFn() {
+      // TODO: sign quote.
       return Actions.respond(porto, request!)
     },
   })
@@ -32,6 +33,7 @@ function RouteComponent() {
       loading={respond.isPending}
       onApprove={() => respond.mutate()}
       onReject={() => Actions.reject(porto, request!)}
+      request={request}
     />
   )
 }

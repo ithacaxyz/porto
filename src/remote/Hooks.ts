@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/shallow'
 
@@ -5,6 +6,18 @@ import type * as Chains from '../core/Chains.js'
 import * as Porto_internal from '../core/internal/porto.js'
 import type * as Porto from '../core/Porto.js'
 import type * as Remote from './Porto.js'
+
+/**
+ * Hook to access and subscribe to the current chain.
+ *
+ * @param porto - Porto instance.
+ * @returns Chain.
+ */
+export function useActiveChain<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(porto: Pick<Remote.Porto<chains>, '_internal'>) {
+  return usePortoStore(porto, (x) => x.chain)
+}
 
 /**
  * Hook to access and subscribe to the current account.
@@ -31,18 +44,6 @@ export function useAccounts<
 }
 
 /**
- * Hook to access and subscribe to the current chain.
- *
- * @param porto - Porto instance.
- * @returns Chain.
- */
-export function useChain<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(porto: Pick<Remote.Porto<chains>, '_internal'>) {
-  return usePortoStore(porto, (x) => x.chain)
-}
-
-/**
  * Hook to access and subscribe to the client of the Porto instance.
  *
  * @param porto - Porto instance.
@@ -50,9 +51,19 @@ export function useChain<
  */
 export function useClient<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(porto: Pick<Remote.Porto<chains>, '_internal'>) {
-  const chain = useChain(porto)
-  return Porto_internal.getClient(porto, { chainId: chain.id })
+>(
+  porto: Pick<Remote.Porto<chains>, '_internal'>,
+  parameters: useClient.Parameters = {},
+) {
+  const defaultChainId = useActiveChain(porto)?.id
+  const chainId = parameters.chainId ?? defaultChainId
+  return Porto_internal.getClient(porto, { chainId })
+}
+
+export namespace useClient {
+  export type Parameters = {
+    chainId?: number | undefined
+  }
 }
 
 /**
@@ -129,4 +140,22 @@ export function useRequest<
     (state) =>
       state.requests.find((request) => request.status === 'pending')?.request,
   )
+}
+
+/**
+ * Hook to access and subscribe to the provider client of the Porto instance.
+ *
+ * @param porto - Porto instance.
+ * @returns Provider client.
+ */
+export function useProviderClient<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(porto: Pick<Remote.Porto<chains>, '_internal' | 'provider'>) {
+  return useMemo(() => Porto_internal.getProviderClient(porto), [porto])
+}
+
+export namespace useProviderClient {
+  export type Parameters = {
+    chainId?: number | undefined
+  }
 }

@@ -9,7 +9,14 @@ export type Schema =
   | RpcSchema.Eth
   | Exclude<
       DeepReadonly<RpcSchema.Wallet>,
-      { Request: { method: 'wallet_sendCalls' } }
+      {
+        Request: {
+          method:
+            | 'wallet_sendCalls'
+            | 'wallet_prepareCalls'
+            | 'wallet_sendPreparedCalls'
+        }
+      }
     >
   | RpcSchema.From<
       | {

@@ -386,6 +386,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // If a key is found, execute the calls with it.
         // No need to send a request to the dialog.
         if (key && key.role === 'session') {
+          // TODO: use eventual Viem Action.
           const req = await provider
             .request(
               Schema.Encode(Rpc.wallet_prepareCalls.Request, {
@@ -411,6 +412,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             wrap: false,
           })
 
+          // TODO: use eventual Viem Action.
           const result = await provider.request(
             Schema.Encode(Rpc.wallet_sendPreparedCalls.Request, {
               method: 'wallet_sendPreparedCalls',
@@ -499,6 +501,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return { account }
       },
     },
+    name: 'dialog',
     setup(parameters) {
       const { internal } = parameters
       const { store } = internal

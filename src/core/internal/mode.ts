@@ -192,6 +192,7 @@ export type Mode = {
       account: Account.Account
     }>
   }
+  name: string
   setup: (parameters: {
     /** Internal properties. */
     internal: Porto.Internal

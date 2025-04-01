@@ -21,19 +21,23 @@ function RouteComponent() {
   const request = Route.useSearch()
   const { chainId, data, to, value } = request._decoded.params[0]
 
+  const calls = [{ data, to: to!, value }] as const
+
   const respond = useMutation({
     mutationFn() {
+      // TODO: sign quote.
       return Actions.respond(porto, request)
     },
   })
 
   return (
     <ActionRequest
-      calls={[{ data, to: to!, value }]}
+      calls={calls}
       chainId={chainId}
       loading={respond.isPending}
       onApprove={() => respond.mutate()}
       onReject={() => Actions.reject(porto, request)}
+      request={request}
     />
   )
 }

@@ -468,6 +468,7 @@ export function relay(config: relay.Parameters = {}) {
         return { account }
       },
     },
+    name: 'relay',
   })
 }
 

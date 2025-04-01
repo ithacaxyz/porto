@@ -2,14 +2,19 @@ import { Porto } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
-import { Delegation } from 'porto'
+import { Delegation, RpcSchema as RpcSchema_porto } from 'porto'
 import { Hooks } from 'porto/remote'
+import { RpcSchema, Value } from 'ox'
 import * as React from 'react'
+import * as Schema from 'porto/core/internal/typebox/schema'
+import * as Rpc from 'porto/core/internal/typebox/request'
 import { Call } from 'viem'
 
 import * as Dialog from '~/lib/Dialog'
+import { useChain, useEthPrice } from '~/lib/Hooks'
+import * as Quote from '~/lib/Quote'
 import { Layout } from '~/routes/-components/Layout'
-import { ValueFormatter } from '~/utils'
+import { PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
 import ArrowUpRight from '~icons/lucide/arrow-up-right'
 import TriangleAlert from '~icons/lucide/triangle-alert'
@@ -18,19 +23,79 @@ import Star from '~icons/ph/star-four-bold'
 const porto = Porto.porto
 
 export function ActionRequest(props: ActionRequest.Props) {
-  const { calls, loading, onApprove, onReject } = props
+  const { calls, chainId, loading, onApprove, onReject, request } = props
 
   const account = Hooks.useAccount(porto)
+  const chain = useChain(porto, { chainId })
   const client = Hooks.useClient(porto)
   const origin = Dialog.useStore((state) => state.referrer?.origin)
+  const providerClient = Hooks.useProviderClient(porto)
 
-  const chainId =
-    typeof props.chainId === 'number'
-      ? props.chainId
-      : Hooks.useChain(porto)?.id
-  const chain = React.useMemo(() => {
-    return porto._internal.config.chains.find((x) => x.id === chainId)
-  }, [chainId])
+  // TODO: use eventual Wagmi Hook (`usePrepareCalls`).
+  const prepareCalls = useQuery({
+    staleTime: 0,
+    gcTime: 0,
+    queryKey: ['prepareCalls', account?.address, request, providerClient.uid],
+    async queryFn() {
+      if (!account) throw new Error('account is required.')
+
+      const key = account.keys?.find(
+        (key) => key.role === 'admin' && key.canSign,
+      )
+      if (!key) throw new Error('no key found.')
+
+      // TODO: use eventual Viem Action (`prepareCalls`).
+      const raw = await providerClient.request({
+        method: 'wallet_prepareCalls',
+        params: [
+          {
+            // Note: Using IIFE for inferred return type.
+            ...(() => {
+              // If the request was from an `eth_sendTransaction`, marshal it
+              // into a `wallet_sendCalls` request.
+              if (request.method === 'eth_sendTransaction') {
+                const { chainId, data, to, value } = request.params[0]
+                return {
+                  calls: [{ data, to: to!, value }],
+                  chainId,
+                }
+              }
+
+              // Otherwise, we are dealing with a `wallet_sendCalls` request.
+              return request.params[0]
+            })(),
+            key,
+          },
+        ],
+      })
+
+      return Schema.Decode(Rpc.wallet_prepareCalls.Response, raw)
+    },
+  })
+
+  // TODO: extract from a `quote` capability on `wallet_prepareCalls` response
+  //       instead of introspecting the context.
+  const quote = Quote.useQuote(porto, {
+    chainId,
+    context: prepareCalls.data?.context,
+  })
+
+  const ethPrice = useEthPrice()
+  const feePrice = React.useMemo(() => {
+    if (!quote) return undefined
+    if (!ethPrice.data) return undefined
+
+    const weiFee = quote.fee.value
+    const ethFee = Value.formatEther(weiFee)
+
+    const price = ethPrice.data
+    const feePrice = Number(ethFee) * Number(price.formatted)
+
+    return {
+      currency: price.currency,
+      formatted: PriceFormatter.format(feePrice),
+    }
+  }, [quote, ethPrice])
 
   const simulate = useQuery({
     queryFn: async () => {
@@ -145,12 +210,19 @@ export function ActionRequest(props: ActionRequest.Props) {
               )}
 
               <div className="space-y-1">
-                {/* TODO: Fees */}
                 <div className="flex justify-between text-[14px]">
                   <span className="text-[14px] text-secondary">
                     Fees (est.)
                   </span>
-                  <span className="font-medium">$0.01</span>
+                  {feePrice ? (
+                    <span className="font-medium">
+                      {feePrice?.formatted} {feePrice?.currency}
+                    </span>
+                  ) : (
+                    <span className="font-medium text-secondary">
+                      Loading...
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex justify-between text-[14px]">
@@ -228,5 +300,10 @@ export namespace ActionRequest {
     loading?: boolean | undefined
     onApprove: () => void
     onReject: () => void
+    quote?: Quote.Quote | undefined
+    request: RpcSchema.ExtractRequest<
+      RpcSchema_porto.Schema,
+      'eth_sendTransaction' | 'wallet_sendCalls'
+    >
   }
 }
