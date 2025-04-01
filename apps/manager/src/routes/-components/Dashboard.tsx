@@ -32,6 +32,16 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 
+import { exp1Config, exp2Config } from '@porto/apps/contracts'
+import { CustomToast } from '~/components/CustomToast'
+import { DevOnly } from '~/components/DevOnly'
+import { ShowMore } from '~/components/ShowMore'
+import { TokenSymbol } from '~/components/Token'
+import { TruncatedAddress } from '~/components/TruncatedAddress'
+import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
+import { useSwapAssets } from '~/hooks/useSwapAssets'
+import { config } from '~/lib/Wagmi'
+import { DateFormatter, ValueFormatter, sum } from '~/utils'
 import { Layout } from './Layout'
 
 const recoveryMethods: Array<{ address: string; name: string }> = []
@@ -94,9 +104,19 @@ export function Dashboard() {
         left={undefined}
         right={
           <div className="flex gap-2">
-            <Button className="" size="small">
-              Help
-            </Button>
+            <Button
+              size="small"
+              render={
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://t.me/porto_devs"
+                >
+                  Help
+                </a>
+              }
+            />
+
             <Button
               onClick={() => disconnect.mutate({})}
               size="small"
@@ -505,22 +525,6 @@ function PaginatedTable<T>({
   )
 }
 
-function TokenSymbol({ address }: { address?: Address.Address | undefined }) {
-  const { data: tokenInfo } = useErc20Info(address)
-
-  if (!address) return null
-
-  return (
-    <React.Fragment>
-      {tokenInfo?.symbol ||
-        StringFormatter.truncate(tokenInfo?.symbol ?? '', {
-          end: 4,
-          start: 4,
-        })}
-    </React.Fragment>
-  )
-}
-
 function AssetRow({
   address,
   decimals,
@@ -539,6 +543,8 @@ function AssetRow({
   const [viewState, setViewState] = React.useState<'send' | 'swap' | 'default'>(
     'default',
   )
+
+  const account = useAccount()
 
   const { data: swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
     chainId: 911_867,
@@ -700,54 +706,101 @@ function AssetRow({
         swapForm.setState('submitSucceed', (count) => +count + 1)
         swapForm.setState('submitFailed', 0)
       },
+      onError: (error) => {
+        const notAllowed = error.message.includes('not allowed')
+        toast.custom(
+          (t) => (
+            <CustomToast
+              className={t}
+              kind={notAllowed ? 'WARN' : 'ERROR'}
+              title={
+                notAllowed ? 'Transaction cancelled' : 'Transaction failed'
+              }
+              description={
+                notAllowed
+                  ? 'Transaction submission was cancelled.'
+                  : 'You do not have enough balance to complete this transaction.'
+              }
+            />
+          ),
+          { duration: 3_500 },
+        )
+        swapForm.setState('submitFailed', (count) => +count + 1)
+        swapForm.setState('submitSucceed', 0)
+      },
     },
   })
+
+  const swapAssetsExcludingCurrent = React.useMemo(() => {
+    const filtered =
+      swapAssets?.filter(
+        (asset) => asset.symbol.toLowerCase() !== symbol.toLowerCase(),
+      ) ?? []
+
+    return account.chainId === 911_867
+      ? filtered.filter((a) => a.symbol !== 'ETH')
+      : filtered
+  }, [swapAssets, symbol, account.chainId])
+
+  const [swapSearchValue, setSwapSearchValue] = React.useState('')
+
+  const matches = React.useMemo(
+    () =>
+      matchSorter(swapAssetsExcludingCurrent, swapSearchValue, {
+        keys: ['symbol', 'name', 'address'],
+        baseSort: (a, b) => (a.index < b.index ? -1 : 1),
+      }),
+    [swapSearchValue, swapAssetsExcludingCurrent],
+  )
 
   const swapForm = Ariakit.useFormStore({
     defaultValues: {
       swapAmount: '',
-      swapAsset: address,
+      fromAsset: address,
+      toAsset: swapAssetsExcludingCurrent?.[0]?.address,
     },
   })
   const swapFormState = Ariakit.useStoreState(swapForm)
+  const selectedSwapAsset = swapAssets?.find(
+    (asset) => asset.address === swapFormState.values.toAsset,
+  )
 
   swapForm.useSubmit(async (_state) => {
     if (!(await swapForm.validate())) return
 
+    if (!account.address) return
+
+    console.info(swapFormState.values, address)
+
+    const config =
+      swapFormState.values.fromAsset === exp1Config.address
+        ? exp1Config
+        : exp2Config
+
     swapCalls.sendCalls({
       calls: [
         {
-          to: address,
+          to: config.address,
+          data: encodeFunctionData({
+            abi: config.abi,
+            functionName: 'swap',
+            args: [
+              // swapFormState.values.toAsset,
+              '0xf242cE588b030d0895C51C0730F2368680f80644',
+              account.address,
+              Value.fromEther(swapFormState.values.swapAmount),
+            ],
+          }),
         },
       ],
     })
   })
-
-  const [swapSearchValue, setSwapSearchValue] = React.useState('')
-
-  const swapAssetsExcludingCurrent =
-    swapAssets?.filter(
-      (asset) => asset.symbol.toLowerCase() !== symbol.toLowerCase(),
-    ) ?? []
-
-  const [selectedAsset, setSelectedAsset] = React.useState(
-    swapAssetsExcludingCurrent?.[0],
-  )
 
   swapForm.useValidate(async (state) => {
     if (Number(state.values.swapAmount) > Number(formattedBalance)) {
       swapForm.setError('swapAmount', 'Amount is too high')
     }
   })
-
-  const matches = React.useMemo(
-    () =>
-      matchSorter(swapAssetsExcludingCurrent, swapSearchValue, {
-        baseSort: (a, b) => (a.index < b.index ? -1 : 1),
-        keys: ['symbol', 'name', 'address'],
-      }),
-    [swapSearchValue, swapAssetsExcludingCurrent],
-  )
 
   return (
     <tr className="font-normal sm:text-sm">
@@ -803,7 +856,9 @@ function AssetRow({
                 <Ariakit.VisuallyHidden>
                   <Ariakit.ComboboxLabel>Select asset</Ariakit.ComboboxLabel>
                 </Ariakit.VisuallyHidden>
-                <Ariakit.SelectProvider defaultValue={selectedAsset?.symbol}>
+                <Ariakit.SelectProvider
+                  defaultValue={selectedSwapAsset?.address}
+                >
                   <Ariakit.VisuallyHidden>
                     <Ariakit.SelectLabel>Select asset</Ariakit.SelectLabel>
                   </Ariakit.VisuallyHidden>
@@ -817,6 +872,7 @@ function AssetRow({
                       <ArrowRightIcon className="size-5 text-gray10" />
                     </div>
                     <img
+                      src={selectedSwapAsset?.logo}
                       alt="asset icon"
                       className="my-auto size-7"
                       src={selectedAsset?.logo}
@@ -826,7 +882,7 @@ function AssetRow({
                         Swap to
                       </span>
                       <span className="font-medium text-xs sm:text-sm">
-                        {selectedAsset?.name}
+                        {selectedSwapAsset?.name}
                       </span>
                     </div>
                     <div className="my-auto mr-2 ml-auto flex h-full items-center">
@@ -862,7 +918,14 @@ function AssetRow({
                         <Ariakit.SelectItem
                           className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-gray3 dark:focus:bg-sky-900"
                           key={value.symbol}
-                          onClick={() => setSelectedAsset(value)}
+                          value={value.symbol}
+                          onClick={() =>
+                            swapForm.setValue(
+                              swapForm.names.toAsset,
+                              value.address,
+                            )
+                          }
+                          className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-gray3 dark:focus:bg-sky-900"
                           render={
                             <Ariakit.ComboboxItem
                               className={cx(
@@ -888,7 +951,7 @@ function AssetRow({
                             {value.symbol}
                           </span>
                           <span className="ml-auto text-gray10">
-                            {formattedBalance}
+                            {Value.format(value.balance, value.decimals)}
                           </span>
                         </Ariakit.SelectItem>
                       ))}
