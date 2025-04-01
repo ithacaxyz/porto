@@ -68,7 +68,7 @@ function ActionableFeedback({ feedback }: { feedback: 'SUCCESS' | 'PENDING' }) {
 }
 
 function RouteComponent() {
-  React.useEffect(() => {
+  React.useInsertionEffect(() => {
     toast.warning('Not implemented', {
       description: 'Will be implemented soon after relay is ready',
       duration: Number.POSITIVE_INFINITY,

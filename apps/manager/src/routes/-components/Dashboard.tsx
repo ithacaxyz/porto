@@ -17,6 +17,7 @@ import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
+import { useErc20Info } from '~/hooks/useTokenInfo'
 import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, sum, ValueFormatter } from '~/utils'
 import ArrowLeftRightIcon from '~icons/lucide/arrow-left-right'
@@ -31,85 +32,6 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
-
-type TableProps<T> = {
-  data: ReadonlyArray<T> | undefined
-  emptyMessage: string
-  columns: {
-    header: string
-    key: string
-    align?: 'left' | 'right' | 'center'
-    width?: string
-  }[]
-  renderRow: (item: T) => React.ReactNode
-  showMoreText: string
-  initialCount?: number
-}
-
-function PaginatedTable<T>({
-  data,
-  emptyMessage,
-  columns,
-  renderRow,
-  showMoreText,
-  initialCount = 5,
-}: TableProps<T>) {
-  const [firstItems, remainingItems] = React.useMemo(
-    () =>
-      !data
-        ? [[], []]
-        : [data.slice(0, initialCount), data.slice(initialCount)],
-    [data, initialCount],
-  )
-
-  const [showAll, setShowAll] = React.useState<'ALL' | 'DEFAULT'>('DEFAULT')
-  const itemsToShow = showAll === 'ALL' ? data : firstItems
-
-  return (
-    <>
-      <table className="my-3 w-full table-auto">
-        <thead>
-          <tr className="text-gray10 *:font-normal *:text-sm">
-            {columns.map((col) => (
-              <th
-                className={cx(
-                  col.width,
-                  col.align === 'right' ? 'text-right' : 'text-left',
-                )}
-                key={col.key}
-              >
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="border-transparent border-t-10">
-          {itemsToShow && itemsToShow?.length > 0 ? (
-            itemsToShow?.map((item, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
-            ))
-          ) : (
-            <tr>
-              <td className="text-center text-gray12" colSpan={columns.length}>
-                <p className="mt-2 text-sm">{emptyMessage}</p>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      {remainingItems.length > 0 && (
-        <div className="flex justify-start">
-          <ShowMore
-            className="cursor-default font-medium text-gray10 text-sm"
-            onChange={() => setShowAll(showAll === 'ALL' ? 'DEFAULT' : 'ALL')}
-            text={`Show ${remainingItems.length} ${showMoreText}`}
-          />
-        </div>
-      )}
-    </>
-  )
-}
 
 const recoveryMethods: Array<{ address: string; name: string }> = []
 
@@ -359,6 +281,7 @@ export function Dashboard() {
             const [calls] = permission?.permissions?.calls ?? []
 
             const time = DateFormatter.timeToDuration(permission.expiry * 1_000)
+
             return (
               <tr
                 className="*:text-xs! *:sm:text-sm!"
@@ -400,10 +323,7 @@ export function Dashboard() {
                       )}
                     </span>
                     <span className="truncate">
-                      {StringFormatter.truncate(spend?.token ?? '', {
-                        end: 4,
-                        start: 4,
-                      })}
+                      <TokenSymbol address={spend?.token} />
                     </span>
                   </div>
                 </td>
@@ -504,6 +424,99 @@ export function Dashboard() {
         </table>
       </details>
     </>
+  )
+}
+
+function PaginatedTable<T>({
+  data,
+  emptyMessage,
+  columns,
+  renderRow,
+  showMoreText,
+  initialCount = 5,
+}: {
+  data: ReadonlyArray<T> | undefined
+  emptyMessage: string
+  columns: {
+    header: string
+    key: string
+    align?: 'left' | 'right' | 'center'
+    width?: string
+  }[]
+  renderRow: (item: T) => React.ReactNode
+  showMoreText: string
+  initialCount?: number
+}) {
+  const [firstItems, remainingItems] = React.useMemo(
+    () =>
+      !data
+        ? [[], []]
+        : [data.slice(0, initialCount), data.slice(initialCount)],
+    [data, initialCount],
+  )
+
+  const [showAll, setShowAll] = React.useState<'ALL' | 'DEFAULT'>('DEFAULT')
+  const itemsToShow = showAll === 'ALL' ? data : firstItems
+
+  return (
+    <>
+      <table className="my-3 w-full table-auto">
+        <thead>
+          <tr className="text-gray10 *:font-normal *:text-sm">
+            {columns.map((col) => (
+              <th
+                className={cx(
+                  col.width,
+                  col.align === 'right' ? 'text-right' : 'text-left',
+                )}
+                key={col.key}
+              >
+                {col.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="border-transparent border-t-10">
+          {itemsToShow && itemsToShow?.length > 0 ? (
+            itemsToShow?.map((item, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
+            ))
+          ) : (
+            <tr>
+              <td className="text-center text-gray12" colSpan={columns.length}>
+                <p className="mt-2 text-sm">{emptyMessage}</p>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      {remainingItems.length > 0 && (
+        <div className="flex justify-start">
+          <ShowMore
+            className="cursor-default font-medium text-gray10 text-sm"
+            onChange={() => setShowAll(showAll === 'ALL' ? 'DEFAULT' : 'ALL')}
+            text={`Show ${remainingItems.length} ${showMoreText}`}
+          />
+        </div>
+      )}
+    </>
+  )
+}
+
+function TokenSymbol({ address }: { address?: Address.Address | undefined }) {
+  const { data: tokenInfo } = useErc20Info(address)
+
+  if (!address) return null
+
+  return (
+    <React.Fragment>
+      {tokenInfo?.symbol ||
+        StringFormatter.truncate(tokenInfo?.symbol ?? '', {
+          end: 4,
+          start: 4,
+        })}
+    </React.Fragment>
   )
 }
 
