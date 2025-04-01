@@ -70,6 +70,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
       return Schema.Decode(Rpc.wallet_prepareCalls.Response, raw)
     },
+    refetchInterval: 30_000,
   })
 
   // TODO: extract from a `quote` capability on `wallet_prepareCalls` response
