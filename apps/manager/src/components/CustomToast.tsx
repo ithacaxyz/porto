@@ -11,26 +11,26 @@ export function CustomToast({
   title: string
   description: string | React.ReactNode
   className?: string | number
-  kind: 'SUCCESS' | 'ERROR' | 'WARN'
+  kind: 'success' | 'error' | 'warn'
 }) {
   return (
     <div
       className={cx(
         className,
         'm-1 w-[250px] rounded-xl border bg-white px-4 py-3 shadow-sm dark:bg-gray1',
-        kind === 'SUCCESS' && 'border-green8',
-        kind === 'ERROR' && 'border-red8',
-        kind === 'WARN' && 'border-amber8',
+        kind === 'success' && 'border-green8',
+        kind === 'error' && 'border-red8',
+        kind === 'warn' && 'border-amber8',
       )}
     >
       <div className="flex items-center gap-x-2 pb-1.5">
-        {(kind === 'SUCCESS' && (
+        {(kind === 'success' && (
           <CheckCircleIcon className="size-6 text-green8" />
         )) ||
-          (kind === 'ERROR' && (
+          (kind === 'error' && (
             <CircleAlertIcon className="size-6 text-red-500" />
           )) ||
-          (kind === 'WARN' && (
+          (kind === 'warn' && (
             <CircleAlertIcon className="size-6 text-amber8" />
           ))}
         <span className="font-[550] text-gray12">{title}</span>

@@ -13,12 +13,13 @@ import { useSendCalls } from 'wagmi/experimental'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
-import { TokenSymbol } from '~/components/Token'
+// import { TokenSymbol } from '~/components/Token'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
+import { useErc20Info } from '~/hooks/useTokenInfo'
 import { config } from '~/lib/Wagmi'
-import { DateFormatter, sum, ValueFormatter } from '~/utils'
+import { DateFormatter, StringFormatter, sum, ValueFormatter } from '~/utils'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
 import ExternalLinkIcon from '~icons/lucide/external-link'
@@ -88,7 +89,7 @@ export function Dashboard() {
           <CustomToast
             className={t}
             description="You have revoked a recovery admin"
-            kind="SUCCESS"
+            kind="success"
             title="Recovery Revoked"
           />
         ))
@@ -135,17 +136,9 @@ export function Dashboard() {
         <div className="flex flex-1 flex-col justify-between">
           <div className="font-[500] text-[13px] text-gray10">Your account</div>
           <div>
-            <div className="mb-5 font-[500] text-[24px] tracking-[-2.8%]">
+            <div className="font-[500] text-[24px] tracking-[-2.8%]">
               ${ValueFormatter.formatToPrice(totalBalance)}
             </div>
-            {/* <div className="flex items-center gap-1">
-              <div className="font-[500] text-[13px] text-gray10 tracking-[-0.25px]">
-                ≈ X.XXX
-              </div>
-              <div className="rounded-full bg-gray3 px-[6px] py-[2px] font-[600] text-[10px] text-gray10 tracking-[-2.8%]">
-                ETH
-              </div>
-            </div> */}
           </div>
         </div>
         <Ariakit.Button
@@ -304,6 +297,8 @@ export function Dashboard() {
 
             const time = DateFormatter.timeToDuration(permission.expiry * 1_000)
 
+            const { data: tokenInfo } = useErc20Info(spend?.token)
+
             return (
               <tr
                 className="*:text-xs! *:sm:text-sm!"
@@ -345,7 +340,11 @@ export function Dashboard() {
                       )}
                     </span>
                     <span className="truncate">
-                      <TokenSymbol address={spend?.token} />
+                      {tokenInfo?.symbol ??
+                        StringFormatter.truncate(spend?.token ?? '', {
+                          end: 4,
+                          start: 4,
+                        })}
                     </span>
                   </div>
                 </td>
@@ -595,7 +594,7 @@ function AssetRow({
                   ? 'Transaction submission was cancelled.'
                   : 'You do not have enough balance to complete this transaction.'
               }
-              kind={notAllowed ? 'WARN' : 'ERROR'}
+              kind={notAllowed ? 'warn' : 'error'}
               title={
                 notAllowed ? 'Transaction cancelled' : 'Transaction failed'
               }
@@ -628,7 +627,7 @@ function AssetRow({
                   </a>
                 </p>
               }
-              kind="SUCCESS"
+              kind="success"
               title="Transaction completed"
             />
           ),

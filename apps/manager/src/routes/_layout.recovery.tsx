@@ -19,10 +19,10 @@ export const Route = createFileRoute('/_layout/recovery')({
   component: RouteComponent,
 })
 
-function ActionableFeedback({ feedback }: { feedback: 'SUCCESS' | 'PENDING' }) {
+function ActionableFeedback({ feedback }: { feedback: 'success' | 'pending' }) {
   return (
     <div className="w-[350px]">
-      {feedback === 'PENDING' ? (
+      {feedback === 'pending' ? (
         <div className="mx-auto mb-3.5 flex size-12 items-center justify-center rounded-full bg-blue4 px-2 text-blue10">
           <Spinner />
         </div>
@@ -34,7 +34,7 @@ function ActionableFeedback({ feedback }: { feedback: 'SUCCESS' | 'PENDING' }) {
 
       <div className="flex flex-col items-center gap-y-2 text-center">
         <React.Fragment>
-          {feedback === 'PENDING' ? (
+          {feedback === 'pending' ? (
             <React.Fragment>
               <p className="text-center font-medium text-2xl">
                 Approve in wallet
@@ -69,7 +69,7 @@ function ActionableFeedback({ feedback }: { feedback: 'SUCCESS' | 'PENDING' }) {
 }
 
 function RouteComponent() {
-  const [view, setView] = React.useState<'DEFAULT' | 'SUCCESS' | 'LOADING'>(
+  const [view, setView] = React.useState<'DEFAULT' | 'success' | 'loading'>(
     'DEFAULT',
   )
 
@@ -99,19 +99,19 @@ function RouteComponent() {
           <CustomToast
             className={t}
             description={error.message}
-            kind="ERROR"
+            kind="error"
             title="Error Granting Admin"
           />
         ))
         setView('DEFAULT')
       },
-      onMutate: (_) => [console.info('mutate'), setView('LOADING')],
+      onMutate: (_) => [console.info('mutate'), setView('loading')],
       onSuccess: (_) => {
         toast.custom((t) => (
           <CustomToast
             className={t}
             description="You are now an admin"
-            kind="SUCCESS"
+            kind="success"
             title="Admin Granted"
           />
         ))
@@ -127,13 +127,13 @@ function RouteComponent() {
           <CustomToast
             className={t}
             description={error.message}
-            kind="ERROR"
+            kind="error"
             title="Error Connecting"
           />
         ))
         setView('DEFAULT')
       },
-      onMutate: (_) => setView('LOADING'),
+      onMutate: (_) => setView('loading'),
       onSuccess: (data) => {
         const [address] = data.accounts
         const existingAdmins = admins.data?.keys
@@ -145,7 +145,7 @@ function RouteComponent() {
             <CustomToast
               className={t}
               description="You are already an admin"
-              kind="WARN"
+              kind="warn"
               title="Already an admin"
             />
           ))
@@ -186,10 +186,10 @@ function RouteComponent() {
           'mx-auto flex h-full w-full flex-col items-center justify-center bg-transparent min-[550px]:max-w-[395px]',
         )}
       >
-        {view === 'SUCCESS' ? (
-          <ActionableFeedback feedback="SUCCESS" />
-        ) : view === 'LOADING' ? (
-          <ActionableFeedback feedback="PENDING" />
+        {view === 'success' ? (
+          <ActionableFeedback feedback="success" />
+        ) : view === 'loading' ? (
+          <ActionableFeedback feedback="pending" />
         ) : (
           <React.Fragment>
             <section className="flex flex-col items-center gap-y-2">
@@ -233,7 +233,7 @@ function RouteComponent() {
                                 <CustomToast
                                   className={t}
                                   description={error.message}
-                                  kind="ERROR"
+                                  kind="error"
                                   title="Error Connecting"
                                 />
                               ))
