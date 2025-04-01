@@ -31,6 +31,7 @@ import XIcon from '~icons/lucide/x'
 import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
+
 import { Layout } from './Layout'
 
 const recoveryMethods: Array<{ address: string; name: string }> = []
