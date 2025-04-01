@@ -102,8 +102,9 @@ export namespace useQuote {
   }
 }
 
-export function useFeePrice(quote: Quote | undefined) {
-  return Price.usePrice({
+export function useFiatFee(quote: Quote | undefined) {
+  return Price.useFiatPrice({
+    pair: 'ETH/USD',
     select(price) {
       if (!quote) return undefined
 

@@ -79,7 +79,9 @@ export function ActionRequest(props: ActionRequest.Props) {
     chainId,
     context: prepareCalls.data?.context,
   })
-  const feePrice = Quote.useFeePrice(quote)
+
+  const fee_fiat = Quote.useFiatFee(quote)
+  const fee_token = quote?.fee
 
   const simulate = useQuery({
     queryFn: async () => {
@@ -199,7 +201,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                     'flex h-[32px] justify-between text-[14px] leading-4',
                     {
                       'h-[inherit] leading-[inherit]':
-                        feePrice.isFetched && !feePrice.data,
+                        fee_fiat.isFetched && !fee_fiat.data,
                     },
                   )}
                 >
@@ -207,15 +209,15 @@ export function ActionRequest(props: ActionRequest.Props) {
                     Fees (est.)
                   </span>
                   <div className="text-right">
-                    {feePrice.isFetched ? (
+                    {fee_fiat.isFetched ? (
                       <>
                         <div className="font-medium">
-                          {feePrice?.data?.display ?? 'Unknown'}
+                          {fee_fiat?.data?.display ?? 'Unknown'}
                         </div>
-                        {quote?.fee && (
+                        {fee_token && (
                           <div>
                             <span className="text-secondary text-xs">
-                              {quote.fee.display}
+                              {fee_token.display}
                             </span>
                           </div>
                         )}

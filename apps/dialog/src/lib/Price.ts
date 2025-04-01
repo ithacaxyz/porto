@@ -23,12 +23,12 @@ export function format(value: number | bigint) {
 }
 
 /**
- * Hook to fetch the price of a given pair.
+ * Hook to fetch the price of a given crypto/fiat pair.
  *
  * @returns Price of the given pair.
  */
-export function usePrice<selectData = Price>(
-  parameters: usePrice.Parameters<selectData>,
+export function useFiatPrice<selectData = Price>(
+  parameters: useFiatPrice.Parameters<selectData>,
 ) {
   const { pair = 'ETH/USD', select = (data) => data } = parameters
 
@@ -60,7 +60,7 @@ export function usePrice<selectData = Price>(
   })
 }
 
-export namespace usePrice {
+export namespace useFiatPrice {
   export type Parameters<selectData = Price> = {
     pair?: Pair | undefined
     select?: ((data: Price) => selectData) | undefined
