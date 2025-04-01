@@ -45,7 +45,8 @@ export function relay(config: relay.Parameters = {}) {
   ) => {
     const { chain } = client
     if (typeof feeToken === 'string') return feeToken
-    return feeToken ? feeToken[chain.id] : undefined
+    if (typeof feeToken === 'object') return feeToken[chain.id]
+    return undefined
   }
 
   return Mode.from({
