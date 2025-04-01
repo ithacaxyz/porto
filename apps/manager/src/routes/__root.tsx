@@ -32,8 +32,6 @@ function RouteComponent() {
         <TanStackRouterDevtools position="bottom-right" />
         <ReactQueryDevtools
           buttonPosition="bottom-left"
-          initialIsOpen={false}
-          position="left"
         />
       </React.Suspense>
     </>

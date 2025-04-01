@@ -15,7 +15,6 @@ import { useSendCalls } from 'wagmi/experimental'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
-import { TokenSymbol } from '~/components/Token'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
@@ -32,6 +31,8 @@ import XIcon from '~icons/lucide/x'
 import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
+
+import { TokenSymbol } from '~/components/Token'
 import { Layout } from './Layout'
 
 const recoveryMethods: Array<{ address: string; name: string }> = []
@@ -644,28 +645,6 @@ function AssetRow({
 
   const swapCalls = useSendCalls({
     mutation: {
-      onError: (error) => {
-        const notAllowed = error.message.includes('not allowed')
-        toast.custom(
-          (t) => (
-            <CustomToast
-              className={t}
-              description={
-                notAllowed
-                  ? 'Transaction submission was cancelled.'
-                  : 'You do not have enough balance to complete this transaction.'
-              }
-              kind={notAllowed ? 'WARN' : 'ERROR'}
-              title={
-                notAllowed ? 'Transaction cancelled' : 'Transaction failed'
-              }
-            />
-          ),
-          { duration: 3_500 },
-        )
-        swapForm.setState('submitFailed', (count) => +count + 1)
-        swapForm.setState('submitSucceed', 0)
-      },
       onSuccess: (data) => {
         refetchSwapAssets()
         toast.custom(
@@ -839,7 +818,6 @@ function AssetRow({
                     <img
                       alt="asset icon"
                       className="my-auto size-7"
-                      src={selectedSwapAsset?.logo}
                     />
                     <div className="my-auto ml-2 flex flex-col items-start overflow-hidden text-ellipsis whitespace-nowrap">
                       <span className="font-normal text-gray10 text-xs">
@@ -880,7 +858,6 @@ function AssetRow({
                     <Ariakit.ComboboxList className="mt-2 border-t border-t-gray6">
                       {matches.map((value, index) => (
                         <Ariakit.SelectItem
-                          className="focus:bg-sky-100 focus:outline-none data-[active-item]:bg-sky-100 dark:data-[active-item]:bg-gray3 dark:focus:bg-sky-900"
                           key={value.symbol}
                           onClick={() =>
                             swapForm.setValue(
