@@ -28,7 +28,7 @@
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "test": "vitest -c ./test/vitest.config.ts",
-    "test:ci": "CI=true vitest -c ./test/vitest.config.ts --retry=3 --bail=1"
+    "test:ci": "CI=true vitest -c ./test/vitest.config.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
