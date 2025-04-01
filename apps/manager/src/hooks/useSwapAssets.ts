@@ -1,7 +1,7 @@
+import { exp1Config, exp2Config } from '@porto/apps/contracts'
 import { useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
 import type { Prettify } from 'viem'
-
 import { defaultAssets, ethAsset } from '~/lib/Constants'
 import { type ChainId, getChainConfig } from '~/lib/Wagmi'
 import { useReadBalances } from './useReadBalances'
@@ -75,6 +75,9 @@ export type AssetWithPrice = LlamaFiPrice & {
   symbol: string
 }
 
+/**
+ * if EXP, price is 1 USD. If EXP2 price is 100 USD
+ */
 async function getAssetsPrices({
   chainId,
   ids,
@@ -84,17 +87,23 @@ async function getAssetsPrices({
 }) {
   const chain = getChainConfig(chainId)
   if (!chain) throw new Error(`Unsupported chainId: ${chainId}`)
+  const chainName = chain.testnet ? 'ethereum' : chain.name.toLowerCase()
   const searchParams = ids
-    .filter(
-      (asset) => asset.address !== '0x0000000000000000000000000000000000000000',
+    .filter((asset) =>
+      [
+        '0x0000000000000000000000000000000000000000',
+        exp1Config.address.toLowerCase(),
+        exp2Config.address.toLowerCase(),
+      ].includes(asset.address.toLowerCase()),
     )
-    .map((asset) => `${chain.name.toLowerCase()}:${asset.address}`)
+    .map((asset) => `${chainName}:${asset.address}`)
     .join(',')
   const response = await fetch(
     `https://coins.llama.fi/prices/current/coingecko:ethereum,${searchParams}?searchWidth=1m`,
   )
 
   const data = (await response.json()) as LlamaFiPrices
+
   return data
 }
 

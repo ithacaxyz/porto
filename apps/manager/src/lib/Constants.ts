@@ -39,6 +39,8 @@ export const defaultAssets: Record<
       decimals: 18,
       logo: '/icons/exp.svg',
       name: 'Experiment',
+      price: 1,
+      // @ts-expect-error
       symbol: 'EXP',
     },
     {
@@ -46,6 +48,8 @@ export const defaultAssets: Record<
       decimals: 18,
       logo: '/icons/exp2.svg',
       name: 'Experiment 2',
+      price: 100,
+      // @ts-expect-error
       symbol: 'EXP2',
     },
   ],

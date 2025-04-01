@@ -122,7 +122,6 @@ function RouteComponent() {
 
   const connect = useConnect({
     mutation: {
-      onMutate: (_) => setView('LOADING'),
       onError: (error, _, __) => {
         toast.custom((t) => (
           <CustomToast
@@ -134,6 +133,7 @@ function RouteComponent() {
         ))
         setView('DEFAULT')
       },
+      onMutate: (_) => setView('LOADING'),
       onSuccess: (data) => {
         const [address] = data.accounts
         const existingAdmins = admins.data?.keys
@@ -154,8 +154,8 @@ function RouteComponent() {
         }
         grantAdmin.mutate({
           key: {
-            type: 'address',
             publicKey: address,
+            type: 'address',
           },
         })
       },

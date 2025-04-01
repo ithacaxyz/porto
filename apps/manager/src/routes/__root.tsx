@@ -30,9 +30,7 @@ function RouteComponent() {
 
       <React.Suspense>
         <TanStackRouterDevtools position="bottom-right" />
-        <ReactQueryDevtools
-          buttonPosition="bottom-left"
-        />
+        <ReactQueryDevtools buttonPosition="bottom-left" />
       </React.Suspense>
     </>
   )

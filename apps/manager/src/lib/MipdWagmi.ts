@@ -1,3 +1,5 @@
+import { Porto as SharedPorto } from '@porto/apps'
+import { Mode, Porto } from 'porto'
 import {
   createConfig,
   createStorage,
@@ -7,8 +9,6 @@ import {
 } from 'wagmi'
 import { odysseyTestnet } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
-import { Mode, Porto } from 'porto'
-import { Porto as SharedPorto } from '@porto/apps'
 
 export const porto = import.meta.env.DEV
   ? Porto.create({
