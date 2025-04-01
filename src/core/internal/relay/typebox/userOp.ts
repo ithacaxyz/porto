@@ -91,6 +91,11 @@ export const UserOp = Type.Object({
    * If `address(0)`, the payment will be accrued by the entry point.
    */
   paymentRecipient: Primitive.Address,
+  /**
+   * Optional payment signature to be passed into the `compensate` function
+   * on the `payer`. This signature is NOT included in the EIP712 signature.
+   */
+  paymentSignature: Primitive.Hex,
   /** The ERC20 or native token used to pay for gas. */
   paymentToken: Primitive.Address,
   /**
