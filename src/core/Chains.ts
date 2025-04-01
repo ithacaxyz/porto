@@ -26,7 +26,7 @@ export const odysseyTestnet = /*#__PURE__*/ define({
   contracts: {
     ...chains.odysseyTestnet.contracts,
     delegation: {
-      address: '0x616dFc0fabbf4b377a7EF5d39f680eE0f6376F8d',
+      address: '0x63e0B807c3E872152645103462BD403D4e48fE7e',
     },
     entryPoint: {
       address: '0x5197adb49b4ecaa8e00f60f43757d3f5ad630227',
