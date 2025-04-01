@@ -27,7 +27,10 @@ export default defineConfig({
     React(),
     Icons({ compiler: 'jsx', jsx: 'react' }),
     SentryVitePlugin({
-      authToken: process.env.SENTRY_AUTH_TOKEN,
+      authToken:
+        process.env.VERCEL_ENV === 'production'
+          ? process.env.SENTRY_AUTH_TOKEN
+          : undefined,
       org: 'ithaca',
       project: 'porto-dialog',
     }),
