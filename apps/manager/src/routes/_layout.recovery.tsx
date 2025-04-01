@@ -1,3 +1,4 @@
+import 'viem/window'
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner } from '@porto/apps/components'
 import { createFileRoute, Link } from '@tanstack/react-router'
@@ -5,7 +6,7 @@ import { cx } from 'cva'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { useConnect, useConnectors, useDisconnect, useSignMessage } from 'wagmi'
+import { useConnect, useConnectors, useDisconnect } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { mipdConfig as config } from '~/lib/MipdWagmi'
 import SecurityIcon from '~icons/ic/outline-security'
@@ -68,23 +69,10 @@ function ActionableFeedback({ feedback }: { feedback: 'SUCCESS' | 'PENDING' }) {
 }
 
 function RouteComponent() {
-  React.useInsertionEffect(() => {
-    toast.warning('Not implemented', {
-      description: 'Will be implemented soon after relay is ready',
-      duration: Number.POSITIVE_INFINITY,
-      position: 'top-right',
-    })
-  })
-
   const [view, setView] = React.useState<'DEFAULT' | 'SUCCESS' | 'LOADING'>(
     'DEFAULT',
   )
 
-  const connect = useConnect({
-    mutation: {
-      onMutate: (_) => setView('LOADING'),
-    },
-  })
   const disconnect = useDisconnect()
   const _connectors = useConnectors({ config })
 
@@ -98,20 +86,75 @@ function RouteComponent() {
     [_connectors],
   )
 
-  const { signMessageAsync, status: _signMessageStatus } = useSignMessage({
+  const admins = Hooks.useAdmins()
+
+  const grantAdmin = Hooks.useGrantAdmin({
     mutation: {
-      onError: (error, _, __) => console.info(error),
-      onMutate: (_) => setView('LOADING'),
-      onSuccess: (_, __, ___) => setView('SUCCESS'),
+      onError: (error, _, __) => {
+        console.info(error)
+        toast.custom((t) => (
+          <CustomToast
+            className={t}
+            description={error.message}
+            kind="ERROR"
+            title="Error Granting Admin"
+          />
+        ))
+        setView('DEFAULT')
+      },
+      onMutate: (_) => [console.info('mutate'), setView('LOADING')],
+      onSuccess: (_) => {
+        toast.custom((t) => (
+          <CustomToast
+            className={t}
+            description="You are now an admin"
+            kind="SUCCESS"
+            title="Admin Granted"
+          />
+        ))
+        setView('DEFAULT')
+      },
     },
   })
 
-  // @ts-expect-error
-  const createAccount = Hooks.useCreateAccount({
+  const connect = useConnect({
     mutation: {
-      onError: (error, _, __) => console.info(error),
-      onMutate: (_) => [console.info('mutate'), setView('LOADING')],
-      onSuccess: (_, __, ___) => setView('SUCCESS'),
+      onMutate: (_) => setView('LOADING'),
+      onError: (error, _, __) => {
+        toast.custom((t) => (
+          <CustomToast
+            className={t}
+            description={error.message}
+            kind="ERROR"
+            title="Error Connecting"
+          />
+        ))
+      },
+      onSuccess: (data) => {
+        const [address] = data.accounts
+        const existingAdmins = admins.data?.keys
+        const isAdmin = existingAdmins?.some(
+          (admin) => admin.publicKey.toLowerCase() === address.toLowerCase(),
+        )
+        if (isAdmin) {
+          toast.custom((t) => (
+            <CustomToast
+              className={t}
+              description="You are already an admin"
+              kind="WARN"
+              title="Already an admin"
+            />
+          ))
+          setView('DEFAULT')
+          return
+        }
+        grantAdmin.mutate({
+          key: {
+            type: 'address',
+            publicKey: address,
+          },
+        })
+      },
     },
   })
 
@@ -175,28 +218,11 @@ function RouteComponent() {
                           disconnect
                             .disconnectAsync()
                             .catch((error) => console.info(error))
-                            .then(() =>
+                            .then(() => {
                               connect
                                 .connectAsync({ connector })
                                 .catch((error) => console.info(error))
-                                //
-                                .then(() =>
-                                  signMessageAsync({
-                                    message: `${new Date().toISOString()}\nI'm the owner of this wallet\nSigning a message to confirm my ownership`,
-                                  })
-                                    //
-                                    .then((_signature) =>
-                                      toast.custom((t) => (
-                                        <CustomToast
-                                          className={t}
-                                          description="You have successfully signed a message. Look at you"
-                                          kind="SUCCESS"
-                                          title="Signed Message"
-                                        />
-                                      )),
-                                    ),
-                                ),
-                            )
+                            })
                             .catch((error) => {
                               setView('DEFAULT')
                               toast.custom((t) => (
@@ -204,7 +230,7 @@ function RouteComponent() {
                                   className={t}
                                   description={error.message}
                                   kind="ERROR"
-                                  title="Error Signing"
+                                  title="Error Connecting"
                                 />
                               ))
                             })
