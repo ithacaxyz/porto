@@ -451,7 +451,7 @@ async function getExecuteSignPayload<
   // Structure calls into EIP-7821 execution format.
   const calls = parameters.calls.map((call: any) => ({
     data: call.data ?? '0x',
-    target: call.to === Call.self ? account.address : call.to,
+    to: call.to === Call.self ? account.address : call.to,
     value: call.value ?? 0n,
   }))
 
@@ -475,7 +475,7 @@ async function getExecuteSignPayload<
     primaryType: 'Execute',
     types: {
       Call: [
-        { name: 'target', type: 'address' },
+        { name: 'to', type: 'address' },
         { name: 'value', type: 'uint256' },
         { name: 'data', type: 'bytes' },
       ],
