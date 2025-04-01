@@ -76,15 +76,19 @@ function RouteComponent() {
   const disconnect = useDisconnect()
   const _connectors = useConnectors({ config })
 
-  const connectors = React.useMemo(
-    () =>
-      _connectors.filter(
-        (connector) =>
-          connector.id !== 'xyz.ithaca.porto' &&
-          connector.name.toLowerCase() !== 'porto',
-      ),
-    [_connectors],
-  )
+  const connectors = React.useMemo(() => {
+    console.info(_connectors)
+    const uniqueConnectorsNames = new Set()
+    const uniqueConnectors = []
+    for (const connector of _connectors) {
+      if (uniqueConnectorsNames.has(connector.name)) {
+        continue
+      }
+      uniqueConnectorsNames.add(connector.name)
+      uniqueConnectors.push(connector)
+    }
+    return uniqueConnectors
+  }, [_connectors])
 
   const admins = Hooks.useAdmins()
 
@@ -129,6 +133,7 @@ function RouteComponent() {
             title="Error Connecting"
           />
         ))
+        setView('DEFAULT')
       },
       onSuccess: (data) => {
         const [address] = data.accounts

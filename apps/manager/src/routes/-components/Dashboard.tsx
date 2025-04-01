@@ -404,11 +404,14 @@ export function Dashboard() {
           </thead>
           <tbody className="border-transparent border-t-10">
             {admins.data?.keys.length ? (
-              admins.data.keys.map((key) => {
+              admins.data.keys.map((key, index) => {
                 const id = key.id
                 const address = key.publicKey
                 return (
-                  <tr className="text-xs sm:text-sm" key={key.publicKey}>
+                  <tr
+                    className="text-xs sm:text-sm"
+                    key={`${key.publicKey}-${index}`}
+                  >
                     <td className="w-[73%] text-right">
                       <div className="flex flex-row items-center gap-x-2">
                         <div className="flex size-7 items-center justify-center rounded-full bg-emerald-100">
@@ -441,6 +444,7 @@ export function Dashboard() {
                       <Ariakit.Button
                         className="size-8 rounded-full p-1 hover:bg-red-100"
                         onClick={() => {
+                          console.info(id, address)
                           if (!id || !address) return
                           revokeAdmin.mutate({
                             id: key?.id,
