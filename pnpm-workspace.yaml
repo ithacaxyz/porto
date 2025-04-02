@@ -31,7 +31,7 @@ catalog:
   typescript: "^5.8.2"
   unplugin-icons: "^22.1.0"
   viem: "^2.24.1"
-  vite: "^6.0.7"
+  vite: "^6.2.4"
   vite-plugin-mkcert: "^1.17.8"
   wagmi: "^2.14.15"
   zustand: "^5.0.3"
