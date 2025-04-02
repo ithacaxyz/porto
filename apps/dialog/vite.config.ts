@@ -3,18 +3,13 @@ import Tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
 import Icons from 'unplugin-icons/vite'
-import { defineConfig } from 'vite'
+import { defineConfig, PluginOption } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
 import TsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  base: '/dialog/',
-  build: {
-    outDir: './dist/dialog',
-    sourcemap: true,
-  },
-  plugins: [
+export default defineConfig(({ mode }) => {
+  const plugins = [
     Mkcert({
       force: true,
       hosts: [
@@ -26,15 +21,25 @@ export default defineConfig({
     Tailwindcss(),
     React(),
     Icons({ compiler: 'jsx', jsx: 'react' }),
-    SentryVitePlugin({
-      authToken:
-        process.env.VERCEL_ENV === 'production'
-          ? process.env.SENTRY_AUTH_TOKEN
-          : undefined,
-      org: 'ithaca',
-      project: 'porto-dialog',
-    }),
     TsconfigPaths(),
     TanStackRouterVite(),
-  ],
+  ] satisfies PluginOption[]
+
+  if (mode !== 'development') {
+    plugins.push(
+      SentryVitePlugin({
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        org: 'ithaca',
+        project: 'porto-dialog',
+      }),
+    )
+  }
+  return {
+    base: '/dialog/',
+    build: {
+      outDir: './dist/dialog',
+      sourcemap: true,
+    },
+    plugins,
+  }
 })

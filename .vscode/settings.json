@@ -25,6 +25,7 @@
   },
   "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
+
   "editor.quickSuggestions": {
     "strings": "on"
   },
@@ -49,6 +50,7 @@
   },
   "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
   "search.exclude": {
+    "**/_/**": true,
     "**/dist/**": true,
     "**/routeTree.gen.ts": true,
     "pnpm-lock.yaml": true
