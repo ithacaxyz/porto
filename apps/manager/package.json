@@ -30,7 +30,7 @@
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "sonner": "^2.0.2",
+    "sonner": "^2.0.3",
     "wagmi": "catalog:"
   },
   "devDependencies": {

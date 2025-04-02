@@ -195,6 +195,7 @@ export function Dashboard() {
             { align: 'right', header: '', key: 'balance', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'symbol', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
+            { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
           data={assets}
           emptyMessage="No balances available for this account"
@@ -205,6 +206,7 @@ export function Dashboard() {
               key={asset.address}
               logo={asset.logo}
               name={asset.name}
+              price={asset.price}
               symbol={asset.symbol}
               value={asset.balance}
             />
@@ -433,7 +435,7 @@ export function Dashboard() {
                     <td className="w-[73%] text-right">
                       <div className="flex flex-row items-center gap-x-2">
                         <div className="flex size-7 items-center justify-center rounded-full bg-emerald-100">
-                          <WalletIcon className="m-auto size-5 text-teal-600" />
+                          <WalletIcon className="m-auto size-4.5 text-teal-600" />
                         </div>
                         <span className="font-medium text-gray12">
                           <TruncatedAddress address={key.publicKey} />
@@ -526,13 +528,13 @@ function PaginatedTable<T>({
       <table className="my-3 w-full table-auto">
         <thead>
           <tr className="text-gray10 *:font-normal *:text-sm">
-            {columns.map((col) => (
+            {columns.map((col, index) => (
               <th
                 className={cx(
                   col.width,
                   col.align === 'right' ? 'text-right' : 'text-left',
                 )}
-                key={col.key}
+                key={`${col.key}-${index}`}
               >
                 {col.header}
               </th>
@@ -574,6 +576,7 @@ function AssetRow({
   name,
   symbol,
   value,
+  price,
 }: {
   address: Address.Address
   decimals: number
@@ -581,6 +584,7 @@ function AssetRow({
   name: string
   symbol: string
   value: bigint
+  price: number
 }) {
   const [viewState, setViewState] = React.useState<'send' | 'default'>(
     'default',
@@ -702,11 +706,14 @@ function AssetRow({
         <>
           <td className="w-[80%]">
             <div className="flex items-center gap-x-2 py-2">
-              <img alt="asset icon" className="size-7" src={logo} />
+              <img alt="asset icon" className="size-6.5" src={logo} />
               <span className="font-medium text-md">{name}</span>
             </div>
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
+          <td className="w-[20%] pl-3.5 text-right text-md">
+            ${ValueFormatter.formatToPrice(price)}
+          </td>
           <td className="w-[20%] pr-1.5 pl-3 text-left text-sm">
             <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
               {symbol}

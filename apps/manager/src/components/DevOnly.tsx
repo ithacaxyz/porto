@@ -60,6 +60,28 @@ export function DevOnly() {
 
   if (!account.isConnected) return null
 
+  function sendCalls() {
+    if (!account.address) return
+    send.sendCalls({
+      calls: [
+        {
+          data: AbiFunction.encodeData(AbiFunction.fromAbi(exp1Abi, 'mint'), [
+            account.address,
+            Value.fromEther('1000'),
+          ]),
+          to: exp1Address,
+        },
+        {
+          data: AbiFunction.encodeData(AbiFunction.fromAbi(exp2Abi, 'mint'), [
+            account.address,
+            Value.fromEther('1000'),
+          ]),
+          to: exp2Address,
+        },
+      ],
+    })
+  }
+
   const ref = React.useRef<HTMLDivElement>(null)
   useClickOutside([ref], () => setOpen(false))
 
@@ -95,27 +117,7 @@ export function DevOnly() {
             <Button
               className="min-w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
               disabled={!account.address}
-              onClick={() => {
-                if (!account.address) return
-                send.sendCalls({
-                  calls: [
-                    {
-                      data: AbiFunction.encodeData(
-                        AbiFunction.fromAbi(exp1Abi, 'mint'),
-                        [account.address, Value.fromEther('1000')],
-                      ),
-                      to: exp1Address,
-                    },
-                    {
-                      data: AbiFunction.encodeData(
-                        AbiFunction.fromAbi(exp2Abi, 'mint'),
-                        [account.address, Value.fromEther('1000')],
-                      ),
-                      to: exp2Address,
-                    },
-                  ],
-                })
-              }}
+              onClick={sendCalls}
               variant="default"
             >
               Mint EXP&EXP2
