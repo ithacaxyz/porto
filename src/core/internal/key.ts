@@ -1031,6 +1031,27 @@ export function test_createWebAuthnP256<const role extends Key['role']>(
   parameters: test_createWebAuthnP256.Parameters<role>,
 ) {
   const privateKey = P256.randomPrivateKey()
+  return test_fromWebAuthnP256({
+    ...parameters,
+    privateKey,
+  })
+}
+
+export declare namespace test_createWebAuthnP256 {
+  type Parameters<role extends Key['role']> = {
+    /** Expiry. */
+    expiry?: fromP256.Parameters['expiry']
+    /** Permissions. */
+    permissions?: Permissions | undefined
+    /** Role. */
+    role: fromP256.Parameters<role>['role']
+  }
+}
+
+export function test_fromWebAuthnP256<const role extends Key['role']>(
+  parameters: test_fromWebAuthnP256.Parameters<role>,
+) {
+  const { privateKey } = parameters
   const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
     includePrefix: false,
   })
@@ -1047,12 +1068,14 @@ export function test_createWebAuthnP256<const role extends Key['role']>(
   })
 }
 
-export declare namespace test_createWebAuthnP256 {
+export declare namespace test_fromWebAuthnP256 {
   type Parameters<role extends Key['role']> = {
     /** Expiry. */
     expiry?: fromP256.Parameters['expiry']
     /** Permissions. */
     permissions?: Permissions | undefined
+    /** P256 private key. */
+    privateKey: Hex.Hex
     /** Role. */
     role: fromP256.Parameters<role>['role']
   }

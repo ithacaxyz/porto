@@ -10,7 +10,7 @@ import * as Relay from './relay.js'
 
 export const defaultChain = defineChain({
   ...odysseyTestnet,
-  ...(process.env.VITE_ANVIL !== 'false' && {
+  ...(Anvil.enabled && {
     rpcUrls: {
       default: { http: [Anvil.instances.odyssey.rpcUrl] },
     },
@@ -27,7 +27,7 @@ export function getPorto(
     transports?:
       | {
           default?: Transport | undefined
-          relay?: boolean | Transport | undefined
+          relay?: false | Transport | undefined
         }
       | undefined
   } = {},
@@ -50,30 +50,16 @@ export function getPorto(
       [Chains.odysseyTestnet.id]: {
         default:
           transports.default ??
-          (process.env.VITE_ANVIL !== 'false'
-            ? custom(Anvil.instances.odyssey)
-            : http()),
-        relay: transports.relay
-          ? transports.relay === true
-            ? http(
-                process.env.VITE_ANVIL !== 'false'
+          (Anvil.enabled ? custom(Anvil.instances.odyssey) : http()),
+        relay:
+          transports.relay === false
+            ? undefined
+            : (transports.relay ??
+              http(
+                Anvil.enabled
                   ? Relay.instances.odyssey.rpcUrl
                   : 'https://relay-staging.ithaca.xyz',
-                {
-                  // async onFetchRequest(request, init) {
-                  //   console.log(
-                  //     JSON.stringify(JSON.parse(await init.body), null, 2),
-                  //   )
-                  // },
-                  // async onFetchResponse(response, init) {
-                  //   console.log(
-                  //     JSON.stringify(await response.clone().json(), null, 2),
-                  //   )
-                  // },
-                },
-              )
-            : transports.relay
-          : undefined,
+              )),
       },
     },
   })

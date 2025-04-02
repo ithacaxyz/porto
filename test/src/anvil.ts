@@ -96,6 +96,8 @@ export const accounts = [
   },
 ] as const
 
+export const enabled = process.env.VITE_ANVIL !== 'false'
+
 export async function loadState(parameters: {
   entryPointAddress: Address.Address
   delegationAddress: Address.Address

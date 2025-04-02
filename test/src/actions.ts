@@ -17,11 +17,12 @@ import * as Anvil from './anvil.js'
 export async function createAccount(
   client: Client,
   parameters: {
+    deploy?: boolean | undefined
     keys: NonNullable<Relay.createAccount.Parameters['keys']>
     setBalance?: false | bigint | undefined
   },
 ) {
-  const { keys, setBalance: balance = parseEther('10000') } = parameters
+  const { deploy, keys, setBalance: balance = parseEther('10000') } = parameters
 
   const account = await Relay.createAccount(client, { keys })
 
@@ -30,6 +31,17 @@ export async function createAccount(
       address: account.address,
       value: balance,
     })
+
+  if (deploy) {
+    const { id } = await Relay.sendCalls(client, {
+      account,
+      calls: [],
+      feeToken: exp1Address,
+    })
+    await waitForTransactionReceipt(client, {
+      hash: id as `0x${string}`,
+    })
+  }
 
   return account
 }
@@ -79,9 +91,13 @@ export async function getUpgradedAccount(
     request.digests.map((payload) => account.sign({ payload })),
   )
 
-  await Relay.upgradeAccount(client, {
+  const { bundles } = await Relay.upgradeAccount(client, {
     ...request,
     signatures,
+  })
+
+  await waitForTransactionReceipt(client, {
+    hash: bundles[0]!.id,
   })
 
   return account
@@ -96,7 +112,7 @@ export async function setBalance(
 ) {
   const { address, value = parseEther('10000') } = parameters
 
-  if (process.env.VITE_ANVIL !== 'false') {
+  if (Anvil.enabled) {
     await setBalance_viem(client as any, {
       address,
       value,
@@ -110,7 +126,7 @@ export async function setBalance(
       functionName: 'mint',
     })
   } else {
-    const key = Key.fromP256({
+    const key = Key.test_fromWebAuthnP256({
       privateKey: process.env.VITE_ADMIN_PRIVATE_KEY! as `0x${string}`,
       role: 'admin',
     })
@@ -119,7 +135,7 @@ export async function setBalance(
       keys: [key],
     })
     const { id } = await Relay.sendCalls(client, {
-      account: account,
+      account,
       calls: [
         {
           abi: exp1Abi,
@@ -130,6 +146,8 @@ export async function setBalance(
       ],
       feeToken: exp1Address,
     })
-    await waitForTransactionReceipt(client, { hash: id as `0x${string}` })
+    await waitForTransactionReceipt(client, {
+      hash: id as `0x${string}`,
+    })
   }
 }

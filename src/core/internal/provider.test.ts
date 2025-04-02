@@ -10,22 +10,30 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { Mode } from 'porto'
-import { getBalance, verifyMessage, verifyTypedData } from 'viem/actions'
+import { encodeFunctionData } from 'viem'
+import {
+  readContract,
+  verifyMessage,
+  verifyTypedData,
+  waitForTransactionReceipt,
+} from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-
+import { exp1Abi, exp1Address } from '../../../test/src/_generated/contracts.js'
 import { setBalance } from '../../../test/src/actions.js'
 import { getPorto as getPorto_ } from '../../../test/src/porto.js'
 import * as Porto_internal from './porto.js'
 
 describe.each([
-  ['contract', Mode.contract],
+  ['contract', process.env.VITE_ANVIL !== 'false' ? Mode.contract : undefined],
   ['relay', Mode.relay],
 ] as const)('%s', (type, mode) => {
+  if (!mode) return
+
   const getPorto = () =>
     getPorto_({
       mode,
       transports: {
-        relay: type === 'relay',
+        relay: type === 'contract' ? false : undefined,
       },
     })
 
@@ -96,15 +104,31 @@ describe.each([
         method: 'eth_sendTransaction',
         params: [
           {
+            data: encodeFunctionData({
+              abi: exp1Abi,
+              args: [alice, 69420n],
+              functionName: 'transfer',
+            }),
             from: address,
-            to: alice,
-            value: Hex.fromNumber(69420),
+            to: exp1Address,
           },
         ],
       })
 
       expect(hash).toBeDefined()
-      expect(await getBalance(client, { address: alice })).toBe(69420n)
+
+      await waitForTransactionReceipt(client, {
+        hash,
+      })
+
+      expect(
+        await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [alice],
+          functionName: 'balanceOf',
+        }),
+      ).toBe(69420n)
     })
   })
 
@@ -852,8 +876,12 @@ describe.each([
           {
             calls: [
               {
-                to: alice,
-                value: Hex.fromNumber(69420),
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 69420n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
               },
             ],
             from: address,
@@ -863,7 +891,19 @@ describe.each([
       })
 
       expect(hash).toBeDefined()
-      expect(await getBalance(client, { address: alice })).toBe(69420n)
+
+      await waitForTransactionReceipt(client, {
+        hash,
+      })
+
+      expect(
+        await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [alice],
+          functionName: 'balanceOf',
+        }),
+      ).toBe(69420n)
     })
 
     test('behavior: use inferred permissions', async () => {
@@ -888,8 +928,14 @@ describe.each([
           {
             expiry: 9999999999,
             permissions: {
-              calls: [{ to: alice }],
-              spend: [{ limit: Hex.fromNumber(69420), period: 'day' }],
+              calls: [{ to: exp1Address }],
+              spend: [
+                {
+                  limit: Hex.fromNumber(69420),
+                  period: 'day',
+                  token: exp1Address,
+                },
+              ],
             },
           },
         ],
@@ -901,8 +947,12 @@ describe.each([
           {
             calls: [
               {
-                to: alice,
-                value: Hex.fromNumber(69420),
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 40_000n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
               },
             ],
             from: address,
@@ -912,7 +962,19 @@ describe.each([
       })
 
       expect(hash).toBeDefined()
-      expect(await getBalance(client, { address: alice })).toBe(69420n)
+
+      await waitForTransactionReceipt(client, {
+        hash,
+      })
+
+      expect(
+        await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [alice],
+          functionName: 'balanceOf',
+        }),
+      ).toBe(40_000n)
     })
 
     test('behavior: `permissions` capability', async () => {
@@ -937,8 +999,14 @@ describe.each([
           {
             expiry: 9999999999,
             permissions: {
-              calls: [{ to: alice }],
-              spend: [{ limit: Hex.fromNumber(69420), period: 'day' }],
+              calls: [{ to: exp1Address }],
+              spend: [
+                {
+                  limit: Hex.fromNumber(69420),
+                  period: 'day',
+                  token: exp1Address,
+                },
+              ],
             },
           },
         ],
@@ -949,8 +1017,12 @@ describe.each([
           {
             calls: [
               {
-                to: alice,
-                value: Hex.fromNumber(69420),
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 40_000n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
               },
             ],
             capabilities: {
@@ -963,7 +1035,19 @@ describe.each([
       })
 
       expect(hash).toBeDefined()
-      expect(await getBalance(client, { address: alice })).toBe(69420n)
+
+      await waitForTransactionReceipt(client, {
+        hash,
+      })
+
+      expect(
+        await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [alice],
+          functionName: 'balanceOf',
+        }),
+      ).toBe(40_000n)
     })
 
     test('behavior: `permissions.calls` unauthorized', async () => {
@@ -989,7 +1073,13 @@ describe.each([
             expiry: 9999999999,
             permissions: {
               calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-              spend: [{ limit: Hex.fromNumber(69420), period: 'day' }],
+              spend: [
+                {
+                  limit: Hex.fromNumber(69420),
+                  period: 'day',
+                  token: exp1Address,
+                },
+              ],
             },
           },
         ],
@@ -1001,8 +1091,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(69420),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 69420n],
+                    functionName: 'mint',
+                  }),
+                  to: exp1Address,
                 },
               ],
               capabilities: {
@@ -1038,11 +1132,12 @@ describe.each([
           {
             expiry: 9999999999,
             permissions: {
-              calls: [{ to: alice }],
+              calls: [{ to: exp1Address }],
               spend: [
                 {
                   limit: Hex.fromNumber(69420),
                   period: 'day',
+                  token: exp1Address,
                 },
               ],
             },
@@ -1050,14 +1145,18 @@ describe.each([
         ],
       })
 
-      await porto.provider.request({
+      const hash = await porto.provider.request({
         method: 'wallet_sendCalls',
         params: [
           {
             calls: [
               {
-                to: alice,
-                value: Hex.fromNumber(69420),
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 50_000n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
               },
             ],
             capabilities: {
@@ -1069,6 +1168,12 @@ describe.each([
         ],
       })
 
+      expect(hash).toBeDefined()
+
+      await waitForTransactionReceipt(client, {
+        hash,
+      })
+
       await expect(() =>
         porto.provider.request({
           method: 'wallet_sendCalls',
@@ -1076,8 +1181,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(1),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 50_000n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               capabilities: {
@@ -1113,8 +1222,14 @@ describe.each([
           {
             expiry: 9999999999,
             permissions: {
-              calls: [{ to: alice }],
-              spend: [{ limit: Hex.fromNumber(69420 * 3), period: 'day' }],
+              calls: [{ to: exp1Address }],
+              spend: [
+                {
+                  limit: Hex.fromNumber(69420 * 3),
+                  period: 'day',
+                  token: exp1Address,
+                },
+              ],
             },
           },
         ],
@@ -1125,8 +1240,12 @@ describe.each([
           {
             calls: [
               {
-                to: alice,
-                value: Hex.fromNumber(69420),
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 69420n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
               },
             ],
             capabilities: {
@@ -1139,7 +1258,19 @@ describe.each([
       })
 
       expect(hash).toBeDefined()
-      expect(await getBalance(client, { address: alice })).toBe(69420n)
+
+      await waitForTransactionReceipt(client, {
+        hash,
+      })
+
+      expect(
+        await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [alice],
+          functionName: 'balanceOf',
+        }),
+      ).toBe(69420n)
 
       await porto.provider.request({
         method: 'experimental_revokePermissions',
@@ -1152,8 +1283,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(69420),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 69420n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               capabilities: {
@@ -1194,7 +1329,7 @@ describe.each([
               type: 'p256',
             },
             permissions: {
-              calls: [{ to: alice }],
+              calls: [{ to: exp1Address }],
             },
           },
         ],
@@ -1206,8 +1341,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(69420),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 69420n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               capabilities: {
@@ -1246,8 +1385,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(69420),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 69420n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               capabilities: {
@@ -1318,11 +1461,12 @@ describe.each([
                     type: 'p256',
                   },
                   permissions: {
-                    calls: [{ to: alice }],
+                    calls: [{ to: exp1Address }],
                     spend: [
                       {
                         limit: Hex.fromNumber(42069n),
                         period: 'day',
+                        token: exp1Address,
                       },
                     ],
                   },
@@ -1348,8 +1492,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(42069n),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 40_000n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               key,
@@ -1359,7 +1507,7 @@ describe.each([
 
         const signature = P256.sign({ payload: digest, privateKey })
 
-        await porto.provider.request({
+        const result = await porto.provider.request({
           method: 'wallet_sendPreparedCalls',
           params: [
             {
@@ -1370,7 +1518,18 @@ describe.each([
           ],
         })
 
-        expect(await getBalance(client, { address: alice })).toBe(42069n)
+        await waitForTransactionReceipt(client, {
+          hash: result[0]!.id,
+        })
+
+        expect(
+          await readContract(client, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [alice],
+            functionName: 'balanceOf',
+          }),
+        ).toBe(40_000n)
       })
 
       test('WebCryptoP256', async () => {
@@ -1399,11 +1558,12 @@ describe.each([
                     type: 'p256',
                   },
                   permissions: {
-                    calls: [{ to: alice }],
+                    calls: [{ to: exp1Address }],
                     spend: [
                       {
                         limit: Hex.fromNumber(42069n),
                         period: 'day',
+                        token: exp1Address,
                       },
                     ],
                   },
@@ -1430,8 +1590,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(42069n),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 40_000n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               key,
@@ -1444,7 +1608,7 @@ describe.each([
           privateKey: keyPair.privateKey,
         })
 
-        await porto.provider.request({
+        const result = await porto.provider.request({
           method: 'wallet_sendPreparedCalls',
           params: [
             {
@@ -1455,7 +1619,18 @@ describe.each([
           ],
         })
 
-        expect(await getBalance(client, { address: alice })).toBe(42069n)
+        await waitForTransactionReceipt(client, {
+          hash: result[0]!.id,
+        })
+
+        expect(
+          await readContract(client, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [alice],
+            functionName: 'balanceOf',
+          }),
+        ).toBe(40_000n)
       })
 
       test('Secp256k1', async () => {
@@ -1483,11 +1658,12 @@ describe.each([
                     type: 'address',
                   },
                   permissions: {
-                    calls: [{ to: alice }],
+                    calls: [{ to: exp1Address }],
                     spend: [
                       {
                         limit: Hex.fromNumber(42069n),
                         period: 'day',
+                        token: exp1Address,
                       },
                     ],
                   },
@@ -1513,8 +1689,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(42069n),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 40_000n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               key,
@@ -1524,7 +1704,7 @@ describe.each([
 
         const signature = Secp256k1.sign({ payload: digest, privateKey })
 
-        await porto.provider.request({
+        const result = await porto.provider.request({
           method: 'wallet_sendPreparedCalls',
           params: [
             {
@@ -1535,7 +1715,18 @@ describe.each([
           ],
         })
 
-        expect(await getBalance(client, { address: alice })).toBe(42069n)
+        await waitForTransactionReceipt(client, {
+          hash: result[0]!.id,
+        })
+
+        expect(
+          await readContract(client, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [alice],
+            functionName: 'balanceOf',
+          }),
+        ).toBe(40_000n)
       })
     })
 
@@ -1589,8 +1780,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(42069n),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 40_000n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               key,
@@ -1600,7 +1795,7 @@ describe.each([
 
         const signature = P256.sign({ payload: digest, privateKey })
 
-        await porto.provider.request({
+        const result = await porto.provider.request({
           method: 'wallet_sendPreparedCalls',
           params: [
             {
@@ -1611,7 +1806,18 @@ describe.each([
           ],
         })
 
-        expect(await getBalance(client, { address: alice })).toBe(42069n)
+        await waitForTransactionReceipt(client, {
+          hash: result[0]!.id,
+        })
+
+        expect(
+          await readContract(client, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [alice],
+            functionName: 'balanceOf',
+          }),
+        ).toBe(40_000n)
       })
 
       test.skipIf(type === 'relay')('WebCryptoP256', async () => {
@@ -1664,8 +1870,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(42069n),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 40_000n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               key,
@@ -1678,7 +1888,7 @@ describe.each([
           privateKey: keyPair.privateKey,
         })
 
-        await porto.provider.request({
+        const result = await porto.provider.request({
           method: 'wallet_sendPreparedCalls',
           params: [
             {
@@ -1689,7 +1899,18 @@ describe.each([
           ],
         })
 
-        expect(await getBalance(client, { address: alice })).toBe(42069n)
+        await waitForTransactionReceipt(client, {
+          hash: result[0]!.id,
+        })
+
+        expect(
+          await readContract(client, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [alice],
+            functionName: 'balanceOf',
+          }),
+        ).toBe(40_000n)
       })
 
       test('Secp256k1', async () => {
@@ -1740,8 +1961,12 @@ describe.each([
             {
               calls: [
                 {
-                  to: alice,
-                  value: Hex.fromNumber(42069n),
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 40_000n],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
                 },
               ],
               key,
@@ -1751,7 +1976,7 @@ describe.each([
 
         const signature = Secp256k1.sign({ payload: digest, privateKey })
 
-        await porto.provider.request({
+        const result = await porto.provider.request({
           method: 'wallet_sendPreparedCalls',
           params: [
             {
@@ -1762,7 +1987,18 @@ describe.each([
           ],
         })
 
-        expect(await getBalance(client, { address: alice })).toBe(42069n)
+        await waitForTransactionReceipt(client, {
+          hash: result[0]!.id,
+        })
+
+        expect(
+          await readContract(client, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [alice],
+            functionName: 'balanceOf',
+          }),
+        ).toBe(40_000n)
       })
     })
   })

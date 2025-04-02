@@ -1,8 +1,9 @@
 import { Hex, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { readContract } from 'viem/actions'
+import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import {
+  exp1Abi,
   exp1Address,
   exp2Abi,
   exp2Address,
@@ -14,11 +15,7 @@ import * as Delegation from './delegation.js'
 import * as Key from './key.js'
 import * as Relay from './relay.js'
 
-const { client } = getPorto({
-  transports: {
-    relay: true,
-  },
-})
+const { client } = getPorto()
 
 describe('createAccount', () => {
   test('default', async () => {
@@ -208,6 +205,10 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
+    await waitForTransactionReceipt(client, {
+      hash: id,
+    })
+
     expect(
       await readContract(client, {
         ...exp2Config,
@@ -249,6 +250,10 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
+    await waitForTransactionReceipt(client, {
+      hash: id,
+    })
+
     expect(
       await readContract(client, {
         ...exp2Config,
@@ -286,6 +291,10 @@ describe('sendCalls', () => {
     })
 
     expect(id).toBeDefined()
+
+    await waitForTransactionReceipt(client, {
+      hash: id,
+    })
 
     expect(
       await readContract(client, {
@@ -329,6 +338,10 @@ describe('sendCalls', () => {
     })
 
     expect(id).toBeDefined()
+
+    await waitForTransactionReceipt(client, {
+      hash: id,
+    })
 
     expect(
       await readContract(client, {
@@ -383,6 +396,10 @@ describe('sendCalls', () => {
     })
 
     expect(id).toBeDefined()
+
+    await waitForTransactionReceipt(client, {
+      hash: id,
+    })
 
     expect(
       await readContract(client, {
@@ -445,6 +462,10 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
+    await waitForTransactionReceipt(client, {
+      hash: id,
+    })
+
     expect(
       await readContract(client, {
         ...exp2Config,
@@ -485,6 +506,10 @@ describe.each([
       })
       expect(id).toBeDefined()
 
+      await waitForTransactionReceipt(client, {
+        hash: id,
+      })
+
       // 3. Verify that Account has 100 ERC20 tokens.
       expect(
         await readContract(client, {
@@ -517,6 +542,10 @@ describe.each([
         ],
       })
       expect(id).toBeDefined()
+
+      await waitForTransactionReceipt(client, {
+        hash: id,
+      })
 
       // 3. Verify that Account has 100 ERC20 tokens.
       expect(
@@ -620,6 +649,10 @@ describe.each([
       })
       expect(id).toBeDefined()
 
+      await waitForTransactionReceipt(client, {
+        hash: id,
+      })
+
       // 4. Verify that Account now has 3 Admin Keys.
       const [key_1, key_2, key_3] = [
         await Delegation.keyAt(client, {
@@ -657,6 +690,10 @@ describe.each([
           feeToken: exp1Address,
         })
         expect(id).toBeDefined()
+
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
       }
 
       // 3. Mint 100 ERC20 tokens to Account with new Admin Key.
@@ -675,6 +712,10 @@ describe.each([
           key: newKey,
         })
         expect(id).toBeDefined()
+
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
 
         // 4. Verify that Account has 100 ERC20 tokens.
         expect(
@@ -724,6 +765,10 @@ describe.each([
         ],
       })
       expect(id).toBeDefined()
+
+      await waitForTransactionReceipt(client, {
+        hash: id,
+      })
 
       // 4. Verify that Account has 100 ERC20 tokens.
       expect(
@@ -779,6 +824,10 @@ describe.each([
         })
         expect(id).toBeDefined()
 
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
+
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
@@ -832,6 +881,10 @@ describe.each([
         })
         expect(id).toBeDefined()
 
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
+
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
@@ -859,6 +912,10 @@ describe.each([
           key: sessionKey,
         })
         expect(id).toBeDefined()
+
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
 
         // 5. Verify that Account now has 200 ERC20 tokens.
         expect(
@@ -913,6 +970,10 @@ describe.each([
         })
         expect(id).toBeDefined()
 
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
+
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
@@ -941,6 +1002,10 @@ describe.each([
         })
         expect(id).toBeDefined()
 
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
+
         // 5. Verify that Account now has 200 ERC20 tokens.
         expect(
           await readContract(client, {
@@ -967,9 +1032,11 @@ describe.each([
           calls: [
             {
               signature: 'mint(address,uint256)',
+              to: exp2Address,
             },
             {
-              to: alice,
+              signature: 'transfer(address,uint256)',
+              to: exp1Address,
             },
           ],
         },
@@ -988,8 +1055,10 @@ describe.each([
               to: exp2Address,
             },
             {
-              to: alice,
-              value: 100n,
+              abi: exp1Abi,
+              args: [alice, 100n],
+              functionName: 'transfer',
+              to: exp1Address,
             },
           ],
           feeToken: exp1Address,
@@ -1002,6 +1071,10 @@ describe.each([
           ],
         })
         expect(id).toBeDefined()
+
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
 
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
@@ -1113,33 +1186,45 @@ describe.each([
         keys: [adminKey],
       })
 
-      // 2. Mint 100 ERC20 tokens to Account.
-      await Relay.sendCalls(client, {
-        account,
-        calls: [
-          {
-            abi: exp2Abi,
-            args: [account.address, 100n],
-            functionName: 'mint',
-            to: exp2Address,
-          },
-        ],
-        feeToken: exp1Address,
-      })
+      {
+        // 2. Mint 100 ERC20 tokens to Account.
+        const { id } = await Relay.sendCalls(client, {
+          account,
+          calls: [
+            {
+              abi: exp2Abi,
+              args: [account.address, 100n],
+              functionName: 'mint',
+              to: exp2Address,
+            },
+          ],
+          feeToken: exp1Address,
+        })
 
-      // 3. Transfer 50 ERC20 tokens from Account.
-      await Relay.sendCalls(client, {
-        account,
-        calls: [
-          {
-            abi: exp2Abi,
-            args: ['0x0000000000000000000000000000000000000000', 50n],
-            functionName: 'transfer',
-            to: exp2Address,
-          },
-        ],
-        feeToken: exp1Address,
-      })
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
+      }
+
+      {
+        // 3. Transfer 50 ERC20 tokens from Account.
+        const { id } = await Relay.sendCalls(client, {
+          account,
+          calls: [
+            {
+              abi: exp2Abi,
+              args: ['0x0000000000000000000000000000000000000000', 50n],
+              functionName: 'transfer',
+              to: exp2Address,
+            },
+          ],
+          feeToken: exp1Address,
+        })
+
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
+      }
 
       // 4. Try transfer another 50 ERC20 tokens from Account.
       await expect(() =>
@@ -1200,6 +1285,10 @@ describe.each([
         })
         expect(id).toBeDefined()
 
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
+
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
@@ -1211,20 +1300,26 @@ describe.each([
         ).toBe(100n)
       }
 
-      // 4. Transfer 50 ERC20 token from Account.
-      await Relay.sendCalls(client, {
-        account,
-        calls: [
-          {
-            abi: exp2Abi,
-            args: ['0x0000000000000000000000000000000000000000', 50n],
-            functionName: 'transfer',
-            to: exp2Address,
-          },
-        ],
-        feeToken: exp1Address,
-        key: sessionKey,
-      })
+      {
+        // 4. Transfer 50 ERC20 token from Account.
+        const { id } = await Relay.sendCalls(client, {
+          account,
+          calls: [
+            {
+              abi: exp2Abi,
+              args: ['0x0000000000000000000000000000000000000000', 50n],
+              functionName: 'transfer',
+              to: exp2Address,
+            },
+          ],
+          feeToken: exp1Address,
+          key: sessionKey,
+        })
+
+        await waitForTransactionReceipt(client, {
+          hash: id,
+        })
+      }
 
       // 5. Try to transfer another 50 ERC20 tokens from Account.
       await expect(() =>

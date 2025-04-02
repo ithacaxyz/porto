@@ -22,11 +22,7 @@ import {
   upgradeAccount,
 } from './relay.js'
 
-const { client } = getPorto({
-  transports: {
-    relay: true,
-  },
-})
+const { client } = getPorto()
 
 const feeToken = exp1Address
 

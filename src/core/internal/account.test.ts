@@ -2,14 +2,15 @@ import { Hex } from 'ox'
 import { verifyHash } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { getAccount } from '../../../test/src/actions.js'
+import { createAccount, getAccount } from '../../../test/src/actions.js'
+import * as Anvil from '../../../test/src/anvil.js'
 import { getPorto } from '../../../test/src/porto.js'
 import * as Account from './account.js'
 import * as Call from './call.js'
 import * as Delegation from './delegation.js'
 import * as Key from './key.js'
 
-const { client, delegation } = getPorto()
+const { client } = getPorto()
 
 describe('from', () => {
   test('default', () => {
@@ -76,12 +77,12 @@ describe('fromPrivateKey', () => {
 
 describe('sign', () => {
   test('default', async () => {
-    const { account } = await getAccount(client)
-
-    await Delegation.execute(client, {
-      account,
-      calls: [],
-      delegation,
+    const key = Key.test_createWebAuthnP256({
+      role: 'admin',
+    })
+    const account = await createAccount(client, {
+      deploy: true,
+      keys: [key],
     })
 
     const payload = Hex.random(32)
@@ -103,18 +104,9 @@ describe('sign', () => {
       role: 'admin',
     })
 
-    const { account } = await getAccount(client, {
+    const account = await createAccount(client, {
+      deploy: true,
       keys: [key],
-    })
-
-    await Delegation.execute(client, {
-      account,
-      calls: [
-        Call.authorize({
-          key,
-        }),
-      ],
-      delegation,
     })
 
     const payload = Hex.random(32)
@@ -154,19 +146,9 @@ describe('sign', () => {
     const key = Key.test_createWebAuthnP256({
       role: 'admin',
     })
-
-    const { account } = await getAccount(client, {
+    const account = await createAccount(client, {
+      deploy: true,
       keys: [key],
-    })
-
-    await Delegation.execute(client, {
-      account,
-      calls: [
-        Call.authorize({
-          key,
-        }),
-      ],
-      delegation,
     })
 
     const payload = Hex.random(32)
@@ -184,98 +166,98 @@ describe('sign', () => {
     expect(valid).toBe(true)
   })
 
-  test('behavior: with authorization payload', async () => {
-    const key = Key.test_createWebAuthnP256({
-      role: 'admin',
-    })
+  test.runIf(Anvil.enabled)(
+    'behavior: with authorization payload',
+    async () => {
+      const { client } = getPorto({
+        transports: {
+          relay: false,
+        },
+      })
 
-    const { account } = await getAccount(client, {
-      keys: [key],
-    })
+      const key = Key.test_createWebAuthnP256({
+        role: 'admin',
+      })
 
-    await Delegation.execute(client, {
-      account,
-      calls: [
-        Call.authorize({
-          key,
-        }),
-      ],
-      delegation,
-    })
+      const { account } = await getAccount(client, {
+        keys: [key],
+      })
 
-    const payloads = [Hex.random(32), Hex.random(32)] as const
+      const payloads = [Hex.random(32), Hex.random(32)] as const
 
-    const signatures = await Account.sign(account, {
-      payloads,
-    })
-
-    expect(signatures.length).toBe(2)
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        hash: payloads[0],
-        signature: signatures[0],
-      }),
-    ).toBe(true)
-    expect(
-      await verifyHash(client, {
-        address: account.address,
-        hash: payloads[1],
-        signature: signatures[1]!,
-      }),
-    ).toBe(true)
-  })
-
-  test('behavior: with authorization payload, no root signing key', async () => {
-    const key = Key.test_createWebAuthnP256({
-      role: 'admin',
-    })
-
-    const { account } = await getAccount(client)
-
-    await Delegation.execute(client, {
-      account,
-      calls: [
-        Call.authorize({
-          key,
-        }),
-      ],
-      delegation,
-    })
-
-    const nextAccount = Account.from({
-      ...account,
-      keys: [key],
-      sign: undefined,
-    })
-
-    const payloads = [Hex.random(32), Hex.random(32)] as const
-
-    await expect(
-      Account.sign(nextAccount, {
-        // @ts-expect-error: test
+      const signatures = await Account.sign(account, {
         payloads,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[Error: cannot find root signing key to sign authorization.]',
-    )
-  })
+      })
+
+      expect(signatures.length).toBe(2)
+      expect(
+        await verifyHash(client, {
+          address: account.address,
+          hash: payloads[0],
+          signature: signatures[0],
+        }),
+      ).toBe(true)
+      expect(
+        await verifyHash(client, {
+          address: account.address,
+          hash: payloads[1],
+          signature: signatures[1]!,
+        }),
+      ).toBe(true)
+    },
+  )
+
+  test.runIf(Anvil.enabled)(
+    'behavior: with authorization payload, no root signing key',
+    async () => {
+      const { client, delegation } = getPorto({
+        transports: {
+          relay: false,
+        },
+      })
+
+      const key = Key.test_createWebAuthnP256({
+        role: 'admin',
+      })
+
+      const { account } = await getAccount(client)
+
+      await Delegation.execute(client, {
+        account,
+        calls: [
+          Call.authorize({
+            key,
+          }),
+        ],
+        delegation,
+      })
+
+      const nextAccount = Account.from({
+        ...account,
+        keys: [key],
+        sign: undefined,
+      })
+
+      const payloads = [Hex.random(32), Hex.random(32)] as const
+
+      await expect(
+        Account.sign(nextAccount, {
+          // @ts-expect-error: test
+          payloads,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        '[Error: cannot find root signing key to sign authorization.]',
+      )
+    },
+  )
 
   test('behavior: no keys', async () => {
     const key = Key.test_createWebAuthnP256({
       role: 'admin',
     })
-
-    const { account } = await getAccount(client)
-
-    await Delegation.execute(client, {
-      account,
-      calls: [
-        Call.authorize({
-          key,
-        }),
-      ],
-      delegation,
+    const account = await createAccount(client, {
+      deploy: true,
+      keys: [key],
     })
 
     const nextAccount = Account.from({

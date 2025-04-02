@@ -6,6 +6,7 @@ import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
+import { waitForTransactionReceipt } from 'viem/actions'
 
 import type * as Storage from '../../Storage.js'
 import * as Account from '../account.js'
@@ -110,10 +111,13 @@ export function relay(config: relay.Parameters = {}) {
           role: 'admin',
         })
 
-        await Relay.sendCalls(client, {
+        const { id } = await Relay.sendCalls(client, {
           account,
           authorizeKeys: [authorizeKey],
           feeToken: resolveFeeToken(client, feeToken),
+        })
+        await waitForTransactionReceipt(client, {
+          hash: id,
         })
 
         return { key: authorizeKey }
@@ -309,10 +313,13 @@ export function relay(config: relay.Parameters = {}) {
         if (!key) return
 
         try {
-          await Relay.sendCalls(client, {
+          const { id } = await Relay.sendCalls(client, {
             account,
             feeToken: resolveFeeToken(client, feeToken),
             revokeKeys: [key],
+          })
+          await waitForTransactionReceipt(client, {
+            hash: id,
           })
         } catch (e) {
           const error = e as Relay.sendCalls.ErrorType
@@ -338,10 +345,13 @@ export function relay(config: relay.Parameters = {}) {
         if (key.role === 'admin') throw new Error('cannot revoke admins.')
 
         try {
-          await Relay.sendCalls(client, {
+          const { id } = await Relay.sendCalls(client, {
             account,
             feeToken: resolveFeeToken(client, feeToken),
             revokeKeys: [key],
+          })
+          await waitForTransactionReceipt(client, {
+            hash: id,
           })
         } catch (e) {
           const error = e as Relay.sendCalls.ErrorType
