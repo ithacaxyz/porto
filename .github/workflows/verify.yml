@@ -84,7 +84,7 @@ jobs:
         run: pnpm test:ci
         strategy:
           matrix:
-            anvil: ${{ ((github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch') && ['true', 'false']) || ['true'] }}
+            anvil: ['true', 'false']
         env: 
           VITE_ANVIL: ${{ matrix.anvil }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
