@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "compatibility_date": "2025-03-14",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env"
+  ],
+  "dev": {
+    "port": 6969
+  },
+  "keep_vars": true,
+  "main": "./src/index.ts",
+  "minify": true,
+  "name": "faucet",
+  "observability": {
+    "enabled": true
+  },
+  "placement": {
+    "mode": "smart"
+  },
+  "workers_dev": true
+}

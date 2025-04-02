@@ -1,0 +1,22 @@
+{
+  "name": "faucet",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm dlx wrangler@latest --config='wrangler.json' dev",
+    "build": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --dry-run",
+    "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars",
+    "types": "pnpm dlx wrangler@latest types --include-runtime='false'"
+  },
+  "dependencies": {
+    "@porto/apps": "workspace:*",
+    "ox": "catalog:",
+    "viem": "^2.24.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250402.0",
+    "@types/node": "^22.14.0",
+    "typescript": "catalog:",
+    "wrangler": "^4.7.0"
+  }
+}
