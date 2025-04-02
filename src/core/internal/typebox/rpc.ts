@@ -7,6 +7,7 @@ import { type StaticDecode, type StaticEncode, Type, Value } from './schema.js'
 export * from './request.js'
 
 export const Request = Type.Union([
+  RpcRequest.add_funds.Request,
   RpcRequest.eth_accounts.Request,
   RpcRequest.eth_chainId.Request,
   RpcRequest.eth_requestAccounts.Request,

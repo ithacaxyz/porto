@@ -26,6 +26,10 @@ type PrepareCallsContext = {
 
 export type Mode = {
   actions: {
+    addFunds: (parameters: {
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<boolean>
     createAccount: (parameters: {
       /** Internal properties. */
       internal: ActionsInternal

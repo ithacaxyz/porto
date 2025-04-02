@@ -63,6 +63,24 @@ export function from<
       const state = store.getState()
 
       switch (request.method) {
+        case 'add_funds': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const client = getClient()
+
+          console.info('add_funds', request)
+
+          return await getMode().actions.addFunds({
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+        }
+
         case 'eth_accounts': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()

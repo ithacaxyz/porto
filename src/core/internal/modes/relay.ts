@@ -52,6 +52,11 @@ export function relay(config: relay.Parameters = {}) {
 
   return Mode.from({
     actions: {
+      async addFunds(_parameters) {
+        // Handled by dialog mode.
+        return true
+      },
+
       async createAccount(parameters) {
         const { permissions } = parameters
         const { client } = parameters.internal

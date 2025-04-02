@@ -1,5 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner } from '@porto/apps/components'
+import { exp1Address } from '@porto/apps/contracts'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
@@ -16,9 +17,10 @@ import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
+import { usePorto } from '~/hooks/usePorto'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info } from '~/hooks/useTokenInfo'
-import { config } from '~/lib/Wagmi'
+import { config, porto } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, sum, ValueFormatter } from '~/utils'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
@@ -49,6 +51,8 @@ function TokenSymbol({
 }
 
 export function Dashboard() {
+  usePorto({ mode: 'iframe-dialog' })
+
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
   const permissions = Hooks.usePermissions()
@@ -186,7 +190,27 @@ export function Dashboard() {
 
       <details className="group" open={assets && assets?.length > 0}>
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
-          Assets
+          <span>Assets</span>
+
+          <Button
+            className="ml-2"
+            onClick={() => {
+              porto.provider.request({
+                method: 'add_funds',
+                params: [
+                  {
+                    amount: Hex.fromNumber(25n),
+                    token: exp1Address,
+                  },
+                ],
+              })
+            }}
+            size="small"
+            type="button"
+            variant="default"
+          >
+            Add funds
+          </Button>
         </summary>
 
         <PaginatedTable

@@ -85,6 +85,11 @@ export function contract(parameters: contract.Parameters = {}) {
 
   return Mode.from({
     actions: {
+      async addFunds(_parameters) {
+        // Handled by dialog mode.
+        return true
+      },
+
       async createAccount(parameters) {
         const { label, internal, permissions } = parameters
         const { client } = internal

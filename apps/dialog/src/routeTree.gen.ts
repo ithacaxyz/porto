@@ -20,6 +20,7 @@ import { Route as DialogExperimentalgrantPermissionsImport } from './routes/dial
 import { Route as DialogExperimentalcreateAccountImport } from './routes/dialog/experimental_createAccount'
 import { Route as DialogEthsendTransactionImport } from './routes/dialog/eth_sendTransaction'
 import { Route as DialogEthrequestAccountsImport } from './routes/dialog/eth_requestAccounts'
+import { Route as DialogAddfundsImport } from './routes/dialog/add_funds'
 import { Route as DialogSplatImport } from './routes/dialog/$'
 
 // Create/Update Routes
@@ -80,6 +81,12 @@ const DialogEthrequestAccountsRoute = DialogEthrequestAccountsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DialogAddfundsRoute = DialogAddfundsImport.update({
+  id: '/dialog/add_funds',
+  path: '/dialog/add_funds',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DialogSplatRoute = DialogSplatImport.update({
   id: '/dialog/$',
   path: '/dialog/$',
@@ -102,6 +109,13 @@ declare module '@tanstack/react-router' {
       path: '/dialog/$'
       fullPath: '/dialog/$'
       preLoaderRoute: typeof DialogSplatImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/add_funds': {
+      id: '/dialog/add_funds'
+      path: '/dialog/add_funds'
+      fullPath: '/dialog/add_funds'
+      preLoaderRoute: typeof DialogAddfundsImport
       parentRoute: typeof rootRoute
     }
     '/dialog/eth_requestAccounts': {
@@ -168,6 +182,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
+  '/dialog/add_funds': typeof DialogAddfundsRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
@@ -181,6 +196,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
+  '/dialog/add_funds': typeof DialogAddfundsRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
@@ -195,6 +211,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
+  '/dialog/add_funds': typeof DialogAddfundsRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
@@ -210,6 +227,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dialog/$'
+    | '/dialog/add_funds'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
     | '/dialog/experimental_createAccount'
@@ -222,6 +240,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dialog/$'
+    | '/dialog/add_funds'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
     | '/dialog/experimental_createAccount'
@@ -234,6 +253,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dialog/$'
+    | '/dialog/add_funds'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
     | '/dialog/experimental_createAccount'
@@ -248,6 +268,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DialogSplatRoute: typeof DialogSplatRoute
+  DialogAddfundsRoute: typeof DialogAddfundsRoute
   DialogEthrequestAccountsRoute: typeof DialogEthrequestAccountsRoute
   DialogEthsendTransactionRoute: typeof DialogEthsendTransactionRoute
   DialogExperimentalcreateAccountRoute: typeof DialogExperimentalcreateAccountRoute
@@ -261,6 +282,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DialogSplatRoute: DialogSplatRoute,
+  DialogAddfundsRoute: DialogAddfundsRoute,
   DialogEthrequestAccountsRoute: DialogEthrequestAccountsRoute,
   DialogEthsendTransactionRoute: DialogEthsendTransactionRoute,
   DialogExperimentalcreateAccountRoute: DialogExperimentalcreateAccountRoute,
@@ -284,6 +306,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dialog/$",
+        "/dialog/add_funds",
         "/dialog/eth_requestAccounts",
         "/dialog/eth_sendTransaction",
         "/dialog/experimental_createAccount",
@@ -299,6 +322,9 @@ export const routeTree = rootRoute
     },
     "/dialog/$": {
       "filePath": "dialog/$.tsx"
+    },
+    "/dialog/add_funds": {
+      "filePath": "dialog/add_funds.tsx"
     },
     "/dialog/eth_requestAccounts": {
       "filePath": "dialog/eth_requestAccounts.tsx"
