@@ -3,13 +3,19 @@ import Tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
 import Icons from 'unplugin-icons/vite'
-import { defineConfig, type PluginOption } from 'vite'
+import { defineConfig } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
 import TsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  const plugins = [
+export default defineConfig({
+  build: {
+    sourcemap: true,
+  },
+  define: {
+    'process.env': {},
+  },
+  plugins: [
     Mkcert({
       hosts: [
         'localhost',
@@ -20,26 +26,14 @@ export default defineConfig(({ mode }) => {
     Tailwindcss(),
     React(),
     Icons({ compiler: 'jsx', jsx: 'react' }),
+    process.env.VERCEL_ENV === 'production'
+      ? SentryVitePlugin({
+          authToken: process.env.SENTRY_AUTH_TOKEN,
+          org: 'ithaca',
+          project: 'porto-manager',
+        })
+      : null,
     TsconfigPaths(),
     TanStackRouterVite(),
-  ] satisfies PluginOption[]
-
-  if (mode !== 'development') {
-    plugins.push(
-      SentryVitePlugin({
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        org: 'ithaca',
-        project: 'porto-manager',
-      }),
-    )
-  }
-  return {
-    build: {
-      sourcemap: true,
-    },
-    define: {
-      'process.env': {},
-    },
-    plugins,
-  }
+  ],
 })
