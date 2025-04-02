@@ -15,6 +15,7 @@ import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
+import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info } from '~/hooks/useTokenInfo'
 import { config } from '~/lib/Wagmi'
@@ -691,6 +692,10 @@ function AssetRow({
       ],
     })
   })
+
+  const ref = React.useRef<HTMLTableCellElement | null>(null)
+  useClickOutside([ref], () => setViewState('default'))
+
   return (
     <tr className="font-normal sm:text-sm">
       {viewState === 'default' ? (
@@ -719,7 +724,7 @@ function AssetRow({
           </td>
         </>
       ) : viewState === 'send' ? (
-        <td className="w-full" colSpan={4}>
+        <td className="w-full" colSpan={4} ref={ref}>
           <Ariakit.Form
             className="relative my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 bg-white p-2 dark:bg-gray1"
             store={sendForm}
