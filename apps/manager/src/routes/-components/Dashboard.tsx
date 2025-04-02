@@ -20,7 +20,7 @@ import { useClickOutside } from '~/hooks/useClickOutside'
 import { usePorto } from '~/hooks/usePorto'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info } from '~/hooks/useTokenInfo'
-import { config, porto } from '~/lib/Wagmi'
+import { config } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, sum, ValueFormatter } from '~/utils'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
@@ -51,7 +51,7 @@ function TokenSymbol({
 }
 
 export function Dashboard() {
-  usePorto({ mode: 'iframe-dialog' })
+  const { porto } = usePorto({ mode: 'iframe-dialog' })
 
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
@@ -194,16 +194,22 @@ export function Dashboard() {
 
           <Button
             className="ml-2"
-            onClick={() => {
-              porto.provider.request({
+            onClick={async (event) => {
+              event.preventDefault()
+              if (!account.address) {
+                return toast.error('No account address found')
+              }
+              const result = await porto.provider.request({
                 method: 'add_funds',
                 params: [
                   {
+                    account: account.address,
                     amount: Hex.fromNumber(25n),
                     token: exp1Address,
                   },
                 ],
               })
+              console.info('result', result)
             }}
             size="small"
             type="button"

@@ -20,6 +20,10 @@ export type Schema =
     >
   | RpcSchema.From<
       | {
+          Request: Static<typeof Rpc.add_funds.Request>
+          ReturnType: Static<typeof Rpc.add_funds.Response>
+        }
+      | {
           Request: Static<typeof Rpc.porto_ping.Request>
           ReturnType: Static<typeof Rpc.porto_ping.Response>
         }
@@ -80,10 +84,6 @@ export type Schema =
       | {
           Request: Static<typeof Rpc.wallet_sendCalls.Request>
           ReturnType: Static<typeof Rpc.wallet_sendCalls.Response>
-        }
-      | {
-          Request: Static<typeof Rpc.add_funds.Request>
-          ReturnType: Static<typeof Rpc.add_funds.Response>
         }
     >
 

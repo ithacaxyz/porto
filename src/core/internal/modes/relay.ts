@@ -53,8 +53,8 @@ export function relay(config: relay.Parameters = {}) {
   return Mode.from({
     actions: {
       async addFunds(_parameters) {
-        // Handled by dialog mode.
-        return true
+        // TODO: temporarily returning a value so it doesn't throw
+        return '0x'
       },
 
       async createAccount(parameters) {

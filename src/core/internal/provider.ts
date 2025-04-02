@@ -67,17 +67,25 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
+          const [account] = state.accounts
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const { amount, token } = request.params[0] ?? {}
+
+          if (!amount || !token) throw new ox_Provider.UnauthorizedError()
+
           const client = getClient()
 
-          console.info('add_funds', request)
-
           return await getMode().actions.addFunds({
+            account,
+            amount: Hex.toBigInt(amount),
             internal: {
               client,
               config,
               request,
               store,
             },
+            token,
           })
         }
 

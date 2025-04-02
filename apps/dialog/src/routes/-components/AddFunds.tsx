@@ -1,39 +1,61 @@
-import { Porto } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import { cx } from 'cva'
-import { Hex } from 'ox'
-import { Actions, Hooks } from 'porto/remote'
+import { Hex, type RpcSchema } from 'ox'
+import type { RpcSchema as porto_RpcSchema } from 'porto'
 import * as React from 'react'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import ExternalLinkIcon from '~icons/lucide/external-link'
 import QrCodeIcon from '~icons/lucide/qr-code'
 
-const porto = Porto.porto
-
 const predefinedAmounts = [25, 50, 100, 250]
 
-export function AddFunds() {
-  const request = Hooks.useRequest(porto)
-  // Use searchParams directly instead of _decoded
-  const params = request?.params?.[0] as
-    | { amount: Hex.Hex; token: Hex.Hex }
-    | undefined
-  console.info(params)
-  const [amount, setAmount] = React.useState<number>(
-    Hex.toNumber(params?.amount ?? '0x0'),
+export declare namespace AddFunds {
+  type Props = RpcSchema.ExtractParams<
+    porto_RpcSchema.Schema,
+    'add_funds'
+  >['0'] & {
+    loading: boolean
+    onApprove: () => void
+    onReject?: () => void
+  }
+}
+
+export function AddFunds(props: AddFunds.Props) {
+  const {
+    account: address,
+    amount,
+    token,
+    loading,
+    onApprove,
+    onReject: _,
+  } = props
+
+  const [desiredAmount, setDesiredAmount] = React.useState<number>(
+    Hex.toNumber(amount),
   )
 
-  console.info(amount)
-  const respond = useMutation({
-    mutationFn() {
-      console.info(amount)
-      return Actions.respond(porto, request!)
+  const deposit = useMutation({
+    async mutationFn() {
+      if (!address || !token) throw new Error('Invalid account or token')
+      const searchParams = new URLSearchParams({
+        address,
+      })
+      const response = await fetch(
+        `https://faucet.porto.workers.dev/?${searchParams.toString()}`,
+      )
+      if (!response.ok) throw new Error('Failed to fetch funds')
+      const data = (await response.json()) as Hex.Hex
+      console.log(data)
+      return data
     },
   })
 
   return (
-    <Layout loading={respond.isPending} loadingTitle="Adding funds...">
+    <Layout
+      loading={loading || deposit.isPending}
+      loadingTitle="Adding funds..."
+    >
       <Layout.Header>
         <Layout.Header.Default
           content="Select how much you will deposit."
@@ -48,13 +70,13 @@ export function AddFunds() {
               {predefinedAmounts.map((predefinedAmount) => (
                 <button
                   className={cx(
-                    amount === predefinedAmount
+                    desiredAmount === predefinedAmount
                       ? 'border-blue9 bg-gray3 text-black dark:text-white'
                       : 'border-gray6 text-gray11 dark:border-gray4',
                     'min-w-1/4 rounded-[10px] border-[1.5px] py-2 text-center hover:bg-gray6',
                   )}
                   key={predefinedAmount}
-                  onClick={() => setAmount(predefinedAmount)}
+                  onClick={() => setDesiredAmount(predefinedAmount)}
                   type="button"
                 >
                   ${predefinedAmount}
@@ -63,17 +85,23 @@ export function AddFunds() {
             </div>
           </div>
           <div className="col-span-1 row-span-1">
-            <div className="flex w-full flex-row items-center justify-between rounded-lg bg-gray4 px-3 py-2.5 text-gray12 focus-within:bg-gray4 dark:bg-gray3">
+            <div className="flex w-full flex-row items-center justify-between rounded-lg border-[1.75px] border-transparent bg-gray4 px-3 py-2.5 text-gray12 focus-within:border-gray6 focus-within:bg-gray4 has-aria-invalid:border-red8 dark:bg-gray3">
               <input
+                aria-invalid={desiredAmount > 500}
                 autoCapitalize="off"
                 autoComplete="off"
                 autoCorrect="off"
-                className="h-full max-h-[96%] bg-transparent font-semibold placeholder:text-gray8 focus:outline-none"
-                onChange={(event) => setAmount(Number(event.target.value))}
+                className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent font-semibold placeholder:text-gray8 focus:outline-none"
+                inputMode="decimal"
+                max={500}
+                min={0}
+                onChange={(event) =>
+                  setDesiredAmount(Number(event.target.value))
+                }
                 placeholder="Enter amount"
                 spellCheck={false}
-                type="text"
-                value={amount}
+                type="number"
+                value={desiredAmount}
                 // should add disabled` if testnet?
               />
               <span className="text-gray9 text-sm">Max. $500</span>
@@ -81,7 +109,12 @@ export function AddFunds() {
           </div>
           <div className="col-span-1 row-span-1 my-1">
             <button
-              className="flex w-full flex-row items-center justify-center rounded-lg bg-[#6E56CF] px-4 py-2 font-semibold text-base text-destructive-foreground hover:bg-[#6E56CF]/90"
+              className="flex h-9 w-full flex-row items-center justify-center rounded-lg bg-[#6E56CF] px-4 py-2 font-semibold text-base text-destructive-foreground hover:bg-[#6E56CF]/90"
+              onClick={(event) => {
+                event.preventDefault()
+                deposit.mutate()
+                onApprove()
+              }}
               type="button"
             >
               <span className="text-white/90">Buy & Deposit</span>
@@ -97,11 +130,11 @@ export function AddFunds() {
           </div>
           <div className="col-span-1 row-span-1">
             <button
-              className="ml-auto flex w-full flex-row items-center justify-start gap-2 rounded-lg border border-transparent bg-gray4 px-4 py-2 hover:bg-gray5 dark:bg-gray3"
+              className="ml-auto flex h-9 w-full flex-row items-center justify-start gap-2 rounded-lg border border-transparent bg-gray4 px-4 py-2 hover:bg-gray5 dark:bg-gray3"
               type="button"
             >
               <QrCodeIcon className="size-5" />
-              <span className="font-[500] text-base dark:text-white/90">
+              <span className="font-[500] text-base text-black dark:text-white/90">
                 Send Crypto
               </span>
               <span className="ml-auto text-gray10 text-sm">Instant</span>
@@ -110,6 +143,9 @@ export function AddFunds() {
           </div>
         </div>
       </Layout.Content>
+      <Layout.Footer>
+        <Layout.Footer.Account />
+      </Layout.Footer>
     </Layout>
   )
 }

@@ -7,9 +7,11 @@ import { Type } from './schema.js'
 
 export namespace add_funds {
   export const Parameters = Type.Object({
+    account: Schema.Optional(Primitive.Address),
     amount: Primitive.BigInt,
     token: Schema.Optional(Primitive.Address),
   })
+
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
@@ -18,7 +20,7 @@ export namespace add_funds {
   })
   export type Request = Schema.StaticDecode<typeof Request>
 
-  export const Response = Type.Boolean()
+  export const Response = Primitive.Hex
   export type Response = Schema.StaticDecode<typeof Response>
 }
 

@@ -15,6 +15,7 @@ import { parseEther } from 'viem'
 import { useAccount } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import { useClickOutside } from '~/hooks/useClickOutside'
+import { usePorto } from '~/hooks/usePorto'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import type { ChainId } from '~/lib/Wagmi'
 
@@ -41,6 +42,7 @@ const key = () =>
   }) as const
 
 export function DevOnly() {
+  usePorto({ mode: 'iframe-dialog' })
   const account = useAccount()
   const permissions = Hooks.usePermissions()
   const grantPermissions = Hooks.useGrantPermissions()

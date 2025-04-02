@@ -9,3 +9,12 @@ html,
   --height-button: 36px;
   --radius-default: 8px;
 }
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  @apply appearance-none;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}

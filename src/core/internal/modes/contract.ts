@@ -86,8 +86,8 @@ export function contract(parameters: contract.Parameters = {}) {
   return Mode.from({
     actions: {
       async addFunds(_parameters) {
-        // Handled by dialog mode.
-        return true
+        // TODO: check if it should be
+        throw new Error('add_funds not supported in contract mode.')
       },
 
       async createAccount(parameters) {

@@ -1,3 +1,4 @@
+import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import type { Address } from 'ox'
 import { base, baseSepolia, odysseyTestnet } from 'viem/chains'
 import type { ChainId } from '~/lib/Wagmi'
@@ -36,7 +37,7 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
     {
-      address: '0x706Aa5C8e5cC2c67Da21ee220718f6f6B154E75c',
+      address: exp1Address,
       decimals: 18,
       logo: '/icons/exp.svg',
       name: 'Experiment',
@@ -44,7 +45,7 @@ export const defaultAssets: Record<
       symbol: 'EXP',
     },
     {
-      address: '0x390dD40042a844F92b499069CFe983236d9fe204',
+      address: exp2Address,
       decimals: 18,
       logo: '/icons/exp2.svg',
       name: 'Experiment 2',

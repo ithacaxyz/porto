@@ -28,15 +28,16 @@ export type ModeType = keyof typeof modes
 
 export const porto = Porto.create({
   ...PortoConfig.config[env],
-  // We will be deferring mode setup until after hydration.
-  mode: null,
+  mode: Mode.dialog({
+    host,
+  }),
 })
 
 export const chainIds = [base.id, odysseyTestnet.id, baseSepolia.id] as const
 export type ChainId = (typeof chainIds)[number]
 
 export const config = createConfig({
-  chains: [base, odysseyTestnet, baseSepolia],
+  chains: [odysseyTestnet],
   connectors: [
     injected({
       target: () => ({
@@ -46,11 +47,8 @@ export const config = createConfig({
       }),
     }),
   ],
-  multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
   transports: {
-    [base.id]: http(),
-    [baseSepolia.id]: http(),
     [odysseyTestnet.id]: http(),
   },
 })
