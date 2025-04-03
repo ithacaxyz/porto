@@ -1,4 +1,4 @@
-import { createConfig, http, useReadContract } from 'wagmi'
+import { createConfig, http, useReadContracts } from 'wagmi'
 import { mainnet } from 'viem/chains'
 import { Value } from 'ox'
 
@@ -32,29 +32,34 @@ export function useFiatPrice<selectData = Price>(
 ) {
   const { pair = 'ETH/USD', select = (data) => data } = parameters
 
-  return useReadContract<
-    typeof priceFeedAbi,
-    'latestRoundData',
-    [],
-    typeof priceFeedConfig,
-    selectData
-  >({
-    abi: priceFeedAbi,
-    address: priceFeedAddress[pair],
+  return useReadContracts({
     config: priceFeedConfig,
-    functionName: 'latestRoundData',
+    contracts: [
+      {
+        abi: priceFeedAbi,
+        address: priceFeedAddress[pair],
+        functionName: 'decimals',
+      },
+      {
+        abi: priceFeedAbi,
+        address: priceFeedAddress[pair],
+        functionName: 'latestRoundData',
+      },
+    ],
     query: {
       select(data) {
-        const [, value] = data
-        const decimals = 8
-        const formatted = Value.format(value, decimals)
+        const [decimals, latestRoundData] = data
+        if (decimals.error || latestRoundData.error) throw new Error(':(')
+
+        const [, value] = latestRoundData.result
+        const formatted = Value.format(value, decimals.result)
         return select({
-          decimals,
+          decimals: decimals.result,
           display: format(Number(formatted)),
           formatted,
           symbol: pair.split('/')[1] as string,
           value,
-        } as const satisfies Price) as selectData
+        })
       },
     },
   })
@@ -88,6 +93,13 @@ const priceFeedAddress = {
 
 /** @internal */
 const priceFeedAbi = [
+  {
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
   {
     inputs: [],
     name: 'latestRoundData',

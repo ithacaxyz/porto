@@ -13,8 +13,6 @@ export const feeToken = {
   [Chains.odysseyTestnet.id]: exp1Address,
 } satisfies Record<number, Address.Address>
 
-export const chains = Porto.defaultConfig.chains
-
 export const config = {
   anvil: {
     chains,
