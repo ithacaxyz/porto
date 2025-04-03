@@ -181,6 +181,7 @@ export function AddFunds(props: AddFunds.Props) {
           </Layout.Content>
         </React.Fragment>
       ) : (
+        // biome-ignore lint/complexity/noUselessFragments: <explanation>
         <></>
       )}
       <Layout.Footer>
