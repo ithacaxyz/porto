@@ -15,7 +15,7 @@ export const modes = {
 }
 
 export const porto = Porto.create({
-  ...PortoConfig.config[env],
+  // ...PortoConfig.config[env],
   mode: modes.direct,
 })
 
