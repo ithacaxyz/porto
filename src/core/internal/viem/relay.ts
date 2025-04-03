@@ -25,6 +25,7 @@ import { prepareAuthorization } from 'viem/actions'
 import { getExecuteError } from 'viem/experimental/erc7821'
 
 import * as Delegation from '../_generated/contracts/Delegation.js'
+import * as EntryPoint from '../_generated/contracts/EntryPoint.js'
 import type * as RpcSchema from '../relay/rpcSchema.js'
 import * as Rpc from '../relay/typebox/rpc.js'
 import type { sendCalls } from '../relay.js'
@@ -48,15 +49,20 @@ export async function createAccount(
   try {
     const method = 'wallet_createAccount' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    await client.request<Schema>({
-      method,
-      params: [
-        Value.Encode(Rpc.wallet_createAccount.Parameters, {
-          context,
-          signatures,
-        }),
-      ],
-    })
+    await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(Rpc.wallet_createAccount.Parameters, {
+            context,
+            signatures,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
     return undefined
   } catch (error) {
     parseSchemaError(error)
@@ -193,17 +199,22 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   try {
     const method = 'wallet_prepareCalls' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>({
-      method,
-      params: [
-        Value.Encode(Rpc.wallet_prepareCalls.Parameters, {
-          calls,
-          capabilities,
-          chainId: chain?.id,
-          from: address,
-        }),
-      ],
-    })
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(Rpc.wallet_prepareCalls.Parameters, {
+            calls,
+            capabilities,
+            chainId: chain?.id,
+            from: address,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
     return Value.Parse(Rpc.wallet_prepareCalls.Response, result)
   } catch (error) {
     parseSchemaError(error)
@@ -248,15 +259,20 @@ export async function prepareCreateAccount(
   try {
     const method = 'wallet_prepareCreateAccount' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>({
-      method,
-      params: [
-        Value.Encode(Rpc.wallet_prepareCreateAccount.Parameters, {
-          capabilities,
-          chainId: chain?.id,
-        }),
-      ],
-    })
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(Rpc.wallet_prepareCreateAccount.Parameters, {
+            capabilities,
+            chainId: chain?.id,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
     return Value.Parse(Rpc.wallet_prepareCreateAccount.Response, result)
   } catch (error) {
     parseSchemaError(error)
@@ -297,16 +313,21 @@ export async function prepareUpgradeAccount(
     const method = 'wallet_prepareUpgradeAccount' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
     const [result, [authorization, authorizationDigest]] = await Promise.all([
-      client.request<Schema>({
-        method,
-        params: [
-          Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
-            address,
-            capabilities,
-            chainId: chain?.id,
-          }),
-        ],
-      }),
+      client.request<Schema>(
+        {
+          method,
+          params: [
+            Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
+              address,
+              capabilities,
+              chainId: chain?.id,
+            }),
+          ],
+        },
+        {
+          retryCount: 0,
+        },
+      ),
       (async () => {
         const authorization = await prepareAuthorization(client, {
           account: address,
@@ -382,15 +403,20 @@ export async function sendPreparedCalls(
   try {
     const method = 'wallet_sendPreparedCalls' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>({
-      method,
-      params: [
-        Value.Encode(Rpc.wallet_sendPreparedCalls.Parameters, {
-          context,
-          signature,
-        }),
-      ],
-    })
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(Rpc.wallet_sendPreparedCalls.Parameters, {
+            context,
+            signature,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
     return Value.Parse(Rpc.wallet_sendPreparedCalls.Response, result)
   } catch (error) {
     parseSchemaError(error)
@@ -442,16 +468,21 @@ export async function upgradeAccount(
   try {
     const method = 'wallet_upgradeAccount' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>({
-      method,
-      params: [
-        Value.Encode(Rpc.wallet_upgradeAccount.Parameters, {
-          authorization,
-          context,
-          signature: signatures[0],
-        }),
-      ],
-    })
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(Rpc.wallet_upgradeAccount.Parameters, {
+            authorization,
+            context,
+            signature: signatures[0],
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
     return Value.Parse(Rpc.wallet_upgradeAccount.Response, result)
   } catch (error) {
     parseSchemaError(error)
@@ -507,7 +538,11 @@ export function parseExecutionError<const calls extends readonly unknown[]>(
     try {
       if (data === '0xd0d5039b') return AbiError.from('error Unauthorized()')
       return AbiError.fromAbi(
-        [...Delegation.abi, AbiError.from('error CallError()')],
+        [
+          ...Delegation.abi,
+          ...EntryPoint.abi,
+          AbiError.from('error CallError()'),
+        ],
         data,
       )
     } catch {
