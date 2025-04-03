@@ -37,7 +37,12 @@ export const chainIds = [base.id, odysseyTestnet.id, baseSepolia.id] as const
 export type ChainId = (typeof chainIds)[number]
 
 export const config = createConfig({
-  chains: [odysseyTestnet],
+  chains: [
+    //
+    base,
+    odysseyTestnet,
+    baseSepolia,
+  ],
   connectors: [
     injected({
       target: () => ({
@@ -49,6 +54,8 @@ export const config = createConfig({
   ],
   storage: createStorage({ storage: localStorage }),
   transports: {
+    [base.id]: http(),
+    [baseSepolia.id]: http(),
     [odysseyTestnet.id]: http(),
   },
 })
