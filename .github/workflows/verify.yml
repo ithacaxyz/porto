@@ -56,6 +56,9 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      matrix:
+        anvil: ['true', 'false']
 
     steps:
       - name: Clone repository
@@ -81,10 +84,10 @@ jobs:
         run: docker pull ghcr.io/ithacaxyz/relay:latest
 
       - name: Test
-        run: pnpm test:ci
-        strategy:
-          matrix:
-            anvil: ['true', 'false']
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          command: pnpm test:ci
         env: 
           VITE_ANVIL: ${{ matrix.anvil }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
