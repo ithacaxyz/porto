@@ -51,7 +51,7 @@ function TokenSymbol({
 }
 
 export function Dashboard() {
-  const { porto } = usePorto({ mode: 'iframe-dialog' })
+  const { porto } = usePorto({ mode: 'dialog' })
 
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()

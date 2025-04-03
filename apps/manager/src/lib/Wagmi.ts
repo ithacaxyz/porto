@@ -1,40 +1,22 @@
-import { Env, Porto as PortoConfig } from '@porto/apps'
-import { Dialog, Mode, Porto } from 'porto'
+import { Porto as PortoConfig } from '@porto/apps'
+import { Mode, Porto } from 'porto'
 import { createConfig, createStorage, http } from 'wagmi'
 import { base, baseSepolia, odysseyTestnet } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 
-const env = Env.get()
+const env = 'stg'
 const host = PortoConfig.dialogHosts[env]
 
-export type ModeType =
-  | 'contract'
-  | 'iframe-dialog'
-  | 'inline-dialog'
-  | 'popup-dialog'
-  | 'relay'
+export type ModeType = 'dialog' | 'direct'
 
 export const modes = {
-  contract: Mode.contract(),
-  'iframe-dialog': Mode.dialog({
-    host,
-  }),
-  'inline-dialog': Mode.dialog({
-    host,
-    renderer: Dialog.experimental_inline({
-      element: () => document.getElementById('porto')!,
-    }),
-  }),
-  'popup-dialog': Mode.dialog({
-    host,
-    renderer: Dialog.popup(),
-  }),
-  relay: Mode.relay(),
-} as { [K in ModeType]: Mode.Mode }
+  dialog: Mode.dialog({ host }),
+  direct: Mode.relay(),
+}
 
 export const porto = Porto.create({
   ...PortoConfig.config[env],
-  mode: modes.relay,
+  mode: modes.direct,
 })
 
 export const chainIds = [base.id, odysseyTestnet.id, baseSepolia.id] as const

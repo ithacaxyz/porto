@@ -42,7 +42,7 @@ const key = () =>
   }) as const
 
 export function DevOnly() {
-  usePorto({ mode: 'iframe-dialog' })
+  usePorto({ mode: 'dialog' })
   const account = useAccount()
   const permissions = Hooks.usePermissions()
   const grantPermissions = Hooks.useGrantPermissions()
