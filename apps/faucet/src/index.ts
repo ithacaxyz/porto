@@ -1,9 +1,9 @@
 import { env } from 'cloudflare:workers'
 import type { ExportedHandler } from '@cloudflare/workers-types'
 import { exp1Abi, exp1Address } from '@porto/apps/contracts'
-import { createClient, http, isAddress, isHex } from 'viem'
 import { Chains } from 'porto'
 import { Account, Key, Relay } from 'porto/internal'
+import { createClient, http, isAddress, isHex } from 'viem'
 
 const DRIP_ADDRESS = env.DRIP_ADDRESS
 const DRIP_PRIVATE_KEY = env.DRIP_PRIVATE_KEY
@@ -31,7 +31,7 @@ export default {
       const account = Account.from({
         address: DRIP_ADDRESS,
         keys: [
-          Key.fromSecp256k1({ role: 'admin', privateKey: DRIP_PRIVATE_KEY }),
+          Key.fromSecp256k1({ privateKey: DRIP_PRIVATE_KEY, role: 'admin' }),
         ],
       })
 
@@ -40,9 +40,9 @@ export default {
         calls: [
           {
             abi: exp1Abi,
-            to: exp1Address,
-            functionName: 'mint',
             args: [address, value],
+            functionName: 'mint',
+            to: exp1Address,
           },
         ],
         feeToken: exp1Address,
