@@ -1,4 +1,3 @@
-import { Provider } from 'ox'
 import type * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
