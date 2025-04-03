@@ -7,6 +7,13 @@ import { injected } from 'wagmi/connectors'
 const env = Env.get()
 const host = PortoConfig.dialogHosts[env]
 
+export type ModeType =
+  | 'contract'
+  | 'iframe-dialog'
+  | 'inline-dialog'
+  | 'popup-dialog'
+  | 'relay'
+
 export const modes = {
   contract: Mode.contract(),
   'iframe-dialog': Mode.dialog({
@@ -23,14 +30,11 @@ export const modes = {
     renderer: Dialog.popup(),
   }),
   relay: Mode.relay(),
-}
-export type ModeType = keyof typeof modes
+} as { [K in ModeType]: Mode.Mode }
 
 export const porto = Porto.create({
   ...PortoConfig.config[env],
-  mode: Mode.dialog({
-    host,
-  }),
+  mode: modes.relay,
 })
 
 export const chainIds = [base.id, odysseyTestnet.id, baseSepolia.id] as const
