@@ -46,7 +46,7 @@ export function useQuote<
       value: bigint
     }) {
       const { decimals, symbol, value } = parameters
-      const formatted = ValueFormatter.format(value, 18)
+      const formatted = ValueFormatter.format(value, decimals)
       const display = `${formatted} ${symbol}`
       return {
         decimals,
