@@ -1,6 +1,6 @@
-import * as React from 'react'
 import { Chains } from 'porto'
 import { Hooks, Porto } from 'porto/remote'
+import * as React from 'react'
 
 /**
  * Hook to extract a supported chain from a Porto instance.

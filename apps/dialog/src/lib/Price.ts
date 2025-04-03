@@ -1,6 +1,6 @@
-import { createConfig, http, useReadContracts } from 'wagmi'
-import { mainnet } from 'viem/chains'
 import { Value } from 'ox'
+import { mainnet } from 'viem/chains'
+import { createConfig, http, useReadContracts } from 'wagmi'
 
 export type Pair = keyof typeof priceFeedAddress
 
@@ -74,8 +74,8 @@ export namespace useFiatPrice {
 
 /** @internal */
 const numberIntl = new Intl.NumberFormat('en-US', {
-  style: 'currency',
   currency: 'USD',
+  style: 'currency',
 })
 
 /** @internal */

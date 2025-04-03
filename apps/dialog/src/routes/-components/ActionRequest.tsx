@@ -2,11 +2,11 @@ import { Porto } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
-import { Delegation, RpcSchema as RpcSchema_porto } from 'porto'
-import { Hooks } from 'porto/remote'
 import { RpcSchema } from 'ox'
-import * as Schema from 'porto/core/internal/typebox/schema'
+import { Delegation, RpcSchema as RpcSchema_porto } from 'porto'
 import * as Rpc from 'porto/core/internal/typebox/request'
+import * as Schema from 'porto/core/internal/typebox/schema'
+import { Hooks } from 'porto/remote'
 import { Call } from 'viem'
 
 import * as Dialog from '~/lib/Dialog'
@@ -32,9 +32,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // TODO: use eventual Wagmi Hook (`usePrepareCalls`).
   const prepareCalls = useQuery({
-    staleTime: 0,
     gcTime: 0,
-    queryKey: ['prepareCalls', account?.address, request, providerClient.uid],
     async queryFn() {
       if (!account) throw new Error('account is required.')
 
@@ -70,7 +68,9 @@ export function ActionRequest(props: ActionRequest.Props) {
 
       return Schema.Decode(Rpc.wallet_prepareCalls.Response, raw)
     },
+    queryKey: ['prepareCalls', account?.address, request, providerClient.uid],
     refetchInterval: 15_000,
+    staleTime: 0,
   })
 
   // TODO: extract from a `quote` capability on `wallet_prepareCalls` response

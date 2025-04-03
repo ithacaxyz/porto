@@ -12,8 +12,8 @@ import type * as Chains from '../Chains.js'
 import type * as Mode from '../Mode.js'
 import type { Config, Store } from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
-import type * as RpcSchema_relay from './relay/rpcSchema.js'
 import type * as Provider from './provider.js'
+import type * as RpcSchema_relay from './relay/rpcSchema.js'
 
 export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
   viem_Transport,
