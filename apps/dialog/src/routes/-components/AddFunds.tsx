@@ -13,7 +13,7 @@ const predefinedAmounts = [25, 50, 100, 250]
 export declare namespace AddFunds {
   type Props = RpcSchema.ExtractParams<
     porto_RpcSchema.Schema,
-    'add_funds'
+    'experimental_addFunds'
   >['0'] & {
     loading: boolean
     onApprove: () => void
@@ -22,27 +22,24 @@ export declare namespace AddFunds {
 }
 
 export function AddFunds(props: AddFunds.Props) {
-  const {
-    account: address,
-    amount,
-    token,
-    loading,
-    onApprove,
-    onReject: _,
-  } = props
+  const { address, value, token, loading, onApprove, onReject: _ } = props
+  console.info('AddFunds', props)
 
   const [desiredAmount, setDesiredAmount] = React.useState<number>(
-    Hex.toNumber(amount),
+    Hex.toNumber(value),
   )
+  console.info('desiredAmount', desiredAmount, Hex.toNumber(value), props.value)
 
   const deposit = useMutation({
     async mutationFn() {
       if (!address || !token) throw new Error('Invalid account or token')
+
       const searchParams = new URLSearchParams({
         address,
       })
+      console.info('Adding funds...', searchParams.toString())
       const response = await fetch(
-        `https://faucet.porto.workers.dev/?${searchParams.toString()}`,
+        `https://faucet.porto.workers.dev?${searchParams.toString()}`,
       )
       if (!response.ok) throw new Error('Failed to fetch funds')
       const data = (await response.json()) as Hex.Hex

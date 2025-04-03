@@ -87,17 +87,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   return Mode.from({
     actions: {
-      async addFunds(parameters) {
-        const { internal } = parameters
-        const { request, store } = internal
-
-        if (request.method !== 'add_funds')
-          throw new Error('Cannot add funds for method: ' + request.method)
-
-        const provider = getProvider(store)
-        return await provider.request(request)
-      },
-
       async createAccount(parameters) {
         const { internal } = parameters
         const { request, store } = internal
@@ -178,6 +167,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return {
           account,
         }
+      },
+
+      async experimental_addFunds(parameters) {
+        const { internal } = parameters
+        const { request, store } = internal
+
+        if (request.method !== 'experimental_addFunds')
+          throw new Error('Cannot add funds for method: ' + request.method)
+
+        const provider = getProvider(store)
+        return await provider.request(request)
       },
 
       async grantAdmin() {

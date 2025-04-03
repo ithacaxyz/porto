@@ -200,12 +200,12 @@ export function Dashboard() {
                 return toast.error('No account address found')
               }
               const result = await porto.provider.request({
-                method: 'add_funds',
+                method: 'experimental_addFunds',
                 params: [
                   {
-                    account: account.address,
-                    amount: Hex.fromNumber(25n),
+                    address: account.address,
                     token: exp1Address,
+                    value: Hex.fromNumber(25n),
                   },
                 ],
               })

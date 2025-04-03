@@ -5,17 +5,17 @@ import * as Primitive from './primitive.js'
 import * as Schema from './schema.js'
 import { Type } from './schema.js'
 
-export namespace add_funds {
+export namespace experimental_addFunds {
   export const Parameters = Type.Object({
-    account: Schema.Optional(Primitive.Address),
-    amount: Primitive.BigInt,
-    token: Schema.Optional(Primitive.Address),
+    address: Primitive.Address,
+    token: Primitive.Address,
+    value: Primitive.BigInt,
   })
 
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('add_funds'),
+    method: Type.Literal('experimental_addFunds'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Schema.StaticDecode<typeof Request>

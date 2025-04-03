@@ -8,10 +8,12 @@ import { AddFunds } from '../-components/AddFunds'
 
 const porto = Porto.porto
 
-export const Route = createFileRoute('/dialog/add_funds')({
+export const Route = createFileRoute('/dialog/experimental_addFunds')({
   component: RouteComponent,
   validateSearch(search) {
-    return Router.parseSearchRequest(search, { method: 'add_funds' })
+    return Router.parseSearchRequest(search, {
+      method: 'experimental_addFunds',
+    })
   },
 })
 

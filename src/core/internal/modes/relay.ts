@@ -1,3 +1,4 @@
+import { Provider } from 'ox'
 import type * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
@@ -52,11 +53,6 @@ export function relay(config: relay.Parameters = {}) {
 
   return Mode.from({
     actions: {
-      async addFunds(_parameters) {
-        // TODO: temporarily returning a value so it doesn't throw
-        return '0x'
-      },
-
       async createAccount(parameters) {
         const { permissions } = parameters
         const { client } = parameters.internal
@@ -105,6 +101,11 @@ export function relay(config: relay.Parameters = {}) {
             keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
           }),
         }
+      },
+
+      async experimental_addFunds(_parameters) {
+        // throw new Provider.UnsupportedMethodError()
+        return '0x'
       },
 
       async grantAdmin(parameters) {

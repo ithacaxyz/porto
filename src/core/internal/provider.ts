@@ -63,22 +63,22 @@ export function from<
       const state = store.getState()
 
       switch (request.method) {
-        case 'add_funds': {
+        case 'experimental_addFunds': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [account] = state.accounts
+          const { value, token, address } = request.params[0] ?? {}
+          if (!address) throw new ox_Provider.IsUndefinedError()
+
+          const account = state.accounts.find((account) =>
+            Address.isEqual(account.address, address),
+          )
           if (!account) throw new ox_Provider.UnauthorizedError()
-
-          const { amount, token } = request.params[0] ?? {}
-
-          if (!amount || !token) throw new ox_Provider.UnauthorizedError()
 
           const client = getClient()
 
-          return await getMode().actions.addFunds({
-            account,
-            amount: Hex.toBigInt(amount),
+          return await getMode().actions.experimental_addFunds({
+            address: account.address,
             internal: {
               client,
               config,
@@ -86,6 +86,7 @@ export function from<
               store,
             },
             token,
+            value: Hex.toBigInt(value),
           })
         }
 

@@ -26,11 +26,11 @@ type PrepareCallsContext = {
 
 export type Mode = {
   actions: {
-    addFunds: (parameters: {
-      /** Account to add funds to. */
-      account: Account.Account
+    experimental_addFunds: (parameters: {
+      /* Address to add funds to. */
+      address: Address.Address
       /** Amount to add. */
-      amount: bigint
+      value: bigint
       /** Token to add funds to. */
       token: Address.Address
       /** Internal properties. */
