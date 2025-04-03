@@ -36,7 +36,7 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
 const offRequests = Events.onRequests(porto, (requests) => {
   const request = requests[0]?.request
   if (request && !Dialog_porto.requiresConfirmation(request)) {
-    Actions.respond(porto, request)
+    Actions.respond(porto, request).catch(() => {})
     return
   }
   Router.router.navigate({

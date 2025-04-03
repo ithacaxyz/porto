@@ -383,52 +383,55 @@ export function dialog(parameters: dialog.Parameters = {}) {
           permissionsId: parameters.permissionsId,
         })
 
-        // If a key is found, execute the calls with it.
-        // No need to send a request to the dialog.
+        // If a session key is found, try execute the calls with it
+        // without sending a request to the dialog. If the key does not
+        // have permission to execute the calls, fall back to the dialog.
         if (key && key.role === 'session') {
-          // TODO: use eventual Viem Action.
-          const req = await provider
-            .request(
-              Schema.Encode(Rpc.wallet_prepareCalls.Request, {
-                method: 'wallet_prepareCalls',
+          try {
+            // TODO: use eventual Viem Action.
+            const req = await provider
+              .request(
+                Schema.Encode(Rpc.wallet_prepareCalls.Request, {
+                  method: 'wallet_prepareCalls',
+                  params: [
+                    {
+                      calls,
+                      capabilities:
+                        request._decoded.method === 'wallet_sendCalls'
+                          ? request._decoded.params?.[0]?.capabilities
+                          : undefined,
+                      chainId: client.chain.id,
+                      from: account.address,
+                      key,
+                    },
+                  ],
+                } satisfies Rpc.wallet_prepareCalls.Request),
+              )
+              .then((x) => Schema.Decode(Rpc.wallet_prepareCalls.Response, x))
+
+            const signature = await Key.sign(key, {
+              payload: req.digest,
+              wrap: false,
+            })
+
+            // TODO: use eventual Viem Action.
+            const result = await provider.request(
+              Schema.Encode(Rpc.wallet_sendPreparedCalls.Request, {
+                method: 'wallet_sendPreparedCalls',
                 params: [
                   {
-                    calls,
-                    capabilities:
-                      request._decoded.method === 'wallet_sendCalls'
-                        ? request._decoded.params?.[0]?.capabilities
-                        : undefined,
-                    chainId: client.chain.id,
-                    from: account.address,
-                    key,
+                    ...req,
+                    signature,
                   },
                 ],
-              } satisfies Rpc.wallet_prepareCalls.Request),
+              } satisfies Rpc.wallet_sendPreparedCalls.Request),
             )
-            .then((x) => Schema.Decode(Rpc.wallet_prepareCalls.Response, x))
 
-          const signature = await Key.sign(key, {
-            payload: req.digest,
-            wrap: false,
-          })
+            const id = result[0]?.id
+            if (!id) throw new Error('id not found')
 
-          // TODO: use eventual Viem Action.
-          const result = await provider.request(
-            Schema.Encode(Rpc.wallet_sendPreparedCalls.Request, {
-              method: 'wallet_sendPreparedCalls',
-              params: [
-                {
-                  ...req,
-                  signature,
-                },
-              ],
-            } satisfies Rpc.wallet_sendPreparedCalls.Request),
-          )
-
-          const id = result[0]?.id
-          if (!id) throw new Error('id not found')
-
-          return id
+            return id
+          } catch {}
         }
 
         if (request.method === 'eth_sendTransaction')
