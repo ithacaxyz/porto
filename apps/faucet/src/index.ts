@@ -17,7 +17,7 @@ export default {
     try {
       const url = new URL(request.url)
       const address = url.searchParams.get('address')
-      const value = Number(url.searchParams.get('value') ?? 25)
+      const value = BigInt(url.searchParams.get('value') ?? 25)
 
       if (!address || !isAddress(address)) {
         return new Response('Valid EVM address required', { status: 400 })
@@ -31,7 +31,10 @@ export default {
       const account = Account.from({
         address: DRIP_ADDRESS,
         keys: [
-          Key.fromSecp256k1({ privateKey: DRIP_PRIVATE_KEY, role: 'admin' }),
+          Key.fromSecp256k1({
+            privateKey: DRIP_PRIVATE_KEY,
+            role: 'admin',
+          }),
         ],
       })
 
