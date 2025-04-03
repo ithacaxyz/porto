@@ -41,20 +41,15 @@ export function AddFunds(props: AddFunds.Props) {
       })
       const response = await fetch(
         `https://faucet.porto.workers.dev?${searchParams.toString()}`,
-        {
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-          },
-        },
       )
       if (!response.ok) throw new Error('Failed to fetch funds')
       const data = (await response.json()) as Hex.Hex
+      console.info(response.status)
       return data
     },
     onError: (error, variables, context) => {
       console.error('onError', error, variables, context)
     },
-
     onSuccess: (data, variables, context) => {
       console.info('onSuccess', data, variables, context)
       onApprove()
