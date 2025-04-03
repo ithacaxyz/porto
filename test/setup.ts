@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import { afterAll, beforeAll, vi } from 'vitest'
 
 import * as Chains from '../src/core/Chains.js'
@@ -24,6 +25,8 @@ beforeAll(async () => {
   await Promise.all(
     Object.values(Relay.instances).map(async (instance) => {
       await fetch(`${instance.rpcUrl}/start`)
+      // wait for relay to sync token prices
+      await setTimeout(500)
     }),
   )
 })
