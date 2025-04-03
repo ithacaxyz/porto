@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
+    "porto": "workspace:*",
     "viem": "catalog:"
   },
   "devDependencies": {

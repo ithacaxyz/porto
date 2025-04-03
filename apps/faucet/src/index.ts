@@ -1,16 +1,9 @@
 import { env } from 'cloudflare:workers'
 import type { ExportedHandler } from '@cloudflare/workers-types'
-import { exp1Address } from '@porto/apps/contracts'
-import {
-  createWalletClient,
-  erc20Abi,
-  http,
-  isAddress,
-  isHex,
-  parseEther,
-} from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { odysseyTestnet } from 'viem/chains'
+import { exp1Abi, exp1Address } from '@porto/apps/contracts'
+import { createClient, http, isAddress, isHex } from 'viem'
+import { Chains } from 'porto'
+import { Account, Key, Relay } from 'porto/internal'
 
 const DRIP_ADDRESS = env.DRIP_ADDRESS
 const DRIP_PRIVATE_KEY = env.DRIP_PRIVATE_KEY
@@ -20,29 +13,42 @@ if (!isAddress(DRIP_ADDRESS) || !isHex(DRIP_PRIVATE_KEY)) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request) {
     try {
-      const client = createWalletClient({
-        account: privateKeyToAccount(DRIP_PRIVATE_KEY),
-        chain: odysseyTestnet,
-        transport: http(),
-      })
-
       const url = new URL(request.url)
       const address = url.searchParams.get('address')
+      const value = Number(url.searchParams.get('value') ?? 25)
 
       if (!address || !isAddress(address)) {
         return new Response('Valid EVM address required', { status: 400 })
       }
 
-      const result = await client.writeContract({
-        abi: erc20Abi,
-        address: exp1Address,
-        args: [address, parseEther(env.DRIP_AMOUNT ?? '25')],
-        functionName: 'transfer',
+      const client = createClient({
+        chain: Chains.odysseyTestnet,
+        transport: http('https://relay-staging.ithaca.xyz'),
       })
 
-      return new Response(result)
+      const account = Account.from({
+        address: DRIP_ADDRESS,
+        keys: [
+          Key.fromSecp256k1({ role: 'admin', privateKey: DRIP_PRIVATE_KEY }),
+        ],
+      })
+
+      const { id } = await Relay.sendCalls(client, {
+        account,
+        calls: [
+          {
+            abi: exp1Abi,
+            to: exp1Address,
+            functionName: 'mint',
+            args: [address, value],
+          },
+        ],
+        feeToken: exp1Address,
+      })
+
+      return new Response(id)
     } catch (error) {
       console.error(error)
       return new Response(
