@@ -92,3 +92,5 @@ jobs:
         env: 
           VITE_ANVIL: ${{ matrix.anvil }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+          VITE_ADMIN_ADDRESS: ${{ secrets.VITE_ADMIN_ADDRESS }}
+          VITE_ADMIN_PRIVATE_KEY: ${{ secrets.VITE_ADMIN_PRIVATE_KEY }}
