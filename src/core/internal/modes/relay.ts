@@ -3,6 +3,7 @@ import * as Bytes from 'ox/Bytes'
 import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
+import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
@@ -52,6 +53,10 @@ export function relay(config: relay.Parameters = {}) {
 
   return Mode.from({
     actions: {
+      async addFunds() {
+        throw new Provider.UnsupportedMethodError()
+      },
+
       async createAccount(parameters) {
         const { permissions } = parameters
         const { client } = parameters.internal
@@ -100,11 +105,6 @@ export function relay(config: relay.Parameters = {}) {
             keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
           }),
         }
-      },
-
-      async experimental_addFunds(_parameters) {
-        // throw new Provider.UnsupportedMethodError()
-        return '0x'
       },
 
       async grantAdmin(parameters) {

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5175",
+    "dev": "vite --port 5173",
     "prebuild": "tsc --build",
     "build": "vite build",
     "check": "biome check --write --unsafe",

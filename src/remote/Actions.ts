@@ -62,6 +62,7 @@ export async function respond<result>(
   request: Porto.QueuedRequest['request'],
   options?: {
     selector?: (result: result) => unknown
+    result?: result | undefined
   },
 ) {
   const { messenger, provider } = porto
@@ -71,7 +72,7 @@ export async function respond<result>(
     jsonrpc: '2.0',
   } as const
   try {
-    let result = await provider.request(request)
+    let result = options?.result ?? (await provider.request(request))
     if (selector) result = selector(result as never)
     messenger.send(
       'rpc-response',

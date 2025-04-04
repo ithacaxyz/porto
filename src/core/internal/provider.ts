@@ -77,7 +77,7 @@ export function from<
 
           const client = getClient()
 
-          return await getMode().actions.experimental_addFunds({
+          return await getMode().actions.addFunds({
             address: account.address,
             internal: {
               client,
