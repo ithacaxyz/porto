@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
+    "hono": "^4.7.5",
     "porto": "workspace:*",
     "viem": "catalog:"
   },

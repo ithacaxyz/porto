@@ -18,5 +18,18 @@
   "placement": {
     "mode": "smart"
   },
+  "unsafe": {
+    "bindings": [
+      {
+        "name": "RATE_LIMITER",
+        "namespace_id": "1001",
+        "simple": {
+          "limit": 10,
+          "period": 60
+        },
+        "type": "ratelimit"
+      }
+    ]
+  },
   "workers_dev": true
 }

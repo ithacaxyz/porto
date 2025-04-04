@@ -5,7 +5,11 @@ interface EnvironmentVariables {
 }
 
 namespace Cloudflare {
-  interface Env extends EnvironmentVariables {}
+  interface Env extends EnvironmentVariables {
+    readonly RATE_LIMITER: {
+      limit: (params: { key: string }) => Promise<{ success: boolean }>
+    }
+  }
 }
 
 namespace NodeJS {

@@ -363,6 +363,9 @@ importers:
       '@porto/apps':
         specifier: workspace:*
         version: link:../~internal
+      hono:
+        specifier: ^4.7.5
+        version: 4.7.5
       porto:
         specifier: workspace:*
         version: link:../../src
@@ -5484,6 +5487,10 @@ packages:
 
   hono@4.7.4:
     resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
+    engines: {node: '>=16.9.0'}
+
+  hono@4.7.5:
+    resolution: {integrity: sha512-fDOK5W2C1vZACsgLONigdZTRZxuBqFtcKh7bUQ5cVSbwI2RWjloJDcgFOVzbQrlI6pCmhlTsVYZ7zpLj4m4qMQ==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -14234,6 +14241,8 @@ snapshots:
       react-is: 16.13.1
 
   hono@4.7.4: {}
+
+  hono@4.7.5: {}
 
   hookable@5.5.3: {}
 

@@ -13,7 +13,7 @@ if (!isAddress(DRIP_ADDRESS) || !isHex(DRIP_PRIVATE_KEY)) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     try {
       const url = new URL(request.url)
       const address = url.searchParams.get('address')
@@ -21,6 +21,16 @@ export default {
 
       if (!address || !isAddress(address)) {
         return new Response('Valid EVM address required', { status: 400 })
+      }
+
+      const { success } = await env.RATE_LIMITER.limit({
+        key:
+          address.toLowerCase() +
+          (request.headers.get('cf-connecting-ip') ?? ''),
+      })
+
+      if (!success) {
+        return new Response('Rate limit exceeded', { status: 429 })
       }
 
       const client = createClient({
