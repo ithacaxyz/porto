@@ -1,6 +1,7 @@
-import { Value } from 'ox'
+import { Hex, Value } from 'ox'
 import { mainnet } from 'viem/chains'
 import { createConfig, http, useReadContracts } from 'wagmi'
+import { ValueFormatter } from '../utils'
 
 export type Pair = keyof typeof priceFeedAddress
 
@@ -9,7 +10,66 @@ export type Price = {
   display: string
   formatted: string
   symbol: string
+  token: Hex.Hex
   value: bigint
+}
+
+/**
+ * Instantiates a price.
+ *
+ * @param parameters - Parameters.
+ * @returns Price.
+ */
+export function from(parameters: from.Parameters): Price {
+  const { decimals, symbol, token, value } = parameters
+  const formatted = ValueFormatter.format(value, decimals)
+  const display = `${formatted} ${symbol}`
+  return {
+    decimals,
+    display,
+    formatted,
+    symbol,
+    token,
+    value,
+  }
+}
+
+export namespace from {
+  export type Parameters = {
+    decimals: number
+    symbol: string
+    token: Hex.Hex
+    value: bigint
+  }
+}
+
+/**
+ * Instantiates a fiat price.
+ *
+ * @param parameters - Parameters.
+ * @returns Price.
+ */
+export function fromFiat(parameters: fromFiat.Parameters): Price {
+  const { decimals, symbol, token, value } = parameters
+  const formatted = Value.format(value, decimals)
+  const display = format(Number(formatted))
+  return {
+    decimals,
+    display,
+    formatted,
+    symbol,
+    token,
+    value,
+  }
+}
+
+export namespace fromFiat {
+  export type Parameters = {
+    decimals: number
+    symbol: string
+    token: Hex.Hex
+    value: bigint
+  }
 }
 
 /**
@@ -28,7 +88,7 @@ export function format(value: number | bigint) {
  * @returns Price of the given pair.
  */
 export function useFiatPrice<selectData = Price>(
-  parameters: useFiatPrice.Parameters<selectData>,
+  parameters: useFiatPrice.Parameters<selectData> = {},
 ) {
   const { pair = 'ETH/USD', select = (data) => data } = parameters
 
@@ -47,19 +107,23 @@ export function useFiatPrice<selectData = Price>(
       },
     ],
     query: {
+      enabled: !('value' in parameters) || !!parameters.value,
       select(data) {
         const [decimals, latestRoundData] = data
         if (decimals.error || latestRoundData.error) throw new Error(':(')
 
         const [, value] = latestRoundData.result
-        const formatted = Value.format(value, decimals.result)
-        return select({
-          decimals: decimals.result,
-          display: format(Number(formatted)),
-          formatted,
-          symbol: pair.split('/')[1] as string,
-          value,
-        })
+        const value_ = parameters.value
+          ? (parameters.value * value) / 10n ** 18n
+          : value
+        return select(
+          fromFiat({
+            decimals: decimals.result,
+            symbol: pair.split('/')[1] as string,
+            token: '0x0000000000000000000000000000000000000000',
+            value: value_,
+          }),
+        )
       },
     },
   })
@@ -69,6 +133,7 @@ export namespace useFiatPrice {
   export type Parameters<selectData = Price> = {
     pair?: Pair | undefined
     select?: ((data: Price) => selectData) | undefined
+    value?: bigint | undefined
   }
 }
 

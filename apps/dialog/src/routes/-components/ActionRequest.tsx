@@ -1,4 +1,4 @@
-import { Porto } from '@porto/apps'
+import { Porto, Token } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
@@ -6,11 +6,14 @@ import { Address, Json, RpcSchema } from 'ox'
 import { Delegation, RpcSchema as RpcSchema_porto } from 'porto'
 import * as Rpc from 'porto/core/internal/typebox/request'
 import * as Schema from 'porto/core/internal/typebox/schema'
+import { Porto as Porto_ } from 'porto/remote'
 import { Hooks } from 'porto/remote'
-import { Call } from 'viem'
+import * as React from 'react'
+import { Call, erc20Abi, zeroAddress } from 'viem'
+import { getBalance, readContract } from 'wagmi/actions'
 
 import * as Dialog from '~/lib/Dialog'
-import * as Quote from '~/lib/Quote'
+import * as Price from '~/lib/Price'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -32,7 +35,6 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // TODO: use eventual Wagmi Hook (`usePrepareCalls`).
   const prepareCalls = useQuery({
-    gcTime: 0,
     async queryFn() {
       if (!account) throw new Error('account is required.')
 
@@ -75,20 +77,29 @@ export function ActionRequest(props: ActionRequest.Props) {
       providerClient.uid,
     ],
     refetchInterval: 15_000,
-    staleTime: 0,
   })
 
   // TODO: extract from a `quote` capability on `wallet_prepareCalls` response
   //       instead of introspecting the context.
-  const quote = Quote.useQuote(porto, {
+  const quote = useQuote(porto, {
     chainId,
     context: prepareCalls.data?.context,
   })
 
-  const fee_fiat = Quote.useFiatFee(quote)
-  const fee_token = quote?.fee
+  const fiatFee = Price.useFiatPrice({
+    value: quote?.fee.native.value,
+  })
+  const tokenFee = quote?.fee
+
+  const requiredBalances = useRequiredBalances({
+    address: account?.address,
+    chainId,
+    fee: tokenFee,
+  })
+  const hasInsufficientBalance = (requiredBalances.data?.length ?? 0) > 0
 
   const simulate = useQuery({
+    gcTime: 0,
     queryFn: async () => {
       const { balances, results } = await Delegation.simulate(client, {
         account: account!.address!,
@@ -99,51 +110,74 @@ export function ActionRequest(props: ActionRequest.Props) {
       return { balances, results }
     },
     queryKey: ['simulate', client.uid, Json.stringify(calls)],
+    staleTime: 0,
   })
   const balances =
     simulate.data?.balances.filter((x) => x.value.diff !== 0n) ?? []
+
+  const warning = hasInsufficientBalance || simulate.status === 'error'
 
   return (
     <Layout loading={loading} loadingTitle="Sending...">
       <Layout.Header>
         <Layout.Header.Default
           content={<>Review the action to perform below.</>}
-          icon={simulate.status === 'error' ? TriangleAlert : Star}
+          icon={warning ? TriangleAlert : Star}
           title="Action Request"
-          variant={simulate.status === 'error' ? 'warning' : 'default'}
+          variant={warning ? 'warning' : 'default'}
         />
       </Layout.Header>
 
       <Layout.Content>
         <div className="space-y-3">
-          {simulate.isPending && (
-            <div className="space-y-2 rounded-lg bg-surface p-3">
-              <div className="flex size-[24px] w-full items-center justify-center">
-                <Spinner className="text-secondary" />
-              </div>
-            </div>
-          )}
+          {(() => {
+            if (hasInsufficientBalance) {
+              const { token } = requiredBalances.data![0] ?? {}
+              return (
+                <div className="rounded-lg bg-warningTint px-3 py-2 text-warning">
+                  <div className="font-medium text-[14px]">
+                    Insufficient balance
+                  </div>
+                  <p className="text-[14px] text-primary">
+                    You will need{' '}
+                    <span className="font-medium">{token?.display}</span> more
+                    to continue.
+                  </p>
+                </div>
+              )
+            }
 
-          {simulate.isError && (
-            <div className="rounded-lg bg-warningTint px-3 py-2 text-warning">
-              <div className="font-medium text-[14px]">Error</div>
-              <div className="space-y-2 text-[14px] text-primary">
-                <p>
-                  An error occurred while simulating the action. Proceed with
-                  caution.
-                </p>
-                <p>
-                  Contact{' '}
-                  <span className="font-medium">{origin?.hostname}</span> for
-                  more information.
-                </p>
-              </div>
-            </div>
-          )}
+            if (simulate.isPending)
+              return (
+                <div className="space-y-2 rounded-lg bg-surface p-3">
+                  <div className="flex size-[24px] w-full items-center justify-center">
+                    <Spinner className="text-secondary" />
+                  </div>
+                </div>
+              )
+
+            if (simulate.isError)
+              return (
+                <div className="rounded-lg bg-warningTint px-3 py-2 text-warning">
+                  <div className="font-medium text-[14px]">Error</div>
+                  <div className="space-y-2 text-[14px] text-primary">
+                    <p>
+                      An error occurred while simulating the action. Proceed
+                      with caution.
+                    </p>
+                    <p>
+                      Contact{' '}
+                      <span className="font-medium">{origin?.hostname}</span>{' '}
+                      for more information.
+                    </p>
+                  </div>
+                </div>
+              )
+          })()}
 
           {(simulate.isSuccess || simulate.isError) && (
             <div className="space-y-3 rounded-lg bg-surface p-3">
-              {balances.length > 0 && (
+              {balances.length > 0 && !hasInsufficientBalance && (
                 <>
                   <div className="space-y-2">
                     {balances.map((balance) => {
@@ -207,8 +241,8 @@ export function ActionRequest(props: ActionRequest.Props) {
                     {
                       'h-[inherit] leading-[inherit]':
                         prepareCalls.isFetched &&
-                        fee_fiat.isFetched &&
-                        !fee_fiat.data,
+                        fiatFee.isFetched &&
+                        !fiatFee.data,
                     },
                   )}
                 >
@@ -216,15 +250,15 @@ export function ActionRequest(props: ActionRequest.Props) {
                     Fees (est.)
                   </span>
                   <div className="text-right">
-                    {prepareCalls.isFetched && fee_fiat.isFetched ? (
+                    {prepareCalls.isFetched && fiatFee.isFetched ? (
                       <>
                         <div className="font-medium">
-                          {fee_fiat?.data?.display ?? 'Unknown'}
+                          {fiatFee?.data?.display ?? 'Unknown'}
                         </div>
-                        {fee_token && (
+                        {tokenFee && (
                           <div>
                             <span className="text-secondary text-xs">
-                              {fee_token.display}
+                              {tokenFee.display}
                             </span>
                           </div>
                         )}
@@ -315,10 +349,146 @@ export namespace ActionRequest {
     loading?: boolean | undefined
     onApprove: () => void
     onReject: () => void
-    quote?: Quote.Quote | undefined
+    quote?: Quote | undefined
     request: RpcSchema.ExtractRequest<
       RpcSchema_porto.Schema,
       'eth_sendTransaction' | 'wallet_sendCalls'
     >
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+export type Quote = {
+  fee: Price.Price & {
+    native: Price.Price
+  }
+  ttl: number
+}
+
+/**
+ * Hook to extract required balances to fulfil an action.
+ *
+ * @param quote - Quote.
+ * @returns Required balances.
+ */
+// TODO: fetch required balances for tokens being sent on the bundle.
+export function useRequiredBalances(options: useRequiredBalances.Options) {
+  const { address, chainId, fee } = options
+
+  const chain = useChain(porto, { chainId })
+
+  type Data = readonly { fiat?: Price.Price | undefined; token: Price.Price }[]
+  return useQuery<Data>({
+    enabled: !!fee && !!chain && !!address,
+    async queryFn() {
+      if (!address) throw new Error('address is required.')
+      if (!chain) throw new Error('chain is required.')
+      if (!fee) throw new Error('fee is required.')
+
+      const balance =
+        fee.token === zeroAddress
+          ? await getBalance(Wagmi.config, {
+              address,
+              chainId,
+            }).then((x) => x.value)
+          : await readContract(Wagmi.config, {
+              abi: erc20Abi,
+              address: fee.token,
+              args: [address],
+              functionName: 'balanceOf',
+            })
+      const value = fee.value - balance
+
+      if (value <= 0n) return []
+      return [
+        {
+          fiat: undefined,
+          token: Price.from({
+            ...fee,
+            value,
+          }),
+        },
+      ]
+    },
+    queryKey: ['requiredBalances', address, chain?.id, Json.stringify(fee)],
+  })
+}
+
+export declare namespace useRequiredBalances {
+  export type Options = {
+    address?: Address.Address | undefined
+    chainId?: number | undefined
+    fee?: Price.Price | undefined
+    nativePrice?: Price.Price | undefined
+  }
+}
+
+/**
+ * Hook to extract a quote from a `wallet_prepareCalls` context.
+ *
+ * @param porto - Porto instance.
+ * @param parameters - Parameters.
+ * @returns Quote.
+ */
+export function useQuote<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(
+  porto: Pick<Porto_.Porto<chains>, '_internal'>,
+  parameters: useQuote.Parameters,
+): Quote | undefined {
+  const { chainId } = parameters
+  const context = parameters.context as Quote_relay.Quote | undefined
+  const { op, nativeFeeEstimate, txGas, ttl } = context ?? {}
+  const { paymentToken, paymentMaxAmount } = op ?? {}
+
+  const chain = useChain(porto, { chainId })!
+
+  const fee = React.useMemo(() => {
+    if (!nativeFeeEstimate || !txGas || !paymentMaxAmount) return undefined
+
+    const nativeConfig = {
+      decimals: chain.nativeCurrency.decimals,
+      symbol: chain.nativeCurrency.symbol,
+      token: '0x0000000000000000000000000000000000000000',
+      value: nativeFeeEstimate.maxFeePerGas * txGas,
+    } as const
+
+    const config = paymentToken
+      ? {
+          ...(Token.tokens as any)[chain.id][paymentToken],
+          token: paymentToken,
+          value: paymentMaxAmount,
+        }
+      : nativeConfig
+
+    const fee = Price.from(config)
+    const native = Price.from(nativeConfig)
+    return {
+      ...fee,
+      native,
+    }
+  }, [
+    chain.id,
+    chain.nativeCurrency.decimals,
+    chain.nativeCurrency.symbol,
+    nativeFeeEstimate,
+    txGas,
+    paymentMaxAmount,
+    paymentToken,
+  ])
+
+  if (!fee) return undefined
+  if (!ttl) return undefined
+  return {
+    fee,
+    ttl,
+  }
+}
+
+export namespace useQuote {
+  export type Parameters = {
+    chainId?: number | undefined
+    context: unknown
   }
 }
