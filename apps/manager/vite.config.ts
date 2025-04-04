@@ -36,4 +36,14 @@ export default defineConfig({
     TsconfigPaths(),
     TanStackRouterVite(),
   ],
+  server: {
+    proxy: {
+      '/dialog/': {
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/dialog/, ''),
+        secure: false,
+        target: 'https://localhost:5174/dialog/',
+      },
+    },
+  },
 })
