@@ -17,7 +17,7 @@ export type Porto<
 > = Porto_.Porto<chains> & {
   mode: Mode.Mode
   messenger: Messenger.Bridge
-  ready: () => void
+  ready: Messenger.Bridge['ready']
   _internal: Porto_.Porto<chains>['_internal'] & {
     remoteStore: StoreApi<RemoteState>
   }

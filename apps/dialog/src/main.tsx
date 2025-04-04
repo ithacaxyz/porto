@@ -1,6 +1,5 @@
 import { Env, Porto } from '@porto/apps'
 import * as Sentry from '@sentry/react'
-import { Dialog as Dialog_porto } from 'porto'
 import { Actions, Events } from 'porto/remote'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -22,6 +21,13 @@ if (import.meta.env.PROD) {
 
 const porto = Porto.porto
 
+const bypassMethods = [
+  'experimental_upgradeAccount',
+  'wallet_connect',
+  'wallet_prepareCalls',
+  'wallet_sendPreparedCalls',
+]
+
 const offInitialized = Events.onInitialized(porto, (payload) => {
   const { mode, referrer } = payload
   Dialog.store.setState({
@@ -35,7 +41,7 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
 
 const offRequests = Events.onRequests(porto, (requests) => {
   const request = requests[0]?.request
-  if (request && !Dialog_porto.requiresConfirmation(request)) {
+  if (request && bypassMethods.includes(request.method)) {
     Actions.respond(porto, request).catch(() => {})
     return
   }
@@ -45,7 +51,7 @@ const offRequests = Events.onRequests(porto, (requests) => {
   })
 })
 
-porto.ready()
+porto.ready({ bypassMethods })
 
 const rootElement = document.querySelector('div#root')
 

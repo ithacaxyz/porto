@@ -22,9 +22,11 @@ export type Messenger = {
   ) => Promise<Response<topic>>
 }
 
+type SetupOptions = { bypassMethods?: string[] | undefined }
+
 /** Bridge messenger. */
 export type Bridge = Messenger & {
-  ready: () => void
+  ready: (options?: SetupOptions | undefined) => void
 }
 
 /** Messenger schema. */
@@ -36,7 +38,7 @@ export type Schema = [
   },
   {
     topic: 'ready'
-    payload: undefined
+    payload: SetupOptions | undefined
     response: undefined
   },
   {
@@ -178,8 +180,8 @@ export function bridge(parameters: bridge.Parameters): Bridge {
 
   return {
     ...messenger,
-    ready() {
-      messenger.send('ready', undefined)
+    ready(options) {
+      messenger.send('ready', options)
     },
   }
 }

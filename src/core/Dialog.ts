@@ -138,7 +138,10 @@ export function iframe() {
         waitForReady: true,
       })
 
-      messenger.on('ready', () => {
+      let bypassMethods: string[] | undefined
+
+      messenger.on('ready', (options) => {
+        if (!bypassMethods) bypassMethods = options?.bypassMethods
         messenger.send('__internal', {
           mode: 'iframe',
           referrer: getReferrer(),
@@ -221,7 +224,7 @@ export function iframe() {
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>
-              requiresConfirmation(x.request),
+              requiresConfirmation(x.request, bypassMethods),
             )
             if (!open && requiresConfirm) this.open()
             messenger.send('rpc-requests', requests)
@@ -311,9 +314,13 @@ export function popup() {
           backdrop.style.display = 'block'
         },
         async syncRequests(requests) {
-          if (!popup || popup.closed) this.open()
-          popup?.focus()
-          messenger?.send('rpc-requests', requests)
+          const requiresConfirm = requests.some((x) =>
+            requiresConfirmation(x.request),
+          )
+          if (requiresConfirm) {
+            if (!popup || popup.closed) this.open()
+            popup?.focus()
+          }
         },
       }
     },
@@ -426,12 +433,11 @@ export const styles = {
   },
 } as const satisfies Record<string, Partial<CSSStyleDeclaration>>
 
-export function requiresConfirmation(request: RpcRequest.RpcRequest) {
-  const bypassMethods = [
-    'experimental_upgradeAccount',
-    'wallet_prepareCalls',
-    'wallet_sendPreparedCalls',
-  ]
+export function requiresConfirmation(
+  request: RpcRequest.RpcRequest,
+  bypassMethods?: string[] | undefined,
+) {
+  if (!bypassMethods) return true
   return !bypassMethods.includes(request.method)
 }
 

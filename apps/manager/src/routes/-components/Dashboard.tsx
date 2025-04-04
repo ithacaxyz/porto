@@ -17,10 +17,9 @@ import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
-import { usePorto } from '~/hooks/usePorto'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info } from '~/hooks/useTokenInfo'
-import { config } from '~/lib/Wagmi'
+import { config, porto } from '~/lib/Wagmi'
 import { DateFormatter, StringFormatter, sum, ValueFormatter } from '~/utils'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
@@ -51,8 +50,6 @@ function TokenSymbol({
 }
 
 export function Dashboard() {
-  const { porto } = usePorto({ mode: 'dialog' })
-
   const account = useAccount()
   const disconnect = Hooks.useDisconnect()
   const permissions = Hooks.usePermissions()
