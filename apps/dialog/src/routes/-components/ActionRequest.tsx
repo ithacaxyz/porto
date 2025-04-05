@@ -3,7 +3,8 @@ import { Button, Spinner } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { Address, Json, RpcSchema } from 'ox'
-import { Delegation, RpcSchema as RpcSchema_porto } from 'porto'
+import { Chains, Delegation, RpcSchema as RpcSchema_porto } from 'porto'
+import * as Quote_relay from 'porto/core/internal/relay/typebox/quote'
 import * as Rpc from 'porto/core/internal/typebox/request'
 import * as Schema from 'porto/core/internal/typebox/schema'
 import { Porto as Porto_ } from 'porto/remote'
@@ -14,6 +15,7 @@ import { getBalance, readContract } from 'wagmi/actions'
 
 import * as Dialog from '~/lib/Dialog'
 import * as Price from '~/lib/Price'
+import * as Wagmi from '~/lib/Wagmi'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -376,7 +378,7 @@ export type Quote = {
 export function useRequiredBalances(options: useRequiredBalances.Options) {
   const { address, chainId, fee } = options
 
-  const chain = useChain(porto, { chainId })
+  const chain = Hooks.useChain(porto, { chainId })
 
   type Data = readonly { fiat?: Price.Price | undefined; token: Price.Price }[]
   return useQuery<Data>({
@@ -442,7 +444,7 @@ export function useQuote<
   const { op, nativeFeeEstimate, txGas, ttl } = context ?? {}
   const { paymentToken, paymentMaxAmount } = op ?? {}
 
-  const chain = useChain(porto, { chainId })!
+  const chain = Hooks.useChain(porto, { chainId })!
 
   const fee = React.useMemo(() => {
     if (!nativeFeeEstimate || !txGas || !paymentMaxAmount) return undefined
