@@ -1,7 +1,7 @@
 {
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "type": "module",
   "main": "./_dist/index.js",
   "types": "./_dist/index.d.ts",
@@ -46,5 +46,8 @@
   "license": "MIT",
   "homepage": "https://ithaca.xyz",
   "repository": "ithacaxyz/porto",
-  "contributors": ["jxom.eth <jake@ithaca.xyz>", "awkweb.eth <tom@ithaca.xyz>"]
+  "contributors": [
+    "jxom.eth <jake@ithaca.xyz>",
+    "awkweb.eth <tom@ithaca.xyz>"
+  ]
 }
