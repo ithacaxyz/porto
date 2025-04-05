@@ -34,7 +34,6 @@ export declare namespace fromKey {
 export function toKey(permissions: Permissions): Key.Key {
   const { expiry, key } = permissions
   return Key.from({
-    canSign: false,
     expiry,
     permissions: permissions.permissions ?? {},
     publicKey: key.publicKey,

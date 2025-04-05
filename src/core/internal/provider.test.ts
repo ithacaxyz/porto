@@ -646,10 +646,10 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
-          credential: null,
           expiry: null,
           hash: null,
           id: null,
+          privateKey: null,
           publicKey: null,
         })),
       ).matchSnapshot()
@@ -687,7 +687,6 @@ describe.each([
       ).matchSnapshot(`
         [
           {
-            "canSign": true,
             "expiry": null,
             "hash": null,
             "permissions": undefined,

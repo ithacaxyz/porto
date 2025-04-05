@@ -148,7 +148,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             // Build keys to assign onto the account.
             const adminKeys = account.capabilities?.admins
-              ?.map((key) => Key.from({ ...key, role: 'admin' }))
+              ?.map(Key.from)
               .filter(Boolean) as readonly Key.Key[]
 
             const sessionKeys = account.capabilities?.permissions
@@ -281,13 +281,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             return result.accounts.map((account) => {
               const adminKeys = account.capabilities?.admins
-                ?.map((key) =>
-                  Key.from({
-                    ...key,
-                    canSign: true,
-                    role: 'admin',
-                  }),
-                )
+                ?.map((key) => Key.from(key))
                 .filter(Boolean) as readonly Key.Key[]
               const sessionKeys = account.capabilities?.permissions
                 ?.map((permission) => {

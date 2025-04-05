@@ -37,7 +37,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       if (!account) throw new Error('account is required.')
 
       const key = account.keys?.find(
-        (key) => key.role === 'admin' && key.canSign,
+        (key) => key.role === 'admin' && key.privateKey,
       )
       if (!key) throw new Error('no key found.')
 

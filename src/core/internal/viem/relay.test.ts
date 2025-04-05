@@ -215,9 +215,7 @@ describe('prepareCreateAccount + createAccount', () => {
 
 describe('getAccounts', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -236,9 +234,7 @@ describe('getAccounts', () => {
   })
 
   test('behavior: deployed account', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -266,9 +262,7 @@ describe('getAccounts', () => {
 
 describe('getKeys', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -291,12 +285,8 @@ describe('getKeys', () => {
   })
 
   test('behavior: multiple keys', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
-    const key_2 = Key.createSecp256k1({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
+    const key_2 = Key.createSecp256k1()
     const account = await TestActions.createAccount(client, {
       keys: [key, key_2],
     })
@@ -316,9 +306,7 @@ describe('getKeys', () => {
   })
 
   test('behavior: deployed account', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -341,12 +329,8 @@ describe('getKeys', () => {
   })
 
   test('behavior: deployed account; multiple keys', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
-    const key_2 = Key.createSecp256k1({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
+    const key_2 = Key.createSecp256k1()
     const account = await TestActions.createAccount(client, {
       keys: [key, key_2],
     })
@@ -375,9 +359,7 @@ describe('getKeys', () => {
 
 describe('prepareCalls + sendPreparedCalls', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -415,9 +397,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 
   test('behavior: contract calls', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -457,9 +437,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 
   test('error: schema encoding', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -488,9 +466,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 
   test('error: schema encoding', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })

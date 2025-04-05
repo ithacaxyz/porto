@@ -128,7 +128,6 @@ export async function setBalance(
   } else {
     const key = Key.fromHeadlessWebAuthnP256({
       privateKey: process.env.VITE_ADMIN_PRIVATE_KEY! as `0x${string}`,
-      role: 'admin',
     })
     const account = Account.from({
       address: process.env.VITE_ADMIN_ADDRESS! as `0x${string}`,

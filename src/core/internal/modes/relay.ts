@@ -75,13 +75,10 @@ export function relay(config: relay.Parameters = {}) {
             const key = !mock
               ? await Key.createWebAuthnP256({
                   label,
-                  role: 'admin',
                   rpId: keystoreHost,
                   userId: Bytes.from(id),
                 })
-              : Key.createHeadlessWebAuthnP256({
-                  role: 'admin',
-                })
+              : Key.createHeadlessWebAuthnP256()
 
             return [key]
           },
@@ -111,10 +108,7 @@ export function relay(config: relay.Parameters = {}) {
         const { account, feeToken = config.feeToken, internal } = parameters
         const { client } = internal
 
-        const authorizeKey = Key.from({
-          ...parameters.key,
-          role: 'admin',
-        })
+        const authorizeKey = Key.from(parameters.key)
 
         const { id } = await Relay.sendCalls(client, {
           account,
@@ -251,11 +245,6 @@ export function relay(config: relay.Parameters = {}) {
           pre,
         })
 
-        await PreBundles.clear({
-          address: account.address,
-          storage,
-        })
-
         return {
           account,
           context: {
@@ -290,13 +279,10 @@ export function relay(config: relay.Parameters = {}) {
             const key = !mock
               ? await Key.createWebAuthnP256({
                   label,
-                  role: 'admin',
                   rpId: keystoreHost,
                   userId: Bytes.from(id),
                 })
-              : Key.createHeadlessWebAuthnP256({
-                  role: 'admin',
-                })
+              : Key.createHeadlessWebAuthnP256()
 
             return [key, ...(authorizeKey ? [authorizeKey] : [])]
           },
@@ -414,7 +400,10 @@ export function relay(config: relay.Parameters = {}) {
 
       async sendPreparedCalls(parameters) {
         const { context, key, internal, signature } = parameters
-        const { client } = internal
+        const {
+          client,
+          config: { storage },
+        } = internal
 
         const { id } = await Relay.sendCalls(client, {
           context: {
@@ -424,6 +413,12 @@ export function relay(config: relay.Parameters = {}) {
           signature,
         })
 
+        if ((context?.account as any)?.address)
+          await PreBundles.clear({
+            address: (context.account as any).address,
+            storage,
+          })
+
         return id
       },
 
@@ -432,7 +427,7 @@ export function relay(config: relay.Parameters = {}) {
 
         // Only admin keys can sign personal messages.
         const key = account.keys?.find(
-          (key) => key.role === 'admin' && key.canSign,
+          (key) => key.role === 'admin' && key.privateKey,
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
@@ -449,7 +444,7 @@ export function relay(config: relay.Parameters = {}) {
 
         // Only admin keys can sign typed data.
         const key = account.keys?.find(
-          (key) => key.role === 'admin' && key.canSign,
+          (key) => key.role === 'admin' && key.privateKey,
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
@@ -501,7 +496,7 @@ async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
   const { account, authorizeKey, feeToken } = parameters
 
   const adminKey = account.keys?.find(
-    (key) => key.role === 'admin' && key.canSign,
+    (key) => key.role === 'admin' && key.privateKey,
   )
   if (!adminKey) throw new Error('admin key not found.')
 

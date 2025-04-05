@@ -19,9 +19,7 @@ const { client } = getPorto()
 
 describe('createAccount', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
 
     const account = await Relay.createAccount(client, { keys: [key] })
 
@@ -34,11 +32,7 @@ describe('createAccount', () => {
     const account = await Relay.createAccount(client, {
       keys(p) {
         id = p.ids[0]
-        return [
-          Key.createHeadlessWebAuthnP256({
-            role: 'admin',
-          }),
-        ]
+        return [Key.createHeadlessWebAuthnP256()]
       },
     })
 
@@ -47,13 +41,9 @@ describe('createAccount', () => {
   })
 
   test('behavior: multiple keys', async () => {
-    const key1 = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key1 = Key.createHeadlessWebAuthnP256()
 
-    const key2 = Key.createSecp256k1({
-      role: 'admin',
-    })
+    const key2 = Key.createSecp256k1()
 
     const account = await Relay.createAccount(client, {
       keys: [key1, key2],
@@ -79,7 +69,6 @@ describe('createAccount', () => {
           },
         ],
       },
-      role: 'admin',
     })
 
     const account = await Relay.createAccount(client, {
@@ -108,9 +97,7 @@ describe('createAccount', () => {
 
 describe('getAccounts', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
 
     const account = await Relay.createAccount(client, { keys: [key] })
     const accounts = await Relay.getAccounts(client, {
@@ -124,9 +111,7 @@ describe('getAccounts', () => {
 
 describe('getKeys', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
 
     const account = await Relay.createAccount(client, { keys: [key] })
     const keys = await Relay.getKeys(client, {
@@ -138,9 +123,7 @@ describe('getKeys', () => {
   })
 
   test('behavior: address', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
 
     const account = await Relay.createAccount(client, { keys: [key] })
     const keys = await Relay.getKeys(client, {
@@ -154,9 +137,7 @@ describe('getKeys', () => {
 
 describe('prepareUpgradeAccount + upgradeAccount', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
-      role: 'admin',
-    })
+    const key = Key.createHeadlessWebAuthnP256()
     const eoa = privateKeyToAccount(generatePrivateKey())
 
     await TestActions.setBalance(client, {
@@ -185,7 +166,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
 
 describe('sendCalls', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -219,7 +200,7 @@ describe('sendCalls', () => {
   })
 
   test('behavior: via prepareCalls', async () => {
-    const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -264,12 +245,12 @@ describe('sendCalls', () => {
   })
 
   test('behavior: pre bundles', async () => {
-    const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
-    const newKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+    const newKey = Key.createHeadlessWebAuthnP256()
     const { id } = await Relay.sendCalls(client, {
       account,
       calls: [
@@ -306,7 +287,7 @@ describe('sendCalls', () => {
   })
 
   test('behavior: pre bundles (session key)', async () => {
-    const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -353,12 +334,12 @@ describe('sendCalls', () => {
   })
 
   test('behavior: pre bundles (via prepareCalls)', async () => {
-    const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
-    const newKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+    const newKey = Key.createHeadlessWebAuthnP256()
     const request_1 = await Relay.prepareCalls(client, {
       account,
       authorizeKeys: [newKey],
@@ -411,7 +392,7 @@ describe('sendCalls', () => {
   })
 
   test('behavior: pre bundles (via prepareCalls)', async () => {
-    const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+    const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
@@ -486,7 +467,7 @@ describe.each([
   describe('behavior: arbitrary calls', () => {
     test('mint erc20', async () => {
       // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const key = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [key],
       })
@@ -524,7 +505,7 @@ describe.each([
     // TODO(relay): fix
     test.skip('mint erc20; no fee token (ETH)', async () => {
       // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const key = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [key],
       })
@@ -560,7 +541,7 @@ describe.each([
 
     test('noop', async () => {
       // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const key = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [key],
       })
@@ -581,7 +562,7 @@ describe.each([
 
     test('error: contract error (insufficient erc20 balance)', async () => {
       // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const key = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [key],
       })
@@ -605,7 +586,7 @@ describe.each([
 
     test('error: contract error (insufficient eth balance)', async () => {
       // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const key = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [key],
       })
@@ -629,15 +610,15 @@ describe.each([
   describe('behavior: authorize keys', () => {
     test('authorize admin keys', async () => {
       // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const key = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [key],
       })
 
       // 2. Define additional Admin Keys.
       const keys = [
-        Key.createHeadlessWebAuthnP256({ role: 'admin' }),
-        Key.createSecp256k1({ role: 'admin' }),
+        Key.createHeadlessWebAuthnP256(),
+        Key.createSecp256k1(),
       ] as const
 
       // 3. Authorize additional Admin Keys.
@@ -676,13 +657,13 @@ describe.each([
 
     test('authorize key with previous key', async () => {
       // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const key = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [key],
       })
 
       // 2. Authorize a new Admin Key.
-      const newKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const newKey = Key.createHeadlessWebAuthnP256()
       {
         const { id } = await Relay.sendCalls(client, {
           account,
@@ -731,7 +712,7 @@ describe.each([
 
     test('batch authorize + mint', async () => {
       // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const key = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [key],
       })
@@ -785,7 +766,7 @@ describe.each([
   describe('behavior: call permissions', () => {
     test('default', async () => {
       // 1. Initialize account with Admin Key
-      const adminKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const adminKey = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [adminKey],
       })
@@ -842,7 +823,7 @@ describe.each([
 
     test('multiple calls', async () => {
       // 1. Initialize account with Admin Key.
-      const adminKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const adminKey = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [adminKey],
       })
@@ -931,7 +912,7 @@ describe.each([
 
     test('multiple calls (w/ admin key, then session key)', async () => {
       // 1. Initialize account with Admin Key and Session Key (with call permission).
-      const adminKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const adminKey = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [adminKey],
       })
@@ -1022,7 +1003,7 @@ describe.each([
       const alice = Hex.random(20)
 
       // 1. Initialize account with Admin Key and Session Key (with call permission).
-      const adminKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const adminKey = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [adminKey],
       })
@@ -1090,7 +1071,7 @@ describe.each([
 
     test('error: invalid target', async () => {
       // 1. Initialize account with Admin Key.
-      const adminKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const adminKey = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [adminKey],
       })
@@ -1132,7 +1113,7 @@ describe.each([
 
     test('error: invalid selector', async () => {
       // 1. Initialize account with Admin Key.
-      const adminKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const adminKey = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [adminKey],
       })
@@ -1180,7 +1161,6 @@ describe.each([
         permissions: {
           spend: [{ limit: 100n, period: 'day', token: exp2Address }],
         },
-        role: 'admin',
       })
       const account = await initializeAccount(client, {
         keys: [adminKey],
@@ -1245,7 +1225,7 @@ describe.each([
 
     test('session key', async () => {
       // 1. Initialize account with Admin Key and Session Key (with permissions).
-      const adminKey = Key.createHeadlessWebAuthnP256({ role: 'admin' })
+      const adminKey = Key.createHeadlessWebAuthnP256()
       const account = await initializeAccount(client, {
         keys: [adminKey],
       })

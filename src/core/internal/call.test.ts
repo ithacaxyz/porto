@@ -8,7 +8,6 @@ describe('authorize', () => {
     const key = Key.fromP256({
       privateKey:
         '0x59ff6b8de3b3b39e94b6f9fc0590cf4e3eaa9b6736e6a49c9a6b324c4f58cb9f',
-      role: 'admin',
     })
 
     const call = Call.authorize({
@@ -51,7 +50,6 @@ describe('setCanExecute', () => {
     const key = Key.fromP256({
       privateKey:
         '0x59ff6b8de3b3b39e94b6f9fc0590cf4e3eaa9b6736e6a49c9a6b324c4f58cb9f',
-      role: 'admin',
     })
 
     const call = Call.setCanExecute({ key })
@@ -68,7 +66,6 @@ describe('setCanExecute', () => {
     const key = Key.fromP256({
       privateKey:
         '0x59ff6b8de3b3b39e94b6f9fc0590cf4e3eaa9b6736e6a49c9a6b324c4f58cb9f',
-      role: 'admin',
     })
 
     const call = Call.setCanExecute({
@@ -88,7 +85,6 @@ describe('setCanExecute', () => {
     const key = Key.fromP256({
       privateKey:
         '0x59ff6b8de3b3b39e94b6f9fc0590cf4e3eaa9b6736e6a49c9a6b324c4f58cb9f',
-      role: 'admin',
     })
 
     const call = Call.setCanExecute({

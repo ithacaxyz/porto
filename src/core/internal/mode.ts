@@ -310,7 +310,7 @@ export async function getAuthorizedExecuteKey(parameters: {
   // If a key is provided, use it.
   if (permissionsId) {
     const key = account.keys?.find(
-      (key) => key.publicKey === permissionsId && key.canSign,
+      (key) => key.publicKey === permissionsId && key.privateKey,
     )
     if (!key)
       throw new Error(`permission (id: ${permissionsId}) does not exist.`)
@@ -319,7 +319,7 @@ export async function getAuthorizedExecuteKey(parameters: {
 
   // Otherwise, try and find a valid session key.
   const sessionKey = account.keys?.find((key) => {
-    if (!key.canSign) return false
+    if (!key.privateKey) return false
     if (key.role !== 'session') return false
     if (key.expiry < BigInt(Math.floor(Date.now() / 1000))) return false
 
@@ -343,7 +343,7 @@ export async function getAuthorizedExecuteKey(parameters: {
 
   // Fall back to an admin key.
   const adminKey = account.keys?.find(
-    (key) => key.role === 'admin' && key.canSign,
+    (key) => key.role === 'admin' && key.privateKey,
   )
 
   return sessionKey ?? adminKey

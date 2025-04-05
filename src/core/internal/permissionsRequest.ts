@@ -39,7 +39,6 @@ export async function toKey(
   const publicKey = request?.key?.publicKey ?? '0x'
 
   const key = Key.from({
-    canSign: false,
     expiry,
     permissions,
     publicKey,

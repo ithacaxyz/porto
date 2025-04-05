@@ -104,7 +104,7 @@ export function getKey(
   // Extract from `account.keys` (with optional `key` index).
   if (account.keys && account.keys.length > 0) {
     if (typeof key === 'number') return account.keys[key]
-    return account.keys.find((key) => key.canSign)
+    return account.keys.find((key) => key.privateKey)
   }
 
   return undefined

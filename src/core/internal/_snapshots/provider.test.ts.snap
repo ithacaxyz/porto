@@ -68,18 +68,18 @@ exports[`contract > experimental_grantPermissions > behavior: provided key 2`] =
 exports[`contract > experimental_grantPermissions > behavior: provided key 3`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": false,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -95,7 +95,6 @@ exports[`contract > experimental_grantPermissions > behavior: provided key 3`] =
     "type": "p256",
   },
   {
-    "canSign": false,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -128,18 +127,18 @@ Path: params.0.expiry]
 exports[`contract > experimental_grantPermissions > default 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -162,18 +161,18 @@ exports[`contract > experimental_grantPermissions > default 1`] = `
 exports[`contract > experimental_revokeAdmin > default 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": false,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -187,12 +186,13 @@ exports[`contract > experimental_revokeAdmin > default 1`] = `
 exports[`contract > experimental_revokeAdmin > default 2`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
@@ -205,18 +205,18 @@ exports[`contract > experimental_revokePermissions > behavior: revoke last admin
 exports[`contract > experimental_revokePermissions > default 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -239,12 +239,13 @@ exports[`contract > experimental_revokePermissions > default 1`] = `
 exports[`contract > experimental_revokePermissions > default 2`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
@@ -255,18 +256,18 @@ exports[`contract > experimental_revokePermissions > default 2`] = `
 exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": false,
     "expiry": 9999999999,
     "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
     "id": undefined,
@@ -287,18 +288,18 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
 exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -321,7 +322,6 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
 exports[`contract > wallet_connect > behavior: \`createAccount\` capability > 
         [
           {
-            "canSign": true,
             "expiry": null,
             "hash": null,
             "permissions": undefined,
@@ -334,12 +334,13 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` capability >
        1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
@@ -363,15 +364,13 @@ Path: params.0.capabilities.grantPermissions.expiry]
 exports[`contract > wallet_connect > default 1`] = `
 [
   {
-    "canSign": true,
-    "credential": null,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "privateKey": null,
     "publicKey": null,
     "role": "admin",
-    "rpId": undefined,
     "type": "webauthn-p256",
   },
 ]
@@ -461,18 +460,18 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 2`] = `
 exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": false,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -488,7 +487,6 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
     "type": "p256",
   },
   {
-    "canSign": false,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -521,18 +519,18 @@ Path: params.0.expiry]
 exports[`relay > experimental_grantPermissions > default 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -555,18 +553,18 @@ exports[`relay > experimental_grantPermissions > default 1`] = `
 exports[`relay > experimental_revokeAdmin > default 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": false,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -580,12 +578,13 @@ exports[`relay > experimental_revokeAdmin > default 1`] = `
 exports[`relay > experimental_revokeAdmin > default 2`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
@@ -598,18 +597,18 @@ exports[`relay > experimental_revokePermissions > behavior: revoke last admin ke
 exports[`relay > experimental_revokePermissions > default 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -632,12 +631,13 @@ exports[`relay > experimental_revokePermissions > default 1`] = `
 exports[`relay > experimental_revokePermissions > default 2`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
@@ -648,18 +648,18 @@ exports[`relay > experimental_revokePermissions > default 2`] = `
 exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": false,
     "expiry": 9999999999,
     "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
     "id": undefined,
@@ -680,18 +680,18 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
 exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
   },
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -714,7 +714,6 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
 exports[`relay > wallet_connect > behavior: \`createAccount\` capability > 
         [
           {
-            "canSign": true,
             "expiry": null,
             "hash": null,
             "permissions": undefined,
@@ -727,12 +726,13 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` capability >
        1`] = `
 [
   {
-    "canSign": true,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": undefined,
-    "privateKey": [Function],
+    "privateKey": {
+      "privateKey": [Function],
+    },
     "publicKey": null,
     "role": "admin",
     "type": "webauthn-p256",
@@ -756,15 +756,13 @@ Path: params.0.capabilities.grantPermissions.expiry]
 exports[`relay > wallet_connect > default 1`] = `
 [
   {
-    "canSign": true,
-    "credential": null,
     "expiry": null,
     "hash": null,
     "id": null,
     "permissions": {},
+    "privateKey": null,
     "publicKey": null,
     "role": "admin",
-    "rpId": undefined,
     "type": "webauthn-p256",
   },
 ]

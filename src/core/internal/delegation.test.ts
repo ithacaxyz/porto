@@ -26,9 +26,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       await Delegation.execute(client, {
         account,
@@ -46,7 +44,6 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
-        canSign: false,
         expiry: key.expiry,
         hash: key.hash,
         publicKey: key.publicKey,
@@ -65,9 +62,7 @@ describe('execute', () => {
         delegation,
       })
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       await Delegation.execute(client, {
         account,
@@ -84,7 +79,6 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
-        canSign: false,
         expiry: key.expiry,
         hash: key.hash,
         publicKey: key.publicKey,
@@ -97,9 +91,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       await Delegation.execute(client, {
         account,
@@ -118,7 +110,6 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
-        canSign: false,
         expiry: key.expiry,
         hash: key.hash,
         publicKey: key.publicKey,
@@ -137,9 +128,7 @@ describe('execute', () => {
         delegation,
       })
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       await Delegation.execute(client, {
         account,
@@ -157,7 +146,6 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
-        canSign: false,
         expiry: key.expiry,
         hash: key.hash,
         publicKey: key.publicKey,
@@ -170,9 +158,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       await Delegation.execute(client, {
         account,
@@ -184,9 +170,7 @@ describe('execute', () => {
         delegation,
       })
 
-      const nextKey = Key.createP256({
-        role: 'admin',
-      })
+      const nextKey = Key.createP256()
 
       await Delegation.execute(client, {
         account,
@@ -204,7 +188,6 @@ describe('execute', () => {
           index: 1,
         }),
       ).toEqual({
-        canSign: false,
         expiry: nextKey.expiry,
         hash: nextKey.hash,
         publicKey: nextKey.publicKey,
@@ -217,9 +200,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       await Delegation.execute(client, {
         account,
@@ -231,9 +212,7 @@ describe('execute', () => {
         delegation,
       })
 
-      const nextKey = await Key.createWebCryptoP256({
-        role: 'admin',
-      })
+      const nextKey = await Key.createWebCryptoP256()
 
       await Delegation.execute(client, {
         account,
@@ -251,7 +230,6 @@ describe('execute', () => {
           index: 1,
         }),
       ).toEqual({
-        canSign: false,
         expiry: nextKey.expiry,
         hash: nextKey.hash,
         publicKey: nextKey.publicKey,
@@ -265,9 +243,7 @@ describe('execute', () => {
     test('key: p256, executor: JSON-RPC', async () => {
       const { client, delegation } = getPorto()
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       const { account } = await getAccount(client, { keys: [key] })
 
@@ -314,9 +290,7 @@ describe('execute', () => {
     test('key: p256, executor: JSON-RPC, mint tokens', async () => {
       const { client, delegation } = getPorto()
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       const { account } = await getAccount(client, { keys: [key] })
 
@@ -349,9 +323,7 @@ describe('execute', () => {
     test('key: secp256k1, executor: JSON-RPC', async () => {
       const { client, delegation } = getPorto()
 
-      const key = Key.createSecp256k1({
-        role: 'admin',
-      })
+      const key = Key.createSecp256k1()
 
       const { account } = await getAccount(client, { keys: [key] })
 
@@ -398,9 +370,7 @@ describe('execute', () => {
     test('key: webcrypto, executor: JSON-RPC', async () => {
       const { client, delegation } = getPorto()
 
-      const key = await Key.createWebCryptoP256({
-        role: 'admin',
-      })
+      const key = await Key.createWebCryptoP256()
 
       const { account } = await getAccount(client, { keys: [key] })
 
@@ -536,9 +506,7 @@ describe('execute', () => {
     test('default', async () => {
       const { client, delegation } = getPorto()
 
-      const key = Key.createP256({
-        role: 'admin',
-      })
+      const key = Key.createP256()
 
       const { account } = await getAccount(client, { keys: [key] })
 
@@ -651,9 +619,7 @@ describe('execute', () => {
     const { client, delegation } = getPorto()
     const { account } = await getAccount(client)
 
-    const key = Key.createP256({
-      role: 'admin',
-    })
+    const key = Key.createP256()
 
     await Delegation.execute(client, {
       account,
@@ -677,9 +643,7 @@ describe('prepareExecute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      const keyToAuthorize = Key.createP256({
-        role: 'admin',
-      })
+      const keyToAuthorize = Key.createP256()
 
       const { request, signPayloads } = await Delegation.prepareExecute(
         client,
@@ -709,7 +673,6 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        canSign: false,
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
         publicKey: keyToAuthorize.publicKey,
@@ -728,9 +691,7 @@ describe('prepareExecute', () => {
         delegation,
       })
 
-      const keyToAuthorize = Key.createP256({
-        role: 'admin',
-      })
+      const keyToAuthorize = Key.createP256()
 
       const { request, signPayloads } = await Delegation.prepareExecute(
         client,
@@ -759,7 +720,6 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        canSign: false,
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
         publicKey: keyToAuthorize.publicKey,
@@ -772,9 +732,7 @@ describe('prepareExecute', () => {
       const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
-      const keyToAuthorize = Key.createP256({
-        role: 'admin',
-      })
+      const keyToAuthorize = Key.createP256()
 
       const { request, signPayloads } = await Delegation.prepareExecute(
         client,
@@ -805,7 +763,6 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
-        canSign: false,
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
         publicKey: keyToAuthorize.publicKey,

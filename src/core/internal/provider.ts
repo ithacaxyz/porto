@@ -644,12 +644,15 @@ export function from<
                   key.expiry < BigInt(Math.floor(Date.now() / 1000))
                 )
                   continue
-                if (!key.credential) continue
+                if (!key.privateKey) continue
                 return key
               }
               return undefined
             })()
-            const credentialId = key?.credential?.id
+            const credentialId =
+              key?.type === 'webauthn-p256'
+                ? key?.privateKey?.credential?.id
+                : undefined
             const keyId = key?.id
             const loadAccountsParams = {
               internal,
