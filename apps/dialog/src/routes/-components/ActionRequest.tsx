@@ -26,8 +26,17 @@ import Star from '~icons/ph/star-four-bold'
 const porto = Porto.porto
 
 export function ActionRequest(props: ActionRequest.Props) {
-  const { address, calls, chainId, loading, onApprove, onReject, request } =
-    props
+  const {
+    address,
+    calls,
+    chainId,
+    checkBalances = true,
+    loading,
+    onAddFunds,
+    onApprove,
+    onReject,
+    request,
+  } = props
 
   const account = Hooks.useAccount(porto, { address })
   const chain = Hooks.useChain(porto, { chainId })
@@ -96,9 +105,11 @@ export function ActionRequest(props: ActionRequest.Props) {
   const requiredBalances = useRequiredBalances({
     address: account?.address,
     chainId,
+    enabled: checkBalances,
     fee: tokenFee,
   })
-  const hasInsufficientBalance = (requiredBalances.data?.length ?? 0) > 0
+  const hasInsufficientBalance =
+    checkBalances && (requiredBalances.data?.length ?? 0) > 0
 
   const simulate = useQuery({
     gcTime: 0,
@@ -293,48 +304,82 @@ export function ActionRequest(props: ActionRequest.Props) {
       </Layout.Content>
 
       <Layout.Footer>
-        {simulate.isSuccess && (
-          <Layout.Footer.Actions>
-            <Button
-              className="flex-grow"
-              onClick={onReject}
-              type="button"
-              variant="destructive"
-            >
-              Deny
-            </Button>
+        {(() => {
+          if (hasInsufficientBalance && onAddFunds) {
+            return (
+              <Layout.Footer.Actions>
+                <Button
+                  className="flex-grow"
+                  onClick={onReject}
+                  type="button"
+                  variant="destructive"
+                >
+                  Deny
+                </Button>
 
-            <Button
-              className="flex-grow"
-              onClick={onApprove}
-              type="button"
-              variant="success"
-            >
-              Approve
-            </Button>
-          </Layout.Footer.Actions>
-        )}
+                <Button
+                  className="flex-grow"
+                  onClick={() =>
+                    onAddFunds({
+                      token: requiredBalances!.data![0]!.token.token!,
+                    })
+                  }
+                  type="button"
+                  variant="accent"
+                >
+                  Add Funds
+                </Button>
+              </Layout.Footer.Actions>
+            )
+          }
 
-        {simulate.isError && (
-          <Layout.Footer.Actions>
-            <Button
-              className="flex-grow"
-              onClick={onReject}
-              type="button"
-              variant="destructive"
-            >
-              Deny
-            </Button>
-            <Button
-              className="flex-grow"
-              onClick={onApprove}
-              type="button"
-              variant="default"
-            >
-              Approve anyway
-            </Button>
-          </Layout.Footer.Actions>
-        )}
+          if (simulate.isSuccess) {
+            return (
+              <Layout.Footer.Actions>
+                <Button
+                  className="flex-grow"
+                  onClick={onReject}
+                  type="button"
+                  variant="destructive"
+                >
+                  Deny
+                </Button>
+
+                <Button
+                  className="flex-grow"
+                  onClick={onApprove}
+                  type="button"
+                  variant="success"
+                >
+                  Approve
+                </Button>
+              </Layout.Footer.Actions>
+            )
+          }
+
+          if (simulate.isError) {
+            return (
+              <Layout.Footer.Actions>
+                <Button
+                  className="flex-grow"
+                  onClick={onReject}
+                  type="button"
+                  variant="destructive"
+                >
+                  Deny
+                </Button>
+                <Button
+                  className="flex-grow"
+                  onClick={onApprove}
+                  type="button"
+                  variant="default"
+                >
+                  Approve anyway
+                </Button>
+              </Layout.Footer.Actions>
+            )
+          }
+        })()}
         {account?.address && (
           <Layout.Footer.Account address={account.address} />
         )}
@@ -348,7 +393,9 @@ export namespace ActionRequest {
     address?: Address.Address | undefined
     calls: readonly Call[]
     chainId?: number | undefined
+    checkBalances?: boolean | undefined
     loading?: boolean | undefined
+    onAddFunds?: ((p: { token: Address.Address }) => void) | undefined
     onApprove: () => void
     onReject: () => void
     quote?: Quote | undefined
@@ -376,13 +423,13 @@ export type Quote = {
  */
 // TODO: fetch required balances for tokens being sent on the bundle.
 export function useRequiredBalances(options: useRequiredBalances.Options) {
-  const { address, chainId, fee } = options
+  const { address, enabled = true, chainId, fee } = options
 
   const chain = Hooks.useChain(porto, { chainId })
 
   type Data = readonly { fiat?: Price.Price | undefined; token: Price.Price }[]
   return useQuery<Data>({
-    enabled: !!fee && !!chain && !!address,
+    enabled: enabled && !!fee && !!chain && !!address,
     async queryFn() {
       if (!address) throw new Error('address is required.')
       if (!chain) throw new Error('chain is required.')
@@ -420,6 +467,7 @@ export function useRequiredBalances(options: useRequiredBalances.Options) {
 export declare namespace useRequiredBalances {
   export type Options = {
     address?: Address.Address | undefined
+    enabled?: boolean | undefined
     chainId?: number | undefined
     fee?: Price.Price | undefined
     nativePrice?: Price.Price | undefined

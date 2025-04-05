@@ -1,10 +1,13 @@
 import { Porto } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { Address } from 'ox'
 import { Actions } from 'porto/remote'
+import * as React from 'react'
 
 import * as Router from '~/lib/Router'
 import { ActionRequest } from '../-components/ActionRequest'
+import { AddFunds } from '../-components/AddFunds'
 
 const porto = Porto.porto
 
@@ -19,6 +22,25 @@ function RouteComponent() {
   const request = Route.useSearch()
   const { calls, chainId, from } = request._decoded.params[0] ?? {}
 
+  const [screen, setScreen] = React.useState<
+    | {
+        props: {
+          tokenAddress: Address.Address
+        }
+        type: 'add-funds'
+      }
+    | {
+        props?:
+          | {
+              checkBalances?: boolean | undefined
+            }
+          | undefined
+        type: 'default'
+      }
+  >({
+    type: 'default',
+  })
+
   const respond = useMutation({
     mutationFn() {
       // TODO: sign quote.
@@ -26,12 +48,30 @@ function RouteComponent() {
     },
   })
 
+  if (screen.type === 'add-funds')
+    return (
+      <AddFunds
+        {...screen.props}
+        address={from}
+        onApprove={() =>
+          setScreen({ props: { checkBalances: false }, type: 'default' })
+        }
+        onReject={() => Actions.reject(porto, request!)}
+      />
+    )
   return (
     <ActionRequest
+      {...screen.props}
       address={from}
       calls={calls}
       chainId={chainId}
       loading={respond.isPending}
+      onAddFunds={({ token }) => {
+        setScreen({
+          props: { tokenAddress: token },
+          type: 'add-funds',
+        })
+      }}
       onApprove={() => respond.mutate()}
       onReject={() => Actions.reject(porto, request!)}
       request={request}

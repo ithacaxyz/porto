@@ -16,18 +16,13 @@ const porto = Porto.porto
 
 const predefinedAmounts = [25, 50, 100, 250]
 
-export declare namespace AddFunds {
-  type Props = {
-    address?: Address.Address | undefined
-    onApprove: (result: { id: Hex.Hex }) => void
-    onReject?: () => void
-    tokenAddress: Address.Address
-    value?: bigint | undefined
-  }
-}
-
 export function AddFunds(props: AddFunds.Props) {
-  const { onApprove, onReject: _, tokenAddress, value = 0n } = props
+  const {
+    onApprove,
+    onReject: _,
+    tokenAddress,
+    value = BigInt(predefinedAmounts[0]!),
+  } = props
 
   const account = Hooks.useAccount(porto)
   const chain = Hooks.useChain(porto)
@@ -170,4 +165,14 @@ export function AddFunds(props: AddFunds.Props) {
       </Layout.Footer>
     </Layout>
   )
+}
+
+export declare namespace AddFunds {
+  export type Props = {
+    address?: Address.Address | undefined
+    onApprove: (result: { id: Hex.Hex }) => void
+    onReject?: () => void
+    tokenAddress: Address.Address
+    value?: bigint | undefined
+  }
 }
