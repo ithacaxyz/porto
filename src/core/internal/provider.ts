@@ -219,6 +219,15 @@ export function from<
 
           const client = getClient(chainId)
 
+          if (
+            getAdmins([...(account.keys ?? [])])?.some(
+              (admin) =>
+                admin.id?.toLowerCase() ===
+                keyToAuthorize.publicKey.toLowerCase(),
+            )
+          )
+            throw new ox_Provider.UnauthorizedError()
+
           const { key } = await getMode().actions.grantAdmin({
             account,
             feeToken: capabilities?.feeToken,
@@ -923,7 +932,7 @@ function announce(provider: Provider) {
 
 function getAdmins(
   keys: readonly Key.Key[],
-): Schema.Static<(typeof Rpc.experimental_getAdmins.Response)['keys']> {
+): Schema.Static<typeof Rpc.experimental_getAdmins.Response>['keys'] {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
