@@ -9,7 +9,13 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { odysseyTestnet } from 'viem/chains'
-import { useAccount, useConnect, useConnectors, useDisconnect } from 'wagmi'
+import {
+  Connector,
+  useAccount,
+  useConnect,
+  useConnectors,
+  useDisconnect,
+} from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { config, porto } from '~/lib/Wagmi'
 import SecurityIcon from '~icons/ic/outline-security'
@@ -60,7 +66,7 @@ function ActionableFeedback({ feedback }: { feedback: 'success' | 'pending' }) {
               </p>
               <Button
                 className="mt-2 h-11! w-full text-lg!"
-                render={<Link to="..">Done</Link>}
+                render={<Link to="/">Done</Link>}
                 variant="accent"
               />
             </React.Fragment>
@@ -72,21 +78,20 @@ function ActionableFeedback({ feedback }: { feedback: 'success' | 'pending' }) {
 }
 
 function RouteComponent() {
-  const [view, setView] = React.useState<'DEFAULT' | 'success' | 'loading'>(
-    'DEFAULT',
+  const [view, setView] = React.useState<'default' | 'success' | 'loading'>(
+    'default',
   )
 
+  const account = useAccount()
   const disconnect = useDisconnect()
   const connectors = useConnectors()
-
-  const account = useAccount()
 
   const admins = Hooks.useAdmins()
 
   const connect = useConnect({
     config,
     mutation: {
-      onError: (error, _, __) => {
+      onError: (error) => {
         toast.custom((t) => (
           <CustomToast
             className={t}
@@ -95,13 +100,82 @@ function RouteComponent() {
             title="Error Connecting"
           />
         ))
-        setView('DEFAULT')
+        setView('default')
       },
-      onMutate: (_) => setView('loading'),
+      onMutate: () => setView('loading'),
     },
   })
 
   if (!connectors.length) return null
+
+  const connectThenGrantAdmin = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    connector: Connector,
+  ) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    try {
+      await connector
+        ?.switchChain?.({ chainId: odysseyTestnet.id })
+        .catch(() => {})
+
+      let address = account.address
+      if (await connector.isAuthorized()) {
+        ;[address] = await connector.getAccounts()
+      }
+
+      if (!address) return
+
+      if (
+        admins.data?.keys.some(
+          (key) => key.publicKey.toLowerCase() === address?.toLowerCase(),
+        )
+      ) {
+        return toast.custom((t) => (
+          <CustomToast
+            className={t}
+            description="The account is already an admin"
+            kind="warn"
+            title="Already Exists"
+          />
+        ))
+      }
+
+      if (account.connector?.id === connector.id) {
+        await porto.provider.request({
+          method: 'experimental_grantAdmin',
+          params: [
+            {
+              capabilities: { feeToken: exp1Address },
+              chainId: Hex.fromNumber(odysseyTestnet.id),
+              key: { publicKey: address, type: 'address' },
+            },
+          ],
+        })
+        await disconnect.disconnectAsync({ connector })
+        setView('success')
+        return
+      }
+
+      await connect.connectAsync({ connector })
+      await porto.provider.request({
+        method: 'experimental_grantAdmin',
+        params: [
+          {
+            capabilities: { feeToken: exp1Address },
+            chainId: Hex.fromNumber(odysseyTestnet.id),
+            key: { publicKey: address, type: 'address' },
+          },
+        ],
+      })
+      await disconnect.disconnectAsync({ connector })
+      setView('success')
+    } catch {
+      // we want to always disconnect the recovery connector
+      await disconnect.disconnectAsync({ connector })
+    }
+  }
 
   return (
     <React.Fragment>
@@ -154,86 +228,9 @@ function RouteComponent() {
                     >
                       <Ariakit.Button
                         className="flex h-12 w-full max-w-full flex-row items-center justify-between space-x-4 rounded-md border-none p-1 hover:bg-gray3"
-                        onClick={async (event) => {
-                          event.preventDefault()
-                          event.stopPropagation()
-
-                          await connector?.switchChain?.({
-                            addEthereumChainParameter: {
-                              blockExplorerUrls: [
-                                odysseyTestnet.blockExplorers.default.url,
-                              ],
-                              chainName: odysseyTestnet.name,
-                              nativeCurrency: odysseyTestnet.nativeCurrency,
-                              rpcUrls: [odysseyTestnet.rpcUrls.default.http[0]],
-                            },
-                            chainId: odysseyTestnet.id,
-                          })
-
-                          let address = account.address
-                          if (await connector.isAuthorized()) {
-                            ;[address] = await connector.getAccounts()
-                          }
-
-                          if (!address) return
-
-                          if (
-                            admins.data?.keys.some(
-                              (key) =>
-                                key.publicKey.toLowerCase() ===
-                                address?.toLowerCase(),
-                            )
-                          ) {
-                            return toast.custom((t) => (
-                              <CustomToast
-                                className={t}
-                                description="The account is already an admin"
-                                kind="warn"
-                                title="Already Exists"
-                              />
-                            ))
-                          }
-
-                          if (account.connector?.id === connector.id) {
-                            await porto.provider.request({
-                              method: 'experimental_grantAdmin',
-                              params: [
-                                {
-                                  capabilities: {
-                                    feeToken: exp1Address,
-                                  },
-                                  chainId: Hex.fromNumber(911867),
-                                  key: {
-                                    publicKey: address,
-                                    type: 'address',
-                                  },
-                                },
-                              ],
-                            })
-                            await disconnect.disconnectAsync({ connector })
-                            setView('success')
-                            return
-                          }
-
-                          await connect.connectAsync({ connector })
-                          await porto.provider.request({
-                            method: 'experimental_grantAdmin',
-                            params: [
-                              {
-                                capabilities: {
-                                  feeToken: exp1Address,
-                                },
-                                chainId: Hex.fromNumber(911867),
-                                key: {
-                                  publicKey: address,
-                                  type: 'address',
-                                },
-                              },
-                            ],
-                          })
-                          await disconnect.disconnectAsync({ connector })
-                          setView('success')
-                        }}
+                        onClick={(event) =>
+                          connectThenGrantAdmin(event, connector)
+                        }
                       >
                         <img
                           alt={connector.name}

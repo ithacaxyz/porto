@@ -527,6 +527,8 @@ export function Dashboard() {
           </tbody>
         </table>
       </details>
+
+      <div className="h-8" />
     </>
   )
 }
