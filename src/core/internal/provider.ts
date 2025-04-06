@@ -227,7 +227,7 @@ export function from<
             )
           )
             throw new RpcResponse.InvalidParamsError({
-              message: 'Key already granted as admin.'
+              message: 'Key already granted as admin.',
             })
 
           const { key } = await getMode().actions.grantAdmin({
