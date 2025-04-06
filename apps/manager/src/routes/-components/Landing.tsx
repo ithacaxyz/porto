@@ -2,9 +2,8 @@ import { Button, IndeterminateLoader, LogoMark } from '@porto/apps/components'
 import { humanId } from 'human-id'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
-import { useAccount, useConnectors } from 'wagmi'
-
-import { config } from '~/lib/Wagmi'
+import { useAccount } from 'wagmi'
+import { usePortoConnector } from '~/hooks/usePortoConnector'
 import SparkIcon from '~icons/lucide/sparkles'
 import { Layout } from './Layout'
 
@@ -13,9 +12,7 @@ const id = () => humanId({ capitalize: true, separator: ' ' })
 export function Landing() {
   const account = useAccount()
   const connect = Hooks.useConnect()
-  const connector = useConnectors({ config }).find(
-    (x) => x.id === 'xyz.ithaca.porto',
-  )
+  const connector = usePortoConnector()
 
   const [label, setLabel] = React.useState(id())
 

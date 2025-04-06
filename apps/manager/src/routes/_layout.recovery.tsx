@@ -4,20 +4,12 @@ import { Button, Spinner } from '@porto/apps/components'
 import { exp1Address } from '@porto/apps/contracts'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { cx } from 'cva'
-import { Hex } from 'ox'
-import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { odysseyTestnet } from 'viem/chains'
-import {
-  Connector,
-  useAccount,
-  useConnect,
-  useConnectors,
-  useDisconnect,
-} from 'wagmi'
+import type { EIP1193Provider } from 'viem'
+import { Connector, useConnectors, useDisconnect } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
-import { config, porto } from '~/lib/Wagmi'
+import { porto } from '~/lib/Wagmi'
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
@@ -82,29 +74,8 @@ function RouteComponent() {
     'default',
   )
 
-  const account = useAccount()
   const disconnect = useDisconnect()
   const connectors = useConnectors()
-
-  const admins = Hooks.useAdmins()
-
-  const connect = useConnect({
-    config,
-    mutation: {
-      onError: (error) => {
-        toast.custom((t) => (
-          <CustomToast
-            className={t}
-            description={error.message}
-            kind="error"
-            title="Error Connecting"
-          />
-        ))
-        setView('default')
-      },
-      onMutate: () => setView('loading'),
-    },
-  })
 
   if (!connectors.length) return null
 
@@ -116,63 +87,40 @@ function RouteComponent() {
     event.stopPropagation()
 
     try {
-      await connector
-        ?.switchChain?.({ chainId: odysseyTestnet.id })
-        .catch(() => {})
-
-      let address = account.address
-      if (await connector.isAuthorized()) {
-        ;[address] = await connector.getAccounts()
-      }
+      const provider = (await connector.getProvider()) as EIP1193Provider
+      const [address] = await provider.request({
+        method: 'eth_requestAccounts',
+      })
 
       if (!address) return
 
-      if (
-        admins.data?.keys.some(
-          (key) => key.publicKey.toLowerCase() === address?.toLowerCase(),
-        )
-      ) {
-        return toast.custom((t) => (
-          <CustomToast
-            className={t}
-            description="The account is already an admin"
-            kind="warn"
-            title="Already Exists"
-          />
-        ))
-      }
-
-      if (account.connector?.id === connector.id) {
-        await porto.provider.request({
-          method: 'experimental_grantAdmin',
-          params: [
-            {
-              chainId: Hex.fromNumber(odysseyTestnet.id),
-              key: { publicKey: address, type: 'address' },
-            },
-          ],
-        })
-        await disconnect.disconnectAsync({ connector })
-        setView('success')
-        return
-      }
-
-      await connect.connectAsync({ connector })
       await porto.provider.request({
         method: 'experimental_grantAdmin',
         params: [
           {
             capabilities: { feeToken: exp1Address },
-            chainId: Hex.fromNumber(odysseyTestnet.id),
             key: { publicKey: address, type: 'address' },
           },
         ],
       })
+
       await disconnect.disconnectAsync({ connector })
       setView('success')
-    } catch {
+    } catch (error) {
       // we want to always disconnect the recovery connector
       await disconnect.disconnectAsync({ connector })
+      toast.custom((t) => (
+        <CustomToast
+          className={t}
+          description={
+            error instanceof Error
+              ? error.message
+              : 'Encountered an error while granting admin permissions.'
+          }
+          kind="error"
+          title="Error Connecting"
+        />
+      ))
     }
   }
 
