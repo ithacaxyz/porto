@@ -12,6 +12,8 @@ export type Schema =
       {
         Request: {
           method:
+            | 'wallet_getCapabilities'
+            | 'wallet_getCallsStatus'
             | 'wallet_sendCalls'
             | 'wallet_prepareCalls'
             | 'wallet_sendPreparedCalls'
@@ -72,6 +74,14 @@ export type Schema =
       | {
           Request: Static<typeof Rpc.wallet_disconnect.Request>
           ReturnType: undefined
+        }
+      | {
+          Request: Static<typeof Rpc.wallet_getCapabilities.Request>
+          ReturnType: Static<typeof Rpc.wallet_getCapabilities.Response>
+        }
+      | {
+          Request: Static<typeof Rpc.wallet_getCallsStatus.Request>
+          ReturnType: Static<typeof Rpc.wallet_getCallsStatus.Response>
         }
       | {
           Request: Static<typeof Rpc.wallet_prepareCalls.Request>

@@ -30,7 +30,7 @@ catalog:
   "@tailwindcss/vite": "^4.0.15"
   typescript: "^5.8.2"
   unplugin-icons: "^22.1.0"
-  viem: "^2.25.0"
+  viem: "2.26.0-canary-20250406061806"
   vite: "^6.0.7"
   vite-plugin-mkcert: "^1.17.8"
   wagmi: "^2.14.15"

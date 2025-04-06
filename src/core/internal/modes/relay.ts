@@ -382,7 +382,7 @@ export function relay(config: relay.Parameters = {}) {
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
-        const { id } = await Relay.sendCalls(client, {
+        const result = await Relay.sendCalls(client, {
           account,
           calls,
           feeToken: resolveFeeToken(client, feeToken),
@@ -395,7 +395,7 @@ export function relay(config: relay.Parameters = {}) {
           storage,
         })
 
-        return id
+        return result
       },
 
       async sendPreparedCalls(parameters) {

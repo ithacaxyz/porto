@@ -156,7 +156,7 @@ export type Mode = {
       permissionsId?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
-    }) => Promise<Hex.Hex>
+    }) => Promise<{ id: Hex.Hex }>
 
     sendPreparedCalls: (parameters: {
       /** Account. */

@@ -706,7 +706,7 @@ function SendCalls() {
           ] as const
         })()
 
-        const hash = await porto.provider.request({
+        const { id } = await porto.provider.request({
           method: 'wallet_sendCalls',
           params: [
             {
@@ -716,7 +716,7 @@ function SendCalls() {
             },
           ],
         })
-        setHash(hash)
+        setHash(id)
       }}
     >
       <h3>wallet_sendCalls</h3>

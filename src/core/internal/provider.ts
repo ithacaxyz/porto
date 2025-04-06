@@ -152,7 +152,7 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const hash = await getMode().actions.sendCalls({
+          const { id } = await getMode().actions.sendCalls({
             account,
             calls: [
               {
@@ -169,7 +169,7 @@ export function from<
             },
           })
 
-          return hash satisfies Schema.Static<
+          return id satisfies Schema.Static<
             typeof Rpc.eth_sendTransaction.Response
           >
         }
@@ -713,16 +713,26 @@ export function from<
             params: [id! as Hex.Hex],
           })
 
-          if (!receipt) return { receipts: [], status: 'PENDING' }
+          const response = {
+            atomic: true,
+            chainId: Hex.fromNumber(client.chain.id),
+            id,
+            receipts: [],
+            status: 100,
+            version: '1.0',
+          } satisfies Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>
+
+          if (!receipt) return response
           return {
+            ...response,
             receipts: [receipt],
-            status: 'CONFIRMED',
+            status: receipt.status === '0x0' ? 400 : 200,
           } satisfies Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>
         }
 
         case 'wallet_getCapabilities': {
           const value = {
-            atomicBatch: {
+            atomic: {
               supported: true,
             },
             createAccount: {
@@ -833,7 +843,7 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const hash = await getMode().actions.sendCalls({
+          const { id } = await getMode().actions.sendCalls({
             account,
             calls,
             feeToken: capabilities?.feeToken,
@@ -846,7 +856,7 @@ export function from<
             permissionsId: capabilities?.permissions?.id,
           })
 
-          return hash satisfies Schema.Static<
+          return { id } satisfies Schema.Static<
             typeof Rpc.wallet_sendCalls.Response
           >
         }

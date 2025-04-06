@@ -381,6 +381,9 @@ export namespace wallet_getCallsStatus {
   export type Request = Schema.StaticDecode<typeof Request>
 
   export const Response = Type.Object({
+    atomic: Type.Boolean(),
+    chainId: Primitive.Number,
+    id: Type.String(),
     receipts: Schema.Optional(
       Type.Array(
         Type.Object({
@@ -399,7 +402,8 @@ export namespace wallet_getCallsStatus {
         }),
       ),
     ),
-    status: Type.Union([Type.Literal('CONFIRMED'), Type.Literal('PENDING')]),
+    status: Type.Number(),
+    version: Type.String(),
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
@@ -414,7 +418,7 @@ export namespace wallet_getCapabilities {
   export const Response = Type.Record(
     Primitive.Hex,
     Type.Object({
-      atomicBatch: Type.Object({
+      atomic: Type.Object({
         supported: Type.Boolean(),
       }),
       createAccount: Type.Object({
@@ -489,7 +493,9 @@ export namespace wallet_sendCalls {
   })
   export type Request = Schema.StaticDecode<typeof Request>
 
-  export const Response = Primitive.Hex
+  export const Response = Type.Object({
+    id: Primitive.Hex,
+  })
   export type Response = Schema.StaticDecode<typeof Response>
 }
 

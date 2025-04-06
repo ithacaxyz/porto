@@ -430,16 +430,18 @@ export function dialog(parameters: dialog.Parameters = {}) {
               } satisfies Rpc.wallet_sendPreparedCalls.Request),
             )
 
-            const id = result[0]?.id
+            const id = result[0]
             if (!id) throw new Error('id not found')
 
             return id
           } catch {}
         }
 
-        if (request.method === 'eth_sendTransaction')
+        if (request.method === 'eth_sendTransaction') {
           // Send a transaction request to the dialog.
-          return await provider.request(request)
+          const id = await provider.request(request)
+          return { id }
+        }
 
         if (request.method === 'wallet_sendCalls')
           // Send calls request to the dialog.

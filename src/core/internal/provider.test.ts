@@ -869,7 +869,7 @@ describe.each([
 
       const alice = Hex.random(20)
 
-      const hash = await porto.provider.request({
+      const { id } = await porto.provider.request({
         method: 'wallet_sendCalls',
         params: [
           {
@@ -889,10 +889,10 @@ describe.each([
         ],
       })
 
-      expect(hash).toBeDefined()
+      expect(id).toBeDefined()
 
       await waitForTransactionReceipt(client, {
-        hash,
+        hash: id,
       })
 
       expect(
@@ -940,7 +940,7 @@ describe.each([
         ],
       })
 
-      const hash = await porto.provider.request({
+      const { id } = await porto.provider.request({
         method: 'wallet_sendCalls',
         params: [
           {
@@ -960,10 +960,10 @@ describe.each([
         ],
       })
 
-      expect(hash).toBeDefined()
+      expect(id).toBeDefined()
 
       await waitForTransactionReceipt(client, {
-        hash,
+        hash: id,
       })
 
       expect(
@@ -1010,7 +1010,7 @@ describe.each([
           },
         ],
       })
-      const hash = await porto.provider.request({
+      const { id } = await porto.provider.request({
         method: 'wallet_sendCalls',
         params: [
           {
@@ -1033,10 +1033,10 @@ describe.each([
         ],
       })
 
-      expect(hash).toBeDefined()
+      expect(id).toBeDefined()
 
       await waitForTransactionReceipt(client, {
-        hash,
+        hash: id,
       })
 
       expect(
@@ -1144,7 +1144,7 @@ describe.each([
         ],
       })
 
-      const hash = await porto.provider.request({
+      const { id } = await porto.provider.request({
         method: 'wallet_sendCalls',
         params: [
           {
@@ -1167,10 +1167,10 @@ describe.each([
         ],
       })
 
-      expect(hash).toBeDefined()
+      expect(id).toBeDefined()
 
       await waitForTransactionReceipt(client, {
-        hash,
+        hash: id,
       })
 
       await expect(() =>
@@ -1233,7 +1233,7 @@ describe.each([
           },
         ],
       })
-      const hash = await porto.provider.request({
+      const { id } = await porto.provider.request({
         method: 'wallet_sendCalls',
         params: [
           {
@@ -1256,10 +1256,10 @@ describe.each([
         ],
       })
 
-      expect(hash).toBeDefined()
+      expect(id).toBeDefined()
 
       await waitForTransactionReceipt(client, {
-        hash,
+        hash: id,
       })
 
       expect(

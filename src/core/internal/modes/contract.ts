@@ -324,14 +324,14 @@ export function contract(parameters: contract.Parameters = {}) {
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
-        const hash = await Delegation.execute(client, {
+        const id = await Delegation.execute(client, {
           account,
           calls,
           key,
           storage: internal.config.storage,
         })
 
-        return hash
+        return { id }
       },
 
       async sendPreparedCalls(parameters) {

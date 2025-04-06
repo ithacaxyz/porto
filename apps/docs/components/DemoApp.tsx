@@ -78,7 +78,7 @@ export function DemoApp() {
   })
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } =
     useWaitForCallsStatus({
-      id: mint.data,
+      id: mint.data?.id,
     })
 
   if (!isMountedFn()) return null
@@ -317,7 +317,7 @@ export function MintDemo(props: MintDemo.Props) {
   })
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } =
     useWaitForCallsStatus({
-      id: mint.data,
+      id: mint.data?.id,
     })
 
   const amount = '100'
@@ -455,7 +455,7 @@ export function SwapDemo(props: SwapDemo.Props) {
   }
   const { isLoading: swapIsLoading, isSuccess: swapIsSuccess } =
     useWaitForCallsStatus({
-      id: swap.data,
+      id: swap.data?.id,
     })
 
   const form = Ariakit.useFormStore<Variables>({
@@ -523,7 +523,7 @@ export function SwapDemo(props: SwapDemo.Props) {
   })
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } =
     useWaitForCallsStatus({
-      id: mint.data,
+      id: mint.data?.id,
     })
   const mintAmount = '100'
   const mintSymbol = 'exp1'
@@ -733,7 +733,7 @@ export function PayDemo(props: PayDemo.Props) {
   })
   const { isLoading: payIsLoading, isSuccess: payIsSuccess } =
     useWaitForCallsStatus({
-      id: pay.data,
+      id: pay.data?.id,
     })
 
   const form = Ariakit.useFormStore({
