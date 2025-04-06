@@ -283,10 +283,10 @@ export function Dashboard() {
                   rel="noreferrer"
                   target="_blank"
                 >
-                  <span className="min-w-[65px] text-gray11">
+                  <ExternalLinkIcon className="mr-1 size-4 text-gray10" />
+                  <span className="min-w-[50px] text-gray11 sm:min-w-[65px]">
                     {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))} ago
                   </span>
-                  <ExternalLinkIcon className="size-4 text-gray10" />
                 </a>
               </td>
               <td className="flex min-w-full items-center py-1 text-left font-medium">
@@ -742,8 +742,8 @@ function AssetRow({
         <>
           <td className="w-[80%]">
             <div className="flex items-center gap-x-2 py-2">
-              <img alt="asset icon" className="size-6.5" src={logo} />
-              <span className="font-medium text-xs sm:text-md">{name}</span>
+              <img alt="asset icon" className="size-5 sm:size-6" src={logo} />
+              <span className="font-medium text-sm sm:text-md">{name}</span>
             </div>
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
