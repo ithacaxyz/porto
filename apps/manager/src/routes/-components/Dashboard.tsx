@@ -831,7 +831,17 @@ function AssetRow({
                   type="text"
                 />
               </div>
-              <Ariakit.Button className="my-auto ml-auto rounded-full bg-gray4 p-2">
+              <Ariakit.Button
+                className="my-auto ml-auto rounded-full bg-gray4 p-2"
+                onClick={() =>
+                  navigator.clipboard
+                    .readText()
+                    .then((text) => {
+                      sendForm.setValue(sendForm.names.sendRecipient, text)
+                    })
+                    .catch(() => toast.error('Failed to paste from clipboard'))
+                }
+              >
                 <ClipboardCopyIcon className="size-4 text-gray10" />
               </Ariakit.Button>
             </div>
