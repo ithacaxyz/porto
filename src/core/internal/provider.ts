@@ -226,7 +226,9 @@ export function from<
                 keyToAuthorize.publicKey.toLowerCase(),
             )
           )
-            throw new ox_Provider.UnauthorizedError()
+            throw new RpcResponse.InvalidParamsError({
+              message: 'Key already granted as admin.'
+            })
 
           const { key } = await getMode().actions.grantAdmin({
             account,
