@@ -102,6 +102,16 @@ export function Dashboard() {
   const admins = Hooks.useAdmins()
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
+      onError: (error) => {
+        toast.custom((t) => (
+          <CustomToast
+            className={t}
+            description={error.message}
+            kind="error"
+            title="Recovery Revoke Failed"
+          />
+        ))
+      },
       onSuccess: () => {
         toast.custom((t) => (
           <CustomToast
@@ -290,10 +300,12 @@ export function Dashboard() {
               </td>
               <td className="py-1 text-right text-gray12">
                 <span className="text-md">
-                  {Value.format(
-                    BigInt(transfer?.total.value ?? 0),
-                    Number(transfer?.token.decimals ?? 0),
-                  )}
+                  {Number(
+                    ValueFormatter.format(
+                      BigInt(transfer?.total.value ?? 0),
+                      Number(transfer?.token.decimals ?? 0),
+                    ),
+                  ).toFixed(2)}
                 </span>
                 <div className="inline-block w-[65px]">
                   <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
@@ -490,10 +502,8 @@ export function Dashboard() {
                       <Ariakit.Button
                         className="size-8 rounded-full p-1 hover:bg-red-100"
                         onClick={() => {
-                          console.info(id, address)
                           if (!id || !address) return
                           revokeAdmin.mutate({
-                            address: key.publicKey,
                             id: key?.id,
                           })
                         }}
@@ -733,7 +743,7 @@ function AssetRow({
           <td className="w-[80%]">
             <div className="flex items-center gap-x-2 py-2">
               <img alt="asset icon" className="size-6.5" src={logo} />
-              <span className="font-medium text-md">{name}</span>
+              <span className="font-medium text-xs sm:text-md">{name}</span>
             </div>
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
@@ -757,7 +767,7 @@ function AssetRow({
           </td>
         </>
       ) : viewState === 'send' ? (
-        <td className="w-full" colSpan={4} ref={ref}>
+        <td className="w-full" colSpan={5} ref={ref}>
           <Ariakit.Form
             className="relative my-2 flex h-16 w-full rounded-2xl border-1 border-gray6 bg-white p-2 dark:bg-gray1"
             store={sendForm}
@@ -790,7 +800,7 @@ function AssetRow({
                           autoFocus={true}
                           className={cx(
                             'peer',
-                            'w-full font-mono text-sm placeholder:text-gray10 focus:outline-none dark:text-gray12',
+                            'w-full font-mono text-xs placeholder:text-gray10 focus:outline-none sm:text-sm dark:text-gray12',
                             valid &&
                               'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
                           )}
@@ -812,7 +822,7 @@ function AssetRow({
                         <TruncatedAddress
                           address={sendFormState.values.sendRecipient}
                           className={cx(
-                            '-top-0 absolute w-min cursor-pointer text-left peer-focus:hidden',
+                            '-top-0 absolute w-min cursor-pointer text-left text-xs peer-focus:hidden sm:text-sm',
                             !valid && 'hidden',
                           )}
                           end={5}
@@ -832,7 +842,7 @@ function AssetRow({
                 />
               </div>
               <Ariakit.Button
-                className="my-auto ml-auto rounded-full bg-gray4 p-2"
+                className="my-auto ml-auto hidden rounded-full bg-gray4 p-2 sm:block"
                 onClick={() =>
                   navigator.clipboard
                     .readText()

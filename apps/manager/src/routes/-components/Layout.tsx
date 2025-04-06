@@ -21,7 +21,7 @@ export namespace Layout {
         className="ml-[calc(var(--spacing-hero)+1rem)] flex w-full flex-1 flex-col py-6 max-md:py-4 max-lg:ml-0"
         {...rest}
       >
-        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-10 max-md:px-4">
+        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-10 max-sm:px-4">
           {props.children}
         </div>
       </div>
