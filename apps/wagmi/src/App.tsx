@@ -279,7 +279,7 @@ function GrantAdmin() {
             })
             grantAdmin.mutate({
               key: {
-                publicKey: address,
+                publicKey: address!,
                 type: 'address',
               },
             })
@@ -295,11 +295,11 @@ function GrantAdmin() {
 
 function Mint() {
   const { address } = useAccount()
-  const { data: id, error, isPending, sendCalls } = useSendCalls()
+  const { data, error, isPending, sendCalls } = useSendCalls()
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForCallsStatus({
-      id,
+      id: data?.id,
     })
 
   return (
@@ -324,7 +324,7 @@ function Mint() {
           {isPending ? 'Confirming...' : 'Mint 100 EXP'}
         </button>
       </form>
-      {id && <div>Transaction Hash: {id}</div>}
+      {data?.id && <div>Transaction Hash: {data.id}</div>}
       {isConfirming && 'Waiting for confirmation...'}
       {isConfirmed && 'Transaction confirmed.'}
       {error && (

@@ -1,5 +1,5 @@
 {
-  "name": "wagmi-example",
+  "name": "wagmi",
   "private": true,
   "type": "module",
   "scripts": {
