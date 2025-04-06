@@ -4,9 +4,11 @@ import { Button, Spinner } from '@porto/apps/components'
 import { exp1Address } from '@porto/apps/contracts'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { cx } from 'cva'
+import { Hex } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
+import { odysseyTestnet } from 'viem/chains'
 import { useAccount, useConnect, useConnectors, useDisconnect } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { config, porto } from '~/lib/Wagmi'
@@ -156,6 +158,18 @@ function RouteComponent() {
                           event.preventDefault()
                           event.stopPropagation()
 
+                          await connector?.switchChain?.({
+                            addEthereumChainParameter: {
+                              blockExplorerUrls: [
+                                odysseyTestnet.blockExplorers.default.url,
+                              ],
+                              chainName: odysseyTestnet.name,
+                              nativeCurrency: odysseyTestnet.nativeCurrency,
+                              rpcUrls: [odysseyTestnet.rpcUrls.default.http[0]],
+                            },
+                            chainId: odysseyTestnet.id,
+                          })
+
                           let address = account.address
                           if (await connector.isAuthorized()) {
                             ;[address] = await connector.getAccounts()
@@ -188,6 +202,7 @@ function RouteComponent() {
                                   capabilities: {
                                     feeToken: exp1Address,
                                   },
+                                  chainId: Hex.fromNumber(911867),
                                   key: {
                                     publicKey: address,
                                     type: 'address',
@@ -208,6 +223,7 @@ function RouteComponent() {
                                 capabilities: {
                                   feeToken: exp1Address,
                                 },
+                                chainId: Hex.fromNumber(911867),
                                 key: {
                                   publicKey: address,
                                   type: 'address',
