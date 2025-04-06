@@ -100,6 +100,7 @@ export function Dashboard() {
   }, [assets])
 
   const admins = Hooks.useAdmins()
+
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
       onError: (error) => {
@@ -281,7 +282,7 @@ export function Dashboard() {
 
             return (
               <tr
-                className="text-xs sm:text-sm "
+                className="text-xs sm:text-sm"
                 key={`${transfer?.transaction_hash}-${transfer?.block_number}`}
               >
                 <td className="py-1 text-left">
@@ -440,7 +441,7 @@ export function Dashboard() {
       <div className="h-4" />
 
       <details
-        className={cx('group pb-1', !import.meta.env.DEV && 'invisible hidden')}
+        className="group pb-1"
         open={admins.data && admins.data.keys.length > 0}
       >
         <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
@@ -459,7 +460,8 @@ export function Dashboard() {
         <table className="my-3 w-full">
           <thead>
             <tr className="text-gray10 *:font-normal *:text-sm">
-              <th className="text-left">Name</th>
+              <th className="text-left">ID</th>
+              <th className="text-left">Public Key</th>
               <th className="invisible text-right">Action</th>
             </tr>
           </thead>
@@ -473,20 +475,32 @@ export function Dashboard() {
                     className="text-xs sm:text-sm"
                     key={`${key.publicKey}-${index}`}
                   >
-                    <td className="w-[73%] text-right">
+                    <td className="text-left">
                       <div className="flex flex-row items-center gap-x-2">
-                        <div className="flex size-6 items-center justify-center rounded-full bg-emerald-100">
+                        <div className="hidden size-6 items-center justify-center rounded-full bg-emerald-100 sm:flex">
                           <WalletIcon className="m-auto size-4 text-teal-600" />
                         </div>
                         <span className="font-medium text-gray12">
-                          <TruncatedAddress address={key.publicKey} />
+                          <TruncatedAddress
+                            address={key.id ?? key.publicKey}
+                            className="text-md sm:text-lg"
+                          />
                         </span>
+                      </div>
+                    </td>
+
+                    <td className="text-left">
+                      <div className="flex flex-row items-center gap-x-2 font-medium">
+                        <TruncatedAddress
+                          address={key.publicKey}
+                          className="text-sm sm:text-md"
+                        />
                       </div>
                     </td>
 
                     <td className="text-right">
                       <Ariakit.Button
-                        className="size-8 rounded-full p-1 hover:bg-gray4"
+                        className="size-7 rounded-full px-1 pt-1 hover:bg-gray4"
                         onClick={() => {
                           navigator.clipboard
                             .writeText(key.publicKey)
@@ -500,7 +514,7 @@ export function Dashboard() {
                             )
                         }}
                       >
-                        <CopyIcon className={cx('m-auto size-5 text-gray10')} />
+                        <CopyIcon className="m-auto size-4 text-gray10 sm:size-5" />
                       </Ariakit.Button>
                       <Ariakit.Button
                         className="size-8 rounded-full p-1 hover:bg-red-100"

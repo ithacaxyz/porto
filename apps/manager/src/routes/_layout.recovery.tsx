@@ -147,7 +147,6 @@ function RouteComponent() {
           method: 'experimental_grantAdmin',
           params: [
             {
-              capabilities: { feeToken: exp1Address },
               chainId: Hex.fromNumber(odysseyTestnet.id),
               key: { publicKey: address, type: 'address' },
             },
@@ -219,31 +218,30 @@ function RouteComponent() {
             <div className="h-10" />
 
             <section className="w-full">
-              <ul className="">
-                {connectors.map(async (connector, _index) => (
-                  <React.Fragment key={connector.id}>
-                    <li
-                      className="w-full rounded-md border-none py-2"
-                      data-connector={connector.id}
+              <ul>
+                {connectors.map((connector) => (
+                  <li
+                    className="w-full rounded-md border-none py-2"
+                    data-connector={connector.id}
+                    key={connector.id}
+                  >
+                    <Ariakit.Button
+                      className="flex h-12 w-full max-w-full flex-row items-center justify-between space-x-4 rounded-md border-none p-1 hover:bg-gray3"
+                      onClick={(event) =>
+                        connectThenGrantAdmin(event, connector)
+                      }
                     >
-                      <Ariakit.Button
-                        className="flex h-12 w-full max-w-full flex-row items-center justify-between space-x-4 rounded-md border-none p-1 hover:bg-gray3"
-                        onClick={(event) =>
-                          connectThenGrantAdmin(event, connector)
-                        }
-                      >
-                        <img
-                          alt={connector.name}
-                          className="ml-1 size-9"
-                          src={connector.icon}
-                        />
-                        <span className="select-none text-xl">
-                          {connector.name}
-                        </span>
-                        <ChevronRightIcon className="ml-auto size-6 text-gray9" />
-                      </Ariakit.Button>
-                    </li>
-                  </React.Fragment>
+                      <img
+                        alt={connector.name}
+                        className="ml-1 size-9"
+                        src={connector.icon}
+                      />
+                      <span className="select-none text-xl">
+                        {connector.name}
+                      </span>
+                      <ChevronRightIcon className="ml-auto size-6 text-gray9" />
+                    </Ariakit.Button>
+                  </li>
                 ))}
               </ul>
             </section>
