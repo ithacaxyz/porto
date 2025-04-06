@@ -1,8 +1,7 @@
 import { Env, Porto as PortoConfig } from '@porto/apps'
 import { Mode, Porto } from 'porto'
 import { createConfig, createStorage, http } from 'wagmi'
-import { base, baseSepolia, odysseyTestnet } from 'wagmi/chains'
-import { injected } from 'wagmi/connectors'
+import { odysseyTestnet } from 'wagmi/chains'
 
 const env = Env.get()
 
@@ -19,29 +18,13 @@ export const porto = Porto.create({
   }),
 })
 
-export const chainIds = [base.id, odysseyTestnet.id, baseSepolia.id] as const
+export const chainIds = [odysseyTestnet.id] as const
 export type ChainId = (typeof chainIds)[number]
 
 export const config = createConfig({
-  chains: [
-    //
-    base,
-    odysseyTestnet,
-    baseSepolia,
-  ],
-  connectors: [
-    injected({
-      target: () => ({
-        id: 'porto',
-        name: 'Porto',
-        provider: porto.provider as never,
-      }),
-    }),
-  ],
+  chains: [odysseyTestnet],
   storage: createStorage({ storage: localStorage }),
   transports: {
-    [base.id]: http(),
-    [baseSepolia.id]: http(),
     [odysseyTestnet.id]: http(),
   },
 })

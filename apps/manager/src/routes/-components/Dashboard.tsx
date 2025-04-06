@@ -272,10 +272,13 @@ export function Dashboard() {
           data={filteredTransfers}
           emptyMessage="No transactions yet"
           renderRow={(transfer) => {
-            const amount = ValueFormatter.format(
-              BigInt(transfer?.total.value ?? 0),
-              Number(transfer?.total.decimals ?? 0),
-            )
+            const amount = Number.parseFloat(
+              ValueFormatter.format(
+                BigInt(transfer?.total.value ?? 0),
+                Number(transfer?.total.decimals ?? 0),
+              ),
+            ).toFixed(2)
+
             return (
               <tr
                 className="text-xs sm:text-sm "
@@ -437,7 +440,7 @@ export function Dashboard() {
       <div className="h-4" />
 
       <details
-        className="group pb-1"
+        className={cx('group pb-1', !import.meta.env.DEV && 'invisible hidden')}
         open={admins.data && admins.data.keys.length > 0}
       >
         <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
@@ -472,8 +475,8 @@ export function Dashboard() {
                   >
                     <td className="w-[73%] text-right">
                       <div className="flex flex-row items-center gap-x-2">
-                        <div className="flex size-7 items-center justify-center rounded-full bg-emerald-100">
-                          <WalletIcon className="m-auto size-4.5 text-teal-600" />
+                        <div className="flex size-6 items-center justify-center rounded-full bg-emerald-100">
+                          <WalletIcon className="m-auto size-4 text-teal-600" />
                         </div>
                         <span className="font-medium text-gray12">
                           <TruncatedAddress address={key.publicKey} />

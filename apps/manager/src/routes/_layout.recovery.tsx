@@ -1,14 +1,15 @@
 import 'viem/window'
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner } from '@porto/apps/components'
+import { exp1Address } from '@porto/apps/contracts'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { cx } from 'cva'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { useConnect, useConnectors, useDisconnect } from 'wagmi'
+import { useAccount, useConnect, useConnectors, useDisconnect } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
-import { mipdConfig as config } from '~/lib/MipdWagmi'
+import { config, porto } from '~/lib/Wagmi'
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
@@ -74,53 +75,14 @@ function RouteComponent() {
   )
 
   const disconnect = useDisconnect()
-  const _connectors = useConnectors({ config })
+  const connectors = useConnectors()
 
-  const connectors = React.useMemo(() => {
-    const uniqueConnectorsNames = new Set()
-    const uniqueConnectors = []
-    for (const connector of _connectors) {
-      if (uniqueConnectorsNames.has(connector.name)) {
-        continue
-      }
-      uniqueConnectorsNames.add(connector.name)
-      uniqueConnectors.push(connector)
-    }
-    return uniqueConnectors
-  }, [_connectors])
+  const account = useAccount()
 
   const admins = Hooks.useAdmins()
 
-  const grantAdmin = Hooks.useGrantAdmin({
-    mutation: {
-      onError: (error, _, __) => {
-        console.info(error)
-        toast.custom((t) => (
-          <CustomToast
-            className={t}
-            description={error.message}
-            kind="error"
-            title="Error Granting Admin"
-          />
-        ))
-        setView('DEFAULT')
-      },
-      onMutate: (_) => [console.info('mutate'), setView('loading')],
-      onSuccess: (_) => {
-        toast.custom((t) => (
-          <CustomToast
-            className={t}
-            description="You are now an admin"
-            kind="success"
-            title="Admin Granted"
-          />
-        ))
-        setView('DEFAULT')
-      },
-    },
-  })
-
   const connect = useConnect({
+    config,
     mutation: {
       onError: (error, _, __) => {
         toast.custom((t) => (
@@ -134,31 +96,6 @@ function RouteComponent() {
         setView('DEFAULT')
       },
       onMutate: (_) => setView('loading'),
-      onSuccess: (data) => {
-        const [address] = data.accounts
-        const existingAdmins = admins.data?.keys
-        const isAdmin = existingAdmins?.some(
-          (admin) => admin.publicKey.toLowerCase() === address.toLowerCase(),
-        )
-        if (isAdmin) {
-          toast.custom((t) => (
-            <CustomToast
-              className={t}
-              description="You are already an admin"
-              kind="warn"
-              title="Already an admin"
-            />
-          ))
-          setView('DEFAULT')
-          return
-        }
-        grantAdmin.mutate({
-          key: {
-            publicKey: address,
-            type: 'address',
-          },
-        })
-      },
     },
   })
 
@@ -207,7 +144,7 @@ function RouteComponent() {
 
             <section className="w-full">
               <ul className="">
-                {connectors.map((connector, _index) => (
+                {connectors.map(async (connector, _index) => (
                   <React.Fragment key={connector.id}>
                     <li
                       className="w-full rounded-md border-none py-2"
@@ -219,25 +156,67 @@ function RouteComponent() {
                           event.preventDefault()
                           event.stopPropagation()
 
-                          disconnect
-                            .disconnectAsync()
-                            .catch((error) => console.info(error))
-                            .then(() => {
-                              connect
-                                .connectAsync({ connector })
-                                .catch((error) => console.info(error))
+                          let address = account.address
+                          if (await connector.isAuthorized()) {
+                            ;[address] = await connector.getAccounts()
+                          }
+
+                          if (!address) return
+
+                          if (
+                            admins.data?.keys.some(
+                              (key) =>
+                                key.publicKey.toLowerCase() ===
+                                address?.toLowerCase(),
+                            )
+                          ) {
+                            return toast.custom((t) => (
+                              <CustomToast
+                                className={t}
+                                description="The account is already an admin"
+                                kind="warn"
+                                title="Already Exists"
+                              />
+                            ))
+                          }
+
+                          if (account.connector?.id === connector.id) {
+                            await porto.provider.request({
+                              method: 'experimental_grantAdmin',
+                              params: [
+                                {
+                                  capabilities: {
+                                    feeToken: exp1Address,
+                                  },
+                                  key: {
+                                    publicKey: address,
+                                    type: 'address',
+                                  },
+                                },
+                              ],
                             })
-                            .catch((error) => {
-                              setView('DEFAULT')
-                              toast.custom((t) => (
-                                <CustomToast
-                                  className={t}
-                                  description={error.message}
-                                  kind="error"
-                                  title="Error Connecting"
-                                />
-                              ))
-                            })
+                            await disconnect.disconnectAsync({ connector })
+                            setView('success')
+                            return
+                          }
+
+                          await connect.connectAsync({ connector })
+                          await porto.provider.request({
+                            method: 'experimental_grantAdmin',
+                            params: [
+                              {
+                                capabilities: {
+                                  feeToken: exp1Address,
+                                },
+                                key: {
+                                  publicKey: address,
+                                  type: 'address',
+                                },
+                              },
+                            ],
+                          })
+                          await disconnect.disconnectAsync({ connector })
+                          setView('success')
                         }}
                       >
                         <img

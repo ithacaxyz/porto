@@ -13,7 +13,9 @@ const id = () => humanId({ capitalize: true, separator: ' ' })
 export function Landing() {
   const account = useAccount()
   const connect = Hooks.useConnect()
-  const [connector] = useConnectors({ config })
+  const connector = useConnectors({ config }).find(
+    (x) => x.id === 'xyz.ithaca.porto',
+  )
 
   const [label, setLabel] = React.useState(id())
 
@@ -54,6 +56,7 @@ export function Landing() {
                     autoCorrect="off"
                     className="w-full font-[500] text-[19px] focus:outline-none focus:ring-0"
                     maxLength={32}
+                    name="label"
                     onChange={(e) => setLabel(e.target.value)}
                     placeholder="Enter a name…"
                     spellCheck={false}
