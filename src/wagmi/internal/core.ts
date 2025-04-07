@@ -354,7 +354,7 @@ export async function grantAdmin<config extends Config>(
 
   const method = 'experimental_grantAdmin'
   type method = typeof method
-  const response = client.request<{
+  const response = await client.request<{
     Method: method
     Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
     ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
