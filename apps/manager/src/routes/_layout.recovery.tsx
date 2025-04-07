@@ -7,9 +7,9 @@ import { cx } from 'cva'
 import * as React from 'react'
 import { toast } from 'sonner'
 import type { EIP1193Provider } from 'viem'
-import { Connector, useConnectors, useDisconnect } from 'wagmi'
+import { Connector, useConnectors } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
-import { porto } from '~/lib/Wagmi'
+import { mipdConfig, porto } from '~/lib/Wagmi'
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
@@ -74,8 +74,7 @@ function RouteComponent() {
     'default',
   )
 
-  const disconnect = useDisconnect()
-  const connectors = useConnectors()
+  const connectors = useConnectors({ config: mipdConfig })
 
   if (!connectors.length) return null
 
@@ -104,11 +103,8 @@ function RouteComponent() {
         ],
       })
 
-      await disconnect.disconnectAsync({ connector })
       setView('success')
     } catch (error) {
-      // we want to always disconnect the recovery connector
-      await disconnect.disconnectAsync({ connector })
       toast.custom((t) => (
         <CustomToast
           className={t}
