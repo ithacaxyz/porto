@@ -1,15 +1,13 @@
-import { Porto } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import { useEffect } from 'react'
 
+import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { GrantPermissions } from '../-components/GrantPermissions'
 import { SignIn } from '../-components/SignIn'
 import { SignUp } from '../-components/SignUp'
-
-const porto = Porto.porto
 
 export const Route = createFileRoute('/dialog/wallet_connect')({
   component: RouteComponent,

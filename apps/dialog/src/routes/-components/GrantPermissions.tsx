@@ -1,4 +1,3 @@
-import { Porto } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { Hex, type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
@@ -8,12 +7,11 @@ import { erc20Abi } from 'viem'
 import { useReadContract } from 'wagmi'
 
 import * as Dialog from '~/lib/Dialog'
+import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import LucideKey from '~icons/lucide/key-round'
 import { NotFound } from './NotFound'
-
-const porto = Porto.porto
 
 export function GrantPermissions(props: GrantPermissions.Props) {
   const { address, permissions, loading, onApprove, onReject } = props

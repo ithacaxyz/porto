@@ -1,14 +1,12 @@
-import { Porto } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Hex, Siwe } from 'ox'
 import { Actions } from 'porto/remote'
 import { useMemo } from 'react'
 
+import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { SignMessage } from '../-components/SignMessage'
-
-const porto = Porto.porto
 
 export const Route = createFileRoute('/dialog/personal_sign')({
   component: RouteComponent,

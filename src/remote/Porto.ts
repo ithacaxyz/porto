@@ -9,42 +9,6 @@ import * as Porto_ from '../core/Porto.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Storage from '../core/Storage.js'
 
-export type Porto<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = Porto_.Porto<chains> & {
-  mode: Mode.Mode
-  messenger: Messenger.Bridge
-  ready: Messenger.Bridge['ready']
-  _internal: Porto_.Porto<chains>['_internal'] & {
-    remoteStore: StoreApi<RemoteState>
-  }
-}
-
-export type Config<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = Porto_.Config<chains> & {
-  messenger?: Messenger.Bridge | undefined
-}
-
-export type State<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ],
-> = Porto_.State<chains>
-
-export type RemoteState = {
-  requests: readonly (Porto_.QueuedRequest & {
-    request: RpcRequest.RpcRequest<RpcSchema.Schema>
-  })[]
-}
-
 export const defaultConfig = {
   ...Porto_.defaultConfig,
   messenger:
@@ -54,6 +18,61 @@ export const defaultConfig = {
           to: Messenger.fromWindow(window.opener ?? window.parent),
         })
       : Messenger.noop(),
+  methodPolicies: [
+    {
+      method: 'eth_requestAccounts',
+      modes: {
+        dialog: true,
+        headless: {
+          sameOrigin: true,
+        },
+      },
+    },
+    {
+      method: 'experimental_grantAdmin',
+      modes: {
+        dialog: {
+          sameOrigin: true,
+        },
+      },
+    },
+    {
+      method: 'experimental_upgradeAccount',
+      modes: {
+        headless: true,
+      },
+    },
+    {
+      method: 'wallet_connect',
+      modes: {
+        dialog: true,
+        headless: {
+          sameOrigin: true,
+        },
+      },
+    },
+    {
+      method: 'wallet_createAccount',
+      modes: {
+        dialog: true,
+        headless: {
+          sameOrigin: true,
+        },
+      },
+    },
+    {
+      method: 'wallet_prepareCalls',
+      modes: {
+        headless: true,
+      },
+    },
+    {
+      method: 'wallet_sendPreparedCalls',
+      modes: {
+        headless: true,
+      },
+    },
+  ],
   mode: Mode.contract(),
   storage: Storage.localStorage(),
 } as const satisfies Config
@@ -80,6 +99,7 @@ export function create(
     chains = defaultConfig.chains,
     mode = defaultConfig.mode,
     messenger = defaultConfig.messenger,
+    methodPolicies = defaultConfig.methodPolicies,
     storage = defaultConfig.storage,
     transports = defaultConfig.transports,
   } = parameters
@@ -103,7 +123,69 @@ export function create(
       remoteStore,
     },
     messenger,
+    methodPolicies,
     mode,
-    ready: messenger.ready,
+    ready() {
+      return messenger.ready({
+        methodPolicies,
+      })
+    },
   } as unknown as Porto
+}
+
+export type Porto<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = Porto_.Porto<chains> & {
+  mode: Mode.Mode
+  messenger: Messenger.Bridge
+  methodPolicies?: MethodPolicies | undefined
+  ready: () => void
+  _internal: Porto_.Porto<chains>['_internal'] & {
+    remoteStore: StoreApi<RemoteState>
+  }
+}
+
+export type Config<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = Porto_.Config<chains> & {
+  messenger?: Messenger.Bridge | undefined
+  methodPolicies?: MethodPolicies | undefined
+}
+
+export type MethodPolicy = {
+  method: string
+  modes: {
+    headless?:
+      | true
+      | {
+          sameOrigin?: boolean | undefined
+        }
+      | undefined
+    dialog?:
+      | true
+      | {
+          sameOrigin?: boolean | undefined
+        }
+      | undefined
+  }
+}
+export type MethodPolicies = readonly MethodPolicy[]
+
+export type State<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = Porto_.State<chains>
+
+export type RemoteState = {
+  requests: readonly (Porto_.QueuedRequest & {
+    request: RpcRequest.RpcRequest<RpcSchema.Schema>
+  })[]
 }

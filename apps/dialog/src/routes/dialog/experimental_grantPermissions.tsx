@@ -1,12 +1,10 @@
-import { Porto } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Actions } from 'porto/remote'
 
+import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { GrantPermissions } from '../-components/GrantPermissions'
-
-const porto = Porto.porto
 
 export const Route = createFileRoute('/dialog/experimental_grantPermissions')({
   component: RouteComponent,

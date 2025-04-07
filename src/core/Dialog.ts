@@ -141,10 +141,10 @@ export function iframe() {
         waitForReady: true,
       })
 
-      let bypassMethods: Messenger.ReadyOptions['bypassMethods'] | undefined
+      let methodPolicies: Messenger.ReadyOptions['methodPolicies'] | undefined
 
       messenger.on('ready', (options) => {
-        if (!bypassMethods) bypassMethods = options?.bypassMethods
+        if (!methodPolicies) methodPolicies = options?.methodPolicies
         messenger.send('__internal', {
           mode: 'iframe',
           referrer: getReferrer(),
@@ -228,7 +228,7 @@ export function iframe() {
           else {
             const requiresConfirm = requests.some((x) =>
               requiresConfirmation(x.request, {
-                bypassMethods,
+                methodPolicies,
                 targetOrigin: hostUrl.origin,
               }),
             )
@@ -443,17 +443,22 @@ export const styles = {
 export function requiresConfirmation(
   request: RpcRequest.RpcRequest,
   options: {
-    bypassMethods?: Messenger.ReadyOptions['bypassMethods'] | undefined
+    methodPolicies?: Messenger.ReadyOptions['methodPolicies'] | undefined
     targetOrigin?: string | undefined
   } = {},
 ) {
-  const { bypassMethods, targetOrigin } = options
-  if (bypassMethods?.anyOrigin?.includes(request.method)) return false
-  if (
-    targetOrigin === window.location.origin &&
-    bypassMethods?.sameOrigin?.includes(request.method)
-  )
+  const { methodPolicies, targetOrigin } = options
+  const policy = methodPolicies?.find((x) => x.method === request.method)
+  if (!policy) return true
+  if (policy.modes.headless) {
+    if (
+      typeof policy.modes.headless === 'object' &&
+      policy.modes.headless.sameOrigin &&
+      targetOrigin !== window.location.origin
+    )
+      return true
     return false
+  }
   return true
 }
 

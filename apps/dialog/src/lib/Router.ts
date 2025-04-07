@@ -1,4 +1,3 @@
-import { Porto } from '@porto/apps'
 import { createRouter } from '@tanstack/react-router'
 import { Provider, type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
@@ -6,8 +5,7 @@ import * as Rpc from 'porto/core/internal/typebox/rpc'
 import { Actions } from 'porto/remote'
 
 import { routeTree } from '~/routeTree.gen.ts'
-
-const porto = Porto.porto
+import { porto } from './Porto'
 
 export function parseSearchRequest<
   method extends RpcSchema.ExtractMethodName<porto_RpcSchema.Schema>,

@@ -1,9 +1,9 @@
-import { Porto } from '@porto/apps'
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 
 import * as Dialog from '~/lib/Dialog'
+import { porto } from '~/lib/Porto'
 import LucideGlobe from '~icons/lucide/globe'
 import LucideX from '~icons/lucide/x'
 
@@ -15,13 +15,13 @@ function RouteComponent() {
   React.useEffect(() => {
     // Note: we already call `porto.ready()` optimistically in `main.tsx`, but
     // we should call it here incase it didn't resolve due to a race condition.
-    Porto.porto.ready()
+    porto.ready()
   }, [])
 
   const mode = Dialog.useStore((state) => state.mode)
   const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
   const icon = Dialog.useStore((state) => state.referrer?.icon)
-  const request = Hooks.useRequest(Porto.porto)
+  const request = Hooks.useRequest(porto)
 
   const contentRef = React.useRef<HTMLDivElement | null>(null)
   const titlebarRef = React.useRef<HTMLDivElement | null>(null)
@@ -54,7 +54,7 @@ function RouteComponent() {
           if (mode === 'popup') {
             window.resizeTo(width, totalHeight)
           } else if (mode === 'iframe' || mode === 'inline-iframe') {
-            Porto.porto.messenger.send('__internal', {
+            porto.messenger.send('__internal', {
               height: totalHeight,
               type: 'resize',
             })
@@ -109,7 +109,7 @@ function RouteComponent() {
 
           {mode !== 'inline-iframe' && (
             <button
-              onClick={() => Actions.rejectAll(Porto.porto)}
+              onClick={() => Actions.rejectAll(porto)}
               title="Close Dialog"
               type="button"
             >

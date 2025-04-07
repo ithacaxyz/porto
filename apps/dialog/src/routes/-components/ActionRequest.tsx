@@ -1,4 +1,4 @@
-import { Porto, Token } from '@porto/apps'
+import { Token } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
@@ -14,6 +14,7 @@ import { Call, erc20Abi, zeroAddress } from 'viem'
 import { getBalance, readContract } from 'wagmi/actions'
 
 import * as Dialog from '~/lib/Dialog'
+import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
 import * as Wagmi from '~/lib/Wagmi'
 import { Layout } from '~/routes/-components/Layout'
@@ -22,8 +23,6 @@ import ArrowDownLeft from '~icons/lucide/arrow-down-left'
 import ArrowUpRight from '~icons/lucide/arrow-up-right'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
-
-const porto = Porto.porto
 
 export function ActionRequest(props: ActionRequest.Props) {
   const {

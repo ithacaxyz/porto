@@ -62,15 +62,27 @@ export async function respond<result>(
   request: Porto.QueuedRequest['request'],
   options?: {
     selector?: (result: result) => unknown
+    error?: RpcResponse.ErrorObject | undefined
     result?: result | undefined
   },
 ) {
   const { messenger, provider } = porto
-  const { selector } = options ?? {}
+  const { error, selector } = options ?? {}
   const shared = {
     id: request.id,
     jsonrpc: '2.0',
   } as const
+
+  if (error) {
+    messenger.send(
+      'rpc-response',
+      Object.assign(RpcResponse.from({ ...shared, error, status: 'error' }), {
+        _request: request,
+      }),
+    )
+    return
+  }
+
   try {
     let result = options?.result ?? (await provider.request(request))
     if (selector) result = selector(result as never)

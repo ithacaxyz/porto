@@ -1,13 +1,10 @@
-import { Porto } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { useMutation } from '@tanstack/react-query'
 import { Json } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
-
+import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import LucideTriangleAlert from '~icons/lucide/triangle-alert'
-
-const porto = Porto.porto
 
 export function NotFound() {
   const request = Hooks.useRequest(porto)

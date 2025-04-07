@@ -1,7 +1,5 @@
-import { Porto } from '@porto/apps'
 import { createConfig, createStorage, type Transport } from 'wagmi'
-
-const porto = Porto.porto
+import { porto } from './Porto'
 
 export const config = createConfig({
   chains: porto._internal.config.chains,

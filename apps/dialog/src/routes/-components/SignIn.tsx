@@ -1,12 +1,10 @@
-import { Porto } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { Hooks } from 'porto/remote'
 
 import * as Dialog from '~/lib/Dialog'
+import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import LucideLogIn from '~icons/lucide/log-in'
-
-const porto = Porto.porto
 
 export function SignIn(props: SignIn.Props) {
   const { loading, onApprove } = props

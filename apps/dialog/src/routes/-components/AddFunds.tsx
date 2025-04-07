@@ -1,5 +1,5 @@
 import * as Ariakit from '@ariakit/react'
-import { Porto, Token } from '@porto/apps'
+import { Token } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { useMutation } from '@tanstack/react-query'
 import { Address } from 'ox'
@@ -8,11 +8,10 @@ import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useWaitForTransactionReceipt } from 'wagmi'
 
+import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import QrCodeIcon from '~icons/lucide/qr-code'
-
-const porto = Porto.porto
 
 const presetAmounts = ['25', '50', '100', '250']
 

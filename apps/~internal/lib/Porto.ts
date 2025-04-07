@@ -1,5 +1,5 @@
 import { Address } from 'ox'
-import { Chains, Mode, Storage } from 'porto'
+import { Chains, Mode } from 'porto'
 import { Porto } from 'porto/remote'
 import { http } from 'viem'
 
@@ -64,8 +64,3 @@ export const dialogHosts = {
     ? 'https://stg.id.porto.sh/dialog/'
     : 'https://stg.localhost:5174/dialog/',
 } as const satisfies Record<Env.Env, string | undefined>
-
-export const porto = Porto.create({
-  ...config[Env.get()],
-  storage: Storage.combine(Storage.cookie(), Storage.localStorage()),
-})

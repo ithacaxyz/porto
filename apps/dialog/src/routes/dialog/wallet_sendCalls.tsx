@@ -1,15 +1,13 @@
-import { Porto } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Address } from 'ox'
 import { Actions } from 'porto/remote'
 import * as React from 'react'
 
+import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { ActionRequest } from '../-components/ActionRequest'
 import { AddFunds } from '../-components/AddFunds'
-
-const porto = Porto.porto
 
 export const Route = createFileRoute('/dialog/wallet_sendCalls')({
   component: RouteComponent,

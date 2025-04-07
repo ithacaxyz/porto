@@ -1,12 +1,9 @@
-import { Porto } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
-
+import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { SignUp } from '../-components/SignUp'
-
-const porto = Porto.porto
 
 export const Route = createFileRoute('/dialog/experimental_createAccount')({
   component: RouteComponent,

@@ -1,11 +1,8 @@
-import { Porto } from '@porto/apps'
 import { createFileRoute } from '@tanstack/react-router'
 import { Actions } from 'porto/remote'
-
+import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { AddFunds } from '../-components/AddFunds'
-
-const porto = Porto.porto
 
 export const Route = createFileRoute('/dialog/experimental_addFunds')({
   component: RouteComponent,

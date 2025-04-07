@@ -1,15 +1,12 @@
-import { Porto } from '@porto/apps'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import type { RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
-
+import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { SignIn } from '../-components/SignIn'
 import { SignUp } from '../-components/SignUp'
-
-const porto = Porto.porto
 
 export const Route = createFileRoute('/dialog/eth_requestAccounts')({
   component: RouteComponent,

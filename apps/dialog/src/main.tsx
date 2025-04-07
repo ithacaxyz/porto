@@ -1,10 +1,11 @@
-import { Env, Porto } from '@porto/apps'
+import { Env } from '@porto/apps'
 import * as Sentry from '@sentry/react'
-import { Actions, Events } from 'porto/remote'
+import { Events } from 'porto/remote'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import * as Dialog from '~/lib/Dialog.ts'
+import { porto } from '~/lib/Porto.js'
 import * as Router from '~/lib/Router.ts'
 import { App } from './App.js'
 import './styles.css'
@@ -19,17 +20,6 @@ if (import.meta.env.PROD) {
   })
 }
 
-const porto = Porto.porto
-
-const bypassMethods = {
-  anyOrigin: [
-    'experimental_upgradeAccount',
-    'wallet_prepareCalls',
-    'wallet_sendPreparedCalls',
-  ],
-  sameOrigin: ['eth_requestAccounts', 'wallet_createAccount', 'wallet_connect'],
-}
-
 const offInitialized = Events.onInitialized(porto, (payload) => {
   const { mode, referrer } = payload
   Dialog.store.setState({
@@ -41,31 +31,14 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
   })
 })
 
-const offRequests = Events.onRequests(porto, (requests, event) => {
-  const request = requests[0]?.request
-
-  const shouldBypass = (() => {
-    if (!request) return false
-    if (bypassMethods.anyOrigin.includes(request.method)) return true
-    if (
-      event.origin === window.location.origin &&
-      bypassMethods.sameOrigin.includes(request.method)
-    )
-      return true
-    return false
-  })()
-  if (shouldBypass) {
-    Actions.respond(porto, request!).catch(() => {})
-    return
-  }
-
+const offDialogRequest = Events.onDialogRequest(porto, (request) => {
   Router.router.navigate({
     search: request as never,
     to: '/dialog/' + (request?.method ?? ''),
   })
 })
 
-porto.ready({ bypassMethods })
+porto.ready()
 
 const rootElement = document.querySelector('div#root')
 
@@ -86,7 +59,7 @@ createRoot(rootElement, {
 if (import.meta.hot)
   import.meta.hot.on('vite:beforeUpdate', () => {
     offInitialized()
-    offRequests()
+    offDialogRequest()
   })
 
 document.addEventListener('keydown', (event) => {
