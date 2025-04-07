@@ -4,7 +4,6 @@ import { exp1Abi, exp1Address } from '@porto/apps/contracts'
 import { Chains } from 'porto'
 import { Account, Key, Relay } from 'porto/internal'
 import { createClient, http, isAddress, isHex } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
 
 const DRIP_ADDRESS = env.DRIP_ADDRESS
 const DRIP_PRIVATE_KEY = env.DRIP_PRIVATE_KEY

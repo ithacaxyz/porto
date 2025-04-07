@@ -1,5 +1,5 @@
 import { defineConfig } from '@wagmi/cli'
-import { blockExplorer, foundry } from '@wagmi/cli/plugins'
+import { blockExplorer } from '@wagmi/cli/plugins'
 import { odysseyTestnet } from 'viem/chains'
 
 const paths = ['apps/~internal', 'examples/wagmi/src', 'test/src']
