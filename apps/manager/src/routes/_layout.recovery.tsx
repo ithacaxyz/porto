@@ -1,7 +1,6 @@
 import 'viem/window'
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner } from '@porto/apps/components'
-import { exp1Address } from '@porto/apps/contracts'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { cx } from 'cva'
 import * as React from 'react'
