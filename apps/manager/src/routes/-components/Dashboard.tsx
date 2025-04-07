@@ -99,7 +99,14 @@ export function Dashboard() {
     )
   }, [assets])
 
-  const admins = Hooks.useAdmins()
+  const admins = Hooks.useAdmins({
+    query: {
+      select: ({ address, keys }) => ({
+        address,
+        keys: keys.filter((key) => key.type === 'address'),
+      }),
+    },
+  })
 
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
@@ -477,13 +484,13 @@ export function Dashboard() {
                   >
                     <td className="text-left">
                       <div className="flex flex-row items-center gap-x-2">
-                        <div className="hidden size-6 items-center justify-center rounded-full bg-emerald-100 sm:flex">
-                          <WalletIcon className="m-auto size-4 text-teal-600" />
+                        <div className="hidden size-6.25 items-center justify-center rounded-full bg-emerald-100 sm:flex">
+                          <WalletIcon className="size-4 text-teal-600" />
                         </div>
                         <span className="font-medium text-gray12">
                           <TruncatedAddress
                             address={key.id ?? key.publicKey}
-                            className="text-md sm:text-lg"
+                            className="text-sm sm:text-md"
                           />
                         </span>
                       </div>
