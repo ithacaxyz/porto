@@ -933,7 +933,7 @@ function announce(provider: Provider) {
 
 function getAdmins(
   keys: readonly Key.Key[],
-): Schema.Static<(typeof Rpc.experimental_getAdmins.Response)['keys']> {
+): Schema.Static<typeof Rpc.experimental_getAdmins.Response>['keys'] {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
