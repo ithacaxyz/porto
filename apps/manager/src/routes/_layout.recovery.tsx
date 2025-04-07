@@ -97,7 +97,6 @@ function RouteComponent() {
         method: 'experimental_grantAdmin',
         params: [
           {
-            capabilities: { feeToken: exp1Address },
             key: { publicKey: address, type: 'address' },
           },
         ],
