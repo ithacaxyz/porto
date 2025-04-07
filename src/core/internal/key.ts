@@ -1019,7 +1019,7 @@ export function toRelay(
   if (key.role === 'session')
     permissions.push({
       selector: Call.anySelector,
-      to: '0x78240fcd65120b477442d54f781d390990a97964',
+      to: '0x7cf6287013ef3d4558a98fcc2bc286e53341513f',
       type: 'call',
     })
 
