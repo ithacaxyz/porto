@@ -73,7 +73,10 @@ function RouteComponent() {
     'default',
   )
 
-  const connectors = useConnectors({ config: mipdConfig })
+  const _connectors = useConnectors({ config: mipdConfig })
+  const connectors = React.useMemo(() => {
+    return _connectors.filter((c) => !c.id.toLowerCase().includes('porto'))
+  }, [_connectors])
 
   if (!connectors.length) return null
 
