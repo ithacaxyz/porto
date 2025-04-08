@@ -147,6 +147,19 @@
   --color-violet11: light-dark(#6550b9, #baa7ff);
   --color-violet12: light-dark(#2f265f, #e2ddfe);
   
+  --color-jade1: light-dark(#fbfefd, #0d1512);
+  --color-jade2: light-dark(#f4fbf7, #121c18);
+  --color-jade3: light-dark(#e6f7ed, #0d2a1f);
+  --color-jade4: light-dark(#d6f1e3, #113b29);
+  --color-jade5: light-dark(#c3e9d7, #164430);
+  --color-jade6: light-dark(#adddc3, #1b543a);
+  --color-jade7: light-dark(#8eceaa, #236e4a);
+  --color-jade8: light-dark(#5bb98b, #2a7e59);
+  --color-jade9: light-dark(#30a46c, #30a46c);
+  --color-jade10: light-dark(#299764, #33b074);
+  --color-jade11: light-dark(#18794e, #3dd68c);
+  --color-jade12: light-dark(#153226, #b1f1cb);
+
   --background-color-accent: var(--color-blue9);
   --background-color-accentHover: var(--color-blue10);
   --background-color-accentTint: var(--color-blueA3);
