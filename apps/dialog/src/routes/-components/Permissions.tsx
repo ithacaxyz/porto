@@ -71,8 +71,8 @@ function SpendPermission(props: SpendPermission.Props) {
 
   return (
     <div className="flex items-center gap-2 py-3 text-secondary text-sm">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface">
-        <LucidePiggyBank className="h-5 w-5" />
+      <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
+        <LucidePiggyBank />
       </div>
       {displayAmount || !token ? (
         <>
