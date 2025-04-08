@@ -39,9 +39,7 @@ export function Permissions(props: { permissions?: PermissionsProps }) {
           />
         ))}
         {permissions?.calls && permissions.calls.length > 0 && (
-          <ContractAccessPermission
-            calls={permissions.calls}
-          />
+          <ContractAccessPermission calls={permissions.calls} />
         )}
       </div>
     </div>
@@ -80,7 +78,11 @@ function SpendPermission(props: SpendPermission.Props) {
       </div>
       {displayAmount || !token ? (
         <div>
-          Spend <span className="text-primary font-medium">{displayAmount} {symbol.data ?? 'ETH'}</span> per {period}
+          Spend{' '}
+          <span className="font-medium text-primary">
+            {displayAmount} {symbol.data ?? 'ETH'}
+          </span>{' '}
+          per {period}
         </div>
       ) : (
         <Spinner className="text-secondary" />
