@@ -132,7 +132,7 @@ export function AddFunds(props: AddFunds.Props) {
             </div>
           </div>
           <div className="col-span-1 row-span-1 my-1">
-            <Button className="w-full flex-1" type="submit" variant="violet">
+            <Button className="w-full flex-1" type="submit" variant="accent">
               Buy & deposit
             </Button>
           </div>
