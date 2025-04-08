@@ -977,8 +977,10 @@ export function toRelay(
     Key,
     'expiry' | 'permissions' | 'publicKey' | 'role' | 'signature' | 'type'
   >,
+  options: toRelay.Options = {},
 ): Relay {
   const { expiry, publicKey, role, signature, type } = key
+  const { entrypoint } = options
 
   // biome-ignore lint/complexity/useFlatMap:
   const permissions = Object.entries(key.permissions ?? {})
@@ -1015,11 +1017,10 @@ export function toRelay(
     })
     .flat()
 
-  // TODO(relay): remove temporary call scope on EntryPoint.
-  if (key.role === 'session')
+  if (key.role === 'session' && entrypoint)
     permissions.push({
       selector: Call.anySelector,
-      to: '0x7cf6287013ef3d4558a98fcc2bc286e53341513f',
+      to: entrypoint,
       type: 'call',
     })
 
@@ -1030,6 +1031,13 @@ export function toRelay(
     role: toRelayKeyRole[role],
     signature,
     type: toRelayKeyType[type],
+  }
+}
+
+export declare namespace toRelay {
+  type Options = {
+    /** Entrypoint address. */
+    entrypoint?: Address.Address | undefined
   }
 }
 
