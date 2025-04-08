@@ -70,7 +70,7 @@ function SpendPermission(props: SpendPermission.Props) {
   }, [limit, decimals.data, token])
 
   return (
-    <div className="flex items-center gap-2 py-3 text-secondary text-sm">
+    <div className="flex items-center gap-2 py-3 text-secondary text-[15px]">
       <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
         <LucidePiggyBank />
       </div>
