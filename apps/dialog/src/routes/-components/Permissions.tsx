@@ -92,7 +92,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
   return (
     <div className="flex flex-col">
       <button
-        className="flex items-center gap-2 py-3 text-secondary text-sm"
+        className="flex items-center gap-2 py-3 text-secondary text-[15px]"
         onClick={() => setIsOpen(!isOpen)}
         type="button"
       >
