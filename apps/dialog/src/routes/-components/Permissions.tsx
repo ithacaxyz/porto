@@ -118,7 +118,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
           </div>
           {calls.map((call) => (
             <div
-              className="flex items-center text-secondary text-sm"
+              className="flex items-center text-secondary text-xs"
               key={`call-${call.signature}-${call.to}`}
             >
               <div className="flex flex-1 items-center">
