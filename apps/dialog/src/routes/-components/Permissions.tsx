@@ -122,7 +122,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
               key={`call-${call.signature}-${call.to}`}
             >
               <div className="flex flex-1 items-center">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-jade4">
                   <WalletIcon className="h-4 w-4 text-teal-600" />
                 </div>
                 <span className="ml-2 font-mono text-xs">
