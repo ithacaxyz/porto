@@ -107,8 +107,8 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         )}
       </button>
       {isOpen && (
-        <div className="pl-2 space-y-2">
-          <div className="flex items-center text-secondary text-sm font-medium">
+        <div className="space-y-2 pl-2">
+          <div className="flex items-center font-medium text-secondary text-sm">
             <div className="flex-1 pl-8">
               <span className="tracking-wider">Contract</span>
             </div>
@@ -121,11 +121,11 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
               className="flex items-center text-secondary text-sm"
               key={`call-${call.signature}-${call.to}`}
             >
-              <div className="flex-1 flex items-center">
+              <div className="flex flex-1 items-center">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100">
                   <WalletIcon className="h-4 w-4 text-teal-600" />
                 </div>
-                <span className="font-mono text-xs ml-2">
+                <span className="ml-2 font-mono text-xs">
                   {call.to ? StringFormatter.truncate(call.to) : 'Any contract'}
                 </span>
               </div>
