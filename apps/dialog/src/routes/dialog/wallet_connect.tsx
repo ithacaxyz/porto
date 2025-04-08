@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
-import { useEffect } from 'react'
 
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
@@ -14,17 +13,13 @@ export const Route = createFileRoute('/dialog/wallet_connect')({
     const request = Router.parseSearchRequest(search, {
       method: 'wallet_connect',
     })
-    return {
-      ...request,
-      step: search.step as 'signIn' | 'signUp',
-    }
+    return request
   },
 })
 
 function RouteComponent() {
-  const navigate = Route.useNavigate()
   const request = Route.useSearch()
-  const { params = [], step } = request
+  const { params = [] } = request
   const { capabilities } = params[0] ?? {}
 
   const address = Hooks.usePortoStore(
@@ -33,20 +28,6 @@ function RouteComponent() {
   )
 
   const signIn = address && !capabilities?.createAccount
-
-  useEffect(() => {
-    if (signIn) {
-      navigate({
-        replace: true,
-        search: (prev) => ({ ...prev, step: 'signIn' }),
-      })
-    } else {
-      navigate({
-        replace: true,
-        search: (prev) => ({ ...prev, step: 'signUp' }),
-      })
-    }
-  }, [navigate, signIn])
 
   const respond = useMutation({
     mutationFn({
@@ -78,7 +59,7 @@ function RouteComponent() {
     },
   })
 
-  if (step === 'signIn')
+  if (signIn) {
     return (
       <SignIn
         capabilities={capabilities}
@@ -86,16 +67,8 @@ function RouteComponent() {
         onApprove={(options) => respond.mutate(options)}
       />
     )
-  if (step === 'signUp' && capabilities?.createAccount)
-    return (
-      <SignUp
-        capabilities={capabilities}
-        enableSignIn={!capabilities?.createAccount}
-        loading={respond.isPending}
-        onApprove={(options) => respond.mutate(options)}
-        onReject={() => Actions.reject(porto, request)}
-      />
-    )
+  }
+
   return (
     <SignUp
       capabilities={capabilities}
