@@ -10,12 +10,17 @@ import LucideKey from '~icons/lucide/key'
 import LucidePiggyBank from '~icons/lucide/piggy-bank'
 import WalletIcon from '~icons/lucide/wallet-cards'
 
-export function Permissions(props: Permissions.Props) {
-  const { capabilities } = props
+export type PermissionsProps = {
+  spend?: readonly SpendPermission.Props[]
+  calls?: ContractAccessPermission.Props['calls']
+}
+
+export function Permissions(props: { permissions?: PermissionsProps }) {
+  const { permissions } = props
 
   if (
-    (capabilities?.grantPermissions?.permissions.spend?.length ?? 0) === 0 &&
-    (capabilities?.grantPermissions?.permissions.calls?.length ?? 0) === 0
+    (permissions?.spend?.length ?? 0) === 0 &&
+    (permissions?.calls?.length ?? 0) === 0
   ) {
     return null
   }
@@ -27,18 +32,17 @@ export function Permissions(props: Permissions.Props) {
         <div className="h-px flex-1 border-primary border-t"></div>
       </div>
       <div className="divide-y divide-[color:var(--border-color-primary)]">
-        {capabilities?.grantPermissions?.permissions.spend?.map((spend) => (
+        {permissions?.spend?.map((spend) => (
           <SpendPermission
             key={`spend-${spend.token}-${spend.limit}-${spend.period}`}
             {...spend}
           />
         ))}
-        {capabilities?.grantPermissions?.permissions.calls &&
-          capabilities.grantPermissions.permissions.calls.length > 0 && (
-            <ContractAccessPermission
-              calls={capabilities.grantPermissions.permissions.calls}
-            />
-          )}
+        {permissions?.calls && permissions.calls.length > 0 && (
+          <ContractAccessPermission
+            calls={permissions.calls}
+          />
+        )}
       </div>
     </div>
   )
@@ -141,23 +145,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
 }
 
 declare namespace Permissions {
-  type Props = {
-    capabilities?: {
-      grantPermissions?: {
-        permissions: {
-          spend?: readonly {
-            limit: `0x${string}`
-            period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-            token?: `0x${string}`
-          }[]
-          calls?: readonly {
-            signature?: string
-            to?: `0x${string}`
-          }[]
-        }
-      }
-    }
-  }
+  type Props = PermissionsProps
 }
 
 declare namespace SpendPermission {

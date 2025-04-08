@@ -4,11 +4,11 @@ import { Hooks } from 'porto/remote'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import { Permissions } from '~/routes/-components/Permissions'
+import { Permissions, PermissionsProps } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
 
 export function SignIn(props: SignIn.Props) {
-  const { loading, onApprove, capabilities } = props
+  const { loading, onApprove, permissions } = props
 
   const account = Hooks.useAccount(porto)
   const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
@@ -27,7 +27,7 @@ export function SignIn(props: SignIn.Props) {
           title="Get started"
         />
       </Layout.Header>
-      <Permissions capabilities={capabilities} />
+      <Permissions permissions={permissions} />
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
@@ -61,20 +61,6 @@ declare namespace SignIn {
   type Props = {
     loading: boolean
     onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
-    capabilities?: {
-      grantPermissions?: {
-        permissions: {
-          spend?: readonly {
-            limit: `0x${string}`
-            period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-            token?: `0x${string}`
-          }[]
-          calls?: readonly {
-            signature?: string
-            to?: `0x${string}`
-          }[]
-        }
-      }
-    }
+    permissions?: PermissionsProps
   }
 }

@@ -62,7 +62,7 @@ function RouteComponent() {
   if (signIn) {
     return (
       <SignIn
-        capabilities={capabilities}
+        permissions={capabilities?.grantPermissions?.permissions}
         loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
       />
@@ -71,7 +71,7 @@ function RouteComponent() {
 
   return (
     <SignUp
-      capabilities={capabilities}
+      permissions={capabilities?.grantPermissions?.permissions}
       enableSignIn={!capabilities?.createAccount}
       loading={respond.isPending}
       onApprove={(options) => respond.mutate(options)}
