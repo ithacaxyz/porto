@@ -1,12 +1,8 @@
 import { AbiFunction, Hex, P256, PublicKey, Value, WebCryptoP256 } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
-
-import {
-  exp1Abi,
-  exp1Address,
-} from '../../../../test/src/_generated/contracts.js'
 import * as TestActions from '../../../../test/src/actions.js'
+import { exp1Abi, exp1Address } from '../../../../test/src/porto.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Key from '../key.js'
 import type * as Capabilities from '../relay/typebox/capabilities.js'

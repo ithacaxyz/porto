@@ -92,8 +92,12 @@ async function getAssetsPrices({
     .filter((asset) =>
       [
         '0x0000000000000000000000000000000000000000',
-        exp1Config.address.toLowerCase(),
-        exp2Config.address.toLowerCase(),
+        exp1Config.address[
+          chain.id as keyof typeof exp1Config.address
+        ].toLowerCase(),
+        exp2Config.address[
+          chain.id as keyof typeof exp2Config.address
+        ].toLowerCase(),
       ].includes(asset.address.toLowerCase()),
     )
     .map((asset) => `${chainName}:${asset.address}`)

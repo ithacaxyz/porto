@@ -8,6 +8,7 @@ import {
   ConnectorAlreadyConnectedError,
   useAccount,
   useAccountEffect,
+  useChainId,
   useConnectors,
   useReadContract,
 } from 'wagmi'
@@ -212,6 +213,7 @@ const steps = ['sign-in', 'mint', 'swap', 'send', 'spend']
 
 function Demo() {
   const account = useAccount()
+  const chainId = useChainId()
   const [step, setStep] = React.useState<(typeof steps)[number]>('sign-in')
 
   const [isMounted, setIsMounted] = React.useState(false)
@@ -235,14 +237,16 @@ function Demo() {
     query: { enabled: Boolean(account.address) },
   } as const
   const { data: exp1Balance } = useReadContract({
-    ...exp1Config,
+    abi: exp1Config.abi,
+    address: exp1Config.address[chainId],
     ...shared,
     query: {
       refetchInterval: 1000,
     },
   })
   const { data: exp2Balance } = useReadContract({
-    ...exp2Config,
+    abi: exp2Config.abi,
+    address: exp2Config.address[chainId],
     ...shared,
     query: {
       refetchInterval: 1000,

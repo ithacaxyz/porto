@@ -1,32 +1,19 @@
 import { Env, Porto as PortoConfig } from '@porto/apps'
-import { exp1Address, exp2Address } from '@porto/apps/contracts'
+import {
+  exp1Address as exp1Address_,
+  exp2Address as exp2Address_,
+} from '@porto/apps/contracts'
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
 import { Chains, Dialog, Mode, Porto } from 'porto'
 
 export const env = Env.get()
 
-export const permissions = () =>
-  ({
-    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-    permissions: {
-      calls: [
-        {
-          to: exp1Address,
-        },
-        {
-          to: exp2Address,
-        },
-      ],
-      spend: [
-        {
-          limit: Hex.fromNumber(Value.fromEther('50')),
-          period: 'minute',
-          token: exp1Address,
-        },
-      ],
-    },
-  }) as const
+const config = PortoConfig.config[env]
+const defaultChainId = config.chains[0].id
+
+export const exp1Address = exp1Address_[defaultChainId]
+export const exp2Address = exp2Address_[defaultChainId]
 
 const host = PortoConfig.dialogHosts[env]
 export const modes = {
@@ -52,10 +39,32 @@ export const modes = {
 }
 export type ModeType = keyof typeof modes
 
+export const mipd = createStore()
+
+export const permissions = () =>
+  ({
+    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    permissions: {
+      calls: [
+        {
+          to: exp1Address,
+        },
+        {
+          to: exp2Address,
+        },
+      ],
+      spend: [
+        {
+          limit: Hex.fromNumber(Value.fromEther('50')),
+          period: 'minute',
+          token: exp1Address,
+        },
+      ],
+    },
+  }) as const
+
 export const porto = Porto.create({
-  ...PortoConfig.config[env],
+  ...config,
   // We will be deferring mode setup until after hydration.
   mode: null,
 })
-
-export const mipd = createStore()

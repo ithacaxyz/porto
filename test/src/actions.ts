@@ -11,8 +11,8 @@ import * as Account from '../../src/core/internal/account.js'
 import * as Key from '../../src/core/internal/key.js'
 import type { Client } from '../../src/core/internal/porto.js'
 import * as Relay from '../../src/core/internal/relay.js'
-import { exp1Abi, exp1Address } from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
+import { exp1Abi, exp1Address } from './porto.js'
 
 export async function createAccount(
   client: Client,

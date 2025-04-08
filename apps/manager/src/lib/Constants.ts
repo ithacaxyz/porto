@@ -1,5 +1,6 @@
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import type { Address } from 'ox'
+import { Chains } from 'porto'
 import { base, baseSepolia, odysseyTestnet } from 'viem/chains'
 import type { ChainId } from '~/lib/Wagmi'
 
@@ -28,6 +29,31 @@ export const defaultAssets: Record<
     price?: number
   }>
 > = {
+  [Chains.odysseyDevnet.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.odysseyDevnet.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.odysseyDevnet.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+  ],
   [odysseyTestnet.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
@@ -37,7 +63,7 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
     {
-      address: exp1Address,
+      address: exp1Address[odysseyTestnet.id],
       decimals: 18,
       logo: '/icons/exp.svg',
       name: 'Experiment',
@@ -45,7 +71,7 @@ export const defaultAssets: Record<
       symbol: 'EXP',
     },
     {
-      address: exp2Address,
+      address: exp2Address[odysseyTestnet.id],
       decimals: 18,
       logo: '/icons/exp2.svg',
       name: 'Experiment 2',

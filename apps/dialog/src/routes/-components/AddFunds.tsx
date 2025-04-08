@@ -44,6 +44,7 @@ export function AddFunds(props: AddFunds.Props) {
       const value = Value.from(amount, token.decimals)
       const params = new URLSearchParams({
         address,
+        chainId: chain.id.toString(),
         value: value.toString(),
       })
       const response = await fetch(

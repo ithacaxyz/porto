@@ -2,15 +2,15 @@ import { Hex, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
+import * as TestActions from '../../../test/src/actions.js'
 import {
   exp1Abi,
   exp1Address,
   exp2Abi,
   exp2Address,
   exp2Config,
-} from '../../../test/src/_generated/contracts.js'
-import * as TestActions from '../../../test/src/actions.js'
-import { getPorto } from '../../../test/src/porto.js'
+  getPorto,
+} from '../../../test/src/porto.js'
 import * as Delegation from './delegation.js'
 import * as Key from './key.js'
 import * as Relay from './relay.js'

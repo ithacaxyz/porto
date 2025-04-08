@@ -16,6 +16,7 @@ import {
   deepEqual,
   useAccount,
   useBlockNumber,
+  useChainId,
   useConnectors,
   useReadContract,
 } from 'wagmi'
@@ -35,6 +36,7 @@ export function DemoApp() {
   >('wagmi')
 
   const { address, status } = useAccount()
+  const chainId = useChainId()
 
   const { data: blockNumber } = useBlockNumber({
     watch: { enabled: status === 'connected', pollingInterval },
@@ -45,11 +47,13 @@ export function DemoApp() {
     query: { enabled: Boolean(address) },
   } as const
   const { data: exp1Balance, refetch: expBalanceRefetch } = useReadContract({
-    ...exp1Config,
+    abi: exp1Config.abi,
+    address: exp1Config.address[chainId],
     ...shared,
   })
   const { data: exp2Balance, refetch: exp2BalanceRefetch } = useReadContract({
-    ...exp2Config,
+    abi: exp2Config.abi,
+    address: exp2Config.address[chainId],
     ...shared,
   })
 
@@ -65,7 +69,7 @@ export function DemoApp() {
         AbiFunction.fromAbi(exp1Config.abi, 'mint'),
         [address!, Value.fromEther(variables.amount)],
       ),
-      to: exp1Config.address,
+      to: exp1Config.address[chainId],
     },
   ])({
     onError(error) {
@@ -299,6 +303,8 @@ export function DemoApp() {
 export function MintDemo(props: MintDemo.Props) {
   const { address, exp1Balance, next } = props
 
+  const chainId = useChainId()
+
   const mint = createUseSendCalls<{ amount: string; symbol: string }>(
     (variables) => [
       {
@@ -306,7 +312,7 @@ export function MintDemo(props: MintDemo.Props) {
           AbiFunction.fromAbi(exp1Config.abi, 'mint'),
           [address!, Value.fromEther(variables.amount)],
         ),
-        to: exp1Config.address,
+        to: exp1Config.address[chainId],
       },
     ],
   )({
@@ -425,6 +431,8 @@ declare namespace MintButton {
 export function SwapDemo(props: SwapDemo.Props) {
   const { address, exp1Balance, exp2Balance, next } = props
 
+  const chainId = useChainId()
+
   const swap = createUseSendCalls<Variables>((variables) => {
     const expFromConfig =
       variables.fromSymbol === 'exp1' ? exp1Config : exp2Config
@@ -434,9 +442,13 @@ export function SwapDemo(props: SwapDemo.Props) {
       {
         data: AbiFunction.encodeData(
           AbiFunction.fromAbi(expFromConfig.abi, 'swap'),
-          [expToConfig.address, address!, Value.fromEther(variables.fromValue)],
+          [
+            expToConfig.address[chainId],
+            address!,
+            Value.fromEther(variables.fromValue),
+          ],
         ),
-        to: expFromConfig.address,
+        to: expFromConfig.address[chainId],
       },
     ]
   })({
@@ -509,7 +521,7 @@ export function SwapDemo(props: SwapDemo.Props) {
           AbiFunction.fromAbi(exp1Config.abi, 'mint'),
           [address!, Value.fromEther(variables.amount)],
         ),
-        to: exp1Config.address,
+        to: exp1Config.address[chainId],
       },
     ],
   )({
@@ -701,6 +713,8 @@ declare namespace SwapDemo {
 export function PayDemo(props: PayDemo.Props) {
   const { address, exp1Balance, exp2Balance, next } = props
 
+  const chainId = useChainId()
+
   const pay = createUseSendCalls<{ amount: string; symbol: typeof symbol }>(
     (variables) => {
       const expConfig = variables.symbol === 'exp1' ? exp1Config : exp2Config
@@ -710,7 +724,7 @@ export function PayDemo(props: PayDemo.Props) {
             AbiFunction.fromAbi(expConfig.abi, 'approve'),
             [address!, Value.fromEther(variables.amount)],
           ),
-          to: expConfig.address,
+          to: expConfig.address[chainId],
         },
         {
           data: AbiFunction.encodeData(
@@ -721,7 +735,7 @@ export function PayDemo(props: PayDemo.Props) {
               Value.fromEther(variables.amount),
             ],
           ),
-          to: expConfig.address,
+          to: expConfig.address[chainId],
         },
       ]
     },
@@ -941,6 +955,7 @@ export function LimitDemo(props: LimitDemo.Props) {
   const { address } = props
 
   const { connector } = useAccount()
+  const chainId = useChainId()
   const revoke = useMutation<undefined, Error, { id: Hex.Hex }>({
     async mutationFn(variables) {
       const provider = (await connector?.getProvider()) as Provider | undefined
@@ -980,12 +995,15 @@ export function LimitDemo(props: LimitDemo.Props) {
           {
             expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
             permissions: {
-              calls: [{ to: exp1Config.address }, { to: exp2Config.address }],
+              calls: [
+                { to: exp1Config.address[chainId] },
+                { to: exp2Config.address[chainId] },
+              ],
               spend: [
                 {
                   limit: Hex.fromNumber(Value.fromEther(variables.limit)),
                   period: variables.period,
-                  token: exp1Config.address,
+                  token: exp1Config.address[chainId],
                 },
               ],
             },
@@ -1039,7 +1057,7 @@ export function LimitDemo(props: LimitDemo.Props) {
         x.permissions.spend?.length === 1 &&
         x.permissions.spend?.some(
           (y) =>
-            y.token === exp1Config.address &&
+            y.token === exp1Config.address[chainId] &&
             ['minute', 'hour', 'day', 'week'].includes(y.period),
         ) &&
         deepEqual(x.permissions.calls, [
@@ -1059,7 +1077,7 @@ export function LimitDemo(props: LimitDemo.Props) {
       setSpend({ ...defaultValues, id: undefined })
       form.setValues(defaultValues)
     }
-  }, [data, defaultValues, form])
+  }, [chainId, data, defaultValues, form])
 
   const symbol = 'exp1'
   const periods = React.useMemo(

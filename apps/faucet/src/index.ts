@@ -17,11 +17,13 @@ export default {
     try {
       const url = new URL(request.url)
       const address = url.searchParams.get('address')
+      const chainId = Number(url.searchParams.get('chainId'))
       const value = BigInt(url.searchParams.get('value') ?? 25)
 
-      if (!address || !isAddress(address)) {
+      if (!address || !isAddress(address))
         return new Response('Valid EVM address required', { status: 400 })
-      }
+      if (!chainId || !exp1Address[chainId as keyof typeof exp1Address])
+        return new Response('Valid chainId required', { status: 400 })
 
       const { success } = await env.RATE_LIMITER.limit({
         key:
@@ -34,16 +36,15 @@ export default {
       }
 
       const client = createClient({
-        chain: Chains.odysseyTestnet,
+        chain: Chains.odysseyDevnet,
         transport: http('https://relay-staging.ithaca.xyz'),
       })
 
       const account = Account.from({
         address: DRIP_ADDRESS,
         keys: [
-          Key.fromSecp256k1({
+          Key.fromHeadlessWebAuthnP256({
             privateKey: DRIP_PRIVATE_KEY,
-            role: 'admin',
           }),
         ],
       })
@@ -55,10 +56,10 @@ export default {
             abi: exp1Abi,
             args: [address, value],
             functionName: 'mint',
-            to: exp1Address,
+            to: exp1Address[chainId as keyof typeof exp1Address],
           },
         ],
-        feeToken: exp1Address,
+        feeToken: exp1Address[chainId as keyof typeof exp1Address],
       })
 
       return Response.json(

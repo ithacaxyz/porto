@@ -7,15 +7,14 @@ import { exp1Address } from '../_generated/contracts'
 import * as Env from './Env'
 import * as Sentry from './Sentry'
 
-export const chains = Porto.defaultConfig.chains
-
 export const feeToken = {
-  [Chains.odysseyTestnet.id]: exp1Address,
+  [Chains.odysseyTestnet.id]: exp1Address[Chains.odysseyTestnet.id],
+  [Chains.odysseyDevnet.id]: exp1Address[Chains.odysseyDevnet.id],
 } satisfies Record<number, Address.Address>
 
 export const config = {
   anvil: {
-    chains,
+    chains: [Chains.odysseyTestnet],
     mode: Mode.relay({
       feeToken,
     }),
@@ -27,7 +26,7 @@ export const config = {
     },
   },
   prod: {
-    chains,
+    chains: [Chains.odysseyTestnet],
     mode: Mode.contract(),
     transports: {
       [Chains.odysseyTestnet.id]: {
@@ -37,12 +36,12 @@ export const config = {
     },
   },
   stg: {
-    chains,
+    chains: [Chains.odysseyDevnet],
     mode: Mode.relay({
       feeToken,
     }),
     transports: {
-      [Chains.odysseyTestnet.id]: {
+      [Chains.odysseyDevnet.id]: {
         default: http(),
         relay: http(
           'https://relay-staging.ithaca.xyz',

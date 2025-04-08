@@ -21,6 +21,31 @@ export const base = chains.base
 
 export const baseSepolia = chains.baseSepolia
 
+export const odysseyDevnet = /*#__PURE__*/ define({
+  blockExplorers: {
+    default: {
+      apiUrl: '',
+      name: '',
+      url: '',
+    },
+  },
+  contracts: {
+    delegation: {
+      address: '0xcc22bfa7947b41e4aff122267b3d4cd2d351d6eb',
+    },
+    entryPoint: {
+      address: '0x63d9ce30d98762bfe1a26852116f031a1857b674',
+    },
+  },
+  id: 28_403,
+  name: 'Odyssey Devnet',
+  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+  rpcUrls: {
+    default: { http: ['https://odyssey-devnet.ithaca.xyz'] },
+  },
+  testnet: true,
+})
+
 export const odysseyTestnet = /*#__PURE__*/ define({
   ...chains.odysseyTestnet,
   contracts: {

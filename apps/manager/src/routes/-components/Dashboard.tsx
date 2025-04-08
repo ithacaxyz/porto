@@ -9,7 +9,7 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
-import { useAccount, useBlockNumber } from 'wagmi'
+import { useAccount, useBlockNumber, useChainId } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
@@ -51,14 +51,15 @@ function TokenSymbol({
 
 export function Dashboard() {
   const account = useAccount()
+  const chainId = useChainId()
   const disconnect = Hooks.useDisconnect()
   const permissions = Hooks.usePermissions()
 
   const { data: transfers } = useAddressTransfers({
-    chainIds: [911_867],
+    chainIds: [chainId],
   })
   const { data: assets, refetch: refetchSwapAssets } = useSwapAssets({
-    chainId: 911_867,
+    chainId: chainId,
   })
 
   const { data: blockNumber } = useBlockNumber({
@@ -219,7 +220,7 @@ export function Dashboard() {
                 params: [
                   {
                     address: account.address,
-                    token: exp1Address,
+                    token: exp1Address[chainId as keyof typeof exp1Address],
                     value: Hex.fromNumber(25n),
                   },
                 ],

@@ -5,12 +5,7 @@ import { Address } from 'ox'
 import * as React from 'react'
 import { useMemo } from 'react'
 import { useAccount, useBalance, useBlockNumber } from 'wagmi'
-import {
-  base,
-  baseSepolia,
-  odysseyTestnet,
-  optimismSepolia,
-} from 'wagmi/chains'
+import { base, baseSepolia, odysseyTestnet } from 'wagmi/chains'
 import { urlWithCorsBypass } from '~/lib/Constants'
 import { type ChainId, config } from '~/lib/Wagmi'
 import { useReadBalances } from './useReadBalances'
@@ -22,9 +17,6 @@ export function addressApiEndpoint(chainId: ChainId) {
     return 'https://base-sepolia.blockscout.com/api/v2'
 
   if (chainId === odysseyTestnet.id) return 'https://explorer.ithaca.xyz/api/v2'
-
-  if (chainId === optimismSepolia.id)
-    return 'https://optimism-sepolia.blockscout.com/api/v2'
 
   throw new Error(`Unsupported chainId: ${chainId}`)
 }
