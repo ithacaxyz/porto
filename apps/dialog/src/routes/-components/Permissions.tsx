@@ -22,7 +22,7 @@ export function Permissions(props: Permissions.Props) {
 
   return (
     <div className="px-3">
-      <div className="flex items-center gap-3 text-secondary text-[13px]">
+      <div className="flex items-center gap-3 text-[13px] text-secondary">
         <span>Permissions requested</span>
         <div className="h-px flex-1 border-primary border-t"></div>
       </div>
@@ -70,7 +70,7 @@ function SpendPermission(props: SpendPermission.Props) {
   }, [limit, decimals.data, token])
 
   return (
-    <div className="flex items-center gap-2 py-3 text-secondary text-[15px]">
+    <div className="flex items-center gap-2 py-3 text-[15px] text-secondary">
       <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
         <LucidePiggyBank />
       </div>
@@ -92,7 +92,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
   return (
     <div className="flex flex-col">
       <button
-        className="flex items-center gap-2 py-3 text-secondary text-[15px]"
+        className="flex items-center gap-2 py-3 text-[15px] text-secondary"
         onClick={() => setIsOpen(!isOpen)}
         type="button"
       >
