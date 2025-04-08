@@ -22,7 +22,7 @@ export function Permissions(props: Permissions.Props) {
 
   return (
     <div className="px-3">
-      <div className="flex items-center gap-3 text-secondary text-sm">
+      <div className="flex items-center gap-3 text-secondary text-[13px]">
         <span>Permissions requested</span>
         <div className="h-px flex-1 border-primary border-t"></div>
       </div>
