@@ -4,10 +4,11 @@ import { Hooks } from 'porto/remote'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
+import { Permissions } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
 
 export function SignIn(props: SignIn.Props) {
-  const { loading, onApprove } = props
+  const { loading, onApprove, capabilities } = props
 
   const account = Hooks.useAccount(porto)
   const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
@@ -18,18 +19,22 @@ export function SignIn(props: SignIn.Props) {
         <Layout.Header.Default
           content={
             <>
-              Sign in with your wallet to continue using{' '}
+              Authenticate with your Porto account to start using{' '}
               <span className="font-medium">{hostname}</span>.
             </>
           }
           icon={LucideLogIn}
-          title="Sign in"
+          title="Get started"
         />
       </Layout.Header>
 
       <Layout.Footer>
         <Layout.Footer.Actions>
-          <Button onClick={() => onApprove({ signIn: false })} type="button">
+          <Button
+            className="flex-grow"
+            onClick={() => onApprove({ signIn: false })}
+            type="button"
+          >
             Sign up
           </Button>
 
@@ -43,6 +48,8 @@ export function SignIn(props: SignIn.Props) {
           </Button>
         </Layout.Footer.Actions>
 
+        <Permissions capabilities={capabilities} />
+
         <Layout.Footer.Account
           address={account!.address}
           onClick={() => onApprove({ selectAccount: true, signIn: true })}
@@ -52,9 +59,24 @@ export function SignIn(props: SignIn.Props) {
   )
 }
 
-export declare namespace SignIn {
+declare namespace SignIn {
   type Props = {
     loading: boolean
     onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
+    capabilities?: {
+      grantPermissions?: {
+        permissions: {
+          spend?: readonly {
+            limit: `0x${string}`
+            period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+            token?: `0x${string}`
+          }[]
+          calls?: readonly {
+            signature?: string
+            to?: `0x${string}`
+          }[]
+        }
+      }
+    }
   }
 }
