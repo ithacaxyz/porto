@@ -1,17 +1,17 @@
 import { Spinner } from '@porto/apps/components'
 import { Hex } from 'ox'
+import { Hooks } from 'porto/remote'
 import { useMemo, useState } from 'react'
 import { erc20Abi } from 'viem'
 import { useReadContract } from 'wagmi'
+import { porto } from '~/lib/Porto'
 import { StringFormatter, ValueFormatter } from '~/utils'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideChevronUp from '~icons/lucide/chevron-up'
+import ExternalLinkIcon from '~icons/lucide/external-link'
 import LucideKey from '~icons/lucide/key'
 import LucidePiggyBank from '~icons/lucide/piggy-bank'
 import WalletIcon from '~icons/lucide/wallet-cards'
-import ExternalLinkIcon from '~icons/lucide/external-link'
-import { Hooks } from 'porto/remote'
-import { porto } from '~/lib/Porto'
 
 export function Permissions(props: Permissions.Props) {
   const { spend = [], calls = [] } = props
