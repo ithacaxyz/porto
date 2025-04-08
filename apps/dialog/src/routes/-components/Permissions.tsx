@@ -75,9 +75,9 @@ function SpendPermission(props: SpendPermission.Props) {
         <LucidePiggyBank />
       </div>
       {displayAmount || !token ? (
-        <>
-          Spend {displayAmount} {symbol.data ?? 'ETH'} per {period}
-        </>
+        <div>
+          Spend <span className="text-primary font-medium">{displayAmount} {symbol.data ?? 'ETH'}</span> per {period}
+        </div>
       ) : (
         <Spinner className="text-secondary" />
       )}
