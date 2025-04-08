@@ -9,6 +9,9 @@ import LucideChevronUp from '~icons/lucide/chevron-up'
 import LucideKey from '~icons/lucide/key'
 import LucidePiggyBank from '~icons/lucide/piggy-bank'
 import WalletIcon from '~icons/lucide/wallet-cards'
+import ExternalLinkIcon from '~icons/lucide/external-link'
+import { Hooks } from 'porto/remote'
+import { porto } from '~/lib/Porto'
 
 export function Permissions(props: Permissions.Props) {
   const { spend = [], calls = [] } = props
@@ -101,6 +104,9 @@ declare namespace SpendPermission {
 function ContractAccessPermission(props: ContractAccessPermission.Props) {
   const { calls } = props
   const [isOpen, setIsOpen] = useState(false)
+  const chain = Hooks.useChain(porto)
+
+  const explorerUrl = chain?.blockExplorers?.default?.url
 
   return (
     <div className="flex flex-col">
@@ -120,29 +126,41 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         )}
       </button>
       {isOpen && (
-        <div className="space-y-2">
-          <div className="flex items-center text-secondary text-xs">
-            <div className="flex-1 pl-[34px]">
+        <div className="space-y-2 pl-2">
+          <div className="flex items-center font-medium text-secondary text-xs">
+            <div className="w-[60%] pl-8">
               <span>Contract</span>
             </div>
-            <div className="w-[8.75rem]">
+            <div className="w-[40%]">
               <span>Function</span>
             </div>
           </div>
           {calls.map((call) => (
             <div
-              className="flex items-center text-primary text-xs"
+              className="flex items-center text-secondary text-xs"
               key={`call-${call.signature}-${call.to}`}
             >
-              <div className="flex flex-1 items-center">
-                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-jade4">
-                  <WalletIcon className="text-jade9" />
+              <div className="flex w-[60%] min-w-0 items-center">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-jade4">
+                  <WalletIcon className="h-4 w-4 text-jade9" />
                 </div>
-                <span className="ml-2 font-mono text-xs">
-                  {call.to ? StringFormatter.truncate(call.to) : 'Any contract'}
+                <span className="ml-2 truncate font-mono text-xs">
+                  {call.to ? (
+                    <a
+                      className="inline-flex items-center whitespace-nowrap transition-colors hover:text-primary hover:underline"
+                      href={`${explorerUrl}/address/${call.to}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {StringFormatter.truncate(call.to)}
+                      <ExternalLinkIcon className="ml-1 h-3 w-3 flex-shrink-0" />
+                    </a>
+                  ) : (
+                    'Any contract'
+                  )}
                 </span>
               </div>
-              <div className="w-[8.75rem] font-mono">
+              <div className="w-[40%] font-mono">
                 {call.signature || 'Any function'}
               </div>
             </div>

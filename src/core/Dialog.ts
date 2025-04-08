@@ -71,7 +71,7 @@ export function iframe() {
       iframe.setAttribute('tabindex', '0')
       iframe.setAttribute(
         'sandbox',
-        'allow-forms allow-scripts allow-same-origin',
+        'allow-forms allow-scripts allow-same-origin allow-popups',
       )
       iframe.setAttribute('src', host)
       iframe.setAttribute('title', 'Porto')
@@ -351,7 +351,10 @@ export function experimental_inline(options: inline.Options) {
       )
       iframe.setAttribute('aria-label', 'Porto Wallet')
       iframe.setAttribute('tabindex', '0')
-      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
+      iframe.setAttribute(
+        'sandbox',
+        'allow-scripts allow-same-origin allow-popups',
+      )
       iframe.setAttribute('src', host)
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
