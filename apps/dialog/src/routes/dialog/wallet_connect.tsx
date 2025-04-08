@@ -83,7 +83,7 @@ function RouteComponent() {
       <SignIn
         capabilities={capabilities}
         loading={respond.isPending}
-        onApprove={(x) => respond.mutate(x)}
+        onApprove={(options) => respond.mutate(options)}
       />
     )
   if (step === 'signUp' && capabilities?.createAccount)
@@ -91,12 +91,8 @@ function RouteComponent() {
       <SignUp
         capabilities={capabilities}
         enableSignIn={!capabilities?.createAccount}
-        onApprove={() =>
-          navigate({
-            // @ts-ignore
-            search: (prev) => ({ ...prev, step: 'signIn' }),
-          })
-        }
+        loading={respond.isPending}
+        onApprove={(options) => respond.mutate(options)}
         onReject={() => Actions.reject(porto, request)}
       />
     )
@@ -105,7 +101,7 @@ function RouteComponent() {
       capabilities={capabilities}
       enableSignIn={!capabilities?.createAccount}
       loading={respond.isPending}
-      onApprove={(x) => respond.mutate(x)}
+      onApprove={(options) => respond.mutate(options)}
       onReject={() => Actions.reject(porto, request)}
     />
   )
