@@ -12,6 +12,7 @@ export const permissions = () =>
     permissions: {
       calls: [
         {
+          signature: 'mint()',
           to: exp1Address,
         },
         {

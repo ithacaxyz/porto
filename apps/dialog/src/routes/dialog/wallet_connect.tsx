@@ -5,7 +5,6 @@ import { useEffect } from 'react'
 
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
-import { GrantPermissions } from '../-components/GrantPermissions'
 import { SignIn } from '../-components/SignIn'
 import { SignUp } from '../-components/SignUp'
 
@@ -17,7 +16,7 @@ export const Route = createFileRoute('/dialog/wallet_connect')({
     })
     return {
       ...request,
-      step: search.step as 'authorize' | 'signIn' | 'signUp',
+      step: search.step as 'signIn' | 'signUp',
     }
   },
 })
@@ -34,26 +33,20 @@ function RouteComponent() {
   )
 
   const signIn = address && !capabilities?.createAccount
-  const shouldAuthorize = capabilities?.grantPermissions
 
   useEffect(() => {
     if (signIn) {
-      if (shouldAuthorize)
-        navigate({
-          replace: true,
-          search: (prev) => ({ ...prev, step: 'authorize' }),
-        })
-      else
-        navigate({
-          replace: true,
-          search: (prev) => ({ ...prev, step: 'signIn' }),
-        })
-    } else
+      navigate({
+        replace: true,
+        search: (prev) => ({ ...prev, step: 'signIn' }),
+      })
+    } else {
       navigate({
         replace: true,
         search: (prev) => ({ ...prev, step: 'signUp' }),
       })
-  }, [navigate, signIn, shouldAuthorize])
+    }
+  }, [navigate, signIn])
 
   const respond = useMutation({
     mutationFn({
@@ -85,32 +78,23 @@ function RouteComponent() {
     },
   })
 
-  if (step === 'authorize' && capabilities?.grantPermissions)
-    return (
-      <GrantPermissions
-        {...capabilities.grantPermissions}
-        address={signIn ? address : undefined}
-        key={capabilities.grantPermissions.key as never}
-        loading={respond.isPending}
-        onApprove={() => respond.mutate({ signIn })}
-        onReject={() => Actions.reject(porto, request)}
-      />
-    )
   if (step === 'signIn')
     return (
       <SignIn
+        capabilities={capabilities}
         loading={respond.isPending}
         onApprove={(x) => respond.mutate(x)}
       />
     )
-  if (step === 'signUp' && shouldAuthorize)
+  if (step === 'signUp' && capabilities?.createAccount)
     return (
       <SignUp
+        capabilities={capabilities}
         enableSignIn={!capabilities?.createAccount}
         onApprove={() =>
           navigate({
             // @ts-ignore
-            search: (prev) => ({ ...prev, step: 'authorize' }),
+            search: (prev) => ({ ...prev, step: 'signIn' }),
           })
         }
         onReject={() => Actions.reject(porto, request)}
@@ -118,6 +102,7 @@ function RouteComponent() {
     )
   return (
     <SignUp
+      capabilities={capabilities}
       enableSignIn={!capabilities?.createAccount}
       loading={respond.isPending}
       onApprove={(x) => respond.mutate(x)}
