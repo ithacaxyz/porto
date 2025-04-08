@@ -498,6 +498,27 @@ export const abi = [
   },
   {
     "type": "error",
+    "name": "UnauthorizedCall",
+    "inputs": [
+      {
+        "name": "keyHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "target",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ]
+  },
+  {
+    "type": "error",
     "name": "UnsupportedExecutionMode",
     "inputs": []
   }

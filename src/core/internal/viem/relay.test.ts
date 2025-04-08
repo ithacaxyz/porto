@@ -15,6 +15,7 @@ import {
   createAccount,
   getAccounts,
   getKeys,
+  health,
   prepareCalls,
   prepareCreateAccount,
   prepareUpgradeAccount,
@@ -25,6 +26,24 @@ import {
 const { client } = getPorto()
 
 const feeToken = exp1Address
+
+describe('health', () => {
+  test('default', async () => {
+    const { entrypoint, version, ...result } = await health(client)
+    expect(entrypoint).toBeDefined()
+    expect(version).toBeDefined()
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "quoteConfig": {
+          "constantRate": null,
+          "gas": {},
+          "rateTtl": 300,
+          "ttl": 30,
+        },
+      }
+    `)
+  })
+})
 
 describe('prepareCreateAccount + createAccount', () => {
   const getKey = (publicKey: Hex.Hex) =>

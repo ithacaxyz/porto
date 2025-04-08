@@ -36,7 +36,7 @@ import type { OneOf } from './types.js'
 
 export const domainNameAndVersion = {
   name: 'Delegation',
-  version: '0.0.1',
+  version: '0.0.2',
 } as const
 
 /**

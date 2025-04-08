@@ -168,6 +168,30 @@ export namespace getKeys {
 }
 
 /**
+ * Gets the health of the relay.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @returns Result.
+ */
+export async function health(client: Client): Promise<health.ReturnType> {
+  const method = 'relay_health' as const
+  type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+  const result = await client.request<Schema>({
+    method,
+  })
+  return Value.Parse(Rpc.relay_health.Response, result)
+}
+
+export namespace health {
+  export type ReturnType = Rpc.relay_health.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
  * Prepares a call bundle.
  *
  * @example

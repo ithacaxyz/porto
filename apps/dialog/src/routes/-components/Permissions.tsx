@@ -10,20 +10,10 @@ import LucideKey from '~icons/lucide/key'
 import LucidePiggyBank from '~icons/lucide/piggy-bank'
 import WalletIcon from '~icons/lucide/wallet-cards'
 
-export type PermissionsProps = {
-  spend?: readonly SpendPermission.Props[]
-  calls?: ContractAccessPermission.Props['calls']
-}
+export function Permissions(props: Permissions.Props) {
+  const { spend = [], calls = [] } = props
 
-export function Permissions(props: { permissions?: PermissionsProps }) {
-  const { permissions } = props
-
-  if (
-    (permissions?.spend?.length ?? 0) === 0 &&
-    (permissions?.calls?.length ?? 0) === 0
-  ) {
-    return null
-  }
+  if (spend.length === 0 && calls.length === 0) return null
 
   return (
     <div className="px-3">
@@ -32,18 +22,23 @@ export function Permissions(props: { permissions?: PermissionsProps }) {
         <div className="h-px flex-1 border-primary border-t"></div>
       </div>
       <div className="divide-y divide-[color:var(--border-color-primary)]">
-        {permissions?.spend?.map((spend) => (
+        {spend.map((spend) => (
           <SpendPermission
             key={`spend-${spend.token}-${spend.limit}-${spend.period}`}
             {...spend}
           />
         ))}
-        {permissions?.calls && permissions.calls.length > 0 && (
-          <ContractAccessPermission calls={permissions.calls} />
-        )}
+        {calls.length > 0 && <ContractAccessPermission calls={calls} />}
       </div>
     </div>
   )
+}
+
+export declare namespace Permissions {
+  type Props = {
+    spend?: readonly SpendPermission.Props[]
+    calls?: ContractAccessPermission.Props['calls']
+  }
 }
 
 function SpendPermission(props: SpendPermission.Props) {
@@ -71,24 +66,36 @@ function SpendPermission(props: SpendPermission.Props) {
     return ValueFormatter.format(Hex.toBigInt(limit), decimals.data)
   }, [limit, decimals.data, token])
 
+  const isLoading = token && !displayAmount
+
   return (
     <div className="flex items-center gap-2 py-3 text-[15px] text-secondary">
       <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
-        <LucidePiggyBank />
+        {isLoading ? (
+          <div className="size-[16px]">
+            <Spinner />
+          </div>
+        ) : (
+          <LucidePiggyBank className="size-[16px]" />
+        )}
       </div>
-      {displayAmount || !token ? (
-        <div>
-          Spend{' '}
-          <span className="font-medium text-primary">
-            {displayAmount} {symbol.data ?? 'ETH'}
-          </span>{' '}
-          per {period}
-        </div>
-      ) : (
-        <Spinner className="text-secondary" />
-      )}
+      <div>
+        Spend{' '}
+        <span className="font-medium text-primary">
+          {isLoading ? '' : displayAmount} {symbol.data ?? 'ETH'}
+        </span>{' '}
+        per {period}
+      </div>
     </div>
   )
+}
+
+declare namespace SpendPermission {
+  type Props = {
+    limit: `0x${string}`
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    token?: `0x${string}`
+  }
 }
 
 function ContractAccessPermission(props: ContractAccessPermission.Props) {
@@ -103,7 +110,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         type="button"
       >
         <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
-          <LucideKey />
+          <LucideKey className="size-[14px]" />
         </div>
         <span className="flex-1 text-left">Access-related permissions</span>
         {isOpen ? (
@@ -113,9 +120,9 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         )}
       </button>
       {isOpen && (
-        <div className="space-y-2 pl-2">
-          <div className="flex items-center font-medium text-secondary text-xs">
-            <div className="flex-1 pl-8">
+        <div className="space-y-2">
+          <div className="flex items-center text-secondary text-xs">
+            <div className="flex-1 pl-[34px]">
               <span>Contract</span>
             </div>
             <div className="w-[8.75rem]">
@@ -124,12 +131,12 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
           </div>
           {calls.map((call) => (
             <div
-              className="flex items-center text-secondary text-xs"
+              className="flex items-center text-primary text-xs"
               key={`call-${call.signature}-${call.to}`}
             >
               <div className="flex flex-1 items-center">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-jade4">
-                  <WalletIcon className="h-4 w-4 text-jade9" />
+                <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-jade4">
+                  <WalletIcon className="text-jade9" />
                 </div>
                 <span className="ml-2 font-mono text-xs">
                   {call.to ? StringFormatter.truncate(call.to) : 'Any contract'}
@@ -144,18 +151,6 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
       )}
     </div>
   )
-}
-
-declare namespace Permissions {
-  type Props = PermissionsProps
-}
-
-declare namespace SpendPermission {
-  type Props = {
-    limit: `0x${string}`
-    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-    token?: `0x${string}`
-  }
 }
 
 declare namespace ContractAccessPermission {

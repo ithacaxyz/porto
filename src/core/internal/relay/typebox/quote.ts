@@ -22,6 +22,8 @@ export const Quote = Type.Object({
   /** Chain ID the quote is for. */
   // TODO: `Primitive.Number`
   chainId: Type.Number(),
+  /** Whether quote is referring to a preop. */
+  isPreop: Type.Boolean(),
   /** The fee estimate for the bundle in the destination chains native token. */
   nativeFeeEstimate: Type.Object({
     /** The maximum fee per gas for the bundle. */

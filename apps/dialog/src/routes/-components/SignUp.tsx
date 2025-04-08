@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import * as Dialog from '~/lib/Dialog'
 import { Layout } from '~/routes/-components/Layout'
-import { Permissions, PermissionsProps } from '~/routes/-components/Permissions'
+import { Permissions } from '~/routes/-components/Permissions'
 import ChevronRight from '~icons/lucide/chevron-right'
 import LucideLogIn from '~icons/lucide/log-in'
 import Question from '~icons/mingcute/question-line'
@@ -30,7 +30,9 @@ export function SignUp(props: SignUp.Props) {
           title="Sign up"
         />
       </Layout.Header>
-      <Permissions permissions={permissions} />
+
+      <Permissions {...permissions} />
+
       <Layout.Footer>
         <Layout.Footer.Actions>
           {enableSignIn ? (
@@ -82,7 +84,7 @@ export namespace SignUp {
     loading?: boolean
     onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
     onReject: () => void
-    permissions?: PermissionsProps
+    permissions?: Permissions.Props
   }
 
   export function Learn({ onDone }: { onDone: () => void }) {

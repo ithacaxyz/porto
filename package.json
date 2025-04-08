@@ -89,7 +89,7 @@
       "name": "import * from 'ox'",
       "path": "./src/_dist/index.js",
       "import": "*",
-      "limit": "98 kB"
+      "limit": "99 kB"
     }
   ],
   "pnpm": {

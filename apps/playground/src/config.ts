@@ -19,7 +19,7 @@ export const permissions = () =>
         },
         {
           signature: 'mint()',
-          to: exp1Address,
+          to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
         },
       ],
       spend: [

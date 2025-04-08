@@ -59,7 +59,7 @@ function RouteComponent() {
     },
   })
 
-  if (signIn) {
+  if (signIn)
     return (
       <SignIn
         loading={respond.isPending}
@@ -67,7 +67,6 @@ function RouteComponent() {
         permissions={capabilities?.grantPermissions?.permissions}
       />
     )
-  }
 
   return (
     <SignUp

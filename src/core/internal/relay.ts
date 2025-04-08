@@ -36,6 +36,8 @@ export async function createAccount(
     return account
   }
 
+  const { entrypoint } = await Actions.health(client)
+
   // Create root id signer
   const idSigner_root = createIdSigner()
 
@@ -43,7 +45,11 @@ export async function createAccount(
     typeof parameters.keys === 'function'
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
-  const keys_relay = keys.map(Key.toRelay)
+  const keys_relay = keys.map((key) =>
+    Key.toRelay(key, {
+      entrypoint,
+    }),
+  )
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
   const request = await prepareCreateAccount(client, { ...parameters, keys })
@@ -230,16 +236,21 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 
   const account = Account.from(parameters.account)
 
+  const { entrypoint } = await Actions.health(client)
+
   const idSigner = createIdSigner()
   const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) => {
     if (key.role === 'admin')
-      return Key.toRelay({
-        ...key,
-        signature: idSigner.sign({
-          digest: getIdDigest({ id: idSigner.id, key }),
-        }),
-      })
-    return Key.toRelay(key)
+      return Key.toRelay(
+        {
+          ...key,
+          signature: idSigner.sign({
+            digest: getIdDigest({ id: idSigner.id, key }),
+          }),
+        },
+        { entrypoint },
+      )
+    return Key.toRelay(key, { entrypoint })
   })
 
   const hash = Key.hash(key)
@@ -344,7 +355,12 @@ export async function prepareCreateAccount(
 
   if (!delegation) throw new Error('`delegation` is required')
 
-  const authorizeKeys = keys.map(Key.toRelay)
+  const { entrypoint } = await Actions.health(client)
+  const authorizeKeys = keys.map((key) =>
+    Key.toRelay(key, {
+      entrypoint,
+    }),
+  )
 
   const { address, capabilities, context, digests } =
     await Actions.prepareCreateAccount(client, {
@@ -417,11 +433,17 @@ export async function prepareUpgradeAccount(
   // Create root id signer
   const idSigner_root = createIdSigner()
 
+  const { entrypoint } = await Actions.health(client)
+
   const keys =
     typeof parameters.keys === 'function'
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
-  const keys_relay = keys.map(Key.toRelay)
+  const keys_relay = keys.map((key) =>
+    Key.toRelay(key, {
+      entrypoint,
+    }),
+  )
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
   const authorizeKeys = signers.map((signer, index) => ({

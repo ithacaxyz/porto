@@ -256,13 +256,6 @@ export function popup() {
 
       let popup: Window | null = null
 
-      const root = document.createElement('div')
-      document.body.appendChild(root)
-
-      const backdrop = document.createElement('div')
-      Object.assign(backdrop.style, styles.backdrop)
-      root.appendChild(backdrop)
-
       function onBlur() {
         handleBlur(store)
       }
@@ -274,13 +267,11 @@ export function popup() {
           if (!popup) return
           popup.close()
           popup = null
-          backdrop.style.display = 'none'
         },
         destroy() {
           this.close()
           window.removeEventListener('focus', onBlur)
           messenger?.destroy()
-          root.remove()
         },
         open() {
           const left = (window.innerWidth - width) / 2 + window.screenX
@@ -316,8 +307,6 @@ export function popup() {
           messenger.on('__internal', (_payload) => {})
 
           window.addEventListener('focus', onBlur)
-
-          backdrop.style.display = 'block'
         },
         async syncRequests(requests) {
           const requiresConfirm = requests.some((x) =>

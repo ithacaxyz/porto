@@ -15,7 +15,7 @@ import * as Storage from './Storage.js'
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.odysseyTestnet],
-  mode: Mode.dialog(),
+  mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.relay(),
   storage: Storage.idb(),
   transports: {
     [Chains.odysseyTestnet.id]: {

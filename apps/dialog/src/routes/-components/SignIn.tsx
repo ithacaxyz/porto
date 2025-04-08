@@ -4,7 +4,7 @@ import { Hooks } from 'porto/remote'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import { Permissions, PermissionsProps } from '~/routes/-components/Permissions'
+import { Permissions } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
 
 export function SignIn(props: SignIn.Props) {
@@ -27,7 +27,9 @@ export function SignIn(props: SignIn.Props) {
           title="Get started"
         />
       </Layout.Header>
-      <Permissions permissions={permissions} />
+
+      <Permissions {...permissions} />
+
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
@@ -61,6 +63,6 @@ declare namespace SignIn {
   type Props = {
     loading: boolean
     onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
-    permissions?: PermissionsProps
+    permissions?: Permissions.Props
   }
 }

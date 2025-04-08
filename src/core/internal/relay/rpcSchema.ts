@@ -12,6 +12,10 @@ import type * as Rpc from './typebox/rpc.js'
 
 export type Schema = RpcSchema_ox.From<
   | {
+      Request: Static<typeof Rpc.relay_health.Request>
+      ReturnType: Static<typeof Rpc.relay_health.Response>
+    }
+  | {
       Request: Static<typeof Rpc.wallet_createAccount.Request>
       ReturnType: Static<typeof Rpc.wallet_createAccount.Response>
     }

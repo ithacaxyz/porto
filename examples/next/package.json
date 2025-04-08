@@ -1,0 +1,25 @@
+{
+  "name": "next",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack --experimental-https",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "catalog:",
+    "porto": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "next": "latest",
+    "wagmi": "catalog:",
+    "viem": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "latest",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  }
+}
