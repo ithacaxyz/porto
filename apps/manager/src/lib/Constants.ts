@@ -1,6 +1,7 @@
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import type { Address } from 'ox'
-import { base, baseSepolia, odysseyTestnet } from 'viem/chains'
+import { Chains } from 'porto'
+import { base, baseSepolia } from 'viem/chains'
 import type { ChainId } from '~/lib/Wagmi'
 
 export const CORS_DESTROYER_URL = 'https://cors.porto.workers.dev'
@@ -28,7 +29,7 @@ export const defaultAssets: Record<
     price?: number
   }>
 > = {
-  [odysseyTestnet.id]: [
+  [Chains.odysseyTestnet.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
       decimals: 18,

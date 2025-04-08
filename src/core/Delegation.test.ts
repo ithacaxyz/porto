@@ -1,6 +1,6 @@
 import { AbiFunction, Value } from 'ox'
+import { Chains } from 'porto'
 import { createClient, http } from 'viem'
-import { odysseyTestnet } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
 
 import * as Delegation from './Delegation.js'
@@ -11,7 +11,7 @@ describe('simulate', () => {
     address: '0xb1596E2aD207c2Df8FA791A1a8a422E4146C5228',
   })
   const client = createClient({
-    chain: odysseyTestnet,
+    chain: Chains.odysseyTestnet,
     transport: http(),
   })
   const experimentalErc20 = '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c'

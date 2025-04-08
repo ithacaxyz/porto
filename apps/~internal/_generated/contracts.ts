@@ -190,7 +190,7 @@ export const exp1Abi = [
   { stateMutability: 'payable', type: 'receive' },
 ] as const
 
-export const exp1Address = '0x706Aa5C8e5cC2c67Da21ee220718f6f6B154E75c' as const
+export const exp1Address = '0x541a5505620A658932e326D0dC996C460f5AcBE1' as const
 
 export const exp1Config = { abi: exp1Abi, address: exp1Address } as const
 
@@ -386,6 +386,6 @@ export const exp2Abi = [
   { stateMutability: 'payable', type: 'receive' },
 ] as const
 
-export const exp2Address = '0x390dD40042a844F92b499069CFe983236d9fe204' as const
+export const exp2Address = '0x0Ee2d43FcaAF97e22E6Bfade9C7a9Cfcca309f25' as const
 
 export const exp2Config = { abi: exp2Abi, address: exp2Address } as const

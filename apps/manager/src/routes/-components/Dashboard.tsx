@@ -5,6 +5,7 @@ import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
+import { Chains } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -55,10 +56,10 @@ export function Dashboard() {
   const permissions = Hooks.usePermissions()
 
   const { data: transfers } = useAddressTransfers({
-    chainIds: [911_867],
+    chainIds: [Chains.odysseyTestnet.id],
   })
   const { data: assets, refetch: refetchSwapAssets } = useSwapAssets({
-    chainId: 911_867,
+    chainId: Chains.odysseyTestnet.id,
   })
 
   const { data: blockNumber } = useBlockNumber({
@@ -653,7 +654,7 @@ function AssetRow({
   )
 
   const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
-    chainId: 911_867,
+    chainId: Chains.odysseyTestnet.id,
   })
 
   const formattedBalance = React.useMemo(
