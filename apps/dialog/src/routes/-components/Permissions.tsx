@@ -108,7 +108,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
       </button>
       {isOpen && (
         <div className="space-y-2 pl-2">
-          <div className="flex items-center font-medium text-secondary text-sm">
+          <div className="flex items-center font-medium text-secondary text-xs">
             <div className="flex-1 pl-8">
               <span>Contract</span>
             </div>
