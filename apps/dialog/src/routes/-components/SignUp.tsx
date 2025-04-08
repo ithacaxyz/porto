@@ -3,13 +3,13 @@ import { useState } from 'react'
 
 import * as Dialog from '~/lib/Dialog'
 import { Layout } from '~/routes/-components/Layout'
-import { Permissions } from '~/routes/-components/Permissions'
+import { Permissions, PermissionsProps } from '~/routes/-components/Permissions'
 import ChevronRight from '~icons/lucide/chevron-right'
 import LucideLogIn from '~icons/lucide/log-in'
 import Question from '~icons/mingcute/question-line'
 
 export function SignUp(props: SignUp.Props) {
-  const { enableSignIn, loading, onApprove, onReject, capabilities } = props
+  const { enableSignIn, loading, onApprove, onReject, permissions } = props
 
   const [showLearn, setShowLearn] = useState(false)
 
@@ -30,7 +30,7 @@ export function SignUp(props: SignUp.Props) {
           title="Sign up"
         />
       </Layout.Header>
-      <Permissions capabilities={capabilities} />
+      <Permissions permissions={permissions} />
       <Layout.Footer>
         <Layout.Footer.Actions>
           {enableSignIn ? (
@@ -82,21 +82,7 @@ export namespace SignUp {
     loading?: boolean
     onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
     onReject: () => void
-    capabilities?: {
-      grantPermissions?: {
-        permissions: {
-          spend?: readonly {
-            limit: `0x${string}`
-            period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-            token?: `0x${string}`
-          }[]
-          calls?: readonly {
-            signature?: string
-            to?: `0x${string}`
-          }[]
-        }
-      }
-    }
+    permissions?: PermissionsProps
   }
 
   export function Learn({ onDone }: { onDone: () => void }) {
