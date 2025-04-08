@@ -91,9 +91,9 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
   return (
     <div className="flex flex-col">
       <button
-        type="button"
         className="flex items-center gap-2 py-3 text-secondary text-sm"
         onClick={() => setIsOpen(!isOpen)}
+        type="button"
       >
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface">
           <LucideKey className="h-5 w-5" />
