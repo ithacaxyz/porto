@@ -17,18 +17,17 @@ import {
   getTransactionReceipt,
   setCode,
 } from 'viem/actions'
-import { odysseyTestnet } from 'viem/chains'
 
 import * as Delegation from '../../src/core/internal/_generated/contracts/Delegation.js'
 import * as EIP7702Proxy from '../../src/core/internal/_generated/contracts/EIP7702Proxy.js'
 import * as EntryPoint from '../../src/core/internal/_generated/contracts/EntryPoint.js'
+import { Chains } from '../../src/index.js'
 import { exp1Address, exp2Address } from '../src/_generated/contracts.js'
-
 import { poolId } from './prool.js'
 
 export const instances = {
   odyssey: defineAnvil({
-    chainId: odysseyTestnet.id,
+    chainId: Chains.odysseyTestnet.id,
     port: 8545,
   }),
 } as const

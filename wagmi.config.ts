@@ -18,11 +18,11 @@ export default defineConfig(
         baseUrl: odysseyTestnet.blockExplorers.default.apiUrl,
         contracts: [
           {
-            address: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+            address: '0x541a5505620A658932e326D0dC996C460f5AcBE1',
             name: 'EXP1',
           },
           {
-            address: '0x390dd40042a844f92b499069cfe983236d9fe204',
+            address: '0x0Ee2d43FcaAF97e22E6Bfade9C7a9Cfcca309f25',
             name: 'EXP2',
           },
         ],
