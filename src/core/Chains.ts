@@ -32,6 +32,7 @@ export const odysseyTestnet = /*#__PURE__*/ define({
       address: '0x7cf6287013ef3d4558a98fcc2bc286e53341513f',
     },
   },
+  id: 28403,
   rpcUrls: {
     default: {
       http: ['https://odyssey-devnet.ithaca.xyz'],
