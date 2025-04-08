@@ -8,6 +8,7 @@ import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideChevronUp from '~icons/lucide/chevron-up'
 import LucideKey from '~icons/lucide/key'
 import LucidePiggyBank from '~icons/lucide/piggy-bank'
+import WalletIcon from '~icons/lucide/wallet-cards'
 
 export function Permissions(props: Permissions.Props) {
   const { capabilities } = props
@@ -106,18 +107,31 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         )}
       </button>
       {isOpen && (
-        <div className="space-y-2 pl-10">
+        <div className="pl-2 space-y-2">
+          <div className="flex items-center text-secondary text-sm font-medium">
+            <div className="flex-1 pl-8">
+              <span className="tracking-wider">Contract</span>
+            </div>
+            <div className="w-[8.75rem]">
+              <span className="tracking-wider">Function</span>
+            </div>
+          </div>
           {calls.map((call) => (
             <div
-              className="flex items-center justify-between text-secondary text-sm"
+              className="flex items-center text-secondary text-sm"
               key={`call-${call.signature}-${call.to}`}
             >
-              <span className="font-mono">
+              <div className="flex-1 flex items-center">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100">
+                  <WalletIcon className="h-4 w-4 text-teal-600" />
+                </div>
+                <span className="font-mono text-xs ml-2">
+                  {call.to ? StringFormatter.truncate(call.to) : 'Any contract'}
+                </span>
+              </div>
+              <div className="w-[8.75rem] font-mono">
                 {call.signature || 'Any function'}
-              </span>
-              <span className="font-mono text-xs">
-                {call.to ? StringFormatter.truncate(call.to) : 'Any contract'}
-              </span>
+              </div>
             </div>
           ))}
         </div>
