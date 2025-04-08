@@ -110,7 +110,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         <div className="space-y-2 pl-2">
           <div className="flex items-center font-medium text-secondary text-sm">
             <div className="flex-1 pl-8">
-              <span className="tracking-wider">Contract</span>
+              <span>Contract</span>
             </div>
             <div className="w-[8.75rem]">
               <span className="tracking-wider">Function</span>
