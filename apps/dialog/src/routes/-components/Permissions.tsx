@@ -113,7 +113,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
               <span>Contract</span>
             </div>
             <div className="w-[8.75rem]">
-              <span className="tracking-wider">Function</span>
+              <span>Function</span>
             </div>
           </div>
           {calls.map((call) => (
