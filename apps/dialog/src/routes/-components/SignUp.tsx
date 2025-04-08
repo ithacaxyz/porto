@@ -30,7 +30,7 @@ export function SignUp(props: SignUp.Props) {
           title="Sign up"
         />
       </Layout.Header>
-
+      <Permissions capabilities={capabilities} />
       <Layout.Footer>
         <Layout.Footer.Actions>
           {enableSignIn ? (
@@ -56,7 +56,7 @@ export function SignUp(props: SignUp.Props) {
           </Button>
         </Layout.Footer.Actions>
 
-        <Permissions capabilities={capabilities} />
+       
 
         <button
           className="flex w-full cursor-pointer items-center justify-between border-primary border-t px-3 pt-3"
