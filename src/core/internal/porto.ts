@@ -95,6 +95,7 @@ export function getClient<
 
   const relayMethods = [
     'relay_estimateFee',
+    'relay_health',
     'relay_sendAction',
     'wallet_createAccount',
     'wallet_getAccounts',

@@ -28,6 +28,40 @@ const Call = Type.Object({
   value: Schema.Optional(Primitive.BigInt),
 })
 
+export namespace relay_health {
+  export const Request = Type.Object({
+    method: Type.Literal('relay_health'),
+    params: Type.Undefined(),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    /** Entrypoint address. */
+    entrypoint: Primitive.Address,
+    /** Quote configuration. */
+    quoteConfig: Type.Object({
+      /** Sets a constant rate for the price oracle. Used for testing. */
+      constantRate: Schema.Optional(Type.Union([Type.Number(), Type.Null()])),
+      /** Gas estimate configuration. */
+      gas: Schema.Optional(
+        Type.Object({
+          /** Extra buffer added to transaction gas estimates. */
+          txBuffer: Schema.Optional(Type.Number()),
+          /** Extra buffer added to UserOp gas estimates. */
+          userOpBuffer: Schema.Optional(Type.Number()),
+        }),
+      ),
+      /** The lifetime of a price rate. */
+      rateTtl: Type.Number(),
+      /** The lifetime of a fee quote. */
+      ttl: Type.Number(),
+    }),
+    /** Version of the relay. */
+    version: Type.String(),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace wallet_getAccounts {
   /** Parameters for `wallet_getAccounts` request. */
   export const Parameters = Type.Object({
