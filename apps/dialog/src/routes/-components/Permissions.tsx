@@ -103,9 +103,10 @@ declare namespace SpendPermission {
 
 function ContractAccessPermission(props: ContractAccessPermission.Props) {
   const { calls } = props
-  const [isOpen, setIsOpen] = useState(false)
-  const chain = Hooks.useChain(porto)
 
+  const [isOpen, setIsOpen] = useState(false)
+
+  const chain = Hooks.useChain(porto)
   const explorerUrl = chain?.blockExplorers?.default?.url
 
   return (
@@ -137,7 +138,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
           </div>
           {calls.map((call) => (
             <div
-              className="flex items-center text-secondary text-xs"
+              className="flex items-center text-xs"
               key={`call-${call.signature}-${call.to}`}
             >
               <div className="flex w-[60%] min-w-0 items-center">
@@ -147,8 +148,12 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
                 <span className="ml-2 truncate font-mono text-xs">
                   {call.to ? (
                     <a
-                      className="inline-flex items-center whitespace-nowrap transition-colors hover:text-primary hover:underline"
-                      href={`${explorerUrl}/address/${call.to}`}
+                      className="inline-flex cursor-pointer items-center whitespace-nowrap transition-colors hover:text-primary hover:underline"
+                      href={
+                        explorerUrl
+                          ? `${explorerUrl}/address/${call.to}`
+                          : undefined
+                      }
                       rel="noreferrer"
                       target="_blank"
                     >
