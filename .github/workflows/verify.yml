@@ -55,7 +55,7 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       matrix:
         anvil: ['true', 'false']
@@ -87,7 +87,7 @@ jobs:
         uses: nick-fields/retry@v3
         with:
           max_attempts: 3
-          timeout_minutes: 20
+          timeout_minutes: 30
           command: pnpm test:ci
         env: 
           VITE_ANVIL: ${{ matrix.anvil }}

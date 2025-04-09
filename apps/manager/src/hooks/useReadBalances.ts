@@ -1,3 +1,4 @@
+import { PortoConfig } from '@porto/apps'
 import type { Address } from 'ox'
 import { erc20Abi } from 'viem'
 import {
@@ -8,14 +9,13 @@ import {
 } from 'wagmi'
 
 import { defaultAssets, ethAsset } from '~/lib/Constants'
-import type { ChainId } from '~/lib/Wagmi'
 
 export function useReadBalances({
   address,
   chainId,
 }: {
   address?: Address.Address | undefined
-  chainId: ChainId
+  chainId: PortoConfig.ChainId
 }) {
   const assets = defaultAssets[chainId]?.filter(
     (asset) => asset.address !== '0x0000000000000000000000000000000000000000',

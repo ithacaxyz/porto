@@ -1,10 +1,45 @@
-import { Env, Porto as PortoConfig } from '@porto/apps'
-import { exp1Address, exp2Address } from '@porto/apps/contracts'
+import { Env, PortoConfig } from '@porto/apps'
+import {
+  exp1Address as exp1Address_,
+  exp2Address as exp2Address_,
+} from '@porto/apps/contracts'
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
 import { Chains, Dialog, Mode, Porto } from 'porto'
 
 export const env = Env.get()
+
+const config = PortoConfig.getConfig(env)
+const chainId = config.chains[0].id
+
+export const exp1Address = exp1Address_[chainId]
+export const exp2Address = exp2Address_[chainId]
+
+const host = PortoConfig.dialogHosts[env]
+export const modes = {
+  contract: Mode.contract(),
+  'iframe-dialog': Mode.dialog({
+    host,
+  }),
+  'inline-dialog': Mode.dialog({
+    host,
+    renderer: Dialog.experimental_inline({
+      element: () => document.getElementById('porto')!,
+    }),
+  }),
+  'popup-dialog': Mode.dialog({
+    host,
+    renderer: Dialog.popup(),
+  }),
+  relay: Mode.relay({
+    feeToken: {
+      [Chains.odysseyTestnet.id]: exp1Address,
+    },
+  }),
+}
+export type ModeType = keyof typeof modes
+
+export const mipd = createStore()
 
 export const permissions = () =>
   ({
@@ -32,34 +67,8 @@ export const permissions = () =>
     },
   }) as const
 
-const host = PortoConfig.dialogHosts[env]
-export const modes = {
-  contract: Mode.contract(),
-  'iframe-dialog': Mode.dialog({
-    host,
-  }),
-  'inline-dialog': Mode.dialog({
-    host,
-    renderer: Dialog.experimental_inline({
-      element: () => document.getElementById('porto')!,
-    }),
-  }),
-  'popup-dialog': Mode.dialog({
-    host,
-    renderer: Dialog.popup(),
-  }),
-  relay: Mode.relay({
-    feeToken: {
-      [Chains.odysseyTestnet.id]: exp1Address,
-    },
-  }),
-}
-export type ModeType = keyof typeof modes
-
 export const porto = Porto.create({
-  ...PortoConfig.config[env],
+  ...config,
   // We will be deferring mode setup until after hydration.
   mode: null,
 })
-
-export const mipd = createStore()

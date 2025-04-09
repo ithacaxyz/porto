@@ -16,11 +16,17 @@ export function onDialogRequest(
     Remote.Porto<any>,
     '_internal' | 'methodPolicies' | 'messenger' | 'provider'
   >,
-  cb: (payload: Remote.RemoteState['requests'][number]['request']) => void,
+  cb: (
+    payload: Remote.RemoteState['requests'][number]['request'] | null,
+  ) => void,
 ) {
   return onRequests(porto, (requests, event) => {
     const request = requests[0]?.request
-    if (!request) return
+
+    if (!request) {
+      cb(null)
+      return
+    }
 
     const policy = porto.methodPolicies?.find(
       (policy) => policy.method === request.method,

@@ -38,11 +38,8 @@ export const defaultConfig = {
  * ```
  */
 export function create<
-  chains extends readonly [
-    Chains.Chain,
-    ...Chains.Chain[],
-  ] = typeof defaultConfig.chains,
->(parameters?: ExactPartial<Config> | undefined): Porto<chains>
+  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(parameters?: ExactPartial<Config<chains>> | undefined): Porto<chains>
 export function create(
   parameters: ExactPartial<Config> | undefined = {},
 ): Porto {
@@ -140,7 +137,7 @@ export type Config<
   /**
    * List of supported chains.
    */
-  chains: chains | readonly [Chains.Chain, ...Chains.Chain[]]
+  chains: chains
   /**
    * Mode to use.
    * @default Mode.dialog()

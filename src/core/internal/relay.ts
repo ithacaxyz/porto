@@ -36,8 +36,6 @@ export async function createAccount(
     return account
   }
 
-  const { entrypoint } = await Actions.health(client)
-
   // Create root id signer
   const idSigner_root = createIdSigner()
 
@@ -45,6 +43,12 @@ export async function createAccount(
     typeof parameters.keys === 'function'
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
+
+  const hasSessionKey = keys.some((x) => x.role === 'session')
+  const entrypoint = hasSessionKey
+    ? (await Actions.health(client)).entrypoint
+    : undefined
+
   const keys_relay = keys.map((key) =>
     Key.toRelay(key, {
       entrypoint,
@@ -236,7 +240,12 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 
   const account = Account.from(parameters.account)
 
-  const { entrypoint } = await Actions.health(client)
+  const hasSessionKey = parameters.authorizeKeys?.some(
+    (x) => x.role === 'session',
+  )
+  const entrypoint = hasSessionKey
+    ? (await Actions.health(client)).entrypoint
+    : undefined
 
   const idSigner = createIdSigner()
   const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) => {
@@ -355,7 +364,11 @@ export async function prepareCreateAccount(
 
   if (!delegation) throw new Error('`delegation` is required')
 
-  const { entrypoint } = await Actions.health(client)
+  const hasSessionKey = keys.some((x) => x.role === 'session')
+  const entrypoint = hasSessionKey
+    ? (await Actions.health(client)).entrypoint
+    : undefined
+
   const authorizeKeys = keys.map((key) =>
     Key.toRelay(key, {
       entrypoint,
@@ -433,12 +446,16 @@ export async function prepareUpgradeAccount(
   // Create root id signer
   const idSigner_root = createIdSigner()
 
-  const { entrypoint } = await Actions.health(client)
-
   const keys =
     typeof parameters.keys === 'function'
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
+
+  const hasSessionKey = keys.some((x) => x.role === 'session')
+  const entrypoint = hasSessionKey
+    ? (await Actions.health(client)).entrypoint
+    : undefined
+
   const keys_relay = keys.map((key) =>
     Key.toRelay(key, {
       entrypoint,

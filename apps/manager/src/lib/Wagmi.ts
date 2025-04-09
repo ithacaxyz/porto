@@ -1,28 +1,9 @@
-import { Env, Porto as PortoConfig } from '@porto/apps'
-import { Mode, Porto } from 'porto'
-import { createConfig, createStorage, http, injected } from 'wagmi'
-import { base, baseSepolia, odysseyTestnet } from 'wagmi/chains'
-
-const env = Env.get()
-
-const host = (() => {
-  const url = new URL(PortoConfig.dialogHosts[env] as string)
-  if (import.meta.env.DEV) url.port = window.location.port
-  return url.href
-})()
-
-export const porto = Porto.create({
-  ...PortoConfig.config[env],
-  mode: Mode.dialog({
-    host,
-  }),
-})
-
-export const chainIds = [base.id, odysseyTestnet.id, baseSepolia.id] as const
-export type ChainId = (typeof chainIds)[number]
+import { PortoConfig } from '@porto/apps'
+import { createConfig, createStorage, injected, Transport } from 'wagmi'
+import { porto } from './Porto'
 
 export const config = createConfig({
-  chains: [base, odysseyTestnet, baseSepolia],
+  chains: porto._internal.config.chains,
   connectors: [
     injected({
       target: () => ({
@@ -34,11 +15,14 @@ export const config = createConfig({
   ],
   multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
-  transports: {
-    [base.id]: http(),
-    [baseSepolia.id]: http(),
-    [odysseyTestnet.id]: http(),
-  },
+  transports: Object.entries(porto._internal.config.transports).reduce(
+    (transports, [chainId, transport]) => ({
+      // biome-ignore lint/performance/noAccumulatingSpread:
+      ...transports,
+      [chainId]: 'default' in transport ? transport.default : transport,
+    }),
+    {} as Record<PortoConfig.ChainId, Transport>,
+  ),
 })
 
 export const mipdConfig = createConfig({
@@ -47,7 +31,7 @@ export const mipdConfig = createConfig({
   transports: config._internal.transports,
 })
 
-export const getChainConfig = (chainId: ChainId) =>
+export const getChainConfig = (chainId: PortoConfig.ChainId) =>
   config.chains.find((c) => c.id === chainId)
 
 declare module 'wagmi' {

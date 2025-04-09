@@ -1,31 +1,20 @@
-import { Query } from '@porto/apps'
+import { PortoConfig, Query } from '@porto/apps'
 import { useQueries } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import * as React from 'react'
 import { useMemo } from 'react'
-import { useAccount, useBalance, useBlockNumber } from 'wagmi'
-import {
-  base,
-  baseSepolia,
-  odysseyTestnet,
-  optimismSepolia,
-} from 'wagmi/chains'
+import { useAccount, useBalance, useBlockNumber, useChainId } from 'wagmi'
+import { odysseyTestnet } from 'wagmi/chains'
 import { urlWithCorsBypass } from '~/lib/Constants'
-import { type ChainId, config } from '~/lib/Wagmi'
+import { config } from '~/lib/Wagmi'
 import { useReadBalances } from './useReadBalances'
 
-export function addressApiEndpoint(chainId: ChainId) {
-  if (chainId === base.id) return 'https://base.blockscout.com/api/v2'
-
-  if (chainId === baseSepolia.id)
-    return 'https://base-sepolia.blockscout.com/api/v2'
-
+export function addressApiEndpoint(chainId: PortoConfig.ChainId) {
+  // if (chainId === base.id) return 'https://base.blockscout.com/api/v2'
+  // if (chainId === baseSepolia.id)
+  //   return 'https://base-sepolia.blockscout.com/api/v2'
   if (chainId === odysseyTestnet.id) return 'https://explorer.ithaca.xyz/api/v2'
-
-  if (chainId === optimismSepolia.id)
-    return 'https://optimism-sepolia.blockscout.com/api/v2'
-
   throw new Error(`Unsupported chainId: ${chainId}`)
 }
 
@@ -34,7 +23,7 @@ export function useTokenBalances({
   chainId,
 }: {
   address?: Address.Address | undefined
-  chainId?: ChainId | undefined
+  chainId?: PortoConfig.ChainId | undefined
 } = {}) {
   const account = useAccount()
   const userAddress = address ?? account.address
@@ -131,16 +120,17 @@ export function useAddressTransfers({
   chainIds,
 }: {
   address?: Address.Address | undefined
-  chainIds?: Array<ChainId> | undefined
+  chainIds?: Array<PortoConfig.ChainId> | undefined
 } = {}) {
   const account = useAccount()
+  const chainId = useChainId()
 
   const userAddress = address ?? account.address
-  const userChainIds = (chainIds ?? [account.chainId]) as Array<ChainId>
+  const userChainIds = chainIds ?? [chainId]
 
   const { refetch: refetchBalances } = useReadBalances({
     address: userAddress,
-    chainId: userChainIds[0] as ChainId,
+    chainId: userChainIds[0]!,
   })
 
   const results = useQueries({
@@ -189,7 +179,6 @@ export function useAddressTransfers({
   )
 
   const { data: blockNumber } = useBlockNumber({
-    chainId: chainIds?.length === 1 ? chainIds[0] : undefined,
     watch: {
       enabled: account.status === 'connected',
       pollingInterval: 800,

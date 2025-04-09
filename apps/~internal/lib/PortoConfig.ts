@@ -1,21 +1,20 @@
 import { Address } from 'ox'
 import { Chains, Mode } from 'porto'
 import { Porto } from 'porto/remote'
-import { http } from 'viem'
+import { http, ValueOf } from 'viem'
 
 import { exp1Address } from '../_generated/contracts'
 import * as Env from './Env'
 import * as Sentry from './Sentry'
 
-export const chains = Porto.defaultConfig.chains
-
 export const feeToken = {
-  [Chains.odysseyTestnet.id]: exp1Address,
+  [Chains.odysseyTestnet.id]: exp1Address[Chains.odysseyTestnet.id],
+  [Chains.odysseyDevnet.id]: exp1Address[Chains.odysseyDevnet.id],
 } satisfies Record<number, Address.Address>
 
 export const config = {
   anvil: {
-    chains,
+    chains: [Chains.odysseyTestnet],
     mode: Mode.relay({
       feeToken,
     }),
@@ -27,7 +26,7 @@ export const config = {
     },
   },
   prod: {
-    chains,
+    chains: [Chains.odysseyTestnet],
     mode: Mode.contract(),
     transports: {
       [Chains.odysseyTestnet.id]: {
@@ -37,12 +36,12 @@ export const config = {
     },
   },
   stg: {
-    chains,
+    chains: [Chains.odysseyDevnet],
     mode: Mode.relay({
       feeToken,
     }),
     transports: {
-      [Chains.odysseyTestnet.id]: {
+      [Chains.odysseyDevnet.id]: {
         default: http(),
         relay: http(
           'https://relay-staging.ithaca.xyz',
@@ -64,3 +63,12 @@ export const dialogHosts = {
     ? 'https://stg.id.porto.sh/dialog/'
     : 'https://stg.localhost:5174/dialog/',
 } as const satisfies Record<Env.Env, string | undefined>
+
+export function getConfig(
+  env = Env.get(),
+): Porto.Config<readonly [Chain, ...Chain[]]> {
+  return config[env] as never
+}
+
+export type Chain = ValueOf<typeof config>['chains'][number]
+export type ChainId = Chain['id']

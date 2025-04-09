@@ -1,13 +1,14 @@
+import { PortoConfig } from '@porto/apps'
 import { exp1Config, exp2Config } from '@porto/apps/contracts'
 import { useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
 import type { Prettify } from 'viem'
 import { defaultAssets, ethAsset } from '~/lib/Constants'
-import { type ChainId, getChainConfig } from '~/lib/Wagmi'
+import { getChainConfig } from '~/lib/Wagmi'
 import { useReadBalances } from './useReadBalances'
 
 /** returns assets with prices: default assets + assets from balances */
-export function useSwapAssets({ chainId }: { chainId: ChainId }) {
+export function useSwapAssets({ chainId }: { chainId: PortoConfig.ChainId }) {
   const { data: balances } = useReadBalances({ chainId })
 
   const { data, isLoading, isPending, refetch } = useQuery({
@@ -82,7 +83,7 @@ async function getAssetsPrices({
   chainId,
   ids,
 }: {
-  chainId: ChainId
+  chainId: PortoConfig.ChainId
   ids: Array<{ address: string }>
 }) {
   const chain = getChainConfig(chainId)
@@ -92,8 +93,8 @@ async function getAssetsPrices({
     .filter((asset) =>
       [
         '0x0000000000000000000000000000000000000000',
-        exp1Config.address.toLowerCase(),
-        exp2Config.address.toLowerCase(),
+        exp1Config.address[chain.id].toLowerCase(),
+        exp2Config.address[chain.id].toLowerCase(),
       ].includes(asset.address.toLowerCase()),
     )
     .map((asset) => `${chainName}:${asset.address}`)

@@ -1,5 +1,5 @@
 import * as AriaKit from '@ariakit/react'
-import { Query } from '@porto/apps'
+import { PortoConfig, Query } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import {
   exp1Abi,
@@ -12,29 +12,28 @@ import { AbiFunction, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { parseEther } from 'viem'
-import { useAccount } from 'wagmi'
+import { useAccount, useChainId } from 'wagmi'
 import { useSendCalls } from 'wagmi/experimental'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
-import type { ChainId } from '~/lib/Wagmi'
 
-const key = () =>
+const key = (chainId: keyof typeof exp1Address) =>
   ({
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
     permissions: {
       calls: [
         {
-          to: exp1Address,
+          to: exp1Address[chainId],
         },
         {
-          to: exp2Address,
+          to: exp2Address[chainId],
         },
       ],
       spend: [
         {
           limit: parseEther('50'),
           period: 'minute',
-          token: exp1Address,
+          token: exp1Address[chainId],
         },
       ],
     },
@@ -42,12 +41,13 @@ const key = () =>
 
 export function DevOnly() {
   const account = useAccount()
+  const chainId = useChainId()
   const permissions = Hooks.usePermissions()
   const grantPermissions = Hooks.useGrantPermissions()
   const revokePermissions = Hooks.useRevokePermissions()
 
   const { refetch: refetchAssets } = useSwapAssets({
-    chainId: account.chainId as ChainId,
+    chainId: account.chainId as PortoConfig.ChainId,
   })
 
   const send = useSendCalls({
@@ -62,6 +62,7 @@ export function DevOnly() {
 
   function sendCalls() {
     if (!account.address) return
+    if (!exp1Address[chainId as keyof typeof exp1Address]) return
     send.sendCalls({
       calls: [
         {
@@ -69,14 +70,14 @@ export function DevOnly() {
             account.address,
             Value.fromEther('1000'),
           ]),
-          to: exp1Address,
+          to: exp1Address[chainId as keyof typeof exp1Address],
         },
         {
           data: AbiFunction.encodeData(AbiFunction.fromAbi(exp2Abi, 'mint'), [
             account.address,
             Value.fromEther('1000'),
           ]),
-          to: exp2Address,
+          to: exp2Address[chainId as keyof typeof exp1Address],
         },
       ],
     })
@@ -98,7 +99,11 @@ export function DevOnly() {
           <div className="grid w-full grid-cols-1 gap-x-2 lg:grid-cols-3">
             <Button
               className="min-w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
-              onClick={() => grantPermissions.mutate(key())}
+              onClick={() =>
+                grantPermissions.mutate(
+                  key(chainId as keyof typeof exp1Address),
+                )
+              }
               variant="default"
             >
               Grant

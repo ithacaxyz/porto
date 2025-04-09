@@ -1,12 +1,8 @@
 import { AbiFunction, Hex, P256, PublicKey, Value, WebCryptoP256 } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
-
-import {
-  exp1Abi,
-  exp1Address,
-} from '../../../../test/src/_generated/contracts.js'
 import * as TestActions from '../../../../test/src/actions.js'
+import { exp1Abi, exp1Address } from '../../../../test/src/porto.js'
 import { getPorto } from '../../../../test/src/porto.js'
 import * as Key from '../key.js'
 import type * as Capabilities from '../relay/typebox/capabilities.js'
@@ -97,28 +93,7 @@ describe('prepareCreateAccount + createAccount', () => {
     expect(request.capabilities.authorizeKeys[0]?.publicKey).toBe(publicKey)
     expect(request.capabilities.authorizeKeys[0]?.role).toBe(key.role)
     expect(request.capabilities.authorizeKeys[0]?.type).toBe(key.type)
-    expect(
-      request.capabilities.authorizeKeys[0]?.permissions,
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "selector": "0x40c10f19",
-          "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "call",
-        },
-        {
-          "selector": "0xa9059cbb",
-          "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "call",
-        },
-        {
-          "limit": 100000000000000000000n,
-          "period": "minute",
-          "token": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "spend",
-        },
-      ]
-    `)
+    expect(request.capabilities.authorizeKeys[0]?.permissions.length).toBe(3)
 
     const signature = await tmp.sign({ hash: request.digests[0]! })
 

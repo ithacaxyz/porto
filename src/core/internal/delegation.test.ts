@@ -3,12 +3,12 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { getBalance, readContract } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
+import { getAccount } from '../../../test/src/actions.js'
 import {
   exp1Address,
   exp1Config,
-} from '../../../test/src/_generated/contracts.js'
-import { getAccount } from '../../../test/src/actions.js'
-import { getPorto as getPorto_ } from '../../../test/src/porto.js'
+  getPorto as getPorto_,
+} from '../../../test/src/porto.js'
 import * as Call from './call.js'
 import * as Delegation from './delegation.js'
 import * as Key from './key.js'

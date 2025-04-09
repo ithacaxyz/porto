@@ -18,7 +18,10 @@ export const Route = createFileRoute('/dialog/wallet_sendCalls')({
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const { calls, chainId, from } = request._decoded.params[0] ?? {}
+  const { capabilities, calls, chainId, from } =
+    request._decoded.params[0] ?? {}
+
+  const feeToken = capabilities?.feeToken
 
   const [screen, setScreen] = React.useState<
     | {
@@ -63,6 +66,7 @@ function RouteComponent() {
       address={from}
       calls={calls}
       chainId={chainId}
+      feeToken={feeToken}
       loading={respond.isPending}
       onAddFunds={({ token }) => {
         setScreen({

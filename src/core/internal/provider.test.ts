@@ -18,9 +18,12 @@ import {
   waitForTransactionReceipt,
 } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-import { exp1Abi, exp1Address } from '../../../test/src/_generated/contracts.js'
 import { setBalance } from '../../../test/src/actions.js'
-import { getPorto as getPorto_ } from '../../../test/src/porto.js'
+import {
+  exp1Abi,
+  exp1Address,
+  getPorto as getPorto_,
+} from '../../../test/src/porto.js'
 import * as Porto_internal from './porto.js'
 
 describe.each([

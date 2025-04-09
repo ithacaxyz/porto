@@ -1,5 +1,4 @@
-import 'viem/window'
-import { exp1Abi, exp1Address, exp2Address } from '@porto/apps/contracts'
+import { exp1Abi } from '@porto/apps/contracts'
 import {
   AbiFunction,
   Hex,
@@ -21,7 +20,15 @@ import {
 } from 'viem/accounts'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 
-import { type ModeType, mipd, modes, permissions, porto } from './config'
+import {
+  exp1Address,
+  exp2Address,
+  type ModeType,
+  mipd,
+  modes,
+  permissions,
+  porto,
+} from './config'
 
 export function App() {
   const [mode, setMode] = React.useState<ModeType>('iframe-dialog')

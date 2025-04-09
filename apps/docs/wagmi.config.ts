@@ -1,4 +1,4 @@
-import { Env, Porto as PortoConfig } from '@porto/apps'
+import { Env, PortoConfig } from '@porto/apps'
 import { Mode, Porto } from 'porto'
 import { createConfig, createStorage, http } from 'wagmi'
 import { odysseyTestnet } from 'wagmi/chains'

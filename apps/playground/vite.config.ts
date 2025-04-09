@@ -69,7 +69,7 @@ export default defineConfig({
             entrypoint: chain.contracts.entryPoint.address,
             feeTokens: [
               '0x0000000000000000000000000000000000000000',
-              exp1Address,
+              exp1Address[chain.id],
             ],
             http: {
               port: relayConfig.port,

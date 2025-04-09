@@ -1,3 +1,4 @@
+import { PortoConfig } from '@porto/apps'
 import { createConfig, createStorage, type Transport } from 'wagmi'
 import { porto } from './Porto'
 
@@ -10,7 +11,7 @@ export const config = createConfig({
       ...(acc as any),
       [key]: 'default' in value ? value.default : value,
     }),
-    {} as Record<string, Transport>,
+    {} as Record<PortoConfig.ChainId, Transport>,
   ),
 })
 

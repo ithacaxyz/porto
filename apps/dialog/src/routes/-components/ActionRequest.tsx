@@ -1,4 +1,4 @@
-import { Token } from '@porto/apps'
+import { FeeToken, PortoConfig } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
@@ -10,13 +10,11 @@ import * as Schema from 'porto/core/internal/typebox/schema'
 import { Porto as Porto_ } from 'porto/remote'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-import { Call, erc20Abi, zeroAddress } from 'viem'
-import { getBalance, readContract } from 'wagmi/actions'
+import { Call } from 'viem'
 
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
-import * as Wagmi from '~/lib/Wagmi'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -43,6 +41,12 @@ export function ActionRequest(props: ActionRequest.Props) {
   const origin = Dialog.useStore((state) => state.referrer?.origin)
   const providerClient = Hooks.useProviderClient(porto)
 
+  const feeToken = React.useMemo(() => {
+    if (!chain) return undefined
+    const address = props.feeToken ?? PortoConfig.feeToken[chain.id]
+    return FeeToken.feeTokens[chain.id][address.toLowerCase()]
+  }, [chain, props.feeToken])
+
   // TODO: use eventual Wagmi Hook (`usePrepareCalls`).
   const prepareCalls = useQuery({
     async queryFn() {
@@ -54,29 +58,32 @@ export function ActionRequest(props: ActionRequest.Props) {
       if (!key) throw new Error('no key found.')
 
       // TODO: use eventual Viem Action (`prepareCalls`).
-      const raw = await providerClient.request({
-        method: 'wallet_prepareCalls',
-        params: [
-          {
-            // Note: Using IIFE for inferred return type.
-            ...(() => {
-              // If the request was from an `eth_sendTransaction`, marshal it
-              // into a `wallet_sendCalls` request.
-              if (request.method === 'eth_sendTransaction') {
-                const { chainId, data, to, value } = request.params[0]
-                return {
-                  calls: [{ data, to: to!, value }],
-                  chainId,
+      const raw = await providerClient.request(
+        {
+          method: 'wallet_prepareCalls',
+          params: [
+            {
+              // Note: Using IIFE for inferred return type.
+              ...(() => {
+                // If the request was from an `eth_sendTransaction`, marshal it
+                // into a `wallet_sendCalls` request.
+                if (request.method === 'eth_sendTransaction') {
+                  const { chainId, data, to, value } = request.params[0]
+                  return {
+                    calls: [{ data, to: to!, value }],
+                    chainId,
+                  }
                 }
-              }
 
-              // Otherwise, we are dealing with a `wallet_sendCalls` request.
-              return request.params[0]
-            })(),
-            key,
-          },
-        ],
-      })
+                // Otherwise, we are dealing with a `wallet_sendCalls` request.
+                return request.params[0]
+              })(),
+              key,
+            },
+          ],
+        },
+        { retryCount: 0 },
+      )
 
       return Schema.Decode(Rpc.wallet_prepareCalls.Response, raw)
     },
@@ -101,14 +108,8 @@ export function ActionRequest(props: ActionRequest.Props) {
   })
   const tokenFee = quote?.fee
 
-  const requiredBalances = useRequiredBalances({
-    address: account?.address,
-    chainId,
-    enabled: checkBalances,
-    fee: tokenFee,
-  })
   const hasInsufficientBalance =
-    checkBalances && (requiredBalances.data?.length ?? 0) > 0
+    checkBalances && prepareCalls.error?.message?.includes('PaymentError')
 
   const simulate = useQuery({
     gcTime: 0,
@@ -144,22 +145,19 @@ export function ActionRequest(props: ActionRequest.Props) {
         <div className="space-y-3">
           {(() => {
             if (hasInsufficientBalance) {
-              const { token } = requiredBalances.data![0] ?? {}
               return (
                 <div className="rounded-lg bg-warningTint px-3 py-2 text-warning">
                   <div className="font-medium text-[14px]">
                     Insufficient balance
                   </div>
                   <p className="text-[14px] text-primary">
-                    You will need{' '}
-                    <span className="font-medium">{token?.display}</span> more
-                    to continue.
+                    You will need more {feeToken?.symbol} to continue.
                   </p>
                 </div>
               )
             }
 
-            if (simulate.isPending)
+            if (simulate.isPending || prepareCalls.isPending)
               return (
                 <div className="space-y-2 rounded-lg bg-surface p-3">
                   <div className="flex size-[24px] w-full items-center justify-center">
@@ -187,7 +185,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               )
           })()}
 
-          {(simulate.isSuccess || simulate.isError) && (
+          {simulate.isFetched && prepareCalls.isFetched && (
             <div className="space-y-3 rounded-lg bg-surface p-3">
               {balances.length > 0 && !hasInsufficientBalance && (
                 <>
@@ -252,9 +250,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                     'flex h-[32px] justify-between text-[14px] leading-4',
                     {
                       'h-[inherit] leading-[inherit]':
-                        prepareCalls.isFetched &&
-                        fiatFee.isFetched &&
-                        !fiatFee.data,
+                        prepareCalls.isFetched && (fiatFee.isFetched || !quote),
                     },
                   )}
                 >
@@ -262,13 +258,13 @@ export function ActionRequest(props: ActionRequest.Props) {
                     Fees (est.)
                   </span>
                   <div className="text-right">
-                    {prepareCalls.isFetched && fiatFee.isFetched ? (
+                    {prepareCalls.isFetched && (fiatFee.isFetched || !quote) ? (
                       <>
-                        <div className="font-medium">
+                        <div className="font-medium leading-4">
                           {fiatFee?.data?.display ?? 'Unknown'}
                         </div>
                         {tokenFee && (
-                          <div>
+                          <div className="leading-4">
                             <span className="text-secondary text-xs">
                               {tokenFee.display}
                             </span>
@@ -320,7 +316,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                   className="flex-grow"
                   onClick={() =>
                     onAddFunds({
-                      token: requiredBalances!.data![0]!.token.token!,
+                      token: feeToken!.address,
                     })
                   }
                   type="button"
@@ -332,7 +328,7 @@ export function ActionRequest(props: ActionRequest.Props) {
             )
           }
 
-          if (simulate.isSuccess) {
+          if (simulate.isSuccess && prepareCalls.isSuccess) {
             return (
               <Layout.Footer.Actions>
                 <Button
@@ -356,7 +352,7 @@ export function ActionRequest(props: ActionRequest.Props) {
             )
           }
 
-          if (simulate.isError) {
+          if (simulate.isError || prepareCalls.isError) {
             return (
               <Layout.Footer.Actions>
                 <Button
@@ -393,6 +389,7 @@ export namespace ActionRequest {
     calls: readonly Call[]
     chainId?: number | undefined
     checkBalances?: boolean | undefined
+    feeToken?: Address.Address | undefined
     loading?: boolean | undefined
     onAddFunds?: ((p: { token: Address.Address }) => void) | undefined
     onApprove: () => void
@@ -412,65 +409,6 @@ export type Quote = {
     native: Price.Price
   }
   ttl: number
-}
-
-/**
- * Hook to extract required balances to fulfil an action.
- *
- * @param quote - Quote.
- * @returns Required balances.
- */
-// TODO: fetch required balances for tokens being sent on the bundle.
-export function useRequiredBalances(options: useRequiredBalances.Options) {
-  const { address, enabled = true, chainId, fee } = options
-
-  const chain = Hooks.useChain(porto, { chainId })
-
-  type Data = readonly { fiat?: Price.Price | undefined; token: Price.Price }[]
-  return useQuery<Data>({
-    enabled: enabled && !!fee && !!chain && !!address,
-    async queryFn() {
-      if (!address) throw new Error('address is required.')
-      if (!chain) throw new Error('chain is required.')
-      if (!fee) throw new Error('fee is required.')
-
-      const balance =
-        fee.token === zeroAddress
-          ? await getBalance(Wagmi.config, {
-              address,
-              chainId,
-            }).then((x) => x.value)
-          : await readContract(Wagmi.config, {
-              abi: erc20Abi,
-              address: fee.token,
-              args: [address],
-              functionName: 'balanceOf',
-            })
-      const value = fee.value - balance
-
-      if (value <= 0n) return []
-      return [
-        {
-          fiat: undefined,
-          token: Price.from({
-            ...fee,
-            value,
-          }),
-        },
-      ]
-    },
-    queryKey: ['requiredBalances', address, chain?.id, Json.stringify(fee)],
-  })
-}
-
-export declare namespace useRequiredBalances {
-  export type Options = {
-    address?: Address.Address | undefined
-    enabled?: boolean | undefined
-    chainId?: number | undefined
-    fee?: Price.Price | undefined
-    nativePrice?: Price.Price | undefined
-  }
 }
 
 /**
@@ -505,7 +443,7 @@ export function useQuote<
 
     const config = paymentToken
       ? {
-          ...(Token.tokens as any)[chain.id][paymentToken],
+          ...(FeeToken.feeTokens as any)[chain.id][paymentToken],
           token: paymentToken,
           value: paymentMaxAmount,
         }

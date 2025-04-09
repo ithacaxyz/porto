@@ -11,7 +11,10 @@ export const instances = {
     endpoint: (key) =>
       `http://127.0.0.1:${Anvil.instances.odyssey.port}/${key}`,
     entrypoint: Chains.odysseyTestnet.contracts.entryPoint.address,
-    feeTokens: ['0x0000000000000000000000000000000000000000', exp1Address],
+    feeTokens: [
+      '0x0000000000000000000000000000000000000000',
+      exp1Address[Chains.odysseyTestnet.id],
+    ],
     userOpGasBuffer: 100_000n,
   }),
 } as const

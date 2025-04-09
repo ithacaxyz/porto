@@ -87,11 +87,11 @@ export const defaultConfig = {
  * ```
  */
 export function create<
-  chains extends readonly [
+  const chains extends readonly [
     Chains.Chain,
     ...Chains.Chain[],
   ] = typeof defaultConfig.chains,
->(parameters?: ExactPartial<Config> | undefined): Porto<chains>
+>(parameters?: ExactPartial<Config<chains>> | undefined): Porto<chains>
 export function create(
   parameters: ExactPartial<Config> | undefined = {},
 ): Porto {
