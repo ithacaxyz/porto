@@ -12,8 +12,11 @@ if (import.meta.env.PROD) {
     dsn: 'https://1b4e28921c688e2b03d1b63f8d018913@o4509056062849024.ingest.us.sentry.io/4509080371724288',
     environment: Env.get(),
     integrations: [
+      Sentry.replayIntegration(),
       Sentry.tanstackRouterBrowserTracingIntegration(Router.router),
     ],
+    replaysOnErrorSampleRate: 1.0,
+    replaysSessionSampleRate: 0.1,
   })
 }
 
