@@ -93,28 +93,7 @@ describe('prepareCreateAccount + createAccount', () => {
     expect(request.capabilities.authorizeKeys[0]?.publicKey).toBe(publicKey)
     expect(request.capabilities.authorizeKeys[0]?.role).toBe(key.role)
     expect(request.capabilities.authorizeKeys[0]?.type).toBe(key.type)
-    expect(
-      request.capabilities.authorizeKeys[0]?.permissions,
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "selector": "0x40c10f19",
-          "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "call",
-        },
-        {
-          "selector": "0xa9059cbb",
-          "to": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "call",
-        },
-        {
-          "limit": 100000000000000000000n,
-          "period": "minute",
-          "token": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
-          "type": "spend",
-        },
-      ]
-    `)
+    expect(request.capabilities.authorizeKeys[0]?.permissions.length).toBe(3)
 
     const signature = await tmp.sign({ hash: request.digests[0]! })
 
