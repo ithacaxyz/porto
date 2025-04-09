@@ -144,7 +144,15 @@ export function iframe() {
       let methodPolicies: Messenger.ReadyOptions['methodPolicies'] | undefined
 
       messenger.on('ready', (options) => {
+        const { chain } = options
+
         if (!methodPolicies) methodPolicies = options?.methodPolicies
+
+        store.setState((x) => ({
+          ...x,
+          chain,
+        }))
+
         messenger.send('__internal', {
           mode: 'iframe',
           referrer: getReferrer(),
@@ -260,7 +268,7 @@ export function popup() {
         handleBlur(store)
       }
 
-      let messenger: Messenger.Messenger | undefined
+      let messenger: Messenger.Bridge | undefined
 
       return {
         close() {

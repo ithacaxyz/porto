@@ -24,12 +24,13 @@ export type Messenger = {
 }
 
 export type ReadyOptions = {
+  chain: Porto.State['chain']
   methodPolicies?: Porto_remote.MethodPolicies | undefined
 }
 
 /** Bridge messenger. */
 export type Bridge = Messenger & {
-  ready: (options?: ReadyOptions | undefined) => void
+  ready: (options: ReadyOptions) => void
 }
 
 /** Messenger schema. */
@@ -41,7 +42,7 @@ export type Schema = [
   },
   {
     topic: 'ready'
-    payload: ReadyOptions | undefined
+    payload: ReadyOptions
     response: undefined
   },
   {
@@ -159,6 +160,8 @@ export declare namespace fromWindow {
 export function bridge(parameters: bridge.Parameters): Bridge {
   const { from: from_, to, waitForReady = false } = parameters
 
+  let pending = false
+
   const ready = promise.withResolvers<void>()
   from_.on('ready', () => ready.resolve())
 
@@ -166,17 +169,19 @@ export function bridge(parameters: bridge.Parameters): Bridge {
     destroy() {
       from_.destroy()
       to.destroy()
-      ready.reject()
+      if (pending) ready.reject()
     },
     on(topic, listener, id) {
       return from_.on(topic, listener, id)
     },
     async send(topic, payload) {
-      if (waitForReady) await ready.promise
+      pending = true
+      if (waitForReady) await ready.promise.finally(() => (pending = false))
       return to.send(topic, payload)
     },
     async sendAsync(topic, payload) {
-      if (waitForReady) await ready.promise
+      pending = true
+      if (waitForReady) await ready.promise.finally(() => (pending = false))
       return to.sendAsync(topic, payload)
     },
   })

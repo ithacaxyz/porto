@@ -1,4 +1,4 @@
-import { custom, fallback, type PublicRpcSchema } from 'viem'
+import { custom, fallback, http, type PublicRpcSchema } from 'viem'
 import {
   createClient,
   createTransport,
@@ -68,10 +68,12 @@ export function getClient<
   const { chains } = config
 
   const state = store.getState()
-  const chain = chains.find((chain) => chain.id === chainId || state.chain.id)
+  const chain = chains.find((chain) => chain.id === chainId) ?? state.chain
   if (!chain) throw new Error('chain not found')
 
-  const transport = (config.transports as Record<number, Transport>)[chain.id]
+  const transport =
+    (config.transports as Record<number, Transport>)[chain.id] ??
+    fallback(chain.rpcUrls.default.http.map((url) => http(url)))
   if (!transport) throw new Error('transport not found')
 
   function getTransport(

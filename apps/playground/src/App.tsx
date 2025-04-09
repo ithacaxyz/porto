@@ -612,7 +612,9 @@ function UpgradeAccount() {
 }
 
 function SendCalls() {
-  const [hash, setHash] = React.useState<string | null>(null)
+  const [id, setId] = React.useState<string | null>(null)
+  const [status, setStatus] = React.useState<{} | null>(null)
+
   return (
     <form
       onSubmit={async (e) => {
@@ -723,10 +725,11 @@ function SendCalls() {
             },
           ],
         })
-        setHash(id)
+        setId(id)
       }}
     >
       <h3>wallet_sendCalls</h3>
+
       <div style={{ display: 'flex', gap: '10px' }}>
         <select name="action">
           <option value="mint">Mint 100 EXP</option>
@@ -738,16 +741,37 @@ function SendCalls() {
         <input name="address" placeholder="address" type="text" />
         <button type="submit">Send</button>
       </div>
-      {hash && (
+
+      {id && (
         <>
-          <pre>{hash}</pre>
-          <a
-            href={`https://odyssey-explorer.ithaca.xyz/tx/${hash}`}
-            rel="noreferrer"
-            target="_blank"
+          <pre>{id}</pre>
+
+          <div>
+            <a
+              href={`https://odyssey-explorer.ithaca.xyz/tx/${id}`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Explorer
+            </a>
+          </div>
+
+          <br />
+
+          <button
+            onClick={async () => {
+              const status = await porto.provider.request({
+                method: 'wallet_getCallsStatus',
+                params: [id as `0x${string}`],
+              })
+              setStatus(status)
+            }}
+            type="button"
           >
-            Explorer
-          </a>
+            Get status
+          </button>
+
+          {status && <pre>{JSON.stringify(status, null, 2)}</pre>}
         </>
       )}
     </form>

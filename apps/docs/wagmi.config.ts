@@ -7,15 +7,9 @@ const env = Env.get()
 if (typeof window !== 'undefined') {
   const host = PortoConfig.dialogHosts[env]
   Porto.create({
-    // TODO: remove env check
-    chains: env === 'stg' ? [Chains.odysseyDevnet] : [Chains.odysseyTestnet],
     mode: Mode.dialog({
       host,
     }),
-    transports: {
-      [Chains.odysseyTestnet.id]: http(),
-      [Chains.odysseyDevnet.id]: http(),
-    },
   })
 }
 

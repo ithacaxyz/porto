@@ -93,7 +93,10 @@ export function AddFunds(props: AddFunds.Props) {
                 <Ariakit.RadioGroup className="flex w-full gap-1">
                   {presetAmounts.map((predefinedAmount) => (
                     // biome-ignore lint/a11y/noLabelWithoutControl:
-                    <label className="w-full rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary">
+                    <label
+                      className="w-full rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                      key={predefinedAmount}
+                    >
                       <Ariakit.VisuallyHidden>
                         <Ariakit.Radio value={predefinedAmount} />
                       </Ariakit.VisuallyHidden>

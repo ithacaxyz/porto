@@ -126,7 +126,9 @@ export function create(
     methodPolicies,
     mode,
     ready() {
+      const { chain } = porto._internal.store.getState()
       return messenger.ready({
+        chain,
         methodPolicies,
       })
     },
