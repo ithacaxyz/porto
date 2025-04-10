@@ -79,7 +79,7 @@ export function getDialogHost(env = Env.get()): string {
       'https://' +
       import.meta.env.VITE_VERCEL_BRANCH_URL.replace(
         /(.*)(-git.*)/,
-        'idporto$2',
+        'dialogporto$2',
       ) +
       '/dialog/?env=' +
       env
