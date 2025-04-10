@@ -173,6 +173,9 @@ function CheckAccount({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     if (!search.account) return
     if (isSynced) return
+
+    // If the App account is out of sync with the Dialog account,
+    // rehydrate with the Dialog account.
     connect.mutate({
       connector,
       credentialId: search.account.credentialId,
