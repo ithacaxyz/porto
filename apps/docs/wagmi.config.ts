@@ -1,11 +1,9 @@
-import { Env, PortoConfig } from '@porto/apps'
+import { PortoConfig } from '@porto/apps'
 import { Chains, Mode, Porto } from 'porto'
 import { createConfig, createStorage, http } from 'wagmi'
 
-const env = Env.get()
-
 if (typeof window !== 'undefined') {
-  const host = PortoConfig.dialogHosts[env]
+  const host = PortoConfig.getDialogHost()
   Porto.create({
     mode: Mode.dialog({
       host,

@@ -12,7 +12,7 @@ export const feeToken = {
   [Chains.odysseyDevnet.id]: exp1Address[Chains.odysseyDevnet.id],
 } satisfies Record<number, Address.Address>
 
-export const config = {
+const config = {
   anvil: {
     chains: [Chains.odysseyTestnet],
     mode: Mode.relay({
@@ -52,7 +52,7 @@ export const config = {
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
 
-export const dialogHosts = {
+const dialogHosts = {
   anvil: import.meta.env.PROD
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
@@ -68,6 +68,19 @@ export function getConfig(
   env = Env.get(),
 ): Porto.Config<readonly [Chain, ...Chain[]]> {
   return config[env] as never
+}
+
+export function getDialogHost(env = Env.get()): string {
+  if (import.meta.env.VITE_VERCEL_BRANCH_URL)
+    return (
+      import.meta.env.VITE_VERCEL_BRANCH_URL.replace(
+        /(.*\/\/).*(-git.*)/,
+        '$1idporto$2',
+      ) +
+      'dialog/?env=' +
+      env
+    )
+  return dialogHosts[env] as string
 }
 
 export type Chain = ValueOf<typeof config>['chains'][number]

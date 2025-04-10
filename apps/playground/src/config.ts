@@ -1,4 +1,4 @@
-import { Env, PortoConfig } from '@porto/apps'
+import { PortoConfig } from '@porto/apps'
 import {
   exp1Address as exp1Address_,
   exp2Address as exp2Address_,
@@ -7,15 +7,13 @@ import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
 import { Chains, Dialog, Mode, Porto } from 'porto'
 
-export const env = Env.get()
-
-const config = PortoConfig.getConfig(env)
+const config = PortoConfig.getConfig()
+const host = PortoConfig.getDialogHost()
 const chainId = config.chains[0].id
 
 export const exp1Address = exp1Address_[chainId]
 export const exp2Address = exp2Address_[chainId]
 
-const host = PortoConfig.dialogHosts[env]
 export const modes = {
   contract: Mode.contract(),
   'iframe-dialog': Mode.dialog({
