@@ -203,6 +203,7 @@ function Connect() {
                 params: [
                   {
                     capabilities: {
+                      createAccount: false,
                       grantPermissions: grantPermissions
                         ? permissions()
                         : undefined,

@@ -50,10 +50,12 @@ export function SignIn(props: SignIn.Props) {
           </Button>
         </Layout.Footer.Actions>
 
-        <Layout.Footer.Account
-          address={account!.address}
-          onClick={() => onApprove({ selectAccount: true, signIn: true })}
-        />
+        {account && (
+          <Layout.Footer.Account
+            address={account.address}
+            onClick={() => onApprove({ selectAccount: true, signIn: true })}
+          />
+        )}
       </Layout.Footer>
     </Layout>
   )
