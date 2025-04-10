@@ -1,11 +1,12 @@
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
-
+import { useAccount } from 'wagmi'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import LucideGlobe from '~icons/lucide/globe'
 import LucideX from '~icons/lucide/x'
+import { Layout } from './-components/Layout'
 
 export const Route = createRootRoute({
   component: RouteComponent,
@@ -18,6 +19,7 @@ function RouteComponent() {
     porto.ready()
   }, [])
 
+  const account = useAccount()
   const mode = Dialog.useStore((state) => state.mode)
   const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
   const icon = Dialog.useStore((state) => state.referrer?.icon)
@@ -127,7 +129,13 @@ function RouteComponent() {
             className="flex flex-grow *:w-full"
             key={id} // rehydrate on id changes
           >
-            <Outlet />
+            {account.isConnecting || account.isReconnecting ? (
+              <Layout loading loadingTitle="Loading...">
+                <div />
+              </Layout>
+            ) : (
+              <Outlet />
+            )}
           </div>
         </div>
       </div>

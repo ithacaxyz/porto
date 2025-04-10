@@ -1,5 +1,5 @@
 import { PortoConfig } from '@porto/apps'
-import { Mode, Porto } from 'porto'
+import { Mode, Porto, Storage } from 'porto'
 
 const host = (() => {
   const url = new URL(PortoConfig.getDialogHost())
@@ -12,4 +12,5 @@ export const porto = Porto.create({
   mode: Mode.dialog({
     host,
   }),
+  storage: Storage.combine(Storage.cookie(), Storage.localStorage()),
 })

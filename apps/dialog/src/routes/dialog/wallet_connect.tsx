@@ -27,7 +27,9 @@ function RouteComponent() {
     (state) => state.accounts[0]?.address,
   )
 
-  const signIn = address && !capabilities?.createAccount
+  const signIn =
+    (address && !capabilities?.createAccount) ||
+    capabilities?.createAccount === false
 
   const respond = useMutation({
     mutationFn({
@@ -50,7 +52,7 @@ function RouteComponent() {
             ...params[0],
             capabilities: {
               ...params[0]?.capabilities,
-              createAccount: !signIn,
+              createAccount: params[0]?.capabilities?.createAccount ?? !signIn,
               selectAccount,
             },
           },

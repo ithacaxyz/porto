@@ -1,6 +1,7 @@
 import { Hex, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { readContract, waitForTransactionReceipt } from 'viem/actions'
+import { readContract } from 'viem/actions'
+import { waitForCallsStatus } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../../test/src/actions.js'
 import {
@@ -186,8 +187,8 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
-    await waitForTransactionReceipt(client, {
-      hash: id,
+    await waitForCallsStatus(client, {
+      id,
     })
 
     expect(
@@ -231,8 +232,8 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
-    await waitForTransactionReceipt(client, {
-      hash: id,
+    await waitForCallsStatus(client, {
+      id,
     })
 
     expect(
@@ -273,8 +274,8 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
-    await waitForTransactionReceipt(client, {
-      hash: id,
+    await waitForCallsStatus(client, {
+      id,
     })
 
     expect(
@@ -320,8 +321,8 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
-    await waitForTransactionReceipt(client, {
-      hash: id,
+    await waitForCallsStatus(client, {
+      id,
     })
 
     expect(
@@ -378,8 +379,8 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
-    await waitForTransactionReceipt(client, {
-      hash: id,
+    await waitForCallsStatus(client, {
+      id,
     })
 
     expect(
@@ -443,8 +444,8 @@ describe('sendCalls', () => {
 
     expect(id).toBeDefined()
 
-    await waitForTransactionReceipt(client, {
-      hash: id,
+    await waitForCallsStatus(client, {
+      id,
     })
 
     expect(
@@ -487,8 +488,8 @@ describe.each([
       })
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(client, {
+        id,
       })
 
       // 3. Verify that Account has 100 ERC20 tokens.
@@ -524,8 +525,8 @@ describe.each([
       })
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(client, {
+        id,
       })
 
       // 3. Verify that Account has 100 ERC20 tokens.
@@ -630,8 +631,8 @@ describe.each([
       })
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(client, {
+        id,
       })
 
       // 4. Verify that Account now has 3 Admin Keys.
@@ -672,8 +673,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
       }
 
@@ -694,8 +695,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         // 4. Verify that Account has 100 ERC20 tokens.
@@ -747,8 +748,8 @@ describe.each([
       })
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(client, {
+        id,
       })
 
       // 4. Verify that Account has 100 ERC20 tokens.
@@ -805,8 +806,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         // 3. Verify that Account has 100 ERC20 tokens.
@@ -862,8 +863,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         // 3. Verify that Account has 100 ERC20 tokens.
@@ -894,8 +895,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         // 5. Verify that Account now has 200 ERC20 tokens.
@@ -951,8 +952,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         // 3. Verify that Account has 100 ERC20 tokens.
@@ -983,8 +984,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         // 5. Verify that Account now has 200 ERC20 tokens.
@@ -1053,8 +1054,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         // 3. Verify that Account has 100 ERC20 tokens.
@@ -1181,8 +1182,8 @@ describe.each([
           feeToken: exp1Address,
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
       }
 
@@ -1201,8 +1202,8 @@ describe.each([
           feeToken: exp1Address,
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
       }
 
@@ -1265,8 +1266,8 @@ describe.each([
         })
         expect(id).toBeDefined()
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         // 3. Verify that Account has 100 ERC20 tokens.
@@ -1296,8 +1297,8 @@ describe.each([
           key: sessionKey,
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
       }
 

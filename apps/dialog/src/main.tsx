@@ -1,12 +1,15 @@
 import { Env } from '@porto/apps'
 import * as Sentry from '@sentry/react'
 import { Events } from 'porto/remote'
+import { Actions } from 'porto/wagmi'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { getConnectors } from 'wagmi/actions'
 
 import * as Dialog from '~/lib/Dialog.ts'
 import { porto } from '~/lib/Porto.js'
 import * as Router from '~/lib/Router.ts'
+import * as Wagmi from '~/lib/Wagmi.ts'
 import { App } from './App.js'
 import './styles.css'
 
@@ -34,12 +37,26 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
   })
 })
 
-const offDialogRequest = Events.onDialogRequest(porto, (request) => {
-  Router.router.navigate({
-    search: (search) => ({ ...search, ...request }) as never,
-    to: '/dialog/' + (request?.method ?? ''),
-  })
-})
+const offDialogRequest = Events.onDialogRequest(
+  porto,
+  ({ account, request }) => {
+    const connectedAccount = porto._internal.store.getState().accounts[0]
+    const needsSync = account && account.address !== connectedAccount?.address
+
+    if (needsSync)
+      Actions.connect(Wagmi.config, {
+        connector: getConnectors(Wagmi.config)[0]!,
+        credentialId: account.credentialId,
+        force: true,
+        keyId: account.keyId,
+      })
+
+    Router.router.navigate({
+      search: (search) => ({ ...search, ...request, account }) as never,
+      to: '/dialog/' + (request?.method ?? ''),
+    })
+  },
+)
 
 porto.ready()
 

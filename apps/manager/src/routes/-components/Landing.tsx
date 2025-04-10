@@ -105,6 +105,7 @@ export function Landing() {
                   onClick={() =>
                     connect.mutate({
                       connector: connector!,
+                      createAccount: false,
                     })
                   }
                   type="button"

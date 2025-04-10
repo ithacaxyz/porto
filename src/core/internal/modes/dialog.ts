@@ -30,16 +30,29 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const request = requestStore.prepare(r as any)
 
           // When we receive a request, we need to add it to the queue.
-          store.setState((x) => ({
-            ...x,
-            requestQueue: [
-              ...x.requestQueue,
-              {
-                request,
-                status: 'pending',
-              },
-            ],
-          }))
+          store.setState((x) => {
+            const account = x.accounts[0]
+            const adminKey = account?.keys?.find(
+              (key) => key.role === 'admin' && key.type === 'webauthn-p256',
+            )
+            return {
+              ...x,
+              requestQueue: [
+                ...x.requestQueue,
+                {
+                  account: account
+                    ? {
+                        address: account.address,
+                        credentialId: (adminKey as any)?.credentialId,
+                        keyId: adminKey?.id,
+                      }
+                    : undefined,
+                  request,
+                  status: 'pending',
+                },
+              ],
+            }
+          })
 
           // We need to wait for the request to be resolved.
           return new Promise((resolve, reject) => {
@@ -178,6 +191,18 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return {
           account,
         }
+      },
+
+      async getCallsStatus(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'wallet_getCallsStatus')
+          throw new Error('Cannot get status for method: ' + request.method)
+
+        const provider = getProvider(store)
+        const result = await provider.request(request)
+        return result
       },
 
       async grantAdmin(parameters) {

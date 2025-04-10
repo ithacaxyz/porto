@@ -28,6 +28,7 @@ export const defaultConfig = {
           sameOrigin: true,
         },
       },
+      requireConnection: false,
     },
     {
       method: 'experimental_grantAdmin',
@@ -53,6 +54,7 @@ export const defaultConfig = {
             }
           : undefined,
       },
+      requireConnection: false,
     },
     {
       method: 'wallet_createAccount',
@@ -63,6 +65,13 @@ export const defaultConfig = {
               sameOrigin: true,
             }
           : undefined,
+      },
+      requireConnection: false,
+    },
+    {
+      method: 'wallet_getCallsStatus',
+      modes: {
+        headless: true,
       },
     },
     {
@@ -181,6 +190,7 @@ export type MethodPolicy = {
         }
       | undefined
   }
+  requireConnection?: boolean | undefined
 }
 export type MethodPolicies = readonly MethodPolicy[]
 

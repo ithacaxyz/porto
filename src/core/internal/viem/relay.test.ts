@@ -10,6 +10,7 @@ import { sendCalls } from '../relay.js'
 import {
   createAccount,
   getAccounts,
+  getCallsStatus,
   getKeys,
   health,
   prepareCalls,
@@ -251,6 +252,52 @@ describe('getAccounts', () => {
     expect(result[0]?.keys[0]?.publicKey).toBe(key.publicKey)
     expect(result[0]?.keys[0]?.role).toBe(key.role)
     expect(result[0]?.keys[0]?.type).toBe('webauthnp256')
+  })
+})
+
+describe('getCallsStatus', () => {
+  test('default', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const request = await prepareCalls(client, {
+      address: account.address,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: 0n,
+        },
+      ],
+      capabilities: {
+        meta: {
+          feeToken,
+          keyHash: key.hash,
+          nonce: 0n,
+        },
+      },
+    })
+
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+      wrap: false,
+    })
+
+    const { id } = await sendPreparedCalls(client, {
+      context: request.context,
+      signature: {
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+        value: signature,
+      },
+    })
+
+    const result = await getCallsStatus(client, {
+      id,
+    })
+
+    expect(result.id).toBeDefined()
   })
 })
 

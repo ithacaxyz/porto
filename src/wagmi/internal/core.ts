@@ -36,7 +36,7 @@ export async function connect<config extends Config>(
   } else connector = parameters.connector
 
   // Check if connector is already connected
-  if (connector.uid === config.state.current)
+  if (connector.uid === config.state.current && !parameters.force)
     throw new ConnectorAlreadyConnectedError()
 
   if (parameters.chainId && parameters.chainId !== config.state.chainId)
@@ -59,7 +59,7 @@ export async function connect<config extends Config>(
       | undefined
     if (!provider) throw new ProviderNotFoundError()
 
-    const { createAccount, grantPermissions } = parameters
+    const { createAccount, credentialId, grantPermissions, keyId } = parameters
     const method = 'wallet_connect'
     type method = typeof method
     await provider.request<{
@@ -72,7 +72,9 @@ export async function connect<config extends Config>(
         {
           capabilities: Schema.Encode(Request.wallet_connect.Capabilities, {
             createAccount,
+            credentialId,
             grantPermissions,
+            keyId,
           }),
         },
       ],
@@ -112,19 +114,11 @@ export async function connect<config extends Config>(
 }
 
 export declare namespace connect {
-  type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    grantPermissions?:
-      | Schema.StaticDecode<
-          typeof Request.wallet_connect.Capabilities.properties.grantPermissions
-        >
-      | undefined
-    connector: Connector | CreateConnectorFn
-    createAccount?:
-      | Schema.StaticDecode<
-          typeof Request.wallet_connect.Capabilities.properties.createAccount
-        >
-      | undefined
-  }
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    Schema.StaticDecode<typeof Request.wallet_connect.Capabilities> & {
+      connector: Connector | CreateConnectorFn
+      force?: boolean | undefined
+    }
 
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
 

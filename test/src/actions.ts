@@ -1,11 +1,8 @@
 import { type Address, Secp256k1 } from 'ox'
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import {
-  setBalance as setBalance_viem,
-  waitForTransactionReceipt,
-  writeContract,
-} from 'viem/actions'
+import { setBalance as setBalance_viem, writeContract } from 'viem/actions'
+import { waitForCallsStatus } from 'viem/experimental'
 
 import * as Account from '../../src/core/internal/account.js'
 import * as Key from '../../src/core/internal/key.js'
@@ -38,8 +35,8 @@ export async function createAccount(
       calls: [],
       feeToken: exp1Address,
     })
-    await waitForTransactionReceipt(client, {
-      hash: id as `0x${string}`,
+    await waitForCallsStatus(client, {
+      id,
     })
   }
 
@@ -96,8 +93,8 @@ export async function getUpgradedAccount(
     signatures,
   })
 
-  await waitForTransactionReceipt(client, {
-    hash: bundles[0]!.id,
+  await waitForCallsStatus(client, {
+    id: bundles[0]!.id,
   })
 
   return account
@@ -145,8 +142,8 @@ export async function setBalance(
       ],
       feeToken: exp1Address,
     })
-    await waitForTransactionReceipt(client, {
-      hash: id as `0x${string}`,
+    await waitForCallsStatus(client, {
+      id,
     })
   }
 }

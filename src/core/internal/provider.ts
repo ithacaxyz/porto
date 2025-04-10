@@ -660,10 +660,11 @@ export function from<
               return undefined
             })()
             const credentialId =
-              key?.type === 'webauthn-p256'
+              capabilities?.credentialId ??
+              (key?.type === 'webauthn-p256'
                 ? key?.privateKey?.credential?.id
-                : undefined
-            const keyId = key?.id
+                : undefined)
+            const keyId = capabilities?.keyId ?? key?.id
             const loadAccountsParams = {
               internal,
               permissions,
@@ -718,26 +719,19 @@ export function from<
 
           const client = getClient()
 
-          const receipt = await client.request({
-            method: 'eth_getTransactionReceipt',
-            params: [id! as Hex.Hex],
+          const response = await getMode().actions.getCallsStatus({
+            id,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
           })
 
-          const response = {
-            atomic: true,
-            chainId: Hex.fromNumber(client.chain.id),
-            id,
-            receipts: [],
-            status: 100,
-            version: '1.0',
-          } satisfies Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>
-
-          if (!receipt) return response
-          return {
-            ...response,
-            receipts: [receipt],
-            status: receipt.status === '0x0' ? 400 : 200,
-          } satisfies Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>
+          return response satisfies Schema.Static<
+            typeof Rpc.wallet_getCallsStatus.Response
+          >
         }
 
         case 'wallet_getCapabilities': {
@@ -945,6 +939,11 @@ function getAdmins(
             id: key.id ?? key.publicKey,
             publicKey: key.publicKey,
             type: key.type,
+            ...(key.type === 'webauthn-p256'
+              ? {
+                  credentialId: key.privateKey?.credential?.id,
+                }
+              : {}),
           } satisfies Rpc.experimental_getAdmins.Response['keys'][number],
         )
       } catch {
