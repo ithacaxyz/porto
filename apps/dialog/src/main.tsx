@@ -36,7 +36,7 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
 
 const offDialogRequest = Events.onDialogRequest(porto, (request) => {
   Router.router.navigate({
-    search: request as never,
+    search: (search) => ({ ...search, ...request }) as never,
     to: '/dialog/' + (request?.method ?? ''),
   })
 })
