@@ -943,13 +943,14 @@ function getAdmins(
         return Schema.Encode(
           Rpc.experimental_getAdmins.Response.properties.keys.items,
           {
-            credentialId:
-              key.type === 'webauthn-p256'
-                ? key.privateKey?.credential?.id
-                : undefined,
             id: key.id ?? key.publicKey,
             publicKey: key.publicKey,
             type: key.type,
+            ...(key.type === 'webauthn-p256'
+              ? {
+                  credentialId: key.privateKey?.credential?.id,
+                }
+              : {}),
           } satisfies Rpc.experimental_getAdmins.Response['keys'][number],
         )
       } catch {
