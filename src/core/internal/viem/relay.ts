@@ -29,6 +29,7 @@ import * as EntryPoint from '../_generated/contracts/EntryPoint.js'
 import type * as RpcSchema from '../relay/rpcSchema.js'
 import * as Rpc from '../relay/typebox/rpc.js'
 import type { sendCalls } from '../relay.js'
+import * as Schema from '../typebox/schema.js'
 import { Value } from '../typebox/schema.js'
 
 /**
@@ -119,6 +120,50 @@ export namespace getAccounts {
   }
 
   export type ReturnType = Rpc.wallet_getAccounts.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
+ * Gets the status of a call bundle.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function getCallsStatus(
+  client: Client,
+  parameters: getCallsStatus.Parameters,
+): Promise<getCallsStatus.ReturnType> {
+  const { id } = parameters
+  try {
+    const method = 'wallet_getCallsStatus' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
+      params: [id],
+    })
+    return Value.Parse(
+      Rpc.wallet_getCallsStatus.Response,
+      result satisfies Schema.StaticEncode<
+        typeof Rpc.wallet_getCallsStatus.Response
+      >,
+    )
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getCallsStatus {
+  export type Parameters = {
+    id: Hex.Hex
+  }
+
+  export type ReturnType = Rpc.wallet_getCallsStatus.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }

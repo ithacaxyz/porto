@@ -11,12 +11,8 @@ import {
 } from 'ox'
 import { Mode } from 'porto'
 import { encodeFunctionData } from 'viem'
-import {
-  readContract,
-  verifyMessage,
-  verifyTypedData,
-  waitForTransactionReceipt,
-} from 'viem/actions'
+import { readContract, verifyMessage, verifyTypedData } from 'viem/actions'
+import { waitForCallsStatus } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
 import { setBalance } from '../../../test/src/actions.js'
 import {
@@ -120,8 +116,8 @@ describe.each([
 
       expect(hash).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash,
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id: hash,
       })
 
       expect(
@@ -894,8 +890,8 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
       })
 
       expect(
@@ -965,8 +961,8 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
       })
 
       expect(
@@ -1038,8 +1034,8 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
       })
 
       expect(
@@ -1172,8 +1168,8 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
       })
 
       await expect(() =>
@@ -1261,8 +1257,8 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForTransactionReceipt(client, {
-        hash: id,
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
       })
 
       expect(
@@ -1435,6 +1431,54 @@ describe.each([
     })
   })
 
+  describe('wallet_getCallsStatus', () => {
+    test('default', async () => {
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
+
+      const { address } = await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const alice = Hex.random(20)
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 69420n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      expect(id).toBeDefined()
+
+      const response = await porto.provider.request({
+        method: 'wallet_getCallsStatus',
+        params: [id],
+      })
+
+      expect(response.id).toBe(id)
+    })
+  })
+
   describe('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
     describe('behavior: permissions', () => {
       test('default', async () => {
@@ -1520,8 +1564,8 @@ describe.each([
           ],
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: result[0]!.id,
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id: result[0]!.id,
         })
 
         expect(
@@ -1621,8 +1665,8 @@ describe.each([
           ],
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: result[0]!.id,
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id: result[0]!.id,
         })
 
         expect(
@@ -1717,8 +1761,8 @@ describe.each([
           ],
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: result[0]!.id,
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id: result[0]!.id,
         })
 
         expect(
@@ -1808,8 +1852,8 @@ describe.each([
           ],
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: result[0]!.id,
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id: result[0]!.id,
         })
 
         expect(
@@ -1901,8 +1945,8 @@ describe.each([
           ],
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: result[0]!.id,
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id: result[0]!.id,
         })
 
         expect(
@@ -1989,8 +2033,8 @@ describe.each([
           ],
         })
 
-        await waitForTransactionReceipt(client, {
-          hash: result[0]!.id,
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id: result[0]!.id,
         })
 
         expect(

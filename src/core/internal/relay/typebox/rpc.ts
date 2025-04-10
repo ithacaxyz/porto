@@ -92,6 +92,41 @@ export namespace wallet_getAccounts {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
+export namespace wallet_getCallsStatus {
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_getCallsStatus'),
+    params: Type.Tuple([Primitive.Hex]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    id: Type.String(),
+    receipts: Schema.Optional(
+      Type.Array(
+        Type.Object({
+          blockHash: Primitive.Hex,
+          blockNumber: Type.Number(),
+          chainId: Type.Number(),
+          gasUsed: Type.Number(),
+          logs: Type.Array(
+            Type.Object({
+              address: Primitive.Address,
+              data: Primitive.Hex,
+              topics: Type.Array(Primitive.Hex),
+            }),
+          ),
+          status: Type.Object({
+            status: Primitive.Hex,
+          }),
+          transactionHash: Primitive.Hex,
+        }),
+      ),
+    ),
+    status: Type.Number(),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace wallet_getKeys {
   /** Parameters for `wallet_getKeys` request. */
   export const Parameters = Type.Object({

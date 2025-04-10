@@ -61,6 +61,12 @@ export const defaultConfig = {
       },
     },
     {
+      method: 'wallet_getCallsStatus',
+      modes: {
+        headless: true,
+      },
+    },
+    {
       method: 'wallet_prepareCalls',
       modes: {
         headless: true,

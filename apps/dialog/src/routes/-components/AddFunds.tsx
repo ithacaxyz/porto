@@ -6,7 +6,7 @@ import { Address } from 'ox'
 import { Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-import { useWaitForTransactionReceipt } from 'wagmi'
+import { useWaitForCallsStatus } from 'wagmi/experimental'
 
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -56,8 +56,8 @@ export function AddFunds(props: AddFunds.Props) {
     },
   })
 
-  const receipt = useWaitForTransactionReceipt({
-    hash: deposit.data?.id,
+  const receipt = useWaitForCallsStatus({
+    id: deposit.data?.id,
     query: {
       enabled: !!deposit.data?.id,
     },

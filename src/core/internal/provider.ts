@@ -718,26 +718,19 @@ export function from<
 
           const client = getClient()
 
-          const receipt = await client.request({
-            method: 'eth_getTransactionReceipt',
-            params: [id! as Hex.Hex],
+          const response = await getMode().actions.getCallsStatus({
+            id,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
           })
 
-          const response = {
-            atomic: true,
-            chainId: Hex.fromNumber(client.chain.id),
-            id,
-            receipts: [],
-            status: 100,
-            version: '1.0',
-          } satisfies Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>
-
-          if (!receipt) return response
-          return {
-            ...response,
-            receipts: [receipt],
-            status: receipt.status === '0x0' ? 400 : 200,
-          } satisfies Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>
+          return response satisfies Schema.Static<
+            typeof Rpc.wallet_getCallsStatus.Response
+          >
         }
 
         case 'wallet_getCapabilities': {

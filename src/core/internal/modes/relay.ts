@@ -1,13 +1,13 @@
 import type * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
-import { waitForTransactionReceipt } from 'viem/actions'
+import { waitForCallsStatus } from 'viem/experimental'
 
 import type * as Storage from '../../Storage.js'
 import * as Account from '../account.js'
@@ -17,6 +17,7 @@ import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
 import * as Relay from '../relay.js'
+import * as Relay_viem from '../viem/relay.js'
 
 /**
  * Mode for a WebAuthn-based environment that interacts with the Porto
@@ -104,6 +105,31 @@ export function relay(config: relay.Parameters = {}) {
         }
       },
 
+      async getCallsStatus(parameters) {
+        const { id, internal } = parameters
+        const { client } = internal
+
+        const result = await Relay_viem.getCallsStatus(client, {
+          id,
+        })
+
+        return {
+          atomic: true,
+          chainId: Hex.fromNumber(client.chain.id),
+          id,
+          receipts: result.receipts?.map((receipt) => ({
+            blockHash: receipt.blockHash,
+            blockNumber: Hex.fromNumber(receipt.blockNumber),
+            gasUsed: Hex.fromNumber(receipt.gasUsed),
+            logs: receipt.logs,
+            status: receipt.status.status,
+            transactionHash: receipt.transactionHash,
+          })),
+          status: result.status,
+          version: '1.0',
+        }
+      },
+
       async grantAdmin(parameters) {
         const { account, feeToken = config.feeToken, internal } = parameters
         const { client } = internal
@@ -115,8 +141,8 @@ export function relay(config: relay.Parameters = {}) {
           authorizeKeys: [authorizeKey],
           feeToken: resolveFeeToken(client, feeToken),
         })
-        await waitForTransactionReceipt(client, {
-          hash: id,
+        await waitForCallsStatus(client, {
+          id,
         })
 
         return { key: authorizeKey }
@@ -309,8 +335,8 @@ export function relay(config: relay.Parameters = {}) {
             feeToken: resolveFeeToken(client, feeToken),
             revokeKeys: [key],
           })
-          await waitForTransactionReceipt(client, {
-            hash: id,
+          await waitForCallsStatus(client, {
+            id,
           })
         } catch (e) {
           const error = e as Relay.sendCalls.ErrorType
@@ -341,8 +367,8 @@ export function relay(config: relay.Parameters = {}) {
             feeToken: resolveFeeToken(client, feeToken),
             revokeKeys: [key],
           })
-          await waitForTransactionReceipt(client, {
-            hash: id,
+          await waitForCallsStatus(client, {
+            id,
           })
         } catch (e) {
           const error = e as Relay.sendCalls.ErrorType

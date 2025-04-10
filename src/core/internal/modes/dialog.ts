@@ -180,6 +180,18 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
+      async getCallsStatus(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'wallet_getCallsStatus')
+          throw new Error('Cannot get status for method: ' + request.method)
+
+        const provider = getProvider(store)
+        const result = await provider.request(request)
+        return result
+      },
+
       async grantAdmin(parameters) {
         const { internal } = parameters
         const { request, store } = internal

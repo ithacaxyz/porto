@@ -1,6 +1,7 @@
 import { Provider } from 'ox'
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
+import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
@@ -129,6 +130,32 @@ export function contract(parameters: contract.Parameters = {}) {
         address_internal = account.address
 
         return { account }
+      },
+
+      async getCallsStatus(parameters) {
+        const { id, internal } = parameters
+        const { client } = internal
+
+        const receipt = await client.request({
+          method: 'eth_getTransactionReceipt',
+          params: [id! as Hex.Hex],
+        })
+
+        const response = {
+          atomic: true,
+          chainId: Hex.fromNumber(client.chain.id),
+          id,
+          receipts: [],
+          status: 100,
+          version: '1.0',
+        }
+
+        if (!receipt) return response
+        return {
+          ...response,
+          receipts: [receipt],
+          status: receipt.status === '0x0' ? 400 : 200,
+        }
       },
 
       async grantAdmin(parameters) {

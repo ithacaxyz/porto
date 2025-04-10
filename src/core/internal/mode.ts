@@ -7,6 +7,7 @@ import type * as Key from './key.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
 import type * as Rpc from './typebox/rpc.js'
+import * as Schema from './typebox/schema.js'
 import type { Compute, PartialBy } from './types.js'
 
 type Request = Rpc.parseRequest.ReturnType
@@ -48,6 +49,13 @@ export type Mode = {
       /** Account. */
       account: Account.Account
     }>
+
+    getCallsStatus: (parameters: {
+      /** ID of the calls to get the status of. */
+      id: Hex.Hex
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>>
 
     grantAdmin: (parameters: {
       /** Account to authorize the keys for. */
