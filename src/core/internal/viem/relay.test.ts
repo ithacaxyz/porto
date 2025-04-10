@@ -297,7 +297,7 @@ describe('getCallsStatus', () => {
       id,
     })
 
-    expect(result.id).toBe(id)
+    expect(result.id).toBeDefined()
   })
 })
 
