@@ -1,9 +1,24 @@
 import { PortoConfig } from '@porto/apps'
-import { createConfig, createStorage, type Transport } from 'wagmi'
+import {
+  createConfig,
+  createStorage,
+  injected,
+  type Transport,
+  useConnectors,
+} from 'wagmi'
 import { porto } from './Porto'
 
 export const config = createConfig({
   chains: porto._internal.config.chains,
+  connectors: [
+    injected({
+      target: () => ({
+        id: 'porto',
+        name: 'Porto',
+        provider: porto.provider as never,
+      }),
+    }),
+  ],
   multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
   transports: Object.entries(porto._internal.config.transports).reduce(
@@ -14,6 +29,11 @@ export const config = createConfig({
     {} as Record<PortoConfig.ChainId, Transport>,
   ),
 })
+
+export function useConnector() {
+  const connectors = useConnectors()
+  return connectors.find((x) => x.id === 'porto')!
+}
 
 declare module 'wagmi' {
   interface Register {

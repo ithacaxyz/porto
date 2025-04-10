@@ -479,6 +479,7 @@ export function handleBlur(store: Store) {
   store.setState((x) => ({
     ...x,
     requestQueue: x.requestQueue.map((x) => ({
+      account: x.account,
       error: new Provider.UserRejectedRequestError(),
       request: x.request,
       status: 'error',
@@ -496,11 +497,13 @@ export function handleResponse(
       if (queued.request.id !== response.id) return queued
       if (response.error)
         return {
+          account: queued.account,
           error: response.error,
           request: queued.request,
           status: 'error',
         } satisfies QueuedRequest
       return {
+        account: queued.account,
         request: queued.request,
         result: response.result,
         status: 'success',

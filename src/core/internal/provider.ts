@@ -660,10 +660,11 @@ export function from<
               return undefined
             })()
             const credentialId =
-              key?.type === 'webauthn-p256'
+              capabilities?.credentialId ??
+              (key?.type === 'webauthn-p256'
                 ? key?.privateKey?.credential?.id
-                : undefined
-            const keyId = key?.id
+                : undefined)
+            const keyId = capabilities?.keyId ?? key?.id
             const loadAccountsParams = {
               internal,
               permissions,
@@ -942,6 +943,10 @@ function getAdmins(
         return Schema.Encode(
           Rpc.experimental_getAdmins.Response.properties.keys.items,
           {
+            credentialId:
+              key.type === 'webauthn-p256'
+                ? key.privateKey?.credential?.id
+                : undefined,
             id: key.id ?? key.publicKey,
             publicKey: key.publicKey,
             type: key.type,

@@ -1,3 +1,5 @@
+import type * as Address from 'ox/Address'
+import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import { http } from 'viem'
@@ -196,6 +198,13 @@ export type Store<
 export type Transport = internal.Transport
 
 export type QueuedRequest<result = unknown> = {
+  account:
+    | {
+        address: Address.Address
+        credentialId?: string | undefined
+        keyId?: Hex.Hex | undefined
+      }
+    | undefined
   request: RpcRequest.RpcRequest
 } & OneOf<
   | {

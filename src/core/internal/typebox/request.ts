@@ -102,7 +102,14 @@ export namespace experimental_getAdmins {
 
   export const Response = Type.Object({
     address: Primitive.Address,
-    keys: Type.Array(Type.Pick(Key.Base, ['id', 'publicKey', 'type'])),
+    keys: Type.Array(
+      Type.Intersect([
+        Type.Pick(Key.Base, ['id', 'publicKey', 'type']),
+        Type.Object({
+          credentialId: Schema.Optional(Type.String()),
+        }),
+      ]),
+    ),
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
@@ -327,7 +334,9 @@ export namespace porto_ping {
 export namespace wallet_connect {
   export const Capabilities = Type.Object({
     createAccount: Schema.Optional(C.createAccount.Request),
+    credentialId: Schema.Optional(Type.String()),
     grantPermissions: Schema.Optional(C.grantPermissions.Request),
+    keyId: Schema.Optional(Primitive.Hex),
     selectAccount: Schema.Optional(Type.Boolean()),
   })
   export type Capabilities = Schema.StaticDecode<typeof Capabilities>

@@ -14,7 +14,7 @@ import type * as Remote from './Porto.js'
 export async function reject(
   porto: Pick<Remote.Porto<any>, 'messenger'>,
   request: Porto.QueuedRequest['request'],
-  error?: RpcResponse.BaseError | undefined,
+  error?: Provider.ProviderRpcError | RpcResponse.BaseError | undefined,
 ) {
   const error_ = error ?? new Provider.UserRejectedRequestError()
   const { messenger } = porto
@@ -44,7 +44,7 @@ export async function reject(
  */
 export async function rejectAll(
   porto: Pick<Remote.Porto<any>, 'messenger' | '_internal'>,
-  error?: RpcResponse.BaseError | undefined,
+  error?: Provider.ProviderRpcError | RpcResponse.BaseError | undefined,
 ) {
   const { _internal } = porto
   const requests = _internal.remoteStore.getState().requests

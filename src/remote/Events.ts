@@ -1,3 +1,5 @@
+import type * as Address from 'ox/Address'
+import type * as Hex from 'ox/Hex'
 import * as Provider from 'ox/Provider'
 import type { Payload } from '../core/Messenger.js'
 import * as Actions from './Actions.js'
@@ -16,15 +18,22 @@ export function onDialogRequest(
     Remote.Porto<any>,
     '_internal' | 'methodPolicies' | 'messenger' | 'provider'
   >,
-  cb: (
-    payload: Remote.RemoteState['requests'][number]['request'] | null,
-  ) => void,
+  cb: (payload: {
+    account?:
+      | {
+          address: Address.Address
+          credentialId?: string | undefined
+          keyId?: Hex.Hex | undefined
+        }
+      | undefined
+    request: Remote.RemoteState['requests'][number]['request'] | null
+  }) => void,
 ) {
   return onRequests(porto, (requests, event) => {
-    const request = requests[0]?.request
+    const { account, request } = requests[0] ?? {}
 
     if (!request) {
-      cb(null)
+      cb({ request: null })
       return
     }
 
@@ -71,7 +80,9 @@ export function onDialogRequest(
       return
     }
 
-    cb(request)
+    const requireConnection = policy?.requireConnection ?? true
+
+    cb({ account: requireConnection ? account : undefined, request })
   })
 }
 
