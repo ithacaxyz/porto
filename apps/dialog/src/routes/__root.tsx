@@ -129,12 +129,12 @@ function RouteComponent() {
             className="flex flex-grow *:w-full"
             key={id} // rehydrate on id changes
           >
-            {account.isConnected ? (
-              <Outlet />
-            ) : (
+            {account.isReconnecting || account.isConnecting ? (
               <Layout loading loadingTitle="Loading...">
                 <div />
               </Layout>
+            ) : (
+              <Outlet />
             )}
           </div>
         </div>
