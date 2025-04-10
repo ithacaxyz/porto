@@ -1,7 +1,7 @@
 {
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "type": "module",
   "main": "./_dist/index.js",
   "types": "./_dist/index.d.ts",
@@ -27,7 +27,7 @@
     "react": ">=18",
     "typescript": ">=5.4.0",
     "viem": ">=2.26.0",
-    "wagmi": ">=2.0.0"
+    "wagmi": ">=undefined"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-query": {

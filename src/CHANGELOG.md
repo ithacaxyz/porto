@@ -1,5 +1,16 @@
 # porto
 
+## 0.0.20
+
+### Patch Changes
+
+- [`5b7f40d`](https://github.com/ithacaxyz/porto/commit/5b7f40d2fcd345728a2d160f5f58e339fd26b5c2) Thanks [@jxom](https://github.com/jxom)! - Updated to latest EIP-5792 spec.
+
+- [`5b7f40d`](https://github.com/ithacaxyz/porto/commit/5b7f40d2fcd345728a2d160f5f58e339fd26b5c2) Thanks [@jxom](https://github.com/jxom)! - Ensured that the account active chain is synced with Porto consumers.
+
+- Updated dependencies []:
+  - wagmi@undefined
+
 ## 0.0.19
 
 ### Patch Changes
