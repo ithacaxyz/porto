@@ -1,12 +1,9 @@
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
-import { Address, Hex } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
-import { Hooks as Hooks_wagmi } from 'porto/wagmi'
 import * as React from 'react'
-
+import { useAccount } from 'wagmi'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
-import * as Wagmi from '~/lib/Wagmi'
 import LucideGlobe from '~icons/lucide/globe'
 import LucideX from '~icons/lucide/x'
 import { Layout } from './-components/Layout'
@@ -22,6 +19,7 @@ function RouteComponent() {
     porto.ready()
   }, [])
 
+  const account = useAccount()
   const mode = Dialog.useStore((state) => state.mode)
   const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
   const icon = Dialog.useStore((state) => state.referrer?.icon)
@@ -131,9 +129,13 @@ function RouteComponent() {
             className="flex flex-grow *:w-full"
             key={id} // rehydrate on id changes
           >
-            <CheckAccount>
+            {account.isConnected ? (
               <Outlet />
-            </CheckAccount>
+            ) : (
+              <Layout loading loadingTitle="Loading...">
+                <div />
+              </Layout>
+            )}
           </div>
         </div>
       </div>
@@ -148,49 +150,6 @@ function RouteComponent() {
       </React.Suspense>
     </>
   )
-}
-
-function CheckAccount({ children }: { children: React.ReactNode }) {
-  const search = Route.useSearch<
-    any,
-    {
-      account?:
-        | {
-            address: Address.Address
-            credentialId: string
-            keyId: Hex.Hex
-          }
-        | undefined
-    }
-  >()
-  const account = Hooks.useAccount(porto)
-  const connect = Hooks_wagmi.useConnect()
-  const connector = Wagmi.useConnector()
-
-  const isSynced =
-    !search.account || search.account.address === account?.address
-
-  React.useEffect(() => {
-    if (!search.account) return
-    if (isSynced) return
-
-    // If the App account is out of sync with the Dialog account,
-    // rehydrate with the Dialog account.
-    connect.mutate({
-      connector,
-      credentialId: search.account.credentialId,
-      force: true,
-      keyId: search.account.keyId,
-    })
-  }, [isSynced, search, connect.mutate, connector])
-
-  if (!isSynced)
-    return (
-      <Layout loading loadingTitle="Loading...">
-        <div />
-      </Layout>
-    )
-  return children
 }
 
 const TanStackRouterDevtools =

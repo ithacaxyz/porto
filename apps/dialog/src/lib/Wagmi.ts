@@ -1,11 +1,5 @@
 import { PortoConfig } from '@porto/apps'
-import {
-  createConfig,
-  createStorage,
-  injected,
-  type Transport,
-  useConnectors,
-} from 'wagmi'
+import { createConfig, createStorage, injected, type Transport } from 'wagmi'
 import { porto } from './Porto'
 
 export const config = createConfig({
@@ -29,11 +23,6 @@ export const config = createConfig({
     {} as Record<PortoConfig.ChainId, Transport>,
   ),
 })
-
-export function useConnector() {
-  const connectors = useConnectors()
-  return connectors.find((x) => x.id === 'porto')!
-}
 
 declare module 'wagmi' {
   interface Register {
