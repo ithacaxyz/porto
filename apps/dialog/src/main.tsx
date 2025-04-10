@@ -41,10 +41,7 @@ const offDialogRequest = Events.onDialogRequest(
   porto,
   ({ account, request }) => {
     const connectedAccount = porto._internal.store.getState().accounts[0]
-    const needsSync =
-      account &&
-      connectedAccount &&
-      account.address !== connectedAccount.address
+    const needsSync = account && account.address !== connectedAccount?.address
 
     if (needsSync)
       Actions.connect(Wagmi.config, {
