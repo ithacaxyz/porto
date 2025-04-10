@@ -90,35 +90,12 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
           if (!accounts?.length && !isReconnecting) {
             const params = (() => {
               if (!('capabilities' in rest)) return undefined
-              const { createAccount, grantPermissions } = rest.capabilities
               return [
                 {
-                  capabilities: {
-                    ...rest.capabilities,
-                    createAccount:
-                      typeof createAccount === 'object'
-                        ? {
-                            ...createAccount,
-                            chainId: createAccount.chainId
-                              ? numberToHex(createAccount.chainId)
-                              : undefined,
-                          }
-                        : createAccount,
-                    grantPermissions: grantPermissions
-                      ? {
-                          ...grantPermissions,
-                          chainId: grantPermissions.chainId
-                            ? numberToHex(grantPermissions.chainId)
-                            : undefined,
-                          permissions: {
-                            ...grantPermissions.permissions,
-                            spend: grantPermissions.permissions.spend?.map(
-                              (x) => ({ ...x, limit: numberToHex(x.limit) }),
-                            ),
-                          },
-                        }
-                      : undefined,
-                  },
+                  capabilities: Schema.Encode(
+                    Request.wallet_connect.Capabilities,
+                    rest.capabilities,
+                  ),
                 },
               ] as const
             })()
