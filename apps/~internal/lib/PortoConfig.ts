@@ -78,7 +78,7 @@ export function getDialogHost(env = Env.get()): string {
         /(.*\/\/).*(-git.*)/,
         '$1idporto$2',
       ) +
-      'dialog/?env=' +
+      '/dialog/?env=' +
       env
     )
   return dialogHosts[env] as string
