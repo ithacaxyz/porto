@@ -3,6 +3,7 @@ import { createStore, type StoreApi } from 'zustand/vanilla'
 
 import type * as Chains from '../core/Chains.js'
 import type { ExactPartial } from '../core/internal/types.js'
+import * as Utils from '../core/internal/utils.js'
 import * as Messenger from '../core/Messenger.js'
 import * as Mode from '../core/Mode.js'
 import * as Porto_ from '../core/Porto.js'
@@ -46,18 +47,22 @@ export const defaultConfig = {
       method: 'wallet_connect',
       modes: {
         dialog: true,
-        headless: {
-          sameOrigin: true,
-        },
+        headless: !Utils.isSafari()
+          ? {
+              sameOrigin: true,
+            }
+          : undefined,
       },
     },
     {
       method: 'wallet_createAccount',
       modes: {
         dialog: true,
-        headless: {
-          sameOrigin: true,
-        },
+        headless: !Utils.isSafari()
+          ? {
+              sameOrigin: true,
+            }
+          : undefined,
       },
     },
     {

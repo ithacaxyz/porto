@@ -1,6 +1,7 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
 import type { Internal } from './internal/porto.js'
+import * as Utils from './internal/utils.js'
 import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
 
@@ -33,12 +34,10 @@ export function iframe() {
   // Safari does not support WebAuthn credential creation in iframes.
   // Fall back to popup dialog.
   // Tracking: https://github.com/WebKit/standards-positions/issues/304
-  const ua = navigator.userAgent.toLowerCase()
-  const isSafari = ua.includes('safari') && !ua.includes('chrome')
   const includesUnsupported = (
     requests: readonly RpcRequest.RpcRequest[] | undefined,
   ) =>
-    isSafari &&
+    Utils.isSafari() &&
     requests?.some((x) =>
       ['wallet_connect', 'eth_requestAccounts'].includes(x.method),
     )
