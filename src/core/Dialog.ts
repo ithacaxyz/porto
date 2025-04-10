@@ -1,7 +1,7 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
 import type { Internal } from './internal/porto.js'
-import * as Utils from './internal/utils.js'
+import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
 
@@ -37,7 +37,7 @@ export function iframe() {
   const includesUnsupported = (
     requests: readonly RpcRequest.RpcRequest[] | undefined,
   ) =>
-    Utils.isSafari() &&
+    UserAgent.isSafari() &&
     requests?.some((x) =>
       ['wallet_connect', 'eth_requestAccounts'].includes(x.method),
     )
