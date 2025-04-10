@@ -15,7 +15,9 @@ import {
 import {
   type BaseError,
   useAccount,
+  useConnect,
   useConnectors,
+  useDisconnect,
   useReadContract,
 } from 'wagmi'
 import { useSendCalls, useWaitForCallsStatus } from 'wagmi/experimental'
@@ -65,7 +67,7 @@ export function App() {
 function Account() {
   const account = useAccount()
   const { data: permissions } = Hooks.usePermissions()
-  const disconnect = Hooks.useDisconnect()
+  const disconnect = useDisconnect()
 
   return (
     <div>
@@ -82,7 +84,7 @@ function Account() {
       </div>
 
       {account.status !== 'disconnected' && (
-        <button onClick={() => disconnect.mutate({})} type="button">
+        <button onClick={() => disconnect.disconnect()} type="button">
           Log Out
         </button>
       )}
@@ -94,7 +96,7 @@ function Connect() {
   const [grantPermissions, setGrantPermissions] = useState<boolean>(true)
 
   const connectors = useConnectors()
-  const connect = Hooks.useConnect()
+  const connect = useConnect()
 
   return (
     <div>
@@ -114,9 +116,11 @@ function Connect() {
             <button
               key={connector.uid}
               onClick={() =>
-                connect.mutate({
+                connect.connect({
+                  capabilities: {
+                    grantPermissions: grantPermissions ? key() : undefined,
+                  },
                   connector,
-                  grantPermissions: grantPermissions ? key() : undefined,
                 })
               }
               type="button"
@@ -125,10 +129,12 @@ function Connect() {
             </button>
             <button
               onClick={() =>
-                connect.mutate({
+                connect.connect({
+                  capabilities: {
+                    createAccount: true,
+                    grantPermissions: grantPermissions ? key() : undefined,
+                  },
                   connector,
-                  createAccount: true,
-                  grantPermissions: grantPermissions ? key() : undefined,
                 })
               }
               type="button"

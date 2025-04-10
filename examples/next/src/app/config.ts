@@ -10,3 +10,9 @@ export const config = createConfig({
     [odysseyTestnet.id]: http(),
   },
 })
+
+declare module 'wagmi' {
+  interface Register {
+    config: typeof config
+  }
+}
