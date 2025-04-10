@@ -1,4 +1,5 @@
-import { Mode, Porto } from 'porto'
+import { Mode } from 'porto'
+import { porto } from 'porto/wagmi'
 import { createConfig, createStorage, http } from 'wagmi'
 import { odysseyTestnet } from 'wagmi/chains'
 
@@ -10,10 +11,9 @@ const mode = DISABLE_DIALOG
       host: import.meta.env.VITE_DIALOG_HOST,
     })
 
-Porto.create({ mode })
-
 export const wagmiConfig = createConfig({
   chains: [odysseyTestnet],
+  connectors: [porto({ mode })],
   storage: createStorage({ storage: localStorage }),
   transports: {
     [odysseyTestnet.id]: http(),

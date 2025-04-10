@@ -1,15 +1,10 @@
-import type * as Address from 'ox/Address'
-import type { Chain as Chain_viem } from 'viem'
+import type { Chain as Chain_viem, ChainContract } from 'viem'
 import * as chains from 'viem/chains'
 
 export type Chain = Chain_viem & {
   contracts: Chain_viem['contracts'] & {
-    delegation: {
-      address: Address.Address
-    }
-    entryPoint: {
-      address: Address.Address
-    }
+    delegation?: ChainContract | undefined
+    entryPoint?: ChainContract | undefined
   }
 }
 

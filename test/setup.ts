@@ -16,8 +16,8 @@ beforeAll(async () => {
       if (!chain) throw new Error('Chain not found')
 
       await Anvil.loadState({
-        delegationAddress: chain.contracts.delegation.address,
-        entryPointAddress: chain.contracts.entryPoint.address,
+        delegationAddress: chain.contracts.delegation!.address,
+        entryPointAddress: chain.contracts.entryPoint!.address,
         rpcUrl: instance.rpcUrl,
       })
     }),

@@ -80,18 +80,16 @@ Get started with Wagmi by following the [official guide](https://wagmi.sh/react/
 
 #### 2. Set up Porto
 
-After you have set up Wagmi, you can set up Porto by calling `Porto.create(){:ts}`. This will automatically
-inject a Porto-configured EIP-1193 Provider into your Wagmi instance via [EIP-6963: Multi Injected Provider Discovery](https://eips.ethereum.org/EIPS/eip-6963).
+After you have set up Wagmi, you can set up Porto by using the `porto(){:ts}` connector.
 
 ```ts [wagmi.ts] twoslash
-import { Porto } from 'porto' // [!code ++]
+import { porto } from 'porto/wagmi' // [!code ++]
 import { http, createConfig, createStorage } from 'wagmi'
 import { odysseyTestnet } from 'wagmi/chains'
 
-Porto.create() // [!code ++]
-
 export const wagmiConfig = createConfig({
   chains: [odysseyTestnet],
+  connectors: [porto()], // [!code ++]
   storage: createStorage({ storage: localStorage }),
   transports: {
     [odysseyTestnet.id]: http(),
@@ -106,17 +104,16 @@ This means you can now use Wagmi-compatible Hooks like `useConnect`. For more in
 ```tsx twoslash
 import * as React from 'react'
 // ---cut---
-import { Hooks } from 'porto/wagmi'
-import { useConnectors } from 'wagmi'
+import { useConnect, useConnectors } from 'wagmi'
 
 function Connect() {
-  const connect = Hooks.useConnect()
+  const connect = useConnect()
   const connectors = useConnectors()
 
   return connectors?.map((connector) => (
     <button
       key={connector.uid}
-      onClick={() => connect.mutate({ connector })}
+      onClick={() => connect.connect({ connector })}
     >
       Connect
     </button>

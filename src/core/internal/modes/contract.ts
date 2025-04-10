@@ -69,7 +69,11 @@ export function contract(parameters: contract.Parameters = {}) {
       keys,
     })
 
-    const delegation = client.chain.contracts.delegation.address
+    const delegation = client.chain.contracts.delegation?.address
+    if (!delegation)
+      throw new Error(
+        `contract \`delegation\` not found on chain ${client.chain.name}.`,
+      )
 
     const { request, signPayloads } = await Delegation.prepareExecute(client, {
       account,
