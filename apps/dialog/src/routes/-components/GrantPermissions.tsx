@@ -30,7 +30,10 @@ export function GrantPermissions(props: GrantPermissions.Props) {
         />
       </Layout.Header>
       <Layout.Content className="pl-0">
-        <Permissions calls={permissions.calls ?? []} spend={permissions.spend} />
+        <Permissions
+          calls={permissions.calls ?? []}
+          spend={permissions.spend}
+        />
       </Layout.Content>
 
       <Layout.Footer>
