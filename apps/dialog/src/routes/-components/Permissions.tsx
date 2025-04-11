@@ -6,11 +6,11 @@ import { erc20Abi } from 'viem'
 import { useReadContract } from 'wagmi'
 import { porto } from '~/lib/Porto'
 import { StringFormatter, ValueFormatter } from '~/utils'
+import LucideBanknote from '~icons/lucide/banknote'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideChevronUp from '~icons/lucide/chevron-up'
-import LucideVault from '~icons/lucide/vault'
 import ExternalLinkIcon from '~icons/lucide/external-link'
-import LucideBanknote from '~icons/lucide/banknote'
+import LucideVault from '~icons/lucide/vault'
 import WalletIcon from '~icons/lucide/wallet-cards'
 
 export function Permissions(props: Permissions.Props) {

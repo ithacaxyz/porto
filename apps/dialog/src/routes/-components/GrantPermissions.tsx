@@ -26,11 +26,7 @@ export function GrantPermissions(props: GrantPermissions.Props) {
 
       <Layout.Footer>
         <Layout.Footer.Actions>
-          <Button
-            className="flex-1"
-            onClick={onReject}
-            type="button"
-          >
+          <Button className="flex-1" onClick={onReject} type="button">
             Cancel
           </Button>
 
@@ -72,17 +68,15 @@ export function GrantSpendPermission(props: GrantSpendPermission.Props) {
       <Layout.Header>
         <Layout.Header.Default
           content={
-            <div>
-              You must update the following permissions to continue:
-            </div>
+            <div>You must update the following permissions to continue:</div>
           }
           icon={LucideDiamondPlus}
-          variant="warning"
           title="Update permissions"
+          variant="warning"
         />
       </Layout.Header>
       <Layout.Content className="pl-0">
-        <Permissions spend={[props]} calls={props.calls ?? []} />
+        <Permissions calls={props.calls ?? []} spend={[props]} />
       </Layout.Content>
     </>
   )
