@@ -11,10 +11,17 @@ import {
 } from 'ox'
 import { Mode } from 'porto'
 import { encodeFunctionData } from 'viem'
-import { readContract, verifyMessage, verifyTypedData } from 'viem/actions'
+import {
+  readContract,
+  setCode,
+  verifyMessage,
+  verifyTypedData,
+} from 'viem/actions'
 import { waitForCallsStatus } from 'viem/experimental'
 import { describe, expect, test } from 'vitest'
 import { setBalance } from '../../../test/src/actions.js'
+import * as Anvil from '../../../test/src/anvil.js'
+import { delegation001Address } from '../../../test/src/constants.js'
 import {
   exp1Abi,
   exp1Address,
@@ -667,9 +674,63 @@ describe.each([
       )
     })
 
-    test.todo('behavior: outdated account')
+    test.runIf(Anvil.enabled)('behavior: outdated account', async () => {
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
 
-    test.todo('behavior: accounts on different versions')
+      const { address } = await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const alice = Hex.random(20)
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 69420n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      expect(id).toBeDefined()
+
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
+      })
+
+      await setCode(client, {
+        address,
+        bytecode: Hex.concat('0xef0100', delegation001Address),
+      })
+
+      const version = await porto.provider.request({
+        method: 'experimental_getAccountVersion',
+      })
+      expect(version).toMatchInlineSnapshot(`
+        {
+          "current": "0.0.1",
+          "latest": "0.0.2",
+        }
+      `)
+    })
   })
 
   describe('personal_sign', () => {

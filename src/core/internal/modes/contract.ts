@@ -426,6 +426,10 @@ export function contract(parameters: contract.Parameters = {}) {
         return signature
       },
 
+      async updateAccount(_parameters) {
+        throw new Error('Not implemented.')
+      },
+
       async upgradeAccount(parameters) {
         const { account, context, internal, signatures } = parameters
         const { client } = internal
