@@ -67,6 +67,7 @@ export function App() {
         <Accounts />
         <Disconnect />
         <UpgradeAccount />
+        <GetAccountVersion />
         <div>
           <br />
           <hr />
@@ -341,6 +342,26 @@ function Disconnect() {
       >
         Disconnect
       </button>
+    </div>
+  )
+}
+
+function GetAccountVersion() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  return (
+    <div>
+      <h3>experimental_getAccountVersion</h3>
+      <button
+        onClick={() =>
+          porto.provider
+            .request({ method: 'experimental_getAccountVersion' })
+            .then(setResult)
+        }
+        type="button"
+      >
+        Get Account Version
+      </button>
+      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
