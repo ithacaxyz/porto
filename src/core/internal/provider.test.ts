@@ -619,9 +619,9 @@ describe.each([
       `)
     })
 
-    test.todo('behavior: deployed account')
-
     test.todo('behavior: not connected')
+
+    test.todo('behavior: delegation contract not found')
 
     test.todo('behavior: outdated')
 
