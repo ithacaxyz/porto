@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.21
+
+### Patch Changes
+
+- [#127](https://github.com/ithacaxyz/porto/pull/127) [`3d51095`](https://github.com/ithacaxyz/porto/commit/3d510958b206bae18fe2231e3bbbca2fffe9a29c) Thanks [@jxom](https://github.com/jxom)! - Added `experimental_getAccountVersion`.
+
 ## 0.0.20
 
 ### Patch Changes
