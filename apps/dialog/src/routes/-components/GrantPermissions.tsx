@@ -1,17 +1,14 @@
-import { Button, Spinner } from '@porto/apps/components'
-import { Hex, type RpcSchema } from 'ox'
+import { Button } from '@porto/apps/components'
+import { type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Hooks } from 'porto/remote'
-import { useMemo, useState } from 'react'
-import { erc20Abi } from 'viem'
-import { useReadContract } from 'wagmi'
+import { useState } from 'react'
 
-import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import { ValueFormatter } from '~/utils'
-import LucideKey from '~icons/lucide/key-round'
+import LucideDiamondPlus from '~icons/lucide/diamond-plus'
 import { NotFound } from './NotFound'
+import { Permissions } from './Permissions'
 
 export function GrantPermissions(props: GrantPermissions.Props) {
   const { address, permissions, loading, onApprove, onReject } = props
@@ -33,9 +30,8 @@ export function GrantPermissions(props: GrantPermissions.Props) {
             className="flex-1"
             onClick={onReject}
             type="button"
-            variant="destructive"
           >
-            Deny
+            Cancel
           </Button>
 
           <Button
@@ -45,9 +41,9 @@ export function GrantPermissions(props: GrantPermissions.Props) {
               else onApprove()
             }}
             type="button"
-            variant="success"
+            variant="accent"
           >
-            Approve
+            Grant
           </Button>
         </Layout.Footer.Actions>
 
@@ -71,62 +67,22 @@ export declare namespace GrantPermissions {
 }
 
 export function GrantSpendPermission(props: GrantSpendPermission.Props) {
-  const { limit, period, token } = props
-
-  const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
-
-  // TODO: handle errors
-  const symbol = useReadContract({
-    abi: erc20Abi,
-    address: token,
-    functionName: 'symbol',
-    query: {
-      enabled: !!token,
-    },
-  })
-  const decimals = useReadContract({
-    abi: erc20Abi,
-    address: token,
-    functionName: 'decimals',
-    query: {
-      enabled: !!token,
-    },
-  })
-
-  const displayAmount = useMemo(() => {
-    if (!decimals.data && token) return null
-    return ValueFormatter.format(Hex.toBigInt(limit), decimals.data)
-  }, [limit, decimals.data, token])
-
   return (
     <>
       <Layout.Header>
         <Layout.Header.Default
           content={
             <div>
-              <span className="font-medium">{hostname}</span> would like
-              permissions to spend the following amount:
+              You must update the following permissions to continue:
             </div>
           }
-          icon={LucideKey}
-          title="Authorize Spending"
+          icon={LucideDiamondPlus}
+          variant="warning"
+          title="Update permissions"
         />
       </Layout.Header>
-      <Layout.Content>
-        <div className="flex h-[40px] items-center justify-center gap-2 rounded-lg bg-surface p-2">
-          {displayAmount || !token ? (
-            <>
-              <div className="mt-[2px]">
-                <code>
-                  {displayAmount} {symbol.data ?? 'ETH'}
-                </code>
-              </div>
-              <div className="opacity-50">per {period}</div>
-            </>
-          ) : (
-            <Spinner className="text-secondary" />
-          )}
-        </div>
+      <Layout.Content className="pl-0">
+        <Permissions spend={[props]} calls={props.calls ?? []} />
       </Layout.Content>
     </>
   )
@@ -135,5 +91,10 @@ export function GrantSpendPermission(props: GrantSpendPermission.Props) {
 export declare namespace GrantSpendPermission {
   type Props = NonNullable<
     NonNullable<GrantPermissions.Props['permissions']>['spend']
-  >[number]
+  >[number] & {
+    calls?: readonly {
+      signature?: string
+      to?: `0x${string}`
+    }[]
+  }
 }

@@ -8,9 +8,9 @@ import { porto } from '~/lib/Porto'
 import { StringFormatter, ValueFormatter } from '~/utils'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideChevronUp from '~icons/lucide/chevron-up'
+import LucideVault from '~icons/lucide/vault'
 import ExternalLinkIcon from '~icons/lucide/external-link'
-import LucideKey from '~icons/lucide/key'
-import LucidePiggyBank from '~icons/lucide/piggy-bank'
+import LucideBanknote from '~icons/lucide/banknote'
 import WalletIcon from '~icons/lucide/wallet-cards'
 
 export function Permissions(props: Permissions.Props) {
@@ -79,7 +79,7 @@ function SpendPermission(props: SpendPermission.Props) {
             <Spinner />
           </div>
         ) : (
-          <LucidePiggyBank className="size-[16px]" />
+          <LucideBanknote className="size-[16px]" />
         )}
       </div>
       <div>
@@ -117,7 +117,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         type="button"
       >
         <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
-          <LucideKey className="size-[14px]" />
+          <LucideVault className="size-[14px]" />
         </div>
         <span className="flex-1 text-left">Access-related permissions</span>
         {isOpen ? (
