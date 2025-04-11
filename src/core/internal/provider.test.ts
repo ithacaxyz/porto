@@ -619,11 +619,55 @@ describe.each([
       `)
     })
 
-    test.todo('behavior: not connected')
+    test('behavior: provided address', async () => {
+      const { porto } = getPorto()
 
-    test.todo('behavior: delegation contract not found')
+      const { address } = await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
 
-    test.todo('behavior: outdated')
+      const version = await porto.provider.request({
+        method: 'experimental_getAccountVersion',
+        params: [{ address }],
+      })
+      expect(version).toMatchInlineSnapshot(`
+        {
+          "current": "0.0.2",
+          "latest": "0.0.2",
+        }
+      `)
+    })
+
+    test('behavior: not connected', async () => {
+      const { porto } = getPorto()
+
+      await expect(
+        porto.provider.request({
+          method: 'experimental_getAccountVersion',
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        `[Provider.DisconnectedError: The provider is disconnected from all chains.]`,
+      )
+    })
+
+    test('behavior: account not found', async () => {
+      const { porto } = getPorto()
+
+      await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+
+      await expect(
+        porto.provider.request({
+          method: 'experimental_getAccountVersion',
+          params: [{ address: '0x0000000000000000000000000000000000000000' }],
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        `[Provider.UnauthorizedError: The requested method and/or account has not been authorized by the user.]`,
+      )
+    })
+
+    test.todo('behavior: outdated account')
 
     test.todo('behavior: accounts on different versions')
   })
