@@ -72,6 +72,10 @@ export type Schema =
           ReturnType: undefined
         }
       | {
+          Request: Static<typeof Rpc.experimental_updateAccount.Request>
+          ReturnType: Static<typeof Rpc.experimental_updateAccount.Response>
+        }
+      | {
           Request: Static<typeof Rpc.wallet_connect.Request>
           ReturnType: Static<typeof Rpc.wallet_connect.Response>
         }

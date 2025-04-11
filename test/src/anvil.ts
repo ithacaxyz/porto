@@ -23,7 +23,7 @@ import * as Delegation from '../../src/core/internal/_generated/contracts/Delega
 import * as EIP7702Proxy from '../../src/core/internal/_generated/contracts/EIP7702Proxy.js'
 import * as EntryPoint from '../../src/core/internal/_generated/contracts/EntryPoint.js'
 import { exp1Address, exp2Address } from '../src/_generated/contracts.js'
-
+import { delegation001Code } from './constants.js'
 import { poolId } from './prool.js'
 
 export const instances = {
@@ -101,9 +101,11 @@ export const enabled = process.env.VITE_ANVIL !== 'false'
 export async function loadState(parameters: {
   entryPointAddress: Address.Address
   delegationAddress: Address.Address
+  delegationAddressOld: Address.Address
   rpcUrl: string
 }) {
-  const { entryPointAddress, delegationAddress, rpcUrl } = parameters
+  const { entryPointAddress, delegationAddress, delegationAddressOld, rpcUrl } =
+    parameters
 
   const account = privateKeyToAccount(accounts[0]!.privateKey)
   const client = createTestClient({
@@ -162,6 +164,40 @@ export async function loadState(parameters: {
     })
     await setCode(client, {
       address: delegationAddress,
+      bytecode: code!,
+    })
+  }
+
+  {
+    // Deploy Delegation contract.
+    const hash = await deployContract(client, {
+      abi: Delegation.abi,
+      args: [entryPointAddress],
+      bytecode: delegation001Code,
+      chain: null,
+    })
+    const { contractAddress } = await getTransactionReceipt(client, {
+      hash,
+    })
+
+    // Deploy EIP7702Proxy contract.
+    const hash_2 = await deployContract(client, {
+      abi: EIP7702Proxy.abi,
+      args: [contractAddress!, account.address],
+      bytecode: EIP7702Proxy.code,
+      chain: null,
+    })
+    const { contractAddress: contractAddress_2 } = await getTransactionReceipt(
+      client,
+      {
+        hash: hash_2,
+      },
+    )
+    const code = await getCode(client, {
+      address: contractAddress_2!,
+    })
+    await setCode(client, {
+      address: delegationAddressOld,
       bytecode: code!,
     })
   }

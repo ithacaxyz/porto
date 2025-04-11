@@ -216,3 +216,29 @@ export declare namespace revoke {
     keyHash: Hex.Hex
   }
 }
+
+/**
+ * Instantiates values to populate a call to upgrade the proxy delegation.
+ *
+ * @param parameters - Parameters.
+ * @returns Instantiated values.
+ */
+export function upgradeProxyDelegation(
+  parameters: upgradeProxyDelegation.Parameters,
+) {
+  const { delegation } = parameters
+  return {
+    data: AbiFunction.encodeData(
+      AbiFunction.fromAbi(Delegation.abi, 'upgradeProxyDelegation'),
+      [delegation],
+    ),
+    to: self,
+  } as const satisfies Call
+}
+
+export declare namespace upgradeProxyDelegation {
+  export type Parameters = {
+    /** The delegation to upgrade to. */
+    delegation: Address.Address
+  }
+}
