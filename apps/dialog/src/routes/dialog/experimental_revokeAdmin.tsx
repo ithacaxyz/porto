@@ -28,10 +28,10 @@ function RouteComponent() {
   return (
     <div>
       <RevokeAdmin
-        revokeKeyId={parameters.id}
         loading={respond.isPending}
         onApprove={() => respond.mutate()}
         onReject={() => Actions.reject(porto, request)}
+        revokeKeyId={parameters.id}
       />
     </div>
   )

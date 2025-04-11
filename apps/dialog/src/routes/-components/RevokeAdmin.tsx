@@ -13,8 +13,8 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
   const account = Hooks.useAccount(porto)
 
   // First try to match by id, then fall back to publicKey
-  const matchingKey = account?.keys?.find(key => 
-    key.id === revokeKeyId || key.publicKey === revokeKeyId
+  const matchingKey = account?.keys?.find(
+    (key) => key.id === revokeKeyId || key.publicKey === revokeKeyId,
   )
 
   return (
