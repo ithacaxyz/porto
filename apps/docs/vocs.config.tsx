@@ -317,6 +317,10 @@ export default defineConfig({
             text: 'experimental_createAccount',
           },
           {
+            link: '/sdk/rpc/experimental_getAccountVersion',
+            text: 'experimental_getAccountVersion',
+          },
+          {
             link: '/sdk/rpc/experimental_getAdmins',
             text: 'experimental_getAdmins',
           },
