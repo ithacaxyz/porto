@@ -18,7 +18,8 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
         <Layout.Header.Default
           content={
             <div>
-              Remove the ability of the following wallet to recover this passkey if it is lost.
+              Remove the ability of the following wallet to recover this passkey
+              if it is lost.
             </div>
           }
           title="Remove recovery method"
