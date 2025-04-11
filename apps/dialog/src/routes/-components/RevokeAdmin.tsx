@@ -8,9 +8,14 @@ import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
 
 export function RevokeAdmin(props: RevokeAdmin.Props) {
-  const { authorizeKey, loading, onApprove, onReject } = props
+  const { loading, onApprove, onReject, revokeKeyId } = props
 
   const account = Hooks.useAccount(porto)
+
+  // First try to match by id, then fall back to publicKey
+  const matchingKey = account?.keys?.find(key => 
+    key.id === revokeKeyId || key.publicKey === revokeKeyId
+  )
 
   return (
     <Layout loading={loading} loadingTitle="Authorizing...">
@@ -27,13 +32,13 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
       </Layout.Header>
       <Layout.Content>
         <div className="flex items-center justify-center rounded-md bg-surface p-2">
-          {account?.address && (
+          {matchingKey && (
             <div className="flex items-center gap-2">
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
                 <WalletIcon className="h-4 w-4 text-jade9" />
               </div>
               <span className="font-medium font-mono text-base">
-                {StringFormatter.truncate(authorizeKey.publicKey)}
+                {StringFormatter.truncate(matchingKey.publicKey)}
               </span>
             </div>
           )}
@@ -66,9 +71,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
 
 export declare namespace RevokeAdmin {
   type Props = {
-    authorizeKey: {
-      publicKey: Hex.Hex
-    }
+    revokeKeyId: Hex.Hex
     loading: boolean
     onApprove: () => void
     onReject: () => void

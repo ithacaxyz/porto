@@ -28,7 +28,7 @@ function RouteComponent() {
   return (
     <div>
       <RevokeAdmin
-        authorizeKey={{ publicKey: parameters.id }}
+        revokeKeyId={parameters.id}
         loading={respond.isPending}
         onApprove={() => respond.mutate()}
         onReject={() => Actions.reject(porto, request)}
