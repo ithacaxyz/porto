@@ -27,14 +27,14 @@ function RouteComponent() {
 
   return (
     <div>
-      <GrantAdmin 
-         {...parameters}
-         address={undefined}
-         key={parameters.key as never}
-         loading={respond.isPending}
-         onApprove={() => respond.mutate()}
-         onReject={() => Actions.reject(porto, request)}
+      <GrantAdmin
+        {...parameters}
+        address={undefined}
+        key={parameters.key as never}
+        loading={respond.isPending}
+        onApprove={() => respond.mutate()}
+        onReject={() => Actions.reject(porto, request)}
       />
     </div>
   )
-} 
+}
