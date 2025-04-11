@@ -16,6 +16,7 @@ import { Route as DialogIndexImport } from './routes/dialog/index'
 import { Route as DialogWalletsendCallsImport } from './routes/dialog/wallet_sendCalls'
 import { Route as DialogWalletconnectImport } from './routes/dialog/wallet_connect'
 import { Route as DialogPersonalsignImport } from './routes/dialog/personal_sign'
+import { Route as DialogExperimentalrevokeAdminImport } from './routes/dialog/experimental_revokeAdmin'
 import { Route as DialogExperimentalgrantPermissionsImport } from './routes/dialog/experimental_grantPermissions'
 import { Route as DialogExperimentalgrantAdminImport } from './routes/dialog/experimental_grantAdmin'
 import { Route as DialogExperimentalcreateAccountImport } from './routes/dialog/experimental_createAccount'
@@ -55,6 +56,13 @@ const DialogPersonalsignRoute = DialogPersonalsignImport.update({
   path: '/dialog/personal_sign',
   getParentRoute: () => rootRoute,
 } as any)
+
+const DialogExperimentalrevokeAdminRoute =
+  DialogExperimentalrevokeAdminImport.update({
+    id: '/dialog/experimental_revokeAdmin',
+    path: '/dialog/experimental_revokeAdmin',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 const DialogExperimentalgrantPermissionsRoute =
   DialogExperimentalgrantPermissionsImport.update({
@@ -163,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogExperimentalgrantPermissionsImport
       parentRoute: typeof rootRoute
     }
+    '/dialog/experimental_revokeAdmin': {
+      id: '/dialog/experimental_revokeAdmin'
+      path: '/dialog/experimental_revokeAdmin'
+      fullPath: '/dialog/experimental_revokeAdmin'
+      preLoaderRoute: typeof DialogExperimentalrevokeAdminImport
+      parentRoute: typeof rootRoute
+    }
     '/dialog/personal_sign': {
       id: '/dialog/personal_sign'
       path: '/dialog/personal_sign'
@@ -205,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
   '/dialog/experimental_grantAdmin': typeof DialogExperimentalgrantAdminRoute
   '/dialog/experimental_grantPermissions': typeof DialogExperimentalgrantPermissionsRoute
+  '/dialog/experimental_revokeAdmin': typeof DialogExperimentalrevokeAdminRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
@@ -220,6 +236,7 @@ export interface FileRoutesByTo {
   '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
   '/dialog/experimental_grantAdmin': typeof DialogExperimentalgrantAdminRoute
   '/dialog/experimental_grantPermissions': typeof DialogExperimentalgrantPermissionsRoute
+  '/dialog/experimental_revokeAdmin': typeof DialogExperimentalrevokeAdminRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
@@ -236,6 +253,7 @@ export interface FileRoutesById {
   '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
   '/dialog/experimental_grantAdmin': typeof DialogExperimentalgrantAdminRoute
   '/dialog/experimental_grantPermissions': typeof DialogExperimentalgrantPermissionsRoute
+  '/dialog/experimental_revokeAdmin': typeof DialogExperimentalrevokeAdminRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
@@ -253,6 +271,7 @@ export interface FileRouteTypes {
     | '/dialog/experimental_createAccount'
     | '/dialog/experimental_grantAdmin'
     | '/dialog/experimental_grantPermissions'
+    | '/dialog/experimental_revokeAdmin'
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
@@ -267,6 +286,7 @@ export interface FileRouteTypes {
     | '/dialog/experimental_createAccount'
     | '/dialog/experimental_grantAdmin'
     | '/dialog/experimental_grantPermissions'
+    | '/dialog/experimental_revokeAdmin'
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
@@ -281,6 +301,7 @@ export interface FileRouteTypes {
     | '/dialog/experimental_createAccount'
     | '/dialog/experimental_grantAdmin'
     | '/dialog/experimental_grantPermissions'
+    | '/dialog/experimental_revokeAdmin'
     | '/dialog/personal_sign'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
@@ -297,6 +318,7 @@ export interface RootRouteChildren {
   DialogExperimentalcreateAccountRoute: typeof DialogExperimentalcreateAccountRoute
   DialogExperimentalgrantAdminRoute: typeof DialogExperimentalgrantAdminRoute
   DialogExperimentalgrantPermissionsRoute: typeof DialogExperimentalgrantPermissionsRoute
+  DialogExperimentalrevokeAdminRoute: typeof DialogExperimentalrevokeAdminRoute
   DialogPersonalsignRoute: typeof DialogPersonalsignRoute
   DialogWalletconnectRoute: typeof DialogWalletconnectRoute
   DialogWalletsendCallsRoute: typeof DialogWalletsendCallsRoute
@@ -313,6 +335,7 @@ const rootRouteChildren: RootRouteChildren = {
   DialogExperimentalgrantAdminRoute: DialogExperimentalgrantAdminRoute,
   DialogExperimentalgrantPermissionsRoute:
     DialogExperimentalgrantPermissionsRoute,
+  DialogExperimentalrevokeAdminRoute: DialogExperimentalrevokeAdminRoute,
   DialogPersonalsignRoute: DialogPersonalsignRoute,
   DialogWalletconnectRoute: DialogWalletconnectRoute,
   DialogWalletsendCallsRoute: DialogWalletsendCallsRoute,
@@ -337,6 +360,7 @@ export const routeTree = rootRoute
         "/dialog/experimental_createAccount",
         "/dialog/experimental_grantAdmin",
         "/dialog/experimental_grantPermissions",
+        "/dialog/experimental_revokeAdmin",
         "/dialog/personal_sign",
         "/dialog/wallet_connect",
         "/dialog/wallet_sendCalls",
@@ -366,6 +390,9 @@ export const routeTree = rootRoute
     },
     "/dialog/experimental_grantPermissions": {
       "filePath": "dialog/experimental_grantPermissions.tsx"
+    },
+    "/dialog/experimental_revokeAdmin": {
+      "filePath": "dialog/experimental_revokeAdmin.tsx"
     },
     "/dialog/personal_sign": {
       "filePath": "dialog/personal_sign.tsx"
