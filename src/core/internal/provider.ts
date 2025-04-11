@@ -7,6 +7,7 @@ import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Account from './account.js'
+import * as Delegation from './delegation.js'
 import type * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import * as Porto_internal from './porto.js'
@@ -418,6 +419,44 @@ export function from<
             signPayloads: signPayloads.map((x) => x as never),
           } satisfies Schema.Static<
             typeof Rpc.experimental_prepareUpgradeAccount.Response
+          >
+        }
+
+        case 'experimental_getAccountVersion': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address }] = request._decoded.params ?? [{}]
+
+          const account = address
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, address),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const client = getClient()
+
+          const delegation = client.chain.contracts.delegation
+          if (!delegation) throw new RpcResponse.InternalError()
+
+          const [{ version: current }, { version: latest }] = await Promise.all(
+            [
+              Delegation.getEip712Domain(client, {
+                account: account.address,
+              }),
+              Delegation.getEip712Domain(client, {
+                account: delegation.address,
+              }),
+            ],
+          )
+          if (!current || !latest) throw new RpcResponse.InternalError()
+
+          return {
+            current,
+            latest,
+          } satisfies Schema.Static<
+            typeof Rpc.experimental_getAccountVersion.Response
           >
         }
 

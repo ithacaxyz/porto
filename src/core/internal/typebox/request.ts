@@ -195,6 +195,25 @@ export namespace experimental_grantPermissions {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
+export namespace experimental_getAccountVersion {
+  export const Parameters = Type.Object({
+    address: Schema.Optional(Primitive.Address),
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_getAccountVersion'),
+    params: Schema.Optional(Type.Tuple([Parameters])),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    current: Type.String(),
+    latest: Type.String(),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace experimental_getPermissions {
   export const Parameters = Type.Object({
     address: Schema.Optional(Primitive.Address),

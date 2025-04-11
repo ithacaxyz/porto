@@ -56,6 +56,10 @@ export type Schema =
           ReturnType: Static<typeof Rpc.experimental_getAdmins.Response>
         }
       | {
+          Request: Static<typeof Rpc.experimental_getAccountVersion.Request>
+          ReturnType: Static<typeof Rpc.experimental_getAccountVersion.Response>
+        }
+      | {
           Request: Static<typeof Rpc.experimental_getPermissions.Request>
           ReturnType: Static<typeof Rpc.experimental_getPermissions.Response>
         }

@@ -600,6 +600,34 @@ describe.each([
     })
   })
 
+  describe('experimental_getAccountVersion', () => {
+    test('default', async () => {
+      const { porto } = getPorto()
+
+      await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+
+      const version = await porto.provider.request({
+        method: 'experimental_getAccountVersion',
+      })
+      expect(version).toMatchInlineSnapshot(`
+        {
+          "current": "0.0.2",
+          "latest": "0.0.2",
+        }
+      `)
+    })
+
+    test.todo('behavior: deployed account')
+
+    test.todo('behavior: not connected')
+
+    test.todo('behavior: outdated')
+
+    test.todo('behavior: accounts on different versions')
+  })
+
   describe('personal_sign', () => {
     // TODO(relay): counterfactual signature verification
     test.skipIf(type === 'relay')('default', async () => {
