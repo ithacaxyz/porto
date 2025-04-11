@@ -11,7 +11,7 @@ export function Layout(props: Layout.Props) {
 
   if (loading)
     return (
-      <div className="flex flex-grow p-3">
+      <div className="flex flex-grow p-3 in-data-popup:[body:has(com-1password-notification)_&]:pb-50">
         <IndeterminateLoader title={loadingTitle} />
       </div>
     )
