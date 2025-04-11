@@ -2,7 +2,6 @@ import { Button } from '@porto/apps/components'
 import { type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Hooks } from 'porto/remote'
-import { useState } from 'react'
 
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -15,14 +14,24 @@ export function GrantPermissions(props: GrantPermissions.Props) {
 
   const account = Hooks.useAccount(porto, { address })
 
-  const [index, setIndex] = useState(0)
-
   if (!permissions?.spend) return <NotFound />
   if (permissions.spend.length === 0) return <NotFound />
 
   return (
     <Layout loading={loading} loadingTitle="Authorizing...">
-      <GrantSpendPermission {...permissions.spend[index]!} />
+      <Layout.Header>
+        <Layout.Header.Default
+          content={
+            <div>You must update the following permissions to continue:</div>
+          }
+          icon={LucideDiamondPlus}
+          title="Update permissions"
+          variant="warning"
+        />
+      </Layout.Header>
+      <Layout.Content className="pl-0">
+        <Permissions calls={permissions.calls ?? []} spend={permissions.spend} />
+      </Layout.Content>
 
       <Layout.Footer>
         <Layout.Footer.Actions>
@@ -32,10 +41,7 @@ export function GrantPermissions(props: GrantPermissions.Props) {
 
           <Button
             className="flex-1"
-            onClick={() => {
-              if (index < permissions!.spend!.length - 1) setIndex(index + 1)
-              else onApprove()
-            }}
+            onClick={onApprove}
             type="button"
             variant="accent"
           >
@@ -59,36 +65,5 @@ export declare namespace GrantPermissions {
     loading: boolean
     onApprove: () => void
     onReject: () => void
-  }
-}
-
-export function GrantSpendPermission(props: GrantSpendPermission.Props) {
-  return (
-    <>
-      <Layout.Header>
-        <Layout.Header.Default
-          content={
-            <div>You must update the following permissions to continue:</div>
-          }
-          icon={LucideDiamondPlus}
-          title="Update permissions"
-          variant="warning"
-        />
-      </Layout.Header>
-      <Layout.Content className="pl-0">
-        <Permissions calls={props.calls ?? []} spend={[props]} />
-      </Layout.Content>
-    </>
-  )
-}
-
-export declare namespace GrantSpendPermission {
-  type Props = NonNullable<
-    NonNullable<GrantPermissions.Props['permissions']>['spend']
-  >[number] & {
-    calls?: readonly {
-      signature?: string
-      to?: `0x${string}`
-    }[]
   }
 }
