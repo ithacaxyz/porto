@@ -22,10 +22,10 @@ export const odysseyDevnet = /*#__PURE__*/ define({
   },
   contracts: {
     delegation: {
-      address: '0xcc22bfa7947b41e4aff122267b3d4cd2d351d6eb',
+      address: '0xe09d7f4fbd33c6fc734e07d69e40d23f995b43c9',
     },
     entryPoint: {
-      address: '0x63d9ce30d98762bfe1a26852116f031a1857b674',
+      address: '0xcceed8216fe5b0a8438f5c4c8ce959e0823dec8d',
     },
   },
   id: 28_403,
