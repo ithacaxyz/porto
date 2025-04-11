@@ -39,6 +39,14 @@ export const defaultConfig = {
       },
     },
     {
+      method: 'experimental_revokeAdmin',
+      modes: {
+        dialog: {
+          sameOrigin: true,
+        },
+      },
+    },
+    {
       method: 'experimental_upgradeAccount',
       modes: {
         headless: true,
