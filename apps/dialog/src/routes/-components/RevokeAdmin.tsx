@@ -1,8 +1,8 @@
 import { Button } from '@porto/apps/components'
 import { Hex } from 'ox'
-import { Hooks } from 'porto/remote'
+import { Hooks } from 'porto/wagmi'
 
-import { porto } from '~/lib/Porto'
+
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
@@ -10,11 +10,9 @@ import WalletIcon from '~icons/lucide/wallet-cards'
 export function RevokeAdmin(props: RevokeAdmin.Props) {
   const { loading, onApprove, onReject, revokeKeyId } = props
 
-  const account = Hooks.useAccount(porto)
+  const admins = Hooks.useAdmins()
 
-  const matchingKey = account?.keys?.find(
-    (key) => key.id === revokeKeyId || key.publicKey === revokeKeyId,
-  )
+  const matchingKey = admins?.data?.keys?.find((admin) => admin.id === revokeKeyId)
 
   return (
     <Layout loading={loading} loadingTitle="Authorizing...">
@@ -60,8 +58,8 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
           </Button>
         </Layout.Footer.Actions>
 
-        {account?.address && (
-          <Layout.Footer.Account address={account.address} />
+        {admins.data?.address && (
+          <Layout.Footer.Account address={admins.data.address} />
         )}
       </Layout.Footer>
     </Layout>
