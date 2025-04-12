@@ -16,7 +16,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
   )
 
   return (
-    <Layout loading={loading} loadingTitle="Authorizing...">
+    <Layout loading={loading} loadingTitle="Removing...">
       <Layout.Header>
         <Layout.Header.Default
           content={
