@@ -5,18 +5,18 @@
   "scripts": {
     "dev": "pnpm dlx wrangler@latest --config='wrangler.json' dev",
     "build": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --dry-run",
-    "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars"
+    "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars",
+    "generate-account": "node --import=tsx ./scripts/faucet-account.ts"
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
-    "hono": "^4.7.5",
     "porto": "workspace:*",
     "viem": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250402.0",
-    "@types/node": "^22.14.0",
+    "@cloudflare/workers-types": "^4.20250412.0",
+    "@types/node": "^22.14.1",
     "typescript": "catalog:",
-    "wrangler": "^4.7.0"
+    "wrangler": "^4.10.0"
   }
 }

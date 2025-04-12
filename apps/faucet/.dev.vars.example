@@ -1,0 +1,5 @@
+NODE_ENV="development"
+
+DRIP_AMOUNT=25
+DRIP_ADDRESS=""
+DRIP_PRIVATE_KEY=""
