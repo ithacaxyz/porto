@@ -32,7 +32,8 @@
       "!**/*tsconfig.*.json",
       "!**/*package.json",
       "!apps/**/routeTree.gen.ts",
-      "!apps/**/dist/**"
+      "!apps/**/dist/**",
+      "!**/_dist/**"
     ]
   },
   "formatter": {
