@@ -28,9 +28,6 @@
     "react-dom": "catalog:",
     "wagmi": "catalog:",
     "zustand": "catalog:",
-
-
-
     "cuer": "^0.0.2"
   },
   "devDependencies": {
