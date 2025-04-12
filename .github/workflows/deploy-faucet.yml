@@ -1,9 +1,12 @@
 name: Deploy Faucet
 
 on:
-  workflow_dispatch:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      DRIP_PRIVATE_KEY:
+        required: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,6 +31,11 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+
+      - name: Update DRIP_PRIVATE_KEY if provided
+        if: inputs.DRIP_PRIVATE_KEY != ''
+        run: |
+          echo ${{ inputs.DRIP_PRIVATE_KEY }} | pnpm dlx wrangler@latest secret put DRIP_PRIVATE_KEY
 
       - name: 🔸 Cloudflare Workers - Deploy
         env:
