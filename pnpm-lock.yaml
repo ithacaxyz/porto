@@ -208,6 +208,9 @@ importers:
       '@wagmi/core':
         specifier: 'catalog:'
         version: 2.16.7(@tanstack/query-core@5.70.0)(@types/react@19.0.12)(react@19.1.0)(typescript@5.8.2)(use-sync-external-store@1.4.0(react@19.1.0))(viem@2.26.2(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2))
+      cuer:
+        specifier: ^0.0.2
+        version: 0.0.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)
       cva:
         specifier: 'catalog:'
         version: class-variance-authority@0.7.1
