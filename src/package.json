@@ -27,7 +27,7 @@
     "react": ">=18",
     "typescript": ">=5.4.0",
     "viem": ">=2.26.0",
-    "wagmi": ">=undefined"
+    "wagmi": ">=2.0.0"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-query": {
