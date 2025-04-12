@@ -4,13 +4,13 @@ import { exp1Abi, exp1Address } from '@porto/apps/contracts'
 import { Chains } from 'porto'
 import { Account, Key, Relay } from 'porto/internal'
 import { createClient, http, isAddress, isHex } from 'viem'
-import { privateKeyToAddress } from 'viem/accounts'
 
+const DRIP_ADDRESS = env.DRIP_ADDRESS
 const DRIP_PRIVATE_KEY = env.DRIP_PRIVATE_KEY
 
-if (!isHex(DRIP_PRIVATE_KEY)) throw new Error('Invalid environment variables')
-
-const DRIP_ADDRESS = privateKeyToAddress(DRIP_PRIVATE_KEY)
+if (!isAddress(DRIP_ADDRESS) || !isHex(DRIP_PRIVATE_KEY)) {
+  throw new Error('Invalid environment variables')
+}
 
 export default {
   async fetch(request, env) {

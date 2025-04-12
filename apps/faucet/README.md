@@ -26,6 +26,8 @@ Simply send some EXP to the address printed in the previous command.
 - Go to the [Deploy Faucet workflow](https://github.com/ithacaxyz/porto/actions/workflows/deploy-faucet.yml)
 - Click on `Run workflow`
 - (Only if account update is needed) Fill in the `DRIP_PRIVATE_KEY` input with the private key of the new account
+- (Only if account update is needed) Fill in the `DRIP_ADDRESS` input with the address of the new account
+- Run the workflow
 
 Done.
 
@@ -35,7 +37,7 @@ Done.
 # ask @portosdk for the token
 export CLOUDFLARE_API_TOKEN=<your-token>
 
-pnpm --filter faucet run deploy
+pnpm --filter faucet run deploy --var 'DRIP_ADDRESS:<address>'
 ```
 
 Then update `DRIP_PRIVATE_KEY` on the deployed worker
