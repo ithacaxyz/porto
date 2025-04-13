@@ -8,11 +8,11 @@ async function main() {
     transport: http('https://relay-staging.ithaca.xyz'),
   })
 
-  const key = Key.createSecp256k1({
+  const key = Key.createHeadlessWebAuthnP256({
     role: 'admin',
   })
 
-  console.log(`DRIP_PRIVATE_KEY=${key.privateKey?.()}`)
+  console.log(`DRIP_PRIVATE_KEY=${key.privateKey?.privateKey?.()}`)
 
   const account = await Relay.createAccount(client, { keys: [key] })
 
