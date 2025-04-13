@@ -76,6 +76,19 @@ export function AddFunds(props: AddFunds.Props) {
 
   const loading = deposit.isPending || receipt.isFetching
 
+  const [copyText, setCopyText] = React.useState('Copy')
+
+  const copyAddress = () =>
+    navigator.clipboard
+      .writeText(address ?? '')
+      .then(() => {
+        setCopyText('Copied')
+        setTimeout(() => setCopyText('Copy'), 1_500)
+      })
+      .catch((error) => {
+        console.error('failed to copy address to clipboard', error)
+      })
+
   return (
     <Layout loading={loading} loadingTitle="Adding funds...">
       <Layout.Header>
@@ -170,7 +183,7 @@ export function AddFunds(props: AddFunds.Props) {
                 <div className="flex w-full flex-row items-center justify-between">
                   <div className="flex items-center gap-2">
                     <QrCodeIcon className="size-5" />
-                    <span>Deposit crypto on Base</span>
+                    <span>Receive funds</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="ml-auto text-gray10 text-sm">Instant</span>
@@ -184,22 +197,20 @@ export function AddFunds(props: AddFunds.Props) {
           <form className="grid h-min grid-flow-row auto-rows-min grid-cols-1 items-center justify-center space-y-3">
             <div className="col-span-1 row-span-1">
               <Ariakit.Button
-                className="mx-auto flex w-[80%] items-center justify-center gap-3 hover:cursor-pointer!"
-                onClick={() =>
-                  navigator.clipboard
-                    .writeText(address ?? '')
-                    .then(() => console.log('copied address to clipboard'))
-                    .catch(() =>
-                      console.error('failed to copy address to clipboard'),
-                    )
-                }
+                className="mx-auto flex w-[80%] items-center justify-center gap-3 rounded-lg border border-surface bg-white p-2.5 hover:cursor-pointer! dark:bg-secondary"
+                onClick={copyAddress}
               >
-                <Cuer.Root
-                  className="rounded-lg border border-surface bg-white p-2.5 dark:bg-secondary"
-                  value={address ?? ''}
-                >
-                  <Cuer.Finder radius={1} />
+                <Cuer.Root className="" value={address ?? ''}>
                   <Cuer.Cells />
+                  <Cuer.Finder radius={1} />
+                  <Cuer.Arena>
+                    <img
+                      alt="Base icon"
+                      className="size-full object-cover"
+                      // TODO: figure out why '/icons/base.svg' is not working
+                      src="https://raw.githubusercontent.com/base/brand-kit/refs/heads/main/logo/symbol/Base_Symbol_Blue.svg"
+                    />
+                  </Cuer.Arena>
                 </Cuer.Root>
                 <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-gray10 text-sm">
                   {address}
@@ -219,21 +230,19 @@ export function AddFunds(props: AddFunds.Props) {
                 </Button>
                 <Button
                   className="w-full text-[14px]"
-                  onClick={() => {
-                    navigator.clipboard.writeText(address ?? '')
-                  }}
+                  onClick={copyAddress}
                   type="button"
                   variant="default"
                 >
-                  <CopyIcon className="mr-1 size-4" />
-                  Copy
+                  <CopyIcon className="mr-1.5 size-4" />
+                  {copyText}
                 </Button>
               </div>
             </div>
 
             <div className="col-span-1 row-span-1">
-              <p className="pt-1 text-center text-gray10 text-sm">
-                Please only send assets on Ethereum mainnet. Support for more
+              <p className="pt-2 text-center text-gray10 text-sm">
+                Please only send assets on Base mainnet. Support for more
                 networks soon.
               </p>
             </div>

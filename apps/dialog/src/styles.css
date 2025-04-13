@@ -26,4 +26,8 @@ input[type="number"] {
     font-size: 16px;
     line-height: 1.25rem;
   }
+
+  .size-full {
+    @apply h-full w-full;
+  }
 }
