@@ -212,7 +212,7 @@ export function DemoApp() {
                 <span className="opacity-30">Balance</span>
                 <span>
                   <span className="text-black dark:text-white">
-                    {exp1Balance ? Value.formatEther(exp1Balance) : 0}
+                    {exp1Balance ? ValueFormatter.format(exp1Balance) : 0}
                   </span>{' '}
                   <span className="text-gray11">EXP1</span>
                 </span>

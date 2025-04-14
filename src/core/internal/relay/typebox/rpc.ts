@@ -115,9 +115,7 @@ export namespace wallet_getCallsStatus {
               topics: Type.Array(Primitive.Hex),
             }),
           ),
-          status: Type.Object({
-            status: Primitive.Hex,
-          }),
+          status: Primitive.Hex,
           transactionHash: Primitive.Hex,
         }),
       ),
