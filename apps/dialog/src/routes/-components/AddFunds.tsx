@@ -75,8 +75,8 @@ export function AddFunds(props: AddFunds.Props) {
 
   const [amount, setAmount] = React.useState<string>(value.toString())
 
-  const [view, setView] = React.useState<'initial' | 'deposit-crypto'>(
-    'initial',
+  const [view, setView] = React.useState<'default' | 'deposit-crypto'>(
+    'default',
   )
 
   const deposit = useMutation({
@@ -127,7 +127,7 @@ export function AddFunds(props: AddFunds.Props) {
         <Layout.Header>
           <Layout.Header.Default
             content="Deposit crypto to fund your account."
-            title="Deposit funds"
+            title="Receive funds"
           />
         </Layout.Header>
 
@@ -135,7 +135,7 @@ export function AddFunds(props: AddFunds.Props) {
           <form className="grid h-min grid-flow-row auto-rows-min grid-cols-1 items-center justify-center space-y-3">
             <div className="col-span-1 row-span-1">
               <Ariakit.Button
-                className="mx-auto flex w-[80%] items-center justify-center gap-3 rounded-lg border border-surface bg-white p-2.5 hover:cursor-pointer! dark:bg-secondary"
+                className="mx-auto flex w-[70%] items-center justify-center gap-3 rounded-lg border border-surface bg-white p-2.5 hover:cursor-pointer! dark:bg-secondary"
                 onClick={() => copyToClipboard(address ?? '')}
               >
                 <Cuer.Root value={address ?? ''}>
@@ -152,10 +152,10 @@ export function AddFunds(props: AddFunds.Props) {
             </div>
 
             <div className="col-span-1 row-span-1 my-auto">
-              <div className="flex w-full flex-row gap-2">
+              <div className="flex w-full flex-row gap-3 pt-1">
                 <Button
                   className="w-full text-[14px]"
-                  onClick={() => setView('initial')}
+                  onClick={() => setView('default')}
                   type="button"
                   variant="default"
                 >
