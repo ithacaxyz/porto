@@ -174,7 +174,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
                 type="button"
                 variant="default"
               >
-                Approve anyway
+                Attempt anyway
               </Button>
             </>
           ) : (
