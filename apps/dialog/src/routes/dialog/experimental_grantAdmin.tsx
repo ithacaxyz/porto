@@ -29,6 +29,7 @@ function RouteComponent() {
     <div>
       <GrantAdmin
         authorizeKey={parameters.key}
+        feeToken={parameters.capabilities?.feeToken}
         loading={respond.isPending}
         onApprove={() => respond.mutate()}
         onReject={() => Actions.reject(porto, request)}

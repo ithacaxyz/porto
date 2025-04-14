@@ -1,16 +1,59 @@
 import { Button } from '@porto/apps/components'
 import { Hex } from 'ox'
 import { Hooks } from 'porto/remote'
+import { Key, Relay } from 'porto/internal'
+import { useQuery } from '@tanstack/react-query'
+import type * as Address from 'ox/Address'
+import * as Price from '~/lib/Price'
 
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
+import { useQuote } from './ActionRequest'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
-  const { authorizeKey, loading, onApprove, onReject } = props
+  const { authorizeKey, loading, onApprove, onReject, feeToken } = props
 
   const account = Hooks.useAccount(porto)
+  const client = Hooks.useClient(porto)
+  const chain = Hooks.useChain(porto)
+
+  const prepareCalls = useQuery({
+    queryKey: [
+      'prepareCalls',
+      'grantAdmin',
+      account?.address,
+      authorizeKey.publicKey,
+    ],
+    queryFn: async () => {
+      if (!account || !chain) throw new Error('Account and chain required')
+
+      const adminKey = account.keys?.find(
+        (key) => key.role === 'admin' && key.privateKey,
+      )
+      if (!adminKey) throw new Error('Admin key not found')
+
+      const { context } = await Relay.prepareCalls(client, {
+        account,
+        authorizeKeys: [Key.from({ ...authorizeKey })],
+        feeToken,
+        key: adminKey,
+      })
+
+      return context
+    },
+    enabled: !!account && !!chain,
+  })
+
+  const quote = useQuote(porto, {
+    chainId: chain?.id,
+    context: prepareCalls.data,
+  })
+
+  const fiatFee = Price.useFiatPrice({
+    value: quote?.fee.native.value,
+  })
 
   return (
     <Layout loading={loading} loadingTitle="Authorizing...">
@@ -37,6 +80,33 @@ export function GrantAdmin(props: GrantAdmin.Props) {
               </span>
             </div>
           )}
+        </div>
+      </Layout.Content>
+
+      <Layout.Content>
+        <p className="mb-1 text-base text-gray-500">More details</p>
+        <div className="space-y-2 rounded-md bg-surface p-2">
+          <div className="flex items-center justify-between">
+            <span className="text-gray-500">Fees (est.)</span>
+            <span>
+              {fiatFee.isFetched ? fiatFee.data?.display : 'Loading...'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-500">Duration (est.)</span>
+            <span>2 seconds</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-500">Network</span>
+            <span className="flex items-center gap-1">
+              <img
+                src={`/icons/${chain?.nativeCurrency.symbol.toLowerCase()}.svg`}
+                alt={chain?.name}
+                className="h-4 w-4"
+              />
+              {chain?.name}
+            </span>
+          </div>
         </div>
       </Layout.Content>
 
@@ -68,7 +138,9 @@ export declare namespace GrantAdmin {
   type Props = {
     authorizeKey: {
       publicKey: Hex.Hex
+      type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
     }
+    feeToken?: Address.Address | undefined
     loading: boolean
     onApprove: () => void
     onReject: () => void
