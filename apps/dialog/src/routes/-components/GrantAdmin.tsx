@@ -10,13 +10,21 @@ import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
 import { useQuote } from './ActionRequest'
+import { PortoConfig } from '@porto/apps'
+import * as React from 'react'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
-  const { authorizeKey, loading, onApprove, onReject, feeToken } = props
+  const { authorizeKey, loading, onApprove, onReject } = props
 
   const account = Hooks.useAccount(porto)
   const client = Hooks.useClient(porto)
   const chain = Hooks.useChain(porto)
+
+  const feeToken = React.useMemo(() => {
+    if (!chain) return undefined
+    const address = PortoConfig.feeToken[chain.id]
+    return address
+  }, [chain])
 
   const prepareCalls = useQuery({
     enabled: !!account && !!chain,
@@ -87,9 +95,22 @@ export function GrantAdmin(props: GrantAdmin.Props) {
         <div className="space-y-2 rounded-md bg-surface p-2">
           <div className="flex items-center justify-between">
             <span className="text-gray-500">Fees (est.)</span>
-            <span>
-              {fiatFee.isFetched ? fiatFee.data?.display : 'Loading...'}
-            </span>
+            <div className="text-right">
+              {fiatFee.isFetched ? (
+                <>
+                  <div className="font-medium">{fiatFee.data?.display}</div>
+                  {quote?.fee && (
+                    <div>
+                      <span className="text-secondary text-xs">
+                        {quote.fee.display}
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <span className="font-medium text-secondary">Loading...</span>
+              )}
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-gray-500">Duration (est.)</span>
