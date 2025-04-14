@@ -96,13 +96,13 @@ export function GrantAdmin(props: GrantAdmin.Props) {
               <div className="font-medium text-[14px]">Error</div>
               <div className="space-y-2 text-[14px] text-primary">
                 <p>
-                  An error occurred while preparing the action. Proceed with
-                  caution.
+                  An error occurred while calculating fees. This may be due to
+                  network issues or insufficient funds.
                 </p>
                 <p>
                   Contact{' '}
-                  <span className="font-medium">{origin?.hostname}</span> for
-                  more information.
+                  <span className="font-medium">{origin?.hostname}</span> if
+                  this issue persists.
                 </p>
               </div>
             </div>
