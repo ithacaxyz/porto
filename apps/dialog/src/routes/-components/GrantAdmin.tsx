@@ -24,7 +24,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const origin = Dialog.useStore((state) => state.referrer?.origin)
 
   const feeToken = React.useMemo(() => {
-    if (props?.feeToken) return props.feeToken
+    if (props.feeToken) return props.feeToken
     if (!chain) return undefined
     return PortoConfig.feeToken[chain.id]
   }, [chain, props.feeToken])
