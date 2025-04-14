@@ -7,11 +7,14 @@ import { Address, Hex, Value } from 'ox'
 
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
+import { erc20Abi } from 'viem'
+import { useReadContract } from 'wagmi'
 import { useWaitForCallsStatus } from 'wagmi/experimental'
 
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
+import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
 import QrCodeIcon from '~icons/lucide/qr-code'
 import BaseIcon from '~icons/token-branded/base'
@@ -75,9 +78,30 @@ export function AddFunds(props: AddFunds.Props) {
 
   const [amount, setAmount] = React.useState<string>(value.toString())
 
-  const [view, setView] = React.useState<'default' | 'deposit-crypto'>(
-    'default',
-  )
+  // TODO: add error view
+  const [view, setView] = React.useState<
+    'default' | 'deposit-crypto' | 'success' | 'error'
+  >('default')
+
+  const [isPollingBalance, setIsPollingBalance] = React.useState(false)
+  const { data: balance } = useReadContract({
+    abi: erc20Abi,
+    address: tokenAddress,
+    args: [address!],
+    functionName: 'balanceOf',
+    query: {
+      enabled: !!address,
+      refetchInterval: isPollingBalance ? 1_000 : false,
+    },
+  })
+
+  const initialBalanceRef = React.useRef<bigint | undefined>(undefined)
+
+  React.useEffect(() => {
+    // store initial balance once the component mounts
+    if (initialBalanceRef.current === undefined && balance !== undefined)
+      initialBalanceRef.current = balance
+  }, [balance])
 
   const deposit = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
@@ -89,6 +113,8 @@ export function AddFunds(props: AddFunds.Props) {
 
       const token = FeeToken.feeTokens[chain.id][tokenAddress.toLowerCase()]
       if (!token) throw new Error('token is required')
+
+      setIsPollingBalance(true)
 
       const value = Value.from(amount, token.decimals)
       const params = new URLSearchParams({
@@ -103,7 +129,20 @@ export function AddFunds(props: AddFunds.Props) {
       const data = (await response.json()) as { id: Hex.Hex }
       return data
     },
+    onError: () => setIsPollingBalance(false),
   })
+
+  React.useEffect(() => {
+    if (
+      isPollingBalance &&
+      initialBalanceRef.current !== undefined &&
+      balance !== undefined &&
+      balance > initialBalanceRef.current
+    ) {
+      setIsPollingBalance(false)
+      setView('success')
+    }
+  }, [isPollingBalance, balance])
 
   const receipt = useWaitForCallsStatus({
     id: deposit.data?.id,
@@ -117,25 +156,52 @@ export function AddFunds(props: AddFunds.Props) {
     if (receipt.isSuccess) onApprove(deposit.data!)
   }, [receipt.isSuccess, deposit.data, onApprove])
 
-  const loading = deposit.isPending || receipt.isFetching
+  const loading = (deposit.isPending || receipt.isFetching) && isPollingBalance
 
   const [copyText, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
+
+  if (view === 'success')
+    return (
+      <Layout loading={loading} loadingTitle="Adding funds...">
+        <Layout.Header className="flex flex-row items-center gap-2">
+          <div className="flex size-7 items-center justify-center rounded-full bg-green4">
+            <CheckIcon className="size-4.5 text-green8" />
+          </div>
+          <p className="font-medium text-lg">Deposited ${amount}</p>
+        </Layout.Header>
+        <Layout.Content>
+          <p className="text-base text-secondary">
+            Your funds have been deposited to your Porto account.
+          </p>
+          <div className="mt-2 flex w-full flex-row items-center">
+            <Button
+              className="w-full font-semibold"
+              onClick={() => onApprove({ id: deposit.data!.id })}
+              variant="default"
+            >
+              Done
+            </Button>
+          </div>
+        </Layout.Content>
+
+        <Layout.Footer>
+          {address && <Layout.Footer.Account address={address} />}
+        </Layout.Footer>
+      </Layout>
+    )
 
   if (view === 'deposit-crypto')
     return (
       <Layout loading={loading} loadingTitle="Adding funds...">
         <Layout.Header>
-          <Layout.Header.Default
-            content="Deposit crypto to fund your account."
-            title="Receive funds"
-          />
+          <Layout.Header.Default title="Deposit crypto" />
         </Layout.Header>
 
         <Layout.Content>
           <form className="grid h-min grid-flow-row auto-rows-min grid-cols-1 items-center justify-center space-y-3">
             <div className="col-span-1 row-span-1">
               <Ariakit.Button
-                className="mx-auto flex w-[70%] items-center justify-center gap-3 rounded-lg border border-surface bg-white p-2.5 hover:cursor-pointer! dark:bg-secondary"
+                className="mx-auto flex w-[75%] items-center justify-center gap-3 rounded-lg border border-surface bg-white p-2.5 hover:cursor-pointer! dark:bg-secondary"
                 onClick={() => copyToClipboard(address ?? '')}
               >
                 <Cuer.Root value={address ?? ''}>
@@ -159,7 +225,7 @@ export function AddFunds(props: AddFunds.Props) {
                   type="button"
                   variant="default"
                 >
-                  Cancel
+                  Back
                 </Button>
                 <Button
                   className="w-full text-[14px]"
@@ -171,13 +237,6 @@ export function AddFunds(props: AddFunds.Props) {
                   {copyText}
                 </Button>
               </div>
-            </div>
-
-            <div className="col-span-1 row-span-1">
-              <p className="pt-2 text-center text-gray10 text-sm">
-                Please only send assets on Base mainnet. Support for more
-                networks soon.
-              </p>
             </div>
           </form>
         </Layout.Content>
@@ -275,7 +334,7 @@ export function AddFunds(props: AddFunds.Props) {
               <div className="flex w-full flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                   <QrCodeIcon className="size-5" />
-                  <span>Receive funds</span>
+                  <span>Deposit crypto</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="ml-auto text-gray10 text-sm">Instant</span>

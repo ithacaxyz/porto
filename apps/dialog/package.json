@@ -12,7 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.15",
+    "@ariakit/react": "0.4.17",
     "@porto/apps": "workspace:*",
     "@tanstack/query-sync-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",
@@ -52,7 +52,7 @@
     "vite-plugin-mkcert": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
   },
-  "packageManager": "pnpm@10.6.3",
+  "packageManager": "pnpm@10.8.1",
   "repository": {
     "type": "git",
     "directory": "app",
