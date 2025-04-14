@@ -11,7 +11,9 @@ import * as Price from '~/lib/Price'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
+import TriangleAlert from '~icons/lucide/triangle-alert'
 import { useQuote } from './ActionRequest'
+import * as Dialog from '~/lib/Dialog'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
   const {
@@ -25,6 +27,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const account = Hooks.useAccount(porto)
   const client = Hooks.useClient(porto)
   const chain = Hooks.useChain(porto)
+  const origin = Dialog.useStore((state) => state.referrer?.origin)
 
   const feeToken = React.useMemo(() => {
     if (propFeeToken) return propFeeToken
@@ -68,6 +71,15 @@ export function GrantAdmin(props: GrantAdmin.Props) {
     value: quote?.fee.native.value,
   })
 
+  const status = React.useMemo(() => {
+    if (prepareCalls.isPending) return 'pending'
+    if (prepareCalls.isError) return 'error'
+    if (prepareCalls.isSuccess) return 'success'
+    return 'idle'
+  }, [prepareCalls.isError, prepareCalls.isPending, prepareCalls.isSuccess])
+
+  const warning = status === 'error'
+
   return (
     <Layout loading={loading} loadingTitle="Authorizing...">
       <Layout.Header>
@@ -78,21 +90,42 @@ export function GrantAdmin(props: GrantAdmin.Props) {
               lost.
             </div>
           }
+          icon={warning ? TriangleAlert : undefined}
           title="Add backup method"
+          variant={warning ? 'warning' : 'default'}
         />
       </Layout.Header>
       <Layout.Content>
-        <div className="flex items-center justify-center rounded-md bg-surface p-2">
-          {account?.address && (
-            <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
-                <WalletIcon className="h-4 w-4 text-jade9" />
+        <div className="space-y-3">
+          {status === 'error' && (
+            <div className="rounded-lg bg-warningTint px-3 py-2 text-warning">
+              <div className="font-medium text-[14px]">Error</div>
+              <div className="space-y-2 text-[14px] text-primary">
+                <p>
+                  An error occurred while preparing the action. Proceed with
+                  caution.
+                </p>
+                <p>
+                  Contact{' '}
+                  <span className="font-medium">{origin?.hostname}</span> for
+                  more information.
+                </p>
               </div>
-              <span className="font-medium font-mono text-base">
-                {StringFormatter.truncate(authorizeKey.publicKey)}
-              </span>
             </div>
           )}
+
+          <div className="flex items-center justify-center rounded-md bg-surface p-2">
+            {account?.address && (
+              <div className="flex items-center gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
+                  <WalletIcon className="h-4 w-4 text-jade9" />
+                </div>
+                <span className="font-medium font-mono text-base">
+                  {StringFormatter.truncate(authorizeKey.publicKey)}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </Layout.Content>
 
@@ -131,18 +164,40 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
       <Layout.Footer>
         <Layout.Footer.Actions>
-          <Button className="flex-1" onClick={onReject} type="button">
-            Cancel
-          </Button>
-
-          <Button
-            className="flex-1"
-            onClick={onApprove}
-            type="button"
-            variant="accent"
-          >
-            Add
-          </Button>
+          {status === 'error' ? (
+            <>
+              <Button
+                className="flex-1"
+                onClick={onReject}
+                type="button"
+                variant="destructive"
+              >
+                Deny
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={onApprove}
+                type="button"
+                variant="default"
+              >
+                Approve anyway
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button className="flex-1" onClick={onReject} type="button">
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={onApprove}
+                type="button"
+                variant="accent"
+              >
+                Add
+              </Button>
+            </>
+          )}
         </Layout.Footer.Actions>
 
         {account?.address && (
