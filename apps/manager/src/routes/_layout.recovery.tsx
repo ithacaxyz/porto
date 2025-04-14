@@ -10,6 +10,7 @@ import { Connector, useConnectors } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { porto } from '~/lib/Porto'
 import { mipdConfig } from '~/lib/Wagmi'
+import { isMobile } from '~/utils'
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
@@ -79,8 +80,6 @@ function RouteComponent() {
     return _connectors.filter((c) => !c.id.toLowerCase().includes('porto'))
   }, [_connectors])
 
-  if (!connectors.length) return null
-
   const connectThenGrantAdmin = async (
     event: React.MouseEvent<HTMLButtonElement>,
     connector: Connector,
@@ -121,6 +120,50 @@ function RouteComponent() {
       ))
     }
   }
+
+  if (isMobile())
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-y-4 px-3">
+        <p className="rounded-lg border border-gray5/50 bg-surface px-2.5 py-1 text-center font-medium text-lg">
+          Coming soon
+        </p>
+        <p className="text-center ">
+          Adding a recovery wallet is not supported on mobile yet.
+          <br />
+          Please use a desktop browser with a wallet extension to add a recovery
+          wallet.
+        </p>
+        <Button
+          className="w-full"
+          render={
+            <Link from="/recovery" to="/">
+              Go back
+            </Link>
+          }
+        />
+      </div>
+    )
+
+  if (!connectors.length)
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-y-4 px-3">
+        <p className="rounded-lg border border-gray5/50 bg-surface px-2.5 py-1 text-center font-medium text-lg">
+          No wallets found
+        </p>
+        <p className="text-center">
+          Please use a desktop browser with a wallet extension to add a recovery
+          wallet.
+        </p>
+        <Button
+          className="w-full"
+          render={
+            <Link from="/recovery" to="/">
+              Go back
+            </Link>
+          }
+        />
+      </div>
+    )
 
   return (
     <React.Fragment>
