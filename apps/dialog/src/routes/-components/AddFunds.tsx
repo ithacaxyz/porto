@@ -18,16 +18,21 @@ import BaseIcon from '~icons/token-branded/base'
 
 const presetAmounts = ['25', '50', '100', '250']
 
-// TODO: move to reusable file and use across manager workspace
+// TODO: consider moving to reusable file and use across manager workspace
 declare namespace CopyToClipboard {
   type Props = {
     timeout?: number
     initialText?: string
+    successText?: string
   }
 }
 
 function useCopyToClipboard(props: CopyToClipboard.Props) {
-  const { timeout = 1_500, initialText = 'Copy' } = props
+  const {
+    timeout = 1_500,
+    initialText = 'Copy',
+    successText = 'Copied',
+  } = props
 
   const [copyText, setCopyText] = React.useState(initialText)
 
@@ -40,16 +45,16 @@ function useCopyToClipboard(props: CopyToClipboard.Props) {
 
       try {
         await navigator.clipboard.writeText(text)
-        setCopyText('Copied')
+        setCopyText(successText)
         setTimeout(() => setCopyText(initialText), timeout)
         return true
       } catch (error) {
         console.error('Failed to copy text: ', error)
-        setCopyText('Copy')
+        setCopyText(initialText)
         return false
       }
     },
-    [initialText, timeout],
+    [initialText, timeout, successText],
   )
 
   return [copyText, copyToClipboard] as const
