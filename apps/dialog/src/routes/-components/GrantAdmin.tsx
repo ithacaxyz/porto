@@ -118,14 +118,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-secondary">Network</span>
-            <span className="flex items-center gap-1">
-              <img
-                alt={chain?.name}
-                className="h-4 w-4"
-                src={`/icons/${chain?.nativeCurrency.symbol.toLowerCase()}.svg`}
-              />
-              {chain?.name}
-            </span>
+            <span className="flex items-center gap-1">{chain?.name}</span>
           </div>
         </div>
       </Layout.Content>
