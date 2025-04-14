@@ -1,12 +1,11 @@
 import { Button } from '@porto/apps/components'
-import { Hex } from 'ox'
-import { Hooks } from 'porto/remote'
-import { Key, Relay } from 'porto/internal'
 import { useQuery } from '@tanstack/react-query'
+import { Hex } from 'ox'
 import type * as Address from 'ox/Address'
-import * as Price from '~/lib/Price'
-
+import { Key, Relay } from 'porto/internal'
+import { Hooks } from 'porto/remote'
 import { porto } from '~/lib/Porto'
+import * as Price from '~/lib/Price'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
@@ -20,12 +19,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const chain = Hooks.useChain(porto)
 
   const prepareCalls = useQuery({
-    queryKey: [
-      'prepareCalls',
-      'grantAdmin',
-      account?.address,
-      authorizeKey.publicKey,
-    ],
+    enabled: !!account && !!chain,
     queryFn: async () => {
       if (!account || !chain) throw new Error('Account and chain required')
 
@@ -43,7 +37,12 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
       return context
     },
-    enabled: !!account && !!chain,
+    queryKey: [
+      'prepareCalls',
+      'grantAdmin',
+      account?.address,
+      authorizeKey.publicKey,
+    ],
   })
 
   const quote = useQuote(porto, {
@@ -100,9 +99,9 @@ export function GrantAdmin(props: GrantAdmin.Props) {
             <span className="text-gray-500">Network</span>
             <span className="flex items-center gap-1">
               <img
-                src={`/icons/${chain?.nativeCurrency.symbol.toLowerCase()}.svg`}
                 alt={chain?.name}
                 className="h-4 w-4"
+                src={`/icons/${chain?.nativeCurrency.symbol.toLowerCase()}.svg`}
               />
               {chain?.name}
             </span>
