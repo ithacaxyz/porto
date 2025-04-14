@@ -21,14 +21,14 @@
     "@sentry/react": "catalog:",
     "@sentry/vite-plugin": "catalog:",
     "@wagmi/core": "catalog:",
+    "cuer": "^0.0.2",
     "cva": "catalog:",
     "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "wagmi": "catalog:",
-    "zustand": "catalog:",
-    "cuer": "^0.0.2"
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@porto/apps": "workspace:*",
