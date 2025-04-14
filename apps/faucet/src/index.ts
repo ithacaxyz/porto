@@ -74,7 +74,12 @@ export default {
       console.error(error)
       return new Response(
         error instanceof Error ? error.message : 'Unknown error',
-        { status: 500 },
+        {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+          status: 500,
+        },
       )
     }
   },
