@@ -127,7 +127,7 @@ function RouteComponent() {
         <p className="rounded-lg border border-gray5/50 bg-surface px-2.5 py-1 text-center font-medium text-lg">
           Coming soon
         </p>
-        <p className="text-center ">
+        <p className="text-center">
           Adding a recovery wallet is not supported on mobile yet.
           <br />
           Please use a desktop browser with a wallet extension to add a recovery
