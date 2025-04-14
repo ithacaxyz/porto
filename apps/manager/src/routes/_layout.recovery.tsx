@@ -12,7 +12,7 @@ import { base, baseSepolia } from 'viem/chains'
 import { Connector, useConnectors } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { porto } from '~/lib/Porto'
-import { config, mipdConfig } from '~/lib/Wagmi'
+import { mipdConfig } from '~/lib/Wagmi'
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_layout/recovery')({
   component: RouteComponent,
 })
 
-type WCEIP1193Provider = Awaited<ReturnType<typeof EthereumProvider.init>>
+type WcProvider = Awaited<ReturnType<typeof EthereumProvider.init>>
 
 function RouteComponent() {
   const [view, setView] = React.useState<'default' | 'success' | 'loading'>(
@@ -37,13 +37,9 @@ function RouteComponent() {
     return _connectors.filter((c) => !c.id.toLowerCase().includes('porto'))
   }, [_connectors])
 
-  const [wcProvider, setWcProvider] = React.useState<WCEIP1193Provider | null>(
-    null,
-  )
-
-  const [openQrDialog, setOpenQrDialog] = React.useState(false)
-
   const [uri, setUri] = React.useState<string | null>(null)
+
+  const [wcProvider, setWcProvider] = React.useState<WcProvider | null>(null)
 
   const connectThenGrantAdmin = async (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -54,13 +50,14 @@ function RouteComponent() {
 
     try {
       const provider = (
-        openQrDialog ? wcProvider : await connector.getProvider()
+        uri ? wcProvider : await connector.getProvider()
       ) as EIP1193Provider
 
-      if (!provider) return
       const [address] = await provider.request({
         method: 'eth_requestAccounts',
       })
+
+      console.info(address)
 
       if (!address) return
 
@@ -90,14 +87,16 @@ function RouteComponent() {
     }
   }
 
+  const [openQrDialog, setOpenQrDialog] = React.useState(false)
+
   const setupWalletConnect = React.useCallback(async () => {
     EthereumProvider.init({
-      chains: [base.id, baseSepolia.id, ...config.chains.map((c) => c.id)],
-      methods: ['eth_accounts', 'eth_requestAccounts'],
+      chains: [base.id, baseSepolia.id],
+      methods: ['eth_accounts', 'eth_requestAccounts', 'eth_sign'],
       projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
       showQrModal: false,
     })
-      .then((provider) => {
+      .then(async (provider) => {
         provider?.on('display_uri', setUri)
         provider?.enable()
         setWcProvider(provider)
@@ -126,11 +125,7 @@ function RouteComponent() {
         />
       </div>
 
-      <div
-        className={cx(
-          'mx-auto flex h-full w-full flex-col items-center justify-center bg-transparent min-[550px]:max-w-[395px]',
-        )}
-      >
+      <div className="mx-auto flex h-full w-full flex-col items-center justify-center bg-transparent min-[550px]:max-w-[395px]">
         {view === 'success' ? (
           <ActionableFeedback feedback="success" />
         ) : view === 'loading' ? (
