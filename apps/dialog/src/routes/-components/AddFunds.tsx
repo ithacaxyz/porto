@@ -18,6 +18,43 @@ import BaseIcon from '~icons/token-branded/base'
 
 const presetAmounts = ['25', '50', '100', '250']
 
+// TODO: move to reusable file and use across manager workspace
+declare namespace CopyToClipboard {
+  type Props = {
+    timeout?: number
+    initialText?: string
+  }
+}
+
+function useCopyToClipboard(props: CopyToClipboard.Props) {
+  const { timeout = 1_500, initialText = 'Copy' } = props
+
+  const [copyText, setCopyText] = React.useState(initialText)
+
+  const copyToClipboard = React.useCallback(
+    async (text: string) => {
+      if (!navigator?.clipboard) {
+        console.warn('Clipboard API not supported')
+        return false
+      }
+
+      try {
+        await navigator.clipboard.writeText(text)
+        setCopyText('Copied')
+        setTimeout(() => setCopyText(initialText), timeout)
+        return true
+      } catch (error) {
+        console.error('Failed to copy text: ', error)
+        setCopyText('Copy')
+        return false
+      }
+    },
+    [initialText, timeout],
+  )
+
+  return [copyText, copyToClipboard] as const
+}
+
 export function AddFunds(props: AddFunds.Props) {
   const {
     onApprove,
@@ -77,18 +114,7 @@ export function AddFunds(props: AddFunds.Props) {
 
   const loading = deposit.isPending || receipt.isFetching
 
-  const [copyText, setCopyText] = React.useState('Copy')
-
-  const copyAddress = () =>
-    navigator.clipboard
-      .writeText(address ?? '')
-      .then(() => {
-        setCopyText('Copied')
-        setTimeout(() => setCopyText('Copy'), 1_500)
-      })
-      .catch((error) => {
-        console.error('failed to copy address to clipboard', error)
-      })
+  const [copyText, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
 
   if (view === 'deposit-crypto')
     return (
@@ -105,9 +131,9 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1">
               <Ariakit.Button
                 className="mx-auto flex w-[80%] items-center justify-center gap-3 rounded-lg border border-surface bg-white p-2.5 hover:cursor-pointer! dark:bg-secondary"
-                onClick={copyAddress}
+                onClick={() => copyToClipboard(address ?? '')}
               >
-                <Cuer.Root className="" value={address ?? ''}>
+                <Cuer.Root value={address ?? ''}>
                   <Cuer.Cells />
                   <Cuer.Finder radius={1} />
                   <Cuer.Arena>
@@ -132,7 +158,7 @@ export function AddFunds(props: AddFunds.Props) {
                 </Button>
                 <Button
                   className="w-full text-[14px]"
-                  onClick={copyAddress}
+                  onClick={() => copyToClipboard(address ?? '')}
                   type="button"
                   variant="default"
                 >
