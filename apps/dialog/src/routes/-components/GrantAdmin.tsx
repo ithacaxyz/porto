@@ -91,10 +91,10 @@ export function GrantAdmin(props: GrantAdmin.Props) {
       </Layout.Content>
 
       <Layout.Content>
-        <p className="mb-1 text-base text-gray-500">More details</p>
+        <p className="mb-1 text-base text-secondary">More details</p>
         <div className="space-y-2 rounded-md bg-surface p-2">
-          <div className="flex items-center justify-between">
-            <span className="text-gray-500">Fees (est.)</span>
+          <div className="flex items-start justify-between">
+            <span className="pt-1 text-secondary">Fees (est.)</span>
             <div className="text-right">
               {fiatFee.isFetched ? (
                 <>
@@ -113,11 +113,11 @@ export function GrantAdmin(props: GrantAdmin.Props) {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-500">Duration (est.)</span>
+            <span className="text-secondary">Duration (est.)</span>
             <span>2 seconds</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-500">Network</span>
+            <span className="text-secondary">Network</span>
             <span className="flex items-center gap-1">
               <img
                 alt={chain?.name}
