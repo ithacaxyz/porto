@@ -16,13 +16,7 @@ import WalletIcon from '~icons/lucide/wallet-cards'
 import { useQuote } from './ActionRequest'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
-  const {
-    authorizeKey,
-    loading,
-    onApprove,
-    onReject,
-    feeToken: propFeeToken,
-  } = props
+  const { authorizeKey, loading, onApprove, onReject } = props
 
   const account = Hooks.useAccount(porto)
   const client = Hooks.useClient(porto)
@@ -30,10 +24,10 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const origin = Dialog.useStore((state) => state.referrer?.origin)
 
   const feeToken = React.useMemo(() => {
-    if (propFeeToken) return propFeeToken
+    if (props.feeToken) return props.feeToken
     if (!chain) return undefined
     return PortoConfig.feeToken[chain.id]
-  }, [chain, propFeeToken])
+  }, [chain, props.feeToken])
 
   const prepareCalls = useQuery({
     enabled: !!account && !!chain,
