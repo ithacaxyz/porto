@@ -124,14 +124,16 @@ export function GrantAdmin(props: GrantAdmin.Props) {
       </Layout.Content>
 
       <Layout.Content>
-        <p className="mb-1 text-base text-secondary">More details</p>
+        <p className="mb-1 text-[14px] text-secondary">More details</p>
         <div className="space-y-2 rounded-md bg-surface p-2">
           <div className="flex items-start justify-between">
-            <span className="pt-1 text-secondary">Fees (est.)</span>
+            <span className="pt-1 text-[14px] text-secondary">Fees (est.)</span>
             <div className="text-right">
               {fiatFee.isFetched ? (
                 <>
-                  <div className="font-medium">{fiatFee.data?.display}</div>
+                  <div className="font-medium leading-4">
+                    {fiatFee.data?.display}
+                  </div>
                   {quote?.fee && (
                     <div>
                       <span className="text-secondary text-xs">
@@ -146,12 +148,12 @@ export function GrantAdmin(props: GrantAdmin.Props) {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-secondary">Duration (est.)</span>
-            <span>2 seconds</span>
+            <span className="text-[14px] text-secondary">Duration (est.)</span>
+            <span className="font-medium text-[14px]">2 seconds</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-secondary">Network</span>
-            <span className="flex items-center gap-1">{chain?.name}</span>
+            <span className="text-[14px] text-secondary">Network</span>
+            <span className="font-medium text-[14px]">{chain?.name}</span>
           </div>
         </div>
       </Layout.Content>
