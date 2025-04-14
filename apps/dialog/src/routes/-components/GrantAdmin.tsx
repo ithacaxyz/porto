@@ -160,13 +160,8 @@ export function GrantAdmin(props: GrantAdmin.Props) {
         <Layout.Footer.Actions>
           {status === 'error' ? (
             <>
-              <Button
-                className="flex-1"
-                onClick={onReject}
-                type="button"
-                variant="destructive"
-              >
-                Deny
+              <Button className="flex-1" onClick={onReject} type="button">
+                Cancel
               </Button>
               <Button
                 className="flex-1"
