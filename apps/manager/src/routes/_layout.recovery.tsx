@@ -19,7 +19,7 @@ import { Layout } from './-components/Layout'
 
 export const Route = createFileRoute('/_layout/recovery')({
   beforeLoad: async ({ context }) => {
-    if (context?.account.isConnected) throw redirect({ to: '/' })
+    if (!context?.account.isConnected) throw redirect({ to: '/' })
   },
   component: RouteComponent,
 })
