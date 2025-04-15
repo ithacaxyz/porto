@@ -44,12 +44,15 @@ export function relay(config: relay.Parameters = {}) {
 
   const resolveFeeToken = (
     client: Client,
-    feeToken: Address.Address | Record<number, Address.Address> | undefined,
+    feeToken_?: Address.Address | undefined,
   ) => {
     const { chain } = client
-    if (typeof feeToken === 'string') return feeToken
-    if (typeof feeToken === 'object') return feeToken[chain.id]
-    return undefined
+    return (
+      config.feeTokens?.[chain.id]?.find((feeToken) =>
+        // If no fee token is provided, default to the first one.
+        feeToken_ ? feeToken.address === feeToken_ : true,
+      ) ?? { address: feeToken_ }
+    )
   }
 
   return Mode.from({
@@ -87,13 +90,16 @@ export function relay(config: relay.Parameters = {}) {
 
         if (id) id_internal = id
 
-        const authorizeKey = await PermissionsRequest.toKey(permissions)
+        const feeToken = resolveFeeToken(client)
+        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          feeToken,
+        })
         if (authorizeKey)
           // TODO(relay): remove double webauthn sign.
           await preauthKey(client, {
             account,
             authorizeKey,
-            feeToken: resolveFeeToken(client, config.feeToken),
+            feeToken: feeToken.address,
             storage: parameters.internal.config.storage,
           })
 
@@ -131,7 +137,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async grantAdmin(parameters) {
-        const { account, feeToken = config.feeToken, internal } = parameters
+        const { account, feeToken, internal } = parameters
         const { client } = internal
 
         const authorizeKey = Key.from(parameters.key)
@@ -139,7 +145,7 @@ export function relay(config: relay.Parameters = {}) {
         const { id } = await Relay.sendCalls(client, {
           account,
           authorizeKeys: [authorizeKey],
-          feeToken: resolveFeeToken(client, feeToken),
+          feeToken: resolveFeeToken(client, feeToken)?.address,
         })
         await waitForCallsStatus(client, {
           id,
@@ -152,14 +158,18 @@ export function relay(config: relay.Parameters = {}) {
         const { account, permissions, internal } = parameters
         const { client } = internal
 
+        const feeToken = resolveFeeToken(client)
+
         // Parse permissions request into a structured key.
-        const authorizeKey = await PermissionsRequest.toKey(permissions)
+        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          feeToken,
+        })
         if (!authorizeKey) throw new Error('key to authorize not found.')
 
         await preauthKey(client, {
           account,
           authorizeKey,
-          feeToken: resolveFeeToken(client, config.feeToken),
+          feeToken: feeToken.address,
           storage: internal.config.storage,
         })
 
@@ -202,9 +212,13 @@ export function relay(config: relay.Parameters = {}) {
           return { credentialId, keyId }
         })()
 
+        const feeToken = resolveFeeToken(client)
+
         const [accounts, authorizeKey] = await Promise.all([
           Relay.getAccounts(client, { keyId }),
-          PermissionsRequest.toKey(permissions),
+          PermissionsRequest.toKey(permissions, {
+            feeToken,
+          }),
         ])
         if (!accounts[0]) throw new Error('account not found')
 
@@ -235,7 +249,7 @@ export function relay(config: relay.Parameters = {}) {
           await preauthKey(client, {
             account,
             authorizeKey,
-            feeToken: resolveFeeToken(client, config.feeToken),
+            feeToken: feeToken.address,
             storage: internal.config.storage,
           })
 
@@ -245,13 +259,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const {
-          account,
-          calls,
-          internal,
-          feeToken = config.feeToken,
-          key,
-        } = parameters
+        const { account, calls, internal, feeToken, key } = parameters
         const {
           client,
           config: { storage },
@@ -266,7 +274,7 @@ export function relay(config: relay.Parameters = {}) {
         const { context, digest } = await Relay.prepareCalls(client, {
           account,
           calls,
-          feeToken: resolveFeeToken(client, feeToken),
+          feeToken: resolveFeeToken(client, feeToken)?.address,
           key,
           pre,
         })
@@ -285,14 +293,17 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async prepareUpgradeAccount(parameters) {
-        const { address, feeToken = config.feeToken, permissions } = parameters
+        const { address, permissions } = parameters
         const { client } = parameters.internal
 
-        const authorizeKey = await PermissionsRequest.toKey(permissions)
+        const feeToken = resolveFeeToken(client, parameters.feeToken)
 
+        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          feeToken,
+        })
         const { context, digests } = await Relay.prepareUpgradeAccount(client, {
           address,
-          feeToken: resolveFeeToken(client, feeToken),
+          feeToken: feeToken.address,
           async keys({ ids }) {
             const id = ids[0]!
             const label =
@@ -321,7 +332,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async revokeAdmin(parameters) {
-        const { account, id, feeToken = config.feeToken, internal } = parameters
+        const { account, id, feeToken, internal } = parameters
         const { client } = internal
 
         const key = account.keys?.find(
@@ -332,7 +343,7 @@ export function relay(config: relay.Parameters = {}) {
         try {
           const { id } = await Relay.sendCalls(client, {
             account,
-            feeToken: resolveFeeToken(client, feeToken),
+            feeToken: resolveFeeToken(client, feeToken)?.address,
             revokeKeys: [key],
           })
           await waitForCallsStatus(client, {
@@ -350,7 +361,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async revokePermissions(parameters) {
-        const { account, id, feeToken = config.feeToken, internal } = parameters
+        const { account, id, feeToken, internal } = parameters
         const { client } = internal
 
         const key = account.keys?.find(
@@ -364,7 +375,7 @@ export function relay(config: relay.Parameters = {}) {
         try {
           const { id } = await Relay.sendCalls(client, {
             account,
-            feeToken: resolveFeeToken(client, feeToken),
+            feeToken: resolveFeeToken(client, feeToken)?.address,
             revokeKeys: [key],
           })
           await waitForCallsStatus(client, {
@@ -382,12 +393,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const {
-          account,
-          calls,
-          internal,
-          feeToken = config.feeToken,
-        } = parameters
+        const { account, calls, internal, feeToken } = parameters
         const {
           client,
           config: { storage },
@@ -411,7 +417,7 @@ export function relay(config: relay.Parameters = {}) {
         const result = await Relay.sendCalls(client, {
           account,
           calls,
-          feeToken: resolveFeeToken(client, feeToken),
+          feeToken: resolveFeeToken(client, feeToken)?.address,
           key,
           pre,
         })
@@ -501,9 +507,14 @@ export function relay(config: relay.Parameters = {}) {
 export declare namespace relay {
   type Parameters = {
     /**
-     * Chain-aware ERC20 token to use for fees. Defaults to ETH.
+     * Chain-aware ERC20 fee token configuration.
      */
-    feeToken?: Record<number, Address.Address> | undefined
+    feeTokens?:
+      | Record<
+          number,
+          readonly NonNullable<PermissionsRequest.toKey.Options['feeToken']>[]
+        >
+      | undefined
     /**
      * Mock mode. Testing purposes only.
      * @default false

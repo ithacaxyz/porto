@@ -94,7 +94,8 @@ export namespace ActionRequest {
 
     const feeToken = React.useMemo(() => {
       if (!chain) return undefined
-      const address = props.feeToken ?? PortoConfig.feeToken[chain.id]
+      const address =
+        props.feeToken ?? PortoConfig.feeTokens[chain.id]?.[0].address
       return FeeToken.feeTokens[chain.id][address.toLowerCase()]
     }, [chain, props.feeToken])
 

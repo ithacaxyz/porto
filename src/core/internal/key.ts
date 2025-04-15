@@ -77,6 +77,9 @@ export type Serialized = {
   publicKey: Hex.Hex
 }
 
+export type SpendPermissions = Key_typebox.SpendPermissions
+export type SpendPermission = SpendPermissions[number]
+
 /** Relay key type to key type mapping. */
 export const fromRelayKeyType = {
   p256: 'p256',

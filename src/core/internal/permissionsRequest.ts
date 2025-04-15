@@ -1,5 +1,5 @@
 import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
 
 import * as Key from './key.js'
 import * as Permissions from './typebox/permissions.js'
@@ -30,12 +30,38 @@ export declare namespace fromKey {
 
 export async function toKey(
   request: PermissionsRequest | undefined,
+  options?: toKey.Options,
 ): Promise<Key.Key | undefined> {
   if (!request) return undefined
 
+  const { feeToken } = options ?? {}
+
+  const feeSpendPermission = feeToken?.permissionSpendLimit
+    ? ({
+        ...feeToken.permissionSpendLimit,
+        token: feeToken.address,
+      } satisfies Key.SpendPermission)
+    : undefined
+
   const expiry = request.expiry ?? 0
   const type = request.key?.type ?? 'secp256k1'
-  const permissions = request.permissions ?? {}
+
+  // TODO: remove once spend permissions on fees are supported.
+  const spendPermissions_tmp = request.permissions?.spend?.map((permission) => {
+    if (feeSpendPermission && permission.token === feeSpendPermission?.token) {
+      return {
+        ...permission,
+        limit: permission.limit + feeSpendPermission.limit,
+      }
+    }
+    return permission
+  })
+  const permissions = {
+    ...request.permissions,
+    ...(spendPermissions_tmp && {
+      spend: spendPermissions_tmp,
+    }),
+  }
   const publicKey = request?.key?.publicKey ?? '0x'
 
   const key = Key.from({
@@ -51,4 +77,20 @@ export async function toKey(
     ...key,
     role: 'session',
   })
+}
+
+export declare namespace toKey {
+  export type Options = {
+    /**
+     * Default fee token to use for permission requests.
+     */
+    feeToken?:
+      | {
+          address?: Address.Address | undefined
+          permissionSpendLimit?:
+            | Pick<Key.SpendPermission, 'limit' | 'period'>
+            | undefined
+        }
+      | undefined
+  }
 }

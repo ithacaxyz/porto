@@ -1205,7 +1205,7 @@ describe.each([
               calls: [{ to: exp1Address }],
               spend: [
                 {
-                  limit: Hex.fromNumber(69420),
+                  limit: Hex.fromNumber(Value.fromEther('50')),
                   period: 'day',
                   token: exp1Address,
                 },
@@ -1223,7 +1223,7 @@ describe.each([
               {
                 data: encodeFunctionData({
                   abi: exp1Abi,
-                  args: [alice, 50_000n],
+                  args: [alice, Value.fromEther('50')],
                   functionName: 'transfer',
                 }),
                 to: exp1Address,
@@ -1253,7 +1253,7 @@ describe.each([
                 {
                   data: encodeFunctionData({
                     abi: exp1Abi,
-                    args: [alice, 50_000n],
+                    args: [alice, Value.fromEther('50')],
                     functionName: 'transfer',
                   }),
                   to: exp1Address,

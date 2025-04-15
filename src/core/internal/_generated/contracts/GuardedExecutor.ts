@@ -464,7 +464,13 @@ export const abi = [
   {
     "type": "error",
     "name": "ExceededSpendLimit",
-    "inputs": []
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
   },
   {
     "type": "error",
@@ -488,7 +494,17 @@ export const abi = [
   },
   {
     "type": "error",
+    "name": "NoSpendPermissions",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "SuperAdminCanExecuteEverything",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SuperAdminCanSpendAnything",
     "inputs": []
   },
   {
