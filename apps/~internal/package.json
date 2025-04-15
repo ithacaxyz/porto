@@ -6,6 +6,7 @@
     ".": "./lib/index.ts",
     "./components": "./components/index.ts",
     "./contracts": "./_generated/contracts.ts",
+    "./hooks": "./hooks/index.ts",
     "./styles.css": "./styles/index.css"
   },
   "scripts": {

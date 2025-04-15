@@ -1,14 +1,13 @@
 import * as Ariakit from '@ariakit/react'
 import { FeeToken } from '@porto/apps'
 import { Button } from '@porto/apps/components'
+import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { Address, Hex, Value } from 'ox'
 
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-import { erc20Abi } from 'viem'
-import { useReadContract } from 'wagmi'
 import { useWaitForCallsStatus } from 'wagmi/experimental'
 
 import { porto } from '~/lib/Porto'
@@ -16,52 +15,11 @@ import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
+import LinkIcon from '~icons/lucide/link'
 import QrCodeIcon from '~icons/lucide/qr-code'
 import BaseIcon from '~icons/token-branded/base'
 
 const presetAmounts = ['25', '50', '100', '250']
-
-// TODO: consider moving to reusable file and use across manager workspace
-declare namespace CopyToClipboard {
-  type Props = {
-    timeout?: number
-    initialText?: string
-    successText?: string
-  }
-}
-
-function useCopyToClipboard(props: CopyToClipboard.Props) {
-  const {
-    timeout = 1_500,
-    initialText = 'Copy',
-    successText = 'Copied',
-  } = props
-
-  const [copyText, setCopyText] = React.useState(initialText)
-
-  const copyToClipboard = React.useCallback(
-    async (text: string) => {
-      if (!navigator?.clipboard) {
-        console.warn('Clipboard API not supported')
-        return false
-      }
-
-      try {
-        await navigator.clipboard.writeText(text)
-        setCopyText(successText)
-        setTimeout(() => setCopyText(initialText), timeout)
-        return true
-      } catch (error) {
-        console.error('Failed to copy text: ', error)
-        setCopyText(initialText)
-        return false
-      }
-    },
-    [initialText, timeout, successText],
-  )
-
-  return [copyText, copyToClipboard] as const
-}
 
 export function AddFunds(props: AddFunds.Props) {
   const {
@@ -78,30 +36,14 @@ export function AddFunds(props: AddFunds.Props) {
 
   const [amount, setAmount] = React.useState<string>(value.toString())
 
+  const [copyText, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
+
+  const [isPending, startTransition] = React.useTransition()
+
   // TODO: add error view
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'success' | 'error'
   >('default')
-
-  const [isPollingBalance, setIsPollingBalance] = React.useState(false)
-  const { data: balance } = useReadContract({
-    abi: erc20Abi,
-    address: tokenAddress,
-    args: [address!],
-    functionName: 'balanceOf',
-    query: {
-      enabled: !!address,
-      refetchInterval: isPollingBalance ? 1_000 : false,
-    },
-  })
-
-  const initialBalanceRef = React.useRef<bigint | undefined>(undefined)
-
-  React.useEffect(() => {
-    // store initial balance once the component mounts
-    if (initialBalanceRef.current === undefined && balance !== undefined)
-      initialBalanceRef.current = balance
-  }, [balance])
 
   const deposit = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
@@ -113,8 +55,6 @@ export function AddFunds(props: AddFunds.Props) {
 
       const token = FeeToken.feeTokens[chain.id][tokenAddress.toLowerCase()]
       if (!token) throw new Error('token is required')
-
-      setIsPollingBalance(true)
 
       const value = Value.from(amount, token.decimals)
       const params = new URLSearchParams({
@@ -129,20 +69,8 @@ export function AddFunds(props: AddFunds.Props) {
       const data = (await response.json()) as { id: Hex.Hex }
       return data
     },
-    onError: () => setIsPollingBalance(false),
+    onSuccess: () => startTransition(() => setView('success')),
   })
-
-  React.useEffect(() => {
-    if (
-      isPollingBalance &&
-      initialBalanceRef.current !== undefined &&
-      balance !== undefined &&
-      balance > initialBalanceRef.current
-    ) {
-      setIsPollingBalance(false)
-      setView('success')
-    }
-  }, [isPollingBalance, balance])
 
   const receipt = useWaitForCallsStatus({
     id: deposit.data?.id,
@@ -156,13 +84,11 @@ export function AddFunds(props: AddFunds.Props) {
     if (receipt.isSuccess) onApprove(deposit.data!)
   }, [receipt.isSuccess, deposit.data, onApprove])
 
-  const loading = (deposit.isPending || receipt.isFetching) && isPollingBalance
-
-  const [copyText, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
+  const loading = deposit.isPending || isPending
 
   if (view === 'success')
     return (
-      <Layout loading={loading} loadingTitle="Adding funds...">
+      <Layout>
         <Layout.Header className="flex flex-row items-center gap-2">
           <div className="flex size-7 items-center justify-center rounded-full bg-green4">
             <CheckIcon className="size-4.5 text-green8" />
@@ -170,9 +96,18 @@ export function AddFunds(props: AddFunds.Props) {
           <p className="font-medium text-lg">Deposited ${amount}</p>
         </Layout.Header>
         <Layout.Content>
-          <p className="text-base text-secondary">
-            Your funds have been deposited to your Porto account.
+          <p className="inline text-base text-secondary">
+            Your funds have been deposited to your Porto account.{' '}
+            <a
+              className="inline align-middle text-gray12"
+              href={`https://explorer.ithaca.xyz/tx/${deposit.data!.id}`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <LinkIcon className="mb-1 ml-1 inline size-3.5" />
+            </a>
           </p>
+
           <div className="mt-2 flex w-full flex-row items-center">
             <Button
               className="w-full font-semibold"
