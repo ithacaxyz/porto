@@ -46,7 +46,8 @@ export async function toKey(
   const expiry = request.expiry ?? 0
   const type = request.key?.type ?? 'secp256k1'
 
-  // TODO: remove once spend permissions on fees are supported.
+  // TODO: remove once spend permissions on fees are supported. this is a workaround
+  //       and it definitely not prod ready.
   const spendPermissions_tmp = request.permissions?.spend?.map((permission) => {
     if (feeSpendPermission && permission.token === feeSpendPermission?.token) {
       return {
