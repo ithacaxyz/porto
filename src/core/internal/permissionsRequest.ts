@@ -83,11 +83,17 @@ export async function toKey(
 export declare namespace toKey {
   export type Options = {
     /**
-     * Default fee token to use for permission requests.
+     * Fee token to use for permission requests.
      */
     feeToken?:
       | {
+          /**
+           * Fee token address.
+           */
           address?: Address.Address | undefined
+          /**
+           * Spending limit to pay for fees on this key.
+           */
           permissionSpendLimit?:
             | Pick<Key.SpendPermission, 'limit' | 'period'>
             | undefined
