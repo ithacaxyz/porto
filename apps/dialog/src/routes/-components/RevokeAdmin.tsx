@@ -14,7 +14,7 @@ import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import WalletIcon from '~icons/lucide/wallet-cards'
-import { useQuote } from './ActionRequest'
+import { useFeeToken, useQuote } from './ActionRequest'
 
 export function RevokeAdmin(props: RevokeAdmin.Props) {
   const { loading, onApprove, onReject, revokeKeyId } = props
@@ -25,11 +25,10 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
   const chain = Hooks.useChain(porto)
   const origin = Dialog.useStore((state) => state.referrer?.origin)
 
-  const feeToken = React.useMemo(() => {
-    if (props.feeToken) return props.feeToken
-    if (!chain) return undefined
-    return PortoConfig.feeToken[chain.id]
-  }, [chain, props.feeToken])
+  const feeToken = useFeeToken(porto, {
+    chainId: chain?.id,
+    feeToken: props.feeToken,
+  })
 
   const prepareCalls = useQuery({
     enabled: !!account && !!chain,
@@ -43,7 +42,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
 
       const { context } = await Relay.prepareCalls(client, {
         account,
-        feeToken,
+        feeToken: feeToken?.address,
         key: adminKey,
       })
 
