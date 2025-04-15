@@ -245,7 +245,7 @@ describe('execute', () => {
         hash: nextKey.hash,
         publicKey: nextKey.publicKey,
         role: nextKey.role,
-        type: 'webauthn-p256',
+        type: 'p256',
       })
     })
   })
