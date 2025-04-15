@@ -133,7 +133,7 @@ function State() {
       ) : (
         <>
           <p>Address: {state.accounts[0].address}</p>
-          <p>Chain ID: {state.chain.id}</p>
+          <p>Chain ID: {state.chainId}</p>
           <p>
             Keys:{' '}
             <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>

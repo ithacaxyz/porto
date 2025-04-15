@@ -59,7 +59,7 @@ export function create(
       persist<State>(
         (_) => ({
           accounts: [],
-          chain: config.chains[0],
+          chainId: config.chains[0].id,
           requestQueue: [],
         }),
         {
@@ -77,10 +77,11 @@ export function create(
                 })),
                 sign: undefined,
               })),
-              chain: state.chain,
+              chainId: state.chainId,
             } as unknown as State
           },
           storage: config.storage,
+          version: 1,
         },
       ),
     ),
@@ -181,7 +182,7 @@ export type State<
   ],
 > = {
   accounts: readonly Account.Account[]
-  chain: chains[number]
+  chainId: chains[number]['id']
   requestQueue: readonly QueuedRequest[]
 }
 

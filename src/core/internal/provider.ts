@@ -101,7 +101,7 @@ export function from<
         }
 
         case 'eth_chainId': {
-          return Hex.fromNumber(state.chain.id) satisfies Schema.Static<
+          return Hex.fromNumber(state.chainId) satisfies Schema.Static<
             typeof Rpc.eth_chainId.Response
           >
         }
@@ -919,10 +919,10 @@ export function from<
     )
 
     const unsubscribe_chain = store.subscribe(
-      (state) => state.chain,
-      (chain, previousChain) => {
-        if (chain.id === previousChain.id) return
-        emitter.emit('chainChanged', Hex.fromNumber(chain.id))
+      (state) => state.chainId,
+      (chainId, previousChainId) => {
+        if (chainId === previousChainId) return
+        emitter.emit('chainChanged', Hex.fromNumber(chainId))
       },
     )
 

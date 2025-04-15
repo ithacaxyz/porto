@@ -63,12 +63,12 @@ export function getClient<
   porto: { _internal: Internal<chains> },
   parameters: { chainId?: number | undefined } = {},
 ): Client<chains[number]> {
-  const { chainId } = parameters
   const { config, id, store } = porto._internal
   const { chains } = config
 
   const state = store.getState()
-  const chain = chains.find((chain) => chain.id === chainId) ?? state.chain
+  const chainId = parameters.chainId ?? state.chainId
+  const chain = chains.find((chain) => chain.id === chainId)
   if (!chain) throw new Error('chain not found')
 
   const transport =

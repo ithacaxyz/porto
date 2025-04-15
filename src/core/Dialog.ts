@@ -143,13 +143,13 @@ export function iframe() {
       let methodPolicies: Messenger.ReadyOptions['methodPolicies'] | undefined
 
       messenger.on('ready', (options) => {
-        const { chain } = options
+        const { chainId } = options
 
         if (!methodPolicies) methodPolicies = options?.methodPolicies
 
         store.setState((x) => ({
           ...x,
-          chain,
+          chainId,
         }))
 
         messenger.send('__internal', {
