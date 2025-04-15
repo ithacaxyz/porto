@@ -38,8 +38,6 @@ export function AddFunds(props: AddFunds.Props) {
 
   const [copyText, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
 
-  const [isPending, startTransition] = React.useTransition()
-
   // TODO: add error view
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'success' | 'error'
@@ -69,7 +67,6 @@ export function AddFunds(props: AddFunds.Props) {
       const data = (await response.json()) as { id: Hex.Hex }
       return data
     },
-    onSuccess: () => startTransition(() => setView('success')),
   })
 
   const receipt = useWaitForCallsStatus({
@@ -81,10 +78,16 @@ export function AddFunds(props: AddFunds.Props) {
   })
 
   React.useEffect(() => {
-    if (receipt.isSuccess) onApprove(deposit.data!)
-  }, [receipt.isSuccess, deposit.data, onApprove])
+    if (receipt.isSuccess) setView('success')
+  }, [receipt.isSuccess])
 
-  const loading = deposit.isPending || isPending
+  const loading = deposit.isPending || receipt.isFetching
+
+  const Footer = () => (
+    <Layout.Footer>
+      {address && <Layout.Footer.Account address={address} />}
+    </Layout.Footer>
+  )
 
   if (view === 'success')
     return (
@@ -119,9 +122,7 @@ export function AddFunds(props: AddFunds.Props) {
           </div>
         </Layout.Content>
 
-        <Layout.Footer>
-          {address && <Layout.Footer.Account address={address} />}
-        </Layout.Footer>
+        <Footer />
       </Layout>
     )
 
@@ -176,9 +177,7 @@ export function AddFunds(props: AddFunds.Props) {
           </form>
         </Layout.Content>
 
-        <Layout.Footer>
-          {address && <Layout.Footer.Account address={address} />}
-        </Layout.Footer>
+        <Footer />
       </Layout>
     )
 
@@ -281,9 +280,7 @@ export function AddFunds(props: AddFunds.Props) {
         </form>
       </Layout.Content>
 
-      <Layout.Footer>
-        {address && <Layout.Footer.Account address={address} />}
-      </Layout.Footer>
+      <Footer />
     </Layout>
   )
 }
