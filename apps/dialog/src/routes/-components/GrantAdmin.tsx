@@ -26,7 +26,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const feeToken = React.useMemo(() => {
     if (props.feeToken) return props.feeToken
     if (!chain) return undefined
-    return PortoConfig.feeToken[chain.id]
+    return PortoConfig.feeTokens[chain.id][0]?.address
   }, [chain, props.feeToken])
 
   const prepareCalls = useQuery({
