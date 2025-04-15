@@ -125,9 +125,11 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
       <Layout.Content>
         <p className="mb-1 text-[14px] text-secondary">More details</p>
-        <div className="space-y-2 rounded-md bg-surface p-2">
-          <div className="flex items-start justify-between">
-            <span className="pt-1 text-[14px] text-secondary">Fees (est.)</span>
+        <div className="space-y-2 rounded-md bg-surface p-3">
+          <div className="flex h-[38px] items-start justify-between">
+            <span className="text-[14px] text-secondary leading-4">
+              Fees (est.)
+            </span>
             <div className="text-right text-[14px]">
               {fiatFee.isFetched ? (
                 <>
