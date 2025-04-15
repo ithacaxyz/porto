@@ -2,10 +2,9 @@ import { Env } from '@porto/apps'
 import * as Sentry from '@sentry/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-
+import { App } from '~/App.js'
 import * as Router from '~/lib/Router.js'
-import { App } from './App.js'
-import './styles.css'
+import '~/styles.css'
 
 if (import.meta.env.PROD) {
   Sentry.init({

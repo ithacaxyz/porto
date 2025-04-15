@@ -49,3 +49,5 @@ _
 dist
 build
 .cache
+
+.cursor
