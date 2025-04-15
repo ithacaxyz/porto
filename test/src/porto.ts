@@ -1,4 +1,4 @@
-import type { Address } from 'ox'
+import { Value } from 'ox'
 import { Chains, Mode, Porto, Storage } from 'porto'
 import { custom, http, type Transport } from 'viem'
 import * as Porto_internal from '../../src/core/internal/porto.js'
@@ -27,7 +27,7 @@ export const exp2Config = {
 export function getPorto(
   parameters: {
     mode?: (parameters: {
-      feeToken?: Record<number, Address.Address> | undefined
+      feeTokens?: Mode.relay.Parameters['feeTokens'] | undefined
       mock: boolean
     }) => Mode.Mode | undefined
     transports?:
@@ -42,8 +42,16 @@ export function getPorto(
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
-      feeToken: {
-        [chain.id]: exp1Address,
+      feeTokens: {
+        [chain.id]: [
+          {
+            address: exp1Address,
+            permissionSpendLimit: {
+              limit: Value.fromEther('100'),
+              period: 'minute',
+            },
+          },
+        ],
       },
       mock: true,
     }),

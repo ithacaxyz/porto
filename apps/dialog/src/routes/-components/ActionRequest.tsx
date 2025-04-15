@@ -3,7 +3,7 @@ import { Button, Spinner } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
 import { Address, Json, RpcSchema } from 'ox'
-import { Chains, Delegation, RpcSchema as RpcSchema_porto } from 'porto'
+import { Delegation, RpcSchema as RpcSchema_porto } from 'porto'
 import * as Quote_relay from 'porto/core/internal/relay/typebox/quote'
 import * as Rpc from 'porto/core/internal/typebox/request'
 import * as Schema from 'porto/core/internal/typebox/schema'
@@ -89,14 +89,12 @@ export namespace ActionRequest {
     const account = Hooks.useAccount(porto, { address })
     const chain = Hooks.useChain(porto, { chainId })
     const client = Hooks.useClient(porto)
+    const feeToken = useFeeToken(porto, {
+      chainId: chain?.id,
+      feeToken: props.feeToken,
+    })
     const origin = Dialog.useStore((state) => state.referrer?.origin)
     const providerClient = Hooks.useProviderClient(porto)
-
-    const feeToken = React.useMemo(() => {
-      if (!chain) return undefined
-      const address = props.feeToken ?? PortoConfig.feeToken[chain.id]
-      return FeeToken.feeTokens[chain.id][address.toLowerCase()]
-    }, [chain, props.feeToken])
 
     // TODO: use eventual Wagmi Hook (`usePrepareCalls`).
     const prepareCalls = useQuery({
@@ -469,6 +467,35 @@ export type Quote = {
   ttl: number
 }
 
+// TODO: move into `porto/remote`.
+export function useFeeToken<
+  chains extends readonly [PortoConfig.Chain, ...PortoConfig.Chain[]],
+>(
+  porto: Pick<Porto_.Porto<chains>, '_internal'>,
+  parameters: useFeeToken.Parameters,
+) {
+  const { chainId, feeToken } = parameters
+
+  const chain = Hooks.useChain(porto, { chainId })
+
+  return React.useMemo(() => {
+    if (!chain) return undefined
+    const address =
+      feeToken ??
+      // TODO: add state for current fee token (akin to current account / chain)
+      //       instead of using the first fee token.
+      PortoConfig.feeTokens[chain.id]?.[0].address
+    return FeeToken.feeTokens[chain.id][address.toLowerCase()]
+  }, [chain, feeToken])
+}
+
+export namespace useFeeToken {
+  export type Parameters = {
+    chainId?: number | undefined
+    feeToken?: Address.Address | undefined
+  }
+}
+
 /**
  * Hook to extract a quote from a `wallet_prepareCalls` context.
  *
@@ -477,7 +504,7 @@ export type Quote = {
  * @returns Quote.
  */
 export function useQuote<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+  chains extends readonly [PortoConfig.Chain, ...PortoConfig.Chain[]],
 >(
   porto: Pick<Porto_.Porto<chains>, '_internal'>,
   parameters: useQuote.Parameters,
@@ -501,7 +528,7 @@ export function useQuote<
 
     const config = paymentToken
       ? {
-          ...(FeeToken.feeTokens as any)[chain.id][paymentToken],
+          ...FeeToken.feeTokens[chain.id][paymentToken]!,
           token: paymentToken,
           value: paymentMaxAmount,
         }

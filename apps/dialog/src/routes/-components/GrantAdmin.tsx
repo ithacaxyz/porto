@@ -1,4 +1,3 @@
-import { PortoConfig } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { Hex } from 'ox'
@@ -6,6 +5,7 @@ import type * as Address from 'ox/Address'
 import { Key, Relay } from 'porto/internal'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
+
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
@@ -13,7 +13,7 @@ import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import WalletIcon from '~icons/lucide/wallet-cards'
-import { useQuote } from './ActionRequest'
+import * as ActionRequest from './ActionRequest'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
   const { authorizeKey, loading, onApprove, onReject } = props
@@ -21,13 +21,11 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const account = Hooks.useAccount(porto)
   const client = Hooks.useClient(porto)
   const chain = Hooks.useChain(porto)
+  const feeToken = ActionRequest.useFeeToken(porto, {
+    chainId: chain?.id,
+    feeToken: props.feeToken,
+  })
   const origin = Dialog.useStore((state) => state.referrer?.origin)
-
-  const feeToken = React.useMemo(() => {
-    if (props.feeToken) return props.feeToken
-    if (!chain) return undefined
-    return PortoConfig.feeToken[chain.id]
-  }, [chain, props.feeToken])
 
   const prepareCalls = useQuery({
     enabled: !!account && !!chain,
@@ -42,7 +40,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
       const { context } = await Relay.prepareCalls(client, {
         account,
         authorizeKeys: [Key.from(authorizeKey)],
-        feeToken,
+        feeToken: feeToken?.address,
         key: adminKey,
       })
 
@@ -53,10 +51,11 @@ export function GrantAdmin(props: GrantAdmin.Props) {
       account?.address,
       authorizeKey.publicKey,
       client.uid,
+      feeToken?.address,
     ],
   })
 
-  const quote = useQuote(porto, {
+  const quote = ActionRequest.useQuote(porto, {
     chainId: chain?.id,
     context: prepareCalls.data,
   })

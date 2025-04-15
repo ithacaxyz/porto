@@ -26,7 +26,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256()
 
       await Delegation.execute(client, {
         account,
@@ -48,7 +48,7 @@ describe('execute', () => {
         hash: key.hash,
         publicKey: key.publicKey,
         role: key.role,
-        type: 'p256',
+        type: 'webauthn-p256',
       })
     })
 
@@ -62,7 +62,7 @@ describe('execute', () => {
         delegation,
       })
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256()
 
       await Delegation.execute(client, {
         account,
@@ -83,7 +83,7 @@ describe('execute', () => {
         hash: key.hash,
         publicKey: key.publicKey,
         role: key.role,
-        type: 'p256',
+        type: 'webauthn-p256',
       })
     })
 
@@ -91,7 +91,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256()
 
       await Delegation.execute(client, {
         account,
@@ -114,7 +114,7 @@ describe('execute', () => {
         hash: key.hash,
         publicKey: key.publicKey,
         role: key.role,
-        type: 'p256',
+        type: 'webauthn-p256',
       })
     })
 
@@ -128,7 +128,7 @@ describe('execute', () => {
         delegation,
       })
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256()
 
       await Delegation.execute(client, {
         account,
@@ -150,7 +150,7 @@ describe('execute', () => {
         hash: key.hash,
         publicKey: key.publicKey,
         role: key.role,
-        type: 'p256',
+        type: 'webauthn-p256',
       })
     })
 
@@ -158,7 +158,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256()
 
       await Delegation.execute(client, {
         account,
@@ -170,7 +170,7 @@ describe('execute', () => {
         delegation,
       })
 
-      const nextKey = Key.createP256()
+      const nextKey = Key.createHeadlessWebAuthnP256()
 
       await Delegation.execute(client, {
         account,
@@ -192,7 +192,7 @@ describe('execute', () => {
         hash: nextKey.hash,
         publicKey: nextKey.publicKey,
         role: nextKey.role,
-        type: 'p256',
+        type: 'webauthn-p256',
       })
     })
 
@@ -200,7 +200,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256()
 
       await Delegation.execute(client, {
         account,
@@ -212,13 +212,24 @@ describe('execute', () => {
         delegation,
       })
 
-      const nextKey = await Key.createWebCryptoP256()
+      const nextKey = await Key.createWebCryptoP256({
+        role: 'session',
+      })
 
       await Delegation.execute(client, {
         account,
         calls: [
           Call.authorize({
             key: nextKey,
+          }),
+          Call.setCanExecute({
+            enabled: true,
+            key: nextKey,
+          }),
+          Call.setSpendLimit({
+            key: nextKey,
+            limit: Value.fromEther('1.5'),
+            period: 'day',
           }),
         ],
         key,
@@ -243,7 +254,7 @@ describe('execute', () => {
     test('key: p256, executor: JSON-RPC', async () => {
       const { client, delegation } = getPorto()
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256()
 
       const { account } = await getAccount(client, { keys: [key] })
 
@@ -290,7 +301,7 @@ describe('execute', () => {
     test('key: p256, executor: JSON-RPC, mint tokens', async () => {
       const { client, delegation } = getPorto()
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256()
 
       const { account } = await getAccount(client, { keys: [key] })
 
@@ -370,13 +381,26 @@ describe('execute', () => {
     test('key: webcrypto, executor: JSON-RPC', async () => {
       const { client, delegation } = getPorto()
 
-      const key = await Key.createWebCryptoP256()
+      const key = await Key.createWebCryptoP256({
+        role: 'session',
+      })
 
       const { account } = await getAccount(client, { keys: [key] })
 
       await Delegation.execute(client, {
         account,
-        calls: [Call.authorize({ key })],
+        calls: [
+          Call.authorize({ key }),
+          Call.setCanExecute({
+            enabled: true,
+            key,
+          }),
+          Call.setSpendLimit({
+            key,
+            limit: Value.fromEther('1.5'),
+            period: 'day',
+          }),
+        ],
         delegation,
       })
 
@@ -506,7 +530,9 @@ describe('execute', () => {
     test('default', async () => {
       const { client, delegation } = getPorto()
 
-      const key = Key.createP256()
+      const key = Key.createHeadlessWebAuthnP256({
+        role: 'session',
+      })
 
       const { account } = await getAccount(client, { keys: [key] })
 
@@ -514,6 +540,10 @@ describe('execute', () => {
         account,
         calls: [
           Call.authorize({ key }),
+          Call.setCanExecute({
+            enabled: true,
+            key,
+          }),
           Call.setSpendLimit({
             key,
             limit: Value.fromEther('1.5'),
@@ -588,7 +618,7 @@ describe('execute', () => {
   })
 
   test('error: unauthorized', async () => {
-    const key = Key.createP256({
+    const key = Key.createHeadlessWebAuthnP256({
       role: 'session',
     })
 
@@ -619,7 +649,7 @@ describe('execute', () => {
     const { client, delegation } = getPorto()
     const { account } = await getAccount(client)
 
-    const key = Key.createP256()
+    const key = Key.createHeadlessWebAuthnP256()
 
     await Delegation.execute(client, {
       account,
@@ -643,7 +673,7 @@ describe('prepareExecute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      const keyToAuthorize = Key.createP256()
+      const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
       const { request, signPayloads } = await Delegation.prepareExecute(
         client,
@@ -677,7 +707,7 @@ describe('prepareExecute', () => {
         hash: keyToAuthorize.hash,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
-        type: 'p256',
+        type: 'webauthn-p256',
       })
     })
 
@@ -691,7 +721,7 @@ describe('prepareExecute', () => {
         delegation,
       })
 
-      const keyToAuthorize = Key.createP256()
+      const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
       const { request, signPayloads } = await Delegation.prepareExecute(
         client,
@@ -724,7 +754,7 @@ describe('prepareExecute', () => {
         hash: keyToAuthorize.hash,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
-        type: 'p256',
+        type: 'webauthn-p256',
       })
     })
 
@@ -732,7 +762,7 @@ describe('prepareExecute', () => {
       const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
-      const keyToAuthorize = Key.createP256()
+      const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
       const { request, signPayloads } = await Delegation.prepareExecute(
         client,
@@ -767,7 +797,7 @@ describe('prepareExecute', () => {
         hash: keyToAuthorize.hash,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
-        type: 'p256',
+        type: 'webauthn-p256',
       })
     })
   })

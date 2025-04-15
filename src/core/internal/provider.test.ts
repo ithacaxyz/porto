@@ -1001,7 +1001,7 @@ describe.each([
               calls: [{ to: exp1Address }],
               spend: [
                 {
-                  limit: Hex.fromNumber(69420),
+                  limit: Hex.fromNumber(Value.fromEther('50')),
                   period: 'day',
                   token: exp1Address,
                 },
@@ -1019,7 +1019,7 @@ describe.each([
               {
                 data: encodeFunctionData({
                   abi: exp1Abi,
-                  args: [alice, 40_000n],
+                  args: [alice, Value.fromEther('50')],
                   functionName: 'transfer',
                 }),
                 to: exp1Address,
@@ -1044,7 +1044,7 @@ describe.each([
           args: [alice],
           functionName: 'balanceOf',
         }),
-      ).toBe(40_000n)
+      ).toBe(Value.fromEther('50'))
     })
 
     test('behavior: `permissions` capability', async () => {
@@ -1205,7 +1205,7 @@ describe.each([
               calls: [{ to: exp1Address }],
               spend: [
                 {
-                  limit: Hex.fromNumber(69420),
+                  limit: Hex.fromNumber(Value.fromEther('50')),
                   period: 'day',
                   token: exp1Address,
                 },
@@ -1223,7 +1223,7 @@ describe.each([
               {
                 data: encodeFunctionData({
                   abi: exp1Abi,
-                  args: [alice, 50_000n],
+                  args: [alice, Value.fromEther('50')],
                   functionName: 'transfer',
                 }),
                 to: exp1Address,
@@ -1253,7 +1253,7 @@ describe.each([
                 {
                   data: encodeFunctionData({
                     abi: exp1Abi,
-                    args: [alice, 50_000n],
+                    args: [alice, Value.fromEther('200')],
                     functionName: 'transfer',
                   }),
                   to: exp1Address,
@@ -1849,188 +1849,6 @@ describe.each([
     })
 
     describe('behavior: admin', () => {
-      test.skipIf(type === 'relay')('default', async () => {
-        const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
-          mode: 'anvil',
-        }))
-
-        const alice = Hex.random(20)
-
-        const privateKey = P256.randomPrivateKey()
-        const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-          includePrefix: false,
-        })
-
-        const { accounts } = await porto.provider.request({
-          method: 'wallet_connect',
-          params: [
-            {
-              capabilities: {
-                createAccount: true,
-              },
-            },
-          ],
-        })
-
-        await setBalance(client, {
-          address: accounts[0]?.address!,
-          value: Value.fromEther('10000'),
-        })
-
-        const key = {
-          publicKey,
-          type: 'p256',
-        } as const
-
-        await porto.provider.request({
-          method: 'experimental_grantAdmin',
-          params: [
-            {
-              key,
-            },
-          ],
-        })
-
-        const { digest, ...request } = await porto.provider.request({
-          method: 'wallet_prepareCalls',
-          params: [
-            {
-              calls: [
-                {
-                  data: encodeFunctionData({
-                    abi: exp1Abi,
-                    args: [alice, 40_000n],
-                    functionName: 'transfer',
-                  }),
-                  to: exp1Address,
-                },
-              ],
-              key,
-            },
-          ],
-        })
-
-        const signature = P256.sign({ payload: digest, privateKey })
-
-        const result = await porto.provider.request({
-          method: 'wallet_sendPreparedCalls',
-          params: [
-            {
-              ...request,
-              key,
-              signature: Signature.toHex(signature),
-            },
-          ],
-        })
-
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
-          id: result[0]!.id,
-        })
-
-        expect(
-          await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
-            args: [alice],
-            functionName: 'balanceOf',
-          }),
-        ).toBe(40_000n)
-      })
-
-      test.skipIf(type === 'relay')('WebCryptoP256', async () => {
-        const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
-          mode: 'anvil',
-        }))
-
-        const alice = Hex.random(20)
-
-        const keyPair = await WebCryptoP256.createKeyPair()
-        const publicKey = PublicKey.toHex(keyPair.publicKey, {
-          includePrefix: false,
-        })
-
-        const { accounts } = await porto.provider.request({
-          method: 'wallet_connect',
-          params: [
-            {
-              capabilities: {
-                createAccount: true,
-              },
-            },
-          ],
-        })
-
-        await setBalance(client, {
-          address: accounts[0]?.address!,
-          value: Value.fromEther('10000'),
-        })
-
-        const key = {
-          prehash: true,
-          publicKey,
-          type: 'p256',
-        } as const
-
-        await porto.provider.request({
-          method: 'experimental_grantAdmin',
-          params: [
-            {
-              key,
-            },
-          ],
-        })
-
-        const { digest, ...request } = await porto.provider.request({
-          method: 'wallet_prepareCalls',
-          params: [
-            {
-              calls: [
-                {
-                  data: encodeFunctionData({
-                    abi: exp1Abi,
-                    args: [alice, 40_000n],
-                    functionName: 'transfer',
-                  }),
-                  to: exp1Address,
-                },
-              ],
-              key,
-            },
-          ],
-        })
-
-        const signature = await WebCryptoP256.sign({
-          payload: digest,
-          privateKey: keyPair.privateKey,
-        })
-
-        const result = await porto.provider.request({
-          method: 'wallet_sendPreparedCalls',
-          params: [
-            {
-              ...request,
-              key,
-              signature: Signature.toHex(signature),
-            },
-          ],
-        })
-
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
-          id: result[0]!.id,
-        })
-
-        expect(
-          await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
-            args: [alice],
-            functionName: 'balanceOf',
-          }),
-        ).toBe(40_000n)
-      })
-
       test('Secp256k1', async () => {
         const { porto } = getPorto()
         const client = Porto_internal.getClient(porto).extend(() => ({

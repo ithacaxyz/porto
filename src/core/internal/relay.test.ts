@@ -296,6 +296,13 @@ describe('sendCalls', () => {
     const newKey = Key.createP256({
       permissions: {
         calls: [{ to: exp2Address }],
+        spend: [
+          {
+            limit: Value.fromEther('5'),
+            period: 'minute',
+            token: exp1Address,
+          },
+        ],
       },
       role: 'session',
     })
@@ -403,7 +410,13 @@ describe('sendCalls', () => {
       expiry: 9999999999,
       permissions: {
         calls: [{ to: alice }],
-        spend: [{ limit: 69420n, period: 'day' }],
+        spend: [
+          {
+            limit: Value.fromEther('5'),
+            period: 'day',
+            token: exp1Address,
+          },
+        ],
       },
       role: 'session',
     })
@@ -723,6 +736,13 @@ describe.each([
       const newKey = Key.createP256({
         permissions: {
           calls: [{ to: exp2Address }],
+          spend: [
+            {
+              limit: Value.fromEther('5'),
+              period: 'day',
+              token: exp1Address,
+            },
+          ],
         },
         role: 'session',
       })
@@ -780,6 +800,13 @@ describe.each([
               to: exp2Address,
             },
           ],
+          spend: [
+            {
+              limit: Value.fromEther('5'),
+              period: 'day',
+              token: exp1Address,
+            },
+          ],
         },
         role: 'session',
       })
@@ -835,6 +862,13 @@ describe.each([
           calls: [
             {
               to: exp2Address,
+            },
+          ],
+          spend: [
+            {
+              limit: Value.fromEther('5'),
+              period: 'day',
+              token: exp1Address,
             },
           ],
         },
@@ -924,6 +958,13 @@ describe.each([
           calls: [
             {
               to: exp2Address,
+            },
+          ],
+          spend: [
+            {
+              limit: Value.fromEther('5'),
+              period: 'day',
+              token: exp1Address,
             },
           ],
         },
@@ -1022,6 +1063,13 @@ describe.each([
               to: exp1Address,
             },
           ],
+          spend: [
+            {
+              limit: Value.fromEther('5'),
+              period: 'day',
+              token: exp1Address,
+            },
+          ],
         },
         role: 'session',
       })
@@ -1085,6 +1133,13 @@ describe.each([
               to: exp1Address,
             },
           ],
+          spend: [
+            {
+              limit: Value.fromEther('5'),
+              period: 'day',
+              token: exp1Address,
+            },
+          ],
         },
         role: 'session',
       })
@@ -1127,6 +1182,13 @@ describe.each([
               signature: '0xdeadbeef',
             },
           ],
+          spend: [
+            {
+              limit: Value.fromEther('5'),
+              period: 'day',
+              token: exp1Address,
+            },
+          ],
         },
         role: 'session',
       })
@@ -1157,74 +1219,6 @@ describe.each([
   })
 
   describe('behavior: spend permissions', () => {
-    test('admin key', async () => {
-      // 1. Initialize Account with Admin Key (with spend permission).
-      const adminKey = Key.createHeadlessWebAuthnP256({
-        permissions: {
-          spend: [{ limit: 100n, period: 'day', token: exp2Address }],
-        },
-      })
-      const account = await initializeAccount(client, {
-        keys: [adminKey],
-      })
-
-      {
-        // 2. Mint 100 ERC20 tokens to Account.
-        const { id } = await Relay.sendCalls(client, {
-          account,
-          calls: [
-            {
-              abi: exp2Abi,
-              args: [account.address, 100n],
-              functionName: 'mint',
-              to: exp2Address,
-            },
-          ],
-          feeToken: exp1Address,
-        })
-
-        await waitForCallsStatus(client, {
-          id,
-        })
-      }
-
-      {
-        // 3. Transfer 50 ERC20 tokens from Account.
-        const { id } = await Relay.sendCalls(client, {
-          account,
-          calls: [
-            {
-              abi: exp2Abi,
-              args: ['0x0000000000000000000000000000000000000000', 50n],
-              functionName: 'transfer',
-              to: exp2Address,
-            },
-          ],
-          feeToken: exp1Address,
-        })
-
-        await waitForCallsStatus(client, {
-          id,
-        })
-      }
-
-      // 4. Try transfer another 50 ERC20 tokens from Account.
-      await expect(() =>
-        Relay.sendCalls(client, {
-          account,
-          calls: [
-            {
-              abi: exp2Abi,
-              args: ['0x0000000000000000000000000000000000000000', 100n],
-              functionName: 'transfer',
-              to: exp2Address,
-            },
-          ],
-          feeToken: exp1Address,
-        }),
-      ).rejects.toThrowError('Error: InsufficientBalance()')
-    })
-
     test('session key', async () => {
       // 1. Initialize account with Admin Key and Session Key (with permissions).
       const adminKey = Key.createHeadlessWebAuthnP256()
@@ -1239,7 +1233,14 @@ describe.each([
               to: exp2Address,
             },
           ],
-          spend: [{ limit: 100n, period: 'day', token: exp2Address }],
+          spend: [
+            {
+              limit: Value.fromEther('5'),
+              period: 'day',
+              token: exp1Address,
+            },
+            { limit: 100n, period: 'day', token: exp2Address },
+          ],
         },
         role: 'session',
       })
