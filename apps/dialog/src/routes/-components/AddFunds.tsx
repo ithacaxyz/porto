@@ -4,7 +4,7 @@ import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { Address, Hex, Value } from 'ox'
+import { Address, Hex, Json, Value } from 'ox'
 
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -17,6 +17,7 @@ import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
 import LinkIcon from '~icons/lucide/link'
 import QrCodeIcon from '~icons/lucide/qr-code'
+import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import BaseIcon from '~icons/token-branded/base'
 
 const presetAmounts = ['25', '50', '100', '250']
@@ -24,7 +25,7 @@ const presetAmounts = ['25', '50', '100', '250']
 export function AddFunds(props: AddFunds.Props) {
   const {
     onApprove,
-    onReject: _,
+    onReject,
     tokenAddress,
     value = BigInt(presetAmounts[0]!),
   } = props
@@ -77,9 +78,14 @@ export function AddFunds(props: AddFunds.Props) {
     timeout: 10_000,
   })
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
-    if (receipt.isSuccess) setView('success')
-  }, [receipt.isSuccess])
+    if (receipt.status === 'success') setView('success')
+    if (receipt.status === 'error' || receipt.data?.status === 'failure') {
+      console.error(Json.stringify(receipt.data, undefined, 2))
+      setView('error')
+    }
+  }, [receipt.status, receipt.data?.status])
 
   const loading = deposit.isPending || receipt.isFetching
 
@@ -88,6 +94,43 @@ export function AddFunds(props: AddFunds.Props) {
       {address && <Layout.Footer.Account address={address} />}
     </Layout.Footer>
   )
+
+  if (view === 'error')
+    return (
+      <Layout>
+        <Layout.Header className="flex flex-row items-center gap-2 align-bottom">
+          <div className="flex size-7.5 items-center justify-center rounded-full bg-red5">
+            <TriangleAlertIcon className="size-4 text-red11" />
+          </div>
+          <p className="font-medium text-xl">Deposit failed</p>
+        </Layout.Header>
+        <Layout.Content className="px-1">
+          <p className="text-base text-grayA12">
+            Your deposit was cancelled or failed.
+          </p>
+          <p className="text-base text-secondary">
+            No funds have been deposited.
+          </p>
+
+          <div className="mt-2.5 flex w-full flex-row items-center gap-x-2">
+            <Button
+              className="w-full font-semibold"
+              onClick={() => onReject?.()}
+              variant="default"
+            >
+              Close
+            </Button>
+            <Button
+              className="w-full font-semibold"
+              onClick={() => setView('default')}
+              variant="accent"
+            >
+              Try again
+            </Button>
+          </div>
+        </Layout.Content>
+      </Layout>
+    )
 
   if (view === 'success')
     return (
