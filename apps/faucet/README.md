@@ -15,9 +15,15 @@ If the faucet account needs to be updated, run the following command:
 pnpm --filter faucet generate-account
 ```
 
-### Fund the faucet account with EXP
+### Fund the faucet account with gas tokens (chain-specific)
 
-Simply send some EXP to the address printed in the previous command.
+Simply send some gas tokens to the address printed in the previous command. Use the RPC endpoint specific to the chain you're working with:
+
+| Chain ID | Network           | Token | RPC URL                               |
+|----------|-------------------|-------|-------------------------------------------|
+| 28403    | Odyssey Devnet    | EXP   | https://odyssey-devnet.ithaca.xyz          |
+| 911867   | Odyssey Testnet   | EXP   | https://odyssey.ithaca.xyz                 |
+| 84532    | Base Sepolia      | ETH   | https://sepolia.base.org                   |
 
 ### Deploying the faucet worker
 
