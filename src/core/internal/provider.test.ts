@@ -1253,7 +1253,7 @@ describe.each([
                 {
                   data: encodeFunctionData({
                     abi: exp1Abi,
-                    args: [alice, Value.fromEther('50')],
+                    args: [alice, Value.fromEther('200')],
                     functionName: 'transfer',
                   }),
                   to: exp1Address,
