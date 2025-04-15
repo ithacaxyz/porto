@@ -298,7 +298,7 @@ describe('sendCalls', () => {
         calls: [{ to: exp2Address }],
         spend: [
           {
-            limit: Value.fromEther('0.01'),
+            limit: Value.fromEther('5'),
             period: 'minute',
             token: exp1Address,
           },
@@ -412,7 +412,7 @@ describe('sendCalls', () => {
         calls: [{ to: alice }],
         spend: [
           {
-            limit: Value.fromEther('0.01'),
+            limit: Value.fromEther('5'),
             period: 'day',
             token: exp1Address,
           },
@@ -738,7 +738,7 @@ describe.each([
           calls: [{ to: exp2Address }],
           spend: [
             {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('5'),
               period: 'day',
               token: exp1Address,
             },
@@ -802,7 +802,7 @@ describe.each([
           ],
           spend: [
             {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('5'),
               period: 'day',
               token: exp1Address,
             },
@@ -866,7 +866,7 @@ describe.each([
           ],
           spend: [
             {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('5'),
               period: 'day',
               token: exp1Address,
             },
@@ -962,7 +962,7 @@ describe.each([
           ],
           spend: [
             {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('5'),
               period: 'day',
               token: exp1Address,
             },
@@ -1065,7 +1065,7 @@ describe.each([
           ],
           spend: [
             {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('5'),
               period: 'day',
               token: exp1Address,
             },
@@ -1135,7 +1135,7 @@ describe.each([
           ],
           spend: [
             {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('5'),
               period: 'day',
               token: exp1Address,
             },
@@ -1184,7 +1184,7 @@ describe.each([
           ],
           spend: [
             {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('5'),
               period: 'day',
               token: exp1Address,
             },
@@ -1235,7 +1235,7 @@ describe.each([
           ],
           spend: [
             {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('5'),
               period: 'day',
               token: exp1Address,
             },

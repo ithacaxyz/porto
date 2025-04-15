@@ -47,7 +47,7 @@ export function getPorto(
           {
             address: exp1Address,
             permissionSpendLimit: {
-              limit: Value.fromEther('0.01'),
+              limit: Value.fromEther('100'),
               period: 'minute',
             },
           },
