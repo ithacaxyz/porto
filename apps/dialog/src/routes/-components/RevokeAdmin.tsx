@@ -29,10 +29,15 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
     feeToken: props.feeToken,
   })
 
+  const matchingKey = admins?.data?.keys?.find(
+    (admin) => admin.id === revokeKeyId,
+  )
+
   const prepareCalls = useQuery({
     enabled: !!account && !!chain,
     queryFn: async () => {
       if (!account || !chain) throw new Error('Account and chain required')
+      if (!matchingKey) throw new Error('No matching admin key found')
 
       const adminKey = account.keys?.find(
         (key) => key.role === 'admin' && key.privateKey,
@@ -43,7 +48,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
         account,
         feeToken: feeToken?.address,
         key: adminKey,
-        revokeKeys: matchingKey ? [Key.from(matchingKey)] : [],
+        revokeKeys: [Key.from(matchingKey)],
       })
 
       return context
@@ -69,10 +74,6 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
 
   const warning = status === 'error'
 
-  const matchingKey = admins?.data?.keys?.find(
-    (admin) => admin.id === revokeKeyId,
-  )
-
   return (
     <Layout loading={loading} loadingTitle="Removing...">
       <Layout.Header>
@@ -95,8 +96,8 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
               <div className="font-medium text-[14px]">Error</div>
               <div className="space-y-2 text-[14px] text-primary">
                 <p>
-                  An error occurred while calculating fees. This may be due to
-                  network issues or insufficient funds.
+                  {prepareCalls.error?.message ||
+                    'An error occurred while calculating fees. This may be due to network issues or insufficient funds.'}
                 </p>
                 <p>
                   Contact{' '}
