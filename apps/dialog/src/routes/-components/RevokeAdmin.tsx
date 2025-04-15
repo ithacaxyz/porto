@@ -2,7 +2,7 @@ import { Button } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { Hex } from 'ox'
 import type * as Address from 'ox/Address'
-import { Relay } from 'porto/internal'
+import { Key, Relay } from 'porto/internal'
 import { Hooks } from 'porto/remote'
 import { Hooks as WagmiHooks } from 'porto/wagmi'
 import React from 'react'
@@ -43,11 +43,12 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
         account,
         feeToken: feeToken?.address,
         key: adminKey,
+        revokeKeys: matchingKey ? [Key.from(matchingKey)] : [],
       })
 
       return context
     },
-    queryKey: ['prepareCalls', account?.address, client.uid],
+    queryKey: ['prepareCalls', account?.address, client.uid, revokeKeyId],
   })
 
   const quote = useQuote(porto, {
