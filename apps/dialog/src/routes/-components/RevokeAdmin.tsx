@@ -1,4 +1,3 @@
-import { PortoConfig } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { Hex } from 'ox'
