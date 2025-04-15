@@ -28,7 +28,7 @@ export function useCopyToClipboard(props: CopyToClipboard.Props) {
   return [isCopied, copyToClipboard] as const
 }
 
-declare namespace CopyToClipboard {
+export declare namespace CopyToClipboard {
   type CopyFn = (text: string) => Promise<boolean>
   type Props = {
     timeout?: number
