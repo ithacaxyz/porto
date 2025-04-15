@@ -96,7 +96,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
               <div className="font-medium text-[14px]">Error</div>
               <div className="space-y-2 text-[14px] text-primary">
                 <p>
-                  {prepareCalls.error?.message ||
+                  {prepareCalls?.error?.message ||
                     'An error occurred while calculating fees. This may be due to network issues or insufficient funds.'}
                 </p>
                 <p>
