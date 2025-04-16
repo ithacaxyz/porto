@@ -12,6 +12,7 @@ import { waitForCallsStatus } from 'viem/experimental'
 import type * as Porto from '../../Porto.js'
 import type * as Storage from '../../Storage.js'
 import * as Account from '../account.js'
+import * as Delegation from '../delegation.js'
 import * as HumanId from '../humanId.js'
 import * as Key from '../key.js'
 import * as Mode from '../mode.js'
@@ -19,7 +20,6 @@ import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
 import * as Relay from '../relay.js'
 import * as Relay_viem from '../viem/relay.js'
-import * as Delegation from '../delegation.js'
 
 export const defaultConfig = {
   feeToken: 'USDT',
