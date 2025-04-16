@@ -4,12 +4,9 @@ import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { Address, Hex, Json, Value } from 'ox'
-
+import { Address, Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-import { useWaitForCallsStatus } from 'wagmi/experimental'
-
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -67,26 +64,10 @@ export function AddFunds(props: AddFunds.Props) {
       const data = (await response.json()) as { id: Hex.Hex }
       return data
     },
+    onSuccess: () => setView('success'),
   })
 
-  const receipt = useWaitForCallsStatus({
-    id: deposit.data?.id,
-    query: {
-      enabled: !!deposit.data?.id,
-    },
-    timeout: 10_000,
-  })
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  React.useEffect(() => {
-    if (receipt.status === 'success') setView('success')
-    if (receipt.status === 'error' || receipt.data?.status === 'failure') {
-      console.error(Json.stringify(receipt.data, undefined, 2))
-      setView('error')
-    }
-  }, [receipt.status, receipt.data?.status])
-
-  const loading = deposit.isPending || receipt.isFetching
+  const loading = deposit.isPending
 
   const Footer = () => (
     <Layout.Footer>
