@@ -12,7 +12,7 @@ import type { Compute, PartialBy } from './types.js'
 
 type Request = Rpc.parseRequest.ReturnType
 
-type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
+export type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
   /** Viem Client. */
   client: Porto.Client
   /** RPC Request. */

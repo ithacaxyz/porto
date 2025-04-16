@@ -7,6 +7,7 @@ import { Hooks } from 'porto/remote'
 import * as React from 'react'
 
 import * as Dialog from '~/lib/Dialog'
+import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
 import { Layout } from '~/routes/-components/Layout'
@@ -21,9 +22,9 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const account = Hooks.useAccount(porto)
   const client = Hooks.useClient(porto)
   const chain = Hooks.useChain(porto)
-  const feeToken = ActionRequest.useFeeToken(porto, {
+  const { data: feeToken } = FeeToken.useFetch({
+    address: props.feeToken,
     chainId: chain?.id,
-    feeToken: props.feeToken,
   })
   const origin = Dialog.useStore((state) => state.referrer?.origin)
 

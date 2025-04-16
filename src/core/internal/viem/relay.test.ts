@@ -11,6 +11,7 @@ import {
   createAccount,
   getAccounts,
   getCallsStatus,
+  getFeeTokens,
   getKeys,
   health,
   prepareCalls,
@@ -298,6 +299,28 @@ describe('getCallsStatus', () => {
     })
 
     expect(result.id).toBeDefined()
+  })
+})
+
+describe('getFeeTokens', () => {
+  test.only('default', async () => {
+    const result = await getFeeTokens(client)
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "0xde9fb": [
+          {
+            "address": "0x0000000000000000000000000000000000000000",
+            "coin": "ETH",
+            "decimals": 18,
+          },
+          {
+            "address": "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+            "coin": "USDT",
+            "decimals": 18,
+          },
+        ],
+      }
+    `)
   })
 })
 

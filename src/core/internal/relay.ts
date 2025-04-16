@@ -13,6 +13,8 @@ import type * as Capabilities from './relay/typebox/capabilities.js'
 import type { MaybePromise, OneOf, RequiredBy } from './types.js'
 import * as Actions from './viem/relay.js'
 
+export { getFeeTokens, health } from './viem/relay.js'
+
 /**
  * Creates a new Porto Account via the Relay.
  *

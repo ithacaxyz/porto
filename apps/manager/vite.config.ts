@@ -39,6 +39,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/dialog/, ''),
         secure: false,
         target: 'https://localhost:5175/dialog/',
+        ws: true,
       },
     },
   },

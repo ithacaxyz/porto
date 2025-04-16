@@ -3,36 +3,20 @@ import { Chains, Mode } from 'porto'
 import { Porto } from 'porto/remote'
 import { http, ValueOf } from 'viem'
 
-import { exp1Address } from '../_generated/contracts'
 import * as Env from './Env'
 import * as Sentry from './Sentry'
-
-export const feeTokens = {
-  [Chains.odysseyTestnet.id]: [
-    {
-      address: exp1Address[Chains.odysseyTestnet.id],
-      permissionSpendLimit: {
-        limit: Value.fromEther('0.01'),
-        period: 'minute',
-      },
-    },
-  ],
-  [Chains.odysseyDevnet.id]: [
-    {
-      address: exp1Address[Chains.odysseyDevnet.id],
-      permissionSpendLimit: {
-        limit: Value.fromEther('0.01'),
-        period: 'minute',
-      },
-    },
-  ],
-} as const satisfies Mode.relay.Parameters['feeTokens']
 
 const config = {
   anvil: {
     chains: [Chains.odysseyTestnet],
     mode: Mode.relay({
-      feeTokens,
+      feeToken: 'USDT',
+      permissionFeeSpendLimit: {
+        USDT: {
+          limit: Value.fromEther('0.01'),
+          period: 'minute',
+        },
+      },
     }),
     transports: {
       [Chains.odysseyTestnet.id]: {
@@ -54,7 +38,13 @@ const config = {
   stg: {
     chains: [Chains.odysseyDevnet],
     mode: Mode.relay({
-      feeTokens,
+      feeToken: 'USDT',
+      permissionFeeSpendLimit: {
+        USDT: {
+          limit: Value.fromEther('0.01'),
+          period: 'minute',
+        },
+      },
     }),
     transports: {
       [Chains.odysseyDevnet.id]: {

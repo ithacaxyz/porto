@@ -20,6 +20,7 @@ import {
   type Chain,
   type Client,
   type Narrow,
+  withCache,
 } from 'viem'
 import { prepareAuthorization } from 'viem/actions'
 import { getExecuteError } from 'viem/experimental/erc7821'
@@ -164,6 +165,36 @@ export namespace getCallsStatus {
   }
 
   export type ReturnType = Rpc.wallet_getCallsStatus.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
+ * Gets the fee tokens supported by the relay.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @returns Result.
+ */
+export async function getFeeTokens(
+  client: Client,
+): Promise<getFeeTokens.ReturnType> {
+  const method = 'wallet_feeTokens' as const
+  type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+  const result = await withCache(
+    () =>
+      client.request<Schema>({
+        method,
+      }),
+    { cacheKey: 'feeTokens' },
+  )
+  return Value.Parse(Rpc.wallet_feeTokens.Response, result)
+}
+
+export namespace getFeeTokens {
+  export type ReturnType = Rpc.wallet_feeTokens.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }

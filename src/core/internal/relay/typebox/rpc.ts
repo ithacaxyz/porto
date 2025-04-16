@@ -361,6 +361,28 @@ export namespace wallet_prepareUpgradeAccount {
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
+export namespace wallet_feeTokens {
+  /** Request for `wallet_feeTokens`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_feeTokens'),
+    params: Schema.Optional(Type.Undefined()),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  /** Response for `wallet_feeTokens`. */
+  export const Response = Type.Record(
+    Primitive.Hex,
+    Type.Array(
+      Type.Object({
+        address: Primitive.Address,
+        coin: Type.String(),
+        decimals: Type.Number(),
+      }),
+    ),
+  )
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace wallet_sendPreparedCalls {
   /** Parameters for `wallet_sendPreparedCalls` request. */
   export const Parameters = Type.Object({

@@ -30,7 +30,13 @@ export const modes = {
     renderer: Dialog.popup(),
   }),
   relay: Mode.relay({
-    feeTokens: PortoConfig.feeTokens,
+    feeToken: 'USDT',
+    permissionFeeSpendLimit: {
+      USDT: {
+        limit: Value.fromEther('0.01'),
+        period: 'minute',
+      },
+    },
   }),
 }
 export type ModeType = keyof typeof modes

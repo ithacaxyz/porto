@@ -1,4 +1,4 @@
-import { FeeToken, PortoConfig } from '@porto/apps'
+import { PortoConfig } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
@@ -13,6 +13,7 @@ import * as React from 'react'
 import { Call } from 'viem'
 
 import * as Dialog from '~/lib/Dialog'
+import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
 import { Layout } from '~/routes/-components/Layout'
@@ -89,9 +90,9 @@ export namespace ActionRequest {
     const account = Hooks.useAccount(porto, { address })
     const chain = Hooks.useChain(porto, { chainId })
     const client = Hooks.useClient(porto)
-    const feeToken = useFeeToken(porto, {
+    const feeToken = FeeToken.useFetch({
+      address: props.feeToken,
       chainId: chain?.id,
-      feeToken: props.feeToken,
     })
     const origin = Dialog.useStore((state) => state.referrer?.origin)
     const providerClient = Hooks.useProviderClient(porto)
@@ -213,7 +214,7 @@ export namespace ActionRequest {
                   Insufficient balance
                 </div>
                 <p className="text-[14px] text-primary">
-                  You will need more {feeToken?.symbol} to continue.
+                  You will need more {feeToken?.data?.symbol} to continue.
                 </p>
               </div>
             )}
@@ -376,7 +377,7 @@ export namespace ActionRequest {
                 className="flex-grow"
                 onClick={() =>
                   onAddFunds({
-                    token: feeToken!.address,
+                    token: feeToken.data!.address,
                   })
                 }
                 type="button"
@@ -467,35 +468,6 @@ export type Quote = {
   ttl: number
 }
 
-// TODO: move into `porto/remote`.
-export function useFeeToken<
-  chains extends readonly [PortoConfig.Chain, ...PortoConfig.Chain[]],
->(
-  porto: Pick<Porto_.Porto<chains>, '_internal'>,
-  parameters: useFeeToken.Parameters,
-) {
-  const { chainId, feeToken } = parameters
-
-  const chain = Hooks.useChain(porto, { chainId })
-
-  return React.useMemo(() => {
-    if (!chain) return undefined
-    const address =
-      feeToken ??
-      // TODO: add state for current fee token (akin to current account / chain)
-      //       instead of using the first fee token.
-      PortoConfig.feeTokens[chain.id]?.[0].address
-    return FeeToken.feeTokens[chain.id][address.toLowerCase()]
-  }, [chain, feeToken])
-}
-
-export namespace useFeeToken {
-  export type Parameters = {
-    chainId?: number | undefined
-    feeToken?: Address.Address | undefined
-  }
-}
-
 /**
  * Hook to extract a quote from a `wallet_prepareCalls` context.
  *
@@ -515,21 +487,25 @@ export function useQuote<
   const { paymentToken, paymentMaxAmount } = op ?? {}
 
   const chain = Hooks.useChain(porto, { chainId })!
+  const feeToken = FeeToken.useFetch({
+    address: paymentToken,
+    chainId: chain.id,
+  })
 
   const fee = React.useMemo(() => {
-    if (!nativeFeeEstimate || !txGas || !paymentMaxAmount) return undefined
+    if (!nativeFeeEstimate || !txGas || !paymentMaxAmount || !feeToken.data)
+      return undefined
 
     const nativeConfig = {
+      address: '0x0000000000000000000000000000000000000000',
       decimals: chain.nativeCurrency.decimals,
       symbol: chain.nativeCurrency.symbol,
-      token: '0x0000000000000000000000000000000000000000',
       value: nativeFeeEstimate.maxFeePerGas * txGas,
     } as const
 
     const config = paymentToken
       ? {
-          ...FeeToken.feeTokens[chain.id][paymentToken]!,
-          token: paymentToken,
+          ...feeToken.data,
           value: paymentMaxAmount,
         }
       : nativeConfig
@@ -541,9 +517,9 @@ export function useQuote<
       native,
     }
   }, [
-    chain.id,
     chain.nativeCurrency.decimals,
     chain.nativeCurrency.symbol,
+    feeToken.data,
     nativeFeeEstimate,
     txGas,
     paymentMaxAmount,

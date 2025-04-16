@@ -8,7 +8,7 @@ import * as PublicKey from 'ox/PublicKey'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { waitForCallsStatus } from 'viem/experimental'
-
+import type * as Porto from '../../Porto.js'
 import type * as Storage from '../../Storage.js'
 import * as Account from '../account.js'
 import * as HumanId from '../humanId.js'
@@ -42,19 +42,6 @@ export function relay(config: relay.Parameters = {}) {
     return config.keystoreHost
   })()
 
-  const resolveFeeToken = (
-    client: Client,
-    feeToken_?: Address.Address | undefined,
-  ) => {
-    const { chain } = client
-    return (
-      config.feeTokens?.[chain.id]?.find((feeToken) =>
-        // If no fee token is provided, default to the first one.
-        feeToken_ ? feeToken.address === feeToken_ : true,
-      ) ?? { address: feeToken_ }
-    )
-  }
-
   return Mode.from({
     actions: {
       async addFunds() {
@@ -62,7 +49,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { permissions } = parameters
+        const { internal, permissions } = parameters
         const { client } = parameters.internal
 
         let id: Hex.Hex | undefined
@@ -90,7 +77,7 @@ export function relay(config: relay.Parameters = {}) {
 
         if (id) id_internal = id
 
-        const feeToken = resolveFeeToken(client)
+        const feeToken = await resolveFeeToken(internal)
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
           feeToken,
         })
@@ -137,15 +124,16 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async grantAdmin(parameters) {
-        const { account, feeToken, internal } = parameters
+        const { account, internal } = parameters
         const { client } = internal
 
         const authorizeKey = Key.from(parameters.key)
 
+        const feeToken = await resolveFeeToken(internal, parameters)
         const { id } = await Relay.sendCalls(client, {
           account,
           authorizeKeys: [authorizeKey],
-          feeToken: resolveFeeToken(client, feeToken)?.address,
+          feeToken: feeToken.address,
         })
         await waitForCallsStatus(client, {
           id,
@@ -158,7 +146,7 @@ export function relay(config: relay.Parameters = {}) {
         const { account, permissions, internal } = parameters
         const { client } = internal
 
-        const feeToken = resolveFeeToken(client)
+        const feeToken = await resolveFeeToken(internal)
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
@@ -212,7 +200,7 @@ export function relay(config: relay.Parameters = {}) {
           return { credentialId, keyId }
         })()
 
-        const feeToken = resolveFeeToken(client)
+        const feeToken = await resolveFeeToken(internal)
 
         const [accounts, authorizeKey] = await Promise.all([
           Relay.getAccounts(client, { keyId }),
@@ -259,7 +247,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, feeToken, key } = parameters
+        const { account, calls, internal, key } = parameters
         const {
           client,
           config: { storage },
@@ -271,10 +259,12 @@ export function relay(config: relay.Parameters = {}) {
           storage,
         })
 
+        const feeToken = await resolveFeeToken(internal, parameters)
+
         const { context, digest } = await Relay.prepareCalls(client, {
           account,
           calls,
-          feeToken: resolveFeeToken(client, feeToken)?.address,
+          feeToken: feeToken.address,
           key,
           pre,
         })
@@ -293,10 +283,10 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async prepareUpgradeAccount(parameters) {
-        const { address, permissions } = parameters
-        const { client } = parameters.internal
+        const { address, internal, permissions } = parameters
+        const { client } = internal
 
-        const feeToken = resolveFeeToken(client, parameters.feeToken)
+        const feeToken = await resolveFeeToken(internal, parameters)
 
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
           feeToken,
@@ -332,7 +322,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async revokeAdmin(parameters) {
-        const { account, id, feeToken, internal } = parameters
+        const { account, id, internal } = parameters
         const { client } = internal
 
         const key = account.keys?.find(
@@ -341,9 +331,10 @@ export function relay(config: relay.Parameters = {}) {
         if (!key) return
 
         try {
+          const feeToken = await resolveFeeToken(internal, parameters)
           const { id } = await Relay.sendCalls(client, {
             account,
-            feeToken: resolveFeeToken(client, feeToken)?.address,
+            feeToken: feeToken.address,
             revokeKeys: [key],
           })
           await waitForCallsStatus(client, {
@@ -361,7 +352,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async revokePermissions(parameters) {
-        const { account, id, feeToken, internal } = parameters
+        const { account, id, internal } = parameters
         const { client } = internal
 
         const key = account.keys?.find(
@@ -373,9 +364,10 @@ export function relay(config: relay.Parameters = {}) {
         if (key.role === 'admin') throw new Error('cannot revoke admins.')
 
         try {
+          const feeToken = await resolveFeeToken(internal, parameters)
           const { id } = await Relay.sendCalls(client, {
             account,
-            feeToken: resolveFeeToken(client, feeToken)?.address,
+            feeToken: feeToken.address,
             revokeKeys: [key],
           })
           await waitForCallsStatus(client, {
@@ -393,7 +385,7 @@ export function relay(config: relay.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, feeToken } = parameters
+        const { account, calls, internal } = parameters
         const {
           client,
           config: { storage },
@@ -412,12 +404,15 @@ export function relay(config: relay.Parameters = {}) {
           storage,
         })
 
+        // Resolve fee token to use.
+        const feeToken = await resolveFeeToken(internal, parameters)
+
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
         const result = await Relay.sendCalls(client, {
           account,
           calls,
-          feeToken: resolveFeeToken(client, feeToken)?.address,
+          feeToken: feeToken.address,
           key,
           pre,
         })
@@ -501,31 +496,85 @@ export function relay(config: relay.Parameters = {}) {
       },
     },
     name: 'relay',
+    setup(parameters) {
+      const { internal } = parameters
+      const { store } = internal
+      const { feeToken = 'ETH', permissionFeeSpendLimit } = config
+
+      store.setState((x) => ({
+        ...x,
+        feeToken,
+        permissionFeeSpendLimit,
+      }))
+
+      return () => {}
+    },
   })
 }
 
 export declare namespace relay {
   type Parameters = {
     /**
-     * Chain-aware ERC20 fee token configuration.
+     * Fee token to use by default (e.g. "USDC", "ETH").
+     * @default "ETH"
      */
-    feeTokens?:
-      | Record<
-          number,
-          readonly NonNullable<PermissionsRequest.toKey.Options['feeToken']>[]
-        >
-      | undefined
-    /**
-     * Mock mode. Testing purposes only.
-     * @default false
-     * @deprecated
-     */
-    mock?: boolean | undefined
+    feeToken?: Porto.State['feeToken'] | undefined
     /**
      * Keystore host (WebAuthn relying party).
      * @default 'self'
      */
     keystoreHost?: 'self' | (string & {}) | undefined
+    /**
+     * Mock mode. Testing purposes only.
+     * @default false
+     * @internal @deprecated
+     */
+    mock?: boolean | undefined
+    /**
+     * Spending limit to pay for fees on permissions.
+     */
+    permissionFeeSpendLimit?: Porto.State['permissionFeeSpendLimit'] | undefined
+  }
+}
+
+async function resolveFeeToken(
+  internal: Mode.ActionsInternal,
+  parameters?:
+    | {
+        feeToken?: Address.Address | undefined
+      }
+    | undefined,
+) {
+  const { client, store } = internal
+  const { chain } = client
+  const { feeToken: defaultFeeToken, permissionFeeSpendLimit } =
+    store.getState()
+  const { feeToken: address } = parameters ?? {}
+
+  const chainId = Hex.fromNumber(chain.id)
+
+  const feeTokens = await Relay_viem.getFeeTokens(client).then(
+    (tokens) => tokens[chainId],
+  )
+  const feeToken = feeTokens?.find((feeToken) => {
+    if (address) return feeToken.address === address
+    if (defaultFeeToken) return defaultFeeToken === feeToken.coin
+    return feeToken.coin === 'ETH'
+  })
+
+  const permissionSpendLimit = feeToken?.coin
+    ? permissionFeeSpendLimit?.[feeToken.coin]
+    : undefined
+
+  if (!feeToken)
+    throw new Error(
+      `fee token ${address ?? defaultFeeToken} not found. Available: ${feeTokens?.map((x) => `${x.coin} (${x.address})`).join(', ')}`,
+    )
+  return {
+    address: feeToken.address,
+    decimals: feeToken.decimals,
+    permissionSpendLimit,
+    symbol: feeToken.coin,
   }
 }
 

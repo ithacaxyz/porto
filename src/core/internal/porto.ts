@@ -103,6 +103,7 @@ export function getClient<
     'wallet_getAccounts',
     'wallet_getCallsStatus',
     'wallet_getKeys',
+    'wallet_feeTokens',
     'wallet_prepareCalls',
     'wallet_prepareCreateAccount',
     'wallet_prepareUpgradeAccount',

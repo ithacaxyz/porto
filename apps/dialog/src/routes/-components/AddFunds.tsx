@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { FeeToken } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
@@ -7,6 +6,8 @@ import { Cuer } from 'cuer'
 import { Address, Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
+
+import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -29,13 +30,15 @@ export function AddFunds(props: AddFunds.Props) {
 
   const account = Hooks.useAccount(porto)
   const chain = Hooks.useChain(porto)
+  const { data: feeToken } = FeeToken.useFetch({
+    address: tokenAddress,
+    chainId: chain?.id,
+  })
 
   const address = props.address ?? account?.address
 
   const [amount, setAmount] = React.useState<string>(value.toString())
-
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
-
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'success' | 'error'
   >('default')
@@ -47,11 +50,9 @@ export function AddFunds(props: AddFunds.Props) {
 
       if (!address) throw new Error('address is required')
       if (!chain) throw new Error('chain is required')
+      if (!feeToken) throw new Error('feeToken is required')
 
-      const token = FeeToken.feeTokens[chain.id][tokenAddress.toLowerCase()]
-      if (!token) throw new Error('token is required')
-
-      const value = Value.from(amount, token.decimals)
+      const value = Value.from(amount, feeToken.decimals)
       const params = new URLSearchParams({
         address,
         chainId: chain.id.toString(),

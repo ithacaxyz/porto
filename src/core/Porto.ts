@@ -8,6 +8,7 @@ import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 
 import * as Chains from './Chains.js'
 import type * as Account from './internal/account.js'
+import * as Key from './internal/key.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
@@ -60,6 +61,8 @@ export function create(
         (_) => ({
           accounts: [],
           chainId: config.chains[0].id,
+          feeToken: undefined,
+          permissionFeeSpendLimit: undefined,
           requestQueue: [],
         }),
         {
@@ -78,6 +81,8 @@ export function create(
                 sign: undefined,
               })),
               chainId: state.chainId,
+              feeToken: state.feeToken,
+              permissionFeeSpendLimit: state.permissionFeeSpendLimit,
             } as unknown as State
           },
           storage: config.storage,
@@ -183,6 +188,10 @@ export type State<
 > = {
   accounts: readonly Account.Account[]
   chainId: chains[number]['id']
+  feeToken: string | undefined
+  permissionFeeSpendLimit:
+    | Record<string, Pick<Key.SpendPermission, 'limit' | 'period'>>
+    | undefined
   requestQueue: readonly QueuedRequest[]
 }
 
