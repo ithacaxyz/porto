@@ -2,6 +2,7 @@ import { afterAll, beforeAll, vi } from 'vitest'
 
 import * as Chains from '../src/core/Chains.js'
 import * as Anvil from './src/anvil.js'
+import { delegation001Address } from './src/constants.js'
 import * as Relay from './src/relay.js'
 
 beforeAll(async () => {
@@ -17,6 +18,7 @@ beforeAll(async () => {
       await Anvil.loadState({
         accountRegistryAddress: chain.contracts.accountRegistry!.address,
         delegationAddress: chain.contracts.delegation!.address,
+        delegationAddressOld: delegation001Address,
         entryPointAddress: chain.contracts.entryPoint!.address,
         rpcUrl: instance.rpcUrl,
       })

@@ -13,6 +13,7 @@ import type * as Porto from '../../Porto.js'
 import type * as Storage from '../../Storage.js'
 import * as Account from '../account.js'
 import * as Delegation from '../delegation.js'
+import * as Call from '../call.js'
 import * as HumanId from '../humanId.js'
 import * as Key from '../key.js'
 import * as Mode from '../mode.js'
@@ -516,6 +517,44 @@ export function relay(parameters: relay.Parameters = {}) {
         })
 
         return signature
+      },
+
+      async updateAccount(parameters) {
+        const { account, internal } = parameters
+        const {
+          client,
+          config: { storage },
+        } = internal
+
+        const key = account.keys?.find(
+          (key) => key.role === 'admin' && key.privateKey,
+        )
+        if (!key) throw new Error('admin key not found.')
+
+        const delegation = client.chain.contracts.delegation
+        if (!delegation) throw new Error('delegation not found.')
+
+        const feeToken = await resolveFeeToken(internal)
+
+        const { context, digest } = await Relay.prepareCalls(client, {
+          account,
+          calls: [
+            Call.upgradeProxyDelegation({ delegation: delegation.address }),
+          ],
+          feeToken: feeToken.address,
+          key,
+          pre: true,
+        })
+        const signature = await Key.sign(key, {
+          payload: digest,
+        })
+
+        await PreBundles.upsert([{ context, signature }], {
+          address: account.address,
+          storage,
+        })
+
+        // TODO: option to pay for tx & force update?
       },
 
       async upgradeAccount(parameters) {
