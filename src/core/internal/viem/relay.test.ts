@@ -303,7 +303,7 @@ describe('getCallsStatus', () => {
 })
 
 describe('getFeeTokens', () => {
-  test.only('default', async () => {
+  test('default', async () => {
     const result = await getFeeTokens(client)
     expect(result).toMatchInlineSnapshot(`
       {

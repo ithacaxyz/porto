@@ -13,8 +13,8 @@ const config = {
       feeToken: 'USDT',
       permissionFeeSpendLimit: {
         USDT: {
-          limit: Value.fromEther('0.01'),
-          period: 'minute',
+          limit: Value.fromEther('5'),
+          period: 'day',
         },
       },
     }),
@@ -41,8 +41,8 @@ const config = {
       feeToken: 'USDT',
       permissionFeeSpendLimit: {
         USDT: {
-          limit: Value.fromEther('0.01'),
-          period: 'minute',
+          limit: Value.fromEther('5'),
+          period: 'day',
         },
       },
     }),
