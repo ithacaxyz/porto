@@ -3,6 +3,7 @@ import * as chains from 'viem/chains'
 
 export type Chain = Chain_viem & {
   contracts: Chain_viem['contracts'] & {
+    accountRegistry?: ChainContract | undefined
     delegation?: ChainContract | undefined
     entryPoint?: ChainContract | undefined
   }
@@ -21,6 +22,9 @@ export const odysseyDevnet = /*#__PURE__*/ define({
     },
   },
   contracts: {
+    accountRegistry: {
+      address: '0x5fd869cae748223bf81c9e00de60b7713f6a218f',
+    },
     delegation: {
       address: '0x616dfc0fabbf4b377a7ef5d39f680ee0f6376f8d',
     },
@@ -41,6 +45,9 @@ export const odysseyTestnet = /*#__PURE__*/ define({
   ...chains.odysseyTestnet,
   contracts: {
     ...chains.odysseyTestnet.contracts,
+    accountRegistry: {
+      address: '0x5fd869cae748223bf81c9e00de60b7713f6a218f',
+    },
     delegation: {
       address: '0x6faf9eb2742350c772a5c811e1b0e2f330650a25',
     },

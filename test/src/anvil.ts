@@ -19,6 +19,7 @@ import {
 } from 'viem/actions'
 import { odysseyTestnet } from 'viem/chains'
 
+import * as AccountRegistry from '../../src/core/internal/_generated/contracts/AccountRegistry.js'
 import * as Delegation from '../../src/core/internal/_generated/contracts/Delegation.js'
 import * as EIP7702Proxy from '../../src/core/internal/_generated/contracts/EIP7702Proxy.js'
 import * as EntryPoint from '../../src/core/internal/_generated/contracts/EntryPoint.js'
@@ -99,11 +100,17 @@ export const accounts = [
 export const enabled = process.env.VITE_LOCAL !== 'false'
 
 export async function loadState(parameters: {
+  accountRegistryAddress: Address.Address
   entryPointAddress: Address.Address
   delegationAddress: Address.Address
   rpcUrl: string
 }) {
-  const { entryPointAddress, delegationAddress, rpcUrl } = parameters
+  const {
+    accountRegistryAddress,
+    entryPointAddress,
+    delegationAddress,
+    rpcUrl,
+  } = parameters
 
   const account = privateKeyToAccount(accounts[0]!.privateKey)
   const client = createTestClient({
@@ -111,6 +118,25 @@ export async function loadState(parameters: {
     mode: 'anvil',
     transport: http(rpcUrl),
   })
+
+  {
+    // Deploy AccountRegistry contract.
+    const hash = await deployContract(client, {
+      abi: AccountRegistry.abi,
+      bytecode: AccountRegistry.code,
+      chain: null,
+    })
+    const { contractAddress } = await getTransactionReceipt(client, {
+      hash,
+    })
+    const code = await getCode(client, {
+      address: contractAddress!,
+    })
+    await setCode(client, {
+      address: accountRegistryAddress,
+      bytecode: code!,
+    })
+  }
 
   {
     // Deploy EntryPoint contract.

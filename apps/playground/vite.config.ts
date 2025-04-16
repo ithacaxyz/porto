@@ -47,6 +47,7 @@ export default defineConfig({
         }).start()
 
         await Anvil.loadState({
+          accountRegistryAddress: chain.contracts.accountRegistry.address,
           delegationAddress: chain.contracts.delegation.address,
           entryPointAddress: chain.contracts.entryPoint.address,
           rpcUrl: anvilConfig.rpcUrl,
@@ -56,6 +57,7 @@ export default defineConfig({
         logger.info('Starting Relay...')
 
         await relay({
+          accountRegistry: chain.contracts.accountRegistry.address,
           delegationProxy: chain.contracts.delegation.address,
           endpoint: anvilConfig.rpcUrl,
           entrypoint: chain.contracts.entryPoint.address,

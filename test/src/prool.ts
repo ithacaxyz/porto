@@ -4,6 +4,7 @@ import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
 
 type RelayParameters = {
+  accountRegistry: string
   endpoint: string
   entrypoint: string
   delegationProxy: string
