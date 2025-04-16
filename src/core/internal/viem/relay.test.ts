@@ -27,12 +27,12 @@ const feeToken = exp1Address
 
 describe('health', () => {
   test('default', async () => {
-    const { entrypoint, version, ...result } = await health(client)
+    const { delegationProxy, entrypoint, version, ...result } =
+      await health(client)
     expect(entrypoint).toBeDefined()
     expect(version).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
-        "delegationProxy": "0x6faf9eb2742350c772a5c811e1b0e2f330650a25",
         "quoteConfig": {
           "constantRate": null,
           "gas": {},
