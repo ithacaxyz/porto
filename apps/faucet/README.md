@@ -7,52 +7,22 @@
 
 ## Deploying
 
-### Generating a new faucet account (only if necessary)
+Deployment happens on push to `main` and on `workflow_dispatch`.
 
-If the faucet account needs to be updated, run the following command:
-
-```bash
-pnpm --filter faucet generate-account
-```
-
-### Fund the faucet account with gas tokens (chain-specific)
-
-Simply send some gas tokens to the address printed in the previous command. Use the RPC endpoint specific to the chain you're working with:
-
-| Chain ID | Network           | Token | RPC URL                               |
-|----------|-------------------|-------|-------------------------------------------|
-| 28403    | Odyssey Devnet    | EXP   | https://odyssey-devnet.ithaca.xyz          |
-| 911867   | Odyssey Testnet   | EXP   | https://odyssey.ithaca.xyz                 |
-| 84532    | Base Sepolia      | ETH   | https://sepolia.base.org                   |
-
-### Deploying the faucet worker
-
-#### (Option 1) Deploy from GitHub Action on github.com
+To trigger a `workflow_dispatch` event (manual deployment):
 
 - Go to the [Deploy Faucet workflow](https://github.com/ithacaxyz/porto/actions/workflows/deploy-faucet.yml)
 - Click on `Run workflow`
-- (Only if account update is needed) Fill in the `DRIP_PRIVATE_KEY` input with the private key of the new account
-- (Only if account update is needed) Fill in the `DRIP_ADDRESS` input with the address of the new account
-- Run the workflow
 
 Done.
 
-#### (Option 2) Deploy from local machine
-
-```bash
-# ask @portosdk for the token
-export CLOUDFLARE_API_TOKEN=<your-token>
-
-pnpm --filter faucet run deploy --var 'DRIP_ADDRESS:<address>'
-```
-
-Then update `DRIP_PRIVATE_KEY` on the deployed worker
-
-```bash
-# ask @portosdk for the token
-export CLOUDFLARE_API_TOKEN=<your-token>
-
-echo <private-key> | pnpm dlx wrangler@latest secret put DRIP_PRIVATE_KEY
-```
-
-Done.
+> [!WARNING]
+> To trigger a deployment from a local machine (not recommended), make sure you have:
+>
+> - the private key for the faucet account,
+> - `CLOUDFLARE_API_TOKEN` set in your environment,
+> - then run:
+>
+> ```bash
+> /bin/bash ./scripts/deploy.sh <private_key>
+> ```
