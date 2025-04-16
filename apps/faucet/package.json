@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "pnpm dlx wrangler@latest --config='wrangler.json' dev",
     "build": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --dry-run",
-    "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars",
-    "generate-account": "node --import=tsx ./scripts/faucet-account.ts"
+    "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars"
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
