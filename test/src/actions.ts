@@ -123,29 +123,9 @@ export async function setBalance(
       functionName: 'mint',
     })
   } else {
-    const key = Key.fromHeadlessWebAuthnP256({
-      privateKey: process.env.VITE_ADMIN_PRIVATE_KEY! as `0x${string}`,
-    })
-    const account = Account.from({
-      address: process.env.VITE_ADMIN_ADDRESS! as `0x${string}`,
-      keys: [key],
-    })
-    const { id } = await Relay.sendCalls(client, {
-      account,
-      calls: [
-        {
-          abi: exp1Abi,
-          args: [address, value],
-          functionName: 'mint',
-          to: exp1Address,
-        },
-      ],
-      feeToken: exp1Address,
-    })
-    const { status } = await waitForCallsStatus(client, {
-      id,
-    })
-    if (status === 'failure')
-      throw new Error(`failed to fund account. bundle id: ${id}`)
+    const response = await fetch(
+      `https://faucet.porto.workers.dev?address=${address}&chainId=${client.chain.id}&value=${value}`,
+    )
+    if (!response.ok) throw new Error('failed to fund account')
   }
 }
