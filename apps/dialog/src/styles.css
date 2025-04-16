@@ -2,9 +2,18 @@
 
 @custom-variant dark (&:is(.scheme-light-dark *));
 
+@theme {
+  --text-base: 15px;
+  --text-base--line-height: calc(1.325 / 1);
+}
+
 html,
 :host {
-  background-color: var(--background-color-primary);
+  @apply bg-primary;
+}
+
+body {
+  @apply text-base;
 }
 
 [data-dialog] {

@@ -13,10 +13,8 @@ import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
-import LinkIcon from '~icons/lucide/link'
 import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
-import BaseIcon from '~icons/token-branded/base'
 
 const presetAmounts = ['25', '50', '100', '250']
 
@@ -69,12 +67,6 @@ export function AddFunds(props: AddFunds.Props) {
   })
 
   const loading = deposit.isPending
-
-  const Footer = () => (
-    <Layout.Footer>
-      {address && <Layout.Footer.Account address={address} />}
-    </Layout.Footer>
-  )
 
   if (view === 'default')
     return (
@@ -175,137 +167,126 @@ export function AddFunds(props: AddFunds.Props) {
             </div>
           </form>
         </Layout.Content>
-
-        <Footer />
       </Layout>
     )
 
   if (view === 'deposit-crypto')
     return (
       <Layout loading={loading} loadingTitle="Adding funds...">
-        <Layout.Header>
-          <Layout.Header.Default title="Deposit crypto" />
-        </Layout.Header>
+        <Layout.Content className="py-3 text-center">
+          <Ariakit.Button
+            className="mx-auto flex h-[148px] items-center justify-center gap-4 rounded-lg border border-surface bg-secondary p-4 hover:cursor-pointer!"
+            onClick={() => copyToClipboard(address ?? '')}
+          >
+            <Cuer.Root errorCorrection="low" value={address ?? ''}>
+              <Cuer.Cells />
+              <Cuer.Finder radius={1} />
+            </Cuer.Root>
+            <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-gray10 text-xs">
+              {address}
+            </p>
+          </Ariakit.Button>
 
-        <Layout.Content>
-          <form className="grid h-min grid-flow-row auto-rows-min grid-cols-1 items-center justify-center space-y-3">
-            <div className="col-span-1 row-span-1">
-              <Ariakit.Button
-                className="mx-auto flex w-[75%] items-center justify-center gap-3 rounded-lg border border-surface bg-white p-2.5 hover:cursor-pointer! dark:bg-secondary"
-                onClick={() => copyToClipboard(address ?? '')}
-              >
-                <Cuer.Root value={address ?? ''}>
-                  <Cuer.Cells />
-                  <Cuer.Finder radius={1} />
-                  <Cuer.Arena>
-                    <BaseIcon className="size-9 object-cover" />
-                  </Cuer.Arena>
-                </Cuer.Root>
-                <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-gray10 text-sm">
-                  {address}
-                </p>
-              </Ariakit.Button>
-            </div>
+          <div className="h-4" />
 
-            <div className="col-span-1 row-span-1 my-auto">
-              <div className="flex w-full flex-row gap-3 pt-1">
-                <Button
-                  className="w-full text-[14px]"
-                  onClick={() => setView('default')}
-                  type="button"
-                  variant="default"
-                >
-                  Back
-                </Button>
-                <Button
-                  className="w-full text-[14px]"
-                  onClick={() => copyToClipboard(address ?? '')}
-                  type="button"
-                  variant="default"
-                >
-                  <CopyIcon className="mr-1.5 size-4" />
-                  {isCopied ? 'Copied' : 'Copy'}
-                </Button>
-              </div>
-            </div>
-          </form>
+          <div className="font-medium text-[18px]">Deposit funds</div>
+          <div className="h-1" />
+          <div className="text-secondary">
+            Send crypto to fund your account.
+          </div>
         </Layout.Content>
 
-        <Footer />
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            <Button
+              className="w-full text-[14px]"
+              onClick={() => setView('default')}
+              type="button"
+              variant="default"
+            >
+              Back
+            </Button>
+            <Button
+              className="w-full text-[14px]"
+              onClick={() => copyToClipboard(address ?? '')}
+              type="button"
+              variant="default"
+            >
+              <CopyIcon className="mr-1.5 size-4" />
+              {isCopied ? 'Copied' : 'Copy'}
+            </Button>
+          </Layout.Footer.Actions>
+
+          {chain && (
+            <div className="px-3 text-center text-secondary text-sm">
+              Please only send assets on {chain.name}. Support for more networks
+              soon.
+            </div>
+          )}
+        </Layout.Footer>
       </Layout>
     )
 
   if (view === 'success')
     return (
       <Layout>
-        <Layout.Header className="flex flex-row items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-full bg-green4">
-            <CheckIcon className="size-4.5 text-green8" />
-          </div>
-          <p className="font-medium text-lg">Deposited ${amount}</p>
+        <Layout.Header>
+          <Layout.Header.Default
+            content="Your funds have been deposited to your Porto account."
+            icon={CheckIcon}
+            title={`Deposited $${amount}`}
+            variant="success"
+          />
         </Layout.Header>
-        <Layout.Content>
-          <p className="inline text-base text-secondary">
-            Your funds have been deposited to your Porto account.{' '}
-            <a
-              className="inline align-middle text-gray12"
-              href={`https://explorer.ithaca.xyz/tx/${deposit.data!.id}`}
-              rel="noreferrer"
-              target="_blank"
-            >
-              <LinkIcon className="mb-1 ml-1 inline size-3.5" />
-            </a>
-          </p>
 
-          <div className="mt-2 flex w-full flex-row items-center">
+        <Layout.Footer>
+          <Layout.Footer.Actions>
             <Button
-              className="w-full font-semibold"
+              className="flex-grow"
               onClick={() => onApprove({ id: deposit.data!.id })}
               variant="default"
             >
               Done
             </Button>
-          </div>
-        </Layout.Content>
-
-        <Footer />
+          </Layout.Footer.Actions>
+        </Layout.Footer>
       </Layout>
     )
 
   if (view === 'error')
     return (
       <Layout>
-        <Layout.Header className="flex flex-row items-center gap-2 align-bottom">
-          <div className="flex size-7.5 items-center justify-center rounded-full bg-red5">
-            <TriangleAlertIcon className="size-4 text-red11" />
-          </div>
-          <p className="font-medium text-xl">Deposit failed</p>
+        <Layout.Header>
+          <Layout.Header.Default
+            icon={TriangleAlertIcon}
+            title="Deposit failed"
+            variant="destructive"
+          />
         </Layout.Header>
-        <Layout.Content className="px-1">
-          <p className="text-base text-grayA12">
-            Your deposit was cancelled or failed.
-          </p>
-          <p className="text-base text-secondary">
-            No funds have been deposited.
-          </p>
 
-          <div className="mt-2.5 flex w-full flex-row items-center gap-x-2">
+        <Layout.Content className="px-1">
+          <p className="text-primary">Your deposit was cancelled or failed.</p>
+          <p className="text-secondary">No funds have been deposited.</p>
+        </Layout.Content>
+
+        <Layout.Footer>
+          <Layout.Footer.Actions>
             <Button
-              className="w-full font-semibold"
+              className="flex-grow"
               onClick={() => onReject?.()}
               variant="default"
             >
               Close
             </Button>
             <Button
-              className="w-full font-semibold"
+              className="flex-grow"
               onClick={() => setView('default')}
               variant="accent"
             >
               Try again
             </Button>
-          </div>
-        </Layout.Content>
+          </Layout.Footer.Actions>
+        </Layout.Footer>
       </Layout>
     )
 

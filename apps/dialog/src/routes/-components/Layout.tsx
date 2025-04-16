@@ -15,9 +15,7 @@ export function Layout(props: Layout.Props) {
         <IndeterminateLoader title={loadingTitle} />
       </div>
     )
-  return (
-    <div className="flex flex-grow flex-col space-y-3 py-3">{children}</div>
-  )
+  return <div className="flex flex-grow flex-col">{children}</div>
 }
 
 export namespace Layout {
@@ -40,7 +38,7 @@ export namespace Layout {
 
   export function Header(props: Header.Props) {
     return (
-      <div className={cx('flex flex-col px-3', props.className)}>
+      <div className={cx('flex flex-col p-3 pb-2', props.className)}>
         {props.children}
       </div>
     )
@@ -65,7 +63,7 @@ export namespace Layout {
             <div className="font-medium text-[18px] text-primary">{title}</div>
           </div>
           {content && (
-            <div className="mt-1 text-[15px] text-primary leading-[22px]">
+            <div className="mt-2 mb-1 text-[15px] text-primary leading-[22px]">
               {content}
             </div>
           )}
@@ -92,6 +90,7 @@ export namespace Layout {
               default: 'bg-accentTint text-accent',
               destructive: 'bg-destructive text-destructive',
               primary: 'bg-accentTint text-accent',
+              success: 'bg-successTint text-success',
               warning: 'bg-warningTint text-warning',
             },
           },
@@ -109,7 +108,7 @@ export namespace Layout {
     className?: string
   }) {
     return (
-      <div className={cx('flex-grow px-3', props.className)}>
+      <div className={cx('flex-grow px-3 pb-3', props.className)}>
         {props.children}
       </div>
     )
@@ -121,7 +120,14 @@ export namespace Layout {
 
   export function Footer(props: Footer.Props) {
     return (
-      <div className={cx('space-y-3', props.className)}>{props.children}</div>
+      <div
+        className={cx(
+          'flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 pb-3',
+          props.className,
+        )}
+      >
+        {props.children}
+      </div>
     )
   }
 
@@ -133,7 +139,7 @@ export namespace Layout {
 
     // Actions Footer
     export function Actions(props: Actions.Props) {
-      return <div className="flex gap-2 px-3">{props.children}</div>
+      return <div className="flex w-full gap-2 px-3">{props.children}</div>
     }
 
     export namespace Actions {
@@ -147,10 +153,8 @@ export namespace Layout {
       const { address, onClick } = props
 
       return (
-        <div className="flex justify-between border-primary border-t px-3 pt-3">
-          <div className="text-[13px] text-secondary leading-[22px]">
-            Account
-          </div>
+        <div className="flex h-full w-full items-center justify-between border-primary border-t px-3 pt-3">
+          <div className="text-[13px] text-secondary">Account</div>
 
           <button
             className="-my-1 -mx-2 flex items-center gap-1.5 rounded-lg px-2 py-1 hover:not-disabled:bg-surface"

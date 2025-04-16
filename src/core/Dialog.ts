@@ -61,7 +61,7 @@ export function iframe() {
       const iframe = document.createElement('iframe')
       iframe.setAttribute(
         'allow',
-        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`,
+        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}; clipboard-write`,
       )
       iframe.setAttribute('aria-closed', 'true')
       iframe.setAttribute('aria-label', 'Porto Wallet')
