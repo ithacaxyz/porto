@@ -438,22 +438,17 @@ export function from<
 
           const client = getClient()
 
-          const { delegationProxy } = await Relay.health(client).catch(() => ({
-            delegationProxy: client.chain.contracts.delegation?.address,
-          }))
-          if (!delegationProxy) throw new RpcResponse.InternalError()
-
-          const [{ version: current }, { version: latest }] = await Promise.all(
-            [
-              Delegation.getEip712Domain(client, {
-                account: account.address,
-              }),
-              Delegation.getEip712Domain(client, {
-                account: delegationProxy,
-              }),
-            ],
+          const { current, latest } = await getMode().actions.getAccountVersion(
+            {
+              address: account.address,
+              internal: {
+                client,
+                config,
+                request,
+                store,
+              },
+            },
           )
-          if (!current || !latest) throw new RpcResponse.InternalError()
 
           return {
             current,
