@@ -1,4 +1,3 @@
-import { Value } from 'ox'
 import { Chains, Mode } from 'porto'
 import { Porto } from 'porto/remote'
 import { http, ValueOf } from 'viem'
@@ -9,15 +8,7 @@ import * as Sentry from './Sentry'
 const config = {
   anvil: {
     chains: [Chains.odysseyTestnet],
-    mode: Mode.relay({
-      feeToken: 'USDT',
-      permissionFeeSpendLimit: {
-        USDT: {
-          limit: Value.fromEther('5'),
-          period: 'day',
-        },
-      },
-    }),
+    mode: Mode.relay(),
     transports: {
       [Chains.odysseyTestnet.id]: {
         default: http('http://127.0.0.1:8545'),
@@ -37,15 +28,7 @@ const config = {
   },
   stg: {
     chains: [Chains.odysseyDevnet],
-    mode: Mode.relay({
-      feeToken: 'USDT',
-      permissionFeeSpendLimit: {
-        USDT: {
-          limit: Value.fromEther('5'),
-          period: 'day',
-        },
-      },
-    }),
+    mode: Mode.relay(),
     transports: {
       [Chains.odysseyDevnet.id]: {
         default: http(),

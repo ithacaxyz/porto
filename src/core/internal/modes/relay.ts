@@ -7,6 +7,7 @@ import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
+import * as Value from 'ox/Value'
 import { waitForCallsStatus } from 'viem/experimental'
 import type * as Porto from '../../Porto.js'
 import type * as Storage from '../../Storage.js'
@@ -19,6 +20,20 @@ import type { Client } from '../porto.js'
 import * as Relay from '../relay.js'
 import * as Relay_viem from '../viem/relay.js'
 
+export const defaultConfig = {
+  feeToken: 'USDT',
+  permissionFeeSpendLimit: {
+    ETH: {
+      limit: Value.fromEther('0.0001'),
+      period: 'day',
+    },
+    USDT: {
+      limit: Value.fromEther('5'),
+      period: 'day',
+    },
+  },
+} as const satisfies relay.Parameters
+
 /**
  * Mode for a WebAuthn-based environment that interacts with the Porto
  * Relay. Account management, signing, and execution is coordinated
@@ -27,7 +42,8 @@ import * as Relay_viem from '../viem/relay.js'
  * @param parameters - Parameters.
  * @returns Mode.
  */
-export function relay(config: relay.Parameters = {}) {
+export function relay(parameters: relay.Parameters = {}) {
+  const config = { ...defaultConfig, ...parameters }
   const { mock } = config
 
   let id_internal: Hex.Hex | undefined

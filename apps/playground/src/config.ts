@@ -29,15 +29,7 @@ export const modes = {
     host,
     renderer: Dialog.popup(),
   }),
-  relay: Mode.relay({
-    feeToken: 'USDT',
-    permissionFeeSpendLimit: {
-      USDT: {
-        limit: Value.fromEther('0.01'),
-        period: 'minute',
-      },
-    },
-  }),
+  relay: Mode.relay(),
 }
 export type ModeType = keyof typeof modes
 
