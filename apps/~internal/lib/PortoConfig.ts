@@ -73,7 +73,7 @@ export function getDialogHost(env = Env.get()): string {
       '/dialog/?env=' +
       env
     )
-  return dialogHosts[env] as string
+  return dialogHosts[env] + '?env=' + env
 }
 
 export type Chain = ValueOf<typeof config>['chains'][number]
