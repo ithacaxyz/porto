@@ -28,7 +28,7 @@ export function SignIn(props: SignIn.Props) {
         />
       </Layout.Header>
 
-      <Permissions {...permissions} />
+      <Permissions title="Permissions requested" {...permissions} />
 
       <Layout.Footer>
         <Layout.Footer.Actions>

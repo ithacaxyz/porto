@@ -14,16 +14,18 @@ import LucideVault from '~icons/lucide/vault'
 import WalletIcon from '~icons/lucide/wallet-cards'
 
 export function Permissions(props: Permissions.Props) {
-  const { spend = [], calls = [] } = props
+  const { calls = [], spend = [], title } = props
 
   if (spend.length === 0 && calls.length === 0) return null
 
   return (
     <div className="px-3">
-      <div className="flex items-center gap-3 text-[13px] text-secondary">
-        <span>Permissions requested</span>
-        <div className="h-px flex-1 border-primary border-t"></div>
-      </div>
+      {title && (
+        <div className="flex items-center gap-3 text-[13px] text-secondary">
+          <span>{title}</span>
+          <div className="h-px flex-1 border-primary border-t"></div>
+        </div>
+      )}
       <div className="divide-y divide-[color:var(--border-color-primary)]">
         {spend.map((spend) => (
           <SpendPermission
@@ -39,8 +41,9 @@ export function Permissions(props: Permissions.Props) {
 
 export declare namespace Permissions {
   type Props = {
-    spend?: readonly SpendPermission.Props[]
     calls?: ContractAccessPermission.Props['calls']
+    spend?: readonly SpendPermission.Props[]
+    title?: string | undefined
   }
 }
 

@@ -31,7 +31,7 @@ export function SignUp(props: SignUp.Props) {
         />
       </Layout.Header>
 
-      <Permissions {...permissions} />
+      <Permissions title="Permissions requested" {...permissions} />
 
       <Layout.Footer>
         <Layout.Footer.Actions>

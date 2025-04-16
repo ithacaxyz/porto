@@ -33,6 +33,7 @@ export function GrantPermissions(props: GrantPermissions.Props) {
         <Permissions
           calls={permissions.calls ?? []}
           spend={permissions.spend}
+          title="Permissions requested"
         />
       </Layout.Content>
 
