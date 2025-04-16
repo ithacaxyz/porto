@@ -136,6 +136,26 @@ export function contract(parameters: contract.Parameters = {}) {
         return { account }
       },
 
+      async getAccountVersion(parameters) {
+        const { address, internal } = parameters
+        const { client } = internal
+
+        const delegation = client.chain.contracts.delegation?.address
+        if (!delegation) throw new Error('delegation address not found.')
+
+        const [{ version: current }, { version: latest }] = await Promise.all([
+          Delegation.getEip712Domain(client, {
+            account: address,
+          }),
+          Delegation.getEip712Domain(client, {
+            account: delegation,
+          }),
+        ])
+        if (!current || !latest) throw new Error('version not found.')
+
+        return { current, latest }
+      },
+
       async getCallsStatus(parameters) {
         const { id, internal } = parameters
         const { client } = internal

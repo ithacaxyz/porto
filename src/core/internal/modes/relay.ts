@@ -19,6 +19,7 @@ import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
 import * as Relay from '../relay.js'
 import * as Relay_viem from '../viem/relay.js'
+import * as Delegation from '../delegation.js'
 
 export const defaultConfig = {
   feeToken: 'USDT',
@@ -112,6 +113,24 @@ export function relay(parameters: relay.Parameters = {}) {
             keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
           }),
         }
+      },
+
+      async getAccountVersion(parameters) {
+        const { address, internal } = parameters
+        const { client } = internal
+
+        const { delegationProxy } = await Relay.health(client)
+        const [{ version: current }, { version: latest }] = await Promise.all([
+          Delegation.getEip712Domain(client, {
+            account: address,
+          }),
+          Delegation.getEip712Domain(client, {
+            account: delegationProxy,
+          }),
+        ])
+        if (!current || !latest) throw new Error('version not found.')
+
+        return { current, latest }
       },
 
       async getCallsStatus(parameters) {

@@ -50,6 +50,18 @@ export type Mode = {
       account: Account.Account
     }>
 
+    getAccountVersion: (parameters: {
+      /** Address of the account to get the version of. */
+      address: Address.Address
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<{
+      /** Latest version. */
+      latest: string
+      /** Current version. */
+      current: string
+    }>
+
     getCallsStatus: (parameters: {
       /** ID of the calls to get the status of. */
       id: Hex.Hex
