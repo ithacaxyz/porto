@@ -357,19 +357,13 @@ export async function prepareCreateAccount(
   client: Client,
   parameters: prepareCreateAccount.Parameters,
 ) {
-  const {
-    chain = client.chain,
-    delegation = (chain?.contracts?.delegation as ChainContract | undefined)
-      ?.address,
-    keys,
-  } = parameters
+  const { chain = client.chain, keys } = parameters
 
-  if (!delegation) throw new Error('`delegation` is required')
+  const health = await Actions.health(client)
 
+  const delegation = parameters.delegation ?? health.delegationProxy
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey
-    ? (await Actions.health(client)).entrypoint
-    : undefined
+  const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
   const authorizeKeys = keys.map((key) =>
     Key.toRelay(key, {
@@ -435,15 +429,9 @@ export async function prepareUpgradeAccount(
   client: Client,
   parameters: prepareUpgradeAccount.Parameters,
 ) {
-  const {
-    address,
-    delegation = (
-      client.chain?.contracts?.delegation as ChainContract | undefined
-    )?.address,
-    feeToken,
-  } = parameters
+  const { address, feeToken } = parameters
 
-  if (!delegation) throw new Error('`delegation` is required')
+  const health = await Actions.health(client)
 
   // Create root id signer
   const idSigner_root = createIdSigner()
@@ -453,10 +441,9 @@ export async function prepareUpgradeAccount(
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
 
+  const delegation = parameters.delegation ?? health.delegationProxy
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey
-    ? (await Actions.health(client)).entrypoint
-    : undefined
+  const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
   const keys_relay = keys.map((key) =>
     Key.toRelay(key, {

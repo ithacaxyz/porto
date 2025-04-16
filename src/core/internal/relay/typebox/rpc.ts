@@ -36,6 +36,8 @@ export namespace relay_health {
   export type Request = Schema.StaticDecode<typeof Request>
 
   export const Response = Type.Object({
+    /** Delegation proxy address. */
+    delegationProxy: Primitive.Address,
     /** Entrypoint address. */
     entrypoint: Primitive.Address,
     /** Quote configuration. */

@@ -255,9 +255,13 @@ export namespace getKeys {
 export async function health(client: Client): Promise<health.ReturnType> {
   const method = 'relay_health' as const
   type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-  const result = await client.request<Schema>({
-    method,
-  })
+  const result = await withCache(
+    () =>
+      client.request<Schema>({
+        method,
+      }),
+    { cacheKey: 'health' },
+  )
   return Value.Parse(Rpc.relay_health.Response, result)
 }
 

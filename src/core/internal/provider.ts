@@ -11,6 +11,7 @@ import * as Delegation from './delegation.js'
 import type * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import * as Porto_internal from './porto.js'
+import * as Relay from './relay.js'
 import * as Rpc from './typebox/rpc.js'
 import * as Schema from './typebox/schema.js'
 
@@ -437,8 +438,10 @@ export function from<
 
           const client = getClient()
 
-          const delegation = client.chain.contracts.delegation
-          if (!delegation) throw new RpcResponse.InternalError()
+          const { delegationProxy } = await Relay.health(client).catch(() => ({
+            delegationProxy: client.chain.contracts.delegation?.address,
+          }))
+          if (!delegationProxy) throw new RpcResponse.InternalError()
 
           const [{ version: current }, { version: latest }] = await Promise.all(
             [
@@ -446,7 +449,7 @@ export function from<
                 account: account.address,
               }),
               Delegation.getEip712Domain(client, {
-                account: delegation.address,
+                account: delegationProxy,
               }),
             ],
           )

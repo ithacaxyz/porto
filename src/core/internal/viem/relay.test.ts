@@ -32,6 +32,7 @@ describe('health', () => {
     expect(version).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
+        "delegationProxy": "0x6faf9eb2742350c772a5c811e1b0e2f330650a25",
         "quoteConfig": {
           "constantRate": null,
           "gas": {},
