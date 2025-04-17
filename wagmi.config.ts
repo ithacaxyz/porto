@@ -52,7 +52,7 @@ export default defineConfig([
             name: 'EXP1',
           },
           {
-            address: address.exp1,
+            address: address.exp2,
             name: 'EXP2',
           },
         ],
