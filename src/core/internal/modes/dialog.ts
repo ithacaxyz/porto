@@ -538,7 +538,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           throw new Error('Cannot update account for method: ' + request.method)
 
         const provider = getProvider(store)
-        await provider.request(request)
+        return await provider.request(request)
       },
 
       async upgradeAccount(parameters) {

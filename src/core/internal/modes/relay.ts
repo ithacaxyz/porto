@@ -527,7 +527,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const { account, internal } = parameters
         const {
           client,
-          config: { storage },
+          config: { storage: _ },
         } = internal
 
         const key = account.keys?.find(

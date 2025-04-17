@@ -214,7 +214,7 @@ export type Mode = {
       account: Account.Account
       /** Internal properties. */
       internal: ActionsInternal
-    }) => Promise<{ id: Hex.Hex | undefined }>
+    }) => Promise<{ id?: Hex.Hex | undefined }>
 
     upgradeAccount: (parameters: {
       /** Account to upgrade. */
