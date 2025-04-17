@@ -592,12 +592,14 @@ export function from<
 
           const client = getClient()
 
-          await getMode().actions.updateAccount({
+          const { id } = await getMode().actions.updateAccount({
             account,
             internal: { client, config, request, store },
           })
 
-          return
+          return { id } satisfies Schema.Static<
+            typeof Rpc.experimental_updateAccount.Response
+          >
         }
 
         case 'experimental_upgradeAccount': {

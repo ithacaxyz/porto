@@ -315,7 +315,9 @@ export namespace experimental_updateAccount {
   })
   export type Request = Schema.StaticDecode<typeof Request>
 
-  export const Response = Type.Undefined()
+  export const Response = Type.Object({
+    id: Schema.Optional(Primitive.Hex),
+  })
   export type Response = Schema.StaticDecode<typeof Response>
 }
 

@@ -143,14 +143,18 @@ export function contract(parameters: contract.Parameters = {}) {
         const delegation = client.chain.contracts.delegation?.address
         if (!delegation) throw new Error('delegation address not found.')
 
-        const [{ version: current }, { version: latest }] = await Promise.all([
-          Delegation.getEip712Domain(client, {
-            account: address,
-          }),
-          Delegation.getEip712Domain(client, {
-            account: delegation,
-          }),
-        ])
+        const latest = await Delegation.getEip712Domain(client, {
+          account: delegation,
+        }).then((x) => x.version)
+
+        const current = await Delegation.getEip712Domain(client, {
+          account: address,
+        })
+          .then((x) => x.version)
+          // If the account has not been delegated yet, use the latest version
+          // as they will automatically be updated when delegated.
+          .catch(() => latest)
+
         if (!current || !latest) throw new Error('version not found.')
 
         return { current, latest }

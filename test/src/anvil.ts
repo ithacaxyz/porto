@@ -21,10 +21,10 @@ import { odysseyTestnet } from 'viem/chains'
 
 import * as AccountRegistry from '../../src/core/internal/_generated/contracts/AccountRegistry.js'
 import * as Delegation from '../../src/core/internal/_generated/contracts/Delegation.js'
+import * as DelegationOld from '../../src/core/internal/_generated/contracts/DelegationOld.js'
 import * as EIP7702Proxy from '../../src/core/internal/_generated/contracts/EIP7702Proxy.js'
 import * as EntryPoint from '../../src/core/internal/_generated/contracts/EntryPoint.js'
 import { exp1Address, exp2Address } from '../src/_generated/contracts.js'
-import { delegation001Code } from './constants.js'
 import { poolId } from './prool.js'
 
 export const instances = {
@@ -103,7 +103,7 @@ export async function loadState(parameters: {
   accountRegistryAddress: Address.Address
   entryPointAddress: Address.Address
   delegationAddress: Address.Address
-  delegationAddressOld: Address.Address
+  delegationAddressOld?: Address.Address | undefined
   rpcUrl: string
 }) {
   const {
@@ -194,12 +194,12 @@ export async function loadState(parameters: {
     })
   }
 
-  {
-    // Deploy Delegation contract.
+  if (delegationAddressOld) {
+    // Deploy DelegationOld contract.
     const hash = await deployContract(client, {
-      abi: Delegation.abi,
+      abi: DelegationOld.abi,
       args: [entryPointAddress],
-      bytecode: delegation001Code,
+      bytecode: DelegationOld.code,
       chain: null,
     })
     const { contractAddress } = await getTransactionReceipt(client, {

@@ -12,8 +12,8 @@ import { waitForCallsStatus } from 'viem/experimental'
 import type * as Porto from '../../Porto.js'
 import type * as Storage from '../../Storage.js'
 import * as Account from '../account.js'
-import * as Delegation from '../delegation.js'
 import * as Call from '../call.js'
+import * as Delegation from '../delegation.js'
 import * as HumanId from '../humanId.js'
 import * as Key from '../key.js'
 import * as Mode from '../mode.js'
@@ -121,14 +121,18 @@ export function relay(parameters: relay.Parameters = {}) {
         const { client } = internal
 
         const { delegationProxy } = await Relay.health(client)
-        const [{ version: current }, { version: latest }] = await Promise.all([
-          Delegation.getEip712Domain(client, {
-            account: address,
-          }),
-          Delegation.getEip712Domain(client, {
-            account: delegationProxy,
-          }),
-        ])
+
+        const latest = await Delegation.getEip712Domain(client, {
+          account: delegationProxy,
+        }).then((x) => x.version)
+
+        const current = await Delegation.getEip712Domain(client, {
+          account: address,
+        })
+          .then((x) => x.version)
+          // TODO: get counterfactual account delegation via relay.
+          .catch(() => latest)
+
         if (!current || !latest) throw new Error('version not found.')
 
         return { current, latest }
@@ -531,30 +535,44 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('admin key not found.')
 
-        const delegation = client.chain.contracts.delegation
-        if (!delegation) throw new Error('delegation not found.')
+        const { delegationProxy } = await Relay.health(client)
+        if (!delegationProxy) throw new Error('delegation not found.')
 
         const feeToken = await resolveFeeToken(internal)
 
-        const { context, digest } = await Relay.prepareCalls(client, {
+        return await Relay.sendCalls(client, {
           account,
           calls: [
-            Call.upgradeProxyDelegation({ delegation: delegation.address }),
+            Call.upgradeProxyDelegation({
+              delegation: delegationProxy,
+              to: account.address,
+            }),
           ],
           feeToken: feeToken.address,
           key,
-          pre: true,
         })
-        const signature = await Key.sign(key, {
-          payload: digest,
-        })
+        // const { context, digest } = await Relay.prepareCalls(client, {
+        //   account,
+        //   calls: [
+        //     Call.upgradeProxyDelegation({
+        //       delegation: delegationProxy,
+        //       to: account.address,
+        //     }),
+        //   ],
+        //   feeToken: feeToken.address,
+        //   key,
+        //   pre: true,
+        // })
+        // const signature = await Key.sign(key, {
+        //   payload: digest,
+        // })
 
-        await PreBundles.upsert([{ context, signature }], {
-          address: account.address,
-          storage,
-        })
+        // await PreBundles.upsert([{ context, signature }], {
+        //   address: account.address,
+        //   storage,
+        // })
 
-        // TODO: option to pay for tx & force update?
+        // return { id: undefined }
       },
 
       async upgradeAccount(parameters) {

@@ -194,7 +194,7 @@ export async function getEip712Domain<chain extends Chain | undefined>(
     domain: { name, version },
   } = await getEip712Domain_viem(client, {
     address: account.address,
-  }).catch(() => ({ domain: domainNameAndVersion }))
+  })
 
   if (!client.chain) throw new Error('client.chain is required')
   return {
@@ -455,7 +455,9 @@ async function getExecuteSignPayload<
     value: call.value ?? 0n,
   }))
 
-  const domain = await getEip712Domain(client, { account })
+  const domain = await getEip712Domain(client, { account }).catch(
+    () => domainNameAndVersion,
+  )
 
   const multichain = nonce & 1n
 

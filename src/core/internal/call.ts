@@ -226,13 +226,13 @@ export declare namespace revoke {
 export function upgradeProxyDelegation(
   parameters: upgradeProxyDelegation.Parameters,
 ) {
-  const { delegation } = parameters
+  const { delegation, to = self } = parameters
   return {
     data: AbiFunction.encodeData(
       AbiFunction.fromAbi(Delegation.abi, 'upgradeProxyDelegation'),
       [delegation],
     ),
-    to: self,
+    to,
   } as const satisfies Call
 }
 
@@ -240,5 +240,7 @@ export declare namespace upgradeProxyDelegation {
   export type Parameters = {
     /** The delegation to upgrade to. */
     delegation: Address.Address
+    /** The address to upgrade the delegation to. */
+    to?: Address.Address | undefined
   }
 }
