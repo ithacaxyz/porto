@@ -39,6 +39,19 @@ const config = {
       },
     },
   },
+  testnet: {
+    chains: [Chains.baseSepolia],
+    mode: Mode.relay(),
+    transports: {
+      [Chains.baseSepolia.id]: {
+        default: http(),
+        relay: http(
+          'https://relay-testnet.ithaca.xyz',
+          Sentry.httpTransportOptions(),
+        ),
+      },
+    },
+  },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
 
 const dialogHosts = {
@@ -51,6 +64,9 @@ const dialogHosts = {
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
     : 'https://stg.localhost:5174/dialog/',
+  testnet: import.meta.env.PROD
+    ? 'https://testnet.id.porto.sh/dialog/'
+    : 'https://testnet.localhost:5174/dialog/',
 } as const satisfies Record<Env.Env, string | undefined>
 
 export function getConfig(

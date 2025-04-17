@@ -16,7 +16,12 @@ const logger = createLogger('info', {
 export default defineConfig({
   plugins: [
     mkcert({
-      hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
+      hosts: [
+        'localhost',
+        'testnet.localhost',
+        'stg.localhost',
+        'anvil.localhost',
+      ],
     }),
     react(),
     tailwindcss(),
