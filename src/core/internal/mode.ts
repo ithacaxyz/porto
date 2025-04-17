@@ -12,7 +12,7 @@ import type { Compute, PartialBy } from './types.js'
 
 type Request = Rpc.parseRequest.ReturnType
 
-type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
+export type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
   /** Viem Client. */
   client: Porto.Client
   /** RPC Request. */
@@ -48,6 +48,18 @@ export type Mode = {
     }) => Promise<{
       /** Account. */
       account: Account.Account
+    }>
+
+    getAccountVersion: (parameters: {
+      /** Address of the account to get the version of. */
+      address: Address.Address
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<{
+      /** Latest version. */
+      latest: string
+      /** Current version. */
+      current: string
     }>
 
     getCallsStatus: (parameters: {

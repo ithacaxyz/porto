@@ -20,6 +20,7 @@ import {
   type Chain,
   type Client,
   type Narrow,
+  withCache,
 } from 'viem'
 import { prepareAuthorization } from 'viem/actions'
 import { getExecuteError } from 'viem/experimental/erc7821'
@@ -169,6 +170,36 @@ export namespace getCallsStatus {
 }
 
 /**
+ * Gets the fee tokens supported by the relay.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @returns Result.
+ */
+export async function getFeeTokens(
+  client: Client,
+): Promise<getFeeTokens.ReturnType> {
+  const method = 'wallet_feeTokens' as const
+  type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+  const result = await withCache(
+    () =>
+      client.request<Schema>({
+        method,
+      }),
+    { cacheKey: 'feeTokens' },
+  )
+  return Value.Parse(Rpc.wallet_feeTokens.Response, result)
+}
+
+export namespace getFeeTokens {
+  export type ReturnType = Rpc.wallet_feeTokens.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
  * Gets the keys for a given account.
  *
  * @example
@@ -224,9 +255,13 @@ export namespace getKeys {
 export async function health(client: Client): Promise<health.ReturnType> {
   const method = 'relay_health' as const
   type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-  const result = await client.request<Schema>({
-    method,
-  })
+  const result = await withCache(
+    () =>
+      client.request<Schema>({
+        method,
+      }),
+    { cacheKey: 'health' },
+  )
   return Value.Parse(Rpc.relay_health.Response, result)
 }
 
@@ -587,13 +622,19 @@ export function parseExecutionError<const calls extends readonly unknown[]>(
       (e) =>
         'data' in (e as BaseError) ||
         Boolean((e as BaseError).details?.match(/(0x[0-9a-f]{8})/)),
-    )
+    ) as
+      | (BaseError & { code?: number; data?: Hex.Hex | Error | undefined })
+      | undefined
     if (!cause) return undefined
 
     let data: Hex.Hex | undefined
     if (cause instanceof BaseError) {
-      const [, match] = cause.details?.match(/(0x[0-9a-f]{8})/) || []
-      if (match) data = match as Hex.Hex
+      if (cause.code === 3 && typeof cause.data === 'string')
+        data = Hex.slice(cause.data, 0, 4)
+      else {
+        const [, match] = cause.details?.match(/(0x[0-9a-f]{8})/) || []
+        if (match) data = match as Hex.Hex
+      }
     }
 
     if (!data) {

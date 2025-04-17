@@ -409,7 +409,12 @@ export default defineConfig({
   vite: {
     plugins: [
       Mkcert({
-        hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
+        hosts: [
+          'localhost',
+          'testnet.localhost',
+          'stg.localhost',
+          'anvil.localhost',
+        ],
       }),
       Icons({ compiler: 'jsx', jsx: 'react' }) as never,
     ],

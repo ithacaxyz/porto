@@ -27,7 +27,10 @@ export const exp2Config = {
 export function getPorto(
   parameters: {
     mode?: (parameters: {
-      feeTokens?: Mode.relay.Parameters['feeTokens'] | undefined
+      feeToken?: Mode.relay.Parameters['feeToken'] | undefined
+      permissionFeeSpendLimit?:
+        | Mode.relay.Parameters['permissionFeeSpendLimit']
+        | undefined
       mock: boolean
     }) => Mode.Mode | undefined
     transports?:
@@ -42,18 +45,14 @@ export function getPorto(
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
-      feeTokens: {
-        [chain.id]: [
-          {
-            address: exp1Address,
-            permissionSpendLimit: {
-              limit: Value.fromEther('100'),
-              period: 'minute',
-            },
-          },
-        ],
-      },
+      feeToken: 'USDT',
       mock: true,
+      permissionFeeSpendLimit: {
+        USDT: {
+          limit: Value.fromEther('100'),
+          period: 'day',
+        },
+      },
     }),
     storage: Storage.memory(),
     transports: {

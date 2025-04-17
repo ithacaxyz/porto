@@ -36,6 +36,8 @@ export namespace relay_health {
   export type Request = Schema.StaticDecode<typeof Request>
 
   export const Response = Type.Object({
+    /** Delegation proxy address. */
+    delegationProxy: Primitive.Address,
     /** Entrypoint address. */
     entrypoint: Primitive.Address,
     /** Quote configuration. */
@@ -358,6 +360,28 @@ export namespace wallet_prepareUpgradeAccount {
 
   /** Response for `wallet_prepareUpgradeAccount`. */
   export const Response = wallet_prepareCalls.Response
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
+export namespace wallet_feeTokens {
+  /** Request for `wallet_feeTokens`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_feeTokens'),
+    params: Schema.Optional(Type.Undefined()),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  /** Response for `wallet_feeTokens`. */
+  export const Response = Type.Record(
+    Primitive.Hex,
+    Type.Array(
+      Type.Object({
+        address: Primitive.Address,
+        coin: Type.String(),
+        decimals: Type.Number(),
+      }),
+    ),
+  )
   export type Response = Schema.StaticDecode<typeof Response>
 }
 

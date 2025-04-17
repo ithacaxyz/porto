@@ -7,7 +7,6 @@ import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Account from './account.js'
-import * as Delegation from './delegation.js'
 import type * as Key from './key.js'
 import * as Permissions from './permissions.js'
 import * as Porto_internal from './porto.js'
@@ -101,7 +100,7 @@ export function from<
         }
 
         case 'eth_chainId': {
-          return Hex.fromNumber(state.chain.id) satisfies Schema.Static<
+          return Hex.fromNumber(state.chainId) satisfies Schema.Static<
             typeof Rpc.eth_chainId.Response
           >
         }
@@ -437,20 +436,17 @@ export function from<
 
           const client = getClient()
 
-          const delegation = client.chain.contracts.delegation
-          if (!delegation) throw new RpcResponse.InternalError()
-
-          const [{ version: current }, { version: latest }] = await Promise.all(
-            [
-              Delegation.getEip712Domain(client, {
-                account: account.address,
-              }),
-              Delegation.getEip712Domain(client, {
-                account: delegation.address,
-              }),
-            ],
+          const { current, latest } = await getMode().actions.getAccountVersion(
+            {
+              address: account.address,
+              internal: {
+                client,
+                config,
+                request,
+                store,
+              },
+            },
           )
-          if (!current || !latest) throw new RpcResponse.InternalError()
 
           return {
             current,
@@ -919,10 +915,10 @@ export function from<
     )
 
     const unsubscribe_chain = store.subscribe(
-      (state) => state.chain,
-      (chain, previousChain) => {
-        if (chain.id === previousChain.id) return
-        emitter.emit('chainChanged', Hex.fromNumber(chain.id))
+      (state) => state.chainId,
+      (chainId, previousChainId) => {
+        if (chainId === previousChainId) return
+        emitter.emit('chainChanged', Hex.fromNumber(chainId))
       },
     )
 

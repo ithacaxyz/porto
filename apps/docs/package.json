@@ -9,7 +9,7 @@
     "preview": "vocs preview"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.15",
+    "@ariakit/react": "catalog:",
     "@porto/apps": "workspace:*",
     "@tanstack/query-sync-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",

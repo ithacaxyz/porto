@@ -11,6 +11,7 @@ import {
   createAccount,
   getAccounts,
   getCallsStatus,
+  getFeeTokens,
   getKeys,
   health,
   prepareCalls,
@@ -26,7 +27,8 @@ const feeToken = exp1Address
 
 describe('health', () => {
   test('default', async () => {
-    const { entrypoint, version, ...result } = await health(client)
+    const { delegationProxy, entrypoint, version, ...result } =
+      await health(client)
     expect(entrypoint).toBeDefined()
     expect(version).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
@@ -298,6 +300,13 @@ describe('getCallsStatus', () => {
     })
 
     expect(result.id).toBeDefined()
+  })
+})
+
+describe('getFeeTokens', () => {
+  test('default', async () => {
+    const result = await getFeeTokens(client)
+    expect(result).toBeDefined()
   })
 })
 

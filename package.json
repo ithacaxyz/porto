@@ -55,7 +55,7 @@
     "vitest": "^3.1.1",
     "wagmi": "catalog:"
   },
-  "packageManager": "pnpm@10.6.5",
+  "packageManager": "pnpm@10.8.1",
   "engines": {
     "node": ">=22.5"
   },

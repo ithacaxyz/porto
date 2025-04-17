@@ -95,6 +95,5 @@ jobs:
         env: 
           VITE_LOCAL: ${{ matrix.local }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
-          VITE_ADMIN_ADDRESS: ${{ secrets.VITE_ADMIN_ADDRESS }}
-          VITE_ADMIN_PRIVATE_KEY: ${{ secrets.VITE_ADMIN_PRIVATE_KEY }}
+          VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
           VITE_GECKO_API: ${{ secrets.VITE_GECKO_API }}

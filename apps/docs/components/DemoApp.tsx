@@ -39,7 +39,10 @@ export function DemoApp() {
   const chainId = useChainId()
 
   const { data: blockNumber } = useBlockNumber({
-    watch: { enabled: status === 'connected', pollingInterval },
+    watch: {
+      enabled: status === 'connected',
+      pollingInterval: pollingInterval + 100,
+    },
   })
   const shared = {
     args: [address!],
@@ -83,6 +86,7 @@ export function DemoApp() {
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } =
     useWaitForCallsStatus({
       id: mint.data?.id,
+      pollingInterval,
     })
 
   if (!isMountedFn()) return null
@@ -324,6 +328,7 @@ export function MintDemo(props: MintDemo.Props) {
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } =
     useWaitForCallsStatus({
       id: mint.data?.id,
+      pollingInterval,
     })
 
   const amount = '100'
@@ -468,6 +473,7 @@ export function SwapDemo(props: SwapDemo.Props) {
   const { isLoading: swapIsLoading, isSuccess: swapIsSuccess } =
     useWaitForCallsStatus({
       id: swap.data?.id,
+      pollingInterval,
     })
 
   const form = Ariakit.useFormStore<Variables>({
@@ -536,6 +542,7 @@ export function SwapDemo(props: SwapDemo.Props) {
   const { isLoading: mintIsLoading, isSuccess: mintIsSuccess } =
     useWaitForCallsStatus({
       id: mint.data?.id,
+      pollingInterval,
     })
   const mintAmount = '100'
   const mintSymbol = 'exp1'
@@ -748,6 +755,7 @@ export function PayDemo(props: PayDemo.Props) {
   const { isLoading: payIsLoading, isSuccess: payIsSuccess } =
     useWaitForCallsStatus({
       id: pay.data?.id,
+      pollingInterval,
     })
 
   const form = Ariakit.useFormStore({

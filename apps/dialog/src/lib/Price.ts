@@ -1,4 +1,4 @@
-import { Hex, Value } from 'ox'
+import { Address, Value } from 'ox'
 import { mainnet } from 'viem/chains'
 import { createConfig, http, useReadContracts } from 'wagmi'
 import { ValueFormatter } from '../utils'
@@ -6,11 +6,11 @@ import { ValueFormatter } from '../utils'
 export type Pair = keyof typeof priceFeedAddress
 
 export type Price = {
+  address: Address.Address
   decimals: number
   display: string
   formatted: string
   symbol: string
-  token: Hex.Hex
   value: bigint
 }
 
@@ -21,24 +21,24 @@ export type Price = {
  * @returns Price.
  */
 export function from(parameters: from.Parameters): Price {
-  const { decimals, symbol, token, value } = parameters
+  const { address, decimals, symbol, value } = parameters
   const formatted = ValueFormatter.format(value, decimals)
   const display = `${formatted} ${symbol}`
   return {
+    address,
     decimals,
     display,
     formatted,
     symbol,
-    token,
     value,
   }
 }
 
 export namespace from {
   export type Parameters = {
+    address: Address.Address
     decimals: number
     symbol: string
-    token: Hex.Hex
     value: bigint
   }
 }
@@ -50,24 +50,24 @@ export namespace from {
  * @returns Price.
  */
 export function fromFiat(parameters: fromFiat.Parameters): Price {
-  const { decimals, symbol, token, value } = parameters
+  const { address, decimals, symbol, value } = parameters
   const formatted = Value.format(value, decimals)
   const display = format(Number(formatted))
   return {
+    address,
     decimals,
     display,
     formatted,
     symbol,
-    token,
     value,
   }
 }
 
 export namespace fromFiat {
   export type Parameters = {
+    address: Address.Address
     decimals: number
     symbol: string
-    token: Hex.Hex
     value: bigint
   }
 }
@@ -118,9 +118,9 @@ export function useFiatPrice<selectData = Price>(
           : value
         return select(
           fromFiat({
+            address: '0x0000000000000000000000000000000000000000',
             decimals: decimals.result,
             symbol: pair.split('/')[1] as string,
-            token: '0x0000000000000000000000000000000000000000',
             value: value_,
           }),
         )

@@ -61,7 +61,7 @@ export function iframe() {
       const iframe = document.createElement('iframe')
       iframe.setAttribute(
         'allow',
-        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`,
+        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}; clipboard-write`,
       )
       iframe.setAttribute('aria-closed', 'true')
       iframe.setAttribute('aria-label', 'Porto Wallet')
@@ -143,13 +143,13 @@ export function iframe() {
       let methodPolicies: Messenger.ReadyOptions['methodPolicies'] | undefined
 
       messenger.on('ready', (options) => {
-        const { chain } = options
+        const { chainId } = options
 
         if (!methodPolicies) methodPolicies = options?.methodPolicies
 
         store.setState((x) => ({
           ...x,
-          chain,
+          chainId,
         }))
 
         messenger.send('__internal', {
@@ -180,8 +180,8 @@ export function iframe() {
 
       const bodyStyle = Object.assign({}, document.body.style)
 
-      // 1password extension adds `inert` attribute to `dialog` and inserts itself there rendering itself unusable
-      // watch from `inert` and remove it
+      // 1password extension adds `inert` attribute to `dialog` and inserts itself (`<com-1password-notification />`) there
+      // rendering itself unusable: watch for `inert` on `dialog` and remove it
       const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           if (mutation.type !== 'attributes') continue
@@ -204,6 +204,16 @@ export function iframe() {
           iframe.style.display = 'none'
           iframe.setAttribute('hidden', 'true')
           iframe.setAttribute('aria-closed', 'true')
+
+          // 1password extension sometimes adds `inert` attribute to `dialog` siblings and does not clean up
+          // remove when `dialog` closes (after `<com-1password-notification />` closes)
+          for (const sibling of root.parentNode
+            ? Array.from(root.parentNode.children)
+            : []) {
+            if (sibling === root) continue
+            if (!sibling.hasAttribute('inert')) continue
+            sibling.removeAttribute('inert')
+          }
         },
         destroy() {
           fallback?.destroy()

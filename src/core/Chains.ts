@@ -3,6 +3,7 @@ import * as chains from 'viem/chains'
 
 export type Chain = Chain_viem & {
   contracts: Chain_viem['contracts'] & {
+    accountRegistry?: ChainContract | undefined
     delegation?: ChainContract | undefined
     entryPoint?: ChainContract | undefined
   }
@@ -11,6 +12,22 @@ export type Chain = Chain_viem & {
 export function define<const chain extends Chain>(chain: chain): chain {
   return chain
 }
+
+export const baseSepolia = /*#__PURE__*/ define({
+  ...chains.baseSepolia,
+  contracts: {
+    ...chains.baseSepolia.contracts,
+    accountRegistry: {
+      address: '0xf742e7cfc857611be27859bf910bc1ea59f52b24',
+    },
+    delegation: {
+      address: '0x79d7f2ab558ac7a4601f65d02f0fc695a644698a',
+    },
+    entryPoint: {
+      address: '0xf2595965b86e647d9b666087d785d54094b0a0c1',
+    },
+  },
+})
 
 export const odysseyDevnet = /*#__PURE__*/ define({
   blockExplorers: {
@@ -21,11 +38,14 @@ export const odysseyDevnet = /*#__PURE__*/ define({
     },
   },
   contracts: {
+    accountRegistry: {
+      address: '0x5fd869cae748223bf81c9e00de60b7713f6a218f',
+    },
     delegation: {
-      address: '0xe09d7f4fbd33c6fc734e07d69e40d23f995b43c9',
+      address: '0x616dfc0fabbf4b377a7ef5d39f680ee0f6376f8d',
     },
     entryPoint: {
-      address: '0xcceed8216fe5b0a8438f5c4c8ce959e0823dec8d',
+      address: '0xff975ecd6f690fdc091553606ecacdb5c503a54f',
     },
   },
   id: 28_403,
@@ -41,6 +61,9 @@ export const odysseyTestnet = /*#__PURE__*/ define({
   ...chains.odysseyTestnet,
   contracts: {
     ...chains.odysseyTestnet.contracts,
+    accountRegistry: {
+      address: '0x5fd869cae748223bf81c9e00de60b7713f6a218f',
+    },
     delegation: {
       address: '0x6faf9eb2742350c772a5c811e1b0e2f330650a25',
     },

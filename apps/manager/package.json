@@ -12,8 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.15",
-    "@ariakit/tailwind": "^0.1.4",
+    "@ariakit/react": "catalog:",
+    "@ariakit/tailwind": "catalog:",
     "@porto/apps": "workspace:*",
     "@sentry/react": "catalog:",
     "@sentry/vite-plugin": "catalog:",

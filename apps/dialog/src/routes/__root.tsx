@@ -1,3 +1,4 @@
+import { UserAgent } from '@porto/apps'
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -51,7 +52,14 @@ function RouteComponent() {
           if (height === lastHeight) return
 
           const titlebarHeight = titlebarRef.current?.clientHeight ?? 0
-          const modeHeight = mode === 'popup' ? 30 : 2
+          const modeHeight =
+            mode === 'popup'
+              ? UserAgent.isSafari()
+                ? 28 // safari: 27px title bar, 1px in borders
+                : UserAgent.isFirefox()
+                  ? 63 // firefox: 27px title bar, 34px address bar, 2px in borders
+                  : 63 // chrome: 27px title bar, 34px address bar, 2px in borders
+              : 2
           const totalHeight = height + titlebarHeight + modeHeight
 
           lastHeight = height
@@ -84,14 +92,15 @@ function RouteComponent() {
     <>
       <HeadContent />
 
-      <div data-dialog>
+      <div
+        data-dialog
+        {...{ [dataMode]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
+      >
         <header
           data-element="dialog-header"
           ref={titlebarRef}
-          {...{
-            [dataMode]: '',
-          }}
-          className="fixed flex h-navbar w-full items-center justify-between border border-primary bg-secondary px-3 pt-2 pb-1.5"
+          {...{ [dataMode]: '' }}
+          className="fixed flex h-navbar w-full items-center justify-between in-data-iframe:rounded-t-[14px] border border-primary bg-secondary px-3 pt-2 pb-1.5"
         >
           <div className="flex items-center gap-2">
             <div className="flex size-5 items-center justify-center rounded-[5px] bg-gray6">
@@ -127,9 +136,8 @@ function RouteComponent() {
         </header>
 
         <div
+          className="flex not-in-data-popup-standalone:h-fit in-data-popup-standalone:min-h-dvh flex-col overflow-hidden in-data-iframe:rounded-[14px]! in-data-iframe:border border-primary bg-primary pt-titlebar in-data-iframe:max-sm:rounded-b-none"
           ref={contentRef}
-          {...{ [dataMode]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
-          className="flex not-data-popup-standalone:h-fit flex-col overflow-hidden border-primary bg-primary pt-titlebar data-popup-standalone:min-h-dvh data-iframe:rounded-[14px] data-iframe:border data-iframe:max-sm:rounded-b-none"
         >
           <div
             className="flex flex-grow *:w-full"

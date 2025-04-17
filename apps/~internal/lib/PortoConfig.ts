@@ -1,39 +1,14 @@
-import { Value } from 'ox'
 import { Chains, Mode } from 'porto'
 import { Porto } from 'porto/remote'
 import { http, ValueOf } from 'viem'
 
-import { exp1Address } from '../_generated/contracts'
 import * as Env from './Env'
 import * as Sentry from './Sentry'
-
-export const feeTokens = {
-  [Chains.odysseyTestnet.id]: [
-    {
-      address: exp1Address[Chains.odysseyTestnet.id],
-      permissionSpendLimit: {
-        limit: Value.fromEther('0.01'),
-        period: 'minute',
-      },
-    },
-  ],
-  [Chains.odysseyDevnet.id]: [
-    {
-      address: exp1Address[Chains.odysseyDevnet.id],
-      permissionSpendLimit: {
-        limit: Value.fromEther('0.01'),
-        period: 'minute',
-      },
-    },
-  ],
-} as const satisfies Mode.relay.Parameters['feeTokens']
 
 const config = {
   anvil: {
     chains: [Chains.odysseyTestnet],
-    mode: Mode.relay({
-      feeTokens,
-    }),
+    mode: Mode.relay(),
     transports: {
       [Chains.odysseyTestnet.id]: {
         default: http('http://127.0.0.1:8545'),
@@ -53,14 +28,25 @@ const config = {
   },
   stg: {
     chains: [Chains.odysseyDevnet],
-    mode: Mode.relay({
-      feeTokens,
-    }),
+    mode: Mode.relay(),
     transports: {
       [Chains.odysseyDevnet.id]: {
         default: http(),
         relay: http(
           'https://relay-staging.ithaca.xyz',
+          Sentry.httpTransportOptions(),
+        ),
+      },
+    },
+  },
+  testnet: {
+    chains: [Chains.baseSepolia],
+    mode: Mode.relay(),
+    transports: {
+      [Chains.baseSepolia.id]: {
+        default: http(),
+        relay: http(
+          'https://relay-testnet.ithaca.xyz',
           Sentry.httpTransportOptions(),
         ),
       },
@@ -78,6 +64,9 @@ const dialogHosts = {
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
     : 'https://stg.localhost:5174/dialog/',
+  testnet: import.meta.env.PROD
+    ? 'https://testnet.id.porto.sh/dialog/'
+    : 'https://testnet.localhost:5174/dialog/',
 } as const satisfies Record<Env.Env, string | undefined>
 
 export function getConfig(
@@ -100,7 +89,7 @@ export function getDialogHost(env = Env.get()): string {
       '/dialog/?env=' +
       env
     )
-  return dialogHosts[env] as string
+  return dialogHosts[env] + '?env=' + env
 }
 
 export type Chain = ValueOf<typeof config>['chains'][number]

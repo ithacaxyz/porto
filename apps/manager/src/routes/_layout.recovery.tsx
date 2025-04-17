@@ -1,5 +1,6 @@
 import 'viem/window'
 import * as Ariakit from '@ariakit/react'
+import { UserAgent } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { cx } from 'cva'
@@ -10,7 +11,6 @@ import { Connector, useConnectors } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { porto } from '~/lib/Porto'
 import { mipdConfig } from '~/lib/Wagmi'
-import { isMobile } from '~/utils'
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
@@ -121,7 +121,7 @@ function RouteComponent() {
     }
   }
 
-  if (isMobile())
+  if (UserAgent.isMobile())
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-y-4 px-3">
         <p className="rounded-lg border border-gray5/50 bg-surface px-2.5 py-1 text-center font-medium text-lg">

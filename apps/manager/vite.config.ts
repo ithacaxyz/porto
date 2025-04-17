@@ -17,7 +17,12 @@ export default defineConfig({
   },
   plugins: [
     Mkcert({
-      hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
+      hosts: [
+        'localhost',
+        'testnet.localhost',
+        'stg.localhost',
+        'anvil.localhost',
+      ],
     }),
     Tailwindcss(),
     React(),
@@ -39,6 +44,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/dialog/, ''),
         secure: false,
         target: 'https://localhost:5175/dialog/',
+        ws: true,
       },
     },
   },

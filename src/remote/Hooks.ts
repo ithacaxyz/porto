@@ -61,9 +61,8 @@ export function useChain<
   porto: Pick<Remote.Porto<chains>, '_internal'>,
   parameters: useChain.Parameters = {},
 ) {
-  const { chainId } = parameters
-  return usePortoStore(porto, (x) => {
-    if (!chainId) return x.chain
+  return usePortoStore(porto, (state) => {
+    const chainId = parameters.chainId ?? state.chainId
     return porto._internal.config.chains.find((x) => x.id === chainId) as
       | chains[number]
       | undefined

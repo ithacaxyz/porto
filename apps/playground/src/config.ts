@@ -29,9 +29,7 @@ export const modes = {
     host,
     renderer: Dialog.popup(),
   }),
-  relay: Mode.relay({
-    feeTokens: PortoConfig.feeTokens,
-  }),
+  relay: Mode.relay(),
 }
 export type ModeType = keyof typeof modes
 

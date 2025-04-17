@@ -4,7 +4,7 @@ import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import type { ChainContract, Client } from 'viem'
+import type { Client } from 'viem'
 
 import type { Chain } from '../Chains.js'
 import * as Account from './account.js'
@@ -12,6 +12,8 @@ import * as Key from './key.js'
 import type * as Capabilities from './relay/typebox/capabilities.js'
 import type { MaybePromise, OneOf, RequiredBy } from './types.js'
 import * as Actions from './viem/relay.js'
+
+export { getFeeTokens, health } from './viem/relay.js'
 
 /**
  * Creates a new Porto Account via the Relay.
@@ -355,19 +357,13 @@ export async function prepareCreateAccount(
   client: Client,
   parameters: prepareCreateAccount.Parameters,
 ) {
-  const {
-    chain = client.chain,
-    delegation = (chain?.contracts?.delegation as ChainContract | undefined)
-      ?.address,
-    keys,
-  } = parameters
+  const { chain = client.chain, keys } = parameters
 
-  if (!delegation) throw new Error('`delegation` is required')
+  const health = await Actions.health(client)
 
+  const delegation = parameters.delegation ?? health.delegationProxy
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey
-    ? (await Actions.health(client)).entrypoint
-    : undefined
+  const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
   const authorizeKeys = keys.map((key) =>
     Key.toRelay(key, {
@@ -433,15 +429,9 @@ export async function prepareUpgradeAccount(
   client: Client,
   parameters: prepareUpgradeAccount.Parameters,
 ) {
-  const {
-    address,
-    delegation = (
-      client.chain?.contracts?.delegation as ChainContract | undefined
-    )?.address,
-    feeToken,
-  } = parameters
+  const { address, feeToken } = parameters
 
-  if (!delegation) throw new Error('`delegation` is required')
+  const health = await Actions.health(client)
 
   // Create root id signer
   const idSigner_root = createIdSigner()
@@ -451,10 +441,9 @@ export async function prepareUpgradeAccount(
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
 
+  const delegation = parameters.delegation ?? health.delegationProxy
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey
-    ? (await Actions.health(client)).entrypoint
-    : undefined
+  const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
   const keys_relay = keys.map((key) =>
     Key.toRelay(key, {

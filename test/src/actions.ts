@@ -1,7 +1,11 @@
 import { type Address, Secp256k1 } from 'ox'
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { setBalance as setBalance_viem, writeContract } from 'viem/actions'
+import {
+  setBalance as setBalance_viem,
+  waitForTransactionReceipt,
+  writeContract,
+} from 'viem/actions'
 import { waitForCallsStatus } from 'viem/experimental'
 
 import * as Account from '../../src/core/internal/account.js'
@@ -123,27 +127,17 @@ export async function setBalance(
       functionName: 'mint',
     })
   } else {
-    const key = Key.fromHeadlessWebAuthnP256({
-      privateKey: process.env.VITE_ADMIN_PRIVATE_KEY! as `0x${string}`,
+    const hash = await writeContract(client, {
+      abi: exp1Abi,
+      account: privateKeyToAccount(
+        process.env.VITE_FAUCET_PRIVATE_KEY as `0x${string}`,
+      ),
+      address: exp1Address,
+      args: [address, value],
+      functionName: 'mint',
     })
-    const account = Account.from({
-      address: process.env.VITE_ADMIN_ADDRESS! as `0x${string}`,
-      keys: [key],
-    })
-    const { id } = await Relay.sendCalls(client, {
-      account,
-      calls: [
-        {
-          abi: exp1Abi,
-          args: [address, value],
-          functionName: 'mint',
-          to: exp1Address,
-        },
-      ],
-      feeToken: exp1Address,
-    })
-    await waitForCallsStatus(client, {
-      id,
+    await waitForTransactionReceipt(client, {
+      hash,
     })
   }
 }

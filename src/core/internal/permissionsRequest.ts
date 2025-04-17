@@ -1,4 +1,4 @@
-import type * as Address from 'ox/Address'
+import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 
 import * as Key from './key.js'
@@ -49,7 +49,11 @@ export async function toKey(
   // TODO: remove once spend permissions on fees are supported. this is a workaround
   //       and it definitely not prod ready.
   const spendPermissions_tmp = request.permissions?.spend?.map((permission) => {
-    if (feeSpendPermission && permission.token === feeSpendPermission?.token) {
+    if (
+      feeSpendPermission?.token &&
+      permission.token &&
+      Address.isEqual(permission.token, feeSpendPermission.token)
+    ) {
       return {
         ...permission,
         limit: permission.limit + feeSpendPermission.limit,

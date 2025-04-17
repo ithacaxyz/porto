@@ -31,7 +31,7 @@ export function SignUp(props: SignUp.Props) {
         />
       </Layout.Header>
 
-      <Permissions {...permissions} />
+      <Permissions title="Permissions requested" {...permissions} />
 
       <Layout.Footer>
         <Layout.Footer.Actions>
@@ -59,7 +59,7 @@ export function SignUp(props: SignUp.Props) {
         </Layout.Footer.Actions>
 
         <button
-          className="flex w-full cursor-pointer items-center justify-between border-primary border-t px-3 pt-3"
+          className="flex w-full cursor-pointer items-center justify-between border-primary border-t p-3 pb-0"
           onClick={() => setShowLearn(true)}
           type="button"
         >

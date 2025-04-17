@@ -193,6 +193,18 @@ export function dialog(parameters: dialog.Parameters = {}) {
         }
       },
 
+      async getAccountVersion(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'experimental_getAccountVersion')
+          throw new Error('Cannot get version for method: ' + request.method)
+
+        const provider = getProvider(store)
+        const result = await provider.request(request)
+        return result
+      },
+
       async getCallsStatus(parameters) {
         const { internal } = parameters
         const { store, request } = internal
