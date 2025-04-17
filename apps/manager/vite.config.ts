@@ -7,6 +7,7 @@ import { defineConfig } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
 import TsconfigPaths from 'vite-tsconfig-paths'
 import { getRandomPort } from './scripts/random-port'
+
 /**
  * To automatically use a random port
  * set the USE_RANDOM_PORT environment variable to true
