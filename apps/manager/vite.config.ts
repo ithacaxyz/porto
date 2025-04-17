@@ -6,6 +6,20 @@ import Icons from 'unplugin-icons/vite'
 import { defineConfig } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
 import TsconfigPaths from 'vite-tsconfig-paths'
+import { getRandomPort } from './scripts/random-port'
+/**
+ * To automatically use a random port
+ * set the USE_RANDOM_PORT environment variable to true
+ *
+ * reason for random port: skip cache and state from previous runs
+ */
+const DEVELOPMENT_PORT = (() => {
+  console.info('USE_RANDOM_PORT', process.env.USE_RANDOM_PORT)
+  if (process.env.USE_RANDOM_PORT !== 'true') return 5174
+
+  const randomPort = getRandomPort()
+  return randomPort || 5174
+})()
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -38,6 +52,7 @@ export default defineConfig({
     TanStackRouterVite(),
   ],
   server: {
+    port: DEVELOPMENT_PORT,
     proxy: {
       '/dialog/': {
         changeOrigin: true,
