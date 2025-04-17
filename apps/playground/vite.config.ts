@@ -1,9 +1,9 @@
+import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
-import { createLogger, defineConfig } from 'vite'
+import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-
 import * as Chains from '../../src/core/Chains.js'
 import * as Anvil from '../../test/src/anvil.js'
 import { relay } from '../../test/src/prool.js'
@@ -13,7 +13,7 @@ const logger = createLogger('info', {
 })
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     mkcert({
       hosts: ['localhost', 'stg.localhost', 'anvil.localhost'],
@@ -23,6 +23,8 @@ export default defineConfig({
     {
       async configureServer() {
         if (process.env.ANVIL !== 'true') return
+
+        process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
         const { exp1Address } = await import('@porto/apps/contracts')
 
@@ -44,21 +46,28 @@ export default defineConfig({
           // @ts-ignore
           odyssey: true,
           port: anvilConfig.port,
+          state: resolve(import.meta.dirname, 'anvil.json'),
         }).start()
+
+        logger.info('Anvil started on' + anvilConfig.rpcUrl)
+
+        const delegationAddressOld =
+          '0x0000000000000000000000000000000000042069'
 
         await Anvil.loadState({
           accountRegistryAddress: chain.contracts.accountRegistry.address,
           delegationAddress: chain.contracts.delegation.address,
+          delegationAddressOld: delegationAddressOld,
           entryPointAddress: chain.contracts.entryPoint.address,
           rpcUrl: anvilConfig.rpcUrl,
         })
 
-        logger.info('Anvil started on' + anvilConfig.rpcUrl)
         logger.info('Starting Relay...')
 
         await relay({
           accountRegistry: chain.contracts.accountRegistry.address,
           delegationProxy: chain.contracts.delegation.address,
+          // delegationProxy: delegationAddressOld,
           endpoint: anvilConfig.rpcUrl,
           entrypoint: chain.contracts.entryPoint.address,
           feeTokens: [
@@ -77,4 +86,4 @@ export default defineConfig({
       name: 'anvil',
     },
   ],
-})
+}))

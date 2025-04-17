@@ -31,6 +31,12 @@ export const defaultConfig = {
       requireConnection: false,
     },
     {
+      method: 'experimental_getAccountVersion',
+      modes: {
+        headless: true,
+      },
+    },
+    {
       method: 'experimental_grantAdmin',
       modes: {
         dialog: {
