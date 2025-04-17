@@ -11,30 +11,40 @@ const account = privateKeyToAccount(DRIP_PRIVATE_KEY)
 
 if (!account?.address) throw new Error('Invalid DRIP_PRIVATE_KEY')
 
-const headers = new Headers({
-  'Access-Control-Allow-Origin': '*',
-  'X-Faucet-Address': account.address,
-  'X-Faucet-ChainId': Chains.odysseyDevnet.id.toString(),
-  'X-Faucet-RpcUrl': Chains.odysseyDevnet.rpcUrls.default.http[0],
-})
+const chains = {
+  [Chains.baseSepolia.id]: Chains.baseSepolia,
+  [Chains.odysseyDevnet.id]: Chains.odysseyDevnet,
+} as const
+
+const headers = (chainId?: keyof typeof chains) =>
+  new Headers({
+    'Access-Control-Allow-Origin': '*',
+    'X-Faucet-Address': account.address,
+    ...(chainId ? { 'X-Faucet-ChainId': chainId.toString() } : {}),
+    ...(chainId
+      ? { 'X-Faucet-RpcUrl': chains[chainId].rpcUrls.default.http[0] }
+      : {}),
+  })
 
 export default {
   async fetch(request, env) {
     try {
       const url = new URL(request.url)
       const address = url.searchParams.get('address')
-      const chainId = Number(url.searchParams.get('chainId'))
+      const chainId = Number(url.searchParams.get('chainId')) as
+        | keyof typeof chains
+        | undefined
       const value = BigInt(url.searchParams.get('value') ?? 25)
 
       if (!address || !isAddress(address))
         return Response.json(
           { error: 'Valid EVM address required' },
-          { headers, status: 400 },
+          { headers: headers(chainId), status: 400 },
         )
       if (!chainId || !exp1Address[chainId as keyof typeof exp1Address])
         return Response.json(
           { error: 'Valid chainId required' },
-          { headers, status: 400 },
+          { headers: headers(), status: 400 },
         )
 
       const { success } = await env.RATE_LIMITER.limit({
@@ -46,13 +56,13 @@ export default {
       if (!success) {
         return Response.json(
           { error: 'Rate limit exceeded' },
-          { headers, status: 429 },
+          { headers: headers(chainId), status: 429 },
         )
       }
 
       const client = createWalletClient({
         account,
-        chain: Chains.odysseyDevnet,
+        chain: chains[chainId],
         transport: http(),
       }).extend(publicActions)
 
@@ -71,19 +81,19 @@ export default {
       if (receipt.status === 'success') {
         return Response.json(
           { id: receipt.transactionHash },
-          { headers, status: 200 },
+          { headers: headers(chainId), status: 200 },
         )
       }
 
       return Response.json(
         { error: receipt.status, id: receipt.transactionHash },
-        { headers, status: 500 },
+        { headers: headers(chainId), status: 500 },
       )
     } catch (error) {
       console.error(error)
       return Response.json(
         { error: error instanceof Error ? error.message : 'Unknown error' },
-        { headers, status: 500 },
+        { headers: headers(), status: 500 },
       )
     }
   },
