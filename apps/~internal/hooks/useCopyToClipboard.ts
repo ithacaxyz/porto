@@ -1,7 +1,7 @@
 import * as React from 'react'
 
-export function useCopyToClipboard(props: useCopyToClipboard.Props) {
-  const { timeout = 1_500 } = props
+export function useCopyToClipboard(props?: useCopyToClipboard.Props) {
+  const { timeout = 1_500 } = props ?? {}
 
   const [isCopied, setIsCopied] = React.useState(false)
 

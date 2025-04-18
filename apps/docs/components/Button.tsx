@@ -61,8 +61,7 @@ export namespace Button {
           destructive:
             'text-destructive bg-destructive hover:not-active:bg-destructiveHover',
           ghost: 'text-primary bg-transparent hover:not-active:bg-surfaceHover',
-          invert:
-            'text-invert bg-invert hover:not-active:bg-invertHover text-invert',
+          invert: 'text-invert bg-invert hover:not-active:bg-invertHover',
         },
       },
     },
