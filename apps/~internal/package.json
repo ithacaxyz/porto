@@ -22,7 +22,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "tailwindcss": "catalog:",
-    "tailwindcss-animate": "^1.0.7",
+    "tw-animate-css": "catalog:",
     "wagmi": "catalog:"
   },
   "devDependencies": {
