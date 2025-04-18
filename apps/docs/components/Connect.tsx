@@ -1,8 +1,7 @@
+import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Hooks } from 'porto/wagmi'
-import * as React from 'react'
 import { useAccount, useConnectors } from 'wagmi'
 import LucideCheck from '~icons/lucide/check'
-
 import { Button } from './Button'
 
 export function Connect(props: Connect.Props) {
@@ -18,19 +17,14 @@ export function Connect(props: Connect.Props) {
 
   const size = variant === 'topnav' ? 'small' : 'default'
 
-  const [copied, setCopied] = React.useState(false)
-  const copyToClipboard = React.useCallback(() => {
-    if (copied) return
-    if (!account.address) return
-    navigator.clipboard.writeText(account.address)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2_000)
-  }, [account.address, copied])
+  const [copied, copyToClipboard] = useCopyToClipboard({
+    timeout: 2_000,
+  })
 
   if (account.address)
     return (
       <div className="flex items-center gap-2">
-        <Button onClick={() => copyToClipboard()} size={size}>
+        <Button onClick={() => copyToClipboard(account.address!)} size={size}>
           {copied && (
             <div className="absolute inset-0 flex items-center justify-center gap-1.5">
               <LucideCheck />

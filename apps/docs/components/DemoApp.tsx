@@ -1803,8 +1803,7 @@ namespace Button {
             'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
           destructive:
             'text-destructive bg-destructive hover:not-active:bg-destructiveHover',
-          invert:
-            'text-invert bg-invert hover:not-active:bg-invertHover text-invert',
+          invert: 'text-invert bg-invert hover:not-active:bg-invertHover',
           success: 'text-white bg-success hover:not-active:bg-successHover',
           warning: 'text-white bg-warning hover:not-active:bg-warningHover',
         },
@@ -2047,7 +2046,7 @@ function Exp1Token() {
     <svg
       aria-hidden="true"
       fill="none"
-      height="auto"
+      height="100%"
       viewBox="0 0 22 22"
       width="100%"
       xmlns="http://www.w3.org/2000/svg"
