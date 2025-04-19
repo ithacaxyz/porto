@@ -18,6 +18,7 @@ catalog:
   "@tanstack/router-plugin": "^1.114.17"
   "@tanstack/react-query-devtools": "^5.74.3"
   "@tanstack/react-router-devtools": "^1.114.25"
+  "@types/node": "^22.14.1"
   "@types/react": "^19"
   "@types/react-dom": "^19"
   "@wagmi/core": "^2.16.7"

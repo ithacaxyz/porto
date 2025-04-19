@@ -701,7 +701,7 @@ function AssetRow({
                   <br />
                   <a
                     className="text-gray12 underline"
-                    href={`https://explorer.ithaca.xyz/tx/${data}`}
+                    href={`https://explorer.ithaca.xyz/tx/${data.id}`}
                     rel="noreferrer"
                     target="_blank"
                   >
