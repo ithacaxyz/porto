@@ -38,7 +38,7 @@ export function NotFound() {
       </Layout.Content>
 
       <Layout.Footer>
-        <div className="flex gap-2 px-3">
+        <Layout.Footer.Actions>
           <Button
             className="flex-grow"
             onClick={() => Actions.reject(porto, request!)}
@@ -55,7 +55,7 @@ export function NotFound() {
           >
             Respond
           </Button>
-        </div>
+        </Layout.Footer.Actions>
       </Layout.Footer>
     </Layout>
   )

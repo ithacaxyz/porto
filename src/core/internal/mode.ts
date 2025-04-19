@@ -209,6 +209,13 @@ export type Mode = {
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
 
+    updateAccount: (parameters: {
+      /** Account to update. */
+      account: Account.Account
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<{ id?: Hex.Hex | undefined }>
+
     upgradeAccount: (parameters: {
       /** Account to upgrade. */
       account: Account.Account
