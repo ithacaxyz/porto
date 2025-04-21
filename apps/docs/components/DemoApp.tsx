@@ -27,7 +27,7 @@ import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 
 type Provider = Porto.Porto['provider']
 const pollingInterval = 800
-const successTimeout = 4_000 // time to wait until reseting success state back to default
+const successTimeout = 4_000 // time to wait until resetting success state back to default
 
 export function DemoApp() {
   const isMountedFn = useIsMounted()
