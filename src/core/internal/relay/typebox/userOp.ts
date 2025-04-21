@@ -50,7 +50,7 @@ export const UserOp = Type.Object({
    *      `-------------------------------------'
    *
    * If the upper 16 bits of the sequence key is `0xc1d0`, then the EIP-712 has
-   * of the UserOp will exlude the chain ID.
+   * of the UserOp will exclude the chain ID.
    *
    * # Ordering
    *
