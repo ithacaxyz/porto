@@ -593,23 +593,23 @@ async function resolveFeeToken(
   )
   const feeToken = feeTokens?.find((feeToken) => {
     if (address) return feeToken.address === address
-    if (defaultFeeToken) return defaultFeeToken === feeToken.coin
-    return feeToken.coin === 'ETH'
+    if (defaultFeeToken) return defaultFeeToken === feeToken.symbol
+    return feeToken.symbol === 'ETH'
   })
 
-  const permissionSpendLimit = feeToken?.coin
-    ? permissionFeeSpendLimit?.[feeToken.coin]
+  const permissionSpendLimit = feeToken?.symbol
+    ? permissionFeeSpendLimit?.[feeToken.symbol]
     : undefined
 
   if (!feeToken)
     throw new Error(
-      `fee token ${address ?? defaultFeeToken} not found. Available: ${feeTokens?.map((x) => `${x.coin} (${x.address})`).join(', ')}`,
+      `fee token ${address ?? defaultFeeToken} not found. Available: ${feeTokens?.map((x) => `${x.symbol} (${x.address})`).join(', ')}`,
     )
   return {
     address: feeToken.address,
     decimals: feeToken.decimals,
     permissionSpendLimit,
-    symbol: feeToken.coin,
+    symbol: feeToken.symbol,
   }
 }
 

@@ -31,19 +31,19 @@ export function useFetch(parameters: useFetch.Parameters) {
 
       const feeToken = feeTokens?.find((feeToken) => {
         if (address) return Address.isEqual(feeToken.address, address)
-        if (symbol) return symbol === feeToken.coin
-        if (activeFeeToken) return activeFeeToken === feeToken.coin
-        return feeToken.coin === 'ETH'
+        if (symbol) return symbol === feeToken.symbol
+        if (activeFeeToken) return activeFeeToken === feeToken.symbol
+        return feeToken.symbol === 'ETH'
       })
 
       if (!feeToken)
         throw new Error(
-          `fee token ${address ?? symbol} not found. Available: ${feeTokens?.map((x) => `${x.coin} (${x.address})`).join(', ')}`,
+          `fee token ${address ?? symbol} not found. Available: ${feeTokens?.map((x) => `${x.symbol} (${x.address})`).join(', ')}`,
         )
       return {
         address: feeToken.address,
         decimals: feeToken.decimals,
-        symbol: feeToken.coin,
+        symbol: feeToken.symbol,
       }
     },
     queryKey: [

@@ -377,8 +377,8 @@ export namespace wallet_feeTokens {
     Type.Array(
       Type.Object({
         address: Primitive.Address,
-        coin: Type.String(),
         decimals: Type.Number(),
+        symbol: Type.String(),
       }),
     ),
   )
