@@ -1,0 +1,62 @@
+import { useQuery } from '@tanstack/react-query'
+import { Address, Json } from 'ox'
+import { Account, Relay } from 'porto/internal'
+import { Hooks } from 'porto/remote'
+
+import * as FeeToken from './FeeToken'
+import { porto } from './Porto'
+
+export function usePrepareCalls<const calls extends readonly unknown[]>(
+  props: usePrepareCalls.Props<calls>,
+) {
+  const { authorizeKeys, address, calls, chainId, revokeKeys } = props
+
+  const account = Hooks.useAccount(porto, { address })
+  const client = Hooks.useClient(porto, { chainId })
+  const feeToken = FeeToken.useFetch({
+    address: props.feeToken,
+    chainId,
+  })
+
+  return useQuery({
+    enabled: !!account,
+    async queryFn() {
+      if (!account) throw new Error('account is required.')
+
+      const key = Account.getKey(account, { role: 'admin' })
+      if (!key) throw new Error('no admin key found.')
+
+      return await Relay.prepareCalls(client, {
+        account,
+        authorizeKeys,
+        calls,
+        feeToken: feeToken.data?.address,
+        key,
+        revokeKeys,
+      })
+    },
+    queryKey: [
+      'prepareCalls',
+      account?.address,
+      Json.stringify({
+        authorizeKeys,
+        calls,
+        revokeKeys,
+      }),
+      client.uid,
+      feeToken.data?.address,
+    ],
+  })
+}
+
+export declare namespace usePrepareCalls {
+  export type Props<calls extends readonly unknown[] = readonly unknown[]> =
+    Pick<
+      Relay.prepareCalls.Parameters<calls>,
+      'authorizeKeys' | 'calls' | 'revokeKeys'
+    > & {
+      address?: Address.Address | undefined
+      chainId?: number | undefined
+      feeToken?: Address.Address | undefined
+    }
+}

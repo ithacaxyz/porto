@@ -7,6 +7,7 @@ import { Hooks } from 'porto/remote'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
+import * as Relay from '~/lib/Relay'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import TriangleAlert from '~icons/lucide/triangle-alert'
@@ -19,7 +20,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const account = Hooks.useAccount(porto)
   const origin = Dialog.useStore((state) => state.referrer?.origin)
 
-  const prepareCallsQuery = ActionRequest.usePrepareCalls({
+  const prepareCallsQuery = Relay.usePrepareCalls({
     authorizeKeys: [Key.from(authorizeKey)],
     feeToken,
   })

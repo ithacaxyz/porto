@@ -1,12 +1,10 @@
 import { PortoConfig } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
-import { useQuery } from '@tanstack/react-query'
 import { cx } from 'cva'
-import { Address, Json } from 'ox'
+import { Address } from 'ox'
 import { Chains } from 'porto'
 import * as Quote_relay from 'porto/core/internal/relay/typebox/quote'
 import * as Rpc from 'porto/core/internal/typebox/request'
-import { Account, Relay } from 'porto/internal'
 import { Hooks, Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
 import { Call } from 'viem'
@@ -16,6 +14,7 @@ import * as Dialog from '~/lib/Dialog'
 import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
+import * as Relay from '~/lib/Relay'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -30,7 +29,7 @@ export function ActionRequest(props: ActionRequest.Props) {
   const account = Hooks.useAccount(porto, { address })
   const origin = Dialog.useStore((state) => state.referrer?.origin)
 
-  const prepareCallsQuery = ActionRequest.usePrepareCalls({
+  const prepareCallsQuery = Relay.usePrepareCalls({
     address,
     calls,
     chainId,
@@ -301,55 +300,6 @@ export namespace ActionRequest {
       chain?: Chains.Chain | undefined
       quote: Quote_relay.Quote
     }
-  }
-
-  export function usePrepareCalls<const calls extends readonly unknown[]>(
-    props: usePrepareCalls.Props<calls>,
-  ) {
-    const { address, chainId, calls } = props
-
-    const account = Hooks.useAccount(porto, { address })
-    const client = Hooks.useClient(porto, { chainId })
-    const feeToken = FeeToken.useFetch({
-      address: props.feeToken,
-      chainId,
-    })
-
-    return useQuery({
-      enabled: !!account,
-      async queryFn() {
-        if (!account) throw new Error('account is required.')
-
-        const key = Account.getKey(account, { role: 'admin' })
-        if (!key) throw new Error('no admin key found.')
-
-        return await Relay.prepareCalls(client, {
-          account,
-          calls,
-          feeToken: feeToken.data?.address,
-          key,
-        })
-      },
-      queryKey: [
-        'prepareCalls',
-        account?.address,
-        Json.stringify(calls),
-        client.uid,
-        feeToken.data?.address,
-      ],
-    })
-  }
-
-  export declare namespace usePrepareCalls {
-    export type Props<calls extends readonly unknown[] = readonly unknown[]> =
-      Pick<
-        Relay.prepareCalls.Parameters<calls>,
-        'authorizeKeys' | 'calls' | 'revokeKeys'
-      > & {
-        address?: Address.Address | undefined
-        chainId?: number | undefined
-        feeToken?: Address.Address | undefined
-      }
   }
 
   export type Quote = {
