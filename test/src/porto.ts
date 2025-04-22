@@ -45,10 +45,10 @@ export function getPorto(
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
-      feeToken: 'USDT',
+      feeToken: 'EXP1',
       mock: true,
       permissionFeeSpendLimit: {
-        USDT: {
+        EXP1: {
           limit: Value.fromEther('100'),
           period: 'day',
         },
