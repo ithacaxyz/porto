@@ -276,6 +276,25 @@ export namespace wallet_prepareCalls {
 
   /** Capabilities for `wallet_prepareCalls` response. */
   export const ResponseCapabilities = Type.Object({
+    /** Asset diff. */
+    assetDiff: Schema.Optional(
+      Type.Array(
+        Type.Tuple([
+          Primitive.Address,
+          Type.Array(
+            Type.Object({
+              address: Primitive.Address,
+              decimals: Type.Number(),
+              name: Type.String(),
+              symbol: Type.String(),
+              value: Type.Transform(Type.String())
+                .Decode((value) => BigInt(value))
+                .Encode((value) => value.toString()),
+            }),
+          ),
+        ]),
+      ),
+    ),
     /** Keys authorized on the account. */
     authorizeKeys: Schema.Optional(
       Type.Union([C.authorizeKeys.Response, Type.Null()]),
@@ -378,6 +397,7 @@ export namespace wallet_feeTokens {
       Type.Object({
         address: Primitive.Address,
         decimals: Type.Number(),
+        nativeRate: Schema.Optional(Primitive.BigInt),
         symbol: Type.String(),
       }),
     ),

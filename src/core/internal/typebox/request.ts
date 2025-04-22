@@ -1,3 +1,5 @@
+import * as Quote from '../relay/typebox/quote.js'
+import * as Rpc_relay from '../relay/typebox/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Permissions from './permissions.js'
@@ -499,7 +501,12 @@ export namespace wallet_prepareCalls {
   export type Request = Schema.StaticDecode<typeof Request>
 
   export const Response = Type.Object({
-    capabilities: Schema.Optional(Type.Record(Type.String(), Type.Any())),
+    capabilities: Type.Intersect([
+      Rpc_relay.wallet_prepareCalls.ResponseCapabilities,
+      Type.Object({
+        quote: Schema.Optional(Quote.Quote),
+      }),
+    ]),
     chainId: Primitive.Hex,
     context: Type.Object({
       account: Type.Object({

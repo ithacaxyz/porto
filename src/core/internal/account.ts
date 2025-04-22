@@ -96,7 +96,7 @@ export function getKey(
   account: Account,
   parameters: getKey.Parameters,
 ): Key.Key | undefined {
-  const { key } = parameters
+  const { key, role } = parameters
 
   // Extract from `key` parameter.
   if (typeof key === 'object') return key
@@ -104,7 +104,9 @@ export function getKey(
   // Extract from `account.keys` (with optional `key` index).
   if (account.keys && account.keys.length > 0) {
     if (typeof key === 'number') return account.keys[key]
-    return account.keys.find((key) => key.privateKey)
+    return account.keys.find(
+      (key) => key.privateKey && (!role || key.role === role),
+    )
   }
 
   return undefined
@@ -113,6 +115,7 @@ export function getKey(
 export declare namespace getKey {
   type Parameters = {
     key?: number | Key.Key | undefined
+    role?: Key.Key['role'] | undefined
   }
 }
 

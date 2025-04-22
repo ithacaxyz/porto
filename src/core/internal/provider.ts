@@ -821,6 +821,7 @@ export function from<
             })
 
           return Schema.Encode(Rpc.wallet_prepareCalls.Response, {
+            capabilities: rest.capabilities,
             chainId: Hex.fromNumber(client.chain.id),
             context: {
               ...rest.context,

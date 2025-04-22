@@ -7,6 +7,7 @@ import { porto } from './Porto.js'
 export type FeeToken = {
   address: Address.Address
   decimals: number
+  nativeRate?: bigint | undefined
   symbol: string
 }
 
@@ -40,11 +41,7 @@ export function useFetch(parameters: useFetch.Parameters) {
         throw new Error(
           `fee token ${address ?? symbol} not found. Available: ${feeTokens?.map((x) => `${x.symbol} (${x.address})`).join(', ')}`,
         )
-      return {
-        address: feeToken.address,
-        decimals: feeToken.decimals,
-        symbol: feeToken.symbol,
-      }
+      return feeToken
     },
     queryKey: [
       'FeeToken.current',

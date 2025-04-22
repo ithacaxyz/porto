@@ -296,16 +296,20 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
-        const { context, digest } = await Relay.prepareCalls(client, {
-          account,
-          calls,
-          feeToken: feeToken.address,
-          key,
-          pre,
-        })
+        const { capabilities, context, digest } = await Relay.prepareCalls(
+          client,
+          {
+            account,
+            calls,
+            feeToken: feeToken.address,
+            key,
+            pre,
+          },
+        )
 
         return {
           account,
+          capabilities,
           context: {
             ...context,
             account,

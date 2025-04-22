@@ -293,7 +293,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     },
   })
   return {
-    capabilities,
+    capabilities: { ...capabilities, quote: context },
     context: { ...context, key },
     digest,
   } as const
@@ -331,7 +331,9 @@ export namespace prepareCalls {
   } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
-    capabilities: Actions.prepareCalls.ReturnType['capabilities']
+    capabilities: Actions.prepareCalls.ReturnType['capabilities'] & {
+      quote: Actions.prepareCalls.ReturnType['context']
+    }
     context: Actions.prepareCalls.ReturnType['context'] & {
       key: Parameters['key']
     }

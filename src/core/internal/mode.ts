@@ -117,6 +117,10 @@ export type Mode = {
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
+      /** Capabilities. */
+      capabilities?:
+        | Rpc.wallet_prepareCalls.Response['capabilities']
+        | undefined
       /** Context for `sendPreparedCalls` */
       context: PrepareCallsContext
       /** Key that will sign over the digest. */
