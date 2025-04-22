@@ -1,0 +1,47 @@
+8453 = [
+    "ETH",
+    [
+    "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "USDC",
+],
+]
+10 = [
+    "ETH",
+    [
+    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    "USDT",
+],
+]
+911867 = [
+    "ETH",
+    [
+    "0x238c8cd93ee9f8c7edf395548ef60c0d2e46665e",
+    "USDT",
+],
+    [
+    "0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c",
+    "USDT",
+],
+]
+1 = [
+    [
+    "0xdac17f958d2ee523a2206206994597c13d831ec7",
+    "USDT",
+],
+    [
+    "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "USDC",
+],
+    "ETH",
+]
+31337 = [
+    "ETH",
+    [
+    "0x238c8cd93ee9f8c7edf395548ef60c0d2e46665e",
+    "USDT",
+],
+    [
+    "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+    "USDT",
+],
+]

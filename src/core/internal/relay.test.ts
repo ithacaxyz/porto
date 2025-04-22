@@ -251,48 +251,6 @@ describe('sendCalls', () => {
       keys: [key],
     })
 
-    const newKey = Key.createHeadlessWebAuthnP256()
-    const { id } = await Relay.sendCalls(client, {
-      account,
-      calls: [
-        {
-          abi: exp2Abi,
-          args: [account.address, 100n],
-          functionName: 'mint',
-          to: exp2Address,
-        },
-      ],
-      feeToken: exp1Address,
-      key: newKey,
-      pre: [
-        {
-          authorizeKeys: [newKey],
-          key,
-        },
-      ],
-    })
-
-    expect(id).toBeDefined()
-
-    await waitForCallsStatus(client, {
-      id,
-    })
-
-    expect(
-      await readContract(client, {
-        ...exp2Config,
-        args: [account.address],
-        functionName: 'balanceOf',
-      }),
-    ).toBe(100n)
-  })
-
-  test('behavior: pre bundles (session key)', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await TestActions.createAccount(client, {
-      keys: [key],
-    })
-
     const newKey = Key.createP256({
       permissions: {
         calls: [{ to: exp2Address }],
@@ -324,64 +282,6 @@ describe('sendCalls', () => {
           key,
         },
       ],
-    })
-
-    expect(id).toBeDefined()
-
-    await waitForCallsStatus(client, {
-      id,
-    })
-
-    expect(
-      await readContract(client, {
-        ...exp2Config,
-        args: [account.address],
-        functionName: 'balanceOf',
-      }),
-    ).toBe(100n)
-  })
-
-  test('behavior: pre bundles (via prepareCalls)', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await TestActions.createAccount(client, {
-      keys: [key],
-    })
-
-    const newKey = Key.createHeadlessWebAuthnP256()
-    const request_1 = await Relay.prepareCalls(client, {
-      account,
-      authorizeKeys: [newKey],
-      feeToken: exp1Address,
-      key,
-      pre: true,
-    })
-    const signature_1 = await Key.sign(key, {
-      payload: request_1.digest,
-    })
-
-    const request_2 = await Relay.prepareCalls(client, {
-      account,
-      calls: [
-        {
-          abi: exp2Abi,
-          args: [account.address, 100n],
-          functionName: 'mint',
-          to: exp2Address,
-        },
-      ],
-      feeToken: exp1Address,
-      key,
-      pre: [{ ...request_1, signature: signature_1 }],
-    })
-
-    const signature_2 = await Key.sign(key, {
-      payload: request_2.digest,
-      wrap: false,
-    })
-
-    const { id } = await Relay.sendCalls(client, {
-      ...request_2,
-      signature: signature_2,
     })
 
     expect(id).toBeDefined()

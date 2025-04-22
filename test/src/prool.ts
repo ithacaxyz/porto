@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { resolve } from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
@@ -15,6 +16,7 @@ type RelayParameters = {
   }
   quoteSecretKey?: string | undefined
   quoteTtl?: number | undefined
+  registry?: string | undefined
   secretKey?: string | undefined
   txGasBuffer?: bigint | undefined
   userOpGasBuffer?: bigint | undefined
@@ -29,7 +31,6 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
   const args = (parameters || {}) as RelayParameters
   const {
     endpoint,
-    entrypoint,
     feeTokens,
     secretKey = '0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356', // anvil key
     quoteSecretKey = '0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97', // anvil key
@@ -71,6 +72,8 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         'localhost:host-gateway',
         '-p',
         `${port}:${port}`,
+        '--mount',
+        `type=bind,source=${resolve(import.meta.dirname, 'registry.toml')},target=/app/registry.toml`,
         'ghcr.io/ithacaxyz/relay:latest',
         ...toArgs({
           ...rest,
@@ -78,13 +81,13 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
             /127\.0\.0\.1|0\.0\.0\.0/g,
             'host.docker.internal',
           ),
-          entrypoint,
           http: {
             metricsPort: port + 1,
             port,
           },
           quoteSecretKey,
           quoteTtl: 30,
+          registry: '/app/registry.toml',
           secretKey,
         } satisfies Partial<RelayParameters>),
         ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),

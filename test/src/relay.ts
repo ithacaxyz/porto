@@ -8,14 +8,14 @@ import { poolId, relay } from './prool.js'
 
 export const instances = {
   odyssey: defineRelay({
-    accountRegistry: Chains.odysseyTestnet.contracts.accountRegistry.address,
-    delegationProxy: Chains.odysseyTestnet.contracts.delegation.address,
+    accountRegistry: Chains.anvil.contracts.accountRegistry.address,
+    delegationProxy: Chains.anvil.contracts.delegation.address,
     endpoint: (key) =>
       `http://127.0.0.1:${Anvil.instances.odyssey.port}/${key}`,
-    entrypoint: Chains.odysseyTestnet.contracts.entryPoint.address,
+    entrypoint: Chains.anvil.contracts.entryPoint.address,
     feeTokens: [
       '0x0000000000000000000000000000000000000000',
-      exp1Address[Chains.odysseyTestnet.id],
+      exp1Address[Chains.anvil.id],
     ],
     userOpGasBuffer: 100_000n,
   }),

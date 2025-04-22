@@ -13,6 +13,22 @@ export function define<const chain extends Chain>(chain: chain): chain {
   return chain
 }
 
+export const anvil = /*#__PURE__*/ define({
+  ...chains.anvil,
+  contracts: {
+    ...chains.anvil.contracts,
+    accountRegistry: {
+      address: '0x700b6a60ce7eaaea56f065753d8dcb9653dbad35',
+    },
+    delegation: {
+      address: '0x8ce361602b935680e8dec218b820ff5056beb7af',
+    },
+    entryPoint: {
+      address: '0xa15bb66138824a1c7167f5e85b957d04dd34e468',
+    },
+  },
+})
+
 export const baseSepolia = /*#__PURE__*/ define({
   ...chains.baseSepolia,
   contracts: {

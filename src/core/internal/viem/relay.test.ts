@@ -35,7 +35,10 @@ describe('health', () => {
       {
         "quoteConfig": {
           "constantRate": null,
-          "gas": {},
+          "gas": {
+            "txBuffer": 1000000,
+            "userOpBuffer": 100000,
+          },
           "rateTtl": 300,
           "ttl": 30,
         },

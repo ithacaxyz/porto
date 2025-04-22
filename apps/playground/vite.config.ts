@@ -52,9 +52,6 @@ export default defineConfig({
         }).start()
 
         await Anvil.loadState({
-          accountRegistryAddress: chain.contracts.accountRegistry.address,
-          delegationAddress: chain.contracts.delegation.address,
-          entryPointAddress: chain.contracts.entryPoint.address,
           rpcUrl: anvilConfig.rpcUrl,
         })
 

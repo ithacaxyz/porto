@@ -7,10 +7,10 @@ import * as Sentry from './Sentry'
 
 const config = {
   anvil: {
-    chains: [Chains.odysseyTestnet],
+    chains: [Chains.anvil],
     mode: Mode.relay(),
     transports: {
-      [Chains.odysseyTestnet.id]: {
+      [Chains.anvil.id]: {
         default: http('http://127.0.0.1:8545'),
         relay: http('http://127.0.0.1:9119'),
       },
