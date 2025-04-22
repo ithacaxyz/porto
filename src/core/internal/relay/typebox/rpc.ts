@@ -283,9 +283,11 @@ export namespace wallet_prepareCalls {
           Primitive.Address,
           Type.Array(
             Type.Object({
-              address: Primitive.Address,
+              address: Schema.Optional(
+                Type.Union([Primitive.Address, Type.Null()]),
+              ),
               decimals: Type.Number(),
-              name: Type.String(),
+              name: Schema.Optional(Type.Union([Type.String(), Type.Null()])),
               symbol: Type.String(),
               value: Type.Transform(Type.String())
                 .Decode((value) => BigInt(value))

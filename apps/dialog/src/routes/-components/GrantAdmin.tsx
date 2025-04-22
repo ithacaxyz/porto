@@ -1,13 +1,11 @@
 import { Button } from '@porto/apps/components'
-import { useQuery } from '@tanstack/react-query'
 import { Hex } from 'ox'
 import type * as Address from 'ox/Address'
-import { Account, Key, Relay } from 'porto/internal'
+import { Key } from 'porto/internal'
 import { Hooks } from 'porto/remote'
 
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Dialog from '~/lib/Dialog'
-import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
@@ -16,39 +14,14 @@ import WalletIcon from '~icons/lucide/wallet-cards'
 import { ActionRequest } from './ActionRequest'
 
 export function GrantAdmin(props: GrantAdmin.Props) {
-  const { authorizeKey, loading, onApprove, onReject } = props
+  const { authorizeKey, feeToken, loading, onApprove, onReject } = props
 
   const account = Hooks.useAccount(porto)
-  const client = Hooks.useClient(porto)
-  const chain = Hooks.useChain(porto)
-  const { data: feeToken } = FeeToken.useFetch({
-    address: props.feeToken,
-    chainId: chain?.id,
-  })
   const origin = Dialog.useStore((state) => state.referrer?.origin)
 
-  const prepareCallsQuery = useQuery({
-    enabled: !!account,
-    queryFn: async () => {
-      if (!account) throw new Error('account is required')
-
-      const key = Account.getKey(account, { role: 'admin' })
-      if (!key) throw new Error('key not found')
-
-      return await Relay.prepareCalls(client, {
-        account,
-        authorizeKeys: [Key.from(authorizeKey)],
-        feeToken: feeToken?.address,
-        key,
-      })
-    },
-    queryKey: [
-      'prepareCalls',
-      account?.address,
-      authorizeKey.publicKey,
-      client.uid,
-      feeToken?.address,
-    ],
+  const prepareCallsQuery = ActionRequest.usePrepareCalls({
+    authorizeKeys: [Key.from(authorizeKey)],
+    feeToken,
   })
 
   const quote = prepareCallsQuery.data?.capabilities.quote

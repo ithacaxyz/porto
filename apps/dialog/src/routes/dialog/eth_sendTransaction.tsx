@@ -35,7 +35,6 @@ function RouteComponent() {
       loading={respond.isPending}
       onApprove={() => respond.mutate()}
       onReject={() => Actions.reject(porto, request)}
-      request={request}
     />
   )
 }
