@@ -411,7 +411,7 @@ export default defineConfig({
       Mkcert({
         hosts: [
           'localhost',
-          'testnet.localhost',
+          'dev.localhost',
           'stg.localhost',
           'anvil.localhost',
         ],
