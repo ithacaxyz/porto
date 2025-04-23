@@ -23,7 +23,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
   const prepareCallsQuery = Relay.usePrepareCalls({
     enabled: !!revokeKey,
     feeToken,
-    revokeKeys: [Key.from(revokeKey!)],
+    revokeKeys: revokeKey ? [Key.from(revokeKey)] : [],
   })
 
   const quote = prepareCallsQuery.data?.capabilities.quote
