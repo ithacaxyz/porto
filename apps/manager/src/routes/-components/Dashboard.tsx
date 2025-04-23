@@ -654,8 +654,9 @@ function AssetRow({
     'default',
   )
 
+  const chainId = useChainId()
   const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
-    chainId: 911_867,
+    chainId,
   })
 
   const formattedBalance = React.useMemo(
