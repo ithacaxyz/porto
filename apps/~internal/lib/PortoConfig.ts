@@ -16,20 +16,7 @@ const config = {
       },
     },
   },
-  prod: {
-    chains: [Chains.baseSepolia],
-    mode: Mode.relay(),
-    transports: {
-      [Chains.baseSepolia.id]: {
-        default: http(),
-        relay: http(
-          'https://relay-testnet.ithaca.xyz',
-          Sentry.httpTransportOptions(),
-        ),
-      },
-    },
-  },
-  stg: {
+  dev: {
     chains: [Chains.odysseyDevnet],
     mode: Mode.relay({
       feeToken: 'EXP1',
@@ -44,7 +31,20 @@ const config = {
       },
     },
   },
-  testnet: {
+  prod: {
+    chains: [Chains.baseSepolia],
+    mode: Mode.relay(),
+    transports: {
+      [Chains.baseSepolia.id]: {
+        default: http(),
+        relay: http(
+          'https://relay-testnet.ithaca.xyz',
+          Sentry.httpTransportOptions(),
+        ),
+      },
+    },
+  },
+  stg: {
     chains: [Chains.baseSepolia],
     mode: Mode.relay(),
     transports: {
@@ -63,15 +63,15 @@ const dialogHosts = {
   anvil: import.meta.env.PROD
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
+  dev: import.meta.env.PROD
+    ? 'https://dev.id.porto.sh/dialog/'
+    : 'https://dev.localhost:5174/dialog/',
   prod: import.meta.env.PROD
-    ? 'https://testnet.id.porto.sh/dialog/'
+    ? 'https://preprod.id.porto.sh/dialog/'
     : 'https://localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
     : 'https://stg.localhost:5174/dialog/',
-  testnet: import.meta.env.PROD
-    ? 'https://testnet.id.porto.sh/dialog/'
-    : 'https://testnet.localhost:5174/dialog/',
 } as const satisfies Record<Env.Env, string | undefined>
 
 export function getConfig(

@@ -16,7 +16,7 @@ import * as Schema from '../typebox/schema.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
-    host = 'https://testnet.id.porto.sh/dialog',
+    host = 'https://stg.id.porto.sh/dialog',
     renderer = Dialog.iframe(),
   } = parameters
 
