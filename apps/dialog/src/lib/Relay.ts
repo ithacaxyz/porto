@@ -9,7 +9,14 @@ import { porto } from './Porto'
 export function usePrepareCalls<const calls extends readonly unknown[]>(
   props: usePrepareCalls.Props<calls>,
 ) {
-  const { authorizeKeys, address, calls, chainId, revokeKeys } = props
+  const {
+    authorizeKeys,
+    address,
+    enabled = true,
+    calls,
+    chainId,
+    revokeKeys,
+  } = props
 
   const account = Hooks.useAccount(porto, { address })
   const client = Hooks.useClient(porto, { chainId })
@@ -19,7 +26,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
   })
 
   return useQuery({
-    enabled: !!account,
+    enabled: enabled && !!account,
     async queryFn() {
       if (!account) throw new Error('account is required.')
 
@@ -57,6 +64,7 @@ export declare namespace usePrepareCalls {
     > & {
       address?: Address.Address | undefined
       chainId?: number | undefined
+      enabled?: boolean | undefined
       feeToken?: Address.Address | undefined
     }
 }
