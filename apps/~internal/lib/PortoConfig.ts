@@ -28,7 +28,9 @@ const config = {
   },
   stg: {
     chains: [Chains.odysseyDevnet],
-    mode: Mode.relay(),
+    mode: Mode.relay({
+      feeToken: 'EXP1',
+    }),
     transports: {
       [Chains.odysseyDevnet.id]: {
         default: http(),

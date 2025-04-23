@@ -22,10 +22,14 @@ import * as Relay from '../relay.js'
 import * as Relay_viem from '../viem/relay.js'
 
 export const defaultConfig = {
-  feeToken: 'EXP1',
+  feeToken: 'EXP',
   permissionFeeSpendLimit: {
     ETH: {
       limit: Value.fromEther('0.0001'),
+      period: 'day',
+    },
+    EXP: {
+      limit: Value.fromEther('5'),
       period: 'day',
     },
     EXP1: {
