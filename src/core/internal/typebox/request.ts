@@ -501,12 +501,14 @@ export namespace wallet_prepareCalls {
   export type Request = Schema.StaticDecode<typeof Request>
 
   export const Response = Type.Object({
-    capabilities: Type.Intersect([
-      Rpc_relay.wallet_prepareCalls.ResponseCapabilities,
-      Type.Object({
-        quote: Schema.Optional(Quote.Quote),
-      }),
-    ]),
+    capabilities: Schema.Optional(
+      Type.Intersect([
+        Rpc_relay.wallet_prepareCalls.ResponseCapabilities,
+        Type.Object({
+          quote: Schema.Optional(Quote.Quote),
+        }),
+      ]),
+    ),
     chainId: Primitive.Hex,
     context: Type.Object({
       account: Type.Object({

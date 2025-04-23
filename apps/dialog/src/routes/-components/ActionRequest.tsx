@@ -239,7 +239,9 @@ export namespace ActionRequest {
   export namespace AssetDiff {
     export type Props = {
       address: Address.Address
-      assetDiff: Rpc.wallet_prepareCalls.Response['capabilities']['assetDiff']
+      assetDiff: NonNullable<
+        Rpc.wallet_prepareCalls.Response['capabilities']
+      >['assetDiff']
     }
   }
   export function Details(props: Details.Props) {
