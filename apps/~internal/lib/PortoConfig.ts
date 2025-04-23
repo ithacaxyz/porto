@@ -17,12 +17,15 @@ const config = {
     },
   },
   prod: {
-    chains: [Chains.odysseyTestnet],
-    mode: Mode.contract(),
+    chains: [Chains.baseSepolia],
+    mode: Mode.relay(),
     transports: {
-      [Chains.odysseyTestnet.id]: {
+      [Chains.baseSepolia.id]: {
         default: http(),
-        relay: http('https://relay.ithaca.xyz', Sentry.httpTransportOptions()),
+        relay: http(
+          'https://relay-testnet.ithaca.xyz',
+          Sentry.httpTransportOptions(),
+        ),
       },
     },
   },
@@ -61,7 +64,7 @@ const dialogHosts = {
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
   prod: import.meta.env.PROD
-    ? 'https://id.porto.sh/dialog/'
+    ? 'https://testnet.id.porto.sh/dialog/'
     : 'https://localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
