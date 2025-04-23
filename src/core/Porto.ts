@@ -17,13 +17,13 @@ import * as Storage from './Storage.js'
 
 export const defaultConfig = {
   announceProvider: true,
-  chains: [Chains.odysseyTestnet],
+  chains: [Chains.baseSepolia],
   mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.relay(),
   storage: Storage.idb(),
   transports: {
-    [Chains.odysseyTestnet.id]: {
+    [Chains.baseSepolia.id]: {
       default: http(),
-      relay: http('https://relay.ithaca.xyz'),
+      relay: http('https://relay-testnet.ithaca.xyz'),
     },
   },
 } as const satisfies Config
