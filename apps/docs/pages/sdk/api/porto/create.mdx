@@ -69,15 +69,66 @@ const accounts = await porto.provider.request({
 
 ### Modes
 
-TODO
+Porto supports different integration modes that determine how requests and signing operations are handled:
+
+- **Dialog Mode**: The default mode that uses an iframe or popup dialog for all operations.
+- **Contract Mode**: Locally handles all requests and signing, coordinating with a delegation contract.
+- **Relay Mode**: Locally handles requests and signing, coordinating with the Porto Relay service.
+
+Each mode has different tradeoffs in terms of user experience, security, and implementation complexity. See the Mode parameter section below for more details.
 
 ### Storage
 
-TODO
+Porto needs to store data like user accounts and session information. Several storage options are available:
+
+- **IndexedDB (Default)**: Provides persistent storage with larger storage limits (≈50MB).
+- **LocalStorage**: Uses the browser's built-in localStorage with lower storage limits (≈5MB).
+- **Memory**: Stores data in-memory, which is cleared when the page refreshes.
+- **Cookie**: Uses document.cookie for storage with very limited capacity.
+
+Choose a storage option based on your application's needs for persistence and storage capacity.
 
 ### Custom Chains
 
-TODO
+Porto is designed to work with multiple blockchain networks through its chain configuration. You can specify custom chains beyond the default ones:
+
+```ts twoslash
+import { Porto, Chains } from 'porto'
+
+// Define a custom chain
+const myCustomChain = Chains.define({
+  id: 1337,
+  name: 'My Custom Chain',
+  nativeCurrency: {
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://my-custom-chain-rpc.example.com'],
+    },
+  },
+  contracts: {
+    accountRegistry: {
+      address: '0x1234567890123456789012345678901234567890',
+    },
+    delegation: {
+      address: '0x0987654321098765432109876543210987654321',
+    },
+    entryPoint: {
+      address: '0xabcdef0123456789abcdef0123456789abcdef01',
+    },
+  },
+})
+
+// Create Porto instance with custom chain
+const porto = Porto.create({
+  chains: [myCustomChain],
+})
+```
+
+The chain configuration includes the chain ID, name, native currency details, RPC endpoints, and contract addresses needed for Porto's functionality.
 
 ## Parameters
 
