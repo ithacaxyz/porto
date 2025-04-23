@@ -3,8 +3,8 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { RouterProvider } from '@tanstack/react-router'
 import { WagmiProvider } from 'wagmi'
 
-import * as Router from './lib/Router.ts'
-import * as Wagmi from './lib/Wagmi.ts'
+import * as Router from '~/lib/Router.ts'
+import * as Wagmi from '~/lib/Wagmi.ts'
 
 export function App() {
   return (
