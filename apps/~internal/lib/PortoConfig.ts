@@ -37,10 +37,7 @@ const config = {
     transports: {
       [Chains.baseSepolia.id]: {
         default: http(),
-        relay: http(
-          'https://relay-testnet.ithaca.xyz',
-          Sentry.httpTransportOptions(),
-        ),
+        relay: http('https://relay.ithaca.xyz', Sentry.httpTransportOptions()),
       },
     },
   },
@@ -50,10 +47,7 @@ const config = {
     transports: {
       [Chains.baseSepolia.id]: {
         default: http(),
-        relay: http(
-          'https://relay-testnet.ithaca.xyz',
-          Sentry.httpTransportOptions(),
-        ),
+        relay: http('https://relay.ithaca.xyz', Sentry.httpTransportOptions()),
       },
     },
   },
@@ -67,7 +61,7 @@ const dialogHosts = {
     ? 'https://dev.id.porto.sh/dialog/'
     : 'https://dev.localhost:5174/dialog/',
   prod: import.meta.env.PROD
-    ? 'https://preprod.id.porto.sh/dialog/'
+    ? 'https://stg.id.porto.sh/dialog/'
     : 'https://localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
