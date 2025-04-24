@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.22
+
+### Patch Changes
+
+- [#172](https://github.com/ithacaxyz/porto/pull/172) [`c27df5e`](https://github.com/ithacaxyz/porto/commit/c27df5e736e182325de1b661f2e213434dff4ad5) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Pointed default configuration to Base Sepolia, and updated WebAuthn Relying Party to `testnet.id.porto.sh`.
+
 ## 0.0.21
 
 ### Patch Changes
