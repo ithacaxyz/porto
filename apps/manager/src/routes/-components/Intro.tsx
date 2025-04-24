@@ -37,18 +37,6 @@ export function Intro() {
           </li>
           <li>⋅</li>
           <li>
-            <a className="font-[500] text-[13px]" href="/">
-              Terms
-            </a>
-          </li>
-          <li>⋅</li>
-          <li>
-            <a className="font-[500] text-[13px]" href="/">
-              Privacy
-            </a>
-          </li>
-          <li>⋅</li>
-          <li>
             <a
               className="font-[500] text-[13px]"
               href="https://t.me/porto_devs"
