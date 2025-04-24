@@ -7,6 +7,7 @@ export const router = createRouter({
     account: undefined!,
     queryClient: Query.client,
   },
+  // TODO: add custom 404 and error pages once design is ready
   defaultErrorComponent: (props) => {
     if (props.error instanceof Error) return <div>{props.error.message}</div>
 
@@ -19,7 +20,6 @@ export const router = createRouter({
    */
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
-  // TODO: add custom 404 page once design is ready
   routeTree,
   scrollRestoration: true,
 })
