@@ -89,7 +89,7 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
     {
-      address: '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2',
+      address: exp1Address[Chains.baseSepolia.id],
       decimals: 18,
       logo: '/icons/exp.svg',
       name: 'Experiment',

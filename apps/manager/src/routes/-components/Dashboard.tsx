@@ -10,7 +10,12 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
-import { useAccount, useBlockNumber, useChainId, useSendCalls } from 'wagmi'
+import {
+  useAccount,
+  useChainId,
+  useSendCalls,
+  useWatchBlockNumber,
+} from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
@@ -63,22 +68,25 @@ export function Dashboard() {
   const disconnect = Hooks.useDisconnect()
   const permissions = Hooks.usePermissions()
 
-  const { data: transfers } = useAddressTransfers({
+  const addressTransfers = useAddressTransfers({
     chainIds: [chainId],
   })
 
-  const { data: assets, refetch: refetchSwapAssets } = useSwapAssets({
+  const swapAssets = useSwapAssets({
     chainId,
   })
 
-  const { data: blockNumber } = useBlockNumber({
-    watch: { enabled: account.status === 'connected', pollingInterval: 800 },
+  useWatchBlockNumber({
+    enabled: account.status === 'connected',
+    onBlockNumber: async (_blockNumber) => {
+      await Promise.all([
+        swapAssets.refetch().catch((error) => console.error(error)),
+        permissions.refetch().catch((error) => console.error(error)),
+        addressTransfers.refetch().catch((error) => console.error(error)),
+      ])
+    },
+    pollingInterval: 1_000,
   })
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
-  React.useEffect(() => {
-    refetchSwapAssets()
-  }, [blockNumber])
 
   const revokePermissions = Hooks.useRevokePermissions()
 
@@ -87,7 +95,7 @@ export function Dashboard() {
   )
 
   const filteredTransfers = React.useMemo(() => {
-    return transfers
+    return addressTransfers.data
       ?.filter((c) =>
         selectedChains.some((cc) => cc === c?.chainId?.toString()),
       )
@@ -97,18 +105,18 @@ export function Dashboard() {
           ...item,
         })),
       )
-  }, [transfers, selectedChains])
+  }, [addressTransfers.data, selectedChains])
 
   const totalBalance = React.useMemo(() => {
-    if (!assets) return 0n
+    if (!swapAssets.data) return 0n
     return sum(
-      assets.map(
+      swapAssets.data.map(
         (asset) =>
           Number(Value.format(asset.balance, asset.decimals)) *
           (asset.price ?? 0),
       ),
     )
-  }, [assets])
+  }, [swapAssets.data])
 
   const admins = Hooks.useAdmins({
     query: {
@@ -214,7 +222,10 @@ export function Dashboard() {
       <hr className="border-gray5" />
       <div className="h-4" />
 
-      <details className="group" open={assets && assets?.length > 0}>
+      <details
+        className="group"
+        open={swapAssets.data && swapAssets.data?.length > 0}
+      >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
 
@@ -252,7 +263,7 @@ export function Dashboard() {
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
-          data={assets}
+          data={swapAssets.data}
           emptyMessage="No balances available for this account"
           renderRow={(asset) => (
             <AssetRow
