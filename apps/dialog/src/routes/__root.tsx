@@ -36,6 +36,9 @@ function RouteComponent() {
     }
   })
   const request = Hooks.useRequest(porto)
+  const search = Route.useSearch() as {
+    requireUpdatedAccount?: boolean | undefined
+  }
 
   const contentRef = React.useRef<HTMLDivElement | null>(null)
   const titlebarRef = React.useRef<HTMLDivElement | null>(null)
@@ -160,10 +163,12 @@ function RouteComponent() {
               <Layout loading loadingTitle="Loading...">
                 <div />
               </Layout>
-            ) : (
+            ) : search.requireUpdatedAccount ? (
               <UpdateAccount.CheckUpdate>
                 <Outlet />
               </UpdateAccount.CheckUpdate>
+            ) : (
+              <Outlet />
             )}
           </div>
         </div>

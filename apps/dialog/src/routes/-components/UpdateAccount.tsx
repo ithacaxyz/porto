@@ -44,6 +44,8 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const digest = prepareCallsQuery.data?.digest
   const quote = prepareCallsQuery.data?.capabilities.quote
 
+  // TODO: consider using EIP-1193 Provider + `wallet_sendPreparedCalls` in
+  // the future (for case where the account wants to self-relay).
   const sendCallsMutation = useMutation({
     async mutationFn() {
       if (!account) throw new Error('account is required.')

@@ -6,6 +6,8 @@ import { Hooks } from 'porto/remote'
 import * as FeeToken from './FeeToken'
 import { porto } from './Porto'
 
+// TODO: consider using EIP-1193 Provider + `wallet_prepareCalls` in the future
+// (for case where the account wants to self-relay).
 export function usePrepareCalls<const calls extends readonly unknown[]>(
   props: usePrepareCalls.Props<calls>,
 ) {

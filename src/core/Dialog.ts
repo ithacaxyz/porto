@@ -459,7 +459,7 @@ export function requiresConfirmation(
   const { methodPolicies, targetOrigin } = options
   const policy = methodPolicies?.find((x) => x.method === request.method)
   if (!policy) return true
-  if (policy.modes.headless) {
+  if (policy.modes?.headless) {
     if (
       typeof policy.modes.headless === 'object' &&
       policy.modes.headless.sameOrigin &&

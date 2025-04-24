@@ -26,6 +26,7 @@ export function onDialogRequest(
           keyId?: Hex.Hex | undefined
         }
       | undefined
+    requireUpdatedAccount?: boolean | undefined
     request: Remote.RemoteState['requests'][number]['request'] | null
   }) => void,
 ) {
@@ -44,7 +45,7 @@ export function onDialogRequest(
     const shouldBypass = (() => {
       if (!request) return false
 
-      const rule = policy?.modes.headless
+      const rule = policy?.modes?.headless
       if (rule) {
         if (
           typeof rule === 'object' &&
@@ -62,9 +63,9 @@ export function onDialogRequest(
       return
     }
 
-    const rule = policy?.modes.dialog
+    const rule = policy?.modes?.dialog
     const shouldDialog = (() => {
-      if (!policy) return true
+      if (!rule) return true
       if (
         typeof rule === 'object' &&
         rule.sameOrigin &&
@@ -80,9 +81,14 @@ export function onDialogRequest(
       return
     }
 
+    const requireUpdatedAccount = policy?.requireUpdatedAccount ?? true
     const requireConnection = policy?.requireConnection ?? true
 
-    cb({ account: requireConnection ? account : undefined, request })
+    cb({
+      account: requireConnection ? account : undefined,
+      request,
+      requireUpdatedAccount,
+    })
   })
 }
 

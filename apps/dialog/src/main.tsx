@@ -39,7 +39,7 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
 
 const offDialogRequest = Events.onDialogRequest(
   porto,
-  ({ account, request }) => {
+  ({ account, request, requireUpdatedAccount }) => {
     const connectedAccount = porto._internal.store.getState().accounts[0]
     const needsSync = account && account.address !== connectedAccount?.address
 
@@ -52,7 +52,8 @@ const offDialogRequest = Events.onDialogRequest(
       })
 
     Router.router.navigate({
-      search: (search) => ({ ...search, ...request, account }) as never,
+      search: (search) =>
+        ({ ...search, ...request, account, requireUpdatedAccount }) as never,
       to: '/dialog/' + (request?.method ?? ''),
     })
   },
