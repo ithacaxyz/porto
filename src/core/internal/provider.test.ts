@@ -13,6 +13,7 @@ import { Mode } from 'porto'
 import { encodeFunctionData } from 'viem'
 import {
   readContract,
+  setCode,
   verifyMessage,
   verifyTypedData,
   waitForCallsStatus,
@@ -725,8 +726,8 @@ describe.each([
   describe('experimental_updateAccount', () => {
     test.runIf(Anvil.enabled && type === 'relay')('default', async () => {
       vi.spyOn(RelayActions, 'health').mockResolvedValue({
-        delegationImplementation: delegation001Address,
-        delegationProxy: delegation001Address,
+        delegationImplementation: Anvil.delegation001Address,
+        delegationProxy: Anvil.delegation001Address,
         entrypoint: odysseyTestnet.contracts.entryPoint.address,
         quoteConfig: {
           constantRate: 0,
