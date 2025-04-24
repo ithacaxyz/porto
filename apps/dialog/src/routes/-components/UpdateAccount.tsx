@@ -7,6 +7,7 @@ import * as React from 'react'
 import { waitForCallsStatus } from 'viem/actions'
 import { useAccount } from 'wagmi'
 
+import { CheckBalance } from '~/components/CheckBalance'
 import { porto } from '~/lib/Porto'
 import * as Relay from '~/lib/Relay'
 import { ActionRequest } from './ActionRequest'
@@ -70,59 +71,66 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         timeout: 20_000,
       })
     },
-    onSuccess() {
-      onSuccess()
+    onSuccess(data) {
+      onSuccess(data)
     },
   })
 
   return (
-    <Layout>
-      <Layout.Header>
-        <Layout.Header.Default
-          content={
-            <>
-              New features are available for Porto. Upgrade your account to
-              continue.
-            </>
-          }
-          title="Upgrade version"
-          variant="warning"
-        />
-      </Layout.Header>
+    <CheckBalance
+      address={account?.address}
+      feeToken={feeToken}
+      onReject={onCancel}
+      query={prepareCallsQuery}
+    >
+      <Layout>
+        <Layout.Header>
+          <Layout.Header.Default
+            content={
+              <>
+                New features are available for Porto. Upgrade your account to
+                continue.
+              </>
+            }
+            title="Upgrade version"
+            variant="warning"
+          />
+        </Layout.Header>
 
-      <Layout.Content>
-        <ActionRequest.PaneWithDetails
-          loading={version.isPending}
-          quote={quote}
-          variant={version.isError ? 'warning' : 'default'}
-        >
-          <div className="flex items-center justify-center gap-2">
-            <div className="font-mono text-secondary tabular-nums">
-              {current}
-            </div>
-            <div className="text-success">→</div>
-            <div className="font-mono tabular-nums">{latest}</div>
-          </div>
-        </ActionRequest.PaneWithDetails>
-      </Layout.Content>
-
-      <Layout.Footer>
-        <Layout.Footer.Actions>
-          <Button onClick={onCancel} type="button">
-            Cancel
-          </Button>
-
-          <Button
-            className="flex-grow"
-            onClick={() => sendCallsMutation.mutate()}
-            type="button"
-            variant="accent"
+        <Layout.Content>
+          <ActionRequest.PaneWithDetails
+            loading={version.isPending}
+            quote={quote}
+            variant={version.isError ? 'warning' : 'default'}
           >
-            Update now
-          </Button>
-        </Layout.Footer.Actions>
-      </Layout.Footer>
-    </Layout>
+            <div className="flex items-center justify-center gap-2">
+              <div className="font-mono text-secondary tabular-nums">
+                {current}
+              </div>
+              <div className="text-success">→</div>
+              <div className="font-mono tabular-nums">{latest}</div>
+            </div>
+          </ActionRequest.PaneWithDetails>
+        </Layout.Content>
+
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            <Button onClick={onCancel} type="button">
+              Cancel
+            </Button>
+
+            <Button
+              className="flex-grow"
+              onClick={() => sendCallsMutation.mutate()}
+              type="button"
+              variant="accent"
+            >
+              Update now
+            </Button>
+          </Layout.Footer.Actions>
+        </Layout.Footer>
+      </Layout>
+    </CheckBalance>
   )
 }
 
@@ -130,7 +138,7 @@ export namespace UpdateAccount {
   export type Props = {
     feeToken?: Address.Address | undefined
     onCancel: () => void
-    onSuccess: () => void
+    onSuccess: (data: { id: string }) => void
   }
 
   export function CheckUpdate({ children }: CheckUpdate.Props) {
