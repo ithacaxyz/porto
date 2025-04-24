@@ -543,7 +543,8 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('admin key not found.')
 
-        const { delegationImplementation: delegation } = await Relay.health(client)
+        const { delegationImplementation: delegation } =
+          await Relay.health(client)
         if (!delegation) throw new Error('delegation not found.')
 
         const feeToken = await resolveFeeToken(internal)
