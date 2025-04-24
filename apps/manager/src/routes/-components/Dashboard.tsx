@@ -5,6 +5,7 @@ import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
+import { useChain } from 'porto/remote/Hooks'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -51,15 +52,23 @@ function TokenSymbol({
 
 export function Dashboard() {
   const account = useAccount()
-  const chainId = useChainId()
+  const chain = useChain(
+    // @ts-expect-error
+    porto,
+    { chainId: account.chainId },
+  )
+  const chainId = chain?.id ?? 84_532
+  const blockExplorer = chain?.blockExplorers?.default.url ?? ''
+
   const disconnect = Hooks.useDisconnect()
   const permissions = Hooks.usePermissions()
 
   const { data: transfers } = useAddressTransfers({
     chainIds: [chainId],
   })
+
   const { data: assets, refetch: refetchSwapAssets } = useSwapAssets({
-    chainId: chainId,
+    chainId,
   })
 
   const { data: blockNumber } = useBlockNumber({
@@ -95,7 +104,8 @@ export function Dashboard() {
     return sum(
       assets.map(
         (asset) =>
-          Number(Value.format(asset.balance, asset.decimals)) * asset.price,
+          Number(Value.format(asset.balance, asset.decimals)) *
+          (asset.price ?? 0),
       ),
     )
   }, [assets])
@@ -296,7 +306,7 @@ export function Dashboard() {
                 <td className="py-1 text-left">
                   <a
                     className="flex flex-row items-center"
-                    href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
+                    href={`${blockExplorer}/tx/${transfer?.transaction_hash}`}
                     rel="noreferrer"
                     target="_blank"
                   >
@@ -377,7 +387,7 @@ export function Dashboard() {
                 <td className="max-w-[50px] py-3 text-left">
                   <a
                     className="flex flex-row items-center"
-                    href={`https://explorer.ithaca.xyz/address/${permission.address}`}
+                    href={`${blockExplorer}/address/${permission.address}`}
                     rel="noreferrer"
                     target="_blank"
                   >
@@ -654,6 +664,13 @@ function AssetRow({
   )
 
   const chainId = useChainId()
+  const chain = useChain(
+    // @ts-expect-error
+    porto,
+    { chainId },
+  )
+  const blockExplorer = chain?.blockExplorers?.default.url ?? ''
+
   const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
     chainId,
   })
@@ -701,7 +718,7 @@ function AssetRow({
                   <br />
                   <a
                     className="text-gray12 underline"
-                    href={`https://explorer.ithaca.xyz/tx/${data.id}`}
+                    href={`${blockExplorer}/tx/${data.id}`}
                     rel="noreferrer"
                     target="_blank"
                   >

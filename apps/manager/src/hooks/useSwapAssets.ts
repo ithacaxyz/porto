@@ -1,7 +1,8 @@
 import { PortoConfig } from '@porto/apps'
-import { exp1Config, exp2Config } from '@porto/apps/contracts'
+import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
+import { baseSepolia } from 'porto/core/Chains'
 import type { Prettify } from 'viem'
 import { defaultAssets, ethAsset } from '~/lib/Constants'
 import { getChainConfig } from '~/lib/Wagmi'
@@ -29,15 +30,15 @@ export function useSwapAssets({ chainId }: { chainId: PortoConfig.ChainId }) {
 
       try {
         const prices = await getAssetsPrices({
+          assets: defaultAssets_,
           chainId,
-          ids: defaultAssets_.map((asset) => ({
-            address: asset.address,
-          })),
         })
 
         const assets = defaultAssets_.map((asset) => ({
           ...asset,
-          ...prices.coins[`${chainId}:${asset.address}`],
+          ...(asset.coingeckoId
+            ? prices.coins[`coingecko:${asset.coingeckoId}`]
+            : prices.coins[`${chainId}:${asset.address}`]),
         }))
 
         assets.unshift({
@@ -81,26 +82,31 @@ export type AssetWithPrice = LlamaFiPrice & {
  */
 async function getAssetsPrices({
   chainId,
-  ids,
+  assets,
 }: {
   chainId: PortoConfig.ChainId
-  ids: Array<{ address: string }>
+  assets: Array<(typeof defaultAssets)[PortoConfig.ChainId][number]>
 }) {
   const chain = getChainConfig(chainId)
   if (!chain) throw new Error(`Unsupported chainId: ${chainId}`)
-  const chainName = chain.testnet ? 'ethereum' : chain.name.toLowerCase()
-  const searchParams = ids
+  const chainName =
+    chain.id === baseSepolia.id
+      ? 'base'
+      : chain.testnet
+        ? 'ethereum'
+        : chain.name.toLowerCase()
+  const searchParams = assets
     .filter((asset) =>
       [
         '0x0000000000000000000000000000000000000000',
-        exp1Config.address[chain.id].toLowerCase(),
-        exp2Config.address[chain.id].toLowerCase(),
+        exp1Address[chain.id].toLowerCase(),
+        exp2Address[chain.id].toLowerCase(),
       ].includes(asset.address.toLowerCase()),
     )
     .map((asset) => `${chainName}:${asset.address}`)
     .join(',')
   const response = await fetch(
-    `https://coins.llama.fi/prices/current/coingecko:ethereum,${searchParams}?searchWidth=1m`,
+    `https://coins.llama.fi/prices/current/coingecko:ethereum,coingecko:coinbase-wrapped-btc,coingecko:usd-coin,${searchParams}?searchWidth=1m`,
   )
 
   const data = (await response.json()) as LlamaFiPrices
