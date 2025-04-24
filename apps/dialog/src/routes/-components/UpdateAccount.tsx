@@ -25,20 +25,20 @@ export function UpdateAccount(props: UpdateAccount.Props) {
     queryFn: () => Relay_porto.health(client),
     queryKey: ['health', client.uid],
   })
-  const { delegationProxy } = healthQuery.data ?? {}
+  const { delegationImplementation: delegation } = healthQuery.data ?? {}
 
   const account = Hooks.useAccount(porto)
   const prepareCallsQuery = Relay.usePrepareCalls({
     calls:
-      account?.address && delegationProxy
+      account?.address && delegation
         ? [
             Call.upgradeProxyDelegation({
-              delegation: delegationProxy,
+              delegation,
               to: account.address,
             }),
           ]
         : [],
-    enabled: !!account?.address && !!delegationProxy,
+    enabled: !!account?.address && !!delegation,
     feeToken,
   })
   const context = prepareCallsQuery.data?.context
@@ -83,7 +83,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
       onReject={onCancel}
       query={prepareCallsQuery}
     >
-      <Layout>
+      <Layout loading={sendCallsMutation.isPending} loadingTitle="Updating account...">
         <Layout.Header>
           <Layout.Header.Default
             content={
