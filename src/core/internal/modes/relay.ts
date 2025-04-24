@@ -543,8 +543,8 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('admin key not found.')
 
-        const { delegationProxy } = await Relay.health(client)
-        if (!delegationProxy) throw new Error('delegation not found.')
+        const { delegationImplementation } = await Relay.health(client)
+        if (!delegationImplementation) throw new Error('delegation not found.')
 
         const feeToken = await resolveFeeToken(internal)
 
@@ -552,7 +552,7 @@ export function relay(parameters: relay.Parameters = {}) {
           account,
           calls: [
             Call.upgradeProxyDelegation({
-              delegation: delegationProxy,
+              delegation: delegationImplementation,
               to: account.address,
             }),
           ],
