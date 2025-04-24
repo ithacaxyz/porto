@@ -6,12 +6,16 @@ import {
   Outlet,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { GetAccountReturnType } from '@wagmi/core'
 import * as React from 'react'
 import { Toaster } from 'sonner'
 
-export const Route = createRootRouteWithContext<{
+type RouterContext = {
   queryClient: QueryClient
-}>()({
+  account: GetAccountReturnType
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RouteComponent,
 })
 

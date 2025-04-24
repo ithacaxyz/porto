@@ -49,7 +49,12 @@ export function Intro() {
           </li>
           <li>⋅</li>
           <li>
-            <a className="font-[500] text-[13px]" href="/">
+            <a
+              className="font-[500] text-[13px]"
+              href="https://t.me/porto_devs"
+              rel="noreferrer"
+              target="_blank"
+            >
               Support
             </a>
           </li>

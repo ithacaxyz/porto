@@ -2,7 +2,7 @@ import 'viem/window'
 import * as Ariakit from '@ariakit/react'
 import { UserAgent } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { cx } from 'cva'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -18,6 +18,11 @@ import XIcon from '~icons/lucide/x'
 import { Layout } from './-components/Layout'
 
 export const Route = createFileRoute('/_layout/recovery')({
+  beforeLoad: ({ context }) => {
+    if (!context.account.isConnected) throw redirect({ to: '/' })
+
+    return { account: context.account, queryClient: context.queryClient }
+  },
   component: RouteComponent,
 })
 
