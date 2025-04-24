@@ -305,6 +305,24 @@ export namespace experimental_revokePermissions {
   export const Response = undefined
 }
 
+export namespace experimental_updateAccount {
+  export const Parameters = Type.Object({
+    address: Schema.Optional(Primitive.Address),
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('experimental_updateAccount'),
+    params: Schema.Optional(Type.Tuple([Parameters])),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    id: Schema.Optional(Primitive.Hex),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
+
 export namespace experimental_upgradeAccount {
   export const Parameters = Type.Object({
     context: Type.Unknown(),

@@ -22,6 +22,10 @@ export const exp2Config = {
   address: exp2Address,
 } as const
 
+const relayUrl = Anvil.enabled
+  ? Relay.instances.odyssey.rpcUrl
+  : 'https://relay-staging.ithaca.xyz'
+
 export function getPorto(
   parameters: {
     mode?: (parameters: {
@@ -62,27 +66,22 @@ export function getPorto(
           transports.relay === false
             ? undefined
             : (transports.relay ??
-              http(
-                Anvil.enabled
-                  ? Relay.instances.odyssey.rpcUrl
-                  : 'https://relay-staging.ithaca.xyz',
-                {
-                  async onFetchRequest(_, init) {
-                    if (process.env.VITE_RELAY_LOGS !== 'true') return
-                    console.log(`curl \\
-  https://relay-staging.ithaca.xyz \\
+              http(relayUrl, {
+                async onFetchRequest(_, init) {
+                  if (process.env.VITE_RELAY_LOGS !== 'true') return
+                  console.log(`curl \\
+  ${relayUrl} \\
   -X POST \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify(JSON.parse(init.body as string))}'`)
-                  },
-                  async onFetchResponse(response) {
-                    if (process.env.VITE_RELAY_LOGS !== 'true') return
-                    console.log(
-                      '> ' + JSON.stringify(await response.clone().json()),
-                    )
-                  },
                 },
-              )),
+                async onFetchResponse(response) {
+                  if (process.env.VITE_RELAY_LOGS !== 'true') return
+                  console.log(
+                    '> ' + JSON.stringify(await response.clone().json()),
+                  )
+                },
+              })),
       },
     } as Porto.Config['transports'],
   })

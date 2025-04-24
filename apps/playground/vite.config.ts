@@ -1,9 +1,10 @@
+import { rmSync } from 'node:fs'
+import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
-import { createLogger, defineConfig } from 'vite'
+import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-
 import * as Chains from '../../src/core/Chains.js'
 import * as Anvil from '../../test/src/anvil.js'
 import { relay } from '../../test/src/prool.js'
@@ -13,7 +14,7 @@ const logger = createLogger('info', {
 })
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     mkcert({
       hosts: ['localhost', 'dev.localhost', 'stg.localhost', 'anvil.localhost'],
@@ -23,6 +24,8 @@ export default defineConfig({
     {
       async configureServer() {
         if (process.env.ANVIL !== 'true') return
+
+        process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
         const { exp1Address } = await import('@porto/apps/contracts')
 
@@ -34,28 +37,34 @@ export default defineConfig({
           port: 9119,
           rpcUrl: 'http://127.0.0.1:9119',
         }
-        const chain = Chains.odysseyTestnet
+        const chain = Chains.anvil
+
+        if (process.env.CLEAN === 'true')
+          rmSync(resolve(import.meta.dirname, 'anvil.json'), {
+            force: true,
+          })
 
         logger.info('Starting Anvil...')
 
         await anvil({
-          chainId: chain.id,
-          forkUrl: chain.rpcUrls.default.http[0],
           // @ts-ignore
           odyssey: true,
           port: anvilConfig.port,
+          state: resolve(import.meta.dirname, 'anvil.json'),
         }).start()
+
+        logger.info('Anvil started on' + anvilConfig.rpcUrl)
 
         await Anvil.loadState({
           rpcUrl: anvilConfig.rpcUrl,
         })
 
-        logger.info('Anvil started on' + anvilConfig.rpcUrl)
         logger.info('Starting Relay...')
 
         await relay({
           accountRegistry: chain.contracts.accountRegistry.address,
           delegationProxy: chain.contracts.delegation.address,
+          // delegationProxy: Anvil.delegation001Address,
           endpoint: anvilConfig.rpcUrl,
           entrypoint: chain.contracts.entryPoint.address,
           feeTokens: [
@@ -74,4 +83,4 @@ export default defineConfig({
       name: 'anvil',
     },
   ],
-})
+}))

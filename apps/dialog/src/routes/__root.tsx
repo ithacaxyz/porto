@@ -3,11 +3,13 @@ import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useAccount } from 'wagmi'
+
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import LucideGlobe from '~icons/lucide/globe'
 import LucideX from '~icons/lucide/x'
 import { Layout } from './-components/Layout'
+import { UpdateAccount } from './-components/UpdateAccount'
 
 export const Route = createRootRoute({
   component: RouteComponent,
@@ -159,7 +161,9 @@ function RouteComponent() {
                 <div />
               </Layout>
             ) : (
-              <Outlet />
+              <UpdateAccount.CheckUpdate>
+                <Outlet />
+              </UpdateAccount.CheckUpdate>
             )}
           </div>
         </div>

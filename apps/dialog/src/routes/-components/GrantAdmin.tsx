@@ -44,11 +44,15 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           />
         </Layout.Header>
         <Layout.Content>
-          <div className="space-y-3">
+          <ActionRequest.PaneWithDetails
+            loading={prepareCallsQuery.isPending}
+            quote={quote}
+            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+          >
             {prepareCallsQuery.isError && (
-              <div className="rounded-lg bg-warningTint px-3 py-2 text-warning">
-                <div className="font-medium text-[14px]">Error</div>
+              <div>
                 <div className="space-y-2 text-[14px] text-primary">
+                  <p className="font-medium text-warning">Error</p>
                   <p>
                     An error occurred while calculating fees. This may be due to
                     network issues or insufficient funds.
@@ -62,28 +66,17 @@ export function GrantAdmin(props: GrantAdmin.Props) {
               </div>
             )}
 
-            <div className="flex items-center justify-center rounded-md bg-surface p-2">
-              {account?.address && (
-                <div className="flex items-center gap-2">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
-                    <WalletIcon className="h-4 w-4 text-jade9" />
-                  </div>
-                  <span className="font-medium font-mono text-base">
-                    {StringFormatter.truncate(authorizeKey.publicKey)}
-                  </span>
+            {account?.address && (
+              <div className="flex items-center justify-center gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
+                  <WalletIcon className="h-4 w-4 text-jade9" />
                 </div>
-              )}
-            </div>
-
-            {quote && (
-              <>
-                <p className="mb-1 text-[14px] text-secondary">More details</p>
-                <div className="rounded-md bg-surface p-3">
-                  <ActionRequest.Details quote={quote} />
-                </div>
-              </>
+                <span className="font-medium font-mono text-base">
+                  {StringFormatter.truncate(authorizeKey.publicKey)}
+                </span>
+              </div>
             )}
-          </div>
+          </ActionRequest.PaneWithDetails>
         </Layout.Content>
 
         <Layout.Footer>

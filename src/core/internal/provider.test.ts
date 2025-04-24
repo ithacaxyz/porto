@@ -17,14 +17,17 @@ import {
   verifyTypedData,
   waitForCallsStatus,
 } from 'viem/actions'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { setBalance } from '../../../test/src/actions.js'
+import * as Anvil from '../../../test/src/anvil.js'
 import {
   exp1Abi,
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
+import { odysseyTestnet } from '../Chains.js'
 import * as Porto_internal from './porto.js'
+import * as RelayActions from './viem/relay.js'
 
 describe.each([
   ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
@@ -671,9 +674,133 @@ describe.each([
       )
     })
 
-    test.todo('behavior: outdated account')
+    test.runIf(Anvil.enabled)('behavior: outdated account', async () => {
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
 
-    test.todo('behavior: accounts on different versions')
+      const { address } = await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      expect(id).toBeDefined()
+
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
+      })
+
+      await setCode(client, {
+        address,
+        bytecode: Hex.concat('0xef0100', Anvil.delegation001Address),
+      })
+
+      const version = await porto.provider.request({
+        method: 'experimental_getAccountVersion',
+      })
+      expect(version).toMatchInlineSnapshot(`
+        {
+          "current": "0.0.1",
+          "latest": "0.0.2",
+        }
+      `)
+    })
+  })
+
+  describe('experimental_updateAccount', () => {
+    test.runIf(Anvil.enabled && type === 'relay')('default', async () => {
+      vi.spyOn(RelayActions, 'health').mockResolvedValue({
+        delegationImplementation: delegation001Address,
+        delegationProxy: delegation001Address,
+        entrypoint: odysseyTestnet.contracts.entryPoint.address,
+        quoteConfig: {
+          constantRate: 0,
+          gas: {
+            txBuffer: 0,
+            userOpBuffer: 0,
+          },
+          rateTtl: 0,
+          ttl: 0,
+        },
+        version: '1',
+      })
+
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
+
+      const { address } = await porto.provider.request({
+        method: 'experimental_createAccount',
+      })
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
+      })
+
+      vi.resetAllMocks()
+
+      const version = await porto.provider.request({
+        method: 'experimental_getAccountVersion',
+      })
+      expect(version).toMatchInlineSnapshot(`
+        {
+          "current": "0.0.1",
+          "latest": "0.0.2",
+        }
+      `)
+
+      const { id: id2 } = await porto.provider.request({
+        method: 'experimental_updateAccount',
+      })
+
+      if (id2)
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id: id2,
+        })
+
+      {
+        const version = await porto.provider.request({
+          method: 'experimental_getAccountVersion',
+        })
+        expect(version).toMatchInlineSnapshot(`
+          {
+            "current": "0.0.2",
+            "latest": "0.0.2",
+          }
+        `)
+      }
+    })
   })
 
   describe('personal_sign', () => {

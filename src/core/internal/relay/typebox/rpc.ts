@@ -37,6 +37,8 @@ export namespace relay_health {
 
   export const Response = Type.Object({
     /** Delegation proxy address. */
+    delegationImplementation: Primitive.Address,
+    /** Delegation implementation address. */
     delegationProxy: Primitive.Address,
     /** Entrypoint address. */
     entrypoint: Primitive.Address,

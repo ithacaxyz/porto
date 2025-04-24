@@ -1,3 +1,4 @@
+import * as Json from 'ox/Json'
 import { custom, fallback, http, type PublicRpcSchema } from 'viem'
 import {
   createClient,
@@ -112,7 +113,7 @@ export function getClient<
     'wallet_upgradeAccount',
   ]
 
-  const key = [id, chainId].filter(Boolean).join(':')
+  const key = [id, Json.stringify(chain)].filter(Boolean).join(':')
   if (clientCache.has(key)) return clientCache.get(key)!
   const client = createClient({
     chain,

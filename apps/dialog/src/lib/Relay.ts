@@ -53,6 +53,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
       client.uid,
       feeToken.data?.address,
     ],
+    refetchInterval: 15_000,
   })
 }
 

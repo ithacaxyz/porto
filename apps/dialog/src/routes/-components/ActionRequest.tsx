@@ -38,10 +38,6 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const assetDiff = prepareCallsQuery.data?.capabilities.assetDiff
   const quote = prepareCallsQuery.data?.capabilities.quote
-  const [viewQuote, setViewQuote] = React.useState(
-    // default to `true` if no asset diff, otherwise false
-    Boolean(quote && !(assetDiff && address)),
-  )
 
   return (
     <CheckBalance
@@ -61,69 +57,33 @@ export function ActionRequest(props: ActionRequest.Props) {
         </Layout.Header>
 
         <Layout.Content>
-          <div
-            className={cx('space-y-3 rounded-lg px-3 transition-colors', {
-              'bg-surface py-3':
-                prepareCallsQuery.isPending || prepareCallsQuery.isSuccess,
-              'bg-warningTint py-2 text-warning': prepareCallsQuery.isError,
-              'h-19.5': prepareCallsQuery.isPending,
-            })}
+          <ActionRequest.PaneWithDetails
+            loading={prepareCallsQuery.isPending}
+            quote={quote}
+            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
           >
-            {prepareCallsQuery.isPending && (
-              <div className="flex h-full w-full items-center justify-center">
-                <div className="flex size-[24px] w-full items-center justify-center">
-                  <Spinner className="text-secondary" />
-                </div>
+            {prepareCallsQuery.isError && (
+              <div className="space-y-2 text-[14px] text-primary">
+                <p className="font-medium text-warning">Error</p>
+                <p>
+                  An error occurred while simulating the action. Proceed with
+                  caution.
+                </p>
+                <p>
+                  Contact{' '}
+                  <span className="font-medium">{origin?.hostname}</span> for
+                  more information.
+                </p>
               </div>
             )}
 
-            {prepareCallsQuery.isError && (
-              <>
-                <div className="font-medium text-[14px]">Error</div>
-                <div className="space-y-2 text-[14px] text-primary">
-                  <p>
-                    An error occurred while simulating the action. Proceed with
-                    caution.
-                  </p>
-                  <p>
-                    Contact{' '}
-                    <span className="font-medium">{origin?.hostname}</span> for
-                    more information.
-                  </p>
-                </div>
-              </>
+            {assetDiff && address && (
+              <ActionRequest.AssetDiff
+                address={address}
+                assetDiff={assetDiff}
+              />
             )}
-
-            {prepareCallsQuery.isSuccess && (
-              <>
-                {assetDiff && address && (
-                  <ActionRequest.AssetDiff
-                    address={address}
-                    assetDiff={assetDiff}
-                    viewQuote={viewQuote}
-                  />
-                )}
-
-                {quote && (
-                  <>
-                    <div className={viewQuote ? undefined : 'hidden'}>
-                      <ActionRequest.Details quote={quote} />
-                    </div>
-                    {!viewQuote && (
-                      <button
-                        className="flex w-full justify-between text-[13px] text-secondary"
-                        onClick={() => setViewQuote(true)}
-                        type="button"
-                      >
-                        <span>More details</span>
-                        <ChevronDown className="size-4 text-secondary" />
-                      </button>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </div>
+          </ActionRequest.PaneWithDetails>
         </Layout.Content>
 
         <Layout.Footer>
@@ -193,7 +153,7 @@ export namespace ActionRequest {
   }
 
   export function AssetDiff(props: AssetDiff.Props) {
-    const { address, viewQuote } = props
+    const { address } = props
 
     const account = Hooks.useAccount(porto, { address })
 
@@ -259,10 +219,6 @@ export namespace ActionRequest {
             )
           })}
         </div>
-
-        {viewQuote && balances.length > 0 && (
-          <div className="h-[1px] w-full bg-gray6" />
-        )}
       </>
     )
   }
@@ -273,7 +229,6 @@ export namespace ActionRequest {
       assetDiff: NonNullable<
         Rpc.wallet_prepareCalls.Response['capabilities']
       >['assetDiff']
-      viewQuote: boolean
     }
   }
   export function Details(props: Details.Props) {
@@ -331,6 +286,66 @@ export namespace ActionRequest {
     export type Props = {
       chain?: Chains.Chain | undefined
       quote: Quote_relay.Quote
+    }
+  }
+
+  export function PaneWithDetails(props: PaneWithDetails.Props) {
+    const { children, loading, quote, variant = 'default' } = props
+
+    // default to `true` if no children, otherwise false
+    const [viewQuote, setViewQuote] = React.useState(quote && !children)
+    React.useEffect(() => {
+      if (quote && !children) setViewQuote(true)
+    }, [quote, children])
+
+    return (
+      <div
+        className={cx('space-y-3 rounded-lg px-3 transition-colors', {
+          'bg-surface py-3': variant === 'default',
+          'bg-warningTint py-2 text-warning': variant === 'warning',
+          'h-19.5': loading,
+        })}
+      >
+        {loading ? (
+          <div className="flex h-full w-full items-center justify-center">
+            <div className="flex size-[24px] w-full items-center justify-center">
+              <Spinner className="text-secondary" />
+            </div>
+          </div>
+        ) : (
+          <>
+            {children}
+
+            {quote && (
+              <>
+                {children && <div className="h-[1px] w-full bg-gray6" />}
+                <div className={viewQuote ? undefined : 'hidden'}>
+                  <ActionRequest.Details quote={quote} />
+                </div>
+                {!viewQuote && (
+                  <button
+                    className="flex w-full justify-between text-[13px] text-secondary"
+                    onClick={() => setViewQuote(true)}
+                    type="button"
+                  >
+                    <span>More details</span>
+                    <ChevronDown className="size-4 text-secondary" />
+                  </button>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
+    )
+  }
+
+  export namespace PaneWithDetails {
+    export type Props = {
+      children?: React.ReactNode | undefined
+      loading?: boolean | undefined
+      quote?: Quote_relay.Quote | undefined
+      variant?: 'default' | 'warning' | undefined
     }
   }
 

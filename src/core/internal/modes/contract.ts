@@ -8,7 +8,8 @@ import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
-import { readContract } from 'viem/actions'
+import { decodeFunctionResult, encodeFunctionData, parseAbi } from 'viem'
+import { call, readContract } from 'viem/actions'
 import * as DelegationContract from '../_generated/contracts/Delegation.js'
 import * as Account from '../account.js'
 import * as Call from '../call.js'
@@ -143,14 +144,26 @@ export function contract(parameters: contract.Parameters = {}) {
         const delegation = client.chain.contracts.delegation?.address
         if (!delegation) throw new Error('delegation address not found.')
 
-        const [{ version: current }, { version: latest }] = await Promise.all([
-          Delegation.getEip712Domain(client, {
-            account: address,
+        const { data } = await call(client, {
+          data: encodeFunctionData({
+            abi: parseAbi(['function implementation() view returns (address)']),
+            functionName: 'implementation',
           }),
-          Delegation.getEip712Domain(client, {
-            account: delegation,
-          }),
-        ])
+          to: delegation,
+        }).catch(() => ({ data: undefined }))
+
+        const latest = await Delegation.getEip712Domain(client, {
+          account: data ? Hex.slice(data, 12) : delegation,
+        }).then((x) => x.version)
+
+        const current = await Delegation.getEip712Domain(client, {
+          account: address,
+        })
+          .then((x) => x.version)
+          // If the account has not been delegated yet, use the latest version
+          // as they will automatically be updated when delegated.
+          .catch(() => latest)
+
         if (!current || !latest) throw new Error('version not found.')
 
         return { current, latest }
@@ -444,6 +457,10 @@ export function contract(parameters: contract.Parameters = {}) {
         })
 
         return signature
+      },
+
+      async updateAccount(_parameters) {
+        throw new Error('Not implemented.')
       },
 
       async upgradeAccount(parameters) {
