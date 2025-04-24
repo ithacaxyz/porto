@@ -83,7 +83,10 @@ export function UpdateAccount(props: UpdateAccount.Props) {
       onReject={onCancel}
       query={prepareCallsQuery}
     >
-      <Layout loading={sendCallsMutation.isPending} loadingTitle="Updating account...">
+      <Layout
+        loading={sendCallsMutation.isPending}
+        loadingTitle="Updating account..."
+      >
         <Layout.Header>
           <Layout.Header.Default
             content={
