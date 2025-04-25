@@ -5,7 +5,6 @@ import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
-import { useChain } from 'porto/remote/Hooks'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -56,14 +55,10 @@ function TokenSymbol({
 }
 
 export function Dashboard() {
+  const chainId = useChainId()
   const account = useAccount()
-  const chain = useChain(
-    // @ts-expect-error
-    porto,
-    { chainId: account.chainId },
-  )
-  const chainId = chain?.id ?? 84_532
-  const blockExplorer = chain?.blockExplorers?.default.url ?? ''
+
+  const blockExplorer = account.chain?.blockExplorers?.default.url ?? ''
 
   const disconnect = Hooks.useDisconnect()
   const permissions = Hooks.usePermissions()
@@ -682,12 +677,9 @@ function AssetRow({
   )
 
   const chainId = useChainId()
-  const chain = useChain(
-    // @ts-expect-error
-    porto,
-    { chainId },
-  )
-  const blockExplorer = chain?.blockExplorers?.default.url ?? ''
+  const account = useAccount()
+
+  const blockExplorer = account.chain?.blockExplorers?.default.url ?? ''
 
   const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
     chainId,
