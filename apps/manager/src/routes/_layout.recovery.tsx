@@ -16,7 +16,6 @@ import {
 } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { mipdConfig } from '~/lib/Wagmi'
-import { noThrow } from '~/utils'
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
@@ -77,7 +76,7 @@ function RouteComponent() {
 
     try {
       // 1. disconnect in case user is connected from previous sessions
-      await noThrow(() => disconnect.disconnectAsync())
+      await disconnectAll()
 
       // 2. try to connect -- this could fail for a number of reasons:
       // - one of which is the user doesn't have the chain configured
@@ -103,16 +102,19 @@ function RouteComponent() {
     } catch (error) {
       await disconnectAll()
       console.info(error)
+      let message = 'Encountered an error while granting admin permissions.'
+      if (
+        error instanceof Error &&
+        error.message.includes('Key already granted')
+      ) {
+        message = 'Key already granted as admin'
+      }
       toast.custom((t) => (
         <CustomToast
           className={t}
-          description={
-            error instanceof Error
-              ? error.message
-              : 'Encountered an error while granting admin permissions.'
-          }
-          kind="error"
-          title="Error Connecting"
+          description={message}
+          kind="warn"
+          title="Did not go through"
         />
       ))
     } finally {
@@ -236,7 +238,11 @@ function RouteComponent() {
 
             <Button
               className="my-4 h-11! w-full font-medium text-lg!"
-              onClick={() => toast.dismiss()}
+              onClick={() => {
+                disconnectAll()
+                  .catch(() => {})
+                  .finally(() => toast.dismiss())
+              }}
               render={
                 <Link className="" to="..">
                   I'll do this later

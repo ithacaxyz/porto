@@ -1,15 +1,5 @@
 import { Value } from 'ox'
 
-export const noThrow = async <T>(
-  fn: () => T | Promise<T>,
-): Promise<T | undefined> => {
-  try {
-    return await fn()
-  } catch {
-    return undefined
-  }
-}
-
 export const randomArrayElement = <T>(array: T[]): T =>
   array[Math.floor(Math.random() * array.length)] as T
 
