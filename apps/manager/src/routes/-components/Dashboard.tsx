@@ -68,13 +68,9 @@ export function Dashboard() {
   const disconnect = Hooks.useDisconnect()
   const permissions = Hooks.usePermissions()
 
-  const addressTransfers = useAddressTransfers({
-    chainIds: [chainId],
-  })
+  const addressTransfers = useAddressTransfers({ chainIds: [chainId] })
 
-  const swapAssets = useSwapAssets({
-    chainId,
-  })
+  const swapAssets = useSwapAssets({ chainId })
 
   useWatchBlockNumber({
     enabled: account.status === 'connected',
@@ -390,6 +386,15 @@ export function Dashboard() {
 
             const time = DateFormatter.timeToDuration(permission.expiry * 1_000)
 
+            const periods = {
+              day: 'daily',
+              hour: 'hourly',
+              minute: 'minutely',
+              month: 'monthly',
+              week: 'weekly',
+              year: 'yearly',
+            } as const
+
             return (
               <tr
                 className="*:text-xs! *:sm:text-sm!"
@@ -436,7 +441,9 @@ export function Dashboard() {
                   </div>
                 </td>
                 <td className="w-[30px] pl-1">
-                  <span className="text-gray11">{spend?.period}ly</span>
+                  <span className="text-gray11">
+                    {periods[spend?.period as keyof typeof periods]}
+                  </span>
                 </td>
                 <td className="w-min max-w-[25px] text-right">
                   <Ariakit.Button

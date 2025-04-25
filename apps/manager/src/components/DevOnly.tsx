@@ -94,7 +94,7 @@ export function DevOnly() {
         --
       </AriaKit.Button>
       <div className={cx(open ? 'block' : 'hidden')} ref={ref}>
-        <div className="fixed right-0 bottom-0 flex h-fit max-w-full flex-col justify-start gap-x-2 bg-gray1 p-4 outline-none lg:mx-16 lg:max-w-1/2 lg:flex-row">
+        <div className="fixed top-0 left-0 flex h-fit max-w-full flex-col justify-start gap-x-2 bg-gray1 p-4 outline-none lg:mx-16 lg:max-w-1/2 lg:flex-row">
           <div className="grid w-full grid-cols-1 gap-x-2 lg:grid-cols-3">
             <Button
               className="min-w-[120px] max-w-[200px] rounded-none! text-xs sm:w-auto sm:text-base"
