@@ -17,6 +17,14 @@ type RouterContext = {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        content: __APP_VERSION__,
+        name: 'X-App-Version',
+      },
+    ],
+  }),
 })
 
 function RouteComponent() {

@@ -1,6 +1,10 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv extends Environment {}
+declare const __APP_VERSION__: string
+
+interface ImportMetaEnv extends Environment {
+  readonly VERCEL_GIT_COMMIT_SHA: string
+}
 
 interface ImportMeta {
   readonly env: ImportMetaEnv

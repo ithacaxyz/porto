@@ -13,8 +13,15 @@ import { UpdateAccount } from './-components/UpdateAccount'
 
 export const Route = createRootRoute({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        content: __APP_VERSION__,
+        name: 'X-App-Version',
+      },
+    ],
+  }),
 })
-
 function RouteComponent() {
   React.useEffect(() => {
     // Note: we already call `porto.ready()` optimistically in `main.tsx`, but
