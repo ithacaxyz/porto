@@ -61,6 +61,13 @@ function RouteComponent() {
       return undefined
     }
   }
+
+  const disconnectAll = async () =>
+    Promise.all([
+      disconnect.disconnectAsync(),
+      ...connectors.map((connector) => connector.disconnect()),
+    ])
+
   const connectThenGrantAdmin = async (
     event: React.MouseEvent<HTMLButtonElement>,
     connector: Connector,
@@ -92,15 +99,9 @@ function RouteComponent() {
       if (!granted) throw new Error('Failed to grant admin permissions')
 
       setView('success')
-      await Promise.all([
-        await disconnect.disconnectAsync(),
-        ...connectors.map((connector) => connector.disconnect()),
-      ])
+      await disconnectAll()
     } catch (error) {
-      await Promise.all([
-        await disconnect.disconnectAsync(),
-        ...connectors.map((connector) => connector.disconnect()),
-      ])
+      await disconnectAll()
       console.info(error)
       toast.custom((t) => (
         <CustomToast
@@ -115,10 +116,7 @@ function RouteComponent() {
         />
       ))
     } finally {
-      await Promise.all([
-        await disconnect.disconnectAsync(),
-        ...connectors.map((connector) => connector.disconnect()),
-      ])
+      await disconnectAll()
     }
   }
 
