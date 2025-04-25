@@ -27,6 +27,7 @@ export const config = createConfig({
 
 export const mipdConfig = createConfig({
   chains: config.chains,
+  multiInjectedProviderDiscovery: true,
   storage: null,
   transports: config._internal.transports,
 })
