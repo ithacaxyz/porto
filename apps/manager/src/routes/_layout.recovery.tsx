@@ -16,6 +16,7 @@ import {
 } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
 import { mipdConfig } from '~/lib/Wagmi'
+
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
