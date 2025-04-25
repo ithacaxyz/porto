@@ -134,7 +134,7 @@ describe.each([
   })
 
   describe('eth_signTypedData_v4', () => {
-    test('default', async () => {
+    test.runIf(!Anvil.enabled)('default', async () => {
       const { porto } = getPorto()
 
       const { address } = await porto.provider.request({
@@ -803,7 +803,7 @@ describe.each([
   })
 
   describe('personal_sign', () => {
-    test('default', async () => {
+    test.runIf(!Anvil.enabled)('default', async () => {
       const { porto } = getPorto()
 
       const { address } = await porto.provider.request({

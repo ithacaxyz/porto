@@ -4,6 +4,7 @@ import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../../../test/src/actions.js'
 import { exp1Abi, exp1Address } from '../../../../test/src/porto.js'
 import { getPorto } from '../../../../test/src/porto.js'
+import * as Anvil from '../../../../test/src/anvil.js'
 import * as Key from '../key.js'
 import type * as Capabilities from '../relay/typebox/capabilities.js'
 import { sendCalls } from '../relay.js'
@@ -632,7 +633,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
   })
 })
 
-describe('verifySignature', () => {
+describe.runIf(!Anvil.enabled)('verifySignature', () => {
   test('default', async () => {
     const key1 = Key.createHeadlessWebAuthnP256()
     const key2 = Key.createSecp256k1()
