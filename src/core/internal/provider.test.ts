@@ -10,14 +10,8 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { Mode } from 'porto'
-import { encodeFunctionData } from 'viem'
-import {
-  readContract,
-  setCode,
-  verifyMessage,
-  verifyTypedData,
-  waitForCallsStatus,
-} from 'viem/actions'
+import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
+import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
 import { setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
@@ -140,10 +134,9 @@ describe.each([
   })
 
   describe('eth_signTypedData_v4', () => {
-    // TODO(relay): counterfactual signature verification
-    test.skipIf(type === 'relay')('default', async () => {
+    test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto)
+
       const { address } = await porto.provider.request({
         method: 'experimental_createAccount',
       })
@@ -153,10 +146,15 @@ describe.each([
       })
       expect(signature).toBeDefined()
 
-      const valid = await verifyTypedData(client, {
-        ...typedData,
-        address,
-        signature,
+      const { valid } = await porto.provider.request({
+        method: 'wallet_verifySignature',
+        params: [
+          {
+            address,
+            digest: hashTypedData(typedData),
+            signature,
+          },
+        ],
       })
       expect(valid).toBe(true)
     })
@@ -805,10 +803,9 @@ describe.each([
   })
 
   describe('personal_sign', () => {
-    // TODO(relay): counterfactual signature verification
-    test.skipIf(type === 'relay')('default', async () => {
+    test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto)
+
       const { address } = await porto.provider.request({
         method: 'experimental_createAccount',
       })
@@ -818,10 +815,15 @@ describe.each([
       })
       expect(signature).toBeDefined()
 
-      const valid = await verifyMessage(client, {
-        address,
-        message: 'hello',
-        signature,
+      const { valid } = await porto.provider.request({
+        method: 'wallet_verifySignature',
+        params: [
+          {
+            address,
+            digest: hashMessage('hello'),
+            signature,
+          },
+        ],
       })
       expect(valid).toBe(true)
     })

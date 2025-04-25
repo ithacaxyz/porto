@@ -11,14 +11,13 @@ import {
   Value,
 } from 'ox'
 import { Chains } from 'porto'
-import { getClient } from 'porto/core/internal/porto'
 import * as React from 'react'
+import { hashMessage, hashTypedData } from 'viem'
 import {
   generatePrivateKey,
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
-import { verifyMessage, verifyTypedData } from 'viem/actions'
 
 import {
   exp1Address,
@@ -969,11 +968,17 @@ function SignMessage() {
             method: 'eth_accounts',
           })
 
-          const valid = await verifyMessage(getClient(porto), {
-            address: account,
-            message,
-            signature,
+          const { valid } = await porto.provider.request({
+            method: 'wallet_verifySignature',
+            params: [
+              {
+                address: account,
+                digest: hashMessage(message),
+                signature,
+              },
+            ],
           })
+
           setValid(valid)
         }}
       >
@@ -1033,10 +1038,15 @@ function SignTypedData() {
             method: 'eth_accounts',
           })
 
-          const valid = await verifyTypedData(getClient(porto), {
-            ...typedData,
-            address: account,
-            signature,
+          const { valid } = await porto.provider.request({
+            method: 'wallet_verifySignature',
+            params: [
+              {
+                address: account,
+                digest: hashTypedData(typedData),
+                signature,
+              },
+            ],
           })
           setValid(valid)
         }}

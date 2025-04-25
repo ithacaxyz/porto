@@ -611,6 +611,61 @@ export namespace upgradeAccount {
     | Errors.GlobalErrorType
 }
 
+/**
+ * Verifies a signature.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function verifySignature(
+  client: Client,
+  parameters: verifySignature.Parameters,
+): Promise<verifySignature.ReturnType> {
+  const { address, chainId = client.chain?.id, digest, signature } = parameters
+  try {
+    const method = 'wallet_verifySignature' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(Rpc.wallet_verifySignature.Parameters, {
+            chainId,
+            digest,
+            keyIdOrAddress: address,
+            signature,
+          }),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return Value.Parse(Rpc.wallet_verifySignature.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace verifySignature {
+  export type Parameters = Omit<
+    Rpc.wallet_verifySignature.Parameters,
+    'chainId' | 'keyIdOrAddress'
+  > & {
+    address: Address.Address
+    chainId?: number | undefined
+  }
+
+  export type ReturnType = Rpc.wallet_verifySignature.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
 export function parseExecutionError<const calls extends readonly unknown[]>(
   e: unknown,
   { calls }: { calls?: sendCalls.Parameters<calls>['calls'] | undefined } = {},

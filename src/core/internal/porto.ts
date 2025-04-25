@@ -111,6 +111,7 @@ export function getClient<
     'wallet_sendPreparedCalls',
     'wallet_sendTransaction',
     'wallet_upgradeAccount',
+    'wallet_verifySignature',
   ]
 
   const key = [id, Json.stringify(chain)].filter(Boolean).join(':')

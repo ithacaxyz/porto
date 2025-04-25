@@ -55,6 +55,10 @@ export type Schema = RpcSchema_ox.From<
       Request: Static<typeof Rpc.wallet_upgradeAccount.Request>
       ReturnType: Static<typeof Rpc.wallet_upgradeAccount.Response>
     }
+  | {
+      Request: Static<typeof Rpc.wallet_verifySignature.Request>
+      ReturnType: Static<typeof Rpc.wallet_verifySignature.Response>
+    }
 >
 
 export type Viem = RpcSchema.ToViem<Schema>

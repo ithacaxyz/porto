@@ -103,6 +103,10 @@ export type Schema =
           Request: Static<typeof Rpc.wallet_sendCalls.Request>
           ReturnType: Static<typeof Rpc.wallet_sendCalls.Response>
         }
+      | {
+          Request: Static<typeof Rpc.wallet_verifySignature.Request>
+          ReturnType: Static<typeof Rpc.wallet_verifySignature.Response>
+        }
     >
 
 export type Viem = [

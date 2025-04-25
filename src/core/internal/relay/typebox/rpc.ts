@@ -468,3 +468,53 @@ export namespace wallet_upgradeAccount {
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
+
+export namespace wallet_verifySignature {
+  export const Parameters = Type.Object({
+    /** Chain ID of the account with the given key configured. */
+    chainId: Type.Number(),
+    /** Digest of the message to verify. */
+    digest: Primitive.Hex,
+    /** Key ID or address of the account. */
+    keyIdOrAddress: Primitive.Hex,
+    /** Signature to verify. */
+    signature: Primitive.Hex,
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  /** Request for `wallet_verifySignature`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_verifySignature'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  /** Response for `wallet_verifySignature`. */
+  export const Response = Type.Object({
+    /** Proof that can be used to verify the signature. */
+    proof: Schema.Optional(
+      Type.Union([
+        Type.Object({
+          /** Address of an account (either delegated or stored) that the signature was verified against. */
+          account: Primitive.Address,
+          /** Signature proving that account is associated with the requested `keyId`. */
+          idSignature: Schema.Optional(
+            Type.Object({
+              r: Primitive.Hex,
+              s: Primitive.Hex,
+              v: Primitive.Hex,
+            }),
+          ),
+          /** The key hash that signed the digest. */
+          keyHash: Primitive.Hex,
+          /** PREP account initialization data. Provided, if account is a stored PREP account. */
+          prep_init_data: Schema.Optional(Primitive.Hex),
+        }),
+        Type.Null(),
+      ]),
+    ),
+    /** Whether the signature is valid. */
+    valid: Type.Boolean(),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}

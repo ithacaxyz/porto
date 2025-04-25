@@ -33,6 +33,7 @@ export const Request = Type.Union([
   RpcRequest.wallet_prepareCalls.Request,
   RpcRequest.wallet_sendCalls.Request,
   RpcRequest.wallet_sendPreparedCalls.Request,
+  RpcRequest.wallet_verifySignature.Request,
 ])
 
 export function parseRequest(request: unknown): parseRequest.ReturnType {

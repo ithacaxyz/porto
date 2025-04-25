@@ -3,6 +3,8 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
+import { verifyHash } from 'viem/actions'
+
 import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
@@ -12,6 +14,7 @@ import * as Permissions from './permissions.js'
 import * as Porto_internal from './porto.js'
 import * as Rpc from './typebox/rpc.js'
 import * as Schema from './typebox/schema.js'
+import * as Relay from './viem/relay.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -924,6 +927,36 @@ export function from<
           return { id } satisfies Schema.Static<
             typeof Rpc.wallet_sendCalls.Response
           >
+        }
+
+        case 'wallet_verifySignature': {
+          const [parameters] = request._decoded.params
+          const { address, chainId, digest, signature } = parameters
+
+          const client = getClient(chainId)
+
+          const result = await Relay.verifySignature(client, {
+            address,
+            chainId,
+            digest,
+            signature,
+          }).catch(async () => {
+            const valid = await verifyHash(client, {
+              address,
+              hash: digest,
+              signature,
+            })
+            return {
+              proof: null,
+              valid,
+            }
+          })
+
+          return {
+            ...result,
+            address,
+            chainId: Hex.fromNumber(client.chain.id),
+          } satisfies Schema.Static<typeof Rpc.wallet_verifySignature.Response>
         }
       }
     },

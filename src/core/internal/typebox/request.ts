@@ -578,3 +578,37 @@ export namespace wallet_sendPreparedCalls {
   )
   export type Response = Schema.StaticDecode<typeof Response>
 }
+
+export namespace wallet_verifySignature {
+  export const Parameters = Type.Object({
+    /** Address of the account. */
+    address: Primitive.Address,
+    /** Chain ID. */
+    chainId: Schema.Optional(Primitive.Number),
+    /** Digest to verify. */
+    digest: Primitive.Hex,
+    /** Signature to verify. */
+    signature: Primitive.Hex,
+  })
+  export type Parameters = Schema.StaticDecode<typeof Parameters>
+
+  /** Request for `wallet_verifySignature`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_verifySignature'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Schema.StaticDecode<typeof Request>
+
+  /** Response for `wallet_verifySignature`. */
+  export const Response = Type.Object({
+    /** Address of the account. */
+    address: Primitive.Address,
+    /** Chain ID. */
+    chainId: Primitive.Number,
+    /** Proof that can be used to verify the signature. */
+    proof: Schema.Optional(Type.Unknown()),
+    /** Whether the signature is valid. */
+    valid: Type.Boolean(),
+  })
+  export type Response = Schema.StaticDecode<typeof Response>
+}
