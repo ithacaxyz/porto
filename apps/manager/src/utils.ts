@@ -1,10 +1,11 @@
 import { Value } from 'ox'
 
-export const noThrow = <T>(fn: () => T) => {
+export const noThrow = async <T>(
+  fn: () => T | Promise<T>,
+): Promise<T | undefined> => {
   try {
-    return fn()
-  } catch (error) {
-    console.info(error)
+    return await fn()
+  } catch {
     return undefined
   }
 }
