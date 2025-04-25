@@ -115,10 +115,10 @@ function RouteComponent() {
         />
       ))
     } finally {
-      // await Promise.all([
-      //   await disconnect.disconnectAsync(),
-      //   ...connectors.map((connector) => connector.disconnect()),
-      // ])
+      await Promise.all([
+        await disconnect.disconnectAsync(),
+        ...connectors.map((connector) => connector.disconnect()),
+      ])
     }
   }
 
