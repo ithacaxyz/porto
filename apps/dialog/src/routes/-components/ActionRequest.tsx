@@ -27,7 +27,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     props
 
   const account = Hooks.useAccount(porto, { address })
-  const origin = Dialog.useStore((state) => state.referrer?.origin)
+  const url = Dialog.useStore((state) => state.referrer?.url)
 
   const prepareCallsQuery = Relay.usePrepareCalls({
     address,
@@ -70,9 +70,8 @@ export function ActionRequest(props: ActionRequest.Props) {
                   caution.
                 </p>
                 <p>
-                  Contact{' '}
-                  <span className="font-medium">{origin?.hostname}</span> for
-                  more information.
+                  Contact <span className="font-medium">{url?.hostname}</span>{' '}
+                  for more information.
                 </p>
               </div>
             )}

@@ -13,7 +13,7 @@ export function SignUp(props: SignUp.Props) {
 
   const [showLearn, setShowLearn] = useState(false)
 
-  const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
 
   if (showLearn) return <SignUp.Learn onDone={() => setShowLearn(false)} />
   return (

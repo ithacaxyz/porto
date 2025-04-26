@@ -77,7 +77,7 @@ export namespace SignMessage {
     const { address, loading, onApprove, onReject } = props
 
     const account = Hooks.useAccount(porto, { address })
-    const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
+    const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
 
     return (
       <Layout loading={loading} loadingTitle="Authenticating...">

@@ -18,7 +18,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const { authorizeKey, feeToken, loading, onApprove, onReject } = props
 
   const account = Hooks.useAccount(porto)
-  const origin = Dialog.useStore((state) => state.referrer?.origin)
+  const url = Dialog.useStore((state) => state.referrer?.url)
 
   const prepareCallsQuery = Relay.usePrepareCalls({
     authorizeKeys: [Key.from(authorizeKey)],
@@ -58,9 +58,8 @@ export function GrantAdmin(props: GrantAdmin.Props) {
                     network issues or insufficient funds.
                   </p>
                   <p>
-                    Contact{' '}
-                    <span className="font-medium">{origin?.hostname}</span> if
-                    this issue persists.
+                    Contact <span className="font-medium">{url?.hostname}</span>{' '}
+                    if this issue persists.
                   </p>
                 </div>
               </div>

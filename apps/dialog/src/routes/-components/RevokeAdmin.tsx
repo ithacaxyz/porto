@@ -18,7 +18,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
   const revokeKey = admins?.data?.keys?.find(
     (admin) => admin.id === revokeKeyId,
   )
-  const origin = Dialog.useStore((state) => state.referrer?.origin)
+  const url = Dialog.useStore((state) => state.referrer?.url)
 
   const prepareCallsQuery = Relay.usePrepareCalls({
     enabled: !!revokeKey,
@@ -57,9 +57,8 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
                     network issues or insufficient funds.
                   </p>
                   <p>
-                    Contact{' '}
-                    <span className="font-medium">{origin?.hostname}</span> if
-                    this issue persists.
+                    Contact <span className="font-medium">{url?.hostname}</span>{' '}
+                    if this issue persists.
                   </p>
                 </div>
               </div>

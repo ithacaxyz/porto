@@ -13,8 +13,8 @@ export declare namespace store {
     referrer:
       | {
           icon?: string | undefined
-          origin: URL
           title: string
+          url: URL
         }
       | undefined
   }

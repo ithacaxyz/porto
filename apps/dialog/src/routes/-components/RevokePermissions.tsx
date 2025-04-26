@@ -12,7 +12,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
 
   const { data } = Hooks.usePermissions()
   const permissions = data?.find((x) => x.id === id)?.permissions
-  const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
 
   return (
     <Layout loading={loading} loadingTitle="Authorizing...">

@@ -11,7 +11,7 @@ export function SignIn(props: SignIn.Props) {
   const { loading, onApprove, permissions } = props
 
   const account = Hooks.useAccount(porto)
-  const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
 
   return (
     <Layout loading={loading} loadingTitle="Signing in...">

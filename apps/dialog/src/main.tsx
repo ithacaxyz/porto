@@ -32,7 +32,7 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
     mode,
     referrer: {
       ...referrer,
-      origin: new URL(document.referrer),
+      url: new URL(document.referrer),
     },
   })
 })
