@@ -171,7 +171,7 @@ function RouteComponent() {
               </div>
             )}
             {env && (
-              <div className="ms-2 flex h-5 items-center rounded-full bg-surfaceHover px-1.25 text-[11.5px] text-secondary capitalize">
+              <div className="flex h-5 items-center rounded-full bg-surfaceHover px-1.25 text-[11.5px] text-secondary capitalize">
                 {env}
               </div>
             )}
