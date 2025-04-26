@@ -11,16 +11,18 @@ export function useVerify() {
 
       const response = (await fetch(
         'https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/refs/heads/main/src/config.json',
-      ).then((x) => x.json())) as {
-        whitelist: string[]
-        blacklist: string[]
+      )
+        .then((x) => x.json())
+        .catch(() => ({}))) as {
+        whitelist?: string[] | undefined
+        blacklist?: string[] | undefined
       }
 
       const whitelisted =
-        response.whitelist.some((h) => hostname.endsWith(h)) ||
+        response.whitelist?.some((h) => hostname.endsWith(h)) ||
         extraConfig.whitelist.some((h) => hostname.endsWith(h))
       const blacklisted =
-        response.blacklist.some((h) => hostname.endsWith(h)) ||
+        response.blacklist?.some((h) => hostname.endsWith(h)) ||
         extraConfig.blacklist.some((h) => hostname.endsWith(h))
 
       if (blacklisted) return { status: 'danger' }

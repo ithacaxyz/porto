@@ -1,4 +1,5 @@
 import { Env, UserAgent } from '@porto/apps'
+import { Button } from '@porto/apps/components'
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -165,11 +166,6 @@ function RouteComponent() {
                 <LucideBadgeCheck className="size-4 text-accent" />
               </div>
             )}
-            {verifyStatus.data?.status === 'danger' && (
-              <div className="flex items-center justify-center">
-                <LucideCircleAlert className="size-4 text-destructive" />
-              </div>
-            )}
             {env && (
               <div className="flex h-5 items-center rounded-full bg-surfaceHover px-1.25 text-[11.5px] text-secondary capitalize">
                 {env}
@@ -196,17 +192,19 @@ function RouteComponent() {
             className="flex flex-grow *:w-full"
             key={id} // rehydrate on id changes
           >
-            {account.isConnecting || account.isReconnecting ? (
-              <Layout loading loadingTitle="Loading...">
-                <div />
-              </Layout>
-            ) : search.requireUpdatedAccount ? (
-              <UpdateAccount.CheckUpdate>
+            <CheckReferrer>
+              {account.isConnecting || account.isReconnecting ? (
+                <Layout loading loadingTitle="Loading...">
+                  <div />
+                </Layout>
+              ) : search.requireUpdatedAccount ? (
+                <UpdateAccount.CheckUpdate>
+                  <Outlet />
+                </UpdateAccount.CheckUpdate>
+              ) : (
                 <Outlet />
-              </UpdateAccount.CheckUpdate>
-            ) : (
-              <Outlet />
-            )}
+              )}
+            </CheckReferrer>
           </div>
         </div>
       </div>
@@ -221,6 +219,57 @@ function RouteComponent() {
       </React.Suspense>
     </>
   )
+}
+
+function CheckReferrer(props: CheckReferrer.Props) {
+  const { children } = props
+
+  const [proceed, setProceed] = React.useState(false)
+
+  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
+  const verifyStatus = Referrer.useVerify()
+
+  if (proceed) return children
+  if (verifyStatus.data?.status !== 'danger') return children
+  return (
+    <Layout>
+      <Layout.Header>
+        <Layout.Header.Default
+          content={
+            <>
+              <span className="font-medium">{hostname}</span> has been flagged
+              as potentially malicious, and may trick you into signing actions
+              that may take all your assets.
+            </>
+          }
+          icon={LucideCircleAlert}
+          title="Malicious website detected"
+          variant="destructive"
+        />
+      </Layout.Header>
+
+      <Layout.Footer>
+        <Layout.Footer.Actions>
+          <Button
+            className="flex-1"
+            onClick={() => setProceed(true)}
+            variant="destructive"
+          >
+            Proceed anyway
+          </Button>
+          <Button className="flex-1" onClick={() => Actions.rejectAll(porto)}>
+            Close
+          </Button>
+        </Layout.Footer.Actions>
+      </Layout.Footer>
+    </Layout>
+  )
+}
+
+declare namespace CheckReferrer {
+  type Props = {
+    children: React.ReactNode
+  }
 }
 
 const TanStackRouterDevtools =
