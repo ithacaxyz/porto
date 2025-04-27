@@ -256,7 +256,7 @@ importers:
         version: 8.1.0(@svgr/core@8.1.0(typescript@5.8.3))
       '@tailwindcss/vite':
         specifier: 'catalog:'
-        version: 4.1.4(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.1.4(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       '@tanstack/react-query-devtools':
         specifier: 'catalog:'
         version: 5.74.3(@tanstack/react-query@5.74.3(react@19.1.0))(react@19.1.0)
@@ -265,7 +265,7 @@ importers:
         version: 1.116.0(@tanstack/react-router@1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tanstack/router-core@1.115.3)(csstype@3.1.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tiny-invariant@1.3.3)
       '@tanstack/router-plugin':
         specifier: 'catalog:'
-        version: 1.116.1(@tanstack/react-router@1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(webpack@5.99.6)
+        version: 1.116.1(@tanstack/react-router@1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(webpack@5.99.6)
       '@types/react':
         specifier: 'catalog:'
         version: 19.0.12
@@ -274,7 +274,7 @@ importers:
         version: 19.0.4(@types/react@19.0.12)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
-        version: 4.4.0(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.4.0(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       globals:
         specifier: 'catalog:'
         version: 16.0.0
@@ -295,13 +295,13 @@ importers:
         version: 22.1.0(@svgr/core@8.1.0(typescript@5.8.3))
       vite:
         specifier: 'catalog:'
-        version: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+        version: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-mkcert:
         specifier: 'catalog:'
-        version: 1.17.8(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 1.17.8(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       vite-tsconfig-paths:
         specifier: ^5.1.4
-        version: 5.1.4(typescript@5.8.3)(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 5.1.4(typescript@5.8.3)(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
 
   apps/docs:
     dependencies:
@@ -346,7 +346,7 @@ importers:
         version: 2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3)
       vocs:
         specifier: latest
-        version: 1.0.11(@types/node@22.14.1)(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(acorn@8.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.3)(yaml@2.7.0)
+        version: 1.0.11(@types/node@22.15.2)(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(acorn@8.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.3)(yaml@2.7.0)
       wagmi:
         specifier: 'catalog:'
         version: 2.15.0(@tanstack/query-core@5.74.3)(@tanstack/react-query@5.74.3(react@19.1.0))(@types/react@19.0.12)(bufferutil@4.0.9)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3))(zod@3.24.3)
@@ -371,10 +371,10 @@ importers:
         version: 22.1.0(@svgr/core@8.1.0(typescript@5.8.3))
       vite:
         specifier: 'catalog:'
-        version: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+        version: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-mkcert:
         specifier: 'catalog:'
-        version: 1.17.8(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 1.17.8(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
 
   apps/extension:
     dependencies:
@@ -399,13 +399,13 @@ importers:
         version: 19.0.4(@types/react@19.0.12)
       '@wxt-dev/module-react':
         specifier: ^1.1.2
-        version: 1.1.3(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(wxt@0.19.28(@types/node@22.14.1)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0))
+        version: 1.1.3(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(wxt@0.19.28(@types/node@22.15.2)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0))
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
       wxt:
         specifier: ^0.19.13
-        version: 0.19.28(@types/node@22.14.1)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0)
+        version: 0.19.28(@types/node@22.15.2)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0)
 
   apps/faucet:
     dependencies:
@@ -506,7 +506,7 @@ importers:
         version: 8.1.0(@svgr/core@8.1.0(typescript@5.8.3))
       '@tailwindcss/vite':
         specifier: 'catalog:'
-        version: 4.1.4(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.1.4(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       '@tanstack/react-query-devtools':
         specifier: 'catalog:'
         version: 5.74.3(@tanstack/react-query@5.74.3(react@19.1.0))(react@19.1.0)
@@ -515,7 +515,7 @@ importers:
         version: 1.116.0(@tanstack/react-router@1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tanstack/router-core@1.115.3)(csstype@3.1.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tiny-invariant@1.3.3)
       '@tanstack/router-plugin':
         specifier: 'catalog:'
-        version: 1.116.1(@tanstack/react-router@1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(webpack@5.99.6)
+        version: 1.116.1(@tanstack/react-router@1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(webpack@5.99.6)
       '@types/react':
         specifier: 'catalog:'
         version: 19.0.12
@@ -524,7 +524,7 @@ importers:
         version: 19.0.4(@types/react@19.0.12)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
-        version: 4.4.0(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.4.0(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       globals:
         specifier: 'catalog:'
         version: 16.0.0
@@ -545,13 +545,13 @@ importers:
         version: 22.1.0(@svgr/core@8.1.0(typescript@5.8.3))
       vite:
         specifier: 'catalog:'
-        version: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+        version: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-mkcert:
         specifier: 'catalog:'
-        version: 1.17.8(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 1.17.8(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       vite-tsconfig-paths:
         specifier: ^5.1.4
-        version: 5.1.4(typescript@5.8.3)(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 5.1.4(typescript@5.8.3)(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
 
   apps/playground:
     dependencies:
@@ -560,7 +560,7 @@ importers:
         version: link:../~internal
       '@tailwindcss/vite':
         specifier: 'catalog:'
-        version: 4.1.4(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.1.4(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       mipd:
         specifier: ^0.0.7
         version: 0.0.7(typescript@5.8.3)
@@ -591,7 +591,7 @@ importers:
         version: 19.0.4(@types/react@19.0.12)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
-        version: 4.4.0(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.4.0(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       globals:
         specifier: 'catalog:'
         version: 16.0.0
@@ -603,10 +603,25 @@ importers:
         version: 5.8.3
       vite:
         specifier: 'catalog:'
-        version: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+        version: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-mkcert:
         specifier: 'catalog:'
-        version: 1.17.8(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 1.17.8(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+
+  apps/verify:
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20250412.0
+        version: 4.20250412.0
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.14.1
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      wrangler:
+        specifier: ^4.10.0
+        version: 4.10.0(@cloudflare/workers-types@4.20250412.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
   apps/wagmi:
     dependencies:
@@ -637,7 +652,7 @@ importers:
         version: 19.0.4(@types/react@19.0.12)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
-        version: 4.4.0(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.4.0(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       globals:
         specifier: 'catalog:'
         version: 16.0.0
@@ -646,10 +661,10 @@ importers:
         version: 5.8.3
       vite:
         specifier: 'catalog:'
-        version: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+        version: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-mkcert:
         specifier: 'catalog:'
-        version: 1.17.8(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 1.17.8(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
 
   apps/~internal:
     dependencies:
@@ -695,7 +710,7 @@ importers:
         version: 19.0.4(@types/react@19.0.12)
       vite:
         specifier: 'catalog:'
-        version: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+        version: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
 
   examples/next:
     dependencies:
@@ -763,7 +778,7 @@ importers:
         version: 19.0.4(@types/react@19.0.12)
       '@vitejs/plugin-react':
         specifier: 'catalog:'
-        version: 4.4.0(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 4.4.0(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       globals:
         specifier: 'catalog:'
         version: 16.0.0
@@ -772,10 +787,10 @@ importers:
         version: 5.8.3
       vite:
         specifier: 'catalog:'
-        version: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+        version: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       vite-plugin-mkcert:
         specifier: latest
-        version: 1.17.8(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+        version: 1.17.8(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
 
   src:
     dependencies:
@@ -3556,6 +3571,9 @@ packages:
 
   '@types/node@22.14.1':
     resolution: {integrity: sha512-u0HuPQwe/dHrItgHHpmw3N2fYCR6x4ivMNbPHRkBVP4CvN+kiRrKHWk3i8tXiO/joPwXLMYvF9TTF0eqgHIuOw==}
+
+  '@types/node@22.15.2':
+    resolution: {integrity: sha512-uKXqKN9beGoMdBfcaTY1ecwz6ctxuJAcUlwE55938g0ZJ8lRxwAZqRz2AJ4pzpt5dHdTPMB863UZ0ESiFUcP7A==}
 
   '@types/react-dom@19.0.4':
     resolution: {integrity: sha512-4fSQ8vWFkg+TGhePfUzVmat3eC14TXYSsiiDSLI0dVLsrm9gZFABjPy/Qu6TKgl1tq1Bu1yDsuQgY3A3DOjCcg==}
@@ -8233,14 +8251,6 @@ packages:
       typescript:
         optional: true
 
-  viem@2.27.0:
-    resolution: {integrity: sha512-pKw2dcwDi6TaWlTzLHYazOgjO1GgbUpE1zdLsLNSiCjHNrMTpL/teL0wVHnJDLiB2tR5CL19LBqefYNtRUkH5Q==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   viem@2.28.0:
     resolution: {integrity: sha512-Z4W5O1pe+6pirYTFm451FcZmfGAUxUWt2L/eWC+YfTF28j/8rd7q6MBAi05lMN4KhLJjhN0s5YGIPB+kf1L20g==}
     peerDependencies:
@@ -10814,7 +10824,7 @@ snapshots:
   '@safe-global/safe-apps-sdk@9.1.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3)':
     dependencies:
       '@safe-global/safe-gateway-typescript-sdk': 3.22.9
-      viem: 2.27.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3)
+      viem: 2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -11258,20 +11268,20 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.1.4
       '@tailwindcss/oxide-win32-x64-msvc': 4.1.4
 
-  '@tailwindcss/vite@4.0.7(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))':
+  '@tailwindcss/vite@4.0.7(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
       '@tailwindcss/node': 4.0.7
       '@tailwindcss/oxide': 4.0.7
       lightningcss: 1.29.3
       tailwindcss: 4.0.7
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
 
-  '@tailwindcss/vite@4.1.4(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))':
+  '@tailwindcss/vite@4.1.4(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
       '@tailwindcss/node': 4.1.4
       '@tailwindcss/oxide': 4.1.4
       tailwindcss: 4.1.4
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
 
   '@tanstack/history@1.115.0': {}
 
@@ -11360,7 +11370,7 @@ snapshots:
     optionalDependencies:
       '@tanstack/react-router': 1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
-  '@tanstack/router-plugin@1.116.1(@tanstack/react-router@1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(webpack@5.99.6)':
+  '@tanstack/router-plugin@1.116.1(@tanstack/react-router@1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(webpack@5.99.6)':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.10)
@@ -11381,7 +11391,7 @@ snapshots:
       zod: 3.24.3
     optionalDependencies:
       '@tanstack/react-router': 1.116.0(patch_hash=d040a32b2882bb1304fb0c2ba45e98919dec02b25c255882a212122728960907)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       webpack: 5.99.6
     transitivePeerDependencies:
       - supports-color
@@ -11483,6 +11493,10 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+  '@types/node@22.15.2':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/react-dom@19.0.4(@types/react@19.0.12)':
     dependencies:
       '@types/react': 19.0.12
@@ -11501,7 +11515,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
     optional: true
 
   '@typescript/vfs@1.6.1(typescript@5.8.3)':
@@ -11519,12 +11533,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vanilla-extract/compiler@0.1.2(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)':
+  '@vanilla-extract/compiler@0.1.2(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)':
     dependencies:
       '@vanilla-extract/css': 1.17.1
       '@vanilla-extract/integration': 8.0.1
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
-      vite-node: 3.1.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite-node: 3.1.1(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -11579,11 +11593,11 @@ snapshots:
 
   '@vanilla-extract/private@1.0.6': {}
 
-  '@vanilla-extract/vite-plugin@5.0.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)':
+  '@vanilla-extract/vite-plugin@5.0.1(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)':
     dependencies:
-      '@vanilla-extract/compiler': 0.1.2(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      '@vanilla-extract/compiler': 0.1.2(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       '@vanilla-extract/integration': 8.0.1
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -11599,25 +11613,25 @@ snapshots:
       - tsx
       - yaml
 
-  '@vitejs/plugin-react@4.3.4(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))':
+  '@vitejs/plugin-react@4.3.4(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-react-jsx-source': 7.25.9(@babel/core@7.26.10)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.4.0(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))':
+  '@vitejs/plugin-react@4.4.0(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-transform-react-jsx-source': 7.25.9(@babel/core@7.26.10)
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -12207,10 +12221,10 @@ snapshots:
 
   '@webext-core/match-patterns@1.0.3': {}
 
-  '@wxt-dev/module-react@1.1.3(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(wxt@0.19.28(@types/node@22.14.1)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0))':
+  '@wxt-dev/module-react@1.1.3(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(wxt@0.19.28(@types/node@22.15.2)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0))':
     dependencies:
-      '@vitejs/plugin-react': 4.3.4(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
-      wxt: 0.19.28(@types/node@22.14.1)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0)
+      '@vitejs/plugin-react': 4.3.4(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+      wxt: 0.19.28(@types/node@22.15.2)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0)
     transitivePeerDependencies:
       - supports-color
       - vite
@@ -12653,7 +12667,7 @@ snapshots:
 
   chrome-launcher@1.1.0:
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 2.0.1
@@ -13415,7 +13429,7 @@ snapshots:
 
   eval@0.1.8:
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       require-like: 0.1.2
 
   eventemitter2@6.4.9: {}
@@ -14289,7 +14303,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -17224,23 +17238,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.27.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3):
-    dependencies:
-      '@noble/curves': 1.8.1
-      '@noble/hashes': 1.7.1
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.8.3)(zod@3.24.3)
-      isows: 1.0.6(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      ox: 0.6.9(typescript@5.8.3)(zod@3.24.3)
-      ws: 8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-    optionalDependencies:
-      typescript: 5.8.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
   viem@2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3):
     dependencies:
       '@noble/curves': 1.8.2
@@ -17279,22 +17276,43 @@ snapshots:
       - tsx
       - yaml
 
-  vite-plugin-mkcert@1.17.8(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)):
+  vite-node@3.1.1(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0):
+    dependencies:
+      cac: 6.7.14
+      debug: 4.4.0
+      es-module-lexer: 1.6.0
+      pathe: 2.0.3
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+    transitivePeerDependencies:
+      - '@types/node'
+      - jiti
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - yaml
+
+  vite-plugin-mkcert@1.17.8(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)):
     dependencies:
       axios: 1.8.4(debug@4.4.0)
       debug: 4.4.0
       picocolors: 1.1.1
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - supports-color
 
-  vite-tsconfig-paths@5.1.4(typescript@5.8.3)(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)):
+  vite-tsconfig-paths@5.1.4(typescript@5.8.3)(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)):
     dependencies:
       debug: 4.4.0
       globrex: 0.1.2
       tsconfck: 3.1.5(typescript@5.8.3)
     optionalDependencies:
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -17306,6 +17324,20 @@ snapshots:
       rollup: 4.40.0
     optionalDependencies:
       '@types/node': 22.14.1
+      fsevents: 2.3.3
+      jiti: 2.4.2
+      lightningcss: 1.29.3
+      terser: 5.39.0
+      tsx: 4.19.3
+      yaml: 2.7.0
+
+  vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0):
+    dependencies:
+      esbuild: 0.25.2
+      postcss: 8.5.3
+      rollup: 4.40.0
+    optionalDependencies:
+      '@types/node': 22.15.2
       fsevents: 2.3.3
       jiti: 2.4.2
       lightningcss: 1.29.3
@@ -17352,7 +17384,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@1.0.11(@types/node@22.14.1)(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(acorn@8.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.3)(yaml@2.7.0):
+  vocs@1.0.11(@types/node@22.15.2)(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(acorn@8.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.3)(yaml@2.7.0):
     dependencies:
       '@floating-ui/react': 0.27.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@hono/node-server': 1.13.8(hono@4.7.4)
@@ -17370,11 +17402,11 @@ snapshots:
       '@shikijs/rehype': 1.29.2
       '@shikijs/transformers': 1.29.2
       '@shikijs/twoslash': 1.29.2(typescript@5.8.3)
-      '@tailwindcss/vite': 4.0.7(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+      '@tailwindcss/vite': 4.0.7(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       '@vanilla-extract/css': 1.17.1
       '@vanilla-extract/dynamic': 2.1.2
-      '@vanilla-extract/vite-plugin': 5.0.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
-      '@vitejs/plugin-react': 4.3.4(vite@6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
+      '@vanilla-extract/vite-plugin': 5.0.1(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
+      '@vitejs/plugin-react': 4.3.4(vite@6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
       autoprefixer: 10.4.20(postcss@8.5.3)
       cac: 6.7.14
       chroma-js: 3.1.2
@@ -17421,7 +17453,7 @@ snapshots:
       ua-parser-js: 1.0.40
       unified: 11.0.5
       unist-util-visit: 5.0.0
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
     transitivePeerDependencies:
       - '@types/node'
       - '@types/react'
@@ -17690,7 +17722,7 @@ snapshots:
       bufferutil: 4.0.9
       utf-8-validate: 5.0.10
 
-  wxt@0.19.28(@types/node@22.14.1)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0):
+  wxt@0.19.28(@types/node@22.15.2)(bufferutil@4.0.9)(lightningcss@1.29.3)(rollup@4.40.0)(terser@5.39.0)(tsx@4.19.3)(utf-8-validate@5.0.10)(yaml@2.7.0):
     dependencies:
       '@1natsu/wait-element': 4.1.2
       '@aklinker1/rollup-plugin-visualizer': 5.12.0(rollup@4.40.0)
@@ -17736,8 +17768,8 @@ snapshots:
       publish-browser-extension: 3.0.0
       scule: 1.3.0
       unimport: 3.14.6(rollup@4.40.0)
-      vite: 6.2.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
-      vite-node: 3.1.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite: 6.2.3(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite-node: 3.1.1(@types/node@22.15.2)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       web-ext-run: 0.2.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       webextension-polyfill: 0.12.0
     transitivePeerDependencies:
