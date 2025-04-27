@@ -9,17 +9,17 @@
   },
   "dependencies": {
     "@tanstack/react-query": "catalog:",
+    "next": "latest",
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "next": "latest",
-    "wagmi": "catalog:",
-    "viem": "catalog:"
+    "viem": "catalog:",
+    "wagmi": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
     "@types/node": "latest",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:"
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
   }
 }

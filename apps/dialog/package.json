@@ -14,12 +14,12 @@
   "dependencies": {
     "@ariakit/react": "catalog:",
     "@porto/apps": "workspace:*",
+    "@sentry/react": "catalog:",
+    "@sentry/vite-plugin": "catalog:",
     "@tanstack/query-sync-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/react-router": "catalog:",
-    "@sentry/react": "catalog:",
-    "@sentry/vite-plugin": "catalog:",
     "@wagmi/core": "catalog:",
     "cuer": "^0.0.2",
     "cva": "catalog:",
@@ -31,8 +31,8 @@
     "zustand": "catalog:"
   },
   "devDependencies": {
-    "@porto/apps": "workspace:*",
     "@iconify/json": "catalog:",
+    "@porto/apps": "workspace:*",
     "@svgr/core": "catalog:",
     "@svgr/plugin-jsx": "catalog:",
     "@tailwindcss/vite": "catalog:",

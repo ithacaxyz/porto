@@ -1,6 +1,11 @@
+import ChildProcess from 'node:child_process'
 import Icons from 'unplugin-icons/vite'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
+
+const commitSha =
+  ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
+  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
 
 export default defineConfig({
   description: 'Next-gen Account for Ethereum',
@@ -11,6 +16,7 @@ export default defineConfig({
           content="width=device-width, initial-scale=1, maximum-scale=1"
           name="viewport"
         />
+        <meta content={commitSha} name="X-App-Version" />
       </>
     )
   },

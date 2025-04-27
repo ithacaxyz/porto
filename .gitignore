@@ -49,3 +49,6 @@ _
 dist
 build
 .cache
+
+.opencode
+OpenCode.md

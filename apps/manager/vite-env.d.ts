@@ -2,9 +2,11 @@
 
 declare const __APP_VERSION__: string
 
-interface ImportMetaEnv extends Environment {
+interface Environment {
   readonly VERCEL_GIT_COMMIT_SHA: string
 }
+
+interface ImportMetaEnv extends Environment {}
 
 interface ImportMeta {
   readonly env: ImportMetaEnv

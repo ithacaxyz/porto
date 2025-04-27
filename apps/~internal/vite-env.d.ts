@@ -1,8 +1,9 @@
 /// <reference types="vite/client" />
 
-declare const __APP_VERSION__: string
-
-interface ImportMetaEnv extends Environment {}
+interface ImportMetaEnv {
+  readonly VITE_VERCEL_ENV: string
+  readonly VITE_VERCEL_BRANCH_URL: string
+}
 
 interface ImportMeta {
   readonly env: ImportMetaEnv

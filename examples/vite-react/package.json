@@ -12,8 +12,8 @@
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "wagmi": "catalog:",
-    "viem": "catalog:"
+    "viem": "catalog:",
+    "wagmi": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",
