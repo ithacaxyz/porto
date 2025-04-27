@@ -9,26 +9,12 @@ export function useVerify() {
     queryFn: async () => {
       if (!hostname) return { status: 'unknown' }
 
-      const response = (await fetch(
+      return (await fetch(
         (import.meta.env.VITE_VERIFY_URL ||
           'https://verify.porto.workers.dev') + `?hostname=${hostname}`,
       )
         .then((x) => x.json())
-        .catch(() => ({}))) as {
-        whitelist?: string[] | undefined
-        blacklist?: string[] | undefined
-      }
-
-      const whitelisted =
-        response.whitelist?.some((h) => hostname.endsWith(h)) ||
-        extraConfig.whitelist.some((h) => hostname.endsWith(h))
-      const blacklisted =
-        response.blacklist?.some((h) => hostname.endsWith(h)) ||
-        extraConfig.blacklist.some((h) => hostname.endsWith(h))
-
-      if (blacklisted) return { status: 'danger' }
-      if (whitelisted) return { status: 'verified' }
-      return { status: 'unknown' }
+        .catch(() => ({}))) as useVerify.Data
     },
     queryKey: ['verify', hostname],
   })
@@ -36,11 +22,6 @@ export function useVerify() {
 
 export declare namespace useVerify {
   type Data = {
-    status: 'verified' | 'danger' | 'development' | 'unknown'
+    status: 'verified' | 'danger' | 'unknown'
   }
 }
-
-const extraConfig = {
-  blacklist: [],
-  whitelist: ['porto.sh'],
-} as const

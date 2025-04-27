@@ -1,6 +1,8 @@
 import { env } from 'cloudflare:workers'
 import type { ExportedHandler } from '@cloudflare/workers-types'
 
+const ttl = 600
+
 export default {
   async fetch(request) {
     const url = new URL(request.url)
@@ -12,7 +14,7 @@ export default {
     const response = (await fetch(env.VERIFY_CONFIG_URL, {
       cf: {
         cacheEverything: true,
-        cacheTtl: 600,
+        cacheTtl: ttl,
       },
     })
       .then((x) => x.json())
@@ -39,6 +41,7 @@ export default {
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
+          'Cache-Control': `max-age=${ttl}, stale-while-revalidate=1`,
         },
       },
     )
