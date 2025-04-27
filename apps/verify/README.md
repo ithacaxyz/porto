@@ -11,7 +11,7 @@ Deployment happens on push to `main` and on `workflow_dispatch`.
 
 To trigger a `workflow_dispatch` event (manual deployment):
 
-- Go to the [Deploy Faucet workflow](https://github.com/ithacaxyz/porto/actions/workflows/deploy-faucet.yml)
+- Go to the [Deploy Faucet workflow](https://github.com/ithacaxyz/porto/actions/workflows/deploy-workers.yml)
 - Click on `Run workflow`
 
 Done.
