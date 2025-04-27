@@ -22,6 +22,6 @@ export function useVerify() {
 
 export declare namespace useVerify {
   type Data = {
-    status: 'verified' | 'danger' | 'unknown'
+    status: 'whitelisted' | 'blacklisted' | 'unknown'
   }
 }

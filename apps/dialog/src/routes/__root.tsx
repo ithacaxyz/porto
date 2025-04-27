@@ -161,7 +161,7 @@ function RouteComponent() {
               </>
             )}
             <div>{domain}</div>
-            {verifyStatus.data?.status === 'verified' && (
+            {verifyStatus.data?.status === 'whitelisted' && (
               <div className="flex items-center justify-center">
                 <LucideBadgeCheck className="size-4 text-accent" />
               </div>
@@ -230,7 +230,7 @@ function CheckReferrer(props: CheckReferrer.Props) {
   const verifyStatus = Referrer.useVerify()
 
   if (proceed) return children
-  if (verifyStatus.data?.status !== 'danger') return children
+  if (verifyStatus.data?.status !== 'blacklisted') return children
   return (
     <Layout>
       <Layout.Header>
