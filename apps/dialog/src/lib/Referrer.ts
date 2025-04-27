@@ -10,7 +10,8 @@ export function useVerify() {
       if (!hostname) return { status: 'unknown' }
 
       const response = (await fetch(
-        'https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/refs/heads/main/src/config.json',
+        (import.meta.env.VITE_VERIFY_URL ||
+          'https://verify.porto.workers.dev') + `?hostname=${hostname}`,
       )
         .then((x) => x.json())
         .catch(() => ({}))) as {

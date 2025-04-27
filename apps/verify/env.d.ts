@@ -1,7 +1,9 @@
 type EnvironmentVariables = {}
 
 namespace Cloudflare {
-  interface Env extends EnvironmentVariables {}
+  interface Env extends EnvironmentVariables {
+    VERIFY_CONFIG_URL: string
+  }
 }
 
 namespace NodeJS {

@@ -2,19 +2,21 @@
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
   "account_id": "ba6ee3674b03f08481e57ff9992c601e",
   "compatibility_date": "2025-03-14",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "nodejs_compat_populate_process_env"
-  ],
+  "dev": {
+    "port": 5000
+  },
   "keep_vars": true,
   "main": "./src/index.ts",
   "minify": true,
-  "name": "faucet",
+  "name": "verify",
   "observability": {
     "enabled": true
   },
   "placement": {
     "mode": "smart"
+  },
+  "vars": {
+    "VERIFY_CONFIG_URL": "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/refs/heads/main/src/config.json"
   },
   "workers_dev": true
 }
