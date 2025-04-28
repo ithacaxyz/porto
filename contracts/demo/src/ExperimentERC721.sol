@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import {console2} from "forge-std/console2.sol";
 import {ERC721} from "solady/tokens/ERC721.sol";
 import {Ownable} from "solady/auth/Ownable.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
 contract ExperimentERC721 is ERC721, Ownable {
     string internal _name;
@@ -26,7 +27,7 @@ contract ExperimentERC721 is ERC721, Ownable {
     }
 
     function tokenURI(uint256 id) public view virtual override returns (string memory) {
-        return string(abi.encodePacked(_baseURI, id));
+        return string(abi.encodePacked(_baseURI, LibString.toString(id)));
     }
 
     function mint(address recipient, uint256 id) public virtual {
