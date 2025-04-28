@@ -64,7 +64,7 @@ export type Schema = [
           type: 'init'
           mode: 'inline-iframe' | 'iframe' | 'popup' | 'popup-standalone'
           referrer: {
-            icon?: string | undefined
+            icon?: string | { light: string; dark: string } | undefined
             title: string
           }
         }

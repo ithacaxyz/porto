@@ -12,7 +12,7 @@ export declare namespace store {
     mode: 'iframe' | 'inline-iframe' | 'popup' | 'popup-standalone'
     referrer:
       | {
-          icon?: string | undefined
+          icon?: string | { dark: string; light: string } | undefined
           title: string
           url: URL
         }

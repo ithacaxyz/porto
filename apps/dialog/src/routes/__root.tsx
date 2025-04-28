@@ -4,7 +4,6 @@ import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useAccount } from 'wagmi'
-
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
@@ -94,19 +93,17 @@ function RouteComponent() {
                 : UserAgent.isFirefox()
                   ? 63 // firefox: 27px title bar, 34px address bar, 2px in borders
                   : 63 // chrome: 27px title bar, 34px address bar, 2px in borders
-              : 4
+              : 2
           const totalHeight = height + titlebarHeight + modeHeight
 
           lastHeight = height
 
-          if (mode === 'popup') {
-            window.resizeTo(width, totalHeight)
-          } else if (mode === 'iframe' || mode === 'inline-iframe') {
+          if (mode === 'popup') window.resizeTo(width, totalHeight)
+          else if (mode === 'iframe' || mode === 'inline-iframe')
             porto.messenger.send('__internal', {
               height: totalHeight,
               type: 'resize',
             })
-          }
         }
       })
     })
@@ -139,11 +136,29 @@ function RouteComponent() {
           <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-gray6">
             {icon ? (
               <div className="p-[3px]">
-                <img
-                  alt={url}
-                  className="size-full text-transparent"
-                  src={icon}
-                />
+                {typeof icon === 'string' ? (
+                  <img
+                    alt={url}
+                    className="size-full text-transparent"
+                    src={icon}
+                  />
+                ) : (
+                  <picture>
+                    <source
+                      media="(prefers-color-scheme: dark)"
+                      srcSet={icon.dark}
+                    />
+                    <source
+                      media="(prefers-color-scheme: light)"
+                      srcSet={icon.light}
+                    />
+                    <img
+                      alt={url}
+                      className="size-full text-transparent"
+                      src={icon.light}
+                    />
+                  </picture>
+                )}
               </div>
             ) : (
               <LucideGlobe className="size-3.5 text-primary" />
@@ -166,7 +181,7 @@ function RouteComponent() {
               </div>
             )}
             {env && (
-              <div className="flex h-5 items-center rounded-full bg-surfaceHover px-1.25 text-[11.5px] text-secondary capitalize">
+              <div className="flex h-5 items-center rounded-full bg-surfaceHover px-1.25 text-[11.5px] capitalize">
                 {env}
               </div>
             )}

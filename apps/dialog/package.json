@@ -45,7 +45,6 @@
     "globals": "catalog:",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:",
-    "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "unplugin-icons": "catalog:",
     "vite": "catalog:",

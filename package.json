@@ -49,6 +49,7 @@
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
     "tsx": "^4.19.3",
+    "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "viem": "catalog:",
     "vite": "catalog:",
@@ -74,9 +75,16 @@
       "**/_generated/**",
       "wagmi.config.ts"
     ],
-    "ignoreBinaries": ["forge"],
-    "ignoreUnresolved": ["tslib"],
-    "ignoreWorkspaces": ["apps/**", "examples/**"],
+    "ignoreBinaries": [
+      "forge"
+    ],
+    "ignoreUnresolved": [
+      "tslib"
+    ],
+    "ignoreWorkspaces": [
+      "apps/**",
+      "examples/**"
+    ],
     "ignoreDependencies": [
       "react",
       "wagmi",
