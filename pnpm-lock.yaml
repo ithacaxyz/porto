@@ -287,9 +287,6 @@ importers:
       tw-animate-css:
         specifier: 'catalog:'
         version: 1.2.5
-      typed-query-selector:
-        specifier: ^2.12.0
-        version: 2.12.0
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
