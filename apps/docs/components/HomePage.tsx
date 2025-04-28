@@ -1,6 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { LogoLockup } from '@porto/apps/components'
-import { exp1Config, exp2Config } from '@porto/apps/contracts'
+import { cx } from 'cva'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
@@ -8,16 +8,13 @@ import {
   ConnectorAlreadyConnectedError,
   useAccount,
   useAccountEffect,
-  useChainId,
   useConnectors,
-  useReadContract,
 } from 'wagmi'
-
 import LucideChevronLeft from '~icons/lucide/chevron-left'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
+import LucidePlay from '~icons/lucide/play'
 import { Button } from './Button'
-import { LimitDemo, MintDemo, PayDemo, SwapDemo } from './DemoApp'
 
 export function HomePage() {
   return (
@@ -58,6 +55,22 @@ export function HomePage() {
         </div>
 
         <div className="h-4" />
+
+        <div className="w-full min-[1024px]:hidden">
+          <Ariakit.Button className="relative inline-flex h-[42px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-accent px-[18px] font-medium text-white transition-colors hover:not-active:bg-accentHover focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
+            <LucidePlay className="mt-0.5 size-3.5" />
+            Try it out
+          </Ariakit.Button>
+
+          <div className="h-6" />
+
+          <div className="flex w-full items-center gap-4 font-[400] text-[14px] text-gray9 leading-[18px] tracking-[-0.25px]">
+            <div>Learn more</div>
+            <div className="h-[1px] w-full flex-1 bg-gray6" />
+          </div>
+
+          <div className="h-4" />
+        </div>
 
         <div className="grid w-full grid-cols-2 gap-2 max-[486px]:grid-cols-1">
           <div className="rounded-[13px] border border-gray4 p-[16px]">
@@ -140,7 +153,7 @@ export function HomePage() {
             <div className="size-[1em]">
               <DemoIcon />
             </div>
-            Demo
+            Playground
           </Ariakit.Button>
           <Ariakit.Button
             className="flex h-[40px] items-center justify-center gap-[6px] rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
@@ -209,93 +222,56 @@ namespace Install {
   }
 }
 
-const steps = ['sign-in', 'mint', 'swap', 'send', 'spend']
+const steps = ['sign-in', 'add-funds', 'send', 'mint', 'swap'] as const
 
 function Demo() {
   const account = useAccount()
-  const chainId = useChainId()
   const [step, setStep] = React.useState<(typeof steps)[number]>('sign-in')
 
   const [isMounted, setIsMounted] = React.useState(false)
-
   React.useEffect(() => {
     setIsMounted(true)
   }, [])
 
   useAccountEffect({
     onConnect() {
-      setStep('mint')
+      setStep('add-funds')
     },
     onDisconnect() {
       setStep('sign-in')
     },
   })
 
-  const shared = {
-    args: [account.address!],
-    functionName: 'balanceOf',
-    query: { enabled: Boolean(account.address) },
-  } as const
-  const { data: exp1Balance } = useReadContract({
-    abi: exp1Config.abi,
-    address: exp1Config.address[chainId],
-    ...shared,
-    query: {
-      refetchInterval: 1000,
-    },
-  })
-  const { data: exp2Balance } = useReadContract({
-    abi: exp2Config.abi,
-    address: exp2Config.address[chainId],
-    ...shared,
-    query: {
-      refetchInterval: 1000,
-    },
-  })
-
   return (
     <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4">
-      <div className="flex w-full justify-end">
+      <div className="flex w-full justify-between p-1">
+        <div className="font-[400] text-[14px] text-gray9 leading-none tracking-[-2.8%]">
+          Demo
+        </div>
         <Link
-          className="flex items-center gap-1 font-[400] text-[14px] text-blue9 tracking-[-2.8%]"
+          className="flex items-center gap-1 font-[400] text-[14px] text-blue9 leading-none tracking-[-2.8%]"
           to="/demo"
         >
-          Discover →
+          Playground →
         </Link>
       </div>
+
       <div className="flex-1">
         {isMounted && (
           <div className="relative flex h-full w-full items-center justify-center">
             <div className="w-full max-w-[277px]">
-              {step === 'sign-in' && <SignIn next={() => setStep('mint')} />}
-              {step === 'mint' && (
-                <MintDemo
-                  address={account.address}
-                  exp1Balance={exp1Balance}
-                  next={() => setStep('swap')}
-                />
+              {step === 'sign-in' && (
+                <SignIn next={() => setStep('add-funds')} />
               )}
-              {step === 'swap' && (
-                <SwapDemo
-                  address={account.address}
-                  exp1Balance={exp1Balance}
-                  exp2Balance={exp2Balance}
-                  next={() => setStep('send')}
-                />
-              )}
-              {step === 'send' && (
-                <PayDemo
-                  address={account.address}
-                  exp1Balance={exp1Balance}
-                  exp2Balance={exp2Balance}
-                  next={() => setStep('spend')}
-                />
-              )}
-              {step === 'spend' && <LimitDemo address={account.address} />}
+              {step === 'add-funds' && <div>add funds</div>}
+              {step === 'send' && <div>send</div>}
+              {step === 'mint' && <div>mint</div>}
+              {step === 'swap' && <div>swap</div>}
             </div>
           </div>
         )}
       </div>
+
       <div className="flex w-full flex-col items-center justify-center space-y-1">
         {isMounted && (
           <div className="w-full space-y-1">
@@ -303,84 +279,95 @@ function Demo() {
               <div>
                 {account.isConnected && (
                   <button
-                    className="flex size-[32px] items-center justify-center rounded-full border border-gray5 bg-gray1 text-gray9 hover:bg-gray2 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-gray8"
+                    className={cx(
+                      'flex size-[32px] items-center justify-center rounded-full border border-gray5 bg-gray1 text-gray9 hover:bg-gray2 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-gray8',
+                      step === steps[0] && 'invisible',
+                    )}
                     disabled={step === steps[0]}
                     onClick={() => setStep(steps[steps.indexOf(step) - 1]!)}
                     type="button"
                   >
-                    <LucideChevronLeft className="-ml-0.5 size-5" />
+                    <LucideChevronLeft className="-ms-0.5 size-5" />
                   </button>
                 )}
               </div>
+
               <div className="max-w-[24ch] space-y-1">
                 {step === 'sign-in' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Sign in or sign up
+                      Seamless sign in
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      With Ithaca, you can create a wallet within seconds.
+                      Grant permissions with your Porto wallet for security &
+                      ease of use.
                     </p>
                   </>
                 )}
-                {step === 'mint' && (
+                {step === 'add-funds' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Transact with ease
+                      Deposit in seconds
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      Simple, friendly transaction previews that get out of the
-                      way.
-                    </p>
-                  </>
-                )}
-                {step === 'swap' && (
-                  <>
-                    <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Swap spontaneously
-                    </p>
-                    <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      Transactions like swaps are simple, easy, and fast.
+                      Fund your account, with no KYC for deposits below $500.
                     </p>
                   </>
                 )}
                 {step === 'send' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Flexibility with fees
+                      Instant sends & swaps
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      Pay network or transaction fees in the token of your
-                      choice.
+                      With permissions, complete common actions without extra
+                      clicks.
                     </p>
                   </>
                 )}
-                {step === 'spend' && (
+                {step === 'mint' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Get rid of clicks
+                      Rich feature set
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      Allow applications to spend on your behalf with custom
-                      rules.
+                      View rich transaction previews, pay fees in other tokens,
+                      and much more.
+                    </p>
+                  </>
+                )}
+                {step === 'swap' && (
+                  <>
+                    <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
+                      Free from fees
+                    </p>
+                    <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
+                      Apps can cover your fees based on an asset you hold, like
+                      the NFT you minted.
                     </p>
                   </>
                 )}
               </div>
+
               <div>
                 {account.isConnected && (
                   <button
-                    className="flex size-[32px] items-center justify-center rounded-full border border-gray5 bg-gray1 text-gray9 hover:bg-gray2 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-gray8"
+                    className={cx(
+                      'flex size-[32px] items-center justify-center rounded-full border border-gray5 bg-gray1 text-gray9 hover:bg-gray2 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-gray8',
+                      step === steps[steps.length - 1] && 'invisible',
+                    )}
                     disabled={step === steps[steps.length - 1]}
                     onClick={() => setStep(steps[steps.indexOf(step) + 1]!)}
                     type="button"
                   >
-                    <LucideChevronRight className="-mr-0.5 size-5" />
+                    <LucideChevronRight className="-me-0.5 size-5" />
                   </button>
                 )}
               </div>
             </div>
+
             <div className="h-4" />
+
             <div className="flex items-center justify-center gap-1">
               {steps.map((s) => (
                 <button
