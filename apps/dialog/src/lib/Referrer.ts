@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import * as Dialog from '~/lib/Dialog'
 
 export function useVerify() {
-  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   return useQuery<useVerify.Data>({
     queryFn: async () => {

@@ -28,11 +28,20 @@ if (import.meta.env.PROD) {
 
 const offInitialized = Events.onInitialized(porto, (payload) => {
   const { mode, referrer } = payload
+
   Dialog.store.setState({
     mode,
     referrer: {
       ...referrer,
-      url: new URL(document.referrer),
+
+      // If there is no referrer, it is likely the user is using Porto in
+      // an incognito window.
+      //
+      // Note: It could be tempting to pass `window.location.href` from the
+      // parent window via `postMessage` as a workaround, but that could easily
+      // be tampered with (ie. malicious websites could pass a different URL to
+      // the dialog).
+      url: document.referrer ? new URL(document.referrer) : undefined,
     },
   })
 })

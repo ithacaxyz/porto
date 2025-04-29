@@ -13,7 +13,7 @@ export function SignUp(props: SignUp.Props) {
 
   const [showLearn, setShowLearn] = useState(false)
 
-  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   if (showLearn) return <SignUp.Learn onDone={() => setShowLearn(false)} />
   return (
@@ -23,7 +23,12 @@ export function SignUp(props: SignUp.Props) {
           content={
             <>
               Create a new passkey wallet to start using{' '}
-              <span className="font-medium">{hostname}</span>.
+              {hostname ? (
+                <span className="font-medium">{hostname}</span>
+              ) : (
+                'this website'
+              )}
+              .
             </>
           }
           icon={LucideLogIn}

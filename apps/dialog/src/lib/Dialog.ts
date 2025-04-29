@@ -14,7 +14,7 @@ export declare namespace store {
       | {
           icon?: string | { dark: string; light: string } | undefined
           title: string
-          url: URL
+          url?: URL | undefined
         }
       | undefined
   }

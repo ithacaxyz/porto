@@ -47,14 +47,14 @@ function RouteComponent() {
   const account = useAccount()
   const mode = Dialog.useStore((state) => state.mode)
   const { domain, subdomain, icon, url } = Dialog.useStore((state) => {
-    const hostnameParts = state.referrer?.url.hostname.split('.').slice(-3)
+    const hostnameParts = state.referrer?.url?.hostname.split('.').slice(-3)
     const domain = hostnameParts?.slice(-2).join('.')
     const subdomain = hostnameParts?.at(-3)
     return {
       domain,
       icon: state.referrer?.icon,
       subdomain,
-      url: state.referrer?.url.toString(),
+      url: state.referrer?.url?.toString(),
     }
   })
   const request = Hooks.useRequest(porto)
@@ -134,7 +134,7 @@ function RouteComponent() {
           className="fixed flex h-navbar w-full items-center justify-between gap-2 in-data-iframe:rounded-t-[14px] border border-primary bg-secondary px-3 pt-2 pb-1.5"
         >
           <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-gray6">
-            {icon ? (
+            {icon && url ? (
               <div className="p-[3px]">
                 {typeof icon === 'string' ? (
                   <img
@@ -166,15 +166,19 @@ function RouteComponent() {
           </div>
 
           <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-secondary leading-[22px]">
-            <div className="flex overflow-hidden" title={url}>
-              {subdomain && (
-                <>
-                  <div className="truncate">{subdomain}</div>
-                  <div>.</div>
-                </>
-              )}
-              <div>{domain}</div>
-            </div>
+            {url ? (
+              <div className="flex overflow-hidden" title={url}>
+                {subdomain && (
+                  <>
+                    <div className="truncate">{subdomain}</div>
+                    <div>.</div>
+                  </>
+                )}
+                <div>{domain}</div>
+              </div>
+            ) : (
+              'Porto'
+            )}
             {verifyStatus.data?.status === 'whitelisted' && (
               <div className="flex items-center justify-center">
                 <LucideBadgeCheck className="size-4 text-accent" />
@@ -240,7 +244,7 @@ function CheckReferrer(props: CheckReferrer.Props) {
 
   const [proceed, setProceed] = React.useState(false)
 
-  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
   const verifyStatus = Referrer.useVerify()
 
   if (proceed) return children

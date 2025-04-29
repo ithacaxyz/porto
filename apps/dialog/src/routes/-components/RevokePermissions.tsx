@@ -12,7 +12,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
 
   const { data } = Hooks.usePermissions()
   const permissions = data?.find((x) => x.id === id)?.permissions
-  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   return (
     <Layout loading={loading} loadingTitle="Authorizing...">
@@ -21,8 +21,12 @@ export function RevokePermissions(props: RevokePermissions.Props) {
           content={
             <>
               Remove the ability for{' '}
-              <span className="font-medium">{hostname}</span> to spend with the
-              following rule.
+              {hostname ? (
+                <span className="font-medium">{hostname}</span>
+              ) : (
+                'this website'
+              )}{' '}
+              to spend with the following rule.
             </>
           }
           title="Revoke permissions"
