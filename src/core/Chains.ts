@@ -26,6 +26,9 @@ export const anvil = /*#__PURE__*/ define({
     entryPoint: {
       address: '0xa15bb66138824a1c7167f5e85b957d04dd34e468',
     },
+    simulator: {
+      address: '0x12975173b87f7595ee45dffb2ab812ece596bf84',
+    },
   },
 })
 

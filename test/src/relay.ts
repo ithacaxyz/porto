@@ -17,6 +17,7 @@ export const instances = {
       '0x0000000000000000000000000000000000000000',
       exp1Address[Chains.anvil.id],
     ],
+    simulator: Chains.anvil.contracts.simulator.address,
     userOpGasBuffer: 100_000n,
   }),
 } as const
@@ -31,6 +32,7 @@ function defineRelay(parameters: {
   entrypoint: string
   delegationProxy: string
   feeTokens: string[]
+  simulator: string
   txGasBuffer?: bigint | undefined
   userOpGasBuffer?: bigint | undefined
   port?: number | undefined

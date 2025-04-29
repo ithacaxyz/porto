@@ -26,6 +26,7 @@ import * as EIP7702Proxy from '../../src/core/internal/_generated/contracts/EIP7
 import * as EntryPoint from '../../src/core/internal/_generated/contracts/EntryPoint.js'
 import * as ExperimentERC20 from '../../src/core/internal/_generated/contracts/ExperimentERC20.js'
 import * as ExperimentERC721 from '../../src/core/internal/_generated/contracts/ExperimentERC721.js'
+import * as Simulator from '../../src/core/internal/_generated/contracts/Simulator.js'
 import {
   exp1Abi,
   exp1Address,
@@ -232,6 +233,19 @@ export async function loadState(parameters: { rpcUrl: string }) {
     await setCode(client, {
       address: expNftAddress[31337],
       bytecode: code!,
+    })
+  }
+
+  {
+    // Deploy Simulator contract.
+    const hash = await deployContract(client, {
+      abi: Simulator.abi,
+      args: [],
+      bytecode: Simulator.code,
+      chain: null,
+    })
+    await getTransactionReceipt(client, {
+      hash,
     })
   }
 }
