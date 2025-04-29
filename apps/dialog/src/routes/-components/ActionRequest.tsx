@@ -369,7 +369,7 @@ export namespace ActionRequest {
     quote: Quote_relay.Quote,
   ): Quote | undefined {
     const { chainId, op, nativeFeeEstimate, txGas, ttl } = quote ?? {}
-    const { paymentToken, paymentMaxAmount } = op ?? {}
+    const { paymentToken, totalPaymentMaxAmount } = op ?? {}
 
     const chain = Hooks.useChain(porto, { chainId })!
     const feeToken = FeeToken.useFetch({
@@ -378,7 +378,12 @@ export namespace ActionRequest {
     })
 
     const fee = React.useMemo(() => {
-      if (!nativeFeeEstimate || !txGas || !paymentMaxAmount || !feeToken.data)
+      if (
+        !nativeFeeEstimate ||
+        !txGas ||
+        !totalPaymentMaxAmount ||
+        !feeToken.data
+      )
         return undefined
 
       const nativeConfig = {
@@ -391,7 +396,7 @@ export namespace ActionRequest {
       const config = paymentToken
         ? {
             ...feeToken.data,
-            value: paymentMaxAmount,
+            value: totalPaymentMaxAmount,
           }
         : nativeConfig
 
@@ -407,8 +412,8 @@ export namespace ActionRequest {
       feeToken.data,
       nativeFeeEstimate,
       txGas,
-      paymentMaxAmount,
       paymentToken,
+      totalPaymentMaxAmount,
     ])
 
     if (!fee) return undefined

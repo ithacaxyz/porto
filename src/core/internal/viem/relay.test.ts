@@ -33,12 +33,14 @@ describe('health', () => {
       delegationImplementation,
       delegationProxy,
       entrypoint,
+      simulator,
       version,
       ...result
     } = await health(client)
     expect(delegationImplementation).toBeDefined()
     expect(delegationProxy).toBeDefined()
     expect(entrypoint).toBeDefined()
+    expect(simulator).toBeDefined()
     expect(version).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {

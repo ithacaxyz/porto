@@ -14,6 +14,16 @@ export const UserOp = Type.Object({
   /**
    * Optional array of encoded UserOps that will be verified and executed
    * after PREP (if any) and before the validation of the overall UserOp.
+   *
+   * A PreOp will NOT have its gas limit or payment applied.
+   * The overall UserOp's gas limit and payment will be applied, encompassing all its PreOps.
+   * The execution of a PreOp will check and increment the nonce in the PreOp.
+   * If at any point, any PreOp cannot be verified to be correct, or fails in execution,
+   * the overall UserOp will revert before validation, and execute will return a non-zero error.
+   * A PreOp can contain PreOps, forming a tree structure.
+   * The `executionData` tree will be executed in post-order (i.e. left -> right -> current).
+   * The `encodedPreOps` are included in the EIP712 signature, which enables execution order
+   * to be enforced on-the-fly even if the nonces are from different sequences.
    */
   encodedPreOps: Type.Array(Primitive.Hex),
   /** Users address. */
@@ -27,7 +37,12 @@ export const UserOp = Type.Object({
   executionData: Primitive.Hex,
   /**
    * Optional data for `initPREP` on the delegation.
-   * Excluded from signature.
+   *
+   * This is encoded using ERC7821 style batch execution encoding.
+   * (ERC7821 is a variant of ERC7579).
+   * `abi.encode(calls, abi.encodePacked(bytes32(saltAndDelegation)))`,
+   * where `calls` is of type `Call[]`,
+   * and `saltAndDelegation` is `bytes32((uint256(salt) << 160) | uint160(delegation))`.
    */
   initData: Primitive.Hex,
   /** Per delegated EOA.
@@ -67,22 +82,6 @@ export const UserOp = Type.Object({
    */
   payer: Primitive.Address,
   /**
-   * The amount of the token to pay.
-   *
-   * Excluded from signature.
-   *
-   * This will be required to be less than `paymentMaxAmount`.
-   */
-  paymentAmount: Primitive.BigInt,
-  /** The maximum amount of the token to pay. */
-  paymentMaxAmount: Primitive.BigInt,
-  /**
-   * The amount of ERC20 to pay per gas spent. For calculation of refunds.
-   *
-   * If this is left at zero, it will be treated as infinity (i.e. no refunds).
-   */
-  paymentPerGas: Primitive.BigInt,
-  /**
    * The payment recipient for the ERC20 token.
    *
    * Excluded from signature. The filler can replace this with their own address.
@@ -99,12 +98,37 @@ export const UserOp = Type.Object({
   /** The ERC20 or native token used to pay for gas. */
   paymentToken: Primitive.Address,
   /**
+   * The actual pre payment amount, requested by the filler.
+   * MUST be less than or equal to `prePaymentMaxAmount`.
+   */
+  prePaymentAmount: Primitive.BigInt,
+  /**
+   * The amount of the token to pay, before the call batch is executed.
+   * This will be required to be less than `totalPaymentMaxAmount`.
+   */
+  prePaymentMaxAmount: Primitive.BigInt,
+  /**
+   * The actual total payment amount, requested by the filler.
+   * MUST be less than or equal to `totalPaymentMaxAmount`
+   */
+  signature: Primitive.Hex,
+  /**
+   * The maximum amount of the token to pay.
+   */
+  supportedDelegationImplementation: Primitive.Address,
+  /**
    * The wrapped signature.
    *
    * The format is `abi.encodePacked(innerSignature, keyHash, prehash)` for most signatures,
    * except if it is signed by the EOA root key, in which case `abi.encodePacked(r, s, v)` is valid as well.
    */
-  signature: Primitive.Hex,
+  totalPaymentAmount: Primitive.BigInt,
+  /**
+   * Optional. If non-zero, the EOA must use `supportedDelegationImplementation`.
+   * Otherwise, if left as `address(0)`, any EOA implementation will be supported.
+   * This field is NOT included in the EIP712 signature.
+   */
+  totalPaymentMaxAmount: Primitive.BigInt,
 })
 export type UserOp = Schema.StaticDecode<typeof UserOp>
 
@@ -115,3 +139,34 @@ export const Partial = Type.Object({
   nonce: Primitive.BigInt,
 })
 export type Partial = Schema.StaticDecode<typeof Partial>
+
+export const PreOp = Type.Object({
+  /**
+   * The user's address.
+   *
+   * This can be set to `address(0)`, which allows it to be
+   * coalesced to the parent UserOp's EOA.
+   */
+  eoa: Primitive.Address,
+  /**
+   * An encoded array of calls, using ERC7579 batch execution encoding.
+   *
+   * `abi.encode(calls)`, where `calls` is of type `Call[]`.
+   * This allows for more efficient safe forwarding to the EOA.
+   */
+  executionData: Primitive.Hex,
+  /**
+   * Per delegated EOA. Same logic as the `nonce` in UserOp.
+   *
+   * A nonce of `type(uint256).max` skips the check, incrementing,
+   * and the emission of the {UserOpExecuted} event.
+   */
+  nonce: Primitive.BigInt,
+  /**
+   * The wrapped signature.
+   *
+   * `abi.encodePacked(innerSignature, keyHash, prehash)`.
+   */
+  signature: Primitive.Hex,
+})
+export type PreOp = Schema.StaticDecode<typeof PreOp>

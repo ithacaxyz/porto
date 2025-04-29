@@ -323,7 +323,7 @@ export function relay(parameters: relay.Parameters = {}) {
             ...context,
             account,
             calls,
-            nonce: context.op.nonce,
+            nonce: context.quote?.op.nonce,
           },
           key,
           signPayloads: [digest],

@@ -270,7 +270,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   const preOps =
     typeof pre === 'object'
       ? pre.map(({ context, signature }) => ({
-          ...context.op,
+          ...context.preop!,
           signature,
         }))
       : undefined
@@ -293,7 +293,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     },
   })
   return {
-    capabilities: { ...capabilities, quote: context },
+    capabilities: { ...capabilities, quote: context.quote },
     context: { ...context, key },
     digest,
   } as const
