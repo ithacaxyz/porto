@@ -13,6 +13,7 @@ import {
   useAccount,
   useChainId,
   useSendCalls,
+  useWaitForCallsStatus,
   useWatchBlockNumber,
 } from 'wagmi'
 import { CustomToast } from '~/components/CustomToast'
@@ -693,7 +694,11 @@ function AssetRow({
   const sendCalls = useSendCalls({
     mutation: {
       onError: (error) => {
-        const notAllowed = error.message.includes('not allowed')
+        const userRejected = error.message
+          .toLowerCase()
+          .includes('user rejected')
+        if (userRejected) return
+        const notAllowed = error.message.toLowerCase().includes('not allowed')
         toast.custom(
           (t) => (
             <CustomToast
@@ -715,40 +720,51 @@ function AssetRow({
         sendForm.setState('submitFailed', (count) => +count + 1)
         sendForm.setState('submitSucceed', 0)
       },
-      onSuccess: (data) => {
-        refetchSwapAssets()
-        toast.custom(
-          (t) => (
-            <CustomToast
-              className={t}
-              description={
-                <p>
-                  You successfully sent {sendFormState.values.sendAmount}{' '}
-                  {symbol}
-                  <br />
-                  <a
-                    className="text-gray12 underline"
-                    href={`${blockExplorer}/tx/${data.id}`}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    View on explorer
-                  </a>
-                </p>
-              }
-              kind="success"
-              title="Transaction completed"
-            />
-          ),
-
-          { duration: 4_500 },
-        )
+      onSuccess: (_data) => {
         refetchSwapAssets()
         sendForm.setState('submitSucceed', (count) => +count + 1)
         sendForm.setState('submitFailed', 0)
       },
     },
   })
+
+  const callStatus = useWaitForCallsStatus({
+    id: sendCalls.data?.id,
+  })
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  React.useEffect(() => {
+    if (callStatus.isSuccess) {
+      const [receipt] = callStatus.data?.receipts ?? []
+      const hash = receipt?.transactionHash
+      if (!hash) return
+      toast.custom(
+        (t) => (
+          <CustomToast
+            className={t}
+            description={
+              <p>
+                You successfully sent {sendFormState.values.sendAmount} {symbol}
+                <br />
+                <a
+                  className="text-gray12 underline"
+                  href={`${blockExplorer}/tx/${hash}`}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  View on explorer
+                </a>
+              </p>
+            }
+            kind="success"
+            title="Transaction completed"
+          />
+        ),
+
+        { duration: 4_500 },
+      )
+    }
+  }, [callStatus.data?.id])
 
   const sendForm = Ariakit.useFormStore({
     defaultValues: {
@@ -765,10 +781,14 @@ function AssetRow({
     }
   })
 
-  sendForm.useSubmit(async (state) => {
+  async function submitForm(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) {
+    event.preventDefault()
+
     if (
-      !Address.validate(state.values.sendRecipient) ||
-      !state.values.sendAmount
+      !Address.validate(sendFormState.values.sendRecipient) ||
+      !sendFormState.values.sendAmount
     )
       return
     sendCalls.sendCalls({
@@ -777,8 +797,8 @@ function AssetRow({
           data: encodeFunctionData({
             abi: erc20Abi,
             args: [
-              state.values.sendRecipient,
-              Value.from(state.values.sendAmount, decimals),
+              sendFormState.values.sendRecipient,
+              Value.from(sendFormState.values.sendAmount, decimals),
             ],
             functionName: 'transfer',
           }),
@@ -786,7 +806,7 @@ function AssetRow({
         },
       ],
     })
-  })
+  }
 
   const ref = React.useRef<HTMLTableCellElement | null>(null)
   useClickOutside([ref], () => setViewState('default'))
@@ -930,11 +950,18 @@ function AssetRow({
                   inputMode="decimal"
                   max={formattedBalance}
                   name={sendForm.names.sendAmount}
+                  onInput={(event) => {
+                    sendForm.setValue(
+                      sendForm.names.sendAmount,
+                      event.currentTarget.value,
+                    )
+                  }}
                   placeholder="0.00"
                   required={true}
                   spellCheck={false}
                   step="any"
                   type="number"
+                  value={sendFormState.values.sendAmount}
                 />
               </div>
             </div>
@@ -957,7 +984,7 @@ function AssetRow({
                 'my-auto mr-0.5 ml-1 rounded-full p-2 sm:mr-1 sm:ml-2',
                 {
                   'animate-pulse bg-accent text-white hover:bg-accentHover':
-                    sendCalls.isPending,
+                    sendCalls.isPending || callStatus.isFetching,
                   'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7':
                     sendFormState.errors.sendAmount?.length ||
                     sendFormState.errors.sendRecipient?.length,
@@ -967,8 +994,10 @@ function AssetRow({
                   ? 'bg-accent text-white hover:bg-accentHover'
                   : 'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7',
               )}
+              onClick={submitForm}
+              type="button"
             >
-              {sendCalls.isPending ? (
+              {sendCalls.isPending || callStatus.isFetching ? (
                 <Spinner className="size-3! sm:size-4!" />
               ) : (
                 <SendIcon className="size-3 sm:size-4!" />
