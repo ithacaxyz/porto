@@ -65,7 +65,7 @@ export default {
       const client = createWalletClient({
         account,
         chain: chains[chainId],
-        transport: http(chains[chainId].rpcUrls.default.http[0]),
+        transport: http(),
       }).extend(publicActions)
 
       const { maxFeePerGas, maxPriorityFeePerGas } =
