@@ -2,7 +2,6 @@ import * as Ariakit from '@ariakit/react'
 import { UserAgent } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { cx } from 'cva'
 import { baseSepolia } from 'porto/core/Chains'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
@@ -184,11 +183,7 @@ function RouteComponent() {
         />
       </div>
 
-      <div
-        className={cx(
-          'mx-auto flex h-full w-full flex-col items-center justify-center bg-transparent min-[550px]:max-w-[395px]',
-        )}
-      >
+      <div className="mx-auto flex h-full w-full flex-col items-center justify-center bg-transparent min-[550px]:max-w-[395px]">
         {view === 'success' ? (
           <ActionableFeedback feedback="success" />
         ) : view === 'loading' ? (
