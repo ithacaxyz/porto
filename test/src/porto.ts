@@ -6,7 +6,7 @@ import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
 import * as Relay from './relay.js'
 
-export const chain = Anvil.enabled ? Chains.anvil : Chains.odysseyDevnet
+export const chain = Anvil.enabled ? Chains.anvil : Chains.portoDev
 
 export const exp1Address = Contracts.exp1Address[chain.id]
 export const exp1Abi = Contracts.exp1Abi
@@ -24,7 +24,7 @@ export const exp2Config = {
 
 const relayUrl = Anvil.enabled
   ? Relay.instances.odyssey.rpcUrl
-  : 'https://relay-staging.ithaca.xyz'
+  : 'https://relay-dev.ithaca.xyz'
 
 export function getPorto(
   parameters: {
@@ -47,7 +47,7 @@ export function getPorto(
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
-      feeToken: 'EXP1',
+      feeToken: 'EXP',
       mock: true,
       permissionFeeSpendLimit: {
         EXP1: {
