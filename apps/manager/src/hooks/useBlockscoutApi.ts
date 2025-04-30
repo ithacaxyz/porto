@@ -1,7 +1,7 @@
 import { PortoConfig, Query } from '@porto/apps'
 import { useQueries } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { anvil, odysseyDevnet } from 'porto/core/Chains'
+import { anvil, portoDev } from 'porto/core/Chains'
 import * as React from 'react'
 import { useAccount, useBlockNumber, useChainId } from 'wagmi'
 import { baseSepolia } from 'wagmi/chains'
@@ -9,7 +9,7 @@ import { urlWithCorsBypass } from '~/lib/Constants'
 import { useReadBalances } from './useReadBalances'
 
 export function addressApiEndpoint(chainId: PortoConfig.ChainId) {
-  if (chainId === anvil.id || chainId === odysseyDevnet.id)
+  if (chainId === anvil.id || chainId === portoDev.id)
     return 'https://explorer.ithaca.xyz/api/v2'
   if (chainId === baseSepolia.id)
     return 'https://base-sepolia.blockscout.com/api/v2'

@@ -13,7 +13,7 @@ if (!account?.address) throw new Error('Invalid DRIP_PRIVATE_KEY')
 
 const chains = {
   [Chains.baseSepolia.id]: Chains.baseSepolia,
-  [Chains.odysseyDevnet.id]: Chains.odysseyDevnet,
+  [Chains.portoDev.id]: Chains.portoDev,
 } as const
 
 const headers = (chainId?: keyof typeof chains) =>

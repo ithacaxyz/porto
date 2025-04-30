@@ -20,7 +20,7 @@ import {
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
-import { odysseyTestnet } from '../Chains.js'
+import { anvil } from '../Chains.js'
 import * as Porto_internal from './porto.js'
 import * as RelayActions from './viem/relay.js'
 
@@ -726,7 +726,7 @@ describe.each([
       vi.spyOn(RelayActions, 'health').mockResolvedValue({
         delegationImplementation: Anvil.delegation001Address,
         delegationProxy: Anvil.delegation001Address,
-        entrypoint: odysseyTestnet.contracts.entryPoint.address,
+        entrypoint: anvil.contracts.entryPoint.address,
         quoteConfig: {
           constantRate: 0,
           gas: {
