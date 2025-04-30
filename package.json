@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm clean && tsc --project ./tsconfig.build.json",
+    "build:anvil-state": "tsx scripts/build:anvil-state.ts",
     "build:contracts": "tsx scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && tsx scripts/postbuild:contracts.ts && pnpm wagmi generate",
     "changeset:prepublish": "pnpm build && tsx ./scripts/prepublish.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",

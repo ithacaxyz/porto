@@ -13,6 +13,10 @@ import { Mode } from 'porto'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
 import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
+import {
+  delegationOldProxyAddress,
+  entryPointAddress,
+} from '../../../test/src/_generated/addresses.js'
 import { setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
 import {
@@ -20,7 +24,6 @@ import {
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
-import { odysseyTestnet } from '../Chains.js'
 import * as Porto_internal from './porto.js'
 import * as RelayActions from './viem/relay.js'
 
@@ -706,7 +709,7 @@ describe.each([
 
       await setCode(client, {
         address,
-        bytecode: Hex.concat('0xef0100', Anvil.delegation001Address),
+        bytecode: Hex.concat('0xef0100', delegationOldProxyAddress),
       })
 
       const version = await porto.provider.request({
@@ -724,9 +727,9 @@ describe.each([
   describe('experimental_updateAccount', () => {
     test.runIf(Anvil.enabled && type === 'relay')('default', async () => {
       vi.spyOn(RelayActions, 'health').mockResolvedValue({
-        delegationImplementation: Anvil.delegation001Address,
-        delegationProxy: Anvil.delegation001Address,
-        entrypoint: odysseyTestnet.contracts.entryPoint.address,
+        delegationImplementation: delegationOldProxyAddress,
+        delegationProxy: delegationOldProxyAddress,
+        entrypoint: entryPointAddress,
         quoteConfig: {
           constantRate: 0,
           gas: {

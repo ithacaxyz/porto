@@ -23,7 +23,7 @@ import {
   verifySignature,
 } from './relay.js'
 
-const { client } = getPorto()
+const { client, delegation } = getPorto()
 
 const feeToken = exp1Address
 
@@ -101,7 +101,7 @@ describe('prepareCreateAccount + createAccount', () => {
     const request = await prepareCreateAccount(client, {
       capabilities: {
         authorizeKeys: [key],
-        delegation: client.chain.contracts.delegation.address,
+        delegation,
       },
     })
 
@@ -152,7 +152,7 @@ describe('prepareCreateAccount + createAccount', () => {
     const request = await prepareCreateAccount(client, {
       capabilities: {
         authorizeKeys: keys,
-        delegation: client.chain.contracts.delegation.address,
+        delegation,
       },
     })
 
@@ -186,7 +186,7 @@ describe('prepareCreateAccount + createAccount', () => {
               ...getKey('INVALID!'),
             },
           ],
-          delegation: client.chain.contracts.delegation.address,
+          delegation,
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -210,7 +210,7 @@ describe('prepareCreateAccount + createAccount', () => {
               role: 'beef',
             },
           ],
-          delegation: client.chain.contracts.delegation.address,
+          delegation,
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -615,7 +615,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
             type: 'webauthnp256',
           },
         ],
-        delegation: client.chain.contracts.delegation.address,
+        delegation,
         feeToken,
       },
     })

@@ -28,6 +28,7 @@
       "!extension/.output/**",
       "!extension/.wxt/**",
       "!src/core/internal/_generated/**",
+      "!test/**/_generated/**",
       "!**/*tsconfig.json",
       "!**/*tsconfig.*.json",
       "!**/*package.json",

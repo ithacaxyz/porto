@@ -5,12 +5,9 @@ import * as Relay from './src/relay.js'
 
 beforeAll(async () => {
   await Promise.all(
-    Object.values(Anvil.instances).map(async (instance) => {
-      await fetch(`${instance.rpcUrl}/start`)
-      await Anvil.loadState({
-        rpcUrl: instance.rpcUrl,
-      })
-    }),
+    Object.values(Anvil.instances).map((instance) =>
+      fetch(`${instance.rpcUrl}/start`),
+    ),
   )
   await Promise.all(
     Object.values(Relay.instances).map((instance) =>
