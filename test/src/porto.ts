@@ -24,7 +24,7 @@ export const exp2Config = {
 
 const relayUrl = Anvil.enabled
   ? Relay.instances.odyssey.rpcUrl
-  : 'https://relay-staging.ithaca.xyz'
+  : 'https://relay-dev.ithaca.xyz'
 
 export function getPorto(
   parameters: {
@@ -47,7 +47,7 @@ export function getPorto(
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
-      feeToken: 'EXP1',
+      feeToken: 'EXP',
       mock: true,
       permissionFeeSpendLimit: {
         EXP1: {
