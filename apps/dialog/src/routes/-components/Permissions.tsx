@@ -113,9 +113,9 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
   const explorerUrl = chain?.blockExplorers?.default?.url
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col py-3">
       <button
-        className="flex items-center gap-2 py-3 text-[15px] text-secondary"
+        className="flex items-center gap-2 text-[15px] text-secondary"
         onClick={() => setIsOpen(!isOpen)}
         type="button"
       >
@@ -130,7 +130,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         )}
       </button>
       {isOpen && (
-        <div className="space-y-2 pl-2">
+        <div className="space-y-2 pt-3 pl-2">
           <div className="flex items-center font-medium text-secondary text-xs">
             <div className="w-[60%] pl-8">
               <span>Contract</span>
@@ -161,7 +161,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
                       target="_blank"
                     >
                       {StringFormatter.truncate(call.to)}
-                      <ExternalLinkIcon className="ml-1 h-3 w-3 flex-shrink-0" />
+                      <ExternalLinkIcon className="ml-1 h-3 w-3 flex-shrink-0 text-secondary" />
                     </a>
                   ) : (
                     'Any contract'

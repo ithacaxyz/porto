@@ -1,16 +1,30 @@
 import { PortoConfig } from '@porto/apps'
-import { Chains, Mode, Porto } from 'porto'
+import { Chains, Dialog, Mode, Porto } from 'porto'
 import { createConfig, createStorage, http } from 'wagmi'
 
+export let modes:
+  | Record<'iframe-dialog' | 'inline-dialog', Mode.Mode>
+  | undefined
 export let porto: Porto.Porto<(typeof config)['chains']> | undefined
 if (typeof window !== 'undefined') {
   const config = PortoConfig.getConfig()
   const host = PortoConfig.getDialogHost()
-  porto = Porto.create({
-    ...config,
-    mode: Mode.dialog({
+
+  modes = {
+    'iframe-dialog': Mode.dialog({
       host,
     }),
+    'inline-dialog': Mode.dialog({
+      host,
+      renderer: Dialog.experimental_inline({
+        element: () => document.getElementById('porto')!,
+      }),
+    }),
+  }
+
+  porto = Porto.create({
+    ...config,
+    mode: modes['iframe-dialog'],
   }) as never
 }
 

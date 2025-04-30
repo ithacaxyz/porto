@@ -101,7 +101,7 @@ function RouteComponent() {
           if (mode === 'popup') window.resizeTo(width, totalHeight)
           else if (mode === 'iframe' || mode === 'inline-iframe')
             porto.messenger.send('__internal', {
-              height: totalHeight,
+              height: Math.round(totalHeight),
               type: 'resize',
             })
         }
@@ -131,7 +131,7 @@ function RouteComponent() {
           data-element="dialog-header"
           ref={titlebarRef}
           {...{ [dataMode]: '' }}
-          className="fixed flex h-navbar w-full items-center justify-between gap-2 in-data-iframe:rounded-t-[14px] border border-primary bg-secondary px-3 pt-2 pb-1.5"
+          className="fixed flex h-navbar w-full items-center justify-between gap-2 border-primary border-b bg-secondary px-3 pt-2 pb-1.5"
         >
           <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-gray6">
             {icon && url ? (
@@ -203,7 +203,7 @@ function RouteComponent() {
         </header>
 
         <div
-          className="flex not-in-data-popup-standalone:h-fit in-data-popup-standalone:min-h-dvh flex-col overflow-hidden in-data-iframe:rounded-[14px]! in-data-iframe:border border-primary bg-primary pt-titlebar in-data-iframe:max-sm:rounded-b-none"
+          className="flex not-in-data-popup-standalone:h-fit in-data-popup-standalone:min-h-dvh flex-col overflow-hidden bg-primary pt-titlebar"
           ref={contentRef}
         >
           <div

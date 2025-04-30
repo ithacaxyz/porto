@@ -184,6 +184,8 @@
   --background-color-violetHover: var(--color-violet10);
   --background-color-violetTint: var(--color-violetA3);
 
+  --border-color-accent: var(--color-blue9);
+  --border-color-accentHover: var(--color-blue10);
   --border-color-primary: light-dark(var(--color-gray5), var(--color-gray4));
   --border-color-surface: light-dark(var(--color-gray4), var(--color-gray5));
 

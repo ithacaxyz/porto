@@ -82,10 +82,6 @@ export default defineConfig({
         text: 'Getting Started',
       },
       {
-        link: '/demo',
-        text: 'Demo',
-      },
-      {
         link: 'https://github.com/ithacaxyz/porto',
         text: 'GitHub',
       },

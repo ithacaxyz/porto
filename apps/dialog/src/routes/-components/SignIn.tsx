@@ -38,7 +38,7 @@ export function SignIn(props: SignIn.Props) {
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            className="flex-grow"
+            className="w-full"
             onClick={() => onApprove({ signIn: false })}
             type="button"
           >
@@ -46,7 +46,7 @@ export function SignIn(props: SignIn.Props) {
           </Button>
 
           <Button
-            className="flex-grow"
+            className="w-full"
             onClick={() => onApprove({ signIn: true })}
             type="button"
             variant="accent"

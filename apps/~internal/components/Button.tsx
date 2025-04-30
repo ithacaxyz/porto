@@ -41,7 +41,8 @@ export namespace Button {
           square: 'size-[var(--height-button)] text-[15px]',
         },
         variant: {
-          accent: 'text-white bg-accent hover:not-active:bg-accentHover',
+          accent:
+            'text-white bg-accent hover:not-active:bg-accentHover border border-accent hover:not-active:border-accentHover',
           default:
             'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
           destructive:

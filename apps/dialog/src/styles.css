@@ -9,7 +9,7 @@
 
 html,
 :host {
-  @apply bg-primary;
+  @apply bg-transparent;
 }
 
 body {
@@ -31,6 +31,10 @@ input[type="number"] {
 }
 
 @layer utilities {
+  .contain-content {
+    contain: content;
+  }
+
   .text-md {
     font-size: 16px;
     line-height: 1.25rem;

@@ -86,6 +86,7 @@ export function iframe() {
         }
 
         dialog iframe {
+          background-color: transparent;
           border-radius: 14px;
         }
 
@@ -375,6 +376,13 @@ export function experimental_inline(options: inline.Options) {
       iframe.setAttribute('src', host)
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
+
+      root.appendChild(document.createElement('style')).textContent = `
+        div iframe {
+          background-color: transparent;
+          border-radius: 14px;
+        }
+      `
 
       root.appendChild(iframe)
 
