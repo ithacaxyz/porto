@@ -591,7 +591,7 @@ export declare namespace dialog {
   type Parameters = {
     /**
      * Wallet embed host.
-     * @default 'http://testnet.id.porto.sh/dialog'
+     * @default 'http://stg.id.porto.sh/dialog'
      */
     host?: string | undefined
     /**

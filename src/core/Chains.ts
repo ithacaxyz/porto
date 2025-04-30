@@ -36,7 +36,7 @@ export const baseSepolia = /*#__PURE__*/ define({
   },
 })
 
-export const odysseyDevnet = /*#__PURE__*/ define({
+export const portoDev = /*#__PURE__*/ define({
   blockExplorers: {
     default: {
       apiUrl: '',
@@ -46,24 +46,14 @@ export const odysseyDevnet = /*#__PURE__*/ define({
   },
   contracts: {
     delegation: {
-      address: '0x616dfc0fabbf4b377a7ef5d39f680ee0f6376f8d',
+      address: '0x1bd84b4584a60cbcc1b3153694a69315f795c1ba',
     },
   },
-  id: 28_403,
-  name: 'Odyssey Devnet',
+  id: 28_404,
+  name: 'Porto Dev',
   nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
   rpcUrls: {
-    default: { http: ['https://odyssey-devnet.ithaca.xyz'] },
+    default: { http: ['https://porto-dev.ithaca.xyz'] },
   },
   testnet: true,
-})
-
-export const odysseyTestnet = /*#__PURE__*/ define({
-  ...chains.odysseyTestnet,
-  contracts: {
-    ...chains.odysseyTestnet.contracts,
-    delegation: {
-      address: '0x6faf9eb2742350c772a5c811e1b0e2f330650a25',
-    },
-  },
 })

@@ -710,7 +710,6 @@ export const ownableAbi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
- * - [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c)
  */
 export const exp1Abi = [
   {
@@ -903,19 +902,16 @@ export const exp1Abi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
- * - [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c)
  */
 export const exp1Address = {
-  28403: '0x541a5505620A658932e326D0dC996C460f5AcBE1',
+  28404: '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2',
   31337: '0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629',
   84532: '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2',
-  911867: '0x706Aa5C8e5cC2c67Da21ee220718f6f6B154E75c',
 } as const
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
- * - [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c)
  */
 export const exp1Config = { address: exp1Address, abi: exp1Abi } as const
 
@@ -926,7 +922,6 @@ export const exp1Config = { address: exp1Address, abi: exp1Abi } as const
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
- * - [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x390dd40042a844f92b499069cfe983236d9fe204)
  */
 export const exp2Abi = [
   {
@@ -1119,19 +1114,16 @@ export const exp2Abi = [
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
- * - [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x390dd40042a844f92b499069cfe983236d9fe204)
  */
 export const exp2Address = {
-  28403: '0x0Ee2d43FcaAF97e22E6Bfade9C7a9Cfcca309f25',
+  28404: '0x502fF46e72C47b8c3183DB8919700377EED66d2E',
   31337: '0xe1DA8919f262Ee86f9BE05059C9280142CF23f48',
   84532: '0x62a9d6DE963a5590f6fbA5119e937F167677bfE7',
-  911867: '0x390dD40042a844F92b499069CFe983236d9fe204',
 } as const
 
 /**
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
- * - [__View Contract on Odyssey Testnet Odyssey Explorer__](https://odyssey-explorer.ithaca.xyz/address/0x390dd40042a844f92b499069cfe983236d9fe204)
  */
 export const exp2Config = { address: exp2Address, abi: exp2Abi } as const
 
@@ -1460,7 +1452,8 @@ export const expNftAbi = [
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xD37861F91a23aF5929F1617D9c94586e822b0a47)
  */
 export const expNftAddress = {
-  31337: '0xf7Cd8fa9b94DB2Aa972023b379c7f72c65E4De9D',
+  28404: '0xef11D1c2aA48826D4c41e54ab82D1Ff5Ad8A64Ca',
+  31337: '0x82Dc47734901ee7d4f4232f398752cB9Dd5dACcC',
   84532: '0xD37861F91a23aF5929F1617D9c94586e822b0a47',
 } as const
 

@@ -19,16 +19,16 @@ const config = {
     },
   },
   dev: {
-    chains: [Chains.odysseyDevnet],
+    chains: [Chains.portoDev],
     mode: Mode.relay({
-      feeToken: 'EXP1',
+      feeToken: 'EXP',
     }),
     storageKey: 'porto.store.dev',
     transports: {
-      [Chains.odysseyDevnet.id]: {
+      [Chains.portoDev.id]: {
         default: http(),
         relay: http(
-          'https://relay-staging.ithaca.xyz',
+          'https://relay-dev.ithaca.xyz',
           Sentry.httpTransportOptions(),
         ),
       },
