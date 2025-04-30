@@ -1,4 +1,4 @@
-import { Env, UserAgent } from '@porto/apps'
+import { UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
@@ -7,21 +7,10 @@ import { useAccount } from 'wagmi'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
-import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
-import LucideGlobe from '~icons/lucide/globe'
-import LucideX from '~icons/lucide/x'
 import { Layout } from './-components/Layout'
+import { TitleBar } from './-components/TitleBar'
 import { UpdateAccount } from './-components/UpdateAccount'
-
-const env = (
-  {
-    anvil: 'anvil',
-    dev: 'development',
-    prod: undefined,
-    stg: 'staging',
-  } satisfies Record<Env.Env, string | undefined>
-)[Env.get()]
 
 export const Route = createRootRoute({
   component: RouteComponent,
@@ -34,6 +23,7 @@ export const Route = createRootRoute({
     ],
   }),
 })
+
 function RouteComponent() {
   React.useEffect(() => {
     // Note: we already call `porto.ready()` optimistically in `main.tsx`, but
@@ -44,19 +34,9 @@ function RouteComponent() {
   // Optimistically fetch account version (populate cache).
   UpdateAccount.useAccountVersion()
 
-  const account = useAccount()
+  const { status } = useAccount()
   const mode = Dialog.useStore((state) => state.mode)
-  const { domain, subdomain, icon, url } = Dialog.useStore((state) => {
-    const hostnameParts = state.referrer?.url?.hostname.split('.').slice(-3)
-    const domain = hostnameParts?.slice(-2).join('.')
-    const subdomain = hostnameParts?.at(-3)
-    return {
-      domain,
-      icon: state.referrer?.icon,
-      subdomain,
-      url: state.referrer?.url?.toString(),
-    }
-  })
+  const referrer = Dialog.useStore((state) => state.referrer)
   const request = Hooks.useRequest(porto)
   const search = Route.useSearch() as {
     requireUpdatedAccount?: boolean | undefined
@@ -95,7 +75,6 @@ function RouteComponent() {
                   : 63 // chrome: 27px title bar, 34px address bar, 2px in borders
               : 2
           const totalHeight = height + titlebarHeight + modeHeight
-
           lastHeight = height
 
           if (mode === 'popup') window.resizeTo(width, totalHeight)
@@ -116,91 +95,21 @@ function RouteComponent() {
     }
   }, [mode])
 
-  const id = request?.id ? request.id.toString() : '-1'
-  const dataMode = `data-${mode === 'inline-iframe' ? 'iframe' : mode}`
-
   return (
     <>
       <HeadContent />
 
       <div
         data-dialog
-        {...{ [dataMode]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
+        {...{ [`data-${mode === 'inline-iframe' ? 'iframe' : mode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
+        className="border-primary contain-content data-iframe:rounded-[14px] data-iframe:border"
       >
-        <header
-          data-element="dialog-header"
+        <TitleBar
+          mode={mode}
           ref={titlebarRef}
-          {...{ [dataMode]: '' }}
-          className="fixed flex h-navbar w-full items-center justify-between gap-2 border-primary border-b bg-secondary px-3 pt-2 pb-1.5"
-        >
-          <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-gray6">
-            {icon && url ? (
-              <div className="p-[3px]">
-                {typeof icon === 'string' ? (
-                  <img
-                    alt={url}
-                    className="size-full text-transparent"
-                    src={icon}
-                  />
-                ) : (
-                  <picture>
-                    <source
-                      media="(prefers-color-scheme: dark)"
-                      srcSet={icon.dark}
-                    />
-                    <source
-                      media="(prefers-color-scheme: light)"
-                      srcSet={icon.light}
-                    />
-                    <img
-                      alt={url}
-                      className="size-full text-transparent"
-                      src={icon.light}
-                    />
-                  </picture>
-                )}
-              </div>
-            ) : (
-              <LucideGlobe className="size-3.5 text-primary" />
-            )}
-          </div>
-
-          <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-secondary leading-[22px]">
-            {url ? (
-              <div className="flex overflow-hidden" title={url}>
-                {subdomain && (
-                  <>
-                    <div className="truncate">{subdomain}</div>
-                    <div>.</div>
-                  </>
-                )}
-                <div>{domain}</div>
-              </div>
-            ) : (
-              'Porto'
-            )}
-            {verifyStatus.data?.status === 'whitelisted' && (
-              <div className="flex items-center justify-center">
-                <LucideBadgeCheck className="size-4 text-accent" />
-              </div>
-            )}
-            {env && (
-              <div className="flex h-5 items-center rounded-full bg-surfaceHover px-1.25 text-[11.5px] capitalize">
-                {env}
-              </div>
-            )}
-          </div>
-
-          {mode !== 'inline-iframe' && (
-            <button
-              onClick={() => Actions.rejectAll(porto)}
-              title="Close Dialog"
-              type="button"
-            >
-              <LucideX className="size-4.5 text-secondary" />
-            </button>
-          )}
-        </header>
+          referrer={referrer}
+          verifyStatus={verifyStatus.data?.status}
+        />
 
         <div
           className="flex not-in-data-popup-standalone:h-fit in-data-popup-standalone:min-h-dvh flex-col overflow-hidden bg-primary pt-titlebar"
@@ -208,10 +117,10 @@ function RouteComponent() {
         >
           <div
             className="flex flex-grow *:w-full"
-            key={id} // rehydrate on id changes
+            key={request?.id ? request.id.toString() : '-1'} // rehydrate on id changes
           >
             <CheckReferrer>
-              {account.isConnecting || account.isReconnecting ? (
+              {status === 'connecting' || status === 'reconnecting' ? (
                 <Layout loading loadingTitle="Loading...">
                   <div />
                 </Layout>

@@ -159,7 +159,7 @@ export function HomePage() {
           </Ariakit.Button>
           <Ariakit.Button
             className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
-            render={<Link to="/demo" />}
+            render={<Link to="/" />}
           >
             <div className="size-[1em]">
               <DemoIcon />
@@ -180,7 +180,7 @@ export function HomePage() {
             <div className="size-[1.2em]">
               <GitHubIcon />
             </div>
-            GitHub
+            View Source
           </Ariakit.Button>
         </div>
       </div>
@@ -280,7 +280,7 @@ function Demo() {
         </div>
         <Link
           className="flex items-center gap-1 font-[400] text-[14px] text-blue9 leading-none tracking-[-2.8%]"
-          to="/demo"
+          to="/"
         >
           Playground →
         </Link>
@@ -293,10 +293,10 @@ function Demo() {
               {step === 'sign-in' && (
                 <SignIn next={() => setStep('add-funds')} />
               )}
-              {step === 'add-funds' && <div>add funds</div>}
-              {step === 'send' && <div>send</div>}
-              {step === 'mint' && <div>mint</div>}
-              {step === 'swap' && <div>swap</div>}
+              {step === 'add-funds' && <div />}
+              {step === 'send' && <div />}
+              {step === 'mint' && <div />}
+              {step === 'swap' && <div />}
             </div>
           </div>
         )}
