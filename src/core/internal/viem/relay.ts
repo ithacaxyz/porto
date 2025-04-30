@@ -516,7 +516,7 @@ export async function sendPreparedCalls(
         params: [
           Value.Encode(Rpc.wallet_sendPreparedCalls.Parameters, {
             context: {
-              preop: context.preop,
+              preOp: context.preOp,
               quote: context.quote,
             },
             signature,
@@ -585,7 +585,7 @@ export async function upgradeAccount(
           Value.Encode(Rpc.wallet_upgradeAccount.Parameters, {
             authorization,
             context: {
-              preop: context.preop,
+              preOp: context.preOp,
               quote: context.quote,
             },
             signature: signatures[0]!,

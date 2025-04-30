@@ -342,7 +342,7 @@ export namespace wallet_prepareCalls {
     /** Digest to sign over. */
     context: Type.Object({
       /** Quote for the call bundle. */
-      preop: Schema.Optional(UserOp.PreOp),
+      preOp: Schema.Optional(UserOp.PreOp),
       /** The call bundle. */
       quote: Schema.Optional(Quote.Signed),
     }),
@@ -422,7 +422,7 @@ export namespace wallet_sendPreparedCalls {
     /** Quote for the call bundle. */
     context: Type.Object({
       /** Quote for the call bundle. */
-      preop: Schema.Optional(UserOp.PreOp),
+      preOp: Schema.Optional(UserOp.PreOp),
       /** The call bundle. */
       quote: Schema.Optional(Quote.Signed),
     }),
@@ -462,7 +462,7 @@ export namespace wallet_upgradeAccount {
     /** Signed quote of the prepared bundle. */
     context: Type.Object({
       /** Signed quote of the prepared bundle. */
-      preop: Schema.Optional(UserOp.PreOp),
+      preOp: Schema.Optional(UserOp.PreOp),
       /** The call bundle. */
       quote: Schema.Optional(Quote.Signed),
     }),
