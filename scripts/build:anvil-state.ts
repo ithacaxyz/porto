@@ -10,6 +10,7 @@ import * as Anvil from '../test/src/anvil.js'
 import * as AccountRegistry from '../src/core/internal/_generated/contracts/AccountRegistry.js'
 import * as Delegation from '../src/core/internal/_generated/contracts/Delegation.js'
 import * as DelegationOld from '../src/core/internal/_generated/contracts/DelegationOld.js'
+import * as DelegationNew from '../src/core/internal/_generated/contracts/DelegationNew.js'
 import * as EIP7702Proxy from '../src/core/internal/_generated/contracts/EIP7702Proxy.js'
 import * as EntryPoint from '../src/core/internal/_generated/contracts/EntryPoint.js'
 import * as ExperimentERC20 from '../src/core/internal/_generated/contracts/ExperimentERC20.js'
@@ -134,6 +135,36 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
   )
   exports.push(
     `export const delegationOldProxyAddress = '${contractAddress_2}'`,
+  )
+}
+
+{
+  // Deploy DelegationNew contract.
+  const hash = await deployContract(client, {
+    abi: DelegationNew.abi,
+    args: [entryPointAddress!],
+    bytecode: DelegationNew.code,
+    chain: null,
+  })
+  const { contractAddress } = await getTransactionReceipt(client, {
+    hash,
+  })
+
+  // Deploy EIP7702Proxy contract.
+  const hash_2 = await deployContract(client, {
+    abi: EIP7702Proxy.abi,
+    args: [contractAddress!, account.address],
+    bytecode: EIP7702Proxy.code,
+    chain: null,
+  })
+  const { contractAddress: contractAddress_2 } = await getTransactionReceipt(
+    client,
+    {
+      hash: hash_2,
+    },
+  )
+  exports.push(
+    `export const delegationNewProxyAddress = '${contractAddress_2}'`,
   )
 }
 

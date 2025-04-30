@@ -68,3 +68,11 @@ await Fs.rm(
     '../contracts/account/src/DelegationOld.sol',
   ),
 )
+
+// Remove DelegationNew.sol.
+await Fs.rm(
+  Path.resolve(
+    import.meta.dirname,
+    '../contracts/account/src/DelegationNew.sol',
+  ),
+)

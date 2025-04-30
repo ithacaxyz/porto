@@ -21,3 +21,24 @@ await Fs.writeFile(
       .replace('contract Delegation', 'contract DelegationOld'),
   ),
 )
+
+// Make a `DelegationNew.sol` and rewrite with new domain version.
+// This contract is used for testing account upgrades.
+const delegationNewPath = Path.resolve(
+  import.meta.dirname,
+  '../contracts/account/src/DelegationNew.sol',
+)
+await Fs.writeFile(
+  delegationNewPath,
+  await Fs.readFile(
+    Path.resolve(
+      import.meta.dirname,
+      '../contracts/account/src/Delegation.sol',
+    ),
+    'utf-8',
+  ).then((content) =>
+    content
+      .replace(/version = "\d+\.\d+\.\d+";/, 'version = "69.0.0";')
+      .replace('contract Delegation', 'contract DelegationNew'),
+  ),
+)

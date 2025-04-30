@@ -5,8 +5,10 @@ import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
+
 import {
   accountRegistryAddress,
+  delegationNewProxyAddress,
   delegationProxyAddress,
   entryPointAddress,
   exp1Address,
@@ -27,7 +29,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     tailwindcss(),
     {
-      async configureServer() {
+      async configureServer(server) {
         if (process.env.ANVIL !== 'true') return
 
         process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
@@ -62,25 +64,46 @@ export default defineConfig(({ mode }) => ({
 
         logger.info('Starting Relay...')
 
-        await relay({
-          accountRegistry: accountRegistryAddress,
-          delegationProxy: delegationProxyAddress,
-          // delegationProxy: delegationOldProxyAddress,
-          endpoint: anvilConfig.rpcUrl,
-          entrypoint: entryPointAddress,
-          feeTokens: [
-            '0x0000000000000000000000000000000000000000',
-            exp1Address,
-          ],
-          http: {
-            port: relayConfig.port,
-          },
-          simulator: simulatorAddress,
-          userOpGasBuffer: 100_000n,
-        }).start()
-        await fetch(relayConfig.rpcUrl + '/start')
+        const startRelay = async ({
+          delegationProxy = delegationProxyAddress,
+        }: {
+          delegationProxy?: string
+        } = {}) => {
+          const stop = await relay({
+            accountRegistry: accountRegistryAddress,
+            delegationProxy,
+            endpoint: anvilConfig.rpcUrl,
+            entrypoint: entryPointAddress,
+            feeTokens: [
+              '0x0000000000000000000000000000000000000000',
+              exp1Address,
+            ],
+            http: {
+              port: relayConfig.port,
+            },
+            simulator: simulatorAddress,
+            userOpGasBuffer: 100_000n,
+          }).start()
+          await fetch(relayConfig.rpcUrl + '/start')
+          return stop
+        }
+        let stopRelay = await startRelay()
 
         logger.info('Relay started on ' + relayConfig.rpcUrl)
+
+        server.middlewares.use(async (req, res, next) => {
+          if (req.url?.startsWith('/relay/up')) {
+            stopRelay()
+            stopRelay = await startRelay({
+              delegationProxy: delegationNewProxyAddress,
+            })
+            res.statusCode = 302
+            res.setHeader('Location', '/')
+            res.end()
+            return
+          }
+          return next()
+        })
       },
       name: 'anvil',
     },
