@@ -1,8 +1,10 @@
 import * as Ariakit from '@ariakit/react'
+import { PortoConfig } from '@porto/apps'
 import { LogoLockup } from '@porto/apps/components'
 import { exp1Config } from '@porto/apps/contracts'
 import { cx } from 'cva'
 import { Value } from 'ox'
+import { Mode } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
@@ -17,7 +19,7 @@ import LucideChevronLeft from '~icons/lucide/chevron-left'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucidePlay from '~icons/lucide/play'
 import LucideX from '~icons/lucide/x'
-import { modes, porto } from '../wagmi.config'
+import { porto, store } from '../wagmi.config'
 import { Button } from './Button'
 
 export function HomePage() {
@@ -303,8 +305,8 @@ function Demo() {
       <div className="flex w-full flex-col items-center justify-center space-y-1">
         {isMounted && (
           <div className="w-full space-y-1">
-            <div className="flex w-full items-end justify-between lg:items-center">
-              <div>
+            <div className="flex w-full items-end justify-between lg:items-center lg:justify-around">
+              <div className="lg:pb-6">
                 {account.isConnected && (
                   <button
                     className={cx(
@@ -378,7 +380,7 @@ function Demo() {
                   )}
                 </div>
 
-                <div className="h-10 lg:h-4" />
+                <div className="h-10 lg:h-8" />
 
                 <div className="flex items-center justify-center gap-1">
                   {steps.map((s) => (
@@ -396,7 +398,7 @@ function Demo() {
                 </div>
               </div>
 
-              <div>
+              <div className="lg:pb-6">
                 {account.isConnected && (
                   <button
                     className={cx(
@@ -421,7 +423,7 @@ function Demo() {
 
 function SignIn({ next }: { next: () => void }) {
   const chainId = useChainId()
-  const { status } = useAccount()
+  const { address, status } = useAccount()
   const connect = Hooks.useConnect({
     mutation: {
       onError(error) {
@@ -442,9 +444,30 @@ function SignIn({ next }: { next: () => void }) {
     if (status === 'connected') return
     if (!connector) return
     if (!porto) return
-    const mode = modes?.['inline-dialog']
-    if (!mode) return
-    porto._internal.setMode(mode)
+
+    switchRenderer('inline')
+    function switchRenderer(to: 'iframe' | 'inline') {
+      if (!porto) throw new Error('porto instance not defined')
+
+      const state = store.getState()
+      const fromRenderer = state.renderer
+      const toRenderer = state.renderers.find((x) => x.name === to)
+
+      if (
+        fromRenderer &&
+        toRenderer &&
+        fromRenderer?.name !== toRenderer.name
+      ) {
+        porto._internal.setMode(
+          Mode.dialog({
+            host: PortoConfig.getDialogHost(),
+            renderer: toRenderer,
+          }),
+        )
+        store.setState((x) => ({ ...x, renderer: toRenderer }))
+      }
+    }
+
     connect.mutate({
       connector,
       grantPermissions: {
@@ -461,22 +484,30 @@ function SignIn({ next }: { next: () => void }) {
         },
       },
     })
+
     return () => {
-      // TODO: unmount inline dialog
+      switchRenderer('iframe')
     }
-  }, [status])
+  }, [status, chainId, connect.mutate, connector])
 
   return (
-    <div className="flex w-full gap-2">
+    <div className="flex w-full justify-center">
       <div id="porto" />
+
       {status === 'connected' && (
-        <Button
-          className="flex-grow"
-          onClick={() => disconnect.mutate({ connector })}
-          variant="accent"
-        >
-          Disconnect
-        </Button>
+        <div className="flex flex-col gap-2">
+          <div title={address}>
+            {address.slice(0, 6)}...{address.slice(-4)}
+          </div>
+
+          <Button
+            className="flex-grow"
+            onClick={() => disconnect.mutate({ connector })}
+            variant="accent"
+          >
+            Sign out
+          </Button>
+        </div>
       )}
     </div>
   )

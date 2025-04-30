@@ -7,6 +7,7 @@ import type { QueuedRequest, Store } from './Porto.js'
 
 /** Dialog interface. */
 export type Dialog = {
+  name: string
   setup: (parameters: { host: string; internal: Internal }) => {
     close: () => void
     destroy: () => void
@@ -43,6 +44,7 @@ export function iframe() {
     )
 
   return from({
+    name: 'iframe',
     setup(parameters) {
       const { host, internal } = parameters
       const { store } = internal
@@ -266,6 +268,7 @@ export function iframe() {
  */
 export function popup() {
   return from({
+    name: 'popup',
     setup(parameters) {
       const { host, internal } = parameters
       const { store } = internal
@@ -350,6 +353,7 @@ export function popup() {
 export function experimental_inline(options: inline.Options) {
   const { element } = options
   return from({
+    name: 'inline',
     setup(parameters) {
       const { host, internal } = parameters
       const { store } = internal
