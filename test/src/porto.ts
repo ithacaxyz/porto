@@ -50,7 +50,7 @@ export function getPorto(
       feeToken: 'EXP',
       mock: true,
       permissionFeeSpendLimit: {
-        EXP1: {
+        EXP: {
           limit: Value.fromEther('100'),
           period: 'day',
         },

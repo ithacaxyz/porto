@@ -97,7 +97,7 @@ let entryPointAddress: Address.Address | null | undefined
 for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
   const hash = await deployContract(client, {
     abi: ExperimentERC20.abi,
-    args: [`Exp${i}`, `EXP${i}`, i === 0 ? 100n : 1n],
+    args: ['ExperimentERC20', 'EXP', i === 0 ? 100n : 1n],
     bytecode: ExperimentERC20.code,
     chain: null,
   })
