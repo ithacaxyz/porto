@@ -26,6 +26,8 @@ Register a new account by clicking the `Register` button.
 
 #### 4. Fund the Account
 
+Fund your account with some EXP to pay fees.
+
 ```bash
 cast send --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 0xe1aa25618fa0c7a1cfdab5d6b456af611873b629 'mint(address,uint256)' '{{address}}' '1000000000000000000000'
 ```
