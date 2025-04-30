@@ -9,7 +9,7 @@ const config = {
   anvil: {
     chains: [Chains.anvil],
     mode: Mode.relay({
-      feeToken: 'EXP1',
+      feeToken: 'EXP',
     }),
     transports: {
       [Chains.anvil.id]: {

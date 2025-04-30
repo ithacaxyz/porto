@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "check:types": "tsc --noEmit",
-    "dev": "vite --port 5173"
+    "dev": "vite --port 5173",
+    "dev:anvil": "ANVIL=true vite --port 5173"
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
