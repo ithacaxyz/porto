@@ -318,12 +318,15 @@ export function relay(parameters: relay.Parameters = {}) {
 
         return {
           account,
-          capabilities,
+          capabilities: {
+            ...capabilities,
+            quote: context.quote as any,
+          },
           context: {
             ...context,
             account,
             calls,
-            nonce: context.op.nonce,
+            nonce: context.quote?.op!.nonce,
           },
           key,
           signPayloads: [digest],

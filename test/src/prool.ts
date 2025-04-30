@@ -14,10 +14,10 @@ type RelayParameters = {
     port?: number | undefined
     metricsPort?: number | undefined
   }
-  quoteSecretKey?: string | undefined
   quoteTtl?: number | undefined
   registry?: string | undefined
   signersMnemonic?: string | undefined
+  simulator?: string | undefined
   txGasBuffer?: bigint | undefined
   userOpGasBuffer?: bigint | undefined
 }
@@ -32,7 +32,6 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
   const {
     endpoint,
     feeTokens,
-    quoteSecretKey = '0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97', // anvil key
     signersMnemonic = 'test test test test test test test test test test test junk',
     ...rest
   } = args
@@ -85,7 +84,6 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
             metricsPort: port + 1,
             port,
           },
-          quoteSecretKey,
           quoteTtl: 30,
           registry: '/app/registry.toml',
           signersMnemonic,

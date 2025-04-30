@@ -12,10 +12,13 @@ import {
   BaseError,
   type Chain,
   type Client,
+  encodeFunctionData,
+  parseAbi,
   type SendTransactionParameters,
   type Transport,
 } from 'viem'
 import {
+  call,
   getEip712Domain as getEip712Domain_viem,
   prepareAuthorization,
   readContract,
@@ -33,11 +36,6 @@ import * as DelegatedAccount from './account.js'
 import * as Call from './call.js'
 import * as Key from './key.js'
 import type { OneOf } from './types.js'
-
-export const domainNameAndVersion = {
-  name: 'Delegation',
-  version: '0.0.2',
-} as const
 
 /**
  * Executes a set of calls on a delegated account.
@@ -295,6 +293,7 @@ export async function prepareExecute<
       getExecuteSignPayload(client, {
         account,
         calls,
+        delegation,
         nonce,
       }),
 
@@ -446,7 +445,7 @@ async function getExecuteSignPayload<
   client: Client<Transport, chain>,
   parameters: getExecuteSignPayload.Parameters<calls>,
 ): Promise<Hex.Hex> {
-  const { account, nonce } = parameters
+  const { account, delegation, nonce } = parameters
 
   // Structure calls into EIP-7821 execution format.
   const calls = parameters.calls.map((call: any) => ({
@@ -455,9 +454,20 @@ async function getExecuteSignPayload<
     value: call.value ?? 0n,
   }))
 
-  const domain = await getEip712Domain(client, { account }).catch(
-    () => domainNameAndVersion,
-  )
+  const address = await (async () => {
+    if (!delegation) return account.address
+    const { data } = await call(client, {
+      data: encodeFunctionData({
+        abi: parseAbi(['function implementation() view returns (address)']),
+        functionName: 'implementation',
+      }),
+      to: delegation!,
+    } as never).catch(() => ({ data: undefined }))
+    if (!data) throw new Error('delegation address not found.')
+    return Hex.slice(data, 12)
+  })()
+
+  const domain = await getEip712Domain(client, { account: address })
 
   const multichain = nonce & 1n
 
@@ -498,6 +508,10 @@ export declare namespace getExecuteSignPayload {
      * The delegated account to execute the calls on.
      */
     account: DelegatedAccount.Account
+    /**
+     * Contract address to delegate to.
+     */
+    delegation?: Address.Address | undefined
     /**
      * Calls to execute.
      */

@@ -10,6 +10,7 @@ import type { Chain } from '../Chains.js'
 import * as Account from './account.js'
 import * as Key from './key.js'
 import type * as Capabilities from './relay/typebox/capabilities.js'
+import type * as Quote from './relay/typebox/quote.js'
 import type { MaybePromise, OneOf, RequiredBy } from './types.js'
 import * as Actions from './viem/relay.js'
 
@@ -237,7 +238,7 @@ export namespace getKeys {
 export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
-) {
+): Promise<prepareCalls.ReturnType> {
   const { calls, key, feeToken, nonce, pre, revokeKeys } = parameters
 
   const account = Account.from(parameters.account)
@@ -270,7 +271,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   const preOps =
     typeof pre === 'object'
       ? pre.map(({ context, signature }) => ({
-          ...context.op,
+          ...(context.preOp as any),
           signature,
         }))
       : undefined
@@ -293,7 +294,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     },
   })
   return {
-    capabilities: { ...capabilities, quote: context },
+    capabilities: { ...capabilities, quote: context.quote as any },
     context: { ...context, key },
     digest,
   } as const
@@ -332,7 +333,7 @@ export namespace prepareCalls {
 
   export type ReturnType = {
     capabilities: Actions.prepareCalls.ReturnType['capabilities'] & {
-      quote: Actions.prepareCalls.ReturnType['context']
+      quote: Quote.Quote
     }
     context: Actions.prepareCalls.ReturnType['context'] & {
       key: Parameters['key']

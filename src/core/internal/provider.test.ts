@@ -20,7 +20,7 @@ import {
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
-import { odysseyTestnet } from '../Chains.js'
+import { anvil } from '../Chains.js'
 import * as Porto_internal from './porto.js'
 import * as RelayActions from './viem/relay.js'
 
@@ -619,8 +619,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.0.2",
-          "latest": "0.0.2",
+          "current": "0.1.0",
+          "latest": "0.1.0",
         }
       `)
     })
@@ -638,8 +638,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.0.2",
-          "latest": "0.0.2",
+          "current": "0.1.0",
+          "latest": "0.1.0",
         }
       `)
     })
@@ -715,7 +715,7 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.0.2",
+          "latest": "0.1.0",
         }
       `)
     })
@@ -726,7 +726,7 @@ describe.each([
       vi.spyOn(RelayActions, 'health').mockResolvedValue({
         delegationImplementation: Anvil.delegation001Address,
         delegationProxy: Anvil.delegation001Address,
-        entrypoint: odysseyTestnet.contracts.entryPoint.address,
+        entrypoint: anvil.contracts.entryPoint.address,
         quoteConfig: {
           constantRate: 0,
           gas: {
@@ -775,7 +775,7 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.0.2",
+          "latest": "0.1.0",
         }
       `)
 
@@ -794,8 +794,8 @@ describe.each([
         })
         expect(version).toMatchInlineSnapshot(`
           {
-            "current": "0.0.2",
-            "latest": "0.0.2",
+            "current": "0.1.0",
+            "latest": "0.1.0",
           }
         `)
       }

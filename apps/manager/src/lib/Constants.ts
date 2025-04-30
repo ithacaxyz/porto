@@ -54,7 +54,7 @@ export const defaultAssets: Record<
       symbol: 'EXP2',
     },
   ],
-  [Chains.odysseyDevnet.id]: [
+  [Chains.portoDev.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
       decimals: 18,
@@ -63,7 +63,7 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
     {
-      address: exp1Address[Chains.odysseyDevnet.id],
+      address: exp1Address[Chains.portoDev.id],
       decimals: 18,
       logo: '/icons/exp.svg',
       name: 'Experiment',
@@ -71,7 +71,7 @@ export const defaultAssets: Record<
       symbol: 'EXP',
     },
     {
-      address: exp2Address[Chains.odysseyDevnet.id],
+      address: exp2Address[Chains.portoDev.id],
       decimals: 18,
       logo: '/icons/exp2.svg',
       name: 'Experiment 2',

@@ -56,9 +56,12 @@ export async function createAccount(
         method,
         params: [
           Value.Encode(Rpc.wallet_createAccount.Parameters, {
-            context,
+            context: {
+              account: context.account,
+              chainId: context.chainId,
+            },
             signatures,
-          }),
+          } satisfies Rpc.wallet_createAccount.Parameters),
         ],
       },
       {
@@ -512,9 +515,12 @@ export async function sendPreparedCalls(
         method,
         params: [
           Value.Encode(Rpc.wallet_sendPreparedCalls.Parameters, {
-            context,
+            context: {
+              preOp: context.preOp,
+              quote: context.quote,
+            },
             signature,
-          }),
+          } satisfies Rpc.wallet_sendPreparedCalls.Parameters),
         ],
       },
       {
@@ -578,9 +584,12 @@ export async function upgradeAccount(
         params: [
           Value.Encode(Rpc.wallet_upgradeAccount.Parameters, {
             authorization,
-            context,
-            signature: signatures[0],
-          }),
+            context: {
+              preOp: context.preOp,
+              quote: context.quote,
+            },
+            signature: signatures[0]!,
+          } satisfies Rpc.wallet_upgradeAccount.Parameters),
         ],
       },
       {

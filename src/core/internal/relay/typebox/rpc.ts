@@ -60,6 +60,8 @@ export namespace relay_health {
       /** The lifetime of a fee quote. */
       ttl: Type.Number(),
     }),
+    /** Simulator address. */
+    simulator: Schema.Optional(Primitive.Address),
     /** Version of the relay. */
     version: Type.String(),
   })
@@ -270,7 +272,7 @@ export namespace wallet_prepareCalls {
     /** Optional preOps to execute before signature verification. */
     preOp: Schema.Optional(Type.Boolean()),
     /** Whether the call bundle is to be considered a preop. */
-    preOps: Schema.Optional(Type.Array(UserOp.UserOp)),
+    preOps: Schema.Optional(Type.Array(UserOp.PreOp)),
     /** Keys to revoke on the account. */
     revokeKeys: Schema.Optional(C.revokeKeys.Request),
   })
@@ -322,7 +324,7 @@ export namespace wallet_prepareCalls {
     // TODO: `Primitive.Number`
     chainId: Type.Number(),
     /** The address of the account to prepare the calls for. */
-    from: Primitive.Address,
+    from: Schema.Optional(Primitive.Address),
   })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
@@ -338,7 +340,12 @@ export namespace wallet_prepareCalls {
     /** Quote for the call bundle. */
     capabilities: ResponseCapabilities,
     /** Digest to sign over. */
-    context: Quote.Signed,
+    context: Type.Object({
+      /** Quote for the call bundle. */
+      preOp: Schema.Optional(Type.Partial(UserOp.PreOp)),
+      /** The call bundle. */
+      quote: Schema.Optional(Type.Partial(Quote.Signed)),
+    }),
     /** Capabilities. */
     digest: Primitive.Hex,
   })
@@ -358,7 +365,7 @@ export namespace wallet_prepareUpgradeAccount {
      */
     feeToken: Schema.Optional(Primitive.Address),
     /** Optional preOps to execute before signature verification. */
-    preOps: Schema.Optional(Type.Array(UserOp.UserOp)),
+    preOps: Schema.Optional(Type.Array(UserOp.PreOp)),
   })
   export type Capabilities = Schema.StaticDecode<typeof Capabilities>
 
@@ -413,7 +420,12 @@ export namespace wallet_sendPreparedCalls {
   /** Parameters for `wallet_sendPreparedCalls` request. */
   export const Parameters = Type.Object({
     /** Quote for the call bundle. */
-    context: Quote.Signed,
+    context: Type.Object({
+      /** Quote for the call bundle. */
+      preOp: Schema.Optional(Type.Partial(UserOp.PreOp)),
+      /** The call bundle. */
+      quote: Schema.Optional(Type.Partial(Quote.Signed)),
+    }),
     /** Signature properties. */
     signature: Type.Object({
       /** Whether the digest was prehashed. */
@@ -448,7 +460,12 @@ export namespace wallet_upgradeAccount {
     /** Signed authorization. */
     authorization: Authorization,
     /** Signed quote of the prepared bundle. */
-    context: Quote.Signed,
+    context: Type.Object({
+      /** Signed quote of the prepared bundle. */
+      preOp: Schema.Optional(Type.Partial(UserOp.PreOp)),
+      /** The call bundle. */
+      quote: Schema.Optional(Type.Partial(Quote.Signed)),
+    }),
     /** Signature of the `wallet_prepareUpgradeAccount` digest. */
     signature: Primitive.Hex,
   })
