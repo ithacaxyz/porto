@@ -1,20 +1,24 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {console2} from "forge-std/console2.sol";
 import {ERC721} from "solady/tokens/ERC721.sol";
 import {Ownable} from "solady/auth/Ownable.sol";
+import {Base64} from "solady/utils/Base64.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
 contract ExperimentERC721 is ERC721, Ownable {
+    uint256 internal _tokenId;
+    string internal _description;
     string internal _name;
     string internal _symbol;
-    string internal _baseURI;
+    string internal _image;
 
-    constructor(string memory name_, string memory symbol_, string memory baseURI) {
+    constructor(string memory symbol_, string memory name_, string memory description, string memory image) {
+        _description = description;
+        _image = image;
         _name = name_;
         _symbol = symbol_;
-        _baseURI = baseURI;
+        _tokenId = 0;
         _initializeOwner(msg.sender);
     }
 
@@ -27,14 +31,32 @@ contract ExperimentERC721 is ERC721, Ownable {
     }
 
     function tokenURI(uint256 id) public view virtual override returns (string memory) {
-        return string(abi.encodePacked(_baseURI, LibString.toString(id)));
+        string memory json = Base64.encode(
+            abi.encodePacked(
+                '{"name": "',
+                _name,
+                " #",
+                LibString.toString(id),
+                '", "description": "',
+                _description,
+                '", "image": "',
+                _image,
+                '"}'
+            )
+        );
+        return string(abi.encodePacked("data:application/json;base64,", json));
     }
 
-    function mint(address recipient, uint256 id) public virtual {
-        _mint(recipient, id);
+    function mint() public {
+        mint(msg.sender);
     }
 
-    function setBaseURI(string memory baseURI) public onlyOwner {
-        _baseURI = baseURI;
+    function mint(address recipient) public {
+        _mint(recipient, _tokenId);
+        _tokenId++;
+    }
+
+    function setImage(string memory image) public onlyOwner {
+        _image = image;
     }
 }

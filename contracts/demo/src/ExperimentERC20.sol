@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {console2} from "forge-std/console2.sol";
 import {ERC20} from "solady/tokens/ERC20.sol";
 
 contract ExperimentERC20 is ERC20 {

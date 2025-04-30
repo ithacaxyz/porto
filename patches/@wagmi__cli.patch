@@ -1,0 +1,34 @@
+diff --git a/dist/esm/plugins/foundry.js b/dist/esm/plugins/foundry.js
+index 02e0faaea5f6a5b99253f1a74a94a8a335ae26d4..de39ca7c5f687d78d934186878b940648d3b1e60 100644
+--- a/dist/esm/plugins/foundry.js
++++ b/dist/esm/plugins/foundry.js
+@@ -44,11 +44,14 @@ const FoundryConfigSchema = z.object({
+ });
+ /** Resolves ABIs from [Foundry](https://github.com/foundry-rs/foundry) project. */
+ export function foundry(config = {}) {
+-    const { artifacts, deployments = {}, exclude = foundryDefaultExcludes, forge: { clean = false, build = true, path: forgeExecutable = 'forge', rebuild = true, } = {}, include = ['*.json'], namePrefix = '', } = config;
++    const { artifacts, deployments = {}, exclude = foundryDefaultExcludes, forge: { clean = false, build = true, path: forgeExecutable = 'forge', rebuild = true, } = {}, include = ['*.json'], namePrefix = '', getName = name => name } = config;
+     function getContractName(artifactPath, usePrefix = true) {
+         const filename = basename(artifactPath);
+         const extension = extname(artifactPath);
+-        return `${usePrefix ? namePrefix : ''}${filename.replace(extension, '')}`;
++        const name = filename.replace(extension, '');
++        if (usePrefix)
++            return getName(`${namePrefix}${name}`);
++        return name;
+     }
+     async function getContract(artifactPath) {
+         const artifact = await JSON.parse(await readFile(artifactPath, 'utf8'));
+diff --git a/dist/types/plugins/foundry.d.ts b/dist/types/plugins/foundry.d.ts
+index c4a00ff4148608e0f2b91faa7a296d30e7e93d91..c226c070fc2d13cf9ca1bc23565f61e352f32111 100644
+--- a/dist/types/plugins/foundry.d.ts
++++ b/dist/types/plugins/foundry.d.ts
+@@ -45,6 +45,8 @@ export type FoundryConfig = {
+     } | undefined;
+     /** Artifact files to include. */
+     include?: string[] | undefined;
++    /** Optional function to transform names. */
++    getName?: ((name: string) => string) | undefined
+     /** Optional prefix to prepend to artifact names. */
+     namePrefix?: string | undefined;
+     /** Path to foundry project. */

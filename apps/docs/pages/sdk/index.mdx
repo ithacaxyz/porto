@@ -85,14 +85,14 @@ After you have set up Wagmi, you can set up Porto by using the `porto(){:ts}` co
 ```ts [wagmi.ts] twoslash
 import { porto } from 'porto/wagmi' // [!code ++]
 import { http, createConfig, createStorage } from 'wagmi'
-import { odysseyTestnet } from 'wagmi/chains'
+import { baseSepolia } from 'wagmi/chains'
 
 export const wagmiConfig = createConfig({
-  chains: [odysseyTestnet],
+  chains: [baseSepolia],
   connectors: [porto()], // [!code ++]
   storage: createStorage({ storage: localStorage }),
   transports: {
-    [odysseyTestnet.id]: http(),
+    [baseSepolia.id]: http(),
   },
 })
 ```

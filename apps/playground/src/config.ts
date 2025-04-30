@@ -2,6 +2,7 @@ import { PortoConfig } from '@porto/apps'
 import {
   exp1Address as exp1Address_,
   exp2Address as exp2Address_,
+  expNftAddress as expNftAddress_,
 } from '@porto/apps/contracts'
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
@@ -13,6 +14,8 @@ const chainId = config.chains[0].id
 
 export const exp1Address = exp1Address_[chainId]
 export const exp2Address = exp2Address_[chainId]
+export const expNftAddress =
+  expNftAddress_[chainId as keyof typeof expNftAddress_]
 
 export const modes = {
   contract: Mode.contract(),

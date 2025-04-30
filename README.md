@@ -34,20 +34,19 @@ For documentation and guides, visit [porto.sh](https://porto.sh).
 
 ## Development
 
-### Playground
+### Apps
 
 ```bash
-# (Optional) Set up SSL for localhost
-# Install: https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation
-$ mkcert -install
-$ mkcert localhost
+$ pnpm install # Install dependencies
+$ pnpm dev # Run manager, playground, and iframe dialog
+```
 
-# Install pnpm
-$ curl -fsSL https://get.pnpm.io/install.sh | sh - 
+### Tests
 
-$ pnpm install # Install modules
-$ pnpm wagmi generate # get ABIs, etc.
-$ pnpm dev # Run playground + iframe embed
+```bash
+$ pnpm install # Install dependencies
+$ docker pull ghcr.io/ithacaxyz/relay:latest # Pull Relay image
+$ pnpm test # Test
 ```
 
 ### Contracts

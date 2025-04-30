@@ -20,9 +20,11 @@ const headers = (chainId?: keyof typeof chains) =>
   new Headers({
     'Access-Control-Allow-Origin': '*',
     'X-Faucet-Address': account.address,
-    ...(chainId ? { 'X-Faucet-ChainId': chainId.toString() } : {}),
     ...(chainId
-      ? { 'X-Faucet-RpcUrl': chains[chainId].rpcUrls.default.http[0] }
+      ? {
+          'X-Faucet-ChainId': chainId.toString(),
+          'X-Faucet-RpcUrl': chains[chainId].rpcUrls.default.http[0],
+        }
       : {}),
   })
 
@@ -41,6 +43,7 @@ export default {
           { error: 'Valid EVM address required' },
           { headers: headers(chainId), status: 400 },
         )
+
       if (!chainId || !exp1Address[chainId as keyof typeof exp1Address])
         return Response.json(
           { error: 'Valid chainId required' },
@@ -53,12 +56,11 @@ export default {
           (request.headers.get('cf-connecting-ip') ?? ''),
       })
 
-      if (!success) {
+      if (!success)
         return Response.json(
           { error: 'Rate limit exceeded' },
           { headers: headers(chainId), status: 429 },
         )
-      }
 
       const client = createWalletClient({
         account,
@@ -66,11 +68,16 @@ export default {
         transport: http(),
       }).extend(publicActions)
 
+      const { maxFeePerGas, maxPriorityFeePerGas } =
+        await client.estimateFeesPerGas()
+
       const hash = await client.writeContract({
         abi: exp1Abi,
         address: exp1Address[chainId as keyof typeof exp1Address],
         args: [address, value],
         functionName: 'mint',
+        maxFeePerGas: maxFeePerGas * 2n,
+        maxPriorityFeePerGas: maxPriorityFeePerGas * 2n,
       })
 
       // wait for transaction inclusion
@@ -78,12 +85,11 @@ export default {
         hash,
       })
 
-      if (receipt.status === 'success') {
+      if (receipt.status === 'success')
         return Response.json(
           { id: receipt.transactionHash },
           { headers: headers(chainId), status: 200 },
         )
-      }
 
       return Response.json(
         { error: receipt.status, id: receipt.transactionHash },

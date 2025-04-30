@@ -77,7 +77,7 @@ export namespace SignMessage {
     const { address, loading, onApprove, onReject } = props
 
     const account = Hooks.useAccount(porto, { address })
-    const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
+    const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
     return (
       <Layout loading={loading} loadingTitle="Authenticating...">
@@ -85,7 +85,12 @@ export namespace SignMessage {
           <Layout.Header.Default
             content={
               <>
-                Authenticate <span className="font-medium">{hostname}</span>{' '}
+                Authenticate{' '}
+                {hostname ? (
+                  <span className="font-medium">{hostname}</span>
+                ) : (
+                  'this website'
+                )}{' '}
                 with your passkey to continue.
               </>
             }

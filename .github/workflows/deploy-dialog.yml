@@ -1,0 +1,32 @@
+name: Deploy Dialog to Production
+on:
+  workflow_dispatch:
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Setup vercel.json
+        run: |
+          echo '{
+            "projectId": "${{ secrets.VERCEL_PROJECT_ID }}",
+            "orgId": "${{ secrets.VERCEL_ORG_ID }}"
+          }' > .vercel/project.json
+
+      - name: Pull
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz
+
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz
+
+      - name: Deploy
+        continue-on-error: true
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz

@@ -11,7 +11,7 @@ export function SignIn(props: SignIn.Props) {
   const { loading, onApprove, permissions } = props
 
   const account = Hooks.useAccount(porto)
-  const hostname = Dialog.useStore((state) => state.referrer?.url.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   return (
     <Layout loading={loading} loadingTitle="Signing in...">
@@ -20,7 +20,12 @@ export function SignIn(props: SignIn.Props) {
           content={
             <>
               Authenticate with your Porto account to start using{' '}
-              <span className="font-medium">{hostname}</span>.
+              {hostname ? (
+                <span className="font-medium">{hostname}</span>
+              ) : (
+                'this website'
+              )}
+              .
             </>
           }
           icon={LucideLogIn}

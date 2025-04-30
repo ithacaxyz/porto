@@ -1,4 +1,4 @@
-import { exp1Abi } from '@porto/apps/contracts'
+import { exp1Abi, expNftAbi } from '@porto/apps/contracts'
 import {
   AbiFunction,
   Hex,
@@ -22,6 +22,7 @@ import {
 import {
   exp1Address,
   exp2Address,
+  expNftAddress,
   type ModeType,
   mipd,
   modes,
@@ -750,6 +751,16 @@ function SendCalls() {
               },
             ] as const
 
+          if (action === 'mint-nft')
+            return [
+              {
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(expNftAbi, 'mint'),
+                ),
+                to: expNftAddress,
+              },
+            ] as const
+
           return [
             {
               to: recipient,
@@ -778,6 +789,7 @@ function SendCalls() {
           <option value="mint">Mint 100 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
           <option value="mint-transfer">Mint 100 EXP2 + Transfer 50 EXP</option>
+          <option value="mint-nft">Mint NFT</option>
           <option value="revert">Revert</option>
           <option value="noop">Noop Calls</option>
         </select>

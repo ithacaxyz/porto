@@ -42,34 +42,14 @@ async function buildContracts(outPath: string) {
   }
 }
 
-// Make a `DelegationOld.sol` and rewrite with old domain version.
-const delegationPath_tmp = Path.resolve(
-  import.meta.dirname,
-  '../contracts/account/src/DelegationOld.sol',
-)
-await Fs.writeFile(
-  delegationPath_tmp,
-  await Fs.readFile(
-    Path.resolve(
-      import.meta.dirname,
-      '../contracts/account/src/Delegation.sol',
-    ),
-    'utf-8',
-  ).then((content) =>
-    content
-      .replace(/version = "\d+\.\d+\.\d+";/, 'version = "0.0.1";')
-      .replace('contract Delegation', 'contract DelegationOld'),
-  ),
-)
-
 // Build all contracts in `account`.
 for await (const file of Fs.glob(
   Path.resolve(import.meta.dirname, '../contracts/*/src/**/*.sol'),
 )) {
   const name = Path.basename(file)
-  const srcDir = Path.dirname(file)
-  const dir = Path.resolve(srcDir, '..')
-  const outPath = Path.resolve(dir, 'out', name)
+  const contractsDir = Path.resolve(import.meta.dirname, '../contracts')
+  const project = Path.relative(contractsDir, file).split('/')[0]!
+  const outPath = Path.resolve(contractsDir, project, 'out', name)
   await buildContracts(outPath)
 }
 
@@ -81,5 +61,10 @@ await buildContracts(
   ),
 )
 
-// Remove tmp.
-await Fs.rm(delegationPath_tmp)
+// Remove DelegationOld.sol.
+await Fs.rm(
+  Path.resolve(
+    import.meta.dirname,
+    '../contracts/account/src/DelegationOld.sol',
+  ),
+)

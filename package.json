@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm clean && tsc --project ./tsconfig.build.json",
-    "build:contracts": "forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && tsx scripts/build:contracts.ts",
+    "build:contracts": "tsx scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && tsx scripts/postbuild:contracts.ts && pnpm wagmi generate",
     "changeset:prepublish": "pnpm build && tsx ./scripts/prepublish.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && pnpm format",
@@ -18,7 +18,7 @@
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter playground --filter dialog --filter manager dev",
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter manager dev",
-    "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi --filter dialog --filter manager dev",
+    "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example --filter dialog --filter manager dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter docs --filter dialog --filter manager dev",
     "format": "biome format --write",
@@ -102,7 +102,8 @@
   ],
   "pnpm": {
     "patchedDependencies": {
-      "@tanstack/react-router": "patches/@tanstack__react-router.patch"
+      "@tanstack/react-router": "patches/@tanstack__react-router.patch",
+      "@wagmi/cli": "patches/@wagmi__cli.patch"
     }
   }
 }

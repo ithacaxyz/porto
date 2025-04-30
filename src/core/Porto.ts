@@ -20,6 +20,7 @@ export const defaultConfig = {
   chains: [Chains.baseSepolia],
   mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.relay(),
   storage: Storage.idb(),
+  storageKey: 'porto.store',
   transports: {
     [Chains.baseSepolia.id]: {
       default: http(),
@@ -52,6 +53,7 @@ export function create(
     chains: parameters.chains ?? defaultConfig.chains,
     mode: parameters.mode ?? defaultConfig.mode,
     storage: parameters.storage ?? defaultConfig.storage,
+    storageKey: parameters.storageKey ?? defaultConfig.storageKey,
     transports: parameters.transports ?? defaultConfig.transports,
   } satisfies Config
 
@@ -66,7 +68,7 @@ export function create(
           requestQueue: [],
         }),
         {
-          name: 'porto.store',
+          name: config.storageKey,
           partialize(state) {
             return {
               accounts: state.accounts.map((account) => ({
@@ -156,6 +158,10 @@ export type Config<
    * @default Storage.idb()
    */
   storage: Storage.Storage
+  /**
+   * Key to use for store.
+   */
+  storageKey?: string | undefined
   /**
    * Transport to use for each chain.
    */
