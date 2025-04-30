@@ -270,7 +270,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   const preOps =
     typeof pre === 'object'
       ? pre.map(({ context, signature }) => ({
-          ...context.preop!,
+          ...context.preOp!,
           signature,
         }))
       : undefined
