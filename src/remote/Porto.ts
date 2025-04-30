@@ -136,6 +136,7 @@ export function create(
     messenger = defaultConfig.messenger,
     methodPolicies = defaultConfig.methodPolicies,
     storage = defaultConfig.storage,
+    storageKey = defaultConfig.storageKey,
     transports = defaultConfig.transports,
   } = parameters
 
@@ -144,6 +145,7 @@ export function create(
     chains,
     mode,
     storage,
+    storageKey,
     transports,
   })
 

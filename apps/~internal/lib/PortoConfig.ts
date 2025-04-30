@@ -23,6 +23,7 @@ const config = {
     mode: Mode.relay({
       feeToken: 'EXP1',
     }),
+    storageKey: 'porto.store.dev',
     transports: {
       [Chains.odysseyDevnet.id]: {
         default: http(),
@@ -46,6 +47,7 @@ const config = {
   stg: {
     chains: [Chains.baseSepolia],
     mode: Mode.relay(),
+    storageKey: 'porto.store.stg',
     transports: {
       [Chains.baseSepolia.id]: {
         default: http(),
