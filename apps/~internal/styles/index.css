@@ -4,3 +4,27 @@
 @source "../";
 
 @import "./theme.css";
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  @apply appearance-none;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}
+
+[role="button"],
+button:not([type="submit"]) {
+  cursor: default;
+}
+
+/* Hide the default arrow for details in major browsers */
+details > summary {
+  list-style: none;
+}
+
+details > summary::marker /* Latest Chrome, Edge, Firefox */,
+details > summary::-webkit-details-marker /* Safari */ {
+  display: none;
+}

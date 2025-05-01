@@ -138,19 +138,3 @@ body,
   opacity: 1;
   transform: scale(1);
 }
-
-[role="button"],
-button:not([type="submit"]) {
-  cursor: default;
-}
-
-/* Hide the default arrow for details in major browsers */
-
-details > summary {
-  list-style: none;
-}
-
-details > summary::marker /* Latest Chrome, Edge, Firefox */,
-details > summary::-webkit-details-marker /* Safari */ {
-  display: none;
-}

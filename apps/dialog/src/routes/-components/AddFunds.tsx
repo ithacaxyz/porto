@@ -3,6 +3,7 @@ import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
+import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -10,11 +11,15 @@ import * as React from 'react'
 import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
+import AppleIcon from '~icons/basil/apple-solid'
+import GoogleIcon from '~icons/devicon/google'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
+import PencilIcon from '~icons/lucide/pencil'
 import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
+import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250']
 
@@ -68,6 +73,10 @@ export function AddFunds(props: AddFunds.Props) {
 
   const loading = deposit.isPending
 
+  const [editView, setEditView] = React.useState<'default' | 'editing'>(
+    'default',
+  )
+
   if (view === 'default')
     return (
       <Layout loading={loading} loadingTitle="Adding funds...">
@@ -85,62 +94,84 @@ export function AddFunds(props: AddFunds.Props) {
           >
             <div className="col-span-1 row-span-1">
               <div className="flex w-full max-w-full flex-row justify-center space-x-2">
-                <Ariakit.RadioProvider
-                  setValue={(value) => setAmount(value as string)}
-                  value={amount}
-                >
-                  <Ariakit.RadioGroup className="flex w-full gap-1">
-                    {presetAmounts.map((predefinedAmount) => (
-                      // biome-ignore lint/a11y/noLabelWithoutControl:
-                      <label
-                        className="w-full rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
-                        key={predefinedAmount}
-                      >
-                        <Ariakit.VisuallyHidden>
-                          <Ariakit.Radio value={predefinedAmount} />
-                        </Ariakit.VisuallyHidden>
-                        ${predefinedAmount}
-                      </label>
-                    ))}
-                  </Ariakit.RadioGroup>
-                </Ariakit.RadioProvider>
-              </div>
-            </div>
-            <div className="col-span-1 row-span-1">
-              <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-gray4 px-3 py-2.5 text-gray12 focus-within:border-blue9 focus-within:bg-gray4 has-invalid:border-red8 dark:bg-gray3">
-                <span className="-translate-y-1/2 absolute top-1/2 left-2 text-gray9">
-                  $
-                </span>
-                <input
-                  autoCapitalize="off"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
-                  inputMode="decimal"
-                  max={500}
-                  min={0}
-                  onChange={(event) =>
-                    event.target.value.length > 0
-                      ? setAmount(event.target.value)
-                      : setAmount('')
+                {editView === 'editing' ? (
+                  <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-gray4/45 px-3 py-2.5 text-gray12 focus-within:border-blue9 focus-within:bg-gray4/75 has-invalid:border-red8 dark:bg-gray3">
+                    <span className="-translate-y-1/2 absolute top-1/2 left-3 text-gray11">
+                      $
+                    </span>
+                    <input
+                      autoCapitalize="off"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
+                      inputMode="decimal"
+                      max={500}
+                      min={0}
+                      onChange={(event) =>
+                        event.target.value.length > 0
+                          ? setAmount(event.target.value)
+                          : setAmount('')
+                      }
+                      placeholder="Enter amount"
+                      required
+                      spellCheck={false}
+                      type="number"
+                      value={amount}
+                      // should add disabled` if testnet?
+                    />
+                    <span className="text-gray9 text-sm">Max. $500</span>
+                  </div>
+                ) : (
+                  <Ariakit.RadioProvider
+                    setValue={(value) => setAmount(value as string)}
+                    value={amount}
+                  >
+                    <Ariakit.RadioGroup className="flex w-full gap-3 *:h-10.5">
+                      {presetAmounts.map((predefinedAmount) => (
+                        // biome-ignore lint/a11y/noLabelWithoutControl:
+                        <label
+                          className="w-full rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                          key={predefinedAmount}
+                        >
+                          <Ariakit.VisuallyHidden>
+                            <Ariakit.Radio value={predefinedAmount} />
+                          </Ariakit.VisuallyHidden>
+                          ${predefinedAmount}
+                        </label>
+                      ))}
+                    </Ariakit.RadioGroup>
+                  </Ariakit.RadioProvider>
+                )}
+                <Ariakit.Button
+                  className={cx(
+                    'flex w-[18%] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary',
+                    editView === 'editing' && 'hover:border-red7',
+                  )}
+                  onClick={() =>
+                    editView === 'default'
+                      ? setEditView('editing')
+                      : setEditView('default')
                   }
-                  placeholder="Enter amount"
-                  required
-                  spellCheck={false}
-                  type="number"
-                  value={amount}
-                  // should add disabled` if testnet?
-                />
-                <span className="text-gray9 text-sm">Max. $500</span>
+                >
+                  {editView === 'editing' ? (
+                    <XIcon className="size-6" />
+                  ) : (
+                    <PencilIcon className="size-4" />
+                  )}
+                </Ariakit.Button>
               </div>
             </div>
-            <div className="col-span-1 row-span-1 my-1">
+            <div className="col-span-1 row-span-1 my-1 space-y-3.5">
               <Button className="w-full flex-1" type="submit" variant="accent">
                 Buy & deposit
               </Button>
+              <div className="flex w-full flex-row gap-x-3">
+                <ApplePay disabled />
+                <GooglePay disabled />
+              </div>
             </div>
             <div className="col-span-1 row-span-1">
-              <div className="h-1" />
+              <div className="mt-1 h-1" />
               <div className="my-auto flex w-full flex-row items-center gap-2 *:border-gray7">
                 <hr className="flex-1" />
                 <span className="px-3 text-gray9">or</span>
@@ -165,6 +196,27 @@ export function AddFunds(props: AddFunds.Props) {
                 </div>
               </Button>
             </div>
+            <p className="text-gray10 text-sm">
+              By using this service, you agree to the provider's{' '}
+              <a
+                className="text-gray11"
+                href="/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Terms of Use
+              </a>{' '}
+              and{' '}
+              <a
+                className="text-gray11"
+                href="/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Privacy Policy
+              </a>
+              .
+            </p>
           </form>
         </Layout.Content>
       </Layout>
@@ -291,6 +343,28 @@ export function AddFunds(props: AddFunds.Props) {
     )
 
   return null
+}
+
+function ApplePay(props: React.ComponentProps<'button'>) {
+  return (
+    <Ariakit.Button
+      {...props}
+      className="h-10 w-full select-none rounded-lg bg-black py-1.5 font-semibold text-md text-white hover:bg-black/95 dark:bg-white dark:text-black dark:hover:bg-white/90"
+    >
+      Pay with <AppleIcon className="mb-1 ml-0.5 inline size-5" /> Pay
+    </Ariakit.Button>
+  )
+}
+
+function GooglePay(props: React.ComponentProps<'button'>) {
+  return (
+    <Ariakit.Button
+      {...props}
+      className="h-10 w-full rounded-lg bg-black py-1.5 font-semibold text-md text-white hover:bg-black/95 dark:bg-white dark:text-black dark:hover:bg-white/90"
+    >
+      Pay with <GoogleIcon className="mb-1 ml-0.5 inline size-5" /> Pay
+    </Ariakit.Button>
+  )
 }
 
 export declare namespace AddFunds {
