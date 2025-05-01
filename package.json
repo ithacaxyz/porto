@@ -49,7 +49,7 @@
     "sherif": "1.5.0",
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
-    "tsx": "^4.19.3",
+    "tsx": "^4.19.4",
     "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "viem": "catalog:",
@@ -57,7 +57,7 @@
     "vitest": "^3.1.1",
     "wagmi": "catalog:"
   },
-  "packageManager": "pnpm@10.8.1",
+  "packageManager": "pnpm@10.10.0",
   "engines": {
     "node": ">=22.5"
   },

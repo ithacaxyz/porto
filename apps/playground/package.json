@@ -28,5 +28,5 @@
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.10.0"
 }

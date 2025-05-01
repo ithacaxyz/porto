@@ -1,6 +1,5 @@
 import { Button } from '@porto/apps/components'
-import { Hex } from 'ox'
-import { type RpcSchema } from 'ox'
+import { Hex, type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as Dialog from '~/lib/Dialog'

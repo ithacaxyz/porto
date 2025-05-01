@@ -26,7 +26,12 @@ import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info } from '~/hooks/useTokenInfo'
 import { porto } from '~/lib/Porto'
 import { config } from '~/lib/Wagmi'
-import { DateFormatter, StringFormatter, sum, ValueFormatter } from '~/utils'
+import {
+  ArrayUtils,
+  DateFormatter,
+  StringFormatter,
+  ValueFormatter,
+} from '~/utils'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
 import ExternalLinkIcon from '~icons/lucide/external-link'
@@ -101,7 +106,7 @@ export function Dashboard() {
 
   const totalBalance = React.useMemo(() => {
     if (!swapAssets.data) return 0n
-    return sum(
+    return ArrayUtils.sum(
       swapAssets.data.map(
         (asset) =>
           Number(Value.format(asset.balance, asset.decimals)) *
