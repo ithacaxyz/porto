@@ -1,7 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { PayButton } from '~/components/PayButton'
+import { Env } from '@porto/apps'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { PayButton } from '~/components/PayButton.tsx'
 
 export const Route = createFileRoute('/dialog/playground')({
+  beforeLoad: (context) => {
+    if (Env.get() === 'prod') throw redirect({ to: '/dialog' })
+    return context
+  },
   component: RouteComponent,
 })
 
