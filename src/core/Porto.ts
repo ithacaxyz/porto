@@ -19,7 +19,7 @@ export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia],
   mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.relay(),
-  storage: Storage.idb(),
+  storage: typeof window !== 'undefined' ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {
     [Chains.baseSepolia.id]: {
