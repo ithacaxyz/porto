@@ -15,6 +15,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as DialogIndexImport } from './routes/dialog/index'
 import { Route as DialogWalletsendCallsImport } from './routes/dialog/wallet_sendCalls'
 import { Route as DialogWalletconnectImport } from './routes/dialog/wallet_connect'
+import { Route as DialogPlaygroundImport } from './routes/dialog/playground'
 import { Route as DialogPersonalsignImport } from './routes/dialog/personal_sign'
 import { Route as DialogExperimentalupdateAccountImport } from './routes/dialog/experimental_updateAccount'
 import { Route as DialogExperimentalrevokePermissionsImport } from './routes/dialog/experimental_revokePermissions'
@@ -50,6 +51,12 @@ const DialogWalletsendCallsRoute = DialogWalletsendCallsImport.update({
 const DialogWalletconnectRoute = DialogWalletconnectImport.update({
   id: '/dialog/wallet_connect',
   path: '/dialog/wallet_connect',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DialogPlaygroundRoute = DialogPlaygroundImport.update({
+  id: '/dialog/playground',
+  path: '/dialog/playground',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -215,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogPersonalsignImport
       parentRoute: typeof rootRoute
     }
+    '/dialog/playground': {
+      id: '/dialog/playground'
+      path: '/dialog/playground'
+      fullPath: '/dialog/playground'
+      preLoaderRoute: typeof DialogPlaygroundImport
+      parentRoute: typeof rootRoute
+    }
     '/dialog/wallet_connect': {
       id: '/dialog/wallet_connect'
       path: '/dialog/wallet_connect'
@@ -254,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/dialog/experimental_revokePermissions': typeof DialogExperimentalrevokePermissionsRoute
   '/dialog/experimental_updateAccount': typeof DialogExperimentalupdateAccountRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
+  '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
   '/dialog': typeof DialogIndexRoute
@@ -272,6 +287,7 @@ export interface FileRoutesByTo {
   '/dialog/experimental_revokePermissions': typeof DialogExperimentalrevokePermissionsRoute
   '/dialog/experimental_updateAccount': typeof DialogExperimentalupdateAccountRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
+  '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
   '/dialog': typeof DialogIndexRoute
@@ -291,6 +307,7 @@ export interface FileRoutesById {
   '/dialog/experimental_revokePermissions': typeof DialogExperimentalrevokePermissionsRoute
   '/dialog/experimental_updateAccount': typeof DialogExperimentalupdateAccountRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
+  '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
   '/dialog/': typeof DialogIndexRoute
@@ -311,6 +328,7 @@ export interface FileRouteTypes {
     | '/dialog/experimental_revokePermissions'
     | '/dialog/experimental_updateAccount'
     | '/dialog/personal_sign'
+    | '/dialog/playground'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
     | '/dialog'
@@ -328,6 +346,7 @@ export interface FileRouteTypes {
     | '/dialog/experimental_revokePermissions'
     | '/dialog/experimental_updateAccount'
     | '/dialog/personal_sign'
+    | '/dialog/playground'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
     | '/dialog'
@@ -345,6 +364,7 @@ export interface FileRouteTypes {
     | '/dialog/experimental_revokePermissions'
     | '/dialog/experimental_updateAccount'
     | '/dialog/personal_sign'
+    | '/dialog/playground'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_sendCalls'
     | '/dialog/'
@@ -364,6 +384,7 @@ export interface RootRouteChildren {
   DialogExperimentalrevokePermissionsRoute: typeof DialogExperimentalrevokePermissionsRoute
   DialogExperimentalupdateAccountRoute: typeof DialogExperimentalupdateAccountRoute
   DialogPersonalsignRoute: typeof DialogPersonalsignRoute
+  DialogPlaygroundRoute: typeof DialogPlaygroundRoute
   DialogWalletconnectRoute: typeof DialogWalletconnectRoute
   DialogWalletsendCallsRoute: typeof DialogWalletsendCallsRoute
   DialogIndexRoute: typeof DialogIndexRoute
@@ -384,6 +405,7 @@ const rootRouteChildren: RootRouteChildren = {
     DialogExperimentalrevokePermissionsRoute,
   DialogExperimentalupdateAccountRoute: DialogExperimentalupdateAccountRoute,
   DialogPersonalsignRoute: DialogPersonalsignRoute,
+  DialogPlaygroundRoute: DialogPlaygroundRoute,
   DialogWalletconnectRoute: DialogWalletconnectRoute,
   DialogWalletsendCallsRoute: DialogWalletsendCallsRoute,
   DialogIndexRoute: DialogIndexRoute,
@@ -411,6 +433,7 @@ export const routeTree = rootRoute
         "/dialog/experimental_revokePermissions",
         "/dialog/experimental_updateAccount",
         "/dialog/personal_sign",
+        "/dialog/playground",
         "/dialog/wallet_connect",
         "/dialog/wallet_sendCalls",
         "/dialog/"
@@ -451,6 +474,9 @@ export const routeTree = rootRoute
     },
     "/dialog/personal_sign": {
       "filePath": "dialog/personal_sign.tsx"
+    },
+    "/dialog/playground": {
+      "filePath": "dialog/playground.tsx"
     },
     "/dialog/wallet_connect": {
       "filePath": "dialog/wallet_connect.tsx"

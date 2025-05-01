@@ -7,12 +7,10 @@ import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
-
+import { PayButton } from '~/components/PayButton'
 import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
-import AppleIcon from '~icons/basil/apple-solid'
-import GoogleIcon from '~icons/devicon/google'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
@@ -166,8 +164,8 @@ export function AddFunds(props: AddFunds.Props) {
                 Buy & deposit
               </Button>
               <div className="flex w-full flex-row gap-x-3">
-                <ApplePay disabled />
-                <GooglePay disabled />
+                <PayButton disabled variant="apple" />
+                <PayButton disabled variant="google" />
               </div>
             </div>
             <div className="col-span-1 row-span-1">
@@ -343,28 +341,6 @@ export function AddFunds(props: AddFunds.Props) {
     )
 
   return null
-}
-
-function ApplePay(props: React.ComponentProps<'button'>) {
-  return (
-    <Ariakit.Button
-      {...props}
-      className="h-10 w-full select-none rounded-lg bg-black py-1.5 font-semibold text-md text-white hover:bg-black/95 dark:bg-white dark:text-black dark:hover:bg-white/90"
-    >
-      Pay with <AppleIcon className="mb-1 ml-0.5 inline size-5" /> Pay
-    </Ariakit.Button>
-  )
-}
-
-function GooglePay(props: React.ComponentProps<'button'>) {
-  return (
-    <Ariakit.Button
-      {...props}
-      className="h-10 w-full rounded-lg bg-black py-1.5 font-semibold text-md text-white hover:bg-black/95 dark:bg-white dark:text-black dark:hover:bg-white/90"
-    >
-      Pay with <GoogleIcon className="mb-1 ml-0.5 inline size-5" /> Pay
-    </Ariakit.Button>
-  )
 }
 
 export declare namespace AddFunds {
