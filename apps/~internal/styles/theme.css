@@ -146,7 +146,7 @@
   --color-violet10: light-dark(#654dc4, #7d66d9);
   --color-violet11: light-dark(#6550b9, #baa7ff);
   --color-violet12: light-dark(#2f265f, #e2ddfe);
-  
+
   --color-jade1: light-dark(#fbfefd, #0d1512);
   --color-jade2: light-dark(#f4fbf7, #121c18);
   --color-jade3: light-dark(#e6f7ed, #0d2a1f);
@@ -198,7 +198,7 @@
   --text-color-warning: var(--color-amber8);
 
   --height-button: 42px;
-  
+
   --spacing-dialog: 360px;
   --spacing-titlebar: 36px;
 
