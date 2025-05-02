@@ -28,3 +28,18 @@ details > summary::marker /* Latest Chrome, Edge, Firefox */,
 details > summary::-webkit-details-marker /* Safari */ {
   display: none;
 }
+
+@layer utilities {
+  .contain-content {
+    contain: content;
+  }
+
+  .text-md {
+    font-size: 16px;
+    line-height: 1.25rem;
+  }
+
+  .size-full {
+    @apply h-full w-full;
+  }
+}

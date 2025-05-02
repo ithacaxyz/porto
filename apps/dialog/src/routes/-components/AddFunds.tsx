@@ -163,10 +163,18 @@ export function AddFunds(props: AddFunds.Props) {
               <Button className="w-full flex-1" type="submit" variant="accent">
                 Buy & deposit
               </Button>
-              <div className="flex w-full flex-row gap-x-3">
-                <PayButton disabled variant="apple" />
-                <PayButton disabled variant="google" />
-              </div>
+              <PayButton
+                disabled
+                title="Apple Pay"
+                type="submit"
+                variant="apple"
+              />
+              <PayButton
+                disabled
+                title="Google Pay"
+                type="submit"
+                variant="google"
+              />
             </div>
             <div className="col-span-1 row-span-1">
               <div className="mt-1 h-1" />
@@ -176,19 +184,27 @@ export function AddFunds(props: AddFunds.Props) {
                 <hr className="flex-1" />
               </div>
             </div>
-            <div className="col-span-1 row-span-1">
+            <div className="col-span-1 row-span-1 space-y-2.5">
+              <PayButton
+                disabled
+                timeEstimate="5 mins"
+                title="Debit or Credit"
+                variant="card"
+              />
               <Button
                 className="w-full px-3!"
                 onClick={() => setView('deposit-crypto')}
                 type="button"
               >
                 <div className="flex w-full flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 font-semibold">
                     <QrCodeIcon className="size-5" />
-                    <span>Deposit crypto</span>
+                    <span className="font-semibold">Deposit crypto</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="ml-auto text-gray10 text-sm">Instant</span>
+                    <span className="ml-auto font-normal text-gray10 text-sm">
+                      Instant
+                    </span>
                     <ArrowRightIcon className="size-4 text-gray10" />
                   </div>
                 </div>

@@ -2,18 +2,19 @@ import * as Ariakit from '@ariakit/react'
 import { cx } from 'cva'
 import AppleIcon from '~icons/basil/apple-solid'
 import GoogleIcon from '~icons/devicon/google'
-import RightArrowIcon from '~icons/lucide/arrow-right'
+import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CardIcon from '~icons/lucide/credit-card'
 
 export function PayButton(props: PayButton.Props) {
   const { variant, timeEstimate, ...buttonProps } = props
 
   const className =
-    'px-3 max-w-[300px] h-10.5 w-full select-none rounded-lg bg-black py-1.5 font-semibold text-md flex flex-row items-center'
+    'px-3 h-10 w-full select-none rounded-lg bg-black py-1.5 font-semibold text-md flex flex-row items-center'
 
   if (variant === 'card')
     return (
       <Ariakit.Button
+        data-id="onramp"
         {...buttonProps}
         className={cx(
           className,
@@ -23,14 +24,15 @@ export function PayButton(props: PayButton.Props) {
         <CardIcon className="mr-2 inline size-6" />
         <span>Debit or Credit</span>
         <span className="ml-auto font-normal text-gray10 text-sm">
-          {timeEstimate}
-          <RightArrowIcon className="ml-1 inline size-5" />
+          ~{timeEstimate}
+          <ArrowRightIcon className="ml-1 inline size-4" />
         </span>
       </Ariakit.Button>
     )
 
   return (
     <Ariakit.Button
+      data-id="onramp"
       {...buttonProps}
       className={cx(
         className,

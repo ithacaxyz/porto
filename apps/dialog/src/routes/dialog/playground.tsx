@@ -12,10 +12,12 @@ export const Route = createFileRoute('/dialog/playground')({
 
 function RouteComponent() {
   return (
-    <main className="flex flex-col gap-4 p-6">
-      <PayButton variant="apple" />
-      <PayButton variant="google" />
-      <PayButton timeEstimate="5 mins" variant="card" />
+    <main className="flex flex-col p-6">
+      <section className="flex max-w-xs flex-col gap-4">
+        <PayButton data-playground variant="apple" />
+        <PayButton data-playground variant="google" />
+        <PayButton data-playground timeEstimate="5 mins" variant="card" />
+      </section>
     </main>
   )
 }
