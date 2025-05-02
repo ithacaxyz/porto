@@ -26,7 +26,7 @@ export function Toast(props: Toast.Props) {
           ))}
         <span className="font-[550] text-gray12">{title}</span>
       </div>
-      <div className="text-gray10 text-sm max-h-42 overflow-y-auto">
+      <div className="max-h-42 overflow-y-auto text-gray10 text-sm">
         {description}
       </div>
     </div>

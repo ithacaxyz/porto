@@ -4,6 +4,7 @@ import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
 import { Address, Hex, Provider, Value } from 'ox'
+import { Dialog } from 'porto'
 import { Mode } from 'porto'
 import { QueuedRequest } from 'porto/core/Porto'
 import { Hooks } from 'porto/wagmi'
@@ -195,14 +196,17 @@ export function HomePage() {
       </div>
 
       <div className="flex-1 max-lg:hidden">
-        {isMounted && <Demo id="desktop" />}
+        {isMounted ? (
+          <Demo id="porto-desktop" />
+        ) : (
+          <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4" />
+        )}
       </div>
 
       <Ariakit.Dialog
         backdrop={<div className="backdrop" />}
         className="fixed inset-0 z-50 h-full bg-white px-5 py-6.5 lg:hidden dark:bg-black"
         store={dialog}
-        unmountOnHide
       >
         <div className="flex h-full flex-col">
           <header className="mb-5 flex items-center justify-between">
@@ -214,7 +218,7 @@ export function HomePage() {
             />
           </header>
 
-          {isMounted && <Demo id="mobile" />}
+          {isMounted && <Demo id="porto-mobile" />}
         </div>
       </Ariakit.Dialog>
     </div>
@@ -262,18 +266,19 @@ const stepStore = createStore<{
                 },
               ],
             })
-            .catch((error) =>
-              toast.custom((t) => (
-                <Toast
-                  className={t}
-                  description={
-                    (error as Error)?.message ?? 'Something went wrong'
-                  }
-                  kind="error"
-                  title="Sign In Failed"
-                />
-              )),
-            )
+            .catch((error) => {
+              if (!(error instanceof Provider.UserRejectedRequestError))
+                toast.custom((t) => (
+                  <Toast
+                    className={t}
+                    description={
+                      (error as Error)?.message ?? 'Something went wrong'
+                    }
+                    kind="error"
+                    title="Sign In Failed"
+                  />
+                ))
+            })
         }
 
         porto._internal.store.setState((x) => ({ ...x, requestQueue: [] }))
@@ -286,15 +291,15 @@ const stepStore = createStore<{
 
 const pollingInterval = 800
 
-// TODO: Use `id` to mount iframe
-function Demo(_props: { id: string }) {
+function Demo(props: { id: string }) {
+  const { id } = props
   const chainId = useChainId()
   const { address, status } = useAccount()
 
   const { step, setStep } = useStore(stepStore)
   React.useEffect(() => {
     if (!porto) return
-    switchRenderer('inline')
+    switchRenderer('inline', id)
     config.subscribe(
       (state) => state.status,
       (status) => {
@@ -389,11 +394,11 @@ function Demo(_props: { id: string }) {
               />
             )}
 
-            <div className={!queuedRequest ? 'hidden' : undefined} id="porto" />
+            <div className={!queuedRequest ? 'hidden' : undefined} id={id} />
 
             {step === 'sign-in' &&
               queuedRequest?.request.method === 'wallet_connect' && (
-                <div className="-me-12 mt-3.5 flex justify-center gap-4 items-end">
+                <div className="-me-12 mt-3.5 flex items-end justify-center gap-4">
                   <div className="-tracking-[0.448px] font-medium text-[16px] text-black/50 leading-normal dark:text-white/50">
                     Try it out
                   </div>
@@ -697,7 +702,7 @@ function Send(props: {
 
   const form = Ariakit.useFormStore({
     defaultValues: {
-      amount: '100',
+      amount: '10',
     },
   })
   form.useSubmit(async (state) => {
@@ -755,17 +760,17 @@ function Send(props: {
 
   return (
     <Ariakit.Form
-      className="flex flex-col items-end gap-3 w-full"
+      className="flex w-full flex-col items-end gap-3"
       resetOnSubmit={false}
       store={form}
     >
-      <div className="flex relative w-full items-center">
+      <div className="relative flex w-full items-center">
         <Ariakit.VisuallyHidden>
           <Ariakit.FormLabel name={form.names.amount}>Amount</Ariakit.FormLabel>
         </Ariakit.VisuallyHidden>
 
         <Ariakit.FormInput
-          className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 ps-3 pe-16 py-3 font-medium text-[15px] text-gray12 placeholder:text-gray8 disabled:cursor-not-allowed bg-gray1"
+          className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 bg-gray1 py-3 ps-3 pe-16 font-medium text-[15px] text-gray12 placeholder:text-gray8 disabled:cursor-not-allowed"
           disabled={!address}
           max={exp1Balance ? Value.formatEther(exp1Balance) : 0}
           min="0"
@@ -776,11 +781,11 @@ function Send(props: {
           type="number"
         />
 
-        <div className="flex items-center gap-1.5 absolute end-4">
+        <div className="absolute end-4 flex items-center gap-1.5">
           <div className="size-4">
             <Exp1Token />
           </div>
-          <div className="-tracking-[0.25px] text-[13px] leading-normal text-gray9 font-medium">
+          <div className="-tracking-[0.25px] font-medium text-[13px] text-gray9 leading-normal">
             EXP
           </div>
         </div>
@@ -788,17 +793,17 @@ function Send(props: {
 
       <Ariakit.FormSubmit
         aria-disabled={isPending || isConfirming}
-        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:bg-gray5 aria-disabled:text-gray10 aria-disabled:pointer-events-none"
+        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
         disabled={isPending || isConfirming}
       >
         {isPending || isConfirming ? 'Sending...' : 'Send'}
       </Ariakit.FormSubmit>
 
-      <div className="flex justify-between w-full items-center">
-        <div className="text-gray9 text-[14px] leading-normal -tracking-[0.392px]">
+      <div className="flex w-full items-center justify-between">
+        <div className="-tracking-[0.392px] text-[14px] text-gray9 leading-normal">
           Your balance
         </div>
-        <div className="text-[15px] font-medium -tracking-[0.42px] leading-normal text-gray12">
+        <div className="-tracking-[0.42px] font-medium text-[15px] text-gray12 leading-normal">
           {exp1Balance ? ValueFormatter.format(exp1Balance) : 0}{' '}
           <span className="text-gray10">EXP</span>
         </div>
@@ -865,11 +870,11 @@ function MintNFT(props: {
   if (isConfirmed) return <Success text="Minted successfully!" />
 
   return (
-    <div className="flex w-full items-center flex-col gap-4.5">
+    <div className="flex w-full flex-col items-center gap-4.5">
       {!(isPending || isConfirming) && <ClickHere />}
       <Ariakit.Button
         aria-disabled={isPending || isConfirming}
-        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal dark:bg-white dark:text-black aria-disabled:bg-gray5 aria-disabled:text-gray10 aria-disabled:pointer-events-none"
+        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10 dark:bg-white dark:text-black"
         disabled={isPending || isConfirming}
         onClick={() =>
           sendCalls({
@@ -893,7 +898,7 @@ function MintNFT(props: {
         )}
       </Ariakit.Button>
       {!(isPending || isConfirming) && (
-        <div className="text-gray10 leading-[22px] -tracking-[0.392px] text-[14px] text-center max-w-[230px]">
+        <div className="-tracking-[0.392px] max-w-[230px] text-center text-[14px] text-gray10 leading-[22px]">
           Holding this NFT will allow you to get free transactions on Ithaca
           testnet.
         </div>
@@ -935,8 +940,8 @@ function Swap(props: {
   const form = Ariakit.useFormStore({
     defaultValues: {
       fromSymbol: 'exp1',
-      fromValue: '100',
-      toValue: '1',
+      fromValue: '10',
+      toValue: '0.1',
     },
   })
   form.useSubmit(async (state) => {
@@ -1021,7 +1026,7 @@ function Swap(props: {
           </Ariakit.VisuallyHidden>
 
           <Ariakit.FormInput
-            className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 py-3 ps-3 pe-[76px] font-medium text-[15px] bg-gray1 text-gray12 placeholder:text-gray8"
+            className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 bg-gray1 py-3 ps-3 pe-[76px] font-medium text-[15px] text-gray12 placeholder:text-gray8"
             disabled={!address || noFunds || isPending || isConfirming}
             max={from.balance ? Value.formatEther(from.balance) : 0}
             min="0"
@@ -1055,7 +1060,7 @@ function Swap(props: {
           </Ariakit.VisuallyHidden>
 
           <Ariakit.FormInput
-            className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 py-3 ps-4 pe-[76px] font-medium text-[15px] bg-gray1 text-gray12 placeholder:text-gray8"
+            className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 bg-gray1 py-3 ps-4 pe-[76px] font-medium text-[15px] text-gray12 placeholder:text-gray8"
             disabled={!address || noFunds || isPending || isConfirming}
             min="0"
             name={form.names.toValue}
@@ -1116,32 +1121,32 @@ function Swap(props: {
 
       <Ariakit.FormSubmit
         aria-disabled={isPending || isConfirming}
-        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:bg-gray5 aria-disabled:text-gray10 aria-disabled:pointer-events-none"
+        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
         disabled={isPending || isConfirming}
       >
         {isPending || isConfirming ? 'Swapping...' : 'Swap'}
       </Ariakit.FormSubmit>
 
       {!(isPending || isConfirming) && (
-        <div className="flex justify-between items-center mt-3.5">
+        <div className="mt-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <LucideGem className="text-amber8 size-4 mt-px" />
-            <div className="text-[14px] -tracking-[0.392px] leading-[22px] text-gray10">
+            <LucideGem className="mt-px size-4 text-amber8" />
+            <div className="-tracking-[0.392px] text-[14px] text-gray10 leading-[22px]">
               No fee
             </div>
           </div>
 
           <Ariakit.TooltipProvider placement="bottom-end">
             <Ariakit.TooltipAnchor>
-              <LucideInfo className="text-gray10 size-4" />
+              <LucideInfo className="size-4 text-gray10" />
             </Ariakit.TooltipAnchor>
-            <Ariakit.Tooltip className="bg-gray1 border border-gray4 max-w-[189px] shadow-[0px_4px_44px_0px_rgba(0,0,0,0.10)] rounded-[11px] p-3.5">
-              <div className="-tracking-[0.25px] text-gray12 font-medium text-[14px] leading-normal">
+            <Ariakit.Tooltip className="max-w-[189px] rounded-[11px] border border-gray4 bg-gray1 p-3.5 shadow-[0px_4px_44px_0px_rgba(0,0,0,0.10)]">
+              <div className="-tracking-[0.25px] font-medium text-[14px] text-gray12 leading-normal">
                 Fees are covered
               </div>
-              <div className="text-[13px] -tracking-[0.25px] text-gray9 leading-normal">
+              <div className="-tracking-[0.25px] text-[13px] text-gray9 leading-normal">
                 This app is covering your transaction fees for holding{' '}
-                <span className="text-blue9 font-medium">Ithaca Genesis</span>.
+                <span className="font-medium text-blue9">Ithaca Genesis</span>.
               </div>
             </Ariakit.Tooltip>
           </Ariakit.TooltipProvider>
@@ -1155,10 +1160,10 @@ function Success(props: { text: string }) {
   const { text } = props
   return (
     <div className="flex flex-col items-center gap-5">
-      <div className="bg-green3 rounded-full p-3.5 w-fit">
+      <div className="w-fit rounded-full bg-green3 p-3.5">
         <LucideCheck className="size-9 text-green9" />
       </div>
-      <div className="py-2.5 px-4 bg-gray4 rounded-full text-[16px] leading-[22px] -tracking-[-0.448px] text-gray9">
+      <div className="-tracking-[-0.448px] rounded-full bg-gray4 px-4 py-2.5 text-[16px] text-gray9 leading-[22px]">
         {text}
       </div>
     </div>
@@ -1588,13 +1593,20 @@ function usePortoConnector() {
   return connectors.find((connector) => connector.id === 'xyz.ithaca.porto')!
 }
 
-function switchRenderer(to: 'iframe' | 'inline') {
+function switchRenderer(to: 'iframe' | 'inline', id?: string) {
   if (!porto) throw new Error('porto not defined')
 
   const state = store.getState()
   const fromRenderer = state.renderer
   if (!fromRenderer) throw new Error('fromRenderer not defined')
-  const toRenderer = state.renderers.find((x) => x.name === to)
+  const toRenderer = (() => {
+    const renderer = state.renderers.find((x) => x.name === to)
+    if (id && renderer?.name === 'inline')
+      return Dialog.experimental_inline({
+        element: () => document.getElementById(id)!,
+      })
+    return renderer
+  })()
   if (!toRenderer) throw new Error('toRenderer not defined')
 
   if (fromRenderer.name !== toRenderer.name) {
