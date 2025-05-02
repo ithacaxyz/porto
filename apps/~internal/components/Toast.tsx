@@ -2,17 +2,8 @@ import { cx } from 'cva'
 import CircleAlertIcon from '~icons/lucide/circle-alert'
 import CheckCircleIcon from '~icons/lucide/circle-check'
 
-export function CustomToast({
-  kind,
-  title,
-  description,
-  className,
-}: {
-  title: string
-  description: string | React.ReactNode
-  className?: string | number
-  kind: 'success' | 'error' | 'warn'
-}) {
+export function Toast(props: Toast.Props) {
+  const { kind, title, description, className } = props
   return (
     <div
       className={cx(
@@ -35,7 +26,18 @@ export function CustomToast({
           ))}
         <span className="font-[550] text-gray12">{title}</span>
       </div>
-      <div className="text-gray10 text-sm">{description}</div>
+      <div className="text-gray10 text-sm max-h-42 overflow-y-auto">
+        {description}
+      </div>
     </div>
   )
+}
+
+export declare namespace Toast {
+  type Props = {
+    title: string
+    description: string | React.ReactNode
+    className?: string | number
+    kind: 'success' | 'error' | 'warn'
+  }
 }

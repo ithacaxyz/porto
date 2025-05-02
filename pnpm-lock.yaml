@@ -81,6 +81,9 @@ catalogs:
     react-dom:
       specifier: ^19
       version: 19.1.0
+    sonner:
+      specifier: ^2.0.3
+      version: 2.0.3
     tailwindcss:
       specifier: ^4.1.5
       version: 4.1.5
@@ -341,6 +344,9 @@ importers:
       shiki:
         specifier: ^1
         version: 1.29.2
+      sonner:
+        specifier: 'catalog:'
+        version: 2.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       tailwindcss:
         specifier: 'catalog:'
         version: 4.1.5
@@ -495,7 +501,7 @@ importers:
         specifier: 'catalog:'
         version: 19.1.0(react@19.1.0)
       sonner:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       wagmi:
         specifier: 'catalog:'
@@ -711,6 +717,9 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.0.4(@types/react@19.0.12)
+      unplugin-icons:
+        specifier: 'catalog:'
+        version: 22.1.0(@svgr/core@8.1.0(typescript@5.8.3))
       vite:
         specifier: 'catalog:'
         version: 6.2.3(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.4)(yaml@2.7.0)

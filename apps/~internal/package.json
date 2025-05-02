@@ -28,6 +28,7 @@
   "devDependencies": {
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "unplugin-icons": "catalog:",
     "vite": "catalog:"
   }
 }

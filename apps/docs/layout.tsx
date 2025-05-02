@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
 import { WagmiProvider } from 'wagmi'
 
 import { Connect } from './components/Connect'
@@ -8,9 +9,26 @@ const queryClient = new QueryClient()
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiProvider config={WagmiConfig.config}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </WagmiProvider>
+    <>
+      <WagmiProvider config={WagmiConfig.config}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </WagmiProvider>
+
+      <Toaster
+        className="z-[42069] select-none"
+        expand={false}
+        position="bottom-right"
+        swipeDirections={['right', 'left', 'top', 'bottom']}
+        theme="light"
+        toastOptions={{
+          style: {
+            borderRadius: '1.5rem',
+          },
+        }}
+      />
+    </>
   )
 }
 

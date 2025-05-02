@@ -1,6 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { UserAgent } from '@porto/apps'
-import { Button, Spinner } from '@porto/apps/components'
+import { Button, Spinner, Toast } from '@porto/apps/components'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { baseSepolia } from 'porto/core/Chains'
 import { Hooks } from 'porto/wagmi'
@@ -13,7 +13,6 @@ import {
   useDisconnect,
   useSwitchChain,
 } from 'wagmi'
-import { CustomToast } from '~/components/CustomToast'
 import { mipdConfig } from '~/lib/Wagmi'
 
 import SecurityIcon from '~icons/ic/outline-security'
@@ -110,7 +109,7 @@ function RouteComponent() {
         message = 'Key already granted as admin'
       }
       toast.custom((t) => (
-        <CustomToast
+        <Toast
           className={t}
           description={message}
           kind="warn"

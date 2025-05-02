@@ -20,6 +20,7 @@
     "react-dom": "catalog:",
     "react-router": "^7",
     "shiki": "^1",
+    "sonner": "catalog:",
     "tailwindcss": "catalog:",
     "viem": "catalog:",
     "vocs": "latest",

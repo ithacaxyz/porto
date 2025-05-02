@@ -1,5 +1,5 @@
 import * as Ariakit from '@ariakit/react'
-import { Button, Spinner } from '@porto/apps/components'
+import { Button, Spinner, Toast } from '@porto/apps/components'
 import { exp1Address } from '@porto/apps/contracts'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
@@ -16,7 +16,6 @@ import {
   useWaitForCallsStatus,
   useWatchBlockNumber,
 } from 'wagmi'
-import { CustomToast } from '~/components/CustomToast'
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
@@ -128,7 +127,7 @@ export function Dashboard() {
     mutation: {
       onError: (error) => {
         toast.custom((t) => (
-          <CustomToast
+          <Toast
             className={t}
             description={error.message}
             kind="error"
@@ -138,7 +137,7 @@ export function Dashboard() {
       },
       onSuccess: () => {
         toast.custom((t) => (
-          <CustomToast
+          <Toast
             className={t}
             description="You have revoked a recovery admin"
             kind="success"
@@ -706,7 +705,7 @@ function AssetRow({
         const notAllowed = error.message.toLowerCase().includes('not allowed')
         toast.custom(
           (t) => (
-            <CustomToast
+            <Toast
               className={t}
               description={
                 notAllowed
@@ -745,7 +744,7 @@ function AssetRow({
       if (!hash) return
       toast.custom(
         (t) => (
-          <CustomToast
+          <Toast
             className={t}
             description={
               <p>

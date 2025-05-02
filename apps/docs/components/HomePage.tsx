@@ -1,27 +1,36 @@
 import * as Ariakit from '@ariakit/react'
 import { PortoConfig, UserAgent } from '@porto/apps'
-import { LogoLockup } from '@porto/apps/components'
+import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
-import { Address, Hex, Value } from 'ox'
+import { Address, Hex, Provider, Value } from 'ox'
 import { Mode } from 'porto'
 import { QueuedRequest } from 'porto/core/Porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
+import { toast } from 'sonner'
+import { BaseError, UserRejectedRequestError } from 'viem'
 import {
   ConnectorAlreadyConnectedError,
   useAccount,
+  useBlockNumber,
   useChainId,
   useConnectors,
+  useReadContract,
   useSendCalls,
   useWaitForCallsStatus,
 } from 'wagmi'
 import { createStore, useStore } from 'zustand'
+import LucideBanknoteArrowDown from '~icons/lucide/banknote-arrow-down'
+import LucideCheck from '~icons/lucide/check'
 import LucideChevronLeft from '~icons/lucide/chevron-left'
 import LucideChevronRight from '~icons/lucide/chevron-right'
+import LucideGem from '~icons/lucide/gem'
+import LucideInfo from '~icons/lucide/info'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import LucidePlay from '~icons/lucide/play'
+import LucideSparkle from '~icons/lucide/sparkle'
 import LucideX from '~icons/lucide/x'
 import { config, porto, store } from '../wagmi.config'
 import { Button } from './Button'
@@ -253,8 +262,18 @@ const stepStore = createStore<{
                 },
               ],
             })
-            .then(console.log)
-            .catch(console.log)
+            .catch((error) =>
+              toast.custom((t) => (
+                <Toast
+                  className={t}
+                  description={
+                    (error as Error)?.message ?? 'Something went wrong'
+                  }
+                  kind="error"
+                  title="Sign In Failed"
+                />
+              )),
+            )
         }
 
         porto._internal.store.setState((x) => ({ ...x, requestQueue: [] }))
@@ -265,8 +284,11 @@ const stepStore = createStore<{
   }
 })
 
+const pollingInterval = 800
+
 // TODO: Use `id` to mount iframe
 function Demo(_props: { id: string }) {
+  const chainId = useChainId()
   const { address, status } = useAccount()
 
   const { step, setStep } = useStore(stepStore)
@@ -289,26 +311,43 @@ function Demo(_props: { id: string }) {
   }, [])
 
   const portoState = useStore(porto!._internal.store)
-  const chainId = useChainId()
-  const sharedProps = React.useMemo(() => {
-    const queued = (() => {
-      const r = portoState.requestQueue.at(0)
-      if (!r) return
-      console.log(r)
-      if (
-        /^experimental_addFunds|wallet_connect|wallet_sendCalls/.test(
-          r.request.method,
-        )
+  const queuedRequest = React.useMemo(() => {
+    const r = portoState.requestQueue.at(0)
+    if (!r) return
+    if (
+      /^experimental_addFunds|wallet_connect|wallet_sendCalls/.test(
+        r.request.method,
       )
-        return r
-    })()
-    return {
-      address,
-      chainId,
-      next: () => {},
-      request: queued,
-    } satisfies SharedProps
-  }, [address, chainId, portoState.requestQueue])
+    )
+      return r
+  }, [portoState.requestQueue])
+
+  const { data: blockNumber } = useBlockNumber({
+    watch: {
+      enabled: status === 'connected',
+      pollingInterval: pollingInterval + 100,
+    },
+  })
+  const shared = {
+    args: [address!],
+    functionName: 'balanceOf',
+    query: { enabled: Boolean(address) },
+  } as const
+  const { data: exp1Balance, refetch: expBalanceRefetch } = useReadContract({
+    abi: exp1Config.abi,
+    address: exp1Config.address[chainId],
+    ...shared,
+  })
+  const { data: exp2Balance, refetch: exp2BalanceRefetch } = useReadContract({
+    abi: exp2Config.abi,
+    address: exp2Config.address[chainId],
+    ...shared,
+  })
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
+  React.useEffect(() => {
+    expBalanceRefetch()
+    exp2BalanceRefetch()
+  }, [blockNumber])
 
   return (
     <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4">
@@ -321,24 +360,61 @@ function Demo(_props: { id: string }) {
       <div className="flex-1">
         <div className="relative flex h-full w-full justify-center">
           <div className="flex h-full w-full max-w-[277px] flex-col items-center justify-center">
-            {step === 'sign-in' && (
-              <SignIn {...sharedProps} next={() => setStep('add-funds')} />
-            )}
+            {step === 'sign-in' && <SignIn next={() => setStep('add-funds')} />}
             {step === 'add-funds' && (
-              <AddFunds {...sharedProps} next={() => setStep('send')} />
+              <AddFunds
+                chainId={chainId}
+                next={() => setStep('send')}
+                queuedRequest={queuedRequest}
+              />
             )}
             {step === 'send' && (
-              <Send {...sharedProps} next={() => setStep('mint')} />
+              <Send
+                address={address}
+                chainId={chainId}
+                exp1Balance={exp1Balance}
+                queuedRequest={queuedRequest}
+              />
             )}
             {step === 'mint' && (
-              <Mint {...sharedProps} next={() => setStep('swap')} />
+              <MintNFT chainId={chainId} queuedRequest={queuedRequest} />
             )}
-            {step === 'swap' && <Swap {...sharedProps} />}
+            {step === 'swap' && (
+              <Swap
+                address={address}
+                chainId={chainId}
+                exp1Balance={exp1Balance}
+                exp2Balance={exp2Balance}
+                queuedRequest={queuedRequest}
+              />
+            )}
 
-            <div
-              className={!sharedProps.request ? 'hidden' : undefined}
-              id="porto"
-            />
+            <div className={!queuedRequest ? 'hidden' : undefined} id="porto" />
+
+            {step === 'sign-in' &&
+              queuedRequest?.request.method === 'wallet_connect' && (
+                <div className="-me-12 mt-3.5 flex justify-center gap-4 items-end">
+                  <div className="-tracking-[0.448px] font-medium text-[16px] text-black/50 leading-normal dark:text-white/50">
+                    Try it out
+                  </div>
+
+                  <svg
+                    className="mb-2.5 text-black/80 dark:text-white/80"
+                    fill="none"
+                    height="41"
+                    viewBox="0 0 47 41"
+                    width="47"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <title>pointer arrow</title>
+                    <path
+                      d="M38.7964 0.289387C39.1889 -0.0991936 39.822 -0.0960426 40.2106 0.296417L46.5429 6.69194C46.9314 7.08441 46.9283 7.71756 46.5358 8.10614C46.1434 8.49472 45.5102 8.49157 45.1216 8.09911L39.493 2.4142L33.8081 8.04285C33.4156 8.43143 32.7824 8.42828 32.3939 8.03582C32.0053 7.64336 32.0084 7.0102 32.4009 6.62162L38.7964 0.289387ZM1 39.5L0.968378 38.5005C15.7228 38.0337 24.953 35.7807 30.5709 30.2527C36.1764 24.737 38.4268 15.7175 38.5 0.995029L39.5 1L40.5 1.00497C40.4265 15.7919 38.1966 25.555 31.9736 31.6783C25.7631 37.7894 15.8166 40.0317 1.03162 40.4995L1 39.5Z"
+                      fill="currentColor"
+                      opacity="0.2"
+                    />
+                  </svg>
+                </div>
+              )}
           </div>
         </div>
       </div>
@@ -464,22 +540,19 @@ function Demo(_props: { id: string }) {
   )
 }
 
-type SharedProps = {
-  address: Address.Address | undefined
-  chainId: (typeof config)['state']['chainId']
-  next: () => void
-  request: QueuedRequest<unknown> | undefined
-}
+type ChainId = (typeof config)['state']['chainId']
 
-function SignIn(props: SharedProps) {
+function SignIn(props: { next: () => void }) {
+  const { next } = props
+
   const { address, status } = useAccount()
   const connect = Hooks.useConnect({
     mutation: {
       onError(error) {
-        if (error instanceof ConnectorAlreadyConnectedError) props.next()
+        if (error instanceof ConnectorAlreadyConnectedError) next()
       },
       onSuccess() {
-        props.next()
+        next()
       },
     },
   })
@@ -545,17 +618,23 @@ function SignIn(props: SharedProps) {
   return null
 }
 
-function AddFunds(props: SharedProps) {
-  const { chainId, request } = props
-  if (request) return null
+function AddFunds(props: {
+  chainId: ChainId
+  next: () => void
+  queuedRequest: QueuedRequest<unknown> | undefined
+}) {
+  const { chainId, next, queuedRequest } = props
+
+  if (queuedRequest) return null
   return (
-    <div>
-      <Button
-        onClick={() => {
-          if (!porto) throw new Error('porto not defined')
-          // TODO: Error toast
-          porto.provider
-            .request({
+    <div className="flex w-full flex-col gap-4.5">
+      <ClickHere />
+      <Ariakit.Button
+        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal dark:bg-white dark:text-black"
+        onClick={async () => {
+          try {
+            if (!porto) throw new Error('Porto instance not defined')
+            await porto.provider.request({
               method: 'experimental_addFunds',
               params: [
                 {
@@ -564,91 +643,235 @@ function AddFunds(props: SharedProps) {
                 },
               ],
             })
-            .then(props.next)
+            next()
+          } catch (error) {
+            if (!(error instanceof Provider.UserRejectedRequestError))
+              toast.custom((t) => (
+                <Toast
+                  className={t}
+                  description={
+                    (error as Error)?.message ?? 'Something went wrong'
+                  }
+                  kind="error"
+                  title="Add Funds Failed"
+                />
+              ))
+          }
         }}
       >
+        <LucideBanknoteArrowDown className="size-4" />
         Add funds
-      </Button>
+      </Ariakit.Button>
     </div>
   )
 }
 
-function Send(props: SharedProps) {
-  const { address, chainId, request } = props
+function Send(props: {
+  address: Address.Address | undefined
+  chainId: (typeof config)['state']['chainId']
+  exp1Balance: bigint | undefined
+  queuedRequest: QueuedRequest<unknown> | undefined
+}) {
+  const { address, chainId, exp1Balance, queuedRequest } = props
 
-  const amount = '10'
+  const { data, isPending, sendCallsAsync } = useSendCalls()
+  const {
+    error,
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+  } = useWaitForCallsStatus({
+    id: data?.id,
+    pollingInterval,
+  })
+  React.useEffect(() => {
+    if (error)
+      toast.custom((t) => (
+        <Toast
+          className={t}
+          description={error.message}
+          kind="error"
+          title="Send Failed"
+        />
+      ))
+  }, [error])
 
-  // TODO: Error toast
-  const { data, isPending, sendCalls } = useSendCalls()
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForCallsStatus({
-      id: data?.id,
-    })
-
-  if (!address || request) return null
-
-  if (isConfirmed)
-    return (
-      <div>
-        <div>Sent successfully!</div>
-      </div>
-    )
-
-  return (
-    <div>
-      <Button
-        onClick={() => {
-          sendCalls({
-            calls: [
-              {
-                abi: exp1Config.abi,
-                args: [address!, Value.fromEther(amount)],
-                functionName: 'approve',
-                to: exp1Config.address[chainId],
-              },
-              {
-                abi: exp1Config.abi,
-                args: [
-                  address!,
-                  '0x0000000000000000000000000000000000000000',
-                  Value.fromEther(amount),
-                ],
-                functionName: 'transferFrom',
-                to: exp1Config.address[chainId],
-              },
+  const form = Ariakit.useFormStore({
+    defaultValues: {
+      amount: '100',
+    },
+  })
+  form.useSubmit(async (state) => {
+    try {
+      const shared = {
+        abi: exp1Config.abi,
+        to: exp1Config.address[chainId],
+      }
+      const amount = Value.fromEther(state.values.amount)
+      await sendCallsAsync({
+        calls: [
+          {
+            ...shared,
+            args: [address, amount],
+            functionName: 'approve',
+          },
+          {
+            ...shared,
+            args: [
+              address,
+              '0x0000000000000000000000000000000000000000',
+              amount,
             ],
-          })
-        }}
+            functionName: 'transferFrom',
+          },
+        ],
+      })
+    } catch (err) {
+      const error = (() => {
+        if (err instanceof BaseError)
+          return err instanceof BaseError
+            ? err.walk((err) => err instanceof UserRejectedRequestError)
+            : err
+        return err
+      })()
+
+      if (
+        (error as Provider.ProviderRpcError)?.code !==
+        Provider.UserRejectedRequestError.code
+      )
+        toast.custom((t) => (
+          <Toast
+            className={t}
+            description={(err as Error)?.message ?? 'Something went wrong'}
+            kind="error"
+            title="Send Failed"
+          />
+        ))
+    }
+  })
+
+  if (!address || queuedRequest) return null
+
+  if (isConfirmed) return <Success text="Sent successfully!" />
+
+  return (
+    <Ariakit.Form
+      className="flex flex-col items-end gap-3 w-full"
+      resetOnSubmit={false}
+      store={form}
+    >
+      <div className="flex relative w-full items-center">
+        <Ariakit.VisuallyHidden>
+          <Ariakit.FormLabel name={form.names.amount}>Amount</Ariakit.FormLabel>
+        </Ariakit.VisuallyHidden>
+
+        <Ariakit.FormInput
+          className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 ps-3 pe-16 py-3 font-medium text-[15px] text-gray12 placeholder:text-gray8 disabled:cursor-not-allowed bg-gray1"
+          disabled={!address}
+          max={exp1Balance ? Value.formatEther(exp1Balance) : 0}
+          min="0"
+          name={form.names.amount}
+          placeholder="0.0"
+          required
+          step="any"
+          type="number"
+        />
+
+        <div className="flex items-center gap-1.5 absolute end-4">
+          <div className="size-4">
+            <Exp1Token />
+          </div>
+          <div className="-tracking-[0.25px] text-[13px] leading-normal text-gray9 font-medium">
+            EXP
+          </div>
+        </div>
+      </div>
+
+      <Ariakit.FormSubmit
+        aria-disabled={isPending || isConfirming}
+        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:bg-gray5 aria-disabled:text-gray10 aria-disabled:pointer-events-none"
+        disabled={isPending || isConfirming}
       >
-        {isPending || isConfirming ? 'Sending' : 'Send'}
-      </Button>
-    </div>
+        {isPending || isConfirming ? 'Sending...' : 'Send'}
+      </Ariakit.FormSubmit>
+
+      <div className="flex justify-between w-full items-center">
+        <div className="text-gray9 text-[14px] leading-normal -tracking-[0.392px]">
+          Your balance
+        </div>
+        <div className="text-[15px] font-medium -tracking-[0.42px] leading-normal text-gray12">
+          {exp1Balance ? ValueFormatter.format(exp1Balance) : 0}{' '}
+          <span className="text-gray10">EXP</span>
+        </div>
+      </div>
+    </Ariakit.Form>
   )
 }
 
-function Mint(props: SharedProps) {
-  const { chainId, request } = props
+function MintNFT(props: {
+  chainId: (typeof config)['state']['chainId']
+  queuedRequest: QueuedRequest<unknown> | undefined
+}) {
+  const { chainId, queuedRequest } = props
 
-  // TODO: Error toast
-  const { data, isPending, sendCalls } = useSendCalls()
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForCallsStatus({
-      id: data?.id,
-    })
+  const { data, isPending, sendCalls } = useSendCalls({
+    mutation: {
+      onError(err) {
+        const error = (() => {
+          if (err instanceof BaseError)
+            return err instanceof BaseError
+              ? err.walk((err) => err instanceof UserRejectedRequestError)
+              : err
+          return err
+        })()
 
-  if (request) return null
+        if (
+          (error as Provider.ProviderRpcError)?.code !==
+          Provider.UserRejectedRequestError.code
+        )
+          toast.custom((t) => (
+            <Toast
+              className={t}
+              description={err?.message ?? 'Something went wrong'}
+              kind="error"
+              title="Mint NFT Failed"
+            />
+          ))
+      },
+    },
+  })
 
-  if (isConfirmed)
-    return (
-      <div>
-        <div>Minted successfully!</div>
-      </div>
-    )
+  const {
+    error,
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+  } = useWaitForCallsStatus({
+    id: data?.id,
+    pollingInterval,
+  })
+  React.useEffect(() => {
+    if (error)
+      toast.custom((t) => (
+        <Toast
+          className={t}
+          description={error.message}
+          kind="error"
+          title="Mint NFT Failed"
+        />
+      ))
+  }, [error])
+
+  if (queuedRequest) return null
+
+  if (isConfirmed) return <Success text="Minted successfully!" />
 
   return (
-    <div>
-      <Button
-        onClick={() => {
+    <div className="flex w-full items-center flex-col gap-4.5">
+      {!(isPending || isConfirming) && <ClickHere />}
+      <Ariakit.Button
+        aria-disabled={isPending || isConfirming}
+        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal dark:bg-white dark:text-black aria-disabled:bg-gray5 aria-disabled:text-gray10 aria-disabled:pointer-events-none"
+        disabled={isPending || isConfirming}
+        onClick={() =>
           sendCalls({
             calls: [
               {
@@ -658,59 +881,310 @@ function Mint(props: SharedProps) {
               },
             ],
           })
-        }}
+        }
       >
-        {isPending || isConfirming ? 'Minting NFT' : 'Mint NFT'}
-      </Button>
+        {isPending || isConfirming ? (
+          'Minting NFT'
+        ) : (
+          <>
+            <LucideSparkle className="size-4" />
+            Mint NFT
+          </>
+        )}
+      </Ariakit.Button>
+      {!(isPending || isConfirming) && (
+        <div className="text-gray10 leading-[22px] -tracking-[0.392px] text-[14px] text-center max-w-[230px]">
+          Holding this NFT will allow you to get free transactions on Ithaca
+          testnet.
+        </div>
+      )}
     </div>
   )
 }
 
-function Swap(props: SharedProps) {
-  const { address, chainId, request } = props
+function Swap(props: {
+  address: Address.Address | undefined
+  chainId: (typeof config)['state']['chainId']
+  exp1Balance: bigint | undefined
+  exp2Balance: bigint | undefined
+  queuedRequest: QueuedRequest<unknown> | undefined
+}) {
+  const { address, chainId, exp1Balance, exp2Balance, queuedRequest } = props
 
-  // TODO: Error toast
-  const { data, isPending, sendCalls } = useSendCalls()
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForCallsStatus({
-      id: data?.id,
-    })
+  const { data, isPending, sendCallsAsync } = useSendCalls()
+  const {
+    error,
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+  } = useWaitForCallsStatus({
+    id: data?.id,
+    pollingInterval,
+  })
+  React.useEffect(() => {
+    if (error)
+      toast.custom((t) => (
+        <Toast
+          className={t}
+          description={error.message}
+          kind="error"
+          title="Swap Failed"
+        />
+      ))
+  }, [error])
 
-  if (request) return null
+  const form = Ariakit.useFormStore({
+    defaultValues: {
+      fromSymbol: 'exp1',
+      fromValue: '100',
+      toValue: '1',
+    },
+  })
+  form.useSubmit(async (state) => {
+    try {
+      const fromSymbol = state.values.fromSymbol
+      const fromValue = state.values.fromValue
+      const expFromConfig = fromSymbol === 'exp' ? exp1Config : exp2Config
+      const expToConfig = fromSymbol === 'exp' ? exp2Config : exp1Config
+      await sendCallsAsync({
+        calls: [
+          {
+            abi: expFromConfig.abi,
+            args: [
+              expToConfig.address[chainId],
+              address,
+              Value.fromEther(fromValue),
+            ],
+            functionName: 'swap',
+            to: expFromConfig.address[chainId],
+          },
+        ],
+      })
+    } catch (err) {
+      const error = (() => {
+        if (err instanceof BaseError)
+          return err instanceof BaseError
+            ? err.walk((err) => err instanceof UserRejectedRequestError)
+            : err
+        return err
+      })()
 
-  if (isConfirmed)
-    return (
-      <div>
-        <div>Swapped successfully!</div>
-      </div>
-    )
+      if (
+        (error as Provider.ProviderRpcError)?.code !==
+        Provider.UserRejectedRequestError.code
+      )
+        toast.custom((t) => (
+          <Toast
+            className={t}
+            description={(err as Error)?.message ?? 'Something went wrong'}
+            kind="error"
+            title="Swap Failed"
+          />
+        ))
+    }
+  })
+
+  const fromSymbol = form.useValue('fromSymbol')
+  const fromValue = form.useValue('toValue')
+  const toValue = form.useValue('toValue')
+
+  if (queuedRequest) return null
+
+  if (isConfirmed) return <Success text="Swapped successfully!" />
+
+  const from = {
+    balance: fromSymbol === 'exp1' ? exp1Balance : exp2Balance,
+    icon: fromSymbol === 'exp1' ? <Exp1Token /> : <Exp2Token />,
+    symbol: fromSymbol,
+    value: fromValue,
+  }
+  const to = {
+    balance: fromSymbol === 'exp1' ? exp2Balance : exp1Balance,
+    icon: fromSymbol === 'exp1' ? <Exp2Token /> : <Exp1Token />,
+    symbol: fromSymbol === 'exp1' ? 'exp2' : 'exp1',
+    value: toValue,
+  }
+  const noFunds = (exp1Balance ?? 0n) === 0n && (exp2Balance ?? 0n) === 0n
 
   return (
-    <div>
-      <Button
-        onClick={() => {
-          const fromSymbol = 'exp1'
-          const fromValue = '1'
-          const expFromConfig = fromSymbol === 'exp1' ? exp1Config : exp2Config
-          const expToConfig = fromSymbol === 'exp1' ? exp2Config : exp1Config
-          sendCalls({
-            calls: [
-              {
-                abi: expFromConfig.abi,
-                args: [
-                  expToConfig.address[chainId],
-                  address!,
-                  Value.fromEther(fromValue),
-                ],
-                functionName: 'swap',
-                to: expFromConfig.address[chainId],
-              },
-            ],
-          })
-        }}
+    <Ariakit.Form className="mt-2 pb-4" resetOnSubmit={false} store={form}>
+      <div
+        className={cx(
+          'relative mb-2 flex items-center justify-center gap-1',
+          noFunds && 'opacity-50',
+        )}
       >
-        {isPending || isConfirming ? 'Swapping' : 'Swap'}
-      </Button>
+        <div className="relative flex flex-1 items-center">
+          <Ariakit.VisuallyHidden>
+            <Ariakit.FormLabel name={form.names.fromValue}>
+              From value
+            </Ariakit.FormLabel>
+          </Ariakit.VisuallyHidden>
+
+          <Ariakit.FormInput
+            className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 py-3 ps-3 pe-[76px] font-medium text-[15px] bg-gray1 text-gray12 placeholder:text-gray8"
+            disabled={!address || noFunds || isPending || isConfirming}
+            max={from.balance ? Value.formatEther(from.balance) : 0}
+            min="0"
+            name={form.names.fromValue}
+            onChange={(e) => {
+              const value = e.target.value
+              const scalar = fromSymbol === 'exp1' ? 0.01 : 100
+              form.setValue(
+                'toValue',
+                value ? (Number(value) * scalar).toString() : '',
+              )
+            }}
+            placeholder="0.0"
+            required
+            step="any"
+            type="number"
+          />
+          <div className="absolute end-4 flex items-center gap-1">
+            <div className="size-4">{from.icon}</div>
+            <span className="-tracking-[0.25px] font-medium text-[13px] text-gray9 uppercase tabular-nums leading-none">
+              {from.symbol}
+            </span>
+          </div>
+        </div>
+
+        <div className="relative flex flex-1 items-center">
+          <Ariakit.VisuallyHidden>
+            <Ariakit.FormLabel name={form.names.toValue}>
+              To value
+            </Ariakit.FormLabel>
+          </Ariakit.VisuallyHidden>
+
+          <Ariakit.FormInput
+            className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 py-3 ps-4 pe-[76px] font-medium text-[15px] bg-gray1 text-gray12 placeholder:text-gray8"
+            disabled={!address || noFunds || isPending || isConfirming}
+            min="0"
+            name={form.names.toValue}
+            onChange={(e) => {
+              const value = e.target.value
+              const scalar = fromSymbol === 'exp1' ? 100 : 0.01
+              form.setValue(
+                'fromValue',
+                value ? (Number(value) * scalar).toString() : '',
+              )
+            }}
+            placeholder="0.0"
+            required
+            step="any"
+            type="number"
+          />
+          <div className="absolute end-3 flex items-center gap-1">
+            <div className="size-4">{to.icon}</div>
+            <span className="-tracking-[0.25px] font-medium text-[13px] text-gray9 uppercase tabular-nums leading-none">
+              {to.symbol}
+            </span>
+          </div>
+        </div>
+
+        <button
+          aria-label="Switch from and to inputs"
+          className="absolute flex size-5.5 min-w-5.5 items-center justify-center rounded-full bg-gray4"
+          disabled={!address || noFunds || isPending || isConfirming}
+          onClick={() => {
+            form.setValues((x) => ({
+              fromSymbol: x.fromSymbol === 'exp1' ? 'exp2' : 'exp1',
+              fromValue: x.toValue,
+              toValue: x.fromValue,
+            }))
+          }}
+          tabIndex={-1}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="size-3.5 text-gray9"
+            fill="none"
+            height="14"
+            viewBox="0 0 14 14"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M5.25 10.5L8.75 7L5.25 3.5"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <Ariakit.FormSubmit
+        aria-disabled={isPending || isConfirming}
+        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:bg-gray5 aria-disabled:text-gray10 aria-disabled:pointer-events-none"
+        disabled={isPending || isConfirming}
+      >
+        {isPending || isConfirming ? 'Swapping...' : 'Swap'}
+      </Ariakit.FormSubmit>
+
+      {!(isPending || isConfirming) && (
+        <div className="flex justify-between items-center mt-3.5">
+          <div className="flex items-center gap-2">
+            <LucideGem className="text-amber8 size-4 mt-px" />
+            <div className="text-[14px] -tracking-[0.392px] leading-[22px] text-gray10">
+              No fee
+            </div>
+          </div>
+
+          <Ariakit.TooltipProvider placement="bottom-end">
+            <Ariakit.TooltipAnchor>
+              <LucideInfo className="text-gray10 size-4" />
+            </Ariakit.TooltipAnchor>
+            <Ariakit.Tooltip className="bg-gray1 border border-gray4 max-w-[189px] shadow-[0px_4px_44px_0px_rgba(0,0,0,0.10)] rounded-[11px] p-3.5">
+              <div className="-tracking-[0.25px] text-gray12 font-medium text-[14px] leading-normal">
+                Fees are covered
+              </div>
+              <div className="text-[13px] -tracking-[0.25px] text-gray9 leading-normal">
+                This app is covering your transaction fees for holding{' '}
+                <span className="text-blue9 font-medium">Ithaca Genesis</span>.
+              </div>
+            </Ariakit.Tooltip>
+          </Ariakit.TooltipProvider>
+        </div>
+      )}
+    </Ariakit.Form>
+  )
+}
+
+function Success(props: { text: string }) {
+  const { text } = props
+  return (
+    <div className="flex flex-col items-center gap-5">
+      <div className="bg-green3 rounded-full p-3.5 w-fit">
+        <LucideCheck className="size-9 text-green9" />
+      </div>
+      <div className="py-2.5 px-4 bg-gray4 rounded-full text-[16px] leading-[22px] -tracking-[-0.448px] text-gray9">
+        {text}
+      </div>
+    </div>
+  )
+}
+
+function ClickHere() {
+  return (
+    <div className="-ms-4 flex justify-center gap-4">
+      <div className="-tracking-[0.448px] font-medium text-[16px] text-black/50 leading-normal dark:text-white/50">
+        Click here
+      </div>
+      <svg
+        className="mt-2.5 text-black/80 dark:text-white/80"
+        fill="none"
+        height="41"
+        viewBox="0 0 47 41"
+        width="47"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <title>pointer arrow</title>
+        <path
+          d="M38.7964 40.7106C39.1889 41.0992 39.822 41.096 40.2106 40.7036L46.5429 34.3081C46.9314 33.9156 46.9283 33.2824 46.5358 32.8939C46.1434 32.5053 45.5102 32.5084 45.1216 32.9009L39.493 38.5858L33.8081 32.9571C33.4156 32.5686 32.7824 32.5717 32.3939 32.9642C32.0053 33.3566 32.0084 33.9898 32.4009 34.3784L38.7964 40.7106ZM1 1.5L0.968378 2.4995C15.7228 2.9663 24.953 5.21933 30.5709 10.7473C36.1764 16.263 38.4268 25.2825 38.5 40.005L39.5 40L40.5 39.995C40.4265 25.2081 38.1966 15.445 31.9736 9.32167C25.7631 3.21057 15.8166 0.968267 1.03162 0.5005L1 1.5Z"
+          fill="currentColor"
+        />
+      </svg>
     </div>
   )
 }
@@ -1132,4 +1606,75 @@ function switchRenderer(to: 'iframe' | 'inline') {
     )
     store.setState((x) => ({ ...x, renderer: toRenderer }))
   }
+}
+
+namespace ValueFormatter {
+  const numberIntl = new Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: 4,
+  })
+
+  export function format(num: bigint | number | undefined, units = 18) {
+    if (!num) return '0'
+    return numberIntl.format(
+      typeof num === 'bigint' ? Number(Value.format(num, units)) : num,
+    )
+  }
+}
+
+function Exp1Token() {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="100%"
+      viewBox="0 0 22 22"
+      width="100%"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="11" cy="11" fill="#0588F0" r="10.5" />
+      <path
+        d="M14.008 10.4885C14.3539 10.3849 14.7255 10.532 14.9079 10.8447L16.9254 14.3017C17.1804 14.7387 16.8665 15.2887 16.362 15.2887H5.96663C5.4365 15.2887 5.12732 14.6879 5.43403 14.2538L6.35149 12.9551C6.45278 12.8118 6.59896 12.7066 6.76672 12.6563L14.008 10.4885Z"
+        fill="white"
+      />
+      <path
+        d="M10.2735 5.61316C10.4225 5.34666 10.8216 5.41172 10.8789 5.71184L11.7308 10.1708C11.7747 10.401 11.6389 10.6275 11.4156 10.6961L7.38552 11.9343C7.1039 12.0208 6.86113 11.7182 7.00526 11.4604L10.2735 5.61316Z"
+        fill="white"
+        opacity="0.75"
+      />
+      <path
+        d="M11.3033 5.46716C11.2614 5.24947 11.6099 5.13942 11.7206 5.33129L14.1689 9.63009C14.2331 9.74146 14.1753 9.88374 14.0518 9.91818L12.5692 10.3317C12.3856 10.3829 12.2268 10.2736 12.1907 10.0857L11.3033 5.46716Z"
+        fill="white"
+        opacity="0.5"
+      />
+    </svg>
+  )
+}
+
+function Exp2Token() {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="auto"
+      viewBox="0 0 22 22"
+      width="100%"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="11" cy="11" fill="#8774f1" r="10.5" />
+      <path
+        d="M14.008 10.4885C14.3539 10.3849 14.7255 10.532 14.9079 10.8447L16.9254 14.3017C17.1804 14.7387 16.8665 15.2887 16.362 15.2887H5.96663C5.4365 15.2887 5.12732 14.6879 5.43403 14.2538L6.35149 12.9551C6.45278 12.8118 6.59896 12.7066 6.76672 12.6563L14.008 10.4885Z"
+        fill="white"
+      />
+      <path
+        d="M10.2735 5.61316C10.4225 5.34666 10.8216 5.41172 10.8789 5.71184L11.7308 10.1708C11.7747 10.401 11.6389 10.6275 11.4156 10.6961L7.38552 11.9343C7.1039 12.0208 6.86113 11.7182 7.00526 11.4604L10.2735 5.61316Z"
+        fill="white"
+        opacity="0.75"
+      />
+      <path
+        d="M11.3033 5.46716C11.2614 5.24947 11.6099 5.13942 11.7206 5.33129L14.1689 9.63009C14.2331 9.74146 14.1753 9.88374 14.0518 9.91818L12.5692 10.3317C12.3856 10.3829 12.2268 10.2736 12.1907 10.0857L11.3033 5.46716Z"
+        fill="white"
+        opacity="0.5"
+      />
+    </svg>
+  )
 }
