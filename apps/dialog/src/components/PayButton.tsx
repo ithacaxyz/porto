@@ -18,7 +18,7 @@ export function PayButton(props: PayButton.Props) {
         {...buttonProps}
         className={cx(
           className,
-          'border border-surface bg-surface text-left text-primary text-surface hover:not-active:bg-surfaceHover',
+          'border border-surface bg-surface text-left text-primary hover:not-active:bg-surfaceHover',
         )}
       >
         <CardIcon className="mr-2 inline size-6" />
