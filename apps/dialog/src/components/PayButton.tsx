@@ -5,11 +5,20 @@ import GoogleIcon from '~icons/devicon/google'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CardIcon from '~icons/lucide/credit-card'
 
+/**
+ * Google Pay guidelines:
+ *   - https://developers.google.com/pay/api/web/guides/brand-guidelines
+ *
+ * Apple Pay guidelines:
+ *   - https://developer.apple.com/documentation/ApplePayontheWeb#topics
+ *   - https://applepaydemo.apple.com/
+ */
+
 export function PayButton(props: PayButton.Props) {
   const { variant, timeEstimate, ...buttonProps } = props
 
   const className =
-    'px-3 h-10 w-full select-none rounded-lg bg-black py-1.5 font-semibold text-md flex flex-row items-center'
+    'px-3 h-10 w-full select-none rounded-lg bg-black py-1.5 font-semibold text-md flex flex-row items-center cursor-pointer!'
 
   if (variant === 'card')
     return (
@@ -36,16 +45,21 @@ export function PayButton(props: PayButton.Props) {
       {...buttonProps}
       className={cx(
         className,
-        'justify-center gap-1 text-white hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/90',
+        'justify-center text-white hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/90',
       )}
     >
       <span>Pay with</span>
       {variant === 'apple' ? (
-        <AppleIcon className="ml-1 inline size-5" />
+        <>
+          <AppleIcon className="ml-1 inline size-5" />
+          <span className="mt-0.5 text-lg">Pay</span>
+        </>
       ) : (
-        <GoogleIcon className="ml-1 inline size-5" />
+        <>
+          <GoogleIcon className="mr-0.5 ml-1.5 inline size-4.5" />
+          <span className="text-lg">Pay</span>
+        </>
       )}
-      <span>Pay</span>
     </Ariakit.Button>
   )
 }
