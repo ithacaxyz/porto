@@ -1,12 +1,8 @@
 import * as Ariakit from '@ariakit/react'
-import { PortoConfig, UserAgent } from '@porto/apps'
 import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
 import { Address, Hex, Provider, Value } from 'ox'
-import { Dialog, Porto } from 'porto'
-import { Mode } from 'porto'
-import { QueuedRequest } from 'porto/core/Porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
@@ -22,7 +18,6 @@ import {
   useSendCalls,
   useWaitForCallsStatus,
 } from 'wagmi'
-import { createStore, useStore } from 'zustand'
 import LucideBanknoteArrowDown from '~icons/lucide/banknote-arrow-down'
 import LucideCheck from '~icons/lucide/check'
 import LucideChevronLeft from '~icons/lucide/chevron-left'
@@ -33,7 +28,7 @@ import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import LucidePlay from '~icons/lucide/play'
 import LucideSparkle from '~icons/lucide/sparkle'
 import LucideX from '~icons/lucide/x'
-import { config, porto, store } from '../wagmi.config'
+import { config, porto } from '../wagmi.config'
 import { Button } from './Button'
 
 export function HomePage() {
@@ -42,8 +37,7 @@ export function HomePage() {
     setIsMounted(true)
   }, [])
 
-  const dialog = Ariakit.useDialogStore()
-  const dialogState = Ariakit.useStoreState(dialog)
+  const dialogStore = Ariakit.useDialogStore()
 
   return (
     <div className="flex justify-center gap-[32px]">
@@ -87,7 +81,7 @@ export function HomePage() {
         <div className="w-full min-lg:hidden">
           <Ariakit.Button
             className="relative inline-flex h-[42px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-accent px-[18px] font-medium text-white transition-colors hover:not-active:bg-accentHover focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-            onClick={dialog.show}
+            onClick={dialogStore.show}
           >
             <LucidePlay className="mt-0.5 size-3.5" />
             Try it out
@@ -196,133 +190,45 @@ export function HomePage() {
         </div>
       </div>
 
-      <div
-        className={cx(
-          'flex-1 lg:block',
-          dialogState.open
-            ? 'max-lg:fixed max-lg:inset-0 max-lg:z-50 max-lg:block max-lg:h-full max-lg:bg-white max-lg:px-5 max-lg:py-6.5 max-lg:dark:bg-black'
-            : 'max-lg:hidden',
-        )}
-      >
+      <div className="flex-1 max-lg:hidden">
         {isMounted ? (
-          <div className="flex h-full flex-col">
-            <header className="mb-5 flex items-center justify-between lg:hidden">
-              <h1 className="-tracking-[0.504px] font-medium text-[18px] leading-normal">
-                Try it out
-              </h1>
-              <Ariakit.DialogDismiss
-                render={<LucideX className="size-6 text-gray11" />}
-                store={dialog}
-              />
-            </header>
-            <Demo id="porto" />
-          </div>
+          <Demo />
         ) : (
           <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4" />
         )}
       </div>
+
+      <Ariakit.Dialog
+        backdrop={<div className="backdrop" />}
+        className="fixed inset-0 z-50 h-full bg-white px-5 py-6.5 lg:hidden dark:bg-black"
+        hideOnInteractOutside={false}
+        store={dialogStore}
+      >
+        <div className="flex h-full flex-col">
+          <header className="mb-5 flex items-center justify-between">
+            <h1 className="-tracking-[0.504px] font-medium text-[18px] leading-normal">
+              Try it out
+            </h1>
+            <Ariakit.DialogDismiss
+              render={<LucideX className="size-6 text-gray11" />}
+            />
+          </header>
+
+          {isMounted && <Demo />}
+        </div>
+      </Ariakit.Dialog>
     </div>
   )
 }
 
-const isSafari = UserAgent.isSafari()
-const steps = ['sign-in', 'add-funds', 'send', 'mint', 'swap'] as const
-const stepStore = createStore<{
-  step: (typeof steps)[number] | null
-  setStep: (step: (typeof steps)[number]) => void
-}>((set) => {
-  return {
-    setStep(step) {
-      set((state) => {
-        if (
-          !isSafari &&
-          config.state.status === 'disconnected' &&
-          step === 'sign-in'
-        ) {
-          const chainId = config.state.chainId
-          porto!.provider
-            .request({
-              method: 'wallet_connect',
-              params: [
-                {
-                  capabilities: {
-                    createAccount: false,
-                    grantPermissions: {
-                      expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-                      permissions: {
-                        calls: [{ to: exp1Config.address[chainId] }],
-                        spend: [
-                          {
-                            limit: Hex.fromNumber(Value.fromEther('100')),
-                            period: 'hour',
-                            token: exp1Config.address[chainId],
-                          },
-                        ],
-                      },
-                    },
-                  },
-                },
-              ],
-            })
-            .catch((error) => {
-              if (!(error instanceof Provider.UserRejectedRequestError))
-                toast.custom((t) => (
-                  <Toast
-                    className={t}
-                    description={
-                      (error as Error)?.message ?? 'Something went wrong'
-                    }
-                    kind="error"
-                    title="Sign In Failed"
-                  />
-                ))
-            })
-        }
-
-        porto!._internal.store.setState((x) => ({ ...x, requestQueue: [] }))
-        return { ...state, step }
-      })
-    },
-    step: null,
-  }
-})
-
 const pollingInterval = 800
+const steps = ['sign-in', 'add-funds', 'send', 'mint', 'swap'] as const
 
-function Demo(props: { id: string }) {
-  const { id } = props
+function Demo() {
   const chainId = useChainId()
   const { address, status } = useAccount()
 
-  const { step, setStep } = useStore(stepStore)
-  React.useEffect(() => {
-    switchRenderer(porto as never, 'inline', id)
-    config.subscribe(
-      (state) => state.status,
-      (status) => {
-        const step = (() => {
-          if (status === 'disconnected') return 'sign-in'
-          if (status === 'connected') return 'add-funds'
-        })()
-        if (step) stepStore.getState().setStep(step)
-      },
-    )
-    return () => {
-      switchRenderer(porto as never, 'iframe')
-    }
-  }, [])
-
-  const portoState = useStore(porto!._internal.store)
-  const queuedRequest = React.useMemo(() => {
-    const r = portoState.requestQueue.at(0)
-    if (!r) return
-    if (
-      /^experimental_addFunds|wallet_connect|wallet_sendCalls/.test(
-        r.request.method,
-      )
-    )
-      return r
-  }, [portoState.requestQueue])
+  const [step, setStep] = React.useState<(typeof steps)[number]>('sign-in')
 
   const { data: blockNumber } = useBlockNumber({
     watch: {
@@ -362,61 +268,28 @@ function Demo(props: { id: string }) {
       <div className="flex-1">
         <div className="relative flex h-full w-full justify-center">
           <div className="flex h-full w-full max-w-[277px] flex-col items-center justify-center">
-            {step === 'sign-in' && <SignIn next={() => setStep('add-funds')} />}
+            {step === 'sign-in' && (
+              <SignIn chainId={chainId} next={() => setStep('add-funds')} />
+            )}
             {step === 'add-funds' && (
-              <AddFunds
-                chainId={chainId}
-                next={() => setStep('send')}
-                queuedRequest={queuedRequest}
-              />
+              <AddFunds chainId={chainId} next={() => setStep('send')} />
             )}
             {step === 'send' && (
               <Send
                 address={address}
                 chainId={chainId}
                 exp1Balance={exp1Balance}
-                queuedRequest={queuedRequest}
               />
             )}
-            {step === 'mint' && (
-              <MintNFT chainId={chainId} queuedRequest={queuedRequest} />
-            )}
+            {step === 'mint' && <MintNFT chainId={chainId} />}
             {step === 'swap' && (
               <Swap
                 address={address}
                 chainId={chainId}
                 exp1Balance={exp1Balance}
                 exp2Balance={exp2Balance}
-                queuedRequest={queuedRequest}
               />
             )}
-
-            <div className={!queuedRequest ? 'hidden' : undefined} id={id} />
-
-            {step === 'sign-in' &&
-              queuedRequest?.request.method === 'wallet_connect' && (
-                <div className="-me-12 mt-3.5 flex items-end justify-center gap-4">
-                  <div className="-tracking-[0.448px] font-medium text-[16px] text-black/50 leading-normal dark:text-white/50">
-                    Try it out
-                  </div>
-
-                  <svg
-                    className="mb-2.5 text-black/80 dark:text-white/80"
-                    fill="none"
-                    height="41"
-                    viewBox="0 0 47 41"
-                    width="47"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <title>pointer arrow</title>
-                    <path
-                      d="M38.7964 0.289387C39.1889 -0.0991936 39.822 -0.0960426 40.2106 0.296417L46.5429 6.69194C46.9314 7.08441 46.9283 7.71756 46.5358 8.10614C46.1434 8.49472 45.5102 8.49157 45.1216 8.09911L39.493 2.4142L33.8081 8.04285C33.4156 8.43143 32.7824 8.42828 32.3939 8.03582C32.0053 7.64336 32.0084 7.0102 32.4009 6.62162L38.7964 0.289387ZM1 39.5L0.968378 38.5005C15.7228 38.0337 24.953 35.7807 30.5709 30.2527C36.1764 24.737 38.4268 15.7175 38.5 0.995029L39.5 1L40.5 1.00497C40.4265 15.7919 38.1966 25.555 31.9736 31.6783C25.7631 37.7894 15.8166 40.0317 1.03162 40.4995L1 39.5Z"
-                      fill="currentColor"
-                      opacity="0.2"
-                    />
-                  </svg>
-                </div>
-              )}
           </div>
         </div>
       </div>
@@ -544,8 +417,8 @@ function Demo(props: { id: string }) {
 
 type ChainId = (typeof config)['state']['chainId']
 
-function SignIn(props: { next: () => void }) {
-  const { next } = props
+function SignIn(props: { chainId: ChainId; next: () => void }) {
+  const { chainId, next } = props
 
   const { address, status } = useAccount()
   const connect = Hooks.useConnect({
@@ -560,7 +433,6 @@ function SignIn(props: { next: () => void }) {
   })
   const disconnect = Hooks.useDisconnect()
   const connector = usePortoConnector()
-  const isSafari = React.useMemo(() => UserAgent.isSafari(), [])
 
   if (status === 'connected')
     return (
@@ -579,55 +451,65 @@ function SignIn(props: { next: () => void }) {
       </div>
     )
 
-  if (isSafari) {
-    if (connect.isPending)
-      return (
+  if (connect.isPending)
+    return (
+      <div className="flex w-full">
         <Button className="flex flex-grow gap-2" disabled>
           <LucidePictureInPicture2 className="size-5" />
           Check passkey prompt
         </Button>
-      )
-    return (
-      <div className="flex w-full gap-2">
-        <Button
-          className="flex-grow"
-          onClick={() =>
-            connect.mutate({
-              connector,
-              createAccount: true,
-            })
-          }
-          variant="accent"
-        >
-          Sign up
-        </Button>
-
-        <Button
-          className="flex-grow"
-          onClick={() =>
-            connect.mutate({
-              connector,
-            })
-          }
-          variant="invert"
-        >
-          Sign in
-        </Button>
       </div>
     )
-  }
 
-  return null
+  const grantPermissions = {
+    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    permissions: {
+      calls: [{ to: exp1Config.address[chainId] }],
+      spend: [
+        {
+          limit: Value.fromEther('100'),
+          period: 'hour',
+          token: exp1Config.address[chainId],
+        },
+      ],
+    },
+  } as const
+
+  return (
+    <div className="flex w-full gap-2">
+      <Button
+        className="flex-grow"
+        onClick={() =>
+          connect.mutate({
+            connector,
+            createAccount: true,
+            grantPermissions,
+          })
+        }
+        variant="accent"
+      >
+        Sign up
+      </Button>
+
+      <Button
+        className="flex-grow"
+        onClick={() =>
+          connect.mutate({
+            connector,
+            grantPermissions,
+          })
+        }
+        variant="invert"
+      >
+        Sign in
+      </Button>
+    </div>
+  )
 }
 
-function AddFunds(props: {
-  chainId: ChainId
-  next: () => void
-  queuedRequest: QueuedRequest<unknown> | undefined
-}) {
-  const { chainId, next, queuedRequest } = props
+function AddFunds(props: { chainId: ChainId; next: () => void }) {
+  const { chainId, next } = props
 
-  if (queuedRequest) return null
   return (
     <div className="flex w-full flex-col gap-4.5">
       <ClickHere />
@@ -671,9 +553,8 @@ function Send(props: {
   address: Address.Address | undefined
   chainId: (typeof config)['state']['chainId']
   exp1Balance: bigint | undefined
-  queuedRequest: QueuedRequest<unknown> | undefined
 }) {
-  const { address, chainId, exp1Balance, queuedRequest } = props
+  const { address, chainId, exp1Balance } = props
 
   const { data, isPending, sendCallsAsync } = useSendCalls()
   const {
@@ -750,8 +631,6 @@ function Send(props: {
     }
   })
 
-  if (!address || queuedRequest) return null
-
   if (isConfirmed) return <Success text="Sent successfully!" />
 
   return (
@@ -788,9 +667,9 @@ function Send(props: {
       </div>
 
       <Ariakit.FormSubmit
-        aria-disabled={isPending || isConfirming}
+        aria-disabled={!address || isPending || isConfirming}
         className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
-        disabled={isPending || isConfirming}
+        disabled={!address || isPending || isConfirming}
       >
         {isPending || isConfirming ? 'Sending...' : 'Send'}
       </Ariakit.FormSubmit>
@@ -808,11 +687,8 @@ function Send(props: {
   )
 }
 
-function MintNFT(props: {
-  chainId: (typeof config)['state']['chainId']
-  queuedRequest: QueuedRequest<unknown> | undefined
-}) {
-  const { chainId, queuedRequest } = props
+function MintNFT(props: { chainId: (typeof config)['state']['chainId'] }) {
+  const { chainId } = props
 
   const { data, isPending, sendCalls } = useSendCalls({
     mutation: {
@@ -861,8 +737,6 @@ function MintNFT(props: {
       ))
   }, [error])
 
-  if (queuedRequest) return null
-
   if (isConfirmed) return <Success text="Minted successfully!" />
 
   return (
@@ -908,9 +782,8 @@ function Swap(props: {
   chainId: (typeof config)['state']['chainId']
   exp1Balance: bigint | undefined
   exp2Balance: bigint | undefined
-  queuedRequest: QueuedRequest<unknown> | undefined
 }) {
-  const { address, chainId, exp1Balance, exp2Balance, queuedRequest } = props
+  const { address, chainId, exp1Balance, exp2Balance } = props
 
   const { data, isPending, sendCallsAsync } = useSendCalls()
   const {
@@ -987,8 +860,6 @@ function Swap(props: {
   const fromSymbol = form.useValue('fromSymbol')
   const fromValue = form.useValue('toValue')
   const toValue = form.useValue('toValue')
-
-  if (queuedRequest) return null
 
   if (isConfirmed) return <Success text="Swapped successfully!" />
 
@@ -1587,35 +1458,6 @@ function GitHubIcon() {
 function usePortoConnector() {
   const connectors = useConnectors()
   return connectors.find((connector) => connector.id === 'xyz.ithaca.porto')!
-}
-
-function switchRenderer(
-  porto: Porto.Porto,
-  to: 'iframe' | 'inline',
-  id?: string,
-) {
-  const state = store.getState()
-  const fromRenderer = state.renderer
-  if (!fromRenderer) throw new Error('fromRenderer not defined')
-  const toRenderer = (() => {
-    const renderer = state.renderers.find((x) => x.name === to)
-    if (id && renderer?.name === 'inline')
-      return Dialog.experimental_inline({
-        element: () => document.getElementById(id)!,
-      })
-    return renderer
-  })()
-  if (!toRenderer) throw new Error('toRenderer not defined')
-
-  if (fromRenderer.name !== toRenderer.name) {
-    porto._internal.setMode(
-      Mode.dialog({
-        host: PortoConfig.getDialogHost(),
-        renderer: toRenderer,
-      }),
-    )
-    store.setState((x) => ({ ...x, renderer: toRenderer }))
-  }
 }
 
 namespace ValueFormatter {

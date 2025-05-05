@@ -24,8 +24,7 @@
     "tailwindcss": "catalog:",
     "viem": "catalog:",
     "vocs": "latest",
-    "wagmi": "catalog:",
-    "zustand": "catalog:"
+    "wagmi": "catalog:"
   },
   "devDependencies": {
     "@iconify/json": "catalog:",
