@@ -11,6 +11,7 @@ import { BaseError, UserRejectedRequestError } from 'viem'
 import {
   ConnectorAlreadyConnectedError,
   useAccount,
+  useAccountEffect,
   useBlockNumber,
   useChainId,
   useConnectors,
@@ -229,6 +230,14 @@ function Demo() {
   const { address, status } = useAccount()
 
   const [step, setStep] = React.useState<(typeof steps)[number]>('sign-in')
+  useAccountEffect({
+    onConnect() {
+      setStep('add-funds')
+    },
+    onDisconnect() {
+      setStep('sign-in')
+    },
+  })
 
   const { data: blockNumber } = useBlockNumber({
     watch: {
