@@ -509,9 +509,9 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
-        const [signature] = await Account.sign(account, {
+        const signature = await Account.sign(account, {
           key,
-          payloads: [PersonalMessage.getSignPayload(data)],
+          payload: PersonalMessage.getSignPayload(data),
         })
 
         return signature
@@ -526,9 +526,9 @@ export function relay(parameters: relay.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
-        const [signature] = await Account.sign(account, {
+        const signature = await Account.sign(account, {
           key,
-          payloads: [TypedData.getSignPayload(Json.parse(data))],
+          payload: TypedData.getSignPayload(Json.parse(data)),
         })
 
         return signature

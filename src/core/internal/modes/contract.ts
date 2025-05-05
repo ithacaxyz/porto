@@ -104,7 +104,10 @@ export function contract(parameters: contract.Parameters = {}) {
         )
 
         // Prepare the account for creation.
-        const { context, signPayloads } = await prepareUpgradeAccount({
+        const {
+          context,
+          signPayloads: [executePayload, authorizationPayload],
+        } = await prepareUpgradeAccount({
           address,
           client,
           keystoreHost,
@@ -118,10 +121,17 @@ export function contract(parameters: contract.Parameters = {}) {
         const account = Account.fromPrivateKey(privateKey, {
           keys: context.account.keys,
         })
-        const signatures = await Account.sign(account, {
-          payloads: signPayloads,
-          storage: internal.config.storage,
-        })
+        const [executeSignature, authorizationSignature] = await Promise.all([
+          account.sign?.({
+            payload: executePayload,
+          }),
+          authorizationPayload
+            ? account.sign?.({
+                payload: authorizationPayload,
+              })
+            : undefined,
+        ])
+        const signatures = [executeSignature, authorizationSignature] as const
 
         // Execute the account creation.
         // TODO: wait for tx to be included?
@@ -432,9 +442,9 @@ export function contract(parameters: contract.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
-        const [signature] = await Account.sign(account, {
+        const signature = await Account.sign(account, {
           key,
-          payloads: [PersonalMessage.getSignPayload(data)],
+          payload: PersonalMessage.getSignPayload(data),
           storage: internal.config.storage,
         })
 
@@ -450,9 +460,9 @@ export function contract(parameters: contract.Parameters = {}) {
         )
         if (!key) throw new Error('cannot find admin key to sign with.')
 
-        const [signature] = await Account.sign(account, {
+        const signature = await Account.sign(account, {
           key,
-          payloads: [TypedData.getSignPayload(Json.parse(data))],
+          payload: TypedData.getSignPayload(Json.parse(data)),
           storage: internal.config.storage,
         })
 

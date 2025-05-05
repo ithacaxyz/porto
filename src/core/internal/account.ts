@@ -98,6 +98,8 @@ export function getKey(
 ): Key.Key | undefined {
   const { key, role } = parameters
 
+  if (key === null) return undefined
+
   // Extract from `key` parameter.
   if (typeof key === 'object') return key
 
@@ -114,37 +116,27 @@ export function getKey(
 
 export declare namespace getKey {
   type Parameters = {
-    key?: number | Key.Key | undefined
+    key?: number | Key.Key | null | undefined
     role?: Key.Key['role'] | undefined
   }
 }
 
 /**
- * Extracts a signing key from a delegated account and signs payload(s).
+ * Extracts a signing key from a delegated account and signs a payload.
  *
  * @example
  * TODO
  *
  * @param parameters - Parameters.
- * @returns Signatures.
+ * @returns Signature.
  */
-export async function sign<
-  const account extends Account,
-  payloads extends sign.Payloads,
->(
-  account: account | Account,
-  parameters: sign.Parameters<account, payloads>,
-): Promise<Compute<payloads>> {
-  const { payloads, storage } = parameters
+export async function sign(
+  account: Account,
+  parameters: sign.Parameters,
+): Promise<Compute<Hex.Hex>> {
+  const { payload, storage } = parameters
 
-  const [payload, authorizationPayload] = payloads as {} as [Hex.Hex, Hex.Hex]
-
-  // If we have an authorization payload, but no root signing key on the account,
-  // then we cannot perform an authorization as we need the EOA's private key.
-  if (authorizationPayload && !account.sign)
-    throw new Error('cannot find root signing key to sign authorization.')
-
-  const key = authorizationPayload ? undefined : getKey(account, parameters)
+  const key = getKey(account, parameters)
 
   const sign = (() => {
     // If we have no key, use the root signing key.
@@ -159,40 +151,28 @@ export async function sign<
   // If the account has no valid signing key, then we cannot sign the payload.
   if (!sign) throw new Error('cannot find key to sign with.')
 
-  // Sign the payload(s).
-  const signatures = await Promise.all([
-    sign({ payload }),
-    authorizationPayload && account.sign
-      ? account.sign({ payload: authorizationPayload })
-      : undefined,
-  ])
-
-  return signatures as never
+  // Sign the payload.
+  return await sign({ payload })
 }
 
 export declare namespace sign {
-  type Parameters<
-    account extends Account = Account,
-    payloads extends Payloads = Payloads,
-  > = {
+  type Parameters = {
     /**
-     * Key to sign the payloads with. If not provided, a key will be extracted from the `account`.
+     * Key to sign the payloads with.
+     *
+     * - If number, the key at the index will be used.
+     * - If `Key.Key`, the provided key will be used.
+     * - If `null`, the account's root signing key will be used.
+     * - If not provided, a key will be extracted from the `account`.
      */
-    key?: number | Key.Key | undefined
+    key?: number | Key.Key | null | undefined
     /**
-     * Payloads to sign.
+     * Payload to sign.
      */
-    payloads: payloads &
-      (account extends { sign: NonNullable<Account['sign']> }
-        ? Payloads
-        : readonly [execute: Hex.Hex])
+    payload: Hex.Hex
     /**
      * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
      */
     storage?: Storage.Storage | undefined
   }
-
-  type Payloads =
-    | readonly [execute: Hex.Hex]
-    | readonly [execute: Hex.Hex, authorization: Hex.Hex]
 }
