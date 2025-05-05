@@ -91,7 +91,7 @@ export function AddFunds(props: AddFunds.Props) {
             onSubmit={(e) => deposit.mutate(e)}
           >
             <div className="col-span-1 row-span-1">
-              <div className="flex w-full max-w-full flex-row justify-center space-x-2">
+              <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
                 {editView === 'editing' ? (
                   <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-gray4/45 px-3 py-2.5 text-gray12 focus-within:border-blue9 focus-within:bg-gray4/75 has-invalid:border-red8 dark:bg-gray3">
                     <span className="-translate-y-1/2 absolute top-1/2 left-3 text-gray11">
