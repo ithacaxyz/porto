@@ -3,7 +3,6 @@ import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -14,6 +13,7 @@ import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
+import CardIcon from '~icons/lucide/credit-card'
 import PencilIcon from '~icons/lucide/pencil'
 import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
@@ -101,6 +101,8 @@ export function AddFunds(props: AddFunds.Props) {
                       autoCapitalize="off"
                       autoComplete="off"
                       autoCorrect="off"
+                      // biome-ignore lint/a11y/noAutofocus:
+                      autoFocus
                       className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
                       inputMode="decimal"
                       max={500}
@@ -128,7 +130,7 @@ export function AddFunds(props: AddFunds.Props) {
                       {presetAmounts.map((predefinedAmount) => (
                         // biome-ignore lint/a11y/noLabelWithoutControl:
                         <label
-                          className="w-full rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
                           key={predefinedAmount}
                         >
                           <Ariakit.VisuallyHidden>
@@ -141,14 +143,9 @@ export function AddFunds(props: AddFunds.Props) {
                   </Ariakit.RadioProvider>
                 )}
                 <Ariakit.Button
-                  className={cx(
-                    'flex w-[18%] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary',
-                    editView === 'editing' && 'hover:border-red7',
-                  )}
+                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
                   onClick={() =>
-                    editView === 'default'
-                      ? setEditView('editing')
-                      : setEditView('default')
+                    setEditView(editView === 'default' ? 'editing' : 'default')
                   }
                 >
                   {editView === 'editing' ? (
@@ -159,25 +156,18 @@ export function AddFunds(props: AddFunds.Props) {
                 </Ariakit.Button>
               </div>
             </div>
-            <div className="col-span-1 row-span-1 my-1 space-y-3.5">
+            <div className="col-span-1 row-span-1 space-y-3.5">
               <Button className="w-full flex-1" type="submit" variant="accent">
                 Buy & deposit
               </Button>
-              <PayButton
-                disabled
-                title="Apple Pay"
-                type="submit"
-                variant="apple"
-              />
-              <PayButton
-                disabled
-                title="Google Pay"
-                type="submit"
-                variant="google"
-              />
+              {import.meta.env.VITE_FLAGS?.includes('onramp') && (
+                <>
+                  <PayButton variant="apple" />
+                  <PayButton variant="google" />
+                </>
+              )}
             </div>
             <div className="col-span-1 row-span-1">
-              <div className="mt-1 h-1" />
               <div className="my-auto flex w-full flex-row items-center gap-2 *:border-gray7">
                 <hr className="flex-1" />
                 <span className="px-3 text-gray9">or</span>
@@ -185,21 +175,31 @@ export function AddFunds(props: AddFunds.Props) {
               </div>
             </div>
             <div className="col-span-1 row-span-1 space-y-2.5">
-              <PayButton
-                disabled
-                timeEstimate="5 mins"
-                title="Debit or Credit"
-                variant="card"
-              />
+              {import.meta.env.VITE_FLAGS?.includes('onramp') && (
+                <Button className="w-full px-3!" type="button">
+                  <div className="flex w-full flex-row items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CardIcon className="size-5" />
+                      <span>Debit or Credit</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="ml-auto font-normal text-gray10 text-sm">
+                        ~5 mins
+                        <ArrowRightIcon className="ml-1 inline size-4" />
+                      </span>
+                    </div>
+                  </div>
+                </Button>
+              )}
               <Button
                 className="w-full px-3!"
                 onClick={() => setView('deposit-crypto')}
                 type="button"
               >
                 <div className="flex w-full flex-row items-center justify-between">
-                  <div className="flex items-center gap-2 font-semibold">
+                  <div className="flex items-center gap-2">
                     <QrCodeIcon className="size-5" />
-                    <span className="font-semibold">Deposit crypto</span>
+                    <span>Deposit crypto</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="ml-auto font-normal text-gray10 text-sm">
@@ -210,7 +210,7 @@ export function AddFunds(props: AddFunds.Props) {
                 </div>
               </Button>
             </div>
-            <p className="text-gray10 text-sm">
+            <p className="text-center text-[13px] text-gray10">
               By using this service, you agree to the provider's{' '}
               <a
                 className="text-gray11"

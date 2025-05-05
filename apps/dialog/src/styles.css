@@ -20,7 +20,3 @@ body {
   --height-button: 40px;
   --radius-default: 8px;
 }
-
-[data-id="onramp"]:where(:not([data-playground])) {
-  @apply hidden;
-}
