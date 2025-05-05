@@ -73,7 +73,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         `${port}:${port}`,
         '-v',
         `${resolve(import.meta.dirname, 'registry.toml')}:/app/registry.toml`,
-        `ghcr.io/ithacaxyz/relay:${process.env.VITE_RELAY_VERSION ?? 'latest'}`,
+        `${process.env.VITE_RELAY_IMAGE ?? 'ghcr.io/ithacaxyz/relay'}:${process.env.VITE_RELAY_VERSION ?? 'latest'}`,
         ...toArgs({
           ...rest,
           endpoint: endpoint?.replaceAll(

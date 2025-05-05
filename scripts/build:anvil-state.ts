@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { createTestClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { deployContract, getTransactionReceipt } from 'viem/actions'
+import { deployContract, waitForTransactionReceipt } from 'viem/actions'
 import type { Address } from 'ox'
 
 import * as Anvil from '../test/src/anvil.js'
@@ -29,6 +29,7 @@ const account = privateKeyToAccount(Anvil.accounts[9]!.privateKey)
 const client = createTestClient({
   account,
   mode: 'anvil',
+  pollingInterval: 100,
   transport: http(rpcUrl),
 })
 
@@ -41,7 +42,7 @@ let exports = []
     bytecode: AccountRegistry.code,
     chain: null,
   })
-  const { contractAddress } = await getTransactionReceipt(client, {
+  const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
   exports.push(`export const accountRegistryAddress = '${contractAddress}'`)
@@ -56,7 +57,7 @@ let entryPointAddress: Address.Address | null | undefined
     bytecode: EntryPoint.code,
     chain: null,
   })
-  const { contractAddress } = await getTransactionReceipt(client, {
+  const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
   entryPointAddress = contractAddress
@@ -71,7 +72,7 @@ let entryPointAddress: Address.Address | null | undefined
     bytecode: Delegation.code,
     chain: null,
   })
-  const { contractAddress } = await getTransactionReceipt(client, {
+  const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
   exports.push(
@@ -85,12 +86,10 @@ let entryPointAddress: Address.Address | null | undefined
     bytecode: EIP7702Proxy.code,
     chain: null,
   })
-  const { contractAddress: contractAddress_2 } = await getTransactionReceipt(
-    client,
-    {
+  const { contractAddress: contractAddress_2 } =
+    await waitForTransactionReceipt(client, {
       hash: hash_2,
-    },
-  )
+    })
   exports.push(`export const delegationProxyAddress = '${contractAddress_2}'`)
 }
 
@@ -102,7 +101,7 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     bytecode: ExperimentERC20.code,
     chain: null,
   })
-  const { contractAddress } = await getTransactionReceipt(client, {
+  const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
   exports.push(`export const exp${i}Address = '${contractAddress}'`)
@@ -116,7 +115,7 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     bytecode: DelegationOld.code,
     chain: null,
   })
-  const { contractAddress } = await getTransactionReceipt(client, {
+  const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
 
@@ -127,12 +126,10 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     bytecode: EIP7702Proxy.code,
     chain: null,
   })
-  const { contractAddress: contractAddress_2 } = await getTransactionReceipt(
-    client,
-    {
+  const { contractAddress: contractAddress_2 } =
+    await waitForTransactionReceipt(client, {
       hash: hash_2,
-    },
-  )
+    })
   exports.push(
     `export const delegationOldProxyAddress = '${contractAddress_2}'`,
   )
@@ -146,7 +143,7 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     bytecode: DelegationNew.code,
     chain: null,
   })
-  const { contractAddress } = await getTransactionReceipt(client, {
+  const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
 
@@ -157,12 +154,10 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     bytecode: EIP7702Proxy.code,
     chain: null,
   })
-  const { contractAddress: contractAddress_2 } = await getTransactionReceipt(
-    client,
-    {
+  const { contractAddress: contractAddress_2 } =
+    await waitForTransactionReceipt(client, {
       hash: hash_2,
-    },
-  )
+    })
   exports.push(
     `export const delegationNewProxyAddress = '${contractAddress_2}'`,
   )
@@ -181,7 +176,7 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     bytecode: ExperimentERC721.code,
     chain: null,
   })
-  const { contractAddress } = await getTransactionReceipt(client, {
+  const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
   exports.push(`export const expNftAddress = '${contractAddress}'`)
@@ -195,7 +190,7 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     bytecode: Simulator.code,
     chain: null,
   })
-  const { contractAddress } = await getTransactionReceipt(client, {
+  const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
   exports.push(`export const simulatorAddress = '${contractAddress}'`)

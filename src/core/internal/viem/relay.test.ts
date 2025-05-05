@@ -1,5 +1,6 @@
 import { AbiFunction, Hex, P256, PublicKey, Value, WebCryptoP256 } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../../../test/src/actions.js'
 import * as Anvil from '../../../../test/src/anvil.js'
@@ -458,6 +459,101 @@ describe('prepareCalls + sendPreparedCalls', () => {
         value: signature,
       },
     })
+  })
+
+  // TODO: uncomment once https://github.com/ithacaxyz/account/pull/147 merged.
+  test.skip('behavior: fee payer', async () => {
+    const userKey = Key.createHeadlessWebAuthnP256()
+    const userAccount = await TestActions.createAccount(client, {
+      keys: [userKey],
+    })
+
+    const sponsorKey = Key.createSecp256k1()
+    const sponsorAccount = await TestActions.createAccount(client, {
+      deploy: true,
+      keys: [sponsorKey],
+    })
+
+    const userBalance_pre = await readContract(client, {
+      abi: exp1Abi,
+      address: exp1Address,
+      args: [userAccount.address],
+      functionName: 'balanceOf',
+    })
+    const sponsorBalance_pre = await readContract(client, {
+      abi: exp1Abi,
+      address: exp1Address,
+      args: [sponsorAccount.address],
+      functionName: 'balanceOf',
+    })
+
+    const request = await prepareCalls(client, {
+      address: userAccount.address,
+      calls: [
+        {
+          abi: exp1Abi,
+          args: [userAccount.address, Value.fromEther('1')],
+          functionName: 'mint',
+          to: exp1Address,
+        },
+      ],
+      capabilities: {
+        meta: {
+          feePayer: sponsorAccount.address,
+          feeToken,
+          keyHash: userKey.hash,
+          nonce: 0n,
+        },
+      },
+    })
+
+    const signature = await Key.sign(userKey, {
+      payload: request.digest,
+      wrap: false,
+    })
+    const sponsorSignature = await Key.sign(sponsorKey, {
+      payload: request.digest,
+    })
+
+    const result = await sendPreparedCalls(client, {
+      context: {
+        quote: {
+          ...request.context.quote,
+          op: {
+            ...request.context.quote!.op!,
+            paymentSignature: sponsorSignature,
+          },
+        },
+      },
+      signature: {
+        publicKey: userKey.publicKey,
+        type: 'webauthnp256',
+        value: signature,
+      },
+    })
+
+    await waitForCallsStatus(client, {
+      id: result.id,
+    })
+
+    const userBalance_post = await readContract(client, {
+      abi: exp1Abi,
+      address: exp1Address,
+      args: [userAccount.address],
+      functionName: 'balanceOf',
+    })
+    const sponsorBalance_post = await readContract(client, {
+      abi: exp1Abi,
+      address: exp1Address,
+      args: [sponsorAccount.address],
+      functionName: 'balanceOf',
+    })
+
+    // Check if user was credited with 1 EXP.
+    expect(userBalance_post).toBe(userBalance_pre + Value.fromEther('1'))
+
+    // Check if sponsor was debited the fee payment.
+    expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
   })
 
   test('behavior: contract calls', async () => {

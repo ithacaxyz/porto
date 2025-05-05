@@ -30,6 +30,8 @@ export namespace authorizeKeys {
 export namespace meta {
   /** Represents metadata for a call bundle. */
   export const Request = Type.Object({
+    /** The address of the fee payer. */
+    feePayer: Schema.Optional(Primitive.Address),
     /** The token to pay for the call bundle. If `None`, defaults to native token (ETH). */
     feeToken: Schema.Optional(Primitive.Address),
     /** The hash of the key that will be used to sign over the bundle. */
