@@ -67,6 +67,6 @@ export function PayButton(props: PayButton.Props) {
 export declare namespace PayButton {
   type Props = React.ComponentPropsWithoutRef<'button'> & {
     variant: 'apple' | 'google' | 'card'
-    timeEstimate?: 'instant' | `${number} mins`
+    timeEstimate?: 'instant' | `${number} mins` | undefined
   }
 }
