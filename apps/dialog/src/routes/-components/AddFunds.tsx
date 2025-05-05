@@ -175,22 +175,6 @@ export function AddFunds(props: AddFunds.Props) {
               </div>
             </div>
             <div className="col-span-1 row-span-1 space-y-2.5">
-              {import.meta.env.VITE_FLAGS?.includes('onramp') && (
-                <Button className="w-full px-3!" type="button">
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CardIcon className="size-5" />
-                      <span>Debit or Credit</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="ml-auto font-normal text-gray10 text-sm">
-                        ~5 mins
-                        <ArrowRightIcon className="ml-1 inline size-4" />
-                      </span>
-                    </div>
-                  </div>
-                </Button>
-              )}
               <Button
                 className="w-full px-3!"
                 onClick={() => setView('deposit-crypto')}
@@ -209,6 +193,22 @@ export function AddFunds(props: AddFunds.Props) {
                   </div>
                 </div>
               </Button>
+              {import.meta.env.VITE_FLAGS?.includes('onramp') && (
+                <Button className="w-full px-3!" type="button">
+                  <div className="flex w-full flex-row items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CardIcon className="size-5" />
+                      <span>Debit or Credit</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="ml-auto font-normal text-gray10 text-sm">
+                        ~5 mins
+                        <ArrowRightIcon className="ml-1 inline size-4" />
+                      </span>
+                    </div>
+                  </div>
+                </Button>
+              )}
             </div>
             <p className="text-center text-[13px] text-gray10">
               By using this service, you agree to the provider's{' '}
