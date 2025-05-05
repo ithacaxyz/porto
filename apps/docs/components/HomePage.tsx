@@ -4,7 +4,7 @@ import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
 import { Address, Hex, Provider, Value } from 'ox'
-import { Dialog } from 'porto'
+import { Dialog, Porto } from 'porto'
 import { Mode } from 'porto'
 import { QueuedRequest } from 'porto/core/Porto'
 import { Hooks } from 'porto/wagmi'
@@ -43,6 +43,7 @@ export function HomePage() {
   }, [])
 
   const dialog = Ariakit.useDialogStore()
+  const dialogState = Ariakit.useStoreState(dialog)
 
   return (
     <div className="flex justify-center gap-[32px]">
@@ -195,32 +196,31 @@ export function HomePage() {
         </div>
       </div>
 
-      <div className="flex-1 max-lg:hidden">
+      <div
+        className={cx(
+          'flex-1 lg:block',
+          dialogState.open
+            ? 'max-lg:fixed max-lg:inset-0 max-lg:z-50 max-lg:block max-lg:h-full max-lg:bg-white max-lg:px-5 max-lg:py-6.5 max-lg:dark:bg-black'
+            : 'max-lg:hidden',
+        )}
+      >
         {isMounted ? (
-          <Demo id="porto-desktop" />
+          <div className="flex h-full flex-col">
+            <header className="mb-5 flex items-center justify-between lg:hidden">
+              <h1 className="-tracking-[0.504px] font-medium text-[18px] leading-normal">
+                Try it out
+              </h1>
+              <Ariakit.DialogDismiss
+                render={<LucideX className="size-6 text-gray11" />}
+                store={dialog}
+              />
+            </header>
+            <Demo id="porto" />
+          </div>
         ) : (
           <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4" />
         )}
       </div>
-
-      <Ariakit.Dialog
-        backdrop={<div className="backdrop" />}
-        className="fixed inset-0 z-50 h-full bg-white px-5 py-6.5 lg:hidden dark:bg-black"
-        store={dialog}
-      >
-        <div className="flex h-full flex-col">
-          <header className="mb-5 flex items-center justify-between">
-            <h1 className="-tracking-[0.504px] font-medium text-[18px] leading-normal">
-              Try it out
-            </h1>
-            <Ariakit.DialogDismiss
-              render={<LucideX className="size-6 text-gray11" />}
-            />
-          </header>
-
-          {isMounted && <Demo id="porto-mobile" />}
-        </div>
-      </Ariakit.Dialog>
     </div>
   )
 }
@@ -234,15 +234,13 @@ const stepStore = createStore<{
   return {
     setStep(step) {
       set((state) => {
-        if (!porto) throw new Error('porto not defined')
-
         if (
           !isSafari &&
           config.state.status === 'disconnected' &&
           step === 'sign-in'
         ) {
           const chainId = config.state.chainId
-          porto.provider
+          porto!.provider
             .request({
               method: 'wallet_connect',
               params: [
@@ -281,7 +279,7 @@ const stepStore = createStore<{
             })
         }
 
-        porto._internal.store.setState((x) => ({ ...x, requestQueue: [] }))
+        porto!._internal.store.setState((x) => ({ ...x, requestQueue: [] }))
         return { ...state, step }
       })
     },
@@ -298,8 +296,7 @@ function Demo(props: { id: string }) {
 
   const { step, setStep } = useStore(stepStore)
   React.useEffect(() => {
-    if (!porto) return
-    switchRenderer('inline', id)
+    switchRenderer(porto as never, 'inline', id)
     config.subscribe(
       (state) => state.status,
       (status) => {
@@ -311,7 +308,7 @@ function Demo(props: { id: string }) {
       },
     )
     return () => {
-      switchRenderer('iframe')
+      switchRenderer(porto as never, 'iframe')
     }
   }, [])
 
@@ -635,11 +632,10 @@ function AddFunds(props: {
     <div className="flex w-full flex-col gap-4.5">
       <ClickHere />
       <Ariakit.Button
-        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal dark:bg-white dark:text-black"
+        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal dark:bg-white dark:text-black"
         onClick={async () => {
           try {
-            if (!porto) throw new Error('Porto instance not defined')
-            await porto.provider.request({
+            await porto!.provider.request({
               method: 'experimental_addFunds',
               params: [
                 {
@@ -793,7 +789,7 @@ function Send(props: {
 
       <Ariakit.FormSubmit
         aria-disabled={isPending || isConfirming}
-        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
+        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
         disabled={isPending || isConfirming}
       >
         {isPending || isConfirming ? 'Sending...' : 'Send'}
@@ -874,7 +870,7 @@ function MintNFT(props: {
       {!(isPending || isConfirming) && <ClickHere />}
       <Ariakit.Button
         aria-disabled={isPending || isConfirming}
-        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10 dark:bg-white dark:text-black"
+        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10 dark:bg-white dark:text-black"
         disabled={isPending || isConfirming}
         onClick={() =>
           sendCalls({
@@ -1121,7 +1117,7 @@ function Swap(props: {
 
       <Ariakit.FormSubmit
         aria-disabled={isPending || isConfirming}
-        className="-tracking-[0.448px] flex flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
+        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
         disabled={isPending || isConfirming}
       >
         {isPending || isConfirming ? 'Swapping...' : 'Swap'}
@@ -1140,7 +1136,7 @@ function Swap(props: {
             <Ariakit.TooltipAnchor>
               <LucideInfo className="size-4 text-gray10" />
             </Ariakit.TooltipAnchor>
-            <Ariakit.Tooltip className="max-w-[189px] rounded-[11px] border border-gray4 bg-gray1 p-3.5 shadow-[0px_4px_44px_0px_rgba(0,0,0,0.10)]">
+            <Ariakit.Tooltip className="z-100 max-w-[189px] rounded-[11px] border border-gray4 bg-gray1 p-3.5 shadow-[0px_4px_44px_0px_rgba(0,0,0,0.10)]">
               <div className="-tracking-[0.25px] font-medium text-[14px] text-gray12 leading-normal">
                 Fees are covered
               </div>
@@ -1593,9 +1589,11 @@ function usePortoConnector() {
   return connectors.find((connector) => connector.id === 'xyz.ithaca.porto')!
 }
 
-function switchRenderer(to: 'iframe' | 'inline', id?: string) {
-  if (!porto) throw new Error('porto not defined')
-
+function switchRenderer(
+  porto: Porto.Porto,
+  to: 'iframe' | 'inline',
+  id?: string,
+) {
   const state = store.getState()
   const fromRenderer = state.renderer
   if (!fromRenderer) throw new Error('fromRenderer not defined')
