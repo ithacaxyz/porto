@@ -17,7 +17,7 @@ export function PayButton(props: PayButton.Props) {
   const { variant } = props
 
   return (
-    <Button className="w-full" variant="invert">
+    <Button className="w-full cursor-pointer!" variant="invert">
       Pay with
       {variant === 'apple' ? (
         <>
