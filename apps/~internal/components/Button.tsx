@@ -25,7 +25,7 @@ export namespace Button {
   }
 
   export const className = cva(
-    'inline-flex items-center justify-center rounded-default whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-transparent',
+    'inline-flex items-center justify-center whitespace-nowrap rounded-default border border-transparent font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
     {
       defaultVariants: {
         size: 'default',
@@ -42,17 +42,17 @@ export namespace Button {
         },
         variant: {
           accent:
-            'text-white bg-accent hover:not-active:bg-accentHover border border-accent hover:not-active:border-accentHover',
+            'border border-accent bg-accent text-white hover:not-active:border-accentHover hover:not-active:bg-accentHover',
           default:
-            'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
+            'border border-surface bg-surface text-primary text-surface hover:not-active:bg-surfaceHover',
           destructive:
-            'text-destructive bg-destructive hover:not-active:bg-destructiveHover',
-          invert: 'text-invert bg-invert hover:not-active:bg-invertHover',
+            'bg-destructive text-destructive hover:not-active:bg-destructiveHover',
+          invert: 'bg-invert text-invert hover:not-active:bg-invertHover',
           outline:
-            'text-primary bg-transparent hover:not-active:bg-primaryHover border border-gray6',
-          success: 'text-white bg-success hover:not-active:bg-successHover',
-          violet: 'text-white bg-violet hover:not-active:bg-violetHover',
-          warning: 'text-white bg-warning hover:not-active:bg-warningHover',
+            'border border-gray6 bg-transparent text-primary hover:not-active:bg-primaryHover',
+          success: 'bg-success text-white hover:not-active:bg-successHover',
+          violet: 'bg-violet text-white hover:not-active:bg-violetHover',
+          warning: 'bg-warning text-white hover:not-active:bg-warningHover',
         },
       },
     },

@@ -35,7 +35,7 @@ export namespace Button {
   }
 
   export const className = cva(
-    'inline-flex relative items-center justify-center rounded-default whitespace-nowrap font-[400] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+    'relative inline-flex items-center justify-center whitespace-nowrap rounded-default font-[400] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
     {
       defaultVariants: {
         size: 'default',
@@ -53,15 +53,15 @@ export namespace Button {
           true: 'pointer-events-none',
         },
         variant: {
-          accent: 'text-white bg-accent hover:not-active:bg-accentHover',
+          accent: 'bg-accent text-white hover:not-active:bg-accentHover',
           accentTint:
-            'text-accent bg-accentTint hover:not-active:bg-accentTintHover',
+            'bg-accentTint text-accent hover:not-active:bg-accentTintHover',
           default:
-            'text-primary bg-surface hover:not-active:bg-surfaceHover text-surface border border-surface',
+            'border border-surface bg-surface text-primary text-surface hover:not-active:bg-surfaceHover',
           destructive:
-            'text-destructive bg-destructive hover:not-active:bg-destructiveHover',
-          ghost: 'text-primary bg-transparent hover:not-active:bg-surfaceHover',
-          invert: 'text-invert bg-invert hover:not-active:bg-invertHover',
+            'bg-destructive text-destructive hover:not-active:bg-destructiveHover',
+          ghost: 'bg-transparent text-primary hover:not-active:bg-surfaceHover',
+          invert: 'bg-invert text-invert hover:not-active:bg-invertHover',
         },
       },
     },

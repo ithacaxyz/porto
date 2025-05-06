@@ -76,9 +76,11 @@
       "nursery": {
         "noFloatingPromises": "error",
         "useSortedClasses": {
-          "fix": "unsafe",
+          "fix": "safe",
           "level": "error",
-          "options": {}
+          "options": {
+            "functions": ["clsx", "cx", "cva"]
+          }
         }
       },
       "performance": {
