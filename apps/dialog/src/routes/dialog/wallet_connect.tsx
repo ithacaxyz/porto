@@ -52,7 +52,7 @@ function RouteComponent() {
             ...params[0],
             capabilities: {
               ...params[0]?.capabilities,
-              createAccount: params[0]?.capabilities?.createAccount ?? !signIn,
+              createAccount: params[0]?.capabilities?.createAccount || !signIn,
               selectAccount,
             },
           },
