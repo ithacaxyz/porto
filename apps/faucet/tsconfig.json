@@ -5,9 +5,7 @@
     "noEmit": true,
     "allowJs": true,
     "checkJs": true,
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "target": "ESNext",
     "module": "ESNext",
     "skipLibCheck": true,
@@ -15,21 +13,9 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "moduleResolution": "Bundler",
-    "types": [
-      "node",
-      "@cloudflare/workers-types"
-    ]
+    "types": ["node", "@cloudflare/workers-types"]
   },
-  "include": [
-    "./scripts/*",
-    "./src/**/*"
-  ],
-  "files": [
-    "env.d.ts"
-  ],
-  "exclude": [
-    "_",
-    "dist",
-    "node_modules"
-  ]
+  "include": ["./scripts/*", "./src/**/*"],
+  "files": ["env.d.ts"],
+  "exclude": ["_", "dist", "node_modules"]
 }

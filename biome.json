@@ -29,9 +29,6 @@
       "!extension/.wxt/**",
       "!src/core/internal/_generated/**",
       "!test/**/_generated/**",
-      "!**/*tsconfig.json",
-      "!**/*tsconfig.*.json",
-      "!**/*package.json",
       "!apps/**/routeTree.gen.ts",
       "!apps/**/dist/**",
       "!**/_dist/**"
@@ -97,6 +94,22 @@
       }
     }
   },
+  "overrides": [
+    {
+      "assist": {
+        "actions": {
+          "source": {
+            "useSortedKeys": "off"
+          }
+        }
+      },
+      "includes": [
+        "**/*tsconfig.json",
+        "**/*tsconfig.*.json",
+        "**/*package.json"
+      ]
+    }
+  ],
   "vcs": {
     "clientKind": "git",
     "enabled": true,
