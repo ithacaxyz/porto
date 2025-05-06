@@ -66,7 +66,6 @@ describe('rpcHandler', () => {
         },
       ],
       feeToken,
-      key: userKey,
       sponsorUrl,
     })
 
