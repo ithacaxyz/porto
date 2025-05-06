@@ -204,7 +204,11 @@ export function Dashboard() {
 
       <details
         className="group"
-        open={swapAssets.data && swapAssets.data?.length > 0}
+        open={
+          swapAssets.data &&
+          swapAssets.data?.length > 0 &&
+          swapAssets.data.some((asset) => asset.balance !== 0n)
+        }
       >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
@@ -241,10 +245,10 @@ export function Dashboard() {
             {
               align: 'right',
               header: 'Amount',
-              key: 'balance',
+              key: 'amount',
               width: 'w-[20%]',
             },
-            { align: 'right', header: '', key: 'symbol', width: 'w-[20%]' },
+            { align: 'right', header: 'Value', key: 'value', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
@@ -696,6 +700,12 @@ function AssetRow({
     [value, decimals],
   )
 
+  // total value of the asset
+  const totalValue = React.useMemo(
+    () => price * Number(formattedBalance),
+    [price, formattedBalance],
+  )
+
   const sendCalls = useSendCalls({
     mutation: {
       onError: (error) => {
@@ -816,6 +826,8 @@ function AssetRow({
   const ref = React.useRef<HTMLTableCellElement | null>(null)
   useClickOutside([ref], () => setViewState('default'))
 
+  if (value === 0n) return null
+
   return (
     <tr className="font-normal sm:text-sm">
       {viewState === 'default' ? (
@@ -828,7 +840,7 @@ function AssetRow({
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
           <td className="w-[20%] pl-3.5 text-right text-md">
-            ${ValueFormatter.formatToPrice(price)}
+            ${ValueFormatter.formatToPrice(totalValue)}
           </td>
           <td className="w-[20%] pr-1.5 pl-3 text-left text-sm">
             <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
