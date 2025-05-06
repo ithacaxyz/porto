@@ -255,7 +255,6 @@ describe('getAccounts', () => {
       account,
       calls: [],
       feeToken,
-      nonce: 0n,
     })
 
     const result = await getAccounts(client, {
@@ -335,7 +334,6 @@ describe('getKeys', () => {
       account,
       calls: [],
       feeToken,
-      nonce: 0n,
     })
 
     const result = await getKeys(client, {
@@ -379,7 +377,6 @@ describe('getKeys', () => {
       account,
       calls: [],
       feeToken,
-      nonce: 0n,
     })
 
     const result = await getKeys(client, {
@@ -403,7 +400,6 @@ describe('getKeys', () => {
       account,
       calls: [],
       feeToken,
-      nonce: 0n,
     })
 
     const result = await getKeys(client, {

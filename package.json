@@ -45,6 +45,7 @@
     "@wagmi/core": "catalog:",
     "http-proxy": "^1.18.1",
     "knip": "^5.50.5",
+    "msw": "^2.7.6",
     "ox": "catalog:",
     "prool": "^0.0.23",
     "publint": "^0.2.12",
