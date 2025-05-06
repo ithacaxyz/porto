@@ -1,9 +1,9 @@
 import { PortoConfig, Query } from '@porto/apps'
-import { useQueries } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { anvil, portoDev } from 'porto/core/Chains'
 import * as React from 'react'
-import { useAccount, useBlockNumber, useChainId } from 'wagmi'
+import { useAccount, useChainId, useWatchBlockNumber } from 'wagmi'
 import { baseSepolia } from 'wagmi/chains'
 import { urlWithCorsBypass } from '~/lib/Constants'
 import { useReadBalances } from './useReadBalances'
@@ -18,55 +18,40 @@ export function addressApiEndpoint(chainId: PortoConfig.ChainId) {
 
 export function useAddressTransfers({
   address,
-  chainIds,
+  chainId,
 }: {
   address?: Address.Address | undefined
-  chainIds?: Array<PortoConfig.ChainId> | undefined
+  chainId?: PortoConfig.ChainId | undefined
 } = {}) {
   const account = useAccount()
-  const chainId = useChainId()
+  const defaultChainId = chainId ?? useChainId()
 
   const userAddress = address ?? account.address
-  const userChainIds = chainIds ?? [chainId]
+  const userChainId = chainId ?? defaultChainId
 
   const { refetch: refetchBalances } = useReadBalances({
     address: userAddress,
-    chainId: userChainIds[0]!,
+    chainId: userChainId,
   })
 
-  const results = useQueries({
-    combine: (result) => ({
-      data: result.flatMap((query) => query.data),
-      error: result.map((query) => query.error),
-      isError: result.some((query) => query.isError),
-      isPending: result.some((query) => query.isPending),
-      isSuccess: result.every((query) => query.isSuccess),
-    }),
-    queries: userChainIds.map((chainId) => ({
-      enabled: account.status === 'connected',
-      queryFn: async () => {
-        const apiEndpoint = addressApiEndpoint(chainId)
-        const url = `${apiEndpoint}/addresses/${userAddress}/token-transfers`
-        const response = await fetch(urlWithCorsBypass(url))
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch address transfers: ${response.statusText}`,
-          )
-        }
-        const data = await response.json()
-        return {
-          chainId,
-          items: data.items,
-          next_page_params: data.next_page_params,
-        } as {
-          chainId: number
-          items: Array<TokenTransfer>
-          next_page_params: null
-        }
-      },
-      queryKey: ['address-transfers', userAddress, chainId],
-      refetchInterval: 2_500,
-    })),
+  const result = useQuery({
+    enabled: account.status === 'connected',
+    queryFn: async () => {
+      const apiEndpoint = addressApiEndpoint(userChainId)
+      const url = `${apiEndpoint}/addresses/${userAddress}/token-transfers`
+      const response = await fetch(urlWithCorsBypass(url))
+
+      const data = (await response.json()) as {
+        items: Array<TokenTransfer>
+        next_page_params: null
+      }
+      return {
+        items: data.items,
+        next_page_params: data.next_page_params,
+      }
+    },
+    queryKey: ['address-transfers', userAddress, userChainId],
+    refetchInterval: 2_500,
   })
 
   const refetch = React.useCallback(
@@ -79,26 +64,13 @@ export function useAddressTransfers({
     [userAddress, refetchBalances],
   )
 
-  const { data: blockNumber } = useBlockNumber({
-    watch: {
-      enabled: account.status === 'connected',
-      pollingInterval: 800,
-    },
+  useWatchBlockNumber({
+    enabled: account.status === 'connected',
+    onBlockNumber: (_blockNumber) => refetch(),
   })
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch every block
-  React.useEffect(() => {
-    refetch()
-  }, [blockNumber])
-
-  const { data, error, isError, isSuccess, isPending } = results
-
   return {
-    data,
-    error,
-    isError,
-    isPending,
-    isSuccess,
+    ...result,
     refetch,
   }
 }
