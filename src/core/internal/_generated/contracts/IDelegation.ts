@@ -1,6 +1,25 @@
 export const abi = [
   {
     "type": "function",
+    "name": "getNonce",
+    "inputs": [
+      {
+        "name": "seqKey",
+        "type": "uint192",
+        "internalType": "uint192"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "nonce",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "initializePREP",
     "inputs": [
       {

@@ -289,7 +289,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
-  const { address, capabilities, chain = client.chain } = parameters
+  const { address, capabilities, chain = client.chain, key } = parameters
 
   const calls = parameters.calls.map((call: any) => {
     return {
@@ -316,6 +316,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
             capabilities,
             chainId: chain?.id,
             from: address,
+            key,
           }),
         ],
       },
@@ -339,6 +340,7 @@ export namespace prepareCalls {
     calls: Calls<Narrow<calls>>
     capabilities: Rpc.wallet_prepareCalls.Capabilities
     chain?: Chain | undefined
+    key: Rpc.wallet_prepareCalls.Parameters['key']
   }
 
   export type ReturnType = Rpc.wallet_prepareCalls.Response
@@ -507,7 +509,7 @@ export async function sendPreparedCalls(
   client: Client,
   parameters: sendPreparedCalls.Parameters,
 ): Promise<sendPreparedCalls.ReturnType> {
-  const { context, signature } = parameters
+  const { context, key, signature } = parameters
   try {
     const method = 'wallet_sendPreparedCalls' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -520,6 +522,7 @@ export async function sendPreparedCalls(
               preOp: context.preOp,
               quote: context.quote,
             },
+            key,
             signature,
           } satisfies Rpc.wallet_sendPreparedCalls.Parameters),
         ],

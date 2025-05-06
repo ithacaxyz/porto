@@ -484,10 +484,8 @@ export function relay(parameters: relay.Parameters = {}) {
         } = internal
 
         const { id } = await Relay.sendCalls(client, {
-          context: {
-            ...context,
-            key,
-          } as never,
+          context: context as never,
+          key,
           signature,
         })
 

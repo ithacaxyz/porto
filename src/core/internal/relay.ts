@@ -265,8 +265,6 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     return Key.toRelay(key, { entrypoint })
   })
 
-  const hash = Key.hash(key)
-
   const preOp = typeof pre === 'boolean' ? pre : false
   const preOps =
     typeof pre === 'object'
@@ -283,7 +281,6 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
       authorizeKeys,
       meta: {
         feeToken,
-        keyHash: hash,
         nonce,
       },
       preOp,
@@ -292,11 +289,17 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         hash: key.hash,
       })),
     },
+    key: {
+      prehash: key.prehash ?? false,
+      publicKey: key.publicKey,
+      type: Key.toRelayKeyType[key.type],
+    },
   })
   return {
     capabilities: { ...capabilities, quote: context.quote as any },
-    context: { ...context, key },
+    context,
     digest,
+    key,
   } as const
 }
 
@@ -335,10 +338,9 @@ export namespace prepareCalls {
     capabilities: Actions.prepareCalls.ReturnType['capabilities'] & {
       quote: Quote.Quote
     }
-    context: Actions.prepareCalls.ReturnType['context'] & {
-      key: Parameters['key']
-    }
+    context: Actions.prepareCalls.ReturnType['context']
     digest: Actions.prepareCalls.ReturnType['digest']
+    key: Parameters['key']
   }
 
   export type ErrorType =
@@ -538,16 +540,15 @@ export async function sendCalls<const calls extends readonly unknown[]>(
 ) {
   // If a signature is provided, broadcast the calls to the Relay.
   if (parameters.signature) {
-    const { context, signature } = parameters
-    const key = Key.toRelay(Key.from(context.key))
+    const { context, key, signature } = parameters
     return await Actions.sendPreparedCalls(client, {
       context,
-      signature: {
-        prehash: context.key.prehash,
+      key: {
+        prehash: key.prehash ?? false,
         publicKey: key.publicKey,
-        type: key.type,
-        value: signature,
+        type: Key.toRelayKeyType[key.type],
       },
+      signature,
     })
   }
 
@@ -593,7 +594,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   })
 
   // Broadcast the bundle to the Relay.
-  return await sendCalls(client, { context, signature })
+  return await sendCalls(client, { context, key, signature })
 }
 
 export declare namespace sendCalls {
@@ -603,6 +604,8 @@ export declare namespace sendCalls {
     | {
         /** Context. */
         context: prepareCalls.ReturnType['context']
+        /** Key. */
+        key: prepareCalls.ReturnType['key']
         /** Signature. */
         signature: Hex.Hex
       }

@@ -53,7 +53,6 @@ let entryPointAddress: Address.Address | null | undefined
   // Deploy EntryPoint contract.
   const hash = await deployContract(client, {
     abi: EntryPoint.abi,
-    args: [account.address],
     bytecode: EntryPoint.code,
     chain: null,
   })
