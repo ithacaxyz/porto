@@ -307,6 +307,8 @@ export namespace wallet_prepareCalls {
     authorizeKeys: Schema.Optional(
       Type.Union([C.authorizeKeys.Response, Type.Null()]),
     ),
+    /** Fee signature. */
+    feeSignature: Schema.Optional(Primitive.Hex),
     /** Keys revoked on the account. */
     revokeKeys: Schema.Optional(
       Type.Union([C.revokeKeys.Response, Type.Null()]),
@@ -429,6 +431,13 @@ export namespace wallet_feeTokens {
 export namespace wallet_sendPreparedCalls {
   /** Parameters for `wallet_sendPreparedCalls` request. */
   export const Parameters = Type.Object({
+    /** Capabilities. */
+    capabilities: Schema.Optional(
+      Type.Object({
+        /** Fee signature. */
+        feeSignature: Schema.Optional(Primitive.Hex),
+      }),
+    ),
     /** Quote for the call bundle. */
     context: Type.Object({
       /** Quote for the call bundle. */

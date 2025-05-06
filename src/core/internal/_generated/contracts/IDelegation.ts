@@ -57,6 +57,11 @@ export const abi = [
         "internalType": "bytes32"
       },
       {
+        "name": "simulationFlags",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
         "name": "encodedUserOp",
         "type": "bytes",
         "internalType": "bytes"
