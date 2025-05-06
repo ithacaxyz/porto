@@ -512,7 +512,7 @@ export async function sendPreparedCalls(
   client: Client,
   parameters: sendPreparedCalls.Parameters,
 ): Promise<sendPreparedCalls.ReturnType> {
-  const { context, key, signature } = parameters
+  const { capabilities, context, key, signature } = parameters
   try {
     const method = 'wallet_sendPreparedCalls' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -521,6 +521,7 @@ export async function sendPreparedCalls(
         method,
         params: [
           Value.Encode(Rpc.wallet_sendPreparedCalls.Parameters, {
+            capabilities,
             context: {
               preOp: context.preOp,
               quote: context.quote,
