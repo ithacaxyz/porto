@@ -1,5 +1,17 @@
 # porto
 
+## 0.0.23
+
+### Patch Changes
+
+- [#183](https://github.com/ithacaxyz/porto/pull/183) [`81792f5`](https://github.com/ithacaxyz/porto/commit/81792f5994756e42e2406aadd29b941870bae10e) Thanks [@tmm](https://github.com/tmm)! - Added support for dark/light icon types.
+
+- [`775a687`](https://github.com/ithacaxyz/porto/commit/775a6877920665a0e23ec9efe70945838c51386a) Thanks [@tmm](https://github.com/tmm)! - Added form support to inline iframe.
+
+- [`c99968e`](https://github.com/ithacaxyz/porto/commit/c99968ea4ba343d434c1c7b48417641637d544b1) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Updated to Relay v7 APIs.
+
+- [`42107cb`](https://github.com/ithacaxyz/porto/commit/42107cb611533f14761259374c0e39be4391d627) Thanks [@o-az](https://github.com/o-az)! - Set porto default storage to memory on server-side
+
 ## 0.0.22
 
 ### Patch Changes
