@@ -1,10 +1,13 @@
 import * as Msw from 'msw'
-import { setupServer } from 'msw/node'
+import { SetupServerApi, setupServer } from 'msw/node'
 import { Value } from 'ox'
 import { Key } from 'porto/internal'
-import { waitForCallsStatus } from 'viem/actions'
+import { maxUint256 } from 'viem'
+import { setBalance, waitForCallsStatus } from 'viem/actions'
 import { readContract } from 'viem/actions'
-import { describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
+
+import { entryPointAddress } from '../../test/src/_generated/addresses.js'
 import * as TestActions from '../../test/src/actions.js'
 import { exp1Abi, exp1Address, getPorto } from '../../test/src/porto.js'
 import * as Relay from '../core/internal/relay.js'
@@ -15,27 +18,46 @@ const { client, porto } = getPorto()
 const feeToken = exp1Address
 const sponsorUrl = 'https://mys1cksponsor.com/'
 
+beforeEach(async () => {
+  // TODO: remove this once relay adds support.
+  // ref: https://github.com/ithacaxyz/account/pull/147/files#diff-83bc094c48a5467697336e47dba6e1bc868967fa192c85cf282937a6946ba18bR544-R549
+  await setBalance(client, {
+    address: entryPointAddress,
+    value: maxUint256,
+  })
+})
+
+let server: SetupServerApi | undefined
+async function setup() {
+  const sponsorKey = Key.createSecp256k1()
+  const sponsorAccount = await TestActions.createAccount(client, {
+    deploy: true,
+    keys: [sponsorKey],
+  })
+
+  const handle = Sponsor.rpcHandler({
+    address: sponsorAccount.address,
+    key: {
+      privateKey: sponsorKey.privateKey!(),
+      type: sponsorKey.type,
+    },
+    transports: porto._internal.config.transports,
+  })
+
+  server?.close()
+  server = setupServer(
+    Msw.http.post(sponsorUrl, ({ request }) => handle(request)),
+  )
+  server.listen({
+    onUnhandledRequest: 'bypass',
+  })
+
+  return { server, sponsorAccount }
+}
+
 describe('rpcHandler', () => {
   test('default', async () => {
-    const sponsorKey = Key.createSecp256k1()
-    const sponsorAccount = await TestActions.createAccount(client, {
-      deploy: true,
-      keys: [sponsorKey],
-    })
-
-    const handle = Sponsor.rpcHandler({
-      address: sponsorAccount.address,
-      key: {
-        privateKey: sponsorKey.privateKey!(),
-        type: sponsorKey.type,
-      },
-      transports: porto._internal.config.transports,
-    })
-    setupServer(
-      Msw.http.post(sponsorUrl, ({ request }) => handle(request)),
-    ).listen({
-      onUnhandledRequest: 'bypass',
-    })
+    const { sponsorAccount } = await setup()
 
     const userKey = Key.createHeadlessWebAuthnP256()
     const userAccount = await TestActions.createAccount(client, {
@@ -91,5 +113,47 @@ describe('rpcHandler', () => {
 
     // Check if sponsor was debited the fee payment.
     expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+  })
+
+  test('error: contract error', async () => {
+    await setup()
+
+    const userKey = Key.createHeadlessWebAuthnP256()
+    const userAccount = await TestActions.createAccount(client, {
+      keys: [userKey],
+    })
+
+    await expect(() =>
+      Relay.sendCalls(client, {
+        account: userAccount,
+        calls: [
+          {
+            abi: exp1Abi,
+            args: [
+              '0x0000000000000000000000000000000000000000',
+              userAccount.address,
+              Value.fromEther('1'),
+            ],
+            functionName: 'transferFrom',
+            to: exp1Address,
+          },
+        ],
+        feeToken,
+        sponsorUrl,
+      }),
+    ).rejects.toThrowError('InsufficientAllowance')
+  })
+
+  test('error: eoa is sponsor', async () => {
+    const { sponsorAccount } = await setup()
+
+    await expect(() =>
+      Relay.sendCalls(client, {
+        account: sponsorAccount,
+        calls: [],
+        feeToken,
+        sponsorUrl,
+      }),
+    ).rejects.toThrowError()
   })
 })
