@@ -278,7 +278,7 @@ describe('sendCalls', () => {
     ).toBe(100n)
   })
 
-  test.only('behavior: pre bundles', async () => {
+  test('behavior: pre bundles', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       deploy: true,
