@@ -595,7 +595,16 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   })
 
   // Broadcast the bundle to the Relay.
-  return await sendCalls(client, { capabilities, context, key, signature })
+  return await sendCalls(client, {
+    capabilities: capabilities.feeSignature
+      ? {
+          feeSignature: capabilities.feeSignature,
+        }
+      : undefined,
+    context,
+    key,
+    signature,
+  })
 }
 
 export declare namespace sendCalls {
