@@ -86,12 +86,13 @@ export function rpcHandler(options: rpcHandler.Options) {
       )
       return Response.json(response)
     } catch (e) {
-      return Response.json(
-        RpcResponse.from(
-          { error: RpcResponse.parseError(e as Error) },
-          { request },
-        ),
-      )
+      const error = (() => {
+        const error = RpcResponse.parseError(e as Error)
+        if (error.cause && 'code' in error.cause && error.cause.code === 3)
+          return error.cause as any
+        return error
+      })()
+      return Response.json(RpcResponse.from({ error }, { request }))
     }
   }
 }

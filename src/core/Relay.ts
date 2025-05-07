@@ -239,7 +239,8 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
-  const { calls, key, feeToken, nonce, pre, revokeKeys } = parameters
+  const { calls, key, feeToken, nonce, pre, revokeKeys, sponsorUrl } =
+    parameters
 
   const account = Account.from(parameters.account)
 
@@ -274,23 +275,33 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         }))
       : undefined
 
-  const { capabilities, context, digest } = await Actions.prepareCalls(client, {
-    address: account.address,
-    calls: (calls ?? []) as any,
-    capabilities: {
-      authorizeKeys,
-      meta: {
-        feeToken,
-        nonce,
+  const client_ = sponsorUrl
+    ? createClient({
+        chain: client.chain,
+        transport: http(sponsorUrl),
+      })
+    : client
+
+  const { capabilities, context, digest } = await Actions.prepareCalls(
+    client_,
+    {
+      address: account.address,
+      calls: (calls ?? []) as any,
+      capabilities: {
+        authorizeKeys,
+        meta: {
+          feeToken,
+          nonce,
+        },
+        preOp,
+        preOps,
+        revokeKeys: revokeKeys?.map((key) => ({
+          hash: key.hash,
+        })),
       },
-      preOp,
-      preOps,
-      revokeKeys: revokeKeys?.map((key) => ({
-        hash: key.hash,
-      })),
+      key: Key.toRelay(key),
     },
-    key: Key.toRelay(key),
-  })
+  )
   return {
     capabilities: { ...capabilities, quote: context.quote as any },
     context,
@@ -328,6 +339,8 @@ export namespace prepareCalls {
       | undefined
     /** Additional keys to revoke from the account. */
     revokeKeys?: readonly Key.Key[] | undefined
+    /** Sponsor URL. */
+    sponsorUrl?: string | undefined
   } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
@@ -573,16 +586,8 @@ export async function sendCalls<const calls extends readonly unknown[]>(
     }),
   )
 
-  // Set up client for call prep.
-  const prepareClient = parameters.sponsorUrl
-    ? createClient({
-        chain: client.chain,
-        transport: http(parameters.sponsorUrl),
-      })
-    : client
-
   // Prepare main bundle.
-  const { capabilities, context, digest } = await prepareCalls(prepareClient, {
+  const { capabilities, context, digest } = await prepareCalls(client, {
     ...parameters,
     key,
     pre,
