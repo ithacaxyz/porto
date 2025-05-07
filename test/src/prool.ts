@@ -109,10 +109,12 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
           setTimeout(3_000).then(resolve)
           process.stdout.on('data', (data) => {
             const message = data.toString()
+            console.log(message)
             if (message.includes('Started relay service')) resolve()
           })
           process.stderr.on('data', (data) => {
             const message = data.toString()
+            console.log(message)
             if (message.includes('WARNING')) return
             reject(data)
           })

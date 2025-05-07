@@ -88,7 +88,7 @@ export function rpcHandler(options: rpcHandler.Options) {
     } catch (e) {
       return Response.json(
         RpcResponse.from(
-          { error: new RpcResponse.InternalError({ cause: e as Error }) },
+          { error: RpcResponse.parseError(e as Error) },
           { request },
         ),
       )
