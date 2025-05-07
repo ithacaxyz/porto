@@ -22,8 +22,6 @@ import type {
   ExactPartial,
   Mutable,
   OneOf,
-  PartialBy,
-  RequiredBy,
   UnionOmit,
   UnionRequiredBy,
 } from './types.js'
@@ -978,17 +976,13 @@ export async function sign(
  * @returns Relay key.
  */
 export function toRelay(
-  key: toRelay.Value,
+  key: Pick<
+    Key,
+    'expiry' | 'permissions' | 'publicKey' | 'role' | 'signature' | 'type'
+  >,
   options: toRelay.Options = {},
-): RequiredBy<Relay, 'prehash'> {
-  const {
-    expiry = 0,
-    prehash = false,
-    publicKey,
-    role = 'admin',
-    signature,
-    type,
-  } = key
+): Relay {
+  const { expiry, publicKey, role, signature, type } = key
   const { entrypoint } = options
 
   // biome-ignore lint/complexity/useFlatMap:
@@ -1036,7 +1030,6 @@ export function toRelay(
   return {
     expiry,
     permissions: permissions ?? [],
-    prehash,
     publicKey: serializePublicKey(publicKey),
     role: toRelayKeyRole[role],
     signature,
@@ -1045,20 +1038,6 @@ export function toRelay(
 }
 
 export declare namespace toRelay {
-  type Value = PartialBy<
-    Pick<
-      Key,
-      | 'expiry'
-      | 'prehash'
-      | 'permissions'
-      | 'publicKey'
-      | 'role'
-      | 'signature'
-      | 'type'
-    >,
-    'expiry' | 'role'
-  >
-
   type Options = {
     /** Entrypoint address. */
     entrypoint?: Address.Address | undefined

@@ -72,7 +72,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         '-p',
         `${port}:${port}`,
         '-v',
-        `${resolve(import.meta.dirname, 'registry.yaml')}:/app/registry.yaml`,
+        `${resolve(import.meta.dirname, 'registry.toml')}:/app/registry.toml`,
         `${process.env.VITE_RELAY_IMAGE || 'ghcr.io/ithacaxyz/relay'}:${process.env.VITE_RELAY_VERSION || 'latest'}`,
         ...toArgs({
           ...rest,
@@ -85,7 +85,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
             port,
           },
           quoteTtl: 30,
-          registry: '/app/registry.yaml',
+          registry: '/app/registry.toml',
           signersMnemonic,
         } satisfies Partial<RelayParameters>),
         ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),

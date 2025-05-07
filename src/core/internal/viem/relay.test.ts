@@ -290,12 +290,9 @@ describe('getCallsStatus', () => {
       capabilities: {
         meta: {
           feeToken,
+          keyHash: key.hash,
+          nonce: 0n,
         },
-      },
-      key: {
-        prehash: false,
-        publicKey: key.publicKey,
-        type: 'webauthnp256',
       },
     })
 
@@ -305,8 +302,12 @@ describe('getCallsStatus', () => {
     })
 
     const { id } = await sendPreparedCalls(client, {
-      ...request,
-      signature,
+      context: request.context,
+      signature: {
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+        value: signature,
+      },
     })
 
     const result = await getCallsStatus(client, {
@@ -439,12 +440,9 @@ describe('prepareCalls + sendPreparedCalls', () => {
       capabilities: {
         meta: {
           feeToken,
+          keyHash: key.hash,
+          nonce: 0n,
         },
-      },
-      key: {
-        prehash: false,
-        publicKey: key.publicKey,
-        type: 'webauthnp256',
       },
     })
 
@@ -454,8 +452,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     await sendPreparedCalls(client, {
-      ...request,
-      signature,
+      context: request.context,
+      signature: {
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+        value: signature,
+      },
     })
   })
 
@@ -499,12 +501,9 @@ describe('prepareCalls + sendPreparedCalls', () => {
         meta: {
           feePayer: sponsorAccount.address,
           feeToken,
+          keyHash: userKey.hash,
+          nonce: 0n,
         },
-      },
-      key: {
-        prehash: false,
-        publicKey: userKey.publicKey,
-        type: 'webauthnp256',
       },
     })
 
@@ -517,7 +516,6 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const result = await sendPreparedCalls(client, {
-      ...request,
       context: {
         quote: {
           ...request.context.quote,
@@ -527,7 +525,11 @@ describe('prepareCalls + sendPreparedCalls', () => {
           },
         },
       },
-      signature,
+      signature: {
+        publicKey: userKey.publicKey,
+        type: 'webauthnp256',
+        value: signature,
+      },
     })
 
     await waitForCallsStatus(client, {
@@ -573,12 +575,9 @@ describe('prepareCalls + sendPreparedCalls', () => {
       capabilities: {
         meta: {
           feeToken,
+          keyHash: key.hash,
+          nonce: 0n,
         },
-      },
-      key: {
-        prehash: false,
-        publicKey: key.publicKey,
-        type: 'webauthnp256',
       },
     })
 
@@ -588,8 +587,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     await sendPreparedCalls(client, {
-      ...request,
-      signature,
+      context: request.context,
+      signature: {
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+        value: signature,
+      },
     })
   })
 
@@ -606,19 +609,16 @@ describe('prepareCalls + sendPreparedCalls', () => {
         capabilities: {
           meta: {
             feeToken,
+            // @ts-expect-error
+            keyHash: 'cheese',
+            nonce: 0n,
           },
-        },
-        key: {
-          prehash: false,
-          // @ts-expect-error
-          publicKey: 'cheese',
-          type: 'webauthnp256',
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Relay.SchemaCoderError: Expected string to match '^0x(.*)$'
 
-      Path: key.publicKey
+      Path: capabilities.meta.keyHash
       Value: "cheese"
 
       Details: The encoded value does not match the expected schema]
@@ -631,31 +631,42 @@ describe('prepareCalls + sendPreparedCalls', () => {
       keys: [key],
     })
 
-    await expect(() =>
-      prepareCalls(client, {
-        address: account.address,
-        calls: [
-          {
-            to: '0x0000000000000000000000000000000000000000',
-            value: 0n,
-          },
-        ],
-        capabilities: {
-          meta: {
-            feeToken,
-          },
+    const request = await prepareCalls(client, {
+      address: account.address,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: 0n,
         },
-        key: {
-          prehash: false,
+      ],
+      capabilities: {
+        meta: {
+          feeToken,
+          keyHash: key.hash,
+          nonce: 0n,
+        },
+      },
+    })
+
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+      wrap: false,
+    })
+
+    await expect(() =>
+      sendPreparedCalls(client, {
+        context: request.context,
+        signature: {
           publicKey: key.publicKey,
           // @ts-expect-error
           type: 'falcon',
+          value: signature,
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Relay.SchemaCoderError: Expected 'p256'
 
-      Path: key.type
+      Path: signature.type
       Value: "falcon"
 
       Details: The encoded value does not match the expected schema]

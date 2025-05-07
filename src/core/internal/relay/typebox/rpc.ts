@@ -327,12 +327,6 @@ export namespace wallet_prepareCalls {
     chainId: Type.Number(),
     /** The address of the account to prepare the calls for. */
     from: Schema.Optional(Primitive.Address),
-    /** Key that will be used to sign the call bundle. */
-    key: Type.Object({
-      prehash: Type.Boolean(),
-      publicKey: Primitive.Hex,
-      type: Key.Key.properties.type,
-    }),
   })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
@@ -356,8 +350,6 @@ export namespace wallet_prepareCalls {
     }),
     /** Capabilities. */
     digest: Primitive.Hex,
-    /** Key that will be used to sign the call bundle. */
-    key: Parameters.properties.key,
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }
@@ -399,7 +391,7 @@ export namespace wallet_prepareUpgradeAccount {
   export type Request = Schema.StaticDecode<typeof Request>
 
   /** Response for `wallet_prepareUpgradeAccount`. */
-  export const Response = Type.Omit(wallet_prepareCalls.Response, ['key'])
+  export const Response = wallet_prepareCalls.Response
   export type Response = Schema.StaticDecode<typeof Response>
 }
 
@@ -436,14 +428,17 @@ export namespace wallet_sendPreparedCalls {
       /** The call bundle. */
       quote: Schema.Optional(Type.Partial(Quote.Signed)),
     }),
-    /** Key that was used to sign the call bundle. */
-    key: Type.Object({
-      prehash: Type.Boolean(),
+    /** Signature properties. */
+    signature: Type.Object({
+      /** Whether the digest was prehashed. */
+      prehash: Schema.Optional(Type.Boolean()),
+      /** The public key of the account. */
       publicKey: Primitive.Hex,
+      /** The type of the account. */
       type: Key.Key.properties.type,
+      /** The value of the account. */
+      value: Primitive.Hex,
     }),
-    /** Signature. */
-    signature: Primitive.Hex,
   })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
