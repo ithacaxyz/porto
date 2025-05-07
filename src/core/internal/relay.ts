@@ -289,11 +289,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         hash: key.hash,
       })),
     },
-    key: {
-      prehash: key.prehash ?? false,
-      publicKey: key.publicKey,
-      type: Key.toRelayKeyType[key.type],
-    },
+    key: Key.toRelay(key),
   })
   return {
     capabilities: { ...capabilities, quote: context.quote as any },
@@ -543,11 +539,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
     const { context, key, signature } = parameters
     return await Actions.sendPreparedCalls(client, {
       context,
-      key: {
-        prehash: key.prehash ?? false,
-        publicKey: key.publicKey,
-        type: Key.toRelayKeyType[key.type],
-      },
+      key: Key.toRelay(key),
       signature,
     })
   }
