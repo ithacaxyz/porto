@@ -1,6 +1,5 @@
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { exp1Abi } from '@porto/apps/contracts'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
@@ -35,6 +34,8 @@ export default defineConfig(({ mode }) => ({
     {
       async configureServer(server) {
         if (process.env.ANVIL !== 'true') return
+
+        const { exp1Abi } = await import('@porto/apps/contracts')
 
         process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
