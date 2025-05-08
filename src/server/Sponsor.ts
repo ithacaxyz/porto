@@ -1,11 +1,10 @@
 import { Address, Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
-
-import * as Key from '../core/internal/key.js'
 import type * as RpcSchema from '../core/internal/relay/rpcSchema.js'
 import * as Rpc from '../core/internal/relay/typebox/rpc.js'
 import * as Schema from '../core/internal/typebox/schema.js'
 import type { OneOf } from '../core/internal/types.js'
+import * as Key from '../core/Key.js'
 import * as Porto from '../core/Porto.js'
 
 export function rpcHandler(options: rpcHandler.Options) {
