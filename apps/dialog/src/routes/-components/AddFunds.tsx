@@ -60,7 +60,7 @@ export function AddFunds(props: AddFunds.Props) {
         value: value.toString(),
       })
       const response = await fetch(
-        `https://faucet.porto.workers.dev?${params.toString()}`,
+        `${import.meta.env.VITE_FAUCET_URL || 'https://faucet.porto.workers.dev'}?${params.toString()}`,
       )
       if (!response.ok) throw new Error('Failed to fetch funds')
       const data = (await response.json()) as { id: Hex.Hex }

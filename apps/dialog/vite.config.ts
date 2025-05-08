@@ -21,6 +21,10 @@ export default defineConfig({
   },
   define: {
     __APP_VERSION__: JSON.stringify(commitSha),
+    'import.meta.env.VITE_FAUCET_URL':
+      process.env.ANVIL === 'true'
+        ? '"https://anvil.localhost:5173/faucet"'
+        : process.env.VITE_FAUCET_URL,
   },
   plugins: [
     Mkcert({

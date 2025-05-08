@@ -1,8 +1,12 @@
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { exp1Abi } from '@porto/apps/contracts'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { writeContract } from 'viem/actions'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 
@@ -100,6 +104,32 @@ export default defineConfig(({ mode }) => ({
             res.statusCode = 302
             res.setHeader('Location', '/')
             res.end()
+            return
+          }
+          if (req.url?.startsWith('/faucet')) {
+            const url = new URL(`https://localhost${req.url}`)
+            const address = url.searchParams.get('address') as `0x${string}`
+            const value = url.searchParams.get('value') as string
+
+            const client = createClient({
+              account: privateKeyToAccount(
+                '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+              ),
+              transport: http(anvilConfig.rpcUrl),
+            })
+
+            const hash = await writeContract(client, {
+              abi: exp1Abi,
+              address: exp1Address,
+              args: [address, BigInt(value)],
+              chain: null,
+              functionName: 'mint',
+            })
+
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.setHeader('Access-Control-Allow-Origin', '*')
+            res.end(JSON.stringify({ id: hash }))
             return
           }
           return next()
