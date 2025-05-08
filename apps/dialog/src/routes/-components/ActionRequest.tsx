@@ -23,8 +23,16 @@ import TriangleAlert from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
 
 export function ActionRequest(props: ActionRequest.Props) {
-  const { address, calls, chainId, feeToken, loading, onApprove, onReject } =
-    props
+  const {
+    address,
+    calls,
+    chainId,
+    feeToken,
+    loading,
+    onApprove,
+    onReject,
+    sponsorUrl,
+  } = props
 
   const account = Hooks.useAccount(porto, { address })
   const url = Dialog.useStore((state) => state.referrer?.url)
@@ -34,6 +42,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     calls,
     chainId,
     feeToken,
+    sponsorUrl,
   })
 
   const assetDiff = prepareCallsQuery.data?.capabilities.assetDiff
@@ -154,6 +163,7 @@ export namespace ActionRequest {
     onApprove: () => void
     onReject: () => void
     quote?: Quote | undefined
+    sponsorUrl?: string | undefined
   }
 
   export function AssetDiff(props: AssetDiff.Props) {

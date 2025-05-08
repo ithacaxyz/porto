@@ -4,12 +4,14 @@ import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
-import { createClient, http } from 'viem'
+import { createClient, http, maxUint256, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { writeContract } from 'viem/actions'
+import { setBalance, writeContract } from 'viem/actions'
+import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-
+import { Key, Relay } from '../../src/index.js'
+import { Sponsor } from '../../src/server/index.js'
 import {
   accountRegistryAddress,
   delegationNewProxyAddress,
@@ -44,10 +46,21 @@ export default defineConfig(({ mode }) => ({
           port: 8545,
           rpcUrl: 'http://127.0.0.1:8545',
         }
+        const anvilClient = createClient({
+          account: privateKeyToAccount(
+            '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+          ),
+          transport: http(anvilConfig.rpcUrl),
+        }).extend(() => ({ mode: 'anvil' }))
+
         const relayConfig = {
           port: 9119,
           rpcUrl: 'http://127.0.0.1:9119',
         }
+        const relayClient = createClient({
+          chain: chains.anvil,
+          transport: http(relayConfig.rpcUrl),
+        })
 
         if (process.env.CLEAN === 'true')
           rmSync(resolve(import.meta.dirname, 'anvil.json'), {
@@ -100,7 +113,34 @@ export default defineConfig(({ mode }) => ({
 
         logger.info('Relay started on ' + relayConfig.rpcUrl)
 
+        // Create app-sponsor account.
+        const sponsorKey = Key.createSecp256k1()
+        const sponsorAccount = await Relay.createAccount(relayClient, {
+          keys: [sponsorKey],
+        })
+        await writeContract(anvilClient, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address, parseEther('10000')],
+          chain: null,
+          functionName: 'mint',
+        })
+        await Relay.sendCalls(relayClient, {
+          account: sponsorAccount,
+          calls: [],
+          feeToken: exp1Address,
+        })
+
+        // TODO: remove this once relay adds support.
+        // ref: https://github.com/ithacaxyz/account/pull/147/files#diff-83bc094c48a5467697336e47dba6e1bc868967fa192c85cf282937a6946ba18bR544-R549
+        await setBalance(anvilClient, {
+          address: entryPointAddress,
+          value: maxUint256,
+        })
+
         server.middlewares.use(async (req, res, next) => {
+          res.setHeader('Access-Control-Allow-Origin', '*')
+
           if (req.url?.startsWith('/relay/up')) {
             stopRelay()
             stopRelay = await startRelay({
@@ -108,22 +148,15 @@ export default defineConfig(({ mode }) => ({
             })
             res.statusCode = 302
             res.setHeader('Location', '/')
-            res.end()
-            return
+            return res.end()
           }
+
           if (req.url?.startsWith('/faucet')) {
             const url = new URL(`https://localhost${req.url}`)
             const address = url.searchParams.get('address') as `0x${string}`
             const value = url.searchParams.get('value') as string
 
-            const client = createClient({
-              account: privateKeyToAccount(
-                '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-              ),
-              transport: http(anvilConfig.rpcUrl),
-            })
-
-            const hash = await writeContract(client, {
+            const hash = await writeContract(anvilClient, {
               abi: exp1Abi,
               address: exp1Address,
               args: [address, BigInt(value)],
@@ -133,10 +166,48 @@ export default defineConfig(({ mode }) => ({
 
             res.statusCode = 200
             res.setHeader('Content-Type', 'application/json')
-            res.setHeader('Access-Control-Allow-Origin', '*')
-            res.end(JSON.stringify({ id: hash }))
-            return
+            return res.end(JSON.stringify({ id: hash }))
           }
+
+          if (req.url?.startsWith('/sponsor')) {
+            if (req.method !== 'POST') return next()
+
+            const handler = Sponsor.rpcHandler({
+              address: sponsorAccount.address,
+              key: {
+                privateKey: sponsorKey.privateKey!(),
+                type: 'secp256k1',
+              },
+              transports: {
+                [chains.anvil.id]: http(relayConfig.rpcUrl),
+              },
+            })
+
+            const body = await new Promise<string>((resolve, reject) => {
+              let body = ''
+              req.on('data', (chunk) => {
+                body += chunk.toString()
+              })
+              req.on('end', () => {
+                resolve(body)
+              })
+              req.on('error', (e) => {
+                reject(e)
+              })
+            })
+            const request = new Request('http://localhost:5173', {
+              body,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              method: req.method,
+            })
+            const response = await handler(request)
+            res.statusCode = response.status
+            res.setHeader('Content-Type', 'application/json')
+            return res.end(await response.text())
+          }
+
           return next()
         })
       },
