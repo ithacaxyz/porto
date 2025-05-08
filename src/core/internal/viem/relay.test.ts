@@ -1,7 +1,9 @@
 import { AbiFunction, Hex, P256, PublicKey, Value, WebCryptoP256 } from 'ox'
+import { maxUint256 } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { readContract, waitForCallsStatus } from 'viem/actions'
+import { readContract, setBalance, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
+import { entryPointAddress } from '../../../../test/src/_generated/addresses.js'
 import * as TestActions from '../../../../test/src/actions.js'
 import * as Anvil from '../../../../test/src/anvil.js'
 import { exp1Abi, exp1Address } from '../../../../test/src/porto.js'
@@ -255,7 +257,6 @@ describe('getAccounts', () => {
       account,
       calls: [],
       feeToken,
-      nonce: 0n,
     })
 
     const result = await getAccounts(client, {
@@ -305,7 +306,8 @@ describe('getCallsStatus', () => {
     })
 
     const { id } = await sendPreparedCalls(client, {
-      ...request,
+      context: request.context,
+      key: request.key,
       signature,
     })
 
@@ -335,7 +337,6 @@ describe('getKeys', () => {
       account,
       calls: [],
       feeToken,
-      nonce: 0n,
     })
 
     const result = await getKeys(client, {
@@ -379,7 +380,6 @@ describe('getKeys', () => {
       account,
       calls: [],
       feeToken,
-      nonce: 0n,
     })
 
     const result = await getKeys(client, {
@@ -403,7 +403,6 @@ describe('getKeys', () => {
       account,
       calls: [],
       feeToken,
-      nonce: 0n,
     })
 
     const result = await getKeys(client, {
@@ -454,13 +453,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     await sendPreparedCalls(client, {
-      ...request,
+      context: request.context,
+      key: request.key,
       signature,
     })
   })
 
-  // TODO: uncomment once https://github.com/ithacaxyz/account/pull/147 merged.
-  test.skip('behavior: fee payer', async () => {
+  test('behavior: fee payer', async () => {
     const userKey = Key.createHeadlessWebAuthnP256()
     const userAccount = await TestActions.createAccount(client, {
       keys: [userKey],
@@ -483,6 +482,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
       address: exp1Address,
       args: [sponsorAccount.address],
       functionName: 'balanceOf',
+    })
+
+    // TODO: remove this once relay adds support.
+    // ref: https://github.com/ithacaxyz/account/pull/147/files#diff-83bc094c48a5467697336e47dba6e1bc868967fa192c85cf282937a6946ba18bR544-R549
+    await setBalance(client, {
+      address: entryPointAddress,
+      value: maxUint256,
     })
 
     const request = await prepareCalls(client, {
@@ -518,14 +524,8 @@ describe('prepareCalls + sendPreparedCalls', () => {
 
     const result = await sendPreparedCalls(client, {
       ...request,
-      context: {
-        quote: {
-          ...request.context.quote,
-          op: {
-            ...request.context.quote!.op!,
-            paymentSignature: sponsorSignature,
-          },
-        },
+      capabilities: {
+        feeSignature: sponsorSignature,
       },
       signature,
     })
@@ -588,7 +588,8 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     await sendPreparedCalls(client, {
-      ...request,
+      context: request.context,
+      key: request.key,
       signature,
     })
   })

@@ -291,7 +291,7 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, key } = parameters
+        const { account, calls, internal, key, sponsorUrl } = parameters
         const {
           client,
           config: { storage },
@@ -313,6 +313,7 @@ export function relay(parameters: relay.Parameters = {}) {
             feeToken: feeToken.address,
             key,
             pre,
+            sponsorUrl,
           },
         )
 
@@ -436,7 +437,7 @@ export function relay(parameters: relay.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal } = parameters
+        const { account, calls, internal, sponsorUrl } = parameters
         const {
           client,
           config: { storage },
@@ -466,6 +467,7 @@ export function relay(parameters: relay.Parameters = {}) {
           feeToken: feeToken.address,
           key,
           pre,
+          sponsorUrl,
         })
 
         await PreBundles.clear({
