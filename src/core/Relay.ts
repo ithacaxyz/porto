@@ -4,7 +4,7 @@ import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import { createClient, http, type Client } from 'viem'
+import { type Client, createClient, http } from 'viem'
 
 import * as Account from './Account.js'
 import type { Chain } from './Chains.js'
