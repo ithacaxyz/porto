@@ -12,6 +12,8 @@ import * as Permission from './permission.js'
 export const Key = Type.Object({
   /** The expiry of the key. */
   expiry: Primitive.Number,
+  /** Whether the digest was prehashed. */
+  prehash: Schema.Optional(Type.Boolean()),
   /** Public key. */
   publicKey: Primitive.Hex,
   /** Role. */

@@ -281,6 +281,7 @@ describe('sendCalls', () => {
   test('behavior: pre bundles', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
+      deploy: true,
       keys: [key],
     })
 
@@ -297,6 +298,7 @@ describe('sendCalls', () => {
       },
       role: 'session',
     })
+
     const { id } = await Relay.sendCalls(client, {
       account,
       calls: [

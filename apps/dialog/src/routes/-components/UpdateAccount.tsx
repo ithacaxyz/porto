@@ -42,16 +42,16 @@ export function UpdateAccount(props: UpdateAccount.Props) {
     enabled: !!account?.address && !!delegation,
     feeToken,
   })
-  const context = prepareCallsQuery.data?.context
-  const digest = prepareCallsQuery.data?.digest
-  const quote = prepareCallsQuery.data?.capabilities.quote
+  const request = prepareCallsQuery.data
+  const digest = request?.digest
+  const quote = request?.capabilities.quote
 
   // TODO: consider using EIP-1193 Provider + `wallet_sendPreparedCalls` in
   // the future (for case where the account wants to self-relay).
   const sendCallsMutation = useMutation({
     async mutationFn() {
       if (!account) throw new Error('account is required.')
-      if (!context) throw new Error('context is required.')
+      if (!request) throw new Error('request is required.')
       if (!digest) throw new Error('digest is required.')
 
       const key = Account.getKey(account, {
@@ -64,7 +64,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         wrap: false,
       })
       const { id } = await Relay_porto.sendCalls(client, {
-        context,
+        ...request,
         signature,
       })
       return await waitForCallsStatus(client, {
