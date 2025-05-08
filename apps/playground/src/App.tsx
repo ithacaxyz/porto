@@ -658,6 +658,7 @@ function UpgradeAccount() {
 function SendCalls() {
   const [id, setId] = React.useState<string | null>(null)
   const [status, setStatus] = React.useState<{} | null>(null)
+  const [sponsor, setSponsor] = React.useState<boolean>(false)
 
   return (
     <form
@@ -780,6 +781,11 @@ function SendCalls() {
           params: [
             {
               calls,
+              capabilities: {
+                sponsorUrl: sponsor
+                  ? `${window.location.origin}/sponsor`
+                  : undefined,
+              },
               from: account,
               version: '1',
             },
@@ -804,6 +810,15 @@ function SendCalls() {
         <input name="address" placeholder="address" type="text" />
         <button type="submit">Send</button>
       </div>
+
+      <label>
+        <input
+          checked={sponsor}
+          onChange={() => setSponsor((x) => !x)}
+          type="checkbox"
+        />
+        Sponsor Fee
+      </label>
 
       {id && (
         <>

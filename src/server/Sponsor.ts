@@ -1,3 +1,5 @@
+// TODO: add node:http adapter.
+
 import { Address, Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
 import type * as RpcSchema from '../core/internal/relay/rpcSchema.js'
