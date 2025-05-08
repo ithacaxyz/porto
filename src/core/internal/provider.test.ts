@@ -11,7 +11,7 @@ import {
   Value,
   WebCryptoP256,
 } from 'ox'
-import { Mode } from 'porto'
+import { Key, Mode } from 'porto'
 import { Sponsor } from 'porto/server'
 import {
   encodeFunctionData,
@@ -38,7 +38,6 @@ import {
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
-import { Key } from '../../internal/index.js'
 import * as Porto_internal from './porto.js'
 import * as RelayActions from './viem/relay.js'
 

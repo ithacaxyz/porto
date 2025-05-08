@@ -1,17 +1,16 @@
 import * as Msw from 'msw'
 import { SetupServerApi, setupServer } from 'msw/node'
 import { Value } from 'ox'
-import { Key } from 'porto/internal'
+import { Key, Relay } from 'porto'
+import { Sponsor } from 'porto/server'
 import { maxUint256 } from 'viem'
-import { setBalance, waitForCallsStatus } from 'viem/actions'
-import { readContract } from 'viem/actions'
+import { readContract, setBalance, waitForCallsStatus } from 'viem/actions'
 import { beforeEach, describe, expect, test } from 'vitest'
+
 import { entryPointAddress } from '../../test/src/_generated/addresses.js'
 import * as TestActions from '../../test/src/actions.js'
 import * as Anvil from '../../test/src/anvil.js'
 import { exp1Abi, exp1Address, getPorto } from '../../test/src/porto.js'
-import * as Relay from '../core/internal/relay.js'
-import * as Sponsor from './Sponsor.js'
 
 const { client, porto } = getPorto()
 
