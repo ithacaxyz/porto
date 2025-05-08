@@ -6,9 +6,9 @@ import { maxUint256 } from 'viem'
 import { setBalance, waitForCallsStatus } from 'viem/actions'
 import { readContract } from 'viem/actions'
 import { beforeEach, describe, expect, test } from 'vitest'
-
 import { entryPointAddress } from '../../test/src/_generated/addresses.js'
 import * as TestActions from '../../test/src/actions.js'
+import * as Anvil from '../../test/src/anvil.js'
 import { exp1Abi, exp1Address, getPorto } from '../../test/src/porto.js'
 import * as Relay from '../core/internal/relay.js'
 import * as Sponsor from './Sponsor.js'
@@ -55,7 +55,7 @@ async function setup() {
   return { server, sponsorAccount }
 }
 
-describe('rpcHandler', () => {
+describe.runIf(Anvil.enabled)('rpcHandler', () => {
   test('default', async () => {
     const { sponsorAccount } = await setup()
 
