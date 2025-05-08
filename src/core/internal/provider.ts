@@ -921,6 +921,7 @@ export function from<
               store,
             },
             permissionsId: capabilities?.permissions?.id,
+            sponsorUrl: capabilities?.sponsorUrl,
           })
 
           return { id } satisfies Schema.Static<

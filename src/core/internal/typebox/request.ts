@@ -484,6 +484,7 @@ export namespace wallet_prepareCalls {
   export const Capabilities = Type.Object({
     feeToken: Schema.Optional(Primitive.Address),
     permissions: Schema.Optional(C.permissions.Request),
+    sponsorUrl: Schema.Optional(Type.String()),
   })
   export type Capabilities = Schema.StaticDecode<typeof Capabilities>
 

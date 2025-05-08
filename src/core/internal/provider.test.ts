@@ -1,3 +1,5 @@
+import * as Msw from 'msw'
+import { setupServer } from 'msw/node'
 import {
   Address,
   Hex,
@@ -10,20 +12,33 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { Mode } from 'porto'
-import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
-import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
+import { Sponsor } from 'porto/server'
+import {
+  encodeFunctionData,
+  hashMessage,
+  hashTypedData,
+  maxUint256,
+} from 'viem'
+import {
+  readContract,
+  setBalance as setBalance_viem,
+  setCode,
+  waitForCallsStatus,
+} from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
+
 import {
   delegationOldProxyAddress,
   entryPointAddress,
 } from '../../../test/src/_generated/addresses.js'
-import { setBalance } from '../../../test/src/actions.js'
+import { createAccount, setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
 import {
   exp1Abi,
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
+import { Key } from '../../internal/index.js'
 import * as Porto_internal from './porto.js'
 import * as RelayActions from './viem/relay.js'
 
@@ -1109,6 +1124,111 @@ describe.each([
         }),
       ).toBe(69420n)
     })
+
+    test.runIf(type === 'relay' && Anvil.enabled)(
+      'behavior: fee sponsor',
+      async () => {
+        const { client, porto } = getPorto()
+
+        const sponsorKey = Key.createSecp256k1()
+        const sponsorAccount = await createAccount(client, {
+          deploy: true,
+          keys: [sponsorKey],
+        })
+
+        const sponsorUrl = 'https://mys1cksponsor.com'
+        setupServer(
+          Msw.http.post(sponsorUrl, ({ request }) =>
+            Sponsor.rpcHandler({
+              address: sponsorAccount.address,
+              key: {
+                privateKey: sponsorKey.privateKey!(),
+                type: sponsorKey.type,
+              },
+              transports: porto._internal.config.transports,
+            })(request),
+          ),
+        ).listen({
+          onUnhandledRequest: 'bypass',
+        })
+
+        const { address } = await porto.provider.request({
+          method: 'experimental_createAccount',
+        })
+        await setBalance(client, {
+          address,
+          value: Value.fromEther('10000'),
+        })
+
+        // TODO: remove this once relay adds support.
+        // ref: https://github.com/ithacaxyz/account/pull/147/files#diff-83bc094c48a5467697336e47dba6e1bc868967fa192c85cf282937a6946ba18bR544-R549
+        await setBalance_viem(client, {
+          address: entryPointAddress,
+          value: maxUint256,
+        })
+
+        const userBalance_pre = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        const sponsorBalance_pre = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address],
+          functionName: 'balanceOf',
+        })
+
+        const { id } = await porto.provider.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              calls: [
+                {
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [Hex.random(20), Value.fromEther('1')],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
+                },
+              ],
+              capabilities: {
+                sponsorUrl,
+              },
+              from: address,
+              version: '1',
+            },
+          ],
+        })
+
+        expect(id).toBeDefined()
+
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id,
+        })
+
+        const userBalance_post = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        const sponsorBalance_post = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address],
+          functionName: 'balanceOf',
+        })
+
+        // Check if user was debited 1 EXP.
+        expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
+
+        // Check if sponsor was debited the fee payment.
+        expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+      },
+    )
 
     test('behavior: use inferred permissions', async () => {
       const { porto } = getPorto()

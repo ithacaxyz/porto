@@ -115,6 +115,8 @@ export type Mode = {
       feeToken?: Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Sponsor URL. */
+      sponsorUrl?: string | undefined
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
@@ -181,6 +183,8 @@ export type Mode = {
       permissionsId?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Sponsor URL. */
+      sponsorUrl?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     sendPreparedCalls: (parameters: {
