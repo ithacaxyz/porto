@@ -1,13 +1,12 @@
 import { Hex, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { getCode, readContract, waitForCallsStatus } from 'viem/actions'
+import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../test/src/actions.js'
 import * as Anvil from '../../test/src/anvil.js'
 import {
   exp1Abi,
   exp1Address,
-  exp1Config,
   exp2Abi,
   exp2Address,
   exp2Config,
