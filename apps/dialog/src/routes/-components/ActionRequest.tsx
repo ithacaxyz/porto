@@ -247,6 +247,8 @@ export namespace ActionRequest {
     }
   }
   export function Details(props: Details.Props) {
+    const { sponsorUrl } = props
+
     const quote = useQuote(porto, props.quote)
     const chain = Hooks.useChain(porto, { chainId: props.quote.chainId })
     const fiatFee = Price.useFiatPrice({
@@ -256,31 +258,33 @@ export namespace ActionRequest {
 
     return (
       <div className="space-y-1.5">
-        <div className="flex h-5.5 items-center justify-between text-[14px]">
-          <span className="text-[14px] text-secondary leading-4">
-            Fees (est.)
-          </span>
-          <div className="text-right">
-            {fiatFee.isFetched || !quote ? (
-              <div className="flex items-center gap-2">
-                {tokenFee &&
-                  fiatFee?.data &&
-                  Number.parseInt(fiatFee.data.display) >= 0.01 && (
-                    <div className="flex h-5.5 items-center rounded-full border border-gray6 px-1.75">
-                      <span className="text-[11.5px] text-secondary">
-                        {tokenFee.display}
-                      </span>
-                    </div>
-                  )}
-                <div className="font-medium leading-4">
-                  {fiatFee?.data?.display ?? 'Unknown'}
+        {!sponsorUrl && (
+          <div className="flex h-5.5 items-center justify-between text-[14px]">
+            <span className="text-[14px] text-secondary leading-4">
+              Fees (est.)
+            </span>
+            <div className="text-right">
+              {fiatFee.isFetched || !quote ? (
+                <div className="flex items-center gap-2">
+                  {tokenFee &&
+                    fiatFee?.data &&
+                    Number.parseInt(fiatFee.data.display) >= 0.01 && (
+                      <div className="flex h-5.5 items-center rounded-full border border-gray6 px-1.75">
+                        <span className="text-[11.5px] text-secondary">
+                          {tokenFee.display}
+                        </span>
+                      </div>
+                    )}
+                  <div className="font-medium leading-4">
+                    {fiatFee?.data?.display ?? 'Unknown'}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <span className="font-medium text-secondary">Loading...</span>
-            )}
+              ) : (
+                <span className="font-medium text-secondary">Loading...</span>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex h-5.5 items-center justify-between text-[14px]">
           <span className="text-[14px] text-secondary">Duration (est.)</span>
@@ -301,11 +305,12 @@ export namespace ActionRequest {
     export type Props = {
       chain?: Chains.Chain | undefined
       quote: Quote_relay.Quote
+      sponsorUrl?: string | undefined
     }
   }
 
   export function PaneWithDetails(props: PaneWithDetails.Props) {
-    const { children, loading, quote, variant = 'default' } = props
+    const { children, loading, quote, sponsorUrl, variant = 'default' } = props
 
     // default to `true` if no children, otherwise false
     const [viewQuote, setViewQuote] = React.useState(quote && !children)
@@ -339,7 +344,10 @@ export namespace ActionRequest {
               <>
                 {children && <div className="h-[1px] w-full bg-gray6" />}
                 <div className={viewQuote ? undefined : 'hidden'}>
-                  <ActionRequest.Details quote={quote} />
+                  <ActionRequest.Details
+                    quote={quote}
+                    sponsorUrl={sponsorUrl}
+                  />
                 </div>
                 {!viewQuote && (
                   <button
@@ -364,6 +372,7 @@ export namespace ActionRequest {
       children?: React.ReactNode | undefined
       loading?: boolean | undefined
       quote?: Quote_relay.Quote | undefined
+      sponsorUrl?: string | undefined
       variant?: 'default' | 'warning' | undefined
     }
   }
