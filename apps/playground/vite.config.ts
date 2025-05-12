@@ -4,9 +4,9 @@ import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
-import { createClient, http, maxUint256, parseEther } from 'viem'
+import { createClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { setBalance, writeContract } from 'viem/actions'
+import { writeContract } from 'viem/actions'
 import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
@@ -129,13 +129,6 @@ export default defineConfig(({ mode }) => ({
           account: sponsorAccount,
           calls: [],
           feeToken: exp1Address,
-        })
-
-        // TODO: remove this once relay adds support.
-        // ref: https://github.com/ithacaxyz/account/pull/147/files#diff-83bc094c48a5467697336e47dba6e1bc868967fa192c85cf282937a6946ba18bR544-R549
-        await setBalance(anvilClient, {
-          address: entryPointAddress,
-          value: maxUint256,
         })
 
         server.middlewares.use(async (req, res, next) => {

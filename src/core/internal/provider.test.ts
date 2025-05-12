@@ -13,18 +13,8 @@ import {
 } from 'ox'
 import { Key, Mode } from 'porto'
 import { Sponsor } from 'porto/server'
-import {
-  encodeFunctionData,
-  hashMessage,
-  hashTypedData,
-  maxUint256,
-} from 'viem'
-import {
-  readContract,
-  setBalance as setBalance_viem,
-  setCode,
-  waitForCallsStatus,
-} from 'viem/actions'
+import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
+import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
@@ -1157,13 +1147,6 @@ describe.each([
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
-        })
-
-        // TODO: remove this once relay adds support.
-        // ref: https://github.com/ithacaxyz/account/pull/147/files#diff-83bc094c48a5467697336e47dba6e1bc868967fa192c85cf282937a6946ba18bR544-R549
-        await setBalance_viem(client, {
-          address: entryPointAddress,
-          value: maxUint256,
         })
 
         const userBalance_pre = await readContract(client, {

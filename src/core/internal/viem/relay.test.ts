@@ -1,9 +1,7 @@
 import { AbiFunction, Hex, P256, PublicKey, Value, WebCryptoP256 } from 'ox'
-import { maxUint256 } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { readContract, setBalance, waitForCallsStatus } from 'viem/actions'
+import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-import { entryPointAddress } from '../../../../test/src/_generated/addresses.js'
 import * as TestActions from '../../../../test/src/actions.js'
 import * as Anvil from '../../../../test/src/anvil.js'
 import { exp1Abi, exp1Address } from '../../../../test/src/porto.js'
@@ -482,13 +480,6 @@ describe('prepareCalls + sendPreparedCalls', () => {
       address: exp1Address,
       args: [sponsorAccount.address],
       functionName: 'balanceOf',
-    })
-
-    // TODO: remove this once relay adds support.
-    // ref: https://github.com/ithacaxyz/account/pull/147/files#diff-83bc094c48a5467697336e47dba6e1bc868967fa192c85cf282937a6946ba18bR544-R549
-    await setBalance(client, {
-      address: entryPointAddress,
-      value: maxUint256,
     })
 
     const request = await prepareCalls(client, {
