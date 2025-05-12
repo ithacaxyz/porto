@@ -1,5 +1,4 @@
-import * as Msw from 'msw'
-import { setupServer } from 'msw/node'
+import { createRequestListener } from '@mjackson/node-fetch-server'
 import {
   Address,
   Hex,
@@ -23,6 +22,7 @@ import {
 } from '../../../test/src/_generated/addresses.js'
 import { createAccount, setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
+import * as Http from '../../../test/src/http.js'
 import {
   exp1Abi,
   exp1Address,
@@ -1125,21 +1125,15 @@ describe.each([
           keys: [sponsorKey],
         })
 
-        const sponsorUrl = 'https://mys1cksponsor.com'
-        setupServer(
-          Msw.http.post(sponsorUrl, ({ request }) =>
-            Sponsor.rpcHandler({
-              address: sponsorAccount.address,
-              key: {
-                privateKey: sponsorKey.privateKey!(),
-                type: sponsorKey.type,
-              },
-              transports: porto._internal.config.transports,
-            })(request),
-          ),
-        ).listen({
-          onUnhandledRequest: 'bypass',
+        const handler = Sponsor.rpcHandler({
+          address: sponsorAccount.address,
+          key: {
+            privateKey: sponsorKey.privateKey!(),
+            type: sponsorKey.type,
+          },
+          transports: porto._internal.config.transports,
         })
+        const server = await Http.createServer(createRequestListener(handler))
 
         const { address } = await porto.provider.request({
           method: 'experimental_createAccount',
@@ -1177,7 +1171,7 @@ describe.each([
                 },
               ],
               capabilities: {
-                sponsorUrl,
+                sponsorUrl: server.url,
               },
               from: address,
               version: '1',

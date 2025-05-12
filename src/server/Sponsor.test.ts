@@ -1,5 +1,4 @@
-import * as Msw from 'msw'
-import { SetupServerApi, setupServer } from 'msw/node'
+import { createRequestListener } from '@mjackson/node-fetch-server'
 import { Value } from 'ox'
 import { Key, Relay } from 'porto'
 import { Sponsor } from 'porto/server'
@@ -8,14 +7,14 @@ import { describe, expect, test } from 'vitest'
 
 import * as TestActions from '../../test/src/actions.js'
 import * as Anvil from '../../test/src/anvil.js'
+import * as Http from '../../test/src/http.js'
 import { exp1Abi, exp1Address, getPorto } from '../../test/src/porto.js'
 
 const { client, porto } = getPorto()
 
 const feeToken = exp1Address
-const sponsorUrl = 'https://mys1cksponsor.com/'
 
-let server: SetupServerApi | undefined
+let server: Http.Server | undefined
 async function setup() {
   const sponsorKey = Key.createSecp256k1()
   const sponsorAccount = await TestActions.createAccount(client, {
@@ -33,19 +32,14 @@ async function setup() {
   })
 
   server?.close()
-  server = setupServer(
-    Msw.http.post(sponsorUrl, ({ request }) => handle(request)),
-  )
-  server.listen({
-    onUnhandledRequest: 'bypass',
-  })
+  server = await Http.createServer(createRequestListener(handle))
 
   return { server, sponsorAccount }
 }
 
 describe.runIf(Anvil.enabled)('rpcHandler', () => {
   test('default', async () => {
-    const { sponsorAccount } = await setup()
+    const { server, sponsorAccount } = await setup()
 
     const userKey = Key.createHeadlessWebAuthnP256()
     const userAccount = await TestActions.createAccount(client, {
@@ -76,7 +70,7 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
         },
       ],
       feeToken,
-      sponsorUrl,
+      sponsorUrl: server.url,
     })
 
     await waitForCallsStatus(client, {
@@ -104,7 +98,7 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
   })
 
   test('error: contract error', async () => {
-    await setup()
+    const { server } = await setup()
 
     const userKey = Key.createHeadlessWebAuthnP256()
     const userAccount = await TestActions.createAccount(client, {
@@ -127,20 +121,20 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
           },
         ],
         feeToken,
-        sponsorUrl,
+        sponsorUrl: server.url,
       }),
     ).rejects.toThrowError('InsufficientAllowance')
   })
 
   test('error: eoa is sponsor', async () => {
-    const { sponsorAccount } = await setup()
+    const { server, sponsorAccount } = await setup()
 
     await expect(() =>
       Relay.sendCalls(client, {
         account: sponsorAccount,
         calls: [],
         feeToken,
-        sponsorUrl,
+        sponsorUrl: server.url,
       }),
     ).rejects.toThrowError()
   })
