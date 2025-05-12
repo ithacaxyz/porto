@@ -22,7 +22,7 @@ async function setup() {
     keys: [sponsorKey],
   })
 
-  const handle = Sponsor.rpcHandler({
+  const handler = Sponsor.rpcHandler({
     address: sponsorAccount.address,
     key: {
       privateKey: sponsorKey.privateKey!(),
@@ -31,8 +31,8 @@ async function setup() {
     transports: porto._internal.config.transports,
   })
 
-  server?.close()
-  server = await Http.createServer(createRequestListener(handle))
+  if (server) await server.closeAsync()
+  server = await Http.createServer(createRequestListener(handler))
 
   return { server, sponsorAccount }
 }
