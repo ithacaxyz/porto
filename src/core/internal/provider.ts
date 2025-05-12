@@ -845,6 +845,7 @@ export function from<
                 store,
               },
               key,
+              sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
             })
 
           return Schema.Encode(Rpc.wallet_prepareCalls.Response, {
@@ -921,7 +922,7 @@ export function from<
               store,
             },
             permissionsId: capabilities?.permissions?.id,
-            sponsorUrl: capabilities?.sponsorUrl,
+            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
           })
 
           return { id } satisfies Schema.Static<

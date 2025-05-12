@@ -411,7 +411,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal } = parameters
+        const { account, calls, internal, sponsorUrl } = parameters
         const { client, store, request } = internal
 
         const provider = getProvider(store)
@@ -437,7 +437,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     calls,
                     capabilities:
                       request._decoded.method === 'wallet_sendCalls'
-                        ? request._decoded.params?.[0]?.capabilities
+                        ? {
+                            ...request._decoded.params?.[0]?.capabilities,
+                            sponsorUrl,
+                          }
                         : undefined,
                     chainId: client.chain.id,
                     from: account.address,
@@ -478,7 +481,18 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method === 'wallet_sendCalls')
           // Send calls request to the dialog.
-          return await provider.request(request)
+          return await provider.request({
+            ...request,
+            params: [
+              {
+                ...request.params?.[0],
+                capabilities: {
+                  ...request.params?.[0]?.capabilities,
+                  sponsorUrl,
+                },
+              },
+            ],
+          })
 
         throw new Error('Cannot execute for method: ' + request.method)
       },

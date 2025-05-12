@@ -56,6 +56,7 @@ export function create(
       parameters.announceProvider ?? defaultConfig.announceProvider,
     chains,
     mode: parameters.mode ?? defaultConfig.mode,
+    sponsorUrl: parameters.sponsorUrl,
     storage: parameters.storage ?? defaultConfig.storage,
     storageKey: parameters.storageKey ?? defaultConfig.storageKey,
     transports,
@@ -157,6 +158,10 @@ export type Config<
    * @default Mode.dialog()
    */
   mode: Mode.Mode | null
+  /**
+   * URL to use for app-based sponsorship.
+   */
+  sponsorUrl?: string | undefined
   /**
    * Storage to use.
    * @default Storage.idb()
