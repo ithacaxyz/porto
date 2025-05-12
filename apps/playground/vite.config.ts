@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
     tailwindcss(),
     {
       async configureServer(server) {
-        if (process.env.VITE_LOCAL !== 'true') return
+        if (process.env.ANVIL !== 'true') return
 
         const { exp1Abi } = await import('@porto/apps/contracts')
 
