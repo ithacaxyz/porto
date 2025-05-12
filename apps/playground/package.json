@@ -5,7 +5,7 @@
   "scripts": {
     "check:types": "tsc --noEmit",
     "dev": "vite --port 5173",
-    "dev:anvil": "ANVIL=true vite --port 5173"
+    "dev:anvil": "VITE_LOCAL=true vite --port 5173"
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
@@ -19,6 +19,7 @@
     "viem": "catalog:"
   },
   "devDependencies": {
+    "@mjackson/node-fetch-server": "^0.6.1",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",

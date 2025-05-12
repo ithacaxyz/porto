@@ -811,14 +811,17 @@ function SendCalls() {
         <button type="submit">Send</button>
       </div>
 
-      <label>
-        <input
-          checked={sponsor}
-          onChange={() => setSponsor((x) => !x)}
-          type="checkbox"
-        />
-        Sponsor Fee
-      </label>
+      {/* TODO: remove condition when we add CF worker. */}
+      {import.meta.env.VITE_LOCAL && (
+        <label>
+          <input
+            checked={sponsor}
+            onChange={() => setSponsor((x) => !x)}
+            type="checkbox"
+          />
+          Sponsor Fee
+        </label>
+      )}
 
       {id && (
         <>

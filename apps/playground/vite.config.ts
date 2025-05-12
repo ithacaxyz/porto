@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { createRequestListener } from '@mjackson/node-fetch-server'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
@@ -36,7 +37,7 @@ export default defineConfig(({ mode }) => ({
     tailwindcss(),
     {
       async configureServer(server) {
-        if (process.env.ANVIL !== 'true') return
+        if (process.env.VITE_LOCAL !== 'true') return
 
         const { exp1Abi } = await import('@porto/apps/contracts')
 
@@ -105,6 +106,7 @@ export default defineConfig(({ mode }) => ({
             },
             simulator: simulatorAddress,
             userOpGasBuffer: 100_000n,
+            version: '2197566',
           }).start()
           await fetch(relayConfig.rpcUrl + '/start')
           return stop
@@ -112,6 +114,46 @@ export default defineConfig(({ mode }) => ({
         let stopRelay = await startRelay()
 
         logger.info('Relay started on ' + relayConfig.rpcUrl)
+
+        // Allow CORS.
+        server.middlewares.use(async (_, res, next) => {
+          res.setHeader('Access-Control-Allow-Origin', '*')
+          next()
+        })
+
+        // Upgrade relay on `/relay/up`.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/relay/up')) return next()
+
+          stopRelay()
+          stopRelay = await startRelay({
+            delegationProxy: delegationNewProxyAddress,
+          })
+          res.statusCode = 302
+          res.setHeader('Location', '/')
+          return res.end()
+        })
+
+        // Drip tokens on `/faucet`.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/faucet')) return next()
+
+          const url = new URL(`https://localhost${req.url}`)
+          const address = url.searchParams.get('address') as `0x${string}`
+          const value = url.searchParams.get('value') as string
+
+          const hash = await writeContract(anvilClient, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [address, BigInt(value)],
+            chain: null,
+            functionName: 'mint',
+          })
+
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'application/json')
+          return res.end(JSON.stringify({ id: hash }))
+        })
 
         // Create app-sponsor account.
         const sponsorKey = Key.createSecp256k1()
@@ -131,77 +173,24 @@ export default defineConfig(({ mode }) => ({
           feeToken: exp1Address,
         })
 
+        // Handle sponsor requests on `/sponsor`.
+        // TODO: move to CF worker for compatibility with non-anvil (prod/stg/dev) environments.
         server.middlewares.use(async (req, res, next) => {
-          res.setHeader('Access-Control-Allow-Origin', '*')
+          if (!req.url?.startsWith('/sponsor')) return next()
+          if (req.method !== 'POST') return next()
 
-          if (req.url?.startsWith('/relay/up')) {
-            stopRelay()
-            stopRelay = await startRelay({
-              delegationProxy: delegationNewProxyAddress,
-            })
-            res.statusCode = 302
-            res.setHeader('Location', '/')
-            return res.end()
-          }
+          const handler = Sponsor.rpcHandler({
+            address: sponsorAccount.address,
+            key: {
+              privateKey: sponsorKey.privateKey!(),
+              type: 'secp256k1',
+            },
+            transports: {
+              [chains.anvil.id]: http(relayConfig.rpcUrl),
+            },
+          })
 
-          if (req.url?.startsWith('/faucet')) {
-            const url = new URL(`https://localhost${req.url}`)
-            const address = url.searchParams.get('address') as `0x${string}`
-            const value = url.searchParams.get('value') as string
-
-            const hash = await writeContract(anvilClient, {
-              abi: exp1Abi,
-              address: exp1Address,
-              args: [address, BigInt(value)],
-              chain: null,
-              functionName: 'mint',
-            })
-
-            res.statusCode = 200
-            res.setHeader('Content-Type', 'application/json')
-            return res.end(JSON.stringify({ id: hash }))
-          }
-
-          if (req.url?.startsWith('/sponsor')) {
-            if (req.method !== 'POST') return next()
-
-            const handler = Sponsor.rpcHandler({
-              address: sponsorAccount.address,
-              key: {
-                privateKey: sponsorKey.privateKey!(),
-                type: 'secp256k1',
-              },
-              transports: {
-                [chains.anvil.id]: http(relayConfig.rpcUrl),
-              },
-            })
-
-            const body = await new Promise<string>((resolve, reject) => {
-              let body = ''
-              req.on('data', (chunk) => {
-                body += chunk.toString()
-              })
-              req.on('end', () => {
-                resolve(body)
-              })
-              req.on('error', (e) => {
-                reject(e)
-              })
-            })
-            const request = new Request('http://localhost:5173', {
-              body,
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              method: req.method,
-            })
-            const response = await handler(request)
-            res.statusCode = response.status
-            res.setHeader('Content-Type', 'application/json')
-            return res.end(await response.text())
-          }
-
-          return next()
+          return createRequestListener(handler)(req, res)
         })
       },
       name: 'anvil',
