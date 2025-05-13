@@ -66,6 +66,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
       })
       const { id } = await RpcServer_porto.sendCalls(client, {
         ...request,
+        key: request.key!,
         signature,
       })
       return await waitForCallsStatus(client, {

@@ -260,6 +260,7 @@ describe('sendCalls', () => {
 
     const { id } = await Rpc.sendCalls(client, {
       ...request,
+      key: request.key!,
       signature,
     })
 
@@ -387,6 +388,7 @@ describe('sendCalls', () => {
 
     const { id } = await Rpc.sendCalls(client, {
       ...request_2,
+      key: request_2.key!,
       signature: signature_2,
     })
 
