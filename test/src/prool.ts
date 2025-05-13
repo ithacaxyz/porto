@@ -1,6 +1,10 @@
 import { spawnSync } from 'node:child_process'
+import { createServer } from 'node:http'
 import { resolve } from 'node:path'
+import { Readable } from 'node:stream'
 import { setTimeout } from 'node:timers/promises'
+import httpProxy from 'http-proxy'
+import { RpcRequest } from 'ox'
 import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
 
@@ -72,6 +76,10 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         pulled = true
       }
 
+      const port_relay = port + 1
+      const port_anvil = Number(new URL(endpoint).port)
+      const id_anvil = new URL(endpoint).pathname.split('/')[1]
+
       const args_ = [
         '-e',
         `GECKO_API=${process.env.VITE_GECKO_API}`,
@@ -86,7 +94,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         '--add-host',
         'localhost:host-gateway',
         '-p',
-        `${port}:${port}`,
+        `${port_relay}:${port_relay}`,
         '-v',
         `${resolve(import.meta.dirname, 'registry.yaml')}:/app/registry.yaml`,
         `${image}:${version}`,
@@ -97,8 +105,8 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
             'host.docker.internal',
           ),
           http: {
-            metricsPort: port + 1,
-            port,
+            metricsPort: port_relay + 1,
+            port: port_relay,
           },
           quoteTtl: 30,
           registry: '/app/registry.yaml',
@@ -107,7 +115,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),
       ]
 
-      return await process_.start(($) => $`docker run ${args_}`, {
+      await process_.start(($) => $`docker run ${args_}`, {
         ...options,
         resolver({ process, resolve, reject }) {
           // TODO: remove once relay has feedback on startup.
@@ -122,6 +130,40 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
             reject(data)
           })
         },
+      })
+
+      const proxy = httpProxy.createProxyServer({
+        ignorePath: true,
+        ws: false,
+      })
+      const server = createServer(async (req, res) => {
+        const body = await new Promise<RpcRequest.RpcRequest>((resolve) => {
+          let body = ''
+          req.on('data', (chunk) => {
+            body += chunk
+          })
+          req.on('end', () => {
+            resolve(JSON.parse(body))
+          })
+        })
+
+        const target = (() => {
+          if (
+            body.method.startsWith('relay_') ||
+            body.method.startsWith('wallet_')
+          )
+            return `http://${host}:${port_relay}`
+          return `http://${host}:${port_anvil}/${id_anvil}`
+        })()
+
+        return proxy.web(req, res, {
+          buffer: Readable.from(JSON.stringify(body)),
+          target,
+        })
+      }).listen(port)
+      return new Promise((resolve, reject) => {
+        server.on('error', reject)
+        server.on('listening', resolve)
       })
     },
     async stop() {
