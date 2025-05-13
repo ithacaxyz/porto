@@ -305,7 +305,8 @@ describe('getCallsStatus', () => {
     })
 
     const { id } = await sendPreparedCalls(client, {
-      ...request,
+      context: request.context,
+      key: request.key!,
       signature,
     })
 
@@ -454,7 +455,8 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     await sendPreparedCalls(client, {
-      ...request,
+      context: request.context,
+      key: request.key!,
       signature,
     })
   })
@@ -517,7 +519,6 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const result = await sendPreparedCalls(client, {
-      ...request,
       context: {
         quote: {
           ...request.context.quote,
@@ -527,6 +528,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
           },
         },
       },
+      key: request.key!,
       signature,
     })
 
@@ -588,7 +590,8 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     await sendPreparedCalls(client, {
-      ...request,
+      context: request.context,
+      key: request.key!,
       signature,
     })
   })
