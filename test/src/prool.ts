@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { createServer } from 'node:http'
+import { createServer, Server } from 'node:http'
 import { resolve } from 'node:path'
 import { Readable } from 'node:stream'
 import { setTimeout } from 'node:timers/promises'
@@ -51,7 +51,9 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
   const host = 'localhost'
   const name = 'relay'
   const process_ = execa({ name })
+
   let port = args.http?.port ?? 9119
+  let server: Server | undefined
 
   return {
     _internal: {
@@ -136,7 +138,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         ignorePath: true,
         ws: false,
       })
-      const server = createServer(async (req, res) => {
+      server = createServer(async (req, res) => {
         const body = await new Promise<RpcRequest.RpcRequest>((resolve) => {
           let body = ''
           req.on('data', (chunk) => {
@@ -162,11 +164,15 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
         })
       }).listen(port)
       return new Promise((resolve, reject) => {
-        server.on('error', reject)
-        server.on('listening', resolve)
+        server!.on('error', reject)
+        server!.on('listening', resolve)
       })
     },
     async stop() {
+      if (server) {
+        server.close()
+        server = undefined
+      }
       spawnSync('docker', ['rm', '-f', containerName])
     },
   }
