@@ -11,9 +11,6 @@ const config = {
     mode: Mode.relay({
       feeToken: 'EXP',
     }),
-    transports: {
-      [Chains.anvil.id]: http(),
-    },
   },
   dev: {
     chains: [Chains.portoDev],

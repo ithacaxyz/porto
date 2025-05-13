@@ -43,14 +43,22 @@ export function create<
 export function create(
   parameters: ExactPartial<Config> | undefined = {},
 ): Porto {
+  const chains = parameters.chains ?? defaultConfig.chains
+  const transports = Object.fromEntries(
+    chains!.map((chain) => [
+      chain.id,
+      parameters.transports?.[chain.id] ?? http(),
+    ]),
+  )
+
   const config = {
     announceProvider:
       parameters.announceProvider ?? defaultConfig.announceProvider,
-    chains: parameters.chains ?? defaultConfig.chains,
+    chains,
     mode: parameters.mode ?? defaultConfig.mode,
     storage: parameters.storage ?? defaultConfig.storage,
     storageKey: parameters.storageKey ?? defaultConfig.storageKey,
-    transports: parameters.transports ?? defaultConfig.transports,
+    transports,
   } satisfies Config
 
   const store = createStore(
@@ -159,7 +167,7 @@ export type Config<
    */
   storageKey?: string | undefined
   /**
-   * Transport to use for each chain.
+   * Transport overrides to use for each chain.
    */
   transports: Record<chains[number]['id'], Transport>
 }
