@@ -2,16 +2,14 @@ import { PortoConfig } from '@porto/apps'
 import { Chains, Dialog, Mode, Porto } from 'porto'
 import { createConfig, createStorage, http } from 'wagmi'
 
-export let porto: Porto.Porto<(typeof config)['chains']> | undefined
-if (typeof window !== 'undefined') {
-  const config = PortoConfig.getConfig()
-  const host = PortoConfig.getDialogHost()
-  const renderer = Dialog.iframe()
-  porto = Porto.create({
-    ...config,
-    mode: Mode.dialog({ host, renderer }),
-  }) as never
-}
+if (typeof window !== 'undefined')
+  Porto.create({
+    ...PortoConfig.getConfig(),
+    mode: Mode.dialog({
+      host: PortoConfig.getDialogHost(),
+      renderer: Dialog.iframe(),
+    }),
+  })
 
 export const config = createConfig({
   chains: [Chains.baseSepolia, Chains.portoDev],

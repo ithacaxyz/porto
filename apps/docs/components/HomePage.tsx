@@ -2,7 +2,7 @@ import * as Ariakit from '@ariakit/react'
 import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
-import { Address, Hex, Provider, Value } from 'ox'
+import { Address, P256, Provider, PublicKey, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
@@ -19,17 +19,15 @@ import {
   useSendCalls,
   useWaitForCallsStatus,
 } from 'wagmi'
-import LucideBanknoteArrowDown from '~icons/lucide/banknote-arrow-down'
-import LucideCheck from '~icons/lucide/check'
 import LucideChevronLeft from '~icons/lucide/chevron-left'
 import LucideChevronRight from '~icons/lucide/chevron-right'
-import LucideGem from '~icons/lucide/gem'
-import LucideInfo from '~icons/lucide/info'
+import LucideHandCoins from '~icons/lucide/hand-coins'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import LucidePlay from '~icons/lucide/play'
 import LucideSparkle from '~icons/lucide/sparkle'
+import LucideTrash2 from '~icons/lucide/trash-2'
 import LucideX from '~icons/lucide/x'
-import { config, porto } from '../wagmi.config'
+import { config } from '../wagmi.config'
 import { Button } from './Button'
 
 export function HomePage() {
@@ -223,48 +221,32 @@ export function HomePage() {
 }
 
 const pollingInterval = 800
-const steps = ['sign-in', 'add-funds', 'send', 'mint', 'swap'] as const
+const steps = [
+  'sign-in',
+  'buy-now',
+  'send-tip',
+  'subscribe',
+  'swap',
+  'end',
+] as const
 
 function Demo() {
   const chainId = useChainId()
   const { address, status } = useAccount()
 
   const [step, setStep] = React.useState<(typeof steps)[number]>('sign-in')
+  const [complete, setComplete] = React.useState(false)
   useAccountEffect({
     onConnect() {
-      setStep('add-funds')
+      if (step === 'sign-in') setComplete(true)
     },
     onDisconnect() {
       setStep('sign-in')
     },
   })
-
-  const { data: blockNumber } = useBlockNumber({
-    watch: {
-      enabled: status === 'connected',
-      pollingInterval: pollingInterval + 100,
-    },
+  Hooks.usePermissions({
+    query: { enabled: status === 'connected' },
   })
-  const shared = {
-    args: [address!],
-    functionName: 'balanceOf',
-    query: { enabled: Boolean(address) },
-  } as const
-  const { data: exp1Balance, refetch: expBalanceRefetch } = useReadContract({
-    abi: exp1Config.abi,
-    address: exp1Config.address[chainId],
-    ...shared,
-  })
-  const { data: exp2Balance, refetch: exp2BalanceRefetch } = useReadContract({
-    abi: exp2Config.abi,
-    address: exp2Config.address[chainId],
-    ...shared,
-  })
-  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
-  React.useEffect(() => {
-    expBalanceRefetch()
-    exp2BalanceRefetch()
-  }, [blockNumber])
 
   return (
     <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4">
@@ -278,26 +260,53 @@ function Demo() {
         <div className="relative flex h-full w-full justify-center">
           <div className="flex h-full w-full max-w-[277px] flex-col items-center justify-center">
             {step === 'sign-in' && (
-              <SignIn chainId={chainId} next={() => setStep('add-funds')} />
+              <SignIn chainId={chainId} next={() => setComplete(true)} />
             )}
-            {step === 'add-funds' && (
-              <AddFunds chainId={chainId} next={() => setStep('send')} />
+            {step === 'buy-now' && (
+              <BuyNow chainId={chainId} next={() => setComplete(true)} />
             )}
-            {step === 'send' && (
-              <Send
+            {step === 'send-tip' && (
+              <SendTip
                 address={address}
                 chainId={chainId}
-                exp1Balance={exp1Balance}
+                next={() => setComplete(true)}
               />
             )}
-            {step === 'mint' && <MintNFT chainId={chainId} />}
+            {step === 'subscribe' && (
+              <Subscribe chainId={chainId} next={() => setComplete(true)} />
+            )}
             {step === 'swap' && (
               <Swap
                 address={address}
                 chainId={chainId}
-                exp1Balance={exp1Balance}
-                exp2Balance={exp2Balance}
+                next={() => setComplete(true)}
               />
+            )}
+            {step === 'end' && (
+              <div className="flex flex-col gap-4">
+                <h2 className="-tracking-[2.8%] text-center font-medium text-[19px] text-black leading-normal dark:text-white">
+                  Get started now
+                </h2>
+                <p className="-tracking-[2.8%] text-center text-[16px] text-gray9 leading-[22px]">
+                  Now that you’ve experienced some of Porto’s innovations,
+                  integrate it into your application today.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setStep('sign-in')}
+                    size="small"
+                    variant="default"
+                  >
+                    Restart demo
+                  </Button>
+
+                  <Link to="/sdk">
+                    <Button size="small" variant="accent">
+                      View documentation
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -307,7 +316,7 @@ function Demo() {
         <div className="w-full space-y-1">
           <div className="flex w-full items-end justify-between lg:items-center lg:justify-around">
             <div className="lg:pb-6">
-              {status === 'connected' && (
+              {status === 'connected' && step !== 'end' && (
                 <button
                   className={cx(
                     'flex size-[32px] items-center justify-center rounded-full border border-gray5 bg-transparent text-gray8 hover:bg-gray2 disabled:cursor-not-allowed',
@@ -329,54 +338,50 @@ function Demo() {
                 {step === 'sign-in' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Seamless sign in
+                      Forget passwords
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      Grant permissions with your Porto wallet for security &
-                      ease of use.
+                      Porto is the fastest and most secure way to sign in.
                     </p>
                   </>
                 )}
-                {step === 'add-funds' && (
+                {step === 'buy-now' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Deposit in seconds
+                      Buy now, for real
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      Fund your account, with no KYC for deposits below $500.
+                      Fund your account & complete purchases in seconds
                     </p>
                   </>
                 )}
-                {step === 'send' && (
+                {step === 'send-tip' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Instant sends & swaps
+                      Payments made easy
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      With permissions, complete common actions without extra
-                      clicks.
+                      Send money, buy an item, or gift a tip instantly.
                     </p>
                   </>
                 )}
-                {step === 'mint' && (
+                {step === 'subscribe' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Rich feature set
+                      Frictionless subscriptions
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      View rich transaction previews, pay fees in other tokens,
-                      and much more.
+                      Approve & manage recurring payments easily.
                     </p>
                   </>
                 )}
                 {step === 'swap' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
-                      Free from fees
+                      Trade any asset
                     </p>
                     <p className="text-center text-[15px] text-gray10 leading-[21px] tracking-[-2.8%]">
-                      Apps can cover your fees based on an asset you hold, like
-                      the NFT you minted.
+                      Swap between assets you hold on Porto within seconds.
                     </p>
                   </>
                 )}
@@ -389,7 +394,7 @@ function Demo() {
                   <button
                     className="size-[7px] rounded-full bg-gray6 transition-all duration-150 hover:not-data-[active=true]:not-data-[disabled=true]:scale-150 hover:not-data-[disabled=true]:bg-gray9 data-[active=true]:w-6 data-[active=true]:bg-gray9"
                     data-active={s === step}
-                    data-disabled={status !== 'connected'}
+                    data-disabled={status !== 'connected' || step === 'end'}
                     key={s}
                     onClick={() => {
                       if (status === 'connected') setStep(s)
@@ -401,16 +406,22 @@ function Demo() {
             </div>
 
             <div className="lg:pb-6">
-              {status === 'connected' && (
+              {status === 'connected' && step !== 'end' && (
                 <button
                   className={cx(
-                    'flex size-[32px] items-center justify-center rounded-full border border-gray5 bg-gray1 text-gray9 hover:bg-gray2 disabled:cursor-not-allowed',
+                    'flex size-[32px] items-center justify-center rounded-full border disabled:cursor-not-allowed',
                     step === steps[steps.length - 1] && 'invisible',
+                    complete
+                      ? 'border-accent bg-accent text-white hover:bg-accentHover'
+                      : 'border-gray5 bg-transparent text-gray8 hover:bg-gray2 ',
                   )}
                   disabled={step === steps[steps.length - 1]}
-                  onClick={() =>
-                    step && setStep(steps[steps.indexOf(step) + 1]!)
-                  }
+                  onClick={() => {
+                    if (step) {
+                      setStep(steps[steps.indexOf(step) + 1]!)
+                      setComplete(false)
+                    }
+                  }}
                   type="button"
                 >
                   <LucideChevronRight className="-me-0.5 size-5" />
@@ -429,7 +440,7 @@ type ChainId = (typeof config)['state']['chainId']
 function SignIn(props: { chainId: ChainId; next: () => void }) {
   const { chainId, next } = props
 
-  const { address, status } = useAccount()
+  const { status } = useAccount()
   const connect = Hooks.useConnect({
     mutation: {
       onError(error) {
@@ -445,15 +456,15 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
 
   if (status === 'connected')
     return (
-      <div className="flex flex-col gap-2">
-        <div title={address}>
-          {address.slice(0, 6)}...{address.slice(-4)}
+      <div className="flex flex-row items-center gap-4">
+        <div className="-tracking-[2.8%] font-medium text-[15px] text-gray9 leading-normal">
+          You're signed in!
         </div>
 
         <Button
           className="flex-grow"
           onClick={() => disconnect.mutate({ connector })}
-          variant="accent"
+          variant="destructive"
         >
           Sign out
         </Button>
@@ -463,10 +474,13 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
   if (connect.isPending)
     return (
       <div className="flex w-full">
-        <Button className="flex flex-grow gap-2" disabled>
+        <Ariakit.Button
+          className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-gray5 px-3 text-center font-medium text-[16px] text-gray9 leading-normal"
+          disabled
+        >
           <LucidePictureInPicture2 className="size-5" />
           Check passkey prompt
-        </Button>
+        </Ariakit.Button>
       </div>
     )
 
@@ -486,8 +500,8 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
 
   return (
     <div className="flex w-full">
-      <Button
-        className="flex-grow"
+      <Ariakit.Button
+        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal hover:bg-accentHover"
         onClick={() =>
           connect.mutate({
             connector,
@@ -495,196 +509,15 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
             grantPermissions,
           })
         }
-        variant="invert"
       >
         Sign in
-      </Button>
-    </div>
-  )
-}
-
-function AddFunds(props: { chainId: ChainId; next: () => void }) {
-  const { chainId, next } = props
-
-  return (
-    <div className="flex w-full flex-col gap-4.5">
-      <ClickHere />
-      <Ariakit.Button
-        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal dark:bg-white dark:text-black"
-        onClick={async () => {
-          try {
-            await porto!.provider.request({
-              method: 'experimental_addFunds',
-              params: [
-                {
-                  token: exp1Config.address[chainId],
-                  value: Hex.fromNumber(100),
-                },
-              ],
-            })
-            next()
-          } catch (error) {
-            if (!(error instanceof Provider.UserRejectedRequestError))
-              toast.custom((t) => (
-                <Toast
-                  className={t}
-                  description={
-                    (error as Error)?.message ?? 'Something went wrong'
-                  }
-                  kind="error"
-                  title="Add Funds Failed"
-                />
-              ))
-          }
-        }}
-      >
-        <LucideBanknoteArrowDown className="size-4" />
-        Add funds
       </Ariakit.Button>
     </div>
   )
 }
 
-function Send(props: {
-  address: Address.Address | undefined
-  chainId: (typeof config)['state']['chainId']
-  exp1Balance: bigint | undefined
-}) {
-  const { address, chainId, exp1Balance } = props
-
-  const { data, isPending, sendCallsAsync } = useSendCalls()
-  const {
-    error,
-    isLoading: isConfirming,
-    isSuccess: isConfirmed,
-  } = useWaitForCallsStatus({
-    id: data?.id,
-    pollingInterval,
-  })
-  React.useEffect(() => {
-    if (error)
-      toast.custom((t) => (
-        <Toast
-          className={t}
-          description={error.message}
-          kind="error"
-          title="Send Failed"
-        />
-      ))
-  }, [error])
-
-  const form = Ariakit.useFormStore({
-    defaultValues: {
-      amount: '10',
-    },
-  })
-  form.useSubmit(async (state) => {
-    try {
-      const shared = {
-        abi: exp1Config.abi,
-        to: exp1Config.address[chainId],
-      }
-      const amount = Value.fromEther(state.values.amount)
-      await sendCallsAsync({
-        calls: [
-          {
-            ...shared,
-            args: [address, amount],
-            functionName: 'approve',
-          },
-          {
-            ...shared,
-            args: [
-              address,
-              '0x0000000000000000000000000000000000000000',
-              amount,
-            ],
-            functionName: 'transferFrom',
-          },
-        ],
-      })
-    } catch (err) {
-      const error = (() => {
-        if (err instanceof BaseError)
-          return err instanceof BaseError
-            ? err.walk((err) => err instanceof UserRejectedRequestError)
-            : err
-        return err
-      })()
-
-      if (
-        (error as Provider.ProviderRpcError)?.code !==
-        Provider.UserRejectedRequestError.code
-      )
-        toast.custom((t) => (
-          <Toast
-            className={t}
-            description={(err as Error)?.message ?? 'Something went wrong'}
-            kind="error"
-            title="Send Failed"
-          />
-        ))
-    }
-  })
-
-  if (isConfirmed) return <Success text="Sent successfully!" />
-
-  return (
-    <Ariakit.Form
-      className="flex w-full flex-col items-end gap-3"
-      resetOnSubmit={false}
-      store={form}
-    >
-      <div className="relative flex w-full items-center">
-        <Ariakit.VisuallyHidden>
-          <Ariakit.FormLabel name={form.names.amount}>Amount</Ariakit.FormLabel>
-        </Ariakit.VisuallyHidden>
-
-        <Ariakit.FormInput
-          className="-tracking-[0.42px] h-10.5 w-full rounded-[10px] border border-gray5 bg-gray1 py-3 ps-3 pe-16 font-medium text-[15px] text-gray12 placeholder:text-gray8 disabled:cursor-not-allowed"
-          disabled={!address}
-          max={exp1Balance ? Value.formatEther(exp1Balance) : 0}
-          min="0"
-          name={form.names.amount}
-          placeholder="0.0"
-          required
-          step="any"
-          type="number"
-        />
-
-        <div className="absolute end-4 flex items-center gap-1.5">
-          <div className="size-4">
-            <Exp1Token />
-          </div>
-          <div className="-tracking-[0.25px] font-medium text-[13px] text-gray9 leading-normal">
-            EXP
-          </div>
-        </div>
-      </div>
-
-      <Ariakit.FormSubmit
-        aria-disabled={!address || isPending || isConfirming}
-        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
-        disabled={!address || isPending || isConfirming}
-      >
-        {isPending || isConfirming ? 'Sending...' : 'Send'}
-      </Ariakit.FormSubmit>
-
-      <div className="flex w-full items-center justify-between">
-        <div className="-tracking-[0.392px] text-[14px] text-gray9 leading-normal">
-          Your balance
-        </div>
-        <div className="-tracking-[0.42px] font-medium text-[15px] text-gray12 leading-normal">
-          {exp1Balance ? ValueFormatter.format(exp1Balance) : 0}{' '}
-          <span className="text-gray10">EXP</span>
-        </div>
-      </div>
-    </Ariakit.Form>
-  )
-}
-
-function MintNFT(props: { chainId: (typeof config)['state']['chainId'] }) {
-  const { chainId } = props
+function BuyNow(props: { chainId: ChainId; next: () => void }) {
+  const { chainId, next } = props
 
   const { data, isPending, sendCalls } = useSendCalls({
     mutation: {
@@ -706,7 +539,7 @@ function MintNFT(props: { chainId: (typeof config)['state']['chainId'] }) {
               className={t}
               description={err?.message ?? 'Something went wrong'}
               kind="error"
-              title="Mint NFT Failed"
+              title="Buy Now Failed"
             />
           ))
       },
@@ -722,25 +555,56 @@ function MintNFT(props: { chainId: (typeof config)['state']['chainId'] }) {
     pollingInterval,
   })
   React.useEffect(() => {
+    if (isConfirmed) next()
+  }, [isConfirmed])
+  React.useEffect(() => {
     if (error)
       toast.custom((t) => (
         <Toast
           className={t}
           description={error.message}
           kind="error"
-          title="Mint NFT Failed"
+          title="Buy Now Failed"
         />
       ))
   }, [error])
 
-  if (isConfirmed) return <Success text="Minted successfully!" />
+  if (isConfirmed)
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <img
+          alt="Running Sneaker"
+          className="size-[183px] rounded-[13px] object-cover object-accent"
+          src="/sneaker.png"
+        />
+        <div className="-tracking-[2.8%] font-medium text-[15px] text-gray9 leading-normal">
+          Purchase complete!
+        </div>
+      </div>
+    )
 
   return (
-    <div className="flex w-full flex-col items-center gap-4.5">
-      {!(isPending || isConfirming) && <ClickHere />}
+    <div className="flex w-full max-w-61.75 flex-col gap-6">
+      <div className="flex gap-4">
+        <img
+          alt="Running Sneaker"
+          className="size-[55px] rounded-[13px] object-cover object-accent text-transparent"
+          src="/sneaker.png"
+        />
+
+        <div className="-mt-0.5 flex flex-col gap-0.5">
+          <div className="-tracking-[2.8%] font-medium text-[20px] text-black leading-normal dark:text-white">
+            Running Sneaker
+          </div>
+          <div className="font-medium text-[14px] text-gray10 leading-normal">
+            $10.00
+          </div>
+        </div>
+      </div>
+
       <Ariakit.Button
         aria-disabled={isPending || isConfirming}
-        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-black px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10 dark:bg-white dark:text-black"
+        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal hover:bg-accentHover aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
         disabled={isPending || isConfirming}
         onClick={() =>
           sendCalls({
@@ -754,34 +618,75 @@ function MintNFT(props: { chainId: (typeof config)['state']['chainId'] }) {
           })
         }
       >
-        {isPending || isConfirming ? (
-          'Minting NFT'
+        {isPending ? (
+          <>
+            <LucidePictureInPicture2 className="size-5" />
+            Check prompt
+          </>
+        ) : isConfirming ? (
+          'Completing purchase'
         ) : (
           <>
             <LucideSparkle className="size-4" />
-            Mint NFT
+            Buy Now
           </>
         )}
       </Ariakit.Button>
-      {!(isPending || isConfirming) && (
-        <div className="-tracking-[0.392px] max-w-[230px] text-center text-[14px] text-gray10 leading-[22px]">
-          Holding this NFT will allow you to get free transactions on Ithaca
-          testnet.
-        </div>
-      )}
     </div>
   )
 }
 
-function Swap(props: {
+function SendTip(props: {
   address: Address.Address | undefined
   chainId: (typeof config)['state']['chainId']
-  exp1Balance: bigint | undefined
-  exp2Balance: bigint | undefined
+  next: () => void
 }) {
-  const { address, chainId, exp1Balance, exp2Balance } = props
+  const { address, chainId, next } = props
+  const creatorAddress = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
 
-  const { data, isPending, sendCallsAsync } = useSendCalls()
+  const { data: blockNumber } = useBlockNumber({
+    watch: {
+      enabled: true,
+      pollingInterval: pollingInterval + 100,
+    },
+  })
+  const { data: exp1Balance, refetch: expBalanceRefetch } = useReadContract({
+    abi: exp1Config.abi,
+    address: exp1Config.address[chainId],
+    args: [creatorAddress],
+    functionName: 'balanceOf',
+  })
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
+  React.useEffect(() => {
+    expBalanceRefetch()
+  }, [blockNumber])
+
+  const { data, isPending, sendCalls } = useSendCalls({
+    mutation: {
+      onError(err) {
+        const error = (() => {
+          if (err instanceof BaseError)
+            return err instanceof BaseError
+              ? err.walk((err) => err instanceof UserRejectedRequestError)
+              : err
+          return err
+        })()
+
+        if (
+          (error as Provider.ProviderRpcError)?.code !==
+          Provider.UserRejectedRequestError.code
+        )
+          toast.custom((t) => (
+            <Toast
+              className={t}
+              description={err?.message ?? 'Something went wrong'}
+              kind="error"
+              title="Send Tip Failed"
+            />
+          ))
+      },
+    },
+  })
   const {
     error,
     isLoading: isConfirming,
@@ -790,6 +695,373 @@ function Swap(props: {
     id: data?.id,
     pollingInterval,
   })
+  React.useEffect(() => {
+    if (isConfirmed) next()
+  }, [isConfirmed, next])
+  React.useEffect(() => {
+    if (error)
+      toast.custom((t) => (
+        <Toast
+          className={t}
+          description={error.message}
+          kind="error"
+          title="Send Tip Failed"
+        />
+      ))
+  }, [error])
+
+  return (
+    <div className="flex w-full max-w-57.75 flex-col items-center gap-3">
+      <div className="flex w-full flex-col items-center gap-2">
+        <img
+          alt="creator"
+          className="size-13 rounded-full border-[2px] border-grayA5 object-cover text-transparent"
+          src="/creator.png"
+        />
+
+        <div className="h-5 w-full max-w-[138px] rounded-full bg-gray4" />
+
+        <div className="h-3.5 w-full rounded-full bg-gray3 px-1.5" />
+      </div>
+
+      <div className="flex w-full justify-between px-1.5">
+        <div className="-tracking-[2.8%] text-[14px] text-gray9">Received</div>
+        <div className="-tracking-[2.8%] font-medium text-[14px] text-gray9">
+          <span className="text-gray12">
+            {ValueFormatter.format(exp1Balance ?? 0)}
+          </span>{' '}
+          <span>EXP1</span>
+        </div>
+      </div>
+
+      <Ariakit.Button
+        aria-disabled={isPending || isConfirming}
+        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal hover:bg-accentHover aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
+        disabled={isPending || isConfirming}
+        onClick={() => {
+          const shared = {
+            abi: exp1Config.abi,
+            to: exp1Config.address[chainId],
+          }
+          const amount = Value.fromEther('1')
+          sendCalls({
+            calls: [
+              {
+                ...shared,
+                args: [address, amount],
+                functionName: 'approve',
+              },
+              {
+                ...shared,
+                args: [address, creatorAddress, amount],
+                functionName: 'transferFrom',
+              },
+            ],
+          })
+        }}
+      >
+        {isPending ? (
+          <>
+            <LucidePictureInPicture2 className="size-5" />
+            Check prompt
+          </>
+        ) : isConfirming ? (
+          'Tipping creator'
+        ) : (
+          <>
+            <LucideHandCoins className="size-4" />
+            {isConfirmed ? 'Tip again' : 'Send a tip'}
+          </>
+        )}
+      </Ariakit.Button>
+    </div>
+  )
+}
+
+const tiers = [
+  { amount: Value.fromEther('2'), unit: 'week' },
+  { amount: Value.fromEther('7'), unit: 'month' },
+  { amount: Value.fromEther('75'), unit: 'year' },
+] as const
+
+function Subscribe(props: {
+  chainId: (typeof config)['state']['chainId']
+  next: () => void
+}) {
+  const { chainId, next } = props
+
+  const { data: permissions, refetch: refetchPermissions } =
+    Hooks.usePermissions()
+  const grantPermissions = Hooks.useGrantPermissions()
+  const revokePermissions = Hooks.useRevokePermissions({
+    mutation: {
+      onError(err) {
+        const error = (() => {
+          if (err instanceof BaseError)
+            return err instanceof BaseError
+              ? err.walk((err) => err instanceof UserRejectedRequestError)
+              : err
+          return err
+        })()
+
+        if (
+          (error as Provider.ProviderRpcError)?.code !==
+          Provider.UserRejectedRequestError.code
+        )
+          toast.custom((t) => (
+            <Toast
+              className={t}
+              description={err?.message ?? 'Something went wrong'}
+              kind="error"
+              title="Subscribe Failed"
+            />
+          ))
+      },
+      async onSuccess() {
+        try {
+          await refetchPermissions()
+          setId(undefined)
+        } catch {}
+      },
+    },
+  })
+  const [id, setId] = React.useState<string | undefined>()
+  const subscriptionAddress = '0x0000000000000000000000000000000000000000'
+  const permission = permissions?.find((permission) =>
+    id
+      ? permission.id === id
+      : permission.permissions.spend?.some(
+          (spend) => spend.token === subscriptionAddress,
+        ),
+  )
+  const activeTier = permission?.permissions?.spend?.at(-1)
+  const activeTierIndex = tiers.findIndex(
+    (tier) => tier.unit === activeTier?.period,
+  )
+
+  const form = Ariakit.useFormStore({
+    defaultValues: {
+      tier: 'month' as 'week' | 'month' | 'year',
+    },
+  })
+  form.useSubmit(async (state) => {
+    try {
+      const tier = tiers.find((tier) => tier.unit === state.values.tier)
+      if (!tier) throw new Error(`Invalid tier: ${state.values.tier}`)
+
+      const privateKey = P256.randomPrivateKey()
+      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
+        includePrefix: false,
+      })
+      const res = await grantPermissions.mutateAsync({
+        expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+        key: { publicKey, type: 'p256' },
+        permissions: {
+          calls: [{ to: subscriptionAddress }],
+          spend: [
+            {
+              limit: tier.amount,
+              period: state.values.tier,
+              token: exp1Config.address[chainId],
+            },
+          ],
+        },
+      })
+      setId(res.id)
+      await refetchPermissions()
+      next()
+    } catch (err) {
+      const error = (() => {
+        if (err instanceof BaseError)
+          return err instanceof BaseError
+            ? err.walk((err) => err instanceof UserRejectedRequestError)
+            : err
+        return err
+      })()
+
+      if (
+        (error as Provider.ProviderRpcError)?.code !==
+        Provider.UserRejectedRequestError.code
+      )
+        toast.custom((t) => (
+          <Toast
+            className={t}
+            description={(err as Error)?.message ?? 'Something went wrong'}
+            kind="error"
+            title="Subscribe Failed"
+          />
+        ))
+    }
+  })
+
+  if (permission && activeTier && activeTierIndex)
+    return (
+      <div className="w-full max-w-78.75 rounded-[13px] bg-gray1">
+        <div className="flex justify-between border-gray4 border-b px-4 pt-4 pb-3.5">
+          <div className="-tracking-[2.8%] font-medium text-[14px] text-gray9 leading-none">
+            Your subscriptions
+          </div>
+          <Ariakit.Button
+            onClick={() => revokePermissions.mutate({ id: permission.id })}
+          >
+            <Ariakit.VisuallyHidden>
+              Cancel subscriptions
+            </Ariakit.VisuallyHidden>
+            <LucideTrash2 className="size-4 text-red8" />
+          </Ariakit.Button>
+        </div>
+
+        <div className="flex items-center justify-between px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <img
+              alt="creator"
+              className="size-8 rounded-full border-[2px] border-grayA5 object-cover text-transparent"
+              src="/creator2.png"
+            />
+            <div className="flex flex-col gap-2">
+              <div className="h-4 w-[85px] rounded-full bg-gray4" />
+              <div className="-tracking-[2.8%] font-medium text-[13px] text-gray8 leading-none">
+                Tier {'I'.repeat(activeTierIndex + 1)}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 text-right">
+            <div className="-tracking-[2.8%] font-medium text-[16px] text-gray12 leading-none">
+              {ValueFormatter.format(activeTier.limit)}{' '}
+              <span className="text-gray9">EXP1</span>
+            </div>
+            <div className="-tracking-[2.8%] font-medium text-[13px] text-gray8 leading-none">
+              each {activeTier.period}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+
+  return (
+    <Ariakit.Form
+      className="flex w-full max-w-72.25 flex-col gap-3"
+      store={form}
+    >
+      <div className="mb-1.5 flex items-center gap-3">
+        <img
+          alt="creator"
+          className="size-7.5 rounded-full border-[2px] border-grayA5 object-cover text-transparent"
+          src="/creator2.png"
+        />
+        <div className="h-5 w-full max-w-[138px] rounded-full bg-gray4" />
+      </div>
+
+      <Ariakit.FormRadioGroup className="flex w-full flex-1 select-none gap-2">
+        <Ariakit.VisuallyHidden>
+          <Ariakit.FormGroupLabel>Select tier</Ariakit.FormGroupLabel>
+        </Ariakit.VisuallyHidden>
+        {tiers.map((tier, index) => (
+          // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
+          <label
+            className="inset-ring flex h-31.25 flex-1 rounded-[13px] border border-gray5 p-3.5 [&:has(input:checked)]:inset-ring-[var(--color-blue9)] [&:has(input:checked)]:border-accent"
+            key={tier.unit}
+          >
+            <div className="flex h-full flex-col justify-between">
+              <Ariakit.FormRadio
+                className="peer sr-only"
+                name={form.names.tier}
+                value={tier.unit}
+              />
+
+              <div className="-tracking-[2.8%] font-medium text-[13px] text-gray9 leading-none peer-checked:text-accent!">
+                Tier {'I'.repeat(index + 1)}
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className="-tracking-[2.8%] font-medium text-[16px] text-gray12 leading-none">
+                  {ValueFormatter.format(tier.amount)} EXP
+                </div>
+                <div className="-tracking-[2.8%] font-medium text-[9px] text-gray9 leading-none">
+                  per {tier.unit}
+                </div>
+              </div>
+            </div>
+          </label>
+        ))}
+      </Ariakit.FormRadioGroup>
+
+      <Ariakit.FormSubmit
+        aria-disabled={grantPermissions.isPending}
+        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal hover:bg-accentHover aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
+        disabled={grantPermissions.isPending}
+      >
+        {grantPermissions.isPending ? (
+          <>
+            <LucidePictureInPicture2 className="size-5" />
+            Check prompt
+          </>
+        ) : (
+          'Subscribe'
+        )}
+      </Ariakit.FormSubmit>
+    </Ariakit.Form>
+  )
+}
+
+function Swap(props: {
+  address: Address.Address | undefined
+  chainId: (typeof config)['state']['chainId']
+  next: () => void
+}) {
+  const { address, chainId, next } = props
+
+  const { status } = useAccount()
+  const { data: blockNumber } = useBlockNumber({
+    watch: {
+      enabled: status === 'connected',
+      pollingInterval: pollingInterval + 100,
+    },
+  })
+  const shared = {
+    args: [address!],
+    functionName: 'balanceOf',
+    query: { enabled: Boolean(address) },
+  } as const
+  const {
+    data: exp1Balance,
+    isPending: exp1Pending,
+    refetch: expBalanceRefetch,
+  } = useReadContract({
+    abi: exp1Config.abi,
+    address: exp1Config.address[chainId],
+    ...shared,
+  })
+  const {
+    data: exp2Balance,
+    isPending: exp2Pending,
+    refetch: exp2BalanceRefetch,
+  } = useReadContract({
+    abi: exp2Config.abi,
+    address: exp2Config.address[chainId],
+    ...shared,
+  })
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
+  React.useEffect(() => {
+    expBalanceRefetch()
+    exp2BalanceRefetch()
+  }, [blockNumber])
+
+  const { data, isPending, reset, sendCallsAsync } = useSendCalls()
+  const {
+    error,
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+  } = useWaitForCallsStatus({
+    id: data?.id,
+    pollingInterval,
+  })
+  React.useEffect(() => {
+    if (isConfirmed) {
+      setTimeout(reset, 4_000)
+      next()
+    }
+  }, [isConfirmed, next, reset])
   React.useEffect(() => {
     if (error)
       toast.custom((t) => (
@@ -857,8 +1129,6 @@ function Swap(props: {
   const fromValue = form.useValue('toValue')
   const toValue = form.useValue('toValue')
 
-  if (isConfirmed) return <Success text="Swapped successfully!" />
-
   const from = {
     balance: fromSymbol === 'exp1' ? exp1Balance : exp2Balance,
     icon: fromSymbol === 'exp1' ? <Exp1Token /> : <Exp2Token />,
@@ -871,6 +1141,7 @@ function Swap(props: {
     symbol: fromSymbol === 'exp1' ? 'exp2' : 'exp1',
     value: toValue,
   }
+  const balancePending = exp1Pending || exp2Pending
   const noFunds = (exp1Balance ?? 0n) === 0n && (exp2Balance ?? 0n) === 0n
 
   return (
@@ -984,76 +1255,46 @@ function Swap(props: {
 
       <Ariakit.FormSubmit
         aria-disabled={isPending || isConfirming}
-        className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10"
+        className={cx(
+          '-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] px-3 text-center font-medium text-[16px] leading-normal aria-disabled:pointer-events-none aria-disabled:bg-gray5 aria-disabled:text-gray10',
+          isConfirmed ? 'bg-green3 text-green10' : 'bg-accent text-white ',
+        )}
         disabled={isPending || isConfirming}
       >
-        {isPending || isConfirming ? 'Swapping...' : 'Swap'}
+        {isPending || isConfirming
+          ? 'Swapping...'
+          : isConfirmed
+            ? 'Swap complete!'
+            : 'Swap'}
       </Ariakit.FormSubmit>
 
-      {!(isPending || isConfirming) && (
-        <div className="mt-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <LucideGem className="mt-px size-4 text-amber8" />
-            <div className="-tracking-[0.392px] text-[14px] text-gray10 leading-[22px]">
-              No fee
-            </div>
+      <div className="-tracking-[0.25px] mt-3 flex h-[18.5px] items-center justify-between font-medium text-[13px]">
+        <div className="text-gray9">Balance</div>
+        <div className="flex items-center gap-2 text-gray10">
+          <div>
+            <span
+              className={
+                !balancePending && noFunds ? 'text-red10' : 'text-gray12'
+              }
+            >
+              {ValueFormatter.format(exp1Balance ?? 0n)}
+            </span>{' '}
+            <span>EXP1</span>
           </div>
-
-          <Ariakit.TooltipProvider placement="bottom-end">
-            <Ariakit.TooltipAnchor>
-              <LucideInfo className="size-4 text-gray10" />
-            </Ariakit.TooltipAnchor>
-            <Ariakit.Tooltip className="z-100 max-w-[189px] rounded-[11px] border border-gray4 bg-gray1 p-3.5 shadow-[0px_4px_44px_0px_rgba(0,0,0,0.10)]">
-              <div className="-tracking-[0.25px] font-medium text-[14px] text-gray12 leading-normal">
-                Fees are covered
-              </div>
-              <div className="-tracking-[0.25px] text-[13px] text-gray9 leading-normal">
-                This app is covering your transaction fees for holding{' '}
-                <span className="font-medium text-blue9">Ithaca Genesis</span>.
-              </div>
-            </Ariakit.Tooltip>
-          </Ariakit.TooltipProvider>
+          <div className="h-[18.5px] w-px bg-gray6" />
+          <div>
+            <span
+              className={
+                !balancePending && noFunds ? 'text-red10' : 'text-gray12'
+              }
+            >
+              {ValueFormatter.format(exp2Balance ?? 0n)}
+            </span>{' '}
+            <span>EXP2</span>
+          </div>
         </div>
-      )}
+      </div>
     </Ariakit.Form>
-  )
-}
-
-function Success(props: { text: string }) {
-  const { text } = props
-  return (
-    <div className="flex flex-col items-center gap-5">
-      <div className="w-fit rounded-full bg-green3 p-3.5">
-        <LucideCheck className="size-9 text-green9" />
-      </div>
-      <div className="-tracking-[-0.448px] rounded-full bg-gray4 px-4 py-2.5 text-[16px] text-gray9 leading-[22px]">
-        {text}
-      </div>
-    </div>
-  )
-}
-
-function ClickHere() {
-  return (
-    <div className="-ms-4 flex justify-center gap-4">
-      <div className="-tracking-[0.448px] font-medium text-[16px] text-black/50 leading-normal dark:text-white/50">
-        Click here
-      </div>
-      <svg
-        className="mt-2.5 text-black/80 dark:text-white/80"
-        fill="none"
-        height="41"
-        viewBox="0 0 47 41"
-        width="47"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <title>pointer arrow</title>
-        <path
-          d="M38.7964 40.7106C39.1889 41.0992 39.822 41.096 40.2106 40.7036L46.5429 34.3081C46.9314 33.9156 46.9283 33.2824 46.5358 32.8939C46.1434 32.5053 45.5102 32.5084 45.1216 32.9009L39.493 38.5858L33.8081 32.9571C33.4156 32.5686 32.7824 32.5717 32.3939 32.9642C32.0053 33.3566 32.0084 33.9898 32.4009 34.3784L38.7964 40.7106ZM1 1.5L0.968378 2.4995C15.7228 2.9663 24.953 5.21933 30.5709 10.7473C36.1764 16.263 38.4268 25.2825 38.5 40.005L39.5 40L40.5 39.995C40.4265 25.2081 38.1966 15.445 31.9736 9.32167C25.7631 3.21057 15.8166 0.968267 1.03162 0.5005L1 1.5Z"
-          fill="currentColor"
-        />
-      </svg>
-    </div>
   )
 }
 

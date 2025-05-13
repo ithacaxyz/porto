@@ -24,17 +24,19 @@ export function Connect(props: Connect.Props) {
   if (account.address)
     return (
       <div className="flex items-center gap-2">
-        <Button onClick={() => copyToClipboard(account.address!)} size={size}>
-          {copied && (
-            <div className="absolute inset-0 flex items-center justify-center gap-1.5">
-              <LucideCheck />
-              Copied
+        {variant !== 'topnav' && (
+          <Button onClick={() => copyToClipboard(account.address!)} size={size}>
+            {copied && (
+              <div className="absolute inset-0 flex items-center justify-center gap-1.5">
+                <LucideCheck />
+                Copied
+              </div>
+            )}
+            <div className={copied ? 'invisible' : undefined}>
+              {account.address.slice(0, 6)}...{account.address.slice(-4)}
             </div>
-          )}
-          <div className={copied ? 'invisible' : undefined}>
-            {account.address.slice(0, 6)}...{account.address.slice(-4)}
-          </div>
-        </Button>
+          </Button>
+        )}
         <Button
           onClick={() => disconnect.mutate({})}
           size={size}
