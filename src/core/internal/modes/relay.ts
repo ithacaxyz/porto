@@ -212,7 +212,21 @@ export function relay(parameters: relay.Parameters = {}) {
         const { internal, permissions } = parameters
         const { client } = internal
 
-        const { credentialId, keyId } = await (async () => {
+        const feeToken = await resolveFeeToken(internal)
+        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          feeToken,
+        })
+
+        // Prepare calls to sign over the session key to authorize.
+        const { context, digest } = authorizeKey
+          ? await Relay.prepareCalls(client, {
+              authorizeKeys: [authorizeKey],
+              feeToken: feeToken.address,
+              pre: true,
+            })
+          : ({ context: undefined, digest: '0x' } as const)
+
+        const { credentialId, keyId, signature } = await (async () => {
           if (mock) {
             if (!id_internal) throw new Error('id_internal not found.')
             return {
@@ -232,7 +246,7 @@ export function relay(parameters: relay.Parameters = {}) {
           // Discovery step. We will sign a random challenge. We need to do this
           // to extract the user id (ie. the address) to query for the Account's keys.
           const credential = await WebAuthnP256.sign({
-            challenge: '0x',
+            challenge: digest,
             rpId: keystoreHost,
           })
           const response = credential.raw
@@ -241,17 +255,14 @@ export function relay(parameters: relay.Parameters = {}) {
           const keyId = Bytes.toHex(new Uint8Array(response.userHandle!))
           const credentialId = credential.raw.id
 
-          return { credentialId, keyId }
+          const signature = digest
+            ? Key.serializeWebAuthnSignature(credential)
+            : undefined
+
+          return { credentialId, keyId, signature }
         })()
 
-        const feeToken = await resolveFeeToken(internal)
-
-        const [accounts, authorizeKey] = await Promise.all([
-          Relay.getAccounts(client, { keyId }),
-          PermissionsRequest.toKey(permissions, {
-            feeToken,
-          }),
-        ])
+        const accounts = await Relay.getAccounts(client, { keyId })
         if (!accounts[0]) throw new Error('account not found')
 
         // Instantiate the account based off the extracted address and keys.
@@ -277,13 +288,20 @@ export function relay(parameters: relay.Parameters = {}) {
           }),
         })
 
-        if (authorizeKey)
-          await preauthKey(client, {
-            account,
-            authorizeKey,
-            feeToken: feeToken.address,
-            storage: internal.config.storage,
-          })
+        if (authorizeKey) {
+          if (context && signature)
+            await PreBundles.upsert([{ context, signature }], {
+              address: account.address,
+              storage: internal.config.storage,
+            })
+          else
+            await preauthKey(client, {
+              account,
+              authorizeKey,
+              feeToken: feeToken.address,
+              storage: internal.config.storage,
+            })
+        }
 
         return {
           accounts: [account],
@@ -675,7 +693,6 @@ async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
     account,
     authorizeKeys: [authorizeKey],
     feeToken,
-    key: adminKey,
     pre: true,
   })
   const signature = await Key.sign(adminKey, {

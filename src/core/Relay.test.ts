@@ -260,6 +260,7 @@ describe('sendCalls', () => {
 
     const { id } = await Relay.sendCalls(client, {
       ...request,
+      key: request.key!,
       signature,
     })
 
@@ -356,10 +357,8 @@ describe('sendCalls', () => {
       role: 'session',
     })
     const request_1 = await Relay.prepareCalls(client, {
-      account,
       authorizeKeys: [newKey],
       feeToken: exp1Address,
-      key,
       pre: true,
     })
     const signature_1 = await Key.sign(key, {
@@ -387,6 +386,83 @@ describe('sendCalls', () => {
 
     const { id } = await Relay.sendCalls(client, {
       ...request_2,
+      key: request_2.key!,
+      signature: signature_2,
+    })
+
+    expect(id).toBeDefined()
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    expect(
+      await readContract(client, {
+        ...exp2Config,
+        args: [account.address],
+        functionName: 'balanceOf',
+      }),
+    ).toBe(100n)
+  })
+
+  test('behavior: pre bundles (via prepareCalls); account has executed calls previously', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await Relay.sendCalls(client, {
+      account,
+      calls: [{ to: account.address }],
+      feeToken: exp1Address,
+    })
+
+    const alice = Hex.random(20)
+    const newKey = Key.createP256({
+      expiry: 9999999999,
+      permissions: {
+        calls: [{ to: alice }],
+        spend: [
+          {
+            limit: Value.fromEther('5'),
+            period: 'day',
+            token: exp1Address,
+          },
+        ],
+      },
+      role: 'session',
+    })
+    const request_1 = await Relay.prepareCalls(client, {
+      authorizeKeys: [newKey],
+      feeToken: exp1Address,
+      pre: true,
+    })
+    const signature_1 = await Key.sign(key, {
+      payload: request_1.digest,
+    })
+
+    const request_2 = await Relay.prepareCalls(client, {
+      account,
+      calls: [
+        {
+          abi: exp2Abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: exp2Address,
+        },
+      ],
+      feeToken: exp1Address,
+      key,
+      pre: [{ ...request_1, signature: signature_1 }],
+    })
+    const signature_2 = await Key.sign(key, {
+      payload: request_2.digest,
+      wrap: false,
+    })
+
+    const { id } = await Relay.sendCalls(client, {
+      ...request_2,
+      key: request_2.key!,
       signature: signature_2,
     })
 

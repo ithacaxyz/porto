@@ -315,11 +315,13 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
             capabilities,
             chainId: chain!.id,
             from: address,
-            key: {
-              prehash: key.prehash,
-              publicKey: key.publicKey,
-              type: key.type,
-            },
+            key: key
+              ? {
+                  prehash: key.prehash,
+                  publicKey: key.publicKey,
+                  type: key.type,
+                }
+              : undefined,
           } satisfies Rpc.wallet_prepareCalls.Parameters),
         ],
       },
@@ -339,7 +341,7 @@ export namespace prepareCalls {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
   > = {
-    address: Address.Address
+    address?: Address.Address | undefined
     calls: Calls<Narrow<calls>>
     capabilities: Rpc.wallet_prepareCalls.Capabilities
     chain?: Chain | undefined
