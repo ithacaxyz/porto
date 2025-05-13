@@ -37,26 +37,26 @@ For documentation and guides, visit [porto.sh](https://porto.sh).
 ### Apps
 
 ```bash
-$ pnpm install # Install dependencies
-$ pnpm dev # Run manager, playground, and iframe dialog
+pnpm install # Install dependencies
+pnpm dev # Run manager, playground, and iframe dialog
 ```
 
 ### Tests
 
 ```bash
-$ pnpm install # Install dependencies
-$ docker pull ghcr.io/ithacaxyz/relay:latest # Pull Relay image
-$ pnpm test # Test
+pnpm install # Install dependencies
+docker pull ghcr.io/ithacaxyz/relay:latest # Pull Relay image
+pnpm test # Test
 ```
 
 ### Contracts
 
 ```bash
 # Install Foundry
-$ foundryup
+foundryup
 
-$ forge build --config-path ./contracts/foundry.toml # Build
-$ forge test --config-path ./contracts/foundry.toml # Test
+forge build --config-path ./contracts/foundry.toml # Build
+forge test --config-path ./contracts/foundry.toml # Test
 ```
 
 ## License
