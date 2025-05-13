@@ -328,11 +328,13 @@ export namespace wallet_prepareCalls {
     /** The address of the account to prepare the calls for. */
     from: Schema.Optional(Primitive.Address),
     /** Key that will be used to sign the call bundle. */
-    key: Type.Object({
-      prehash: Type.Boolean(),
-      publicKey: Primitive.Hex,
-      type: Key.Key.properties.type,
-    }),
+    key: Schema.Optional(
+      Type.Object({
+        prehash: Type.Boolean(),
+        publicKey: Primitive.Hex,
+        type: Key.Key.properties.type,
+      }),
+    ),
   })
   export type Parameters = Schema.StaticDecode<typeof Parameters>
 
@@ -357,7 +359,7 @@ export namespace wallet_prepareCalls {
     /** Capabilities. */
     digest: Primitive.Hex,
     /** Key that will be used to sign the call bundle. */
-    key: Parameters.properties.key,
+    key: Type.Union([Parameters.properties.key, Type.Null()]),
   })
   export type Response = Schema.StaticDecode<typeof Response>
 }

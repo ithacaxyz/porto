@@ -240,7 +240,9 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 ): Promise<prepareCalls.ReturnType> {
   const { calls, key, feeToken, nonce, pre, revokeKeys } = parameters
 
-  const account = Account.from(parameters.account)
+  const account = parameters.account
+    ? Account.from(parameters.account)
+    : undefined
 
   const hasSessionKey = parameters.authorizeKeys?.some(
     (x) => x.role === 'session',
@@ -274,7 +276,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
       : undefined
 
   const { capabilities, context, digest } = await Actions.prepareCalls(client, {
-    address: account.address,
+    address: account?.address,
     calls: (calls ?? []) as any,
     capabilities: {
       authorizeKeys,
@@ -288,7 +290,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         hash: key.hash,
       })),
     },
-    key: Key.toRelay(key),
+    key: key ? Key.toRelay(key) : undefined,
   })
   return {
     capabilities: { ...capabilities, quote: context.quote as any },
@@ -305,11 +307,11 @@ export namespace prepareCalls {
     /** Additional keys to authorize on the account. */
     authorizeKeys?: readonly Key.Key[] | undefined
     /** Account to prepare the calls for. */
-    account: Account.Account
+    account?: Account.Account | undefined
     /** Calls to prepare. */
     calls?: Actions.prepareCalls.Parameters<calls>['calls'] | undefined
     /** Key that will be used to sign the calls. */
-    key: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>
+    key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
     /**
      * Indicates if the bundle is a pre-bundle, and should be executed before
      * the main bundle.
@@ -596,11 +598,13 @@ export declare namespace sendCalls {
         /** Context. */
         context: prepareCalls.ReturnType['context']
         /** Key. */
-        key: prepareCalls.ReturnType['key']
+        key: NonNullable<prepareCalls.ReturnType['key']>
         /** Signature. */
         signature: Hex.Hex
       }
-    | (Omit<prepareCalls.Parameters<calls>, 'key' | 'pre'> & {
+    | (Omit<prepareCalls.Parameters<calls>, 'account' | 'key' | 'pre'> & {
+        /** Account to send the calls with. */
+        account: Account.Account
         /** Key to sign the bundle with. */
         key?: Key.Key | undefined
         /** Pre-bundle to execute before the main bundle. */
