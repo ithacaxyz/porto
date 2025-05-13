@@ -2,8 +2,6 @@ import * as Json from 'ox/Json'
 import { custom, fallback, http, type PublicRpcSchema } from 'viem'
 import {
   createClient,
-  createTransport,
-  type TransportConfig,
   type Account as viem_Account,
   type Client as viem_Client,
   type Transport as viem_Transport,
@@ -44,9 +42,7 @@ export type Internal<
   store: Store<chains>
 }
 
-export type Transport =
-  | viem_Transport
-  | { default: viem_Transport; relay?: viem_Transport | undefined }
+export type Transport = viem_Transport
 
 const clientCache = new Map<string, Client<any>>()
 
@@ -77,58 +73,12 @@ export function getClient<
     fallback(chain.rpcUrls.default.http.map((url) => http(url)))
   if (!transport) throw new Error('transport not found')
 
-  function getTransport(
-    transport: viem_Transport,
-    methods: TransportConfig['methods'],
-  ): viem_Transport {
-    return (config) => {
-      const t = transport(config)
-      return createTransport({ ...t.config, methods }, t.value)
-    }
-  }
-
-  let relay: viem_Transport | undefined
-  let default_: viem_Transport
-  if (typeof transport === 'object') {
-    default_ = transport.default
-    relay = transport.relay
-  } else {
-    default_ = transport
-  }
-
-  const relayMethods = [
-    'relay_estimateFee',
-    'relay_health',
-    'relay_sendAction',
-    'wallet_createAccount',
-    'wallet_getAccounts',
-    'wallet_getCallsStatus',
-    'wallet_getKeys',
-    'wallet_feeTokens',
-    'wallet_prepareCalls',
-    'wallet_prepareCreateAccount',
-    'wallet_prepareUpgradeAccount',
-    'wallet_sendPreparedCalls',
-    'wallet_sendTransaction',
-    'wallet_upgradeAccount',
-    'wallet_verifySignature',
-  ]
-
   const key = [id, Json.stringify(chain)].filter(Boolean).join(':')
   if (clientCache.has(key)) return clientCache.get(key)!
   const client = createClient({
     chain,
     pollingInterval: 1_000,
-    transport: relay
-      ? fallback([
-          getTransport(relay, {
-            include: relayMethods,
-          }),
-          getTransport(default_, {
-            exclude: ['eth_sendTransaction', ...relayMethods],
-          }),
-        ])
-      : default_,
+    transport,
   })
   clientCache.set(key, client)
   return client

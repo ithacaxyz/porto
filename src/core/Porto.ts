@@ -21,10 +21,7 @@ export const defaultConfig = {
   storage: typeof window !== 'undefined' ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {
-    [Chains.baseSepolia.id]: {
-      default: http(),
-      relay: http('https://base-sepolia.rpc.ithaca.xyz'),
-    },
+    [Chains.baseSepolia.id]: http(),
   },
 } as const satisfies Config
 
@@ -164,10 +161,7 @@ export type Config<
   /**
    * Transport to use for each chain.
    */
-  transports: Record<
-    chains[number]['id'],
-    Transport | { default: Transport; relay?: Transport | undefined }
-  >
+  transports: Record<chains[number]['id'], Transport>
 }
 
 export type Porto<

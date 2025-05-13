@@ -4,21 +4,10 @@ import { getBalance, readContract } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { getAccount } from '../../../test/src/actions.js'
-import {
-  exp1Address,
-  exp1Config,
-  getPorto as getPorto_,
-} from '../../../test/src/porto.js'
+import { exp1Address, exp1Config, getPorto } from '../../../test/src/porto.js'
 import * as Key from '../Key.js'
 import * as Call from './call.js'
 import * as Delegation from './delegation.js'
-
-const getPorto = () =>
-  getPorto_({
-    transports: {
-      relay: false,
-    },
-  })
 
 describe('execute', () => {
   describe('behavior: authorize', () => {

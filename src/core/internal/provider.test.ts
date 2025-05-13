@@ -36,9 +36,6 @@ describe.each([
   const getPorto = () =>
     getPorto_({
       mode,
-      transports: {
-        relay: type === 'contract' ? false : undefined,
-      },
     })
 
   describe('eth_accounts', () => {

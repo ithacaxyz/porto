@@ -12,10 +12,7 @@ const config = {
       feeToken: 'EXP',
     }),
     transports: {
-      [Chains.anvil.id]: {
-        default: http('http://127.0.0.1:8545'),
-        relay: http('http://127.0.0.1:9119'),
-      },
+      [Chains.anvil.id]: http(),
     },
   },
   dev: {
@@ -25,26 +22,14 @@ const config = {
     }),
     storageKey: 'porto.store.dev',
     transports: {
-      [Chains.portoDev.id]: {
-        default: http(),
-        relay: http(
-          'https://porto-dev.rpc.ithaca.xyz',
-          Sentry.httpTransportOptions(),
-        ),
-      },
+      [Chains.portoDev.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   prod: {
     chains: [Chains.baseSepolia],
     mode: Mode.relay(),
     transports: {
-      [Chains.baseSepolia.id]: {
-        default: http(),
-        relay: http(
-          'https://base-sepolia.rpc.ithaca.xyz',
-          Sentry.httpTransportOptions(),
-        ),
-      },
+      [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   stg: {
@@ -52,13 +37,7 @@ const config = {
     mode: Mode.relay(),
     storageKey: 'porto.store.stg',
     transports: {
-      [Chains.baseSepolia.id]: {
-        default: http(),
-        relay: http(
-          'https://base-sepolia.rpc.ithaca.xyz',
-          Sentry.httpTransportOptions(),
-        ),
-      },
+      [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
