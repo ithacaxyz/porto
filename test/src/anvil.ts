@@ -1,15 +1,7 @@
 import { resolve } from 'node:path'
-import { Provider, RpcTransport } from 'ox'
+import { RpcTransport } from 'ox'
 import { createServer } from 'prool'
 import { type AnvilParameters, anvil } from 'prool/instances'
-import {
-  createClient,
-  formatTransaction,
-  http,
-  type TransactionRequest,
-} from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { prepareTransactionRequest, signTransaction } from 'viem/actions'
 
 import { poolId } from './prool.js'
 

@@ -525,7 +525,11 @@ export async function sendPreparedCalls(
               preOp: context.preOp,
               quote: context.quote,
             },
-            key,
+            key: {
+              prehash: key.prehash,
+              publicKey: key.publicKey,
+              type: key.type,
+            },
             signature,
           } satisfies Rpc.wallet_sendPreparedCalls.Parameters),
         ],

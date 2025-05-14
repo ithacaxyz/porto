@@ -22,7 +22,7 @@ export const exp2Config = {
   address: exp2Address,
 } as const
 
-const relayUrl = Anvil.enabled
+const rpcUrl = Anvil.enabled
   ? Relay.instances.odyssey.rpcUrl
   : 'https://porto-dev.rpc.ithaca.xyz'
 
@@ -52,17 +52,17 @@ export function getPorto(
     }),
     storage: Storage.memory(),
     transports: {
-      [chain.id]: http(relayUrl, {
+      [chain.id]: http(rpcUrl, {
         async onFetchRequest(_, init) {
-          if (process.env.VITE_RELAY_LOGS !== 'true') return
+          if (process.env.VITE_RPC_LOGS !== 'true') return
           console.log(`curl \\
-${relayUrl} \\
+${rpcUrl} \\
 -X POST \\
 -H "Content-Type: application/json" \\
 -d '${JSON.stringify(JSON.parse(init.body as string))}'`)
         },
         async onFetchResponse(response) {
-          if (process.env.VITE_RELAY_LOGS !== 'true') return
+          if (process.env.VITE_RPC_LOGS !== 'true') return
           console.log('> ' + JSON.stringify(await response.clone().json()))
         },
       }),
