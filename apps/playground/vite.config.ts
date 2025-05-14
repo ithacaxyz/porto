@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => ({
           port: 8545,
           rpcUrl: 'http://127.0.0.1:8545',
         }
-        const relayConfig = {
+        const rpcServerConfig = {
           port: 9119,
           rpcUrl: 'http://127.0.0.1:9119',
         }
@@ -88,20 +88,20 @@ export default defineConfig(({ mode }) => ({
               exp1Address,
             ],
             http: {
-              port: relayConfig.port,
+              port: rpcServerConfig.port,
             },
             simulator: simulatorAddress,
             userOpGasBuffer: 100_000n,
           }).start()
-          await fetch(relayConfig.rpcUrl + '/start')
+          await fetch(rpcServerConfig.rpcUrl + '/start')
           return stop
         }
         let stopRpcServer = await startRpcServer()
 
-        logger.info('RPC Server started on ' + relayConfig.rpcUrl)
+        logger.info('RPC Server started on ' + rpcServerConfig.rpcUrl)
 
         server.middlewares.use(async (req, res, next) => {
-          if (req.url?.startsWith('/relay/up')) {
+          if (req.url?.startsWith('/rpc/up')) {
             stopRpcServer()
             stopRpcServer = await startRpcServer({
               delegationProxy: delegationNewProxyAddress,

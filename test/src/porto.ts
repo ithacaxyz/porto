@@ -4,7 +4,7 @@ import { http } from 'viem'
 import * as Porto_internal from '../../src/core/internal/porto.js'
 import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
-import * as Relay from './rpcServer.js'
+import * as RpcServer from './rpcServer.js'
 
 export const chain = Anvil.enabled ? Chains.anvil : Chains.portoDev
 
@@ -23,7 +23,7 @@ export const exp2Config = {
 } as const
 
 const rpcUrl = Anvil.enabled
-  ? Relay.instances.odyssey.rpcUrl
+  ? RpcServer.instances.odyssey.rpcUrl
   : 'https://porto-dev.rpc.ithaca.xyz'
 
 export function getPorto(
