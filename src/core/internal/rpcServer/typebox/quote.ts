@@ -1,5 +1,5 @@
 /**
- * Relay quote.
+ * RPC quote.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/quote.rs
  */
@@ -9,7 +9,7 @@ import * as Schema from '../../typebox/schema.js'
 import { Type } from '../../typebox/schema.js'
 import * as UserOp from './userOp.js'
 
-/** A quote from a relay for a given `UserOp`. */
+/** A quote from the RPC for a given `UserOp`. */
 export const Quote = Type.Object({
   /**
    * An optional unsigned authorization item.

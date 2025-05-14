@@ -12,8 +12,8 @@ import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as Call from './internal/call.js'
-import type * as RelayKey_typebox from './internal/relay/typebox/key.js'
-import type * as RelayPermission_typebox from './internal/relay/typebox/permission.js'
+import type * as RelayKey_typebox from './internal/rpcServer/typebox/key.js'
+import type * as RelayPermission_typebox from './internal/rpcServer/typebox/permission.js'
 import type * as Key_typebox from './internal/typebox/key.js'
 import type {
   Compute,

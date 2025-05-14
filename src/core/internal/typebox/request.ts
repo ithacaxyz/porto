@@ -1,5 +1,5 @@
-import * as Quote from '../relay/typebox/quote.js'
-import * as Rpc_relay from '../relay/typebox/rpc.js'
+import * as Quote from '../rpcServer/typebox/quote.js'
+import * as Rpc_relay from '../rpcServer/typebox/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Permissions from './permissions.js'

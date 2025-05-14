@@ -1,5 +1,5 @@
 /**
- * JSON-RPC Schemas for Relay.
+ * JSON-RPC Schemas.
  *
  * @see https://github.com/ithacaxyz/relay/tree/main/src/types/rpc
  */

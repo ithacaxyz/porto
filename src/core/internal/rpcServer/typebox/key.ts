@@ -1,5 +1,5 @@
 /**
- * Relay key.
+ * RPC account key.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/key.rs
  */

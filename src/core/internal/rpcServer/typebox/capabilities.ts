@@ -1,5 +1,5 @@
 /**
- * Relay capabilities.
+ * RPC capabilities.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/capabilities.rs
  */

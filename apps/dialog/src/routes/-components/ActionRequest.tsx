@@ -3,7 +3,7 @@ import { Button, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
 import { Address } from 'ox'
 import { Chains } from 'porto'
-import * as Quote_relay from 'porto/core/internal/relay/typebox/quote'
+import * as Quote_typebox from 'porto/core/internal/rpcServer/typebox/quote'
 import * as Rpc from 'porto/core/internal/typebox/request'
 import { Hooks, Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
@@ -290,7 +290,7 @@ export namespace ActionRequest {
   export namespace Details {
     export type Props = {
       chain?: Chains.Chain | undefined
-      quote: Quote_relay.Quote
+      quote: Quote_typebox.Quote
     }
   }
 
@@ -353,7 +353,7 @@ export namespace ActionRequest {
     export type Props = {
       children?: React.ReactNode | undefined
       loading?: boolean | undefined
-      quote?: Quote_relay.Quote | undefined
+      quote?: Quote_typebox.Quote | undefined
       variant?: 'default' | 'warning' | undefined
     }
   }
@@ -376,7 +376,7 @@ export namespace ActionRequest {
     chains extends readonly [PortoConfig.Chain, ...PortoConfig.Chain[]],
   >(
     porto: Pick<Porto_.Porto<chains>, '_internal'>,
-    quote: Quote_relay.Quote,
+    quote: Quote_typebox.Quote,
   ): Quote | undefined {
     const { chainId, op, nativeFeeEstimate, txGas, ttl } = quote ?? {}
     const { paymentToken, totalPaymentMaxAmount } = op ?? {}
