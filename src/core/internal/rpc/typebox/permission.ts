@@ -1,8 +1,8 @@
 import type { StaticDecode } from '@sinclair/typebox/type'
 
 import * as Primitive from '../../typebox/primitive.js'
-import * as Schema from '../../typebox/schema.js'
-import { Type } from '../../typebox/schema.js'
+import * as Typebox from '../../typebox/typebox.js'
+import { Type } from '../../typebox/typebox.js'
 
 export const CallPermission = Type.Object({
   /** The selector of the function this permission applies to. */
@@ -27,7 +27,7 @@ export const SpendPermission = Type.Object({
     Type.Literal('year'),
   ]),
   /** The token this permission applies to. If `None`, defaults to native token (ETH). */
-  token: Schema.Optional(Schema.OneOf([Primitive.Address, Type.Null()])),
+  token: Typebox.Optional(Typebox.OneOf([Primitive.Address, Type.Null()])),
   /** Permission type. */
   type: Type.Literal('spend'),
 })

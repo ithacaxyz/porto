@@ -1,614 +1,73 @@
-import * as Quote from '../rpcServer/typebox/quote.js'
-import * as Rpc_relay from '../rpcServer/typebox/rpc.js'
-import * as C from './capabilities.js'
-import * as Key from './key.js'
-import * as Permissions from './permissions.js'
-import * as Primitive from './primitive.js'
-import * as Schema from './schema.js'
-import { Type } from './schema.js'
+import type { Union } from '@sinclair/typebox/type'
+import * as Json from 'ox/Json'
+import * as RpcResponse from 'ox/RpcResponse'
+import * as RpcRequest from './rpc.js'
+import { type StaticDecode, type StaticEncode, Type, Value } from './typebox.js'
 
-export namespace experimental_addFunds {
-  export const Parameters = Type.Object({
-    address: Schema.Optional(Primitive.Address),
-    token: Primitive.Address,
-    value: Schema.Optional(Primitive.BigInt),
-  })
+export * from './rpc.js'
 
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+export const Request = Type.Union([
+  RpcRequest.experimental_addFunds.Request,
+  RpcRequest.eth_accounts.Request,
+  RpcRequest.eth_chainId.Request,
+  RpcRequest.eth_requestAccounts.Request,
+  RpcRequest.eth_sendTransaction.Request,
+  RpcRequest.eth_signTypedData_v4.Request,
+  RpcRequest.experimental_createAccount.Request,
+  RpcRequest.experimental_getAccountVersion.Request,
+  RpcRequest.experimental_getAdmins.Request,
+  RpcRequest.experimental_getPermissions.Request,
+  RpcRequest.experimental_grantAdmin.Request,
+  RpcRequest.experimental_grantPermissions.Request,
+  RpcRequest.experimental_prepareUpgradeAccount.Request,
+  RpcRequest.experimental_revokeAdmin.Request,
+  RpcRequest.experimental_revokePermissions.Request,
+  RpcRequest.experimental_updateAccount.Request,
+  RpcRequest.experimental_upgradeAccount.Request,
+  RpcRequest.personal_sign.Request,
+  RpcRequest.porto_ping.Request,
+  RpcRequest.wallet_connect.Request,
+  RpcRequest.wallet_disconnect.Request,
+  RpcRequest.wallet_getCallsStatus.Request,
+  RpcRequest.wallet_getCapabilities.Request,
+  RpcRequest.wallet_prepareCalls.Request,
+  RpcRequest.wallet_sendCalls.Request,
+  RpcRequest.wallet_sendPreparedCalls.Request,
+  RpcRequest.wallet_verifySignature.Request,
+])
 
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_addFunds'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
+export function parseRequest(request: unknown): parseRequest.ReturnType {
+  const raw = Value.Convert(Request, request)
 
-  export const Response = Type.Object({
-    id: Primitive.Hex,
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
+  const method = RpcRequest[(raw as any).method as keyof typeof RpcRequest]
+  if (method) {
+    const error = Value.Errors(method.Request, raw).First()
+    const message = [
+      error?.message,
+      '',
+      'Path: ' + error?.path.slice(1).replaceAll('/', '.'),
+      error?.value && 'Value: ' + Json.stringify(error.value),
+    ]
+      .filter((x) => typeof x === 'string')
+      .join('\n')
+    if (error) throw new RpcResponse.InvalidParamsError({ message })
+  }
+
+  Value.Assert(Request, raw)
+  const _decoded = Value.Decode(Request, raw)
+
+  return {
+    ...raw,
+    _decoded,
+  } as never
 }
 
-export namespace eth_accounts {
-  export const Request = Type.Object({
-    method: Type.Literal('eth_accounts'),
-    params: Schema.Optional(Type.Undefined()),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Array(Primitive.Address)
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace eth_chainId {
-  export const Request = Type.Object({
-    method: Type.Literal('eth_chainId'),
-    params: Schema.Optional(Type.Undefined()),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-  export const Response = Primitive.Hex
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace eth_requestAccounts {
-  export const Request = Type.Object({
-    method: Type.Literal('eth_requestAccounts'),
-    params: Schema.Optional(Type.Undefined()),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Array(Primitive.Address)
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace eth_sendTransaction {
-  export const Request = Type.Object({
-    method: Type.Literal('eth_sendTransaction'),
-    params: Type.Tuple([
-      Type.Object({
-        chainId: Schema.Optional(Primitive.Number),
-        data: Schema.Optional(Primitive.Hex),
-        from: Schema.Optional(Primitive.Address),
-        to: Primitive.Address,
-        value: Schema.Optional(Primitive.BigInt),
-      }),
-    ]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Primitive.Hex
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace eth_signTypedData_v4 {
-  export const Request = Type.Object({
-    method: Type.Literal('eth_signTypedData_v4'),
-    params: Type.Tuple([Primitive.Address, Type.String()]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Primitive.Hex
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_getAdmins {
-  export const Parameters = Type.Object({
-    address: Schema.Optional(Primitive.Address),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_getAdmins'),
-    params: Schema.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    keys: Type.Array(
-      Type.Intersect([
-        Type.Pick(Key.Base, ['id', 'publicKey', 'type']),
-        Type.Object({
-          credentialId: Schema.Optional(Type.String()),
-        }),
-      ]),
-    ),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_grantAdmin {
-  export const Capabilities = Type.Object({
-    feeToken: Schema.Optional(Primitive.Address),
-  })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
-
-  export const Parameters = Type.Object({
-    /** Address of the account to authorize the admin for. */
-    address: Schema.Optional(Primitive.Address),
-    /** Capabilities. */
-    capabilities: Schema.Optional(Capabilities),
-    /** Chain ID. */
-    chainId: Schema.Optional(Primitive.Number),
-    /** Admin Key to authorize. */
-    key: Type.Object({
-      /** Public key. */
-      publicKey: Key.Base.properties.publicKey,
-      /** Key type. */
-      type: Key.Base.properties.type,
-    }),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_grantAdmin'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    chainId: Primitive.Hex,
-    key: experimental_getAdmins.Response.properties.keys.items,
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_createAccount {
-  export const Parameters = Type.Intersect([
-    Type.Object({
-      chainId: Schema.Optional(Primitive.Number),
-      label: Schema.Optional(Type.String()),
-    }),
-  ])
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_createAccount'),
-    params: Schema.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const ResponseCapabilities = Type.Object({
-    admins: Schema.Optional(experimental_getAdmins.Response.properties.keys),
-    permissions: Schema.Optional(C.permissions.Response),
-  })
-  export type ResponseCapabilities = Schema.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    capabilities: Schema.Optional(ResponseCapabilities),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_grantPermissions {
-  export const Parameters = Permissions.Request
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_grantPermissions'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Permissions.Permissions
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_getAccountVersion {
-  export const Parameters = Type.Object({
-    address: Schema.Optional(Primitive.Address),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_getAccountVersion'),
-    params: Schema.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    current: Type.String(),
-    latest: Type.String(),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_getPermissions {
-  export const Parameters = Type.Object({
-    address: Schema.Optional(Primitive.Address),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_getPermissions'),
-    params: Schema.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = C.permissions.Response
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_prepareUpgradeAccount {
-  export const Capabilities = Type.Object({
-    feeToken: Schema.Optional(Primitive.Address),
-    grantPermissions: Schema.Optional(C.grantPermissions.Request),
-  })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
-
-  export const Parameters = Type.Object({
-    address: Primitive.Address,
-    capabilities: Schema.Optional(Capabilities),
-    chainId: Schema.Optional(Primitive.Number),
-    label: Schema.Optional(Type.String()),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_prepareUpgradeAccount'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    context: Type.Unknown(),
-    signPayloads: Type.Array(Primitive.Hex),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_revokeAdmin {
-  export const Capabilities = Type.Object({
-    feeToken: Schema.Optional(Primitive.Address),
-  })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
-
-  export const Parameters = Type.Object({
-    address: Schema.Optional(Primitive.Address),
-    capabilities: Schema.Optional(Capabilities),
-    chainId: Schema.Optional(Primitive.Number),
-    id: Primitive.Hex,
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_revokeAdmin'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = undefined
-}
-
-export namespace experimental_revokePermissions {
-  export const Capabilities = Type.Object({
-    feeToken: Schema.Optional(Primitive.Address),
-  })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
-
-  export const Parameters = Type.Object({
-    address: Schema.Optional(Primitive.Address),
-    capabilities: Schema.Optional(Capabilities),
-    id: Primitive.Hex,
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_revokePermissions'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = undefined
-}
-
-export namespace experimental_updateAccount {
-  export const Parameters = Type.Object({
-    address: Schema.Optional(Primitive.Address),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_updateAccount'),
-    params: Schema.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    id: Schema.Optional(Primitive.Hex),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace experimental_upgradeAccount {
-  export const Parameters = Type.Object({
-    context: Type.Unknown(),
-    signatures: Type.Array(Primitive.Hex),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('experimental_upgradeAccount'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const ResponseCapabilities = Type.Object({
-    permissions: Schema.Optional(C.permissions.Response),
-  })
-  export type ResponseCapabilities = Schema.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    capabilities: Schema.Optional(ResponseCapabilities),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace personal_sign {
-  export const Request = Type.Object({
-    method: Type.Literal('personal_sign'),
-    params: Type.Tuple([Primitive.Hex, Primitive.Address]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Primitive.Hex
-}
-
-export namespace porto_ping {
-  export const Request = Type.Object({
-    method: Type.Literal('porto_ping'),
-    params: Schema.Optional(Type.Undefined()),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Literal('pong')
-}
-
-export namespace wallet_connect {
-  export const Capabilities = Type.Object({
-    createAccount: Schema.Optional(C.createAccount.Request),
-    credentialId: Schema.Optional(Type.String()),
-    grantPermissions: Schema.Optional(C.grantPermissions.Request),
-    keyId: Schema.Optional(Primitive.Hex),
-    selectAccount: Schema.Optional(Type.Boolean()),
-  })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
-
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_connect'),
-    params: Schema.Optional(
-      Type.Tuple([
-        Type.Object({
-          capabilities: Schema.Optional(Capabilities),
-        }),
-      ]),
-    ),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const ResponseCapabilities = Type.Object({
-    admins: Schema.Optional(experimental_getAdmins.Response.properties.keys),
-    permissions: Schema.Optional(C.permissions.Response),
-  })
-  export type ResponseCapabilities = Schema.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  export const Response = Type.Object({
-    accounts: Type.Array(
-      Type.Object({
-        address: Primitive.Address,
-        capabilities: Schema.Optional(ResponseCapabilities),
-      }),
-    ),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace wallet_disconnect {
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_disconnect'),
-    params: Schema.Optional(Type.Undefined()),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = undefined
-}
-
-export namespace wallet_getCallsStatus {
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_getCallsStatus'),
-    params: Type.Tuple([Primitive.Hex]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    atomic: Type.Boolean(),
-    chainId: Primitive.Number,
-    id: Type.String(),
-    receipts: Schema.Optional(
-      Type.Array(
-        Type.Object({
-          blockHash: Primitive.Hex,
-          blockNumber: Primitive.Hex,
-          gasUsed: Primitive.Hex,
-          logs: Type.Array(
-            Type.Object({
-              address: Primitive.Address,
-              data: Primitive.Hex,
-              topics: Type.Array(Primitive.Hex),
-            }),
-          ),
-          status: Primitive.Hex,
-          transactionHash: Primitive.Hex,
-        }),
-      ),
-    ),
-    status: Type.Number(),
-    version: Type.String(),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace wallet_getCapabilities {
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_getCapabilities'),
-    params: Schema.Optional(Type.Undefined()),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Record(
-    Primitive.Hex,
-    Type.Object({
-      atomic: Type.Object({
-        supported: Type.Boolean(),
-      }),
-      createAccount: Type.Object({
-        supported: Type.Boolean(),
-      }),
-      permissions: Type.Object({
-        supported: Type.Boolean(),
-      }),
-    }),
-  )
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace wallet_prepareCalls {
-  export const Capabilities = Type.Object({
-    feeToken: Schema.Optional(Primitive.Address),
-    permissions: Schema.Optional(C.permissions.Request),
-  })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
-
-  export const Parameters = Type.Object({
-    calls: Type.Array(
-      Type.Object({
-        data: Schema.Optional(Primitive.Hex),
-        to: Primitive.Address,
-        value: Schema.Optional(Primitive.BigInt),
-      }),
-    ),
-    capabilities: Schema.Optional(Capabilities),
-    chainId: Schema.Optional(Primitive.Number),
-    from: Schema.Optional(Primitive.Address),
-    key: Type.Object({
-      prehash: Schema.Optional(Type.Boolean()),
-      publicKey: Primitive.Hex,
-      type: Type.Union([
-        Type.Literal('p256'),
-        Type.Literal('secp256k1'),
-        Type.Literal('webauthn-p256'),
-        Type.Literal('address'),
-      ]),
-    }),
-    version: Schema.Optional(Type.String()),
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_prepareCalls'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    capabilities: Schema.Optional(
-      Type.Intersect([
-        Rpc_relay.wallet_prepareCalls.ResponseCapabilities,
-        Type.Object({
-          quote: Schema.Optional(Quote.Quote),
-        }),
-      ]),
-    ),
-    chainId: Primitive.Hex,
-    context: Type.Object({
-      account: Type.Object({
-        address: Primitive.Address,
-      }),
-      calls: Parameters.properties.calls,
-      nonce: Primitive.BigInt,
-    }),
-    digest: Primitive.Hex,
-    key: Parameters.properties.key,
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace wallet_sendCalls {
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_sendCalls'),
-    params: Type.Tuple([Type.Omit(wallet_prepareCalls.Parameters, ['key'])]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    id: Primitive.Hex,
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace wallet_sendPreparedCalls {
-  export const Parameters = Type.Object({
-    capabilities: wallet_prepareCalls.Response.properties.capabilities,
-    chainId: Primitive.Hex,
-    context: wallet_prepareCalls.Response.properties.context,
-    key: wallet_prepareCalls.Response.properties.key,
-    signature: Primitive.Hex,
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_sendPreparedCalls'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  export const Response = Type.Array(
-    Type.Object({
-      capabilities: Schema.Optional(Type.Record(Type.String(), Type.Any())),
-      id: Primitive.Hex,
-    }),
-  )
-  export type Response = Schema.StaticDecode<typeof Response>
-}
-
-export namespace wallet_verifySignature {
-  export const Parameters = Type.Object({
-    /** Address of the account. */
-    address: Primitive.Address,
-    /** Chain ID. */
-    chainId: Schema.Optional(Primitive.Number),
-    /** Digest to verify. */
-    digest: Primitive.Hex,
-    /** Signature to verify. */
-    signature: Primitive.Hex,
-  })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
-
-  /** Request for `wallet_verifySignature`. */
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_verifySignature'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Schema.StaticDecode<typeof Request>
-
-  /** Response for `wallet_verifySignature`. */
-  export const Response = Type.Object({
-    /** Address of the account. */
-    address: Primitive.Address,
-    /** Chain ID. */
-    chainId: Primitive.Number,
-    /** Proof that can be used to verify the signature. */
-    proof: Schema.Optional(Type.Unknown()),
-    /** Whether the signature is valid. */
-    valid: Type.Boolean(),
-  })
-  export type Response = Schema.StaticDecode<typeof Response>
+export declare namespace parseRequest {
+  export type ReturnType = typeof Request extends Union<infer U>
+    ? {
+        [K in keyof U]: StaticEncode<U[K]> & {
+          _decoded: StaticDecode<U[K]>
+        }
+      }[number]
+    : never
 }

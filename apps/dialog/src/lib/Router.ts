@@ -1,7 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
 import { Provider, type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
-import * as Rpc from 'porto/core/internal/typebox/rpc'
+import * as RpcRequest from 'porto/core/internal/typebox/request'
 import { Actions } from 'porto/remote'
 
 import { routeTree } from '~/routeTree.gen.ts'
@@ -15,7 +15,7 @@ export function parseSearchRequest<
 ): parseSearchRequest.ReturnType<method> {
   const { method } = parameters
   try {
-    const request = Rpc.parseRequest(search)
+    const request = RpcRequest.parseRequest(search)
     if (request.method === method)
       return {
         ...request,
@@ -40,7 +40,7 @@ export namespace parseSearchRequest {
 
   export type ReturnType<
     method extends RpcSchema.ExtractMethodName<porto_RpcSchema.Schema>,
-  > = Extract<Rpc.parseRequest.ReturnType, { method: method }> & {
+  > = Extract<RpcRequest.parseRequest.ReturnType, { method: method }> & {
     jsonrpc: '2.0'
     id: number
     _returnType: undefined

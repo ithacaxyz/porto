@@ -1,30 +1,30 @@
 import * as Permissions from './permissions.js'
 import * as Primitive from './primitive.js'
-import * as Schema from './schema.js'
-import { Type } from './schema.js'
+import * as Typebox from './typebox.js'
+import { Type } from './typebox.js'
 
 export namespace createAccount {
   export const Request = Type.Union([
     Type.Boolean(),
     Type.Object({
-      chainId: Schema.Optional(Primitive.Number),
-      label: Schema.Optional(Type.String()),
+      chainId: Typebox.Optional(Primitive.Number),
+      label: Typebox.Optional(Type.String()),
     }),
   ])
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 }
 
 export namespace grantPermissions {
   export const Request = Permissions.Request
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 }
 
 export namespace permissions {
   export const Request = Type.Object({
-    id: Schema.Optional(Primitive.Hex),
+    id: Typebox.Optional(Primitive.Hex),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   export const Response = Type.Array(Permissions.Permissions)
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }

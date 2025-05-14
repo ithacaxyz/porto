@@ -1,6 +1,6 @@
 import * as Primitive from '../typebox/primitive.js'
-import * as Schema from '../typebox/schema.js'
-import { Type } from '../typebox/schema.js'
+import * as Typebox from './typebox.js'
+import { Type } from './typebox.js'
 
 export const Base = Type.Object({
   /** The expiry of the key. */
@@ -8,13 +8,13 @@ export const Base = Type.Object({
   /** The hash of the key. */
   hash: Primitive.Hex,
   /** The id of the key. */
-  id: Schema.Optional(Primitive.Hex),
+  id: Typebox.Optional(Primitive.Hex),
   /** Public key. */
   publicKey: Primitive.Hex,
   /** Role. */
   role: Type.Union([Type.Literal('admin'), Type.Literal('session')]),
   /** Signature. */
-  signature: Schema.Optional(Primitive.Hex),
+  signature: Typebox.Optional(Primitive.Hex),
   /** Key type. */
   type: Type.Union([
     Type.Literal('address'),
@@ -23,7 +23,7 @@ export const Base = Type.Object({
     Type.Literal('webauthn-p256'),
   ]),
 })
-export type Base = Schema.StaticDecode<typeof Base>
+export type Base = Typebox.StaticDecode<typeof Base>
 
 export const CallPermissions = Type.Array(
   Type.Union([
@@ -33,21 +33,21 @@ export const CallPermissions = Type.Array(
     }),
     Type.Object({
       signature: Type.String(),
-      to: Schema.Optional(Type.Undefined()),
+      to: Typebox.Optional(Type.Undefined()),
     }),
     Type.Object({
-      signature: Schema.Optional(Type.Undefined()),
+      signature: Typebox.Optional(Type.Undefined()),
       to: Primitive.Address,
     }),
   ]),
   { minItems: 1 },
 )
-export type CallPermissions = Schema.StaticDecode<typeof CallPermissions>
+export type CallPermissions = Typebox.StaticDecode<typeof CallPermissions>
 
 export const SignatureVerificationPermission = Type.Object({
   addresses: Type.Array(Primitive.Address),
 })
-export type SignatureVerificationPermission = Schema.StaticDecode<
+export type SignatureVerificationPermission = Typebox.StaticDecode<
   typeof SignatureVerificationPermission
 >
 
@@ -62,14 +62,14 @@ export const SpendPermissions = Type.Array(
       Type.Literal('month'),
       Type.Literal('year'),
     ]),
-    token: Schema.Optional(Primitive.Address),
+    token: Typebox.Optional(Primitive.Address),
   }),
 )
-export type SpendPermissions = Schema.StaticDecode<typeof SpendPermissions>
+export type SpendPermissions = Typebox.StaticDecode<typeof SpendPermissions>
 
 export const Permissions = Type.Object({
-  calls: Schema.Optional(CallPermissions),
-  signatureVerification: Schema.Optional(SignatureVerificationPermission),
-  spend: Schema.Optional(SpendPermissions),
+  calls: Typebox.Optional(CallPermissions),
+  signatureVerification: Typebox.Optional(SignatureVerificationPermission),
+  spend: Typebox.Optional(SpendPermissions),
 })
-export type Permissions = Schema.StaticDecode<typeof Permissions>
+export type Permissions = Typebox.StaticDecode<typeof Permissions>

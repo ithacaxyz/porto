@@ -1,9 +1,11 @@
 import type * as RpcSchema from 'ox/RpcSchema'
 import type { PublicRpcSchema } from 'viem'
 
-import type * as Rpc from './internal/typebox/rpc.js'
-import type { Static } from './internal/typebox/schema.js'
+import type * as Rpc from './internal/typebox/request.js'
+import type { Static } from './internal/typebox/typebox.js'
 import type { DeepReadonly, UnionToTuple } from './internal/types.js'
+
+export * from './internal/typebox/rpc.js'
 
 export type Schema =
   | RpcSchema.Eth

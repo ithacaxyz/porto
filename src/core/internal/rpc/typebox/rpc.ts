@@ -5,8 +5,8 @@
  */
 
 import * as Primitive from '../../typebox/primitive.js'
-import * as Schema from '../../typebox/schema.js'
-import { Type } from '../../typebox/schema.js'
+import * as Typebox from '../../typebox/typebox.js'
+import { Type } from '../../typebox/typebox.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Quote from './quote.js'
@@ -18,14 +18,14 @@ const Authorization = Type.Object({
   nonce: Primitive.Number,
   r: Primitive.Hex,
   s: Primitive.Hex,
-  v: Schema.Optional(Primitive.BigInt),
-  yParity: Schema.Optional(Primitive.Number),
+  v: Typebox.Optional(Primitive.BigInt),
+  yParity: Typebox.Optional(Primitive.Number),
 })
 
 const Call = Type.Object({
-  data: Schema.Optional(Primitive.Hex),
+  data: Typebox.Optional(Primitive.Hex),
   to: Primitive.Address,
-  value: Schema.Optional(Primitive.BigInt),
+  value: Typebox.Optional(Primitive.BigInt),
 })
 
 export namespace relay_health {
@@ -33,7 +33,7 @@ export namespace relay_health {
     method: Type.Literal('relay_health'),
     params: Type.Undefined(),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   export const Response = Type.Object({
     /** Delegation proxy address. */
@@ -45,14 +45,14 @@ export namespace relay_health {
     /** Quote configuration. */
     quoteConfig: Type.Object({
       /** Sets a constant rate for the price oracle. Used for testing. */
-      constantRate: Schema.Optional(Type.Union([Type.Number(), Type.Null()])),
+      constantRate: Typebox.Optional(Type.Union([Type.Number(), Type.Null()])),
       /** Gas estimate configuration. */
-      gas: Schema.Optional(
+      gas: Typebox.Optional(
         Type.Object({
           /** Extra buffer added to transaction gas estimates. */
-          txBuffer: Schema.Optional(Type.Number()),
+          txBuffer: Typebox.Optional(Type.Number()),
           /** Extra buffer added to UserOp gas estimates. */
-          userOpBuffer: Schema.Optional(Type.Number()),
+          userOpBuffer: Typebox.Optional(Type.Number()),
         }),
       ),
       /** The lifetime of a price rate. */
@@ -61,11 +61,11 @@ export namespace relay_health {
       ttl: Type.Number(),
     }),
     /** Simulator address. */
-    simulator: Schema.Optional(Primitive.Address),
+    simulator: Typebox.Optional(Primitive.Address),
     /** Version of the relay. */
     version: Type.String(),
   })
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_getAccounts {
@@ -77,14 +77,14 @@ export namespace wallet_getAccounts {
     // TODO: `Primitive.Number`
     id: Primitive.Hex,
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_getAccounts`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_getAccounts'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_getAccounts`. */
   export const Response = Type.Array(
@@ -95,7 +95,7 @@ export namespace wallet_getAccounts {
       keys: C.authorizeKeys.Response,
     }),
   )
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_getCallsStatus {
@@ -103,11 +103,11 @@ export namespace wallet_getCallsStatus {
     method: Type.Literal('wallet_getCallsStatus'),
     params: Type.Tuple([Primitive.Hex]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   export const Response = Type.Object({
     id: Type.String(),
-    receipts: Schema.Optional(
+    receipts: Typebox.Optional(
       Type.Array(
         Type.Object({
           blockHash: Primitive.Hex,
@@ -128,7 +128,7 @@ export namespace wallet_getCallsStatus {
     ),
     status: Type.Number(),
   })
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_getKeys {
@@ -140,18 +140,18 @@ export namespace wallet_getKeys {
     // TODO: `Primitive.Number`
     chain_id: Type.Number(),
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_getKeys`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_getKeys'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_getKeys`. */
   export const Response = C.authorizeKeys.Response
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_prepareCreateAccount {
@@ -162,7 +162,7 @@ export namespace wallet_prepareCreateAccount {
     /** Contract address to delegate to. */
     delegation: Primitive.Address,
   })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
+  export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 
   /** Capabilities for `wallet_prepareCreateAccount` response. */
   export const ResponseCapabilities = Type.Object({
@@ -171,7 +171,7 @@ export namespace wallet_prepareCreateAccount {
     /** Contract address delegated to. */
     delegation: Primitive.Address,
   })
-  export type ResponseCapabilities = Schema.StaticDecode<
+  export type ResponseCapabilities = Typebox.StaticDecode<
     typeof ResponseCapabilities
   >
 
@@ -182,14 +182,14 @@ export namespace wallet_prepareCreateAccount {
     /** The chain ID to create the account on. */
     chainId: Primitive.Number,
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_prepareCreateAccount`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_prepareCreateAccount'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_prepareCreateAccount`. */
   export const Response = Type.Object({
@@ -206,7 +206,7 @@ export namespace wallet_prepareCreateAccount {
     }),
     digests: Type.Array(Primitive.Hex),
   })
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_createAccount {
@@ -217,7 +217,7 @@ export namespace wallet_createAccount {
     /** Contract address to delegate to. */
     delegation: Primitive.Address,
   })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
+  export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 
   /** Capabilities for `wallet_createAccount` response. */
   export const ResponseCapabilities = Type.Object({
@@ -226,7 +226,7 @@ export namespace wallet_createAccount {
     /** Contract address delegated to. */
     delegation: Primitive.Address,
   })
-  export type ResponseCapabilities = Schema.StaticDecode<
+  export type ResponseCapabilities = Typebox.StaticDecode<
     typeof ResponseCapabilities
   >
 
@@ -238,7 +238,7 @@ export namespace wallet_createAccount {
     signatures: Type.Array(
       Type.Object({
         /** Whether the digest was prehashed. */
-        prehash: Schema.Optional(Type.Boolean()),
+        prehash: Typebox.Optional(Type.Boolean()),
         /** The public key of the account. */
         publicKey: Primitive.Hex,
         /** The type of the account. */
@@ -248,52 +248,52 @@ export namespace wallet_createAccount {
       }),
     ),
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_createAccount`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_createAccount'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_createAccount`. */
   export const Response = Type.Undefined()
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_prepareCalls {
   /** Capabilities for `wallet_prepareCalls` request. */
   export const Capabilities = Type.Object({
     /** Keys to authorize on the account. */
-    authorizeKeys: Schema.Optional(C.authorizeKeys.Request),
+    authorizeKeys: Typebox.Optional(C.authorizeKeys.Request),
     /** Metadata for the call bundle. */
     meta: C.meta.Request,
     /** Optional preOps to execute before signature verification. */
-    preOp: Schema.Optional(Type.Boolean()),
+    preOp: Typebox.Optional(Type.Boolean()),
     /** Whether the call bundle is to be considered a preop. */
-    preOps: Schema.Optional(Type.Array(UserOp.PreOp)),
+    preOps: Typebox.Optional(Type.Array(UserOp.PreOp)),
     /** Keys to revoke on the account. */
-    revokeKeys: Schema.Optional(C.revokeKeys.Request),
+    revokeKeys: Typebox.Optional(C.revokeKeys.Request),
   })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
+  export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 
   /** Capabilities for `wallet_prepareCalls` response. */
   export const ResponseCapabilities = Type.Object({
     /** Asset diff. */
-    assetDiff: Schema.Optional(
+    assetDiff: Typebox.Optional(
       Type.Array(
         Type.Tuple([
           Primitive.Address,
           Type.Array(
             Type.Object({
-              address: Schema.Optional(
+              address: Typebox.Optional(
                 Type.Union([Primitive.Address, Type.Null()]),
               ),
-              decimals: Schema.Optional(
+              decimals: Typebox.Optional(
                 Type.Union([Type.Number(), Type.Null()]),
               ),
-              name: Schema.Optional(Type.Union([Type.String(), Type.Null()])),
+              name: Typebox.Optional(Type.Union([Type.String(), Type.Null()])),
               symbol: Type.String(),
               value: Type.Transform(Type.String())
                 .Decode((value) => BigInt(value))
@@ -304,15 +304,15 @@ export namespace wallet_prepareCalls {
       ),
     ),
     /** Keys authorized on the account. */
-    authorizeKeys: Schema.Optional(
+    authorizeKeys: Typebox.Optional(
       Type.Union([C.authorizeKeys.Response, Type.Null()]),
     ),
     /** Keys revoked on the account. */
-    revokeKeys: Schema.Optional(
+    revokeKeys: Typebox.Optional(
       Type.Union([C.revokeKeys.Response, Type.Null()]),
     ),
   })
-  export type ResponseCapabilities = Schema.StaticDecode<
+  export type ResponseCapabilities = Typebox.StaticDecode<
     typeof ResponseCapabilities
   >
 
@@ -326,7 +326,7 @@ export namespace wallet_prepareCalls {
     // TODO: `Primitive.Number`
     chainId: Type.Number(),
     /** The address of the account to prepare the calls for. */
-    from: Schema.Optional(Primitive.Address),
+    from: Typebox.Optional(Primitive.Address),
     /** Key that will be used to sign the call bundle. */
     key: Type.Object({
       prehash: Type.Boolean(),
@@ -334,14 +334,14 @@ export namespace wallet_prepareCalls {
       type: Key.Key.properties.type,
     }),
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_prepareCalls`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_prepareCalls'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_prepareCalls`. */
   export const Response = Type.Object({
@@ -350,16 +350,16 @@ export namespace wallet_prepareCalls {
     /** Digest to sign over. */
     context: Type.Object({
       /** Quote for the call bundle. */
-      preOp: Schema.Optional(Type.Partial(UserOp.PreOp)),
+      preOp: Typebox.Optional(Type.Partial(UserOp.PreOp)),
       /** The call bundle. */
-      quote: Schema.Optional(Type.Partial(Quote.Signed)),
+      quote: Typebox.Optional(Type.Partial(Quote.Signed)),
     }),
     /** Capabilities. */
     digest: Primitive.Hex,
     /** Key that will be used to sign the call bundle. */
     key: Parameters.properties.key,
   })
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_prepareUpgradeAccount {
@@ -373,11 +373,11 @@ export namespace wallet_prepareUpgradeAccount {
      * ERC20 token to pay for the gas of the calls.
      * If `None`, the native token will be used.
      */
-    feeToken: Schema.Optional(Primitive.Address),
+    feeToken: Typebox.Optional(Primitive.Address),
     /** Optional preOps to execute before signature verification. */
-    preOps: Schema.Optional(Type.Array(UserOp.PreOp)),
+    preOps: Typebox.Optional(Type.Array(UserOp.PreOp)),
   })
-  export type Capabilities = Schema.StaticDecode<typeof Capabilities>
+  export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 
   /** Parameters for `wallet_prepareUpgradeAccount` request. */
   export const Parameters = Type.Object({
@@ -389,27 +389,27 @@ export namespace wallet_prepareUpgradeAccount {
     /** Capabilities. */
     chainId: Type.Number(),
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_prepareUpgradeAccount`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_prepareUpgradeAccount'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_prepareUpgradeAccount`. */
   export const Response = Type.Omit(wallet_prepareCalls.Response, ['key'])
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_feeTokens {
   /** Request for `wallet_feeTokens`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_feeTokens'),
-    params: Schema.Optional(Type.Undefined()),
+    params: Typebox.Optional(Type.Undefined()),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_feeTokens`. */
   export const Response = Type.Record(
@@ -418,12 +418,12 @@ export namespace wallet_feeTokens {
       Type.Object({
         address: Primitive.Address,
         decimals: Type.Number(),
-        nativeRate: Schema.Optional(Primitive.BigInt),
+        nativeRate: Typebox.Optional(Primitive.BigInt),
         symbol: Type.String(),
       }),
     ),
   )
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_sendPreparedCalls {
@@ -432,9 +432,9 @@ export namespace wallet_sendPreparedCalls {
     /** Quote for the call bundle. */
     context: Type.Object({
       /** Quote for the call bundle. */
-      preOp: Schema.Optional(Type.Partial(UserOp.PreOp)),
+      preOp: Typebox.Optional(Type.Partial(UserOp.PreOp)),
       /** The call bundle. */
-      quote: Schema.Optional(Type.Partial(Quote.Signed)),
+      quote: Typebox.Optional(Type.Partial(Quote.Signed)),
     }),
     /** Key that was used to sign the call bundle. */
     key: Type.Object({
@@ -445,21 +445,21 @@ export namespace wallet_sendPreparedCalls {
     /** Signature. */
     signature: Primitive.Hex,
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_sendPreparedCalls`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_sendPreparedCalls'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_sendPreparedCalls`. */
   export const Response = Type.Object({
     /** The ID of the call bundle. */
     id: Primitive.Hex,
   })
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_upgradeAccount {
@@ -469,28 +469,28 @@ export namespace wallet_upgradeAccount {
     /** Signed quote of the prepared bundle. */
     context: Type.Object({
       /** Signed quote of the prepared bundle. */
-      preOp: Schema.Optional(Type.Partial(UserOp.PreOp)),
+      preOp: Typebox.Optional(Type.Partial(UserOp.PreOp)),
       /** The call bundle. */
-      quote: Schema.Optional(Type.Partial(Quote.Signed)),
+      quote: Typebox.Optional(Type.Partial(Quote.Signed)),
     }),
     /** Signature of the `wallet_prepareUpgradeAccount` digest. */
     signature: Primitive.Hex,
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_sendPreparedCalls`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_upgradeAccount'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_sendPreparedCalls`. */
   export const Response = Type.Object({
     /** Call bundles that were executed. */
     bundles: Type.Array(wallet_sendPreparedCalls.Response),
   })
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace wallet_verifySignature {
@@ -504,25 +504,25 @@ export namespace wallet_verifySignature {
     /** Signature to verify. */
     signature: Primitive.Hex,
   })
-  export type Parameters = Schema.StaticDecode<typeof Parameters>
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   /** Request for `wallet_verifySignature`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_verifySignature'),
     params: Type.Tuple([Parameters]),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_verifySignature`. */
   export const Response = Type.Object({
     /** Proof that can be used to verify the signature. */
-    proof: Schema.Optional(
+    proof: Typebox.Optional(
       Type.Union([
         Type.Object({
           /** Address of an account (either delegated or stored) that the signature was verified against. */
           account: Primitive.Address,
           /** Signature proving that account is associated with the requested `keyId`. */
-          idSignature: Schema.Optional(
+          idSignature: Typebox.Optional(
             Type.Object({
               r: Primitive.Hex,
               s: Primitive.Hex,
@@ -532,7 +532,7 @@ export namespace wallet_verifySignature {
           /** The key hash that signed the digest. */
           keyHash: Primitive.Hex,
           /** PREP account initialization data. Provided, if account is a stored PREP account. */
-          prep_init_data: Schema.Optional(Primitive.Hex),
+          prep_init_data: Typebox.Optional(Primitive.Hex),
         }),
         Type.Null(),
       ]),
@@ -540,5 +540,5 @@ export namespace wallet_verifySignature {
     /** Whether the signature is valid. */
     valid: Type.Boolean(),
   })
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
