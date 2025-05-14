@@ -34,42 +34,42 @@ export default defineConfig({
         text: 'GitHub',
       },
     ],
-    '/rpc': [
+    '/rpc-server': [
       {
         items: [
           {
             disabled: true,
-            link: '/rpc',
+            link: '/rpc-server',
             text: 'Overview 🚧',
           },
           {
             disabled: true,
-            link: '/rpc/wallet_createAccount',
+            link: '/rpc-server/wallet_createAccount',
             text: 'wallet_createAccount 🚧',
           },
           {
             disabled: true,
-            link: '/rpc/wallet_getKeys',
+            link: '/rpc-server/wallet_getKeys',
             text: 'wallet_getKeys 🚧',
           },
           {
             disabled: true,
-            link: '/rpc/wallet_prepareCalls',
+            link: '/rpc-server/wallet_prepareCalls',
             text: 'wallet_prepareCalls 🚧',
           },
           {
             disabled: true,
-            link: '/rpc/wallet_prepareUpgradeAccount',
+            link: '/rpc-server/wallet_prepareUpgradeAccount',
             text: 'wallet_prepareUpgradeAccount 🚧',
           },
           {
             disabled: true,
-            link: '/rpc/wallet_sendPreparedCalls',
+            link: '/rpc-server/wallet_sendPreparedCalls',
             text: 'wallet_sendPreparedCalls 🚧',
           },
           {
             disabled: true,
-            link: '/rpc/wallet_upgradeAccount',
+            link: '/rpc-server/wallet_upgradeAccount',
             text: 'wallet_upgradeAccount 🚧',
           },
         ],
@@ -161,8 +161,8 @@ export default defineConfig({
               },
               {
                 disabled: true,
-                link: '/sdk/api/mode/rpc',
-                text: '.rpc',
+                link: '/sdk/api/mode/rpcServer',
+                text: '.rpcServer',
               },
             ],
             link: '/sdk/api/mode',
@@ -404,8 +404,8 @@ export default defineConfig({
       text: 'SDK',
     },
     {
-      link: '/rpc',
-      text: 'RPC',
+      link: '/rpc-server',
+      text: 'RPC Server',
     },
     {
       link: '/contracts',
