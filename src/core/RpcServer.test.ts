@@ -14,7 +14,7 @@ import {
 } from '../../test/src/porto.js'
 import * as Delegation from './internal/delegation.js'
 import * as Key from './Key.js'
-import * as Rpc from './Rpc.js'
+import * as Rpc from './RpcServer.js'
 
 const { client } = getPorto()
 
