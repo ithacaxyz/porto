@@ -400,9 +400,9 @@ describe('fromP256', () => {
   })
 })
 
-describe('fromRelay', () => {
+describe('fromRpcServer', () => {
   test('default', () => {
-    const key = Key.fromRelay({
+    const key = Key.fromRpcServer({
       expiry: 0,
       permissions: [
         {
@@ -640,7 +640,7 @@ describe('serialize', () => {
   })
 })
 
-describe('toRelay', () => {
+describe('toRpcServer', () => {
   test('default', () => {
     const key = Key.fromP256({
       permissions: {
@@ -665,7 +665,7 @@ describe('toRelay', () => {
         '0x59ff6b8de3b3b39e94b6f9fc0590cf4e3eaa9b6736e6a49c9a6b324c4f58cb9f',
     })
 
-    expect(Key.toRelay(key)).toMatchInlineSnapshot(`
+    expect(Key.toRpcServer(key)).toMatchInlineSnapshot(`
       {
         "expiry": 0,
         "permissions": [

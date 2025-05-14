@@ -25,11 +25,11 @@ import {
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
 import * as Porto_internal from './porto.js'
-import * as RelayActions from './viem/actions.js'
+import * as Actions from './viem/actions.js'
 
 describe.each([
   ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
-  ['rpc', Mode.rpc],
+  ['rpcServer', Mode.rpc],
 ] as const)('%s', (type, mode) => {
   if (!mode) return
 
@@ -722,8 +722,8 @@ describe.each([
   })
 
   describe('experimental_updateAccount', () => {
-    test.runIf(Anvil.enabled && type === 'rpc')('default', async () => {
-      vi.spyOn(RelayActions, 'health').mockResolvedValue({
+    test.runIf(Anvil.enabled && type === 'rpcServer')('default', async () => {
+      vi.spyOn(Actions, 'health').mockResolvedValue({
         delegationImplementation: delegationOldProxyAddress,
         delegationProxy: delegationOldProxyAddress,
         entrypoint: entryPointAddress,
@@ -1255,7 +1255,7 @@ describe.each([
     })
 
     // TODO: remove condition once Anvil supports reverts on delegated accounts.
-    test.runIf(type === 'rpc')(
+    test.runIf(type === 'rpcServer')(
       'behavior: `permissions.calls` unauthorized',
       async () => {
         const { porto } = getPorto()
@@ -1319,7 +1319,7 @@ describe.each([
     )
 
     // TODO: remove condition once Anvil supports reverts on delegated accounts.
-    test.runIf(type === 'rpc')(
+    test.runIf(type === 'rpcServer')(
       'behavior: `permissions.spend` exceeded',
       async () => {
         const { porto } = getPorto()

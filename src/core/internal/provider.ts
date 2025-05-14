@@ -14,7 +14,7 @@ import * as Porto_internal from './porto.js'
 import * as RpcRequest from './typebox/request.js'
 import * as Rpc from './typebox/rpc.js'
 import * as Typebox from './typebox/typebox.js'
-import * as Relay from './viem/actions.js'
+import * as Actions from './viem/actions.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -935,7 +935,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          const result = await Relay.verifySignature(client, {
+          const result = await Actions.verifySignature(client, {
             address,
             chainId,
             digest,

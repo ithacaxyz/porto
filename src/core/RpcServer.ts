@@ -52,7 +52,7 @@ export async function createAccount(
     : undefined
 
   const keys_rpc = keys.map((key) =>
-    Key.toRelay(key, {
+    Key.toRpcServer(key, {
       entrypoint,
     }),
   )
@@ -156,7 +156,7 @@ export async function getAccounts(
   const { keyId } = parameters
   const accounts = await Actions.getAccounts(client, { keyId })
   return accounts.map((account) => {
-    const keys = account.keys.map(Key.fromRelay)
+    const keys = account.keys.map(Key.fromRpcServer)
     return Account.from({
       address: account.address,
       keys,
@@ -211,7 +211,7 @@ export async function getKeys(
 ): Promise<getKeys.ReturnType> {
   const account = Account.from(parameters.account)
   const keys = await Actions.getKeys(client, { address: account.address })
-  return keys.map(Key.fromRelay)
+  return keys.map(Key.fromRpcServer)
 }
 
 export namespace getKeys {
@@ -252,7 +252,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   const idSigner = createIdSigner()
   const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) => {
     if (key.role === 'admin')
-      return Key.toRelay(
+      return Key.toRpcServer(
         {
           ...key,
           signature: idSigner.sign({
@@ -261,7 +261,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         },
         { entrypoint },
       )
-    return Key.toRelay(key, { entrypoint })
+    return Key.toRpcServer(key, { entrypoint })
   })
 
   const preOp = typeof pre === 'boolean' ? pre : false
@@ -288,7 +288,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         hash: key.hash,
       })),
     },
-    key: Key.toRelay(key),
+    key: Key.toRpcServer(key),
   })
   return {
     capabilities: { ...capabilities, quote: context.quote as any },
@@ -366,7 +366,7 @@ export async function prepareCreateAccount(
   const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
   const authorizeKeys = keys.map((key) =>
-    Key.toRelay(key, {
+    Key.toRpcServer(key, {
       entrypoint,
     }),
   )
@@ -446,7 +446,7 @@ export async function prepareUpgradeAccount(
   const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
   const keys_rpc = keys.map((key) =>
-    Key.toRelay(key, {
+    Key.toRpcServer(key, {
       entrypoint,
     }),
   )
@@ -520,7 +520,7 @@ export declare namespace prepareUpgradeAccount {
 }
 
 /**
- * Broadcasts a call bundle to the Relay.
+ * Broadcasts a call bundle to the RPC Server.
  *
  * @example
  * TODO
@@ -533,12 +533,12 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: sendCalls.Parameters<calls>,
 ) {
-  // If a signature is provided, broadcast the calls to the Relay.
+  // If a signature is provided, broadcast the calls to the RPC Server.
   if (parameters.signature) {
     const { context, key, signature } = parameters
     return await Actions.sendPreparedCalls(client, {
       context,
-      key: Key.toRelay(key),
+      key: Key.toRpcServer(key),
       signature,
     })
   }
@@ -584,7 +584,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
     wrap: false,
   })
 
-  // Broadcast the bundle to the Relay.
+  // Broadcast the bundle to the RPC Server.
   return await sendCalls(client, { context, key, signature })
 }
 
