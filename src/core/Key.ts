@@ -12,8 +12,8 @@ import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as Call from './internal/call.js'
-import type * as RelayKey_typebox from './internal/rpc/typebox/key.js'
-import type * as RelayPermission_typebox from './internal/rpc/typebox/permission.js'
+import type * as ServerKey_typebox from './internal/rpcServer/typebox/key.js'
+import type * as ServerPermission_typebox from './internal/rpcServer/typebox/permission.js'
 import type * as Key_typebox from './internal/typebox/key.js'
 import type {
   Compute,
@@ -68,7 +68,7 @@ export type WebAuthnKey = BaseKey<
 export type Permissions = Key_typebox.Permissions
 
 /** RPC (relay-compatible) format of a key. */
-export type Relay = RelayKey_typebox.WithPermissions
+export type Relay = ServerKey_typebox.WithPermissions
 
 /** Serialized (contract-compatible) format of a key. */
 export type Serialized = {
@@ -1005,7 +1005,7 @@ export function toRelay(
             selector,
             to: to ?? Call.anyTarget,
             type: 'call',
-          } as const satisfies RelayPermission_typebox.CallPermission
+          } as const satisfies ServerPermission_typebox.CallPermission
         })
       }
 
@@ -1017,7 +1017,7 @@ export function toRelay(
             period,
             token,
             type: 'spend',
-          } as const satisfies RelayPermission_typebox.SpendPermission
+          } as const satisfies ServerPermission_typebox.SpendPermission
         })
       }
 

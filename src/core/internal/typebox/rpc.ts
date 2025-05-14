@@ -1,5 +1,5 @@
-import * as Quote from '../rpc/typebox/quote.js'
-import * as Rpc_relay from '../rpc/typebox/rpc.js'
+import * as Quote from '../rpcServer/typebox/quote.js'
+import * as Rpc_server from '../rpcServer/typebox/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as Permissions from './permissions.js'
@@ -521,7 +521,7 @@ export namespace wallet_prepareCalls {
   export const Response = Type.Object({
     capabilities: Typebox.Optional(
       Type.Intersect([
-        Rpc_relay.wallet_prepareCalls.ResponseCapabilities,
+        Rpc_server.wallet_prepareCalls.ResponseCapabilities,
         Type.Object({
           quote: Typebox.Optional(Quote.Quote),
         }),

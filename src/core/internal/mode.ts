@@ -4,11 +4,11 @@ import * as Hex from 'ox/Hex'
 
 import type * as Account from '../Account.js'
 import type * as Key from '../Key.js'
+import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
 import type * as RpcRequest from './typebox/request.js'
-import type * as RpcSchema from '../RpcSchema.js'
 import * as Typebox from './typebox/typebox.js'
 import type { PartialBy } from './types.js'
 

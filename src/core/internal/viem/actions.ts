@@ -28,7 +28,7 @@ import {
   getExecuteError,
 } from 'viem/experimental/erc7821'
 import type { sendCalls } from '../../Rpc.js'
-import * as RpcSchema from '../rpc/rpcSchema.js'
+import * as RpcSchema from '../rpcServer/rpcSchema.js'
 import * as Typebox from '../typebox/typebox.js'
 import { Value } from '../typebox/typebox.js'
 

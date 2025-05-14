@@ -15,10 +15,10 @@ import {
   withRetry,
 } from 'viem'
 import type { Chain } from '../core/Chains.js'
-import * as RpcSchema from '../core/RpcSchema.js'
 import * as Typebox from '../core/internal/typebox/typebox.js'
 import type { ExactPartial } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
+import * as RpcSchema from '../core/RpcSchema.js'
 import * as Storage from '../core/Storage.js'
 
 export function porto<const chains extends readonly [Chain, ...Chain[]]>(
