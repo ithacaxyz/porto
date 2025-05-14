@@ -2,7 +2,7 @@ import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
-import { http } from 'viem'
+import { http, type Transport } from 'viem'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 import type * as Account from './Account.js'
@@ -211,8 +211,6 @@ export type Store<
   StoreApi<State<chains>>,
   [['zustand/subscribeWithSelector', never], ['zustand/persist', any]]
 >
-
-export type Transport = internal.Transport
 
 export type QueuedRequest<result = unknown> = {
   account:

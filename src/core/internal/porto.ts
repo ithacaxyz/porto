@@ -1,10 +1,15 @@
 import * as Json from 'ox/Json'
-import { custom, fallback, http, type PublicRpcSchema } from 'viem'
+import {
+  custom,
+  fallback,
+  http,
+  type PublicRpcSchema,
+  type Transport,
+} from 'viem'
 import {
   createClient,
   type Account as viem_Account,
   type Client as viem_Client,
-  type Transport as viem_Transport,
 } from 'viem'
 
 import type * as Chains from '../Chains.js'
@@ -15,7 +20,7 @@ import type * as Provider from './provider.js'
 import type * as RpcSchema_relay from './relay/rpcSchema.js'
 
 export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
-  viem_Transport,
+  Transport,
   chain,
   viem_Account | undefined,
   [...PublicRpcSchema, ...RpcSchema_relay.Viem]
@@ -23,7 +28,7 @@ export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
 
 export type ProviderClient<chain extends Chains.Chain = Chains.Chain> =
   viem_Client<
-    viem_Transport,
+    Transport,
     chain,
     viem_Account | undefined,
     [...PublicRpcSchema, ...RpcSchema.Viem]
@@ -41,8 +46,6 @@ export type Internal<
   setMode: (i: Mode.Mode) => void
   store: Store<chains>
 }
-
-export type Transport = viem_Transport
 
 const clientCache = new Map<string, Client<any>>()
 
