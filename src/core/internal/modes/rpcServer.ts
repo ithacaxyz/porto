@@ -37,7 +37,7 @@ export const defaultConfig = {
       period: 'day',
     },
   },
-} as const satisfies rpc.Parameters
+} as const satisfies rpcServer.Parameters
 
 /**
  * Mode for a WebAuthn-based environment that interacts with the Porto
@@ -47,7 +47,7 @@ export const defaultConfig = {
  * @param parameters - Parameters.
  * @returns Mode.
  */
-export function rpc(parameters: rpc.Parameters = {}) {
+export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = { ...defaultConfig, ...parameters }
   const { mock } = config
 
@@ -589,7 +589,7 @@ export function rpc(parameters: rpc.Parameters = {}) {
   })
 }
 
-export declare namespace rpc {
+export declare namespace rpcServer {
   type Parameters = {
     /**
      * Fee token to use by default (e.g. "USDC", "ETH").

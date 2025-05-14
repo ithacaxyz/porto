@@ -2,7 +2,7 @@
 "porto": patch
 ---
 
-**Breaking:** Renames "Relay" keyword instances to "RPC". 
+**Breaking:** Renames "Relay" keyword instances to "Server". 
 
-- `Mode.relay` → `Mode.rpc`
-- `import { Relay } from 'porto'` → `import { Rpc } from 'porto'`
+- `Mode.relay` → `Mode.rpcServer`
+- `import { Relay } from 'porto'` → `import { RpcServer } from 'porto'`

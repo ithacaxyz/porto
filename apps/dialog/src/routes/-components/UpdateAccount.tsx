@@ -1,7 +1,7 @@
 import { Button } from '@porto/apps/components'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { Account, Key, Rpc as Rpc_porto } from 'porto'
+import { Account, Key, RpcServer as RpcServer_porto } from 'porto'
 import { Call } from 'porto/internal'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -23,7 +23,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const client = Hooks.useClient(porto)
   const healthQuery = useQuery({
     enabled: !!client,
-    queryFn: () => Rpc_porto.health(client),
+    queryFn: () => RpcServer_porto.health(client),
     queryKey: ['health', client.uid],
   })
   const { delegationImplementation: delegation } = healthQuery.data ?? {}
@@ -63,7 +63,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         payload: digest,
         wrap: false,
       })
-      const { id } = await Rpc_porto.sendCalls(client, {
+      const { id } = await RpcServer_porto.sendCalls(client, {
         ...request,
         signature,
       })

@@ -29,7 +29,7 @@ import * as Actions from './viem/actions.js'
 
 describe.each([
   ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
-  ['rpcServer', Mode.rpc],
+  ['rpcServer', Mode.rpcServer],
 ] as const)('%s', (type, mode) => {
   if (!mode) return
 

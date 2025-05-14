@@ -29,9 +29,9 @@ const rpcUrl = Anvil.enabled
 export function getPorto(
   parameters: {
     mode?: (parameters: {
-      feeToken?: Mode.rpc.Parameters['feeToken'] | undefined
+      feeToken?: Mode.rpcServer.Parameters['feeToken'] | undefined
       permissionFeeSpendLimit?:
-        | Mode.rpc.Parameters['permissionFeeSpendLimit']
+        | Mode.rpcServer.Parameters['permissionFeeSpendLimit']
         | undefined
       mock: boolean
     }) => Mode.Mode | undefined
