@@ -22,7 +22,7 @@ import {
   sendPreparedCalls,
   upgradeAccount,
   verifySignature,
-} from './relay.js'
+} from './actions.js'
 
 const { client, delegation } = getPorto()
 

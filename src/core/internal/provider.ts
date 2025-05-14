@@ -13,7 +13,7 @@ import * as Permissions from './permissions.js'
 import * as Porto_internal from './porto.js'
 import * as Rpc from './typebox/rpc.js'
 import * as Schema from './typebox/schema.js'
-import * as Relay from './viem/relay.js'
+import * as Relay from './viem/actions.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true

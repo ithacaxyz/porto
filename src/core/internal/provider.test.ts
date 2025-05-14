@@ -25,7 +25,7 @@ import {
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
 import * as Porto_internal from './porto.js'
-import * as RelayActions from './viem/relay.js'
+import * as RelayActions from './viem/actions.js'
 
 describe.each([
   ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],

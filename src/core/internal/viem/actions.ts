@@ -1,5 +1,5 @@
 /**
- * Viem Actions for Relay JSON-RPC methods.
+ * Viem Actions for JSON-RPC methods.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/rpc.rs
  */
@@ -173,7 +173,7 @@ export namespace getCallsStatus {
 }
 
 /**
- * Gets the fee tokens supported by the relay.
+ * Gets the fee tokens supported by the RPC.
  *
  * @example
  * TODO
@@ -247,7 +247,7 @@ export namespace getKeys {
 }
 
 /**
- * Gets the health of the relay.
+ * Gets the health of the RPC.
  *
  * @example
  * TODO
@@ -754,7 +754,7 @@ export declare namespace parseSchemaError {
 
 /** Thrown when the execution fails. */
 export class ExecutionError extends Errors.BaseError<BaseError> {
-  override readonly name = 'Relay.ExecutionError'
+  override readonly name = 'Rpc.ExecutionError'
 
   abiError?: AbiError.AbiError | undefined
 
@@ -773,7 +773,7 @@ export class ExecutionError extends Errors.BaseError<BaseError> {
 export class SchemaCoderError extends Errors.BaseError<
   AssertError | TransformEncodeCheckError
 > {
-  override readonly name = 'Relay.SchemaCoderError'
+  override readonly name = 'Rpc.SchemaCoderError'
 
   constructor(cause: AssertError | TransformEncodeCheckError) {
     const message = (() => {

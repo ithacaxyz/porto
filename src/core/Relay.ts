@@ -10,10 +10,10 @@ import type { Chain } from './Chains.js'
 import type * as Capabilities from './internal/relay/typebox/capabilities.js'
 import type * as Quote from './internal/relay/typebox/quote.js'
 import type { MaybePromise, OneOf, RequiredBy } from './internal/types.js'
-import * as Actions from './internal/viem/relay.js'
+import * as Actions from './internal/viem/actions.js'
 import * as Key from './Key.js'
 
-export { getFeeTokens, health } from './internal/viem/relay.js'
+export { getFeeTokens, health } from './internal/viem/actions.js'
 
 /**
  * Creates a new Porto Account via the Relay.

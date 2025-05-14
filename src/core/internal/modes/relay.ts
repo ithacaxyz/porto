@@ -19,7 +19,7 @@ import * as Delegation from '../delegation.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
-import * as Relay_viem from '../viem/relay.js'
+import * as Relay_viem from '../viem/actions.js'
 
 export const defaultConfig = {
   feeToken: 'EXP',
@@ -383,7 +383,7 @@ export function relay(parameters: relay.Parameters = {}) {
         } catch (e) {
           const error = e as Relay.sendCalls.ErrorType
           if (
-            error.name === 'Relay.ExecutionError' &&
+            error.name === 'Rpc.ExecutionError' &&
             error.abiError?.name === 'KeyDoesNotExist'
           )
             return
@@ -416,7 +416,7 @@ export function relay(parameters: relay.Parameters = {}) {
         } catch (e) {
           const error = e as Relay.sendCalls.ErrorType
           if (
-            error.name === 'Relay.ExecutionError' &&
+            error.name === 'Rpc.ExecutionError' &&
             error.abiError?.name === 'KeyDoesNotExist'
           )
             return
