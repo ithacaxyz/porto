@@ -169,9 +169,9 @@ export namespace ActionRequest {
 
             const receiving = value > BigInt(0)
             const formatted = ValueFormatter.format(
-              value,
+              value < 0n ? -value : value,
               decimals ?? 0,
-            )?.replaceAll('-', '')
+            )
 
             const Icon = receiving ? ArrowDownLeft : ArrowUpRight
 
