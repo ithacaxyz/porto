@@ -13,7 +13,7 @@ import * as Dialog from '~/lib/Dialog'
 import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
-import * as Relay from '~/lib/Relay'
+import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -29,7 +29,7 @@ export function ActionRequest(props: ActionRequest.Props) {
   const account = Hooks.useAccount(porto, { address })
   const url = Dialog.useStore((state) => state.referrer?.url)
 
-  const prepareCallsQuery = Relay.usePrepareCalls({
+  const prepareCallsQuery = RpcServer.usePrepareCalls({
     address,
     calls,
     chainId,

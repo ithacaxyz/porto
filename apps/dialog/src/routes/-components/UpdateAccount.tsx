@@ -10,7 +10,7 @@ import { useAccount } from 'wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'
 import { porto } from '~/lib/Porto'
-import * as Rpc from '~/lib/Relay'
+import * as RpcServer from '~/lib/RpcServer'
 import { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
@@ -29,7 +29,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const { delegationImplementation: delegation } = healthQuery.data ?? {}
 
   const account = Hooks.useAccount(porto)
-  const prepareCallsQuery = Rpc.usePrepareCalls({
+  const prepareCallsQuery = RpcServer.usePrepareCalls({
     calls:
       account?.address && delegation
         ? [
