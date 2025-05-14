@@ -77,6 +77,12 @@ export function UpdateAccount(props: UpdateAccount.Props) {
     },
   })
 
+  const error =
+    version.error || prepareCallsQuery.error || sendCallsMutation.error
+  const isPending = version.isPending || prepareCallsQuery.isPending
+  const isSuccess = version.isSuccess && prepareCallsQuery.isSuccess
+  const isFetched = version.isFetched && prepareCallsQuery.isFetched
+
   return (
     <CheckBalance
       address={account?.address}
@@ -103,9 +109,10 @@ export function UpdateAccount(props: UpdateAccount.Props) {
 
         <Layout.Content>
           <ActionRequest.PaneWithDetails
-            loading={version.isPending}
+            error={error}
+            errorMessage="An error occurred while calculating fees."
+            loading={isPending}
             quote={quote}
-            variant={version.isError ? 'warning' : 'default'}
           >
             <div className="flex items-center justify-center gap-2">
               <div className="font-mono text-secondary tabular-nums">
@@ -117,22 +124,30 @@ export function UpdateAccount(props: UpdateAccount.Props) {
           </ActionRequest.PaneWithDetails>
         </Layout.Content>
 
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button onClick={onCancel} type="button">
-              Cancel
-            </Button>
+        {isFetched && (
+          <Layout.Footer>
+            <Layout.Footer.Actions>
+              <Button
+                className={!isSuccess ? 'flex-grow' : undefined}
+                onClick={onCancel}
+                type="button"
+              >
+                Cancel
+              </Button>
 
-            <Button
-              className="flex-grow"
-              onClick={() => sendCallsMutation.mutate()}
-              type="button"
-              variant="accent"
-            >
-              Update now
-            </Button>
-          </Layout.Footer.Actions>
-        </Layout.Footer>
+              {isSuccess && (
+                <Button
+                  className="flex-grow"
+                  onClick={() => sendCallsMutation.mutate()}
+                  type="button"
+                  variant="accent"
+                >
+                  Update now
+                </Button>
+              )}
+            </Layout.Footer.Actions>
+          </Layout.Footer>
+        )}
       </Layout>
     </CheckBalance>
   )

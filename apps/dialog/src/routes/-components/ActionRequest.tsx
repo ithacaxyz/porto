@@ -9,7 +9,6 @@ import { Hooks, Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
 import { Call } from 'viem'
 import { CheckBalance } from '~/components/CheckBalance'
-import * as Dialog from '~/lib/Dialog'
 import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
@@ -27,7 +26,6 @@ export function ActionRequest(props: ActionRequest.Props) {
     props
 
   const account = Hooks.useAccount(porto, { address })
-  const url = Dialog.useStore((state) => state.referrer?.url)
 
   const prepareCallsQuery = RpcServer.usePrepareCalls({
     address,
@@ -46,99 +44,83 @@ export function ActionRequest(props: ActionRequest.Props) {
       onReject={onReject}
       query={prepareCallsQuery}
     >
-      {prepareCallsQuery.isFetched ? (
-        <Layout loading={loading} loadingTitle="Sending...">
-          <Layout.Header>
-            <Layout.Header.Default
-              content={<>Review the action to perform below.</>}
-              icon={prepareCallsQuery.isError ? TriangleAlert : Star}
-              title="Action Request"
-              variant={prepareCallsQuery.isError ? 'warning' : 'default'}
-            />
-          </Layout.Header>
+      <Layout loading={loading} loadingTitle="Sending...">
+        <Layout.Header>
+          <Layout.Header.Default
+            content={<>Review the action to perform below.</>}
+            icon={prepareCallsQuery.isError ? TriangleAlert : Star}
+            title="Action Request"
+            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
+          />
+        </Layout.Header>
 
-          <Layout.Content>
-            <ActionRequest.PaneWithDetails
-              quote={quote}
-              variant={prepareCallsQuery.isError ? 'warning' : 'default'}
-            >
-              {prepareCallsQuery.isError && (
-                <div className="space-y-2 text-[14px] text-primary">
-                  <p className="font-medium text-warning">Error</p>
-                  <p>
-                    An error occurred while simulating the action. Proceed with
-                    caution.
-                  </p>
-                  <p>
-                    Contact <span className="font-medium">{url?.hostname}</span>{' '}
-                    for more information.
-                  </p>
-                </div>
-              )}
-
-              {assetDiff && address && (
-                <ActionRequest.AssetDiff
-                  address={address}
-                  assetDiff={assetDiff}
-                />
-              )}
-            </ActionRequest.PaneWithDetails>
-          </Layout.Content>
-
-          <Layout.Footer>
-            <Layout.Footer.Actions>
-              {prepareCallsQuery.isError ? (
-                <>
-                  <Button
-                    className="flex-grow"
-                    onClick={onReject}
-                    type="button"
-                    variant="destructive"
-                  >
-                    Deny
-                  </Button>
-                  <Button
-                    className="flex-grow"
-                    onClick={onApprove}
-                    type="button"
-                    variant="default"
-                  >
-                    Approve anyway
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    className="flex-grow"
-                    disabled={!prepareCallsQuery.isSuccess}
-                    onClick={onReject}
-                    type="button"
-                    variant="destructive"
-                  >
-                    Deny
-                  </Button>
-
-                  <Button
-                    className="flex-grow"
-                    disabled={!prepareCallsQuery.isSuccess}
-                    onClick={onApprove}
-                    type="button"
-                    variant="success"
-                  >
-                    Approve
-                  </Button>
-                </>
-              )}
-            </Layout.Footer.Actions>
-
-            {account?.address && (
-              <Layout.Footer.Account address={account.address} />
+        <Layout.Content>
+          <ActionRequest.PaneWithDetails
+            error={prepareCallsQuery.error}
+            errorMessage="An error occurred while simulating the action. Proceed with caution."
+            loading={prepareCallsQuery.isPending}
+            quote={quote}
+          >
+            {assetDiff && address && (
+              <ActionRequest.AssetDiff
+                address={address}
+                assetDiff={assetDiff}
+              />
             )}
-          </Layout.Footer>
-        </Layout>
-      ) : (
-        <div className="h-40" />
-      )}
+          </ActionRequest.PaneWithDetails>
+        </Layout.Content>
+
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            {prepareCallsQuery.isError ? (
+              <>
+                <Button
+                  className="flex-grow"
+                  onClick={onReject}
+                  type="button"
+                  variant="destructive"
+                >
+                  Deny
+                </Button>
+                <Button
+                  className="flex-grow"
+                  onClick={onApprove}
+                  type="button"
+                  variant="default"
+                >
+                  Approve anyway
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  className="flex-grow"
+                  disabled={!prepareCallsQuery.isSuccess}
+                  onClick={onReject}
+                  type="button"
+                  variant="destructive"
+                >
+                  Deny
+                </Button>
+
+                <Button
+                  className="flex-grow"
+                  disabled={!prepareCallsQuery.isSuccess}
+                  onClick={onApprove}
+                  type="button"
+                  variant="success"
+                >
+                  Approve
+                </Button>
+              </>
+            )}
+          </Layout.Footer.Actions>
+
+          {account?.address && (
+            <Layout.Footer.Account address={account.address} />
+          )}
+        </Layout.Footer>
+      </Layout>
     </CheckBalance>
   )
 }
@@ -295,7 +277,13 @@ export namespace ActionRequest {
   }
 
   export function PaneWithDetails(props: PaneWithDetails.Props) {
-    const { children, loading, quote, variant = 'default' } = props
+    const {
+      children,
+      error,
+      errorMessage = 'An error occurred. Proceed with caution.',
+      loading,
+      quote,
+    } = props
 
     // default to `true` if no children, otherwise false
     const [viewQuote, setViewQuote] = React.useState(quote && !children)
@@ -308,43 +296,57 @@ export namespace ActionRequest {
         className={cx(
           'space-y-3 overflow-hidden rounded-lg px-3 transition-all duration-300 ease-in-out',
           {
-            'bg-surface py-3': variant === 'default',
-            'bg-warningTint py-2 text-warning': variant === 'warning',
+            'bg-surface py-3': !error,
+            'bg-warningTint py-2 text-warning': error,
             'h-[90px] max-h-[90px]': loading,
             'max-h-[500px]': !loading,
           },
         )}
       >
-        {loading ? (
-          <div className="flex h-full w-full items-center justify-center">
-            <div className="flex size-[24px] w-full items-center justify-center">
-              <Spinner className="text-secondary" />
-            </div>
-          </div>
-        ) : (
-          <div className="fade-in animate-in space-y-3 duration-150">
-            {children}
+        {(() => {
+          if (error)
+            return (
+              <div className="space-y-2 text-[14px] text-primary">
+                <p className="font-medium text-warning">Error</p>
+                <p>{errorMessage}</p>
+                <p>Details: {(error as any).shortMessage ?? error.message}</p>
+              </div>
+            )
 
-            {quote && (
-              <>
-                {children && <div className="h-[1px] w-full bg-gray6" />}
-                <div className={viewQuote ? undefined : 'hidden'}>
-                  <ActionRequest.Details quote={quote} />
+          if (loading)
+            return (
+              <div className="flex h-full w-full items-center justify-center">
+                <div className="flex size-[24px] w-full items-center justify-center">
+                  <Spinner className="text-secondary" />
                 </div>
-                {!viewQuote && (
-                  <button
-                    className="flex w-full justify-between text-[13px] text-secondary"
-                    onClick={() => setViewQuote(true)}
-                    type="button"
-                  >
-                    <span>More details</span>
-                    <ChevronDown className="size-4 text-secondary" />
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        )}
+              </div>
+            )
+
+          return (
+            <div className="fade-in animate-in space-y-3 duration-150">
+              {children}
+
+              {quote && (
+                <>
+                  {children && <div className="h-[1px] w-full bg-gray6" />}
+                  <div className={viewQuote ? undefined : 'hidden'}>
+                    <ActionRequest.Details quote={quote} />
+                  </div>
+                  {!viewQuote && (
+                    <button
+                      className="flex w-full justify-between text-[13px] text-secondary"
+                      onClick={() => setViewQuote(true)}
+                      type="button"
+                    >
+                      <span>More details</span>
+                      <ChevronDown className="size-4 text-secondary" />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          )
+        })()}
       </div>
     )
   }
@@ -352,9 +354,10 @@ export namespace ActionRequest {
   export namespace PaneWithDetails {
     export type Props = {
       children?: React.ReactNode | undefined
+      error?: Error | null | undefined
+      errorMessage?: string | undefined
       loading?: boolean | undefined
       quote?: Quote_typebox.Quote | undefined
-      variant?: 'default' | 'warning' | undefined
     }
   }
 

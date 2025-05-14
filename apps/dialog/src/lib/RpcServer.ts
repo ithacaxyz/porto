@@ -1,3 +1,4 @@
+import { Query } from '@porto/apps'
 import { useQuery } from '@tanstack/react-query'
 import { Address, Json } from 'ox'
 import { Account, RpcServer } from 'porto'
@@ -27,37 +28,38 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
     chainId,
   })
 
-  return useQuery({
-    enabled: enabled && !!account,
-    gcTime: 0,
-    async queryFn() {
-      if (!account) throw new Error('account is required.')
+  return Query.useQueryWithPersistedError(
+    useQuery({
+      enabled: enabled && !!account,
+      async queryFn() {
+        if (!account) throw new Error('account is required.')
 
-      const key = Account.getKey(account, { role: 'admin' })
-      if (!key) throw new Error('no admin key found.')
+        const key = Account.getKey(account, { role: 'admin' })
+        if (!key) throw new Error('no admin key found.')
 
-      return await RpcServer.prepareCalls(client, {
-        account,
-        authorizeKeys,
-        calls,
-        feeToken: feeToken.data?.address,
-        key,
-        revokeKeys,
-      })
-    },
-    queryKey: [
-      'prepareCalls',
-      account?.address,
-      Json.stringify({
-        authorizeKeys,
-        calls,
-        revokeKeys,
-      }),
-      client.uid,
-      feeToken.data?.address,
-    ],
-    refetchInterval: 15_000,
-  })
+        return await RpcServer.prepareCalls(client, {
+          account,
+          authorizeKeys,
+          calls,
+          feeToken: feeToken.data?.address,
+          key,
+          revokeKeys,
+        })
+      },
+      queryKey: [
+        'prepareCalls',
+        account?.address,
+        Json.stringify({
+          authorizeKeys,
+          calls,
+          revokeKeys,
+        }),
+        client.uid,
+        feeToken.data?.address,
+      ],
+      refetchInterval: 15_000,
+    }),
+  )
 }
 
 export declare namespace usePrepareCalls {

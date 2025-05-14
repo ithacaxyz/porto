@@ -5,7 +5,6 @@ import { Key } from 'porto'
 import { Hooks } from 'porto/remote'
 
 import { CheckBalance } from '~/components/CheckBalance'
-import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
@@ -18,7 +17,6 @@ export function GrantAdmin(props: GrantAdmin.Props) {
   const { authorizeKey, feeToken, loading, onApprove, onReject } = props
 
   const account = Hooks.useAccount(porto)
-  const url = Dialog.useStore((state) => state.referrer?.url)
 
   const prepareCallsQuery = RpcServer.usePrepareCalls({
     authorizeKeys: [Key.from(authorizeKey)],
@@ -45,26 +43,11 @@ export function GrantAdmin(props: GrantAdmin.Props) {
         </Layout.Header>
         <Layout.Content>
           <ActionRequest.PaneWithDetails
+            error={prepareCallsQuery.error}
+            errorMessage="An error occurred while calculating fees. This may be due to network issues or insufficient funds."
             loading={prepareCallsQuery.isPending}
             quote={quote}
-            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
           >
-            {prepareCallsQuery.isError && (
-              <div>
-                <div className="space-y-2 text-[14px] text-primary">
-                  <p className="font-medium text-warning">Error</p>
-                  <p>
-                    An error occurred while calculating fees. This may be due to
-                    network issues or insufficient funds.
-                  </p>
-                  <p>
-                    Contact <span className="font-medium">{url?.hostname}</span>{' '}
-                    if this issue persists.
-                  </p>
-                </div>
-              </div>
-            )}
-
             {account?.address && (
               <div className="flex items-center justify-center gap-2">
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
