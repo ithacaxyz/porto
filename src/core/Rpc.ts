@@ -16,7 +16,7 @@ import * as Key from './Key.js'
 export { getFeeTokens, health } from './internal/viem/actions.js'
 
 /**
- * Creates a new Porto Account via the Relay.
+ * Creates a new Porto Account via the RPC.
  *
  * @example
  * TODO
@@ -51,7 +51,7 @@ export async function createAccount(
     ? (await Actions.health(client)).entrypoint
     : undefined
 
-  const keys_relay = keys.map((key) =>
+  const keys_rpc = keys.map((key) =>
     Key.toRelay(key, {
       entrypoint,
     }),
@@ -67,8 +67,8 @@ export async function createAccount(
   await createAccount(client, {
     ...request,
     signatures: signatures.map((signature, index) => ({
-      publicKey: keys_relay[index]!.publicKey,
-      type: keys_relay[index]!.type,
+      publicKey: keys_rpc[index]!.publicKey,
+      type: keys_rpc[index]!.type,
       value: signature,
     })),
   })
@@ -344,7 +344,7 @@ export namespace prepareCalls {
 }
 
 /**
- * Prepares a new Porto Account via the Relay.
+ * Prepares a new Porto Account via the RPC.
  *
  * @example
  * TODO
@@ -445,7 +445,7 @@ export async function prepareUpgradeAccount(
   const hasSessionKey = keys.some((x) => x.role === 'session')
   const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
-  const keys_relay = keys.map((key) =>
+  const keys_rpc = keys.map((key) =>
     Key.toRelay(key, {
       entrypoint,
     }),
@@ -453,7 +453,7 @@ export async function prepareUpgradeAccount(
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
   const authorizeKeys = signers.map((signer, index) => ({
-    ...keys_relay[index]!,
+    ...keys_rpc[index]!,
     signature: signer.sign({
       digest: getIdDigest({ id: signer.id, key: keys[index]! }),
     }),

@@ -11,7 +11,7 @@ import {
 import * as Account from '../../src/core/Account.js'
 import type { Client } from '../../src/core/internal/porto.js'
 import * as Key from '../../src/core/Key.js'
-import * as Relay from '../../src/core/Relay.js'
+import * as Relay from '../../src/core/Rpc.js'
 import * as Anvil from './anvil.js'
 import { exp1Abi, exp1Address } from './porto.js'
 
