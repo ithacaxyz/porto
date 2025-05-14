@@ -191,7 +191,7 @@ describe('prepareCreateAccount + createAccount', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Relay.SchemaCoderError: Expected string to match '^0x(.*)$'
+      [Rpc.SchemaCoderError: Expected string to match '^0x(.*)$'
 
       Path: capabilities.authorizeKeys.0.publicKey
       Value: "INVALID!"
@@ -215,7 +215,7 @@ describe('prepareCreateAccount + createAccount', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Relay.SchemaCoderError: Expected 'admin'
+      [Rpc.SchemaCoderError: Expected 'admin'
 
       Path: capabilities.authorizeKeys.0.role
       Value: "beef"
@@ -616,7 +616,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Relay.SchemaCoderError: Expected string to match '^0x(.*)$'
+      [Rpc.SchemaCoderError: Expected string to match '^0x(.*)$'
 
       Path: key.publicKey
       Value: "cheese"
@@ -653,7 +653,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Relay.SchemaCoderError: Expected 'p256'
+      [Rpc.SchemaCoderError: Expected 'p256'
 
       Path: key.type
       Value: "falcon"
