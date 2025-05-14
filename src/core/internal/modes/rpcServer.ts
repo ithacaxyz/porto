@@ -37,7 +37,7 @@ export const defaultConfig = {
       period: 'day',
     },
   },
-} as const satisfies relay.Parameters
+} as const satisfies rpc.Parameters
 
 /**
  * Mode for a WebAuthn-based environment that interacts with the Porto
@@ -47,7 +47,7 @@ export const defaultConfig = {
  * @param parameters - Parameters.
  * @returns Mode.
  */
-export function relay(parameters: relay.Parameters = {}) {
+export function rpc(parameters: rpc.Parameters = {}) {
   const config = { ...defaultConfig, ...parameters }
   const { mock } = config
 
@@ -98,7 +98,7 @@ export function relay(parameters: relay.Parameters = {}) {
           feeToken,
         })
         if (authorizeKey)
-          // TODO(relay): remove double webauthn sign.
+          // TODO(rpcServer): remove double webauthn sign.
           await preauthKey(client, {
             account,
             authorizeKey,
@@ -128,7 +128,7 @@ export function relay(parameters: relay.Parameters = {}) {
           account: address,
         })
           .then((x) => x.version)
-          // TODO: get counterfactual account delegation via relay.
+          // TODO: get counterfactual account delegation via rpc server.
           .catch(() => latest)
 
         if (!current || !latest) throw new Error('version not found.')
@@ -567,7 +567,7 @@ export function relay(parameters: relay.Parameters = {}) {
         return { account }
       },
     },
-    name: 'relay',
+    name: 'rpc',
     setup(parameters) {
       const { internal } = parameters
       const { store } = internal
@@ -589,7 +589,7 @@ export function relay(parameters: relay.Parameters = {}) {
   })
 }
 
-export declare namespace relay {
+export declare namespace rpc {
   type Parameters = {
     /**
      * Fee token to use by default (e.g. "USDC", "ETH").
