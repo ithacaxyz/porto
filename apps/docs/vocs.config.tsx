@@ -34,42 +34,42 @@ export default defineConfig({
         text: 'GitHub',
       },
     ],
-    '/relay': [
+    '/rpc': [
       {
         items: [
           {
             disabled: true,
-            link: '/relay/rpc',
+            link: '/rpc',
             text: 'Overview 🚧',
           },
           {
             disabled: true,
-            link: '/relay/rpc/wallet_createAccount',
+            link: '/rpc/wallet_createAccount',
             text: 'wallet_createAccount 🚧',
           },
           {
             disabled: true,
-            link: '/relay/rpc/wallet_getKeys',
+            link: '/rpc/wallet_getKeys',
             text: 'wallet_getKeys 🚧',
           },
           {
             disabled: true,
-            link: '/relay/rpc/wallet_prepareCalls',
+            link: '/rpc/wallet_prepareCalls',
             text: 'wallet_prepareCalls 🚧',
           },
           {
             disabled: true,
-            link: '/relay/rpc/wallet_prepareUpgradeAccount',
+            link: '/rpc/wallet_prepareUpgradeAccount',
             text: 'wallet_prepareUpgradeAccount 🚧',
           },
           {
             disabled: true,
-            link: '/relay/rpc/wallet_sendPreparedCalls',
+            link: '/rpc/wallet_sendPreparedCalls',
             text: 'wallet_sendPreparedCalls 🚧',
           },
           {
             disabled: true,
-            link: '/relay/rpc/wallet_upgradeAccount',
+            link: '/rpc/wallet_upgradeAccount',
             text: 'wallet_upgradeAccount 🚧',
           },
         ],
@@ -161,8 +161,8 @@ export default defineConfig({
               },
               {
                 disabled: true,
-                link: '/sdk/api/mode/relay',
-                text: '.relay',
+                link: '/sdk/api/mode/rpc',
+                text: '.rpc',
               },
             ],
             link: '/sdk/api/mode',
@@ -404,8 +404,8 @@ export default defineConfig({
       text: 'SDK',
     },
     {
-      link: '/relay/rpc',
-      text: 'Relay',
+      link: '/rpc',
+      text: 'RPC',
     },
     {
       link: '/contracts',

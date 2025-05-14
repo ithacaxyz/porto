@@ -29,7 +29,7 @@ import * as RelayActions from './viem/relay.js'
 
 describe.each([
   ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
-  ['relay', Mode.relay],
+  ['rpc', Mode.rpc],
 ] as const)('%s', (type, mode) => {
   if (!mode) return
 
@@ -722,7 +722,7 @@ describe.each([
   })
 
   describe('experimental_updateAccount', () => {
-    test.runIf(Anvil.enabled && type === 'relay')('default', async () => {
+    test.runIf(Anvil.enabled && type === 'rpc')('default', async () => {
       vi.spyOn(RelayActions, 'health').mockResolvedValue({
         delegationImplementation: delegationOldProxyAddress,
         delegationProxy: delegationOldProxyAddress,
@@ -1255,7 +1255,7 @@ describe.each([
     })
 
     // TODO: remove condition once Anvil supports reverts on delegated accounts.
-    test.runIf(type === 'relay')(
+    test.runIf(type === 'rpc')(
       'behavior: `permissions.calls` unauthorized',
       async () => {
         const { porto } = getPorto()
@@ -1319,7 +1319,7 @@ describe.each([
     )
 
     // TODO: remove condition once Anvil supports reverts on delegated accounts.
-    test.runIf(type === 'relay')(
+    test.runIf(type === 'rpc')(
       'behavior: `permissions.spend` exceeded',
       async () => {
         const { porto } = getPorto()

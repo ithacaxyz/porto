@@ -1,7 +1,7 @@
 import { Button } from '@porto/apps/components'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { Account, Key, Relay as Relay_porto } from 'porto'
+import { Account, Key, Rpc as Rpc_porto } from 'porto'
 import { Call } from 'porto/internal'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -10,7 +10,7 @@ import { useAccount } from 'wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'
 import { porto } from '~/lib/Porto'
-import * as Relay from '~/lib/Relay'
+import * as Rpc from '~/lib/Relay'
 import { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
@@ -23,13 +23,13 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const client = Hooks.useClient(porto)
   const healthQuery = useQuery({
     enabled: !!client,
-    queryFn: () => Relay_porto.health(client),
+    queryFn: () => Rpc_porto.health(client),
     queryKey: ['health', client.uid],
   })
   const { delegationImplementation: delegation } = healthQuery.data ?? {}
 
   const account = Hooks.useAccount(porto)
-  const prepareCallsQuery = Relay.usePrepareCalls({
+  const prepareCallsQuery = Rpc.usePrepareCalls({
     calls:
       account?.address && delegation
         ? [
@@ -63,7 +63,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         payload: digest,
         wrap: false,
       })
-      const { id } = await Relay_porto.sendCalls(client, {
+      const { id } = await Rpc_porto.sendCalls(client, {
         ...request,
         signature,
       })

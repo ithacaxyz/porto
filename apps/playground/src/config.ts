@@ -31,7 +31,7 @@ export const modes = {
     host,
     renderer: Dialog.popup(),
   }),
-  relay: Mode.relay(),
+  relay: Mode.rpc(),
 }
 export type ModeType = keyof typeof modes
 
