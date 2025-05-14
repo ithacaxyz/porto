@@ -10,10 +10,10 @@ import {
 } from './_generated/addresses.js'
 import { exp1Address } from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
-import { poolId, relay } from './prool.js'
+import { poolId, rpcServer } from './prool.js'
 
 export const instances = {
-  odyssey: defineRelay({
+  odyssey: defineRpcServer({
     accountRegistry: accountRegistryAddress,
     delegationProxy: delegationProxyAddress,
     endpoint: (key) =>
@@ -32,7 +32,7 @@ export const instances = {
 // Utilities
 /////////////////////////////////////////////////////////////////
 
-function defineRelay(parameters: {
+function defineRpcServer(parameters: {
   accountRegistry: string
   endpoint: (key: number) => string
   entrypoint: string
@@ -59,7 +59,7 @@ function defineRelay(parameters: {
     async start() {
       return await createServer({
         instance: (key) =>
-          relay({
+          rpcServer({
             ...parameters,
             endpoint: endpoint(key),
             http: {

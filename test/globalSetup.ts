@@ -1,5 +1,5 @@
 import * as Anvil from './src/anvil.js'
-import * as Relay from './src/relay.js'
+import * as Relay from './src/rpcServer.js'
 
 export default async function () {
   // Set up Anvil instances

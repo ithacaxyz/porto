@@ -18,7 +18,7 @@ import {
   exp1Address,
   simulatorAddress,
 } from '../../test/src/_generated/addresses.js'
-import { relay } from '../../test/src/prool.js'
+import { rpcServer } from '../../test/src/prool.js'
 
 const logger = createLogger('info', {
   prefix: 'playground',
@@ -68,16 +68,16 @@ export default defineConfig(({ mode }) => ({
 
         logger.info('Anvil started on ' + anvilConfig.rpcUrl)
 
-        logger.info('Starting Relay...')
+        logger.info('Starting RPC Server...')
 
-        const startRelay = async ({
+        const startRpcServer = async ({
           delegationProxy = delegationProxyAddress,
         }: {
           delegationProxy?: string
         } = {}) => {
           const containerName = 'playground'
           spawnSync('docker', ['rm', '-f', containerName])
-          const stop = await relay({
+          const stop = await rpcServer({
             accountRegistry: accountRegistryAddress,
             containerName: 'playground',
             delegationProxy,
@@ -96,14 +96,14 @@ export default defineConfig(({ mode }) => ({
           await fetch(relayConfig.rpcUrl + '/start')
           return stop
         }
-        let stopRelay = await startRelay()
+        let stopRpcServer = await startRpcServer()
 
-        logger.info('Relay started on ' + relayConfig.rpcUrl)
+        logger.info('RPC Server started on ' + relayConfig.rpcUrl)
 
         server.middlewares.use(async (req, res, next) => {
           if (req.url?.startsWith('/relay/up')) {
-            stopRelay()
-            stopRelay = await startRelay({
+            stopRpcServer()
+            stopRpcServer = await startRpcServer({
               delegationProxy: delegationNewProxyAddress,
             })
             res.statusCode = 302

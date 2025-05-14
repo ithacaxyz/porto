@@ -4,7 +4,7 @@ import { http } from 'viem'
 import * as Porto_internal from '../../src/core/internal/porto.js'
 import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
-import * as Relay from './relay.js'
+import * as Relay from './rpcServer.js'
 
 export const chain = Anvil.enabled ? Chains.anvil : Chains.portoDev
 
