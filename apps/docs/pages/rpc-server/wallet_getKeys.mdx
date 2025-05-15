@@ -1,0 +1,36 @@
+# `wallet_getKeys`
+
+Get all keys for an account.
+
+## Request
+
+```json
+{
+  "method": "wallet_getKeys",
+  "params": [
+    {
+      "address": "0x...",
+      "chainId": 1
+    }
+  ]
+}
+```
+
+## Response
+
+```json
+{
+  "result": [
+    {
+      "prehash": false,
+      "signature": "0x...",
+      "type": "p256",
+      "expiry": 1715702400,
+      "publicKey": "0x...",
+      "role": "admin",
+      "permissions": [],
+      "hash": "0x..."
+    }
+  ]
+}
+```
