@@ -22,8 +22,8 @@ export function useFetch(parameters: useFetch.Parameters) {
     async queryFn() {
       if (!chain) throw new Error('chain is required')
 
-      const feeTokens = await RpcServer.getFeeTokens(client).then(
-        (feeTokens) => feeTokens[Hex.fromNumber(chain.id)],
+      const feeTokens = await RpcServer.getCapabilities(client).then(
+        (capabilities) => capabilities.fees.tokens[Hex.fromNumber(chain.id)],
       )
       if (!feeTokens)
         throw new Error(

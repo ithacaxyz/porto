@@ -35,36 +35,7 @@ export namespace relay_health {
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 
-  export const Response = Type.Object({
-    /** Delegation proxy address. */
-    delegationImplementation: Primitive.Address,
-    /** Delegation implementation address. */
-    delegationProxy: Primitive.Address,
-    /** Entrypoint address. */
-    entrypoint: Primitive.Address,
-    /** Quote configuration. */
-    quoteConfig: Type.Object({
-      /** Sets a constant rate for the price oracle. Used for testing. */
-      constantRate: Typebox.Optional(Type.Union([Type.Number(), Type.Null()])),
-      /** Gas estimate configuration. */
-      gas: Typebox.Optional(
-        Type.Object({
-          /** Extra buffer added to transaction gas estimates. */
-          txBuffer: Typebox.Optional(Type.Number()),
-          /** Extra buffer added to UserOp gas estimates. */
-          userOpBuffer: Typebox.Optional(Type.Number()),
-        }),
-      ),
-      /** The lifetime of a price rate. */
-      rateTtl: Type.Number(),
-      /** The lifetime of a fee quote. */
-      ttl: Type.Number(),
-    }),
-    /** Simulator address. */
-    simulator: Typebox.Optional(Primitive.Address),
-    /** Version of the relay. */
-    version: Type.String(),
-  })
+  export const Response = Type.String()
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 

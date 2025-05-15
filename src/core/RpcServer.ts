@@ -13,7 +13,7 @@ import type { MaybePromise, OneOf, RequiredBy } from './internal/types.js'
 import * as Actions from './internal/viem/actions.js'
 import * as Key from './Key.js'
 
-export { getFeeTokens, health } from './internal/viem/actions.js'
+export { getCapabilities, health } from './internal/viem/actions.js'
 
 /**
  * Creates a new Porto Account via the RPC.
@@ -48,7 +48,7 @@ export async function createAccount(
 
   const hasSessionKey = keys.some((x) => x.role === 'session')
   const entrypoint = hasSessionKey
-    ? (await Actions.health(client)).entrypoint
+    ? (await Actions.getCapabilities(client)).contracts.entrypoint
     : undefined
 
   const keys_rpc = keys.map((key) =>
@@ -246,7 +246,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     (x) => x.role === 'session',
   )
   const entrypoint = hasSessionKey
-    ? (await Actions.health(client)).entrypoint
+    ? (await Actions.getCapabilities(client)).contracts.entrypoint
     : undefined
 
   const idSigner = createIdSigner()
@@ -359,11 +359,11 @@ export async function prepareCreateAccount(
 ) {
   const { chain = client.chain, keys } = parameters
 
-  const health = await Actions.health(client)
+  const { contracts } = await Actions.getCapabilities(client)
 
-  const delegation = parameters.delegation ?? health.delegationProxy
+  const delegation = parameters.delegation ?? contracts.delegationProxy
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey ? health.entrypoint : undefined
+  const entrypoint = hasSessionKey ? contracts.entrypoint : undefined
 
   const authorizeKeys = keys.map((key) =>
     Key.toRpcServer(key, {
@@ -431,7 +431,7 @@ export async function prepareUpgradeAccount(
 ) {
   const { address, feeToken } = parameters
 
-  const health = await Actions.health(client)
+  const { contracts } = await Actions.getCapabilities(client)
 
   // Create root id signer
   const idSigner_root = createIdSigner()
@@ -441,9 +441,9 @@ export async function prepareUpgradeAccount(
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
 
-  const delegation = parameters.delegation ?? health.delegationProxy
+  const delegation = parameters.delegation ?? contracts.delegationProxy
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey ? health.entrypoint : undefined
+  const entrypoint = hasSessionKey ? contracts.entrypoint : undefined
 
   const keys_rpc = keys.map((key) =>
     Key.toRpcServer(key, {

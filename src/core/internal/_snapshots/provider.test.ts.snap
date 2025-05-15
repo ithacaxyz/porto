@@ -4,6 +4,8 @@ exports[`contract > eth_accounts > behavior: disconnected 1`] = `[Provider.Disco
 
 exports[`contract > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
+exports[`contract > experimental_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
 exports[`contract > experimental_grantAdmin > default 1`] = `
 {
   "id": "0x0000000000000000000000000000000000069420",
@@ -395,6 +397,8 @@ exports[`contract > wallet_sendCalls > behavior: permission does not exist 1`] =
 exports[`rpcServer > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
 exports[`rpcServer > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
+exports[`rpcServer > experimental_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
 exports[`rpcServer > experimental_grantAdmin > default 1`] = `
 {

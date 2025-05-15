@@ -14,7 +14,6 @@ import {
   getAccounts,
   getCallsStatus,
   getCapabilities,
-  getFeeTokens,
   getKeys,
   health,
   prepareCalls,
@@ -31,32 +30,8 @@ const feeToken = exp1Address
 
 describe('health', () => {
   test('default', async () => {
-    const {
-      delegationImplementation,
-      delegationProxy,
-      entrypoint,
-      simulator,
-      version,
-      ...result
-    } = await health(client)
-    expect(delegationImplementation).toBeDefined()
-    expect(delegationProxy).toBeDefined()
-    expect(entrypoint).toBeDefined()
-    expect(simulator).toBeDefined()
+    const version = await health(client)
     expect(version).toBeDefined()
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "quoteConfig": {
-          "constantRate": null,
-          "gas": {
-            "txBuffer": 1000000,
-            "userOpBuffer": 100000,
-          },
-          "rateTtl": 300,
-          "ttl": 30,
-        },
-      }
-    `)
   })
 })
 
@@ -328,13 +303,6 @@ describe('getCallsStatus', () => {
     })
 
     expect(result.id).toBeDefined()
-  })
-})
-
-describe('getFeeTokens', () => {
-  test('default', async () => {
-    const result = await getFeeTokens(client)
-    expect(result).toBeDefined()
   })
 })
 

@@ -118,7 +118,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { address, internal } = parameters
         const { client } = internal
 
-        const { delegationImplementation } = await RpcServer.health(client)
+        const { contracts } = await RpcServer.getCapabilities(client)
+        const { delegationImplementation } = contracts
 
         const latest = await Delegation.getEip712Domain(client, {
           account: delegationImplementation,
@@ -536,8 +537,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         )
         if (!key) throw new Error('admin key not found.')
 
-        const { delegationImplementation: delegation } =
-          await RpcServer.health(client)
+        const { contracts } = await RpcServer.getCapabilities(client)
+        const { delegationImplementation: delegation } = contracts
         if (!delegation) throw new Error('delegation not found.')
 
         const feeToken = await resolveFeeToken(internal)
@@ -630,8 +631,8 @@ async function resolveFeeToken(
 
   const chainId = Hex.fromNumber(chain.id)
 
-  const feeTokens = await RpcServer_viem.getFeeTokens(client).then(
-    (tokens) => tokens[chainId],
+  const feeTokens = await RpcServer_viem.getCapabilities(client).then(
+    (capabilities) => capabilities.fees.tokens[chainId],
   )
   const feeToken = feeTokens?.find((feeToken) => {
     if (address) return feeToken.address === address
