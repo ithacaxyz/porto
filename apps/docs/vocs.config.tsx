@@ -48,9 +48,8 @@ export default defineConfig({
             text: 'wallet_createAccount 🚧',
           },
           {
-            disabled: true,
             link: '/rpc-server/wallet_getKeys',
-            text: 'wallet_getKeys 🚧',
+            text: 'wallet_getKeys',
           },
           {
             disabled: true,
@@ -206,6 +205,7 @@ export default defineConfig({
             text: 'Overview',
           },
           {
+            disabled: true,
             link: '/sdk/wagmi/connector',
             text: 'Connector 🚧',
           },
