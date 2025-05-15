@@ -13,6 +13,7 @@ import {
   createAccount,
   getAccounts,
   getCallsStatus,
+  getCapabilities,
   getFeeTokens,
   getKeys,
   health,
@@ -56,6 +57,19 @@ describe('health', () => {
         },
       }
     `)
+  })
+})
+
+describe('getCapabilities', () => {
+  test('default', async () => {
+    const result = await getCapabilities(client)
+    expect(result.contracts.delegationImplementation).toBeDefined()
+    expect(result.contracts.delegationProxy).toBeDefined()
+    expect(result.contracts.entrypoint).toBeDefined()
+    expect(result.contracts.simulator).toBeDefined()
+    expect(result.fees.quoteConfig).toBeDefined()
+    expect(result.fees.recipient).toBeDefined()
+    expect(result.fees.tokens).toBeDefined()
   })
 })
 

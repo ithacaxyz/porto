@@ -127,6 +127,28 @@ export namespace getAccounts {
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
 
+export async function getCapabilities(
+  client: Client,
+): Promise<getCapabilities.ReturnType> {
+  try {
+    const method = 'wallet_getCapabilities' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
+    })
+    return Value.Parse(RpcSchema.wallet_getCapabilities.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getCapabilities {
+  export type ReturnType = RpcSchema.wallet_getCapabilities.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
 /**
  * Gets the status of a call bundle.
  *

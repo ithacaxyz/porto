@@ -25,6 +25,7 @@ export const instances = {
     ],
     simulator: simulatorAddress,
     userOpGasBuffer: 100_000n,
+    version: 'ac8e425',
   }),
 } as const
 
