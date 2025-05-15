@@ -8,13 +8,13 @@ import * as Sentry from './Sentry'
 const config = {
   anvil: {
     chains: [Chains.anvil],
-    mode: Mode.relay({
+    mode: Mode.rpcServer({
       feeToken: 'EXP',
     }),
   },
   dev: {
     chains: [Chains.portoDev],
-    mode: Mode.relay({
+    mode: Mode.rpcServer({
       feeToken: 'EXP',
     }),
     storageKey: 'porto.store.dev',
@@ -24,14 +24,14 @@ const config = {
   },
   prod: {
     chains: [Chains.baseSepolia],
-    mode: Mode.relay(),
+    mode: Mode.rpcServer(),
     transports: {
       [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   stg: {
     chains: [Chains.baseSepolia],
-    mode: Mode.relay(),
+    mode: Mode.rpcServer(),
     storageKey: 'porto.store.stg',
     transports: {
       [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),

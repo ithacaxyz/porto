@@ -25,6 +25,7 @@ export function AddFunds(props: AddFunds.Props) {
   const {
     onApprove,
     onReject,
+    onSuccess,
     tokenAddress,
     value = BigInt(presetAmounts[0]!),
   } = props
@@ -66,7 +67,10 @@ export function AddFunds(props: AddFunds.Props) {
       const data = (await response.json()) as { id: Hex.Hex }
       return data
     },
-    onSuccess: () => setView('success'),
+    onSuccess: () => {
+      setView('success')
+      onSuccess?.()
+    },
   })
 
   const loading = deposit.isPending
@@ -364,6 +368,7 @@ export declare namespace AddFunds {
     address?: Address.Address | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
+    onSuccess?: () => void
     tokenAddress: Address.Address
     value?: bigint | undefined
   }

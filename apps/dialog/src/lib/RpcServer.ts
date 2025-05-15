@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address, Json } from 'ox'
-import { Account, Relay } from 'porto'
+import { Account, RpcServer } from 'porto'
 import { Hooks } from 'porto/remote'
 
 import * as FeeToken from './FeeToken'
@@ -30,14 +30,13 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
 
   return useQuery({
     enabled: enabled && !!account,
-    gcTime: 0,
     async queryFn() {
       if (!account) throw new Error('account is required.')
 
       const key = Account.getKey(account, { role: 'admin' })
       if (!key) throw new Error('no admin key found.')
 
-      return await Relay.prepareCalls(client, {
+      return await RpcServer.prepareCalls(client, {
         account,
         authorizeKeys,
         calls,
@@ -66,7 +65,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
 export declare namespace usePrepareCalls {
   export type Props<calls extends readonly unknown[] = readonly unknown[]> =
     Pick<
-      Relay.prepareCalls.Parameters<calls>,
+      RpcServer.prepareCalls.Parameters<calls>,
       'authorizeKeys' | 'calls' | 'revokeKeys'
     > & {
       address?: Address.Address | undefined

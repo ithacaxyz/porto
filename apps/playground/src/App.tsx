@@ -48,7 +48,7 @@ export function App() {
             <option value="popup-dialog">Dialog (popup)</option>
             <option value="inline-dialog">Dialog (inline)</option>
             <option value="contract">Contract</option>
-            <option value="relay">Relay</option>
+            <option value="rpc">RPC Server</option>
           </select>
         </div>
         <hr />

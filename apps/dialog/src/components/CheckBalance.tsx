@@ -1,4 +1,4 @@
-import { Button } from '@porto/apps/components'
+import { Button, Spinner } from '@porto/apps/components'
 import { UseQueryResult } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { Hooks } from 'porto/remote'
@@ -22,35 +22,28 @@ export function CheckBalance(props: CheckBalance.Props) {
     chainId: chain?.id,
   })
 
-  const previousErrorMessage = React.useRef<string | null>(null)
-  React.useEffect(() => {
-    previousErrorMessage.current = query.error?.message ?? null
-  }, [query.error])
+  const hasInsufficientBalance = query.error?.message?.includes('PaymentError')
 
-  const hasInsufficientBalance = React.useMemo(() => {
-    if (
-      query.isFetching &&
-      previousErrorMessage.current?.includes('PaymentError')
-    )
-      return true
-    if (query.error?.message?.includes('PaymentError')) return true
-    return false
-  }, [query.error?.message, query.isFetching])
-
-  if (!hasInsufficientBalance) return children
   if (step === 'success') return children
   if (step === 'add-funds')
     return (
       <AddFunds
         address={address}
-        onApprove={() => {
-          setStep('success')
-          query.refetch()
-        }}
+        onApprove={() => setStep('success')}
         onReject={onReject}
+        onSuccess={() => query.refetch()}
         tokenAddress={props.feeToken!}
       />
     )
+  if (query.isPending)
+    return (
+      <div className="flex h-40 items-center justify-center">
+        <div className="size-[24px]">
+          <Spinner className="text-secondary" />
+        </div>
+      </div>
+    )
+  if (!hasInsufficientBalance) return children
   return (
     <Layout>
       <Layout.Header>

@@ -1,5 +1,5 @@
 import * as Anvil from './src/anvil.js'
-import * as Relay from './src/relay.js'
+import * as RpcServer from './src/rpcServer.js'
 
 export default async function () {
   // Set up Anvil instances
@@ -10,8 +10,8 @@ export default async function () {
       return stop
     }),
   )
-  const shutdownRelay = await Promise.all(
-    Object.values(Relay.instances).map(async (instance) => {
+  const shutdownRpcServer = await Promise.all(
+    Object.values(RpcServer.instances).map(async (instance) => {
       const stop = await instance.start()
       await fetch(`${instance.rpcUrl}/start`)
       return stop
@@ -20,5 +20,5 @@ export default async function () {
 
   // Teardown
   return () =>
-    Promise.all([...shutdownAnvil, ...shutdownRelay].map((fn) => fn()))
+    Promise.all([...shutdownAnvil, ...shutdownRpcServer].map((fn) => fn()))
 }

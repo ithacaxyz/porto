@@ -19,10 +19,8 @@ import {
   type EIP1193Provider,
   type PrivateKeyAccount,
 } from 'viem'
-import * as Request from '../../core/internal/typebox/request.js'
-import * as Rpc from '../../core/internal/typebox/rpc.js'
-import * as Schema from '../../core/internal/typebox/schema.js'
-import type * as RpcSchema from '../../core/RpcSchema.js'
+import * as Typebox from '../../core/internal/typebox/typebox.js'
+import * as RpcSchema from '../../core/RpcSchema.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
 
 export async function connect<config extends Config>(
@@ -76,7 +74,7 @@ export async function connect<config extends Config>(
       method,
       params: [
         {
-          capabilities: Schema.Encode(Request.wallet_connect.Capabilities, {
+          capabilities: Typebox.Encode(RpcSchema.wallet_connect.Capabilities, {
             createAccount,
             credentialId,
             grantPermissions,
@@ -122,7 +120,7 @@ export async function connect<config extends Config>(
 
 export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    Schema.StaticDecode<typeof Request.wallet_connect.Capabilities> & {
+    Typebox.StaticDecode<typeof RpcSchema.wallet_connect.Capabilities> & {
       connector: Connector | CreateConnectorFn
       force?: boolean | undefined
     }
@@ -284,7 +282,7 @@ export async function getAdmins<config extends Config>(
     params: [{ address }],
   })
 
-  return Schema.Decode(Rpc.experimental_getAdmins.Response, response)
+  return Typebox.Decode(RpcSchema.experimental_getAdmins.Response, response)
 }
 
 export declare namespace getAdmins {
@@ -293,8 +291,8 @@ export declare namespace getAdmins {
       address?: Address | undefined
     }
 
-  type ReturnType = Schema.StaticDecode<
-    typeof Rpc.experimental_getAdmins.Response
+  type ReturnType = Typebox.StaticDecode<
+    typeof RpcSchema.experimental_getAdmins.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -324,7 +322,10 @@ export async function getPermissions<config extends Config>(
     params: [{ address }],
   })
 
-  return Schema.Decode(Rpc.experimental_getPermissions.Response, response)
+  return Typebox.Decode(
+    RpcSchema.experimental_getPermissions.Response,
+    response,
+  )
 }
 
 export declare namespace getPermissions {
@@ -333,8 +334,8 @@ export declare namespace getPermissions {
       address?: Address | undefined
     }
 
-  type ReturnType = Schema.StaticDecode<
-    typeof Rpc.experimental_getPermissions.Response
+  type ReturnType = Typebox.StaticDecode<
+    typeof RpcSchema.experimental_getPermissions.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -362,25 +363,27 @@ export async function grantAdmin<config extends Config>(
   }>({
     method,
     params: [
-      Schema.Encode(Rpc.experimental_grantAdmin.Parameters, {
+      Typebox.Encode(RpcSchema.experimental_grantAdmin.Parameters, {
         address,
         ...key,
-      } satisfies Rpc.experimental_grantAdmin.Parameters),
+      } satisfies RpcSchema.experimental_grantAdmin.Parameters),
     ],
   })
 
-  return Schema.Decode(Rpc.experimental_grantAdmin.Response, response)
+  return Typebox.Decode(RpcSchema.experimental_grantAdmin.Response, response)
 }
 
 export declare namespace grantAdmin {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Schema.StaticDecode<typeof Rpc.experimental_grantAdmin.Parameters> & {
+    Typebox.StaticDecode<
+      typeof RpcSchema.experimental_grantAdmin.Parameters
+    > & {
       address?: Address | undefined
     }
 
-  type ReturnType = Schema.StaticDecode<
-    typeof Rpc.experimental_grantAdmin.Response
+  type ReturnType = Typebox.StaticDecode<
+    typeof RpcSchema.experimental_grantAdmin.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -408,25 +411,30 @@ export async function grantPermissions<config extends Config>(
   }>({
     method,
     params: [
-      Schema.Encode(Rpc.experimental_grantPermissions.Parameters, {
+      Typebox.Encode(RpcSchema.experimental_grantPermissions.Parameters, {
         address,
         ...key,
-      } satisfies Rpc.experimental_grantPermissions.Parameters),
+      } satisfies RpcSchema.experimental_grantPermissions.Parameters),
     ],
   })
 
-  return Schema.Decode(Rpc.experimental_grantPermissions.Response, response)
+  return Typebox.Decode(
+    RpcSchema.experimental_grantPermissions.Response,
+    response,
+  )
 }
 
 export declare namespace grantPermissions {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Schema.StaticDecode<typeof Rpc.experimental_grantPermissions.Parameters> & {
+    Typebox.StaticDecode<
+      typeof RpcSchema.experimental_grantPermissions.Parameters
+    > & {
       address?: Address | undefined
     }
 
-  type ReturnType = Schema.StaticDecode<
-    typeof Rpc.experimental_grantPermissions.Response
+  type ReturnType = Typebox.StaticDecode<
+    typeof RpcSchema.experimental_grantPermissions.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -460,12 +468,12 @@ export async function revokeAdmin<config extends Config>(
 export declare namespace revokeAdmin {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Schema.StaticDecode<
-      typeof Request.experimental_revokeAdmin.Capabilities
+    Typebox.StaticDecode<
+      typeof RpcSchema.experimental_revokeAdmin.Capabilities
     > & {
       address?: Address | undefined
-      id: Schema.StaticDecode<
-        typeof Rpc.experimental_revokeAdmin.Parameters
+      id: Typebox.StaticDecode<
+        typeof RpcSchema.experimental_revokeAdmin.Parameters
       >['id']
     }
 
@@ -500,12 +508,12 @@ export async function revokePermissions<config extends Config>(
 export declare namespace revokePermissions {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Schema.StaticDecode<
-      typeof Request.experimental_revokePermissions.Capabilities
+    Typebox.StaticDecode<
+      typeof RpcSchema.experimental_revokePermissions.Capabilities
     > & {
       address?: Address | undefined
-      id: Schema.StaticDecode<
-        typeof Rpc.experimental_revokePermissions.Parameters
+      id: Typebox.StaticDecode<
+        typeof RpcSchema.experimental_revokePermissions.Parameters
       >['id']
     }
 
@@ -560,12 +568,12 @@ export async function upgradeAccount<config extends Config>(
       params: [
         {
           address: account.address,
-          capabilities: Schema.Encode(
-            Request.experimental_prepareUpgradeAccount.Capabilities,
+          capabilities: Typebox.Encode(
+            RpcSchema.experimental_prepareUpgradeAccount.Capabilities,
             {
               feeToken,
               grantPermissions,
-            } satisfies Request.experimental_prepareUpgradeAccount.Capabilities,
+            } satisfies RpcSchema.experimental_prepareUpgradeAccount.Capabilities,
           ),
           label,
         },
@@ -580,10 +588,12 @@ export async function upgradeAccount<config extends Config>(
     type experimental_upgradeAccount = typeof experimental_upgradeAccount
     await provider.request<{
       Method: experimental_upgradeAccount
-      Parameters?: Schema.Static<
-        typeof Rpc.experimental_upgradeAccount.Request.properties.params
+      Parameters?: Typebox.Static<
+        typeof RpcSchema.experimental_upgradeAccount.Request.properties.params
       >
-      ReturnType: Schema.Static<typeof Rpc.experimental_upgradeAccount.Response>
+      ReturnType: Typebox.Static<
+        typeof RpcSchema.experimental_upgradeAccount.Response
+      >
     }>({
       method: experimental_upgradeAccount,
       params: [{ context, signatures }],
@@ -625,8 +635,8 @@ export async function upgradeAccount<config extends Config>(
 
 export declare namespace upgradeAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    Schema.StaticDecode<
-      typeof Request.experimental_prepareUpgradeAccount.Capabilities
+    Typebox.StaticDecode<
+      typeof RpcSchema.experimental_prepareUpgradeAccount.Capabilities
     > & {
       account: PrivateKeyAccount
       connector: Connector | CreateConnectorFn

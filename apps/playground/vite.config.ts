@@ -11,7 +11,7 @@ import { writeContract } from 'viem/actions'
 import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-import { Key, Relay } from '../../src/index.js'
+import { Key, RpcServer } from '../../src/index.js'
 import { Sponsor } from '../../src/server/index.js'
 import {
   accountRegistryAddress,
@@ -21,7 +21,7 @@ import {
   exp1Address,
   simulatorAddress,
 } from '../../test/src/_generated/addresses.js'
-import { relay } from '../../test/src/prool.js'
+import { rpcServer } from '../../test/src/prool.js'
 
 const logger = createLogger('info', {
   prefix: 'playground',
@@ -54,13 +54,13 @@ export default defineConfig(({ mode }) => ({
           transport: http(anvilConfig.rpcUrl),
         }).extend(() => ({ mode: 'anvil' }))
 
-        const relayConfig = {
+        const rpcServerConfig = {
           port: 9119,
           rpcUrl: 'http://127.0.0.1:9119',
         }
         const relayClient = createClient({
           chain: chains.anvil,
-          transport: http(relayConfig.rpcUrl),
+          transport: http(rpcServerConfig.rpcUrl),
         })
 
         if (process.env.CLEAN === 'true')
@@ -82,16 +82,16 @@ export default defineConfig(({ mode }) => ({
 
         logger.info('Anvil started on ' + anvilConfig.rpcUrl)
 
-        logger.info('Starting Relay...')
+        logger.info('Starting RPC Server...')
 
-        const startRelay = async ({
+        const startRpcServer = async ({
           delegationProxy = delegationProxyAddress,
         }: {
           delegationProxy?: string
         } = {}) => {
           const containerName = 'playground'
           spawnSync('docker', ['rm', '-f', containerName])
-          const stop = await relay({
+          const stop = await rpcServer({
             accountRegistry: accountRegistryAddress,
             containerName: 'playground',
             delegationProxy,
@@ -102,18 +102,18 @@ export default defineConfig(({ mode }) => ({
               exp1Address,
             ],
             http: {
-              port: relayConfig.port,
+              port: rpcServerConfig.port,
             },
             simulator: simulatorAddress,
             userOpGasBuffer: 100_000n,
             version: '2197566',
           }).start()
-          await fetch(relayConfig.rpcUrl + '/start')
+          await fetch(rpcServerConfig.rpcUrl + '/start')
           return stop
         }
-        let stopRelay = await startRelay()
+        let stopRpcServer = await startRpcServer()
 
-        logger.info('Relay started on ' + relayConfig.rpcUrl)
+        logger.info('RPC Server started on ' + rpcServerConfig.rpcUrl)
 
         // Allow CORS.
         server.middlewares.use(async (_, res, next) => {
@@ -121,12 +121,12 @@ export default defineConfig(({ mode }) => ({
           next()
         })
 
-        // Upgrade relay on `/relay/up`.
+        // Upgrade RPC Server on `/rpc/up`.
         server.middlewares.use(async (req, res, next) => {
-          if (!req.url?.startsWith('/relay/up')) return next()
+          if (!req.url?.startsWith('/rpc/up')) return next()
 
-          stopRelay()
-          stopRelay = await startRelay({
+          stopRpcServer()
+          stopRpcServer = await startRpcServer({
             delegationProxy: delegationNewProxyAddress,
           })
           res.statusCode = 302
@@ -157,7 +157,7 @@ export default defineConfig(({ mode }) => ({
 
         // Create app-sponsor account.
         const sponsorKey = Key.createSecp256k1()
-        const sponsorAccount = await Relay.createAccount(relayClient, {
+        const sponsorAccount = await RpcServer.createAccount(relayClient, {
           keys: [sponsorKey],
         })
         await writeContract(anvilClient, {
@@ -167,7 +167,7 @@ export default defineConfig(({ mode }) => ({
           chain: null,
           functionName: 'mint',
         })
-        await Relay.sendCalls(relayClient, {
+        await RpcServer.sendCalls(relayClient, {
           account: sponsorAccount,
           calls: [],
           feeToken: exp1Address,
@@ -186,7 +186,7 @@ export default defineConfig(({ mode }) => ({
               type: 'secp256k1',
             },
             transports: {
-              [chains.anvil.id]: http(relayConfig.rpcUrl),
+              [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
             },
           })
 

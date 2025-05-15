@@ -14,7 +14,7 @@ import {
 } from '../../test/src/porto.js'
 import * as Delegation from './internal/delegation.js'
 import * as Key from './Key.js'
-import * as Relay from './Relay.js'
+import * as Rpc from './RpcServer.js'
 
 const { client } = getPorto()
 
@@ -22,7 +22,7 @@ describe('createAccount', () => {
   test('default', async () => {
     const key = Key.createHeadlessWebAuthnP256()
 
-    const account = await Relay.createAccount(client, { keys: [key] })
+    const account = await Rpc.createAccount(client, { keys: [key] })
 
     expect(account.address).toBeDefined()
     expect(account.keys[0]?.publicKey).toBe(key.publicKey)
@@ -30,7 +30,7 @@ describe('createAccount', () => {
 
   test('behavior: keys function', async () => {
     let id: string | undefined
-    const account = await Relay.createAccount(client, {
+    const account = await Rpc.createAccount(client, {
       keys(p) {
         id = p.ids[0]
         return [Key.createHeadlessWebAuthnP256()]
@@ -46,7 +46,7 @@ describe('createAccount', () => {
 
     const key2 = Key.createSecp256k1()
 
-    const account = await Relay.createAccount(client, {
+    const account = await Rpc.createAccount(client, {
       keys: [key1, key2],
     })
 
@@ -72,7 +72,7 @@ describe('createAccount', () => {
       },
     })
 
-    const account = await Relay.createAccount(client, {
+    const account = await Rpc.createAccount(client, {
       keys: [key],
     })
 
@@ -100,8 +100,8 @@ describe('getAccounts', () => {
   test('default', async () => {
     const key = Key.createHeadlessWebAuthnP256()
 
-    const account = await Relay.createAccount(client, { keys: [key] })
-    const accounts = await Relay.getAccounts(client, {
+    const account = await Rpc.createAccount(client, { keys: [key] })
+    const accounts = await Rpc.getAccounts(client, {
       keyId: account.keys[0]!.id!,
     })
 
@@ -114,8 +114,8 @@ describe('getKeys', () => {
   test('default', async () => {
     const key = Key.createHeadlessWebAuthnP256()
 
-    const account = await Relay.createAccount(client, { keys: [key] })
-    const keys = await Relay.getKeys(client, {
+    const account = await Rpc.createAccount(client, { keys: [key] })
+    const keys = await Rpc.getKeys(client, {
       account,
     })
 
@@ -126,8 +126,8 @@ describe('getKeys', () => {
   test('behavior: address', async () => {
     const key = Key.createHeadlessWebAuthnP256()
 
-    const account = await Relay.createAccount(client, { keys: [key] })
-    const keys = await Relay.getKeys(client, {
+    const account = await Rpc.createAccount(client, { keys: [key] })
+    const keys = await Rpc.getKeys(client, {
       account: account.address,
     })
 
@@ -146,7 +146,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       value: Value.fromEther('10'),
     })
 
-    const request = await Relay.prepareUpgradeAccount(client, {
+    const request = await Rpc.prepareUpgradeAccount(client, {
       address: eoa.address,
       feeToken: exp1Address,
       keys: [key],
@@ -156,7 +156,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       request.digests.map((hash) => eoa.sign({ hash })),
     )
 
-    const result = await Relay.upgradeAccount(client, {
+    const result = await Rpc.upgradeAccount(client, {
       ...request,
       signatures,
     })
@@ -172,7 +172,7 @@ describe('sendCalls', () => {
       keys: [key],
     })
 
-    const { id } = await Relay.sendCalls(client, {
+    const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [
         {
@@ -206,7 +206,7 @@ describe('sendCalls', () => {
       keys: [key],
     })
 
-    const { id } = await Relay.sendCalls(client, {
+    const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [
         {
@@ -239,7 +239,7 @@ describe('sendCalls', () => {
       keys: [key],
     })
 
-    const request = await Relay.prepareCalls(client, {
+    const request = await Rpc.prepareCalls(client, {
       account,
       calls: [
         {
@@ -258,7 +258,7 @@ describe('sendCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Relay.sendCalls(client, {
+    const { id } = await Rpc.sendCalls(client, {
       ...request,
       signature,
     })
@@ -299,7 +299,7 @@ describe('sendCalls', () => {
       role: 'session',
     })
 
-    const { id } = await Relay.sendCalls(client, {
+    const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [
         {
@@ -355,7 +355,7 @@ describe('sendCalls', () => {
       },
       role: 'session',
     })
-    const request_1 = await Relay.prepareCalls(client, {
+    const request_1 = await Rpc.prepareCalls(client, {
       account,
       authorizeKeys: [newKey],
       feeToken: exp1Address,
@@ -366,7 +366,7 @@ describe('sendCalls', () => {
       payload: request_1.digest,
     })
 
-    const request_2 = await Relay.prepareCalls(client, {
+    const request_2 = await Rpc.prepareCalls(client, {
       account,
       calls: [
         {
@@ -385,7 +385,7 @@ describe('sendCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Relay.sendCalls(client, {
+    const { id } = await Rpc.sendCalls(client, {
       ...request_2,
       signature: signature_2,
     })
@@ -422,7 +422,7 @@ describe.each([
       })
 
       // 2. Mint 100 ERC20 tokens to Account.
-      const { id } = await Relay.sendCalls(client, {
+      const { id } = await Rpc.sendCalls(client, {
         account,
         calls: [
           {
@@ -459,7 +459,7 @@ describe.each([
       })
 
       // 2. Mint 100 ERC20 tokens to Account – no `feeToken` specified.
-      const { id } = await Relay.sendCalls(client, {
+      const { id } = await Rpc.sendCalls(client, {
         account,
         calls: [
           {
@@ -495,7 +495,7 @@ describe.each([
       })
 
       // 2. Perform a no-op call.
-      const { id } = await Relay.sendCalls(client, {
+      const { id } = await Rpc.sendCalls(client, {
         account,
         calls: [
           {
@@ -517,7 +517,7 @@ describe.each([
 
       // 2. Try to transfer 100 ERC20 tokens to the zero address.
       await expect(() =>
-        Relay.sendCalls(client, {
+        Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -542,7 +542,7 @@ describe.each([
 
       // 2. Try to transfer 100000000 ETH tokens to the zero address.
       await expect(() =>
-        Relay.sendCalls(client, {
+        Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -571,7 +571,7 @@ describe.each([
       ] as const
 
       // 3. Authorize additional Admin Keys.
-      const { id } = await Relay.sendCalls(client, {
+      const { id } = await Rpc.sendCalls(client, {
         account,
         authorizeKeys: keys,
         calls: [],
@@ -614,7 +614,7 @@ describe.each([
       // 2. Authorize a new Admin Key.
       const newKey = Key.createHeadlessWebAuthnP256()
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           authorizeKeys: [newKey],
           feeToken: exp1Address,
@@ -628,7 +628,7 @@ describe.each([
 
       // 3. Mint 100 ERC20 tokens to Account with new Admin Key.
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -682,7 +682,7 @@ describe.each([
       })
 
       // 3. Mint 100 ERC20 tokens to Account with new Session Key.
-      const { id } = await Relay.sendCalls(client, {
+      const { id } = await Rpc.sendCalls(client, {
         account,
         calls: [
           {
@@ -747,7 +747,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account (and initialize scoped Session Key).
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -811,7 +811,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account (and initialize scoped Session Key).
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -849,7 +849,7 @@ describe.each([
 
       // 4. Mint another 100 ERC20 tokens to Account.
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -907,7 +907,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account with Admin Key (and initialize scoped Session Key).
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -945,7 +945,7 @@ describe.each([
 
       // 4. Mint another 100 ERC20 tokens to Account with Session Key.
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -1010,7 +1010,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account (and initialize scoped Session Key).
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -1080,7 +1080,7 @@ describe.each([
 
       // 2. Try to mint ERC20 tokens to Account with Session Key (and initialize scoped Session Key).
       await expect(() =>
-        Relay.sendCalls(client, {
+        Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -1129,7 +1129,7 @@ describe.each([
 
       // 2. Try to mint ERC20 tokens to Account with Session Key (and initialize scoped Session Key).
       await expect(() =>
-        Relay.sendCalls(client, {
+        Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -1181,7 +1181,7 @@ describe.each([
 
       // 2. Mint 100 ERC20 tokens to Account with Session Key.
       {
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -1219,7 +1219,7 @@ describe.each([
 
       {
         // 4. Transfer 50 ERC20 token from Account.
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await Rpc.sendCalls(client, {
           account,
           calls: [
             {
@@ -1240,7 +1240,7 @@ describe.each([
 
       // 5. Try to transfer another 50 ERC20 tokens from Account.
       await expect(() =>
-        Relay.sendCalls(client, {
+        Rpc.sendCalls(client, {
           account,
           calls: [
             {

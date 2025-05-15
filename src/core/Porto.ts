@@ -17,7 +17,7 @@ import * as Storage from './Storage.js'
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia],
-  mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.relay(),
+  mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.rpcServer(),
   storage: typeof window !== 'undefined' ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {

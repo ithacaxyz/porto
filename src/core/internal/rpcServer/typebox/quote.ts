@@ -1,22 +1,22 @@
 /**
- * Relay quote.
+ * RPC quote.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/quote.rs
  */
 
 import * as Primitive from '../../typebox/primitive.js'
-import * as Schema from '../../typebox/schema.js'
-import { Type } from '../../typebox/schema.js'
+import * as Typebox from '../../typebox/typebox.js'
+import { Type } from '../../typebox/typebox.js'
 import * as UserOp from './userOp.js'
 
-/** A quote from a relay for a given `UserOp`. */
+/** A quote from the RPC for a given `UserOp`. */
 export const Quote = Type.Object({
   /**
    * An optional unsigned authorization item.
    * The account in `eoa` will be delegated to this address.
    */
-  authorizationAddress: Schema.OneOf([
-    Schema.Optional(Primitive.Address),
+  authorizationAddress: Typebox.OneOf([
+    Typebox.Optional(Primitive.Address),
     Type.Null(),
   ]),
   /** Chain ID the quote is for. */
@@ -38,7 +38,7 @@ export const Quote = Type.Object({
   /** The recommended gas limit for the bundle. */
   txGas: Primitive.BigInt,
 })
-export type Quote = Schema.StaticDecode<typeof Quote>
+export type Quote = Typebox.StaticDecode<typeof Quote>
 
 export const Signed = Type.Intersect([
   Quote,
@@ -46,8 +46,8 @@ export const Signed = Type.Intersect([
     hash: Primitive.Hex,
     r: Primitive.Hex,
     s: Primitive.Hex,
-    v: Schema.Optional(Primitive.Hex),
-    yParity: Schema.Optional(Primitive.Hex),
+    v: Typebox.Optional(Primitive.Hex),
+    yParity: Typebox.Optional(Primitive.Hex),
   }),
 ])
-export type Signed = Schema.StaticDecode<typeof Signed>
+export type Signed = Typebox.StaticDecode<typeof Signed>

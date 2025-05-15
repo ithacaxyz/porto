@@ -12,14 +12,14 @@ import { waitForCallsStatus } from 'viem/actions'
 import * as Account from '../../Account.js'
 import * as Key from '../../Key.js'
 import type * as Porto from '../../Porto.js'
-import * as Relay from '../../Relay.js'
+import * as RpcServer from '../../RpcServer.js'
 import type * as Storage from '../../Storage.js'
 import * as Call from '../call.js'
 import * as Delegation from '../delegation.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
-import * as Relay_viem from '../viem/relay.js'
+import * as RpcServer_viem from '../viem/actions.js'
 
 export const defaultConfig = {
   feeToken: 'EXP',
@@ -37,17 +37,17 @@ export const defaultConfig = {
       period: 'day',
     },
   },
-} as const satisfies relay.Parameters
+} as const satisfies rpcServer.Parameters
 
 /**
  * Mode for a WebAuthn-based environment that interacts with the Porto
- * Relay. Account management, signing, and execution is coordinated
- * between the library and the Relay.
+ * RPC Server. Account management, signing, and execution is coordinated
+ * between the library and the RPC Server.
  *
  * @param parameters - Parameters.
  * @returns Mode.
  */
-export function relay(parameters: relay.Parameters = {}) {
+export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = { ...defaultConfig, ...parameters }
   const { mock } = config
 
@@ -74,7 +74,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const { client } = parameters.internal
 
         let id: Hex.Hex | undefined
-        const account = await Relay.createAccount(client, {
+        const account = await RpcServer.createAccount(client, {
           async keys({ ids }) {
             id = ids[0]!
             const label = parameters.label ?? 'Porto Account'
@@ -98,7 +98,7 @@ export function relay(parameters: relay.Parameters = {}) {
           feeToken,
         })
         if (authorizeKey)
-          // TODO(relay): remove double webauthn sign.
+          // TODO(rpcServer): remove double webauthn sign.
           await preauthKey(client, {
             account,
             authorizeKey,
@@ -118,7 +118,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const { address, internal } = parameters
         const { client } = internal
 
-        const { delegationImplementation } = await Relay.health(client)
+        const { delegationImplementation } = await RpcServer.health(client)
 
         const latest = await Delegation.getEip712Domain(client, {
           account: delegationImplementation,
@@ -128,7 +128,7 @@ export function relay(parameters: relay.Parameters = {}) {
           account: address,
         })
           .then((x) => x.version)
-          // TODO: get counterfactual account delegation via relay.
+          // TODO: get counterfactual account delegation via rpc server.
           .catch(() => latest)
 
         if (!current || !latest) throw new Error('version not found.')
@@ -140,7 +140,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const { id, internal } = parameters
         const { client } = internal
 
-        const result = await Relay_viem.getCallsStatus(client, {
+        const result = await RpcServer_viem.getCallsStatus(client, {
           id,
         })
 
@@ -168,7 +168,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const authorizeKey = Key.from(parameters.key)
 
         const feeToken = await resolveFeeToken(internal, parameters)
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await RpcServer.sendCalls(client, {
           account,
           authorizeKeys: [authorizeKey],
           feeToken: feeToken.address,
@@ -241,7 +241,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const feeToken = await resolveFeeToken(internal)
 
         const [accounts, authorizeKey] = await Promise.all([
-          Relay.getAccounts(client, { keyId }),
+          RpcServer.getAccounts(client, { keyId }),
           PermissionsRequest.toKey(permissions, {
             feeToken,
           }),
@@ -299,7 +299,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
-        const { capabilities, context, digest } = await Relay.prepareCalls(
+        const { capabilities, context, digest } = await RpcServer.prepareCalls(
           client,
           {
             account,
@@ -337,24 +337,27 @@ export function relay(parameters: relay.Parameters = {}) {
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
           feeToken,
         })
-        const { context, digests } = await Relay.prepareUpgradeAccount(client, {
-          address,
-          feeToken: feeToken.address,
-          async keys({ ids }) {
-            const id = ids[0]!
-            const label = parameters.label ?? 'Porto Account'
+        const { context, digests } = await RpcServer.prepareUpgradeAccount(
+          client,
+          {
+            address,
+            feeToken: feeToken.address,
+            async keys({ ids }) {
+              const id = ids[0]!
+              const label = parameters.label ?? 'Porto Account'
 
-            const key = !mock
-              ? await Key.createWebAuthnP256({
-                  label,
-                  rpId: keystoreHost,
-                  userId: Bytes.from(id),
-                })
-              : Key.createHeadlessWebAuthnP256()
+              const key = !mock
+                ? await Key.createWebAuthnP256({
+                    label,
+                    rpId: keystoreHost,
+                    userId: Bytes.from(id),
+                  })
+                : Key.createHeadlessWebAuthnP256()
 
-            return [key, ...(authorizeKey ? [authorizeKey] : [])]
+              return [key, ...(authorizeKey ? [authorizeKey] : [])]
+            },
           },
-        })
+        )
 
         return {
           context,
@@ -373,7 +376,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         try {
           const feeToken = await resolveFeeToken(internal, parameters)
-          const { id } = await Relay.sendCalls(client, {
+          const { id } = await RpcServer.sendCalls(client, {
             account,
             feeToken: feeToken.address,
             revokeKeys: [key],
@@ -382,9 +385,9 @@ export function relay(parameters: relay.Parameters = {}) {
             id,
           })
         } catch (e) {
-          const error = e as Relay.sendCalls.ErrorType
+          const error = e as RpcServer.sendCalls.ErrorType
           if (
-            error.name === 'Relay.ExecutionError' &&
+            error.name === 'Rpc.ExecutionError' &&
             error.abiError?.name === 'KeyDoesNotExist'
           )
             return
@@ -406,7 +409,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         try {
           const feeToken = await resolveFeeToken(internal, parameters)
-          const { id } = await Relay.sendCalls(client, {
+          const { id } = await RpcServer.sendCalls(client, {
             account,
             feeToken: feeToken.address,
             revokeKeys: [key],
@@ -415,9 +418,9 @@ export function relay(parameters: relay.Parameters = {}) {
             id,
           })
         } catch (e) {
-          const error = e as Relay.sendCalls.ErrorType
+          const error = e as RpcServer.sendCalls.ErrorType
           if (
-            error.name === 'Relay.ExecutionError' &&
+            error.name === 'Rpc.ExecutionError' &&
             error.abiError?.name === 'KeyDoesNotExist'
           )
             return
@@ -450,7 +453,7 @@ export function relay(parameters: relay.Parameters = {}) {
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
-        const result = await Relay.sendCalls(client, {
+        const result = await RpcServer.sendCalls(client, {
           account,
           calls,
           feeToken: feeToken.address,
@@ -474,7 +477,7 @@ export function relay(parameters: relay.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const { id } = await Relay.sendCalls(client, {
+        const { id } = await RpcServer.sendCalls(client, {
           context: context as never,
           key,
           signature,
@@ -536,12 +539,12 @@ export function relay(parameters: relay.Parameters = {}) {
         if (!key) throw new Error('admin key not found.')
 
         const { delegationImplementation: delegation } =
-          await Relay.health(client)
+          await RpcServer.health(client)
         if (!delegation) throw new Error('delegation not found.')
 
         const feeToken = await resolveFeeToken(internal)
 
-        return await Relay.sendCalls(client, {
+        return await RpcServer.sendCalls(client, {
           account,
           calls: [
             Call.upgradeProxyDelegation({
@@ -558,7 +561,7 @@ export function relay(parameters: relay.Parameters = {}) {
         const { account, context, internal, signatures } = parameters
         const { client } = internal
 
-        await Relay.upgradeAccount(client, {
+        await RpcServer.upgradeAccount(client, {
           context: context as any,
           signatures,
         })
@@ -566,7 +569,7 @@ export function relay(parameters: relay.Parameters = {}) {
         return { account }
       },
     },
-    name: 'relay',
+    name: 'rpc',
     setup(parameters) {
       const { internal } = parameters
       const { store } = internal
@@ -588,7 +591,7 @@ export function relay(parameters: relay.Parameters = {}) {
   })
 }
 
-export declare namespace relay {
+export declare namespace rpcServer {
   type Parameters = {
     /**
      * Fee token to use by default (e.g. "USDC", "ETH").
@@ -629,7 +632,7 @@ async function resolveFeeToken(
 
   const chainId = Hex.fromNumber(chain.id)
 
-  const feeTokens = await Relay_viem.getFeeTokens(client).then(
+  const feeTokens = await RpcServer_viem.getFeeTokens(client).then(
     (tokens) => tokens[chainId],
   )
   const feeToken = feeTokens?.find((feeToken) => {
@@ -662,7 +665,7 @@ async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
   )
   if (!adminKey) throw new Error('admin key not found.')
 
-  const { context, digest } = await Relay.prepareCalls(client, {
+  const { context, digest } = await RpcServer.prepareCalls(client, {
     account,
     authorizeKeys: [authorizeKey],
     feeToken,
@@ -690,7 +693,7 @@ namespace preauthKey {
 
 export namespace PreBundles {
   export type PreBundles = readonly {
-    context: Relay.prepareCalls.ReturnType['context']
+    context: RpcServer.prepareCalls.ReturnType['context']
     signature: Hex.Hex
   }[]
 

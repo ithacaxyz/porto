@@ -1,5 +1,5 @@
 /**
- * Viem Actions for Relay JSON-RPC methods.
+ * Viem Actions for JSON-RPC methods.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/rpc.rs
  */
@@ -27,11 +27,10 @@ import {
   type GetExecuteErrorReturnType,
   getExecuteError,
 } from 'viem/experimental/erc7821'
-import type { sendCalls } from '../../Relay.js'
-import type * as RpcSchema from '../relay/rpcSchema.js'
-import * as Rpc from '../relay/typebox/rpc.js'
-import * as Schema from '../typebox/schema.js'
-import { Value } from '../typebox/schema.js'
+import type { sendCalls } from '../../RpcServer.js'
+import * as RpcSchema from '../rpcServer/rpcSchema.js'
+import * as Typebox from '../typebox/typebox.js'
+import { Value } from '../typebox/typebox.js'
 
 /**
  * Creates a new account.
@@ -55,13 +54,13 @@ export async function createAccount(
       {
         method,
         params: [
-          Value.Encode(Rpc.wallet_createAccount.Parameters, {
+          Value.Encode(RpcSchema.wallet_createAccount.Parameters, {
             context: {
               account: context.account,
               chainId: context.chainId,
             },
             signatures,
-          } satisfies Rpc.wallet_createAccount.Parameters),
+          } satisfies RpcSchema.wallet_createAccount.Parameters),
         ],
       },
       {
@@ -76,9 +75,9 @@ export async function createAccount(
 }
 
 export namespace createAccount {
-  export type Parameters = Rpc.wallet_createAccount.Parameters
+  export type Parameters = RpcSchema.wallet_createAccount.Parameters
 
-  export type ReturnType = Rpc.wallet_createAccount.Response
+  export type ReturnType = RpcSchema.wallet_createAccount.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -104,13 +103,13 @@ export async function getAccounts(
     const result = await client.request<Schema>({
       method,
       params: [
-        Value.Encode(Rpc.wallet_getAccounts.Parameters, {
+        Value.Encode(RpcSchema.wallet_getAccounts.Parameters, {
           chain_id: chain?.id,
           id,
         }),
       ],
     })
-    return Value.Parse(Rpc.wallet_getAccounts.Response, result)
+    return Value.Parse(RpcSchema.wallet_getAccounts.Response, result)
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -123,7 +122,7 @@ export namespace getAccounts {
     keyId: Hex.Hex
   }
 
-  export type ReturnType = Rpc.wallet_getAccounts.Response
+  export type ReturnType = RpcSchema.wallet_getAccounts.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -151,9 +150,9 @@ export async function getCallsStatus(
       params: [id],
     })
     return Value.Parse(
-      Rpc.wallet_getCallsStatus.Response,
-      result satisfies Schema.StaticEncode<
-        typeof Rpc.wallet_getCallsStatus.Response
+      RpcSchema.wallet_getCallsStatus.Response,
+      result satisfies Typebox.StaticEncode<
+        typeof RpcSchema.wallet_getCallsStatus.Response
       >,
     )
   } catch (error) {
@@ -167,13 +166,13 @@ export namespace getCallsStatus {
     id: Hex.Hex
   }
 
-  export type ReturnType = Rpc.wallet_getCallsStatus.Response
+  export type ReturnType = RpcSchema.wallet_getCallsStatus.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
 
 /**
- * Gets the fee tokens supported by the relay.
+ * Gets the fee tokens supported by the RPC.
  *
  * @example
  * TODO
@@ -193,11 +192,11 @@ export async function getFeeTokens(
       }),
     { cacheKey: 'feeTokens' },
   )
-  return Value.Parse(Rpc.wallet_feeTokens.Response, result)
+  return Value.Parse(RpcSchema.wallet_feeTokens.Response, result)
 }
 
 export namespace getFeeTokens {
-  export type ReturnType = Rpc.wallet_feeTokens.Response
+  export type ReturnType = RpcSchema.wallet_feeTokens.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -223,13 +222,13 @@ export async function getKeys(
     const result = await client.request<Schema>({
       method,
       params: [
-        Value.Encode(Rpc.wallet_getKeys.Parameters, {
+        Value.Encode(RpcSchema.wallet_getKeys.Parameters, {
           address,
           chain_id: chain?.id,
         }),
       ],
     })
-    return Value.Parse(Rpc.wallet_getKeys.Response, result)
+    return Value.Parse(RpcSchema.wallet_getKeys.Response, result)
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -237,17 +236,20 @@ export async function getKeys(
 }
 
 export namespace getKeys {
-  export type Parameters = Omit<Rpc.wallet_getKeys.Parameters, 'chain_id'> & {
+  export type Parameters = Omit<
+    RpcSchema.wallet_getKeys.Parameters,
+    'chain_id'
+  > & {
     chain?: Chain | undefined
   }
 
-  export type ReturnType = Rpc.wallet_getKeys.Response
+  export type ReturnType = RpcSchema.wallet_getKeys.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
 
 /**
- * Gets the health of the relay.
+ * Gets the health of the RPC.
  *
  * @example
  * TODO
@@ -265,11 +267,11 @@ export async function health(client: Client): Promise<health.ReturnType> {
       }),
     { cacheKey: 'health' },
   )
-  return Value.Parse(Rpc.relay_health.Response, result)
+  return Value.Parse(RpcSchema.relay_health.Response, result)
 }
 
 export namespace health {
-  export type ReturnType = Rpc.relay_health.Response
+  export type ReturnType = RpcSchema.relay_health.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -310,7 +312,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
       {
         method,
         params: [
-          Value.Encode(Rpc.wallet_prepareCalls.Parameters, {
+          Value.Encode(RpcSchema.wallet_prepareCalls.Parameters, {
             calls,
             capabilities,
             chainId: chain!.id,
@@ -320,14 +322,14 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
               publicKey: key.publicKey,
               type: key.type,
             },
-          } satisfies Rpc.wallet_prepareCalls.Parameters),
+          } satisfies RpcSchema.wallet_prepareCalls.Parameters),
         ],
       },
       {
         retryCount: 0,
       },
     )
-    return Value.Parse(Rpc.wallet_prepareCalls.Response, result)
+    return Value.Parse(RpcSchema.wallet_prepareCalls.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error, { calls: parameters.calls })
@@ -341,12 +343,12 @@ export namespace prepareCalls {
   > = {
     address: Address.Address
     calls: Calls<Narrow<calls>>
-    capabilities: Rpc.wallet_prepareCalls.Capabilities
+    capabilities: RpcSchema.wallet_prepareCalls.Capabilities
     chain?: Chain | undefined
-    key: Rpc.wallet_prepareCalls.Parameters['key']
+    key: RpcSchema.wallet_prepareCalls.Parameters['key']
   }
 
-  export type ReturnType = Rpc.wallet_prepareCalls.Response
+  export type ReturnType = RpcSchema.wallet_prepareCalls.Response
 
   export type ErrorType =
     | parseSchemaError.ErrorType
@@ -376,7 +378,7 @@ export async function prepareCreateAccount(
       {
         method,
         params: [
-          Value.Encode(Rpc.wallet_prepareCreateAccount.Parameters, {
+          Value.Encode(RpcSchema.wallet_prepareCreateAccount.Parameters, {
             capabilities,
             chainId: chain?.id,
           }),
@@ -386,7 +388,7 @@ export async function prepareCreateAccount(
         retryCount: 0,
       },
     )
-    return Value.Parse(Rpc.wallet_prepareCreateAccount.Response, result)
+    return Value.Parse(RpcSchema.wallet_prepareCreateAccount.Response, result)
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -395,13 +397,13 @@ export async function prepareCreateAccount(
 
 export namespace prepareCreateAccount {
   export type Parameters = Omit<
-    Rpc.wallet_prepareCreateAccount.Parameters,
+    RpcSchema.wallet_prepareCreateAccount.Parameters,
     'chainId'
   > & {
     chain?: Chain | undefined
   }
 
-  export type ReturnType = Rpc.wallet_prepareCreateAccount.Response
+  export type ReturnType = RpcSchema.wallet_prepareCreateAccount.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -430,7 +432,7 @@ export async function prepareUpgradeAccount(
         {
           method,
           params: [
-            Value.Encode(Rpc.wallet_prepareUpgradeAccount.Parameters, {
+            Value.Encode(RpcSchema.wallet_prepareUpgradeAccount.Parameters, {
               address,
               capabilities,
               chainId: chain?.id,
@@ -458,7 +460,7 @@ export async function prepareUpgradeAccount(
       })(),
     ])
     const parsed = Value.Parse(
-      Rpc.wallet_prepareUpgradeAccount.Response,
+      RpcSchema.wallet_prepareUpgradeAccount.Response,
       result,
     )
     return {
@@ -478,15 +480,15 @@ export async function prepareUpgradeAccount(
 export namespace prepareUpgradeAccount {
   export type Parameters = {
     address: Address.Address
-    capabilities: Rpc.wallet_prepareUpgradeAccount.Capabilities
+    capabilities: RpcSchema.wallet_prepareUpgradeAccount.Capabilities
     chain?: Chain | undefined
   }
 
   export type ReturnType = Omit<
-    Rpc.wallet_prepareUpgradeAccount.Response,
+    RpcSchema.wallet_prepareUpgradeAccount.Response,
     'context' | 'digest'
   > & {
-    context: Rpc.wallet_prepareUpgradeAccount.Response['context'] & {
+    context: RpcSchema.wallet_prepareUpgradeAccount.Response['context'] & {
       authorization: Authorization_viem
     }
     digests: [execute: Hex.Hex, auth: Hex.Hex]
@@ -520,7 +522,7 @@ export async function sendPreparedCalls(
       {
         method,
         params: [
-          Value.Encode(Rpc.wallet_sendPreparedCalls.Parameters, {
+          Value.Encode(RpcSchema.wallet_sendPreparedCalls.Parameters, {
             capabilities,
             context: {
               preOp: context.preOp,
@@ -532,14 +534,14 @@ export async function sendPreparedCalls(
               type: key.type,
             },
             signature,
-          } satisfies Rpc.wallet_sendPreparedCalls.Parameters),
+          } satisfies RpcSchema.wallet_sendPreparedCalls.Parameters),
         ],
       },
       {
         retryCount: 0,
       },
     )
-    return Value.Parse(Rpc.wallet_sendPreparedCalls.Response, result)
+    return Value.Parse(RpcSchema.wallet_sendPreparedCalls.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error)
@@ -548,9 +550,9 @@ export async function sendPreparedCalls(
 }
 
 export namespace sendPreparedCalls {
-  export type Parameters = Rpc.wallet_sendPreparedCalls.Parameters
+  export type Parameters = RpcSchema.wallet_sendPreparedCalls.Parameters
 
-  export type ReturnType = Rpc.wallet_sendPreparedCalls.Response
+  export type ReturnType = RpcSchema.wallet_sendPreparedCalls.Response
 
   export type ErrorType =
     | parseSchemaError.ErrorType
@@ -594,21 +596,21 @@ export async function upgradeAccount(
       {
         method,
         params: [
-          Value.Encode(Rpc.wallet_upgradeAccount.Parameters, {
+          Value.Encode(RpcSchema.wallet_upgradeAccount.Parameters, {
             authorization,
             context: {
               preOp: context.preOp,
               quote: context.quote,
             },
             signature: signatures[0]!,
-          } satisfies Rpc.wallet_upgradeAccount.Parameters),
+          } satisfies RpcSchema.wallet_upgradeAccount.Parameters),
         ],
       },
       {
         retryCount: 0,
       },
     )
-    return Value.Parse(Rpc.wallet_upgradeAccount.Response, result)
+    return Value.Parse(RpcSchema.wallet_upgradeAccount.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error)
@@ -618,13 +620,13 @@ export async function upgradeAccount(
 
 export namespace upgradeAccount {
   export type Parameters = {
-    context: Rpc.wallet_upgradeAccount.Parameters['context'] & {
+    context: RpcSchema.wallet_upgradeAccount.Parameters['context'] & {
       authorization: Authorization_viem<number, false>
     }
     signatures: readonly Hex.Hex[]
   }
 
-  export type ReturnType = Rpc.wallet_upgradeAccount.Response
+  export type ReturnType = RpcSchema.wallet_upgradeAccount.Response
 
   export type ErrorType =
     | parseSchemaError.ErrorType
@@ -654,7 +656,7 @@ export async function verifySignature(
       {
         method,
         params: [
-          Value.Encode(Rpc.wallet_verifySignature.Parameters, {
+          Value.Encode(RpcSchema.wallet_verifySignature.Parameters, {
             chainId,
             digest,
             keyIdOrAddress: address,
@@ -666,7 +668,7 @@ export async function verifySignature(
         retryCount: 0,
       },
     )
-    return Value.Parse(Rpc.wallet_verifySignature.Response, result)
+    return Value.Parse(RpcSchema.wallet_verifySignature.Response, result)
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -675,14 +677,14 @@ export async function verifySignature(
 
 export namespace verifySignature {
   export type Parameters = Omit<
-    Rpc.wallet_verifySignature.Parameters,
+    RpcSchema.wallet_verifySignature.Parameters,
     'chainId' | 'keyIdOrAddress'
   > & {
     address: Address.Address
     chainId?: number | undefined
   }
 
-  export type ReturnType = Rpc.wallet_verifySignature.Response
+  export type ReturnType = RpcSchema.wallet_verifySignature.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -755,7 +757,7 @@ export declare namespace parseSchemaError {
 
 /** Thrown when the execution fails. */
 export class ExecutionError extends Errors.BaseError<BaseError> {
-  override readonly name = 'Relay.ExecutionError'
+  override readonly name = 'Rpc.ExecutionError'
 
   abiError?: AbiError.AbiError | undefined
 
@@ -774,7 +776,7 @@ export class ExecutionError extends Errors.BaseError<BaseError> {
 export class SchemaCoderError extends Errors.BaseError<
   AssertError | TransformEncodeCheckError
 > {
-  override readonly name = 'Relay.SchemaCoderError'
+  override readonly name = 'Rpc.SchemaCoderError'
 
   constructor(cause: AssertError | TransformEncodeCheckError) {
     const message = (() => {

@@ -1,18 +1,18 @@
 /**
- * Relay capabilities.
+ * RPC capabilities.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/capabilities.rs
  */
 
 import * as Primitive from '../../typebox/primitive.js'
-import * as Schema from '../../typebox/schema.js'
-import { Type } from '../../typebox/schema.js'
+import * as Typebox from '../../typebox/typebox.js'
+import { Type } from '../../typebox/typebox.js'
 import * as Key from './key.js'
 
 export namespace authorizeKeys {
   /** Represents a key authorization request. */
   export const Request = Type.Array(Key.WithPermissions)
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Represents a key authorization response. */
   export const Response = Type.Array(
@@ -24,20 +24,20 @@ export namespace authorizeKeys {
       }),
     ]),
   )
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }
 
 export namespace meta {
   /** Represents metadata for a call bundle. */
   export const Request = Type.Object({
     /** The address of the fee payer. */
-    feePayer: Schema.Optional(Primitive.Address),
+    feePayer: Typebox.Optional(Primitive.Address),
     /** The token to pay for the call bundle. If `None`, defaults to native token (ETH). */
-    feeToken: Schema.Optional(Primitive.Address),
+    feeToken: Typebox.Optional(Primitive.Address),
     /** The nonce for the bundle. */
-    nonce: Schema.Optional(Primitive.BigInt),
+    nonce: Typebox.Optional(Primitive.BigInt),
   })
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 }
 
 export namespace revokeKeys {
@@ -48,7 +48,7 @@ export namespace revokeKeys {
       hash: Primitive.Hex,
     }),
   )
-  export type Request = Schema.StaticDecode<typeof Request>
+  export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Represents a key revocation response. */
   export const Response = Type.Array(
@@ -57,5 +57,5 @@ export namespace revokeKeys {
       hash: Primitive.Hex,
     }),
   )
-  export type Response = Schema.StaticDecode<typeof Response>
+  export type Response = Typebox.StaticDecode<typeof Response>
 }

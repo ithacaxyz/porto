@@ -4,7 +4,7 @@ import { http } from 'viem'
 import * as Porto_internal from '../../src/core/internal/porto.js'
 import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
-import * as Relay from './relay.js'
+import * as RpcServer from './rpcServer.js'
 
 export const chain = Anvil.enabled ? Chains.anvil : Chains.portoDev
 
@@ -23,15 +23,15 @@ export const exp2Config = {
 } as const
 
 const rpcUrl = Anvil.enabled
-  ? Relay.instances.odyssey.rpcUrl
+  ? RpcServer.instances.odyssey.rpcUrl
   : 'https://porto-dev.rpc.ithaca.xyz'
 
 export function getPorto(
   parameters: {
     mode?: (parameters: {
-      feeToken?: Mode.relay.Parameters['feeToken'] | undefined
+      feeToken?: Mode.rpcServer.Parameters['feeToken'] | undefined
       permissionFeeSpendLimit?:
-        | Mode.relay.Parameters['permissionFeeSpendLimit']
+        | Mode.rpcServer.Parameters['permissionFeeSpendLimit']
         | undefined
       mock: boolean
     }) => Mode.Mode | undefined

@@ -1,25 +1,25 @@
 /**
- * Relay key.
+ * RPC account key.
  *
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/key.rs
  */
 
 import * as Primitive from '../../typebox/primitive.js'
-import * as Schema from '../../typebox/schema.js'
-import { Type } from '../../typebox/schema.js'
+import * as Typebox from '../../typebox/typebox.js'
+import { Type } from '../../typebox/typebox.js'
 import * as Permission from './permission.js'
 
 export const Key = Type.Object({
   /** The expiry of the key. */
   expiry: Primitive.Number,
   /** Whether the digest was prehashed. */
-  prehash: Schema.Optional(Type.Boolean()),
+  prehash: Typebox.Optional(Type.Boolean()),
   /** Public key. */
   publicKey: Primitive.Hex,
   /** Role. */
   role: Type.Union([Type.Literal('admin'), Type.Literal('normal')]),
   /** Signature. */
-  signature: Schema.Optional(Primitive.Hex),
+  signature: Typebox.Optional(Primitive.Hex),
   /** Key type. */
   type: Type.Union([
     Type.Literal('p256'),
@@ -27,7 +27,7 @@ export const Key = Type.Object({
     Type.Literal('webauthnp256'),
   ]),
 })
-export type Key = Schema.StaticDecode<typeof Key>
+export type Key = Typebox.StaticDecode<typeof Key>
 
 export const WithPermissions = Type.Intersect([
   /** The key to authorize or modify permissions for. */
@@ -38,4 +38,4 @@ export const WithPermissions = Type.Intersect([
     permissions: Type.Array(Permission.Permission),
   }),
 ])
-export type WithPermissions = Schema.StaticDecode<typeof WithPermissions>
+export type WithPermissions = Typebox.StaticDecode<typeof WithPermissions>

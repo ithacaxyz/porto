@@ -11,7 +11,7 @@ import {
 import * as Account from '../../src/core/Account.js'
 import type { Client } from '../../src/core/internal/porto.js'
 import * as Key from '../../src/core/Key.js'
-import * as Relay from '../../src/core/Relay.js'
+import * as RpcServer from '../../src/core/RpcServer.js'
 import * as Anvil from './anvil.js'
 import { exp1Abi, exp1Address } from './porto.js'
 
@@ -19,13 +19,13 @@ export async function createAccount(
   client: Client,
   parameters: {
     deploy?: boolean | undefined
-    keys: NonNullable<Relay.createAccount.Parameters['keys']>
+    keys: NonNullable<RpcServer.createAccount.Parameters['keys']>
     setBalance?: false | bigint | undefined
   },
 ) {
   const { deploy, keys, setBalance: balance = parseEther('10000') } = parameters
 
-  const account = await Relay.createAccount(client, { keys })
+  const account = await RpcServer.createAccount(client, { keys })
 
   if (balance)
     await setBalance(client, {
@@ -34,7 +34,7 @@ export async function createAccount(
     })
 
   if (deploy) {
-    const { id } = await Relay.sendCalls(client, {
+    const { id } = await RpcServer.sendCalls(client, {
       account,
       calls: [],
       feeToken: exp1Address,
@@ -82,7 +82,7 @@ export async function getUpgradedAccount(
 
   const { account } = await getAccount(client, { keys, setBalance })
 
-  const request = await Relay.prepareUpgradeAccount(client, {
+  const request = await RpcServer.prepareUpgradeAccount(client, {
     address: account.address,
     feeToken: exp1Address,
     keys,
@@ -92,7 +92,7 @@ export async function getUpgradedAccount(
     request.digests.map((payload) => account.sign({ payload })),
   )
 
-  const { bundles } = await Relay.upgradeAccount(client, {
+  const { bundles } = await RpcServer.upgradeAccount(client, {
     ...request,
     signatures,
   })

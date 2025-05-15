@@ -392,11 +392,11 @@ exports[`contract > wallet_sendCalls > behavior: not provider-managed permission
 
 exports[`contract > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
 
-exports[`relay > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`rpcServer > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`relay > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`rpcServer > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`relay > experimental_grantAdmin > default 1`] = `
+exports[`rpcServer > experimental_grantAdmin > default 1`] = `
 {
   "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
@@ -404,14 +404,14 @@ exports[`relay > experimental_grantAdmin > default 1`] = `
 }
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: no permissions 1`] = `
+exports[`rpcServer > experimental_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
 
 Path: params.0.permissions.calls
 Value: []]
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: provided key 1`] = `
+exports[`rpcServer > experimental_grantPermissions > behavior: provided key 1`] = `
 {
   "address": null,
   "chainId": undefined,
@@ -431,7 +431,7 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 1`] = `
 }
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: provided key 2`] = `
+exports[`rpcServer > experimental_grantPermissions > behavior: provided key 2`] = `
 {
   "address": null,
   "chainId": undefined,
@@ -457,7 +457,7 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 2`] = `
 }
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
+exports[`rpcServer > experimental_grantPermissions > behavior: provided key 3`] = `
 [
   {
     "expiry": null,
@@ -510,13 +510,13 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
 ]
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: unlimited expiry 1`] = `
+exports[`rpcServer > experimental_grantPermissions > behavior: unlimited expiry 1`] = `
 [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
 
 Path: params.0.expiry]
 `;
 
-exports[`relay > experimental_grantPermissions > default 1`] = `
+exports[`rpcServer > experimental_grantPermissions > default 1`] = `
 [
   {
     "expiry": null,
@@ -550,7 +550,7 @@ exports[`relay > experimental_grantPermissions > default 1`] = `
 ]
 `;
 
-exports[`relay > experimental_revokeAdmin > default 1`] = `
+exports[`rpcServer > experimental_revokeAdmin > default 1`] = `
 [
   {
     "expiry": null,
@@ -575,7 +575,7 @@ exports[`relay > experimental_revokeAdmin > default 1`] = `
 ]
 `;
 
-exports[`relay > experimental_revokeAdmin > default 2`] = `
+exports[`rpcServer > experimental_revokeAdmin > default 2`] = `
 [
   {
     "expiry": null,
@@ -592,9 +592,9 @@ exports[`relay > experimental_revokeAdmin > default 2`] = `
 ]
 `;
 
-exports[`relay > experimental_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke admins.]`;
+exports[`rpcServer > experimental_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke admins.]`;
 
-exports[`relay > experimental_revokePermissions > default 1`] = `
+exports[`rpcServer > experimental_revokePermissions > default 1`] = `
 [
   {
     "expiry": null,
@@ -628,7 +628,7 @@ exports[`relay > experimental_revokePermissions > default 1`] = `
 ]
 `;
 
-exports[`relay > experimental_revokePermissions > default 2`] = `
+exports[`rpcServer > experimental_revokePermissions > default 2`] = `
 [
   {
     "expiry": null,
@@ -645,7 +645,7 @@ exports[`relay > experimental_revokePermissions > default 2`] = `
 ]
 `;
 
-exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
+exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
     "expiry": null,
@@ -677,7 +677,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
 ]
 `;
 
-exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
+exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
     "expiry": null,
@@ -711,7 +711,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
 ]
 `;
 
-exports[`relay > wallet_connect > behavior: \`createAccount\` capability > 
+exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability > 
         [
           {
             "expiry": null,
@@ -740,20 +740,20 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` capability >
 ]
 `;
 
-exports[`relay > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
+exports[`rpcServer > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
 
 Path: params.0.capabilities.grantPermissions.permissions.calls
 Value: []]
 `;
 
-exports[`relay > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
+exports[`rpcServer > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
 [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
 
 Path: params.0.capabilities.grantPermissions.expiry]
 `;
 
-exports[`relay > wallet_connect > default 1`] = `
+exports[`rpcServer > wallet_connect > default 1`] = `
 [
   {
     "expiry": null,
@@ -768,18 +768,18 @@ exports[`relay > wallet_connect > default 1`] = `
 ]
 `;
 
-exports[`relay > wallet_disconnect > default 1`] = `
+exports[`rpcServer > wallet_disconnect > default 1`] = `
 [
   [Provider.DisconnectedError: The provider is disconnected from all chains.],
 ]
 `;
 
-exports[`relay > wallet_sendCalls > behavior: no calls.to 1`] = `
+exports[`rpcServer > wallet_sendCalls > behavior: no calls.to 1`] = `
 [RpcResponse.InvalidParamsError: Expected required property
 
 Path: params.0.calls.0.to]
 `;
 
-exports[`relay > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+exports[`rpcServer > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
 
-exports[`relay > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+exports[`rpcServer > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;

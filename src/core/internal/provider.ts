@@ -11,9 +11,10 @@ import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Permissions from './permissions.js'
 import * as Porto_internal from './porto.js'
+import * as RpcRequest from './typebox/request.js'
 import * as Rpc from './typebox/rpc.js'
-import * as Schema from './typebox/schema.js'
-import * as Relay from './viem/relay.js'
+import * as Typebox from './typebox/typebox.js'
+import * as Actions from './viem/actions.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -49,9 +50,9 @@ export function from<
   const provider = ox_Provider.from({
     ...emitter,
     async request(request_) {
-      let request: Rpc.parseRequest.ReturnType
+      let request: RpcRequest.parseRequest.ReturnType
       try {
-        request = Rpc.parseRequest(request_)
+        request = RpcRequest.parseRequest(request_)
       } catch (e) {
         const unsupportedCode = 62
         if ((e as any).error?.type !== unsupportedCode) throw e
@@ -98,11 +99,11 @@ export function from<
             throw new ox_Provider.DisconnectedError()
           return state.accounts.map(
             (account) => account.address,
-          ) satisfies Schema.Static<typeof Rpc.eth_accounts.Response>
+          ) satisfies Typebox.Static<typeof Rpc.eth_accounts.Response>
         }
 
         case 'eth_chainId': {
-          return Hex.fromNumber(state.chainId) satisfies Schema.Static<
+          return Hex.fromNumber(state.chainId) satisfies Typebox.Static<
             typeof Rpc.eth_chainId.Response
           >
         }
@@ -111,7 +112,7 @@ export function from<
           if (state.accounts.length > 0)
             return state.accounts.map(
               (account) => account.address,
-            ) satisfies Schema.Static<typeof Rpc.eth_requestAccounts.Response>
+            ) satisfies Typebox.Static<typeof Rpc.eth_requestAccounts.Response>
 
           const client = getClient()
 
@@ -132,7 +133,7 @@ export function from<
 
           return accounts.map(
             (account) => account.address,
-          ) satisfies Schema.Static<typeof Rpc.eth_requestAccounts.Response>
+          ) satisfies Typebox.Static<typeof Rpc.eth_requestAccounts.Response>
         }
 
         case 'eth_sendTransaction': {
@@ -171,7 +172,7 @@ export function from<
             },
           })
 
-          return id satisfies Schema.Static<
+          return id satisfies Typebox.Static<
             typeof Rpc.eth_sendTransaction.Response
           >
         }
@@ -200,7 +201,7 @@ export function from<
             },
           })
 
-          return signature satisfies Schema.Static<
+          return signature satisfies Typebox.Static<
             typeof Rpc.eth_signTypedData_v4.Response
           >
         }
@@ -265,11 +266,11 @@ export function from<
             type: 'adminsChanged',
           })
 
-          return Schema.Encode(Rpc.experimental_grantAdmin.Response, {
+          return Typebox.Encode(Rpc.experimental_grantAdmin.Response, {
             address: account.address,
             chainId: Hex.fromNumber(client.chain.id),
             key: admins.at(-1)!,
-          } satisfies Rpc.experimental_grantAdmin.Response) satisfies Schema.Static<
+          } satisfies Rpc.experimental_grantAdmin.Response) satisfies Typebox.Static<
             typeof Rpc.experimental_grantAdmin.Response
           >
         }
@@ -323,12 +324,12 @@ export function from<
             type: 'permissionsChanged',
           })
 
-          return Schema.Encode(
+          return Typebox.Encode(
             Permissions.Schema,
             Permissions.fromKey(key, {
               address: account.address,
             }),
-          ) satisfies Schema.Static<
+          ) satisfies Typebox.Static<
             typeof Rpc.experimental_grantPermissions.Response
           >
         }
@@ -363,7 +364,7 @@ export function from<
               admins: getAdmins(account.keys ?? []),
               ...(permissions.length > 0 ? { permissions } : {}),
             },
-          } satisfies Schema.Static<
+          } satisfies Typebox.Static<
             typeof Rpc.experimental_createAccount.Response
           >
         }
@@ -383,10 +384,10 @@ export function from<
 
           const keys = getAdmins(account.keys ?? [])
 
-          return Schema.Encode(Rpc.experimental_getAdmins.Response, {
+          return Typebox.Encode(Rpc.experimental_getAdmins.Response, {
             address: account.address,
             keys,
-          } satisfies Rpc.experimental_getAdmins.Response) satisfies Schema.Static<
+          } satisfies Rpc.experimental_getAdmins.Response) satisfies Typebox.Static<
             typeof Rpc.experimental_getAdmins.Response
           >
         }
@@ -418,7 +419,7 @@ export function from<
           return {
             context,
             signPayloads: signPayloads.map((x) => x as never),
-          } satisfies Schema.Static<
+          } satisfies Typebox.Static<
             typeof Rpc.experimental_prepareUpgradeAccount.Response
           >
         }
@@ -453,7 +454,7 @@ export function from<
           return {
             current,
             latest,
-          } satisfies Schema.Static<
+          } satisfies Typebox.Static<
             typeof Rpc.experimental_getAccountVersion.Response
           >
         }
@@ -599,7 +600,7 @@ export function from<
             internal: { client, config, request, store },
           })
 
-          return { id } satisfies Schema.Static<
+          return { id } satisfies Typebox.Static<
             typeof Rpc.experimental_updateAccount.Response
           >
         }
@@ -640,13 +641,13 @@ export function from<
             capabilities: {
               ...(permissions.length > 0 ? { permissions } : {}),
             },
-          } satisfies Schema.Static<
+          } satisfies Typebox.Static<
             typeof Rpc.experimental_createAccount.Response
           >
         }
 
         case 'porto_ping': {
-          return 'pong' satisfies Schema.Static<typeof Rpc.porto_ping.Response>
+          return 'pong' satisfies Typebox.Static<typeof Rpc.porto_ping.Response>
         }
 
         case 'personal_sign': {
@@ -673,7 +674,7 @@ export function from<
             },
           })
 
-          return signature satisfies Schema.Static<
+          return signature satisfies Typebox.Static<
             typeof Rpc.personal_sign.Response
           >
         }
@@ -767,7 +768,7 @@ export function from<
                   : [],
               },
             })),
-          } satisfies Schema.Static<typeof Rpc.wallet_connect.Response>
+          } satisfies Typebox.Static<typeof Rpc.wallet_connect.Response>
         }
 
         case 'wallet_disconnect': {
@@ -791,7 +792,7 @@ export function from<
             },
           })
 
-          return response satisfies Schema.Static<
+          return response satisfies Typebox.Static<
             typeof Rpc.wallet_getCallsStatus.Response
           >
         }
@@ -816,7 +817,7 @@ export function from<
           for (const chain of config.chains)
             capabilities[Hex.fromNumber(chain.id)] = value
 
-          return capabilities satisfies Schema.Static<
+          return capabilities satisfies Typebox.Static<
             typeof Rpc.wallet_getCapabilities.Response
           >
         }
@@ -848,7 +849,7 @@ export function from<
               sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
             })
 
-          return Schema.Encode(Rpc.wallet_prepareCalls.Response, {
+          return Typebox.Encode(Rpc.wallet_prepareCalls.Response, {
             capabilities: rest.capabilities,
             chainId: Hex.fromNumber(client.chain.id),
             context: {
@@ -861,7 +862,7 @@ export function from<
             },
             digest: signPayloads[0]!,
             key,
-          }) satisfies Schema.Static<typeof Rpc.wallet_prepareCalls.Response>
+          }) satisfies Typebox.Static<typeof Rpc.wallet_prepareCalls.Response>
         }
 
         case 'wallet_sendPreparedCalls': {
@@ -887,7 +888,7 @@ export function from<
             signature,
           })
 
-          return [{ id: hash }] satisfies Schema.Static<
+          return [{ id: hash }] satisfies Typebox.Static<
             typeof Rpc.wallet_sendPreparedCalls.Response
           >
         }
@@ -925,7 +926,7 @@ export function from<
             sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
           })
 
-          return { id } satisfies Schema.Static<
+          return { id } satisfies Typebox.Static<
             typeof Rpc.wallet_sendCalls.Response
           >
         }
@@ -936,7 +937,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          const result = await Relay.verifySignature(client, {
+          const result = await Actions.verifySignature(client, {
             address,
             chainId,
             digest,
@@ -957,7 +958,7 @@ export function from<
             ...result,
             address,
             chainId: Hex.fromNumber(client.chain.id),
-          } satisfies Schema.Static<typeof Rpc.wallet_verifySignature.Response>
+          } satisfies Typebox.Static<typeof Rpc.wallet_verifySignature.Response>
         }
       }
     },
@@ -1023,12 +1024,12 @@ function announce(provider: Provider) {
 
 function getAdmins(
   keys: readonly Key.Key[],
-): Schema.Static<typeof Rpc.experimental_getAdmins.Response>['keys'] {
+): Typebox.Static<typeof Rpc.experimental_getAdmins.Response>['keys'] {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
       try {
-        return Schema.Encode(
+        return Typebox.Encode(
           Rpc.experimental_getAdmins.Response.properties.keys.items,
           {
             id: key.id ?? key.publicKey,
@@ -1054,14 +1055,14 @@ function getActivePermissions(
     address,
     chainId,
   }: { address: Address.Address; chainId?: number | undefined },
-): Schema.Static<typeof Rpc.experimental_getPermissions.Response> {
+): Typebox.Static<typeof Rpc.experimental_getPermissions.Response> {
   return keys
     .map((key) => {
       if (key.role !== 'session') return undefined
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
       try {
-        return Schema.Encode(
+        return Typebox.Encode(
           Permissions.Schema,
           Permissions.fromKey(key, { address, chainId }),
         )

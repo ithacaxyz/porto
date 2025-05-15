@@ -8,7 +8,7 @@ import { RpcRequest } from 'ox'
 import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
 
-type RelayParameters = {
+type RpcServerParameters = {
   accountRegistry: string
   containerName?: string | undefined
   endpoint: string
@@ -36,8 +36,8 @@ export const poolId =
 
 let pulled = false
 
-export const relay = defineInstance((parameters?: RelayParameters) => {
-  const args = (parameters || {}) as RelayParameters
+export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
+  const args = (parameters || {}) as RpcServerParameters
   const {
     containerName = crypto.randomUUID(),
     endpoint,
@@ -111,7 +111,7 @@ export const relay = defineInstance((parameters?: RelayParameters) => {
           quoteTtl: 30,
           registry: '/app/registry.yaml',
           signersMnemonic,
-        } satisfies Partial<RelayParameters>),
+        } satisfies Partial<RpcServerParameters>),
         ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),
       ]
 

@@ -2,9 +2,9 @@
 
 import { Address, Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
-import type * as RpcSchema from '../core/internal/relay/rpcSchema.js'
-import * as Rpc from '../core/internal/relay/typebox/rpc.js'
-import * as Schema from '../core/internal/typebox/schema.js'
+import type * as RpcSchema from '../core/internal/rpcServer/rpcSchema.js'
+import * as Rpc from '../core/internal/rpcServer/typebox/rpc.js'
+import * as Typebox from '../core/internal/typebox/typebox.js'
 import type { OneOf } from '../core/internal/types.js'
 import * as Key from '../core/Key.js'
 import * as Porto from '../core/Porto.js'
@@ -59,7 +59,7 @@ export function rpcHandler(options: rpcHandler.Options) {
           },
         ],
       })
-      const { typedData } = Schema.Decode(
+      const { typedData } = Typebox.Decode(
         Rpc.wallet_prepareCalls.Response,
         result,
       )

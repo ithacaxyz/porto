@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address, Hex } from 'ox'
-import { Relay } from 'porto'
+import { RpcServer } from 'porto'
 import { Hooks } from 'porto/remote'
 import { porto } from './Porto.js'
 
@@ -22,7 +22,7 @@ export function useFetch(parameters: useFetch.Parameters) {
     async queryFn() {
       if (!chain) throw new Error('chain is required')
 
-      const feeTokens = await Relay.getFeeTokens(client).then(
+      const feeTokens = await RpcServer.getFeeTokens(client).then(
         (feeTokens) => feeTokens[Hex.fromNumber(chain.id)],
       )
       if (!feeTokens)

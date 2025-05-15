@@ -1,7 +1,7 @@
 import { Button } from '@porto/apps/components'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { Account, Key, Relay as Relay_porto } from 'porto'
+import { Account, Key, RpcServer as RpcServer_porto } from 'porto'
 import { Call } from 'porto/internal'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -10,7 +10,7 @@ import { useAccount } from 'wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'
 import { porto } from '~/lib/Porto'
-import * as Relay from '~/lib/Relay'
+import * as RpcServer from '~/lib/RpcServer'
 import { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
@@ -23,13 +23,13 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const client = Hooks.useClient(porto)
   const healthQuery = useQuery({
     enabled: !!client,
-    queryFn: () => Relay_porto.health(client),
+    queryFn: () => RpcServer_porto.health(client),
     queryKey: ['health', client.uid],
   })
   const { delegationImplementation: delegation } = healthQuery.data ?? {}
 
   const account = Hooks.useAccount(porto)
-  const prepareCallsQuery = Relay.usePrepareCalls({
+  const prepareCallsQuery = RpcServer.usePrepareCalls({
     calls:
       account?.address && delegation
         ? [
@@ -63,7 +63,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         payload: digest,
         wrap: false,
       })
-      const { id } = await Relay_porto.sendCalls(client, {
+      const { id } = await RpcServer_porto.sendCalls(client, {
         ...request,
         signature,
       })
@@ -76,6 +76,12 @@ export function UpdateAccount(props: UpdateAccount.Props) {
       onSuccess(data)
     },
   })
+
+  const error =
+    version.error || prepareCallsQuery.error || sendCallsMutation.error
+  const isPending = version.isPending || prepareCallsQuery.isPending
+  const isSuccess = version.isSuccess && prepareCallsQuery.isSuccess
+  const isFetched = version.isFetched && prepareCallsQuery.isFetched
 
   return (
     <CheckBalance
@@ -103,9 +109,10 @@ export function UpdateAccount(props: UpdateAccount.Props) {
 
         <Layout.Content>
           <ActionRequest.PaneWithDetails
-            loading={version.isPending}
+            error={error}
+            errorMessage="An error occurred while calculating fees."
+            loading={isPending}
             quote={quote}
-            variant={version.isError ? 'warning' : 'default'}
           >
             <div className="flex items-center justify-center gap-2">
               <div className="font-mono text-secondary tabular-nums">
@@ -117,22 +124,30 @@ export function UpdateAccount(props: UpdateAccount.Props) {
           </ActionRequest.PaneWithDetails>
         </Layout.Content>
 
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button onClick={onCancel} type="button">
-              Cancel
-            </Button>
+        {isFetched && (
+          <Layout.Footer>
+            <Layout.Footer.Actions>
+              <Button
+                className={!isSuccess ? 'flex-grow' : undefined}
+                onClick={onCancel}
+                type="button"
+              >
+                Cancel
+              </Button>
 
-            <Button
-              className="flex-grow"
-              onClick={() => sendCallsMutation.mutate()}
-              type="button"
-              variant="accent"
-            >
-              Update now
-            </Button>
-          </Layout.Footer.Actions>
-        </Layout.Footer>
+              {isSuccess && (
+                <Button
+                  className="flex-grow"
+                  onClick={() => sendCallsMutation.mutate()}
+                  type="button"
+                  variant="accent"
+                >
+                  Update now
+                </Button>
+              )}
+            </Layout.Footer.Actions>
+          </Layout.Footer>
+        )}
       </Layout>
     </CheckBalance>
   )

@@ -8,16 +8,16 @@ import { type Client, createClient, http } from 'viem'
 
 import * as Account from './Account.js'
 import type { Chain } from './Chains.js'
-import type * as Capabilities from './internal/relay/typebox/capabilities.js'
-import type * as Quote from './internal/relay/typebox/quote.js'
+import type * as Capabilities from './internal/rpcServer/typebox/capabilities.js'
+import type * as Quote from './internal/rpcServer/typebox/quote.js'
 import type { MaybePromise, OneOf, RequiredBy } from './internal/types.js'
-import * as Actions from './internal/viem/relay.js'
+import * as Actions from './internal/viem/actions.js'
 import * as Key from './Key.js'
 
-export { getFeeTokens, health } from './internal/viem/relay.js'
+export { getFeeTokens, health } from './internal/viem/actions.js'
 
 /**
- * Creates a new Porto Account via the Relay.
+ * Creates a new Porto Account via the RPC.
  *
  * @example
  * TODO
@@ -52,8 +52,8 @@ export async function createAccount(
     ? (await Actions.health(client)).entrypoint
     : undefined
 
-  const keys_relay = keys.map((key) =>
-    Key.toRelay(key, {
+  const keys_rpc = keys.map((key) =>
+    Key.toRpcServer(key, {
       entrypoint,
     }),
   )
@@ -68,8 +68,8 @@ export async function createAccount(
   await createAccount(client, {
     ...request,
     signatures: signatures.map((signature, index) => ({
-      publicKey: keys_relay[index]!.publicKey,
-      type: keys_relay[index]!.type,
+      publicKey: keys_rpc[index]!.publicKey,
+      type: keys_rpc[index]!.type,
       value: signature,
     })),
   })
@@ -157,7 +157,7 @@ export async function getAccounts(
   const { keyId } = parameters
   const accounts = await Actions.getAccounts(client, { keyId })
   return accounts.map((account) => {
-    const keys = account.keys.map(Key.fromRelay)
+    const keys = account.keys.map(Key.fromRpcServer)
     return Account.from({
       address: account.address,
       keys,
@@ -212,7 +212,7 @@ export async function getKeys(
 ): Promise<getKeys.ReturnType> {
   const account = Account.from(parameters.account)
   const keys = await Actions.getKeys(client, { address: account.address })
-  return keys.map(Key.fromRelay)
+  return keys.map(Key.fromRpcServer)
 }
 
 export namespace getKeys {
@@ -254,7 +254,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   const idSigner = createIdSigner()
   const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) => {
     if (key.role === 'admin')
-      return Key.toRelay(
+      return Key.toRpcServer(
         {
           ...key,
           signature: idSigner.sign({
@@ -263,7 +263,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         },
         { entrypoint },
       )
-    return Key.toRelay(key, { entrypoint })
+    return Key.toRpcServer(key, { entrypoint })
   })
 
   const preOp = typeof pre === 'boolean' ? pre : false
@@ -299,7 +299,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
           hash: key.hash,
         })),
       },
-      key: Key.toRelay(key),
+      key: Key.toRpcServer(key),
     },
   )
   return {
@@ -358,7 +358,7 @@ export namespace prepareCalls {
 }
 
 /**
- * Prepares a new Porto Account via the Relay.
+ * Prepares a new Porto Account via the RPC.
  *
  * @example
  * TODO
@@ -380,7 +380,7 @@ export async function prepareCreateAccount(
   const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
   const authorizeKeys = keys.map((key) =>
-    Key.toRelay(key, {
+    Key.toRpcServer(key, {
       entrypoint,
     }),
   )
@@ -459,15 +459,15 @@ export async function prepareUpgradeAccount(
   const hasSessionKey = keys.some((x) => x.role === 'session')
   const entrypoint = hasSessionKey ? health.entrypoint : undefined
 
-  const keys_relay = keys.map((key) =>
-    Key.toRelay(key, {
+  const keys_rpc = keys.map((key) =>
+    Key.toRpcServer(key, {
       entrypoint,
     }),
   )
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
   const authorizeKeys = signers.map((signer, index) => ({
-    ...keys_relay[index]!,
+    ...keys_rpc[index]!,
     signature: signer.sign({
       digest: getIdDigest({ id: signer.id, key: keys[index]! }),
     }),
@@ -534,7 +534,7 @@ export declare namespace prepareUpgradeAccount {
 }
 
 /**
- * Broadcasts a call bundle to the Relay.
+ * Broadcasts a call bundle to the RPC Server.
  *
  * @example
  * TODO
@@ -547,13 +547,13 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: sendCalls.Parameters<calls>,
 ) {
-  // If a signature is provided, broadcast the calls to the Relay.
+  // If a signature is provided, broadcast the calls to the RPC Server.
   if (parameters.signature) {
     const { context, key, signature } = parameters
     return await Actions.sendPreparedCalls(client, {
       capabilities: parameters.capabilities,
       context,
-      key: Key.toRelay(key),
+      key: Key.toRpcServer(key),
       signature,
     })
   }
@@ -599,7 +599,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
     wrap: false,
   })
 
-  // Broadcast the bundle to the Relay.
+  // Broadcast the bundle to the RPC Server.
   return await sendCalls(client, {
     capabilities: capabilities.feeSignature
       ? {
