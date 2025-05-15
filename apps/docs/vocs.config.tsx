@@ -48,8 +48,9 @@ export default defineConfig({
             text: 'wallet_createAccount 🚧',
           },
           {
+            disabled: true,
             link: '/rpc-server/wallet_getKeys',
-            text: 'wallet_getKeys',
+            text: 'wallet_getKeys 🚧',
           },
           {
             disabled: true,
