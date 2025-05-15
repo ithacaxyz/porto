@@ -13,10 +13,7 @@ import { Mode } from 'porto'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
 import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
-import {
-  delegationOldProxyAddress,
-  entryPointAddress,
-} from '../../../test/src/_generated/addresses.js'
+import { delegationOldProxyAddress } from '../../../test/src/_generated/addresses.js'
 import { setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
 import {
