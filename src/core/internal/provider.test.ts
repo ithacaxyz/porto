@@ -302,6 +302,7 @@ describe.each([
         ...permissions,
         address: null,
         capabilities: null,
+        chainId: null,
       }).matchSnapshot()
 
       {
@@ -332,6 +333,7 @@ describe.each([
           ...permissions,
           address: null,
           capabilities: null,
+          chainId: null,
         }).matchSnapshot()
       }
 
