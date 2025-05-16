@@ -140,7 +140,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ chainId, data = '0x', from, to, value }] =
+          const [{ capabilities, chainId, data = '0x', from, to, value }] =
             request._decoded.params
 
           const client = getClient(chainId)
@@ -170,6 +170,7 @@ export function from<
               request,
               store,
             },
+            preCalls: capabilities?.preCalls as any,
           })
 
           return id satisfies Typebox.Static<
@@ -291,7 +292,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { key } = await getMode().actions.grantPermissions({
+          const { key, preCalls } = await getMode().actions.grantPermissions({
             account,
             internal: {
               client,
@@ -324,12 +325,19 @@ export function from<
             type: 'permissionsChanged',
           })
 
-          return Typebox.Encode(
-            Permissions.Schema,
-            Permissions.fromKey(key, {
+          return Typebox.Encode(Rpc.experimental_grantPermissions.Response, {
+            ...Permissions.fromKey(key, {
               address: account.address,
             }),
-          ) satisfies Typebox.Static<
+            chainId: client.chain.id,
+            ...(preCalls
+              ? {
+                  capabilities: {
+                    preCalls,
+                  },
+                }
+              : {}),
+          } satisfies Rpc.experimental_grantPermissions.Response) satisfies Typebox.Static<
             typeof Rpc.experimental_grantPermissions.Response
           >
         }
@@ -339,7 +347,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { account } = await getMode().actions.createAccount({
+          const { account, preCalls } = await getMode().actions.createAccount({
             internal: {
               client,
               config,
@@ -363,6 +371,7 @@ export function from<
             capabilities: {
               admins: getAdmins(account.keys ?? []),
               ...(permissions.length > 0 ? { permissions } : {}),
+              preCalls,
             },
           } satisfies Typebox.Static<
             typeof Rpc.experimental_createAccount.Response
@@ -697,16 +706,17 @@ export function from<
             store,
           }
 
-          const { accounts } = await (async () => {
+          const { accounts, preCalls } = await (async () => {
             if (createAccount) {
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
-              const { account } = await getMode().actions.createAccount({
-                internal,
-                label,
-                permissions,
-              })
-              return { accounts: [account] }
+              const { account, preCalls } =
+                await getMode().actions.createAccount({
+                  internal,
+                  label,
+                  permissions,
+                })
+              return { accounts: [account], preCalls }
             }
             const account = state.accounts[0]
             const { credentialId, keyId } = (() => {
@@ -766,6 +776,7 @@ export function from<
                       address: account.address,
                     })
                   : [],
+                preCalls,
               },
             })),
           } satisfies Typebox.Static<typeof Rpc.wallet_connect.Response>
@@ -811,6 +822,9 @@ export function from<
             permissions: {
               supported: true,
             },
+            preCalls: {
+              supported: true,
+            },
           }
 
           const capabilities = {} as Record<Hex.Hex, typeof value>
@@ -846,6 +860,7 @@ export function from<
                 store,
               },
               key,
+              preCalls: capabilities?.preCalls as any,
             })
 
           return Typebox.Encode(Rpc.wallet_prepareCalls.Response, {
@@ -922,6 +937,7 @@ export function from<
               store,
             },
             permissionsId: capabilities?.permissions?.id,
+            preCalls: capabilities?.preCalls as any,
           })
 
           return { id } satisfies Typebox.Static<

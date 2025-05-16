@@ -24,7 +24,8 @@ Value: []]
 exports[`contract > experimental_grantPermissions > behavior: provided key 1`] = `
 {
   "address": null,
-  "chainId": undefined,
+  "capabilities": null,
+  "chainId": "0x7a69",
   "expiry": 9999999999,
   "id": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
   "key": {
@@ -44,7 +45,8 @@ exports[`contract > experimental_grantPermissions > behavior: provided key 1`] =
 exports[`contract > experimental_grantPermissions > behavior: provided key 2`] = `
 {
   "address": null,
-  "chainId": undefined,
+  "capabilities": null,
+  "chainId": "0x7a69",
   "expiry": 9999999999,
   "id": "0x0000000000000000000000000000000000000000",
   "key": {
@@ -418,7 +420,8 @@ Value: []]
 exports[`rpcServer > experimental_grantPermissions > behavior: provided key 1`] = `
 {
   "address": null,
-  "chainId": undefined,
+  "capabilities": null,
+  "chainId": "0x7a69",
   "expiry": 9999999999,
   "id": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
   "key": {
@@ -438,7 +441,8 @@ exports[`rpcServer > experimental_grantPermissions > behavior: provided key 1`] 
 exports[`rpcServer > experimental_grantPermissions > behavior: provided key 2`] = `
 {
   "address": null,
-  "chainId": undefined,
+  "capabilities": null,
+  "chainId": "0x7a69",
   "expiry": 9999999999,
   "id": "0x0000000000000000000000000000000000000000",
   "key": {

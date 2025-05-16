@@ -65,6 +65,11 @@ export namespace eth_sendTransaction {
     method: Type.Literal('eth_sendTransaction'),
     params: Type.Tuple([
       Type.Object({
+        capabilities: Typebox.Optional(
+          Type.Object({
+            preCalls: Typebox.Optional(C.preCalls.Request),
+          }),
+        ),
         chainId: Typebox.Optional(Primitive.Number),
         data: Typebox.Optional(Primitive.Hex),
         from: Typebox.Optional(Primitive.Address),
@@ -171,6 +176,7 @@ export namespace experimental_createAccount {
   export const ResponseCapabilities = Type.Object({
     admins: Typebox.Optional(experimental_getAdmins.Response.properties.keys),
     permissions: Typebox.Optional(C.permissions.Response),
+    preCalls: Typebox.Optional(C.preCalls.Response),
   })
   export type ResponseCapabilities = Typebox.StaticDecode<
     typeof ResponseCapabilities
@@ -193,7 +199,19 @@ export namespace experimental_grantPermissions {
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 
-  export const Response = Permissions.Permissions
+  export const ResponseCapabilities = Type.Object({
+    preCalls: Typebox.Optional(C.preCalls.Response),
+  })
+  export type ResponseCapabilities = Typebox.StaticDecode<
+    typeof ResponseCapabilities
+  >
+
+  export const Response = Type.Intersect([
+    Permissions.Permissions,
+    Type.Object({
+      capabilities: Typebox.Optional(Type.Any()),
+    }),
+  ])
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
@@ -395,6 +413,7 @@ export namespace wallet_connect {
   export const ResponseCapabilities = Type.Object({
     admins: Typebox.Optional(experimental_getAdmins.Response.properties.keys),
     permissions: Typebox.Optional(C.permissions.Response),
+    preCalls: Typebox.Optional(C.preCalls.Response),
   })
   export type ResponseCapabilities = Typebox.StaticDecode<
     typeof ResponseCapabilities
@@ -475,6 +494,9 @@ export namespace wallet_getCapabilities {
       permissions: Type.Object({
         supported: Type.Boolean(),
       }),
+      preCalls: Type.Object({
+        supported: Type.Boolean(),
+      }),
     }),
   )
   export type Response = Typebox.StaticDecode<typeof Response>
@@ -484,6 +506,7 @@ export namespace wallet_prepareCalls {
   export const Capabilities = Type.Object({
     feeToken: Typebox.Optional(Primitive.Address),
     permissions: Typebox.Optional(C.permissions.Request),
+    preCalls: Typebox.Optional(C.preCalls.Request),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 
