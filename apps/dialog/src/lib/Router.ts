@@ -1,5 +1,9 @@
-import { createRouter } from '@tanstack/react-router'
-import { Provider, type RpcSchema } from 'ox'
+import {
+  createRouter,
+  parseSearchWith,
+  stringifySearchWith,
+} from '@tanstack/react-router'
+import { Json, Provider, type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import * as RpcRequest from 'porto/core/internal/typebox/request'
 import { Actions } from 'porto/remote'
@@ -53,7 +57,9 @@ export const router = createRouter({
     portoState: undefined as never,
   },
   defaultPreload: 'intent',
+  parseSearch: parseSearchWith(Json.parse),
   routeTree,
+  stringifySearch: stringifySearchWith(Json.stringify),
 })
 
 declare module '@tanstack/react-router' {

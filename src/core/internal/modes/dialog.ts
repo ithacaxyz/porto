@@ -10,6 +10,7 @@ import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
+import * as PreCalls from '../preCalls.js'
 import * as Typebox from '../typebox/typebox.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
@@ -113,14 +114,26 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async createAccount(parameters) {
         const { internal } = parameters
-        const { request, store } = internal
+        const {
+          config: { storage },
+          request,
+          store,
+        } = internal
 
         const provider = getProvider(store)
 
         const account = await (async () => {
           if (request.method === 'experimental_createAccount') {
             // Send a request off to the dialog to create an account.
-            const { address } = await provider.request(request)
+            const { address, capabilities } = await provider.request(request)
+
+            const { preCalls } = capabilities ?? {}
+            if (preCalls)
+              await PreCalls.add(preCalls as PreCalls.PreCalls, {
+                address,
+                storage,
+              })
+
             return Account.from({
               address,
             })
@@ -176,6 +189,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 }
               })
               .filter(Boolean) as readonly Key.Key[]
+
+            const { preCalls } = account.capabilities ?? {}
+            if (preCalls)
+              await PreCalls.add(preCalls as PreCalls.PreCalls, {
+                address: account.address,
+                storage,
+              })
 
             return Account.from({
               address: account.address,
@@ -273,7 +293,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async loadAccounts(parameters) {
         const { internal } = parameters
-        const { store, request } = internal
+        const {
+          config: { storage },
+          store,
+          request,
+        } = internal
 
         const provider = getProvider(store)
 
@@ -300,7 +324,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               : undefined
 
             // Send a request to the dialog.
-            const result = await provider.request({
+            const { accounts } = await provider.request({
               ...request,
               params: [
                 {
@@ -313,7 +337,18 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ],
             })
 
-            return result.accounts.map((account) => {
+            await Promise.all(
+              accounts.map(async (account) => {
+                const { preCalls } = account.capabilities ?? {}
+                if (!preCalls) return
+                await PreCalls.add(preCalls as PreCalls.PreCalls, {
+                  address: account.address,
+                  storage,
+                })
+              }),
+            )
+
+            return accounts.map((account) => {
               const adminKeys = account.capabilities?.admins
                 ?.map((key) => Key.from(key))
                 .filter(Boolean) as readonly Key.Key[]
@@ -348,13 +383,34 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async prepareCalls(parameters) {
         const { account, internal } = parameters
-        const { store, request } = internal
+        const {
+          config: { storage },
+          store,
+          request,
+        } = internal
 
         if (request.method !== 'wallet_prepareCalls')
           throw new Error('Cannot prepare calls for method: ' + request.method)
 
+        const preCalls = await PreCalls.get({
+          address: account.address,
+          storage,
+        })
+
         const provider = getProvider(store)
-        const result = await provider.request(request)
+        const result = await provider.request({
+          ...request,
+          params: [
+            {
+              ...request.params?.[0],
+              capabilities: {
+                ...request.params?.[0]?.capabilities,
+                preCalls,
+              },
+            },
+          ],
+        })
+
         return {
           account,
           context: result.context as any,
@@ -411,9 +467,19 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async sendCalls(parameters) {
         const { account, calls, internal } = parameters
-        const { client, store, request } = internal
+        const {
+          config: { storage },
+          client,
+          store,
+          request,
+        } = internal
 
         const provider = getProvider(store)
+
+        const preCalls = await PreCalls.get({
+          address: account.address,
+          storage,
+        })
 
         // Try and extract an authorized key to sign the calls with.
         const key = await Mode.getAuthorizedExecuteKey({
@@ -434,10 +500,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 params: [
                   {
                     calls,
-                    capabilities:
-                      request._decoded.method === 'wallet_sendCalls'
+                    capabilities: {
+                      ...(request._decoded.method === 'wallet_sendCalls'
                         ? request._decoded.params?.[0]?.capabilities
-                        : undefined,
+                        : undefined),
+                      preCalls,
+                    },
                     chainId: client.chain.id,
                     from: account.address,
                     key,
@@ -462,6 +530,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ],
             })
 
+            await PreCalls.clear({
+              address: account.address,
+              storage,
+            })
+
             const id = result[0]
             if (!id) throw new Error('id not found')
 
@@ -471,20 +544,60 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method === 'eth_sendTransaction') {
           // Send a transaction request to the dialog.
-          const id = await provider.request(request)
+          const id = await provider.request({
+            ...request,
+            params: [
+              {
+                ...request.params?.[0],
+                // @ts-expect-error
+                capabilities: {
+                  preCalls,
+                },
+              },
+            ],
+          })
+
+          await PreCalls.clear({
+            address: account.address,
+            storage,
+          })
+
           return { id }
         }
 
-        if (request.method === 'wallet_sendCalls')
+        if (request.method === 'wallet_sendCalls') {
           // Send calls request to the dialog.
-          return await provider.request(request)
+          const result = await provider.request({
+            method: 'wallet_sendCalls',
+            params: [
+              {
+                ...request.params?.[0],
+                capabilities: {
+                  ...request.params?.[0]?.capabilities,
+                  preCalls,
+                },
+              },
+            ],
+          })
+
+          await PreCalls.clear({
+            address: account.address,
+            storage,
+          })
+
+          return result
+        }
 
         throw new Error('Cannot execute for method: ' + request.method)
       },
 
       async sendPreparedCalls(parameters) {
-        const { internal } = parameters
-        const { store, request } = internal
+        const { account, internal } = parameters
+        const {
+          config: { storage },
+          store,
+          request,
+        } = internal
 
         if (request.method !== 'wallet_sendPreparedCalls')
           throw new Error(
@@ -493,6 +606,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
         const result = await provider.request(request)
+
+        if (account.address)
+          await PreCalls.clear({
+            address: account.address,
+            storage,
+          })
 
         const id = result[0]?.id
         if (!id) throw new Error('id not found')

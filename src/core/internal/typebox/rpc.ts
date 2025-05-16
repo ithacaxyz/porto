@@ -394,6 +394,7 @@ export namespace wallet_connect {
     credentialId: Typebox.Optional(Type.String()),
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
     keyId: Typebox.Optional(Primitive.Hex),
+    preCalls: Typebox.Optional(C.preCalls.Request),
     selectAccount: Typebox.Optional(Type.Boolean()),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
