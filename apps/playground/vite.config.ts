@@ -1,15 +1,18 @@
 import { spawnSync } from 'node:child_process'
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { createRequestListener } from '@mjackson/node-fetch-server'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
-import { createClient, http } from 'viem'
+import { createClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { writeContract } from 'viem/actions'
+import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-
+import { Key, RpcServer } from '../../src/index.js'
+import { Sponsor } from '../../src/server/index.js'
 import {
   accountRegistryAddress,
   delegationNewProxyAddress,
@@ -44,10 +47,21 @@ export default defineConfig(({ mode }) => ({
           port: 8545,
           rpcUrl: 'http://127.0.0.1:8545',
         }
+        const anvilClient = createClient({
+          account: privateKeyToAccount(
+            '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+          ),
+          transport: http(anvilConfig.rpcUrl),
+        }).extend(() => ({ mode: 'anvil' }))
+
         const rpcServerConfig = {
           port: 9119,
           rpcUrl: 'http://127.0.0.1:9119',
         }
+        const relayClient = createClient({
+          chain: chains.anvil,
+          transport: http(rpcServerConfig.rpcUrl),
+        })
 
         if (process.env.CLEAN === 'true')
           rmSync(resolve(import.meta.dirname, 'anvil.json'), {
@@ -92,6 +106,7 @@ export default defineConfig(({ mode }) => ({
             },
             simulator: simulatorAddress,
             userOpGasBuffer: 100_000n,
+            version: '2197566',
           }).start()
           await fetch(rpcServerConfig.rpcUrl + '/start')
           return stop
@@ -100,44 +115,82 @@ export default defineConfig(({ mode }) => ({
 
         logger.info('RPC Server started on ' + rpcServerConfig.rpcUrl)
 
+        // Allow CORS.
+        server.middlewares.use(async (_, res, next) => {
+          res.setHeader('Access-Control-Allow-Origin', '*')
+          next()
+        })
+
+        // Upgrade RPC Server on `/rpc/up`.
         server.middlewares.use(async (req, res, next) => {
-          if (req.url?.startsWith('/rpc/up')) {
-            stopRpcServer()
-            stopRpcServer = await startRpcServer({
-              delegationProxy: delegationNewProxyAddress,
-            })
-            res.statusCode = 302
-            res.setHeader('Location', '/')
-            res.end()
-            return
-          }
-          if (req.url?.startsWith('/faucet')) {
-            const url = new URL(`https://localhost${req.url}`)
-            const address = url.searchParams.get('address') as `0x${string}`
-            const value = url.searchParams.get('value') as string
+          if (!req.url?.startsWith('/rpc/up')) return next()
 
-            const client = createClient({
-              account: privateKeyToAccount(
-                '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-              ),
-              transport: http(anvilConfig.rpcUrl),
-            })
+          stopRpcServer()
+          stopRpcServer = await startRpcServer({
+            delegationProxy: delegationNewProxyAddress,
+          })
+          res.statusCode = 302
+          res.setHeader('Location', '/')
+          return res.end()
+        })
 
-            const hash = await writeContract(client, {
-              abi: exp1Abi,
-              address: exp1Address,
-              args: [address, BigInt(value)],
-              chain: null,
-              functionName: 'mint',
-            })
+        // Drip tokens on `/faucet`.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/faucet')) return next()
 
-            res.statusCode = 200
-            res.setHeader('Content-Type', 'application/json')
-            res.setHeader('Access-Control-Allow-Origin', '*')
-            res.end(JSON.stringify({ id: hash }))
-            return
-          }
-          return next()
+          const url = new URL(`https://localhost${req.url}`)
+          const address = url.searchParams.get('address') as `0x${string}`
+          const value = url.searchParams.get('value') as string
+
+          const hash = await writeContract(anvilClient, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [address, BigInt(value)],
+            chain: null,
+            functionName: 'mint',
+          })
+
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'application/json')
+          return res.end(JSON.stringify({ id: hash }))
+        })
+
+        // Create app-sponsor account.
+        const sponsorKey = Key.createSecp256k1()
+        const sponsorAccount = await RpcServer.createAccount(relayClient, {
+          keys: [sponsorKey],
+        })
+        await writeContract(anvilClient, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address, parseEther('10000')],
+          chain: null,
+          functionName: 'mint',
+        })
+        await RpcServer.sendCalls(relayClient, {
+          account: sponsorAccount,
+          calls: [],
+          feeToken: exp1Address,
+        })
+
+        // Handle sponsor requests on `/sponsor`.
+        // TODO: move to CF worker for compatibility with non-anvil (prod/stg/dev) environments.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/sponsor')) return next()
+          if (req.method !== 'POST') return next()
+
+          const handler = Sponsor.rpcHandler({
+            address: sponsorAccount.address,
+            key: {
+              privateKey: sponsorKey.privateKey!(),
+              type: 'secp256k1',
+            },
+            transports: {
+              [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
+            },
+          })
+
+          return createRequestListener(handler)(req, res)
         })
       },
       name: 'anvil',

@@ -19,6 +19,7 @@
     "viem": "catalog:"
   },
   "devDependencies": {
+    "@mjackson/node-fetch-server": "^0.6.1",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",

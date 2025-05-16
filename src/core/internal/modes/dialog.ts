@@ -466,7 +466,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal } = parameters
+        const { account, calls, internal, sponsorUrl } = parameters
         const {
           config: { storage },
           client,
@@ -505,6 +505,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                         ? request._decoded.params?.[0]?.capabilities
                         : undefined),
                       preCalls,
+                      sponsorUrl,
                     },
                     chainId: client.chain.id,
                     from: account.address,
@@ -575,6 +576,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
                   preCalls,
+                  sponsorUrl,
                 },
               },
             ],

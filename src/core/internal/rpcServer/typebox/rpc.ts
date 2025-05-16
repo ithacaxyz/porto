@@ -337,6 +337,8 @@ export namespace wallet_prepareCalls {
     authorizeKeys: Typebox.Optional(
       Type.Union([C.authorizeKeys.Response, Type.Null()]),
     ),
+    /** Fee signature. */
+    feeSignature: Typebox.Optional(Primitive.Hex),
     /** Keys revoked on the account. */
     revokeKeys: Typebox.Optional(
       Type.Union([C.revokeKeys.Response, Type.Null()]),
@@ -375,19 +377,31 @@ export namespace wallet_prepareCalls {
 
   /** Response for `wallet_prepareCalls`. */
   export const Response = Type.Object({
-    /** Quote for the call bundle. */
+    /** Capabilities. */
     capabilities: ResponseCapabilities,
-    /** Digest to sign over. */
+    /** Quote for the call bundle. */
     context: Type.Object({
       /** Quote for the call bundle. */
       preOp: Typebox.Optional(Type.Partial(UserOp.PreOp)),
       /** The call bundle. */
       quote: Typebox.Optional(Type.Partial(Quote.Signed)),
     }),
-    /** Capabilities. */
+    /** Digest to sign over. */
     digest: Primitive.Hex,
     /** Key that will be used to sign the call bundle. */
     key: Parameters.properties.key,
+    /** EIP-712 typed data digest. */
+    typedData: Type.Object({
+      domain: Type.Object({
+        chainId: Primitive.Number,
+        name: Type.String(),
+        verifyingContract: Primitive.Address,
+        version: Type.String(),
+      }),
+      message: Type.Record(Type.String(), Type.Unknown()),
+      primaryType: Type.String(),
+      types: Type.Record(Type.String(), Type.Unknown()),
+    }),
   })
   export type Response = Typebox.StaticDecode<typeof Response>
 }
@@ -459,6 +473,13 @@ export namespace wallet_feeTokens {
 export namespace wallet_sendPreparedCalls {
   /** Parameters for `wallet_sendPreparedCalls` request. */
   export const Parameters = Type.Object({
+    /** Capabilities. */
+    capabilities: Typebox.Optional(
+      Type.Object({
+        /** Fee signature. */
+        feeSignature: Typebox.Optional(Primitive.Hex),
+      }),
+    ),
     /** Quote for the call bundle. */
     context: Type.Object({
       /** Quote for the call bundle. */

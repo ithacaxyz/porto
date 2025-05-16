@@ -18,7 +18,7 @@ function RouteComponent() {
   const { capabilities, calls, chainId, from } =
     request._decoded.params[0] ?? {}
 
-  const feeToken = capabilities?.feeToken
+  const { feeToken, sponsorUrl } = capabilities ?? {}
 
   const respond = useMutation({
     mutationFn() {
@@ -36,6 +36,7 @@ function RouteComponent() {
       loading={respond.isPending}
       onApprove={() => respond.mutate()}
       onReject={() => Actions.reject(porto, request!)}
+      sponsorUrl={sponsorUrl}
     />
   )
 }

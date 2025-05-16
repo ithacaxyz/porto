@@ -508,6 +508,7 @@ export namespace wallet_prepareCalls {
     feeToken: Typebox.Optional(Primitive.Address),
     permissions: Typebox.Optional(C.permissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
+    sponsorUrl: Typebox.Optional(Type.String()),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 

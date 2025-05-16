@@ -22,8 +22,16 @@ import TriangleAlert from '~icons/lucide/triangle-alert'
 import Star from '~icons/ph/star-four-bold'
 
 export function ActionRequest(props: ActionRequest.Props) {
-  const { address, calls, chainId, feeToken, loading, onApprove, onReject } =
-    props
+  const {
+    address,
+    calls,
+    chainId,
+    feeToken,
+    loading,
+    onApprove,
+    onReject,
+    sponsorUrl,
+  } = props
 
   const account = Hooks.useAccount(porto, { address })
 
@@ -32,6 +40,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     calls,
     chainId,
     feeToken,
+    sponsorUrl,
   })
 
   const assetDiff = prepareCallsQuery.data?.capabilities.assetDiff
@@ -136,6 +145,7 @@ export namespace ActionRequest {
     onApprove: () => void
     onReject: () => void
     quote?: Quote | undefined
+    sponsorUrl?: string | undefined
   }
 
   export function AssetDiff(props: AssetDiff.Props) {
@@ -222,6 +232,8 @@ export namespace ActionRequest {
     }
   }
   export function Details(props: Details.Props) {
+    const { sponsorUrl } = props
+
     const quote = useQuote(porto, props.quote)
     const chain = Hooks.useChain(porto, { chainId: props.quote.chainId })
     const fiatFee = Price.useFiatPrice({
@@ -231,31 +243,33 @@ export namespace ActionRequest {
 
     return (
       <div className="space-y-1.5">
-        <div className="flex h-5.5 items-center justify-between text-[14px]">
-          <span className="text-[14px] text-secondary leading-4">
-            Fees (est.)
-          </span>
-          <div className="text-right">
-            {fiatFee.isFetched || !quote ? (
-              <div className="flex items-center gap-2">
-                {tokenFee &&
-                  fiatFee?.data &&
-                  Number.parseInt(fiatFee.data.display) >= 0.01 && (
-                    <div className="flex h-5.5 items-center rounded-full border border-gray6 px-1.75">
-                      <span className="text-[11.5px] text-secondary">
-                        {tokenFee.display}
-                      </span>
-                    </div>
-                  )}
-                <div className="font-medium leading-4">
-                  {fiatFee?.data?.display ?? 'Unknown'}
+        {!sponsorUrl && (
+          <div className="flex h-5.5 items-center justify-between text-[14px]">
+            <span className="text-[14px] text-secondary leading-4">
+              Fees (est.)
+            </span>
+            <div className="text-right">
+              {fiatFee.isFetched || !quote ? (
+                <div className="flex items-center gap-2">
+                  {tokenFee &&
+                    fiatFee?.data &&
+                    Number.parseInt(fiatFee.data.display) >= 0.01 && (
+                      <div className="flex h-5.5 items-center rounded-full border border-gray6 px-1.75">
+                        <span className="text-[11.5px] text-secondary">
+                          {tokenFee.display}
+                        </span>
+                      </div>
+                    )}
+                  <div className="font-medium leading-4">
+                    {fiatFee?.data?.display ?? 'Unknown'}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <span className="font-medium text-secondary">Loading...</span>
-            )}
+              ) : (
+                <span className="font-medium text-secondary">Loading...</span>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex h-5.5 items-center justify-between text-[14px]">
           <span className="text-[14px] text-secondary">Duration (est.)</span>
@@ -275,6 +289,7 @@ export namespace ActionRequest {
   export namespace Details {
     export type Props = {
       chain?: Chains.Chain | undefined
+      sponsorUrl?: string | undefined
       quote: Quote_typebox.Quote
     }
   }
@@ -286,6 +301,7 @@ export namespace ActionRequest {
       errorMessage = 'An error occurred. Proceed with caution.',
       loading,
       quote,
+      sponsorUrl,
     } = props
 
     // default to `true` if no children, otherwise false
@@ -333,7 +349,10 @@ export namespace ActionRequest {
                 <>
                   {children && <div className="h-[1px] w-full bg-gray6" />}
                   <div className={viewQuote ? undefined : 'hidden'}>
-                    <ActionRequest.Details quote={quote} />
+                    <ActionRequest.Details
+                      quote={quote}
+                      sponsorUrl={sponsorUrl}
+                    />
                   </div>
                   {!viewQuote && (
                     <button
@@ -361,6 +380,7 @@ export namespace ActionRequest {
       errorMessage?: string | undefined
       loading?: boolean | undefined
       quote?: Quote_typebox.Quote | undefined
+      sponsorUrl?: string | undefined
     }
   }
 

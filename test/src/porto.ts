@@ -35,9 +35,10 @@ export function getPorto(
         | undefined
       mock: boolean
     }) => Mode.Mode | undefined
+    sponsorUrl?: string | undefined
   } = {},
 ) {
-  const { mode = Mode.contract } = parameters
+  const { mode = Mode.contract, sponsorUrl } = parameters
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
@@ -50,6 +51,7 @@ export function getPorto(
         },
       },
     }),
+    sponsorUrl,
     storage: Storage.memory(),
     transports: {
       [chain.id]: http(rpcUrl, {

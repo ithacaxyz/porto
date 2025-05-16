@@ -18,6 +18,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
     calls,
     chainId,
     revokeKeys,
+    sponsorUrl,
   } = props
 
   const account = Hooks.useAccount(porto, { address })
@@ -42,6 +43,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
         feeToken: feeToken.data?.address,
         key,
         revokeKeys,
+        sponsorUrl,
       })
     },
     queryKey: [
@@ -51,6 +53,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
         authorizeKeys,
         calls,
         revokeKeys,
+        sponsorUrl,
       }),
       client.uid,
       feeToken.data?.address,
@@ -69,5 +72,6 @@ export declare namespace usePrepareCalls {
       chainId?: number | undefined
       enabled?: boolean | undefined
       feeToken?: Address.Address | undefined
+      sponsorUrl?: string | undefined
     }
 }

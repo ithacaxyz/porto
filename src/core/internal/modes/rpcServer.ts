@@ -310,7 +310,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, key } = parameters
+        const { account, calls, internal, key, sponsorUrl } = parameters
         const {
           client,
           config: { storage },
@@ -334,6 +334,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             feeToken: feeToken.address,
             key,
             preCalls,
+            sponsorUrl,
           },
         )
 
@@ -455,7 +456,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal } = parameters
+        const { account, calls, internal, sponsorUrl } = parameters
         const {
           client,
           config: { storage },
@@ -487,6 +488,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           feeToken: feeToken.address,
           key,
           preCalls,
+          sponsorUrl,
         })
 
         await PreCalls.clear({
