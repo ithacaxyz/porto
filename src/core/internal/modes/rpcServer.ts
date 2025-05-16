@@ -119,6 +119,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             ...account,
             keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
           }),
+          preCalls,
         }
       },
 
@@ -215,7 +216,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             storage,
           })
 
-        return { key: authorizeKey }
+        return { key: authorizeKey, preCalls }
       },
 
       async loadAccounts(parameters) {
@@ -305,6 +306,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         return {
           accounts: [account],
+          preCalls,
         }
       },
 
@@ -316,10 +318,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         } = internal
 
         // Get pre-authorized keys to assign to the call bundle.
-        const preCalls = await PreCalls.get({
-          address: account.address,
-          storage,
-        })
+        const preCalls =
+          parameters.preCalls ??
+          (await PreCalls.get({
+            address: account.address,
+            storage,
+          }))
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
@@ -466,10 +470,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         // Get pre-authorized keys to assign to the call bundle.
-        const preCalls = await PreCalls.get({
-          address: account.address,
-          storage,
-        })
+        const preCalls =
+          parameters.preCalls ??
+          (await PreCalls.get({
+            address: account.address,
+            storage,
+          }))
 
         // Resolve fee token to use.
         const feeToken = await resolveFeeToken(internal, parameters)

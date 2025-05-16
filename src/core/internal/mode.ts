@@ -8,6 +8,7 @@ import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
+import * as PreCalls from './preCalls.js'
 import type * as RpcRequest from './typebox/request.js'
 import * as Typebox from './typebox/typebox.js'
 import type { PartialBy } from './types.js'
@@ -50,6 +51,8 @@ export type Mode = {
     }) => Promise<{
       /** Account. */
       account: Account.Account
+      /** Pre-calls to be executed (e.g. key authorization). */
+      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     getAccountVersion: (parameters: {
@@ -91,7 +94,12 @@ export type Mode = {
       internal: ActionsInternal
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
-    }) => Promise<{ key: Key.Key }>
+    }) => Promise<{
+      /** Key. */
+      key: Key.Key
+      /** Pre-calls to be executed. */
+      preCalls?: PreCalls.PreCalls | undefined
+    }>
 
     loadAccounts: (parameters: {
       /** Credential ID to use to load an existing account. */
@@ -105,6 +113,8 @@ export type Mode = {
     }) => Promise<{
       /** Accounts. */
       accounts: readonly Account.Account[]
+      /** Pre-calls to be executed (e.g. key authorization). */
+      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     prepareCalls: (parameters: {
@@ -118,6 +128,8 @@ export type Mode = {
       feeToken?: Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Pre-calls to be executed. */
+      preCalls?: PreCalls.PreCalls | undefined
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
@@ -180,10 +192,12 @@ export type Mode = {
       calls: readonly Call.Call[]
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
       feeToken?: Address.Address | undefined
-      /** Permissions ID to use to execute the calls. */
-      permissionsId?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Permissions ID to use to execute the calls. */
+      permissionsId?: Hex.Hex | undefined
+      /** Pre-calls to be executed. */
+      preCalls?: PreCalls.PreCalls | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     sendPreparedCalls: (parameters: {
