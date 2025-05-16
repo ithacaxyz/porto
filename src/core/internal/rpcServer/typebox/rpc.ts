@@ -316,19 +316,38 @@ export namespace wallet_prepareCalls {
         Type.Tuple([
           Primitive.Address,
           Type.Array(
-            Type.Object({
-              address: Typebox.Optional(
-                Type.Union([Primitive.Address, Type.Null()]),
-              ),
-              decimals: Typebox.Optional(
-                Type.Union([Type.Number(), Type.Null()]),
-              ),
-              name: Typebox.Optional(Type.Union([Type.String(), Type.Null()])),
-              symbol: Type.String(),
-              value: Type.Transform(Type.String())
-                .Decode((value) => BigInt(value))
-                .Encode((value) => value.toString()),
-            }),
+            Type.Union([
+              Type.Object({
+                address: Typebox.Optional(
+                  Type.Union([Primitive.Address, Type.Null()]),
+                ),
+                decimals: Typebox.Optional(
+                  Type.Union([Type.Number(), Type.Null()]),
+                ),
+                name: Typebox.Optional(
+                  Type.Union([Type.String(), Type.Null()]),
+                ),
+                symbol: Type.String(),
+                type: Type.Literal('erc20'),
+                value: Type.Transform(Type.String())
+                  .Decode((value) => BigInt(value))
+                  .Encode((value) => value.toString()),
+              }),
+              Type.Object({
+                address: Typebox.Optional(
+                  Type.Union([Primitive.Address, Type.Null()]),
+                ),
+                name: Typebox.Optional(
+                  Type.Union([Type.String(), Type.Null()]),
+                ),
+                symbol: Type.String(),
+                type: Type.Literal('erc721'),
+                uri: Type.String(),
+                value: Type.Transform(Type.String())
+                  .Decode((value) => BigInt(value))
+                  .Encode((value) => value.toString()),
+              }),
+            ]),
           ),
         ]),
       ),

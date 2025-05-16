@@ -47,7 +47,6 @@ export function ActionRequest(props: ActionRequest.Props) {
       <Layout loading={loading} loadingTitle="Sending...">
         <Layout.Header>
           <Layout.Header.Default
-            content={<>Review the action to perform below.</>}
             icon={prepareCallsQuery.isError ? TriangleAlert : Star}
             title="Action Request"
             variant={prepareCallsQuery.isError ? 'warning' : 'default'}
@@ -164,17 +163,62 @@ export namespace ActionRequest {
       <>
         <div className="space-y-2">
           {balances.map((balance) => {
-            const { address, decimals, symbol, value } = balance
+            const { address, value } = balance
             if (value === BigInt(0)) return null
 
             const receiving = value > BigInt(0)
             const formatted = ValueFormatter.format(
               value < 0n ? -value : value,
-              decimals ?? 0,
+              'decimals' in balance ? (balance.decimals ?? 0) : 0,
             )
 
-            const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+            if (balance.type === 'erc721') {
+              const { name, uri } = balance
+              const decoded = (() => {
+                try {
+                  const base64Data = uri.split(',')[1]
+                  if (!base64Data) return
+                  const json = JSON.parse(atob(base64Data))
+                  if ('image' in json && typeof json.image === 'string')
+                    return { type: 'image', url: json.image as string }
+                } catch {
+                  return
+                }
+              })()
+              return (
+                <div
+                  className="flex items-center gap-3 font-medium"
+                  key={address}
+                >
+                  <div className="relative size-6 rounded-sm bg-gray6">
+                    {decoded?.type === 'image' && (
+                      <img
+                        alt={`${name} uri`}
+                        className="rounded-sm text-transparent"
+                        src={decoded.url}
+                      />
+                    )}
 
+                    <div
+                      className={cx(
+                        '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-gray3',
+                        receiving
+                          ? 'bg-successTint text-success'
+                          : 'bg-gray5 text-current',
+                      )}
+                    >
+                      {/* TODO: Get erc721 count */}1
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray12">{name}</span>
+                  </div>
+                </div>
+              )
+            }
+
+            const { symbol } = balance
+            const Icon = receiving ? ArrowDownLeft : ArrowUpRight
             return (
               <div
                 className="flex items-center gap-2 font-medium"
@@ -182,7 +226,7 @@ export namespace ActionRequest {
               >
                 <div
                   className={cx(
-                    'flex size-[24px] items-center justify-center rounded-full',
+                    'flex size-6 items-center justify-center rounded-full',
                     {
                       'bg-gray5': !receiving,
                       'bg-successTint': receiving,
