@@ -238,7 +238,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
-  const { calls, key, feeToken, nonce, pre, revokeKeys } = parameters
+  const { calls, key, feeToken, nonce, preCalls, revokeKeys } = parameters
 
   const account = Account.from(parameters.account)
 
@@ -264,10 +264,10 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     return Key.toRpcServer(key, { entrypoint })
   })
 
-  const preOp = typeof pre === 'boolean' ? pre : false
+  const preOp = typeof preCalls === 'boolean' ? preCalls : false
   const preOps =
-    typeof pre === 'object'
-      ? pre.map(({ context, signature }) => ({
+    typeof preCalls === 'object'
+      ? preCalls.map(({ context, signature }) => ({
           ...(context.preOp as any),
           signature,
         }))
@@ -311,14 +311,14 @@ export namespace prepareCalls {
     /** Key that will be used to sign the calls. */
     key: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>
     /**
-     * Indicates if the bundle is a pre-bundle, and should be executed before
+     * Indicates if the bundle is "pre-calls", and should be executed before
      * the main bundle.
      *
      * Accepts:
-     * - `true`: Indicates this is a pre-bundle.
-     * - An array: Set of prepared pre-bundles.
+     * - `true`: Indicates this is pre-calls.
+     * - An array: Set of prepared pre-calls.
      */
-    pre?:
+    preCalls?:
       | true
       | readonly {
           context: prepareCalls.ReturnType['context']
@@ -549,9 +549,9 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   const key = parameters.key ?? Account.getKey(account, parameters)
   if (!key) throw new Error('key is required')
 
-  // Prepare pre-bundles.
-  const pre = await Promise.all(
-    (parameters.pre ?? []).map(async (pre) => {
+  // Prepare pre-calls.
+  const preCalls = await Promise.all(
+    (parameters.preCalls ?? []).map(async (pre) => {
       if (pre.signature) return pre
 
       const { authorizeKeys, key, calls, revokeKeys } = pre
@@ -561,7 +561,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
         calls,
         feeToken: parameters.feeToken,
         key,
-        pre: true,
+        preCalls: true,
         revokeKeys,
       })
       const signature = await Key.sign(key, {
@@ -575,7 +575,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   const { context, digest } = await prepareCalls(client, {
     ...parameters,
     key,
-    pre,
+    preCalls,
   })
 
   // Sign over the bundles.
@@ -600,11 +600,11 @@ export declare namespace sendCalls {
         /** Signature. */
         signature: Hex.Hex
       }
-    | (Omit<prepareCalls.Parameters<calls>, 'key' | 'pre'> & {
+    | (Omit<prepareCalls.Parameters<calls>, 'key' | 'preCalls'> & {
         /** Key to sign the bundle with. */
         key?: Key.Key | undefined
-        /** Pre-bundle to execute before the main bundle. */
-        pre?:
+        /** Calls to execute before the main bundle. */
+        preCalls?:
           | readonly OneOf<
               | {
                   context: prepareCalls.ReturnType['context']

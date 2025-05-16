@@ -294,7 +294,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         } = internal
 
         // Get pre-authorized keys to assign to the call bundle.
-        const pre = await PreCalls.get({
+        const preCalls = await PreCalls.get({
           address: account.address,
           storage,
         })
@@ -308,7 +308,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             calls,
             feeToken: feeToken.address,
             key,
-            pre,
+            preCalls,
           },
         )
 
@@ -444,7 +444,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         // Get pre-authorized keys to assign to the call bundle.
-        const pre = await PreCalls.get({
+        const preCalls = await PreCalls.get({
           address: account.address,
           storage,
         })
@@ -459,7 +459,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           calls,
           feeToken: feeToken.address,
           key,
-          pre,
+          preCalls,
         })
 
         await PreCalls.clear({
@@ -670,7 +670,7 @@ async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
     authorizeKeys: [authorizeKey],
     feeToken,
     key: adminKey,
-    pre: true,
+    preCalls: true,
   })
   const signature = await Key.sign(adminKey, {
     payload: digest,
