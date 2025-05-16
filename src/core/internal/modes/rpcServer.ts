@@ -50,7 +50,7 @@ export const defaultConfig = {
  */
 export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = { ...defaultConfig, ...parameters }
-  const { mock } = config
+  const { mock, persistPreCalls = true } = config
 
   let id_internal: Hex.Hex | undefined
 
@@ -73,6 +73,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       async createAccount(parameters) {
         const { internal, permissions } = parameters
         const { client } = parameters.internal
+        const { storage } = internal.config
 
         let id: Hex.Hex | undefined
         const account = await RpcServer.createAccount(client, {
@@ -98,13 +99,19 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
           feeToken,
         })
-        if (authorizeKey)
-          // TODO(rpcServer): remove double webauthn sign.
-          await preauthKey(client, {
-            account,
-            authorizeKey,
-            feeToken: feeToken.address,
-            storage: parameters.internal.config.storage,
+
+        const preCalls = authorizeKey
+          ? // TODO(rpcServer): remove double webauthn sign.
+            await getAuthorizeKeyPreCalls(client, {
+              account,
+              authorizeKey,
+              feeToken: feeToken.address,
+            })
+          : []
+        if (persistPreCalls)
+          await PreCalls.add(preCalls, {
+            address: account.address,
+            storage,
           })
 
         return {
@@ -184,7 +191,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
       async grantPermissions(parameters) {
         const { account, permissions, internal } = parameters
-        const { client } = internal
+        const {
+          client,
+          config: { storage },
+        } = internal
 
         const feeToken = await resolveFeeToken(internal)
 
@@ -194,19 +204,26 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
         if (!authorizeKey) throw new Error('key to authorize not found.')
 
-        await preauthKey(client, {
+        const preCalls = await getAuthorizeKeyPreCalls(client, {
           account,
           authorizeKey,
           feeToken: feeToken.address,
-          storage: internal.config.storage,
         })
+        if (persistPreCalls)
+          await PreCalls.add(preCalls, {
+            address: account.address,
+            storage,
+          })
 
         return { key: authorizeKey }
       },
 
       async loadAccounts(parameters) {
         const { internal, permissions } = parameters
-        const { client } = internal
+        const {
+          client,
+          config: { storage },
+        } = internal
 
         const { credentialId, keyId } = await (async () => {
           if (mock) {
@@ -273,12 +290,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }),
         })
 
-        if (authorizeKey)
-          await preauthKey(client, {
-            account,
-            authorizeKey,
-            feeToken: feeToken.address,
-            storage: internal.config.storage,
+        const preCalls = authorizeKey
+          ? await getAuthorizeKeyPreCalls(client, {
+              account,
+              authorizeKey,
+              feeToken: feeToken.address,
+            })
+          : []
+        if (persistPreCalls)
+          await PreCalls.add(preCalls, {
+            address: account.address,
+            storage,
           })
 
         return {
@@ -613,6 +635,16 @@ export declare namespace rpcServer {
      * Spending limit to pay for fees on permissions.
      */
     permissionFeeSpendLimit?: Porto.State['permissionFeeSpendLimit'] | undefined
+    /**
+     * Whether to store pre-calls in a persistent storage.
+     *
+     * If this is set to `false`, it is expected that the consumer
+     * will manually store pre-calls, and provide them to actions
+     * that support a `preCalls` parameter.
+     *
+     * @default true
+     */
+    persistPreCalls?: boolean | undefined
   }
 }
 
@@ -657,7 +689,10 @@ async function resolveFeeToken(
   }
 }
 
-async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
+async function getAuthorizeKeyPreCalls(
+  client: Client,
+  parameters: getAuthorizeKeyPreCalls.Parameters,
+) {
   const { account, authorizeKey, feeToken } = parameters
 
   const adminKey = account.keys?.find(
@@ -676,17 +711,13 @@ async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
     payload: digest,
   })
 
-  await PreCalls.add([{ context, signature }], {
-    address: account.address,
-    storage: parameters.storage,
-  })
+  return [{ context, signature }] satisfies PreCalls.PreCalls
 }
 
-namespace preauthKey {
+namespace getAuthorizeKeyPreCalls {
   export type Parameters = {
     account: Account.Account
     authorizeKey: Key.Key
     feeToken?: Address.Address | undefined
-    storage: Storage.Storage
   }
 }

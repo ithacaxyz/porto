@@ -20,6 +20,8 @@ export const storageKey = (address: Address.Address) =>
 export async function add(preCalls: PreCalls, options: add.Options) {
   const { address } = options
 
+  if (preCalls.length === 0) return
+
   const storage = (() => {
     const storages = options.storage.storages ?? [options.storage]
     return storages.find((x) => x.sizeLimit > 1024 * 1024 * 4)
@@ -44,8 +46,8 @@ export declare namespace add {
  */
 export async function get(options: get.Options) {
   const { address, storage } = options
-  const pre = await storage?.getItem<PreCalls>(storageKey(address))
-  return pre || undefined
+  const preCalls = await storage?.getItem<PreCalls>(storageKey(address))
+  return preCalls || undefined
 }
 
 export declare namespace get {
