@@ -19,6 +19,7 @@ import * as Delegation from '../delegation.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
+import * as PreCalls from '../preCalls.js'
 import * as RpcServer_viem from '../viem/actions.js'
 
 export const defaultConfig = {
@@ -293,7 +294,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         } = internal
 
         // Get pre-authorized keys to assign to the call bundle.
-        const pre = await PreBundles.get({
+        const pre = await PreCalls.get({
           address: account.address,
           storage,
         })
@@ -443,7 +444,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         // Get pre-authorized keys to assign to the call bundle.
-        const pre = await PreBundles.get({
+        const pre = await PreCalls.get({
           address: account.address,
           storage,
         })
@@ -461,7 +462,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           pre,
         })
 
-        await PreBundles.clear({
+        await PreCalls.clear({
           address: account.address,
           storage,
         })
@@ -483,7 +484,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         if ((context?.account as any)?.address)
-          await PreBundles.clear({
+          await PreCalls.clear({
             address: (context.account as any).address,
             storage,
           })
@@ -675,7 +676,7 @@ async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
     payload: digest,
   })
 
-  await PreBundles.upsert([{ context, signature }], {
+  await PreCalls.add([{ context, signature }], {
     address: account.address,
     storage: parameters.storage,
   })
@@ -687,58 +688,5 @@ namespace preauthKey {
     authorizeKey: Key.Key
     feeToken?: Address.Address | undefined
     storage: Storage.Storage
-  }
-}
-
-export namespace PreBundles {
-  export type PreBundles = readonly {
-    context: RpcServer.prepareCalls.ReturnType['context']
-    signature: Hex.Hex
-  }[]
-
-  export const storageKey = (address: Address.Address) => `porto.pre.${address}`
-
-  export async function upsert(pre: PreBundles, parameters: upsert.Parameters) {
-    const { address } = parameters
-
-    const storage = (() => {
-      const storages = parameters.storage.storages ?? [parameters.storage]
-      return storages.find((x) => x.sizeLimit > 1024 * 1024 * 4)
-    })()
-
-    const value = await storage?.getItem<PreBundles>(storageKey(address))
-    await storage?.setItem(storageKey(address), [...(value ?? []), ...pre])
-  }
-
-  namespace upsert {
-    export type Parameters = {
-      address: Address.Address
-      storage: Storage.Storage
-    }
-  }
-
-  export async function get(parameters: get.Parameters) {
-    const { address, storage } = parameters
-    const pre = await storage?.getItem<PreBundles>(storageKey(address))
-    return pre || undefined
-  }
-
-  export namespace get {
-    export type Parameters = {
-      address: Address.Address
-      storage: Storage.Storage
-    }
-  }
-
-  export async function clear(parameters: clear.Parameters) {
-    const { address, storage } = parameters
-    await storage?.removeItem(storageKey(address))
-  }
-
-  namespace clear {
-    export type Parameters = {
-      address: Address.Address
-      storage: Storage.Storage
-    }
   }
 }
