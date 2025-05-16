@@ -55,6 +55,7 @@ let entryPointAddress: Address.Address | null | undefined
     abi: EntryPoint.abi,
     bytecode: EntryPoint.code,
     chain: null,
+    args: ['0x0000000000000000000000000000000000000000'],
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,

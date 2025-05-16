@@ -13,12 +13,12 @@ import * as Account from '../../Account.js'
 import * as Key from '../../Key.js'
 import type * as Porto from '../../Porto.js'
 import * as RpcServer from '../../RpcServer.js'
-import type * as Storage from '../../Storage.js'
 import * as Call from '../call.js'
 import * as Delegation from '../delegation.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
+import * as PreCalls from '../preCalls.js'
 import * as RpcServer_viem from '../viem/actions.js'
 
 export const defaultConfig = {
@@ -49,7 +49,7 @@ export const defaultConfig = {
  */
 export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = { ...defaultConfig, ...parameters }
-  const { mock } = config
+  const { mock, persistPreCalls = true } = config
 
   let id_internal: Hex.Hex | undefined
 
@@ -72,6 +72,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       async createAccount(parameters) {
         const { internal, permissions } = parameters
         const { client } = parameters.internal
+        const { storage } = internal.config
 
         let id: Hex.Hex | undefined
         const account = await RpcServer.createAccount(client, {
@@ -97,13 +98,19 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
           feeToken,
         })
-        if (authorizeKey)
-          // TODO(rpcServer): remove double webauthn sign.
-          await preauthKey(client, {
-            account,
-            authorizeKey,
-            feeToken: feeToken.address,
-            storage: parameters.internal.config.storage,
+
+        const preCalls = authorizeKey
+          ? // TODO(rpcServer): remove double webauthn sign.
+            await getAuthorizeKeyPreCalls(client, {
+              account,
+              authorizeKey,
+              feeToken: feeToken.address,
+            })
+          : []
+        if (persistPreCalls)
+          await PreCalls.add(preCalls, {
+            address: account.address,
+            storage,
           })
 
         return {
@@ -111,6 +118,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             ...account,
             keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
           }),
+          preCalls,
         }
       },
 
@@ -118,7 +126,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { address, internal } = parameters
         const { client } = internal
 
-        const { delegationImplementation } = await RpcServer.health(client)
+        const { contracts } = await RpcServer.getCapabilities(client)
+        const { delegationImplementation } = contracts
 
         const latest = await Delegation.getEip712Domain(client, {
           account: delegationImplementation,
@@ -182,7 +191,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
       async grantPermissions(parameters) {
         const { account, permissions, internal } = parameters
-        const { client } = internal
+        const {
+          client,
+          config: { storage },
+        } = internal
 
         const feeToken = await resolveFeeToken(internal)
 
@@ -192,19 +204,26 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
         if (!authorizeKey) throw new Error('key to authorize not found.')
 
-        await preauthKey(client, {
+        const preCalls = await getAuthorizeKeyPreCalls(client, {
           account,
           authorizeKey,
           feeToken: feeToken.address,
-          storage: internal.config.storage,
         })
+        if (persistPreCalls)
+          await PreCalls.add(preCalls, {
+            address: account.address,
+            storage,
+          })
 
-        return { key: authorizeKey }
+        return { key: authorizeKey, preCalls }
       },
 
       async loadAccounts(parameters) {
         const { internal, permissions } = parameters
-        const { client } = internal
+        const {
+          client,
+          config: { storage },
+        } = internal
 
         const { credentialId, keyId } = await (async () => {
           if (mock) {
@@ -271,16 +290,22 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }),
         })
 
-        if (authorizeKey)
-          await preauthKey(client, {
-            account,
-            authorizeKey,
-            feeToken: feeToken.address,
-            storage: internal.config.storage,
+        const preCalls = authorizeKey
+          ? await getAuthorizeKeyPreCalls(client, {
+              account,
+              authorizeKey,
+              feeToken: feeToken.address,
+            })
+          : []
+        if (persistPreCalls)
+          await PreCalls.add(preCalls, {
+            address: account.address,
+            storage,
           })
 
         return {
           accounts: [account],
+          preCalls,
         }
       },
 
@@ -292,10 +317,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         } = internal
 
         // Get pre-authorized keys to assign to the call bundle.
-        const pre = await PreBundles.get({
-          address: account.address,
-          storage,
-        })
+        const preCalls =
+          parameters.preCalls ??
+          (await PreCalls.get({
+            address: account.address,
+            storage,
+          }))
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
@@ -306,7 +333,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             calls,
             feeToken: feeToken.address,
             key,
-            pre,
+            preCalls,
             sponsorUrl,
           },
         )
@@ -443,10 +470,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         // Get pre-authorized keys to assign to the call bundle.
-        const pre = await PreBundles.get({
-          address: account.address,
-          storage,
-        })
+        const preCalls =
+          parameters.preCalls ??
+          (await PreCalls.get({
+            address: account.address,
+            storage,
+          }))
 
         // Resolve fee token to use.
         const feeToken = await resolveFeeToken(internal, parameters)
@@ -458,11 +487,11 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           calls,
           feeToken: feeToken.address,
           key,
-          pre,
+          preCalls,
           sponsorUrl,
         })
 
-        await PreBundles.clear({
+        await PreCalls.clear({
           address: account.address,
           storage,
         })
@@ -484,7 +513,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         if ((context?.account as any)?.address)
-          await PreBundles.clear({
+          await PreCalls.clear({
             address: (context.account as any).address,
             storage,
           })
@@ -538,8 +567,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         )
         if (!key) throw new Error('admin key not found.')
 
-        const { delegationImplementation: delegation } =
-          await RpcServer.health(client)
+        const { contracts } = await RpcServer.getCapabilities(client)
+        const { delegationImplementation: delegation } = contracts
         if (!delegation) throw new Error('delegation not found.')
 
         const feeToken = await resolveFeeToken(internal)
@@ -613,6 +642,16 @@ export declare namespace rpcServer {
      * Spending limit to pay for fees on permissions.
      */
     permissionFeeSpendLimit?: Porto.State['permissionFeeSpendLimit'] | undefined
+    /**
+     * Whether to store pre-calls in a persistent storage.
+     *
+     * If this is set to `false`, it is expected that the consumer
+     * will manually store pre-calls, and provide them to actions
+     * that support a `preCalls` parameter.
+     *
+     * @default true
+     */
+    persistPreCalls?: boolean | undefined
   }
 }
 
@@ -632,8 +671,8 @@ async function resolveFeeToken(
 
   const chainId = Hex.fromNumber(chain.id)
 
-  const feeTokens = await RpcServer_viem.getFeeTokens(client).then(
-    (tokens) => tokens[chainId],
+  const feeTokens = await RpcServer_viem.getCapabilities(client).then(
+    (capabilities) => capabilities.fees.tokens[chainId],
   )
   const feeToken = feeTokens?.find((feeToken) => {
     if (address) return feeToken.address === address
@@ -657,7 +696,10 @@ async function resolveFeeToken(
   }
 }
 
-async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
+async function getAuthorizeKeyPreCalls(
+  client: Client,
+  parameters: getAuthorizeKeyPreCalls.Parameters,
+) {
   const { account, authorizeKey, feeToken } = parameters
 
   const adminKey = account.keys?.find(
@@ -670,76 +712,19 @@ async function preauthKey(client: Client, parameters: preauthKey.Parameters) {
     authorizeKeys: [authorizeKey],
     feeToken,
     key: adminKey,
-    pre: true,
+    preCalls: true,
   })
   const signature = await Key.sign(adminKey, {
     payload: digest,
   })
 
-  await PreBundles.upsert([{ context, signature }], {
-    address: account.address,
-    storage: parameters.storage,
-  })
+  return [{ context, signature }] satisfies PreCalls.PreCalls
 }
 
-namespace preauthKey {
+namespace getAuthorizeKeyPreCalls {
   export type Parameters = {
     account: Account.Account
     authorizeKey: Key.Key
     feeToken?: Address.Address | undefined
-    storage: Storage.Storage
-  }
-}
-
-export namespace PreBundles {
-  export type PreBundles = readonly {
-    context: RpcServer.prepareCalls.ReturnType['context']
-    signature: Hex.Hex
-  }[]
-
-  export const storageKey = (address: Address.Address) => `porto.pre.${address}`
-
-  export async function upsert(pre: PreBundles, parameters: upsert.Parameters) {
-    const { address } = parameters
-
-    const storage = (() => {
-      const storages = parameters.storage.storages ?? [parameters.storage]
-      return storages.find((x) => x.sizeLimit > 1024 * 1024 * 4)
-    })()
-
-    const value = await storage?.getItem<PreBundles>(storageKey(address))
-    await storage?.setItem(storageKey(address), [...(value ?? []), ...pre])
-  }
-
-  namespace upsert {
-    export type Parameters = {
-      address: Address.Address
-      storage: Storage.Storage
-    }
-  }
-
-  export async function get(parameters: get.Parameters) {
-    const { address, storage } = parameters
-    const pre = await storage?.getItem<PreBundles>(storageKey(address))
-    return pre || undefined
-  }
-
-  export namespace get {
-    export type Parameters = {
-      address: Address.Address
-      storage: Storage.Storage
-    }
-  }
-
-  export async function clear(parameters: clear.Parameters) {
-    const { address, storage } = parameters
-    await storage?.removeItem(storageKey(address))
-  }
-
-  namespace clear {
-    export type Parameters = {
-      address: Address.Address
-      storage: Storage.Storage
-    }
   }
 }

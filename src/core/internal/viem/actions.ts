@@ -127,6 +127,32 @@ export namespace getAccounts {
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
 
+export async function getCapabilities(
+  client: Client,
+): Promise<getCapabilities.ReturnType> {
+  try {
+    const method = 'wallet_getCapabilities' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await withCache(
+      () =>
+        client.request<Schema>({
+          method,
+        }),
+      { cacheKey: method },
+    )
+    return Value.Parse(RpcSchema.wallet_getCapabilities.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getCapabilities {
+  export type ReturnType = RpcSchema.wallet_getCapabilities.Response
+
+  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
 /**
  * Gets the status of a call bundle.
  *
@@ -167,36 +193,6 @@ export namespace getCallsStatus {
   }
 
   export type ReturnType = RpcSchema.wallet_getCallsStatus.Response
-
-  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
-}
-
-/**
- * Gets the fee tokens supported by the RPC.
- *
- * @example
- * TODO
- *
- * @param client - The client to use.
- * @returns Result.
- */
-export async function getFeeTokens(
-  client: Client,
-): Promise<getFeeTokens.ReturnType> {
-  const method = 'wallet_feeTokens' as const
-  type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-  const result = await withCache(
-    () =>
-      client.request<Schema>({
-        method,
-      }),
-    { cacheKey: 'feeTokens' },
-  )
-  return Value.Parse(RpcSchema.wallet_feeTokens.Response, result)
-}
-
-export namespace getFeeTokens {
-  export type ReturnType = RpcSchema.wallet_feeTokens.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -265,7 +261,7 @@ export async function health(client: Client): Promise<health.ReturnType> {
       client.request<Schema>({
         method,
       }),
-    { cacheKey: 'health' },
+    { cacheKey: method },
   )
   return Value.Parse(RpcSchema.relay_health.Response, result)
 }

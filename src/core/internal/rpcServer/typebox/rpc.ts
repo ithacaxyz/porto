@@ -35,36 +35,7 @@ export namespace relay_health {
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 
-  export const Response = Type.Object({
-    /** Delegation proxy address. */
-    delegationImplementation: Primitive.Address,
-    /** Delegation implementation address. */
-    delegationProxy: Primitive.Address,
-    /** Entrypoint address. */
-    entrypoint: Primitive.Address,
-    /** Quote configuration. */
-    quoteConfig: Type.Object({
-      /** Sets a constant rate for the price oracle. Used for testing. */
-      constantRate: Typebox.Optional(Type.Union([Type.Number(), Type.Null()])),
-      /** Gas estimate configuration. */
-      gas: Typebox.Optional(
-        Type.Object({
-          /** Extra buffer added to transaction gas estimates. */
-          txBuffer: Typebox.Optional(Type.Number()),
-          /** Extra buffer added to UserOp gas estimates. */
-          userOpBuffer: Typebox.Optional(Type.Number()),
-        }),
-      ),
-      /** The lifetime of a price rate. */
-      rateTtl: Type.Number(),
-      /** The lifetime of a fee quote. */
-      ttl: Type.Number(),
-    }),
-    /** Simulator address. */
-    simulator: Typebox.Optional(Primitive.Address),
-    /** Version of the relay. */
-    version: Type.String(),
-  })
+  export const Response = Type.String()
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
@@ -95,6 +66,65 @@ export namespace wallet_getAccounts {
       keys: C.authorizeKeys.Response,
     }),
   )
+  export type Response = Typebox.StaticDecode<typeof Response>
+}
+
+export namespace wallet_getCapabilities {
+  /** Request for `wallet_getCapabilities`. */
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_getCapabilities'),
+    params: Typebox.Optional(Type.Undefined()),
+  })
+  export type Request = Typebox.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    contracts: Type.Object({
+      /** Delegation proxy address. */
+      delegationImplementation: Primitive.Address,
+      /** Delegation implementation address. */
+      delegationProxy: Primitive.Address,
+      /** Entrypoint address. */
+      entrypoint: Primitive.Address,
+      /** Simulator address. */
+      simulator: Typebox.Optional(Primitive.Address),
+    }),
+    fees: Type.Object({
+      /** Fee recipient address. */
+      quoteConfig: Type.Object({
+        /** Sets a constant rate for the price oracle. Used for testing. */
+        constantRate: Typebox.Optional(
+          Type.Union([Type.Number(), Type.Null()]),
+        ),
+        /** Gas estimate configuration. */
+        gas: Typebox.Optional(
+          Type.Object({
+            /** Extra buffer added to transaction gas estimates. */
+            txBuffer: Typebox.Optional(Type.Number()),
+            /** Extra buffer added to UserOp gas estimates. */
+            userOpBuffer: Typebox.Optional(Type.Number()),
+          }),
+        ),
+        /** The lifetime of a price rate. */
+        rateTtl: Type.Number(),
+        /** The lifetime of a fee quote. */
+        ttl: Type.Number(),
+      }),
+      /** Quote configuration. */
+      recipient: Primitive.Address,
+      /** Tokens the fees can be paid in. */
+      tokens: Type.Record(
+        Primitive.Hex,
+        Type.Array(
+          Type.Object({
+            address: Primitive.Address,
+            decimals: Type.Number(),
+            nativeRate: Typebox.Optional(Primitive.BigInt),
+            symbol: Type.String(),
+          }),
+        ),
+      ),
+    }),
+  })
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 

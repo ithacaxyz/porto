@@ -26,7 +26,7 @@ export const baseSepolia = /*#__PURE__*/ define({
   contracts: {
     ...chains.baseSepolia.contracts,
     delegation: {
-      address: '0x79d7f2ab558ac7a4601f65d02f0fc695a644698a',
+      address: '0x12a05881d9934918096a0256e665e80d4828f681',
     },
   },
   rpcUrls: {
@@ -46,7 +46,7 @@ export const portoDev = /*#__PURE__*/ define({
   },
   contracts: {
     delegation: {
-      address: '0x8e06c8ef5ee7d24ffb7fe05c6276b60dc360fe23',
+      address: '0x562ee13464552ac4900a5aeee79caf115d8a8566',
     },
   },
   id: 28_404,

@@ -21,12 +21,13 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const { current, latest } = version.data ?? {}
 
   const client = Hooks.useClient(porto)
-  const healthQuery = useQuery({
+  const getCapabilitiesQuery = useQuery({
     enabled: !!client,
-    queryFn: () => RpcServer_porto.health(client),
-    queryKey: ['health', client.uid],
+    queryFn: () => RpcServer_porto.getCapabilities(client),
+    queryKey: ['getCapabilities', client.uid],
   })
-  const { delegationImplementation: delegation } = healthQuery.data ?? {}
+  const { contracts } = getCapabilitiesQuery.data ?? {}
+  const { delegationImplementation: delegation } = contracts ?? {}
 
   const account = Hooks.useAccount(porto)
   const prepareCallsQuery = RpcServer.usePrepareCalls({

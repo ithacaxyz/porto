@@ -311,7 +311,7 @@ describe('sendCalls', () => {
       ],
       feeToken: exp1Address,
       key: newKey,
-      pre: [
+      preCalls: [
         {
           authorizeKeys: [newKey],
           key,
@@ -360,7 +360,7 @@ describe('sendCalls', () => {
       authorizeKeys: [newKey],
       feeToken: exp1Address,
       key,
-      pre: true,
+      preCalls: true,
     })
     const signature_1 = await Key.sign(key, {
       payload: request_1.digest,
@@ -378,7 +378,7 @@ describe('sendCalls', () => {
       ],
       feeToken: exp1Address,
       key,
-      pre: [{ ...request_1, signature: signature_1 }],
+      preCalls: [{ ...request_1, signature: signature_1 }],
     })
     const signature_2 = await Key.sign(key, {
       payload: request_2.digest,
@@ -694,7 +694,7 @@ describe.each([
         ],
         feeToken: exp1Address,
         key: newKey,
-        pre: [
+        preCalls: [
           {
             authorizeKeys: [newKey],
             key,
@@ -759,7 +759,7 @@ describe.each([
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          pre: [
+          preCalls: [
             {
               authorizeKeys: [sessionKey],
               key: adminKey,
@@ -823,7 +823,7 @@ describe.each([
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          pre: [
+          preCalls: [
             {
               authorizeKeys: [sessionKey],
               key: adminKey,
@@ -919,7 +919,7 @@ describe.each([
           ],
           feeToken: exp1Address,
           key: adminKey,
-          pre: [
+          preCalls: [
             {
               authorizeKeys: [sessionKey],
               key: adminKey,
@@ -1028,7 +1028,7 @@ describe.each([
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          pre: [
+          preCalls: [
             {
               authorizeKeys: [sessionKey],
               key: adminKey,
@@ -1092,7 +1092,7 @@ describe.each([
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          pre: [
+          preCalls: [
             {
               authorizeKeys: [sessionKey],
               key: adminKey,
@@ -1141,7 +1141,7 @@ describe.each([
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          pre: [
+          preCalls: [
             {
               authorizeKeys: [sessionKey],
               key: adminKey,
@@ -1193,7 +1193,7 @@ describe.each([
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          pre: [
+          preCalls: [
             {
               authorizeKeys: [sessionKey],
               key: adminKey,
