@@ -163,7 +163,7 @@ export namespace ActionRequest {
       <>
         <div className="space-y-2">
           {balances.map((balance) => {
-            const { address, value } = balance
+            const { address, symbol, value } = balance
             if (value === BigInt(0)) return null
 
             const receiving = value > BigInt(0)
@@ -211,13 +211,12 @@ export namespace ActionRequest {
                     </div>
                   </div>
                   <div>
-                    <span className="text-gray12">{name}</span>
+                    <span className="text-gray12">{name ?? symbol}</span>
                   </div>
                 </div>
               )
             }
 
-            const { symbol } = balance
             const Icon = receiving ? ArrowDownLeft : ArrowUpRight
             return (
               <div
