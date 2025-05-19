@@ -3,6 +3,9 @@
   "include": ["**/*.ts", "**/*.tsx"],
   "files": ["./vite-env.d.ts"],
   "compilerOptions": {
-    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"]
+    "types": ["unplugin-icons/types/react", "typed-query-selector/strict"],
+    "paths": {
+      "~components/*": ["./components/*"]
+    }
   }
 }

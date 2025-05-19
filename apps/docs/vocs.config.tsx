@@ -286,10 +286,8 @@ export default defineConfig({
           },
           {
             collapsed: true,
-            disabled: true,
             items: [
               {
-                disabled: true,
                 link: '/sdk/wagmi/useConnect',
                 text: 'useConnect',
               },
@@ -319,7 +317,7 @@ export default defineConfig({
                 text: 'useUpgradeAccount',
               },
             ],
-            text: 'Hooks 🚧',
+            text: 'Hooks',
           },
         ],
         text: 'Wagmi Reference',
