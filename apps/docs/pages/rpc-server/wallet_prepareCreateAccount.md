@@ -2,7 +2,7 @@
 
 Prepares an account creation.
 
-Accounts created using the RPC server uses [PREP](https://blog.biconomy.io/prep-deep-dive/) to generate an address. Using PREP, it is proven that no one knows the Secp256k1 private key of the account, even the RPC server.
+Accounts created using the RPC server use [PREP](https://blog.biconomy.io/prep-deep-dive/) to generate an address. Using PREP, it is proven that no one knows the Secp256k1 private key of the account, even the RPC server.
 
 The account is not fully created until `wallet_createAccount` is called.
 
