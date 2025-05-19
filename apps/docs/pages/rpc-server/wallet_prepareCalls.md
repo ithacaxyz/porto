@@ -126,7 +126,7 @@ type Request = {
       type: 'p256' | 'webauthnp256' | 'secp256k1',
       publicKey: `0x${string}`,
       // Whether the bundle digest will be prehashed by the key.
-      phrehash: bool,
+      prehash: bool,
     },
   }],
 }
