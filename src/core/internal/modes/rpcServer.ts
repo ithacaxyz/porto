@@ -695,6 +695,7 @@ export function resolvePermissions(
       if (Address.isEqual(token, feeToken.address))
         return {
           ...spend,
+          // Subtract fee limit from the spend limit.
           limit: spend.limit - ((feeLimit as any)[feeToken.symbol] ?? 0n),
         }
       return spend
@@ -727,6 +728,7 @@ export function resolvePermissionsRequest(
     if (Address.isEqual(token, feeToken.address))
       return {
         ...spend,
+        // Add fee limit to the spend limit.
         limit: spend.limit + ((feeLimit as any)[feeToken.symbol] ?? 0n),
       }
     return spend
