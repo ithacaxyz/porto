@@ -1143,6 +1143,8 @@ export const expNftAbi = [
       { name: 'name_', internalType: 'string', type: 'string' },
       { name: 'description', internalType: 'string', type: 'string' },
       { name: 'image', internalType: 'string', type: 'string' },
+      { name: 'token', internalType: 'address', type: 'address' },
+      { name: 'price', internalType: 'uint256', type: 'uint256' },
     ],
     stateMutability: 'nonpayable',
   },

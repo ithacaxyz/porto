@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {ERC721} from "solady/tokens/ERC721.sol";
+import {ERC20} from "solady/tokens/ERC20.sol";
 import {Ownable} from "solady/auth/Ownable.sol";
 import {Base64} from "solady/utils/Base64.sol";
 import {LibString} from "solady/utils/LibString.sol";
@@ -12,13 +13,24 @@ contract ExperimentERC721 is ERC721, Ownable {
     string internal _name;
     string internal _symbol;
     string internal _image;
+    address internal _token;
+    uint256 internal _price;
 
-    constructor(string memory symbol_, string memory name_, string memory description, string memory image) {
+    constructor(
+        string memory symbol_,
+        string memory name_,
+        string memory description,
+        string memory image,
+        address token,
+        uint256 price
+    ) {
         _description = description;
         _image = image;
         _name = name_;
         _symbol = symbol_;
         _tokenId = 0;
+        _token = token;
+        _price = price;
         _initializeOwner(msg.sender);
     }
 
@@ -30,7 +42,9 @@ contract ExperimentERC721 is ERC721, Ownable {
         return _symbol;
     }
 
-    function tokenURI(uint256 id) public view virtual override returns (string memory) {
+    function tokenURI(
+        uint256 id
+    ) public view virtual override returns (string memory) {
         string memory json = Base64.encode(
             abi.encodePacked(
                 '{"name": "',
@@ -48,6 +62,7 @@ contract ExperimentERC721 is ERC721, Ownable {
     }
 
     function mint() public {
+        ERC20(_token).transferFrom(msg.sender, address(this), _price);
         mint(msg.sender);
     }
 
