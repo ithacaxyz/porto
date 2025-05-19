@@ -443,7 +443,7 @@ export async function prepareUpgradeAccount(
   client: Client,
   parameters: prepareUpgradeAccount.Parameters,
 ) {
-  const { address, feeToken } = parameters
+  const { address, feeToken, sessionFeeLimit } = parameters
 
   const { contracts } = await Actions.getCapabilities(client)
 
@@ -464,6 +464,7 @@ export async function prepareUpgradeAccount(
       key.role === 'session'
         ? resolvePermissions(key, {
             feeToken,
+            sessionFeeLimit,
           })
         : undefined
     return Key.toRpcServer(
@@ -527,6 +528,8 @@ export declare namespace prepareUpgradeAccount {
     keys:
       | readonly Key.Key[]
       | ((p: { ids: readonly Hex.Hex[] }) => MaybePromise<readonly Key.Key[]>)
+    /** Session fee limit. */
+    sessionFeeLimit?: bigint | undefined
   }
 
   export type ReturnType = Omit<

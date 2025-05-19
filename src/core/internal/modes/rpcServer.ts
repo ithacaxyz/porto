@@ -20,7 +20,7 @@ import type { Client } from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import * as RpcServer_viem from '../viem/actions.js'
 
-export const permissionsFeeLimit = {
+export const defaultSessionFeeLimit = {
   ETH: Value.fromEther('0.0001'),
   EXP: Value.fromEther('1'),
 }
@@ -37,7 +37,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = parameters
   const {
     mock,
-    permissionsFeeLimit: feeLimit = permissionsFeeLimit,
+    sessionFeeLimit = defaultSessionFeeLimit,
     persistPreCalls = true,
   } = config
 
@@ -84,7 +84,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         if (id) id_internal = id
 
-        const feeToken = await resolveFeeToken(internal, { feeLimit })
+        const feeToken = await resolveFeeToken(internal, { sessionFeeLimit })
         const authorizeKey = await PermissionsRequest.toKey(permissions)
 
         const preCalls = authorizeKey
@@ -184,7 +184,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeToken = await resolveFeeToken(internal, { feeLimit })
+        const feeToken = await resolveFeeToken(internal, { sessionFeeLimit })
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions)
@@ -243,7 +243,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           return { credentialId, keyId }
         })()
 
-        const feeToken = await resolveFeeToken(internal, { feeLimit })
+        const feeToken = await resolveFeeToken(internal, { sessionFeeLimit })
 
         const [accounts, authorizeKey] = await Promise.all([
           RpcServer.getAccounts(client, { keyId }),
@@ -344,7 +344,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const feeToken = await resolveFeeToken(internal, {
           ...parameters,
-          feeLimit,
+          sessionFeeLimit,
         })
 
         const authorizeKey = await PermissionsRequest.toKey(permissions)
@@ -367,6 +367,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
               return [key, ...(authorizeKey ? [authorizeKey] : [])]
             },
+            sessionFeeLimit: feeToken.sessionFeeLimit,
           },
         )
 
@@ -601,7 +602,7 @@ export declare namespace rpcServer {
     /**
      * Fee limit to use for permissions.
      */
-    permissionsFeeLimit?: Record<string, bigint> | undefined
+    sessionFeeLimit?: Record<string, bigint> | undefined
     /**
      * Whether to store pre-calls in a persistent storage.
      *
@@ -656,15 +657,15 @@ async function resolveFeeToken(
   internal: Mode.ActionsInternal,
   parameters?:
     | {
-        feeLimit?: Record<string, bigint> | undefined
         feeToken?: Address.Address | undefined
+        sessionFeeLimit?: Record<string, bigint> | undefined
       }
     | undefined,
 ) {
   const { client, store } = internal
   const { chain } = client
   const { feeToken: defaultFeeToken } = store.getState()
-  const { feeToken: address, feeLimit } = parameters ?? {}
+  const { feeToken: address } = parameters ?? {}
 
   const chainId = Hex.fromNumber(chain.id)
 
@@ -678,7 +679,7 @@ async function resolveFeeToken(
   })
 
   const sessionFeeLimit = feeToken?.symbol
-    ? feeLimit?.[feeToken.symbol]
+    ? parameters?.sessionFeeLimit?.[feeToken.symbol]
     : undefined
 
   if (!feeToken)
