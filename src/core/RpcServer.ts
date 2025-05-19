@@ -4,7 +4,7 @@ import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import type { Client } from 'viem'
+import { type Client, zeroAddress } from 'viem'
 import * as Account from './Account.js'
 import type { Chain } from './Chains.js'
 import type * as Capabilities from './internal/rpcServer/typebox/capabilities.js'
@@ -238,7 +238,8 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
-  const { calls, key, feeToken, nonce, preCalls, revokeKeys } = parameters
+  const { calls, key, feeToken, nonce, preCalls, revokeKeys, sessionFeeLimit } =
+    parameters
 
   const account = Account.from(parameters.account)
 
@@ -261,7 +262,18 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         },
         { entrypoint },
       )
-    return Key.toRpcServer(key, { entrypoint })
+
+    const permissions = resolvePermissions(key, {
+      feeToken,
+      sessionFeeLimit,
+    })
+    return Key.toRpcServer(
+      {
+        ...key,
+        permissions,
+      },
+      { entrypoint },
+    )
   })
 
   const preOp = typeof preCalls === 'boolean' ? preCalls : false
@@ -327,6 +339,8 @@ export namespace prepareCalls {
       | undefined
     /** Additional keys to revoke from the account. */
     revokeKeys?: readonly Key.Key[] | undefined
+    /** Session fee limit. */
+    sessionFeeLimit?: bigint | undefined
   } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
@@ -445,11 +459,21 @@ export async function prepareUpgradeAccount(
   const hasSessionKey = keys.some((x) => x.role === 'session')
   const entrypoint = hasSessionKey ? contracts.entrypoint : undefined
 
-  const keys_rpc = keys.map((key) =>
-    Key.toRpcServer(key, {
-      entrypoint,
-    }),
-  )
+  const keys_rpc = keys.map((key) => {
+    const permissions =
+      key.role === 'session'
+        ? resolvePermissions(key, {
+            feeToken,
+          })
+        : undefined
+    return Key.toRpcServer(
+      {
+        ...key,
+        permissions,
+      },
+      { entrypoint },
+    )
+  })
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
   const authorizeKeys = signers.map((signer, index) => ({
@@ -668,4 +692,26 @@ export declare namespace upgradeAccount {
   export type ErrorType =
     | Actions.upgradeAccount.ErrorType
     | Errors.GlobalErrorType
+}
+
+function resolvePermissions(
+  key: Key.Key,
+  options: {
+    feeToken?: Address.Address | undefined
+    sessionFeeLimit?: bigint | undefined
+  },
+) {
+  const { feeToken, sessionFeeLimit } = options
+
+  const spend = key.permissions?.spend?.map((spend) => {
+    const token = feeToken ?? zeroAddress
+    if (spend.token && Address.isEqual(token, spend.token))
+      return {
+        ...spend,
+        limit: spend.limit + (sessionFeeLimit ?? 0n),
+      }
+    return spend
+  })
+
+  return { ...key.permissions, ...(spend && { spend }) }
 }
