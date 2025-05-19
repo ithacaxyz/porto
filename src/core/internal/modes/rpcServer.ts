@@ -690,15 +690,10 @@ export function resolvePermissions(
 ) {
   const { feeLimit, feeToken } = options
   return permissions.map((permission) => {
-    const spend = permission.permissions.spend?.map((spend) => {
-      const token = spend.token ?? zeroAddress
-      if (Address.isEqual(token, feeToken.address))
-        return {
-          ...spend,
-          // Subtract fee limit from the spend limit.
-          limit: spend.limit - ((feeLimit as any)[feeToken.symbol] ?? 0n),
-        }
-      return spend
+    const spend = resolveSpendPermissions(permission.permissions, {
+      feeLimit,
+      feeOperation: 'subtract',
+      feeToken,
     })
     return {
       ...permission,
@@ -719,19 +714,14 @@ export function resolvePermissionsRequest(
     feeToken: { address: Address.Address; symbol: string }
   },
 ) {
-  const { feeLimit, feeToken } = options
-
   if (!request) return undefined
 
-  const spend = request.permissions?.spend?.map((spend) => {
-    const token = spend.token ?? zeroAddress
-    if (Address.isEqual(token, feeToken.address))
-      return {
-        ...spend,
-        // Add fee limit to the spend limit.
-        limit: spend.limit + ((feeLimit as any)[feeToken.symbol] ?? 0n),
-      }
-    return spend
+  const { feeLimit, feeToken } = options
+
+  const spend = resolveSpendPermissions(request.permissions, {
+    feeLimit,
+    feeOperation: 'add',
+    feeToken,
   })
 
   return {
@@ -776,4 +766,27 @@ namespace getAuthorizeKeyPreCalls {
     authorizeKey: Key.Key
     feeToken?: Address.Address | undefined
   }
+}
+
+function resolveSpendPermissions(
+  permissions: Permissions.Permissions['permissions'],
+  options: {
+    feeLimit: rpcServer.Parameters['permissionsFeeLimit']
+    feeOperation: 'add' | 'subtract'
+    feeToken: { address: Address.Address; symbol: string }
+  },
+) {
+  const { feeLimit, feeOperation, feeToken } = options
+  return permissions?.spend?.map((spend) => {
+    const token = spend.token ?? zeroAddress
+    if (Address.isEqual(token, feeToken.address))
+      return {
+        ...spend,
+        limit:
+          spend.limit +
+          ((feeLimit as any)[feeToken.symbol] ?? 0n) *
+            (feeOperation === 'add' ? 1n : -1n),
+      }
+    return spend
+  })
 }
