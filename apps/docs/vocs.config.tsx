@@ -67,9 +67,8 @@ export default defineConfig({
             text: 'wallet_getKeys 🚧',
           },
           {
-            disabled: true,
             link: '/rpc-server/wallet_prepareCalls',
-            text: 'wallet_prepareCalls 🚧',
+            text: 'wallet_prepareCalls',
           },
           {
             disabled: true,
