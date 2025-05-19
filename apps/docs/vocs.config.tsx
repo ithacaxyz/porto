@@ -77,9 +77,8 @@ export default defineConfig({
             text: 'wallet_prepareUpgradeAccount 🚧',
           },
           {
-            disabled: true,
             link: '/rpc-server/wallet_sendPreparedCalls',
-            text: 'wallet_sendPreparedCalls 🚧',
+            text: 'wallet_sendPreparedCalls',
           },
           {
             disabled: true,
