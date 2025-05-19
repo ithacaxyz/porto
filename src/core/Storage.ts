@@ -93,9 +93,11 @@ export function cookie() {
       }
     },
     async removeItem(name) {
+      // biome-ignore lint/suspicious/noDocumentCookie: temporary, will switch to Cookie Store API later
       document.cookie = `${name}=;max-age=-1;path=/`
     },
     async setItem(name, value) {
+      // biome-ignore lint/suspicious/noDocumentCookie: temporary, will switch to Cookie Store API later
       document.cookie = `${name}=${Json.stringify(value)};path=/;samesite=None;secure;max-age=31536000`
     },
     sizeLimit: 1024 * 4, // ≈4kB

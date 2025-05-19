@@ -1,6 +1,6 @@
 import { Button } from '@porto/apps/components'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Address } from 'ox'
+import type { Address } from 'ox'
 import { Account, Key, RpcServer as RpcServer_porto } from 'porto'
 import { Call } from 'porto/internal'
 import { Hooks } from 'porto/remote'

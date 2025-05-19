@@ -74,7 +74,7 @@ export function TryItOut(props: TryItOut.Props) {
       {mutation.data?.html ? (
         <div className="vocs_CodeBlock">
           <div className="vocs_Pre_wrapper">
-            {/* biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> */}
+            {/* biome-ignore lint/security/noDangerouslySetInnerHtml: safe */}
             <div dangerouslySetInnerHTML={{ __html: mutation.data.html }} />
           </div>
         </div>

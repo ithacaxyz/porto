@@ -3,7 +3,7 @@ import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { Address, Hex, Value } from 'ox'
+import { type Address, type Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { PayButton } from '~/components/PayButton'
@@ -105,8 +105,6 @@ export function AddFunds(props: AddFunds.Props) {
                       autoCapitalize="off"
                       autoComplete="off"
                       autoCorrect="off"
-                      // biome-ignore lint/a11y/noAutofocus:
-                      autoFocus
                       className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
                       inputMode="decimal"
                       max={500}
@@ -132,7 +130,7 @@ export function AddFunds(props: AddFunds.Props) {
                   >
                     <Ariakit.RadioGroup className="flex w-full gap-3 *:h-10.5">
                       {presetAmounts.map((predefinedAmount) => (
-                        // biome-ignore lint/a11y/noLabelWithoutControl:
+                        // biome-ignore lint/a11y/noLabelWithoutControl: N/A
                         <label
                           className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
                           key={predefinedAmount}

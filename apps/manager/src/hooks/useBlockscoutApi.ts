@@ -1,6 +1,6 @@
-import { PortoConfig, Query } from '@porto/apps'
+import { type PortoConfig, Query } from '@porto/apps'
 import { useQuery } from '@tanstack/react-query'
-import { Address } from 'ox'
+import type { Address } from 'ox'
 import { anvil, portoDev } from 'porto/core/Chains'
 import * as React from 'react'
 import { useAccount, useChainId, useWatchBlockNumber } from 'wagmi'

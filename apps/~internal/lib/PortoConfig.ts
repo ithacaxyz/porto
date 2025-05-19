@@ -1,6 +1,6 @@
 import { Chains, Mode } from 'porto'
-import { Porto } from 'porto/remote'
-import { http, ValueOf } from 'viem'
+import type { Porto } from 'porto/remote'
+import { http, type ValueOf } from 'viem'
 
 import * as Env from './Env'
 import * as Sentry from './Sentry'

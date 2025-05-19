@@ -8,9 +8,9 @@ import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
-import * as PreCalls from './preCalls.js'
+import type * as PreCalls from './preCalls.js'
 import type * as RpcRequest from './typebox/request.js'
-import * as Typebox from './typebox/typebox.js'
+import type * as Typebox from './typebox/typebox.js'
 import type { PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
@@ -265,7 +265,7 @@ export type Mode = {
  * @param mode - Mode.
  * @returns Mode.
  */
-export function from<const mode extends from.Parameters>(
+export function from<const _mode extends from.Parameters>(
   mode: from.Parameters,
 ): Mode {
   return {

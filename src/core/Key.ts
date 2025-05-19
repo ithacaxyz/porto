@@ -990,7 +990,7 @@ export function toRpcServer(
   } = key
   const { entrypoint } = options
 
-  // biome-ignore lint/complexity/useFlatMap:
+  // biome-ignore lint/complexity/useFlatMap: N/A
   const permissions = Object.entries(key.permissions ?? {})
     .map(([key, v]) => {
       if (key === 'calls') {

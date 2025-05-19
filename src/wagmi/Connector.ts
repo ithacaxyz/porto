@@ -58,7 +58,7 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
       if (config.transports) return config.transports
       return Object.entries(wagmiConfig.transports ?? {}).reduce(
         (transports, [chainId, transport]) => ({
-          // biome-ignore lint/performance/noAccumulatingSpread:
+          // biome-ignore lint/performance/noAccumulatingSpread: N/A
           ...transports,
           [chainId]: 'default' in transport ? transport.default : transport,
         }),

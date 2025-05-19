@@ -1,5 +1,5 @@
-import { PortoConfig } from '@porto/apps'
-import { createConfig, createStorage, injected, Transport } from 'wagmi'
+import type { PortoConfig } from '@porto/apps'
+import { createConfig, createStorage, injected, type Transport } from 'wagmi'
 import { porto } from './Porto'
 
 export const config = createConfig({
@@ -17,7 +17,7 @@ export const config = createConfig({
   storage: createStorage({ storage: localStorage }),
   transports: Object.entries(porto._internal.config.transports).reduce(
     (transports, [chainId, transport]) => ({
-      // biome-ignore lint/performance/noAccumulatingSpread:
+      // biome-ignore lint/performance/noAccumulatingSpread: N/A
       ...transports,
       [chainId]: 'default' in transport ? transport.default : transport,
     }),

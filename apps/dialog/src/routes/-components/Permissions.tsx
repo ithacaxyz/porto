@@ -47,7 +47,7 @@ export declare namespace Permissions {
   }
 }
 
-function SpendPermission(props: SpendPermission.Props) {
+function _SpendPermission(props: _SpendPermission.Props) {
   const { limit, period, token } = props
 
   const symbol = useReadContract({
@@ -104,7 +104,7 @@ declare namespace SpendPermission {
   }
 }
 
-function ContractAccessPermission(props: ContractAccessPermission.Props) {
+function _ContractAccessPermission(props: _ContractAccessPermission.Props) {
   const { calls } = props
 
   const [isOpen, setIsOpen] = useState(false)

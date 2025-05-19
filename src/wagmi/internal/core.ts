@@ -252,7 +252,7 @@ export async function disconnect(
 export declare namespace disconnect {
   type Parameters = ConnectorParameter
 
-  // biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
+  // biome-ignore lint/suspicious/noConfusingVoidType: N/A
   type ReturnType = void
 
   // TODO: Exhaustive ErrorType

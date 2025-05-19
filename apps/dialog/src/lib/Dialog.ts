@@ -1,4 +1,4 @@
-import { Messenger } from 'porto'
+import type { Messenger } from 'porto'
 import * as Zustand from 'zustand'
 import { useShallow } from 'zustand/shallow'
 import { createStore } from 'zustand/vanilla'

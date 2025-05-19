@@ -2,15 +2,7 @@ import { cva, type VariantProps } from 'cva'
 import type * as React from 'react'
 
 export function Button(props: Button.Props) {
-  const {
-    className,
-    disabled,
-    size,
-    static: static_,
-    variant,
-    asChild = false,
-    ...rest
-  } = props
+  const { className, disabled, size, static: static_, variant, ...rest } = props
   return (
     <button
       className={Button.className({

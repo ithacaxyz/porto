@@ -808,9 +808,9 @@ export interface Options {
  * @returns {string}
  */
 export function create(options: Options | string | boolean = {}): string {
-  // biome-ignore lint/style/noParameterAssign:
+  // biome-ignore lint/style/noParameterAssign: N/A
   if (typeof options === 'string') options = { separator: options }
-  // biome-ignore lint/style/noParameterAssign:
+  // biome-ignore lint/style/noParameterAssign: N/A
   if (typeof options === 'boolean') options = { capitalize: options }
   const {
     separator = '',

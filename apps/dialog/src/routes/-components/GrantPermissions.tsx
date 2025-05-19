@@ -1,5 +1,5 @@
 import { Button } from '@porto/apps/components'
-import { type RpcSchema } from 'ox'
+import type { RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Hooks } from 'porto/remote'
 

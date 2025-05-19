@@ -1,6 +1,6 @@
 import { Button, Spinner } from '@porto/apps/components'
-import { UseQueryResult } from '@tanstack/react-query'
-import { Address } from 'ox'
+import type { UseQueryResult } from '@tanstack/react-query'
+import type { Address } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import * as FeeToken from '~/lib/FeeToken'

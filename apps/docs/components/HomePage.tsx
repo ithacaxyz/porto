@@ -2,7 +2,7 @@ import * as Ariakit from '@ariakit/react'
 import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
-import { Address, P256, Provider, PublicKey, Value } from 'ox'
+import { type Address, P256, Provider, PublicKey, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
@@ -27,7 +27,7 @@ import LucidePlay from '~icons/lucide/play'
 import LucideSparkle from '~icons/lucide/sparkle'
 import LucideTrash2 from '~icons/lucide/trash-2'
 import LucideX from '~icons/lucide/x'
-import { config } from '../wagmi.config'
+import type { config } from '../wagmi.config'
 import { Button } from './Button'
 
 export function HomePage() {
@@ -173,7 +173,7 @@ export function HomePage() {
           <Ariakit.Button
             className="flex h-[40px] items-center justify-center gap-[6px] rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
             render={
-              // biome-ignore lint/a11y/useAnchorContent: <explanation>
+              // biome-ignore lint/a11y/useAnchorContent: N/A
               <a
                 href="https://github.com/ithacaxyz/porto"
                 rel="noreferrer"
@@ -556,7 +556,7 @@ function BuyNow(props: { chainId: ChainId; next: () => void }) {
   })
   React.useEffect(() => {
     if (isConfirmed) next()
-  }, [isConfirmed])
+  }, [isConfirmed, next])
   React.useEffect(() => {
     if (error)
       toast.custom((t) => (
@@ -961,7 +961,7 @@ function Subscribe(props: {
           <Ariakit.FormGroupLabel>Select tier</Ariakit.FormGroupLabel>
         </Ariakit.VisuallyHidden>
         {tiers.map((tier, index) => (
-          // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
+          // biome-ignore lint/a11y/noLabelWithoutControl: N/A
           <label
             className="inset-ring flex h-31.25 flex-1 rounded-[13px] border border-gray5 p-3.5 [&:has(input:checked)]:inset-ring-[var(--color-blue9)] [&:has(input:checked)]:border-accent"
             key={tier.unit}
@@ -1307,16 +1307,16 @@ function Swap(props: {
   )
 }
 
-function Install() {
+function _Install() {
   const store = Ariakit.useRadioStore({ defaultValue: 'npm' })
   const state = Ariakit.useStoreState(store)
   return (
     <div className="flex max-h-[26px] w-full justify-between gap-1">
       <Ariakit.RadioProvider store={store}>
         <Ariakit.RadioGroup className="flex gap-1">
-          <Install.Radio value="npm" />
-          <Install.Radio value="pnpm" />
-          <Install.Radio value="yarn" />
+          <_Install.Radio value="npm" />
+          <_Install.Radio value="pnpm" />
+          <_Install.Radio value="yarn" />
         </Ariakit.RadioGroup>
         <div className="font-[300] font-mono text-[15px] text-gray12 tracking-[-2.8%] max-[486px]:text-[12px]">
           <span className="text-gray8">{'>'}</span>{' '}
@@ -1331,7 +1331,7 @@ namespace Install {
   export function Radio(props: Radio.Props) {
     const { value } = props
     return (
-      // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
+      // biome-ignore lint/a11y/noLabelWithoutControl: N/A
       <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] has-checked:border-blue9 has-checked:text-gray12">
         <Ariakit.VisuallyHidden>
           <Ariakit.Radio value={value} />

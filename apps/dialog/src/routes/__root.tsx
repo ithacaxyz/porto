@@ -148,7 +148,7 @@ function RouteComponent() {
   )
 }
 
-function CheckReferrer(props: CheckReferrer.Props) {
+function _CheckReferrer(props: _CheckReferrer.Props) {
   const { children } = props
 
   const [proceed, setProceed] = React.useState(false)

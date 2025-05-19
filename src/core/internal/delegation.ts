@@ -452,12 +452,12 @@ export class ExecutionError extends Errors.BaseError<BaseError> {
 ///////////////////////////////////////////////////////////////////////////
 
 /** @internal */
-async function getExecuteSignPayload<
+async function _getExecuteSignPayload<
   const calls extends readonly unknown[],
   chain extends Chain | undefined,
 >(
   client: Client<Transport, chain>,
-  parameters: getExecuteSignPayload.Parameters<calls>,
+  parameters: _getExecuteSignPayload.Parameters<calls>,
 ): Promise<Hex.Hex> {
   const { account, delegation, nonce } = parameters
 

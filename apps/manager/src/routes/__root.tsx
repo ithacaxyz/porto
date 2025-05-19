@@ -6,7 +6,7 @@ import {
   Outlet,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { GetAccountReturnType } from '@wagmi/core'
+import type { GetAccountReturnType } from '@wagmi/core'
 import * as React from 'react'
 import { Toaster } from 'sonner'
 

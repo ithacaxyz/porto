@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Address, Json } from 'ox'
+import { type Address, Json } from 'ox'
 import { Account, RpcServer } from 'porto'
 import { Hooks } from 'porto/remote'
 

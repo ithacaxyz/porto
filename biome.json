@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0-beta.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0-beta.5/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -97,6 +97,16 @@
     }
   },
   "overrides": [
+    {
+      "includes": ["**/env.d.ts", "./src/wagmi/internal/utils.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off"
+          }
+        }
+      }
+    },
     {
       "assist": {
         "actions": {

@@ -1,4 +1,4 @@
-import { PortoConfig } from '@porto/apps'
+import type { PortoConfig } from '@porto/apps'
 import type { Address } from 'ox'
 import { erc20Abi } from 'viem'
 import {

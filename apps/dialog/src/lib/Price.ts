@@ -1,4 +1,4 @@
-import { Address, Value } from 'ox'
+import { type Address, Value } from 'ox'
 import { mainnet } from 'viem/chains'
 import { createConfig, http, useReadContracts } from 'wagmi'
 import { ValueFormatter } from '../utils'

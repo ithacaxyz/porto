@@ -69,7 +69,8 @@ export function useAdmins<
   const provider = useRef<EIP1193Provider | undefined>(undefined)
   // biome-ignore lint/correctness/useExhaustiveDependencies: `queryKey` not required
   useEffect(() => {
-    if (!activeConnector) return
+    if (!activeConnector)
+      return // biome-ignore lint/nursery/noFloatingPromises: N/A
     ;(async () => {
       provider.current ??=
         (await activeConnector.getProvider?.()) as EIP1193Provider
@@ -217,7 +218,7 @@ export declare namespace useCreateAccount {
 }
 
 export function useDisconnect<
-  config extends Config = ResolvedRegister['config'],
+  _config extends Config = ResolvedRegister['config'],
   context = unknown,
 >(
   parameters: useDisconnect.Parameters<context> = {},
@@ -371,7 +372,8 @@ export function usePermissions<
   const provider = useRef<EIP1193Provider | undefined>(undefined)
   // biome-ignore lint/correctness/useExhaustiveDependencies: `queryKey` not required
   useEffect(() => {
-    if (!activeConnector) return
+    if (!activeConnector)
+      return // biome-ignore lint/nursery/noFloatingPromises: N/A
     ;(async () => {
       provider.current ??=
         (await activeConnector.getProvider?.()) as EIP1193Provider

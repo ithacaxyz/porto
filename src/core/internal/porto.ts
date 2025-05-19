@@ -1,13 +1,11 @@
 import * as Json from 'ox/Json'
 import {
+  createClient,
   custom,
   fallback,
   http,
   type PublicRpcSchema,
   type Transport,
-} from 'viem'
-import {
-  createClient,
   type Account as viem_Account,
   type Client as viem_Client,
 } from 'viem'

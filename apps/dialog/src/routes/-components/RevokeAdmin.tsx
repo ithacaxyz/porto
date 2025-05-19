@@ -1,5 +1,5 @@
 import { Button } from '@porto/apps/components'
-import { Address, Hex } from 'ox'
+import type { Address, Hex } from 'ox'
 import { Key } from 'porto'
 import { Hooks } from 'porto/wagmi'
 

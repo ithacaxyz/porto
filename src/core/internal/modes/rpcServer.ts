@@ -622,9 +622,9 @@ export declare namespace rpcServer {
   }
 }
 
-async function getAuthorizeKeyPreCalls(
+async function _getAuthorizeKeyPreCalls(
   client: Client,
-  parameters: getAuthorizeKeyPreCalls.Parameters,
+  parameters: _getAuthorizeKeyPreCalls.Parameters,
 ) {
   const { account, authorizeKey, feeToken } = parameters
 

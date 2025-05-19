@@ -15,7 +15,7 @@ export namespace Layout {
   }
 
   export function Content(props: PropsWithChildren) {
-    const { children, ...rest } = props
+    const { ...rest } = props
     return (
       <div
         className="ml-[calc(var(--spacing-hero)+1rem)] flex w-full flex-1 flex-col py-6 max-md:py-4 max-lg:ml-0"
@@ -65,7 +65,7 @@ export namespace Layout {
         <Button
           className="h-min w-min! px-2! py-1"
           render={
-            // biome-ignore lint/a11y/useAnchorContent:
+            // biome-ignore lint/a11y/useAnchorContent: N/A
             <a href="https://porto.sh" rel="noreferrer" target="_blank" />
           }
         >

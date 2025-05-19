@@ -29,7 +29,7 @@ import {
 } from 'viem/experimental/erc7821'
 import type { sendCalls } from '../../RpcServer.js'
 import * as RpcSchema from '../rpcServer/rpcSchema.js'
-import * as Typebox from '../typebox/typebox.js'
+import type * as Typebox from '../typebox/typebox.js'
 import { Value } from '../typebox/typebox.js'
 
 /**

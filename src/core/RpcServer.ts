@@ -120,7 +120,7 @@ export namespace createAccount {
  *
  * @returns ID Signer.
  */
-function createIdSigner(): createIdSigner.ReturnType {
+function _createIdSigner(): _createIdSigner.ReturnType {
   const privateKey = Secp256k1.randomPrivateKey()
   const publicKey = Secp256k1.getPublicKey({ privateKey })
   const id = Address.fromPublicKey(publicKey)

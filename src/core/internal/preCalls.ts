@@ -1,7 +1,7 @@
-import * as Address from 'ox/Address'
-import * as Hex from 'ox/Hex'
-import * as RpcServer from '../RpcServer.js'
-import * as Storage from '../Storage.js'
+import type * as Address from 'ox/Address'
+import type * as Hex from 'ox/Hex'
+import type * as RpcServer from '../RpcServer.js'
+import type * as Storage from '../Storage.js'
 
 export type PreCalls = readonly {
   context: RpcServer.prepareCalls.ReturnType['context']

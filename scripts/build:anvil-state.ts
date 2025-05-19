@@ -33,7 +33,7 @@ const client = createTestClient({
   transport: http(rpcUrl),
 })
 
-let exports = []
+const exports = []
 
 {
   // Deploy AccountRegistry contract.

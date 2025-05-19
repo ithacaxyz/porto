@@ -184,7 +184,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   return Permissions.toKey(
                     Typebox.Decode(Permissions.Schema, permission),
                   )
-                } catch (err) {
+                } catch (_err) {
                   return undefined
                 }
               })
@@ -270,6 +270,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot grant permissions for method: ' + request.method,
           )
 
+        // biome-ignore lint/correctness/noUnusedVariables: N/A
         const [{ address, ...permissions }] = request._decoded.params
 
         // Parse permissions request into a structured key.
@@ -360,7 +361,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     )
                     if (key_.publicKey === key?.publicKey) return key
                     return key_
-                  } catch (err) {
+                  } catch (_err) {
                     return undefined
                   }
                 })

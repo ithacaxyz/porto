@@ -188,6 +188,7 @@ export function bridge(parameters: bridge.Parameters): Bridge {
   return {
     ...messenger,
     ready(options) {
+      // biome-ignore lint/nursery/noFloatingPromises: N/A
       messenger.send('ready', options)
     },
   }
