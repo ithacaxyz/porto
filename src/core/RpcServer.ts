@@ -238,8 +238,15 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
-  const { calls, key, feeToken, nonce, preCalls, revokeKeys, sessionFeeLimit } =
-    parameters
+  const {
+    calls,
+    key,
+    feeToken,
+    nonce,
+    permissionsFeeLimit,
+    preCalls,
+    revokeKeys,
+  } = parameters
 
   const account = Account.from(parameters.account)
 
@@ -265,7 +272,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 
     const permissions = resolvePermissions(key, {
       feeToken,
-      sessionFeeLimit,
+      permissionsFeeLimit,
     })
     return Key.toRpcServer(
       {
@@ -322,6 +329,8 @@ export namespace prepareCalls {
     calls?: Actions.prepareCalls.Parameters<calls>['calls'] | undefined
     /** Key that will be used to sign the calls. */
     key: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>
+    /** Permissions fee limit. */
+    permissionsFeeLimit?: bigint | undefined
     /**
      * Indicates if the bundle is "pre-calls", and should be executed before
      * the main bundle.
@@ -339,8 +348,6 @@ export namespace prepareCalls {
       | undefined
     /** Additional keys to revoke from the account. */
     revokeKeys?: readonly Key.Key[] | undefined
-    /** Session fee limit. */
-    sessionFeeLimit?: bigint | undefined
   } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
@@ -443,7 +450,7 @@ export async function prepareUpgradeAccount(
   client: Client,
   parameters: prepareUpgradeAccount.Parameters,
 ) {
-  const { address, feeToken, sessionFeeLimit } = parameters
+  const { address, feeToken, permissionsFeeLimit } = parameters
 
   const { contracts } = await Actions.getCapabilities(client)
 
@@ -464,7 +471,7 @@ export async function prepareUpgradeAccount(
       key.role === 'session'
         ? resolvePermissions(key, {
             feeToken,
-            sessionFeeLimit,
+            permissionsFeeLimit,
           })
         : undefined
     return Key.toRpcServer(
@@ -528,8 +535,8 @@ export declare namespace prepareUpgradeAccount {
     keys:
       | readonly Key.Key[]
       | ((p: { ids: readonly Hex.Hex[] }) => MaybePromise<readonly Key.Key[]>)
-    /** Session fee limit. */
-    sessionFeeLimit?: bigint | undefined
+    /** Permissions fee limit. */
+    permissionsFeeLimit?: bigint | undefined
   }
 
   export type ReturnType = Omit<
@@ -701,17 +708,17 @@ function resolvePermissions(
   key: Key.Key,
   options: {
     feeToken?: Address.Address | undefined
-    sessionFeeLimit?: bigint | undefined
+    permissionsFeeLimit?: bigint | undefined
   },
 ) {
-  const { feeToken, sessionFeeLimit } = options
+  const { feeToken, permissionsFeeLimit } = options
 
   const spend = key.permissions?.spend?.map((spend) => {
     const token = feeToken ?? zeroAddress
     if (spend.token && Address.isEqual(token, spend.token))
       return {
         ...spend,
-        limit: spend.limit + (sessionFeeLimit ?? 0n),
+        limit: spend.limit + (permissionsFeeLimit ?? 0n),
       }
     return spend
   })

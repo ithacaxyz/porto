@@ -20,7 +20,7 @@ import type { Client } from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import * as RpcServer_viem from '../viem/actions.js'
 
-export const defaultSessionFeeLimit = {
+export const defaultPermissionsFeeLimit = {
   ETH: Value.fromEther('0.0001'),
   EXP: Value.fromEther('1'),
 }
@@ -37,7 +37,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = parameters
   const {
     mock,
-    sessionFeeLimit = defaultSessionFeeLimit,
+    permissionsFeeLimit = defaultPermissionsFeeLimit,
     persistPreCalls = true,
   } = config
 
@@ -84,7 +84,9 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         if (id) id_internal = id
 
-        const feeToken = await resolveFeeToken(internal, { sessionFeeLimit })
+        const feeToken = await resolveFeeToken(internal, {
+          permissionsFeeLimit,
+        })
         const authorizeKey = await PermissionsRequest.toKey(permissions)
 
         const preCalls = authorizeKey
@@ -184,7 +186,9 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeToken = await resolveFeeToken(internal, { sessionFeeLimit })
+        const feeToken = await resolveFeeToken(internal, {
+          permissionsFeeLimit,
+        })
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions)
@@ -243,7 +247,9 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           return { credentialId, keyId }
         })()
 
-        const feeToken = await resolveFeeToken(internal, { sessionFeeLimit })
+        const feeToken = await resolveFeeToken(internal, {
+          permissionsFeeLimit,
+        })
 
         const [accounts, authorizeKey] = await Promise.all([
           RpcServer.getAccounts(client, { keyId }),
@@ -344,7 +350,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const feeToken = await resolveFeeToken(internal, {
           ...parameters,
-          sessionFeeLimit,
+          permissionsFeeLimit,
         })
 
         const authorizeKey = await PermissionsRequest.toKey(permissions)
@@ -367,7 +373,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
               return [key, ...(authorizeKey ? [authorizeKey] : [])]
             },
-            sessionFeeLimit: feeToken.sessionFeeLimit,
+            permissionsFeeLimit: feeToken.permissionsFeeLimit,
           },
         )
 
@@ -602,7 +608,7 @@ export declare namespace rpcServer {
     /**
      * Fee limit to use for permissions.
      */
-    sessionFeeLimit?: Record<string, bigint> | undefined
+    permissionsFeeLimit?: Record<string, bigint> | undefined
     /**
      * Whether to store pre-calls in a persistent storage.
      *
@@ -632,8 +638,8 @@ async function getAuthorizeKeyPreCalls(
     authorizeKeys: [authorizeKey],
     feeToken: feeToken.address,
     key: adminKey,
+    permissionsFeeLimit: feeToken.permissionsFeeLimit,
     preCalls: true,
-    sessionFeeLimit: feeToken.sessionFeeLimit,
   })
   const signature = await Key.sign(adminKey, {
     payload: digest,
@@ -648,7 +654,7 @@ namespace getAuthorizeKeyPreCalls {
     authorizeKey: Key.Key
     feeToken: {
       address: Address.Address
-      sessionFeeLimit?: bigint | undefined
+      permissionsFeeLimit?: bigint | undefined
     }
   }
 }
@@ -658,7 +664,7 @@ async function resolveFeeToken(
   parameters?:
     | {
         feeToken?: Address.Address | undefined
-        sessionFeeLimit?: Record<string, bigint> | undefined
+        permissionsFeeLimit?: Record<string, bigint> | undefined
       }
     | undefined,
 ) {
@@ -678,8 +684,8 @@ async function resolveFeeToken(
     return feeToken.symbol === 'ETH'
   })
 
-  const sessionFeeLimit = feeToken?.symbol
-    ? parameters?.sessionFeeLimit?.[feeToken.symbol]
+  const permissionsFeeLimit = feeToken?.symbol
+    ? parameters?.permissionsFeeLimit?.[feeToken.symbol]
     : undefined
 
   if (!feeToken)
@@ -689,7 +695,7 @@ async function resolveFeeToken(
   return {
     address: feeToken.address,
     decimals: feeToken.decimals,
-    sessionFeeLimit,
+    permissionsFeeLimit,
     symbol: feeToken.symbol,
   }
 }
