@@ -1,8 +1,7 @@
 import { Button, IndeterminateLoader, LogoMark } from '@porto/apps/components'
 import { humanId } from 'human-id'
-import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
-import { useAccount, useConnectors } from 'wagmi'
+import { useAccount, useConnect, useConnectors } from 'wagmi'
 import SparkIcon from '~icons/lucide/sparkles'
 import { Layout } from './Layout'
 
@@ -10,7 +9,7 @@ const id = () => humanId({ capitalize: true, separator: ' ' })
 
 export function Landing() {
   const account = useAccount()
-  const connect = Hooks.useConnect()
+  const connect = useConnect()
   const [connector] = useConnectors()
 
   const [label, setLabel] = React.useState(id())
@@ -79,9 +78,11 @@ export function Landing() {
                 <Button
                   className="h-12.5! w-full bg-gray12! text-gray1! text-lg! hover:bg-gray12/90!"
                   onClick={() =>
-                    connect.mutate({
+                    connect.connect({
+                      capabilities: {
+                        createAccount: { label },
+                      },
                       connector: connector!,
-                      createAccount: { label },
                     })
                   }
                   type="button"
@@ -103,10 +104,12 @@ export function Landing() {
                 <Button
                   className="h-12.5! w-full text-lg!"
                   onClick={() =>
-                    connect.mutate({
+                    connect.connect({
+                      capabilities: {
+                        createAccount: false,
+                        selectAccount: true,
+                      },
                       connector: connector!,
-                      createAccount: false,
-                      selectAccount: true,
                     })
                   }
                   type="button"
