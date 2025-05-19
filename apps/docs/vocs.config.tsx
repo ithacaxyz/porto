@@ -38,13 +38,13 @@ export default defineConfig({
       {
         items: [
           {
-            link: '/rpc-server/wallet_getCapabilities',
-            text: 'wallet_getCapabilities',
-          },
-          {
             disabled: true,
             link: '/rpc-server',
             text: 'Overview 🚧',
+          },
+          {
+            link: '/rpc-server/wallet_getCapabilities',
+            text: 'wallet_getCapabilities',
           },
           {
             disabled: true,
