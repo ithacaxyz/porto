@@ -8,7 +8,7 @@ The account is not fully created until `wallet_createAccount` is called.
 
 ## Keys
 
-There exists three different key roles:
+There exist three different key roles:
 
 - **Admin keys** are capable of adding and modifying other keys, and capable of spending an unlimited amount of tokens and calling any contract and selector.
 - **Normal keys** can only call contracts as defined by the permissions set on it, and spend the amount of tokens afforded to it by permissions.
