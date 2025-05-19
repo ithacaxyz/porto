@@ -88,9 +88,8 @@ export default defineConfig({
             text: 'wallet_upgradeAccount 🚧',
           },
           {
-            disabled: true,
             link: '/rpc-server/wallet_getCallsStatus',
-            text: 'wallet_getCallsStatus 🚧',
+            text: 'wallet_getCallsStatus',
           },
           {
             disabled: true,
