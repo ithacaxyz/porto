@@ -8,8 +8,8 @@ Get all accounts a key is authorized on.
 type Request = {
   method: 'wallet_getAccounts',
   params: [{
-    keyId: `0x${string}`,
-    chainId: `0x${string}`,
+    id: `0x${string}`,
+    chain_id: number,
   }],
 }
 ```
