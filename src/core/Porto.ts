@@ -10,13 +10,13 @@ import * as Chains from './Chains.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
-import * as Key from './Key.js'
 import * as Mode from './Mode.js'
 import * as Storage from './Storage.js'
 
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia],
+  feeToken: 'EXP',
   mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.rpcServer(),
   storage: typeof window !== 'undefined' ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
@@ -55,6 +55,7 @@ export function create(
     announceProvider:
       parameters.announceProvider ?? defaultConfig.announceProvider,
     chains,
+    feeToken: parameters.feeToken ?? defaultConfig.feeToken,
     mode: parameters.mode ?? defaultConfig.mode,
     storage: parameters.storage ?? defaultConfig.storage,
     storageKey: parameters.storageKey ?? defaultConfig.storageKey,
@@ -67,8 +68,7 @@ export function create(
         (_) => ({
           accounts: [],
           chainId: config.chains[0].id,
-          feeToken: undefined,
-          permissionFeeSpendLimit: undefined,
+          feeToken: config.feeToken,
           requestQueue: [],
         }),
         {
@@ -88,7 +88,6 @@ export function create(
               })),
               chainId: state.chainId,
               feeToken: state.feeToken,
-              permissionFeeSpendLimit: state.permissionFeeSpendLimit,
             } as unknown as State
           },
           storage: config.storage,
@@ -153,6 +152,11 @@ export type Config<
    */
   chains: chains
   /**
+   * Token to use to pay for fees.
+   * @default 'ETH'
+   */
+  feeToken?: State['feeToken'] | undefined
+  /**
    * Mode to use.
    * @default Mode.dialog()
    */
@@ -195,10 +199,7 @@ export type State<
 > = {
   accounts: readonly Account.Account[]
   chainId: chains[number]['id']
-  feeToken: string | undefined
-  permissionFeeSpendLimit:
-    | Record<string, Pick<Key.SpendPermission, 'limit' | 'period'>>
-    | undefined
+  feeToken: 'ETH' | 'EXP' | undefined
   requestQueue: readonly QueuedRequest[]
 }
 

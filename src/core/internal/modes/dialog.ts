@@ -237,6 +237,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return result
       },
 
+      async getPermissions(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'experimental_getPermissions')
+          throw new Error(
+            'Cannot get permissions for method: ' + request.method,
+          )
+
+        const provider = getProvider(store)
+        const result = await provider.request(request)
+        return Typebox.Decode(
+          RpcSchema_porto.experimental_getPermissions.Response,
+          result,
+        )
+      },
+
       async grantAdmin(parameters) {
         const { internal } = parameters
         const { request, store } = internal

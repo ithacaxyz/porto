@@ -38,6 +38,12 @@ export const defaultConfig = {
       },
     },
     {
+      method: 'experimental_getPermissions',
+      modes: {
+        headless: true,
+      },
+    },
+    {
       method: 'experimental_grantAdmin',
       modes: {
         dialog: {

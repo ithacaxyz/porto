@@ -1,4 +1,4 @@
-import type * as Address from 'ox/Address'
+import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
@@ -8,36 +8,24 @@ import * as PublicKey from 'ox/PublicKey'
 import * as TypedData from 'ox/TypedData'
 import * as Value from 'ox/Value'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
+import { zeroAddress } from 'viem'
 import { waitForCallsStatus } from 'viem/actions'
 import * as Account from '../../Account.js'
 import * as Key from '../../Key.js'
-import type * as Porto from '../../Porto.js'
 import * as RpcServer from '../../RpcServer.js'
 import * as Call from '../call.js'
 import * as Delegation from '../delegation.js'
 import * as Mode from '../mode.js'
+import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import * as RpcServer_viem from '../viem/actions.js'
 
-export const defaultConfig = {
-  feeToken: 'EXP',
-  permissionFeeSpendLimit: {
-    ETH: {
-      limit: Value.fromEther('0.0001'),
-      period: 'day',
-    },
-    EXP: {
-      limit: Value.fromEther('5'),
-      period: 'day',
-    },
-    EXP1: {
-      limit: Value.fromEther('5'),
-      period: 'day',
-    },
-  },
-} as const satisfies rpcServer.Parameters
+export const permissionsFeeLimit = {
+  ETH: Value.fromEther('0.0001'),
+  EXP: Value.fromEther('1'),
+}
 
 /**
  * Mode for a WebAuthn-based environment that interacts with the Porto
@@ -48,8 +36,12 @@ export const defaultConfig = {
  * @returns Mode.
  */
 export function rpcServer(parameters: rpcServer.Parameters = {}) {
-  const config = { ...defaultConfig, ...parameters }
-  const { mock, persistPreCalls = true } = config
+  const config = parameters
+  const {
+    mock,
+    permissionsFeeLimit: feeLimit = permissionsFeeLimit,
+    persistPreCalls = true,
+  } = config
 
   let id_internal: Hex.Hex | undefined
 
@@ -70,7 +62,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { internal, permissions } = parameters
+        const { internal } = parameters
         const { client } = parameters.internal
         const { storage } = internal.config
 
@@ -95,9 +87,11 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         if (id) id_internal = id
 
         const feeToken = await resolveFeeToken(internal)
-        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+        const permissions = resolvePermissionsRequest(parameters.permissions, {
+          feeLimit,
           feeToken,
         })
+        const authorizeKey = await PermissionsRequest.toKey(permissions)
 
         const preCalls = authorizeKey
           ? // TODO(rpcServer): remove double webauthn sign.
@@ -170,6 +164,22 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         }
       },
 
+      async getPermissions(parameters) {
+        const { account, internal } = parameters
+        const { client } = internal
+
+        if (!account.keys) return []
+        const permissions = Permissions.getActiveFromKeys(account.keys, {
+          address: account.address,
+          chainId: client.chain.id,
+        })
+        const feeToken = await resolveFeeToken(internal)
+        return resolvePermissions(permissions, {
+          feeLimit,
+          feeToken,
+        })
+      },
+
       async grantAdmin(parameters) {
         const { account, internal } = parameters
         const { client } = internal
@@ -190,7 +200,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async grantPermissions(parameters) {
-        const { account, permissions, internal } = parameters
+        const { account, internal } = parameters
         const {
           client,
           config: { storage },
@@ -199,9 +209,11 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const feeToken = await resolveFeeToken(internal)
 
         // Parse permissions request into a structured key.
-        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+        const permissions = resolvePermissionsRequest(parameters.permissions, {
+          feeLimit,
           feeToken,
         })
+        const authorizeKey = await PermissionsRequest.toKey(permissions)
         if (!authorizeKey) throw new Error('key to authorize not found.')
 
         const preCalls = await getAuthorizeKeyPreCalls(client, {
@@ -219,7 +231,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async loadAccounts(parameters) {
-        const { internal, permissions } = parameters
+        const { internal } = parameters
         const {
           client,
           config: { storage },
@@ -258,12 +270,14 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })()
 
         const feeToken = await resolveFeeToken(internal)
+        const permissions = resolvePermissionsRequest(parameters.permissions, {
+          feeLimit,
+          feeToken,
+        })
 
         const [accounts, authorizeKey] = await Promise.all([
           RpcServer.getAccounts(client, { keyId }),
-          PermissionsRequest.toKey(permissions, {
-            feeToken,
-          }),
+          PermissionsRequest.toKey(permissions),
         ])
         if (!accounts[0]) throw new Error('account not found')
 
@@ -355,14 +369,16 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareUpgradeAccount(parameters) {
-        const { address, internal, permissions } = parameters
+        const { address, internal } = parameters
         const { client } = internal
 
         const feeToken = await resolveFeeToken(internal, parameters)
-
-        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+        const permissions = resolvePermissionsRequest(parameters.permissions, {
+          feeLimit,
           feeToken,
         })
+
+        const authorizeKey = await PermissionsRequest.toKey(permissions)
         const { context, digests } = await RpcServer.prepareUpgradeAccount(
           client,
           {
@@ -597,34 +613,11 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
     },
     name: 'rpc',
-    setup(parameters) {
-      const { internal } = parameters
-      const { store } = internal
-      const { feeToken = 'ETH', permissionFeeSpendLimit } = config
-
-      function setState() {
-        store.setState((x) => ({
-          ...x,
-          feeToken,
-          permissionFeeSpendLimit,
-        }))
-      }
-
-      if (store.persist.hasHydrated()) setState()
-      else store.persist.onFinishHydration(() => setState())
-
-      return () => {}
-    },
   })
 }
 
 export declare namespace rpcServer {
   type Parameters = {
-    /**
-     * Fee token to use by default (e.g. "USDC", "ETH").
-     * @default "ETH"
-     */
-    feeToken?: Porto.State['feeToken'] | undefined
     /**
      * Keystore host (WebAuthn relying party).
      * @default 'self'
@@ -637,9 +630,9 @@ export declare namespace rpcServer {
      */
     mock?: boolean | undefined
     /**
-     * Spending limit to pay for fees on permissions.
+     * Fee limit to use for permissions.
      */
-    permissionFeeSpendLimit?: Porto.State['permissionFeeSpendLimit'] | undefined
+    permissionsFeeLimit?: Record<string, bigint> | undefined
     /**
      * Whether to store pre-calls in a persistent storage.
      *
@@ -663,8 +656,7 @@ async function resolveFeeToken(
 ) {
   const { client, store } = internal
   const { chain } = client
-  const { feeToken: defaultFeeToken, permissionFeeSpendLimit } =
-    store.getState()
+  const { feeToken: defaultFeeToken } = store.getState()
   const { feeToken: address } = parameters ?? {}
 
   const chainId = Hex.fromNumber(chain.id)
@@ -673,14 +665,10 @@ async function resolveFeeToken(
     (capabilities) => capabilities.fees.tokens[chainId],
   )
   const feeToken = feeTokens?.find((feeToken) => {
-    if (address) return feeToken.address === address
+    if (address) return Address.isEqual(feeToken.address, address)
     if (defaultFeeToken) return defaultFeeToken === feeToken.symbol
     return feeToken.symbol === 'ETH'
   })
-
-  const permissionSpendLimit = feeToken?.symbol
-    ? permissionFeeSpendLimit?.[feeToken.symbol]
-    : undefined
 
   if (!feeToken)
     throw new Error(
@@ -689,8 +677,69 @@ async function resolveFeeToken(
   return {
     address: feeToken.address,
     decimals: feeToken.decimals,
-    permissionSpendLimit,
     symbol: feeToken.symbol,
+  }
+}
+
+export function resolvePermissions(
+  permissions: readonly Permissions.Permissions[],
+  options: {
+    feeLimit: rpcServer.Parameters['permissionsFeeLimit']
+    feeToken: { address: Address.Address; symbol: string }
+  },
+) {
+  const { feeLimit, feeToken } = options
+  return permissions.map((permission) => {
+    const spend = permission.permissions.spend?.map((spend) => {
+      const token = spend.token ?? zeroAddress
+      if (Address.isEqual(token, feeToken.address))
+        return {
+          ...spend,
+          limit: spend.limit - ((feeLimit as any)[feeToken.symbol] ?? 0n),
+        }
+      return spend
+    })
+    return {
+      ...permission,
+      permissions: {
+        ...permission.permissions,
+        ...(spend && {
+          spend,
+        }),
+      },
+    }
+  })
+}
+
+export function resolvePermissionsRequest(
+  request: PermissionsRequest.PermissionsRequest | undefined,
+  options: {
+    feeLimit: rpcServer.Parameters['permissionsFeeLimit']
+    feeToken: { address: Address.Address; symbol: string }
+  },
+) {
+  const { feeLimit, feeToken } = options
+
+  if (!request) return undefined
+
+  const spend = request.permissions?.spend?.map((spend) => {
+    const token = spend.token ?? zeroAddress
+    if (Address.isEqual(token, feeToken.address))
+      return {
+        ...spend,
+        limit: spend.limit + ((feeLimit as any)[feeToken.symbol] ?? 0n),
+      }
+    return spend
+  })
+
+  return {
+    ...request,
+    permissions: {
+      ...request.permissions,
+      ...(spend && {
+        spend,
+      }),
+    },
   }
 }
 

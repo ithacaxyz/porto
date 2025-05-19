@@ -479,10 +479,26 @@ export function from<
                 Address.isEqual(account.address, address),
               )
             : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
 
-          return getActivePermissions(account?.keys ?? [], {
-            address: account!.address,
+          const client = getClient()
+
+          const permissions = await getMode().actions.getPermissions({
+            account,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
           })
+
+          return Typebox.Encode(
+            Rpc.experimental_getPermissions.Response,
+            permissions satisfies Rpc.experimental_getPermissions.Response,
+          ) satisfies Typebox.Static<
+            typeof Rpc.experimental_getPermissions.Response
+          >
         }
 
         case 'experimental_revokeAdmin': {
@@ -1070,19 +1086,8 @@ function getActivePermissions(
     chainId,
   }: { address: Address.Address; chainId?: number | undefined },
 ): Typebox.Static<typeof Rpc.experimental_getPermissions.Response> {
-  return keys
-    .map((key) => {
-      if (key.role !== 'session') return undefined
-      if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
-        return undefined
-      try {
-        return Typebox.Encode(
-          Permissions.Schema,
-          Permissions.fromKey(key, { address, chainId }),
-        )
-      } catch {
-        return undefined
-      }
-    })
-    .filter(Boolean) as never
+  const permissions = Permissions.getActiveFromKeys(keys, { address, chainId })
+  return permissions.map((permission) =>
+    Typebox.Encode(Permissions.Schema, permission),
+  )
 }

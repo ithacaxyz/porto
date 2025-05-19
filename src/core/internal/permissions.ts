@@ -31,6 +31,33 @@ export declare namespace fromKey {
   }
 }
 
+export function getActiveFromKeys(
+  keys: readonly Key.Key[],
+  options: getActiveFromKeys.Options,
+): readonly Permissions[] {
+  const { address, chainId } = options
+
+  return keys
+    .map((key) => {
+      if (key.role !== 'session') return undefined
+      if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
+        return undefined
+      try {
+        return fromKey(key, { address, chainId })
+      } catch {
+        return undefined
+      }
+    })
+    .filter(Boolean) as never
+}
+
+export declare namespace getActiveFromKeys {
+  export type Options = {
+    address: Address.Address
+    chainId?: number | undefined
+  }
+}
+
 export function toKey(permissions: Permissions): Key.Key {
   const { expiry, key } = permissions
   return Key.from({

@@ -9,14 +9,12 @@ const config = {
   anvil: {
     chains: [Chains.anvil],
     mode: Mode.rpcServer({
-      feeToken: 'EXP',
       persistPreCalls: false,
     }),
   },
   dev: {
     chains: [Chains.portoDev],
     mode: Mode.rpcServer({
-      feeToken: 'EXP',
       persistPreCalls: false,
     }),
     storageKey: 'porto.store.dev',

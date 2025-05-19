@@ -16,6 +16,7 @@ import * as DelegationContract from '../_generated/contracts/Delegation.js'
 import * as Call from '../call.js'
 import * as Delegation from '../delegation.js'
 import * as Mode from '../mode.js'
+import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
 
@@ -203,6 +204,17 @@ export function contract(parameters: contract.Parameters = {}) {
           receipts: [receipt],
           status: receipt.status === '0x0' ? 400 : 200,
         }
+      },
+
+      async getPermissions(parameters) {
+        const { account, internal } = parameters
+        const { client } = internal
+
+        if (!account.keys) return []
+        return Permissions.getActiveFromKeys(account.keys, {
+          address: account.address,
+          chainId: client.chain.id,
+        })
       },
 
       async grantAdmin(parameters) {

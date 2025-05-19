@@ -76,6 +76,13 @@ export type Mode = {
       Typebox.Static<typeof RpcSchema.wallet_getCallsStatus.Response>
     >
 
+    getPermissions: (parameters: {
+      /** Account to authorize the keys for. */
+      account: Account.Account
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<RpcSchema.experimental_getPermissions.Response>
+
     grantAdmin: (parameters: {
       /** Account to authorize the keys for. */
       account: Account.Account

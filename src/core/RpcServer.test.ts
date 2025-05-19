@@ -717,6 +717,67 @@ describe.each([
         }),
       ).toBe(100n)
     })
+
+    test('batch authorize + spend', async () => {
+      // 1. Initialize Account with Admin Key.
+      const key = Key.createHeadlessWebAuthnP256()
+      const account = await initializeAccount(client, {
+        keys: [key],
+      })
+
+      // 2. Authorize a new Session Key.
+      const newKey = Key.createP256({
+        permissions: {
+          calls: [{ to: exp1Address }],
+          spend: [
+            {
+              limit: Value.fromEther('110'),
+              period: 'week',
+              token: exp1Address,
+            },
+          ],
+        },
+        role: 'session',
+      })
+
+      const alice = Hex.random(20)
+
+      // 3. Spend 5 EXP tokens to Account with new Session Key.
+      const { id } = await Rpc.sendCalls(client, {
+        account,
+        calls: [
+          {
+            abi: exp1Abi,
+            args: [alice, Value.fromEther('100')],
+            functionName: 'transfer',
+            to: exp1Address,
+          },
+        ],
+        feeToken: exp1Address,
+        key: newKey,
+        preCalls: [
+          {
+            authorizeKeys: [newKey],
+            key,
+          },
+        ],
+      })
+      expect(id).toBeDefined()
+
+      await waitForCallsStatus(client, {
+        id,
+      })
+
+      // 4. Verify that Account has 100 ERC20 tokens.
+      expect(
+        await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [alice],
+          functionName: 'balanceOf',
+        }),
+      ).toBe(Value.fromEther('100'))
+    })
   })
 
   describe('behavior: call permissions', () => {
