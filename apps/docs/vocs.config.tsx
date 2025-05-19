@@ -98,9 +98,8 @@ export default defineConfig({
             text: 'wallet_verifySignature 🚧',
           },
           {
-            disabled: true,
             link: '/rpc-server/wallet_health',
-            text: 'wallet_health 🚧',
+            text: 'wallet_health',
           },
         ],
         text: 'RPC Reference',
