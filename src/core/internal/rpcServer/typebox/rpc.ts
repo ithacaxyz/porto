@@ -42,10 +42,10 @@ export namespace relay_health {
 export namespace wallet_getAccounts {
   /** Parameters for `wallet_getAccounts` request. */
   export const Parameters = Type.Object({
-    /** Key identifier. */
-    chainId: Type.Number(),
     /** Target chain ID. */
     // TODO: `Primitive.Number`
+    chainId: Type.Number(),
+    /** Key identifier. */
     id: Primitive.Hex,
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
@@ -86,9 +86,9 @@ export namespace wallet_getCapabilities {
     contracts: Type.Object({
       /** Account registry address. */
       accountRegistry: VersionedContract,
-      /** Delegation proxy address. */
-      delegationImplementation: VersionedContract,
       /** Delegation implementation address. */
+      delegationImplementation: VersionedContract,
+      /** Delegation proxy address. */
       delegationProxy: VersionedContract,
       /** Entrypoint address. */
       entrypoint: VersionedContract,
@@ -368,6 +368,10 @@ export namespace wallet_prepareCalls {
               }),
               Type.Object({
                 address: Type.Null(),
+                direction: Type.Union([
+                  Type.Literal('incoming'),
+                  Type.Literal('outgoing'),
+                ]),
                 name: Type.Null(),
                 symbol: Type.String(),
                 type: Type.Null(),
