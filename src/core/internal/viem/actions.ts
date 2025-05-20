@@ -104,7 +104,7 @@ export async function getAccounts(
       method,
       params: [
         Value.Encode(RpcSchema.wallet_getAccounts.Parameters, {
-          chain_id: chain?.id,
+          chainId: chain?.id,
           id,
         }),
       ],

@@ -567,7 +567,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           account,
           calls: [
             Call.upgradeProxyDelegation({
-              delegation,
+              delegation: delegation.address,
               to: account.address,
             }),
           ],

@@ -741,8 +741,14 @@ describe.each([
         ...capabilities,
         contracts: {
           ...capabilities.contracts,
-          delegationImplementation: delegationOldProxyAddress,
-          delegationProxy: delegationOldProxyAddress,
+          delegationImplementation: {
+            address: delegationOldProxyAddress,
+            version: '0.0.1',
+          },
+          delegationProxy: {
+            address: delegationOldProxyAddress,
+            version: '0.0.1',
+          },
         },
       })
 

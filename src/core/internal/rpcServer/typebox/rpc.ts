@@ -43,7 +43,7 @@ export namespace wallet_getAccounts {
   /** Parameters for `wallet_getAccounts` request. */
   export const Parameters = Type.Object({
     /** Key identifier. */
-    chain_id: Type.Number(),
+    chainId: Type.Number(),
     /** Target chain ID. */
     // TODO: `Primitive.Number`
     id: Primitive.Hex,
@@ -77,16 +77,27 @@ export namespace wallet_getCapabilities {
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 
+  const VersionedContract = Type.Object({
+    address: Primitive.Address,
+    version: Typebox.Optional(Type.Union([Type.String(), Type.Null()])),
+  })
+
   export const Response = Type.Object({
     contracts: Type.Object({
+      /** Account registry address. */
+      accountRegistry: VersionedContract,
       /** Delegation proxy address. */
-      delegationImplementation: Primitive.Address,
+      delegationImplementation: VersionedContract,
       /** Delegation implementation address. */
-      delegationProxy: Primitive.Address,
+      delegationProxy: VersionedContract,
       /** Entrypoint address. */
-      entrypoint: Primitive.Address,
+      entrypoint: VersionedContract,
+      /** Legacy delegation implementation address. */
+      legacyDelegations: Type.Array(VersionedContract),
+      /** Legacy entrypoint address. */
+      legacyEntrypoints: Type.Array(VersionedContract),
       /** Simulator address. */
-      simulator: Typebox.Optional(Primitive.Address),
+      simulator: VersionedContract,
     }),
     fees: Type.Object({
       /** Fee recipient address. */
@@ -323,6 +334,10 @@ export namespace wallet_prepareCalls {
               decimals: Typebox.Optional(
                 Type.Union([Type.Number(), Type.Null()]),
               ),
+              direction: Type.Union([
+                Type.Literal('incoming'),
+                Type.Literal('outgoing'),
+              ]),
               name: Typebox.Optional(Type.Union([Type.String(), Type.Null()])),
               symbol: Type.String(),
               value: Type.Transform(Type.String())
