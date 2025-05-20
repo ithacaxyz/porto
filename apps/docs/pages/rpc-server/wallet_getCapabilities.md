@@ -44,7 +44,6 @@ type Response = {
       version?: string,
     },
   },
-
   fees: {
     quoteConfig: {
       // only present on development environments
