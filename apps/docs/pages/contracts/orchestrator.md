@@ -6,7 +6,7 @@ The orchestrator accepts executions in the form of an intent.
 
 An `intent` struct contains all the relevant data that allows a 3rd party like the relay to make an execution on behalf of the user, and get paid for it.
 
-The intent has to be signed by one of the [Keys](./account.md#keys) authorized in the user's account.Optionally, the intent can use a `paymaster` to pay on behalf of the user, in which case the intent also needs to be signed by the paymaster.
+The intent has to be signed by one of the [Keys](./account.md#keys) authorized in the user's account. Optionally, the intent can use a `paymaster` to pay on behalf of the user, in which case the intent also needs to be signed by the paymaster.
 
 ```solidity
     struct Intent {
