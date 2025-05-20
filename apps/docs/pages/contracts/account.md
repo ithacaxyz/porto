@@ -146,7 +146,7 @@ No op data is needed, if this is a self call. This can happen in 2 cases -
 
 The orchestrator is given some special privileges in the account. These are dicussed in the [Orchestrator Integration](#orchestrator-integration) section.
 
-One of these privileges is the ability to verify signature & incremenet nonces before calling `execute` on the account.
+One of these privileges is the ability to verify signature & increment nonces before calling `execute` on the account.
 
 Therefore, the `opData` if the orchestrator is the sender is structured as `bytes opData = abi.encode(bytes32 keyHash)`
 
