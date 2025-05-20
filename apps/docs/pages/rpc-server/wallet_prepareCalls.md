@@ -234,8 +234,9 @@ type Response = {
          symbol?: string,
          uri?: string,
          decimals?: number,
-         // For ERC721, the asset ID (signed), for ERC20 the value delta.
+         // For ERC721, the asset ID. For ERC20 the value moved.
          value: number,
+         direction: 'incoming' | 'outgoing',
        }[]
     ][],
   },
