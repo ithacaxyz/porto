@@ -347,6 +347,16 @@ export namespace wallet_prepareCalls {
                   .Decode((value) => BigInt(value))
                   .Encode((value) => value.toString()),
               }),
+              Type.Object({
+                address: Type.Null(),
+                name: Type.Null(),
+                symbol: Type.String(),
+                type: Type.Null(),
+                uri: Type.Null(),
+                value: Type.Transform(Type.String())
+                  .Decode((value) => BigInt(value))
+                  .Encode((value) => value.toString()),
+              }),
             ]),
           ),
         ]),

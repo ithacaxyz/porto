@@ -1,7 +1,7 @@
 import { PortoConfig } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
-import { Address } from 'ox'
+import { Address, Base64 } from 'ox'
 import { Chains } from 'porto'
 import * as Quote_typebox from 'porto/core/internal/rpcServer/typebox/quote'
 import * as Rpc from 'porto/core/internal/typebox/request'
@@ -179,7 +179,7 @@ export namespace ActionRequest {
                 try {
                   const base64Data = uri.split(',')[1]
                   if (!base64Data) return
-                  const json = JSON.parse(atob(base64Data))
+                  const json = JSON.parse(Base64.toString(base64Data))
                   if ('image' in json && typeof json.image === 'string')
                     return { type: 'image', url: json.image as string }
                 } catch {
