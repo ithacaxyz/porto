@@ -4,7 +4,7 @@
 The onchain infrastructure that powers Porto consists of the following contracts:
 
 ##### Porto Account
-The Porto Account is a keychain that holds user funds, enforces permissions via [Keys](#key), manages nonces to prevent replay attacks, and enables secure executions from the account.
+The Porto Account is a keychain that holds user funds, enforces permissions via [Keys](./account.md#keys), manages nonces to prevent replay attacks, and enables secure executions from the account.
 
 ##### Orchestrator
 The Orchestrator is a privileged contract that facilitates trustless interactions between the relay and the account.
