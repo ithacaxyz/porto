@@ -300,6 +300,7 @@ export default defineConfig({
                 text: 'useRevokePermissions',
               },
               {
+                disabled: true,
                 link: '/sdk/wagmi/useUpgradeAccount',
                 text: 'useUpgradeAccount',
               },
