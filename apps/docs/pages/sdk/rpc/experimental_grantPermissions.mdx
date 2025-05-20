@@ -15,7 +15,7 @@ Alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa36
 <TryItOut
   exampleSlug="#example"
   fn={async ({ provider }) => {
-    const token = '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c'
+    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
     const response = await provider.request({
       method: 'experimental_grantPermissions',
@@ -91,15 +91,6 @@ type Request = {
          */
         token?: `0x${string}`
       }[],
-
-      /** ERC-1271 verification permissions. */
-      signatureVerification?: {
-        /** 
-         * Authorized contract addresses that can call the account's
-         * ERC-1271 `isValidSignature` function. 
-         */
-        addresses: readonly `0x${string}`[]
-      },
     },
   }]
 }
@@ -127,9 +118,6 @@ type Response = {
       period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
       token?: `0x${string}`,
     }[],
-    signatureVerification?: {
-      addresses: `0x${string}`[]
-    },
   },
 }
 ```
@@ -149,7 +137,7 @@ import { Porto } from 'porto'
 import { parseEther, toHex } from 'viem'
 const { provider } = Porto.create()
 
-const token = '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c'
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
 const permissions = await provider.request({
   method: 'experimental_grantPermissions',
@@ -172,7 +160,7 @@ const permissions = await provider.request({
 
 <TryItOut
   fn={async ({ provider }) => {
-    const token = '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c'
+    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
     const response = await provider.request({
       method: 'experimental_grantPermissions',
@@ -217,7 +205,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const { provider } = Porto.create()
 
 const account = privateKeyToAccount('0x...') // [!code focus]
-const token = '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c'
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
 const permissions = await provider.request({
   method: 'experimental_grantPermissions',
@@ -244,7 +232,7 @@ const permissions = await provider.request({
 
 <TryItOut
   fn={async ({ provider }) => {
-    const token = '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c'
+    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
     const account = privateKeyToAccount(generatePrivateKey())
 
     const response = await provider.request({

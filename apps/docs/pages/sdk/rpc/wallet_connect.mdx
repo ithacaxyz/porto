@@ -28,71 +28,16 @@ type Request = {
   params: [{
     /** Optional capabilities to request. */
     capabilities?: {
-      /** Create an account. */
-      createAccount?: boolean | {
-        /** Chain ID to create the account on. */
-        chainId?: number
-        /** Label for the account. */
-        label?: string
-      }
-
       /** Grant permissions. */
-      grantPermissions?: {
-        /** Expiry of the permissions. */
-        expiry: number
-
-        /** 
-         * Key to grant permissions to. 
-         * Defaults to a wallet-managed key. 
-         */
-        key?: {
-          /** 
-           * Public key. 
-           * Accepts an address for `address` & `secp256k1` types. 
-           */
-          publicKey?: `0x${string}`,
-          /** Key type. */
-          type?: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256', 
-        }
-        
-        /** Permissions to grant. */
-        permissions: {
-          /** Call permissions. */
-          calls: {
-            /** Function signature or 4-byte signature. */
-            signature?: string
-            /** Authorized target address. */
-            to?: `0x${string}`
-          }[],
-
-          /** Spend permissions. */
-          spend: {
-            /** Spending limit (in wei) per period. */
-            limit: `0x${string}`,
-            /** Period of the spend limit. */
-            period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-            /** 
-             * ERC20 token to set the limit on. 
-             * If not provided, the limit will be set on the 
-             * native token (e.g. ETH).
-             */
-            token?: `0x${string}`
-          }[],
-
-          /** ERC-1271 verification permissions. */
-          signatureVerification?: {
-            /** 
-             * Authorized contract addresses that can call the account's
-             * ERC-1271 `isValidSignature` function. 
-             */
-            addresses: readonly `0x${string}`[]
-          },
-        },
-      }
+      grantPermissions?: PermissionsRequestCapabilities['grantPermissions']
     }
   }]
 }
 ```
+
+Capabilities:
+
+- [`PermissionsRequestCapabilities`](/sdk/rpc/capabilities#request-capabilities-1)
 
 ## Response
 
@@ -106,34 +51,15 @@ type Response = {
     /** Capabilities of the account. */
     capabilities: {
       /** Permissions that were granted. */
-      permissions: {
-        address: `0x${string}`,
-        chainId: `0x${string}`,
-        expiry: number,
-        id: `0x${string}`,
-        key: {
-          publicKey: `0x${string}`,
-          type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256',
-        },
-        permissions: {
-          calls: {
-            signature?: string,
-            to?: `0x${string}`,
-          }[],
-          spend: {
-            limit: `0x${string}`,
-            period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
-            token?: `0x${string}`,
-          }[],
-          signatureVerification?: {
-            addresses: `0x${string}`[]
-          },
-        },
-      }[]
+      permissions: PermissionsResponseCapabilities['permissions']
     }
   }[]
 }
 ```
+
+Capabilities:
+
+- [`PermissionsResponseCapabilities`](/sdk/rpc/capabilities#response-capabilities)
 
 ## Example
 
@@ -161,44 +87,6 @@ const response = await provider.request({ // [!code focus]
   }}
 />
 
-### Create Account
-
-Passing `createAccount: true{:ts}` will prompt the user to create a new account (ie. "sign up").
-
-```ts twoslash
-import { Porto } from 'porto'
-
-const { provider } = Porto.create()
-// ---cut---
-const response = await provider.request({
-  method: 'wallet_connect',
-  params: [{
-    capabilities: {
-      createAccount: true,
-    },
-  }],
-})
-```
-
-<TryItOut
-  fn={async ({ provider }) => {
-    const response = await provider.request({
-      method: 'wallet_connect',
-      params: [{
-        capabilities: {
-          createAccount: true,
-        },
-      }],
-    })
-
-    return response
-  }}
-  requireConnection={false}
-  transformResultCode={(code) => {
-    return 'const response = ' + code
-  }}
-/>
-
 ### Grant Permissions
 
 You can grant permissions for an Application to perform actions on behalf of the account
@@ -214,7 +102,7 @@ const { provider } = Porto.create()
 // ---cut---
 import { parseEther, toHex } from 'viem'
 
-const token = '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c'
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
 const response = await provider.request({
   method: 'wallet_connect',
@@ -241,7 +129,7 @@ const response = await provider.request({
 
 <TryItOut
   fn={async ({ provider }) => {
-    const token = '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c'
+    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
     const response = await provider.request({
       method: 'wallet_connect',

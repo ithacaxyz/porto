@@ -505,7 +505,6 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
         onClick={() =>
           connect.mutate({
             connector,
-            createAccount: false,
             grantPermissions,
           })
         }

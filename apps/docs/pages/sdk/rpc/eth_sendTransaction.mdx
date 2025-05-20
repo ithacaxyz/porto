@@ -13,7 +13,7 @@ This method is deprecated and exists for compatibility. Please [use `wallet_send
   exampleSlug="#mint-erc20-tokens"
   fn={async ({ provider }) => {
     const exp = {
-      address: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+      address: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
       abi: parseAbi([
         'function mint(address, uint256)',
       ]),
@@ -108,7 +108,7 @@ const hash = await provider.request({ // [!code focus]
   method: 'eth_sendTransaction', // [!code focus]
   params: [{ // [!code focus]
     from: account, // [!code focus]
-    to: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c', // [!code focus]
+    to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
     data: encodeFunctionData({ // [!code focus]
       abi: parseAbi([ // [!code focus]
         'function mint(address, uint256)', // [!code focus]
@@ -123,7 +123,7 @@ const hash = await provider.request({ // [!code focus]
 <TryItOut
   fn={async ({ provider }) => {
     const exp = {
-      address: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+      address: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
       abi: parseAbi([
         'function mint(address, uint256)',
       ]),

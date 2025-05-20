@@ -487,15 +487,15 @@ export namespace wallet_getCapabilities {
     Primitive.Hex,
     Type.Object({
       atomic: Type.Object({
-        supported: Type.Boolean(),
+        status: Type.Union([
+          Type.Literal('supported'),
+          Type.Literal('unsupported'),
+        ]),
       }),
-      createAccount: Type.Object({
+      feeToken: Type.Object({
         supported: Type.Boolean(),
       }),
       permissions: Type.Object({
-        supported: Type.Boolean(),
-      }),
-      preCalls: Type.Object({
         supported: Type.Boolean(),
       }),
     }),
