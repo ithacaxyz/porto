@@ -292,27 +292,22 @@ export default defineConfig({
                 text: 'useConnect',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/useDisconnect',
                 text: 'useDisconnect',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/useGrantPermissions',
                 text: 'useGrantPermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/usePermissions',
                 text: 'usePermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/useRevokePermissions',
                 text: 'useRevokePermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/useUpgradeAccount',
                 text: 'useUpgradeAccount',
               },
