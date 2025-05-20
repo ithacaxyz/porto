@@ -761,6 +761,13 @@ function SendCalls() {
             return [
               {
                 data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(exp1Abi, 'approve'),
+                  [expNftAddress, Value.fromEther('10')],
+                ),
+                to: exp1Address,
+              },
+              {
+                data: AbiFunction.encodeData(
                   AbiFunction.fromAbi(expNftAbi, 'mint'),
                 ),
                 to: expNftAddress,
