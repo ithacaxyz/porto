@@ -5,16 +5,27 @@ import {Test, console2} from "forge-std/Test.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
+import {ExperimentERC20} from "../src/ExperimentERC20.sol";
 import {ExperimentERC721} from "../src/ExperimentERC721.sol";
 
 contract ExperimentERC721Test is Test {
+    ExperimentERC20 public token;
     ExperimentERC721 public nft;
 
     function setUp() public {
-        nft = new ExperimentERC721("GEN", "Ithaca Genesis", "This is a description.", "https://example.com/image.png");
+        token = new ExperimentERC20("EXP", "EXP", 0);
+        nft = new ExperimentERC721(
+            "GEN",
+            "Ithaca Genesis",
+            "This is a description.",
+            "https://example.com/image.png",
+            address(token),
+            1000
+        );
     }
 
     function test_mint() public {
+        token.mint(address(this), 3000);
         nft.mint();
         assertEq(nft.balanceOf(address(this)), 1);
         assertEq(nft.ownerOf(0), address(this));

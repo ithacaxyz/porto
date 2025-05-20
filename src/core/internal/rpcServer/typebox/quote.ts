@@ -24,6 +24,10 @@ export const Quote = Type.Object({
   chainId: Type.Number(),
   /** The entrypoint for the quote. */
   entrypoint: Primitive.Address,
+  /** The price (in wei) of ETH in the payment token. */
+  ethPrice: Primitive.BigInt,
+  /** Extra payment for e.g L1 DA fee that is paid on top of the execution gas. */
+  extraPayment: Primitive.BigInt,
   /** The fee estimate for the bundle in the destination chains native token. */
   nativeFeeEstimate: Type.Object({
     /** The maximum fee per gas for the bundle. */
@@ -33,6 +37,8 @@ export const Quote = Type.Object({
   }),
   /** The `UserOp` the quote is for. */
   op: UserOp.UserOp,
+  /** The decimals of the payment token. */
+  paymentTokenDecimals: Type.Number(),
   /** The time-to-live of the quote. */
   ttl: Type.Number(),
   /** The recommended gas limit for the bundle. */

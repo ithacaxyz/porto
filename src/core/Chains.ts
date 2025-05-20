@@ -19,6 +19,11 @@ export const anvil = /*#__PURE__*/ define({
       address: '0x8ce361602b935680e8dec218b820ff5056beb7af',
     },
   },
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:9119'],
+    },
+  },
 })
 
 export const baseSepolia = /*#__PURE__*/ define({

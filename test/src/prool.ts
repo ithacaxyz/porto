@@ -143,14 +143,15 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
             body += chunk
           })
           req.on('end', () => {
-            resolve(JSON.parse(body))
+            resolve(JSON.parse(body || '{}'))
           })
         })
 
         const target = (() => {
           if (
-            body.method.startsWith('relay_') ||
-            body.method.startsWith('wallet_')
+            body.method &&
+            (body.method.startsWith('relay_') ||
+              body.method.startsWith('wallet_'))
           )
             return `http://${host}:${port_relay}`
           return endpoint

@@ -29,10 +29,7 @@ const rpcUrl = Anvil.enabled
 export function getPorto(
   parameters: {
     mode?: (parameters: {
-      feeToken?: Mode.rpcServer.Parameters['feeToken'] | undefined
-      permissionFeeSpendLimit?:
-        | Mode.rpcServer.Parameters['permissionFeeSpendLimit']
-        | undefined
+      permissionsFeeLimit: Record<string, bigint>
       mock: boolean
     }) => Mode.Mode | undefined
   } = {},
@@ -41,13 +38,9 @@ export function getPorto(
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
-      feeToken: 'EXP',
       mock: true,
-      permissionFeeSpendLimit: {
-        EXP: {
-          limit: Value.fromEther('100'),
-          period: 'day',
-        },
+      permissionsFeeLimit: {
+        EXP: Value.fromEther('100'),
       },
     }),
     storage: Storage.memory(),

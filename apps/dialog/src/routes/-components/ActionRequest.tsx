@@ -194,7 +194,7 @@ export namespace ActionRequest {
                     {decoded?.type === 'image' && (
                       <img
                         alt={`${name} uri`}
-                        className="rounded-sm text-transparent"
+                        className="size-full rounded-sm object-cover text-transparent"
                         src={decoded.url}
                       />
                     )}

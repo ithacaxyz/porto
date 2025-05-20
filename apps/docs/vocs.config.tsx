@@ -38,14 +38,28 @@ export default defineConfig({
       {
         items: [
           {
+            link: '/rpc-server/wallet_getCapabilities',
+            text: 'wallet_getCapabilities',
+          },
+          {
             disabled: true,
             link: '/rpc-server',
             text: 'Overview 🚧',
           },
           {
             disabled: true,
+            link: '/rpc-server/wallet_prepareCreateAccount',
+            text: 'wallet_prepareCreateAccount 🚧',
+          },
+          {
+            disabled: true,
             link: '/rpc-server/wallet_createAccount',
             text: 'wallet_createAccount 🚧',
+          },
+          {
+            disabled: true,
+            link: '/rpc-server/wallet_getAccounts',
+            text: 'wallet_getAccounts 🚧',
           },
           {
             disabled: true,
@@ -71,6 +85,19 @@ export default defineConfig({
             disabled: true,
             link: '/rpc-server/wallet_upgradeAccount',
             text: 'wallet_upgradeAccount 🚧',
+          },
+          {
+            link: '/rpc-server/wallet_getCallsStatus',
+            text: 'wallet_getCallsStatus',
+          },
+          {
+            disabled: true,
+            link: '/rpc-server/wallet_verifySignature',
+            text: 'wallet_verifySignature 🚧',
+          },
+          {
+            link: '/rpc-server/wallet_health',
+            text: 'wallet_health',
           },
         ],
         text: 'RPC Reference',

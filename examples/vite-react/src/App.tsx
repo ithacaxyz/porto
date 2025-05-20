@@ -1,9 +1,10 @@
-import { Hooks } from 'porto/wagmi'
 import { formatEther, parseEther } from 'viem'
 import {
   type BaseError,
   useAccount,
+  useConnect,
   useConnectors,
+  useDisconnect,
   useReadContract,
   useSendCalls,
   useWaitForCallsStatus,
@@ -29,7 +30,7 @@ export function App() {
 
 function Account() {
   const account = useAccount()
-  const disconnect = Hooks.useDisconnect()
+  const disconnect = useDisconnect()
 
   return (
     <div>
@@ -44,7 +45,7 @@ function Account() {
       </div>
 
       {account.status !== 'disconnected' && (
-        <button onClick={() => disconnect.mutate({})} type="button">
+        <button onClick={() => disconnect.disconnect({})} type="button">
           Disconnect
         </button>
       )}
@@ -54,7 +55,7 @@ function Account() {
 
 function Connect() {
   const connectors = useConnectors()
-  const connect = Hooks.useConnect()
+  const connect = useConnect()
 
   return (
     <div>
@@ -65,7 +66,8 @@ function Connect() {
           <div key={connector.uid}>
             <button
               onClick={() =>
-                connect.mutate({
+                connect.connect({
+                  capabilities: {},
                   connector,
                 })
               }
