@@ -49,7 +49,7 @@ export default defineConfig({
           {
             disabled: true,
             link: '/rpc-server/wallet_prepareCreateAccount',
-            text: 'wallet_prepareCreateAccount 🚧',
+            text: 'wallet_prepareCreateAccount',
           },
           {
             disabled: true,

@@ -1,18 +1,11 @@
-import { PortoConfig } from '@porto/apps'
-import { createConfig, createStorage, injected, Transport } from 'wagmi'
+import type { PortoConfig } from '@porto/apps'
+import { porto as portoConnector } from 'porto/wagmi'
+import { createConfig, createStorage, type Transport } from 'wagmi'
 import { porto } from './Porto'
 
 export const config = createConfig({
   chains: porto._internal.config.chains,
-  connectors: [
-    injected({
-      target: () => ({
-        id: 'porto',
-        name: 'Porto',
-        provider: porto.provider as never,
-      }),
-    }),
-  ],
+  connectors: [portoConnector()],
   multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
   transports: Object.entries(porto._internal.config.transports).reduce(
