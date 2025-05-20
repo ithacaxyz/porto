@@ -29,7 +29,7 @@ type Response = {
     },
     entrypoint: {
       address: `0x${string}`,
-      version?: string;
+      version?: string,
     },
     legacyDelegations?: {
       address: `0x${string}`,
