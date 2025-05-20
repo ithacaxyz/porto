@@ -1,12 +1,12 @@
 # Account
 
-The Porto Account is a keychain, that enforces user permissions in the form of `Keys`, manages nonces to prevent replay attacks, and enables the user to make executions from their account safely.
+The Porto Account is a keychain that holds user funds, enforces permissions via [Keys](#key), manages nonces to prevent replay attacks, and enables secure executions from the account.
 
-## Key
+## Keys
 
 A key is a fundamental signing unit. An account can `authorize` multiple keys with different limits and permissions.
 
-```sol
+```solidity
     /// @dev A key that can be used to authorize call.
     struct Key {
         /// @dev Unix timestamp at which the key expires (0 = never).
@@ -24,7 +24,7 @@ A key is a fundamental signing unit. An account can `authorize` multiple keys wi
 
 #### Key Types
 
-```sol
+```solidity
     /// @dev The type of key.
     enum KeyType {
         P256,
@@ -47,7 +47,7 @@ Each key in the account is uniquely identified by its keyHash.
 
 The keyHash is calculated as -
 
-```sol
+```solidity
     bytes32 keyHash = keccak256(abi.encode(key.keyType, keccak256(key.publicKey)))
 ```
 
@@ -90,7 +90,7 @@ It is recommended to use separate sequence keys for different backend services, 
 There is a 20k gas overhead (cold SSTORE), the first time a new sequence key is used for a nonce.
 :::
 
-#### MultiChain Prefix
+### MultiChain Prefix
 
 When a nonce's sequence key begins with the prefix `0xc1d0` (a mnemonic for "chainID zero"), the Porto Account recognizes this as a multichain execution. Consequently, the `chainId` is omitted from the EIP-712 domain separator when constructing the digest for signature verification.
 
@@ -102,7 +102,7 @@ The Porto Account uses the [ERC 7821](https://eips.ethereum.org/EIPS/eip-7821) E
 
 Executions are accepted in the form of `Calls`
 
-```sol
+```solidity
     /// @dev Call struct for the `execute` function.
     struct Call {
         address to; // Replaced as `address(this)` if `address(0)`.
@@ -113,11 +113,11 @@ Executions are accepted in the form of `Calls`
 
 The execution interface is
 
-```sol
+```solidity
     function execute(bytes32 mode, bytes calldata executionData) public payable virtual;
 ```
 
-#### Mode
+### Modes
 
 The Porto Account supports the following execution mode.
 
@@ -131,18 +131,18 @@ Delegate calls are **not** supported.
 The single batch mode without `opData` is only supported for self calls. In 7702 Delegated accounts, a call originating from the EOA is also considered a self call because `msg.sender == address(this)` in the contract.
 :::
 
-#### Execution senders and opData
+### Execution senders and opData
 
 The exact Op data depends on who is calling the `execute` function.
 
-##### Self Call & EOA
+#### Self Call & EOA
 
 No op data is needed, if this is a self call. This can happen in 2 cases -
 
 1. The account recursively calls `execute`. We use these kinds of self calls for admin functions like `authorize` and `revoke`. So these should be handled carefully.
 2. The sender is the 7702 authority
 
-##### Orchestrator Intents
+#### Orchestrator Intents
 
 The orchestrator is given some special privileges in the account. These are dicussed in the [Orchestrator Integration](#orchestrator-integration) section.
 
@@ -152,7 +152,7 @@ Therefore, the `opData` if the orchestrator is the sender is structured as `byte
 
 This execution type is exclusively used by the intent flow.
 
-##### Others
+#### Others
 
 Any other external caller, has to provide a nonce and a signature for any execution they want to do on the account.
 
@@ -161,7 +161,7 @@ Therefore, the `opData` is structured as `bytes opData = abi.encode(uint256 nonc
 ### Example
 
 The execution data for a batch of calls being sent by an arbitrary sender would look like this
-```sol
+```solidity
 
     Call memory call = Call({
         to: <address>,
@@ -184,8 +184,8 @@ The orchestrator is an immutable privileged entity, that facilitates trustless i
 To do this, it is given 3 special access points into the account. 
 More details about the whole intent flow can be found in the #Orchestrator section.
 
-#### 1. pay()
-```sol
+### 1. Pay
+```solidity
     /// @dev Pays `paymentAmount` of `paymentToken` to the `paymentRecipient`.
     function pay(
         uint256 paymentAmount,
@@ -196,15 +196,15 @@ More details about the whole intent flow can be found in the #Orchestrator secti
 ```
 Allows the orchestrator to transfer the `paymentAmount` specified in the intent signed by the user, pre and post execution.
 
-#### 2. checkAndIncrementNonce()
-```sol
+### 2. Check and Increment Nonce 
+```solidity
     /// @dev Checks current nonce and increments the sequence for the `seqKey`.
     function checkAndIncrementNonce(uint256 nonce) public payable virtual
 ```
 
 Checks if the `nonce` specified in the intent is valid, and increments the sequence if it is.
 
-#### 3. execute()
+### 3. Execute
 As discussed in the [execution](#orchestrator-intents) section above, the orchestrator verifies the intent signature and increments the nonce _before_ calling `execute`. 
 
 So for execute calls coming from the orchestrator, these checks are skipped in the account.

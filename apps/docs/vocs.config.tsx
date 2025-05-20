@@ -30,6 +30,10 @@ export default defineConfig({
         text: 'Overview',
       },
       {
+        link: '/contracts/account',
+        text: 'Account',
+      },
+      {
         link: 'https://github.com/ithacaxyz/account',
         text: 'GitHub',
       },
