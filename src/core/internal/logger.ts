@@ -34,7 +34,7 @@ function createLogFn<fn extends (...args: any[]) => void>(
   }
 }
 
-export declare namespace createLogFn {
+declare namespace createLogFn {
   type Options = {
     memo?: Set<string> | undefined
     prefix?: string
