@@ -229,14 +229,14 @@ type Response = {
        {
          // Omitted if this is the native token.
          address?: `0x${string}`,
-         type?: 'erc20' | 'erc721',
+         decimals?: number,
+         direction: 'incoming' | 'outgoing',
          name?: string,
          symbol?: string,
+         type?: 'erc20' | 'erc721',
          uri?: string,
-         decimals?: number,
          // For ERC721, the asset ID. For ERC20 the value moved.
          value: number,
-         direction: 'incoming' | 'outgoing',
        }[]
     ][],
   },
