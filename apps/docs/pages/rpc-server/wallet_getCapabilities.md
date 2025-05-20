@@ -15,11 +15,34 @@ type Request = {
 ```ts
 type Response = {
   contracts: {
-    accountRegistry: `0x${string}`,
-    delegationImplementation: `0x${string}`,
-    delegationProxy: `0x${string}`,
-    entrypoint: `0x${string}`,
-    simulator: `0x${string}`,
+    accountRegistry: {
+      address: `0x${string}`,
+      version?: string,
+    },
+    delegationImplementation: {
+      address: `0x${string}`,
+      version?: string,
+    },
+    delegationProxy: {
+      address: `0x${string}`,
+      version?: string,
+    },
+    entrypoint: {
+      address: `0x${string}`,
+      version?: string,
+    },
+    legacyDelegations?: {
+      address: `0x${string}`,
+      version?: string,
+    }[],
+    legacyEntrypoints?: {
+      address: `0x${string}`,
+      version?: string,
+    }[],
+    simulator: {
+      address: `0x${string}`,
+      version?: string,
+    },
   },
   fees: {
     quoteConfig: {
@@ -61,11 +84,28 @@ cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities
 ```ts
 {
   "contracts": {
-    "accountRegistry": "0xa0a7aafba3ad1907411b3a9c8a3b78b930742c49",
-    "delegationImplementation": "0xbf4071ff956582ee9d10c4b85509fdfefd08784e",
-    "delegationProxy": "0x562ee13464552ac4900a5aeee79caf115d8a8566",
-    "entrypoint": "0x48ce2fa2d650c253aa0228e63ad719f2cb2d0de8",
-    "simulator": "0x695333ee240764065501d5181c94d99373d68bfb"
+      "accountRegistry": {
+        "address": "0x623b5b44647871268d481d2930f60d5d7f37a1fe",
+        "version": null
+      },
+      "delegationImplementation": {
+        "address": "0x5c4fd1f648a89802b7fcd0bced8a35567d99cf15",
+        "version": "0.1.2"
+      },
+      "delegationProxy": {
+        "address": "0xc49cc88a576cf77053ba11b1c3a3011b42da0f34",
+        "version": null
+      },
+      "entrypoint": {
+        "address": "0x2e71297e895fd480019810605360cd09dbb8783b",
+        "version": "0.1.2"
+      },
+      "legacyDelegations": [],
+      "legacyEntrypoints": [],
+      "simulator": {
+        "address": "0x45b65d48e60a9414872ecd092ddf5b37c6bf4d06",
+        "version": null
+      }
   },
   "fees": {
     "quoteConfig": {

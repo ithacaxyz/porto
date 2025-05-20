@@ -1,7 +1,7 @@
 import { PortoConfig } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
-import { Address } from 'ox'
+import { Address, Base64 } from 'ox'
 import { Chains } from 'porto'
 import * as Quote_typebox from 'porto/core/internal/rpcServer/typebox/quote'
 import * as Rpc from 'porto/core/internal/typebox/request'
@@ -18,7 +18,11 @@ import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
 import ArrowUpRight from '~icons/lucide/arrow-up-right'
 import ChevronDown from '~icons/lucide/chevron-down'
+import LucideFileText from '~icons/lucide/file-text'
+import LucideMusic from '~icons/lucide/music'
+import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
+import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
 
 export function ActionRequest(props: ActionRequest.Props) {
@@ -47,9 +51,8 @@ export function ActionRequest(props: ActionRequest.Props) {
       <Layout loading={loading} loadingTitle="Sending...">
         <Layout.Header>
           <Layout.Header.Default
-            content={<>Review the action to perform below.</>}
             icon={prepareCallsQuery.isError ? TriangleAlert : Star}
-            title="Action Request"
+            title="Review action"
             variant={prepareCallsQuery.isError ? 'warning' : 'default'}
           />
         </Layout.Header>
@@ -74,33 +77,27 @@ export function ActionRequest(props: ActionRequest.Props) {
           <Layout.Footer.Actions>
             {prepareCallsQuery.isError ? (
               <>
-                <Button
-                  className="flex-grow"
-                  onClick={onReject}
-                  type="button"
-                  variant="destructive"
-                >
-                  Deny
+                <Button onClick={onReject} type="button" variant="default">
+                  Cancel
                 </Button>
                 <Button
                   className="flex-grow"
                   onClick={onApprove}
                   type="button"
-                  variant="default"
+                  variant="accent"
                 >
-                  Approve anyway
+                  Confirm anyway
                 </Button>
               </>
             ) : (
               <>
                 <Button
-                  className="flex-grow"
                   disabled={!prepareCallsQuery.isSuccess}
                   onClick={onReject}
                   type="button"
-                  variant="destructive"
+                  variant="default"
                 >
-                  Deny
+                  Cancel
                 </Button>
 
                 <Button
@@ -108,9 +105,9 @@ export function ActionRequest(props: ActionRequest.Props) {
                   disabled={!prepareCallsQuery.isSuccess}
                   onClick={onApprove}
                   type="button"
-                  variant="success"
+                  variant="accent"
                 >
-                  Approve
+                  Confirm
                 </Button>
               </>
             )}
@@ -164,17 +161,78 @@ export namespace ActionRequest {
       <>
         <div className="space-y-2">
           {balances.map((balance) => {
-            const { address, decimals, direction, symbol, value } = balance
+            const { address, direction, symbol, value } = balance
             if (value === BigInt(0)) return null
 
             const receiving = direction === 'incoming'
+            const absoluteValue = value < 0n ? -value : value
             const formatted = ValueFormatter.format(
-              value < 0n ? -value : value,
-              decimals ?? 0,
+              absoluteValue,
+              'decimals' in balance ? (balance.decimals ?? 0) : 0,
             )
 
-            const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+            if (balance.type === 'erc721') {
+              const { name, uri } = balance
+              // Right now we only handle the ERC721 Metadata JSON Schema
+              // TODO: Parse other content types (audio, video, document)
+              const decoded = (() => {
+                try {
+                  const base64Data = uri.split(',')[1]
+                  if (!base64Data) return
+                  const json = JSON.parse(Base64.toString(base64Data))
+                  if ('image' in json && typeof json.image === 'string')
+                    return { type: 'image', url: json.image as string }
+                } catch {
+                  return
+                }
+              })()
+              return (
+                <div
+                  className="flex items-center gap-3 font-medium"
+                  key={address}
+                >
+                  <div className="relative flex size-6 items-center justify-center rounded-sm bg-gray6">
+                    {decoded?.type === 'image' ? (
+                      <img
+                        alt={name ?? symbol}
+                        className="size-full rounded-sm object-cover text-transparent"
+                        src={decoded.url}
+                      />
+                    ) : decoded?.type === 'audio' ? (
+                      <LucideMusic className="size-4 text-gray10" />
+                    ) : decoded?.type === 'video' ? (
+                      <LucideVideo className="size-4 text-gray10" />
+                    ) : decoded?.type === 'document' ? (
+                      <LucideFileText className="size-4 text-gray10" />
+                    ) : (
+                      <LucideSparkles className="size-4 text-gray10" />
+                    )}
 
+                    <div
+                      className={cx(
+                        '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-gray3',
+                        receiving
+                          ? 'bg-successTint text-success'
+                          : 'bg-gray5 text-current',
+                      )}
+                    >
+                      {/* TODO: Return erc721 count in API response */}
+                      {receiving ? 1 : -1}
+                    </div>
+                  </div>
+                  <div className="flex flex-1 justify-between">
+                    {name || symbol ? (
+                      <span className="text-gray12">{name || symbol}</span>
+                    ) : (
+                      <span className="text-gray9">No name provided</span>
+                    )}
+                    <span className="text-gray10">#{absoluteValue}</span>
+                  </div>
+                </div>
+              )
+            }
+
+            const Icon = receiving ? ArrowDownLeft : ArrowUpRight
             return (
               <div
                 className="flex items-center gap-2 font-medium"
@@ -182,7 +240,7 @@ export namespace ActionRequest {
               >
                 <div
                   className={cx(
-                    'flex size-[24px] items-center justify-center rounded-full',
+                    'flex size-6 items-center justify-center rounded-full',
                     {
                       'bg-gray5': !receiving,
                       'bg-successTint': receiving,

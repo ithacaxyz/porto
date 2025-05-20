@@ -1133,7 +1133,7 @@ export const exp2Config = { abi: exp2Abi, address: exp2Address } as const
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xD37861F91a23aF5929F1617D9c94586e822b0a47)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  */
 export const expNftAbi = [
   {
@@ -1451,16 +1451,16 @@ export const expNftAbi = [
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xD37861F91a23aF5929F1617D9c94586e822b0a47)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  */
 export const expNftAddress = {
-  28404: '0xef11D1c2aA48826D4c41e54ab82D1Ff5Ad8A64Ca',
+  28404: '0xEF86CEc1CEf0C78E5725fA6Cc3E9929788bBde35',
   31337: '0x82Dc47734901ee7d4f4232f398752cB9Dd5dACcC',
-  84532: '0xD37861F91a23aF5929F1617D9c94586e822b0a47',
+  84532: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
 } as const
 
 /**
  * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xD37861F91a23aF5929F1617D9c94586e822b0a47)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  */
 export const expNftConfig = { abi: expNftAbi, address: expNftAddress } as const

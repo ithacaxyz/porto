@@ -9,7 +9,7 @@ type Request = {
   method: 'wallet_getAccounts',
   params: [{
     id: `0x${string}`,
-    chain_id: number,
+    chainId: number,
   }],
 }
 ```

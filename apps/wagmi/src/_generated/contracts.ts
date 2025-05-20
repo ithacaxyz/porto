@@ -1414,6 +1414,6 @@ export const expNftAbi = [
 ] as const
 
 export const expNftAddress =
-  '0xD37861F91a23aF5929F1617D9c94586e822b0a47' as const
+  '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29' as const
 
 export const expNftConfig = { abi: expNftAbi, address: expNftAddress } as const

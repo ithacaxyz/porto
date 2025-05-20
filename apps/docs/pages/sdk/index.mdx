@@ -159,5 +159,14 @@ HTTPS can be enabled on Next.js' dev server by setting the `--experimental-https
 next dev --experimental-https
 ```
 
+### Caddy
 
+HTTPS can be enabled by running [Caddy](https://caddyserver.com) as a reverse proxy in front of your dev server. [Install Caddy](https://caddyserver.com/docs/install) and create a `Caddyfile` pointing to your dev server.
 
+```text
+example.localhost {
+  reverse_proxy localhost:5713
+}
+```
+
+Then run [`caddy run`](https://caddyserver.com/docs/command-line#caddy-run) or [`caddy start`](https://caddyserver.com/docs/command-line#caddy-start) and visit `http://example.localhost`.
