@@ -15,9 +15,9 @@ type Request = {
 ```ts
 type Response = {
   contracts: {
-    entrypoint: {
-      address: `0x${string}`;
-      version?: string;
+    accountRegistry: {
+      address: `0x${string}`,
+      version?: string,
     },
     delegationImplementation: {
       address: `0x${string}`,
@@ -27,23 +27,24 @@ type Response = {
       address: `0x${string}`,
       version?: string,
     },
-    accountRegistry: {
+    entrypoint: {
       address: `0x${string}`,
-      version?: string,
+      version?: string;
     },
-    simulator: {
-      address: `0x${string}`,
-      version?: string,
-    },
-    legacyEntrypoints?: {
-      address: `0x${string}`,
-      version?: string,
-    }[],
     legacyDelegations?: {
       address: `0x${string}`,
       version?: string,
     }[],
+    legacyEntrypoints?: {
+      address: `0x${string}`,
+      version?: string,
+    }[],
+    simulator: {
+      address: `0x${string}`,
+      version?: string,
+    },
   },
+
   fees: {
     quoteConfig: {
       // only present on development environments
@@ -84,24 +85,24 @@ cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities
 ```ts
 {
   "contracts": {
-      "entrypoint": {
-        "address": "0x2e71297e895fd480019810605360cd09dbb8783b",
-        "version": "0.1.2"
+      "accountRegistry": {
+        "address": "0x623b5b44647871268d481d2930f60d5d7f37a1fe",
+        "version": null
       },
       "delegationImplementation": {
         "address": "0x5c4fd1f648a89802b7fcd0bced8a35567d99cf15",
         "version": "0.1.2"
       },
-      "legacyEntrypoints": [],
-      "legacyDelegations": [],
       "delegationProxy": {
         "address": "0xc49cc88a576cf77053ba11b1c3a3011b42da0f34",
         "version": null
       },
-      "accountRegistry": {
-        "address": "0x623b5b44647871268d481d2930f60d5d7f37a1fe",
-        "version": null
+      "entrypoint": {
+        "address": "0x2e71297e895fd480019810605360cd09dbb8783b",
+        "version": "0.1.2"
       },
+      "legacyDelegations": [],
+      "legacyEntrypoints": [],
       "simulator": {
         "address": "0x45b65d48e60a9414872ecd092ddf5b37c6bf4d06",
         "version": null
