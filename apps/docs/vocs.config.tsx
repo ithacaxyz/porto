@@ -47,7 +47,6 @@ export default defineConfig({
             text: 'wallet_getCapabilities',
           },
           {
-            disabled: true,
             link: '/rpc-server/wallet_prepareCreateAccount',
             text: 'wallet_prepareCreateAccount',
           },
