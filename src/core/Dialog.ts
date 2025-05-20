@@ -1,5 +1,6 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
+import { logger } from './internal/logger.js'
 import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
@@ -243,7 +244,28 @@ export function iframe() {
           iframe.style.display = 'block'
         },
         async syncRequests(requests) {
-          if (includesUnsupported(requests.map((x) => x.request)))
+          const headless = requests?.every(
+            (request) =>
+              methodPolicies?.find(
+                (policy) => policy.method === request.request.method,
+              )?.modes?.headless === true,
+          )
+          const insecureProtocol = (() => {
+            const insecure = !window.location.protocol.startsWith('https')
+            if (insecure)
+              logger.warnOnce(
+                'Detected insecure protocol (HTTP).',
+                `\n\nThe Porto iframe is not supported on HTTP origins (${window.location.origin})`,
+                'due to lack of WebAuthn support.',
+                'See https://porto.sh/sdk#secure-origins-https for more information.',
+              )
+            return insecure
+          })()
+          const unsupported = includesUnsupported(
+            requests.map((x) => x.request),
+          )
+
+          if (!headless && (unsupported || insecureProtocol))
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>

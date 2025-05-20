@@ -120,3 +120,44 @@ const { accounts } = await porto.provider.request({
 ```
 
 See [RPC Reference](/sdk/rpc) for a list of all available methods.
+
+## Secure Origins (HTTPS)
+
+Porto is designed to be used on secure origins (HTTPS). If you are using HTTP,
+Porto will fallback to using a popup instead of an iframe. This is because
+WebAuthn is not supported on iframes embedded on insecure origins (HTTP).
+
+Web frameworks typically default to HTTP in development environments. You
+will need to ensure to turn on HTTPS in development to leverage the Porto iframe.
+
+### Vite
+
+HTTPS can be enabled on Vite's dev server by installing and configuring the `vite-plugin-mkcert` plugin.
+
+```bash
+npm i vite-plugin-mkcert
+```
+
+```ts [vite.config.ts]
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import mkcert from 'vite-plugin-mkcert' // [!code ++]
+
+export default defineConfig({
+  plugins: [
+    mkcert(), // [!code ++]
+    react(),
+  ],
+})
+```
+
+### Next.js
+
+HTTPS can be enabled on Next.js' dev server by setting the `--experimental-https` flag on the `next dev` command.
+
+```bash
+next dev --experimental-https
+```
+
+
+
