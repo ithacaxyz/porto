@@ -1,0 +1,129 @@
+import { TryItOut } from '../../../components/TryItOut'
+
+# `useRevokePermissions`
+
+React hook for revoking permissions.
+
+Uses [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions) under the hood.
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    // For demo purposes only, first get permissions to show one being revoked
+    const permissions = await provider.request({
+      method: 'experimental_getPermissions'
+    })
+
+    if (!permissions || permissions.length === 0) {
+      return { message: "No permissions to revoke" }
+    }
+
+    // Revoke the first permission
+    await provider.request({
+      method: 'experimental_revokePermissions',
+      params: [{ id: permissions[0].id }]
+    })
+
+    return { message: `Successfully revoked permission ${permissions[0].id}` }
+  }}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>
+
+## Example
+
+```tsx twoslash
+import { Porto } from 'porto'
+import * as React from 'react'
+import { Hooks } from 'porto/wagmi'
+
+const porto = Porto.create()
+
+export function App() {
+  const permissions = Hooks.usePermissions()
+  const revokePermissions = Hooks.useRevokePermissions()
+
+  if (permissions.isLoading) return <div>Loading permissions...</div>
+  if (permissions.isError) return <div>Error loading permissions</div>
+
+  return (
+    <div>
+      <h2>Active Permissions</h2>
+      {permissions.data && permissions.data.length > 0 ? (
+        <ul>
+          {permissions.data.map((permission) => (
+            <li key={permission.id}>
+              <div>ID: {permission.id}</div>
+              <div>Expiry: {new Date(permission.expiry * 1000).toLocaleString()}</div>
+              {/* Display other permission details */}
+              <button
+                onClick={() => revokePermissions.mutate({
+                  id: permission.id
+                })}
+              >
+                Revoke Permission
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div>No active permissions</div>
+      )}
+    </div>
+  )
+}
+```
+
+<TryItOut
+  fn={async ({ provider }) => {
+    // For demo purposes only, first get permissions to show one being revoked
+    const permissions = await provider.request({
+      method: 'experimental_getPermissions'
+    })
+
+    if (!permissions || permissions.length === 0) {
+      return { message: "No permissions to revoke" }
+    }
+
+    // Revoke the first permission
+    await provider.request({
+      method: 'experimental_revokePermissions',
+      params: [{ id: permissions[0].id }]
+    })
+
+    return { message: `Successfully revoked permission ${permissions[0].id}` }
+  }}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>
+
+### Revoke for Specific Account
+
+You can revoke permissions for a specific account by including the address:
+
+```tsx twoslash
+import { Porto } from 'porto'
+import * as React from 'react'
+import { Hooks } from 'porto/wagmi'
+
+const porto = Porto.create()
+
+export function App() {
+  const revokePermissions = Hooks.useRevokePermissions()
+  const specificAddress = '0x123...' // [!code focus]
+  const permissionId = '0x456...' // [!code focus]
+
+  return (
+    <button
+      onClick={() => revokePermissions.mutate({
+        address: specificAddress, // [!code focus]
+        id: permissionId
+      })}
+    >
+      Revoke Permission for Specific Account
+    </button>
+  )
+}
+```

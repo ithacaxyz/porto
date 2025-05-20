@@ -1,0 +1,135 @@
+import { TryItOut } from '../../../components/TryItOut'
+import { parseEther, toHex } from 'viem'
+
+# `useGrantPermissions`
+
+React hook for granting permissions for an Application to perform actions on behalf of the account.
+
+Uses [`experimental_grantPermissions`](/sdk/rpc/experimental_grantPermissions) under the hood.
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+    const response = await provider.request({
+      method: 'experimental_grantPermissions',
+      params: [{
+        expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+        permissions: {
+          calls: [{ to: token }],
+          spend: [{
+            limit: toHex(parseEther('50')), // 50 EXP
+            period: 'minute',
+            token: token,
+          }],
+        },
+      }]
+    })
+
+    return response
+  }}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>
+
+## Example
+
+```tsx
+import { Porto } from 'porto'
+import * as React from 'react'
+import { Hooks } from 'porto/wagmi'
+import { parseEther, toHex } from 'viem'
+
+const porto = Porto.create()
+
+export function App() {
+  const grantPermissions = Hooks.useGrantPermissions()
+  const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+  return (
+    <button onClick={() => grantPermissions.mutate({
+      expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+      permissions: {
+        calls: [{
+          signature: 'transfer(address,uint256)',
+          to: token
+        }],
+        spend: [{
+          limit: toHex(parseEther('50')), // 50 EXP
+          period: 'day',
+          token: token,
+        }]
+      },
+    })}>Grant Permissions</button>
+  )
+}
+```
+
+<TryItOut
+  fn={async ({ provider }) => {
+    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+    const response = await provider.request({
+      method: 'experimental_grantPermissions',
+      params: [{
+        expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+        permissions: {
+          calls: [{ to: token }],
+          spend: [{
+            limit: toHex(parseEther('50')), // 50 EXP
+            period: 'minute',
+            token: token,
+          }],
+        },
+      }]
+    })
+
+    return response
+  }}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>
+
+### App-managed Keys
+
+You can also grant permissions to a specific signing key by providing the `key` parameter. This is useful for when the application wants to perform signing themselves, instead of the wallet.
+
+```tsx
+import { Porto } from 'porto'
+import * as React from 'react'
+import { Hooks } from 'porto/wagmi'
+import { parseEther, toHex } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const porto = Porto.create()
+
+export function App() {
+  const grantPermissions = Hooks.useGrantPermissions()
+  const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+  const account = privateKeyToAccount('0x...') // [!code focus]
+
+  return (
+    <button onClick={() => grantPermissions.mutate({
+      expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
+      key: { // [!code focus]
+        publicKey: account.address, // [!code focus]
+        type: 'secp256k1', // [!code focus]
+      }, // [!code focus]
+      permissions: {
+        calls: [{
+          signature: 'transfer(address,uint256)',
+          to: token
+        }],
+        spend: [{
+          limit: toHex(parseEther('50')), // 50 EXP
+          period: 'day',
+          token: token,
+        }]
+      },
+    })}>Grant Permissions with Custom Key</button>
+  )
+}
+```

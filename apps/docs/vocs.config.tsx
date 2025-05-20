@@ -288,14 +288,6 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                link: '/sdk/wagmi/useConnect',
-                text: 'useConnect',
-              },
-              {
-                link: '/sdk/wagmi/useDisconnect',
-                text: 'useDisconnect',
-              },
-              {
                 link: '/sdk/wagmi/useGrantPermissions',
                 text: 'useGrantPermissions',
               },
