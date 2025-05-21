@@ -22,9 +22,9 @@ export const instances = {
       '0x0000000000000000000000000000000000000000',
       exp1Address[Chains.anvil.id],
     ],
+    intentGasBuffer: 100_000n,
     orchestrator: orchestratorAddress,
     simulator: simulatorAddress,
-    userOpGasBuffer: 100_000n,
   }),
 } as const
 
@@ -38,10 +38,10 @@ function defineRpcServer(parameters: {
   delegationProxy: string
   feeTokens: string[]
   image?: string | undefined
+  intentGasBuffer?: bigint | undefined
   orchestrator: string
   simulator: string
   txGasBuffer?: bigint | undefined
-  userOpGasBuffer?: bigint | undefined
   version?: string | undefined
   port?: number | undefined
 }) {

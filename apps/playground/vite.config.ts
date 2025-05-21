@@ -103,9 +103,9 @@ export default defineConfig(({ mode }) => ({
             http: {
               port: rpcServerConfig.port,
             },
+            intentGasBuffer: 100_000n,
             orchestrator: orchestratorAddress,
             simulator: simulatorAddress,
-            userOpGasBuffer: 100_000n,
           }).start()
           await fetch(rpcServerConfig.rpcUrl + '/start')
           return stop

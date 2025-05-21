@@ -25,7 +25,7 @@ type RpcServerParameters = {
   signersMnemonic?: string | undefined
   simulator?: string | undefined
   txGasBuffer?: bigint | undefined
-  userOpGasBuffer?: bigint | undefined
+  intentGasBuffer?: bigint | undefined
   version?: string | undefined
 }
 
