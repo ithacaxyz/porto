@@ -8,9 +8,9 @@ import * as Primitive from '../../typebox/primitive.js'
 import * as Typebox from '../../typebox/typebox.js'
 import { Type } from '../../typebox/typebox.js'
 import * as C from './capabilities.js'
+import * as Intent from './intent.js'
 import * as Key from './key.js'
 import * as Quote from './quote.js'
-import * as UserOp from './userOp.js'
 
 const Authorization = Type.Object({
   address: Primitive.Address,
@@ -313,7 +313,7 @@ export namespace wallet_prepareCalls {
     /** Optional preOps to execute before signature verification. */
     preOp: Typebox.Optional(Type.Boolean()),
     /** Whether the call bundle is to be considered a preop. */
-    preOps: Typebox.Optional(Type.Array(UserOp.PreOp)),
+    preOps: Typebox.Optional(Type.Array(Intent.PreOp)),
     /** Keys to revoke on the account. */
     revokeKeys: Typebox.Optional(C.revokeKeys.Request),
   })
@@ -436,7 +436,7 @@ export namespace wallet_prepareCalls {
     /** Quote for the call bundle. */
     context: Type.Object({
       /** Quote for the call bundle. */
-      preOp: Typebox.Optional(Type.Partial(UserOp.PreOp)),
+      preOp: Typebox.Optional(Type.Partial(Intent.PreOp)),
       /** The call bundle. */
       quote: Typebox.Optional(Type.Partial(Quote.Signed)),
     }),
@@ -473,7 +473,7 @@ export namespace wallet_prepareUpgradeAccount {
      */
     feeToken: Typebox.Optional(Primitive.Address),
     /** Optional preOps to execute before signature verification. */
-    preOps: Typebox.Optional(Type.Array(UserOp.PreOp)),
+    preOps: Typebox.Optional(Type.Array(Intent.PreOp)),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 
@@ -537,7 +537,7 @@ export namespace wallet_sendPreparedCalls {
     /** Quote for the call bundle. */
     context: Type.Object({
       /** Quote for the call bundle. */
-      preOp: Typebox.Optional(Type.Partial(UserOp.PreOp)),
+      preOp: Typebox.Optional(Type.Partial(Intent.PreOp)),
       /** The call bundle. */
       quote: Typebox.Optional(Type.Partial(Quote.Signed)),
     }),
@@ -574,7 +574,7 @@ export namespace wallet_upgradeAccount {
     /** Signed quote of the prepared bundle. */
     context: Type.Object({
       /** Signed quote of the prepared bundle. */
-      preOp: Typebox.Optional(Type.Partial(UserOp.PreOp)),
+      preOp: Typebox.Optional(Type.Partial(Intent.PreOp)),
       /** The call bundle. */
       quote: Typebox.Optional(Type.Partial(Quote.Signed)),
     }),

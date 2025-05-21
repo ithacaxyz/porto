@@ -96,7 +96,6 @@ export default defineConfig(({ mode }) => ({
             containerName: 'playground',
             delegationProxy: accountProxy,
             endpoint: anvilConfig.rpcUrl,
-            entrypoint: orchestratorAddress,
             feeTokens: [
               '0x0000000000000000000000000000000000000000',
               exp1Address,
@@ -104,6 +103,7 @@ export default defineConfig(({ mode }) => ({
             http: {
               port: rpcServerConfig.port,
             },
+            orchestrator: orchestratorAddress,
             simulator: simulatorAddress,
             userOpGasBuffer: 100_000n,
           }).start()

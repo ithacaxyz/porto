@@ -7,7 +7,7 @@
 import * as Primitive from '../../typebox/primitive.js'
 import * as Typebox from '../../typebox/typebox.js'
 import { Type } from '../../typebox/typebox.js'
-import * as UserOp from './userOp.js'
+import * as Intent from './intent.js'
 
 /** A quote from the RPC for a given `UserOp`. */
 export const Quote = Type.Object({
@@ -34,7 +34,7 @@ export const Quote = Type.Object({
     maxPriorityFeePerGas: Primitive.BigInt,
   }),
   /** The fee estimate for the bundle in the destination chains native token. */
-  op: UserOp.UserOp,
+  op: Intent.UserOp,
   /** The `UserOp` the quote is for. */
   orchestrator: Primitive.Address,
   /** The decimals of the payment token. */
