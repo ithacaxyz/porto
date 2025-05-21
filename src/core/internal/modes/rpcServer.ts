@@ -599,7 +599,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         return await RpcServer.sendCalls(client, {
           account,
           calls: [
-            Call.upgradeProxyDelegation({
+            Call.upgradeProxyAccount({
               delegation: delegation.address,
               to: account.address,
             }),

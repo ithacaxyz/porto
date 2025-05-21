@@ -222,8 +222,8 @@ export declare namespace revoke {
  * @param parameters - Parameters.
  * @returns Instantiated values.
  */
-export function upgradeProxyDelegation(
-  parameters: upgradeProxyDelegation.Parameters,
+export function upgradeProxyAccount(
+  parameters: upgradeProxyAccount.Parameters,
 ) {
   const { delegation, to = self } = parameters
   return {
@@ -235,7 +235,7 @@ export function upgradeProxyDelegation(
   } as const satisfies Call
 }
 
-export declare namespace upgradeProxyDelegation {
+export declare namespace upgradeProxyAccount {
   export type Parameters = {
     /** The delegation to upgrade to. */
     delegation: Address.Address

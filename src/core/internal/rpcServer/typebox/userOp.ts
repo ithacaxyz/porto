@@ -113,9 +113,11 @@ export const UserOp = Type.Object({
    */
   signature: Primitive.Hex,
   /**
-   * The maximum amount of the token to pay.
+   * Optional. If non-zero, the EOA must use `supportedAccountImplementation`.
+   * Otherwise, if left as `address(0)`, any EOA implementation will be supported.
+   * This field is NOT included in the EIP712 signature.
    */
-  supportedDelegationImplementation: Primitive.Address,
+  supportedAccountImplementation: Primitive.Address,
   /**
    * The wrapped signature.
    *
@@ -124,9 +126,7 @@ export const UserOp = Type.Object({
    */
   totalPaymentAmount: Primitive.BigInt,
   /**
-   * Optional. If non-zero, the EOA must use `supportedDelegationImplementation`.
-   * Otherwise, if left as `address(0)`, any EOA implementation will be supported.
-   * This field is NOT included in the EIP712 signature.
+   * The maximum amount of the token to pay.
    */
   totalPaymentMaxAmount: Primitive.BigInt,
 })

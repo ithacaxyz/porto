@@ -86,14 +86,14 @@ export namespace wallet_getCapabilities {
     contracts: Type.Object({
       /** Account registry address. */
       accountRegistry: VersionedContract,
-      /** Delegation implementation address. */
+      /** Account implementation address. */
       delegationImplementation: VersionedContract,
-      /** Delegation proxy address. */
+      /** Account proxy address. */
       delegationProxy: VersionedContract,
       /** Entrypoint address. */
       entrypoint: VersionedContract,
       /** Legacy delegation implementation address. */
-      legacyDelegations: Type.Array(VersionedContract),
+      legacyAccountImplementations: Type.Array(VersionedContract),
       /** Legacy entrypoint address. */
       legacyEntrypoints: Type.Array(VersionedContract),
       /** Simulator address. */

@@ -34,7 +34,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
     calls:
       account?.address && delegation
         ? [
-            Call.upgradeProxyDelegation({
+            Call.upgradeProxyAccount({
               delegation: delegation.address,
               to: account.address,
             }),
