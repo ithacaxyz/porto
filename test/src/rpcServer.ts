@@ -3,9 +3,9 @@ import { createServer } from 'prool'
 
 import * as Chains from '../../src/core/Chains.js'
 import {
+  accountProxyAddress,
   accountRegistryAddress,
-  delegationProxyAddress,
-  entryPointAddress,
+  orchestratorAddress,
   simulatorAddress,
 } from './_generated/addresses.js'
 import { exp1Address } from './_generated/contracts.js'
@@ -15,10 +15,10 @@ import { poolId, rpcServer } from './prool.js'
 export const instances = {
   odyssey: defineRpcServer({
     accountRegistry: accountRegistryAddress,
-    delegationProxy: delegationProxyAddress,
+    delegationProxy: accountProxyAddress,
     endpoint: (key) =>
       `http://127.0.0.1:${Anvil.instances.odyssey.port}/${key}`,
-    entrypoint: entryPointAddress,
+    entrypoint: orchestratorAddress,
     feeTokens: [
       '0x0000000000000000000000000000000000000000',
       exp1Address[Chains.anvil.id],

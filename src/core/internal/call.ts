@@ -2,7 +2,7 @@ import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Key from '../Key.js'
-import * as Delegation from './_generated/contracts/Delegation.js'
+import * as PortoAccount from './_generated/contracts/PortoAccount.js'
 
 /** Stub address for self-execution. */
 export const self = '0x2323232323232323232323232323232323232323'
@@ -23,7 +23,7 @@ export function authorize(parameters: authorize.Parameters) {
   const { key } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'authorize'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'authorize'),
       [Key.serialize(key)],
     ),
     to: self,
@@ -59,7 +59,7 @@ export function setCanExecute(parameters: setCanExecute.Parameters = {}) {
 
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'setCanExecute'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'setCanExecute'),
       [hash, to, selector, enabled],
     ),
     to: self,
@@ -89,7 +89,7 @@ export function setLabel(parameters: setLabel.Parameters) {
   const { label } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'setLabel'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'setLabel'),
       [label],
     ),
     to: self,
@@ -114,7 +114,7 @@ export function setSpendLimit(parameters: setSpendLimit.Parameters) {
   const token = parameters.token ?? '0x0000000000000000000000000000000000000000'
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'setSpendLimit'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'setSpendLimit'),
       [key.hash, token, Key.toSerializedSpendPeriod[period], limit],
     ),
     to: self,
@@ -146,7 +146,7 @@ export function setSignatureCheckerApproval(
   const { address, key, enabled } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'setSignatureCheckerApproval'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'setSignatureCheckerApproval'),
       [key.hash, address, enabled],
     ),
     to: self,
@@ -174,7 +174,7 @@ export function removeSpendLimit(parameters: removeSpendLimit.Parameters) {
   const { key, token, period } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'removeSpendLimit'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'removeSpendLimit'),
       [key.hash, token, Key.toSerializedSpendPeriod[period]],
     ),
     to: self,
@@ -202,7 +202,7 @@ export function revoke(parameters: revoke.Parameters) {
   const { keyHash } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'revoke'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'revoke'),
       [keyHash],
     ),
     to: self,
@@ -228,7 +228,7 @@ export function upgradeProxyDelegation(
   const { delegation, to = self } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'upgradeProxyDelegation'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'upgradeProxyAccount'),
       [delegation],
     ),
     to,

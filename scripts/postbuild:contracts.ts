@@ -61,18 +61,18 @@ await buildContracts(
   ),
 )
 
-// Remove DelegationOld.sol.
+// Remove PortoAccountOld.sol.
 await Fs.rm(
   Path.resolve(
     import.meta.dirname,
-    '../contracts/account/src/DelegationOld.sol',
+    '../contracts/account/src/PortoAccountOld.sol',
   ),
 )
 
-// Remove DelegationNew.sol.
+// Remove PortoAccountNew.sol.
 await Fs.rm(
   Path.resolve(
     import.meta.dirname,
-    '../contracts/account/src/DelegationNew.sol',
+    '../contracts/account/src/PortoAccountNew.sol',
   ),
 )

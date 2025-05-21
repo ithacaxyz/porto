@@ -16,7 +16,7 @@ import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
 import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
 
-import { delegationOldProxyAddress } from '../../../test/src/_generated/addresses.js'
+import { accountOldProxyAddress } from '../../../test/src/_generated/addresses.js'
 import { createAccount, setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
 import * as Http from '../../../test/src/http.js'
@@ -718,7 +718,7 @@ describe.each([
 
       await setCode(client, {
         address,
-        bytecode: Hex.concat('0xef0100', delegationOldProxyAddress),
+        bytecode: Hex.concat('0xef0100', accountOldProxyAddress),
       })
 
       const version = await porto.provider.request({
@@ -747,11 +747,11 @@ describe.each([
         contracts: {
           ...capabilities.contracts,
           delegationImplementation: {
-            address: delegationOldProxyAddress,
+            address: accountOldProxyAddress,
             version: '0.0.1',
           },
           delegationProxy: {
-            address: delegationOldProxyAddress,
+            address: accountOldProxyAddress,
             version: '0.0.1',
           },
         },

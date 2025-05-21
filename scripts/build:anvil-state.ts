@@ -8,11 +8,11 @@ import { type Address, Value } from 'ox'
 
 import * as Anvil from '../test/src/anvil.js'
 import * as AccountRegistry from '../src/core/internal/_generated/contracts/AccountRegistry.js'
-import * as Delegation from '../src/core/internal/_generated/contracts/Delegation.js'
-import * as DelegationOld from '../src/core/internal/_generated/contracts/DelegationOld.js'
-import * as DelegationNew from '../src/core/internal/_generated/contracts/DelegationNew.js'
+import * as PortoAccount from '../src/core/internal/_generated/contracts/PortoAccount.js'
+import * as PortoAccountOld from '../src/core/internal/_generated/contracts/PortoAccountOld.js'
+import * as PortoAccountNew from '../src/core/internal/_generated/contracts/PortoAccountNew.js'
 import * as EIP7702Proxy from '../src/core/internal/_generated/contracts/EIP7702Proxy.js'
-import * as EntryPoint from '../src/core/internal/_generated/contracts/EntryPoint.js'
+import * as Orchestrator from '../src/core/internal/_generated/contracts/Orchestrator.js'
 import * as ExperimentERC20 from '../src/core/internal/_generated/contracts/ExperimentERC20.js'
 import * as ExperimentERC721 from '../src/core/internal/_generated/contracts/ExperimentERC721.js'
 import * as Simulator from '../src/core/internal/_generated/contracts/Simulator.js'
@@ -48,35 +48,35 @@ let exports = []
   exports.push(`export const accountRegistryAddress = '${contractAddress}'`)
 }
 
-let entryPointAddress: Address.Address | null | undefined
+let orchestratorAddress: Address.Address | null | undefined
 {
-  // Deploy EntryPoint contract.
+  // Deploy Orchestrator contract.
   const hash = await deployContract(client, {
-    abi: EntryPoint.abi,
-    bytecode: EntryPoint.code,
+    abi: Orchestrator.abi,
+    bytecode: Orchestrator.code,
     chain: null,
     args: ['0x0000000000000000000000000000000000000000'],
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
-  entryPointAddress = contractAddress
-  exports.push(`export const entryPointAddress = '${contractAddress}'`)
+  orchestratorAddress = contractAddress
+  exports.push(`export const orchestratorAddress = '${contractAddress}'`)
 }
 
 {
-  // Deploy Delegation contract.
+  // Deploy PortoAccount contract.
   const hash = await deployContract(client, {
-    abi: Delegation.abi,
-    args: [entryPointAddress!],
-    bytecode: Delegation.code,
+    abi: PortoAccount.abi,
+    args: [orchestratorAddress!],
+    bytecode: PortoAccount.code,
     chain: null,
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {
     hash,
   })
   exports.push(
-    `export const delegationImplementationAddress = '${contractAddress}'`,
+    `export const accountImplementationAddress = '${contractAddress}'`,
   )
 
   // Deploy EIP7702Proxy contract.
@@ -90,7 +90,7 @@ let entryPointAddress: Address.Address | null | undefined
     await waitForTransactionReceipt(client, {
       hash: hash_2,
     })
-  exports.push(`export const delegationProxyAddress = '${contractAddress_2}'`)
+  exports.push(`export const accountProxyAddress = '${contractAddress_2}'`)
 }
 
 let exp1Address: Address.Address | null | undefined
@@ -111,11 +111,11 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
 }
 
 {
-  // Deploy DelegationOld contract.
+  // Deploy PortoAccountOld contract.
   const hash = await deployContract(client, {
-    abi: DelegationOld.abi,
-    args: [entryPointAddress!],
-    bytecode: DelegationOld.code,
+    abi: PortoAccountOld.abi,
+    args: [orchestratorAddress!],
+    bytecode: PortoAccountOld.code,
     chain: null,
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {
@@ -133,17 +133,15 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     await waitForTransactionReceipt(client, {
       hash: hash_2,
     })
-  exports.push(
-    `export const delegationOldProxyAddress = '${contractAddress_2}'`,
-  )
+  exports.push(`export const accountOldProxyAddress = '${contractAddress_2}'`)
 }
 
 {
-  // Deploy DelegationNew contract.
+  // Deploy PortoAccountNew contract.
   const hash = await deployContract(client, {
-    abi: DelegationNew.abi,
-    args: [entryPointAddress!],
-    bytecode: DelegationNew.code,
+    abi: PortoAccountNew.abi,
+    args: [orchestratorAddress!],
+    bytecode: PortoAccountNew.code,
     chain: null,
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {
@@ -161,9 +159,7 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     await waitForTransactionReceipt(client, {
       hash: hash_2,
     })
-  exports.push(
-    `export const delegationNewProxyAddress = '${contractAddress_2}'`,
-  )
+  exports.push(`export const accountNewProxyAddress = '${contractAddress_2}'`)
 }
 
 {

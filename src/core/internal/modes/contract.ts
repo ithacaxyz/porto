@@ -12,7 +12,7 @@ import { encodeFunctionData, parseAbi } from 'viem'
 import { call, readContract } from 'viem/actions'
 import * as Account from '../../Account.js'
 import * as Key from '../../Key.js'
-import * as DelegationContract from '../_generated/contracts/Delegation.js'
+import * as AccountContract from '../_generated/contracts/PortoAccount.js'
 import * as Call from '../call.js'
 import * as Delegation from '../delegation.js'
 import * as Mode from '../mode.js'
@@ -278,7 +278,7 @@ export function contract(parameters: contract.Parameters = {}) {
         // Fetch the delegated account's keys.
         const [keyCount, extraKey] = await Promise.all([
           readContract(client, {
-            abi: DelegationContract.abi,
+            abi: AccountContract.abi,
             address,
             functionName: 'keyCount',
           }),

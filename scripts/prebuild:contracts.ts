@@ -1,44 +1,44 @@
 import * as Fs from 'node:fs/promises'
 import * as Path from 'node:path'
 
-// Make a `DelegationOld.sol` and rewrite with old domain version.
+// Make a `PortoAccountOld.sol` and rewrite with old domain version.
 // This contract is used for testing account upgrades.
-const delegationOldPath = Path.resolve(
+const accountOldPath = Path.resolve(
   import.meta.dirname,
-  '../contracts/account/src/DelegationOld.sol',
+  '../contracts/account/src/PortoAccountOld.sol',
 )
 await Fs.writeFile(
-  delegationOldPath,
+  accountOldPath,
   await Fs.readFile(
     Path.resolve(
       import.meta.dirname,
-      '../contracts/account/src/Delegation.sol',
+      '../contracts/account/src/PortoAccount.sol',
     ),
     'utf-8',
   ).then((content) =>
     content
       .replace(/version = "\d+\.\d+\.\d+";/, 'version = "0.0.1";')
-      .replace('contract Delegation', 'contract DelegationOld'),
+      .replace('contract PortoAccount', 'contract PortoAccountOld'),
   ),
 )
 
-// Make a `DelegationNew.sol` and rewrite with new domain version.
+// Make a `PortoAccountNew.sol` and rewrite with new domain version.
 // This contract is used for testing account upgrades.
-const delegationNewPath = Path.resolve(
+const accountNewPath = Path.resolve(
   import.meta.dirname,
-  '../contracts/account/src/DelegationNew.sol',
+  '../contracts/account/src/PortoAccountNew.sol',
 )
 await Fs.writeFile(
-  delegationNewPath,
+  accountNewPath,
   await Fs.readFile(
     Path.resolve(
       import.meta.dirname,
-      '../contracts/account/src/Delegation.sol',
+      '../contracts/account/src/PortoAccount.sol',
     ),
     'utf-8',
   ).then((content) =>
     content
       .replace(/version = "\d+\.\d+\.\d+";/, 'version = "69.0.0";')
-      .replace('contract Delegation', 'contract DelegationNew'),
+      .replace('contract PortoAccount', 'contract PortoAccountNew'),
   ),
 )

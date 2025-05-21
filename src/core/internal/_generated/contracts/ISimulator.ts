@@ -24,7 +24,7 @@ export const abi = [
         "internalType": "uint256"
       },
       {
-        "name": "encodedUserOp",
+        "name": "encodedIntent",
         "type": "bytes",
         "internalType": "bytes"
       }
@@ -58,7 +58,7 @@ export const abi = [
         "internalType": "bool"
       },
       {
-        "name": "encodedUserOp",
+        "name": "encodedIntent",
         "type": "bytes",
         "internalType": "bytes"
       }

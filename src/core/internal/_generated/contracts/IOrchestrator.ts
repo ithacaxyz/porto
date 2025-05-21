@@ -4,7 +4,7 @@ export const abi = [
     "name": "execute",
     "inputs": [
       {
-        "name": "encodedUserOp",
+        "name": "encodedIntent",
         "type": "bytes",
         "internalType": "bytes"
       }
@@ -23,7 +23,7 @@ export const abi = [
     "name": "execute",
     "inputs": [
       {
-        "name": "encodedUserOps",
+        "name": "encodedIntents",
         "type": "bytes[]",
         "internalType": "bytes[]"
       }
@@ -52,7 +52,7 @@ export const abi = [
         "internalType": "uint256"
       },
       {
-        "name": "encodedUserOp",
+        "name": "encodedIntent",
         "type": "bytes",
         "internalType": "bytes"
       }
