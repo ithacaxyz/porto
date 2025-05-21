@@ -160,9 +160,8 @@ export default defineConfig({
             text: 'Porto',
           },
           {
-            disabled: true,
             link: '/sdk/api/chains',
-            text: 'Chains 🚧',
+            text: 'Chains',
           },
           {
             collapsed: true,
