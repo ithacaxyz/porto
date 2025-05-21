@@ -18,11 +18,11 @@ export const instances = {
     delegationProxy: accountProxyAddress,
     endpoint: (key) =>
       `http://127.0.0.1:${Anvil.instances.odyssey.port}/${key}`,
-    entrypoint: orchestratorAddress,
     feeTokens: [
       '0x0000000000000000000000000000000000000000',
       exp1Address[Chains.anvil.id],
     ],
+    orchestrator: orchestratorAddress,
     simulator: simulatorAddress,
     userOpGasBuffer: 100_000n,
   }),
@@ -35,10 +35,10 @@ export const instances = {
 function defineRpcServer(parameters: {
   accountRegistry: string
   endpoint: (key: number) => string
-  entrypoint: string
   delegationProxy: string
   feeTokens: string[]
   image?: string | undefined
+  orchestrator: string
   simulator: string
   txGasBuffer?: bigint | undefined
   userOpGasBuffer?: bigint | undefined

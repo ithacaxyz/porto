@@ -964,7 +964,7 @@ export function toRpcServer(
     signature,
     type,
   } = key
-  const { entrypoint } = options
+  const { orchestrator } = options
 
   // biome-ignore lint/complexity/useFlatMap:
   const permissions = Object.entries(key.permissions ?? {})
@@ -1001,10 +1001,10 @@ export function toRpcServer(
     })
     .flat()
 
-  if (key.role === 'session' && entrypoint)
+  if (key.role === 'session' && orchestrator)
     permissions.push({
       selector: Call.anySelector,
-      to: entrypoint,
+      to: orchestrator,
       type: 'call',
     })
 
@@ -1036,7 +1036,7 @@ export declare namespace toRpcServer {
 
   type Options = {
     /** Orchestrator address. */
-    entrypoint?: Address.Address | undefined
+    orchestrator?: Address.Address | undefined
   }
 }
 

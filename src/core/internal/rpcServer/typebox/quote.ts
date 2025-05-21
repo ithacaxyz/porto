@@ -22,21 +22,21 @@ export const Quote = Type.Object({
   /** Chain ID the quote is for. */
   // TODO: `Primitive.Number`
   chainId: Type.Number(),
-  /** The entrypoint for the quote. */
-  entrypoint: Primitive.Address,
-  /** The price (in wei) of ETH in the payment token. */
+  /** The orchestrator for the quote. */
   ethPrice: Primitive.BigInt,
-  /** Extra payment for e.g L1 DA fee that is paid on top of the execution gas. */
+  /** The price (in wei) of ETH in the payment token. */
   extraPayment: Primitive.BigInt,
-  /** The fee estimate for the bundle in the destination chains native token. */
+  /** Extra payment for e.g L1 DA fee that is paid on top of the execution gas. */
   nativeFeeEstimate: Type.Object({
     /** The maximum fee per gas for the bundle. */
     maxFeePerGas: Primitive.BigInt,
     /** The maximum priority fee per gas for the bundle. */
     maxPriorityFeePerGas: Primitive.BigInt,
   }),
-  /** The `UserOp` the quote is for. */
+  /** The fee estimate for the bundle in the destination chains native token. */
   op: UserOp.UserOp,
+  /** The `UserOp` the quote is for. */
+  orchestrator: Primitive.Address,
   /** The decimals of the payment token. */
   paymentTokenDecimals: Type.Number(),
   /** The time-to-live of the quote. */

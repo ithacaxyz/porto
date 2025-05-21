@@ -40,7 +40,7 @@ describe('getCapabilities', () => {
     const result = await getCapabilities(client)
     expect(result.contracts.accountImplementation).toBeDefined()
     expect(result.contracts.accountProxy).toBeDefined()
-    expect(result.contracts.entrypoint).toBeDefined()
+    expect(result.contracts.orchestrator).toBeDefined()
     expect(result.contracts.simulator).toBeDefined()
     expect(result.fees.quoteConfig).toBeDefined()
     expect(result.fees.recipient).toBeDefined()

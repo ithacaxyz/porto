@@ -47,13 +47,13 @@ export async function createAccount(
       : parameters.keys
 
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey
-    ? (await Actions.getCapabilities(client)).contracts.entrypoint.address
+  const orchestrator = hasSessionKey
+    ? (await Actions.getCapabilities(client)).contracts.orchestrator.address
     : undefined
 
   const keys_rpc = keys.map((key) =>
     Key.toRpcServer(key, {
-      entrypoint,
+      orchestrator,
     }),
   )
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
@@ -256,8 +256,8 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   const hasSessionKey = parameters.authorizeKeys?.some(
     (x) => x.role === 'session',
   )
-  const entrypoint = hasSessionKey
-    ? (await Actions.getCapabilities(client)).contracts.entrypoint.address
+  const orchestrator = hasSessionKey
+    ? (await Actions.getCapabilities(client)).contracts.orchestrator.address
     : undefined
 
   const idSigner = createIdSigner()
@@ -270,7 +270,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
             digest: getIdDigest({ id: idSigner.id, key }),
           }),
         },
-        { entrypoint },
+        { orchestrator },
       )
 
     const permissions = resolvePermissions(key, {
@@ -282,7 +282,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         ...key,
         permissions,
       },
-      { entrypoint },
+      { orchestrator },
     )
   })
 
@@ -399,11 +399,13 @@ export async function prepareCreateAccount(
 
   const delegation = parameters.delegation ?? contracts.accountProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey ? contracts.entrypoint.address : undefined
+  const orchestrator = hasSessionKey
+    ? contracts.orchestrator.address
+    : undefined
 
   const authorizeKeys = keys.map((key) =>
     Key.toRpcServer(key, {
-      entrypoint,
+      orchestrator,
     }),
   )
 
@@ -479,7 +481,9 @@ export async function prepareUpgradeAccount(
 
   const delegation = parameters.delegation ?? contracts.accountProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey ? contracts.entrypoint.address : undefined
+  const orchestrator = hasSessionKey
+    ? contracts.orchestrator.address
+    : undefined
 
   const keys_rpc = keys.map((key) => {
     const permissions =
@@ -494,7 +498,7 @@ export async function prepareUpgradeAccount(
         ...key,
         permissions,
       },
-      { entrypoint },
+      { orchestrator },
     )
   })
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]

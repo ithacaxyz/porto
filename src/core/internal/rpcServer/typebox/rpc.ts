@@ -90,12 +90,12 @@ export namespace wallet_getCapabilities {
       accountProxy: VersionedContract,
       /** Account proxy address. */
       accountRegistry: VersionedContract,
-      /** Orchestrator address. */
-      entrypoint: VersionedContract,
       /** Legacy account implementation address. */
       legacyAccountImplementations: Type.Array(VersionedContract),
       /** Legacy orchestrator address. */
       legacyOrchestrators: Type.Array(VersionedContract),
+      /** Orchestrator address. */
+      orchestrator: VersionedContract,
       /** Simulator address. */
       simulator: VersionedContract,
     }),
