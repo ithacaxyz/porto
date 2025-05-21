@@ -6,8 +6,8 @@ import { describe, expect, test } from 'vitest'
 import { getAccount } from '../../../test/src/actions.js'
 import { exp1Address, exp1Config, getPorto } from '../../../test/src/porto.js'
 import * as Key from '../Key.js'
+import * as AccountContract from './accountContract.js'
 import * as Call from './call.js'
-import * as Delegation from './delegation.js'
 
 describe('execute', () => {
   describe('behavior: authorize', () => {
@@ -17,7 +17,7 @@ describe('execute', () => {
 
       const key = Key.createHeadlessWebAuthnP256()
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({
@@ -28,7 +28,7 @@ describe('execute', () => {
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 0,
         }),
@@ -45,7 +45,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [],
         delegation,
@@ -53,7 +53,7 @@ describe('execute', () => {
 
       const key = Key.createHeadlessWebAuthnP256()
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({
@@ -63,7 +63,7 @@ describe('execute', () => {
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 0,
         }),
@@ -82,7 +82,7 @@ describe('execute', () => {
 
       const key = Key.createHeadlessWebAuthnP256()
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({
@@ -94,7 +94,7 @@ describe('execute', () => {
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 0,
         }),
@@ -111,7 +111,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [],
         delegation,
@@ -119,7 +119,7 @@ describe('execute', () => {
 
       const key = Key.createHeadlessWebAuthnP256()
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({
@@ -130,7 +130,7 @@ describe('execute', () => {
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 0,
         }),
@@ -149,7 +149,7 @@ describe('execute', () => {
 
       const key = Key.createHeadlessWebAuthnP256()
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({
@@ -161,7 +161,7 @@ describe('execute', () => {
 
       const nextKey = Key.createHeadlessWebAuthnP256()
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({
@@ -172,7 +172,7 @@ describe('execute', () => {
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 1,
         }),
@@ -191,7 +191,7 @@ describe('execute', () => {
 
       const key = Key.createHeadlessWebAuthnP256()
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({
@@ -205,7 +205,7 @@ describe('execute', () => {
         role: 'session',
       })
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({
@@ -225,7 +225,7 @@ describe('execute', () => {
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 1,
         }),
@@ -247,7 +247,7 @@ describe('execute', () => {
 
       const { account } = await getAccount(client, { keys: [key] })
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [Call.authorize({ key })],
         delegation,
@@ -265,7 +265,7 @@ describe('execute', () => {
       expect(balances_before[1]).toEqual(Value.fromEther('0'))
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           { to: alice.address, value: Value.fromEther('1') },
@@ -294,7 +294,7 @@ describe('execute', () => {
 
       const { account } = await getAccount(client, { keys: [key] })
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [Call.authorize({ key })],
         delegation,
@@ -305,7 +305,7 @@ describe('execute', () => {
         [account.address, Value.fromEther('1000')],
       )
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [{ data: mint, to: exp1Address }],
         key,
@@ -327,7 +327,7 @@ describe('execute', () => {
 
       const { account } = await getAccount(client, { keys: [key] })
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [Call.authorize({ key })],
         delegation,
@@ -345,7 +345,7 @@ describe('execute', () => {
       expect(balances_before[1]).toEqual(Value.fromEther('0'))
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           { to: alice.address, value: Value.fromEther('1') },
@@ -376,7 +376,7 @@ describe('execute', () => {
 
       const { account } = await getAccount(client, { keys: [key] })
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({ key }),
@@ -405,7 +405,7 @@ describe('execute', () => {
       expect(balances_before[1]).toEqual(Value.fromEther('0'))
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           { to: alice.address, value: Value.fromEther('1') },
@@ -431,7 +431,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [],
         delegation,
@@ -449,7 +449,7 @@ describe('execute', () => {
       expect(balances_before[1]).toEqual(Value.fromEther('0'))
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           { to: alice.address, value: Value.fromEther('1') },
@@ -474,7 +474,7 @@ describe('execute', () => {
       const { client, delegation } = getPorto()
       const { account, privateKey } = await getAccount(client)
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [],
         delegation,
@@ -492,7 +492,7 @@ describe('execute', () => {
       expect(balances_before[1]).toEqual(Value.fromEther('0'))
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           { to: alice.address, value: Value.fromEther('1') },
@@ -526,7 +526,7 @@ describe('execute', () => {
 
       const { account } = await getAccount(client, { keys: [key] })
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           Call.authorize({ key }),
@@ -555,7 +555,7 @@ describe('execute', () => {
       expect(balances_before[1]).toEqual(Value.fromEther('0'))
       expect(balances_before[2]).toEqual(Value.fromEther('0'))
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [
           { to: alice.address, value: Value.fromEther('1') },
@@ -577,7 +577,7 @@ describe('execute', () => {
       expect(balances_after[2]).toEqual(Value.fromEther('0.5'))
 
       await expect(() =>
-        Delegation.execute(client, {
+        AccountContract.execute(client, {
           account,
           calls: [
             { to: alice.address, value: Value.fromEther('1') },
@@ -595,7 +595,7 @@ describe('execute', () => {
     const { account } = await getAccount(client)
 
     await expect(() =>
-      Delegation.execute(client, {
+      AccountContract.execute(client, {
         account,
         calls: [
           {
@@ -617,19 +617,19 @@ describe('execute', () => {
     const { client, delegation } = getPorto()
     const { account } = await getAccount(client)
 
-    await Delegation.execute(client, {
+    await AccountContract.execute(client, {
       account,
       calls: [Call.authorize({ key })],
       delegation,
     })
 
-    await Delegation.execute(client, {
+    await AccountContract.execute(client, {
       account,
       calls: [Call.setCanExecute({ enabled: false, key })],
     })
 
     await expect(() =>
-      Delegation.execute(client, {
+      AccountContract.execute(client, {
         account,
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         key,
@@ -644,14 +644,14 @@ describe('execute', () => {
 
     const key = Key.createHeadlessWebAuthnP256()
 
-    await Delegation.execute(client, {
+    await AccountContract.execute(client, {
       account,
       calls: [],
       delegation,
     })
 
     await expect(() =>
-      Delegation.execute(client, {
+      AccountContract.execute(client, {
         account,
         calls: [],
         key,
@@ -668,7 +668,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await Delegation.prepareExecute(
+      const { request, signPayloads } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -685,13 +685,13 @@ describe('prepareExecute', () => {
         signPayloads.map((payload) => account.sign({ payload })),
       )
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         ...request,
         signatures,
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 0,
         }),
@@ -708,7 +708,7 @@ describe('prepareExecute', () => {
       const { client, delegation } = getPorto()
       const { account } = await getAccount(client)
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         account,
         calls: [],
         delegation,
@@ -716,7 +716,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await Delegation.prepareExecute(
+      const { request, signPayloads } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -732,13 +732,13 @@ describe('prepareExecute', () => {
         signPayloads.map((payload) => account.sign({ payload })),
       )
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         ...request,
         signatures,
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 0,
         }),
@@ -757,7 +757,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await Delegation.prepareExecute(
+      const { request, signPayloads } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -775,13 +775,13 @@ describe('prepareExecute', () => {
         signPayloads.map((payload) => account.sign({ payload })),
       )
 
-      await Delegation.execute(client, {
+      await AccountContract.execute(client, {
         ...request,
         signatures,
       })
 
       expect(
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 0,
         }),

@@ -12,8 +12,8 @@ import { waitForCallsStatus } from 'viem/actions'
 import * as Account from '../../Account.js'
 import * as Key from '../../Key.js'
 import * as RpcServer from '../../RpcServer.js'
+import * as AccountContract from '../accountContract.js'
 import * as Call from '../call.js'
-import * as Delegation from '../delegation.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
@@ -119,11 +119,11 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { contracts } = await RpcServer.getCapabilities(client)
         const { delegationImplementation } = contracts
 
-        const latest = await Delegation.getEip712Domain(client, {
+        const latest = await AccountContract.getEip712Domain(client, {
           account: delegationImplementation,
         }).then((x) => x.version)
 
-        const current = await Delegation.getEip712Domain(client, {
+        const current = await AccountContract.getEip712Domain(client, {
           account: address,
         })
           .then((x) => x.version)

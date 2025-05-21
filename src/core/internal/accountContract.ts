@@ -36,6 +36,8 @@ import * as PortoAccount from './_generated/contracts/PortoAccount.js'
 import * as Call from './call.js'
 import type { OneOf } from './types.js'
 
+export { abi, code } from './_generated/contracts/PortoAccount.js'
+
 /**
  * Executes a set of calls on a delegated account.
  *
@@ -431,7 +433,7 @@ export declare namespace parseExecutionError {
 
 /** Thrown when the execution fails. */
 export class ExecutionError extends Errors.BaseError<BaseError> {
-  override readonly name = 'Delegation.ExecutionError'
+  override readonly name = 'AccountContract.ExecutionError'
 
   abiError?: AbiError.AbiError | undefined
 

@@ -12,7 +12,7 @@ import {
   exp2Config,
   getPorto,
 } from '../../test/src/porto.js'
-import * as Delegation from './internal/delegation.js'
+import * as AccountContract from './internal/accountContract.js'
 import * as Key from './Key.js'
 import * as Rpc from './RpcServer.js'
 
@@ -793,15 +793,15 @@ describe.each([
 
       // 4. Verify that Account now has 3 Admin Keys.
       const [key_1, key_2, key_3] = [
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 0,
         }),
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 1,
         }),
-        await Delegation.keyAt(client, {
+        await AccountContract.keyAt(client, {
           account,
           index: 2,
         }),

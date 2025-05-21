@@ -1,2 +1,2 @@
+export * as AccountContract from '../core/internal/accountContract.js'
 export * as Call from '../core/internal/call.js'
-export * as Delegation from '../core/internal/delegation.js'
