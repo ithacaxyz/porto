@@ -286,11 +286,11 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     )
   })
 
-  const preOp = typeof preCalls === 'boolean' ? preCalls : false
-  const preOps =
+  const preCall = typeof preCalls === 'boolean' ? preCalls : false
+  const signedPreCalls =
     typeof preCalls === 'object'
       ? preCalls.map(({ context, signature }) => ({
-          ...(context.preOp as any),
+          ...(context.preCall as any),
           signature,
         }))
       : undefined
@@ -313,8 +313,8 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
           feeToken,
           nonce,
         },
-        preOp,
-        preOps,
+        preCall,
+        preCalls: signedPreCalls,
         revokeKeys: revokeKeys?.map((key) => ({
           hash: key.hash,
         })),
