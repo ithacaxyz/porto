@@ -34,46 +34,22 @@ Uses [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions)
 ## Example
 
 ```tsx twoslash
-import { Porto } from 'porto'
-import * as React from 'react'
 import { Hooks } from 'porto/wagmi'
-
-const porto = Porto.create()
 
 export function App() {
   const permissions = Hooks.usePermissions()
   const revokePermissions = Hooks.useRevokePermissions()
 
-  if (permissions.isLoading) return <div>Loading permissions...</div>
-  if (permissions.isError) return <div>Error loading permissions</div>
-
-  return (
-    <div>
-      <h2>Active Permissions</h2>
-      {permissions.data && permissions.data.length > 0 ? (
-        <ul>
-          {permissions.data.map((permission) => (
-            <li key={permission.id}>
-              <div>ID: {permission.id}</div>
-              <div>Expiry: {new Date(permission.expiry * 1000).toLocaleString()}</div>
-              {/* Display other permission details */}
-              <button
-                onClick={() => revokePermissions.mutate({
-                  id: permission.id
-                })}
-              >
-                Revoke Permission
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div>No active permissions</div>
-      )}
-    </div>
-  )
+  return permissions.data.map(permission => (
+    <button
+      onClick={() => revokePermissions.mutate({
+        id: permission.id
+      })}
+    >
+      Revoke Permission
+    </button>
+  ))
 }
-```
 
 <TryItOut
   fn={async ({ provider }) => {
