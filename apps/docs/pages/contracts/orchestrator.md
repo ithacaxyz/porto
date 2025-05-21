@@ -87,9 +87,9 @@ Let's go through each of these fields, to discuss the features enabled by intent
 
 One of the most powerful use cases of executing through intents is that backend relays can abstract gas for users and get compensated in any token the user holds.
 
-We’ve eliminated the concept of `gas refunds`, and made `prePayment` optional.
+We've eliminated the concept of `gas refunds`, and made `prePayment` optional.
 
-Here’s how the flow works:
+Here's how the flow works:
 
 1. The user sends their calls to the relay.
 2. The relay analyzes the calls and determines the amount they want to be paid, in the `paymentToken` specified in the intent.
