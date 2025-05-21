@@ -369,7 +369,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             ...context,
             account,
             calls,
-            nonce: context.quote?.op!.nonce,
+            nonce: context.quote?.intent!.nonce,
           },
           key,
           signPayloads: [digest],

@@ -462,8 +462,8 @@ export namespace ActionRequest {
     porto: Pick<Porto_.Porto<chains>, '_internal'>,
     quote: Quote_typebox.Quote,
   ): Quote | undefined {
-    const { chainId, op, nativeFeeEstimate, txGas, ttl } = quote ?? {}
-    const { paymentToken, totalPaymentMaxAmount } = op ?? {}
+    const { chainId, intent, nativeFeeEstimate, txGas, ttl } = quote ?? {}
+    const { paymentToken, totalPaymentMaxAmount } = intent ?? {}
 
     const chain = Hooks.useChain(porto, { chainId })!
     const feeToken = FeeToken.useFetch({

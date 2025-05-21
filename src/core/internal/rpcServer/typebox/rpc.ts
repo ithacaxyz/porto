@@ -536,9 +536,9 @@ export namespace wallet_sendPreparedCalls {
     ),
     /** Quote for the call bundle. */
     context: Type.Object({
-      /** Quote for the call bundle. */
-      preCall: Typebox.Optional(Type.Partial(PreCall.PreCall)),
       /** The call bundle. */
+      preCall: Typebox.Optional(Type.Partial(PreCall.PreCall)),
+      /** Quote for the call bundle. */
       quote: Typebox.Optional(Type.Partial(Quote.Signed)),
     }),
     /** Key that was used to sign the call bundle. */

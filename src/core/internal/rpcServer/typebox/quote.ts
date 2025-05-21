@@ -27,14 +27,14 @@ export const Quote = Type.Object({
   /** Extra payment for e.g L1 DA fee that is paid on top of the execution gas. */
   extraPayment: Primitive.BigInt,
   /** The fee estimate for the bundle in the destination chains native token. */
+  intent: Intent.Intent,
+  /** The `Intent` the quote is for. */
   nativeFeeEstimate: Type.Object({
     /** The maximum fee per gas for the bundle. */
     maxFeePerGas: Primitive.BigInt,
     /** The maximum priority fee per gas for the bundle. */
     maxPriorityFeePerGas: Primitive.BigInt,
   }),
-  /** The `Intent` the quote is for. */
-  op: Intent.Intent,
   /** The orchestrator for the quote. */
   orchestrator: Primitive.Address,
   /** The decimals of the payment token. */

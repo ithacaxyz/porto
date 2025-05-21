@@ -25,6 +25,7 @@ export const instances = {
     intentGasBuffer: 100_000n,
     orchestrator: orchestratorAddress,
     simulator: simulatorAddress,
+    version: '22fc7a9',
   }),
 } as const
 
