@@ -80,26 +80,19 @@ export function App() {
 You can revoke permissions for a specific account by including the address:
 
 ```tsx twoslash
-import { Porto } from 'porto'
-import * as React from 'react'
 import { Hooks } from 'porto/wagmi'
-
-const porto = Porto.create()
 
 export function App() {
   const revokePermissions = Hooks.useRevokePermissions()
-  const specificAddress = '0x123...' // [!code focus]
-  const permissionId = '0x456...' // [!code focus]
 
   return (
     <button
       onClick={() => revokePermissions.mutate({
-        address: specificAddress, // [!code focus]
-        id: permissionId
+        address: '0x...', // [!code focus]
+        id: '0x...'
       })}
     >
-      Revoke Permission for Specific Account
+      Revoke
     </button>
   )
 }
-```
