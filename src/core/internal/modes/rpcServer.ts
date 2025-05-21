@@ -117,17 +117,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { client } = internal
 
         const { contracts } = await RpcServer.getCapabilities(client)
-        const { delegationImplementation } = contracts
+        const { accountImplementation } = contracts
 
         const latest = await AccountContract.getEip712Domain(client, {
-          account: delegationImplementation,
+          account: accountImplementation,
         }).then((x) => x.version)
 
         const current = await AccountContract.getEip712Domain(client, {
           account: address,
         })
           .then((x) => x.version)
-          // TODO: get counterfactual account delegation via rpc server.
+          // TODO: get counterfactual account version via rpc server.
           .catch(() => latest)
 
         if (!current || !latest) throw new Error('version not found.')
@@ -591,8 +591,9 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         if (!key) throw new Error('admin key not found.')
 
         const { contracts } = await RpcServer.getCapabilities(client)
-        const { delegationImplementation: delegation } = contracts
-        if (!delegation) throw new Error('delegation not found.')
+        const { accountImplementation } = contracts
+        if (!accountImplementation)
+          throw new Error('accountImplementation not found.')
 
         const feeToken = await resolveFeeToken(internal)
 
@@ -600,7 +601,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           account,
           calls: [
             Call.upgradeProxyAccount({
-              delegation: delegation.address,
+              address: accountImplementation.address,
               to: account.address,
             }),
           ],

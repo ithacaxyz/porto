@@ -85,17 +85,17 @@ export namespace wallet_getCapabilities {
   export const Response = Type.Object({
     contracts: Type.Object({
       /** Account registry address. */
-      accountRegistry: VersionedContract,
+      accountImplementation: VersionedContract,
       /** Account implementation address. */
-      delegationImplementation: VersionedContract,
+      accountProxy: VersionedContract,
       /** Account proxy address. */
-      delegationProxy: VersionedContract,
-      /** Entrypoint address. */
+      accountRegistry: VersionedContract,
+      /** Orchestrator address. */
       entrypoint: VersionedContract,
-      /** Legacy delegation implementation address. */
+      /** Legacy account implementation address. */
       legacyAccountImplementations: Type.Array(VersionedContract),
-      /** Legacy entrypoint address. */
-      legacyEntrypoints: Type.Array(VersionedContract),
+      /** Legacy orchestrator address. */
+      legacyOrchestrators: Type.Array(VersionedContract),
       /** Simulator address. */
       simulator: VersionedContract,
     }),

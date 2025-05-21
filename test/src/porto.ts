@@ -68,7 +68,7 @@ ${rpcUrl} \\
     mode: 'anvil',
   }))
 
-  const delegation = client.chain.contracts.delegation.address
+  const delegation = client.chain.contracts.portoAccount.address
 
   return { client, delegation, porto }
 }

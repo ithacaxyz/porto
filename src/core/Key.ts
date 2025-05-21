@@ -1035,7 +1035,7 @@ export declare namespace toRpcServer {
   >
 
   type Options = {
-    /** Entrypoint address. */
+    /** Orchestrator address. */
     entrypoint?: Address.Address | undefined
   }
 }

@@ -217,7 +217,7 @@ export declare namespace revoke {
 }
 
 /**
- * Instantiates values to populate a call to upgrade the proxy delegation.
+ * Instantiates values to populate a call to upgrade the proxy account.
  *
  * @param parameters - Parameters.
  * @returns Instantiated values.
@@ -225,11 +225,11 @@ export declare namespace revoke {
 export function upgradeProxyAccount(
   parameters: upgradeProxyAccount.Parameters,
 ) {
-  const { delegation, to = self } = parameters
+  const { address, to = self } = parameters
   return {
     data: AbiFunction.encodeData(
       AbiFunction.fromAbi(PortoAccount.abi, 'upgradeProxyAccount'),
-      [delegation],
+      [address],
     ),
     to,
   } as const satisfies Call
@@ -237,9 +237,9 @@ export function upgradeProxyAccount(
 
 export declare namespace upgradeProxyAccount {
   export type Parameters = {
-    /** The delegation to upgrade to. */
-    delegation: Address.Address
-    /** The address to upgrade the delegation to. */
+    /** The account to upgrade to. */
+    address: Address.Address
+    /** The address to upgrade the address to. */
     to?: Address.Address | undefined
   }
 }

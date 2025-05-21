@@ -3,7 +3,7 @@ import * as chains from 'viem/chains'
 
 export type Chain = Chain_viem & {
   contracts: Chain_viem['contracts'] & {
-    delegation?: ChainContract | undefined
+    portoAccount?: ChainContract | undefined
   }
 }
 
@@ -15,7 +15,7 @@ export const anvil = /*#__PURE__*/ define({
   ...chains.anvil,
   contracts: {
     ...chains.anvil.contracts,
-    delegation: {
+    portoAccount: {
       address: '0x8ce361602b935680e8dec218b820ff5056beb7af',
     },
   },
@@ -30,7 +30,7 @@ export const baseSepolia = /*#__PURE__*/ define({
   ...chains.baseSepolia,
   contracts: {
     ...chains.baseSepolia.contracts,
-    delegation: {
+    portoAccount: {
       address: '0x12a05881d9934918096a0256e665e80d4828f681',
     },
   },
@@ -50,7 +50,7 @@ export const portoDev = /*#__PURE__*/ define({
     },
   },
   contracts: {
-    delegation: {
+    portoAccount: {
       address: '0x562ee13464552ac4900a5aeee79caf115d8a8566',
     },
   },

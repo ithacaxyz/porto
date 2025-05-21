@@ -397,7 +397,7 @@ export async function prepareCreateAccount(
 
   const { contracts } = await Actions.getCapabilities(client)
 
-  const delegation = parameters.delegation ?? contracts.delegationProxy.address
+  const delegation = parameters.delegation ?? contracts.accountProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
   const entrypoint = hasSessionKey ? contracts.entrypoint.address : undefined
 
@@ -477,7 +477,7 @@ export async function prepareUpgradeAccount(
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
 
-  const delegation = parameters.delegation ?? contracts.delegationProxy.address
+  const delegation = parameters.delegation ?? contracts.accountProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
   const entrypoint = hasSessionKey ? contracts.entrypoint.address : undefined
 

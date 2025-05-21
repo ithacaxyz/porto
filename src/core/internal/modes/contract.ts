@@ -20,7 +20,7 @@ import type * as Porto from '../porto.js'
 
 /**
  * Mode for a WebAuthn-based environment that interacts directly
- * to the delegation contract. Account management and signing is handled locally.
+ * to the account contract. Account management and signing is handled locally.
  *
  * @param parameters - Parameters.
  * @returns Mode.
@@ -70,10 +70,10 @@ export function contract(parameters: contract.Parameters = {}) {
       keys,
     })
 
-    const delegation = client.chain.contracts.delegation?.address
+    const delegation = client.chain.contracts.portoAccount?.address
     if (!delegation)
       throw new Error(
-        `contract \`delegation\` not found on chain ${client.chain.name}.`,
+        `contract \`portoAccount\` not found on chain ${client.chain.name}.`,
       )
 
     const { request, signPayloads } = await AccountContract.prepareExecute(
@@ -153,8 +153,8 @@ export function contract(parameters: contract.Parameters = {}) {
         const { address, internal } = parameters
         const { client } = internal
 
-        const delegation = client.chain.contracts.delegation?.address
-        if (!delegation) throw new Error('delegation address not found.')
+        const delegation = client.chain.contracts.portoAccount?.address
+        if (!delegation) throw new Error('portoAccount address not found.')
 
         const { data } = await call(client, {
           data: encodeFunctionData({

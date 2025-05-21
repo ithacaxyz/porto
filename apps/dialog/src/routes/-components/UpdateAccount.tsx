@@ -27,20 +27,20 @@ export function UpdateAccount(props: UpdateAccount.Props) {
     queryKey: ['getCapabilities', client.uid],
   })
   const { contracts } = getCapabilitiesQuery.data ?? {}
-  const { delegationImplementation: delegation } = contracts ?? {}
+  const { accountImplementation } = contracts ?? {}
 
   const account = Hooks.useAccount(porto)
   const prepareCallsQuery = RpcServer.usePrepareCalls({
     calls:
-      account?.address && delegation
+      account?.address && accountImplementation
         ? [
             Call.upgradeProxyAccount({
-              delegation: delegation.address,
+              address: accountImplementation.address,
               to: account.address,
             }),
           ]
         : [],
-    enabled: !!account?.address && !!delegation,
+    enabled: !!account?.address && !!accountImplementation,
     feeToken,
   })
   const request = prepareCallsQuery.data
