@@ -37,12 +37,8 @@ Uses [`experimental_grantPermissions`](/sdk/rpc/experimental_grantPermissions) u
 ## Example
 
 ```tsx
-import { Porto } from 'porto'
-import * as React from 'react'
 import { Hooks } from 'porto/wagmi'
 import { parseEther, toHex } from 'viem'
-
-const porto = Porto.create()
 
 export function App() {
   const grantPermissions = Hooks.useGrantPermissions()
