@@ -819,6 +819,9 @@ export function from<
             permissions: {
               supported: true,
             },
+            sponsor: {
+              supported: true,
+            },
           } as const
 
           const capabilities = {} as Record<Hex.Hex, typeof value>

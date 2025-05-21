@@ -499,6 +499,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       capabilities: {
         feeSignature: sponsorSignature,
       },
+      context: request.context,
       key: request.key!,
       signature,
     })

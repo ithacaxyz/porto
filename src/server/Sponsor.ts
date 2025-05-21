@@ -40,7 +40,7 @@ export function rpcHandler(options: rpcHandler.Options) {
     const transport = transports[chainId as keyof typeof transports]
     const client = createClient({
       rpcSchema: rpcSchema<RpcSchema.Viem>(),
-      transport: ('relay' in transport ? transport.relay : transport) as any,
+      transport,
     })
 
     try {

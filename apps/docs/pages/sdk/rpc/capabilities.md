@@ -10,6 +10,7 @@ Porto supports the following capabilities:
 | [`atomic`](#atomic)           | Indicates if call bundles will be executed atomically.       | [EIP-5792](https://eips.ethereum.org/EIPS/eip-5792#atomic-capability) |
 | [`feeToken`](#feetoken)       | Indicates if a custom fee token can be requested by the app. | Experimental                                                          |
 | [`permissions`](#permissions) | Indicates if permissions can be requested by the app.        | Experimental                                                          |
+| [`sponsor`](#sponsor)         | Indicates if app sponsoring is supported.                    | Experimental                                                          |
 
 ## `atomic`
 
@@ -21,7 +22,11 @@ A custom fee token can be provided as a capability to [`wallet_sendCalls`](/sdk/
 
 ### Request Capabilities
 
-The following JSON-RPC methods support the request capabilities:
+#### `feeToken`
+
+Custom fee token to use for the request.
+
+The following JSON-RPC methods support the `feeToken` request capability:
 
 - [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)
 - [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)
@@ -29,13 +34,13 @@ The following JSON-RPC methods support the request capabilities:
 - [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions)
 
 ```ts
-type FeeTokenRequestCapabilities = {
+type Capability = {
   /** Custom fee token address. */
   feeToken: `0x${string}`
 }
 ```
 
-### Example
+##### Example
 
 ```ts twoslash
 // @noErrors
@@ -64,18 +69,17 @@ The `permissions` capability enables the following methods:
 
 ### Request Capabilities
 
-The following permission request capabilities are supported:
+#### `grantPermissions`
 
-- `grantPermissions`: Requests for the wallet to grant these permissions.
-- `permissions`: Use the provided permission for the request.
+Requests for the wallet to grant permissions.
 
-The following JSON-RPC methods support these capabilities:
+The following JSON-RPC methods support the `grantPermissions` request capability:
 
 - [`wallet_connect`](/sdk/rpc/wallet_connect)
 - [`wallet_prepareUpgradeAccount`](#TODO)
 
 ```ts
-type PermissionsRequestCapabilities = {
+type Capability = {
   /** Requests for the wallet to grant these permissions. */
   grantPermissions: {
     /** Expiry of the permissions. */
@@ -120,7 +124,45 @@ type PermissionsRequestCapabilities = {
       }[],
     }
   },
+}
+```
 
+##### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_connect',
+  params: [{
+    capabilities: { // [!code focus]
+      grantPermissions: { // [!code focus]
+        expiry: 1727078400, // [!code focus]
+        permissions: { // [!code focus]
+          calls: [{ signature: 'subscribe()' }], // [!code focus]
+          spend: [{ // [!code focus]
+            limit: '0x5f5e100', // 100 USDC // [!code focus]
+            period: 'day', // [!code focus]
+            token: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC // [!code focus]
+          }] // [!code focus]
+        } // [!code focus]
+      }, // [!code focus]
+    }, // [!code focus]
+    /* ... */
+  }]
+})
+```
+
+#### `permissions`
+
+Use a provided permission for the request.
+
+The following JSON-RPC methods support the `permissions` request capability:
+
+- [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)
+- [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)
+
+```ts
+type Capability = {
   /** Permission to use for the request. */
   permissions: {
     /** ID of the permission to use. */
@@ -129,19 +171,36 @@ type PermissionsRequestCapabilities = {
 }
 ```
 
+##### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_sendCalls',
+  params: [{
+    capabilities: { // [!code focus]
+      permissions: { // [!code focus]
+        id: '0x...', // [!code focus]
+      }, // [!code focus]
+    }, // [!code focus]
+    /* ... */
+  }]
+})
+```
+
 ### Response Capabilities
 
-The following permission response capabilities are supported:
+#### `permissions`
 
-- `permissions`: Returns the permissions granted on the request.
+Returns the permissions granted on the request.
 
-The following JSON-RPC methods support these capabilities:
+The following JSON-RPC methods support the `permissions` response capability:
 
 - [`wallet_connect`](/sdk/rpc/wallet_connect)
 - [`wallet_upgradeAccount`](#TODO)
 
 ```ts
-type PermissionsResponseCapabilities = {
+type Capability = {
   permissions: {
     expiry: number, 
     id: `0x${string}`,
@@ -166,26 +225,16 @@ type PermissionsResponseCapabilities = {
 }
 ```
 
-### Example
+##### Example
 
 ```ts twoslash
 // @noErrors
 const capabilities = await provider.request({
   method: 'wallet_connect',
   params: [{
-    capabilities: { // [!code focus]
-      grantPermissions: { // [!code focus]
-        expiry: 1727078400, // [!code focus]
-        permissions: { // [!code focus]
-          calls: [{ signature: 'subscribe()' }], // [!code focus]
-          spend: [{ // [!code focus]
-            limit: '0x5f5e100', // 100 USDC // [!code focus]
-            period: 'day', // [!code focus]
-            token: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC // [!code focus]
-          }] // [!code focus]
-        } // [!code focus]
-      }, // [!code focus]
-    }, // [!code focus]
+    capabilities: {
+      grantPermissions: { /* ... */ },
+    }, 
     /* ... */
   }]
 })
@@ -212,4 +261,41 @@ const capabilities = await provider.request({
 // @log:     }]
 // @log:   },
 // @log: }]
+```
+
+## `sponsor`
+
+A sponsor server can be set up by the Application to sponsor actions on
+behalf of their users.
+
+### Request Capabilities
+
+#### `sponsorUrl`
+
+URL of the endpoint that will be used to front and sponsor call bundles for users.
+
+The following JSON-RPC methods support the `sponsorUrl` request capability:
+
+- [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)
+- [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)
+
+```ts
+type Capability = {
+  sponsorUrl: string
+}
+```
+
+### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_sendCalls',
+  params: [{
+    capabilities: {
+      sponsorUrl: 'https://myapp.com/sponsor'
+    },
+    /* ... */
+  }]
+})
 ```
