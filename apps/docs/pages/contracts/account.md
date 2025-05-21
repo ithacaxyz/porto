@@ -7,31 +7,31 @@ The Porto Account is a keychain that holds user funds, enforces permissions via 
 A key is a fundamental signing unit. An account can `authorize` multiple keys with different limits and permissions.
 
 ```solidity
-    /// @dev A key that can be used to authorize call.
-    struct Key {
-        /// @dev Unix timestamp at which the key expires (0 = never).
-        uint40 expiry;
-        /// @dev Type of key. See the {KeyType} enum.
-        KeyType keyType;
-        /// @dev Whether the key is a super admin key.
-        /// Super admin keys are allowed to call into super admin functions such as
-        /// `authorize` and `revoke` via `execute`.
-        bool isSuperAdmin;
-        /// @dev Public key in encoded form.
-        bytes publicKey;
-    }
+/// @dev A key that can be used to authorize call.
+struct Key {
+    /// @dev Unix timestamp at which the key expires (0 = never).
+    uint40 expiry;
+    /// @dev Type of key. See the {KeyType} enum.
+    KeyType keyType;
+    /// @dev Whether the key is a super admin key.
+    /// Super admin keys are allowed to call into super admin functions such as
+    /// `authorize` and `revoke` via `execute`.
+    bool isSuperAdmin;
+    /// @dev Public key in encoded form.
+    bytes publicKey;
+}
 ```
 
 #### Key Types
 
 ```solidity
-    /// @dev The type of key.
-    enum KeyType {
-        P256,
-        WebAuthnP256,
-        Secp256k1,
-        External
-    }
+/// @dev The type of key.
+enum KeyType {
+    P256,
+    WebAuthnP256,
+    Secp256k1,
+    External
+}
 ```
 
 The account supports 4 key types natively -
@@ -48,7 +48,7 @@ Each key in the account is uniquely identified by its keyHash.
 The keyHash is calculated as -
 
 ```solidity
-    bytes32 keyHash = keccak256(abi.encode(key.keyType, keccak256(key.publicKey)))
+bytes32 keyHash = keccak256(abi.encode(key.keyType, keccak256(key.publicKey)))
 ```
 
 ### Super Admin Keys
@@ -103,18 +103,18 @@ The Porto Account uses the [ERC 7821](https://eips.ethereum.org/EIPS/eip-7821) E
 Executions are accepted in the form of `Calls`
 
 ```solidity
-    /// @dev Call struct for the `execute` function.
-    struct Call {
-        address to; // Replaced as `address(this)` if `address(0)`.
-        uint256 value; // Amount of native currency (i.e. Ether) to send.
-        bytes data; // Calldata to send with the call.
-    }
+/// @dev Call struct for the `execute` function.
+struct Call {
+    address to; // Replaced as `address(this)` if `address(0)`.
+    uint256 value; // Amount of native currency (i.e. Ether) to send.
+    bytes data; // Calldata to send with the call.
+}
 ```
 
 The execution interface is
 
 ```solidity
-    function execute(bytes32 mode, bytes calldata executionData) public payable virtual;
+function execute(bytes32 mode, bytes calldata executionData) public payable;
 ```
 
 ### Modes
@@ -128,7 +128,9 @@ The Porto Account supports the following execution mode.
 Delegate calls are **not** supported.
 
 :::note
-The single batch mode without `opData` is only supported for self calls. In 7702 Delegated accounts, a call originating from the EOA is also considered a self call because `msg.sender == address(this)` in the contract.
+The single batch mode without `opData` is only supported for self calls. 
+
+In 7702 Delegated accounts, a call originating from the EOA is also considered a self call because `msg.sender == address(this)` in the contract.
 :::
 
 ### Execution senders and opData
@@ -148,7 +150,10 @@ The orchestrator is given some special privileges in the account. These are disc
 
 One of these privileges is the ability to verify signature & increment nonces before calling `execute` on the account.
 
-Therefore, the `opData` if the orchestrator is the sender is structured as `bytes opData = abi.encode(bytes32 keyHash)`
+Therefore, the `opData` if the orchestrator is the sender is structured as 
+```solidity
+bytes opData = abi.encode(bytes32 keyHash)
+```
 
 This execution type is exclusively used by the intent flow.
 
@@ -156,25 +161,27 @@ This execution type is exclusively used by the intent flow.
 
 Any other external caller, has to provide a nonce and a signature for any execution they want to do on the account.
 
-Therefore, the `opData` is structured as `bytes opData = abi.encode(uint256 nonce, bytes signature)`
+Therefore, the `opData` is structured as 
+```solidity
+bytes opData = abi.encode(uint256 nonce, bytes signature)
+```
 
 ### Example
 
 The execution data for a batch of calls being sent by an arbitrary sender would look like this
 ```solidity
+Call memory call = Call({
+    to: <address>,
+    value: 0,
+    data: <swap tokens>
+});
 
-    Call memory call = Call({
-        to: <address>,
-        value: 0,
-        data: <swap tokens>
-    });
+uint256 nonce = account.getNonce(0); // 0 is the uint192 sequence key
+bytes memory signature = _sign(computeDigest(calls, nonce));
+bytes memory opData = abi.encodePacked(nonce, signature);
+bytes memory executionData = abi.encode(calls, opData);
 
-    uint256 nonce = account.getNonce(0); // 0 is the uint192 sequence key
-    bytes memory signature = _sign(computeDigest(calls, nonce));
-    bytes memory opData = abi.encodePacked(nonce, signature);
-    bytes memory executionData = abi.encode(calls, opData);
-
-    account.execute(_ERC7821_BATCH_EXECUTION_MODE, executionData);
+account.execute(_ERC7821_BATCH_EXECUTION_MODE, executionData);
 ```
 
 ## Orchestrator Integration
@@ -186,20 +193,20 @@ More details about the whole intent flow can be found in the [Orchestrator docum
 
 ### 1. Pay
 ```solidity
-    /// @dev Pays `paymentAmount` of `paymentToken` to the `paymentRecipient`.
-    function pay(
-        uint256 paymentAmount,
-        bytes32 keyHash,
-        bytes32 intentDigest,
-        bytes calldata encodedIntent
-    ) public virtual
+/// @dev Pays `paymentAmount` of `paymentToken` to the `paymentRecipient`.
+function pay(
+    uint256 paymentAmount,
+    bytes32 keyHash,
+    bytes32 intentDigest,
+    bytes calldata encodedIntent
+) public; 
 ```
 Allows the orchestrator to transfer the `paymentAmount` specified in the intent signed by the user, pre and post execution.
 
 ### 2. Check and Increment Nonce 
 ```solidity
-    /// @dev Checks current nonce and increments the sequence for the `seqKey`.
-    function checkAndIncrementNonce(uint256 nonce) public payable virtual
+/// @dev Checks current nonce and increments the sequence for the `seqKey`.
+function checkAndIncrementNonce(uint256 nonce) public payable; 
 ```
 
 Checks if the `nonce` specified in the intent is valid, and increments the sequence if it is.
