@@ -505,7 +505,6 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
         onClick={() =>
           connect.mutate({
             connector,
-            createAccount: false,
             grantPermissions,
           })
         }
@@ -613,6 +612,12 @@ function BuyNow(props: { chainId: ChainId; next: () => void }) {
         onClick={() =>
           sendCalls({
             calls: [
+              {
+                abi: exp1Config.abi,
+                args: [expNftConfig.address[chainId], Value.fromEther('10')],
+                functionName: 'approve',
+                to: exp1Config.address[chainId],
+              },
               {
                 abi: expNftConfig.abi,
                 functionName: 'mint',

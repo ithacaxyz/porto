@@ -43,19 +43,29 @@ export default defineConfig({
             text: 'Overview 🚧',
           },
           {
+            link: '/rpc-server/wallet_getCapabilities',
+            text: 'wallet_getCapabilities',
+          },
+          {
+            link: '/rpc-server/wallet_prepareCreateAccount',
+            text: 'wallet_prepareCreateAccount',
+          },
+          {
             disabled: true,
             link: '/rpc-server/wallet_createAccount',
             text: 'wallet_createAccount 🚧',
           },
           {
-            disabled: true,
-            link: '/rpc-server/wallet_getKeys',
-            text: 'wallet_getKeys 🚧',
+            link: '/rpc-server/wallet_getAccounts',
+            text: 'wallet_getAccounts',
           },
           {
-            disabled: true,
+            link: '/rpc-server/wallet_getKeys',
+            text: 'wallet_getKeys',
+          },
+          {
             link: '/rpc-server/wallet_prepareCalls',
-            text: 'wallet_prepareCalls 🚧',
+            text: 'wallet_prepareCalls',
           },
           {
             disabled: true,
@@ -63,14 +73,26 @@ export default defineConfig({
             text: 'wallet_prepareUpgradeAccount 🚧',
           },
           {
-            disabled: true,
             link: '/rpc-server/wallet_sendPreparedCalls',
-            text: 'wallet_sendPreparedCalls 🚧',
+            text: 'wallet_sendPreparedCalls',
           },
           {
             disabled: true,
             link: '/rpc-server/wallet_upgradeAccount',
             text: 'wallet_upgradeAccount 🚧',
+          },
+          {
+            link: '/rpc-server/wallet_getCallsStatus',
+            text: 'wallet_getCallsStatus',
+          },
+          {
+            disabled: true,
+            link: '/rpc-server/wallet_verifySignature',
+            text: 'wallet_verifySignature 🚧',
+          },
+          {
+            link: '/rpc-server/wallet_health',
+            text: 'wallet_health',
           },
         ],
         text: 'RPC Reference',
@@ -220,11 +242,6 @@ export default defineConfig({
               },
               {
                 disabled: true,
-                link: '/sdk/wagmi/createAccount',
-                text: 'createAccount',
-              },
-              {
-                disabled: true,
                 link: '/sdk/wagmi/disconnect',
                 text: 'disconnect',
               },
@@ -259,11 +276,6 @@ export default defineConfig({
                 disabled: true,
                 link: '/sdk/wagmi/useConnect',
                 text: 'useConnect',
-              },
-              {
-                disabled: true,
-                link: '/sdk/wagmi/useCreateAccount',
-                text: 'useCreateAccount',
               },
               {
                 disabled: true,
@@ -303,6 +315,10 @@ export default defineConfig({
             text: 'Overview',
           },
           {
+            link: '/sdk/rpc/capabilities',
+            text: 'Capabilities',
+          },
+          {
             link: '/sdk/rpc/eth_accounts',
             text: 'eth_accounts',
           },
@@ -319,32 +335,12 @@ export default defineConfig({
             text: 'eth_signTypedData_V4',
           },
           {
-            link: '/sdk/rpc/experimental_createAccount',
-            text: 'experimental_createAccount',
-          },
-          {
-            link: '/sdk/rpc/experimental_getAccountVersion',
-            text: 'experimental_getAccountVersion',
-          },
-          {
-            link: '/sdk/rpc/experimental_getAdmins',
-            text: 'experimental_getAdmins',
-          },
-          {
             link: '/sdk/rpc/experimental_getPermissions',
             text: 'experimental_getPermissions',
           },
           {
-            link: '/sdk/rpc/experimental_grantAdmin',
-            text: 'experimental_grantAdmin',
-          },
-          {
             link: '/sdk/rpc/experimental_grantPermissions',
             text: 'experimental_grantPermissions',
-          },
-          {
-            link: '/sdk/rpc/experimental_revokeAdmin',
-            text: 'experimental_revokeAdmin',
           },
           {
             link: '/sdk/rpc/experimental_revokePermissions',

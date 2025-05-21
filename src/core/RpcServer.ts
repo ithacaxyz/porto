@@ -4,8 +4,7 @@ import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import { type Client, createClient, http } from 'viem'
-
+import { type Client, createClient, http, zeroAddress } from 'viem'
 import * as Account from './Account.js'
 import type { Chain } from './Chains.js'
 import type * as Capabilities from './internal/rpcServer/typebox/capabilities.js'
@@ -49,7 +48,7 @@ export async function createAccount(
 
   const hasSessionKey = keys.some((x) => x.role === 'session')
   const entrypoint = hasSessionKey
-    ? (await Actions.getCapabilities(client)).contracts.entrypoint
+    ? (await Actions.getCapabilities(client)).contracts.entrypoint.address
     : undefined
 
   const keys_rpc = keys.map((key) =>
@@ -239,16 +238,26 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   client: Client,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
-  const { calls, key, feeToken, nonce, preCalls, revokeKeys, sponsorUrl } =
-    parameters
+  const {
+    calls,
+    key,
+    feeToken,
+    nonce,
+    permissionsFeeLimit,
+    preCalls,
+    revokeKeys,
+    sponsorUrl,
+  } = parameters
 
-  const account = Account.from(parameters.account)
+  const account = parameters.account
+    ? Account.from(parameters.account)
+    : undefined
 
   const hasSessionKey = parameters.authorizeKeys?.some(
     (x) => x.role === 'session',
   )
   const entrypoint = hasSessionKey
-    ? (await Actions.getCapabilities(client)).contracts.entrypoint
+    ? (await Actions.getCapabilities(client)).contracts.entrypoint.address
     : undefined
 
   const idSigner = createIdSigner()
@@ -263,7 +272,18 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         },
         { entrypoint },
       )
-    return Key.toRpcServer(key, { entrypoint })
+
+    const permissions = resolvePermissions(key, {
+      feeToken,
+      permissionsFeeLimit,
+    })
+    return Key.toRpcServer(
+      {
+        ...key,
+        permissions,
+      },
+      { entrypoint },
+    )
   })
 
   const preOp = typeof preCalls === 'boolean' ? preCalls : false
@@ -285,7 +305,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
   const { capabilities, context, digest } = await Actions.prepareCalls(
     client_,
     {
-      address: account.address,
+      address: account?.address,
       calls: (calls ?? []) as any,
       capabilities: {
         authorizeKeys,
@@ -299,7 +319,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
           hash: key.hash,
         })),
       },
-      key: Key.toRpcServer(key),
+      key: key ? Key.toRpcServer(key) : undefined,
     },
   )
   return {
@@ -317,11 +337,13 @@ export namespace prepareCalls {
     /** Additional keys to authorize on the account. */
     authorizeKeys?: readonly Key.Key[] | undefined
     /** Account to prepare the calls for. */
-    account: Account.Account
+    account?: Account.Account | undefined
     /** Calls to prepare. */
     calls?: Actions.prepareCalls.Parameters<calls>['calls'] | undefined
     /** Key that will be used to sign the calls. */
-    key: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>
+    key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
+    /** Permissions fee limit. */
+    permissionsFeeLimit?: bigint | undefined
     /**
      * Indicates if the bundle is "pre-calls", and should be executed before
      * the main bundle.
@@ -375,9 +397,9 @@ export async function prepareCreateAccount(
 
   const { contracts } = await Actions.getCapabilities(client)
 
-  const delegation = parameters.delegation ?? contracts.delegationProxy
+  const delegation = parameters.delegation ?? contracts.delegationProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey ? contracts.entrypoint : undefined
+  const entrypoint = hasSessionKey ? contracts.entrypoint.address : undefined
 
   const authorizeKeys = keys.map((key) =>
     Key.toRpcServer(key, {
@@ -443,7 +465,7 @@ export async function prepareUpgradeAccount(
   client: Client,
   parameters: prepareUpgradeAccount.Parameters,
 ) {
-  const { address, feeToken } = parameters
+  const { address, feeToken, permissionsFeeLimit } = parameters
 
   const { contracts } = await Actions.getCapabilities(client)
 
@@ -455,15 +477,26 @@ export async function prepareUpgradeAccount(
       ? await parameters.keys({ ids: [idSigner_root.id] })
       : parameters.keys
 
-  const delegation = parameters.delegation ?? contracts.delegationProxy
+  const delegation = parameters.delegation ?? contracts.delegationProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
-  const entrypoint = hasSessionKey ? contracts.entrypoint : undefined
+  const entrypoint = hasSessionKey ? contracts.entrypoint.address : undefined
 
-  const keys_rpc = keys.map((key) =>
-    Key.toRpcServer(key, {
-      entrypoint,
-    }),
-  )
+  const keys_rpc = keys.map((key) => {
+    const permissions =
+      key.role === 'session'
+        ? resolvePermissions(key, {
+            feeToken,
+            permissionsFeeLimit,
+          })
+        : undefined
+    return Key.toRpcServer(
+      {
+        ...key,
+        permissions,
+      },
+      { entrypoint },
+    )
+  })
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
   const authorizeKeys = signers.map((signer, index) => ({
@@ -517,6 +550,8 @@ export declare namespace prepareUpgradeAccount {
     keys:
       | readonly Key.Key[]
       | ((p: { ids: readonly Hex.Hex[] }) => MaybePromise<readonly Key.Key[]>)
+    /** Permissions fee limit. */
+    permissionsFeeLimit?: bigint | undefined
   }
 
   export type ReturnType = Omit<
@@ -559,7 +594,6 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   }
 
   // If no signature is provided, prepare the calls and sign them.
-
   const account = Account.from(parameters.account)
   const key = parameters.key ?? Account.getKey(account, parameters)
   if (!key) throw new Error('key is required')
@@ -624,11 +658,13 @@ export declare namespace sendCalls {
         /** Context. */
         context: prepareCalls.ReturnType['context']
         /** Key. */
-        key: prepareCalls.ReturnType['key']
+        key: NonNullable<prepareCalls.ReturnType['key']>
         /** Signature. */
         signature: Hex.Hex
       }
-    | (Omit<prepareCalls.Parameters<calls>, 'key' | 'preCalls'> & {
+    | (Omit<prepareCalls.Parameters<calls>, 'account' | 'key' | 'preCalls'> & {
+        /** Account to send the calls with. */
+        account: Account.Account
         /** Key to sign the bundle with. */
         key?: Key.Key | undefined
         /** Calls to execute before the main bundle. */
@@ -698,4 +734,26 @@ export declare namespace upgradeAccount {
   export type ErrorType =
     | Actions.upgradeAccount.ErrorType
     | Errors.GlobalErrorType
+}
+
+function resolvePermissions(
+  key: Key.Key,
+  options: {
+    feeToken?: Address.Address | undefined
+    permissionsFeeLimit?: bigint | undefined
+  },
+) {
+  const { feeToken, permissionsFeeLimit } = options
+
+  const spend = key.permissions?.spend?.map((spend) => {
+    const token = feeToken ?? zeroAddress
+    if (spend.token && Address.isEqual(token, spend.token))
+      return {
+        ...spend,
+        limit: spend.limit + (permissionsFeeLimit ?? 0n),
+      }
+    return spend
+  })
+
+  return { ...key.permissions, ...(spend && { spend }) }
 }

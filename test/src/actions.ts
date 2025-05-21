@@ -127,11 +127,17 @@ export async function setBalance(
       functionName: 'mint',
     })
   } else {
+    const privateKey = (() => {
+      const dispatchType = process.env.VITE_DISPATCH_TYPE
+      if (dispatchType === 'release')
+        return process.env.VITE_FAUCET_PRIVATE_KEY_RELEASE
+      if (dispatchType === 'deployment')
+        return process.env.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT
+      return process.env.VITE_FAUCET_PRIVATE_KEY
+    })() as `0x${string}`
     const hash = await writeContract(client, {
       abi: exp1Abi,
-      account: privateKeyToAccount(
-        process.env.VITE_FAUCET_PRIVATE_KEY as `0x${string}`,
-      ),
+      account: privateKeyToAccount(privateKey),
       address: exp1Address,
       args: [address, value],
       functionName: 'mint',

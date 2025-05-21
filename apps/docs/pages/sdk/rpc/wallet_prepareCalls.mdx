@@ -27,6 +27,16 @@ type Request = {
       /** Value to transfer. */
       value?: `0x${string}`;
     }[];
+    /** Capabilities to use for this request. */
+    capabilities?: {
+      /** Custom fee token to use. */
+      feeToken?: `0x${string}`;
+      /** Permissions to use for this request. */
+      permissions?: {
+        /** ID of the permission. */
+        id?: `0x${string}`;
+      };
+    };
     /** 
      * Chain ID to send the calls to.
      * If not provided, the current chain will be used.
@@ -36,7 +46,11 @@ type Request = {
      * Key that will be used to sign over the digest.
      */
     key: {
+      /** Whether the key prehashes digests before signing (e.g. WebCrypto P256). */
+      prehash?: boolean;
+      /** Public key. Accepts an address for `address` & `secp256k1` types. */
       publicKey: `0x${string}`,
+      /** Key type. */
       type: 'address' | 'secp256k1' | 'p256' | 'webauthn-256'
     };
     /** 

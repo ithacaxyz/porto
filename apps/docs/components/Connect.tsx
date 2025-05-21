@@ -1,6 +1,5 @@
 import { useCopyToClipboard } from '@porto/apps/hooks'
-import { Hooks } from 'porto/wagmi'
-import { useAccount, useConnectors } from 'wagmi'
+import { useAccount, useConnect, useConnectors, useDisconnect } from 'wagmi'
 import LucideCheck from '~icons/lucide/check'
 import { Button } from './Button'
 
@@ -8,8 +7,8 @@ export function Connect(props: Connect.Props) {
   const { variant = 'default', signInText = 'Sign in' } = props
 
   const account = useAccount()
-  const connect = Hooks.useConnect()
-  const disconnect = Hooks.useDisconnect()
+  const connect = useConnect()
+  const disconnect = useDisconnect()
   const connectors = useConnectors()
   const connector = connectors.find(
     (connector) => connector.id === 'xyz.ithaca.porto',
@@ -38,7 +37,7 @@ export function Connect(props: Connect.Props) {
           </Button>
         )}
         <Button
-          onClick={() => disconnect.mutate({})}
+          onClick={() => disconnect.disconnect({})}
           size={size}
           variant="destructive"
         >
@@ -58,7 +57,7 @@ export function Connect(props: Connect.Props) {
   return (
     <div>
       <Button
-        onClick={() => connect.mutate({ connector: connector! })}
+        onClick={() => connect.connect({ connector: connector! })}
         size={size}
         variant={variant === 'topnav' ? 'accentTint' : 'accent'}
       >

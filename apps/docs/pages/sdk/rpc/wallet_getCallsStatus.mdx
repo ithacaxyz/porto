@@ -18,6 +18,8 @@ type Request = {
 
 ```ts
 type Response = {
+  /** Whether the calls were submitted atomically. */
+  atomic: true
   /** Chain ID the calls were submitted to. */
   chainId: `0x${string}`,
   /** ID of the call bundle. */
@@ -61,3 +63,13 @@ const status = await provider.request({ // [!code focus]
   params: ['0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'], // [!code focus]
 }) // [!code focus]
 ```
+
+## Status Codes
+
+| Code  | Status Text | Description                                                                                                                    |
+| ----- | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `100` | `pending`   | Batch has been received by the wallet but has not completed execution onchain (pending).                                       |
+| `200` | `success`   | Batch has been included onchain without reverts, receipts array contains info of all calls (confirmed).                        |
+| `400` | `failure`   | Batch has not been included onchain and wallet will not retry (offchain failure).                                              |
+| `500` | `failure`   | Batch reverted completely and only changes related to gas charge may have been included onchain (chain rules failure).         |
+| `600` | `failure`   | Batch reverted partially and some changes related to batch calls may have been included onchain (partial chain rules failure). |

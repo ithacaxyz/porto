@@ -58,7 +58,8 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        local: ['true', 'false']
+        # Only run deployment tests on main branch or when triggered by a repository dispatch.
+        local: ${{ fromJSON((github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && '["true", "false"]' || '["true"]') }}
 
     steps:
       - name: Clone repository
@@ -91,4 +92,7 @@ jobs:
           VITE_LOCAL: ${{ matrix.local }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
+          VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
+          VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
+          VITE_DISPATCH_TYPE: ${{ github.event_name == 'repository_dispatch' && github.event.action || '' }}
           VITE_GECKO_API: ${{ secrets.VITE_GECKO_API }}

@@ -294,7 +294,7 @@ describe('getCallsStatus', () => {
 
     const { id } = await sendPreparedCalls(client, {
       context: request.context,
-      key: request.key,
+      key: request.key!,
       signature,
     })
 
@@ -434,7 +434,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
 
     await sendPreparedCalls(client, {
       context: request.context,
-      key: request.key,
+      key: request.key!,
       signature,
     })
   })
@@ -496,10 +496,10 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const result = await sendPreparedCalls(client, {
-      ...request,
       capabilities: {
         feeSignature: sponsorSignature,
       },
+      key: request.key!,
       signature,
     })
 
@@ -562,7 +562,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
 
     await sendPreparedCalls(client, {
       context: request.context,
-      key: request.key,
+      key: request.key!,
       signature,
     })
   })

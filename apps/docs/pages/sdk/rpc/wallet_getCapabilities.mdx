@@ -25,11 +25,11 @@ type Request = {
 ```ts
 type Response = {
   capabilities: {
-    atomicBatch: {
-      supported: true
+    atomic: {
+      status: "supported" | "unsupported"
     }
-    createAccount: {
-      supported: true
+    feeToken: {
+      supported: true,
     },
     permissions: {
       supported: true

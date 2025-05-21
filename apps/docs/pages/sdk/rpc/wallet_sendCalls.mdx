@@ -10,7 +10,7 @@ Requests for the Wallet to broadcast a bundle of calls to the network.
   exampleSlug="#mint-erc20-tokens"
   fn={async ({ provider }) => {
     const exp = {
-      address: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+      address: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
       abi: parseAbi([
         'function mint(address, uint256)',
       ]),
@@ -57,6 +57,16 @@ type Request = {
       /** Value to transfer. */
       value?: `0x${string}`;
     }[];
+    /** Capabilities. */
+    capabilities?: {
+      /** Custom fee token to use. */
+      feeToken?: `0x${string}`;
+      /** Permissions to use for this request. */
+      permissions?: {
+        /** ID of the permission to use. */
+        id: `0x${string}`;
+      };
+    };
     /** 
      * Chain ID to send the calls to.
      * If not provided, the current chain will be used.
@@ -67,13 +77,6 @@ type Request = {
      * If not provided, the Account will be filled by the Wallet.
      */
     from?: `0x${string}`;
-    /** Capabilities. */
-    capabilities?: {
-      permissions?: {
-        /** ID of the permission to use. */
-        id: `0x${string}`;
-      };
-    };
   }]
 }
 ```
@@ -124,7 +127,7 @@ const hash = await provider.request({ // [!code focus]
   method: 'wallet_sendCalls', // [!code focus]
   params: [{ // [!code focus]
     calls: [{ // [!code focus]
-      to: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c', // [!code focus]
+      to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
       data: encodeFunctionData({ // [!code focus]
         abi: parseAbi([ // [!code focus]
           'function mint(address, uint256)', // [!code focus]
@@ -140,7 +143,7 @@ const hash = await provider.request({ // [!code focus]
 <TryItOut
   fn={async ({ provider }) => {
     const exp = {
-      address: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+      address: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
       abi: parseAbi([
         'function mint(address, uint256)',
       ]),

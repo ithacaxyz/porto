@@ -811,10 +811,7 @@ export function from<
         case 'wallet_getCapabilities': {
           const value = {
             atomic: {
-              supported: true,
-            },
-            createAccount: {
-              supported: true,
+              status: 'supported',
             },
             feeToken: {
               supported: true,
@@ -822,10 +819,7 @@ export function from<
             permissions: {
               supported: true,
             },
-            preCalls: {
-              supported: true,
-            },
-          }
+          } as const
 
           const capabilities = {} as Record<Hex.Hex, typeof value>
           for (const chain of config.chains)
