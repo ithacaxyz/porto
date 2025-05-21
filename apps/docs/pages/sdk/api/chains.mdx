@@ -139,51 +139,21 @@ The dedicated Porto development testnet.
 }
 ```
 
-## Defining Custom Chains
-
-You can define your own chains with Porto-specific contract addresses using the `define` function:
-
-```ts
-import { Chains } from 'porto'
-
-const myCustomChain = Chains.define({
-  id: 123456,
-  name: 'My Custom Chain',
-  nativeCurrency: {
-    name: 'Ether',
-    symbol: 'ETH',
-    decimals: 18
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://my-custom-chain.rpc.example.com']
-    }
-  },
-  contracts: {
-    // Porto delegation contract address on your chain
-    delegation: {
-      address: '0x123abc...'
-    }
-  },
-  testnet: true // or false for mainnet
-})
-```
-
 ## Usage with Porto
 
 When creating a Porto instance, you can specify which chain to use:
 
-```ts
+```ts twoslash
 import { Porto, Chains } from 'porto'
 
 // Create a Porto instance that uses Base Sepolia
 const porto = Porto.create({
-  chain: Chains.baseSepolia
+  chains: [Chains.baseSepolia]
 })
 
-// Or use the Porto Dev testnet
+// Or use multiple chains
 const portoDev = Porto.create({
-  chain: Chains.portoDev
+  chains: [Chains.portoDev, Chains.baseSepolia]
 })
 ```
 
@@ -191,7 +161,7 @@ const portoDev = Porto.create({
 
 The chains can also be used with wagmi when configuring your application:
 
-```ts
+```ts twoslash
 import { createConfig, http } from 'wagmi'
 import { porto } from 'porto/wagmi'
 import { Chains } from 'porto'
