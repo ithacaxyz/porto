@@ -230,7 +230,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             })
           : ({ context: undefined, digest: '0x' } as const)
 
-        const { credentialId, keyId, signature } = await (async () => {
+        const { credentialId, keyId, webAuthnSignature } = await (async () => {
           if (mock) {
             if (!id_internal) throw new Error('id_internal not found.')
             return {
@@ -247,23 +247,21 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
               keyId: parameters.keyId,
             }
 
-          // Discovery step. We will sign a random challenge. We need to do this
-          // to extract the user id (ie. the address) to query for the Account's keys.
-          const credential = await WebAuthnP256.sign({
+          // Discovery step. We need to do this to extract the key id
+          // to query for the Account.
+          // We will also optionally sign over a digest to authorize
+          // a session key if the user has provided one.
+          const webAuthnSignature = await WebAuthnP256.sign({
             challenge: digest,
             rpId: keystoreHost,
           })
-          const response = credential.raw
+          const response = webAuthnSignature.raw
             .response as AuthenticatorAssertionResponse
 
           const keyId = Bytes.toHex(new Uint8Array(response.userHandle!))
-          const credentialId = credential.raw.id
+          const credentialId = webAuthnSignature.raw.id
 
-          const signature = digest
-            ? Key.serializeWebAuthnSignature(credential)
-            : undefined
-
-          return { credentialId, keyId, signature }
+          return { credentialId, keyId, webAuthnSignature }
         })()
 
         const accounts = await RpcServer.getAccounts(client, { keyId })
@@ -292,16 +290,34 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }),
         })
 
-        const preCalls = await (async () => {
-          if (context && signature) return [{ context, signature }]
-          if (authorizeKey)
-            return await getAuthorizeKeyPreCalls(client, {
-              account,
-              authorizeKey,
-              feeToken,
-            })
-          return []
+        // Get the signature of the authorize session key pre-call.
+        const signature = await (async () => {
+          // If we don't have a digest, we never signed over anything.
+          if (digest === '0x') return undefined
+
+          const adminKey = Account.getKey(account, { role: 'admin' })!
+
+          // If we signed to authorize the session key at credential
+          // discovery, we will need to form the signature and store it
+          // as a signed pre-call.
+          if (webAuthnSignature)
+            return Key.wrapSignature(
+              Key.serializeWebAuthnSignature(webAuthnSignature),
+              {
+                keyType: 'webauthn-p256',
+                publicKey: adminKey.publicKey,
+              },
+            )
+
+          // Otherwise, we will sign over the digest for authorizing
+          // the session key.
+          return await Key.sign(adminKey, {
+            payload: digest,
+          })
         })()
+
+        const preCalls = context && signature ? [{ context, signature }] : []
+
         if (persistPreCalls)
           await PreCalls.add(preCalls, {
             address: account.address,
