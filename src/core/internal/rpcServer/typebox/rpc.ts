@@ -111,7 +111,7 @@ export namespace wallet_getCapabilities {
           Type.Object({
             /** Extra buffer added to transaction gas estimates. */
             txBuffer: Typebox.Optional(Type.Number()),
-            /** Extra buffer added to UserOp gas estimates. */
+            /** Extra buffer added to Intent gas estimates. */
             userOpBuffer: Typebox.Optional(Type.Number()),
           }),
         ),

@@ -8,18 +8,18 @@ import * as Primitive from '../../typebox/primitive.js'
 import type * as Typebox from '../../typebox/typebox.js'
 import { Type } from '../../typebox/typebox.js'
 
-export const UserOp = Type.Object({
+export const Intent = Type.Object({
   /** The combined gas limit for payment, verification, and calling the EOA. */
   combinedGas: Primitive.BigInt,
   /**
-   * Optional array of encoded UserOps that will be verified and executed
-   * after PREP (if any) and before the validation of the overall UserOp.
+   * Optional array of encoded Intents that will be verified and executed
+   * after PREP (if any) and before the validation of the overall Intent.
    *
    * A PreOp will NOT have its gas limit or payment applied.
-   * The overall UserOp's gas limit and payment will be applied, encompassing all its PreOps.
+   * The overall Intent's gas limit and payment will be applied, encompassing all its PreOps.
    * The execution of a PreOp will check and increment the nonce in the PreOp.
    * If at any point, any PreOp cannot be verified to be correct, or fails in execution,
-   * the overall UserOp will revert before validation, and execute will return a non-zero error.
+   * the overall Intent will revert before validation, and execute will return a non-zero error.
    * A PreOp can contain PreOps, forming a tree structure.
    * The `executionData` tree will be executed in post-order (i.e. left -> right -> current).
    * The `encodedPreOps` are included in the EIP712 signature, which enables execution order
@@ -65,7 +65,7 @@ export const UserOp = Type.Object({
    *      `-------------------------------------'
    *
    * If the upper 16 bits of the sequence key is `0xc1d0`, then the EIP-712 has
-   * of the UserOp will exlude the chain ID.
+   * of the Intent will exlude the chain ID.
    *
    * # Ordering
    *
@@ -130,7 +130,7 @@ export const UserOp = Type.Object({
    */
   totalPaymentMaxAmount: Primitive.BigInt,
 })
-export type UserOp = Typebox.StaticDecode<typeof UserOp>
+export type Intent = Typebox.StaticDecode<typeof Intent>
 
 export const Partial = Type.Object({
   eoa: Primitive.Address,
@@ -145,7 +145,7 @@ export const PreOp = Type.Object({
    * The user's address.
    *
    * This can be set to `address(0)`, which allows it to be
-   * coalesced to the parent UserOp's EOA.
+   * coalesced to the parent Intent's EOA.
    */
   eoa: Primitive.Address,
   /**
@@ -156,10 +156,10 @@ export const PreOp = Type.Object({
    */
   executionData: Primitive.Hex,
   /**
-   * Per delegated EOA. Same logic as the `nonce` in UserOp.
+   * Per delegated EOA. Same logic as the `nonce` in Intent.
    *
    * A nonce of `type(uint256).max` skips the check, incrementing,
-   * and the emission of the {UserOpExecuted} event.
+   * and the emission of the {IntentExecuted} event.
    */
   nonce: Primitive.BigInt,
   /**

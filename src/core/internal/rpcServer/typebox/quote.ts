@@ -9,7 +9,7 @@ import * as Typebox from '../../typebox/typebox.js'
 import { Type } from '../../typebox/typebox.js'
 import * as Intent from './intent.js'
 
-/** A quote from the RPC for a given `UserOp`. */
+/** A quote from the RPC for a given `Intent`. */
 export const Quote = Type.Object({
   /**
    * An optional unsigned authorization item.
@@ -22,20 +22,20 @@ export const Quote = Type.Object({
   /** Chain ID the quote is for. */
   // TODO: `Primitive.Number`
   chainId: Type.Number(),
-  /** The orchestrator for the quote. */
-  ethPrice: Primitive.BigInt,
   /** The price (in wei) of ETH in the payment token. */
-  extraPayment: Primitive.BigInt,
+  ethPrice: Primitive.BigInt,
   /** Extra payment for e.g L1 DA fee that is paid on top of the execution gas. */
+  extraPayment: Primitive.BigInt,
+  /** The fee estimate for the bundle in the destination chains native token. */
   nativeFeeEstimate: Type.Object({
     /** The maximum fee per gas for the bundle. */
     maxFeePerGas: Primitive.BigInt,
     /** The maximum priority fee per gas for the bundle. */
     maxPriorityFeePerGas: Primitive.BigInt,
   }),
-  /** The fee estimate for the bundle in the destination chains native token. */
-  op: Intent.UserOp,
-  /** The `UserOp` the quote is for. */
+  /** The `Intent` the quote is for. */
+  op: Intent.Intent,
+  /** The orchestrator for the quote. */
   orchestrator: Primitive.Address,
   /** The decimals of the payment token. */
   paymentTokenDecimals: Type.Number(),
