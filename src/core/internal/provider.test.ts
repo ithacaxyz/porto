@@ -631,8 +631,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.1.2",
-          "latest": "0.1.2",
+          "current": "0.2.0",
+          "latest": "0.2.0",
         }
       `)
     })
@@ -650,8 +650,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.1.2",
-          "latest": "0.1.2",
+          "current": "0.2.0",
+          "latest": "0.2.0",
         }
       `)
     })
@@ -727,7 +727,7 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.1.2",
+          "latest": "0.2.0",
         }
       `)
     })
