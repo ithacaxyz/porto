@@ -1,0 +1,119 @@
+# `revokePermissions`
+
+VanillaJS action for revoking permissions. Uses [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions) under the hood.
+
+## Usage
+
+```ts twoslash
+import { Actions } from 'porto/wagmi'
+import { porto } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()],
+  ssr: true,
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+
+// ...account already connected
+
+// Revoke a permission
+await Actions.revokePermissions(config, {
+  id: '0x...' // Permission ID to revoke
+})
+```
+
+## Parameters
+
+```ts
+type Parameters = {
+  /** Chain ID to revoke permissions on */
+  chainId?: number
+
+  /** The connector to use */
+  connector?: Connector
+
+  /** Address of the account to revoke permissions for.
+   * Defaults to the current account.
+   */
+  address?: `0x${string}`
+
+  /** ID of the permission to revoke */
+  id: `0x${string}`
+
+  /** Optional fee token to use for the transaction */
+  feeToken?: `0x${string}`
+}
+```
+
+## Return Value
+
+This function doesn't return a value.
+
+## Example with Error Handling
+
+```ts
+import { Actions } from 'porto/wagmi'
+import { porto } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+
+const permissions = await Actions.getPermissions(config, {})
+
+if (permissions.length === 0) {
+  console.log('No permissions to revoke')
+} else {
+  const permissionId = permissions[0].id
+
+  try {
+    await Actions.revokePermissions(config, {
+      id: permissionId
+    })
+    console.log(`Successfully revoked permission ${permissionId}`)
+  } catch (error) {
+    console.error('Failed to revoke permission:', error)
+  }
+}
+```
+
+## Example with Specific Account and Fee Token
+
+You can revoke permissions for a specific account and specify a fee token:
+
+```ts
+import { Actions } from 'porto/wagmi'
+import { porto } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+
+const specificAddress = '0x123...' // [!code focus]
+const permissionId = '0x456...' // [!code focus]
+const feeToken = '0x789...' // [!code focus]
+
+// Revoke permission for a specific account using a specific fee token
+await Actions.revokePermissions(config, {
+  address: specificAddress, // [!code focus]
+  id: permissionId,
+  feeToken: feeToken // [!code focus]
+})
+```

@@ -249,30 +249,24 @@ export default defineConfig({
           },
           {
             collapsed: true,
-            disabled: true,
             items: [
               {
-                disabled: true,
                 link: '/sdk/wagmi/connect',
                 text: 'connect',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/disconnect',
                 text: 'disconnect',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/grantPermissions',
                 text: 'grantPermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/permissions',
                 text: 'permissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/revokePermissions',
                 text: 'revokePermissions',
               },
@@ -282,7 +276,7 @@ export default defineConfig({
                 text: 'upgradeAccount',
               },
             ],
-            text: 'Actions 🚧',
+            text: 'Actions',
           },
           {
             collapsed: true,

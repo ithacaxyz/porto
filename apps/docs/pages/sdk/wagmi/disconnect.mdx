@@ -1,0 +1,67 @@
+# `disconnect`
+
+VanillaJS action for disconnecting an account. Uses [`wallet_disconnect`](/sdk/rpc/wallet_disconnect) under the hood.
+
+## Usage
+
+```ts
+import { porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+
+// Disconnect from the current account
+await Actions.disconnect(config, {})
+
+// Disconnect from a specific connector
+await Actions.disconnect(config, {
+  connector: porto(),
+})
+```
+
+## Parameters
+
+```ts
+type Parameters = {
+  /** The connector to disconnect from.
+   * If not provided, the current connector will be used.
+   */
+  connector?: Connector
+}
+```
+
+## Return Value
+
+This function returns `void`.
+
+## Example with Error Handling
+
+```ts
+import { Actions } from 'porto/wagmi'
+import { porto } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+
+try {
+  await Actions.disconnect(config, {})
+  console.log('Successfully disconnected')
+} catch (error) {
+  console.error('Failed to disconnect:', error)
+}
+```

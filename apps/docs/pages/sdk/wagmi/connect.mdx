@@ -1,0 +1,135 @@
+# `connect`
+
+VanillaJS action for connecting an account. Uses [`wallet_connect`](/sdk/rpc/wallet_connect) under the hood.
+
+## Usage
+
+```ts
+import { Actions } from 'porto/wagmi'
+import { porto } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+
+// Connect to an account
+const result = await Actions.connect(config, {
+  connector: porto(),
+})
+
+console.log(result.accounts) // ['0x...']
+console.log(result.chainId) // 84532
+```
+
+## Parameters
+
+```ts
+type Parameters = {
+  /** The connector to use for the connection */
+  connector: Connector | CreateConnectorFn
+
+  /** Chain ID to connect to */
+  chainId?: number
+
+  /** Force connect even if already connected to the connector */
+  force?: boolean
+
+  /** Whether to prompt the user to create a new account */
+  createAccount?: boolean
+
+  /** WebAuthn credential ID to use for authentication */
+  credentialId?: string
+
+  /** Key ID to use for authentication */
+  keyId?: string
+
+  /** Whether to prompt the user to select a specific account */
+  selectAccount?: boolean
+
+  /** Optional permissions to grant during connection */
+  grantPermissions?: {
+    /** Expiry timestamp for the permissions */
+    expiry: number
+
+    /** Permissions to grant */
+    permissions: {
+      /** Call permissions */
+      calls: {
+        /** Function signature or 4-byte signature */
+        signature?: string
+        /** Authorized target address */
+        to?: `0x${string}`
+      }[]
+
+      /** Spend permissions */
+      spend: {
+        /** Spending limit (in wei) per period */
+        limit: `0x${string}`
+        /** Period of the spend limit */
+        period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+        /** ERC20 token to set the limit on (defaults to native token) */
+        token?: `0x${string}`
+      }[]
+    }
+  }
+}
+```
+
+## Return Value
+
+```ts
+type ReturnType = {
+  /** Connected accounts */
+  accounts: readonly [`0x${string}`, ...`0x${string}`[]]
+
+  /** Connected chain ID */
+  chainId: number
+}
+```
+
+## Example with Grant Permissions
+
+You can grant permissions for an application to perform actions on behalf of the account by providing the `grantPermissions` parameter.
+
+```ts
+import { porto } from 'porto/wagmi'
+import { Actions } from 'porto/wagmi'
+import { parseEther, toHex } from 'viem'
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+// Connect and grant permissions
+const result = await Actions.connect(config, {
+  connector: porto(),
+  grantPermissions: {
+    expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
+    permissions: {
+      calls: [{
+        signature: 'transfer(address,uint256)',
+        to: token,
+      }],
+      spend: [{
+        limit: toHex(parseEther('50')), // 50 EXP
+        period: 'day',
+        token: token,
+      }],
+    },
+  },
+})
+```
