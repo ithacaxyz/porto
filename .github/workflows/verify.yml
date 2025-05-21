@@ -58,7 +58,8 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        local: ${{ fromJSON(github.ref == 'refs/heads/main' && '["true", "false"]' || '["true"]') }}
+        # Only run deployment tests on main branch or when triggered by a repository dispatch.
+        local: ${{ fromJSON((github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && '["true", "false"]' || '["true"]') }}
 
     steps:
       - name: Clone repository
