@@ -1,0 +1,27 @@
+# `Storage.idb`
+
+The [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) storage backend for Porto.
+
+Porto uses [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) as the default storage backend in browser environments.
+
+## Usage
+
+```ts twoslash
+import { Porto, Storage } from 'porto'
+
+const porto = Porto.create({
+  storage: Storage.idb()
+})
+```
+
+## Example
+
+An example of combining `Storage.idb` with `Storage.localStorage`:
+
+```ts twoslash
+import { Porto, Storage } from 'porto'
+
+const porto = Porto.create({
+  storage: Storage.combine(Storage.idb(), Storage.localStorage())  // [!code focus]
+})
+```
