@@ -156,3 +156,5 @@ More Details Coming Soon
 More Details Coming Soon
 :::
 
+### Intent Flow Diagram
+![Intent Flow Diagram](/intent-flow.png)
