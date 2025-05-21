@@ -310,9 +310,9 @@ export namespace wallet_prepareCalls {
     authorizeKeys: Typebox.Optional(C.authorizeKeys.Request),
     /** Metadata for the call bundle. */
     meta: C.meta.Request,
-    /** Optional preCalls to execute before signature verification. */
+    /** Whether the call bundle is to be considered a preCall. */
     preCall: Typebox.Optional(Type.Boolean()),
-    /** Whether the call bundle is to be considered a preop. */
+    /** Optional preCalls to execute before signature verification. */
     preCalls: Typebox.Optional(Type.Array(Intent.PreCall)),
     /** Keys to revoke on the account. */
     revokeKeys: Typebox.Optional(C.revokeKeys.Request),
