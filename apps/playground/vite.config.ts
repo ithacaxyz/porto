@@ -92,7 +92,6 @@ export default defineConfig(({ mode }) => ({
             },
             simulator: simulatorAddress,
             userOpGasBuffer: 100_000n,
-            version: 'ba1439a',
           }).start()
           await fetch(rpcServerConfig.rpcUrl + '/start')
           return stop

@@ -248,7 +248,9 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     revokeKeys,
   } = parameters
 
-  const account = Account.from(parameters.account)
+  const account = parameters.account
+    ? Account.from(parameters.account)
+    : undefined
 
   const hasSessionKey = parameters.authorizeKeys?.some(
     (x) => x.role === 'session',
@@ -293,7 +295,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
       : undefined
 
   const { capabilities, context, digest } = await Actions.prepareCalls(client, {
-    address: account.address,
+    address: account?.address,
     calls: (calls ?? []) as any,
     capabilities: {
       authorizeKeys,
@@ -307,7 +309,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
         hash: key.hash,
       })),
     },
-    key: Key.toRpcServer(key),
+    key: key ? Key.toRpcServer(key) : undefined,
   })
   return {
     capabilities: { ...capabilities, quote: context.quote as any },
@@ -324,11 +326,11 @@ export namespace prepareCalls {
     /** Additional keys to authorize on the account. */
     authorizeKeys?: readonly Key.Key[] | undefined
     /** Account to prepare the calls for. */
-    account: Account.Account
+    account?: Account.Account | undefined
     /** Calls to prepare. */
     calls?: Actions.prepareCalls.Parameters<calls>['calls'] | undefined
     /** Key that will be used to sign the calls. */
-    key: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>
+    key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
     /** Permissions fee limit. */
     permissionsFeeLimit?: bigint | undefined
     /**
@@ -578,7 +580,6 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   }
 
   // If no signature is provided, prepare the calls and sign them.
-
   const account = Account.from(parameters.account)
   const key = parameters.key ?? Account.getKey(account, parameters)
   if (!key) throw new Error('key is required')
@@ -630,11 +631,13 @@ export declare namespace sendCalls {
         /** Context. */
         context: prepareCalls.ReturnType['context']
         /** Key. */
-        key: prepareCalls.ReturnType['key']
+        key: NonNullable<prepareCalls.ReturnType['key']>
         /** Signature. */
         signature: Hex.Hex
       }
-    | (Omit<prepareCalls.Parameters<calls>, 'key' | 'preCalls'> & {
+    | (Omit<prepareCalls.Parameters<calls>, 'account' | 'key' | 'preCalls'> & {
+        /** Account to send the calls with. */
+        account: Account.Account
         /** Key to sign the bundle with. */
         key?: Key.Key | undefined
         /** Calls to execute before the main bundle. */

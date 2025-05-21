@@ -882,22 +882,10 @@ export async function sign(
           payload: wrapped,
           privateKey: privateKey.privateKey(),
         })
-        const signature = AbiParameters.encode(
-          AbiParameters.from([
-            'struct WebAuthnAuth { bytes authenticatorData; string clientDataJSON; uint256 challengeIndex; uint256 typeIndex; bytes32 r; bytes32 s; }',
-            'WebAuthnAuth auth',
-          ]),
-          [
-            {
-              authenticatorData: metadata.authenticatorData,
-              challengeIndex: BigInt(metadata.challengeIndex),
-              clientDataJSON: metadata.clientDataJSON,
-              r: Hex.fromNumber(r, { size: 32 }),
-              s: Hex.fromNumber(s, { size: 32 }),
-              typeIndex: BigInt(metadata.typeIndex),
-            },
-          ],
-        )
+        const signature = serializeWebAuthnSignature({
+          metadata,
+          signature: { r, s },
+        })
         return [signature, false]
       }
 
@@ -934,22 +922,10 @@ export async function sign(
 
       if (requireVerification && storage) await storage.setItem(cacheKey, now)
 
-      const signature = AbiParameters.encode(
-        AbiParameters.from([
-          'struct WebAuthnAuth { bytes authenticatorData; string clientDataJSON; uint256 challengeIndex; uint256 typeIndex; bytes32 r; bytes32 s; }',
-          'WebAuthnAuth auth',
-        ]),
-        [
-          {
-            authenticatorData: metadata.authenticatorData,
-            challengeIndex: BigInt(metadata.challengeIndex),
-            clientDataJSON: metadata.clientDataJSON,
-            r: Hex.fromNumber(r, { size: 32 }),
-            s: Hex.fromNumber(s, { size: 32 }),
-            typeIndex: BigInt(metadata.typeIndex),
-          },
-        ],
-      )
+      const signature = serializeWebAuthnSignature({
+        metadata,
+        signature: { r, s },
+      })
       return [signature, false]
     }
     throw new Error(
@@ -1067,6 +1043,35 @@ export declare namespace toRpcServer {
 ///////////////////////////////////////////////////////////////////////////
 // Internal
 ///////////////////////////////////////////////////////////////////////////
+
+export function serializeWebAuthnSignature(
+  options: serializeWebAuthnSignature.Options,
+) {
+  const { metadata, signature } = options
+  return AbiParameters.encode(
+    AbiParameters.from([
+      'struct WebAuthnAuth { bytes authenticatorData; string clientDataJSON; uint256 challengeIndex; uint256 typeIndex; bytes32 r; bytes32 s; }',
+      'WebAuthnAuth auth',
+    ]),
+    [
+      {
+        authenticatorData: metadata.authenticatorData,
+        challengeIndex: BigInt(metadata.challengeIndex),
+        clientDataJSON: metadata.clientDataJSON,
+        r: Hex.fromNumber(signature.r, { size: 32 }),
+        s: Hex.fromNumber(signature.s, { size: 32 }),
+        typeIndex: BigInt(metadata.typeIndex),
+      },
+    ],
+  )
+}
+
+export declare namespace serializeWebAuthnSignature {
+  type Options = {
+    metadata: WebAuthnP256.SignMetadata
+    signature: Signature.Signature<false>
+  }
+}
 
 export function wrapSignature(
   signature: Hex.Hex,

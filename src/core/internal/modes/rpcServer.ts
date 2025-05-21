@@ -215,7 +215,22 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const { credentialId, keyId } = await (async () => {
+        const feeToken = await resolveFeeToken(internal, {
+          permissionsFeeLimit,
+        })
+        const authorizeKey = await PermissionsRequest.toKey(permissions)
+
+        // Prepare calls to sign over the session key to authorize.
+        const { context, digest } = authorizeKey
+          ? await RpcServer.prepareCalls(client, {
+              authorizeKeys: [authorizeKey],
+              feeToken: feeToken.address,
+              permissionsFeeLimit: feeToken.permissionsFeeLimit,
+              preCalls: true,
+            })
+          : ({ context: undefined, digest: '0x' } as const)
+
+        const { credentialId, keyId, signature } = await (async () => {
           if (mock) {
             if (!id_internal) throw new Error('id_internal not found.')
             return {
@@ -235,7 +250,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           // Discovery step. We will sign a random challenge. We need to do this
           // to extract the user id (ie. the address) to query for the Account's keys.
           const credential = await WebAuthnP256.sign({
-            challenge: '0x',
+            challenge: digest,
             rpId: keystoreHost,
           })
           const response = credential.raw
@@ -244,17 +259,14 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           const keyId = Bytes.toHex(new Uint8Array(response.userHandle!))
           const credentialId = credential.raw.id
 
-          return { credentialId, keyId }
+          const signature = digest
+            ? Key.serializeWebAuthnSignature(credential)
+            : undefined
+
+          return { credentialId, keyId, signature }
         })()
 
-        const feeToken = await resolveFeeToken(internal, {
-          permissionsFeeLimit,
-        })
-
-        const [accounts, authorizeKey] = await Promise.all([
-          RpcServer.getAccounts(client, { keyId }),
-          PermissionsRequest.toKey(permissions),
-        ])
+        const accounts = await RpcServer.getAccounts(client, { keyId })
         if (!accounts[0]) throw new Error('account not found')
 
         // Instantiate the account based off the extracted address and keys.
@@ -280,13 +292,16 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }),
         })
 
-        const preCalls = authorizeKey
-          ? await getAuthorizeKeyPreCalls(client, {
+        const preCalls = await (async () => {
+          if (context && signature) return [{ context, signature }]
+          if (authorizeKey)
+            return await getAuthorizeKeyPreCalls(client, {
               account,
               authorizeKey,
               feeToken,
             })
-          : []
+          return []
+        })()
         if (persistPreCalls)
           await PreCalls.add(preCalls, {
             address: account.address,
