@@ -1,4 +1,7 @@
 # Getting Started
+## Architecture
+![Architecture](/architecture.png)
+
 ## Overview 
 
 The onchain infrastructure that powers Porto consists of the following contracts:
@@ -11,6 +14,3 @@ The Orchestrator is a privileged contract that facilitates trustless interaction
 
 ##### Simulator
 The Simulator is a peripheral utility that enables offchain services to obtain accurate gas estimates for intents in a single RPC call.
-
-## Architecture
-![Architecture](/architecture.png)
