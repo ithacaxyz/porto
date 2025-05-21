@@ -120,7 +120,7 @@ function execute(bytes32 mode, bytes calldata executionData) public payable;
 
 #### Modes
 
-The Porto Account supports the following execution mode.
+The Porto Account supports the following execution modes.
 
 - `0x01000000000000000000...`: Single batch. Does not support optional `opData`.
 - `0x01000000000078210001...`: Single batch. Supports optional `opData`.
