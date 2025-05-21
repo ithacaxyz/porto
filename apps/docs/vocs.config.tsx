@@ -168,7 +168,6 @@ export default defineConfig({
             disabled: true,
             items: [
               {
-                disabled: true,
                 link: '/sdk/api/dialog/iframe',
                 text: '.iframe',
               },
@@ -214,7 +213,6 @@ export default defineConfig({
                 text: '.cookie',
               },
               {
-                disabled: true,
                 link: '/sdk/api/storage/idb',
                 text: '.idb',
               },
