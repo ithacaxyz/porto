@@ -317,7 +317,6 @@ describe('sendCalls', () => {
     })
     const signature_1 = await Key.sign(adminKey, {
       payload: request_1.digest,
-      wrap: false,
     })
 
     const { id } = await Rpc.sendCalls(client, {
@@ -572,7 +571,6 @@ describe('prepareCalls', () => {
     })
     const signature_1 = await Key.sign(adminKey, {
       payload: request_1.digest,
-      wrap: false,
     })
 
     const request_2 = await Rpc.prepareCalls(client, {
