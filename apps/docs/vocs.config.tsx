@@ -38,9 +38,8 @@ export default defineConfig({
       {
         items: [
           {
-            disabled: true,
             link: '/rpc-server',
-            text: 'Overview 🚧',
+            text: 'Overview',
           },
           {
             link: '/rpc-server/wallet_getCapabilities',
