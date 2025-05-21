@@ -84,26 +84,13 @@ export function App() {
 You can query permissions for a specific account by passing an address:
 
 ```tsx twoslash
-import { Porto } from 'porto'
-import * as React from 'react'
 import { Hooks } from 'porto/wagmi'
 
-const porto = Porto.create()
-
-export function App() {
-  const specificAddress = '0x123...' // [!code focus]
-  const permissions = Hooks.usePermissions({
-    address: specificAddress // [!code focus]
+function Example() {
+  const result = Hooks.usePermissions({
+    address: '0x...'
   })
-
-  if (permissions.isLoading) return <div>Loading permissions...</div>
-  if (permissions.isError) return <div>Error loading permissions</div>
-
-  return (
-    <div>
-      <h2>Active Permissions for {specificAddress}</h2>
-      {/* Display permissions as in the previous example */}
-    </div>
-  )
+// @log: {
+// @log: ...
+// @log: }
 }
-```
