@@ -1,7 +1,8 @@
 # Orchestrator
 The Orchestrator is a privileged contract that facilitates trustless interactions between the relay and the account.
 
-## Intent 
+## Concepts
+### Intents 
 The orchestrator accepts executions in the form of an intent. 
 
 An `intent` struct contains all the relevant data that allows a 3rd party like the relay to make an execution on behalf of the user, and get paid for it.
@@ -83,7 +84,7 @@ struct Intent {
 
 Let's go through each of these fields, to discuss the features enabled by intents.
 
-### Gas Abstraction
+#### Gas Abstraction
 
 One of the most powerful use cases of executing through intents is that backend relays can abstract gas for users and get compensated in any token the user holds.
 
@@ -119,7 +120,7 @@ There is no `postPayment` field in the intent. Post payment is calculated as `to
 This is done to make the EIP-712 struct more explicit and readable.
 :::
 
-### Paymasters
+#### Paymasters
 On the topic of payments, DApps might want to sponsor payments for their users. 
 This means that instead of the payment to the relay being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](./account.md#1-pay) function.
 
@@ -133,28 +134,99 @@ This is done for a gas optimization, related to calldata compression.
 
 We've allowed porto accounts to act as paymasters for other porto accounts. This makes it extremely simple to spin up paymasters to sponsor gas for your users.
 
-### Execution
+#### Execution
 The intent contains the following execution information:
 
-##### nonce
+###### nonce
 Same as the nonce mechanic detailed [here](./account.md#nonce-management) in the account.
 All nonces are stored and incremented in the storage of the account. The orchestrator just has special privilege to access these storage slots.
 
-##### executionData
+###### executionData
 Since all the data like nonce and signature is added in their corresponding fields in the intent. 
 The executionData requires no additional `opData` and uses the `0x0100...` single batch encoding described [here](./account.md#modes).
 
-### Account Creation 
+#### Account Creation 
 We currently use PREP to initialize provably rootless 7702 accounts. 
 All the initialization data goes in the `initData` field.
 :::info
 More Details Coming Soon
 :::
 
-### PreCalls
+#### PreCalls
 :::info
 More Details Coming Soon
 :::
 
-### Intent Flow Diagram
+#### Intent Flow Diagram
 ![Intent Flow Diagram](/intent-flow.png)
+
+## Endpoints
+
+### Core Execution 
+
+These are the main entry points for submitting and executing Intents.
+
+####  `execute` (Single Intent)
+```solidity
+function execute(bytes calldata encodedIntent) public payable virtual nonReentrant returns (bytes4 err)
+```
+- **Description:** Executes a single encoded Intent. An Intent is a structured set of operations to be performed on behalf of an EOA, potentially including calls to other contracts and gas payment details. This function handles the entire lifecycle: payment, verification, and execution of the Intent.
+- **Usage:**
+    - `encodedIntent`: ABI-encoded `Intent` struct. The `Intent` struct includes fields like `eoa` (the target EOA), `calls` (actions to perform), `nonce`, `payer`, `paymentToken`, `paymentMaxAmount`s, `combinedGas`, and `encodedPreCalls`.
+    - The function is `payable` to receive gas payments if the EOA or a designated payer is covering transaction costs with the native token.
+    - Returns `err`: A `bytes4` error selector. Non-zero if there's an error during payment, verification, or execution. A zero value indicates overall success of the Intent processing through the Orchestrator's flow.
+    - Emits an `IntentExecuted` event.
+
+#### `execute` (Batch Intents)
+```solidity
+function execute(bytes[] calldata encodedIntents) public payable virtual nonReentrant returns (bytes4[] memory errs)
+```
+- **Description:** Executes an array of encoded Intents atomically.
+- **Usage:**
+    - `encodedIntents`: An array of ABI-encoded `Intent` structs.
+    - Returns `errs`: An array of `bytes4` error selectors, one for each Intent in the batch.
+    - Each Intent is processed sequentially.
+
+---
+
+### Simulation 
+
+#### `simulateExecute`
+```solidity
+function simulateExecute(bool isStateOverride, uint256 combinedGasOverride, bytes calldata encodedIntent) external payable returns (uint256 gasUsed)
+```
+- **Description:** Simulates the execution of an Intent. This is primarily used for off-chain gas estimation and validation without actually changing state or consuming real funds (unless `isStateOverride` is true and specific conditions are met for on-chain simulation with logs).
+    - Signature verification steps are still performed for accurate gas measurement but will effectively pass.
+    - Errors during simulation are bubbled up.
+- **Usage:**
+    - `isStateOverride`:
+        - If `false` (typical off-chain simulation): The function will *always* revert. If successful, it reverts with `SimulationPassed(uint256 gUsed)`. If failed, it reverts with the actual error from the execution flow.
+        - If `true` (for on-chain simulation that generates logs, e.g., `eth_simulateV1`): The function will *not* revert on success if `msg.sender.balance == type(uint256).max` (proving a state override environment). Returns `gasUsed`. Otherwise, reverts with `StateOverrideError`.
+    - `combinedGasOverride`: Allows overriding the `combinedGas` specified in the `Intent` for simulation purposes.
+    - `encodedIntent`: The ABI-encoded `Intent` struct to simulate.
+    - Returns `gasUsed`: The amount of gas consumed by the execution if `isStateOverride` is true and conditions are met. Otherwise, relies on revert data.
+
+---
+
+### Helpers
+
+#### `accountImplementationOf`
+```solidity
+function accountImplementationOf(address eoa) public view virtual returns (address result)
+```
+- **Description:** Returns the implementation address of an EOA if it's an EIP-7702 proxy. It checks the EOA's bytecode to determine if it's a valid EIP-7702 proxy and then retrieves its current implementation.
+
+### Events
+
+#### `IntentExecuted`
+
+  ```solidity
+  event IntentExecuted(address indexed eoa, uint256 indexed nonce, bool incremented, bytes4 err);
+  ```
+- **Description:** Emitted when an Intent (including PreCalls that use nonces) is processed via the `_execute` flow.
+    - `eoa`: The target EOA of the Intent.
+    - `nonce`: The nonce of the Intent.
+    - `incremented`: Boolean indicating if the nonce's sequence was successfully incremented on the account. This generally implies successful verification and pre-payment.
+    - `err`: The `bytes4` error selector resulting from the Intent's processing. `0` indicates no error *from the Orchestrator's perspective for that phase*. A non-zero `err` along with `incremented == true` means the verification and pre-payment were likely okay, but the main execution or post-payment failed. If `incremented == false`, an earlier stage (like verification) failed.
+
+---
