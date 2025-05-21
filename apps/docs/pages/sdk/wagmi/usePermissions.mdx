@@ -16,61 +16,16 @@ Internally uses [`experimental_getPermissions`](/sdk/rpc/experimental_getPermiss
 
 ## Example
 
+
 ```tsx twoslash
-import { Porto } from 'porto'
-import * as React from 'react'
 import { Hooks } from 'porto/wagmi'
 
-const porto = Porto.create()
-
-export function App() {
-  const permissions = Hooks.usePermissions()
-
-  if (permissions.isLoading) return <div>Loading permissions...</div>
-  if (permissions.isError) return <div>Error loading permissions</div>
-
-  return (
-    <div>
-      <h2>Active Permissions</h2>
-      {permissions.data && permissions.data.length > 0 ? (
-        <ul>
-          {permissions.data.map((permission) => (
-            <li key={permission.id}>
-              <div>ID: {permission.id}</div>
-              <div>Expiry: {new Date(permission.expiry * 1000).toLocaleString()}</div>
-              <div>
-                <strong>Calls:</strong>
-                <ul>
-                  {permission.permissions.calls.map((call, i) => (
-                    <li key={i}>
-                      {call.to && <div>To: {call.to}</div>}
-                      {call.signature && <div>Signature: {call.signature}</div>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <strong>Spend:</strong>
-                <ul>
-                  {permission.permissions?.spend?.map((spend, i) => (
-                    <li key={i}>
-                      <div>Limit: {spend.limit.toString()}</div>
-                      <div>Period: {spend.period}</div>
-                      {spend.token && <div>Token: {spend.token}</div>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div>No active permissions</div>
-      )}
-    </div>
-  )
+function Example() {
+  const result = Hooks.usePermissions()
+// @log: {
+// @log: ...
+// @log: }
 }
-```
 
 <TryItOut
   fn={({ provider }) => provider.request({ method: 'experimental_getPermissions' })}
