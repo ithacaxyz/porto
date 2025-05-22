@@ -92,7 +92,7 @@ We've eliminated the concept of gas refunds, and made `prePayment` optional.
 
 Here's how the flow works:
 
-1. The user sends their calls to the relay.
+1. The user sends their calls to the rpc server.
 2. The rpc server analyzes the calls and determines the amount they want to be paid, in the `paymentToken` specified in the intent.
 3. The rpc server can run sophisticated griefing checks to assess risk. Based on this, they split the total payment between `prePayment` and `postPayment`.
 4. The rpc server can also set the `supportedAccountImplementation` field in the intent when sending it onchain, to reduce the risk of the user frontrunning them by upgrading their account.
