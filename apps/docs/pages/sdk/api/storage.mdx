@@ -2,14 +2,13 @@
 
 Porto comes pre-configured with a storage layer suited for both browser and non-browser environments.
 
-By default, Porto uses [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) in browser environments
-and a JavaScript [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) in non-browser environments.
+By default, Porto uses [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) in browser environments and an in-memory KV store in non-browser environments.
 
 ## Storage Backends
 
 | Storage | Underlying | Default |
 | --------------- | ----------- | ------- |
-| `Storage.idb` | [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) | in browser |
+| `Storage.idb` | [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) | in browser environments |
 | `Storage.cookie` | [Cookie](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_API) | |
 | `Storage.localStorage` | [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) | |
 | `Storage.memory` | JavaScript [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) | in non-browser environments |
