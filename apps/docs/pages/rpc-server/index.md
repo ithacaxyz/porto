@@ -38,7 +38,7 @@ Accounts are created using [PREP], which proves that neither the RPC server nor 
 - [`wallet_getKeys`]: Get all keys attached to an account.
 - [`wallet_getAccounts`]: Get all accounts a key is attached to.
 
-For more details on how accounts work, see the [Account documentation](/contracts/account).
+For more details on how accounts work, see the [Account documentation](#TODO).
 
 ## Intent execution
 
