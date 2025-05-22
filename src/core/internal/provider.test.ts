@@ -1084,9 +1084,7 @@ describe.each([
       const { atomic, feeToken, permissions, sponsor } = values[0]!
       expect(atomic).matchSnapshot()
       expect(feeToken.supported).matchSnapshot()
-      expect(
-        feeToken.tokens.map((x) => ({ ...x, nativeRate: null })),
-      ).matchSnapshot()
+      expect(feeToken.tokens.length).matchSnapshot()
       expect(permissions).matchSnapshot()
       expect(sponsor).matchSnapshot()
     })

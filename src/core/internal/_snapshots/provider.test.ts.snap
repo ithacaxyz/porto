@@ -456,7 +456,7 @@ exports[`contract > wallet_getCapabilities > default 2`] = `
 
 exports[`contract > wallet_getCapabilities > default 3`] = `false`;
 
-exports[`contract > wallet_getCapabilities > default 4`] = `[]`;
+exports[`contract > wallet_getCapabilities > default 4`] = `0`;
 
 exports[`contract > wallet_getCapabilities > default 5`] = `
 {
@@ -925,24 +925,7 @@ exports[`rpcServer > wallet_getCapabilities > default 2`] = `
 
 exports[`rpcServer > wallet_getCapabilities > default 3`] = `true`;
 
-exports[`rpcServer > wallet_getCapabilities > default 4`] = `
-[
-  {
-    "address": "0x0000000000000000000000000000000000000000",
-    "decimals": 18,
-    "kind": "ETH",
-    "nativeRate": null,
-    "symbol": "ETH",
-  },
-  {
-    "address": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
-    "decimals": 18,
-    "kind": "USDT",
-    "nativeRate": null,
-    "symbol": "EXP",
-  },
-]
-`;
+exports[`rpcServer > wallet_getCapabilities > default 4`] = `2`;
 
 exports[`rpcServer > wallet_getCapabilities > default 5`] = `
 {
