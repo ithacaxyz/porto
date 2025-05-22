@@ -1,0 +1,21 @@
+{
+  "$schema": "https://esm.sh/markdownlint-cli2/schema/markdownlint-cli2-config-schema.json",
+  "config": {
+    "line-length": {
+      "line_length": 999
+    },
+    "no-inline-html": false
+  },
+  "fix": true,
+  "ignores": [
+    "**/CHANGELOG.md",
+    "**/build/**/*.md",
+    "**/dist/**/*.md",
+    "**/contracts/**/*.md",
+    "**/node_modules/**/*.md",
+    "**/build/**/*.mdx",
+    "**/dist/**/*.mdx",
+    "**/contracts/**/*.mdx",
+    "**/node_modules/**/*.mdx"
+  ]
+}
