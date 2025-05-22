@@ -20,6 +20,7 @@ import {
   type Chain,
   type Client,
   type Narrow,
+  type ValueOf,
   withCache,
 } from 'viem'
 import { prepareAuthorization } from 'viem/actions'
@@ -127,10 +128,14 @@ export namespace getAccounts {
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
 
-export async function getCapabilities<const raw extends boolean = false>(
+export async function getCapabilities<
+  const chainIds extends readonly number[] | undefined = undefined,
+  const raw extends boolean = false,
+>(
   client: Client,
-  options: getCapabilities.Options<raw> = {},
-): Promise<getCapabilities.ReturnType<raw>> {
+  options: getCapabilities.Options<chainIds, raw> = {},
+): Promise<getCapabilities.ReturnType<chainIds, raw>> {
+  const { chainIds = [client.chain!.id] } = options
   try {
     const method = 'wallet_getCapabilities' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -138,14 +143,19 @@ export async function getCapabilities<const raw extends boolean = false>(
       () =>
         client.request<Schema>({
           method,
+          params: [chainIds],
         }),
       { cacheKey: method },
     )
-    if (options.raw) return result as never
-    return Value.Parse(
-      RpcSchema.wallet_getCapabilities.Response,
-      result,
-    ) as never
+    const parsed = (() => {
+      if (options.raw) return result as never
+      return Value.Parse(
+        RpcSchema.wallet_getCapabilities.Response,
+        result,
+      ) as never
+    })()
+    if (options.chainIds) return parsed
+    return Object.values(parsed)[0]! as never
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -153,7 +163,15 @@ export async function getCapabilities<const raw extends boolean = false>(
 }
 
 export namespace getCapabilities {
-  export type Options<raw extends boolean = false> = {
+  export type Options<
+    chainIds extends readonly number[] | undefined = undefined,
+    raw extends boolean = false,
+  > = {
+    /**
+     * Chain IDs to get capabilities for.
+     * @default [client.chain.id]
+     */
+    chainIds?: chainIds | readonly number[] | undefined
     /**
      * Whether to return the raw, non-decoded response.
      * @default false
@@ -161,9 +179,14 @@ export namespace getCapabilities {
     raw?: raw | boolean | undefined
   }
 
-  export type ReturnType<raw extends boolean = false> = raw extends true
-    ? Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
-    : RpcSchema.wallet_getCapabilities.Response
+  export type ReturnType<
+    chainIds extends readonly number[] | undefined = undefined,
+    raw extends boolean = false,
+    //
+    value = raw extends true
+      ? Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
+      : RpcSchema.wallet_getCapabilities.Response,
+  > = chainIds extends undefined ? ValueOf<value> : value
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }

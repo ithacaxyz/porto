@@ -73,7 +73,7 @@ export namespace wallet_getCapabilities {
   /** Request for `wallet_getCapabilities`. */
   export const Request = Type.Object({
     method: Type.Literal('wallet_getCapabilities'),
-    params: Typebox.Optional(Type.Undefined()),
+    params: Type.Tuple([Type.Array(Type.Number())]),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 
@@ -82,50 +82,50 @@ export namespace wallet_getCapabilities {
     version: Typebox.Optional(Type.Union([Type.String(), Type.Null()])),
   })
 
-  export const Response = Type.Object({
-    contracts: Type.Object({
-      /** Account registry address. */
-      accountImplementation: VersionedContract,
-      /** Account implementation address. */
-      accountProxy: VersionedContract,
-      /** Account proxy address. */
-      accountRegistry: VersionedContract,
-      /** Legacy account implementation address. */
-      legacyAccountImplementations: Type.Array(VersionedContract),
-      /** Legacy orchestrator address. */
-      legacyOrchestrators: Type.Array(VersionedContract),
-      /** Orchestrator address. */
-      orchestrator: VersionedContract,
-      /** Simulator address. */
-      simulator: VersionedContract,
-    }),
-    fees: Type.Object({
-      /** Fee recipient address. */
-      quoteConfig: Type.Object({
-        /** Sets a constant rate for the price oracle. Used for testing. */
-        constantRate: Typebox.Optional(
-          Type.Union([Type.Number(), Type.Null()]),
-        ),
-        /** Gas estimate configuration. */
-        gas: Typebox.Optional(
-          Type.Object({
-            /** Extra buffer added to Intent gas estimates. */
-            intentBuffer: Typebox.Optional(Type.Number()),
-            /** Extra buffer added to transaction gas estimates. */
-            txBuffer: Typebox.Optional(Type.Number()),
-          }),
-        ),
-        /** The lifetime of a price rate. */
-        rateTtl: Type.Number(),
-        /** The lifetime of a fee quote. */
-        ttl: Type.Number(),
+  export const Response = Type.Record(
+    Primitive.Hex,
+    Type.Object({
+      contracts: Type.Object({
+        /** Account registry address. */
+        accountImplementation: VersionedContract,
+        /** Account implementation address. */
+        accountProxy: VersionedContract,
+        /** Account proxy address. */
+        accountRegistry: VersionedContract,
+        /** Legacy account implementation address. */
+        legacyAccountImplementations: Type.Array(VersionedContract),
+        /** Legacy orchestrator address. */
+        legacyOrchestrators: Type.Array(VersionedContract),
+        /** Orchestrator address. */
+        orchestrator: VersionedContract,
+        /** Simulator address. */
+        simulator: VersionedContract,
       }),
-      /** Quote configuration. */
-      recipient: Primitive.Address,
-      /** Tokens the fees can be paid in. */
-      tokens: Type.Record(
-        Primitive.Hex,
-        Type.Array(
+      fees: Type.Object({
+        /** Fee recipient address. */
+        quoteConfig: Type.Object({
+          /** Sets a constant rate for the price oracle. Used for testing. */
+          constantRate: Typebox.Optional(
+            Type.Union([Type.Number(), Type.Null()]),
+          ),
+          /** Gas estimate configuration. */
+          gas: Typebox.Optional(
+            Type.Object({
+              /** Extra buffer added to Intent gas estimates. */
+              intentBuffer: Typebox.Optional(Type.Number()),
+              /** Extra buffer added to transaction gas estimates. */
+              txBuffer: Typebox.Optional(Type.Number()),
+            }),
+          ),
+          /** The lifetime of a price rate. */
+          rateTtl: Type.Number(),
+          /** The lifetime of a fee quote. */
+          ttl: Type.Number(),
+        }),
+        /** Quote configuration. */
+        recipient: Primitive.Address,
+        /** Tokens the fees can be paid in. */
+        tokens: Type.Array(
           Type.Object({
             address: Primitive.Address,
             decimals: Type.Number(),
@@ -133,9 +133,9 @@ export namespace wallet_getCapabilities {
             symbol: Type.String(),
           }),
         ),
-      ),
+      }),
     }),
-  })
+  )
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 

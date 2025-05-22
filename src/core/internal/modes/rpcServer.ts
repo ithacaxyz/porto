@@ -197,7 +197,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                 ...base,
                 feeToken: {
                   supported: true,
-                  tokens: capabilities.fees.tokens[chainId]!,
+                  tokens: capabilities.fees.tokens,
                 },
               },
             } as const
@@ -751,14 +751,11 @@ async function resolveFeeToken(
     | undefined,
 ) {
   const { client, store } = internal
-  const { chain } = client
   const { feeToken: defaultFeeToken } = store.getState()
   const { feeToken: address } = parameters ?? {}
 
-  const chainId = Hex.fromNumber(chain.id)
-
   const feeTokens = await RpcServer_viem.getCapabilities(client).then(
-    (capabilities) => capabilities.fees.tokens[chainId],
+    (capabilities) => capabilities.fees.tokens,
   )
   const feeToken = feeTokens?.find((feeToken) => {
     if (address) return Address.isEqual(feeToken.address, address)

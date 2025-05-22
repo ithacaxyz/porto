@@ -1106,7 +1106,9 @@ describe.each([
       expect(atomic).matchSnapshot()
       expect(feeToken.supported).matchSnapshot()
       expect(
-        feeToken.tokens.map((x) => ({ ...x, nativeRate: null })),
+        feeToken.tokens
+          .map((x) => ({ ...x, nativeRate: null }))
+          .toSorted((a, b) => a.address.localeCompare(b.address)),
       ).matchSnapshot()
       expect(permissions).matchSnapshot()
       expect(sponsor).matchSnapshot()
