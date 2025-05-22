@@ -809,28 +809,19 @@ export function from<
         }
 
         case 'wallet_getCapabilities': {
-          const value = {
-            atomic: {
-              status: 'supported',
-            },
-            feeToken: {
-              supported: true,
-            },
-            permissions: {
-              supported: true,
-            },
-            sponsor: {
-              supported: true,
-            },
-          } as const
+          const [_, chainIds] = request.params ?? []
 
-          const capabilities = {} as Record<Hex.Hex, typeof value>
-          for (const chain of config.chains)
-            capabilities[Hex.fromNumber(chain.id)] = value
+          const capabilities = await getMode().actions.getCapabilities({
+            chainIds: chainIds ?? [Hex.fromNumber(state.chainId)],
+            internal: {
+              config,
+              getClient,
+              request,
+              store,
+            },
+          })
 
-          return capabilities satisfies Typebox.Static<
-            typeof Rpc.wallet_getCapabilities.Response
-          >
+          return capabilities
         }
 
         case 'wallet_prepareCalls': {

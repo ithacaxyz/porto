@@ -237,6 +237,20 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return result
       },
 
+      async getCapabilities(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'wallet_getCapabilities')
+          throw new Error(
+            'Cannot get capabilities for method: ' + request.method,
+          )
+
+        const provider = getProvider(store)
+        const result = await provider.request(request)
+        return result
+      },
+
       async grantAdmin(parameters) {
         const { internal } = parameters
         const { request, store } = internal

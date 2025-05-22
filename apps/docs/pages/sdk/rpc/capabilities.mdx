@@ -1,3 +1,5 @@
+import { TryItOut } from '../../../components/TryItOut'
+
 # Capabilities
 
 Porto supports [EIP-5792 Capabilities](https://eips.ethereum.org/EIPS/eip-5792#wallet_getcapabilities).
@@ -7,7 +9,7 @@ Porto supports the following capabilities:
 
 | Capability                    | Description                                            | Standard                                                              |
 | ----------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
-| [`atomic`](#atomic)           | Indicates if call bundles will be executed atomically. | [EIP-5792](https://eips.ethereum.org/EIPS/eip-5792#atomic-capability) |
+| [`feeToken`](#feetoken)       | Indicates if custom fee tokens are supported.          | Experimental |
 | [`permissions`](#permissions) | Indicates if permissions can be requested by the app.  | Experimental                                                          |
 | [`sponsor`](#sponsor)         | Indicates if app sponsoring is supported.              | Experimental                                                          |
 
@@ -15,27 +17,36 @@ Porto supports the following capabilities:
 
 Porto allows for an application developer to use custom fee (gas) tokens to pay for the execution of a call bundle.
 
-Custom fee tokens are indicated by the `feeToken` capability on [`wallet_getCapabilities`](/sdk/rpc/wallet_getCapabilities).
+Custom fee tokens are indicated by the `feeToken` capability on [`wallet_getCapabilities`](/sdk/rpc/wallet_getCapabilities)
 
-### Supported Tokens
-
- | Token | Address                                      | Chain ID             |
- | ----- | -------------------------------------------- | -------------------- |
- | USDC  | `0x...`  🚧                                   | `8453` Base          |
- |       | `0x036cbd53842c5426634e7929541ec2318f3dcf7e` | `84532` Base Sepolia |
- | ETH   | `0x0000000000000000000000000000000000000000` | All                  |
- | EXP   | `0x...` 🚧                                    | `8453` Base          |
- |       | `0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2` | `84532` Base Sepolia |
- | EXP2  | `0x...` 🚧                                    | `8453` Base          |
- |       | `0x62a9d6de963a5590f6fba5119e937f167677bfe7` | `84532` Base Sepolia |
-
-{/*
 ### Discovery
 
-Tokens can be discovered by the application by using the [`wallet_getCapabilities`](/sdk/rpc/wallet_getCapabilities) method.
+Tokens can be discovered by the application via `feeToken.tokens` on the [`wallet_getCapabilities`](/sdk/rpc/wallet_getCapabilities) method.
 
-TODO
-*/}
+```ts twoslash
+import { Porto } from 'porto'
+
+const { provider } = Porto.create()
+
+const capabilities = await provider.request({ // [!code focus]
+  method: 'wallet_getCapabilities', // [!code focus]
+}) // [!code focus]
+
+const tokens = Object.values(capabilities)[0].feeToken.tokens // [!code focus]
+```
+
+<TryItOut
+  fn={async ({ provider }) => {
+    const capabilities = await provider.request({ method: 'wallet_getCapabilities' })
+    const tokens = Object.values(capabilities)[0].feeToken.tokens
+    return tokens
+  }}
+  requireConnection={false}
+  transformResultCode={(code) => {
+    return 'const tokens = ' + code
+  }}
+/>
+
 
 ### Request Capabilities
 

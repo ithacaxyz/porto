@@ -127,9 +127,10 @@ export namespace getAccounts {
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
 
-export async function getCapabilities(
+export async function getCapabilities<const raw extends boolean = false>(
   client: Client,
-): Promise<getCapabilities.ReturnType> {
+  options: getCapabilities.Options<raw> = {},
+): Promise<getCapabilities.ReturnType<raw>> {
   try {
     const method = 'wallet_getCapabilities' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -140,7 +141,11 @@ export async function getCapabilities(
         }),
       { cacheKey: method },
     )
-    return Value.Parse(RpcSchema.wallet_getCapabilities.Response, result)
+    if (options.raw) return result as never
+    return Value.Parse(
+      RpcSchema.wallet_getCapabilities.Response,
+      result,
+    ) as never
   } catch (error) {
     parseSchemaError(error)
     throw error
@@ -148,7 +153,17 @@ export async function getCapabilities(
 }
 
 export namespace getCapabilities {
-  export type ReturnType = RpcSchema.wallet_getCapabilities.Response
+  export type Options<raw extends boolean = false> = {
+    /**
+     * Whether to return the raw, non-decoded response.
+     * @default false
+     */
+    raw?: raw | boolean | undefined
+  }
+
+  export type ReturnType<raw extends boolean = false> = raw extends true
+    ? Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
+    : RpcSchema.wallet_getCapabilities.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }

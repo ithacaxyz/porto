@@ -76,6 +76,17 @@ export type Mode = {
       Typebox.Static<typeof RpcSchema.wallet_getCallsStatus.Response>
     >
 
+    getCapabilities: (parameters: {
+      /** Chain IDs to get the capabilities for. */
+      chainIds: readonly Hex.Hex[]
+      /** Internal properties. */
+      internal: Omit<ActionsInternal, 'client'> & {
+        getClient: (chainId: Hex.Hex | number) => Porto.Client
+      }
+    }) => Promise<
+      Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
+    >
+
     grantAdmin: (parameters: {
       /** Account to authorize the keys for. */
       account: Account.Account

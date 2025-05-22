@@ -1070,6 +1070,58 @@ describe.each([
     })
   })
 
+  describe.runIf(Anvil.enabled)('wallet_getCapabilities', () => {
+    test('default', async () => {
+      const { porto } = getPorto()
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+      })
+
+      const keys = Object.keys(capabilities)
+      expect(keys).matchSnapshot()
+
+      const values = Object.values(capabilities)
+      const { atomic, feeToken, permissions, sponsor } = values[0]!
+      expect(atomic).matchSnapshot()
+      expect(feeToken.supported).matchSnapshot()
+      expect(
+        feeToken.tokens.map((x) => ({ ...x, nativeRate: null })),
+      ).matchSnapshot()
+      expect(permissions).matchSnapshot()
+      expect(sponsor).matchSnapshot()
+    })
+
+    test('behavior: chainId', async () => {
+      const { client, porto } = getPorto()
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+        params: [undefined, [Hex.fromNumber(client.chain.id)]],
+      })
+
+      const keys = Object.keys(capabilities)
+      expect(keys).matchSnapshot()
+
+      const values = Object.values(capabilities)
+      const { atomic, feeToken, permissions, sponsor } = values[0]!
+      expect(atomic).matchSnapshot()
+      expect(feeToken.supported).matchSnapshot()
+      expect(
+        feeToken.tokens.map((x) => ({ ...x, nativeRate: null })),
+      ).matchSnapshot()
+      expect(permissions).matchSnapshot()
+      expect(sponsor).matchSnapshot()
+    })
+
+    test('behavior: unsupported chain', async () => {
+      const { porto } = getPorto()
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+        params: [undefined, ['0x1']],
+      })
+      expect(capabilities).toMatchInlineSnapshot(`{}`)
+    })
+  })
+
   describe('wallet_sendCalls', () => {
     test('default', async () => {
       const { porto } = getPorto()

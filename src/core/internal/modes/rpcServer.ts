@@ -160,6 +160,54 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         }
       },
 
+      async getCapabilities(parameters) {
+        const { chainIds, internal } = parameters
+        const { getClient } = internal
+
+        const base = {
+          atomic: {
+            status: 'supported',
+          },
+          feeToken: {
+            supported: true,
+            tokens: [],
+          },
+          permissions: {
+            supported: true,
+          },
+          sponsor: {
+            supported: true,
+          },
+        } as const
+
+        const capabilities = await Promise.all(
+          chainIds.map(async (chainId) => {
+            const capabilities = await (async () => {
+              try {
+                return await RpcServer.getCapabilities(getClient(chainId), {
+                  raw: true,
+                })
+              } catch (e) {
+                return null
+              }
+            })()
+            if (!capabilities) return {}
+            return {
+              [chainId]: {
+                ...base,
+                feeToken: {
+                  supported: true,
+                  tokens: capabilities.fees.tokens[chainId]!,
+                },
+              },
+            } as const
+          }),
+          // biome-ignore lint/performance/noAccumulatingSpread:
+        ).then((x) => x.reduce((acc, curr) => ({ ...acc, ...curr }), {}))
+
+        return capabilities
+      },
+
       async grantAdmin(parameters) {
         const { account, internal } = parameters
         const { client } = internal

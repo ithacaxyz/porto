@@ -479,7 +479,15 @@ export namespace wallet_getCallsStatus {
 export namespace wallet_getCapabilities {
   export const Request = Type.Object({
     method: Type.Literal('wallet_getCapabilities'),
-    params: Typebox.Optional(Type.Undefined()),
+    params: Typebox.Optional(
+      Type.Union([
+        Type.Tuple([Primitive.Hex]),
+        Type.Tuple([
+          Type.Union([Primitive.Hex, Type.Undefined()]),
+          Type.Array(Primitive.Number),
+        ]),
+      ]),
+    ),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 
@@ -494,8 +502,19 @@ export namespace wallet_getCapabilities {
       }),
       feeToken: Type.Object({
         supported: Type.Boolean(),
+        tokens: Type.Array(
+          Type.Object({
+            address: Primitive.Address,
+            decimals: Type.Number(),
+            nativeRate: Typebox.Optional(Primitive.BigInt),
+            symbol: Type.String(),
+          }),
+        ),
       }),
       permissions: Type.Object({
+        supported: Type.Boolean(),
+      }),
+      sponsor: Type.Object({
         supported: Type.Boolean(),
       }),
     }),

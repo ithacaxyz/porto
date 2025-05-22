@@ -207,6 +207,38 @@ export function contract(parameters: contract.Parameters = {}) {
         }
       },
 
+      async getCapabilities(parameters) {
+        const { internal } = parameters
+        const { config } = internal
+
+        const value = {
+          atomic: {
+            status: 'supported',
+          },
+          feeToken: {
+            supported: false,
+            tokens: [],
+          },
+          permissions: {
+            supported: true,
+          },
+          sponsor: {
+            supported: false,
+          },
+        } as const
+
+        const chainIds =
+          parameters.chainIds ?? config.chains.map((x) => Hex.fromNumber(x.id))
+
+        const capabilities = {} as Record<Hex.Hex, typeof value>
+        for (const chainId of chainIds) {
+          if (config.chains.find((x) => Hex.fromNumber(x.id) === chainId))
+            capabilities[chainId] = value
+        }
+
+        return capabilities
+      },
+
       async grantAdmin(parameters) {
         const { account, internal } = parameters
         const { client } = internal

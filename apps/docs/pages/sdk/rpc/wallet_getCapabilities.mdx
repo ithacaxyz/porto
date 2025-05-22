@@ -2,11 +2,12 @@ import { TryItOut } from '../../../components/TryItOut'
 
 # `wallet_getCapabilities`
 
-Gets supported capabilities of Porto.
+Gets supported [capabilities](/sdk/rpc/capabilities) of Porto.
 
 <TryItOut
   exampleSlug="#example"
   fn={({ provider }) => provider.request({ method: 'wallet_getCapabilities' })}
+  requireConnection={false}
   transformResultCode={(code) => {
     return 'const capabilities = ' + code
   }}
@@ -17,10 +18,18 @@ Gets supported capabilities of Porto.
 ```ts
 type Request = {
   method: 'wallet_getCapabilities',
+  params: [
+    /** Account address to get the capabilities for. */
+    account?: `0x${string}`
+    /** Chain IDs to get the capabilities for. */
+    chainIds?: `0x${string}`[],
+  ]
 }
 ```
 
 ## Response
+
+[See list of Capabilities](/sdk/rpc/capabilities)
 
 ```ts
 type Response = {
@@ -30,8 +39,18 @@ type Response = {
     }
     feeToken: {
       supported: true,
+      tokens: {
+        address: `0x${string}`,
+        decimals: number,
+        kind: string,
+        nativeRate: `0x${string}`,
+        symbol: string,
+      }[]
     },
     permissions: {
+      supported: true
+    },
+    sponsor: {
       supported: true
     }
   }
@@ -52,6 +71,7 @@ const capabilities = await provider.request({ // [!code focus]
 
 <TryItOut
   fn={({ provider }) => provider.request({ method: 'wallet_getCapabilities' })}
+  requireConnection={false}
   transformResultCode={(code) => {
     return 'const capabilities = ' + code
   }}

@@ -386,6 +386,90 @@ exports[`contract > wallet_disconnect > default 1`] = `
 ]
 `;
 
+exports[`contract > wallet_getCapabilities > behavior: chainId 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: chainId 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: chainId 3`] = `false`;
+
+exports[`contract > wallet_getCapabilities > behavior: chainId 4`] = `[]`;
+
+exports[`contract > wallet_getCapabilities > behavior: chainId 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: chainId 6`] = `
+{
+  "supported": false,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 3`] = `false`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 4`] = `[]`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 6`] = `
+{
+  "supported": false,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > default 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`contract > wallet_getCapabilities > default 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`contract > wallet_getCapabilities > default 3`] = `false`;
+
+exports[`contract > wallet_getCapabilities > default 4`] = `[]`;
+
+exports[`contract > wallet_getCapabilities > default 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > default 6`] = `
+{
+  "supported": false,
+}
+`;
+
 exports[`contract > wallet_sendCalls > behavior: no calls.to 1`] = `
 [RpcResponse.InvalidParamsError: Expected required property
 
@@ -780,6 +864,96 @@ exports[`rpcServer > wallet_disconnect > default 1`] = `
 [
   [Provider.DisconnectedError: The provider is disconnected from all chains.],
 ]
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 3`] = `true`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 4`] = `
+[
+  {
+    "address": "0x0000000000000000000000000000000000000000",
+    "decimals": 18,
+    "kind": "ETH",
+    "nativeRate": null,
+    "symbol": "ETH",
+  },
+  {
+    "address": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+    "decimals": 18,
+    "kind": "USDT",
+    "nativeRate": null,
+    "symbol": "EXP",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 6`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 3`] = `true`;
+
+exports[`rpcServer > wallet_getCapabilities > default 4`] = `
+[
+  {
+    "address": "0x0000000000000000000000000000000000000000",
+    "decimals": 18,
+    "kind": "ETH",
+    "nativeRate": null,
+    "symbol": "ETH",
+  },
+  {
+    "address": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+    "decimals": 18,
+    "kind": "USDT",
+    "nativeRate": null,
+    "symbol": "EXP",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 6`] = `
+{
+  "supported": true,
+}
 `;
 
 exports[`rpcServer > wallet_sendCalls > behavior: no calls.to 1`] = `
