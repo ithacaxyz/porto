@@ -203,25 +203,7 @@ export default defineConfig({
           },
           {
             collapsed: true,
-            items: [
-              {
-                disabled: true,
-                link: '/sdk/api/storage/cookie',
-                text: '.cookie',
-              },
-              {
-                link: '/sdk/api/storage/idb',
-                text: '.idb',
-              },
-              {
-                link: '/sdk/api/storage/localstorage',
-                text: '.localStorage',
-              },
-              {
-                link: '/sdk/api/storage/memory',
-                text: '.memory',
-              },
-            ],
+            link: '/sdk/api/storage',
             text: 'Storage',
           },
         ],
