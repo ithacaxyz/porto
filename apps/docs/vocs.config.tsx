@@ -161,7 +161,6 @@ export default defineConfig({
             text: 'Chains',
           },
           {
-            collapsed: true,
             link: '/sdk/api/dialog',
             text: 'Dialog',
           },
