@@ -131,13 +131,6 @@ type Response = {
       // The hash of the quote.
       hash: `0x${string}`,
     },
-  } | {
-    preOp: {
-      eoa: `0x${string}`,
-      executionData: `0x${string}`,
-      nonce: `0x${string}`,
-      signature: `0x${string}`,
-    },
   },
   // the digest of the bundle that the user needs to sign
   digest: `0x${string}`,
