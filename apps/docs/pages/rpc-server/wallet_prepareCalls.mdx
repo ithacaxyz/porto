@@ -1,3 +1,7 @@
+import Keys from './snippets/keys.mdx'
+import Fees from './snippets/fees.mdx'
+import Selectors from './snippets/selectors.mdx'
+
 # `wallet_prepareCalls`
 
 Prepares a call bundle. The calls are simulated and a quote for executing the bundle by the server is provided. The quote lives for a certain amount of time, after which it expires.
@@ -21,45 +25,9 @@ Only certain types of calls are allowed in preops:
 
 Preops have their own signatures, and they must be signed with a key that is already attached to the account. The `from` and `key` fields can be omitted when building a preop (`preop: true`).
 
-## Fees
-
-Execution of bundles are paid for by the fee payer, which defaults to the EOA. This can be overriden using `feePayer`.
-
-Fees are paid in `feeToken`, which is specified in the capabilities of `wallet_prepareCalls`. The fee token must be supported on the target chain. The list of supported tokens on each network can be found in the response of [`wallet_getCapabilities`](/rpc-server/wallet_getCapabilities).
-
-## Keys
-
-There exists three different key roles:
-
-- **Admin keys** are capable of adding and modifying other keys, and capable of spending an unlimited amount of tokens and calling any contract and selector.
-- **Normal keys** can only call contracts as defined by the permissions set on it, and spend the amount of tokens afforded to it by permissions.
-- **Session keys** are like normal keys, except they also have an expiry.
-
-Setting permissions on an admin key does nothing.
-
-### Public key encoding
-
-The encoding of a key pair's public key depends on the key type:
-
-| Key Type         | Encoding Format       | Description                                                                    |
-| ---------------- | --------------------- | ------------------------------------------------------------------------------ |
-| secp256k1        | `abi.encode(address)` | Stores only the Ethereum address derived from the public key (truncated hash). |
-| webAuthn          | `abi.encode(x, y)`    | Stores both x and y coordinates of the public key on the elliptic curve.       |
-| secp256r1 (P256) | `abi.encode(x, y)`   | Stores both x and y coordinates for the secp256r1 curve.                       |
-
-## Signature encoding
-
-The signature is encoded as follows: `abi.encodePacked(bytes(innerSignature), bytes32(keyHash), bool(prehash))`, where the key hash is `keccak(bytes32(keyType, publicKey))`.
-
-The inner signature depends on the key type:
-
-| Key Type | Signature |
-| -------- | --------- |
-| secp256r1 (p256) | `(r, s)` |
-| webauthn | `(r, s)` |
-| secp256k1 | `(r, s)` or `(r, vs)` |
-
-## Selectors
+<Fees />
+<Keys />
+<Selectors />
 
 Selectors for call permissions can either be a 4-byte selector, e.g. `0x12345678`, or a Solidity-style selector, like `transfer(address,uint256)`.
 
@@ -178,7 +146,7 @@ type Response = {
       entrypoint: `0x${string}`,
       // The RPC servers signature over the quote.
       signature: {
-        y_parity: boolean,
+        y_parity: bool,
         r: `0x${string}`,
         s: `0x${string}`,
       },
