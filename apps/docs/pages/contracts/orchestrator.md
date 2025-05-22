@@ -86,23 +86,23 @@ Let's go through each of these fields, to discuss the features enabled by intent
 
 #### Gas Abstraction
 
-One of the most powerful use cases of executing through intents is that backend relays can abstract gas for users and get compensated in any token the user holds.
+One of the most powerful use cases of executing through intents is that rpc servers can abstract gas for users and get compensated in any token the user holds.
 
 We've eliminated the concept of gas refunds, and made `prePayment` optional.
 
 Here's how the flow works:
 
 1. The user sends their calls to the relay.
-2. The relay analyzes the calls and determines the amount they want to be paid, in the `paymentToken` specified in the intent.
-3. The relay can run sophisticated griefing checks to assess risk. Based on this, they split the total payment between `prePayment` and `postPayment`.
-4. The relay can also set the `supportedAccountImplementation` field in the intent when sending it onchain, to reduce the risk of the user frontrunning them by upgrading their account.
+2. The rpc server analyzes the calls and determines the amount they want to be paid, in the `paymentToken` specified in the intent.
+3. The rpc server can run sophisticated griefing checks to assess risk. Based on this, they split the total payment between `prePayment` and `postPayment`.
+4. The rpc server can also set the `supportedAccountImplementation` field in the intent when sending it onchain, to reduce the risk of the user frontrunning them by upgrading their account.
 
 If the `postPayment` fails, the user's entire execution is reverted. This ensures users cannot exploit the system to get free executions.
 
 :::warning
 Beyond this, the contracts do not provide native griefing protection. It is up to the relay to simulate the call and evaluate the risk associated with each intent.
 
-Relays may choose to:
+RPC Servers may choose to:
 - Only support accounts that follow ERC-4337 validation rules.
 - Charge the full fee as `postPayment` if they fully trust the user.
 :::
@@ -112,7 +112,7 @@ We leave the decision of how to split the payment between `prePayment` and `post
 Our recommendations:
 
 1. Including both `prePayment` and `postPayment` in an intent introduces an extra ERC20 transfer, increasing gas costs. This tradeoff should be considered.
-2. Relays should build sophisticated offchain griefing defenses, such as reputation systems and risk premiums for new users.
+2. RPC Servers should build sophisticated offchain griefing defenses, such as reputation systems and risk premiums for new users.
 3. Charging only via `postPayment` allows the user to start execution without upfront funds. This enables use cases where funds become available only after the call—e.g., after withdrawing from a DApp.
 
 :::note
@@ -122,7 +122,7 @@ This is done to make the EIP-712 struct more explicit and readable.
 
 #### Paymasters
 On the topic of payments, DApps might want to sponsor payments for their users. 
-This means that instead of the payment to the relay being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](./account.md#1-pay) function.
+This means that instead of the payment to the RPC server being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](./account.md#1-pay) function.
 
 To sponsor an intent, you just need to set the `payer` field to the paymaster contract's address. 
 
