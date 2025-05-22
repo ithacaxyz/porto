@@ -6,6 +6,14 @@ React hook for revoking permissions.
 
 Uses [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions) under the hood.
 
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const revokePermissions = Hooks.useRevokePermissions()
+}
+```
+
 <TryItOut
   exampleSlug="#example"
   fn={async ({ provider }) => {
@@ -30,6 +38,162 @@ Uses [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions)
     return 'const response = ' + code
   }}
 />
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to revoke permissions for. If not provided, will use the connected account.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const revokePermissions = Hooks.useRevokePermissions()
+  
+  revokePermissions.mutate({
+    address: '0x...',
+    id: '0x...'
+  })
+}
+```
+
+### id
+
+`string`
+
+The ID of the permission to revoke.
+
+### feeToken
+
+`Address | undefined`
+
+Optional fee token address to use for the revocation transaction.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const revokePermissions = Hooks.useRevokePermissions()
+  
+  revokePermissions.mutate({
+    id: '0x123abc...',
+    feeToken: '0x1234...' // Use a specific token for paying fees
+  })
+}
+```
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const revokePermissions = Hooks.useRevokePermissions()
+  
+  revokePermissions.mutate({
+    id: '0x123abc...'
+  })
+}
+```
+
+### onError
+
+`((error: Error, variables: RevokePermissionsParameters, context: unknown) => void) | undefined`
+
+Function to invoke if the mutation encounters an error.
+
+### onMutate
+
+`((variables: RevokePermissionsParameters) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke before the mutation function and before `onSuccess` or `onError` are invoked.
+
+### onSettled
+
+`((data: unknown, error: Error | null, variables: RevokePermissionsParameters, context: unknown) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke when the mutation is settled (either succeeded or failed).
+
+### onSuccess
+
+`((data: unknown, variables: RevokePermissionsParameters, context: unknown) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke if the mutation is successful.
+
+## Return Type
+
+```tsx
+UseMutationResult<unknown, Error, RevokePermissionsParameters>
+```
+
+Returns a [`TanStack Query` mutation result](https://tanstack.com/query/latest/docs/react/reference/useMutation) with the following properties:
+
+### data
+
+`unknown`
+
+Data returned from the mutation.
+
+### error
+
+`Error | null`
+
+Error encountered during mutation execution, if any.
+
+### isError
+
+`boolean`
+
+True if the mutation encountered an error.
+
+### isIdle
+
+`boolean`
+
+True if the mutation has not been called yet.
+
+### isLoading
+
+`boolean`
+
+True if the mutation is in a loading state.
+
+### isPending
+
+`boolean`
+
+True if the mutation is in a pending state.
+
+### isSuccess
+
+`boolean`
+
+True if the mutation was successful.
+
+### mutate
+
+`(variables: RevokePermissionsParameters) => void`
+
+Function to trigger the mutation.
+
+### mutateAsync
+
+`(variables: RevokePermissionsParameters) => Promise<unknown>`
+
+Async function to trigger the mutation and get a promise that resolves when the mutation is complete.
+
+### reset
+
+`() => void`
+
+Function to reset the mutation state.
+
+### status
+
+`'error' | 'idle' | 'loading' | 'success'`
+
+Current status of the mutation.
 
 ## Example
 

@@ -6,6 +6,14 @@ Hook for retrieving active permissions for an account.
 
 Internally uses [`experimental_getPermissions`](/sdk/rpc/experimental_getPermissions).
 
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const result = Hooks.usePermissions()
+}
+```
+
 <TryItOut
   exampleSlug="#example"
   fn={({ provider }) => provider.request({ method: 'experimental_getPermissions' })}
@@ -14,8 +22,87 @@ Internally uses [`experimental_getPermissions`](/sdk/rpc/experimental_getPermiss
   }}
 />
 
-## Example
+## Parameters
 
+### address
+
+`Address | undefined`
+
+Address of the account to get permissions for. If not provided, will use the connected account.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const result = Hooks.usePermissions({
+    address: '0x...'
+  })
+}
+```
+
+### config
+
+`Config | undefined`
+
+Configuration to pass to the query.
+
+## Return Type
+
+```tsx
+UseQueryResult<PermissionInfo[]>
+```
+
+Returns a [`TanStack Query`](https://tanstack.com/query/latest) result object with the following properties:
+
+### data
+
+`PermissionInfo[] | undefined`
+
+Array of permission information objects.
+
+### error
+
+`Error | null`
+
+Error encountered during query execution, if any.
+
+### isError
+
+`boolean`
+
+True if the query encountered an error.
+
+### isIdle
+
+`boolean`
+
+True if the query has not started yet.
+
+### isLoading
+
+`boolean`
+
+True if the query is in a loading state.
+
+### isPending
+
+`boolean`
+
+True if the query is in a pending state.
+
+### isSuccess
+
+`boolean`
+
+True if the query was successful and data is available.
+
+### status
+
+`'error' | 'idle' | 'loading' | 'success'`
+
+Current status of the query.
+
+## Example
 
 ```tsx twoslash
 import { Hooks } from 'porto/wagmi'

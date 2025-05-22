@@ -7,6 +7,14 @@ Hook for granting permissions for an Application to perform actions on behalf of
 
 Internally uses [`experimental_grantPermissions`](/sdk/rpc/experimental_grantPermissions).
 
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const grantPermissions = Hooks.useGrantPermissions()
+}
+```
+
 <TryItOut
   exampleSlug="#example"
   fn={async ({ provider }) => {
@@ -33,6 +41,178 @@ Internally uses [`experimental_grantPermissions`](/sdk/rpc/experimental_grantPer
     return 'const response = ' + code
   }}
 />
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to grant permissions for. If not provided, will use the connected account.
+
+### expiry
+
+`number`
+
+Timestamp (in seconds) when the permission expires.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const grantPermissions = Hooks.useGrantPermissions()
+
+  // Grant permissions for 1 hour
+  grantPermissions.mutate({
+    expiry: Math.floor(Date.now() / 1000) + 60 * 60
+    // ...
+  })
+}
+```
+
+### key
+
+`{ publicKey: Address, type: 'secp256k1' } | undefined`
+
+Optional key to use for signing. If provided, the application can use this key to sign transactions.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+import { privateKeyToAccount } from 'viem/accounts'
+
+function Example() {
+  const grantPermissions = Hooks.useGrantPermissions()
+  const account = privateKeyToAccount('0x...')
+
+  grantPermissions.mutate({
+    key: {
+      publicKey: account.address,
+      type: 'secp256k1',
+    }
+    // ...
+  })
+}
+```
+
+### permissions
+
+`{
+  calls?: { signature?: string, to?: Address }[],
+  signatureVerification?: { addresses: Address[] },
+  spend?: { limit: Hex, period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year', token?: Address }[]
+}`
+
+Permission configuration specifying which actions are allowed.
+
+#### calls
+
+Array of call permissions that define which contracts and functions can be called.
+
+#### signatureVerification
+
+Optional configuration for signature verification permissions.
+
+#### spend
+
+Array of spend permissions that define token spending limits.
+
+### onError
+
+`((error: Error, variables: GrantPermissionsParameters, context: unknown) => void) | undefined`
+
+Function to invoke if the mutation encounters an error.
+
+### onMutate
+
+`((variables: GrantPermissionsParameters) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke before the mutation function and before `onSuccess` or `onError` are invoked.
+
+### onSettled
+
+`((data: unknown, error: Error | null, variables: GrantPermissionsParameters, context: unknown) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke when the mutation is settled (either succeeded or failed).
+
+### onSuccess
+
+`((data: unknown, variables: GrantPermissionsParameters, context: unknown) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke if the mutation is successful.
+
+## Return Type
+
+```tsx
+UseMutationResult<unknown, Error, GrantPermissionsParameters>
+```
+
+Returns a [`TanStack Query` mutation result](https://tanstack.com/query/latest/docs/react/reference/useMutation) with the following properties:
+
+### data
+
+`unknown`
+
+Data returned from the mutation.
+
+### error
+
+`Error | null`
+
+Error encountered during mutation execution, if any.
+
+### isError
+
+`boolean`
+
+True if the mutation encountered an error.
+
+### isIdle
+
+`boolean`
+
+True if the mutation has not been called yet.
+
+### isLoading
+
+`boolean`
+
+True if the mutation is in a loading state.
+
+### isPending
+
+`boolean`
+
+True if the mutation is in a pending state.
+
+### isSuccess
+
+`boolean`
+
+True if the mutation was successful.
+
+### mutate
+
+`(variables: GrantPermissionsParameters) => void`
+
+Function to trigger the mutation.
+
+### mutateAsync
+
+`(variables: GrantPermissionsParameters) => Promise<unknown>`
+
+Async function to trigger the mutation and get a promise that resolves when the mutation is complete.
+
+### reset
+
+`() => void`
+
+Function to reset the mutation state.
+
+### status
+
+`'error' | 'idle' | 'loading' | 'success'`
+
+Current status of the mutation.
 
 ## Example
 
@@ -109,7 +289,7 @@ export function App() {
 
   return (
     <button onClick={() => grantPermissions.mutate({
-      expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
+      expiry: Math.floor(Date.now() / 1_000) + 7 * 24 * 60 * 60, // 1 week
       key: { // [!code focus]
         publicKey: account.address, // [!code focus]
         type: 'secp256k1', // [!code focus]
