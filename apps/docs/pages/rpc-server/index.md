@@ -51,15 +51,15 @@ The RPC server will validate that the quote is still valid, that the intent was 
 The RPC server passes through known Ethereum JSON-RPC methods to an underlying network of nodes for the corresponding chain. For example, you can query the block number or chain ID:
 
 ```sh
-$ cast chain-id --rpc-url https://base-mainnet.rpc.ithaca.xyz
+cast chain-id --rpc-url https://base-mainnet.rpc.ithaca.xyz
 
-8453
+# 8453
 ```
 
 ```sh
-$ cast block-number --rpc-url https://base-mainnet.rpc.ithaca.xyz
+cast block-number --rpc-url https://base-mainnet.rpc.ithaca.xyz
 
-30568194
+# 30568194
 ```
 
 [`wallet_prepareCreateAccount`]: /rpc-server/wallet_prepareCreateAccount

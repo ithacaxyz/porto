@@ -20,7 +20,6 @@
 | [`experimental_grantPermissions`](/sdk/rpc/experimental_grantPermissions)   | Grants permissions for an Application to perform actions on behalf of the account. | Experimental                                        |
 | [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions) | Revokes a permission.                                                              | Experimental                                        |
 
-
 :::warning
 JSON-RPC methods prefixed as `experimental_` intend to be upstreamed as an ERC (or deprecated in favor of upcoming/existing ERCs) in the near future. They are purposefully minimalistic and intend to be iterated on.
 :::

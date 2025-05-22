@@ -1,14 +1,22 @@
 {
   "$schema": "https://esm.sh/markdownlint-cli2/schema/markdownlint-cli2-config-schema.json",
   "config": {
+    "code-block-style": false,
+    "first-line-h1": false,
+    "first-line-heading": false,
     "line-length": {
       "line_length": 999
     },
-    "no-inline-html": false
+    "link-fragments": false,
+    "no-duplicate-heading": false,
+    "no-inline-html": false,
+    "no-reversed-links": false
   },
   "fix": true,
   "ignores": [
     "**/CHANGELOG.md",
+    "**/_/**/*.md",
+    "**/_/**/*.mdx",
     "**/build/**/*.md",
     "**/dist/**/*.md",
     "**/contracts/**/*.md",

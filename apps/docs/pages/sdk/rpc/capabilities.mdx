@@ -47,7 +47,6 @@ const tokens = Object.values(capabilities)[0].feeToken.tokens // [!code focus]
   }}
 />
 
-
 ### Request Capabilities
 
 #### `feeToken`
@@ -113,20 +112,20 @@ type Capability = {
     /** Expiry of the permissions. */
     expiry: number
 
-    /** 
-     * Key to grant permissions to. 
-     * Defaults to a wallet-managed key. 
+    /**
+     * Key to grant permissions to.
+     * Defaults to a wallet-managed key.
      */
     key?: {
-      /** 
-       * Public key. 
-       * Accepts an address for `address` & `secp256k1` types. 
+      /**
+       * Public key.
+       * Accepts an address for `address` & `secp256k1` types.
        */
       publicKey?: `0x${string}`,
       /** Key type. */
-      type?: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256', 
+      type?: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256',
     }
-  
+
     /** Permissions. */
     permissions: {
       /** Call permissions. */
@@ -136,16 +135,16 @@ type Capability = {
         /** Authorized target address. */
         to?: `0x${string}`
       }[],
-  
+
       /** Spend permissions. */
       spend: {
         /** Spending limit (in wei) per period. */
         limit: `0x${string}`,
         /** Period of the spend limit. */
         period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
-        /** 
-         * ERC20 token to set the limit on. 
-         * If not provided, the limit will be set on the 
+        /**
+         * ERC20 token to set the limit on.
+         * If not provided, the limit will be set on the
          * native token (e.g. ETH).
          */
         token?: `0x${string}`
@@ -230,7 +229,7 @@ The following JSON-RPC methods support the `permissions` response capability:
 ```ts
 type Capability = {
   permissions: {
-    expiry: number, 
+    expiry: number,
     id: `0x${string}`,
     key: {
       publicKey: `0x${string}`,
@@ -247,8 +246,8 @@ type Capability = {
         token?: `0x${string}`
       }[]
     }
-    publicKey: `0x${string}`, 
-    type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256' 
+    publicKey: `0x${string}`,
+    type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
   }[]
 }
 ```
@@ -262,19 +261,19 @@ const capabilities = await provider.request({
   params: [{
     capabilities: {
       grantPermissions: { /* ... */ },
-    }, 
+    },
     /* ... */
   }]
 })
 // @log: [{
 // @log:   address: '0x1234567890123456789012345678901234567890',
 // @log:   capabilities: {
-// @log:     permissions: [{ 
+// @log:     permissions: [{
 // @log:       expiry: 1727078400,
 // @log:       id: '0x...',
 // @log:       key: {
-// @log:         publicKey: '0x...', 
-// @log:         type: 'p256' 
+// @log:         publicKey: '0x...',
+// @log:         type: 'p256'
 // @log:       },
 // @log:       permissions: {
 // @log:         calls: [{
