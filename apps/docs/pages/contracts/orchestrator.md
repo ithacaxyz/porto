@@ -7,7 +7,7 @@ The orchestrator accepts executions in the form of an intent.
 
 An `intent` struct contains all the relevant data that allows a 3rd party like the relay to make an execution on behalf of the user, and get paid for it.
 
-The intent has to be signed by one of the [Keys](./account.md#keys) authorized in the user's account. Optionally, the intent can use a `paymaster` to pay on behalf of the user, in which case the intent also needs to be signed by the paymaster.
+The intent has to be signed by one of the [Keys](/contracts/account#keys) authorized in the user's account. Optionally, the intent can use a `paymaster` to pay on behalf of the user, in which case the intent also needs to be signed by the paymaster.
 
 ```solidity
 struct Intent {
@@ -88,7 +88,7 @@ Let's go through each of these fields, to discuss the features enabled by intent
 
 One of the most powerful use cases of executing through intents is that rpc servers can abstract gas for users and get compensated in any token the user holds.
 
-We’ve removed the need for gas refunds and made pre payment of relay fees optional. Instead, relays use the `pay` function on the account to request payment in two almost identical tranches:
+We've removed the need for gas refunds and made pre payment of relay fees optional. Instead, relays use the `pay` function on the account to request payment in two almost identical tranches:
 
 1. **prePayment** (before executing the user's call bundle):  
    - If successful, the user's **nonce is incremented**, even if the call bundle fails during execution.
@@ -128,7 +128,7 @@ This is done to make the EIP-712 struct more explicit and readable.
 
 #### Paymasters
 On the topic of payments, DApps might want to sponsor payments for their users. 
-This means that instead of the payment to the RPC server being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](./account.md#1-pay) function.
+This means that instead of the payment to the RPC server being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](/contracts/account#1-pay) function.
 
 To sponsor an intent, you just need to set the `payer` field to the paymaster contract's address. 
 
@@ -144,12 +144,12 @@ We've allowed porto accounts to act as paymasters for other porto accounts. This
 The intent contains the following execution information:
 
 ###### nonce
-Same as the nonce mechanic detailed [here](./account.md#nonce-management) in the account.
+Same as the nonce mechanic detailed [here](/contracts/account#nonce-management) in the account.
 All nonces are stored and incremented in the storage of the account. The orchestrator just has special privilege to access these storage slots.
 
 ###### executionData
 Since all the data like nonce and signature is added in their corresponding fields in the intent. 
-The executionData requires no additional `opData` and uses the `0x0100...` single batch encoding described [here](./account.md#modes).
+The executionData requires no additional `opData` and uses the `0x0100...` single batch encoding described [here](/contracts/account#modes).
 
 #### Account Creation 
 We currently use PREP to initialize provably rootless 7702 accounts. 
