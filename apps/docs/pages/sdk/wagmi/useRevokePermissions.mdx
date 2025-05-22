@@ -2,9 +2,9 @@ import { TryItOut } from '../../../components/TryItOut'
 
 # `useRevokePermissions`
 
-React hook for revoking permissions.
+Hook for revoking permissions.
 
-Uses [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions) under the hood.
+Internally uses [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions).
 
 ```tsx
 import { Hooks } from 'porto/wagmi'
@@ -54,7 +54,7 @@ function Example() {
   const revokePermissions = Hooks.useRevokePermissions()
   
   revokePermissions.mutate({
-    address: '0x...',
+    address: '0x...', // [!code focus]
     id: '0x...'
   })
 }
@@ -65,6 +65,18 @@ function Example() {
 `string`
 
 The ID of the permission to revoke.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const revokePermissions = Hooks.useRevokePermissions()
+  
+  revokePermissions.mutate({
+    id: '0x123abc...' // [!code focus]
+  })
+}
+```
 
 ### feeToken
 
@@ -80,19 +92,7 @@ function Example() {
   
   revokePermissions.mutate({
     id: '0x123abc...',
-    feeToken: '0x1234...' // Use a specific token for paying fees
-  })
-}
-```
-
-```tsx
-import { Hooks } from 'porto/wagmi'
-
-function Example() {
-  const revokePermissions = Hooks.useRevokePermissions()
-  
-  revokePermissions.mutate({
-    id: '0x123abc...'
+    feeToken: '0x1234...' // [!code focus]
   })
 }
 ```
@@ -194,73 +194,3 @@ Function to reset the mutation state.
 `'error' | 'idle' | 'loading' | 'success'`
 
 Current status of the mutation.
-
-## Example
-
-```tsx twoslash
-import { Hooks } from 'porto/wagmi'
-
-export function App() {
-  const permissions = Hooks.usePermissions()
-  const revokePermissions = Hooks.useRevokePermissions()
-
-  if (!permissions?.data) return null
-
-  return permissions.data.map(permission => (
-    <button
-      onClick={() => revokePermissions.mutate({
-        id: permission.id
-      })}
-    >
-      Revoke Permission
-    </button>
-  ))
-}
-```
-
-<TryItOut
-  fn={async ({ provider }) => {
-    // For demo purposes only, first get permissions to show one being revoked
-    const permissions = await provider.request({
-      method: 'experimental_getPermissions'
-    })
-
-    if (!permissions || permissions.length === 0) {
-      return { message: "No permissions to revoke" }
-    }
-
-    // Revoke the first permission
-    await provider.request({
-      method: 'experimental_revokePermissions',
-      params: [{ id: permissions[0].id }]
-    })
-
-    return { message: `Successfully revoked permission ${permissions[0].id}` }
-  }}
-  transformResultCode={(code) => {
-    return 'const response = ' + code
-  }}
-/>
-
-### Revoke for Specific Account
-
-You can revoke permissions for a specific account by including the `address` parameter:
-
-```tsx twoslash
-import { Hooks } from 'porto/wagmi'
-
-export function App() {
-  const revokePermissions = Hooks.useRevokePermissions()
-
-  return (
-    <button
-      onClick={() => revokePermissions.mutate({
-        address: '0x...', // [!code focus]
-        id: '0x...'
-      })}
-    >
-      Revoke
-    </button>
-  )
-}
-```

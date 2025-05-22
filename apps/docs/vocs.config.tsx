@@ -165,7 +165,6 @@ export default defineConfig({
           },
           {
             collapsed: true,
-            disabled: true,
             items: [
               {
                 link: '/sdk/api/dialog/iframe',
@@ -178,7 +177,7 @@ export default defineConfig({
               },
             ],
             link: '/sdk/api/dialog',
-            text: 'Dialog 🚧',
+            text: 'Dialog',
           },
           {
             collapsed: true,
@@ -205,7 +204,6 @@ export default defineConfig({
           },
           {
             collapsed: true,
-            disabled: true,
             items: [
               {
                 disabled: true,
@@ -217,18 +215,15 @@ export default defineConfig({
                 text: '.idb',
               },
               {
-                disabled: true,
                 link: '/sdk/api/storage/localstorage',
                 text: '.localStorage',
               },
               {
-                disabled: true,
                 link: '/sdk/api/storage/memory',
                 text: '.memory',
               },
             ],
-            link: '/sdk/api/storage',
-            text: 'Storage 🚧',
+            text: 'Storage',
           },
         ],
         text: 'API Reference',
@@ -260,8 +255,8 @@ export default defineConfig({
                 text: 'grantPermissions',
               },
               {
-                link: '/sdk/wagmi/permissions',
-                text: 'permissions',
+                link: '/sdk/wagmi/getPermissions',
+                text: 'getPermissions',
               },
               {
                 link: '/sdk/wagmi/revokePermissions',

@@ -4,116 +4,51 @@ VanillaJS action for revoking permissions. Uses [`experimental_revokePermissions
 
 ## Usage
 
-```ts twoslash
+:::code-group
+
+```ts twoslash [example.ts]
 import { Actions } from 'porto/wagmi'
-import { porto } from 'porto/wagmi'
-import { createConfig, http } from 'wagmi'
-import { baseSepolia } from 'wagmi/chains'
+import { config } from './config'
 
-export const config = createConfig({
-  chains: [baseSepolia],
-  connectors: [porto()],
-  ssr: true,
-  transports: {
-    [baseSepolia.id]: http(),
-  },
-})
-
-// ...account already connected
-
-// Revoke a permission
 await Actions.revokePermissions(config, {
-  id: '0x...' // Permission ID to revoke
+  id: '0x...', // Permission ID to revoke
 })
 ```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/wagmi/config.ts]
+```
+
+:::
 
 ## Parameters
 
-```ts
-type Parameters = {
-  /** Chain ID to revoke permissions on */
-  chainId?: number
+### address
 
-  /** The connector to use */
-  connector?: Connector
+`Address | undefined`
 
-  /** Address of the account to revoke permissions for.
-   * Defaults to the current account.
-   */
-  address?: `0x${string}`
+Address of the account to revoke permissions for. Defaults to the current account.
 
-  /** ID of the permission to revoke */
-  id: `0x${string}`
+### chainId
 
-  /** Optional fee token to use for the transaction */
-  feeToken?: `0x${string}`
-}
-```
+`number | undefined`
 
-## Return Value
+Chain ID to revoke permissions on.
 
-This function doesn't return a value.
+### connector
 
-## Example with Error Handling
+`Connector | CreateConnectorFn`
 
-```ts
-import { Actions } from 'porto/wagmi'
-import { porto } from 'porto/wagmi'
-import { createConfig, http } from 'wagmi'
-import { baseSepolia } from 'wagmi/chains'
+The connector to use.
 
-export const config = createConfig({
-  chains: [baseSepolia],
-  connectors: [porto()],
-  transports: {
-    [baseSepolia.id]: http(),
-  },
-})
+### feeToken
 
-const permissions = await Actions.getPermissions(config, {})
+`Address | undefined`
 
-if (permissions.length === 0) {
-  console.log('No permissions to revoke')
-} else {
-  const permissionId = permissions[0].id
+Optional fee token to use for the transaction.
 
-  try {
-    await Actions.revokePermissions(config, {
-      id: permissionId
-    })
-    console.log(`Successfully revoked permission ${permissionId}`)
-  } catch (error) {
-    console.error('Failed to revoke permission:', error)
-  }
-}
-```
+### id
 
-## Example with Specific Account and Fee Token
+`string`
 
-You can revoke permissions for a specific account and specify a fee token:
-
-```ts
-import { Actions } from 'porto/wagmi'
-import { porto } from 'porto/wagmi'
-import { createConfig, http } from 'wagmi'
-import { baseSepolia } from 'wagmi/chains'
-
-export const config = createConfig({
-  chains: [baseSepolia],
-  connectors: [porto()],
-  transports: {
-    [baseSepolia.id]: http(),
-  },
-})
-
-const specificAddress = '0x123...' // [!code focus]
-const permissionId = '0x456...' // [!code focus]
-const feeToken = '0x789...' // [!code focus]
-
-// Revoke permission for a specific account using a specific fee token
-await Actions.revokePermissions(config, {
-  address: specificAddress, // [!code focus]
-  id: permissionId,
-  feeToken: feeToken // [!code focus]
-})
-```
+ID of the permission to revoke.

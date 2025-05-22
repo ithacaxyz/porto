@@ -1,176 +1,51 @@
 # Chains
 
-Porto extends the chain definitions from [viem](https://viem.sh/docs/chains/introduction) with additional contract address information specific to Porto functionality.
+Porto chains are re-exported from [Viem](https://viem.sh/docs/chains/introduction).
 
-## Supported Chains
-
-Porto currently supports the following chains with pre-configured contract addresses:
+## Usage
 
 ```ts twoslash
 import { Chains } from 'porto'
 
-// Available chains
-Chains.anvil        // Local development chain
-Chains.baseSepolia  // Base Sepolia testnet
-Chains.portoDev     // Porto development testnet
+const chain = Chains.baseSepolia
 ```
 
-## Chain Structure
+## Supported Chains
 
-Each chain in Porto extends the standard viem chain type with additional contract information:
+Porto currently supports the following chains:
 
-```ts
-type Chain = {
-  // Standard viem Chain properties
-  id: number
-  name: string
-  nativeCurrency: {
-    name: string
-    symbol: string
-    decimals: number
+| Chain | Value |
+| ----- | ------ |
+| Base | 🚧 |
+| Base Sepolia | `Chains.baseSepolia` |
+
+## Wagmi Usage
+
+Chains can be directly used with [Wagmi's Config](https://wagmi.sh/react/api/createConfig)
+
+```ts twoslash
+import { Chains } from 'porto'
+import { porto } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+
+export const config = createConfig({
+  chains: [Chains.baseSepolia], // [!code hl]
+  connectors: [porto()],
+  transports: {
+    [Chains.baseSepolia.id]: http() // [!code hl]
   }
-  rpcUrls: {
-    default: {
-      http: string[]
-      webSocket?: string[]
-    }
-    // ...additional RPC URLs
-  }
-  blockExplorers?: {
-    default: {
-      name: string
-      url: string
-      apiUrl?: string
-    }
-    // ...additional block explorers
-  }
-  contracts: {
-    // Porto-specific contract addresses
-    delegation?: {
-      address: `0x${string}`
-    }
-    // ...and any other contract addresses
-  }
-  testnet?: boolean
-}
+})
 ```
 
-## Chain Details
+## Vanilla Usage
 
-### Anvil
-
-The local development chain for testing purposes.
-
-```ts
-{
-  id: 31337,
-  name: 'Anvil',
-  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-  rpcUrls: {
-    default: {
-      http: ['http://localhost:9119']
-    }
-  },
-  contracts: {
-    delegation: {
-      address: '0x8ce361602b935680e8dec218b820ff5056beb7af'
-    }
-  }
-}
-```
-
-### Base Sepolia
-
-The Base Sepolia testnet with Porto-specific RPC and contract addresses.
-
-```ts
-{
-  id: 84532,
-  name: 'Base Sepolia',
-  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-  rpcUrls: {
-    default: {
-      http: ['https://base-sepolia.rpc.ithaca.xyz']
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: 'Basescan',
-      url: 'https://sepolia.basescan.org',
-      apiUrl: 'https://api-sepolia.basescan.org/api'
-    }
-  },
-  contracts: {
-    delegation: {
-      address: '0x12a05881d9934918096a0256e665e80d4828f681'
-    }
-  },
-  testnet: true
-}
-```
-
-### Porto Dev
-
-The dedicated Porto development testnet.
-
-```ts
-{
-  id: 28404,
-  name: 'Porto Dev',
-  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-  rpcUrls: {
-    default: {
-      http: ['https://porto-dev.rpc.ithaca.xyz']
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: '',
-      url: '',
-      apiUrl: ''
-    }
-  },
-  contracts: {
-    delegation: {
-      address: '0x562ee13464552ac4900a5aeee79caf115d8a8566'
-    }
-  },
-  testnet: true
-}
-```
-
-## Usage with Porto
-
-When creating a Porto instance, you can specify which chain to use:
+Chains can be used directly with the [`Porto.create`](/sdk/api/porto/create#chains) method.
 
 ```ts twoslash
 import { Porto, Chains } from 'porto'
 
 // Create a Porto instance that uses Base Sepolia
 const porto = Porto.create({
-  chains: [Chains.baseSepolia]
-})
-
-// Or use multiple chains
-const portoDev = Porto.create({
-  chains: [Chains.portoDev, Chains.baseSepolia]
-})
-```
-
-## Usage with Wagmi
-
-The chains can also be used with wagmi when configuring your application:
-
-```ts twoslash
-import { createConfig, http } from 'wagmi'
-import { porto } from 'porto/wagmi'
-import { Chains } from 'porto'
-
-export const config = createConfig({
-  chains: [Chains.baseSepolia],
-  connectors: [porto()],
-  transports: {
-    [Chains.baseSepolia.id]: http()
-  }
+  chains: [Chains.baseSepolia] // [!code hl]
 })
 ```

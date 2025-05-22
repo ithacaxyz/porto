@@ -7,11 +7,33 @@ Hook for granting permissions for an Application to perform actions on behalf of
 
 Internally uses [`experimental_grantPermissions`](/sdk/rpc/experimental_grantPermissions).
 
-```tsx
+```tsx twoslash
+import * as React from 'react'
+// ---cut---
 import { Hooks } from 'porto/wagmi'
+import { parseEther, toHex } from 'viem'
 
-function Example() {
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+export function App() {
   const grantPermissions = Hooks.useGrantPermissions()
+
+  return (
+    <button onClick={() => grantPermissions.mutate({
+      expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+      permissions: {
+        calls: [{
+          signature: 'transfer(address,uint256)',
+          to: token
+        }],
+        spend: [{
+          limit: parseEther('50'), // 50 EXP
+          period: 'day',
+          token: token,
+        }]
+      },
+    })}>Grant Permissions</button>
+  )
 }
 ```
 
@@ -41,6 +63,46 @@ function Example() {
     return 'const response = ' + code
   }}
 />
+
+### App-managed Keys
+
+You can also grant permissions to a specific signing key by providing the `key` parameter. This is useful for when the application wants to perform signing themselves, instead of the wallet.
+
+```tsx twoslash
+import * as React from 'react'
+// ---cut---
+import { Hooks } from 'porto/wagmi'
+import { parseEther, toHex } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+export function App() {
+  const grantPermissions = Hooks.useGrantPermissions()
+  const account = privateKeyToAccount('0x...') // [!code focus]
+
+  return (
+    <button onClick={() => grantPermissions.mutate({
+      expiry: Math.floor(Date.now() / 1_000) + 7 * 24 * 60 * 60, // 1 week
+      key: { // [!code focus]
+        publicKey: account.address, // [!code focus]
+        type: 'secp256k1', // [!code focus]
+      }, // [!code focus]
+      permissions: {
+        calls: [{
+          signature: 'transfer(address,uint256)',
+          to: token
+        }],
+        spend: [{
+          limit: parseEther('50'), // 50 EXP
+          period: 'day',
+          token: token,
+        }]
+      },
+    })}>Grant Permissions</button>
+  )
+}
+```
 
 ## Parameters
 
@@ -72,9 +134,16 @@ function Example() {
 
 ### key
 
-`{ publicKey: Address, type: 'secp256k1' } | undefined`
-
 Optional key to use for signing. If provided, the application can use this key to sign transactions.
+
+```ts
+type Key = {
+  /** Public key */
+  publicKey: `0x${string}`
+  /** Key type */
+  type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+}
+```
 
 ```tsx
 import { Hooks } from 'porto/wagmi'
@@ -96,25 +165,29 @@ function Example() {
 
 ### permissions
 
-`{
-  calls?: { signature?: string, to?: Address }[],
-  signatureVerification?: { addresses: Address[] },
-  spend?: { limit: Hex, period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year', token?: Address }[]
-}`
+Permissions to grant to the account.
 
-Permission configuration specifying which actions are allowed.
+```ts
+type Permissions = {
+  /** Call permissions */
+  calls: {
+    /** Function signature or 4-byte signature */
+    signature?: string
+    /** Authorized target address */
+    to?: `0x${string}`
+  }[]
 
-#### calls
-
-Array of call permissions that define which contracts and functions can be called.
-
-#### signatureVerification
-
-Optional configuration for signature verification permissions.
-
-#### spend
-
-Array of spend permissions that define token spending limits.
+  /** Spend permissions */
+  spend: {
+    /** Spending limit (in wei) per period */
+    limit: `0x${string}`
+    /** Period of the spend limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token to set the limit on (defaults to native token) */
+    token?: `0x${string}`
+  }[]
+}
+```
 
 ### onError
 
@@ -141,10 +214,6 @@ Function to invoke when the mutation is settled (either succeeded or failed).
 Function to invoke if the mutation is successful.
 
 ## Return Type
-
-```tsx
-UseMutationResult<unknown, Error, GrantPermissionsParameters>
-```
 
 Returns a [`TanStack Query` mutation result](https://tanstack.com/query/latest/docs/react/reference/useMutation) with the following properties:
 
@@ -213,99 +282,3 @@ Function to reset the mutation state.
 `'error' | 'idle' | 'loading' | 'success'`
 
 Current status of the mutation.
-
-## Example
-
-```tsx
-import { Hooks } from 'porto/wagmi'
-import { parseEther, toHex } from 'viem'
-
-export function App() {
-  const grantPermissions = Hooks.useGrantPermissions()
-  const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
-
-  return (
-    <button onClick={() => grantPermissions.mutate({
-      expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-      permissions: {
-        calls: [{
-          signature: 'transfer(address,uint256)',
-          to: token
-        }],
-        spend: [{
-          limit: toHex(parseEther('50')), // 50 EXP
-          period: 'day',
-          token: token,
-        }]
-      },
-    })}>Grant Permissions</button>
-  )
-}
-```
-
-<TryItOut
-  fn={async ({ provider }) => {
-    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
-
-    const response = await provider.request({
-      method: 'experimental_grantPermissions',
-      params: [{
-        expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-        permissions: {
-          calls: [{ to: token }],
-          spend: [{
-            limit: toHex(parseEther('50')), // 50 EXP
-            period: 'minute',
-            token: token,
-          }],
-        },
-      }]
-    })
-
-    return response
-  }}
-  transformResultCode={(code) => {
-    return 'const response = ' + code
-  }}
-/>
-
-### App-managed Keys
-
-You can also grant permissions to a specific signing key by providing the `key` parameter. This is useful for when the application wants to perform signing themselves, instead of the wallet.
-
-```tsx
-import { Porto } from 'porto'
-import * as React from 'react'
-import { Hooks } from 'porto/wagmi'
-import { parseEther, toHex } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const porto = Porto.create()
-
-export function App() {
-  const grantPermissions = Hooks.useGrantPermissions()
-  const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
-  const account = privateKeyToAccount('0x...') // [!code focus]
-
-  return (
-    <button onClick={() => grantPermissions.mutate({
-      expiry: Math.floor(Date.now() / 1_000) + 7 * 24 * 60 * 60, // 1 week
-      key: { // [!code focus]
-        publicKey: account.address, // [!code focus]
-        type: 'secp256k1', // [!code focus]
-      }, // [!code focus]
-      permissions: {
-        calls: [{
-          signature: 'transfer(address,uint256)',
-          to: token
-        }],
-        spend: [{
-          limit: toHex(parseEther('50')), // 50 EXP
-          period: 'day',
-          token: token,
-        }]
-      },
-    })}>Grant Permissions with Custom Key</button>
-  )
-}
-```

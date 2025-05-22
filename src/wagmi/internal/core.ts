@@ -225,7 +225,7 @@ export declare namespace createAccount {
 
 export async function disconnect(
   config: Config,
-  parameters: disconnect.Parameters,
+  parameters: disconnect.Parameters = {},
 ): Promise<disconnect.ReturnType> {
   const connector = (() => {
     if (parameters.connector) return parameters.connector
@@ -301,7 +301,7 @@ export declare namespace getAdmins {
 
 export async function getPermissions<config extends Config>(
   config: config,
-  parameters: getPermissions.Parameters<config>,
+  parameters: getPermissions.Parameters<config> = {},
 ): Promise<getPermissions.ReturnType> {
   const { address, chainId, connector } = parameters
 

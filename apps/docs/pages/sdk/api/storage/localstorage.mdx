@@ -1,6 +1,6 @@
 # `Storage.localStorage`
 
-The [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) storage backend for Porto.
+The [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) storage for Porto.
 
 ## Usage
 
@@ -12,14 +12,3 @@ const porto = Porto.create({
 })
 ```
 
-## Example
-
-An example of combining `Storage.localStorage` with `Storage.idb`:
-
-```ts twoslash
-import { Porto, Storage } from 'porto'
-
-const porto = Porto.create({
-  storage: Storage.combine(Storage.localStorage(), Storage.idb())  // [!code focus]
-})
-```
