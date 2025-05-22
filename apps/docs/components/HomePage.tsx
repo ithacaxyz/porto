@@ -761,12 +761,12 @@ function SendTip(props: {
             calls: [
               {
                 ...shared,
-                args: [address, amount],
+                args: [address!, amount],
                 functionName: 'approve',
               },
               {
                 ...shared,
-                args: [address, creatorAddress, amount],
+                args: [address!, creatorAddress, amount],
                 functionName: 'transferFrom',
               },
             ],
@@ -1105,7 +1105,7 @@ function Swap(props: {
             abi: expFromConfig.abi,
             args: [
               expToConfig.address[chainId],
-              address,
+              address!,
               Value.fromEther(fromValue),
             ],
             functionName: 'swap',
