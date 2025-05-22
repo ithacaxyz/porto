@@ -40,6 +40,8 @@ export function App() {
   const permissions = Hooks.usePermissions()
   const revokePermissions = Hooks.useRevokePermissions()
 
+  if (!permissions?.data) return null
+
   return permissions.data.map(permission => (
     <button
       onClick={() => revokePermissions.mutate({
@@ -50,6 +52,7 @@ export function App() {
     </button>
   ))
 }
+```
 
 <TryItOut
   fn={async ({ provider }) => {
@@ -77,7 +80,7 @@ export function App() {
 
 ### Revoke for Specific Account
 
-You can revoke permissions for a specific account by including the address:
+You can revoke permissions for a specific account by including the `address` parameter:
 
 ```tsx twoslash
 import { Hooks } from 'porto/wagmi'
@@ -96,3 +99,4 @@ export function App() {
     </button>
   )
 }
+```
