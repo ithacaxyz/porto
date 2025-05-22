@@ -2,7 +2,9 @@
 
 Sends a prepared call bundle.
 
-See [`wallet_prepareCalls`](/rpc-server/wallet_prepareCalls).
+:::tip
+This method is intended to be used in conjunction with [`wallet_prepareCalls`](/rpc-server/wallet_prepareCalls).
+:::
 
 ## Fees
 

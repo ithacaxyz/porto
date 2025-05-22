@@ -1,31 +1,14 @@
-# `wallet_prepareCalls`
+# `wallet_prepareUpgradeAccount`
 
-Prepares a call bundle. The calls are simulated and a quote for executing the bundle by the server is provided. The quote lives for a certain amount of time, after which it expires.
+Prepares an account for upgrade by generating initialization data and an EIP-7702 authorization item.
+
+Upgrading an account is different from [creating an account](/rpc-server/wallet_prepareCreateAccount). Upgrading an account generates an EIP-7702 authorization for an existing EOA, whereas creating an account using the RPC server generates a new EOA using [PREP].
+
+The returned EIP-7702 authorization item must be signed by the EOA root key.
 
 :::tip
-This method is intended to be used in conjunction with [`wallet_sendPreparedCalls`](/rpc-server/wallet_sendPreparedCalls).
+This method is intended to be used in conjunction with [`wallet_upgradeAccount`](/rpc-server/wallet_upgradeAccount).
 :::
-
-## Preops
-
-Preops are calls that are executed prior to pre-verification of the signature of the bundle, and before any payment is made.
-
-Only certain types of calls are allowed in preops:
-
-- Authorizing a key (`Delegation.authorize`)
-- Revoking a key (`Delegation.revoke`)
-- Setting call permissions on a key (`Delegation.setCanExecute`)
-- Setting spend limits on a key (`Delegation.setSpendLimit`)
-- Removing spend limits on keys (`Delegation.removeSpendLimit`)
-- Upgrading the delegation (`Delegation.upgradeProxyDelegation`)
-
-Preops have their own signatures, and they must be signed with a key that is already attached to the account. The `from` and `key` fields can be omitted when building a preop (`preop: true`).
-
-## Fees
-
-Execution of bundles are paid for by the fee payer, which defaults to the EOA. This can be overriden using `feePayer`.
-
-Fees are paid in `feeToken`, which is specified in the capabilities of `wallet_prepareCalls`. The fee token must be supported on the target chain. The list of supported tokens on each network can be found in the response of [`wallet_getCapabilities`](/rpc-server/wallet_getCapabilities).
 
 ## Keys
 
@@ -59,25 +42,14 @@ The inner signature depends on the key type:
 | webauthn | `(r, s)` |
 | secp256k1 | `(r, s)` or `(r, vs)` |
 
-## Selectors
-
-Selectors for call permissions can either be a 4-byte selector, e.g. `0x12345678`, or a Solidity-style selector, like `transfer(address,uint256)`.
-
 ## Request
 
 ```ts
 type Request = {
-  method: 'wallet_prepareCalls',
+  method: 'wallet_prepareUpgradeAccount',
   params: [{
-    calls: {
-      to: `0x${string}`,
-      value: `0x${string}`,
-      bytes: `0x${string}`,
-    }[],
+    address: `0x${string}`,
     chainId: `0x${string}`,
-    // The address of the account sending the bundle.
-    // It can be omitted in the case of a preop, see "Preops".
-    from?: `0x${string}`,
     capabilities: {
       authorizeKeys: {
         // See "Keys"
@@ -100,37 +72,11 @@ type Request = {
           token?: `0x${string}`,
         })[],
       }[],
-      meta: {
-        // The account that pays fees for this bundle.
-        // Defaults to the account the bundle is for.
-        //
-        // See "Fees".
-        feePayer?: `0x${string}`,
-        feeToken: `0x${string}`,
-        nonce?: `0x${string}`,
-      },
-      // Set of keys to revoke.
-      revokeKeys: {
-        hash: `0x${string}`,
-        id?: `0x${string}`,
-      }[],
-      // See "Preops"
-      preOps: {
-        eoa: `0x${string}`,
-        executionData: `0x${string}`,
-        nonce: `0x${string}`,
-        signature: `0x${string}`,
-      }[],
-      preOp?: boolean,
-    },
-    // The key that will be used to sign the bundle. See "Keys".
-    //
-    // It can be omitted in the case of a preop, see "Preops".
-    key?: {
-      type: 'p256' | 'webauthnp256' | 'secp256k1',
-      publicKey: `0x${string}`,
-      // Whether the bundle digest will be prehashed by the key.
-      prehash: boolean,
+      delegation: `0x${string}`,
+      // defaults to the EOA
+      feePayer?: `0x${string}`,
+      // defaults to the native token
+      feeToken?: `0x${string}`,
     },
   }],
 }
@@ -255,3 +201,5 @@ type Response = {
   },
 }
 ```
+
+[PREP]: https://blog.biconomy.io/prep-deep-dive/
