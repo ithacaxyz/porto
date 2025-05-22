@@ -164,7 +164,7 @@ Any other external caller, has to provide a nonce and a signature for any execut
 
 Therefore, the `opData` is structured as 
 ```solidity
-bytes opData = abi.encode(uint256 nonce, bytes signature)
+bytes opData = abi.encodePacked(uint256 nonce, bytes signature)
 ```
 
 #### Example
