@@ -178,7 +178,7 @@ type Response = {
       entrypoint: `0x${string}`,
       // The RPC servers signature over the quote.
       signature: {
-        y_parity: bool,
+        y_parity: boolean,
         r: `0x${string}`,
         s: `0x${string}`,
       },

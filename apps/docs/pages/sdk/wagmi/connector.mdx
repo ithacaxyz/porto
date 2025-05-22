@@ -1,0 +1,111 @@
+# Connector
+
+Porto connector is a [Wagmi](https://wagmi.sh) compatible connector for using Porto with [Wagmi `Config`](https://wagmi.sh/core/api/createConfig).
+
+## Usage
+
+```tsx twoslash
+import { porto } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()],
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+```
+
+## Parameters
+
+### config
+
+`ExactPartial<Porto.Config<chains>> | undefined`
+
+Optional configuration object for the Porto connector. All properties are optional.
+
+#### announceProvider
+
+`boolean | undefined`
+
+Whether to announce the provider via EIP-6963.
+
+**Default:** `true`
+
+#### chains
+
+`readonly [Chain, ...Chain[]] | undefined`
+
+List of supported chains.
+
+#### feeToken
+
+`'ETH' | 'EXP' | undefined`
+
+Token to use to pay for fees.
+
+**Default:** `'ETH'`
+
+#### mode
+
+`Mode.Mode | null | undefined`
+
+Mode to use for the connector.
+
+**Default:** `Mode.dialog()`
+
+#### sponsorUrl
+
+`string | undefined`
+
+URL to use for app-based sponsorship.
+
+#### storage
+
+`Storage.Storage | undefined`
+
+Storage to use for persisting data.
+
+**Default:** `Storage.idb()`
+
+#### storageKey
+
+`string | undefined`
+
+Key to use for store.
+
+#### transports
+
+`Record<number, Transport> | undefined`
+
+Transport overrides to use for each chain.
+
+## Return Type
+
+`CreateConnectorFn<Provider, Properties, Record<string, unknown>>`
+
+Returns a Wagmi connector function that can be used with `createConfig`.
+
+### Provider
+
+`ReturnType<typeof Porto.create>['provider']`
+
+The Porto provider instance.
+
+### Properties
+
+Object containing the following connector methods:
+
+#### connect
+
+`(parameters?: { chainId?: number; isReconnecting?: boolean; capabilities?: object & { force?: boolean } }) => Promise<{ accounts: readonly Address[]; chainId: number }>`
+
+Connects to Porto and returns connected accounts and chain ID.
+
+#### onConnect
+
+`(connectInfo: ProviderConnectInfo) => void`
+
+Handler for connection events.

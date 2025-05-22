@@ -15,15 +15,9 @@
   "fix": true,
   "ignores": [
     "**/CHANGELOG.md",
-    "**/_/**/*.md",
-    "**/_/**/*.mdx",
-    "**/build/**/*.md",
-    "**/dist/**/*.md",
-    "**/contracts/**/*.md",
-    "**/node_modules/**/*.md",
-    "**/build/**/*.mdx",
-    "**/dist/**/*.mdx",
-    "**/contracts/**/*.mdx",
-    "**/node_modules/**/*.mdx"
+    "**/_/**/*.{md,mdx}",
+    "**/dist/**/*.{md,mdx}",
+    "**/contracts/**/*.{md,mdx}",
+    "**/node_modules/**/*.{md,mdx}"
   ]
 }
