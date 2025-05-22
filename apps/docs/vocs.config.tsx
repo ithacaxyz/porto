@@ -162,17 +162,6 @@ export default defineConfig({
           },
           {
             collapsed: true,
-            items: [
-              {
-                link: '/sdk/api/dialog/iframe',
-                text: '.iframe',
-              },
-              {
-                disabled: true,
-                link: '/sdk/api/dialog/popup',
-                text: '.popup',
-              },
-            ],
             link: '/sdk/api/dialog',
             text: 'Dialog',
           },
