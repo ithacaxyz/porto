@@ -506,6 +506,7 @@ export namespace wallet_getCapabilities {
           Type.Object({
             address: Primitive.Address,
             decimals: Type.Number(),
+            kind: Type.String(),
             nativeRate: Typebox.Optional(Primitive.BigInt),
             symbol: Type.String(),
           }),
@@ -520,6 +521,7 @@ export namespace wallet_getCapabilities {
     }),
   )
   export type Response = Typebox.StaticDecode<typeof Response>
+  export type Response_raw = Typebox.Static<typeof Response>
 }
 
 export namespace wallet_prepareCalls {

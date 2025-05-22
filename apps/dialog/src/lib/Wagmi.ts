@@ -1,5 +1,8 @@
 import { PortoConfig } from '@porto/apps'
+import { wallet_getCapabilities } from 'porto/core/RpcSchema'
+import { ValueOf } from 'viem'
 import { createConfig, createStorage, injected, type Transport } from 'wagmi'
+
 import { porto } from './Porto'
 
 export const config = createConfig({
@@ -27,5 +30,15 @@ export const config = createConfig({
 declare module 'wagmi' {
   interface Register {
     config: typeof config
+  }
+}
+
+declare module 'viem' {
+  interface Register {
+    CapabilitiesSchema: {
+      getCapabilities: {
+        ReturnType: ValueOf<wallet_getCapabilities.Response_raw>
+      }
+    }
   }
 }

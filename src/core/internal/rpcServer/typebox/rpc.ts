@@ -129,6 +129,7 @@ export namespace wallet_getCapabilities {
           Type.Object({
             address: Primitive.Address,
             decimals: Type.Number(),
+            kind: Type.String(),
             nativeRate: Typebox.Optional(Primitive.BigInt),
             symbol: Type.String(),
           }),

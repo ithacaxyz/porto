@@ -7,6 +7,7 @@ import { porto } from './Porto.js'
 export type FeeToken = {
   address: Address.Address
   decimals: number
+  kind: string
   nativeRate?: bigint | undefined
   symbol: string
 }

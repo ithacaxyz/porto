@@ -8,6 +8,7 @@ import * as Rpc from 'porto/core/internal/typebox/request'
 import { Hooks, Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
 import { Call } from 'viem'
+import { useCapabilities } from 'wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
@@ -294,10 +295,14 @@ export namespace ActionRequest {
 
     const quote = useQuote(porto, props.quote)
     const chain = Hooks.useChain(porto, { chainId: props.quote.chainId })
-    const fiatFee = Price.useFiatPrice({
-      value: quote?.fee.native.value,
-    })
-    const tokenFee = quote?.fee
+    const fiatFee = quote?.fee.fiat
+    const tokenFee = quote?.fee.token
+
+    const displayTokenFee =
+      tokenFee &&
+      fiatFee &&
+      !tokenFee.kind?.startsWith('USD') &&
+      Number.parseInt(fiatFee.formatted) >= 0.01
 
     return (
       <div className="space-y-1.5">
@@ -307,19 +312,17 @@ export namespace ActionRequest {
               Fees (est.)
             </span>
             <div className="text-right">
-              {fiatFee.isFetched || !quote ? (
+              {fiatFee || !quote ? (
                 <div className="flex items-center gap-2">
-                  {tokenFee &&
-                    fiatFee?.data &&
-                    Number.parseInt(fiatFee.data.display) >= 0.01 && (
-                      <div className="flex h-5.5 items-center rounded-full border border-gray6 px-1.75">
-                        <span className="text-[11.5px] text-secondary">
-                          {tokenFee.display}
-                        </span>
-                      </div>
-                    )}
+                  {displayTokenFee && (
+                    <div className="flex h-5.5 items-center rounded-full border border-gray6 px-1.75">
+                      <span className="text-[11.5px] text-secondary">
+                        {tokenFee.display}
+                      </span>
+                    </div>
+                  )}
                   <div className="font-medium leading-4">
-                    {fiatFee?.data?.display ?? 'Unknown'}
+                    {fiatFee?.display ?? 'Unknown'}
                   </div>
                 </div>
               ) : (
@@ -443,8 +446,10 @@ export namespace ActionRequest {
   }
 
   export type Quote = {
-    fee: Price.Price & {
+    fee: {
+      fiat?: Price.Price | undefined
       native: Price.Price
+      token: Price.Price
     }
     ttl: number
   }
@@ -466,6 +471,7 @@ export namespace ActionRequest {
     const { paymentToken, totalPaymentMaxAmount } = intent ?? {}
 
     const chain = Hooks.useChain(porto, { chainId })!
+    const capabilities = useCapabilities({ chainId: chain.id })
     const feeToken = FeeToken.useFetch({
       address: paymentToken,
       chainId: chain.id,
@@ -483,24 +489,45 @@ export namespace ActionRequest {
       const nativeConfig = {
         address: '0x0000000000000000000000000000000000000000',
         decimals: chain.nativeCurrency.decimals,
+        kind: 'ETH',
+        nativeRate: 10n ** 18n,
         symbol: chain.nativeCurrency.symbol,
         value: nativeFeeEstimate.maxFeePerGas * txGas,
       } as const
 
-      const config = paymentToken
-        ? {
+      const tokenConfig = (() => {
+        if (paymentToken) {
+          return {
             ...feeToken.data,
             value: totalPaymentMaxAmount,
           }
-        : nativeConfig
+        }
+        return nativeConfig
+      })()
 
-      const fee = Price.from(config)
-      const native = Price.from(nativeConfig)
+      const fiatConfig = (() => {
+        const usdConfig = capabilities.data?.feeToken.tokens.find((token) =>
+          token.kind.startsWith('USD'),
+        )
+        if (!usdConfig) return undefined
+        const value =
+          (totalPaymentMaxAmount *
+            tokenConfig.nativeRate! *
+            10n ** BigInt(usdConfig.decimals)) /
+          (BigInt(usdConfig.nativeRate!) * 10n ** BigInt(tokenConfig.decimals))
+        return {
+          ...usdConfig,
+          value,
+        }
+      })()
+
       return {
-        ...fee,
-        native,
+        fiat: fiatConfig ? Price.fromFiat(fiatConfig) : undefined,
+        native: Price.from(nativeConfig),
+        token: Price.from(tokenConfig),
       }
     }, [
+      capabilities.data?.feeToken.tokens,
       chain.nativeCurrency.decimals,
       chain.nativeCurrency.symbol,
       feeToken.data,
