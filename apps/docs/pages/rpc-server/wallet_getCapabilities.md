@@ -1,12 +1,14 @@
 # `wallet_getCapabilities`
 
-Gets supported capabilities of the RPC server.
+Gets supported [EIP-5792 Capabilities](https://eips.ethereum.org/EIPS/eip-5792#wallet_getcapabilities) of the RPC server.
 
 ## Request
 
 ```ts
 type Request = {
   method: 'wallet_getCapabilities',
+  // the chain ids
+  params: [`${number}`],
 }
 ```
 
@@ -78,7 +80,7 @@ type Response = {
 ## Example
 
 ```sh
-cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities
+cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities '[28404]'
 ```
 
 ```ts
