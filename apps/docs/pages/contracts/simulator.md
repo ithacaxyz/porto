@@ -94,6 +94,8 @@ Developers creating paymasters should ensure their contracts can skip signature 
         
         - Ensure this value is greater than `10000` (e.g., `10100` for a 1% increment) to guarantee `combinedGas` increases.
     - `encodedIntent`: The ABI-encoded [Intent](/contracts/orchestrator#intents)
+    
+  - **Returns:**
     - `gasUsed`: Gas consumed in the first successful simulation identified during the iterative search (extracted from `SimulationPassed` revert data).
     - `combinedGas`: The `combinedGas` value from the Intent that resulted in the first successful simulation.
   - **Reverts:**
