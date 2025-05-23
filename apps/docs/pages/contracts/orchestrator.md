@@ -84,7 +84,7 @@ Let's go through each of these fields, to discuss the features enabled by intent
 
 One of the most powerful use cases of executing through intents is that rpc servers can abstract gas for users and get compensated in any token the user holds.
 
-We've removed the need for gas refunds and made pre payment of relay fees optional. Instead, relays use the `pay` function on the account to request payment in two almost identical tranches:
+We've removed the need for gas refunds and made pre payment of rpc server fees optional. Instead, rpc servers use the `pay` function on the account to request payment in two almost identical tranches:
 
 1. **prePayment** (before executing the user's call bundle):  
    - If successful, the user's **nonce is incremented**, even if the call bundle fails during execution.
