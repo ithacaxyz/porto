@@ -165,7 +165,7 @@ The exact Op data depends on who is calling the `execute` function.
 
 No op data is needed, if this is a self call. This can happen in 2 cases -
 
-1. The account recursively calls `execute`. We use these kinds of self calls for admin functions like `authorize` and `revoke`. So these should be handled carefully.
+1. The account performs recursive calls to `execute`. Administrative functions such as `authorize` and `revoke` utilize this self-call pattern and require careful handling.
 2. The sender is the 7702 authority
 
 ##### Orchestrator Intents
