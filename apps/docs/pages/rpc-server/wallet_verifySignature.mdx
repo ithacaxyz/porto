@@ -19,7 +19,7 @@ It is only possible to validate signatures for admin keys.
 ```ts
 type Request = {
   // id of the key to verify the signature with or an address of an account.
-  // If address is specified, signature will be attempted to verify against 
+  // If address is specified, signature will be attempted to verify against
   // all of account keys until a match is found.
   keyIdOrAddress: `0x${string}`,
   // digest of the message to verify
@@ -63,5 +63,7 @@ To verify that provided account is indeed tied to the provided `keyId`, user can
 
 To verify that signature is valid for the returned account, user can call
 `unwrapAndValidateSignature` on the returned account. For non-delegated PREP accounts, this call
-will have to be preceeded by `initializePREP` with `prepInitData` and a state override delegating 
+will have to be preceeded by `initializePREP` with `prepInitData` and a state override delegating
 the account to `Delegation` contract.
+
+[`wallet_createAccount`]: /rpc-server/wallet_createAccount

@@ -121,7 +121,6 @@ The response is primarily a `context` object which can either be: a quote, which
 
 The user should sign `digest` with a key associated with their account. The signed digest and the `context` is then passed to [`wallet_sendPreparedCalls`], if the user wants the RPC server to execute the intent.
 
-[`wallet_sendPreparedCalls`]: /rpc-server/wallet_sendPreparedCalls
 
 
 The payment fields in `context.quote.op` that are relevant to figure out what the user will pay are:
@@ -248,3 +247,5 @@ type Response = {
   },
 }
 ```
+
+[`wallet_sendPreparedCalls`]: /rpc-server/wallet_sendPreparedCalls
