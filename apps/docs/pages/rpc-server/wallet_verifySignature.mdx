@@ -1,0 +1,67 @@
+import Keys from './snippets/keys.mdx'
+
+# `wallet_verifySignature`
+
+Verifies a signature from a key associated with an account.
+
+The account and key must exist on-chain, unless it is a [PREP] account created through [`wallet_createAccount`].
+
+The validity of the signature is returned along with a proof that can be executed using e.g. `eth_call`.
+
+:::note
+It is only possible to validate signatures for admin keys.
+:::
+
+<Keys />
+
+## Request
+
+```ts
+type Request = {
+  // id of the key to verify the signature with or an address of an account.
+  // If address is specified, signature will be attempted to verify against 
+  // all of account keys until a match is found.
+  keyIdOrAddress: `0x${string}`,
+  // digest of the message to verify
+  digest: `0x${string}`,
+  // signature bytes
+  signature: `0x${string}`,
+  chainId: `0x${string}`,
+}
+````
+
+## Response
+
+```ts
+type Response = {
+  valid: boolean,
+  proof?: {
+    // address of an account (either delegated or stored) that the signature was verified against.
+    account: `0x${string}`,
+    // the key hash that signed the digest.
+    keyHash: `0x${string}`,
+    // PREP account initialization data
+    prepInitData?: `0x${string}`,
+    // signature proving that account is associated with the requested `keyId`
+    idSignature?: {
+      y_parity: boolean,
+      r: `0x${string}`,
+      s: `0x${string}`,
+    },
+  }
+}
+```
+
+## Verification
+
+Signature is always verified against an account (either deployed or stored in RPC storage).
+`account` contains the address of account signature was verified against.
+
+To verify that provided account is indeed tied to the provided `keyId`, user can either
+1. Query the `AccountRegistry` contract.
+2. Verify the returned `idSignature`. It is only returned for accounts that are not yet delegated.
+
+To verify that signature is valid for the returned account, user can call
+`unwrapAndValidateSignature` on the returned account. For non-delegated PREP accounts, this call
+will have to be preceeded by `initializePREP` with `prepInitData` and a state override delegating 
+the account to `Delegation` contract.
