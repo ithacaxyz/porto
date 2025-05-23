@@ -124,7 +124,7 @@ This is done to make the EIP-712 struct more explicit and readable.
 
 #### Paymasters
 On the topic of payments, DApps might want to sponsor payments for their users. 
-This means that instead of the payment to the RPC server being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](/contracts/account#1-pay) function.
+This means that instead of the payment to the RPC server being collected from the user's porto account, it can be collected from any third-party contract that implements the [pay()](/contracts/account#pay) function.
 
 To sponsor an intent, you just need to set the `payer` field to the paymaster contract's address. 
 
@@ -214,7 +214,7 @@ function execute(bytes calldata encodedIntent) public payable virtual nonReentra
 ```
 - **Description:** Executes a single encoded Intent. An Intent is a structured set of operations to be performed on behalf of an EOA, potentially including calls to other contracts and gas payment details. This function handles the entire lifecycle: payment, verification, and execution of the Intent.
 - **Usage:**
-    - `encodedIntent`: ABI-encoded `Intent` struct. The `Intent` struct includes fields like `eoa` (the target EOA), `calls` (actions to perform), `nonce`, `payer`, `paymentToken`, `paymentMaxAmount`s, `combinedGas`, and `encodedPreCalls`.
+    - `encodedIntent`: ABI-encoded `Intent` struct. The `Intent` struct includes fields like `eoa` (the target EOA), `executionData` (encoded calls to perform), `nonce`, `payer`, `paymentToken`, `paymentMaxAmount`s, `combinedGas`, and `encodedPreCalls`.
     - The function is `payable` to receive gas payments if the EOA or a designated payer is covering transaction costs with the native token.
     - Returns `err`: A `bytes4` error selector. Non-zero if there's an error during payment, verification, or execution. A zero value indicates overall success of the Intent processing through the Orchestrator's flow.
     - Emits an `IntentExecuted` event.
