@@ -46,15 +46,22 @@ import { connect } from 'porto/wagmi/Actions'
 
 Import via named export or `Hooks` namespace (better autocomplete DX and does not impact tree shaking).
 
-- `useConnect`
 - `useCreateAccount`
-- `useDisconnect`
 - `useGrantPermissions`
 - `usePermissions`
 - `useRevokePermissions`
 - `useUpgradeAccount`
 
 ```ts
-import { Hooks } from 'porto/wagmi' // Hooks.useConnect()
-import { useConnect } from 'porto/wagmi/Hooks'
+import { Hooks } from 'porto/wagmi' // Hooks.usePermissions()
+import { usePermissions } from 'porto/wagmi/Hooks'
 ```
+
+:::note
+You can use [`useConnect`](https://wagmi.sh/react/api/hooks/useConnect) and [`useDisconnect`](https://wagmi.sh/react/api/hooks/useDisconnect) from Wagmi directly.
+
+```tsx twoslash
+import { useConnect, useDisconnect } from 'wagmi'
+```
+
+:::
