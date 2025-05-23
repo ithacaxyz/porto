@@ -154,12 +154,52 @@ All the initialization data goes in the `initData` field.
 More Details Coming Soon
 :::
 
-#### PreCalls
-:::info
-More Details Coming Soon
-:::
+### PreCalls
+PreCalls are an optional sequence of operations that can be embedded within an Intent. They are executed *after* account initialization, but *before* the main Intent's signature is validated and before any of payment tranches are processed by the Orchestrator.
 
-#### Intent Flow Diagram
+This makes `preCalls` particularly suited to perform key operations for the user, before the main intent is validated.
+
+Although we don't enforce any onchain constraints about the contents of a preCall, it is recommended that rpc servers only allow the following calls to be added as preCalls: 
+- Authorizing a key (`Account.authorize`)
+- Revoking a key (`Account.revoke`)
+- Setting call permissions on a key (`Account.setCanExecute`)
+- Setting spend limits on a key (`Account.setSpendLimit`)
+- Removing spend limits on keys (`Account.removeSpendLimit`)
+- Upgrading the account (`Account.upgradeProxyAccount`)
+
+This restriction is recommended because `preCalls` do not have their own payment or gas limits. Although the cost of `preCalls` is expected to be included in the main intent's payment figures, they are executed *before* the main payment is processed. 
+
+Therefore, allowing arbitrary calls within `preCalls` would increase the RPC server's vulnerability to griefing attacks.
+
+**The `SignedCall` Struct**
+PreCalls are added to the `Intent.encodedPreCalls` field as an array of ABI-encoded `SignedCall` structs.
+
+```solidity
+struct SignedCall {
+    /// @dev The user's address.
+    /// This can be set to `address(0)`, which allows it to be
+    /// coalesced to the parent Intent's EOA.
+    address eoa;
+    /// @dev An encoded array of calls, using ERC7579 batch execution encoding.
+    /// `abi.encode(calls)`, where `calls` is of type `Call[]`.
+    bytes executionData;
+    /// @dev Per delegated EOA. Same logic as the `nonce` in Intent.
+    uint256 nonce;
+    /// @dev The wrapped signature.
+    bytes signature;
+}
+```
+
+*   `eoa`: The target EOA for this PreCall. If set to `address(0)`, it defaults to the `eoa` of the parent Intent. As mentioned, this resolved EOA must match the parent Intent's `eoa`.
+*   `executionData`: The actual operations (calls) to be performed by this PreCall. Execution Data can be calculated as 
+```solidity
+bytes memory executionData = abi.encode(calls)
+```
+*   `nonce`: A dedicated nonce for this PreCall, specific to the `eoa`. It follows the same 2D nonce scheme as described [here](/contracts/account#nonce-management)   
+It is recommended to always use a separate sequence key for PreCalls.
+*   `signature`: The signature authorizing this specific `SignedCall`, typically created using a key already authorized on the `eoa`.
+
+### Flow Diagram
 ![Intent Flow Diagram](/intent-flow.png)
 
 ## Endpoints
