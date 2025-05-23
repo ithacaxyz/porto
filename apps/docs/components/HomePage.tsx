@@ -515,7 +515,7 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
   )
 }
 
-function BuyNow(props: { chainId: ChainId; next: () => void }) {
+export function BuyNow(props: { chainId: ChainId; next: () => void }) {
   const { chainId, next } = props
 
   const { data, isPending, sendCalls } = useSendCalls({

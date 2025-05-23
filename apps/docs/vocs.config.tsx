@@ -132,9 +132,8 @@ export default defineConfig({
             text: 'Custom Fee Tokens 🚧',
           },
           {
-            disabled: true,
             link: '/sdk/guides/payments',
-            text: 'Payments 🚧',
+            text: 'Payments',
           },
           {
             disabled: true,
