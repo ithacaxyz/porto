@@ -88,24 +88,3 @@ Transport overrides to use for each chain.
 
 Returns a Wagmi connector function that can be used with `createConfig`.
 
-### Provider
-
-`ReturnType<typeof Porto.create>['provider']`
-
-The Porto provider instance.
-
-### Properties
-
-Object containing the following connector methods:
-
-#### connect
-
-`(parameters?: { chainId?: number; isReconnecting?: boolean; capabilities?: object & { force?: boolean } }) => Promise<{ accounts: readonly Address[]; chainId: number }>`
-
-Connects to Porto and returns connected accounts and chain ID.
-
-#### onConnect
-
-`(connectInfo: ProviderConnectInfo) => void`
-
-Handler for connection events.
