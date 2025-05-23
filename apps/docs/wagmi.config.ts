@@ -1,18 +1,20 @@
 import { PortoConfig } from '@porto/apps'
-import { Chains, Dialog, Mode, Porto } from 'porto'
+import { Chains, Dialog, Mode } from 'porto'
+import { porto } from 'porto/wagmi'
 import { createConfig, createStorage, http } from 'wagmi'
 
-if (typeof window !== 'undefined')
-  Porto.create({
-    ...PortoConfig.getConfig(),
-    mode: Mode.dialog({
-      host: PortoConfig.getDialogHost(),
-      renderer: Dialog.iframe(),
-    }),
-  })
+export const connector = porto({
+  ...PortoConfig.getConfig(),
+  mode: Mode.dialog({
+    host: PortoConfig.getDialogHost(),
+    renderer: Dialog.iframe(),
+  }),
+})
 
 export const config = createConfig({
   chains: [Chains.baseSepolia, Chains.portoDev],
+  connectors: [connector],
+  multiInjectedProviderDiscovery: false,
   storage: createStorage({
     storage: typeof window !== 'undefined' ? localStorage : undefined,
   }),

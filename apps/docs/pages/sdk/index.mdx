@@ -41,7 +41,7 @@ Porto is best used in conjunction with [Wagmi](https://wagmi.sh/) to provide a s
 
 Get started with Wagmi by following the [official guide](https://wagmi.sh/react/getting-started).
 
-### 2. Set up Porto
+### 2. Configure Porto
 
 After you have set up Wagmi, you can set up Porto by using the `porto(){:ts}` connector.
 
@@ -61,9 +61,9 @@ export const wagmiConfig = createConfig({
 ```
 
 :::tip
-If you are using a Wallet Connection library and cannot supply a custom connector,
+If you are using a Account Connection library and cannot supply a custom connector,
 you can use `Porto.create()` to create a new instance of Porto, and inject itself
-into the Wallet Connection library via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963).
+into the Account Connection library via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963).
 
 ```ts
 import { Porto } from 'porto'
@@ -71,7 +71,7 @@ import { Porto } from 'porto'
 Porto.create()
 ```
 
-Supported Wallet Connection libraries include: [Privy](https://privy.io), [AppKit](https://reown.com/appkit), [Dynamic](https://dynamic.xyz), [RainbowKit](https://rainbowkit.com), [Thirdweb](https://thirdweb.com).
+Supported Account Connection libraries include: [Privy](https://privy.io), [ConnectKit](https://docs.family.co/connectkit), [AppKit](https://reown.com/appkit), [Dynamic](https://dynamic.xyz), [RainbowKit](https://rainbowkit.com), [Thirdweb](https://thirdweb.com).
 :::
 
 ### 3. Use Porto

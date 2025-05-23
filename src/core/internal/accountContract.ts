@@ -288,7 +288,7 @@ export async function prepareExecute<
 
   const calls = parameters.calls.map((call: any) => ({
     data: call.data ?? '0x',
-    to: call.to === Call.self ? account.address : call.to,
+    to: call.to === Call.selfAddress ? account.address : call.to,
     value: call.value ?? 0n,
   }))
 
@@ -466,7 +466,7 @@ async function getExecuteSignPayload<
   // Structure calls into EIP-7821 execution format.
   const calls = parameters.calls.map((call: any) => ({
     data: call.data ?? '0x',
-    to: call.to === Call.self ? account.address : call.to,
+    to: call.to === Call.selfAddress ? account.address : call.to,
     value: call.value ?? 0n,
   }))
 

@@ -3,7 +3,6 @@ import {
   type BaseError,
   useAccount,
   useConnect,
-  useConnectors,
   useDisconnect,
   useReadContract,
   useSendCalls,
@@ -45,8 +44,8 @@ function Account() {
       </div>
 
       {account.status !== 'disconnected' && (
-        <button onClick={() => disconnect.disconnect({})} type="button">
-          Disconnect
+        <button onClick={() => disconnect.disconnect()} type="button">
+          Sign out
         </button>
       )}
     </div>
@@ -54,29 +53,23 @@ function Account() {
 }
 
 function Connect() {
-  const connectors = useConnectors()
   const connect = useConnect()
+
+  const connector = connect.connectors.find((x) => x.id === 'xyz.ithaca.porto')!
 
   return (
     <div>
       <h2>Connect</h2>
-      {connectors
-        .filter((x) => x.id === 'xyz.ithaca.porto')
-        ?.map((connector) => (
-          <div key={connector.uid}>
-            <button
-              onClick={() =>
-                connect.connect({
-                  capabilities: {},
-                  connector,
-                })
-              }
-              type="button"
-            >
-              Connect
-            </button>
-          </div>
-        ))}
+      <button
+        onClick={() =>
+          connect.connect({
+            connector,
+          })
+        }
+        type="button"
+      >
+        Sign in
+      </button>
       <div>{connect.status}</div>
       <div>{connect.error?.message}</div>
     </div>
