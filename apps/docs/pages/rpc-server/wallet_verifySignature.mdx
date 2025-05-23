@@ -58,10 +58,11 @@ Signature is always verified against an account (either deployed or stored in RP
 `account` contains the address of account signature was verified against.
 
 To verify that provided account is indeed tied to the provided `keyId`, user can either
+
 1. Query the `AccountRegistry` contract.
 2. Verify the returned `idSignature`. It is only returned for accounts that are not yet delegated.
 
 To verify that signature is valid for the returned account, user can call
 `unwrapAndValidateSignature` on the returned account. For non-delegated PREP accounts, this call
-will have to be preceeded by `initializePREP` with `prepInitData` and a state override delegating 
+will have to be preceeded by `initializePREP` with `prepInitData` and a state override delegating
 the account to `Delegation` contract.
