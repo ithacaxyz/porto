@@ -39,17 +39,13 @@ struct Intent {
     uint256 totalPaymentMaxAmount;
     /// @dev The combined gas limit for payment, verification, and calling the EOA.
     uint256 combinedGas;
-    /// @dev Optional array of encoded PreCalls that will be verified and executed
+    /// @dev Optional array of encoded SignedCalls that will be verified and executed
     /// after PREP (if any) and before the validation of the overall Intent.
     /// A PreCall will NOT have its gas limit or payment applied.
     /// The overall Intent's gas limit and payment will be applied, encompassing all its PreCalls.
     /// The execution of a PreCall will check and increment the nonce in the PreCall.
     /// If at any point, any PreCall cannot be verified to be correct, or fails in execution,
     /// the overall Intent will revert before validation, and execute will return a non-zero error.
-    /// A PreCall can contain PreCalls, forming a tree structure.
-    /// The `executionData` tree will be executed in post-order (i.e. left -> right -> current).
-    /// The `encodedPreCalls` are included in the EIP712 signature, which enables execution order
-    /// to be enforced on-the-fly even if the nonces are from different sequences.
     bytes[] encodedPreCalls;
     ////////////////////////////////////////////////////////////////////////
     // Additional Fields (Not included in EIP-712)
