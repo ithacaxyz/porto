@@ -136,9 +136,8 @@ export default defineConfig({
             text: 'Payments',
           },
           {
-            disabled: true,
             link: '/sdk/guides/permissions',
-            text: 'Permissions 🚧',
+            text: 'Permissions',
           },
           {
             disabled: true,
@@ -146,9 +145,8 @@ export default defineConfig({
             text: 'Sponsoring 🚧',
           },
           {
-            disabled: true,
             link: '/sdk/guides/subscriptions',
-            text: 'Subscriptions 🚧',
+            text: 'Subscriptions',
           },
         ],
         text: 'Guides',

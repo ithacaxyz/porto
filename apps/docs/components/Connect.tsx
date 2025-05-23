@@ -1,13 +1,21 @@
 import { useCopyToClipboard } from '@porto/apps/hooks'
-import { useAccount, useConnect, useConnectors, useDisconnect } from 'wagmi'
+import {
+  useAccount,
+  useChainId,
+  useConnect,
+  useConnectors,
+  useDisconnect,
+} from 'wagmi'
 import LucideCheck from '~icons/lucide/check'
 import { Button } from './Button'
+import { permissions } from './HomePage'
 
 export function Connect(props: Connect.Props) {
   const { variant = 'default', signInText = 'Sign in' } = props
 
   const account = useAccount()
   const connect = useConnect()
+  const chainId = useChainId()
   const disconnect = useDisconnect()
   const connectors = useConnectors()
   const connector = connectors.find(
@@ -37,7 +45,7 @@ export function Connect(props: Connect.Props) {
           </Button>
         )}
         <Button
-          onClick={() => disconnect.disconnect({})}
+          onClick={() => disconnect.disconnect()}
           size={size}
           variant="destructive"
         >
@@ -57,7 +65,14 @@ export function Connect(props: Connect.Props) {
   return (
     <div>
       <Button
-        onClick={() => connect.connect({ connector: connector! })}
+        onClick={() =>
+          connect.connect({
+            capabilities: {
+              grantPermissions: permissions(chainId),
+            },
+            connector: connector!,
+          })
+        }
         size={size}
         variant={variant === 'topnav' ? 'accentTint' : 'accent'}
       >

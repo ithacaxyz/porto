@@ -437,6 +437,21 @@ function Demo() {
 
 type ChainId = (typeof config)['state']['chainId']
 
+export const permissions = (chainId: ChainId) =>
+  ({
+    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    permissions: {
+      calls: [{ to: exp1Config.address[chainId] }],
+      spend: [
+        {
+          limit: Value.fromEther('100'),
+          period: 'hour',
+          token: exp1Config.address[chainId],
+        },
+      ],
+    },
+  }) as const
+
 function SignIn(props: { chainId: ChainId; next: () => void }) {
   const { chainId, next } = props
 
@@ -484,20 +499,6 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
       </div>
     )
 
-  const grantPermissions = {
-    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-    permissions: {
-      calls: [{ to: exp1Config.address[chainId] }],
-      spend: [
-        {
-          limit: Value.fromEther('100'),
-          period: 'hour',
-          token: exp1Config.address[chainId],
-        },
-      ],
-    },
-  } as const
-
   return (
     <div className="flex w-full">
       <Ariakit.Button
@@ -505,7 +506,7 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
         onClick={() =>
           connect.mutate({
             connector,
-            grantPermissions,
+            grantPermissions: permissions(chainId),
           })
         }
       >
@@ -645,7 +646,7 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
   )
 }
 
-function SendTip(props: {
+export function SendTip(props: {
   address: Address.Address | undefined
   chainId: (typeof config)['state']['chainId']
   next: () => void
@@ -792,7 +793,7 @@ const tiers = [
   { amount: Value.fromEther('75'), unit: 'year' },
 ] as const
 
-function Subscribe(props: {
+export function Subscribe(props: {
   chainId: (typeof config)['state']['chainId']
   next: () => void
 }) {
