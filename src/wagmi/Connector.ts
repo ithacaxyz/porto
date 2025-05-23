@@ -29,11 +29,13 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
     connect(parameters?: {
       chainId?: number | undefined
       isReconnecting?: boolean | undefined
-      capabilities: Typebox.StaticDecode<
-        typeof RpcSchema.wallet_connect.Capabilities
-      > & {
-        force?: boolean | undefined
-      }
+      capabilities?:
+        | (Typebox.StaticDecode<
+            typeof RpcSchema.wallet_connect.Capabilities
+          > & {
+            force?: boolean | undefined
+          })
+        | undefined
     }): Promise<{
       accounts: readonly Address[]
       chainId: number

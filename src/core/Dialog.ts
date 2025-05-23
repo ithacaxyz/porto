@@ -44,6 +44,7 @@ export function iframe() {
       ['wallet_connect', 'eth_requestAccounts'].includes(x.method),
     )
 
+  if (typeof window === 'undefined') return noop()
   return from({
     name: 'iframe',
     setup(parameters) {
@@ -289,6 +290,7 @@ export function iframe() {
  * @returns Popup dialog.
  */
 export function popup() {
+  if (typeof window === 'undefined') return noop()
   return from({
     name: 'popup',
     setup(parameters) {
@@ -367,6 +369,25 @@ export function popup() {
 }
 
 /**
+ * Instantiates a noop dialog.
+ *
+ * @returns Noop dialog.
+ */
+export function noop() {
+  return from({
+    name: 'noop',
+    setup() {
+      return {
+        close() {},
+        destroy() {},
+        open() {},
+        async syncRequests() {},
+      }
+    },
+  })
+}
+
+/**
  * Instantiates an inline iframe dialog rendered on a provided `element`.
  *
  * @param options - Options.
@@ -374,6 +395,7 @@ export function popup() {
  */
 export function experimental_inline(options: inline.Options) {
   const { element } = options
+  if (typeof window === 'undefined') return noop()
   return from({
     name: 'inline',
     setup(parameters) {

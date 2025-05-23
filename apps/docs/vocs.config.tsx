@@ -106,9 +106,8 @@ export default defineConfig({
       {
         items: [
           {
-            disabled: true,
-            link: '/sdk/guides/connection',
-            text: 'Connecting to Apps 🚧',
+            link: '/sdk/guides/connect-accounts',
+            text: 'Onboard & Connect Accounts',
           },
           {
             disabled: true,
