@@ -2,12 +2,7 @@ name: autofix.ci
 
 # Lints and formats JS/TS and MD/MDX files then commits the changes to the branch.
 
-on:
-  push:
-  pull_request:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+on: [push, pull_request]
 
 defaults:
   run:
@@ -27,7 +22,8 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - run: |
+      - name: Lint and format
+        run: |
           pnpm check
           pnpm check:markdown
 
