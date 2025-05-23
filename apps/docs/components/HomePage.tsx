@@ -14,7 +14,9 @@ import {
   useAccountEffect,
   useBlockNumber,
   useChainId,
+  useConnect,
   useConnectors,
+  useDisconnect,
   useReadContract,
   useSendCalls,
   useWaitForCallsStatus,
@@ -456,7 +458,7 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
   const { chainId, next } = props
 
   const { status } = useAccount()
-  const connect = Hooks.useConnect({
+  const connect = useConnect({
     mutation: {
       onError(error) {
         if (error instanceof ConnectorAlreadyConnectedError) next()
@@ -466,7 +468,7 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
       },
     },
   })
-  const disconnect = Hooks.useDisconnect()
+  const disconnect = useDisconnect()
   const connector = usePortoConnector()
 
   if (status === 'connected')
@@ -478,7 +480,7 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
 
         <Button
           className="flex-grow"
-          onClick={() => disconnect.mutate({ connector })}
+          onClick={() => disconnect.disconnect({ connector })}
           variant="destructive"
         >
           Sign out
@@ -504,9 +506,11 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
       <Ariakit.Button
         className="-tracking-[0.448px] flex h-10.5 w-full items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 text-center font-medium text-[16px] text-white leading-normal outline outline-dashed outline-blue9 outline-offset-2 hover:bg-accentHover"
         onClick={() =>
-          connect.mutate({
+          connect.connect({
+            capabilities: {
+              grantPermissions: permissions(chainId),
+            },
             connector,
-            grantPermissions: permissions(chainId),
           })
         }
       >
