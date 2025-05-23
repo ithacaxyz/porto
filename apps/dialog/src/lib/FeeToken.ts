@@ -14,7 +14,7 @@ export type FeeToken = {
 }
 
 export function useFetch(parameters: useFetch.Parameters) {
-  const { addressOrSymbol, symbol } = parameters
+  const { addressOrSymbol } = parameters
 
   const activeFeeToken = Hooks.usePortoStore(porto, (state) => state.feeToken)
   const client = Hooks.useClient(porto)
@@ -31,7 +31,6 @@ export function useFetch(parameters: useFetch.Parameters) {
             return Address.isEqual(feeToken.address, addressOrSymbol)
           return addressOrSymbol === feeToken.symbol
         }
-        if (symbol) return symbol === feeToken.symbol
         if (activeFeeToken) return activeFeeToken === feeToken.symbol
         return feeToken.symbol === 'ETH'
       })
@@ -39,25 +38,18 @@ export function useFetch(parameters: useFetch.Parameters) {
       if (!feeToken) {
         feeToken = feeTokens?.[0]!
         console.warn(
-          `Fee token ${addressOrSymbol ?? symbol} not found. Falling back to ${feeToken.symbol} (${feeToken.address}).`,
+          `Fee token ${addressOrSymbol} not found. Falling back to ${feeToken.symbol} (${feeToken.address}).`,
         )
       }
 
       return feeToken ?? null
     },
-    queryKey: [
-      'FeeToken.current',
-      activeFeeToken,
-      addressOrSymbol,
-      client.uid,
-      symbol,
-    ],
+    queryKey: ['FeeToken.current', activeFeeToken, addressOrSymbol, client.uid],
   })
 }
 
 export declare namespace useFetch {
   export type Parameters = {
     addressOrSymbol?: FeeToken_typebox.Symbol | Address.Address | undefined
-    symbol?: string | undefined
   }
 }
