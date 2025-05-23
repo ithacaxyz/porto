@@ -12,7 +12,7 @@ This method is intended to be used in conjunction with [`wallet_prepareCreateAcc
 
 The `context` as returned by [`wallet_prepareCreateAccount`] is passed in along with a signature over the account address by each admin key.
 
-The signatures over the account address is used to associate the keys with the account in the [`AccountRegistry`](#TODO).
+The signatures over the account address are used to associate the keys with the account in the [`AccountRegistry`](#TODO).
 
 ```ts
 type Request = {
