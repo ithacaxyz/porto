@@ -12,6 +12,11 @@ type Request = {
 
 ## Response
 
+A map of chain IDs to the capabilities supported by the RPC server on those chains, which includes:
+
+- contract addresses (`contracts`)
+- fee configuration (`fees`), such as supported fee tokens (`fees.tokens`), and quote lifetimes (`fees.quoteConfig.ttl`)
+
 ```ts
 type Response = {
   contracts: {

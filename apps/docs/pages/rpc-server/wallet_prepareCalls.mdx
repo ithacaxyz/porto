@@ -33,6 +33,16 @@ Selectors for call permissions can either be a 4-byte selector, e.g. `0x12345678
 
 ## Request
 
+The request consists of:
+
+- A set of calls (`calls`)
+- The sender of the intent (`from`)
+- Optional supported capabilities, such as key additions (`capabilities.authorizeKeys`), key revocations (`capabilities.revokeKeys`), and preops (`capabilities.preOps`).
+
+The fee token the user wishes to pay for execution of the intent is specified in `capabilities.meta.feeToken`. It is also possible to specify a nonce here. If no nonce is specified, the latest on-chain nonce for the EOA will be used.
+
+The key the user wishes to sign the intent with is specified in `key`.
+
 ```ts
 type Request = {
   method: 'wallet_prepareCalls',
@@ -105,6 +115,17 @@ type Request = {
 ```
 
 ## Response
+
+The response is primarily a `context` object which can either be: a quote, which is the price at which the RPC server will execute the intent for, with a deadline; or a built preop, in case `wallet_prepareCalls` was called to build a preop.
+
+The user should sign `digest` with a key associated with their account. The signed digest and the `context` is then passed to [`wallet_sendPreparedCalls`], if the user wants the RPC server to execute the intent.
+
+The payment fields in `context.quote.op` that are relevant to figure out what the user will pay are:
+
+- `prePaymentAmount`/`prePaymentMaxAmount`: fees the user will pay before the intent is executed
+- `totalPaymentAmount`/`totalPaymentMaxAmount`: the maximum fees the user will pay
+
+If `totalPaymentAmount - prePaymentAmount` is non-0, the remainder of the fees will be paid after the intent is executed.
 
 ```ts
 type Response = {

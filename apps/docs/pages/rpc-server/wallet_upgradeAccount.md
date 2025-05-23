@@ -72,13 +72,14 @@ type Request = {
 
 ## Response
 
+A series of bundle IDs for use with [`wallet_getCallsStatus`].
+
 ```ts
 type Response = {
-  // Broadcast bundles.
-  //
-  // See `wallet_getCallsStatus`.
   bundles: {
     id: `0x${string}`
   }[],
 }
 ```
+
+[`wallet_getCallsStatus`]: /rpc-server/wallet_getCallsStatus
