@@ -83,9 +83,8 @@ export default defineConfig({
             text: 'wallet_getCallsStatus',
           },
           {
-            disabled: true,
             link: '/rpc-server/wallet_verifySignature',
-            text: 'wallet_verifySignature 🚧',
+            text: 'wallet_verifySignature',
           },
           {
             link: '/rpc-server/wallet_health',
