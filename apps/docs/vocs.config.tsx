@@ -66,17 +66,16 @@ export default defineConfig({
             text: 'wallet_prepareCalls',
           },
           {
-            link: '/rpc-server/wallet_prepareUpgradeAccount',
-            text: 'wallet_prepareUpgradeAccount',
-          },
-          {
             link: '/rpc-server/wallet_sendPreparedCalls',
             text: 'wallet_sendPreparedCalls',
           },
           {
-            disabled: true,
+            link: '/rpc-server/wallet_prepareUpgradeAccount',
+            text: 'wallet_prepareUpgradeAccount',
+          },
+          {
             link: '/rpc-server/wallet_upgradeAccount',
-            text: 'wallet_upgradeAccount 🚧',
+            text: 'wallet_upgradeAccount',
           },
           {
             link: '/rpc-server/wallet_getCallsStatus',
