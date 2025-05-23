@@ -1,6 +1,8 @@
 export {
   useAdmins,
+  useConnect,
   useCreateAccount,
+  useDisconnect,
   useGrantAdmin,
   useGrantPermissions,
   usePermissions,
