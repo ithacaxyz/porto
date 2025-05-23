@@ -8,9 +8,5 @@ export const Kind = Type.Union([
 ])
 export type Kind = Typebox.StaticDecode<typeof Kind>
 
-export const Symbol = Type.Union([
-  Type.Literal('ETH'),
-  Type.Literal('EXP'),
-  Type.Literal('USDC'),
-])
-export type Symbol = Typebox.StaticDecode<typeof Symbol>
+export const Symbol = Type.String()
+export type Symbol = 'ETH' | 'EXP' | 'USDC' | (string & {})

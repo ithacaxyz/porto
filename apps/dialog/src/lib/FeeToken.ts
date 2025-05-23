@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { RpcServer } from 'porto'
+import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
 import { Hooks } from 'porto/remote'
 import { porto } from './Porto.js'
 
@@ -13,42 +14,41 @@ export type FeeToken = {
 }
 
 export function useFetch(parameters: useFetch.Parameters) {
-  const { address, symbol } = parameters
+  const { addressOrSymbol, symbol } = parameters
 
   const activeFeeToken = Hooks.usePortoStore(porto, (state) => state.feeToken)
   const client = Hooks.useClient(porto)
-  const chain = Hooks.useChain(porto, parameters)
 
   return useQuery<FeeToken>({
     async queryFn() {
-      if (!chain) throw new Error('chain is required')
-
       const feeTokens = await RpcServer.getCapabilities(client).then(
         (capabilities) => capabilities.fees.tokens,
       )
-      if (!feeTokens)
-        throw new Error(
-          `fee tokens not found for chain ${chain.id} - ${chain.name}`,
-        )
 
-      const feeToken = feeTokens?.find((feeToken) => {
-        if (address) return Address.isEqual(feeToken.address, address)
+      let feeToken = feeTokens?.find((feeToken) => {
+        if (addressOrSymbol) {
+          if (Address.validate(addressOrSymbol))
+            return Address.isEqual(feeToken.address, addressOrSymbol)
+          return addressOrSymbol === feeToken.symbol
+        }
         if (symbol) return symbol === feeToken.symbol
         if (activeFeeToken) return activeFeeToken === feeToken.symbol
         return feeToken.symbol === 'ETH'
       })
 
-      if (!feeToken)
-        throw new Error(
-          `fee token ${address ?? symbol} not found. Available: ${feeTokens?.map((x) => `${x.symbol} (${x.address})`).join(', ')}`,
+      if (!feeToken) {
+        feeToken = feeTokens?.[0]!
+        console.warn(
+          `Fee token ${addressOrSymbol ?? symbol} not found. Falling back to ${feeToken.symbol} (${feeToken.address}).`,
         )
-      return feeToken
+      }
+
+      return feeToken ?? null
     },
     queryKey: [
       'FeeToken.current',
       activeFeeToken,
-      address,
-      chain?.id,
+      addressOrSymbol,
       client.uid,
       symbol,
     ],
@@ -57,8 +57,7 @@ export function useFetch(parameters: useFetch.Parameters) {
 
 export declare namespace useFetch {
   export type Parameters = {
-    address?: Address.Address | undefined
-    chainId?: number | undefined
+    addressOrSymbol?: FeeToken_typebox.Symbol | Address.Address | undefined
     symbol?: string | undefined
   }
 }

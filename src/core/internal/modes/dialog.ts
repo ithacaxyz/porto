@@ -1,3 +1,4 @@
+import * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
@@ -11,8 +12,8 @@ import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
 import * as PreCalls from '../preCalls.js'
+import type * as FeeToken from '../typebox/feeToken.js'
 import * as Typebox from '../typebox/typebox.js'
-import { resolveFeeToken } from './rpcServer.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
@@ -277,7 +278,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ...request.params?.[0],
               capabilities: {
                 ...request.params?.[0]?.capabilities,
-                feeToken: feeToken.address,
+                feeToken,
               },
             },
           ],
@@ -443,7 +444,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ...request.params?.[0],
               capabilities: {
                 ...request.params?.[0]?.capabilities,
-                feeToken: feeToken.address,
+                feeToken,
                 preCalls,
               },
             },
@@ -477,7 +478,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ...request.params?.[0],
               capabilities: {
                 ...request.params?.[0]?.capabilities,
-                feeToken: feeToken.address,
+                feeToken,
               },
             },
           ],
@@ -504,7 +505,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               ...request.params?.[0],
               capabilities: {
                 ...request.params?.[0]?.capabilities,
-                feeToken: feeToken.address,
+                feeToken,
               },
             },
           ],
@@ -571,7 +572,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       ...(request._decoded.method === 'wallet_sendCalls'
                         ? request._decoded.params?.[0]?.capabilities
                         : undefined),
-                      feeToken: feeToken.address,
+                      feeToken,
                       preCalls,
                       sponsorUrl,
                     },
@@ -620,7 +621,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ...request.params?.[0],
                 // @ts-expect-error
                 capabilities: {
-                  feeToken: feeToken.address,
+                  feeToken,
                   preCalls,
                 },
               },
@@ -644,7 +645,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ...request.params?.[0],
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
-                  feeToken: feeToken.address,
+                  feeToken,
                   preCalls,
                   sponsorUrl,
                 },
@@ -785,4 +786,17 @@ export declare namespace dialog {
      */
     renderer?: Dialog.Dialog | undefined
   }
+}
+
+export async function resolveFeeToken(
+  internal: Mode.ActionsInternal,
+  parameters?: {
+    feeToken?: FeeToken.Symbol | Address.Address | undefined
+  },
+) {
+  const {
+    config: { feeToken },
+  } = internal
+  const { feeToken: overrideFeeToken } = parameters ?? {}
+  return overrideFeeToken ?? feeToken
 }

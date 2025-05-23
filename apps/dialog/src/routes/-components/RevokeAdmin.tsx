@@ -1,6 +1,7 @@
 import { Button } from '@porto/apps/components'
 import { Address, Hex } from 'ox'
 import { Key } from 'porto'
+import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken'
 import { Hooks } from 'porto/wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'
@@ -104,7 +105,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
 
 export declare namespace RevokeAdmin {
   type Props = {
-    feeToken?: Address.Address | undefined
+    feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
     loading: boolean
     onApprove: () => void
     onReject: () => void

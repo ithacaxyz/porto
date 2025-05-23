@@ -747,7 +747,7 @@ export async function resolveFeeToken(
   internal: Mode.ActionsInternal,
   parameters?:
     | {
-        feeToken?: Address.Address | undefined
+        feeToken?: FeeToken.Symbol | Address.Address | undefined
         permissionsFeeLimit?: Record<string, bigint> | undefined
       }
     | undefined,
@@ -759,9 +759,12 @@ export async function resolveFeeToken(
   const feeTokens = await RpcServer_viem.getCapabilities(client).then(
     (capabilities) => capabilities.fees.tokens,
   )
-  const feeToken = feeTokens?.find((feeToken) => {
-    if (overrideFeeToken)
-      return Address.isEqual(feeToken.address, overrideFeeToken)
+  let feeToken = feeTokens?.find((feeToken) => {
+    if (overrideFeeToken) {
+      if (Address.validate(overrideFeeToken))
+        return Address.isEqual(feeToken.address, overrideFeeToken)
+      return overrideFeeToken === feeToken.symbol
+    }
     if (defaultFeeToken) return defaultFeeToken === feeToken.symbol
     return feeToken.symbol === 'ETH'
   })
@@ -770,14 +773,16 @@ export async function resolveFeeToken(
     ? parameters?.permissionsFeeLimit?.[feeToken.kind]
     : undefined
 
-  if (!feeToken)
-    throw new Error(
-      `fee token ${overrideFeeToken ?? defaultFeeToken} not found. Available: ${feeTokens?.map((x) => `${x.symbol} (${x.address})`).join(', ')}`,
+  if (!feeToken) {
+    const feeToken = feeTokens?.[0]!
+    console.warn(
+      `Fee token ${overrideFeeToken ?? defaultFeeToken} not found. Falling back to ${feeToken?.symbol} (${feeToken?.address}).`,
     )
+  }
   return {
-    address: feeToken.address,
-    decimals: feeToken.decimals,
+    address: feeToken!.address,
+    decimals: feeToken!.decimals,
     permissionsFeeLimit,
-    symbol: feeToken.symbol,
+    symbol: feeToken!.symbol,
   }
 }

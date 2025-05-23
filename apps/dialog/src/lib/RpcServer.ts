@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address, Json } from 'ox'
 import { Account, RpcServer } from 'porto'
+import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken'
 import { Hooks } from 'porto/remote'
 
 import * as FeeToken from './FeeToken'
@@ -24,8 +25,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
   const account = Hooks.useAccount(porto, { address })
   const client = Hooks.useClient(porto, { chainId })
   const feeToken = FeeToken.useFetch({
-    address: props.feeToken,
-    chainId,
+    addressOrSymbol: props.feeToken,
   })
 
   return useQuery({
@@ -71,7 +71,7 @@ export declare namespace usePrepareCalls {
       address?: Address.Address | undefined
       chainId?: number | undefined
       enabled?: boolean | undefined
-      feeToken?: Address.Address | undefined
+      feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
       sponsorUrl?: string | undefined
     }
 }

@@ -1,25 +1,22 @@
 import { Button, Spinner } from '@porto/apps/components'
 import { UseQueryResult } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { Hooks } from 'porto/remote'
+import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
 import * as React from 'react'
 import * as FeeToken from '~/lib/FeeToken'
-import { porto } from '~/lib/Porto'
 import { AddFunds } from '~/routes/-components/AddFunds'
 import { Layout } from '~/routes/-components/Layout'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 
 export function CheckBalance(props: CheckBalance.Props) {
-  const { address, children, chainId, onReject, query } = props
+  const { address, children, onReject, query } = props
 
   const [step, setStep] = React.useState<'add-funds' | 'default' | 'success'>(
     'default',
   )
 
-  const chain = Hooks.useChain(porto, { chainId })
   const feeToken = FeeToken.useFetch({
-    address: props.feeToken,
-    chainId: chain?.id,
+    addressOrSymbol: props.feeToken,
   })
 
   const hasInsufficientBalance = query.error?.message?.includes('PaymentError')
@@ -32,7 +29,7 @@ export function CheckBalance(props: CheckBalance.Props) {
         onApprove={() => setStep('success')}
         onReject={onReject}
         onSuccess={() => query.refetch()}
-        tokenAddress={props.feeToken!}
+        tokenAddress={feeToken.data?.address!}
       />
     )
   if (query.isPending)
@@ -89,7 +86,7 @@ export namespace CheckBalance {
     address?: Address.Address | undefined
     chainId?: number | undefined
     children: React.ReactNode
-    feeToken?: Address.Address | undefined
+    feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
     onReject: () => void
     query: UseQueryResult
   }

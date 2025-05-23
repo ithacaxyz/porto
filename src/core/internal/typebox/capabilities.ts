@@ -1,3 +1,4 @@
+import * as FeeToken from './feeToken.js'
 import * as Permissions from './permissions.js'
 import * as Primitive from './primitive.js'
 import * as Typebox from './typebox.js'
@@ -15,7 +16,7 @@ export namespace createAccount {
 }
 
 export namespace feeToken {
-  export const Request = Primitive.Address
+  export const Request = Type.Union([FeeToken.Symbol, Primitive.Address])
   export type Request = Typebox.StaticDecode<typeof Request>
 }
 

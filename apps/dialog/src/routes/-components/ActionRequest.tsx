@@ -4,6 +4,7 @@ import { cx } from 'cva'
 import { Address, Base64 } from 'ox'
 import { Chains } from 'porto'
 import * as Quote_typebox from 'porto/core/internal/rpcServer/typebox/quote'
+import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
 import * as Rpc from 'porto/core/internal/typebox/request'
 import { Hooks, Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
@@ -138,7 +139,7 @@ export namespace ActionRequest {
     calls: readonly Call[]
     chainId?: number | undefined
     checkBalance?: boolean | undefined
-    feeToken?: Address.Address | undefined
+    feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
     loading?: boolean | undefined
     onApprove: () => void
     onReject: () => void
@@ -473,8 +474,7 @@ export namespace ActionRequest {
     const chain = Hooks.useChain(porto, { chainId })!
     const capabilities = useCapabilities({ chainId: chain.id })
     const feeToken = FeeToken.useFetch({
-      address: paymentToken,
-      chainId: chain.id,
+      addressOrSymbol: paymentToken,
     })
 
     const fee = React.useMemo(() => {
