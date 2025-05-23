@@ -1,7 +1,9 @@
 import { Button } from '@porto/apps/components'
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { useAccount, useChainId, useConnect, useDisconnect } from 'wagmi'
+import { permissions } from '../HomePage'
 
 export function SignInButton() {
+  const chainId = useChainId()
   const { connectors, connect } = useConnect()
   const { disconnectAsync } = useDisconnect()
   const connector = connectors.find(
@@ -13,6 +15,9 @@ export function SignInButton() {
       onClick={async () => {
         await disconnectAsync()
         connect({
+          capabilities: {
+            grantPermissions: permissions(chainId),
+          },
           connector,
         })
       }}
