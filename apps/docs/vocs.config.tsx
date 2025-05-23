@@ -118,8 +118,8 @@ export default defineConfig({
       {
         items: [
           {
-            link: '/sdk/guides/connect-accounts',
-            text: 'Onboard & Connect Accounts',
+            link: '/sdk/guides/discover-accounts',
+            text: 'Onboard & Discover Accounts',
           },
           {
             disabled: true,
