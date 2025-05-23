@@ -18,7 +18,9 @@ It is only possible to validate signatures for admin keys.
 
 ```ts
 type Request = {
-  // id of the key to verify the signature with.
+  // id of the key to verify the signature with or an address of an account.
+  // If address is specified, signature will be attempted to verify against 
+  // all of account keys until a match is found.
   keyIdOrAddress: `0x${string}`,
   // digest of the message to verify
   digest: `0x${string}`,
@@ -52,4 +54,14 @@ type Response = {
 
 ## Verification
 
-TBD
+Signature is always verified against an account (either deployed or stored in RPC storage).
+`account` contains the address of account signature was verified against.
+
+To verify that provided account is indeed tied to the provided `keyId`, user can either
+1. Query the `AccountRegistry` contract.
+2. Verify the returned `idSignature`. It is only returned for accounts that are not yet delegated.
+
+To verify that signature is valid for the returned account, user can call
+`unwrapAndValidateSignature` on the returned account. For non-delegated PREP accounts, this call
+will have to be preceeded by `initializePREP` with `prepInitData` and a state override delegating 
+the account to `Delegation` contract.
