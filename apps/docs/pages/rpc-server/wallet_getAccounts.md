@@ -2,6 +2,8 @@
 
 Get all accounts a key is authorized on.
 
+A key can be associated with multiple accounts.
+
 ## Request
 
 ```ts
@@ -15,6 +17,8 @@ type Request = {
 ```
 
 ## Response
+
+The response is an array of accounts (with the account's address and delegation) and keys associated with the accounts.
 
 ```ts
 type Response = {

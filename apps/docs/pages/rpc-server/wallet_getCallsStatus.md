@@ -19,6 +19,8 @@ It provides some off-chain context to the array of inner transaction `receipts`.
 
 ## Request
 
+The parameter is a call bundle ID, as returned by e.g. [`wallet_sendPreparedCalls`].
+
 ```ts
 type Request = {
   method: 'wallet_getCallsStatus',
@@ -48,3 +50,5 @@ type Response = {
   }[],
 }
 ```
+
+[`wallet_sendPreparedCalls`]: /rpc-server/wallet_sendPreparedCalls

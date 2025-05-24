@@ -774,7 +774,7 @@ export async function resolveFeeToken(
     : undefined
 
   if (!feeToken) {
-    const feeToken = feeTokens?.[0]!
+    feeToken = feeTokens?.[0]!
     console.warn(
       `Fee token ${overrideFeeToken ?? defaultFeeToken} not found. Falling back to ${feeToken?.symbol} (${feeToken?.address}).`,
     )

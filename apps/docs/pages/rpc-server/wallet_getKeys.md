@@ -16,6 +16,8 @@ type Request = {
 
 ## Response
 
+Each key associated with an account, along with the permissions set on the keys.
+
 ```ts
 type Response = {
   // key hash

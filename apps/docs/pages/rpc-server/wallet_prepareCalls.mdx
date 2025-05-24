@@ -10,9 +10,9 @@ Prepares a call bundle. The calls are simulated and a quote for executing the bu
 This method is intended to be used in conjunction with [`wallet_sendPreparedCalls`](/rpc-server/wallet_sendPreparedCalls).
 :::
 
-## Preops
+## PreOps
 
-Preops are calls that are executed prior to pre-verification of the signature of the bundle, and before any payment is made.
+PreOps are calls that are executed prior to pre-verification of the signature of the bundle, and before any payment is made.
 
 Only certain types of calls are allowed in preops:
 
@@ -23,7 +23,9 @@ Only certain types of calls are allowed in preops:
 - Removing spend limits on keys (`Delegation.removeSpendLimit`)
 - Upgrading the delegation (`Delegation.upgradeProxyDelegation`)
 
-Preops have their own signatures, and they must be signed with a key that is already attached to the account. The `from` and `key` fields can be omitted when building a preop (`preop: true`).
+ PreOps have their own signatures, and they must be signed with a key that is already attached to the account. The `from` and `key` fields can be omitted when building a preop (`preop: true`).
+
+More details about preOps can be found [in the Orchestrator documentation](/contracts/orchestrator#precalls)
 
 <Fees />
 <Keys />
@@ -32,6 +34,16 @@ Preops have their own signatures, and they must be signed with a key that is alr
 Selectors for call permissions can either be a 4-byte selector, e.g. `0x12345678`, or a Solidity-style selector, like `transfer(address,uint256)`.
 
 ## Request
+
+The request consists of:
+
+- A set of calls (`calls`)
+- The sender of the intent (`from`)
+- Optional supported capabilities, such as key additions (`capabilities.authorizeKeys`), key revocations (`capabilities.revokeKeys`), and preops (`capabilities.preOps`).
+
+The fee token the user wishes to pay for execution of the intent is specified in `capabilities.meta.feeToken`. It is also possible to specify a nonce here. If no nonce is specified, the latest on-chain nonce for the EOA will be used.
+
+The key the user wishes to sign the intent with is specified in `key`.
 
 ```ts
 type Request = {
@@ -105,6 +117,20 @@ type Request = {
 ```
 
 ## Response
+
+The response is primarily a `context` object which can either be: a quote, which is the price at which the RPC server will execute the intent for, with a deadline; or a built preop, in case `wallet_prepareCalls` was called to build a preop.
+
+
+The user should sign `digest` with a key associated with their account. The signed digest and the `context` is then passed to [`wallet_sendPreparedCalls`], if the user wants the RPC server to execute the intent.
+
+
+
+The payment fields in `context.quote.op` that are relevant to figure out what the user will pay are:
+
+- `prePaymentAmount`/`prePaymentMaxAmount`: fees the user will pay before the intent is executed
+- `totalPaymentAmount`/`totalPaymentMaxAmount`: the maximum fees the user will pay
+
+If `totalPaymentAmount - prePaymentAmount` is non-0, the remainder of the fees will be paid after the intent is executed.
 
 ```ts
 type Response = {
@@ -223,3 +249,5 @@ type Response = {
   },
 }
 ```
+
+[`wallet_sendPreparedCalls`]: /rpc-server/wallet_sendPreparedCalls

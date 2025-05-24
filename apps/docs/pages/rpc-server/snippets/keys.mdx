@@ -8,24 +8,4 @@ There exists three different key roles:
 
 Setting permissions on an admin key is not allowed and will return an error.
 
-### Public key encoding
-
-The encoding of a key pair's public key depends on the key type:
-
-| Key Type         | Encoding Format       | Description                                                                    |
-| ---------------- | --------------------- | ------------------------------------------------------------------------------ |
-| secp256k1        | `abi.encode(address)` | Stores only the Ethereum address derived from the public key (truncated hash). |
-| webAuthn          | `abi.encode(x, y)`    | Stores both x and y coordinates of the public key on the elliptic curve.       |
-| secp256r1 (P256) | `abi.encode(x, y)`   | Stores both x and y coordinates for the secp256r1 curve.                       |
-
-## Signature encoding
-
-The signature is encoded as follows: `abi.encodePacked(bytes(innerSignature), bytes32(keyHash), bool(prehash))`, where the key hash is `keccak(bytes32(keyType, publicKey))`.
-
-The inner signature depends on the key type:
-
-| Key Type | Signature |
-| -------- | --------- |
-| secp256r1 (p256) | `(r, s)` |
-| webauthn | `(r, s)` |
-| secp256k1 | `(r, s)` or `(r, vs)` |
+For complete details on keys, including their signature encoding, public key encoding, and key hashes, refer to the [Key section](/contracts/account#keys).

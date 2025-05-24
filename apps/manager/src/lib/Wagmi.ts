@@ -1,21 +1,14 @@
-import type { PortoConfig } from '@porto/apps'
+import { PortoConfig } from '@porto/apps'
 import { porto as portoConnector } from 'porto/wagmi'
-import { createConfig, createStorage, type Transport } from 'wagmi'
-import { porto } from './Porto'
+import { createConfig, createStorage } from 'wagmi'
+import * as Porto from './Porto'
 
 export const config = createConfig({
-  chains: porto._internal.config.chains,
-  connectors: [portoConnector()],
+  chains: Porto.config.chains,
+  connectors: [portoConnector(Porto.config)],
   multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
-  transports: Object.entries(porto._internal.config.transports).reduce(
-    (transports, [chainId, transport]) => ({
-      // biome-ignore lint/performance/noAccumulatingSpread:
-      ...transports,
-      [chainId]: 'default' in transport ? transport.default : transport,
-    }),
-    {} as Record<PortoConfig.ChainId, Transport>,
-  ),
+  transports: Porto.config.transports,
 })
 
 export const mipdConfig = createConfig({
