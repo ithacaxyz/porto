@@ -2,7 +2,6 @@ import {
   ChainNotConfiguredError,
   type Connector,
   createConnector,
-  type Transport,
 } from '@wagmi/core'
 import {
   type Address,
@@ -58,14 +57,7 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
 
     const transports = (() => {
       if (config.transports) return config.transports
-      return Object.entries(wagmiConfig.transports ?? {}).reduce(
-        (transports, [chainId, transport]) => ({
-          // biome-ignore lint/performance/noAccumulatingSpread:
-          ...transports,
-          [chainId]: 'default' in transport ? transport.default : transport,
-        }),
-        {} as Record<number, Transport>,
-      )
+      return wagmiConfig.transports
     })()
 
     const porto = Porto.create({

@@ -24,7 +24,6 @@ import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info } from '~/hooks/useTokenInfo'
-import { porto } from '~/lib/Porto'
 import {
   ArrayUtils,
   DateFormatter,
@@ -219,7 +218,8 @@ export function Dashboard() {
               if (!account.address)
                 return toast.error('No account address found')
 
-              await porto.provider.request({
+              const provider = await account.connector?.getProvider()
+              await (provider as any).request({
                 method: 'experimental_addFunds',
                 params: [
                   {
