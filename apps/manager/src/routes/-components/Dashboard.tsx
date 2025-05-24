@@ -6,6 +6,7 @@ import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
+import { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -24,7 +25,6 @@ import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info } from '~/hooks/useTokenInfo'
-import { porto } from '~/lib/Porto'
 import {
   ArrayUtils,
   DateFormatter,
@@ -219,7 +219,9 @@ export function Dashboard() {
               if (!account.address)
                 return toast.error('No account address found')
 
-              await porto.provider.request({
+              const provider =
+                (await account.connector?.getProvider()) as Porto.Porto['provider']
+              await provider.request({
                 method: 'experimental_addFunds',
                 params: [
                   {

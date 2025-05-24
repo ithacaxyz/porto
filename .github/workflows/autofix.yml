@@ -1,0 +1,31 @@
+name: autofix.ci
+
+# Lints and formats JS/TS and MD/MDX files then commits the changes to the branch.
+
+on: [push, pull_request]
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  ACTIONS_RUNNER_DEBUG: true
+
+jobs:
+  autofix:
+    name: 'Autofix'
+    runs-on: ['ubuntu-latest']
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Lint and format
+        run: |
+          pnpm check
+          pnpm check:markdown
+
+      - name: Commit
+        uses: autofix-ci/action@2891949f3779a1cafafae1523058501de3d4e944

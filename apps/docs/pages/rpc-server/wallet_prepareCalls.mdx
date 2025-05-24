@@ -10,9 +10,9 @@ Prepares a call bundle. The calls are simulated and a quote for executing the bu
 This method is intended to be used in conjunction with [`wallet_sendPreparedCalls`](/rpc-server/wallet_sendPreparedCalls).
 :::
 
-## Preops
+## PreOps
 
-Preops are calls that are executed prior to pre-verification of the signature of the bundle, and before any payment is made.
+PreOps are calls that are executed prior to pre-verification of the signature of the bundle, and before any payment is made.
 
 Only certain types of calls are allowed in preops:
 
@@ -23,7 +23,9 @@ Only certain types of calls are allowed in preops:
 - Removing spend limits on keys (`Delegation.removeSpendLimit`)
 - Upgrading the delegation (`Delegation.upgradeProxyDelegation`)
 
-Preops have their own signatures, and they must be signed with a key that is already attached to the account. The `from` and `key` fields can be omitted when building a preop (`preop: true`).
+ PreOps have their own signatures, and they must be signed with a key that is already attached to the account. The `from` and `key` fields can be omitted when building a preop (`preop: true`).
+
+More details about preOps can be found [in the Orchestrator documentation](/contracts/orchestrator#precalls)
 
 <Fees />
 <Keys />

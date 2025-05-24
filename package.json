@@ -67,7 +67,7 @@
     "node": ">=22.5"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm check && pnpm check:markdown"
+    "pre-commit": "pnpm check"
   },
   "knip": {
     "entry": [
