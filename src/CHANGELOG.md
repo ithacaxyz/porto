@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.24
+
+### Patch Changes
+
+- [`9f1fdda`](https://github.com/ithacaxyz/porto/commit/9f1fdda5e2e3469351bf0b81beb897a81a966f9c) Thanks [@jxom](https://github.com/jxom)! - Updated chain contract addresses.
+
+- [#260](https://github.com/ithacaxyz/porto/pull/260) [`64de74b`](https://github.com/ithacaxyz/porto/commit/64de74bdc536241f1b11c1737ee32fe9dc4d3e88) Thanks [@jxom](https://github.com/jxom)! - Fall back to popup if iframe is embedded on an insecure origin (HTTP).
+
 ## 0.0.23
 
 ### Patch Changes
