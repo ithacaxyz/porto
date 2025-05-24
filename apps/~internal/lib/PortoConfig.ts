@@ -23,12 +23,13 @@ const config = {
     },
   },
   prod: {
-    chains: [Chains.baseSepolia],
+    chains: [Chains.base],
+    feeToken: 'USDC',
     mode: Mode.rpcServer({
       persistPreCalls: false,
     }),
     transports: {
-      [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.base.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   stg: {
@@ -52,7 +53,7 @@ const dialogHosts = {
     : 'https://dev.localhost:5174/dialog/',
   prod: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
-    : 'https://localhost:5174/dialog/',
+    : 'https://prod.localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
     : 'https://stg.localhost:5174/dialog/',

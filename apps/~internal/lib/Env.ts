@@ -1,5 +1,5 @@
 export const defaultEnv =
-  import.meta.env.VITE_VERCEL_ENV === 'preview' ? 'dev' : 'prod'
+  import.meta.env.VITE_VERCEL_ENV === 'preview' ? 'dev' : 'stg'
 
 export const envs = ['anvil', 'dev', 'prod', 'stg'] as const
 export type Env = 'anvil' | 'dev' | 'prod' | 'stg'

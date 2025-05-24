@@ -26,6 +26,21 @@ export const anvil = /*#__PURE__*/ define({
   },
 })
 
+export const base = /*#__PURE__*/ define({
+  ...chains.base,
+  contracts: {
+    ...chains.base.contracts,
+    portoAccount: {
+      address: '0x664ab8c20b629422f5398e58ff8989e68b26a4e6',
+    },
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://base-mainnet.rpc.ithaca.xyz'],
+    },
+  },
+})
+
 export const baseSepolia = /*#__PURE__*/ define({
   ...chains.baseSepolia,
   contracts: {
