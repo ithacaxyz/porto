@@ -377,8 +377,9 @@ export default defineConfig({
       Mkcert({
         hosts: [
           'localhost',
-          'dev.localhost',
+          'prod.localhost',
           'stg.localhost',
+          'dev.localhost',
           'anvil.localhost',
         ],
       }),
