@@ -173,21 +173,3 @@ export function useRequest<
       state.requests.find((request) => request.status === 'pending')?.request,
   )
 }
-
-/**
- * Hook to access and subscribe to the provider client of the Porto instance.
- *
- * @param porto - Porto instance.
- * @returns Provider client.
- */
-export function useProviderClient<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(porto: Pick<Remote.Porto<chains>, '_internal' | 'provider'>) {
-  return useMemo(() => Porto_internal.getProviderClient(porto), [porto])
-}
-
-export namespace useProviderClient {
-  export type Parameters = {
-    chainId?: number | undefined
-  }
-}
