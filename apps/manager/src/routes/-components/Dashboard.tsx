@@ -14,6 +14,7 @@ import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
 import {
   useAccount,
   useChainId,
+  useDisconnect,
   useSendCalls,
   useWaitForCallsStatus,
   useWatchBlockNumber,
@@ -67,7 +68,7 @@ export function Dashboard() {
 
   const blockExplorer = account.chain?.blockExplorers?.default.url ?? ''
 
-  const disconnect = Hooks.useDisconnect()
+  const disconnect = useDisconnect()
   const permissions = Hooks.usePermissions()
 
   const addressTransfers = useAddressTransfers({ chainId })
@@ -155,7 +156,7 @@ export function Dashboard() {
             />
 
             <Button
-              onClick={() => disconnect.mutate({})}
+              onClick={() => disconnect.disconnect({})}
               size="small"
               variant="destructive"
             >
