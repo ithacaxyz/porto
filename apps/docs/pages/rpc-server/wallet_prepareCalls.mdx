@@ -118,10 +118,7 @@ type Request = {
 
 The response is primarily a `context` object which can either be: a quote, which is the price at which the RPC server will execute the intent for, with a deadline; or a built preop, in case `wallet_prepareCalls` was called to build a preop.
 
-
 The user should sign `digest` with a key associated with their account. The signed digest and the `context` is then passed to [`wallet_sendPreparedCalls`], if the user wants the RPC server to execute the intent.
-
-
 
 The payment fields in `context.quote.op` that are relevant to figure out what the user will pay are:
 
