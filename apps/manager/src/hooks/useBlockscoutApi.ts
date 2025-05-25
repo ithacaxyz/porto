@@ -4,7 +4,7 @@ import { Address } from 'ox'
 import { anvil, portoDev } from 'porto/core/Chains'
 import * as React from 'react'
 import { useAccount, useChainId, useWatchBlockNumber } from 'wagmi'
-import { baseSepolia } from 'wagmi/chains'
+import { base, baseSepolia } from 'wagmi/chains'
 import { urlWithCorsBypass } from '~/lib/Constants'
 import { useReadBalances } from './useReadBalances'
 
@@ -13,6 +13,7 @@ export function addressApiEndpoint(chainId: PortoConfig.ChainId) {
     return 'https://explorer.ithaca.xyz/api/v2'
   if (chainId === baseSepolia.id)
     return 'https://base-sepolia.blockscout.com/api/v2'
+  if (chainId === base.id) return 'https://base.blockscout.com/api/v2'
   throw new Error(`Unsupported chainId: ${chainId}`)
 }
 

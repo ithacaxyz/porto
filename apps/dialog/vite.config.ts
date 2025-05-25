@@ -28,7 +28,13 @@ export default defineConfig({
   },
   plugins: [
     Mkcert({
-      hosts: ['localhost', 'dev.localhost', 'stg.localhost', 'anvil.localhost'],
+      hosts: [
+        'localhost',
+        'prod.localhost',
+        'stg.localhost',
+        'dev.localhost',
+        'anvil.localhost',
+      ],
     }),
     Tailwindcss(),
     React(),

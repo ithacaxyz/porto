@@ -708,6 +708,7 @@ export const ownableAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
  */
@@ -900,16 +901,19 @@ export const exp1Abi = [
 ] as const
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
  */
 export const exp1Address = {
+  8453: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
   28404: '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2',
   31337: '0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629',
   84532: '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2',
 } as const
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
  */
@@ -920,6 +924,7 @@ export const exp1Config = { address: exp1Address, abi: exp1Abi } as const
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
  */
@@ -1112,16 +1117,19 @@ export const exp2Abi = [
 ] as const
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
  */
 export const exp2Address = {
+  8453: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
   28404: '0x502fF46e72C47b8c3183DB8919700377EED66d2E',
   31337: '0xe1DA8919f262Ee86f9BE05059C9280142CF23f48',
   84532: '0x62a9d6DE963a5590f6fbA5119e937F167677bfE7',
 } as const
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
  */
@@ -1132,6 +1140,7 @@ export const exp2Config = { address: exp2Address, abi: exp2Abi } as const
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  */
@@ -1450,16 +1459,19 @@ export const expNftAbi = [
 ] as const
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  */
 export const expNftAddress = {
+  8453: '0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9',
   28404: '0xEF86CEc1CEf0C78E5725fA6Cc3E9929788bBde35',
   31337: '0x82Dc47734901ee7d4f4232f398752cB9Dd5dACcC',
   84532: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
 } as const
 
 /**
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
  * -
  * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
  */

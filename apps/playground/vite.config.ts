@@ -31,7 +31,13 @@ const logger = createLogger('info', {
 export default defineConfig(({ mode }) => ({
   plugins: [
     mkcert({
-      hosts: ['localhost', 'dev.localhost', 'stg.localhost', 'anvil.localhost'],
+      hosts: [
+        'localhost',
+        'prod.localhost',
+        'stg.localhost',
+        'dev.localhost',
+        'anvil.localhost',
+      ],
     }),
     react(),
     tailwindcss(),
