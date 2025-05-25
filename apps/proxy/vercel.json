@@ -40,12 +40,18 @@
       ],
       "source": "/:match*"
     },
-    { "destination": "https://dialog.porto.sh/dialog/", "source": "/dialog/" },
     {
-      "destination": "https://dialog.porto.sh/dialog/:match*",
+      "destination": "https://prod.dialog.porto.sh/dialog/",
+      "source": "/dialog/"
+    },
+    {
+      "destination": "https://prod.dialog.porto.sh/dialog/:match*",
       "source": "/dialog/:match*"
     },
-    { "destination": "https://manage.porto.sh/", "source": "/" },
-    { "destination": "https://manage.porto.sh/:match*", "source": "/:match*" }
+    { "destination": "https://prod.manage.porto.sh/", "source": "/" },
+    {
+      "destination": "https://prod.manage.porto.sh/:match*",
+      "source": "/:match*"
+    }
   ]
 }
