@@ -19,7 +19,6 @@ export const expAddress = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
 export const expConfig = { abi: expAbi, address: expAddress } as const
 // ![!endregion exp]
 
-
 // [!region nft]
 export const nftAbi = [
   // ...
