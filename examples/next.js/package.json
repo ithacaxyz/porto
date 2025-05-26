@@ -10,7 +10,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5",
     "next": "^15",
-    "porto": "~0.0.23",
+    "porto": "~0.0.24",
     "react": "^19",
     "react-dom": "^19",
     "viem": "^2",
