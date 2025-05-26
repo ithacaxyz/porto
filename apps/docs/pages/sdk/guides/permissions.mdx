@@ -136,8 +136,8 @@ export function SendTip() {
   async function submit(event: React.FormEvent<HTMLFormElement>) { // [!code ++]
     event.preventDefault() // [!code ++]
     const shared = { // [!code ++]
-      abi: exp1Config.abi, // [!code ++]
-      to: exp1Config.address, // [!code ++]
+      abi: expConfig.abi, // [!code ++]
+      to: expConfig.address, // [!code ++]
     } // [!code ++]
     const amount = Value.fromEther('1') // [!code ++]
     sendCalls({ // [!code ++]
@@ -192,8 +192,8 @@ export function SendTip() {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const shared = {
-      abi: exp1Config.abi,
-      to: exp1Config.address,
+      abi: expConfig.abi,
+      to: expConfig.address,
     }
     const amount = Value.fromEther('1')
     sendCalls({
@@ -244,7 +244,7 @@ hook to wait for the calls to be confirmed, and show a "Tipping creator" message
 import * as React from 'react'
 import { useAccount, useSendCalls } from 'wagmi' // [!code --]
 import { useAccount, useSendCalls, useWaitForCallsStatus } from 'wagmi' // [!code ++]
-import { parseEther }from 'viem'
+import { parseEther } from 'viem'
 import { expConfig, nftConfig } from './abi'
 
 export function SendTip() {
@@ -264,8 +264,8 @@ export function SendTip() {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const shared = {
-      abi: exp1Config.abi,
-      to: exp1Config.address,
+      abi: expConfig.abi,
+      to: expConfig.address,
     }
     const amount = Value.fromEther('1')
     sendCalls({
@@ -312,7 +312,7 @@ export function SendTip() {
 
 ```tsx [SendTip.tsx]
 import * as React from 'react'
-import { parseEther }from 'viem'
+import { parseEther } from 'viem'
 import { useAccount, useSendCalls, useWaitForCallsStatus } from 'wagmi'
 import { expConfig, nftConfig } from './abi'
 
@@ -332,8 +332,8 @@ export function SendTip() {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const shared = {
-      abi: exp1Config.abi,
-      to: exp1Config.address,
+      abi: expConfig.abi,
+      to: expConfig.address,
     }
     const amount = Value.fromEther('1')
     sendCalls({
