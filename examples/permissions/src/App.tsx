@@ -1,7 +1,7 @@
 import { Value } from 'ox'
 import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi'
-import { exp1Config } from './_generated/contracts'
 import { permissions } from './config'
+import { exp1Config } from './contracts'
 import { SendTip } from './SendTip'
 
 export function App() {

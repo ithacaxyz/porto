@@ -8,7 +8,7 @@ import {
   useWaitForCallsStatus,
   useWatchBlockNumber,
 } from 'wagmi'
-import { exp1Config } from './_generated/contracts'
+import { exp1Config } from './contracts'
 
 const pollingInterval = 800
 

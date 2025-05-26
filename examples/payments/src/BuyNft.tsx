@@ -6,7 +6,7 @@ import {
   useSendCalls,
   useWaitForCallsStatus,
 } from 'wagmi'
-import { exp1Config, expNftConfig } from './_generated/contracts'
+import { exp1Config, expNftConfig } from './contracts'
 
 export function BuyNow() {
   const { status } = useAccount()

@@ -2,7 +2,7 @@ import { Value } from 'ox'
 import { porto } from 'porto/wagmi'
 import { createConfig, http } from 'wagmi'
 import { baseSepolia } from 'wagmi/chains'
-import { exp1Config } from './_generated/contracts'
+import { exp1Config } from './contracts'
 
 export const config = createConfig({
   chains: [baseSepolia],

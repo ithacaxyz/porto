@@ -1,7 +1,7 @@
 import { formatEther } from 'viem'
 import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi'
-import { exp1Config } from './_generated/contracts'
 import { BuyNow } from './BuyNft'
+import { exp1Config } from './contracts'
 
 export function App() {
   const { isConnected } = useAccount()

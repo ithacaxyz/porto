@@ -22,7 +22,7 @@ import {
   useSendCalls,
   useWaitForCallsStatus,
 } from 'wagmi'
-import { exp1Address, exp1Config } from './_generated/contracts'
+import { exp1Address, exp1Config } from './contracts'
 
 const key = () =>
   ({
