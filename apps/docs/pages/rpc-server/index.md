@@ -6,6 +6,10 @@ Execution is paid for in one of the fee tokens accepted by the RPC on a given ne
 
 The RPC server has passthrough to a standard Ethereum node.
 
+:::note
+We'd love to hear your feedback. Report any issues or feature suggestions [on the issue tracker](https://github.com/ithacaxyz/rpc-server-issues).
+:::
+
 ## Endpoints
 
 The RPC server has multiple endpoints, one for each chain/environment.
