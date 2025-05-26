@@ -159,7 +159,7 @@ import * as React from 'react'
 import { useAccount } from 'wagmi' // [!code --]
 import { useAccount, useSendCalls } from 'wagmi' // [!code ++]
 import { parseEther } from 'viem' // [!code ++]
-import { expConfig, nftConfig } from './abi' // [!code ++]
+import { expConfig } from './abi' // [!code ++]
 
 export function SendTip() {
   const { address } = useAccount()
@@ -313,7 +313,7 @@ import * as React from 'react'
 import { useAccount, useSendCalls } from 'wagmi' // [!code --]
 import { useAccount, useSendCalls, useWaitForCallsStatus } from 'wagmi' // [!code ++]
 import { parseEther } from 'viem'
-import { expConfig, nftConfig } from './abi'
+import { expConfig } from './abi'
 
 export function SendTip() {
   const { address } = useAccount()
@@ -399,7 +399,7 @@ export const expConfig = { abi: expAbi, address: expAddress } as const
 import * as React from 'react'
 import { parseEther } from 'viem'
 import { useAccount, useSendCalls, useWaitForCallsStatus } from 'wagmi'
-import { expConfig, nftConfig } from './abi'
+import { expConfig } from './abi'
 
 export function SendTip() {
   const { address } = useAccount()
