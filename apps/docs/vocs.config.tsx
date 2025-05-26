@@ -125,11 +125,6 @@ export default defineConfig({
             text: 'Onboard & Discover Accounts',
           },
           {
-            disabled: true,
-            link: '/sdk/guides/authentication',
-            text: 'Authentication (SIWE) 🚧',
-          },
-          {
             link: '/sdk/guides/payments',
             text: 'Payments',
           },
@@ -138,13 +133,18 @@ export default defineConfig({
             text: 'Permissions',
           },
           {
+            link: '/sdk/guides/subscriptions',
+            text: 'Subscriptions',
+          },
+          {
+            disabled: true,
+            link: '/sdk/guides/authentication',
+            text: 'Authentication (SIWE) 🚧',
+          },
+          {
             disabled: true,
             link: '/sdk/guides/sponsoring',
             text: 'Sponsoring 🚧',
-          },
-          {
-            link: '/sdk/guides/subscriptions',
-            text: 'Subscriptions',
           },
         ],
         text: 'Guides',
