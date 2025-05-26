@@ -21,55 +21,55 @@ A map of chain IDs to the capabilities supported by the RPC server on those chai
 
 ```ts
 type Response = {
-  contracts: {
-    accountRegistry: {
-      address: `0x${string}`,
-      version?: string,
-    },
-    delegationImplementation: {
-      address: `0x${string}`,
-      version?: string,
-    },
-    delegationProxy: {
-      address: `0x${string}`,
-      version?: string,
-    },
-    entrypoint: {
-      address: `0x${string}`,
-      version?: string,
-    },
-    legacyDelegations?: {
-      address: `0x${string}`,
-      version?: string,
-    }[],
-    legacyEntrypoints?: {
-      address: `0x${string}`,
-      version?: string,
-    }[],
-    simulator: {
-      address: `0x${string}`,
-      version?: string,
-    },
-  },
-  fees: {
-    quoteConfig: {
-      // only present on development environments
-      constantRate?: number,
-      gas: {
-        txBuffer: number,
-        intentBuffer: number,
+  // the chain ID as hex
+  `0x${string}`: {
+    contracts: {
+      accountRegistry: {
+        address: `0x${string}`,
+        version?: string,
       },
-      // price feed ttl
-      rateTtl: number,
-      // the ttl of RPC quotes
-      ttl: number,
+      delegationImplementation: {
+        address: `0x${string}`,
+        version?: string,
+      },
+      delegationProxy: {
+        address: `0x${string}`,
+        version?: string,
+      },
+      entrypoint: {
+        address: `0x${string}`,
+        version?: string,
+      },
+      legacyDelegations?: {
+        address: `0x${string}`,
+        version?: string,
+      }[],
+      legacyEntrypoints?: {
+        address: `0x${string}`,
+        version?: string,
+      }[],
+      simulator: {
+        address: `0x${string}`,
+        version?: string,
+      },
     },
-    // the recipient of fees
-    // if this is the zero address, fees are accumulated in the entrypoint
-    recipient: `0x${string}`,
-    tokens: {
-      // the chain ID as hex
-      [chainId: `0x${string}`]: {
+    fees: {
+      quoteConfig: {
+        // only present on development environments
+        constantRate?: number,
+        gas: {
+          txBuffer: number,
+          intentBuffer: number,
+        },
+        // price feed ttl
+        rateTtl: number,
+        // the ttl of RPC quotes
+        ttl: number,
+      },
+      // the recipient of fees
+      // if this is the zero address, fees are accumulated in the entrypoint
+      recipient: `0x${string}`,
+      tokens: {
         address: `0x${string}`,
         decimals: number,
         kind: 'USDC' | 'USDT' | 'ETH',
@@ -78,7 +78,7 @@ type Response = {
         symbol: string,
       }[],
     },
-  },
+  }
 }
 ```
 
@@ -90,43 +90,43 @@ cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities '[284
 
 ```ts
 {
-  "contracts": {
-      "accountRegistry": {
-        "address": "0x623b5b44647871268d481d2930f60d5d7f37a1fe",
-        "version": null
-      },
-      "delegationImplementation": {
-        "address": "0x5c4fd1f648a89802b7fcd0bced8a35567d99cf15",
-        "version": "0.1.2"
-      },
-      "delegationProxy": {
-        "address": "0xc49cc88a576cf77053ba11b1c3a3011b42da0f34",
-        "version": null
-      },
-      "entrypoint": {
-        "address": "0x2e71297e895fd480019810605360cd09dbb8783b",
-        "version": "0.1.2"
-      },
-      "legacyDelegations": [],
-      "legacyEntrypoints": [],
-      "simulator": {
-        "address": "0x45b65d48e60a9414872ecd092ddf5b37c6bf4d06",
-        "version": null
-      }
-  },
-  "fees": {
-    "quoteConfig": {
-      "constantRate": null,
-      "gas": {
-        "txBuffer": 100000,
-        "intentBuffer": 100000
-      },
-      "rateTtl": 300,
-      "ttl": 30
+  "0x14a34": {
+    "contracts": {
+        "accountRegistry": {
+          "address": "0x623b5b44647871268d481d2930f60d5d7f37a1fe",
+          "version": null
+        },
+        "delegationImplementation": {
+          "address": "0x5c4fd1f648a89802b7fcd0bced8a35567d99cf15",
+          "version": "0.1.2"
+        },
+        "delegationProxy": {
+          "address": "0xc49cc88a576cf77053ba11b1c3a3011b42da0f34",
+          "version": null
+        },
+        "entrypoint": {
+          "address": "0x2e71297e895fd480019810605360cd09dbb8783b",
+          "version": "0.1.2"
+        },
+        "legacyDelegations": [],
+        "legacyEntrypoints": [],
+        "simulator": {
+          "address": "0x45b65d48e60a9414872ecd092ddf5b37c6bf4d06",
+          "version": null
+        }
     },
-    "recipient": "0x0000000000000000000000000000000000000000",
-    "tokens": {
-      "0x6ef4": [
+    "fees": {
+      "quoteConfig": {
+        "constantRate": null,
+        "gas": {
+          "txBuffer": 100000,
+          "intentBuffer": 100000
+        },
+        "rateTtl": 300,
+        "ttl": 30
+      },
+      "recipient": "0x0000000000000000000000000000000000000000",
+      "tokens": [
         {
           "address": "0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2",
           "decimals": 18,
