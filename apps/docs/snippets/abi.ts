@@ -1,3 +1,4 @@
+// [!region exp]
 export const expAbi = [
   // ...
   {
@@ -16,11 +17,9 @@ export const expAbi = [
 export const expAddress = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
 
 export const expConfig = { abi: expAbi, address: expAddress } as const
+// [!endregion exp]
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// nft
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// [!region nft]
 export const nftAbi = [
   // ...
   {
@@ -36,3 +35,4 @@ export const nftAbi = [
 export const nftAddress = '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29'
 
 export const nftConfig = { abi: nftAbi, address: nftAddress } as const
+// [!endregion nft]

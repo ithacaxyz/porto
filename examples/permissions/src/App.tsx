@@ -1,16 +1,17 @@
-import { formatEther } from 'viem'
+import { Value } from 'ox'
 import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi'
 import { exp1Config } from './_generated/contracts'
-import { BuyNow } from './BuyNft'
+import { permissions } from './config'
+import { SendTip } from './SendTip'
 
 export function App() {
   const { isConnected } = useAccount()
   return (
     <>
-      <h1>Porto Payments Example</h1>
+      <h1>Porto Permissions Example</h1>
       <Account />
       {isConnected ? <Balance /> : <Connect />}
-      {isConnected && <BuyNow />}
+      {isConnected && <SendTip />}
     </>
   )
 }
@@ -50,6 +51,9 @@ function Connect() {
       <button
         onClick={() =>
           connect.connect({
+            capabilities: {
+              grantPermissions: permissions(),
+            },
             connector,
           })
         }
@@ -66,7 +70,7 @@ function Connect() {
 function Balance() {
   const { address } = useAccount()
   const { data: balance } = useReadContract({
-    ...exp1Config,
+    abi: exp1Config.abi,
     args: [address!],
     functionName: 'balanceOf',
     query: {
@@ -78,7 +82,7 @@ function Balance() {
   return (
     <div>
       <h2>Balance</h2>
-      <div>Balance: {formatEther(balance ?? 0n)} EXP</div>
+      <div>Balance: {Value.format(balance ?? 0n, 18)} EXP</div>
     </div>
   )
 }

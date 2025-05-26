@@ -779,6 +779,46 @@ importers:
         specifier: 'catalog:'
         version: 6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0)
 
+  examples/permissions:
+    dependencies:
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.77.1(react@19.1.0)
+      porto:
+        specifier: workspace:*
+        version: link:../../src
+      react:
+        specifier: 'catalog:'
+        version: 19.1.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.1.0(react@19.1.0)
+      viem:
+        specifier: 'catalog:'
+        version: 2.30.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28)
+      wagmi:
+        specifier: 'catalog:'
+        version: 2.15.4(@tanstack/query-core@5.77.1)(@tanstack/react-query@5.77.1(react@19.1.0))(@types/react@19.1.5)(bufferutil@4.0.9)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.30.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28))(zod@3.25.28)
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.1.5
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.1.5(@types/react@19.1.5)
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 4.5.0(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0))
+      globals:
+        specifier: 'catalog:'
+        version: 16.2.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      vite:
+        specifier: 'catalog:'
+        version: 6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0)
+
   src:
     dependencies:
       '@sinclair/typebox':
