@@ -1,5 +1,5 @@
 ```sh
-pnpm dlx gitpick@latest ithacaxyz/porto/tree/main/templates/next porto-next
+pnpx gitpick ithacaxyz/porto/tree/main/templates/next.js porto-next
 
 cd porto-next
 
