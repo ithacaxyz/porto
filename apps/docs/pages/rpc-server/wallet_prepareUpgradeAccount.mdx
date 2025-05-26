@@ -6,7 +6,7 @@ Prepares an account for upgrade by generating initialization data and an EIP-770
 
 Upgrading an account is different from [creating an account](/rpc-server/wallet_prepareCreateAccount). Upgrading an account generates an EIP-7702 authorization for an existing EOA, whereas creating an account using the RPC server generates a new EOA using [PREP].
 
-The returned EIP-7702 authorization item must be signed by the EOA root key.
+The returned EIP-7702 authorization item must be signed by the EOA root key, as well as the intent digest.
 
 :::tip
 This method is intended to be used in conjunction with [`wallet_upgradeAccount`](/rpc-server/wallet_upgradeAccount).
@@ -156,16 +156,7 @@ type Response = {
          value: number,
        }[]
     ][],
-  },
-  // The key that will be used to sign the bundle. See "Keys".
-  //
-  // It can be omitted in the case of a precall, see "PreCalls".
-  key?: {
-    type: 'p256' | 'webauthnp256' | 'secp256k1',
-    publicKey: `0x${string}`,
-    // Whether the bundle digest will be prehashed by the key.
-    prehash: boolean,
-  },
+  }
 }
 ```
 
