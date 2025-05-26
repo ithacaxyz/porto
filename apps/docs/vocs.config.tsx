@@ -115,6 +115,10 @@ export default defineConfig({
         text: 'GitHub',
       },
       {
+        link: 'https://deepwiki.com/ithacaxyz/porto',
+        text: 'DeepWiki',
+      },
+      {
         link: '/sdk/faq',
         text: 'FAQ',
       },
