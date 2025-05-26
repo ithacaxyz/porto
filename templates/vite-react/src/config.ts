@@ -5,6 +5,7 @@ import { baseSepolia } from 'wagmi/chains'
 export const config = createConfig({
   chains: [baseSepolia],
   connectors: [porto()],
+  multiInjectedProviderDiscovery: false,
   transports: {
     [baseSepolia.id]: http(),
   },

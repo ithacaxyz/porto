@@ -56,10 +56,8 @@ function Account() {
 }
 
 function Connect() {
-  const connectors = useConnectors()
   const connect = useConnect()
-
-  const connector = connectors.find((x) => x.id === 'xyz.ithaca.porto')!
+  const [connector] = connect.connectors
 
   return (
     <div>
