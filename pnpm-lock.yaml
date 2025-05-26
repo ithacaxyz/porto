@@ -739,43 +739,6 @@ importers:
         specifier: 'catalog:'
         version: 6.2.3(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.4)(yaml@2.7.0)
 
-  examples/next:
-    dependencies:
-      '@tanstack/react-query':
-        specifier: 'catalog:'
-        version: 5.74.3(react@19.1.0)
-      next:
-        specifier: latest
-        version: 15.3.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      porto:
-        specifier: workspace:*
-        version: link:../../src
-      react:
-        specifier: 'catalog:'
-        version: 19.1.0
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.1.0(react@19.1.0)
-      viem:
-        specifier: 'catalog:'
-        version: 2.29.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3)
-      wagmi:
-        specifier: 'catalog:'
-        version: 2.15.4(@tanstack/query-core@5.74.3)(@tanstack/react-query@5.74.3(react@19.1.0))(@types/react@19.0.12)(bufferutil@4.0.9)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.29.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3))(zod@3.24.3)
-    devDependencies:
-      '@types/node':
-        specifier: latest
-        version: 22.15.21
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.0.12
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.0.4(@types/react@19.0.12)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.8.3
-
   examples/payments:
     dependencies:
       '@tanstack/react-query':
@@ -816,7 +779,62 @@ importers:
         specifier: 'catalog:'
         version: 6.2.3(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.4)(yaml@2.7.0)
 
-  examples/vite-react:
+  src:
+    dependencies:
+      '@sinclair/typebox':
+        specifier: ~0.34
+        version: 0.34.28
+      idb-keyval:
+        specifier: ^6.2.1
+        version: 6.2.1
+      mipd:
+        specifier: ^0.0.7
+        version: 0.0.7(typescript@5.8.3)
+      ox:
+        specifier: ^0.6.12
+        version: 0.6.12(typescript@5.8.3)(zod@3.24.3)
+      zustand:
+        specifier: ^5.0.1
+        version: 5.0.3(@types/react@19.0.12)(react@19.1.0)(use-sync-external-store@1.4.0(react@19.1.0))
+
+  templates/next:
+    dependencies:
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.74.3(react@19.1.0)
+      next:
+        specifier: latest
+        version: 15.3.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      porto:
+        specifier: workspace:*
+        version: link:../../src
+      react:
+        specifier: 'catalog:'
+        version: 19.1.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.1.0(react@19.1.0)
+      viem:
+        specifier: 'catalog:'
+        version: 2.29.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3)
+      wagmi:
+        specifier: 'catalog:'
+        version: 2.15.4(@tanstack/query-core@5.74.3)(@tanstack/react-query@5.74.3(react@19.1.0))(@types/react@19.0.12)(bufferutil@4.0.9)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.29.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.3))(zod@3.24.3)
+    devDependencies:
+      '@types/node':
+        specifier: latest
+        version: 22.15.21
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.0.12
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.0.4(@types/react@19.0.12)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+
+  templates/vite-react:
     dependencies:
       '@tanstack/react-query':
         specifier: 'catalog:'
@@ -858,24 +876,6 @@ importers:
       vite-plugin-mkcert:
         specifier: latest
         version: 1.17.8(vite@6.2.3(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.29.3)(terser@5.39.0)(tsx@4.19.4)(yaml@2.7.0))
-
-  src:
-    dependencies:
-      '@sinclair/typebox':
-        specifier: ~0.34
-        version: 0.34.28
-      idb-keyval:
-        specifier: ^6.2.1
-        version: 6.2.1
-      mipd:
-        specifier: ^0.0.7
-        version: 0.0.7(typescript@5.8.3)
-      ox:
-        specifier: ^0.6.12
-        version: 0.6.12(typescript@5.8.3)(zod@3.24.3)
-      zustand:
-        specifier: ^5.0.1
-        version: 5.0.3(@types/react@19.0.12)(react@19.1.0)(use-sync-external-store@1.4.0(react@19.1.0))
 
 packages:
 
@@ -12058,7 +12058,7 @@ snapshots:
 
   '@types/http-proxy@1.17.16':
     dependencies:
-      '@types/node': 22.15.17
+      '@types/node': 22.15.21
 
   '@types/json-schema@7.0.15': {}
 
