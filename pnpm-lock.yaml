@@ -839,9 +839,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.77.1
         version: 5.77.1(react@19.1.0)
-      next:
-        specifier: ^15.3.2
-        version: 15.3.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       porto:
         specifier: ^0.0.23
         version: link:../../src
