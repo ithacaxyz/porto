@@ -1,9 +1,15 @@
 import { Value } from 'ox'
 import * as React from 'react'
-import { BaseError, useSendCalls, useWaitForCallsStatus } from 'wagmi'
+import {
+  BaseError,
+  useAccount,
+  useSendCalls,
+  useWaitForCallsStatus,
+} from 'wagmi'
 import { exp1Config, expNftConfig } from './_generated/contracts'
 
 export function BuyNow() {
+  const { status } = useAccount()
   const { data, isPending, sendCalls, error } = useSendCalls()
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
@@ -33,7 +39,14 @@ export function BuyNow() {
   }
 
   return (
-    <div>
+    <section
+      style={{ opacity: status === 'disconnected' ? 0.5 : 1 }}
+      title={
+        status === 'disconnected'
+          ? 'Connect your wallet to buy the sneaker'
+          : ''
+      }
+    >
       <h2>Buy Now</h2>
       <img
         alt="Running Sneaker"
@@ -42,15 +55,15 @@ export function BuyNow() {
       />
       <form onSubmit={submit}>
         <button disabled={isPending} type="submit">
-          {isPending ? 'Confirming...' : 'Buy Now'}
+          {isPending ? 'Buying sneaker…' : 'Buy Now'}
         </button>
       </form>
       {data?.id && <div>Transaction Hash: {data.id}</div>}
-      {isConfirming && 'Waiting for confirmation...'}
+      {isConfirming && 'Waiting for confirmation…'}
       {isConfirmed && 'Purchase complete!'}
       {error && (
         <div>Error: {(error as BaseError).shortMessage || error.message}</div>
       )}
-    </div>
+    </section>
   )
 }
