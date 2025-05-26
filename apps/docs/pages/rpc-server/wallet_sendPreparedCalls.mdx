@@ -27,7 +27,7 @@ type Request = {
     context: {
       quote: {
         chainId: `0x${string}`,
-        op: {
+        intent: {
           eoa: `0x${string}`,
           executionData: `0x${string}`,
           nonce: `0x${string}`,
@@ -36,14 +36,14 @@ type Request = {
           prePaymentMaxAmount: `0x${string}`,
           totalPaymentMaxAmount: `0x${string}`,
           combinedGas: `0x${string}`,
-          encodedPreOps: `0x${string}`[],
+          encodedPreCalls: `0x${string}`[],
           initData: `0x${string}`,
           prePaymentAmount: `0x${string}`,
           totalPaymentAmount: `0x${string}`,
           paymentRecipient: `0x${string}`,
           signature: `0x${string}`,
           paymentSignature: `0x${string}`,
-          supportedDelegationImplementation: `0x${string}`,
+          supportedAccountImplementation: `0x${string}`,
         },
         txGas: `0x${string}`,
         nativeFeeEstimate: {

@@ -57,7 +57,7 @@ type Response = {
       constantRate?: number,
       gas: {
         txBuffer: number,
-        userOpBuffer: number,
+        intentBuffer: number,
       },
       // price feed ttl
       rateTtl: number,
@@ -119,7 +119,7 @@ cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities '[284
       "constantRate": null,
       "gas": {
         "txBuffer": 100000,
-        "userOpBuffer": 100000
+        "intentBuffer": 100000
       },
       "rateTtl": 300,
       "ttl": 30

@@ -61,15 +61,15 @@ Please refer to [`wallet_prepareCalls`] for a detailed explanation of the respon
 ```ts
 type Response = {
   // The context returned depending on whether
-  // a preop or normal bundle was prepared.
+  // a precall or normal bundle was prepared.
   //
-  // In the case of a preop, the preop itself
+  // In the case of a precall, the precall itself
   // is returned, otherwise a quote signed by the
   // relay is returned.
   context: {
     quote: {
       chainId: `0x${string}`,
-      op: {
+      intent: {
         eoa: `0x${string}`,
         executionData: `0x${string}`,
         nonce: `0x${string}`,
@@ -78,14 +78,14 @@ type Response = {
         prePaymentMaxAmount: `0x${string}`,
         totalPaymentMaxAmount: `0x${string}`,
         combinedGas: `0x${string}`,
-        encodedPreOps: `0x${string}`[],
+        encodedPreCalls: `0x${string}`[],
         initData: `0x${string}`,
         prePaymentAmount: `0x${string}`,
         totalPaymentAmount: `0x${string}`,
         paymentRecipient: `0x${string}`,
         signature: `0x${string}`,
         paymentSignature: `0x${string}`,
-        supportedDelegationImplementation: `0x${string}`,
+        supportedAccountImplementation: `0x${string}`,
       },
       txGas: `0x${string}`,
       nativeFeeEstimate: {
@@ -108,7 +108,7 @@ type Response = {
   },
   // the digest of the bundle that the user needs to sign
   digest: `0x${string}`,
-  // EIP-712 typed data of the preop or bundle.
+  // EIP-712 typed data of the precall or bundle.
   typedData: any,
   // capabilities assigned to the account
   capabilities: {
@@ -159,7 +159,7 @@ type Response = {
   },
   // The key that will be used to sign the bundle. See "Keys".
   //
-  // It can be omitted in the case of a preop, see "Preops".
+  // It can be omitted in the case of a precall, see "PreCalls".
   key?: {
     type: 'p256' | 'webauthnp256' | 'secp256k1',
     publicKey: `0x${string}`,
