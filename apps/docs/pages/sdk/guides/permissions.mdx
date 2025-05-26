@@ -28,12 +28,29 @@ or we can add the permissions to the `connect` function. We will do the latter.
 
 :::code-group
 
-```ts twoslash [permissions.ts] filename="permissions.ts"
+```ts [permissions.ts] filename="permissions.ts"
 // [!include ~/snippets/permissions.ts]
 ```
 
 ```ts twoslash [abi.ts] filename="abi.ts"
-// [!include ~/snippets/abi.ts]
+export const expAbi = [
+  // ...
+  {
+    inputs: [
+      { internalType: 'address', name: 'spender', type: 'address' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  // ...
+] as const
+
+export const expAddress = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
+
+export const expConfig = { abi: expAbi, address: expAddress } as const
 ```
 
 :::
@@ -80,7 +97,24 @@ export function Connect() {
 ```
 
 ```ts twoslash [abi.ts] filename="abi.ts"
-// [!include ~/snippets/abi.ts]
+export const expAbi = [
+  // ...
+  {
+    inputs: [
+      { internalType: 'address', name: 'spender', type: 'address' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  // ...
+] as const
+
+export const expAddress = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
+
+export const expConfig = { abi: expAbi, address: expAddress } as const
 ```
 
 :::
@@ -166,7 +200,24 @@ export function SendTip() {
 ```
 
 ```ts twoslash [abi.ts] filename="abi.ts"
-// [!include ~/snippets/abi.ts]
+export const expAbi = [
+  // ...
+  {
+    inputs: [
+      { internalType: 'address', name: 'spender', type: 'address' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  // ...
+] as const
+
+export const expAddress = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
+
+export const expConfig = { abi: expAbi, address: expAddress } as const
 ```
 
 :::
@@ -227,7 +278,24 @@ export function SendTip() {
 ```
 
 ```ts twoslash [abi.ts] filename="abi.ts"
-// [!include ~/snippets/abi.ts]
+export const expAbi = [
+  // ...
+  {
+    inputs: [
+      { internalType: 'address', name: 'spender', type: 'address' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  // ...
+] as const
+
+export const expAddress = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
+
+export const expConfig = { abi: expAbi, address: expAddress } as const
 ```
 
 :::
@@ -301,7 +369,24 @@ export function SendTip() {
 ```
 
 ```ts twoslash [abi.ts] filename="abi.ts"
-// [!include ~/snippets/abi.ts]
+export const expAbi = [
+  // ...
+  {
+    inputs: [
+      { internalType: 'address', name: 'spender', type: 'address' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  // ...
+] as const
+
+export const expAddress = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
+
+export const expConfig = { abi: expAbi, address: expAddress } as const
 ```
 
 :::
@@ -377,7 +462,24 @@ export function SendTip() {
 ```
 
 ```ts twoslash [abi.ts] filename="abi.ts"
-// [!include ~/snippets/abi.ts]
+export const expAbi = [
+  // ...
+  {
+    inputs: [
+      { internalType: 'address', name: 'spender', type: 'address' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  // ...
+] as const
+
+export const expAddress = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
+
+export const expConfig = { abi: expAbi, address: expAddress } as const
 ```
 
 :::
