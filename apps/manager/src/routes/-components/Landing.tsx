@@ -1,18 +1,15 @@
 import { Button, IndeterminateLoader, LogoMark } from '@porto/apps/components'
-import { humanId } from 'human-id'
 import * as React from 'react'
 import { useAccount, useConnect, useConnectors } from 'wagmi'
-import SparkIcon from '~icons/lucide/sparkles'
+import EraserIcon from '~icons/lucide/eraser'
 import { Layout } from './Layout'
-
-const id = () => humanId({ capitalize: true, separator: ' ' })
 
 export function Landing() {
   const account = useAccount()
   const connect = useConnect()
   const [connector] = useConnectors()
 
-  const [label, setLabel] = React.useState(id())
+  const [label, setLabel] = React.useState('Porto Account')
 
   return (
     <>
@@ -60,10 +57,10 @@ export function Landing() {
                   />
                   <button
                     className="rounded-full bg-accentTint p-2 transition-all duration-200 hover:bg-accentTintHover active:scale-90"
-                    onClick={() => setLabel(id())}
+                    onClick={() => setLabel('')}
                     type="button"
                   >
-                    <SparkIcon className="size-5 text-accent" />
+                    <EraserIcon className="size-5 text-accent" />
                   </button>
                 </div>
 
