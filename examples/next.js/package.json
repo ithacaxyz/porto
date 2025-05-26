@@ -1,14 +1,15 @@
 {
-  "name": "permissions",
+  "name": "next-example",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "dev": "next dev --experimental-https",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@tanstack/react-query": "^5",
+    "next": "^15",
     "porto": "~0.0.23",
     "react": "^19",
     "react-dom": "^19",
@@ -19,8 +20,6 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5",
-    "globals": "^16",
-    "vite": "^6"
+    "typescript": "^5"
   }
 }

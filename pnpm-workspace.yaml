@@ -2,7 +2,6 @@ packages:
   - "apps/*"
   - "examples/*"
   - "src"
-  - "templates/*"
 
 catalog:
   "@ariakit/react": "^0.4.17"
