@@ -68,6 +68,7 @@ function Connect() {
         onClick={() =>
           connect.connect({
             connector,
+            capabilities: {},
           })
         }
         type="button"
