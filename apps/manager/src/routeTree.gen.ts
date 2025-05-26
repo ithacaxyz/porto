@@ -16,6 +16,7 @@ import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout.index'
 import { Route as LayoutRecoveryImport } from './routes/_layout.recovery'
 import { Route as LayoutAboutImport } from './routes/_layout.about'
+import { Route as LayoutReceiptHashImport } from './routes/_layout.receipt.$hash'
 
 // Create/Update Routes
 
@@ -45,6 +46,12 @@ const LayoutRecoveryRoute = LayoutRecoveryImport.update({
 const LayoutAboutRoute = LayoutAboutImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutReceiptHashRoute = LayoutReceiptHashImport.update({
+  id: '/receipt/$hash',
+  path: '/receipt/$hash',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -87,6 +94,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/receipt/$hash': {
+      id: '/_layout/receipt/$hash'
+      path: '/receipt/$hash'
+      fullPath: '/receipt/$hash'
+      preLoaderRoute: typeof LayoutReceiptHashImport
+      parentRoute: typeof LayoutImport
+    }
   }
 }
 
@@ -96,12 +110,14 @@ interface LayoutRouteChildren {
   LayoutAboutRoute: typeof LayoutAboutRoute
   LayoutRecoveryRoute: typeof LayoutRecoveryRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutReceiptHashRoute: typeof LayoutReceiptHashRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAboutRoute: LayoutAboutRoute,
   LayoutRecoveryRoute: LayoutRecoveryRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutReceiptHashRoute: LayoutReceiptHashRoute,
 }
 
 const LayoutRouteWithChildren =
@@ -113,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof LayoutAboutRoute
   '/recovery': typeof LayoutRecoveryRoute
   '/': typeof LayoutIndexRoute
+  '/receipt/$hash': typeof LayoutReceiptHashRoute
 }
 
 export interface FileRoutesByTo {
@@ -120,6 +137,7 @@ export interface FileRoutesByTo {
   '/about': typeof LayoutAboutRoute
   '/recovery': typeof LayoutRecoveryRoute
   '/': typeof LayoutIndexRoute
+  '/receipt/$hash': typeof LayoutReceiptHashRoute
 }
 
 export interface FileRoutesById {
@@ -129,13 +147,20 @@ export interface FileRoutesById {
   '/_layout/about': typeof LayoutAboutRoute
   '/_layout/recovery': typeof LayoutRecoveryRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/receipt/$hash': typeof LayoutReceiptHashRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/'
+  fullPaths:
+    | ''
+    | '/playground'
+    | '/about'
+    | '/recovery'
+    | '/'
+    | '/receipt/$hash'
   fileRoutesByTo: FileRoutesByTo
-  to: '/playground' | '/about' | '/recovery' | '/'
+  to: '/playground' | '/about' | '/recovery' | '/' | '/receipt/$hash'
   id:
     | '__root__'
     | '/_layout'
@@ -143,6 +168,7 @@ export interface FileRouteTypes {
     | '/_layout/about'
     | '/_layout/recovery'
     | '/_layout/'
+    | '/_layout/receipt/$hash'
   fileRoutesById: FileRoutesById
 }
 
@@ -175,7 +201,8 @@ export const routeTree = rootRoute
       "children": [
         "/_layout/about",
         "/_layout/recovery",
-        "/_layout/"
+        "/_layout/",
+        "/_layout/receipt/$hash"
       ]
     },
     "/playground": {
@@ -191,6 +218,10 @@ export const routeTree = rootRoute
     },
     "/_layout/": {
       "filePath": "_layout.index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/receipt/$hash": {
+      "filePath": "_layout.receipt.$hash.tsx",
       "parent": "/_layout"
     }
   }

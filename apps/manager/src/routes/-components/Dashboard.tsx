@@ -691,8 +691,6 @@ function AssetRow({
   const chainId = useChainId()
   const account = useAccount()
 
-  const blockExplorer = account.chain?.blockExplorers?.default.url ?? ''
-
   const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
     chainId,
   })
@@ -755,6 +753,10 @@ function AssetRow({
       const [receipt] = callStatus.data?.receipts ?? []
       const hash = receipt?.transactionHash
       if (!hash) return
+      const blockExplorer = account.chain?.blockExplorers?.default.url
+      const url = blockExplorer
+        ? `${blockExplorer}/tx/${hash}`
+        : `/receipt/${hash}`
       toast.custom(
         (t) => (
           <Toast
@@ -765,7 +767,7 @@ function AssetRow({
                 <br />
                 <a
                   className="text-gray12 underline"
-                  href={`${blockExplorer}/tx/${hash}`}
+                  href={url}
                   rel="noreferrer"
                   target="_blank"
                 >
