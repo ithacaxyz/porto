@@ -48,11 +48,15 @@ export default defineConfig({
     ],
     '/rpc-server': [
       {
+        link: '/rpc-server',
+        text: 'Overview',
+      },
+      {
+        link: 'https://github.com/ithacaxyz/rpc-server-issues',
+        text: 'GitHub',
+      },
+      {
         items: [
-          {
-            link: '/rpc-server',
-            text: 'Overview',
-          },
           {
             link: '/rpc-server/wallet_getCapabilities',
             text: 'wallet_getCapabilities',
