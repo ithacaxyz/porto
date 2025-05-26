@@ -29,16 +29,14 @@ export const config = createConfig({
 
 Import via named export or `Actions` namespace (better autocomplete DX and does not impact tree shaking).
 
-- `connect`
 - `createAccount`
-- `disconnect`
+- `getPermissions`
 - `grantPermissions`
-- `permissions`
 - `revokePermissions`
 - `upgradeAccount`
 
 ```ts
-import { Actions } from 'porto/wagmi' // Actions.connect()
+import { Actions } from 'porto/wagmi' // Actions.getPermissions()
 import { connect } from 'porto/wagmi/Actions'
 ```
 
@@ -56,12 +54,3 @@ Import via named export or `Hooks` namespace (better autocomplete DX and does no
 import { Hooks } from 'porto/wagmi' // Hooks.usePermissions()
 import { usePermissions } from 'porto/wagmi/Hooks'
 ```
-
-:::note
-You can use [`useConnect`](https://wagmi.sh/react/api/hooks/useConnect) and [`useDisconnect`](https://wagmi.sh/react/api/hooks/useDisconnect) from Wagmi directly.
-
-```tsx twoslash
-import { useConnect, useDisconnect } from 'wagmi'
-```
-
-:::
