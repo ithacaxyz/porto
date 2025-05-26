@@ -73,8 +73,8 @@ export function onDialogRequest(
         rule.sameOrigin &&
         event.origin !== window.location.origin
       )
-        return trustedOrigins.some((host) =>
-          window.location.origin.endsWith(host),
+        return trustedOrigins.some((origin) =>
+          window.location.origin.endsWith(origin),
         )
       return rule
     })()
