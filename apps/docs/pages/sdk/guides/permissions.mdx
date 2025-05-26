@@ -20,14 +20,84 @@ End-to-end example source code is at [github.com/ithacaxyz/porto/examples/permis
 
 Follow the [Onboard & Discover Accounts](/sdk/guides/discover-accounts) guide to get this set up.
 
+### Setup Permissions
+
+The permissions are setup such that the user can spend `10 EXP` per hour. We can either use the
+[`useGrantPermissions` hook](/sdk/wagmi/useGrantPermissions) to grant the permissions,
+or we can add the permissions to the `connect` function. We will do the latter.
+
+:::code-group
+
+```ts twoslash [permissions.ts] filename="permissions.ts"
+// [!include ~/snippets/permissions.ts]
+```
+
+```ts twoslash [abi.ts] filename="abi.ts"
+// [!include ~/snippets/abi.ts]
+```
+
+:::
+
+### Add permissions to `connect`
+
+We will reuse the same connect component from the
+[Onboard & Discover Accounts](/sdk/guides/discover-accounts#https://dev.porto.sh/sdk/guides/discover-accounts#display-sign-in-button)
+guide with one change: we will add the permissions to the `connect` function.
+
+:::code-group
+
+```tsx [Connect.tsx] filename="Connect.tsx"
+import { useConnect } from 'wagmi'
+import { permissions } from './permissions' // [!code ++]
+
+export function Connect() {
+  const { connectors, connect } = useConnect()
+
+  const connector = connectors.find(
+    (connector) => connector.id === 'xyz.ithaca.porto',
+  )!
+
+  return (
+    <button
+      onClick={() =>
+        connect.connect({
+          connector,
+          capabilities: { // [!code ++]
+            grantPermissions: permissions(), // [!code ++]
+          }, // [!code ++]
+        })
+      }
+      type="button"
+    >
+      Sign in
+    </button>
+  )
+}
+```
+
+```ts [permissions.ts] filename="permissions.ts"
+// [!include ~/snippets/permissions.ts]
+```
+
+```ts twoslash [abi.ts] filename="abi.ts"
+// [!include ~/snippets/abi.ts]
+```
+
+:::
+
 ### Create `SendTip` Component
 
 We will add a simple "Send Tip" button that will trigger the permissions flow.
+`creatorAddress` is the address to whom the tip will be sent.
 
 ```tsx twoslash [SendTip.tsx]
 import * as React from 'react'
+import { useAccount } from 'wagmi'
 
 export function SendTip() {
+  const { address } = useAccount()
+  const creatorAddress = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+
   return (
     <form>
       <button type="submit">Send Tip</button>
@@ -40,23 +110,27 @@ export function SendTip() {
 
 Next, we will add the [`useSendCalls`](https://wagmi.sh/react/api/hooks/useSendCalls) hook to submit a batch of contract calls.
 
-- For the first call, we will request for the user to allow us to spend `10 EXP` (a payment hold),
-- For the second call, we will mint the NFT which will also debit `10 EXP` from the user's account.
+- For the first call, we will request for the user to allow us to spend `1 EXP` (a payment hold),
+- For the second call, we will transfer the `1 EXP` from the user's account to the creator.
 
 :::note
-For this example, we are using the [ExperimentERC20 contract](https://github.com/ithacaxyz/porto/blob/main/contracts/demo/src/ExperimentERC20.sol) for `EXP` token, and
-the [ExperimentERC721 contract](https://github.com/ithacaxyz/porto/blob/main/contracts/demo/src/ExperimentERC721.sol) for the "Running Sneaker" NFT.
+For this example, we are using the
+[ExperimentERC20 contract](https://github.com/ithacaxyz/porto/blob/main/contracts/demo/src/ExperimentERC20.sol) for `EXP` token.
 :::
 
 :::code-group
 
-```tsx [SendTip.tsx]
+```tsx [SendTip.tsx] filename="SendTip.tsx"
 import * as React from 'react'
-import { useSendCalls } from 'wagmi' // [!code ++]
+import { useAccount } from 'wagmi' // [!code --]
+import { useAccount, useSendCalls } from 'wagmi' // [!code ++]
 import { parseEther } from 'viem' // [!code ++]
 import { expConfig, nftConfig } from './abi' // [!code ++]
 
 export function SendTip() {
+  const { address } = useAccount()
+  const creatorAddress = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+
   const { sendCalls } = useSendCalls() // [!code ++]
 
   async function submit(event: React.FormEvent<HTMLFormElement>) { // [!code ++]
@@ -99,18 +173,20 @@ export function SendTip() {
 
 ### Add Pending State
 
-We will also display the pending state to the user while we are waiting for them
-to approve the request.
+We will also display the pending state to the user while we are waiting for them to approve the request.
 
 :::code-group
 
 ```tsx [SendTip.tsx]
 import * as React from 'react'
-import { useSendCalls } from 'wagmi'
+import { useAccount, useSendCalls } from 'wagmi'
 import { parseEther } from 'viem'
-import { expConfig, nftConfig } from './abi'
+import { expConfig } from './abi'
 
 export function SendTip() {
+  const { address } = useAccount()
+  const creatorAddress = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+
   const { isPending, sendCalls } = useSendCalls()
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -142,7 +218,7 @@ export function SendTip() {
         disabled={isPending} // [!code ++]
         type="submit"
       >
-        Buy now {/* [!code --] */}
+        Tip creator {/* [!code --] */}
         {isPending ? 'Check prompt' : 'Tip creator'} {/* [!code ++] */}
       </button>
     </form>
@@ -158,19 +234,23 @@ export function SendTip() {
 
 ### Hook up `useWaitForCallsStatus`
 
-Now that we have the calls submitted, we can hook up the [`useWaitForCallsStatus`](https://wagmi.sh/react/api/hooks/useWaitForCallsStatus) hook to wait for the calls to be confirmed,
-and show a "Completing purchase" message to the user.
+Now that we have the calls submitted, we can hook up the
+[`useWaitForCallsStatus`](https://wagmi.sh/react/api/hooks/useWaitForCallsStatus)
+hook to wait for the calls to be confirmed, and show a "Tipping creator" message to the user.
 
 :::code-group
 
 ```tsx [SendTip.tsx]
 import * as React from 'react'
-import { useSendCalls } from 'wagmi' // [!code --]
-import { useSendCalls, useWaitForCallsStatus } from 'wagmi' // [!code ++]
+import { useAccount, useSendCalls } from 'wagmi' // [!code --]
+import { useAccount, useSendCalls, useWaitForCallsStatus } from 'wagmi' // [!code ++]
 import { parseEther }from 'viem'
 import { expConfig, nftConfig } from './abi'
 
 export function SendTip() {
+  const { address } = useAccount()
+  const creatorAddress = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+
   const {
     data, // [!code ++]
     isPending,
@@ -233,10 +313,13 @@ export function SendTip() {
 ```tsx [SendTip.tsx]
 import * as React from 'react'
 import { parseEther }from 'viem'
-import { useSendCalls, useWaitForCallsStatus } from 'wagmi'
+import { useAccount, useSendCalls, useWaitForCallsStatus } from 'wagmi'
 import { expConfig, nftConfig } from './abi'
 
 export function SendTip() {
+  const { address } = useAccount()
+  const creatorAddress = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+
   const { data, isPending, sendCalls } = useSendCalls()
 
   const {
@@ -298,3 +381,5 @@ export function SendTip() {
 ```
 
 :::
+
+::::

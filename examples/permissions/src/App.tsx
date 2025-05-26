@@ -1,6 +1,7 @@
 import { Value } from 'ox'
 import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi'
 import { exp1Config } from './_generated/contracts'
+import { permissions } from './config'
 import { SendTip } from './SendTip'
 
 export function App() {
@@ -50,6 +51,9 @@ function Connect() {
       <button
         onClick={() =>
           connect.connect({
+            capabilities: {
+              grantPermissions: permissions(),
+            },
             connector,
           })
         }

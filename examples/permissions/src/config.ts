@@ -1,6 +1,8 @@
+import { Value } from 'ox'
 import { porto } from 'porto/wagmi'
 import { createConfig, http } from 'wagmi'
 import { baseSepolia } from 'wagmi/chains'
+import { exp1Config } from './_generated/contracts'
 
 export const config = createConfig({
   chains: [baseSepolia],
@@ -10,6 +12,21 @@ export const config = createConfig({
     [baseSepolia.id]: http(),
   },
 })
+
+export const permissions = () =>
+  ({
+    expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
+    permissions: {
+      calls: [{ to: exp1Config.address }],
+      spend: [
+        {
+          limit: Value.fromEther('10'),
+          period: 'hour',
+          token: exp1Config.address,
+        },
+      ],
+    },
+  }) as const
 
 declare module 'wagmi' {
   interface Register {
