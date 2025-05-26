@@ -8,7 +8,7 @@ Gets supported [EIP-5792 Capabilities](https://eips.ethereum.org/EIPS/eip-5792#w
 type Request = {
   method: 'wallet_getCapabilities',
   // the chain ids
-  params: [`${number}`],
+  params: `0x${string}`[],
 }
 ```
 
@@ -22,7 +22,7 @@ A map of chain IDs to the capabilities supported by the RPC server on those chai
 ```ts
 type Response = {
   // the chain ID as hex
-  `0x${string}`: {
+  [`0x${string}`]: {
     contracts: {
       accountRegistry: {
         address: `0x${string}`,
