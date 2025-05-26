@@ -2,7 +2,7 @@
 
 The RPC server uses JSON-RPC 2.0 to facilitate communication between the Porto SDK and the blockchain. The RPC is responsible for building, simulating and sending intents to the contracts on behalf of a user.
 
-Execution is paid for in one of the fee tokens accepted by the RPC on a given network.
+Execution is paid for in one of the fee tokens accepted by the RPC on a given network. You can get the supported fee tokens for a chain by querying [`wallet_getCapabilities`].
 
 The RPC server has passthrough to a standard Ethereum node.
 
@@ -14,7 +14,6 @@ The RPC server has multiple endpoints, one for each chain/environment.
 | ----------------------------- | -------- |
 | `porto-dev.rpc.ithaca.xyz`    | `28404`  |
 | `base-sepolia.rpc.ithaca.xyz` | `84532`  |
-| `base-mainnet.rpc.ithaca.xyz` | `8453`   |
 
 Each endpoint has passthrough to Ethereum RPCs for the corresponding network.
 
@@ -62,6 +61,7 @@ cast block-number --rpc-url https://base-mainnet.rpc.ithaca.xyz
 # 30568194
 ```
 
+[`wallet_getCapabilities`]: /rpc-server/wallet_getCapabilities
 [`wallet_prepareCreateAccount`]: /rpc-server/wallet_prepareCreateAccount
 [`wallet_createAccount`]: /rpc-server/wallet_createAccount
 [`wallet_getKeys`]: /rpc-server/wallet_getKeys
