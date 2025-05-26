@@ -4,8 +4,8 @@
 
 | Mode | Uses | Best for |
 |------|------|----------|
-| `Mode.dialog` (default)    | Hosted Porto Dialog | Applications | 
-| `Mode.rpcServer` | Direct to RPC Server | Wallets or Account Managers | 
+| `Mode.dialog` (default)    | Hosted Porto Dialog | Applications |
+| `Mode.rpcServer` | Direct to RPC Server | Wallets or Account Managers |
 
 ## Mode.dialog
 
@@ -35,7 +35,7 @@ const porto = Porto.create({
 - **Type**: `string`
 - **Default**: `"https://id.porto.sh/dialog"`
 
-URL of the dialog embed. 
+URL of the dialog embed.
 
 :::tip
 While the application uses `Mode.dialog` to communicate to the Dialog, the dialog host (e.g. `https://id.porto.sh/dialog`) utilizes the `Mode.rpcServer` mode to [communicate](#diagram-1) with the RPC Server.
@@ -50,7 +50,6 @@ const porto = Porto.create({
   }),
 })
 ```
-
 
 #### renderer
 
@@ -126,7 +125,6 @@ const porto = Porto.create({
 - **Default**: `Record<FeeToken.Kind, string>`
 
 Fee limit to use for permissions.
-
 
 ```ts twoslash
 import { Porto, Mode } from 'porto'
