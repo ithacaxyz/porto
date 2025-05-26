@@ -689,7 +689,6 @@ function AssetRow({
   )
 
   const chainId = useChainId()
-  const account = useAccount()
 
   const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
     chainId,
@@ -753,28 +752,11 @@ function AssetRow({
       const [receipt] = callStatus.data?.receipts ?? []
       const hash = receipt?.transactionHash
       if (!hash) return
-      const blockExplorer = account.chain?.blockExplorers?.default.url
-      const url = blockExplorer
-        ? `${blockExplorer}/tx/${hash}`
-        : `/receipt/${hash}`
       toast.custom(
         (t) => (
           <Toast
             className={t}
-            description={
-              <p>
-                You successfully sent {sendFormState.values.sendAmount} {symbol}
-                <br />
-                <a
-                  className="text-gray12 underline"
-                  href={url}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  View on explorer
-                </a>
-              </p>
-            }
+            description={`You successfully sent ${sendFormState.values.sendAmount} ${symbol}`}
             kind="success"
             title="Transaction completed"
           />
