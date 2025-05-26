@@ -11,6 +11,8 @@ While this guide is focused on contract calls, in the future, we will have a mor
 payments and handling asset distribution.
 :::
 
+End-to-end example source code is at [github.com/ithacaxyz/porto/examples/payments](https://github.com/ithacaxyz/porto/tree/main/examples/payments).
+
 ## Example
 
 Feel free to check out the example before moving on.
@@ -90,7 +92,7 @@ export function BuyNow() {
     <form onSubmit={submit}> {/* [!code ++] */}
       <button type="submit">Buy Now</button>
     </form>
-  ) 
+  )
 }
 ```
 
@@ -109,35 +111,35 @@ to approve the request.
 
 ```tsx [BuyNow.tsx]
 import * as React from 'react'
-import { useSendCalls } from 'wagmi' 
+import { useSendCalls } from 'wagmi'
 import { parseEther } from 'viem'
-import { expConfig, nftConfig } from './abi' 
+import { expConfig, nftConfig } from './abi'
 
 export function BuyNow() {
   const { isPending, sendCalls } = useSendCalls()
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) { 
-    event.preventDefault() 
-    sendCalls({ 
-      calls: [ 
-        { 
-          abi: expConfig.abi, 
-          args: [nftConfig.address, parseEther('10')], 
-          functionName: 'approve', 
-          to: expConfig.address 
-        }, 
-        { 
-          abi: nftConfig.abi, 
-          functionName: 'mint', 
-          to: nftConfig.address 
-        } 
-      ] 
-    }) 
-  } 
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    sendCalls({
+      calls: [
+        {
+          abi: expConfig.abi,
+          args: [nftConfig.address, parseEther('10')],
+          functionName: 'approve',
+          to: expConfig.address
+        },
+        {
+          abi: nftConfig.abi,
+          functionName: 'mint',
+          to: nftConfig.address
+        }
+      ]
+    })
+  }
 
   return (
     <form onSubmit={submit}>
-      <button 
+      <button
         disabled={isPending} // [!code ++]
         type="submit"
       >
@@ -145,7 +147,7 @@ export function BuyNow() {
         {isPending ? 'Check prompt' : 'Buy Now'} {/* [!code ++] */}
       </button>
     </form>
-  ) 
+  )
 }
 ```
 
@@ -170,10 +172,10 @@ import { parseEther }from 'viem'
 import { expConfig, nftConfig } from './abi'
 
 export function BuyNow() {
-  const { 
+  const {
     data, // [!code ++]
-    isPending, 
-    sendCalls 
+    isPending,
+    sendCalls
   } = useSendCalls()
 
   const { isLoading: isConfirming } = useWaitForCallsStatus({ // [!code ++]
@@ -207,8 +209,8 @@ export function BuyNow() {
         ) : isConfirming ? ( // [!code ++]
           'Completing purchase' // [!code ++]
         ) : ( // [!code ++]
-          'Buy Now' 
-        )} 
+          'Buy Now'
+        )}
       </button>
     </form>
   )
@@ -234,12 +236,12 @@ import { expConfig, nftConfig } from './abi'
 export function BuyNow() {
   const { data, isPending, sendCalls } = useSendCalls()
 
-  const { 
-    isLoading: isConfirming, 
+  const {
+    isLoading: isConfirming,
     isSuccess: isConfirmed, // [!code ++]
-  } = useWaitForCallsStatus({ 
-    id: data?.id, 
-  }) 
+  } = useWaitForCallsStatus({
+    id: data?.id,
+  })
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
