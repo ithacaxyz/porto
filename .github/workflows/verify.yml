@@ -61,10 +61,6 @@ jobs:
         # Only run deployment tests on main branch or when triggered by a repository dispatch.
         local: ${{ fromJSON((github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && '["true", "false"]' || '["true"]') }}
         browser: ['true', 'false']
-        exclude: 
-          # TODO: enable local for browser tests
-          - local: 'true'
-            browser: 'true'
 
     steps:
       - name: Clone repository
@@ -96,7 +92,7 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
-          command: pnpm ${{ matrix.browser == 'true' && 'test:browser:ci' || 'test:ci' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
+          command: CI=true pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
         env: 
           VITE_LOCAL: ${{ matrix.local }}
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
