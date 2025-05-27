@@ -27,13 +27,13 @@ export default defineConfig(({ mode }) => {
             include: [
               '!src/**/*.browser.test.ts',
               'src/**/*.test.ts',
-              ...(env.VITE_ANVIL === 'false'
+              ...(env.VITE_LOCAL === 'false'
                 ? ['!src/**/*accountContract.test.ts']
                 : []),
             ],
             name: 'default',
             poolOptions:
-              env.VITE_ANVIL === 'false'
+              env.VITE_LOCAL === 'false'
                 ? {
                     forks: {
                       maxForks: 1,
