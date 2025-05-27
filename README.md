@@ -45,7 +45,6 @@ pnpm dev # Run manager, playground, and iframe dialog
 
 ```bash
 pnpm install # Install dependencies
-docker pull ghcr.io/ithacaxyz/relay:latest # Pull Relay image
 pnpm test # Test
 ```
 
