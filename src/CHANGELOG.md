@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.25
+
+### Patch Changes
+
+- [#319](https://github.com/ithacaxyz/porto/pull/319) [`2e705ca`](https://github.com/ithacaxyz/porto/commit/2e705cae334a7c9d3ff3948bf81842d202fb3088) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `experimental_*` methods to `wallet_*`
+
 ## 0.0.24
 
 ### Patch Changes
