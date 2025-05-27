@@ -28,8 +28,10 @@
     "preconstruct": "tsx ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
-    "test": "vitest -c ./test/vitest.config.ts",
-    "test:ci": "CI=true vitest -c ./test/vitest.config.ts"
+    "test": "vitest -c ./test/vitest.config.ts --project default",
+    "test:ci": "CI=true pnpm run test",
+    "test:browser": "pnpx start-server-and-test 'VITEST=true pnpm --filter dialog dev --port 5174 --strictPort' http://localhost:5174/dialog/ 'vitest -c ./test/vitest.config.ts --project browser'",
+    "test:browser:ci": "CI=true pnpm run test:browser"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
@@ -42,6 +44,7 @@
     "@types/http-proxy": "^1.17.16",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "@vitest/browser": "^3.1.1",
     "@vitest/coverage-v8": "^3.1.1",
     "@wagmi/cli": "^2.2.0",
     "@wagmi/core": "catalog:",
@@ -49,7 +52,8 @@
     "knip": "^5.50.5",
     "markdownlint-cli2": "^0.18.1",
     "ox": "catalog:",
-    "prool": "^0.0.23",
+    "playwright": "^1.51.1",
+    "prool": "catalog:",
     "publint": "^0.2.12",
     "sherif": "1.5.0",
     "simple-git-hooks": "^2.11.1",
@@ -59,7 +63,7 @@
     "typescript": "catalog:",
     "viem": "catalog:",
     "vite": "catalog:",
-    "vitest": "^3.1.1",
+    "vitest": "catalog:",
     "wagmi": "catalog:"
   },
   "packageManager": "pnpm@10.10.0",
@@ -110,7 +114,8 @@
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
       "@wagmi/cli": "patches/@wagmi__cli.patch",
-      "@wagmi/core": "patches/@wagmi__core.patch"
+      "@wagmi/core": "patches/@wagmi__core.patch",
+      "@vitest/browser": "patches/@vitest__browser.patch"
     }
   }
 }

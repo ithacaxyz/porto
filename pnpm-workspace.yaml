@@ -2,7 +2,8 @@ packages:
   - "apps/*"
   - "examples/*"
   - "src"
-
+  - "test/e2e"
+  
 catalog:
   "@ariakit/react": "^0.4.17"
   "@ariakit/tailwind": "^0.1.5"
@@ -25,6 +26,7 @@ catalog:
   cva: "npm:class-variance-authority@^0.7.1"
   globals: "^16.0.0"
   ox: "^0.6.12"
+  prool: "^0.0.23"
   react: "^19"
   react-dom: "^19"
   sonner: "^2.0.3"
@@ -35,6 +37,7 @@ catalog:
   unplugin-icons: "^22.1.0"
   viem: "^2.29.2"
   vite: "^6.0.7"
+  vitest: "^3.1.1"
   vite-plugin-mkcert: "^1.17.8"
   wagmi: "^2.15.4"
   zustand: "^5.0.3"

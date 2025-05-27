@@ -9,34 +9,58 @@ export default defineConfig(({ mode }) => {
       alias: {
         porto: join(__dirname, '../src'),
       },
-      coverage: {
-        all: false,
-        include: ['**/src/**'],
-        provider: 'v8',
-        reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-      },
-      globalSetup: [join(__dirname, './globalSetup.ts')],
-      hookTimeout: 20_000,
-      include: [
-        'src/**/*.test.ts',
-        ...(env.VITE_LOCAL === 'false'
-          ? ['!src/**/*accountContract.test.ts']
-          : []),
-      ],
       passWithNoTests: true,
-      poolOptions:
-        env.VITE_LOCAL === 'false'
-          ? {
-              forks: {
-                maxForks: 1,
-                singleFork: true,
-              },
-            }
-          : {},
       resolveSnapshotPath: (path, ext) =>
         join(join(dirname(path), '_snapshots'), `${basename(path)}${ext}`),
-      setupFiles: [join(__dirname, './setup.ts')],
-      testTimeout: 30_000,
+      workspace: [
+        {
+          extends: true,
+          test: {
+            coverage: {
+              all: false,
+              include: ['**/src/**'],
+              provider: 'v8',
+              reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
+            },
+            globalSetup: [join(__dirname, './globalSetup.ts')],
+            hookTimeout: 20_000,
+            include: [
+              '!src/**/*.browser.test.ts',
+              'src/**/*.test.ts',
+              ...(env.VITE_ANVIL === 'false'
+                ? ['!src/**/*accountContract.test.ts']
+                : []),
+            ],
+            name: 'default',
+            poolOptions:
+              env.VITE_ANVIL === 'false'
+                ? {
+                    forks: {
+                      maxForks: 1,
+                      singleFork: true,
+                    },
+                  }
+                : {},
+            setupFiles: [join(__dirname, './setup.ts')],
+            testTimeout: 20_000,
+          },
+        },
+        {
+          extends: true,
+          test: {
+            browser: {
+              enabled: true,
+              headless: true,
+              // TODO: add more instances.
+              instances: [{ browser: 'chromium' }],
+              provider: 'playwright',
+            },
+            include: ['src/**/*.browser.test.ts'],
+            name: 'browser',
+          },
+        },
+        'apps/dialog/vite.config.ts',
+      ],
     },
   }
 })

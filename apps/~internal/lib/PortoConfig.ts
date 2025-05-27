@@ -5,16 +5,20 @@ import { http, ValueOf } from 'viem'
 import * as Env from './Env'
 import * as Sentry from './Sentry'
 
+const mock = import.meta.env.DEV && import.meta.env.VITEST
+
 const config = {
   anvil: {
     chains: [Chains.anvil],
     mode: Mode.rpcServer({
+      mock,
       persistPreCalls: false,
     }),
   },
   dev: {
     chains: [Chains.portoDev],
     mode: Mode.rpcServer({
+      mock,
       persistPreCalls: false,
     }),
     storageKey: 'porto.store.dev',
@@ -26,6 +30,7 @@ const config = {
     chains: [Chains.base],
     feeToken: 'USDC',
     mode: Mode.rpcServer({
+      mock,
       persistPreCalls: false,
     }),
     transports: {
@@ -35,6 +40,7 @@ const config = {
   stg: {
     chains: [Chains.baseSepolia],
     mode: Mode.rpcServer({
+      mock,
       persistPreCalls: false,
     }),
     storageKey: 'porto.store.stg',

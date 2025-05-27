@@ -55,6 +55,7 @@ export function SignUp(props: SignUp.Props) {
 
           <Button
             className="flex-grow"
+            data-testid="sign-up"
             onClick={() => onApprove({ signIn: false })}
             type="button"
             variant="accent"
