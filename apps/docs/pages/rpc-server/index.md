@@ -64,6 +64,7 @@ The RPC server passes through known Ethereum JSON-RPC methods to an underlying n
 cast chain-id --rpc-url https://base-sepolia.rpc.ithaca.xyz
 
 # 84532
+```
 
 ```sh
 cast block-number --rpc-url https://base-sepolia.rpc.ithaca.xyz
