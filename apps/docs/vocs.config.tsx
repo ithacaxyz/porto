@@ -157,7 +157,7 @@ export default defineConfig({
           {
             disabled: true,
             link: '/sdk/guides/sponsoring',
-            text: 'Sponsoring 🚧',
+            text: 'Fee Sponsoring 🚧',
           },
         ],
         text: 'Guides',
