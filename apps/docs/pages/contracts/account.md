@@ -522,3 +522,10 @@ These functions are helpers that can be called publicly.
     - Reverts if `initData` is invalid or if the address is not a valid PREP address (resulting in `r == 0`).
 
 ---
+
+## Security
+⚠️ All contracts are currently unaudited and undergoing active development. 
+
+To provide an additional layer of security during this period, we've implemented a temporary pause functionality. 
+
+This feature enables a designated [`PauseAuthority`](https://github.com/ithacaxyz/account/blob/main/src/PauseAuthority.sol) role within the `Orchestrator` to suspend all account signatures and executions for a maximum of four weeks.
