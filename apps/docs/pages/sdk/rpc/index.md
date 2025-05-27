@@ -19,4 +19,3 @@
 | [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)                       | Prepares a call bundle.                                                            | [ERC-7836](https://eips.ethereum.org/EIPS/eip-7836) |
 | [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)                             | Broadcast a bundle of calls to the network.                                        | [ERC-5792](https://eips.ethereum.org/EIPS/eip-5792) |
 | [`wallet_sendPreparedCalls`](/sdk/rpc/wallet_sendPreparedCalls)             | Executes a signed and prepared call bundle.                                        | [ERC-7836](https://eips.ethereum.org/EIPS/eip-7836) |
-
