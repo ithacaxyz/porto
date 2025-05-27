@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
             globalSetup: [join(__dirname, './globalSetup.ts')],
             hookTimeout: 20_000,
             include: [
+              '!src/**/*.browser.test.ts',
               'src/**/*.test.ts',
               ...(env.VITE_ANVIL === 'false'
                 ? ['!src/**/*accountContract.test.ts']
@@ -54,7 +55,7 @@ export default defineConfig(({ mode }) => {
               instances: [{ browser: 'chromium' }],
               provider: 'playwright',
             },
-            include: ['test/browser/**/*.test.tsx'],
+            include: ['src/**/*.browser.test.ts'],
             name: 'browser',
           },
         },

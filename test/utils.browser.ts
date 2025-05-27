@@ -1,9 +1,5 @@
-import { page } from '@vitest/browser/context'
+import { type Locator, page } from '@vitest/browser/context'
 import { Dialog, Mode, Porto } from '../src/index.js'
-
-export function getIframe() {
-  return page.frameLocator(page.getByTestId('porto'))
-}
 
 export const porto = Porto.create({
   mode: Mode.dialog({
@@ -13,3 +9,11 @@ export const porto = Porto.create({
     }),
   }),
 })
+
+export async function run<returnType>(
+  promise: Promise<returnType>,
+  next: (iframe: Locator) => Promise<void>,
+): Promise<returnType> {
+  await next(page.frameLocator(page.getByTestId('porto')))
+  return promise
+}
