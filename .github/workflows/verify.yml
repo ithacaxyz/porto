@@ -62,6 +62,7 @@ jobs:
         local: ${{ fromJSON((github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && '["true", "false"]' || '["true"]') }}
         browser: ['true', 'false']
     env: 
+      CI: true
       VITE_LOCAL: ${{ matrix.local }}
       VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
       VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
@@ -101,7 +102,7 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
-          command: pnpm test:ci ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
+          command: pnpm test ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
 
       - name: Test
         if: matrix.browser == 'true'
