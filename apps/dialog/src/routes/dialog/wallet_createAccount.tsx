@@ -1,35 +1,36 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Actions } from 'porto/remote'
-
+import { Actions, Hooks } from 'porto/remote'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
-import { GrantPermissions } from '../-components/GrantPermissions'
+import { SignUp } from '../-components/SignUp'
 
-export const Route = createFileRoute('/dialog/experimental_grantPermissions')({
+export const Route = createFileRoute('/dialog/wallet_createAccount')({
   component: RouteComponent,
   validateSearch(search) {
     return Router.parseSearchRequest(search, {
-      method: 'experimental_grantPermissions',
+      method: 'wallet_createAccount',
     })
   },
 })
 
 function RouteComponent() {
   const request = Route.useSearch()
-  const parameters = request.params[0]
+  const address = Hooks.usePortoStore(
+    porto,
+    (state) => state.accounts[0]?.address,
+  )
 
   const respond = useMutation({
     mutationFn() {
+      if (!request) throw new Error('no request found.')
       return Actions.respond(porto, request)
     },
   })
 
   return (
-    <GrantPermissions
-      {...parameters}
-      address={undefined}
-      key={parameters.key as never}
+    <SignUp
+      enableSignIn={!address}
       loading={respond.isPending}
       onApprove={() => respond.mutate()}
       onReject={() => Actions.reject(porto, request)}

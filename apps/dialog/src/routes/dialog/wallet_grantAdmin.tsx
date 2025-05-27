@@ -6,11 +6,11 @@ import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { GrantAdmin } from '../-components/GrantAdmin'
 
-export const Route = createFileRoute('/dialog/experimental_grantAdmin')({
+export const Route = createFileRoute('/dialog/wallet_grantAdmin')({
   component: RouteComponent,
   validateSearch(search) {
     return Router.parseSearchRequest(search, {
-      method: 'experimental_grantAdmin',
+      method: 'wallet_grantAdmin',
     })
   },
 })

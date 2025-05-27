@@ -107,7 +107,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { internal } = parameters
         const { request, store } = internal
 
-        if (request.method !== 'experimental_addFunds')
+        if (request.method !== 'wallet_addFunds')
           throw new Error('Cannot add funds for method: ' + request.method)
 
         const provider = getProvider(store)
@@ -125,7 +125,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const provider = getProvider(store)
 
         const account = await (async () => {
-          if (request.method === 'experimental_createAccount') {
+          if (request.method === 'wallet_createAccount') {
             // Send a request off to the dialog to create an account.
             const { address, capabilities } = await provider.request(request)
 
@@ -219,7 +219,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { internal } = parameters
         const { store, request } = internal
 
-        if (request.method !== 'experimental_getAccountVersion')
+        if (request.method !== 'wallet_getAccountVersion')
           throw new Error('Cannot get version for method: ' + request.method)
 
         const provider = getProvider(store)
@@ -257,7 +257,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { internal } = parameters
         const { request, store } = internal
 
-        if (request.method !== 'experimental_grantAdmin')
+        if (request.method !== 'wallet_grantAdmin')
           throw new Error(
             'Cannot authorize admin for method: ' + request.method,
           )
@@ -272,7 +272,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // Send a request off to the dialog to authorize the admin.
         const provider = getProvider(store)
         await provider.request({
-          method: 'experimental_grantAdmin',
+          method: 'wallet_grantAdmin',
           params: [
             {
               ...request.params?.[0],
@@ -295,7 +295,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           store,
         } = internal
 
-        if (request.method !== 'experimental_grantPermissions')
+        if (request.method !== 'wallet_grantPermissions')
           throw new Error(
             'Cannot grant permissions for method: ' + request.method,
           )
@@ -314,7 +314,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // Send a request off to the dialog to grant the permissions.
         const provider = getProvider(store)
         const { capabilities } = await provider.request({
-          method: 'experimental_grantPermissions',
+          method: 'wallet_grantPermissions',
           params: [permissionsRequest],
         })
 
@@ -463,7 +463,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { internal } = parameters
         const { store, request } = internal
 
-        if (request.method !== 'experimental_prepareUpgradeAccount')
+        if (request.method !== 'wallet_prepareUpgradeAccount')
           throw new Error(
             'Cannot prepare create account for method: ' + request.method,
           )
@@ -489,7 +489,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { account, id, internal } = parameters
         const { store, request } = internal
 
-        if (request.method !== 'experimental_revokeAdmin')
+        if (request.method !== 'wallet_revokeAdmin')
           throw new Error('Cannot revoke admin for method: ' + request.method)
 
         const key = account.keys?.find((key) => key.publicKey === id)
@@ -516,7 +516,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { account, id, internal } = parameters
         const { store, request } = internal
 
-        if (request.method !== 'experimental_revokePermissions')
+        if (request.method !== 'wallet_revokePermissions')
           throw new Error(
             'Cannot revoke permissions for method: ' + request.method,
           )
@@ -722,7 +722,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { internal } = parameters
         const { store, request } = internal
 
-        if (request.method !== 'experimental_updateAccount')
+        if (request.method !== 'wallet_updateAccount')
           throw new Error('Cannot update account for method: ' + request.method)
 
         const provider = getProvider(store)
@@ -733,7 +733,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { account, internal } = parameters
         const { store, request } = internal
 
-        if (request.method !== 'experimental_upgradeAccount')
+        if (request.method !== 'wallet_upgradeAccount')
           throw new Error(
             'Cannot upgrade account for method: ' + request.method,
           )

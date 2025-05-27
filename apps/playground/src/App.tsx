@@ -269,11 +269,11 @@ function Register() {
   const [result, setResult] = React.useState<unknown | null>(null)
   return (
     <div>
-      <h3>experimental_createAccount</h3>
+      <h3>wallet_createAccount</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_createAccount' })
+            .request({ method: 'wallet_createAccount' })
             .then(setResult)
         }
         type="button"
@@ -289,12 +289,12 @@ function AddFunds() {
   const [result, setResult] = React.useState<unknown | null>(null)
   return (
     <div>
-      <h3>experimental_addFunds</h3>
+      <h3>wallet_addFunds</h3>
       <button
         onClick={() =>
           porto.provider
             .request({
-              method: 'experimental_addFunds',
+              method: 'wallet_addFunds',
               params: [
                 {
                   token: exp1Address,
@@ -351,11 +351,11 @@ function GetAccountVersion() {
   const [result, setResult] = React.useState<unknown | null>(null)
   return (
     <div>
-      <h3>experimental_getAccountVersion</h3>
+      <h3>wallet_getAccountVersion</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_getAccountVersion' })
+            .request({ method: 'wallet_getAccountVersion' })
             .then(setResult)
         }
         type="button"
@@ -393,12 +393,12 @@ function GrantPermissions() {
   const [result, setResult] = React.useState<any | null>(null)
   return (
     <div>
-      <h3>experimental_grantPermissions</h3>
+      <h3>wallet_grantPermissions</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
           const result = await porto.provider.request({
-            method: 'experimental_grantPermissions',
+            method: 'wallet_grantPermissions',
             params: [permissions()],
           })
           setResult(result)
@@ -415,7 +415,7 @@ function RevokePermissions() {
   const [revoked, setRevoked] = React.useState(false)
   return (
     <div>
-      <h3>experimental_revokePermissions</h3>
+      <h3>wallet_revokePermissions</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -424,7 +424,7 @@ function RevokePermissions() {
 
           setRevoked(false)
           await porto.provider.request({
-            method: 'experimental_revokePermissions',
+            method: 'wallet_revokePermissions',
             params: [{ id }],
           })
           setRevoked(true)
@@ -443,11 +443,11 @@ function GetPermissions() {
 
   return (
     <div>
-      <h3>experimental_getPermissions</h3>
+      <h3>wallet_getPermissions</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_getPermissions' })
+            .request({ method: 'wallet_getPermissions' })
             .then(setResult)
         }
         type="button"
@@ -468,7 +468,7 @@ function GrantAdmin() {
   const [result, setResult] = React.useState<any | null>(null)
   return (
     <div>
-      <h3>experimental_grantAdmin</h3>
+      <h3>wallet_grantAdmin</h3>
       {providers.map(({ info, provider }) => (
         <button
           key={info.uuid}
@@ -477,7 +477,7 @@ function GrantAdmin() {
               method: 'eth_requestAccounts',
             })
             const result = await porto.provider.request({
-              method: 'experimental_grantAdmin',
+              method: 'wallet_grantAdmin',
               params: [
                 {
                   key: {
@@ -503,12 +503,10 @@ function GetAdmins() {
   const [result, setResult] = React.useState<any | null>(null)
   return (
     <div>
-      <h3>experimental_getAdmins</h3>
+      <h3>wallet_getAdmins</h3>
       <button
         onClick={() => {
-          porto.provider
-            .request({ method: 'experimental_getAdmins' })
-            .then(setResult)
+          porto.provider.request({ method: 'wallet_getAdmins' }).then(setResult)
         }}
         type="button"
       >
@@ -523,7 +521,7 @@ function RevokeAdmin() {
   const [revoked, setRevoked] = React.useState(false)
   return (
     <div>
-      <h3>experimental_revokeAdmin</h3>
+      <h3>wallet_revokeAdmin</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -532,7 +530,7 @@ function RevokeAdmin() {
 
           setRevoked(false)
           await porto.provider.request({
-            method: 'experimental_revokeAdmin',
+            method: 'wallet_revokeAdmin',
             params: [{ id }],
           })
           setRevoked(true)
@@ -551,11 +549,11 @@ function UpdateAccount() {
 
   return (
     <div>
-      <h3>experimental_updateAccount</h3>
+      <h3>wallet_updateAccount</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_updateAccount' })
+            .request({ method: 'wallet_updateAccount' })
             .then(setResult)
         }
         type="button"
@@ -578,7 +576,7 @@ function UpgradeAccount() {
 
   return (
     <div>
-      <h3>experimental_upgradeAccount</h3>
+      <h3>wallet_upgradeAccount</h3>
       <p>
         <button
           onClick={() => {
@@ -618,7 +616,7 @@ function UpgradeAccount() {
             const account = privateKeyToAccount(privateKey as Hex.Hex)
 
             const { context, signPayloads } = await porto.provider.request({
-              method: 'experimental_prepareUpgradeAccount',
+              method: 'wallet_prepareUpgradeAccount',
               params: [
                 {
                   address: account.address,
@@ -636,7 +634,7 @@ function UpgradeAccount() {
             )
 
             const address = await porto.provider.request({
-              method: 'experimental_upgradeAccount',
+              method: 'wallet_upgradeAccount',
               params: [{ context, signatures }],
             })
             setResult(address)
@@ -1118,7 +1116,7 @@ function GrantKeyPermissions() {
           keyPair = { privateKey, publicKey }
 
           const result = await porto.provider.request({
-            method: 'experimental_grantPermissions',
+            method: 'wallet_grantPermissions',
             params: [
               {
                 key: { publicKey, type: 'p256' },

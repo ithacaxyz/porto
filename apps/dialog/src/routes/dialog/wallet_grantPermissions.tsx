@@ -4,13 +4,13 @@ import { Actions } from 'porto/remote'
 
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
-import { RevokePermissions } from '../-components/RevokePermissions'
+import { GrantPermissions } from '../-components/GrantPermissions'
 
-export const Route = createFileRoute('/dialog/experimental_revokePermissions')({
+export const Route = createFileRoute('/dialog/wallet_grantPermissions')({
   component: RouteComponent,
   validateSearch(search) {
     return Router.parseSearchRequest(search, {
-      method: 'experimental_revokePermissions',
+      method: 'wallet_grantPermissions',
     })
   },
 })
@@ -26,8 +26,10 @@ function RouteComponent() {
   })
 
   return (
-    <RevokePermissions
+    <GrantPermissions
       {...parameters}
+      address={undefined}
+      key={parameters.key as never}
       loading={respond.isPending}
       onApprove={() => respond.mutate()}
       onReject={() => Actions.reject(porto, request)}

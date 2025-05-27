@@ -201,7 +201,7 @@ export namespace UpdateAccount {
       enabled: !!account.isConnected,
       async queryFn() {
         const version = await providerClient.request({
-          method: 'experimental_getAccountVersion',
+          method: 'wallet_getAccountVersion',
           params: [{}],
         })
         return version

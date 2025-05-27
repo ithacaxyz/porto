@@ -4,7 +4,7 @@ import { TryItOut } from '../../../components/TryItOut'
 
 Hook for retrieving active permissions for an account.
 
-Internally uses [`experimental_getPermissions`](/sdk/rpc/experimental_getPermissions).
+Internally uses [`wallet_getPermissions`](/sdk/rpc/wallet_getPermissions).
 
 ```tsx
 import { Hooks } from 'porto/wagmi'
@@ -16,7 +16,7 @@ function Example() {
 
 <TryItOut
   exampleSlug="#example"
-  fn={({ provider }) => provider.request({ method: 'experimental_getPermissions' })}
+  fn={({ provider }) => provider.request({ method: 'wallet_getPermissions' })}
   transformResultCode={(code) => {
     return 'const response = ' + code
   }}

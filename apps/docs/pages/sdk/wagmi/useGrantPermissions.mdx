@@ -5,7 +5,7 @@ import { parseEther, toHex } from 'viem'
 
 Hook for granting permissions for an Application to perform actions on behalf of the account.
 
-Internally uses [`experimental_grantPermissions`](/sdk/rpc/experimental_grantPermissions).
+Internally uses [`wallet_grantPermissions`](/sdk/rpc/wallet_grantPermissions).
 
 ```tsx twoslash
 import * as React from 'react'
@@ -43,7 +43,7 @@ export function App() {
     const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
     const response = await provider.request({
-      method: 'experimental_grantPermissions',
+      method: 'wallet_grantPermissions',
       params: [{
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
         permissions: {

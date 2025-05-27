@@ -2,11 +2,11 @@
 
 exports[`contract > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`contract > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`contract > wallet_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`contract > experimental_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`contract > wallet_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`contract > experimental_grantAdmin > default 1`] = `
+exports[`contract > wallet_grantAdmin > default 1`] = `
 {
   "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
@@ -14,14 +14,14 @@ exports[`contract > experimental_grantAdmin > default 1`] = `
 }
 `;
 
-exports[`contract > experimental_grantPermissions > behavior: no permissions 1`] = `
+exports[`contract > wallet_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
 
 Path: params.0.permissions.calls
 Value: []]
 `;
 
-exports[`contract > experimental_grantPermissions > behavior: provided key 1`] = `
+exports[`contract > wallet_grantPermissions > behavior: provided key 1`] = `
 {
   "address": null,
   "capabilities": null,
@@ -42,7 +42,7 @@ exports[`contract > experimental_grantPermissions > behavior: provided key 1`] =
 }
 `;
 
-exports[`contract > experimental_grantPermissions > behavior: provided key 2`] = `
+exports[`contract > wallet_grantPermissions > behavior: provided key 2`] = `
 {
   "address": null,
   "capabilities": null,
@@ -69,7 +69,7 @@ exports[`contract > experimental_grantPermissions > behavior: provided key 2`] =
 }
 `;
 
-exports[`contract > experimental_grantPermissions > behavior: provided key 3`] = `
+exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
     "expiry": null,
@@ -122,13 +122,13 @@ exports[`contract > experimental_grantPermissions > behavior: provided key 3`] =
 ]
 `;
 
-exports[`contract > experimental_grantPermissions > behavior: unlimited expiry 1`] = `
+exports[`contract > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
 [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
 
 Path: params.0.expiry]
 `;
 
-exports[`contract > experimental_grantPermissions > default 1`] = `
+exports[`contract > wallet_grantPermissions > default 1`] = `
 [
   {
     "expiry": null,
@@ -162,7 +162,7 @@ exports[`contract > experimental_grantPermissions > default 1`] = `
 ]
 `;
 
-exports[`contract > experimental_revokeAdmin > default 1`] = `
+exports[`contract > wallet_revokeAdmin > default 1`] = `
 [
   {
     "expiry": null,
@@ -187,7 +187,7 @@ exports[`contract > experimental_revokeAdmin > default 1`] = `
 ]
 `;
 
-exports[`contract > experimental_revokeAdmin > default 2`] = `
+exports[`contract > wallet_revokeAdmin > default 2`] = `
 [
   {
     "expiry": null,
@@ -204,9 +204,9 @@ exports[`contract > experimental_revokeAdmin > default 2`] = `
 ]
 `;
 
-exports[`contract > experimental_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke permissions.]`;
+exports[`contract > wallet_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke permissions.]`;
 
-exports[`contract > experimental_revokePermissions > default 1`] = `
+exports[`contract > wallet_revokePermissions > default 1`] = `
 [
   {
     "expiry": null,
@@ -240,7 +240,7 @@ exports[`contract > experimental_revokePermissions > default 1`] = `
 ]
 `;
 
-exports[`contract > experimental_revokePermissions > default 2`] = `
+exports[`contract > wallet_revokePermissions > default 2`] = `
 [
   {
     "expiry": null,
@@ -482,11 +482,11 @@ exports[`contract > wallet_sendCalls > behavior: permission does not exist 1`] =
 
 exports[`rpcServer > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`rpcServer > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`rpcServer > wallet_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`rpcServer > experimental_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`rpcServer > wallet_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`rpcServer > experimental_grantAdmin > default 1`] = `
+exports[`rpcServer > wallet_grantAdmin > default 1`] = `
 {
   "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
@@ -494,14 +494,14 @@ exports[`rpcServer > experimental_grantAdmin > default 1`] = `
 }
 `;
 
-exports[`rpcServer > experimental_grantPermissions > behavior: no permissions 1`] = `
+exports[`rpcServer > wallet_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
 
 Path: params.0.permissions.calls
 Value: []]
 `;
 
-exports[`rpcServer > experimental_grantPermissions > behavior: provided key 1`] = `
+exports[`rpcServer > wallet_grantPermissions > behavior: provided key 1`] = `
 {
   "address": null,
   "capabilities": null,
@@ -522,7 +522,7 @@ exports[`rpcServer > experimental_grantPermissions > behavior: provided key 1`] 
 }
 `;
 
-exports[`rpcServer > experimental_grantPermissions > behavior: provided key 2`] = `
+exports[`rpcServer > wallet_grantPermissions > behavior: provided key 2`] = `
 {
   "address": null,
   "capabilities": null,
@@ -549,7 +549,7 @@ exports[`rpcServer > experimental_grantPermissions > behavior: provided key 2`] 
 }
 `;
 
-exports[`rpcServer > experimental_grantPermissions > behavior: provided key 3`] = `
+exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
     "expiry": null,
@@ -602,13 +602,13 @@ exports[`rpcServer > experimental_grantPermissions > behavior: provided key 3`] 
 ]
 `;
 
-exports[`rpcServer > experimental_grantPermissions > behavior: unlimited expiry 1`] = `
+exports[`rpcServer > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
 [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
 
 Path: params.0.expiry]
 `;
 
-exports[`rpcServer > experimental_grantPermissions > default 1`] = `
+exports[`rpcServer > wallet_grantPermissions > default 1`] = `
 [
   {
     "expiry": null,
@@ -642,7 +642,7 @@ exports[`rpcServer > experimental_grantPermissions > default 1`] = `
 ]
 `;
 
-exports[`rpcServer > experimental_revokeAdmin > default 1`] = `
+exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
 [
   {
     "expiry": null,
@@ -667,7 +667,7 @@ exports[`rpcServer > experimental_revokeAdmin > default 1`] = `
 ]
 `;
 
-exports[`rpcServer > experimental_revokeAdmin > default 2`] = `
+exports[`rpcServer > wallet_revokeAdmin > default 2`] = `
 [
   {
     "expiry": null,
@@ -684,9 +684,9 @@ exports[`rpcServer > experimental_revokeAdmin > default 2`] = `
 ]
 `;
 
-exports[`rpcServer > experimental_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke admins.]`;
+exports[`rpcServer > wallet_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke admins.]`;
 
-exports[`rpcServer > experimental_revokePermissions > default 1`] = `
+exports[`rpcServer > wallet_revokePermissions > default 1`] = `
 [
   {
     "expiry": null,
@@ -720,7 +720,7 @@ exports[`rpcServer > experimental_revokePermissions > default 1`] = `
 ]
 `;
 
-exports[`rpcServer > experimental_revokePermissions > default 2`] = `
+exports[`rpcServer > wallet_revokePermissions > default 2`] = `
 [
   {
     "expiry": null,

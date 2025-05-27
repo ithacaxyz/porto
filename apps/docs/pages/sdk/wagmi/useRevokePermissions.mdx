@@ -4,7 +4,7 @@ import { TryItOut } from '../../../components/TryItOut'
 
 Hook for revoking permissions.
 
-Internally uses [`experimental_revokePermissions`](/sdk/rpc/experimental_revokePermissions).
+Internally uses [`wallet_revokePermissions`](/sdk/rpc/wallet_revokePermissions).
 
 ```tsx
 import { Hooks } from 'porto/wagmi'
@@ -19,7 +19,7 @@ function Example() {
   fn={async ({ provider }) => {
     // For demo purposes only, first get permissions to show one being revoked
     const permissions = await provider.request({
-      method: 'experimental_getPermissions'
+      method: 'wallet_getPermissions'
     })
 
     if (!permissions || permissions.length === 0) {
@@ -28,7 +28,7 @@ function Example() {
 
     // Revoke the first permission
     await provider.request({
-      method: 'experimental_revokePermissions',
+      method: 'wallet_revokePermissions',
       params: [{ id: permissions[0].id }]
     })
 

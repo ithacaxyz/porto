@@ -66,7 +66,7 @@ export function from<
       const state = store.getState()
 
       switch (request.method) {
-        case 'experimental_addFunds': {
+        case 'wallet_addFunds': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -207,7 +207,7 @@ export function from<
           >
         }
 
-        case 'experimental_grantAdmin': {
+        case 'wallet_grantAdmin': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -267,16 +267,16 @@ export function from<
             type: 'adminsChanged',
           })
 
-          return Typebox.Encode(Rpc.experimental_grantAdmin.Response, {
+          return Typebox.Encode(Rpc.wallet_grantAdmin.Response, {
             address: account.address,
             chainId: Hex.fromNumber(client.chain.id),
             key: admins.at(-1)!,
-          } satisfies Rpc.experimental_grantAdmin.Response) satisfies Typebox.Static<
-            typeof Rpc.experimental_grantAdmin.Response
+          } satisfies Rpc.wallet_grantAdmin.Response) satisfies Typebox.Static<
+            typeof Rpc.wallet_grantAdmin.Response
           >
         }
 
-        case 'experimental_grantPermissions': {
+        case 'wallet_grantPermissions': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -325,7 +325,7 @@ export function from<
             type: 'permissionsChanged',
           })
 
-          return Typebox.Encode(Rpc.experimental_grantPermissions.Response, {
+          return Typebox.Encode(Rpc.wallet_grantPermissions.Response, {
             ...Permissions.fromKey(key, {
               address: account.address,
             }),
@@ -337,12 +337,12 @@ export function from<
                   },
                 }
               : {}),
-          } satisfies Rpc.experimental_grantPermissions.Response) satisfies Typebox.Static<
-            typeof Rpc.experimental_grantPermissions.Response
+          } satisfies Rpc.wallet_grantPermissions.Response) satisfies Typebox.Static<
+            typeof Rpc.wallet_grantPermissions.Response
           >
         }
 
-        case 'experimental_createAccount': {
+        case 'wallet_createAccount': {
           const [{ chainId, label }] = request._decoded.params ?? [{}]
 
           const client = getClient(chainId)
@@ -373,12 +373,10 @@ export function from<
               ...(permissions.length > 0 ? { permissions } : {}),
               preCalls,
             },
-          } satisfies Typebox.Static<
-            typeof Rpc.experimental_createAccount.Response
-          >
+          } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
         }
 
-        case 'experimental_getAdmins': {
+        case 'wallet_getAdmins': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -393,15 +391,15 @@ export function from<
 
           const keys = getAdmins(account.keys ?? [])
 
-          return Typebox.Encode(Rpc.experimental_getAdmins.Response, {
+          return Typebox.Encode(Rpc.wallet_getAdmins.Response, {
             address: account.address,
             keys,
-          } satisfies Rpc.experimental_getAdmins.Response) satisfies Typebox.Static<
-            typeof Rpc.experimental_getAdmins.Response
+          } satisfies Rpc.wallet_getAdmins.Response) satisfies Typebox.Static<
+            typeof Rpc.wallet_getAdmins.Response
           >
         }
 
-        case 'experimental_prepareUpgradeAccount': {
+        case 'wallet_prepareUpgradeAccount': {
           const [{ address, capabilities, chainId, label }] = request._decoded
             .params ?? [{}]
 
@@ -429,11 +427,11 @@ export function from<
             context,
             signPayloads: signPayloads.map((x) => x as never),
           } satisfies Typebox.Static<
-            typeof Rpc.experimental_prepareUpgradeAccount.Response
+            typeof Rpc.wallet_prepareUpgradeAccount.Response
           >
         }
 
-        case 'experimental_getAccountVersion': {
+        case 'wallet_getAccountVersion': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -464,11 +462,11 @@ export function from<
             current,
             latest,
           } satisfies Typebox.Static<
-            typeof Rpc.experimental_getAccountVersion.Response
+            typeof Rpc.wallet_getAccountVersion.Response
           >
         }
 
-        case 'experimental_getPermissions': {
+        case 'wallet_getPermissions': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -485,7 +483,7 @@ export function from<
           })
         }
 
-        case 'experimental_revokeAdmin': {
+        case 'wallet_revokeAdmin': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -536,7 +534,7 @@ export function from<
           return
         }
 
-        case 'experimental_revokePermissions': {
+        case 'wallet_revokePermissions': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -589,7 +587,7 @@ export function from<
           return
         }
 
-        case 'experimental_updateAccount': {
+        case 'wallet_updateAccount': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
@@ -610,11 +608,11 @@ export function from<
           })
 
           return { id } satisfies Typebox.Static<
-            typeof Rpc.experimental_updateAccount.Response
+            typeof Rpc.wallet_updateAccount.Response
           >
         }
 
-        case 'experimental_upgradeAccount': {
+        case 'wallet_upgradeAccount': {
           const [{ context, signatures }] = request._decoded.params ?? [{}]
 
           const client = getClient()
@@ -650,9 +648,7 @@ export function from<
             capabilities: {
               ...(permissions.length > 0 ? { permissions } : {}),
             },
-          } satisfies Typebox.Static<
-            typeof Rpc.experimental_createAccount.Response
-          >
+          } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
         }
 
         case 'porto_ping': {
@@ -1028,13 +1024,13 @@ function announce(provider: Provider) {
 
 function getAdmins(
   keys: readonly Key.Key[],
-): Typebox.Static<typeof Rpc.experimental_getAdmins.Response>['keys'] {
+): Typebox.Static<typeof Rpc.wallet_getAdmins.Response>['keys'] {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
       try {
         return Typebox.Encode(
-          Rpc.experimental_getAdmins.Response.properties.keys.items,
+          Rpc.wallet_getAdmins.Response.properties.keys.items,
           {
             id: key.id ?? key.publicKey,
             publicKey: key.publicKey,
@@ -1044,7 +1040,7 @@ function getAdmins(
                   credentialId: key.privateKey?.credential?.id,
                 }
               : {}),
-          } satisfies Rpc.experimental_getAdmins.Response['keys'][number],
+          } satisfies Rpc.wallet_getAdmins.Response['keys'][number],
         )
       } catch {
         return undefined
@@ -1059,7 +1055,7 @@ function getActivePermissions(
     address,
     chainId,
   }: { address: Address.Address; chainId?: number | undefined },
-): Typebox.Static<typeof Rpc.experimental_getPermissions.Response> {
+): Typebox.Static<typeof Rpc.wallet_getPermissions.Response> {
   return keys
     .map((key) => {
       if (key.role !== 'session') return undefined

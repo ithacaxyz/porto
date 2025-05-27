@@ -7,7 +7,7 @@ import * as Primitive from './primitive.js'
 import * as Typebox from './typebox.js'
 import { Type } from './typebox.js'
 
-export namespace experimental_addFunds {
+export namespace wallet_addFunds {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
     token: Primitive.Address,
@@ -17,7 +17,7 @@ export namespace experimental_addFunds {
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_addFunds'),
+    method: Type.Literal('wallet_addFunds'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -95,14 +95,14 @@ export namespace eth_signTypedData_v4 {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_getAdmins {
+export namespace wallet_getAdmins {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_getAdmins'),
+    method: Type.Literal('wallet_getAdmins'),
     params: Typebox.Optional(Type.Tuple([Parameters])),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -121,7 +121,7 @@ export namespace experimental_getAdmins {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_grantAdmin {
+export namespace wallet_grantAdmin {
   export const Capabilities = Type.Object({
     feeToken: Typebox.Optional(C.feeToken.Request),
   })
@@ -145,7 +145,7 @@ export namespace experimental_grantAdmin {
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_grantAdmin'),
+    method: Type.Literal('wallet_grantAdmin'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -153,12 +153,12 @@ export namespace experimental_grantAdmin {
   export const Response = Type.Object({
     address: Primitive.Address,
     chainId: Primitive.Hex,
-    key: experimental_getAdmins.Response.properties.keys.items,
+    key: wallet_getAdmins.Response.properties.keys.items,
   })
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_createAccount {
+export namespace wallet_createAccount {
   export const Parameters = Type.Intersect([
     Type.Object({
       chainId: Typebox.Optional(Primitive.Number),
@@ -168,13 +168,13 @@ export namespace experimental_createAccount {
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_createAccount'),
+    method: Type.Literal('wallet_createAccount'),
     params: Typebox.Optional(Type.Tuple([Parameters])),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 
   export const ResponseCapabilities = Type.Object({
-    admins: Typebox.Optional(experimental_getAdmins.Response.properties.keys),
+    admins: Typebox.Optional(wallet_getAdmins.Response.properties.keys),
     permissions: Typebox.Optional(C.permissions.Response),
     preCalls: Typebox.Optional(C.preCalls.Response),
   })
@@ -189,12 +189,12 @@ export namespace experimental_createAccount {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_grantPermissions {
+export namespace wallet_grantPermissions {
   export const Parameters = Permissions.Request
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_grantPermissions'),
+    method: Type.Literal('wallet_grantPermissions'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -215,14 +215,14 @@ export namespace experimental_grantPermissions {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_getAccountVersion {
+export namespace wallet_getAccountVersion {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_getAccountVersion'),
+    method: Type.Literal('wallet_getAccountVersion'),
     params: Typebox.Optional(Type.Tuple([Parameters])),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -234,14 +234,14 @@ export namespace experimental_getAccountVersion {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_getPermissions {
+export namespace wallet_getPermissions {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_getPermissions'),
+    method: Type.Literal('wallet_getPermissions'),
     params: Typebox.Optional(Type.Tuple([Parameters])),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -250,7 +250,7 @@ export namespace experimental_getPermissions {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_prepareUpgradeAccount {
+export namespace wallet_prepareUpgradeAccount {
   export const Capabilities = Type.Object({
     feeToken: Typebox.Optional(C.feeToken.Request),
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
@@ -266,7 +266,7 @@ export namespace experimental_prepareUpgradeAccount {
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_prepareUpgradeAccount'),
+    method: Type.Literal('wallet_prepareUpgradeAccount'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -278,7 +278,7 @@ export namespace experimental_prepareUpgradeAccount {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_revokeAdmin {
+export namespace wallet_revokeAdmin {
   export const Capabilities = Type.Object({
     feeToken: Typebox.Optional(C.feeToken.Request),
   })
@@ -293,7 +293,7 @@ export namespace experimental_revokeAdmin {
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_revokeAdmin'),
+    method: Type.Literal('wallet_revokeAdmin'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -301,7 +301,7 @@ export namespace experimental_revokeAdmin {
   export const Response = undefined
 }
 
-export namespace experimental_revokePermissions {
+export namespace wallet_revokePermissions {
   export const Capabilities = Type.Object({
     feeToken: Typebox.Optional(C.feeToken.Request),
   })
@@ -315,7 +315,7 @@ export namespace experimental_revokePermissions {
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_revokePermissions'),
+    method: Type.Literal('wallet_revokePermissions'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -323,14 +323,14 @@ export namespace experimental_revokePermissions {
   export const Response = undefined
 }
 
-export namespace experimental_updateAccount {
+export namespace wallet_updateAccount {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_updateAccount'),
+    method: Type.Literal('wallet_updateAccount'),
     params: Typebox.Optional(Type.Tuple([Parameters])),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -341,7 +341,7 @@ export namespace experimental_updateAccount {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace experimental_upgradeAccount {
+export namespace wallet_upgradeAccount {
   export const Parameters = Type.Object({
     context: Type.Unknown(),
     signatures: Type.Array(Primitive.Hex),
@@ -349,7 +349,7 @@ export namespace experimental_upgradeAccount {
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
   export const Request = Type.Object({
-    method: Type.Literal('experimental_upgradeAccount'),
+    method: Type.Literal('wallet_upgradeAccount'),
     params: Type.Tuple([Parameters]),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -412,7 +412,7 @@ export namespace wallet_connect {
   export type Request = Typebox.StaticDecode<typeof Request>
 
   export const ResponseCapabilities = Type.Object({
-    admins: Typebox.Optional(experimental_getAdmins.Response.properties.keys),
+    admins: Typebox.Optional(wallet_getAdmins.Response.properties.keys),
     permissions: Typebox.Optional(C.permissions.Response),
     preCalls: Typebox.Optional(C.preCalls.Response),
   })
