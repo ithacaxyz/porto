@@ -54,15 +54,14 @@ export default defineConfig({
         items: [
           {
             link: '/contracts/security',
-            text: 'Security'
-
+            text: 'Security',
           },
           {
             link: '/contracts/bug-bounty',
-            text: 'Bug Bounty'
-          }
+            text: 'Bug Bounty',
+          },
         ],
-      }
+      },
     ],
     '/rpc-server': [
       {
