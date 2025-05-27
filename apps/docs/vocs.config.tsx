@@ -53,6 +53,10 @@ export default defineConfig({
       {
         items: [
           {
+            link: '/contracts/benchmarks',
+            text: 'Benchmarks',
+          },
+          {
             link: '/contracts/security',
             text: 'Security',
           },
