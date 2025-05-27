@@ -29,7 +29,7 @@
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "test": "vitest -c ./test/vitest.config.ts --project default",
-    "test:ci": "CI=true vitest -c ./test/vitest.config.ts",
+    "test:ci": "CI=true vitest -c ./test/vitest.config.ts --project default",
     "test:browser": "pnpx start-server-and-test 'VITEST=true pnpm --filter dialog dev --port 5174 --strictPort' http://localhost:5174/dialog/ 'vitest -c ./test/vitest.config.ts --project browser'"
   },
   "devDependencies": {
