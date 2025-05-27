@@ -38,7 +38,7 @@ For documentation and guides, visit [porto.sh](https://porto.sh).
 
 ```bash
 pnpm install # Install dependencies
-pnpm dev # Run manager, playground, and iframe dialog
+pnpm dev # Run id, playground, and iframe dialog
 ```
 
 ### Tests
