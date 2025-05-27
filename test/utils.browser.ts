@@ -12,8 +12,8 @@ export const porto = Porto.create({
 
 export async function run<returnType>(
   promise: Promise<returnType>,
-  next: (iframe: Locator) => Promise<void>,
+  action: (iframe: Locator) => Promise<void>,
 ): Promise<returnType> {
-  await next(page.frameLocator(page.getByTestId('porto')))
+  await action(page.frameLocator(page.getByTestId('porto')))
   return promise
 }
