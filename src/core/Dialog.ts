@@ -32,7 +32,9 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
  *
  * @returns iframe dialog.
  */
-export function iframe() {
+export function iframe(options: iframe.Options = {}) {
+  const { skipProtocolCheck } = options
+
   // Safari does not support WebAuthn credential creation in iframes.
   // Fall back to popup dialog.
   // Tracking: https://github.com/WebKit/standards-positions/issues/304
@@ -63,6 +65,7 @@ export function iframe() {
       document.body.appendChild(root)
 
       const iframe = document.createElement('iframe')
+      iframe.setAttribute('data-testid', 'porto')
       iframe.setAttribute(
         'allow',
         `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}; clipboard-write`,
@@ -252,6 +255,7 @@ export function iframe() {
               )?.modes?.headless === true,
           )
           const insecureProtocol = (() => {
+            if (skipProtocolCheck) return false
             const insecure = !window.location.protocol.startsWith('https')
             if (insecure)
               logger.warnOnce(
@@ -282,6 +286,16 @@ export function iframe() {
       }
     },
   })
+}
+
+export declare namespace iframe {
+  export type Options = {
+    /**
+     * Skips check for insecure protocol (HTTP).
+     * @default false
+     */
+    skipProtocolCheck?: boolean | undefined
+  }
 }
 
 /**

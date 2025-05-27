@@ -25,17 +25,20 @@ export default defineConfig({
       process.env.ANVIL === 'true'
         ? '"https://anvil.localhost:5173/faucet"'
         : process.env.VITE_FAUCET_URL,
+    'import.meta.env.VITEST': process.env.VITEST === 'true',
   },
   plugins: [
-    Mkcert({
-      hosts: [
-        'localhost',
-        'prod.localhost',
-        'stg.localhost',
-        'dev.localhost',
-        'anvil.localhost',
-      ],
-    }),
+    process.env.VITEST === 'true'
+      ? null
+      : Mkcert({
+          hosts: [
+            'localhost',
+            'prod.localhost',
+            'stg.localhost',
+            'dev.localhost',
+            'anvil.localhost',
+          ],
+        }),
     Tailwindcss(),
     React(),
     Icons({ compiler: 'jsx', jsx: 'react' }),
