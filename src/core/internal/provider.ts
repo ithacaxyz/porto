@@ -1038,6 +1038,12 @@ function getAdmins(
             ...(key.type === 'webauthn-p256'
               ? {
                   credentialId: key.privateKey?.credential?.id,
+                  privateKey: {
+                    credential: {
+                      id: key.privateKey?.credential?.id,
+                    },
+                    rpId: key.privateKey?.rpId,
+                  },
                 }
               : {}),
           } satisfies Rpc.wallet_getAdmins.Response['keys'][number],
