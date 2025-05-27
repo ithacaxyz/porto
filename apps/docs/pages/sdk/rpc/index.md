@@ -20,6 +20,3 @@
 | [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)                             | Broadcast a bundle of calls to the network.                                        | [ERC-5792](https://eips.ethereum.org/EIPS/eip-5792) |
 | [`wallet_sendPreparedCalls`](/sdk/rpc/wallet_sendPreparedCalls)             | Executes a signed and prepared call bundle.                                        | [ERC-7836](https://eips.ethereum.org/EIPS/eip-7836) |
 
-:::warning
-JSON-RPC methods prefixed as `wallet_` intend to be upstreamed as an ERC (or deprecated in favor of upcoming/existing ERCs) in the near future. They are purposefully minimalistic and intend to be iterated on.
-:::
