@@ -157,9 +157,6 @@ importers:
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.77.1(react@19.1.0)
-      '@testing-library/react':
-        specifier: ^16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@types/http-proxy':
         specifier: ^1.17.16
         version: 1.17.16
@@ -169,12 +166,6 @@ importers:
       '@types/react':
         specifier: 'catalog:'
         version: 19.1.5
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.1.5(@types/react@19.1.5)
-      '@vitejs/plugin-react':
-        specifier: 'catalog:'
-        version: 4.5.0(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0))
       '@vitest/browser':
         specifier: ^3.1.1
         version: 3.1.4(patch_hash=fd4c25e315981e19105a28f851907f6da4f181480b04d74ccd1e39a2a76783ed)(bufferutil@4.0.9)(playwright@1.52.0)(utf-8-validate@5.0.10)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0))(vitest@3.1.4)
@@ -208,12 +199,6 @@ importers:
       publint:
         specifier: ^0.2.12
         version: 0.2.12
-      react:
-        specifier: 'catalog:'
-        version: 19.1.0
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.1.0(react@19.1.0)
       sherif:
         specifier: 1.5.0
         version: 1.5.0
@@ -241,9 +226,6 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 3.1.4(@types/debug@4.1.12)(@types/node@22.15.21)(@vitest/browser@3.1.4)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0)
-      vitest-browser-react:
-        specifier: ^0.2.0
-        version: 0.2.0(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(@vitest/browser@3.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vitest@3.1.4)
       wagmi:
         specifier: 'catalog:'
         version: 2.15.4(@tanstack/query-core@5.77.1)(@tanstack/react-query@5.77.1(react@19.1.0))(@types/react@19.1.5)(bufferutil@4.0.9)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.30.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28))(zod@3.25.28)
@@ -3502,21 +3484,6 @@ packages:
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
     engines: {node: '>=18'}
-
-  '@testing-library/react@16.3.0':
-    resolution: {integrity: sha512-kFSyxiEDwv1WLl2fgsq6pPBbw5aWKrsY2/noi1Id0TK0UParSF62oFQFGHXIyaG4pp2tEub/Zlel+fjjZILDsw==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      '@testing-library/dom': ^10.0.0
-      '@types/react': ^18.0.0 || ^19.0.0
-      '@types/react-dom': ^18.0.0 || ^19.0.0
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      '@types/react-dom':
-        optional: true
 
   '@testing-library/user-event@14.6.1':
     resolution: {integrity: sha512-vq7fv0rnt+QTXgPxr5Hjc210p6YKq2kmdziLgnsZGgLJ9e6VAShx1pACLuRjd/AS/sr7phAR58OIIpf0LlmQNw==}
@@ -8692,22 +8659,6 @@ packages:
       yaml:
         optional: true
 
-  vitest-browser-react@0.2.0:
-    resolution: {integrity: sha512-tVUVngdcTMFPSywxEo42hAAO074VjEF7Q1QkV8wqjI9oiYuguUfqp6Uw4mTbZ+DLFSITHXiked+PYQFH69XkLQ==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    peerDependencies:
-      '@types/react': '>18.0.0'
-      '@types/react-dom': '>18.0.0'
-      '@vitest/browser': '>=2.1.0'
-      react: '>18.0.0'
-      react-dom: '>18.0.0'
-      vitest: '>=2.1.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      '@types/react-dom':
-        optional: true
-
   vitest@3.1.4:
     resolution: {integrity: sha512-Ta56rT7uWxCSJXlBtKgIlApJnT6e6IGmTYxYcmxjJ4ujuZDI59GUQgVDObXXJujOmPDBYXHK1qmaGtneu6TNIQ==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -12030,16 +11981,6 @@ snapshots:
       dom-accessibility-api: 0.5.16
       lz-string: 1.5.0
       pretty-format: 27.5.1
-
-  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@babel/runtime': 7.27.1
-      '@testing-library/dom': 10.4.0
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-    optionalDependencies:
-      '@types/react': 19.1.5
-      '@types/react-dom': 19.1.5(@types/react@19.1.5)
 
   '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.0)':
     dependencies:
@@ -18625,16 +18566,6 @@ snapshots:
       terser: 5.39.2
       tsx: 4.19.4
       yaml: 2.8.0
-
-  vitest-browser-react@0.2.0(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(@vitest/browser@3.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vitest@3.1.4):
-    dependencies:
-      '@vitest/browser': 3.1.4(patch_hash=fd4c25e315981e19105a28f851907f6da4f181480b04d74ccd1e39a2a76783ed)(bufferutil@4.0.9)(playwright@1.52.0)(utf-8-validate@5.0.10)(vite@6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0))(vitest@3.1.4)
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      vitest: 3.1.4(@types/debug@4.1.12)(@types/node@22.15.21)(@vitest/browser@3.1.4)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0)
-    optionalDependencies:
-      '@types/react': 19.1.5
-      '@types/react-dom': 19.1.5(@types/react@19.1.5)
 
   vitest@3.1.4(@types/debug@4.1.12)(@types/node@22.15.21)(@vitest/browser@3.1.4)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0):
     dependencies:
