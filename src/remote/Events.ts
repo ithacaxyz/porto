@@ -5,6 +5,8 @@ import type { Payload } from '../core/Messenger.js'
 import * as Actions from './Actions.js'
 import type * as Remote from './Porto.js'
 
+const trustedOrigins = ['id.porto.sh', 'localhost:5174', 'localhost:5173']
+
 /**
  * Event listener which is triggered when a request is ready
  * to be handled by the dialog.
@@ -71,7 +73,7 @@ export function onDialogRequest(
         rule.sameOrigin &&
         event.origin !== window.location.origin
       )
-        return false
+        return trustedOrigins.some((origin) => event.origin.endsWith(origin))
       return rule
     })()
     if (!shouldDialog) {
