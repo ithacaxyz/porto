@@ -166,7 +166,7 @@ export async function createAccount<config extends Config>(
     if (!provider) throw new ProviderNotFoundError()
 
     const { label } = parameters
-    const method = 'experimental_createAccount'
+    const method = 'wallet_createAccount'
     type method = typeof method
     await provider.request<{
       Method: method
@@ -271,7 +271,7 @@ export async function getAdmins<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_getAdmins'
+  const method = 'wallet_getAdmins'
   type method = typeof method
   const response = await client.request<{
     Method: method
@@ -282,7 +282,7 @@ export async function getAdmins<config extends Config>(
     params: [{ address }],
   })
 
-  return Typebox.Decode(RpcSchema.experimental_getAdmins.Response, response)
+  return Typebox.Decode(RpcSchema.wallet_getAdmins.Response, response)
 }
 
 export declare namespace getAdmins {
@@ -292,7 +292,7 @@ export declare namespace getAdmins {
     }
 
   type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.experimental_getAdmins.Response
+    typeof RpcSchema.wallet_getAdmins.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -311,7 +311,7 @@ export async function getPermissions<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_getPermissions'
+  const method = 'wallet_getPermissions'
   type method = typeof method
   const response = await client.request<{
     Method: method
@@ -322,10 +322,7 @@ export async function getPermissions<config extends Config>(
     params: [{ address }],
   })
 
-  return Typebox.Decode(
-    RpcSchema.experimental_getPermissions.Response,
-    response,
-  )
+  return Typebox.Decode(RpcSchema.wallet_getPermissions.Response, response)
 }
 
 export declare namespace getPermissions {
@@ -335,7 +332,7 @@ export declare namespace getPermissions {
     }
 
   type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.experimental_getPermissions.Response
+    typeof RpcSchema.wallet_getPermissions.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -354,7 +351,7 @@ export async function grantAdmin<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_grantAdmin'
+  const method = 'wallet_grantAdmin'
   type method = typeof method
   const response = await client.request<{
     Method: method
@@ -363,27 +360,25 @@ export async function grantAdmin<config extends Config>(
   }>({
     method,
     params: [
-      Typebox.Encode(RpcSchema.experimental_grantAdmin.Parameters, {
+      Typebox.Encode(RpcSchema.wallet_grantAdmin.Parameters, {
         address,
         ...key,
-      } satisfies RpcSchema.experimental_grantAdmin.Parameters),
+      } satisfies RpcSchema.wallet_grantAdmin.Parameters),
     ],
   })
 
-  return Typebox.Decode(RpcSchema.experimental_grantAdmin.Response, response)
+  return Typebox.Decode(RpcSchema.wallet_grantAdmin.Response, response)
 }
 
 export declare namespace grantAdmin {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Typebox.StaticDecode<
-      typeof RpcSchema.experimental_grantAdmin.Parameters
-    > & {
+    Typebox.StaticDecode<typeof RpcSchema.wallet_grantAdmin.Parameters> & {
       address?: Address | undefined
     }
 
   type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.experimental_grantAdmin.Response
+    typeof RpcSchema.wallet_grantAdmin.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -402,7 +397,7 @@ export async function grantPermissions<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_grantPermissions'
+  const method = 'wallet_grantPermissions'
   type method = typeof method
   const response = await client.request<{
     Method: method
@@ -411,30 +406,27 @@ export async function grantPermissions<config extends Config>(
   }>({
     method,
     params: [
-      Typebox.Encode(RpcSchema.experimental_grantPermissions.Parameters, {
+      Typebox.Encode(RpcSchema.wallet_grantPermissions.Parameters, {
         address,
         ...key,
-      } satisfies RpcSchema.experimental_grantPermissions.Parameters),
+      } satisfies RpcSchema.wallet_grantPermissions.Parameters),
     ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.experimental_grantPermissions.Response,
-    response,
-  )
+  return Typebox.Decode(RpcSchema.wallet_grantPermissions.Response, response)
 }
 
 export declare namespace grantPermissions {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
     Typebox.StaticDecode<
-      typeof RpcSchema.experimental_grantPermissions.Parameters
+      typeof RpcSchema.wallet_grantPermissions.Parameters
     > & {
       address?: Address | undefined
     }
 
   type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.experimental_grantPermissions.Response
+    typeof RpcSchema.wallet_grantPermissions.Response
   >
 
   // TODO: Exhaustive ErrorType
@@ -453,7 +445,7 @@ export async function revokeAdmin<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_revokeAdmin'
+  const method = 'wallet_revokeAdmin'
   type method = typeof method
   return client.request<{
     Method: method
@@ -468,12 +460,10 @@ export async function revokeAdmin<config extends Config>(
 export declare namespace revokeAdmin {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
-    Typebox.StaticDecode<
-      typeof RpcSchema.experimental_revokeAdmin.Capabilities
-    > & {
+    Typebox.StaticDecode<typeof RpcSchema.wallet_revokeAdmin.Capabilities> & {
       address?: Address | undefined
       id: Typebox.StaticDecode<
-        typeof RpcSchema.experimental_revokeAdmin.Parameters
+        typeof RpcSchema.wallet_revokeAdmin.Parameters
       >['id']
     }
 
@@ -493,7 +483,7 @@ export async function revokePermissions<config extends Config>(
     connector,
   })
 
-  const method = 'experimental_revokePermissions'
+  const method = 'wallet_revokePermissions'
   type method = typeof method
   return client.request<{
     Method: method
@@ -509,11 +499,11 @@ export declare namespace revokePermissions {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     ConnectorParameter &
     Typebox.StaticDecode<
-      typeof RpcSchema.experimental_revokePermissions.Capabilities
+      typeof RpcSchema.wallet_revokePermissions.Capabilities
     > & {
       address?: Address | undefined
       id: Typebox.StaticDecode<
-        typeof RpcSchema.experimental_revokePermissions.Parameters
+        typeof RpcSchema.wallet_revokePermissions.Parameters
       >['id']
     }
 
@@ -557,7 +547,7 @@ export async function upgradeAccount<config extends Config>(
 
     const { account, feeToken, grantPermissions, label } = parameters
 
-    const method = 'experimental_prepareUpgradeAccount'
+    const method = 'wallet_prepareUpgradeAccount'
     type method = typeof method
     const { context, signPayloads } = await provider.request<{
       Method: method
@@ -569,11 +559,11 @@ export async function upgradeAccount<config extends Config>(
         {
           address: account.address,
           capabilities: Typebox.Encode(
-            RpcSchema.experimental_prepareUpgradeAccount.Capabilities,
+            RpcSchema.wallet_prepareUpgradeAccount.Capabilities,
             {
               feeToken,
               grantPermissions,
-            } satisfies RpcSchema.experimental_prepareUpgradeAccount.Capabilities,
+            } satisfies RpcSchema.wallet_prepareUpgradeAccount.Capabilities,
           ),
           label,
         },
@@ -584,18 +574,18 @@ export async function upgradeAccount<config extends Config>(
       signPayloads.map((hash) => account.sign({ hash })),
     )
 
-    const experimental_upgradeAccount = 'experimental_upgradeAccount'
-    type experimental_upgradeAccount = typeof experimental_upgradeAccount
+    const wallet_upgradeAccount = 'wallet_upgradeAccount'
+    type wallet_upgradeAccount = typeof wallet_upgradeAccount
     await provider.request<{
-      Method: experimental_upgradeAccount
+      Method: wallet_upgradeAccount
       Parameters?: Typebox.Static<
-        typeof RpcSchema.experimental_upgradeAccount.Request.properties.params
+        typeof RpcSchema.wallet_upgradeAccount.Request.properties.params
       >
       ReturnType: Typebox.Static<
-        typeof RpcSchema.experimental_upgradeAccount.Response
+        typeof RpcSchema.wallet_upgradeAccount.Response
       >
     }>({
-      method: experimental_upgradeAccount,
+      method: wallet_upgradeAccount,
       params: [{ context, signatures }],
     })
 
@@ -636,7 +626,7 @@ export async function upgradeAccount<config extends Config>(
 export declare namespace upgradeAccount {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
     Typebox.StaticDecode<
-      typeof RpcSchema.experimental_prepareUpgradeAccount.Capabilities
+      typeof RpcSchema.wallet_prepareUpgradeAccount.Capabilities
     > & {
       account: PrivateKeyAccount
       connector: Connector | CreateConnectorFn

@@ -1,4 +1,4 @@
-# `experimental_revokePermissions`
+# `wallet_revokePermissions`
 
 Revokes a permission.
 
@@ -6,7 +6,7 @@ Revokes a permission.
 
 ```ts
 type Request = {
-  method: 'experimental_revokePermissions',
+  method: 'wallet_revokePermissions',
   params: [{
     /** Address of the account to revoke a permission on. */
     address?: `0x${string}`
@@ -24,7 +24,7 @@ import { Porto } from 'porto'
 const { provider } = Porto.create()
 
 await provider.request({ // [!code focus]
-  method: 'experimental_revokePermissions', // [!code focus]
+  method: 'wallet_revokePermissions', // [!code focus]
   params: [{ id: '0x...' }], // [!code focus]
 }) // [!code focus]
 ```

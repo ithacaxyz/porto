@@ -13,17 +13,17 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as DialogIndexImport } from './routes/dialog/index'
+import { Route as DialogWalletupdateAccountImport } from './routes/dialog/wallet_updateAccount'
 import { Route as DialogWalletsendCallsImport } from './routes/dialog/wallet_sendCalls'
+import { Route as DialogWalletrevokePermissionsImport } from './routes/dialog/wallet_revokePermissions'
+import { Route as DialogWalletrevokeAdminImport } from './routes/dialog/wallet_revokeAdmin'
+import { Route as DialogWalletgrantPermissionsImport } from './routes/dialog/wallet_grantPermissions'
+import { Route as DialogWalletgrantAdminImport } from './routes/dialog/wallet_grantAdmin'
+import { Route as DialogWalletcreateAccountImport } from './routes/dialog/wallet_createAccount'
 import { Route as DialogWalletconnectImport } from './routes/dialog/wallet_connect'
+import { Route as DialogWalletaddFundsImport } from './routes/dialog/wallet_addFunds'
 import { Route as DialogPlaygroundImport } from './routes/dialog/playground'
 import { Route as DialogPersonalsignImport } from './routes/dialog/personal_sign'
-import { Route as DialogExperimentalupdateAccountImport } from './routes/dialog/experimental_updateAccount'
-import { Route as DialogExperimentalrevokePermissionsImport } from './routes/dialog/experimental_revokePermissions'
-import { Route as DialogExperimentalrevokeAdminImport } from './routes/dialog/experimental_revokeAdmin'
-import { Route as DialogExperimentalgrantPermissionsImport } from './routes/dialog/experimental_grantPermissions'
-import { Route as DialogExperimentalgrantAdminImport } from './routes/dialog/experimental_grantAdmin'
-import { Route as DialogExperimentalcreateAccountImport } from './routes/dialog/experimental_createAccount'
-import { Route as DialogExperimentaladdFundsImport } from './routes/dialog/experimental_addFunds'
 import { Route as DialogEthsendTransactionImport } from './routes/dialog/eth_sendTransaction'
 import { Route as DialogEthrequestAccountsImport } from './routes/dialog/eth_requestAccounts'
 import { Route as DialogSplatImport } from './routes/dialog/$'
@@ -42,15 +42,59 @@ const DialogIndexRoute = DialogIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DialogWalletupdateAccountRoute = DialogWalletupdateAccountImport.update({
+  id: '/dialog/wallet_updateAccount',
+  path: '/dialog/wallet_updateAccount',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DialogWalletsendCallsRoute = DialogWalletsendCallsImport.update({
   id: '/dialog/wallet_sendCalls',
   path: '/dialog/wallet_sendCalls',
   getParentRoute: () => rootRoute,
 } as any)
 
+const DialogWalletrevokePermissionsRoute =
+  DialogWalletrevokePermissionsImport.update({
+    id: '/dialog/wallet_revokePermissions',
+    path: '/dialog/wallet_revokePermissions',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const DialogWalletrevokeAdminRoute = DialogWalletrevokeAdminImport.update({
+  id: '/dialog/wallet_revokeAdmin',
+  path: '/dialog/wallet_revokeAdmin',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DialogWalletgrantPermissionsRoute =
+  DialogWalletgrantPermissionsImport.update({
+    id: '/dialog/wallet_grantPermissions',
+    path: '/dialog/wallet_grantPermissions',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const DialogWalletgrantAdminRoute = DialogWalletgrantAdminImport.update({
+  id: '/dialog/wallet_grantAdmin',
+  path: '/dialog/wallet_grantAdmin',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DialogWalletcreateAccountRoute = DialogWalletcreateAccountImport.update({
+  id: '/dialog/wallet_createAccount',
+  path: '/dialog/wallet_createAccount',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DialogWalletconnectRoute = DialogWalletconnectImport.update({
   id: '/dialog/wallet_connect',
   path: '/dialog/wallet_connect',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DialogWalletaddFundsRoute = DialogWalletaddFundsImport.update({
+  id: '/dialog/wallet_addFunds',
+  path: '/dialog/wallet_addFunds',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -65,56 +109,6 @@ const DialogPersonalsignRoute = DialogPersonalsignImport.update({
   path: '/dialog/personal_sign',
   getParentRoute: () => rootRoute,
 } as any)
-
-const DialogExperimentalupdateAccountRoute =
-  DialogExperimentalupdateAccountImport.update({
-    id: '/dialog/experimental_updateAccount',
-    path: '/dialog/experimental_updateAccount',
-    getParentRoute: () => rootRoute,
-  } as any)
-
-const DialogExperimentalrevokePermissionsRoute =
-  DialogExperimentalrevokePermissionsImport.update({
-    id: '/dialog/experimental_revokePermissions',
-    path: '/dialog/experimental_revokePermissions',
-    getParentRoute: () => rootRoute,
-  } as any)
-
-const DialogExperimentalrevokeAdminRoute =
-  DialogExperimentalrevokeAdminImport.update({
-    id: '/dialog/experimental_revokeAdmin',
-    path: '/dialog/experimental_revokeAdmin',
-    getParentRoute: () => rootRoute,
-  } as any)
-
-const DialogExperimentalgrantPermissionsRoute =
-  DialogExperimentalgrantPermissionsImport.update({
-    id: '/dialog/experimental_grantPermissions',
-    path: '/dialog/experimental_grantPermissions',
-    getParentRoute: () => rootRoute,
-  } as any)
-
-const DialogExperimentalgrantAdminRoute =
-  DialogExperimentalgrantAdminImport.update({
-    id: '/dialog/experimental_grantAdmin',
-    path: '/dialog/experimental_grantAdmin',
-    getParentRoute: () => rootRoute,
-  } as any)
-
-const DialogExperimentalcreateAccountRoute =
-  DialogExperimentalcreateAccountImport.update({
-    id: '/dialog/experimental_createAccount',
-    path: '/dialog/experimental_createAccount',
-    getParentRoute: () => rootRoute,
-  } as any)
-
-const DialogExperimentaladdFundsRoute = DialogExperimentaladdFundsImport.update(
-  {
-    id: '/dialog/experimental_addFunds',
-    path: '/dialog/experimental_addFunds',
-    getParentRoute: () => rootRoute,
-  } as any,
-)
 
 const DialogEthsendTransactionRoute = DialogEthsendTransactionImport.update({
   id: '/dialog/eth_sendTransaction',
@@ -166,55 +160,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogEthsendTransactionImport
       parentRoute: typeof rootRoute
     }
-    '/dialog/experimental_addFunds': {
-      id: '/dialog/experimental_addFunds'
-      path: '/dialog/experimental_addFunds'
-      fullPath: '/dialog/experimental_addFunds'
-      preLoaderRoute: typeof DialogExperimentaladdFundsImport
-      parentRoute: typeof rootRoute
-    }
-    '/dialog/experimental_createAccount': {
-      id: '/dialog/experimental_createAccount'
-      path: '/dialog/experimental_createAccount'
-      fullPath: '/dialog/experimental_createAccount'
-      preLoaderRoute: typeof DialogExperimentalcreateAccountImport
-      parentRoute: typeof rootRoute
-    }
-    '/dialog/experimental_grantAdmin': {
-      id: '/dialog/experimental_grantAdmin'
-      path: '/dialog/experimental_grantAdmin'
-      fullPath: '/dialog/experimental_grantAdmin'
-      preLoaderRoute: typeof DialogExperimentalgrantAdminImport
-      parentRoute: typeof rootRoute
-    }
-    '/dialog/experimental_grantPermissions': {
-      id: '/dialog/experimental_grantPermissions'
-      path: '/dialog/experimental_grantPermissions'
-      fullPath: '/dialog/experimental_grantPermissions'
-      preLoaderRoute: typeof DialogExperimentalgrantPermissionsImport
-      parentRoute: typeof rootRoute
-    }
-    '/dialog/experimental_revokeAdmin': {
-      id: '/dialog/experimental_revokeAdmin'
-      path: '/dialog/experimental_revokeAdmin'
-      fullPath: '/dialog/experimental_revokeAdmin'
-      preLoaderRoute: typeof DialogExperimentalrevokeAdminImport
-      parentRoute: typeof rootRoute
-    }
-    '/dialog/experimental_revokePermissions': {
-      id: '/dialog/experimental_revokePermissions'
-      path: '/dialog/experimental_revokePermissions'
-      fullPath: '/dialog/experimental_revokePermissions'
-      preLoaderRoute: typeof DialogExperimentalrevokePermissionsImport
-      parentRoute: typeof rootRoute
-    }
-    '/dialog/experimental_updateAccount': {
-      id: '/dialog/experimental_updateAccount'
-      path: '/dialog/experimental_updateAccount'
-      fullPath: '/dialog/experimental_updateAccount'
-      preLoaderRoute: typeof DialogExperimentalupdateAccountImport
-      parentRoute: typeof rootRoute
-    }
     '/dialog/personal_sign': {
       id: '/dialog/personal_sign'
       path: '/dialog/personal_sign'
@@ -229,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogPlaygroundImport
       parentRoute: typeof rootRoute
     }
+    '/dialog/wallet_addFunds': {
+      id: '/dialog/wallet_addFunds'
+      path: '/dialog/wallet_addFunds'
+      fullPath: '/dialog/wallet_addFunds'
+      preLoaderRoute: typeof DialogWalletaddFundsImport
+      parentRoute: typeof rootRoute
+    }
     '/dialog/wallet_connect': {
       id: '/dialog/wallet_connect'
       path: '/dialog/wallet_connect'
@@ -236,11 +188,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogWalletconnectImport
       parentRoute: typeof rootRoute
     }
+    '/dialog/wallet_createAccount': {
+      id: '/dialog/wallet_createAccount'
+      path: '/dialog/wallet_createAccount'
+      fullPath: '/dialog/wallet_createAccount'
+      preLoaderRoute: typeof DialogWalletcreateAccountImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/wallet_grantAdmin': {
+      id: '/dialog/wallet_grantAdmin'
+      path: '/dialog/wallet_grantAdmin'
+      fullPath: '/dialog/wallet_grantAdmin'
+      preLoaderRoute: typeof DialogWalletgrantAdminImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/wallet_grantPermissions': {
+      id: '/dialog/wallet_grantPermissions'
+      path: '/dialog/wallet_grantPermissions'
+      fullPath: '/dialog/wallet_grantPermissions'
+      preLoaderRoute: typeof DialogWalletgrantPermissionsImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/wallet_revokeAdmin': {
+      id: '/dialog/wallet_revokeAdmin'
+      path: '/dialog/wallet_revokeAdmin'
+      fullPath: '/dialog/wallet_revokeAdmin'
+      preLoaderRoute: typeof DialogWalletrevokeAdminImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/wallet_revokePermissions': {
+      id: '/dialog/wallet_revokePermissions'
+      path: '/dialog/wallet_revokePermissions'
+      fullPath: '/dialog/wallet_revokePermissions'
+      preLoaderRoute: typeof DialogWalletrevokePermissionsImport
+      parentRoute: typeof rootRoute
+    }
     '/dialog/wallet_sendCalls': {
       id: '/dialog/wallet_sendCalls'
       path: '/dialog/wallet_sendCalls'
       fullPath: '/dialog/wallet_sendCalls'
       preLoaderRoute: typeof DialogWalletsendCallsImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/wallet_updateAccount': {
+      id: '/dialog/wallet_updateAccount'
+      path: '/dialog/wallet_updateAccount'
+      fullPath: '/dialog/wallet_updateAccount'
+      preLoaderRoute: typeof DialogWalletupdateAccountImport
       parentRoute: typeof rootRoute
     }
     '/dialog/': {
@@ -260,17 +254,17 @@ export interface FileRoutesByFullPath {
   '/dialog/$': typeof DialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
-  '/dialog/experimental_addFunds': typeof DialogExperimentaladdFundsRoute
-  '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
-  '/dialog/experimental_grantAdmin': typeof DialogExperimentalgrantAdminRoute
-  '/dialog/experimental_grantPermissions': typeof DialogExperimentalgrantPermissionsRoute
-  '/dialog/experimental_revokeAdmin': typeof DialogExperimentalrevokeAdminRoute
-  '/dialog/experimental_revokePermissions': typeof DialogExperimentalrevokePermissionsRoute
-  '/dialog/experimental_updateAccount': typeof DialogExperimentalupdateAccountRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
+  '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
+  '/dialog/wallet_createAccount': typeof DialogWalletcreateAccountRoute
+  '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
+  '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
+  '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
+  '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
+  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog': typeof DialogIndexRoute
 }
 
@@ -279,17 +273,17 @@ export interface FileRoutesByTo {
   '/dialog/$': typeof DialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
-  '/dialog/experimental_addFunds': typeof DialogExperimentaladdFundsRoute
-  '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
-  '/dialog/experimental_grantAdmin': typeof DialogExperimentalgrantAdminRoute
-  '/dialog/experimental_grantPermissions': typeof DialogExperimentalgrantPermissionsRoute
-  '/dialog/experimental_revokeAdmin': typeof DialogExperimentalrevokeAdminRoute
-  '/dialog/experimental_revokePermissions': typeof DialogExperimentalrevokePermissionsRoute
-  '/dialog/experimental_updateAccount': typeof DialogExperimentalupdateAccountRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
+  '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
+  '/dialog/wallet_createAccount': typeof DialogWalletcreateAccountRoute
+  '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
+  '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
+  '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
+  '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
+  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog': typeof DialogIndexRoute
 }
 
@@ -299,17 +293,17 @@ export interface FileRoutesById {
   '/dialog/$': typeof DialogSplatRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
-  '/dialog/experimental_addFunds': typeof DialogExperimentaladdFundsRoute
-  '/dialog/experimental_createAccount': typeof DialogExperimentalcreateAccountRoute
-  '/dialog/experimental_grantAdmin': typeof DialogExperimentalgrantAdminRoute
-  '/dialog/experimental_grantPermissions': typeof DialogExperimentalgrantPermissionsRoute
-  '/dialog/experimental_revokeAdmin': typeof DialogExperimentalrevokeAdminRoute
-  '/dialog/experimental_revokePermissions': typeof DialogExperimentalrevokePermissionsRoute
-  '/dialog/experimental_updateAccount': typeof DialogExperimentalupdateAccountRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
+  '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
+  '/dialog/wallet_createAccount': typeof DialogWalletcreateAccountRoute
+  '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
+  '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
+  '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
+  '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
+  '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog/': typeof DialogIndexRoute
 }
 
@@ -320,17 +314,17 @@ export interface FileRouteTypes {
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
-    | '/dialog/experimental_addFunds'
-    | '/dialog/experimental_createAccount'
-    | '/dialog/experimental_grantAdmin'
-    | '/dialog/experimental_grantPermissions'
-    | '/dialog/experimental_revokeAdmin'
-    | '/dialog/experimental_revokePermissions'
-    | '/dialog/experimental_updateAccount'
     | '/dialog/personal_sign'
     | '/dialog/playground'
+    | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
+    | '/dialog/wallet_createAccount'
+    | '/dialog/wallet_grantAdmin'
+    | '/dialog/wallet_grantPermissions'
+    | '/dialog/wallet_revokeAdmin'
+    | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
+    | '/dialog/wallet_updateAccount'
     | '/dialog'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -338,17 +332,17 @@ export interface FileRouteTypes {
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
-    | '/dialog/experimental_addFunds'
-    | '/dialog/experimental_createAccount'
-    | '/dialog/experimental_grantAdmin'
-    | '/dialog/experimental_grantPermissions'
-    | '/dialog/experimental_revokeAdmin'
-    | '/dialog/experimental_revokePermissions'
-    | '/dialog/experimental_updateAccount'
     | '/dialog/personal_sign'
     | '/dialog/playground'
+    | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
+    | '/dialog/wallet_createAccount'
+    | '/dialog/wallet_grantAdmin'
+    | '/dialog/wallet_grantPermissions'
+    | '/dialog/wallet_revokeAdmin'
+    | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
+    | '/dialog/wallet_updateAccount'
     | '/dialog'
   id:
     | '__root__'
@@ -356,17 +350,17 @@ export interface FileRouteTypes {
     | '/dialog/$'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
-    | '/dialog/experimental_addFunds'
-    | '/dialog/experimental_createAccount'
-    | '/dialog/experimental_grantAdmin'
-    | '/dialog/experimental_grantPermissions'
-    | '/dialog/experimental_revokeAdmin'
-    | '/dialog/experimental_revokePermissions'
-    | '/dialog/experimental_updateAccount'
     | '/dialog/personal_sign'
     | '/dialog/playground'
+    | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
+    | '/dialog/wallet_createAccount'
+    | '/dialog/wallet_grantAdmin'
+    | '/dialog/wallet_grantPermissions'
+    | '/dialog/wallet_revokeAdmin'
+    | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
+    | '/dialog/wallet_updateAccount'
     | '/dialog/'
   fileRoutesById: FileRoutesById
 }
@@ -376,17 +370,17 @@ export interface RootRouteChildren {
   DialogSplatRoute: typeof DialogSplatRoute
   DialogEthrequestAccountsRoute: typeof DialogEthrequestAccountsRoute
   DialogEthsendTransactionRoute: typeof DialogEthsendTransactionRoute
-  DialogExperimentaladdFundsRoute: typeof DialogExperimentaladdFundsRoute
-  DialogExperimentalcreateAccountRoute: typeof DialogExperimentalcreateAccountRoute
-  DialogExperimentalgrantAdminRoute: typeof DialogExperimentalgrantAdminRoute
-  DialogExperimentalgrantPermissionsRoute: typeof DialogExperimentalgrantPermissionsRoute
-  DialogExperimentalrevokeAdminRoute: typeof DialogExperimentalrevokeAdminRoute
-  DialogExperimentalrevokePermissionsRoute: typeof DialogExperimentalrevokePermissionsRoute
-  DialogExperimentalupdateAccountRoute: typeof DialogExperimentalupdateAccountRoute
   DialogPersonalsignRoute: typeof DialogPersonalsignRoute
   DialogPlaygroundRoute: typeof DialogPlaygroundRoute
+  DialogWalletaddFundsRoute: typeof DialogWalletaddFundsRoute
   DialogWalletconnectRoute: typeof DialogWalletconnectRoute
+  DialogWalletcreateAccountRoute: typeof DialogWalletcreateAccountRoute
+  DialogWalletgrantAdminRoute: typeof DialogWalletgrantAdminRoute
+  DialogWalletgrantPermissionsRoute: typeof DialogWalletgrantPermissionsRoute
+  DialogWalletrevokeAdminRoute: typeof DialogWalletrevokeAdminRoute
+  DialogWalletrevokePermissionsRoute: typeof DialogWalletrevokePermissionsRoute
   DialogWalletsendCallsRoute: typeof DialogWalletsendCallsRoute
+  DialogWalletupdateAccountRoute: typeof DialogWalletupdateAccountRoute
   DialogIndexRoute: typeof DialogIndexRoute
 }
 
@@ -395,19 +389,17 @@ const rootRouteChildren: RootRouteChildren = {
   DialogSplatRoute: DialogSplatRoute,
   DialogEthrequestAccountsRoute: DialogEthrequestAccountsRoute,
   DialogEthsendTransactionRoute: DialogEthsendTransactionRoute,
-  DialogExperimentaladdFundsRoute: DialogExperimentaladdFundsRoute,
-  DialogExperimentalcreateAccountRoute: DialogExperimentalcreateAccountRoute,
-  DialogExperimentalgrantAdminRoute: DialogExperimentalgrantAdminRoute,
-  DialogExperimentalgrantPermissionsRoute:
-    DialogExperimentalgrantPermissionsRoute,
-  DialogExperimentalrevokeAdminRoute: DialogExperimentalrevokeAdminRoute,
-  DialogExperimentalrevokePermissionsRoute:
-    DialogExperimentalrevokePermissionsRoute,
-  DialogExperimentalupdateAccountRoute: DialogExperimentalupdateAccountRoute,
   DialogPersonalsignRoute: DialogPersonalsignRoute,
   DialogPlaygroundRoute: DialogPlaygroundRoute,
+  DialogWalletaddFundsRoute: DialogWalletaddFundsRoute,
   DialogWalletconnectRoute: DialogWalletconnectRoute,
+  DialogWalletcreateAccountRoute: DialogWalletcreateAccountRoute,
+  DialogWalletgrantAdminRoute: DialogWalletgrantAdminRoute,
+  DialogWalletgrantPermissionsRoute: DialogWalletgrantPermissionsRoute,
+  DialogWalletrevokeAdminRoute: DialogWalletrevokeAdminRoute,
+  DialogWalletrevokePermissionsRoute: DialogWalletrevokePermissionsRoute,
   DialogWalletsendCallsRoute: DialogWalletsendCallsRoute,
+  DialogWalletupdateAccountRoute: DialogWalletupdateAccountRoute,
   DialogIndexRoute: DialogIndexRoute,
 }
 
@@ -425,17 +417,17 @@ export const routeTree = rootRoute
         "/dialog/$",
         "/dialog/eth_requestAccounts",
         "/dialog/eth_sendTransaction",
-        "/dialog/experimental_addFunds",
-        "/dialog/experimental_createAccount",
-        "/dialog/experimental_grantAdmin",
-        "/dialog/experimental_grantPermissions",
-        "/dialog/experimental_revokeAdmin",
-        "/dialog/experimental_revokePermissions",
-        "/dialog/experimental_updateAccount",
         "/dialog/personal_sign",
         "/dialog/playground",
+        "/dialog/wallet_addFunds",
         "/dialog/wallet_connect",
+        "/dialog/wallet_createAccount",
+        "/dialog/wallet_grantAdmin",
+        "/dialog/wallet_grantPermissions",
+        "/dialog/wallet_revokeAdmin",
+        "/dialog/wallet_revokePermissions",
         "/dialog/wallet_sendCalls",
+        "/dialog/wallet_updateAccount",
         "/dialog/"
       ]
     },
@@ -451,38 +443,38 @@ export const routeTree = rootRoute
     "/dialog/eth_sendTransaction": {
       "filePath": "dialog/eth_sendTransaction.tsx"
     },
-    "/dialog/experimental_addFunds": {
-      "filePath": "dialog/experimental_addFunds.tsx"
-    },
-    "/dialog/experimental_createAccount": {
-      "filePath": "dialog/experimental_createAccount.tsx"
-    },
-    "/dialog/experimental_grantAdmin": {
-      "filePath": "dialog/experimental_grantAdmin.tsx"
-    },
-    "/dialog/experimental_grantPermissions": {
-      "filePath": "dialog/experimental_grantPermissions.tsx"
-    },
-    "/dialog/experimental_revokeAdmin": {
-      "filePath": "dialog/experimental_revokeAdmin.tsx"
-    },
-    "/dialog/experimental_revokePermissions": {
-      "filePath": "dialog/experimental_revokePermissions.tsx"
-    },
-    "/dialog/experimental_updateAccount": {
-      "filePath": "dialog/experimental_updateAccount.tsx"
-    },
     "/dialog/personal_sign": {
       "filePath": "dialog/personal_sign.tsx"
     },
     "/dialog/playground": {
       "filePath": "dialog/playground.tsx"
     },
+    "/dialog/wallet_addFunds": {
+      "filePath": "dialog/wallet_addFunds.tsx"
+    },
     "/dialog/wallet_connect": {
       "filePath": "dialog/wallet_connect.tsx"
     },
+    "/dialog/wallet_createAccount": {
+      "filePath": "dialog/wallet_createAccount.tsx"
+    },
+    "/dialog/wallet_grantAdmin": {
+      "filePath": "dialog/wallet_grantAdmin.tsx"
+    },
+    "/dialog/wallet_grantPermissions": {
+      "filePath": "dialog/wallet_grantPermissions.tsx"
+    },
+    "/dialog/wallet_revokeAdmin": {
+      "filePath": "dialog/wallet_revokeAdmin.tsx"
+    },
+    "/dialog/wallet_revokePermissions": {
+      "filePath": "dialog/wallet_revokePermissions.tsx"
+    },
     "/dialog/wallet_sendCalls": {
       "filePath": "dialog/wallet_sendCalls.tsx"
+    },
+    "/dialog/wallet_updateAccount": {
+      "filePath": "dialog/wallet_updateAccount.tsx"
     },
     "/dialog/": {
       "filePath": "dialog/index.tsx"

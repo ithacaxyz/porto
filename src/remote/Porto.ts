@@ -32,13 +32,13 @@ export const defaultConfig = {
       requireUpdatedAccount: false,
     },
     {
-      method: 'experimental_getAccountVersion',
+      method: 'wallet_getAccountVersion',
       modes: {
         headless: true,
       },
     },
     {
-      method: 'experimental_grantAdmin',
+      method: 'wallet_grantAdmin',
       modes: {
         dialog: {
           sameOrigin: true,
@@ -46,7 +46,7 @@ export const defaultConfig = {
       },
     },
     {
-      method: 'experimental_revokeAdmin',
+      method: 'wallet_revokeAdmin',
       modes: {
         dialog: {
           sameOrigin: true,
@@ -54,13 +54,13 @@ export const defaultConfig = {
       },
     },
     {
-      method: 'experimental_upgradeAccount',
+      method: 'wallet_upgradeAccount',
       modes: {
         headless: true,
       },
     },
     {
-      method: 'experimental_updateAccount',
+      method: 'wallet_updateAccount',
       requireUpdatedAccount: false,
     },
     {

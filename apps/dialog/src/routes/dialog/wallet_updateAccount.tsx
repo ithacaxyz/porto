@@ -5,11 +5,11 @@ import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { UpdateAccount } from '../-components/UpdateAccount'
 
-export const Route = createFileRoute('/dialog/experimental_updateAccount')({
+export const Route = createFileRoute('/dialog/wallet_updateAccount')({
   component: RouteComponent,
   validateSearch(search) {
     return Router.parseSearchRequest(search, {
-      method: 'experimental_updateAccount',
+      method: 'wallet_updateAccount',
     })
   },
 })

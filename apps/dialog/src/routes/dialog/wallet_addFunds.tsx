@@ -4,11 +4,11 @@ import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { AddFunds } from '../-components/AddFunds'
 
-export const Route = createFileRoute('/dialog/experimental_addFunds')({
+export const Route = createFileRoute('/dialog/wallet_addFunds')({
   component: RouteComponent,
   validateSearch(search) {
     return Router.parseSearchRequest(search, {
-      method: 'experimental_addFunds',
+      method: 'wallet_addFunds',
     })
   },
 })

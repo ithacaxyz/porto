@@ -223,7 +223,7 @@ export function Dashboard() {
               const provider =
                 (await account.connector?.getProvider()) as Porto.Porto['provider']
               await provider.request({
-                method: 'experimental_addFunds',
+                method: 'wallet_addFunds',
                 params: [
                   {
                     address: account.address,

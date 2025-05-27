@@ -68,7 +68,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
 export declare namespace RevokePermissions {
   type Props = RpcSchema.ExtractParams<
     porto_RpcSchema.Schema,
-    'experimental_revokePermissions'
+    'wallet_revokePermissions'
   >['0'] & {
     loading: boolean
     onApprove: () => void

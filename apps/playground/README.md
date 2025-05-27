@@ -49,4 +49,4 @@ Perform another action with your account (e.g. "Mint 50 EXP" with `wallet_sendCa
 
 When performing this action, you should be prompted to upgrade your account.
 
-Alternatively, you can test this via `experimental_updateAccount`.
+Alternatively, you can test this via `wallet_updateAccount`.

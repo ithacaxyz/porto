@@ -1,12 +1,12 @@
 import { TryItOut } from '../../../components/TryItOut'
 
-# `experimental_getPermissions`
+# `wallet_getPermissions`
 
 Returns the active permissions for an account.
 
 <TryItOut
   exampleSlug="#example"
-  fn={({ provider }) => provider.request({ method: 'experimental_getPermissions' })}
+  fn={({ provider }) => provider.request({ method: 'wallet_getPermissions' })}
   transformResultCode={(code) => {
     return 'const permissions = ' + code
   }}
@@ -16,7 +16,7 @@ Returns the active permissions for an account.
 
 ```ts
 type Request = {
-  method: 'experimental_getPermissions',
+  method: 'wallet_getPermissions',
   params: [{
     /** Address of the account to list permissions on. */
     address?: `0x${string}`
@@ -60,12 +60,12 @@ import { Porto } from 'porto'
 const { provider } = Porto.create()
 
 const permissions = await provider.request({ // [!code focus]
-  method: 'experimental_getPermissions', // [!code focus]
+  method: 'wallet_getPermissions', // [!code focus]
 }) // [!code focus]
 ```
 
 <TryItOut
-  fn={({ provider }) => provider.request({ method: 'experimental_getPermissions' })}
+  fn={({ provider }) => provider.request({ method: 'wallet_getPermissions' })}
   transformResultCode={(code) => {
     return 'const permissions = ' + code
   }}

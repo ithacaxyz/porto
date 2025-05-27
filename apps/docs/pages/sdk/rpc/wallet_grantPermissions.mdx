@@ -2,7 +2,7 @@ import { TryItOut } from '../../../components/TryItOut'
 import { parseEther, toHex } from 'viem'
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
 
-# `experimental_grantPermissions`
+# `wallet_grantPermissions`
 
 Grants permissions for an Application to perform actions on behalf of the account.
 
@@ -18,7 +18,7 @@ Alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa36
     const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
     const response = await provider.request({
-      method: 'experimental_grantPermissions',
+      method: 'wallet_grantPermissions',
       params: [{
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
         permissions: {
@@ -43,7 +43,7 @@ Alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa36
 
 ```ts
 type Request = {
-  method: 'experimental_grantPermissions',
+  method: 'wallet_grantPermissions',
   params: [{
     /** 
      * Address of the account to grant permissions on. 
@@ -140,7 +140,7 @@ const { provider } = Porto.create()
 const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
 const permissions = await provider.request({
-  method: 'experimental_grantPermissions',
+  method: 'wallet_grantPermissions',
   params: [{
     expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
     permissions: {
@@ -163,7 +163,7 @@ const permissions = await provider.request({
     const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
     const response = await provider.request({
-      method: 'experimental_grantPermissions',
+      method: 'wallet_grantPermissions',
       params: [{
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
         permissions: {
@@ -208,7 +208,7 @@ const account = privateKeyToAccount('0x...') // [!code focus]
 const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
 const permissions = await provider.request({
-  method: 'experimental_grantPermissions',
+  method: 'wallet_grantPermissions',
   params: [{
     expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
     key: { // [!code focus]
@@ -236,7 +236,7 @@ const permissions = await provider.request({
     const account = privateKeyToAccount(generatePrivateKey())
 
     const response = await provider.request({
-      method: 'experimental_grantPermissions',
+      method: 'wallet_grantPermissions',
       params: [{
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
         key: {

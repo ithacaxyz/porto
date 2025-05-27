@@ -288,18 +288,6 @@ export default defineConfig({
             text: 'eth_signTypedData_V4',
           },
           {
-            link: '/sdk/rpc/experimental_getPermissions',
-            text: 'experimental_getPermissions',
-          },
-          {
-            link: '/sdk/rpc/experimental_grantPermissions',
-            text: 'experimental_grantPermissions',
-          },
-          {
-            link: '/sdk/rpc/experimental_revokePermissions',
-            text: 'experimental_revokePermissions',
-          },
-          {
             link: '/sdk/rpc/personal_sign',
             text: 'personal_sign',
           },
@@ -318,6 +306,18 @@ export default defineConfig({
           {
             link: '/sdk/rpc/wallet_getCallsStatus',
             text: 'wallet_getCallsStatus',
+          },
+          {
+            link: '/sdk/rpc/wallet_getPermissions',
+            text: 'wallet_getPermissions',
+          },
+          {
+            link: '/sdk/rpc/wallet_grantPermissions',
+            text: 'wallet_grantPermissions',
+          },
+          {
+            link: '/sdk/rpc/wallet_revokePermissions',
+            text: 'wallet_revokePermissions',
           },
           {
             link: '/sdk/rpc/wallet_prepareCalls',
