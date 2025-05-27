@@ -785,7 +785,5 @@ function resolvePermissions(
       })
   }
 
-  console.log(spend)
-
   return { ...key.permissions, spend }
 }
