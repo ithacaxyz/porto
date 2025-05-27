@@ -2,7 +2,7 @@
 
 # Porto
 
-Experimental Next-gen Account for Ethereum.
+Next-gen Account for Ethereum.
 
 <p>
   <a href="https://www.npmjs.com/package/porto">
@@ -25,8 +25,8 @@ Experimental Next-gen Account for Ethereum.
   </a>
 </p>
 
-> [!WARNING]
-> Do not use in production. This repository is work-in-progress and highly experimental. Non-major version bumps may contain breaking changes.
+> [!NOTE]
+> This is a developer preview. Non-major version bumps may contain breaking changes.
 
 ## Documentation
 
