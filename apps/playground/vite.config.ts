@@ -79,6 +79,7 @@ export default defineConfig(({ mode }) => ({
         logger.info('Starting Anvil...')
 
         await anvil({
+          host: process.env.CI ? '0.0.0.0' : undefined,
           loadState: resolve(
             import.meta.dirname,
             '../../test/src/_generated/anvil.json',
