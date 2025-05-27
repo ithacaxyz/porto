@@ -10,7 +10,7 @@
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "changeset version && pnpm format",
     "check": "biome check . --fix --unsafe",
-    "check:markdown": "markdownlint-cli2 --config .markdownlint-cli2.jsonc '**/*.md' '**/*.mdx'",
+    "check:markdown": "markdownlint-cli2 --config .github/.markdownlint-cli2.jsonc '**/*.md' '**/*.mdx'",
     "check:build": "tsx ./scripts/prepublish.ts && publint --strict ./src && attw --pack ./src --profile esm-only",
     "check:knip": "knip --production",
     "check:repo": "sherif --ignore-rule packages-without-package-json",
