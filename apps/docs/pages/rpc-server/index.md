@@ -29,12 +29,19 @@ Accounts are managed through the RPC using the following methods:
 
 In order to facilitate account discovery, account creation is split into two steps:
 
-- [`wallet_prepareCreateAccount`]: Generate an account and a corresponding address
+- [`wallet_prepareCreateAccount`]: Generate an account and a corresponding address.
 - [`wallet_createAccount`]: Create the account on chain.
 
 Accounts are created using [PREP], which proves that neither the RPC server nor the user knows the underlying private key for the EOA.
 
 [`wallet_prepareCreateAccount`] also returns a series of digests that must be signed with the admin keys of the account. These signatures are used to register the key and account in an on-chain registry, allowing users to discover their accounts using their keys later on.
+
+### Account upgrade
+
+Upgrading an existing EOA is split into two steps:
+
+- [`wallet_prepareUpgradeAccount`]: Prepares an account for upgrade.
+- [`wallet_upgradeAccount`]: Upgrades the account on chain.
 
 ### Account information
 
@@ -67,6 +74,8 @@ cast block-number --rpc-url https://base-sepolia.rpc.ithaca.xyz
 [`wallet_getCapabilities`]: /rpc-server/wallet_getCapabilities
 [`wallet_prepareCreateAccount`]: /rpc-server/wallet_prepareCreateAccount
 [`wallet_createAccount`]: /rpc-server/wallet_createAccount
+[`wallet_prepareUpgradeAccount`]: /rpc-server/wallet_prepareUpgradeAccount
+[`wallet_upgradeAccount`]: /rpc-server/wallet_upgradeAccount
 [`wallet_getKeys`]: /rpc-server/wallet_getKeys
 [`wallet_getAccounts`]: /rpc-server/wallet_getAccounts
 [`wallet_prepareCalls`]: /rpc-server/wallet_prepareCalls
