@@ -54,7 +54,7 @@ export default defineConfig({
         items: [
           {
             link: '/contracts/benchmarks',
-            text: 'Benchmarks'
+            text: 'Benchmarks',
           },
           {
             link: '/contracts/security',
