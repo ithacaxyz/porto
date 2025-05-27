@@ -1,18 +1,18 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { porto, run, waitFor } from '../utils.browser.js'
 
-const method = 'wallet_connect'
+describe('via wallet_connect', () => {
+  test('default', async () => {
+    const { result } = run(async ({ getIframe }) => {
+      const promise = porto.provider.request({ method: 'wallet_connect' })
 
-test('default', async () => {
-  const { result } = run(async ({ getIframe }) => {
-    const promise = porto.provider.request({ method })
+      const iframe = getIframe()
+      await iframe.getByTestId('sign-up').click()
 
-    const iframe = getIframe()
-    await iframe.getByTestId('sign-up').click()
+      return promise
+    })
 
-    return promise
+    await waitFor(() => expect(result.current.result?.accounts).toBeDefined())
   })
-
-  await waitFor(() => expect(result.current.result?.accounts).toBeDefined())
 })
