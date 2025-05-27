@@ -3,7 +3,7 @@ import { Dialog, Mode, Porto } from '../src/index.js'
 
 export const porto = Porto.create({
   mode: Mode.dialog({
-    host: 'http://localhost:5174/dialog/',
+    host: 'http://localhost:5175/dialog/',
     renderer: Dialog.iframe({
       skipProtocolCheck: true,
     }),

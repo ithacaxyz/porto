@@ -30,15 +30,17 @@ const logger = createLogger('info', {
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [
-    mkcert({
-      hosts: [
-        'localhost',
-        'prod.localhost',
-        'stg.localhost',
-        'dev.localhost',
-        'anvil.localhost',
-      ],
-    }),
+    process.env.VITEST === 'true'
+      ? null
+      : mkcert({
+          hosts: [
+            'localhost',
+            'prod.localhost',
+            'stg.localhost',
+            'dev.localhost',
+            'anvil.localhost',
+          ],
+        }),
     react(),
     tailwindcss(),
     {
@@ -77,6 +79,7 @@ export default defineConfig(({ mode }) => ({
         logger.info('Starting Anvil...')
 
         await anvil({
+          host: process.env.CI ? '0.0.0.0' : undefined,
           loadState: resolve(
             import.meta.dirname,
             '../../test/src/_generated/anvil.json',
