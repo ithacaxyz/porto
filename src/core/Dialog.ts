@@ -33,7 +33,7 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
  * @returns iframe dialog.
  */
 export function iframe(options: iframe.Options = {}) {
-  const { skipProtocolCheck } = options
+  const { skipProtocolCheck, skipUnsupported } = options
 
   // Safari does not support WebAuthn credential creation in iframes.
   // Fall back to popup dialog.
@@ -41,6 +41,7 @@ export function iframe(options: iframe.Options = {}) {
   const includesUnsupported = (
     requests: readonly RpcRequest.RpcRequest[] | undefined,
   ) =>
+    !skipUnsupported &&
     UserAgent.isSafari() &&
     requests?.some((x) =>
       ['wallet_connect', 'eth_requestAccounts'].includes(x.method),
@@ -295,6 +296,12 @@ export declare namespace iframe {
      * @default false
      */
     skipProtocolCheck?: boolean | undefined
+    /**
+     * Skips check for unsupported iframe requests that result
+     * to a popup.
+     * @default false
+     */
+    skipUnsupported?: boolean | undefined
   }
 }
 

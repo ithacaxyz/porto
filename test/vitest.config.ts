@@ -51,8 +51,11 @@ export default defineConfig(({ mode }) => {
             browser: {
               enabled: true,
               headless: true,
-              // TODO: add more instances.
-              instances: [{ browser: 'chromium' }],
+              instances: [
+                { browser: 'chromium' },
+                { browser: 'firefox' },
+                { browser: 'webkit' },
+              ],
               provider: 'playwright',
             },
             include: ['src/**/*.browser.test.ts'],
