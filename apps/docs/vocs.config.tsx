@@ -21,6 +21,7 @@ export default defineConfig({
         <meta content="image/png" property="og:image:type" />
         <meta content="1200" property="og:image:width" />
         <meta content="630" property="og:image:height" />
+        <meta content={commitSha} name="X-App-Version" />
       </>
     )
   },
