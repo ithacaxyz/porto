@@ -12,7 +12,7 @@ We're opening up a live bug bounty program to encourage responsible security res
 
 **Porto Address:** `0xb4B87c22950eD0f3D83aabd3dE20009bA9b16DF1`  
 **Chain ID:** `8453`  
-**Deployed Version:** [`v0.2.0`](https://github.com/IthacaLabs/porto/releases/tag/v0.2.0)
+**Deployed Version:** [`v0.2.0`](https://github.com/ithacaxyz/porto/releases/tag/v0.2.0)
 
 ---
 
