@@ -42,13 +42,14 @@ export function SignUp(props: SignUp.Props) {
         <Layout.Footer.Actions>
           {enableSignIn ? (
             <Button
+              data-testid="sign-in"
               onClick={() => onApprove({ selectAccount: true, signIn: true })}
               type="button"
             >
               Sign in
             </Button>
           ) : (
-            <Button onClick={onReject} type="button">
+            <Button data-testid="cancel" onClick={onReject} type="button">
               No thanks
             </Button>
           )}

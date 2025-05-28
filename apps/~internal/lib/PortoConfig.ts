@@ -5,7 +5,7 @@ import { http, ValueOf } from 'viem'
 import * as Env from './Env'
 import * as Sentry from './Sentry'
 
-const mock = import.meta.env.DEV && import.meta.env.VITEST
+const mock = import.meta.env.MODE === 'test'
 
 const config = {
   anvil: {

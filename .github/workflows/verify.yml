@@ -97,17 +97,8 @@ jobs:
         run: pnpx playwright install --with-deps
 
       - name: Test
-        if: matrix.browser == 'false'
         uses: nick-fields/retry@v3
         with:
           max_attempts: 3
           timeout_minutes: 30
-          command: pnpm test ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
-
-      - name: Test
-        if: matrix.browser == 'true'
-        uses: nick-fields/retry@v3
-        with:
-          max_attempts: 3
-          timeout_minutes: 30
-          command: pnpm ${{ matrix.local == 'true' && 'test:browser:anvil' || 'test:browser' }}
+          command: pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}

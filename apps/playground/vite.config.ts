@@ -115,6 +115,7 @@ export default defineConfig(({ mode }) => ({
             intentGasBuffer: 100_000n,
             orchestrator: orchestratorAddress,
             simulator: simulatorAddress,
+            txGasBuffer: 100_000n,
           }).start()
           await fetch(rpcServerConfig.rpcUrl + '/start')
           return stop

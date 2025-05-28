@@ -29,8 +29,7 @@
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "test": "vitest -c ./test/vitest.config.ts --project default",
-    "test:browser": "pnpx start-server-and-test 'VITEST=true pnpm --filter dialog dev' http://localhost:5175/dialog/ 'vitest -c ./test/vitest.config.ts --project browser'",
-    "test:browser:anvil": "pnpx start-server-and-test 'VITEST=true ANVIL=true pnpm --filter playground --filter dialog dev' \"http://localhost:5175/dialog/|http://localhost:5173\" 'vitest -c ./test/vitest.config.ts --project browser'"
+    "test:browser": "vitest -c ./test/vitest.config.ts --project browser"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
