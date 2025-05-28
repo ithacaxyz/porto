@@ -5,7 +5,7 @@ import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
 import * as RpcServer from './rpcServer.js'
 
-export const chain = Anvil.enabled ? Chains.anvil : Chains.baseSepoliaDev
+export const chain = Anvil.enabled ? Chains.anvil : Chains.portoDev
 
 export const exp1Address = Contracts.exp1Address[chain.id]
 export const exp1Abi = Contracts.exp1Abi

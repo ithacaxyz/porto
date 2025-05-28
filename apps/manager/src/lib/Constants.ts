@@ -54,6 +54,31 @@ export const defaultAssets: Record<
       symbol: 'EXP2',
     },
   ],
+  [Chains.portoDev.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.portoDev.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.portoDev.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+  ],
   [Chains.baseSepolia.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
