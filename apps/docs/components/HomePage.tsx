@@ -43,7 +43,7 @@ export function HomePage() {
 
         <div className="h-4" />
 
-        <div className="w-full overflow-hidden rounded-2xl border border-gray4">
+        <div className="w-full overflow-hidden rounded-xl border border-gray4">
           <div className="flex items-center border-gray5 border-b p-[16px]">
             <Install />
           </div>
@@ -61,7 +61,7 @@ export function HomePage() {
         <div className="h-3" />
 
         <div className="grid w-full grid-cols-2 gap-3 max-[486px]:grid-cols-1">
-          <div className="rounded-2xl border border-gray4 p-4 transition-transform hover:brightness-110">
+          <div className="rounded-xl border border-gray4 p-4 transition-transform dark:hover:brightness-110">
             <div className="size-[24px]">
               <WorksAnywhereIcon />
             </div>
@@ -71,17 +71,17 @@ export function HomePage() {
             </p>
             <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
               Integrate in just seconds. Works with{' '}
-              <a className="font-mono brightness-150" href="https://wagmi.sh">
+              <a className="font-mono brightness-40 dark:brightness-150" href="https://wagmi.sh">
                 wagmi
               </a>{' '}
               and{' '}
-              <a className="font-mono brightness-150" href="https://viem.sh">
+              <a className="font-mono brightness-40 dark:brightness-150" href="https://viem.sh">
                 viem
               </a>{' '}
               without code changes.
             </p>
           </div>
-          <div className="rounded-2xl border border-gray4 p-4 transition-transform hover:brightness-110">
+          <div className="rounded-xl border border-gray4 p-4 transition-transform dark:hover:brightness-110">
             <div className="size-[24px]">
               <NoDeveloperLockInIcon />
             </div>
@@ -94,7 +94,7 @@ export function HomePage() {
               currency.
             </p>
           </div>
-          <div className="rounded-2xl border border-gray4 p-4 transition-transform hover:brightness-110">
+          <div className="rounded-xl border border-gray4 p-4 transition-transform dark:hover:brightness-110">
             <div className="size-[24px]">
               <ModernEIPSupportIcon />
             </div>
@@ -107,7 +107,7 @@ export function HomePage() {
               seed phrases needed.
             </p>
           </div>
-          <div className="rounded-2xl border border-gray4 p-4 transition-transform hover:brightness-110">
+          <div className="rounded-xl border border-gray4 p-4 transition-transform dark:hover:brightness-110">
             <div className="size-[24px]">
               <ProgrammableIcon />
             </div>
