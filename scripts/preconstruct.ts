@@ -20,6 +20,7 @@ const exports = getExports()
 for (const [key, distExports] of Object.entries(exports.dist ?? {})) {
   // Skip `package.json` exports
   if (/package\.json$/.test(key)) continue
+  if (/tsconfig\.json$/.test(key)) continue
 
   let entries: any
   if (typeof distExports === 'string')
