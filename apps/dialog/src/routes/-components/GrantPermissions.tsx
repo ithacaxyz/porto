@@ -33,6 +33,7 @@ export function GrantPermissions(props: GrantPermissions.Props) {
         <Permissions
           calls={permissions.calls ?? []}
           spend={permissions.spend}
+          title="Permissions requested"
         />
       </Layout.Content>
 
@@ -63,7 +64,7 @@ export function GrantPermissions(props: GrantPermissions.Props) {
 export declare namespace GrantPermissions {
   type Props = RpcSchema.ExtractParams<
     porto_RpcSchema.Schema,
-    'experimental_grantPermissions'
+    'wallet_grantPermissions'
   >['0'] & {
     loading: boolean
     onApprove: () => void

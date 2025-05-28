@@ -35,10 +35,15 @@ export function useReadBalances({
     })),
     query: {
       select: (data) => {
-        const result = data.map((datum, index) => ({
-          balance: BigInt(datum.result!),
-          ...assets[index],
-        }))
+        const result = data.map((datum, index) => {
+          return {
+            balance:
+              typeof datum.result === 'bigint'
+                ? datum.result
+                : BigInt(datum.result ?? 0),
+            ...assets[index],
+          }
+        })
 
         result.unshift({ balance: ethBalance?.value ?? 0n, ...ethAsset })
 

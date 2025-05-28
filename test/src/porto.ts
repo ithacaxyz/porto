@@ -1,15 +1,11 @@
-import type { Address } from 'ox'
 import { Chains, Mode, Porto, Storage } from 'porto'
-import { custom, http, type Transport } from 'viem'
-
+import { http } from 'viem'
 import * as Porto_internal from '../../src/core/internal/porto.js'
 import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
-import * as Relay from './relay.js'
+import * as RpcServer from './rpcServer.js'
 
-export const chain = Anvil.enabled
-  ? Chains.odysseyTestnet
-  : Chains.odysseyDevnet
+export const chain = Anvil.enabled ? Chains.anvil : Chains.portoDev
 
 export const exp1Address = Contracts.exp1Address[chain.id]
 export const exp1Abi = Contracts.exp1Abi
@@ -25,53 +21,45 @@ export const exp2Config = {
   address: exp2Address,
 } as const
 
+const rpcUrl = Anvil.enabled
+  ? RpcServer.instances.odyssey.rpcUrl
+  : 'https://porto-dev.rpc.ithaca.xyz'
+
 export function getPorto(
   parameters: {
     mode?: (parameters: {
-      feeToken?: Record<number, Address.Address> | undefined
+      permissionsFeeLimit: Record<string, string>
       mock: boolean
     }) => Mode.Mode | undefined
-    transports?:
-      | {
-          default?: Transport | undefined
-          relay?: false | Transport | undefined
-        }
-      | undefined
+    sponsorUrl?: string | undefined
   } = {},
 ) {
-  const { mode = Mode.contract, transports = {} } = parameters
+  const { mode = Mode.contract, sponsorUrl } = parameters
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
-      feeToken: {
-        [chain.id]: exp1Address,
-      },
       mock: true,
+      permissionsFeeLimit: {
+        USDT: '100',
+      },
     }),
+    sponsorUrl,
     storage: Storage.memory(),
     transports: {
-      [chain.id]: {
-        default:
-          transports.default ??
-          (Anvil.enabled ? custom(Anvil.instances.odyssey) : http()),
-        relay:
-          transports.relay === false
-            ? undefined
-            : (transports.relay ??
-              http(
-                Anvil.enabled
-                  ? Relay.instances.odyssey.rpcUrl
-                  : 'https://relay-staging.ithaca.xyz',
-                {
-                  // async onFetchRequest(_, init) {
-                  //   console.log('request:', init.body)
-                  // },
-                  // async onFetchResponse(response) {
-                  //   console.log('response:', await response.clone().json())
-                  // },
-                },
-              )),
-      },
+      [chain.id]: http(rpcUrl, {
+        async onFetchRequest(_, init) {
+          if (process.env.VITE_RPC_LOGS !== 'true') return
+          console.log(`curl \\
+${rpcUrl} \\
+-X POST \\
+-H "Content-Type: application/json" \\
+-d '${JSON.stringify(JSON.parse(init.body as string))}'`)
+        },
+        async onFetchResponse(response) {
+          if (process.env.VITE_RPC_LOGS !== 'true') return
+          console.log('> ' + JSON.stringify(await response.clone().json()))
+        },
+      }),
     } as Porto.Config['transports'],
   })
 
@@ -79,7 +67,7 @@ export function getPorto(
     mode: 'anvil',
   }))
 
-  const delegation = client.chain.contracts.delegation.address
+  const delegation = client.chain.contracts.portoAccount.address
 
   return { client, delegation, porto }
 }

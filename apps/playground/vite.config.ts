@@ -1,88 +1,208 @@
+import { spawnSync } from 'node:child_process'
+import { rmSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { createRequestListener } from '@mjackson/node-fetch-server'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { createServer } from 'prool'
 import { anvil } from 'prool/instances'
-import { createLogger, defineConfig } from 'vite'
+import { createClient, http, parseEther } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { writeContract } from 'viem/actions'
+import * as chains from 'viem/chains'
+import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-
-import * as Chains from '../../src/core/Chains.js'
-import * as Anvil from '../../test/src/anvil.js'
-import { relay } from '../../test/src/prool.js'
+import { Key, RpcServer } from '../../src/index.js'
+import { Sponsor } from '../../src/server/index.js'
+import {
+  accountNewProxyAddress,
+  accountProxyAddress,
+  accountRegistryAddress,
+  exp1Address,
+  orchestratorAddress,
+  simulatorAddress,
+} from '../../test/src/_generated/addresses.js'
+import { rpcServer } from '../../test/src/prool.js'
 
 const logger = createLogger('info', {
   prefix: 'playground',
 })
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
-    mkcert({
-      force: true,
-      hosts: [
-        'localhost',
-        'stg.localhost',
-        process.env.ANVIL === 'true' ? 'anvil.localhost' : '',
-      ],
-    }),
+    process.env.VITEST === 'true'
+      ? null
+      : mkcert({
+          hosts: [
+            'localhost',
+            'prod.localhost',
+            'stg.localhost',
+            'dev.localhost',
+            'anvil.localhost',
+          ],
+        }),
     react(),
     tailwindcss(),
     {
-      async configureServer() {
+      async configureServer(server) {
         if (process.env.ANVIL !== 'true') return
 
-        const { exp1Address } = await import('@porto/apps/contracts')
+        const { exp1Abi } = await import('@porto/apps/contracts')
+
+        process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
         const anvilConfig = {
           port: 8545,
-          rpcUrl: 'http://127.0.0.1:8545/1',
+          rpcUrl: 'http://127.0.0.1:8545',
         }
-        const relayConfig = {
+        const anvilClient = createClient({
+          account: privateKeyToAccount(
+            '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+          ),
+          transport: http(anvilConfig.rpcUrl),
+        }).extend(() => ({ mode: 'anvil' }))
+
+        const rpcServerConfig = {
           port: 9119,
-          rpcUrl: 'http://127.0.0.1:9119/1',
+          rpcUrl: 'http://127.0.0.1:9119',
         }
-        const chain = Chains.odysseyTestnet
+        const relayClient = createClient({
+          chain: chains.anvil,
+          transport: http(rpcServerConfig.rpcUrl),
+        })
+
+        if (process.env.CLEAN === 'true')
+          rmSync(resolve(import.meta.dirname, 'anvil.json'), {
+            force: true,
+          })
 
         logger.info('Starting Anvil...')
 
-        await createServer({
-          instance: anvil({
-            chainId: chain.id,
-            forkUrl: chain.rpcUrls.default.http[0],
-            // @ts-ignore
-            odyssey: true,
-          }),
+        await anvil({
+          host: process.env.CI ? '0.0.0.0' : undefined,
+          loadState: resolve(
+            import.meta.dirname,
+            '../../test/src/_generated/anvil.json',
+          ),
+          // @ts-ignore
+          odyssey: true,
           port: anvilConfig.port,
         }).start()
 
-        await Anvil.loadState({
-          delegationAddress: chain.contracts.delegation.address,
-          entryPointAddress: chain.contracts.entryPoint.address,
-          rpcUrl: anvilConfig.rpcUrl,
-        })
+        logger.info('Anvil started on ' + anvilConfig.rpcUrl)
 
-        logger.info('Anvil started on' + anvilConfig.rpcUrl)
-        logger.info('Starting Relay...')
+        logger.info('Starting RPC Server...')
 
-        await createServer({
-          instance: relay({
+        const startRpcServer = async ({
+          accountProxy = accountProxyAddress,
+        }: {
+          accountProxy?: string
+        } = {}) => {
+          const containerName = 'playground'
+          spawnSync('docker', ['rm', '-f', containerName])
+          const stop = await rpcServer({
+            accountRegistry: accountRegistryAddress,
+            containerName: 'playground',
+            delegationProxy: accountProxy,
             endpoint: anvilConfig.rpcUrl,
-            entrypoint: chain.contracts.entryPoint.address,
             feeTokens: [
               '0x0000000000000000000000000000000000000000',
-              exp1Address[chain.id],
+              exp1Address,
             ],
             http: {
-              port: relayConfig.port,
+              port: rpcServerConfig.port,
             },
-            userOpGasBuffer: 100_000n,
-          }),
-          port: relayConfig.port,
-        }).start()
-        await fetch(relayConfig.rpcUrl + '/start')
+            intentGasBuffer: 100_000n,
+            orchestrator: orchestratorAddress,
+            simulator: simulatorAddress,
+            txGasBuffer: 100_000n,
+          }).start()
+          await fetch(rpcServerConfig.rpcUrl + '/start')
+          return stop
+        }
+        let stopRpcServer = await startRpcServer()
 
-        logger.info('Relay started on ' + relayConfig.rpcUrl)
+        logger.info('RPC Server started on ' + rpcServerConfig.rpcUrl)
+
+        // Allow CORS.
+        server.middlewares.use(async (_, res, next) => {
+          res.setHeader('Access-Control-Allow-Origin', '*')
+          next()
+        })
+
+        // Upgrade RPC Server on `/rpc/up`.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/rpc/up')) return next()
+
+          stopRpcServer()
+          stopRpcServer = await startRpcServer({
+            accountProxy: accountNewProxyAddress,
+          })
+          res.statusCode = 302
+          res.setHeader('Location', '/')
+          return res.end()
+        })
+
+        // Drip tokens on `/faucet`.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/faucet')) return next()
+
+          const url = new URL(`https://localhost${req.url}`)
+          const address = url.searchParams.get('address') as `0x${string}`
+          const value = url.searchParams.get('value') as string
+
+          const hash = await writeContract(anvilClient, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [address, BigInt(value)],
+            chain: null,
+            functionName: 'mint',
+          })
+
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'application/json')
+          return res.end(JSON.stringify({ id: hash }))
+        })
+
+        // Create app-sponsor account.
+        const sponsorKey = Key.createSecp256k1()
+        const sponsorAccount = await RpcServer.createAccount(relayClient, {
+          keys: [sponsorKey],
+        })
+        await writeContract(anvilClient, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address, parseEther('10000')],
+          chain: null,
+          functionName: 'mint',
+        })
+        await RpcServer.sendCalls(relayClient, {
+          account: sponsorAccount,
+          calls: [],
+          feeToken: exp1Address,
+        })
+
+        // Handle sponsor requests on `/sponsor`.
+        // TODO: move to CF worker for compatibility with non-anvil (prod/stg/dev) environments.
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/sponsor')) return next()
+          if (req.method !== 'POST') return next()
+
+          const handler = Sponsor.rpcHandler({
+            address: sponsorAccount.address,
+            key: {
+              privateKey: sponsorKey.privateKey!(),
+              type: 'secp256k1',
+            },
+            transports: {
+              [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
+            },
+          })
+
+          return createRequestListener(handler)(req, res)
+        })
       },
       name: 'anvil',
     },
   ],
-})
+}))

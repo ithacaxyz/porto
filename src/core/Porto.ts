@@ -2,28 +2,27 @@ import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
-import { http } from 'viem'
+import { http, type Transport } from 'viem'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
-
+import type * as Account from './Account.js'
 import * as Chains from './Chains.js'
-import type * as Account from './internal/account.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
+import * as FeeToken from './internal/typebox/feeToken.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 import * as Mode from './Mode.js'
 import * as Storage from './Storage.js'
 
 export const defaultConfig = {
   announceProvider: true,
-  chains: [Chains.odysseyTestnet],
-  mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.relay(),
-  storage: Storage.idb(),
+  chains: [Chains.baseSepolia],
+  feeToken: 'EXP',
+  mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.rpcServer(),
+  storage: typeof window !== 'undefined' ? Storage.idb() : Storage.memory(),
+  storageKey: 'porto.store',
   transports: {
-    [Chains.odysseyTestnet.id]: {
-      default: http(),
-      relay: http('https://relay.ithaca.xyz'),
-    },
+    [Chains.baseSepolia.id]: http(),
   },
 } as const satisfies Config
 
@@ -45,13 +44,24 @@ export function create<
 export function create(
   parameters: ExactPartial<Config> | undefined = {},
 ): Porto {
+  const chains = parameters.chains ?? defaultConfig.chains
+  const transports = Object.fromEntries(
+    chains!.map((chain) => [
+      chain.id,
+      parameters.transports?.[chain.id] ?? http(),
+    ]),
+  )
+
   const config = {
     announceProvider:
       parameters.announceProvider ?? defaultConfig.announceProvider,
-    chains: parameters.chains ?? defaultConfig.chains,
+    chains,
+    feeToken: parameters.feeToken ?? defaultConfig.feeToken,
     mode: parameters.mode ?? defaultConfig.mode,
+    sponsorUrl: parameters.sponsorUrl,
     storage: parameters.storage ?? defaultConfig.storage,
-    transports: parameters.transports ?? defaultConfig.transports,
+    storageKey: parameters.storageKey ?? defaultConfig.storageKey,
+    transports,
   } satisfies Config
 
   const store = createStore(
@@ -59,11 +69,12 @@ export function create(
       persist<State>(
         (_) => ({
           accounts: [],
-          chain: config.chains[0],
+          chainId: config.chains[0].id,
+          feeToken: config.feeToken,
           requestQueue: [],
         }),
         {
-          name: 'porto.store',
+          name: config.storageKey,
           partialize(state) {
             return {
               accounts: state.accounts.map((account) => ({
@@ -77,10 +88,12 @@ export function create(
                 })),
                 sign: undefined,
               })),
-              chain: state.chain,
+              chainId: state.chainId,
+              feeToken: state.feeToken,
             } as unknown as State
           },
           storage: config.storage,
+          version: 2,
         },
       ),
     ),
@@ -141,22 +154,32 @@ export type Config<
    */
   chains: chains
   /**
+   * Token to use to pay for fees.
+   * @default 'ETH'
+   */
+  feeToken?: State['feeToken'] | undefined
+  /**
    * Mode to use.
    * @default Mode.dialog()
    */
   mode: Mode.Mode | null
+  /**
+   * URL to use for app-based sponsorship.
+   */
+  sponsorUrl?: string | undefined
   /**
    * Storage to use.
    * @default Storage.idb()
    */
   storage: Storage.Storage
   /**
-   * Transport to use for each chain.
+   * Key to use for store.
    */
-  transports: Record<
-    chains[number]['id'],
-    Transport | { default: Transport; relay?: Transport | undefined }
-  >
+  storageKey?: string | undefined
+  /**
+   * Transport overrides to use for each chain.
+   */
+  transports: Record<chains[number]['id'], Transport>
 }
 
 export type Porto<
@@ -181,7 +204,8 @@ export type State<
   ],
 > = {
   accounts: readonly Account.Account[]
-  chain: chains[number]
+  chainId: chains[number]['id']
+  feeToken: FeeToken.Symbol | undefined
   requestQueue: readonly QueuedRequest[]
 }
 
@@ -194,8 +218,6 @@ export type Store<
   StoreApi<State<chains>>,
   [['zustand/subscribeWithSelector', never], ['zustand/persist', any]]
 >
-
-export type Transport = internal.Transport
 
 export type QueuedRequest<result = unknown> = {
   account:

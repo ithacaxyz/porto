@@ -1,0 +1,63 @@
+# Connector
+
+Porto connector is a [Wagmi](https://wagmi.sh) compatible connector for using Porto with [Wagmi `Config`](https://wagmi.sh/core/api/createConfig).
+
+## Usage
+
+```tsx twoslash
+import { porto } from 'porto/wagmi' // [!code hl]
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()], // [!code hl]
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+```
+
+## Parameters
+
+### feeToken
+
+`'ETH' | 'EXP' | undefined`
+
+Token to use to pay for fees.
+
+**Default:** `'ETH'`
+
+### mode
+
+`Mode.Mode | null | undefined`
+
+Mode to use for the connector.
+
+**Default:** `Mode.dialog()`
+
+### sponsorUrl
+
+`string | undefined`
+
+URL to use for app-based sponsorship.
+
+### storage
+
+`Storage.Storage | undefined`
+
+Storage to use for persisting data.
+
+**Default:** `Storage.idb()`
+
+### storageKey
+
+`string | undefined`
+
+Key to use for store.
+
+## Return Type
+
+`CreateConnectorFn<Provider, Properties, Record<string, unknown>>`
+
+Returns a Wagmi connector function that can be used with `createConfig`.

@@ -1,0 +1,161 @@
+# Mode
+
+## Built-in Modes
+
+| Mode | Uses | Best for |
+|------|------|----------|
+| `Mode.dialog` (default)    | Hosted Porto Dialog | Applications |
+| `Mode.rpcServer` | Direct to RPC Server | Wallets or Account Managers |
+
+## Mode.dialog
+
+Dialog mode embeds the hosted Porto Dialog (an iframe pointing to `id.porto.sh`) and forwards every request that requires user interaction to that dialog.
+
+### Diagram
+
+In the diagram below, `Mode.dialog` is utilized within the Application to communicate with the Porto Dialog (`id.porto.sh`).
+
+<img alt="Mode.dialog" className="dark:hidden" src="/mode-dialog-light.svg" />
+<img alt="Mode.dialog" className="hidden dark:block" src="/mode-dialog-dark.svg" />
+
+### Usage
+
+```ts twoslash
+import { Porto, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.dialog(), // [!code focus]
+})
+```
+
+### Options
+
+#### host
+
+- **Type**: `string`
+- **Default**: `"https://id.porto.sh/dialog"`
+
+URL of the dialog embed.
+
+:::tip
+While the application uses `Mode.dialog` to communicate to the Dialog, the dialog host (e.g. `https://id.porto.sh/dialog`) utilizes the `Mode.rpcServer` mode to [communicate](#diagram-1) with the RPC Server.
+:::
+
+```ts twoslash
+import { Porto, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.dialog({
+    host: 'https://account.my-wallet.com/dialog', // [!code focus]
+  }),
+})
+```
+
+#### renderer
+
+- **Type**: `Dialog.Dialog`
+- **Default**: `Dialog.iframe()`
+
+The [renderer](/sdk/api/dialog) to use for the dialog. Available: [`Dialog.iframe`](/sdk/api/dialog#dialogiframe), [`Dialog.popup`](/sdk/api/dialog#dialogpopup)
+
+```ts twoslash
+import { Dialog, Porto, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.dialog({
+    renderer: Dialog.popup(), // [!code focus]
+  }),
+})
+```
+
+## Mode.rpcServer
+
+Interacts with the **Porto RPC Server** directly. Signing is performed via the SDK. Account management, chain interop, and transaction management is orchestrated on the RPC Server.
+
+:::tip
+
+The `Mode.rpcServer` mode is used internally by the Porto Dialog (`id.porto.sh`). It is possible
+for Wallet vendors to use `Mode.rpcServer` to create their own Dialog.
+
+:::
+
+### Diagram
+
+In the diagram below, `Mode.rpcServer` is utilized within the Porto Dialog (`id.porto.sh`) to communicate with the RPC Server.
+
+<img alt="Mode.rpcServer" className="dark:hidden" src="/mode-rpcserver-light.svg" />
+<img alt="Mode.rpcServer" className="hidden dark:block" src="/mode-rpcserver-dark.svg" />
+
+### Usage
+
+```ts twoslash
+import { Porto, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.rpcServer(), // [!code focus]
+})
+```
+
+### Caveats
+
+- When you run `Mode.rpcServer` the Passkey Host (WebAuthn Relying Party) becomes **your domain**, not `id.porto.sh`. Credentials created here cannot be asserted on other domains, which means **users cannot reuse their Porto account** created on `id.porto.sh`.
+
+### Options
+
+#### keystoreHost
+
+- **Type**: `string`
+- **Default**: `"self"`
+
+Keystore host (WebAuthn relying party).
+
+```ts twoslash
+import { Porto, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.rpcServer({
+    keystoreHost: 'https://account.my-wallet.com', // [!code focus]
+  }),
+})
+```
+
+#### permissionsFeeLimit
+
+- **Type**: `boolean`
+- **Default**: `Record<FeeToken.Kind, string>`
+
+Fee limit to use for permissions.
+
+```ts twoslash
+import { Porto, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.rpcServer({
+    permissionsFeeLimit: { // [!code focus]
+      ETH: '0.0001', // [!code focus]
+      USDC: '1', // [!code focus]
+      USDT: '1', // [!code focus]
+    }, // [!code focus]
+  }),
+})
+```
+
+#### persistPreCalls
+
+- **Type**: `boolean`
+- **Default**: `true`
+
+Whether to store pre-calls in a persistent storage.
+If this is set to `false`, it is expected that the consumer
+will manually store pre-calls, and provide them to actions
+that support a `preCalls` parameter.
+
+```ts twoslash
+import { Porto, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.rpcServer({
+    persistPreCalls: false, // [!code focus]
+  }),
+})
+```

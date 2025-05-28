@@ -1,25 +1,42 @@
 ## Overview
 
-Porto implements the following [Wagmi](https://github.com/wevm/wagmi) VanillaJS Actions and React Hooks that map directly to the [experimental JSON-RPC methods](#json-rpc-reference).
+Porto implements the following [Wagmi](https://github.com/wevm/wagmi) Connector, VanillaJS Actions, and React Hooks that map directly to the [experimental JSON-RPC methods](#json-rpc-reference).
 
 :::info
 Porto only supports the React version of Wagmi at the moment. If you are interested in adding support for other Wagmi Adapters, please create a Pull Request.
 :::
 
+### Connector
+
+Import the `porto` connector from the `'porto/wagmi'` entrypoint and add to your Wagmi Config.
+
+```ts
+import { porto } from 'porto/wagmi' // [!code focus]
+import { createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const config = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()], // [!code focus]
+  ssr: true,
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+```
+
 ### VanillaJS Actions
 
 Import via named export or `Actions` namespace (better autocomplete DX and does not impact tree shaking).
 
-- `connect`
 - `createAccount`
-- `disconnect`
+- `getPermissions`
 - `grantPermissions`
-- `permissions`
 - `revokePermissions`
 - `upgradeAccount`
 
 ```ts
-import { Actions } from 'porto/wagmi' // Actions.connect()
+import { Actions } from 'porto/wagmi' // Actions.getPermissions()
 import { connect } from 'porto/wagmi/Actions'
 ```
 
@@ -27,15 +44,13 @@ import { connect } from 'porto/wagmi/Actions'
 
 Import via named export or `Hooks` namespace (better autocomplete DX and does not impact tree shaking).
 
-- `useConnect`
 - `useCreateAccount`
-- `useDisconnect`
 - `useGrantPermissions`
 - `usePermissions`
 - `useRevokePermissions`
 - `useUpgradeAccount`
 
 ```ts
-import { Hooks } from 'porto/wagmi' // Hooks.useConnect()
-import { useConnect } from 'porto/wagmi/Hooks'
+import { Hooks } from 'porto/wagmi' // Hooks.usePermissions()
+import { usePermissions } from 'porto/wagmi/Hooks'
 ```

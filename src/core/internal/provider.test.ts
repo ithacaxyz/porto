@@ -1,3 +1,4 @@
+import { createRequestListener } from '@mjackson/node-fetch-server'
 import {
   Address,
   Hex,
@@ -9,31 +10,34 @@ import {
   Value,
   WebCryptoP256,
 } from 'ox'
-import { Mode } from 'porto'
-import { encodeFunctionData } from 'viem'
-import { readContract, verifyMessage, verifyTypedData } from 'viem/actions'
-import { waitForCallsStatus } from 'viem/experimental'
-import { describe, expect, test } from 'vitest'
-import { setBalance } from '../../../test/src/actions.js'
+import { Key, Mode } from 'porto'
+import { Sponsor } from 'porto/server'
+import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
+import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
+import { describe, expect, test, vi } from 'vitest'
+
+import { accountOldProxyAddress } from '../../../test/src/_generated/addresses.js'
+import { createAccount, setBalance } from '../../../test/src/actions.js'
+import * as Anvil from '../../../test/src/anvil.js'
+import * as Http from '../../../test/src/http.js'
 import {
   exp1Abi,
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
 import * as Porto_internal from './porto.js'
+import * as Actions from './viem/actions.js'
 
 describe.each([
-  ['contract', process.env.VITE_ANVIL !== 'false' ? Mode.contract : undefined],
-  ['relay', Mode.relay],
+  ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
+  ['rpcServer', Mode.rpcServer],
 ] as const)('%s', (type, mode) => {
   if (!mode) return
 
-  const getPorto = () =>
+  const getPorto = (config: { sponsorUrl?: string | undefined } = {}) =>
     getPorto_({
+      ...config,
       mode,
-      transports: {
-        relay: type === 'contract' ? false : undefined,
-      },
     })
 
   describe('eth_accounts', () => {
@@ -70,7 +74,7 @@ describe.each([
     test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -90,7 +94,7 @@ describe.each([
       }))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await setBalance(client, {
         address,
@@ -132,12 +136,11 @@ describe.each([
   })
 
   describe('eth_signTypedData_v4', () => {
-    // TODO(relay): counterfactual signature verification
-    test.skipIf(type === 'relay')('default', async () => {
+    test.runIf(!Anvil.enabled)('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto)
+
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       const signature = await porto.provider.request({
         method: 'eth_signTypedData_v4',
@@ -145,16 +148,21 @@ describe.each([
       })
       expect(signature).toBeDefined()
 
-      const valid = await verifyTypedData(client, {
-        ...typedData,
-        address,
-        signature,
+      const { valid } = await porto.provider.request({
+        method: 'wallet_verifySignature',
+        params: [
+          {
+            address,
+            digest: hashTypedData(typedData),
+            signature,
+          },
+        ],
       })
       expect(valid).toBe(true)
     })
   })
 
-  describe('experimental_grantAdmin', () => {
+  describe('wallet_grantAdmin', () => {
     test('default', async () => {
       const messages: any[] = []
 
@@ -166,7 +174,7 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       await setBalance(client, {
@@ -175,7 +183,7 @@ describe.each([
       })
 
       const response = await porto.provider.request({
-        method: 'experimental_grantAdmin',
+        method: 'wallet_grantAdmin',
         params: [
           {
             key: {
@@ -197,7 +205,7 @@ describe.each([
     })
   })
 
-  describe('experimental_getAdmins', () => {
+  describe('wallet_getAdmins', () => {
     test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
@@ -212,7 +220,7 @@ describe.each([
       })
 
       const { address, keys } = await porto.provider.request({
-        method: 'experimental_getAdmins',
+        method: 'wallet_getAdmins',
       })
       expect(address).toBeDefined()
       expect(keys.length).toBe(1)
@@ -222,13 +230,13 @@ describe.each([
       const { porto } = getPorto()
       await expect(
         porto.provider.request({
-          method: 'experimental_getAdmins',
+          method: 'wallet_getAdmins',
         }),
       ).rejects.matchSnapshot()
     })
   })
 
-  describe('experimental_grantPermissions', () => {
+  describe('wallet_grantPermissions', () => {
     test('default', async () => {
       const messages: any[] = []
 
@@ -236,10 +244,10 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -274,11 +282,11 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       const permissions = await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -295,11 +303,16 @@ describe.each([
       })
 
       expect(permissions.address).toBeDefined()
-      expect({ ...permissions, address: null }).matchSnapshot()
+      expect({
+        ...permissions,
+        address: null,
+        capabilities: null,
+        chainId: null,
+      }).matchSnapshot()
 
       {
         const permissions = await porto.provider.request({
-          method: 'experimental_grantPermissions',
+          method: 'wallet_grantPermissions',
           params: [
             {
               expiry: 9999999999,
@@ -321,7 +334,12 @@ describe.each([
         })
 
         expect(permissions.address).toBeDefined()
-        expect({ ...permissions, address: null }).matchSnapshot()
+        expect({
+          ...permissions,
+          address: null,
+          capabilities: null,
+          chainId: null,
+        }).matchSnapshot()
       }
 
       const accounts = porto._internal.store.getState().accounts
@@ -344,11 +362,11 @@ describe.each([
     test('behavior: no permissions', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await expect(
         porto.provider.request({
-          method: 'experimental_grantPermissions',
+          method: 'wallet_grantPermissions',
           params: [
             {
               expiry: 9999999999,
@@ -369,11 +387,11 @@ describe.each([
     test('behavior: unlimited expiry', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await expect(
         porto.provider.request({
-          method: 'experimental_grantPermissions',
+          method: 'wallet_grantPermissions',
           params: [
             {
               expiry: 0,
@@ -392,24 +410,24 @@ describe.each([
     })
   })
 
-  describe('experimental_createAccount', () => {
+  describe('wallet_createAccount', () => {
     test('default', async () => {
       const { porto } = getPorto()
       const account = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       expect(account).toBeDefined()
     })
   })
 
-  describe('experimental_getPermissions', () => {
+  describe('wallet_getPermissions', () => {
     test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -420,7 +438,7 @@ describe.each([
         ],
       })
       await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -437,13 +455,13 @@ describe.each([
         ],
       })
       const permissions = await porto.provider.request({
-        method: 'experimental_getPermissions',
+        method: 'wallet_getPermissions',
       })
       expect(permissions.length).toBe(2)
     })
   })
 
-  describe('experimental_revokeAdmin', () => {
+  describe('wallet_revokeAdmin', () => {
     test('default', async () => {
       const { porto } = getPorto()
       const client = Porto_internal.getClient(porto).extend(() => ({
@@ -454,7 +472,7 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       await setBalance(client, {
@@ -463,7 +481,7 @@ describe.each([
       })
 
       const { key } = await porto.provider.request({
-        method: 'experimental_grantAdmin',
+        method: 'wallet_grantAdmin',
         params: [
           {
             key: {
@@ -490,7 +508,7 @@ describe.each([
       expect(messages[0].data.length).toBe(2)
 
       await porto.provider.request({
-        method: 'experimental_revokeAdmin',
+        method: 'wallet_revokeAdmin',
         params: [{ id: key.publicKey }],
       })
 
@@ -511,7 +529,7 @@ describe.each([
     })
   })
 
-  describe('experimental_revokePermissions', () => {
+  describe('wallet_revokePermissions', () => {
     test('default', async () => {
       const { porto } = getPorto()
       const client = Porto_internal.getClient(porto).extend(() => ({
@@ -522,7 +540,7 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       await setBalance(client, {
@@ -531,7 +549,7 @@ describe.each([
       })
 
       const { id } = await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -558,7 +576,7 @@ describe.each([
       expect(messages[0].data.length).toBe(1)
 
       await porto.provider.request({
-        method: 'experimental_revokePermissions',
+        method: 'wallet_revokePermissions',
         params: [{ id }],
       })
 
@@ -585,7 +603,7 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       const accounts = porto._internal.store.getState().accounts
@@ -593,28 +611,28 @@ describe.each([
 
       await expect(() =>
         porto.provider.request({
-          method: 'experimental_revokePermissions',
+          method: 'wallet_revokePermissions',
           params: [{ id }],
         }),
       ).rejects.matchSnapshot()
     })
   })
 
-  describe('experimental_getAccountVersion', () => {
+  describe('wallet_getAccountVersion', () => {
     test('default', async () => {
       const { porto } = getPorto()
 
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       const version = await porto.provider.request({
-        method: 'experimental_getAccountVersion',
+        method: 'wallet_getAccountVersion',
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.0.2",
-          "latest": "0.0.2",
+          "current": "0.2.0",
+          "latest": "0.2.0",
         }
       `)
     })
@@ -623,17 +641,17 @@ describe.each([
       const { porto } = getPorto()
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       const version = await porto.provider.request({
-        method: 'experimental_getAccountVersion',
+        method: 'wallet_getAccountVersion',
         params: [{ address }],
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.0.2",
-          "latest": "0.0.2",
+          "current": "0.2.0",
+          "latest": "0.2.0",
         }
       `)
     })
@@ -643,7 +661,7 @@ describe.each([
 
       await expect(
         porto.provider.request({
-          method: 'experimental_getAccountVersion',
+          method: 'wallet_getAccountVersion',
         }),
       ).rejects.toMatchInlineSnapshot(
         `[Provider.DisconnectedError: The provider is disconnected from all chains.]`,
@@ -654,12 +672,12 @@ describe.each([
       const { porto } = getPorto()
 
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       await expect(
         porto.provider.request({
-          method: 'experimental_getAccountVersion',
+          method: 'wallet_getAccountVersion',
           params: [{ address: '0x0000000000000000000000000000000000000000' }],
         }),
       ).rejects.toMatchInlineSnapshot(
@@ -667,18 +685,142 @@ describe.each([
       )
     })
 
-    test.todo('behavior: outdated account')
+    test.runIf(Anvil.enabled)('behavior: outdated account', async () => {
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
 
-    test.todo('behavior: accounts on different versions')
+      const { address } = await porto.provider.request({
+        method: 'wallet_createAccount',
+      })
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      expect(id).toBeDefined()
+
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
+      })
+
+      await setCode(client, {
+        address,
+        bytecode: Hex.concat('0xef0100', accountOldProxyAddress),
+      })
+
+      const version = await porto.provider.request({
+        method: 'wallet_getAccountVersion',
+      })
+      expect(version).toMatchInlineSnapshot(`
+        {
+          "current": "0.0.1",
+          "latest": "0.2.0",
+        }
+      `)
+    })
+  })
+
+  // TODO: fix (broken from https://github.com/ithacaxyz/relay/pull/622)
+  describe.skip('wallet_updateAccount', () => {
+    test.runIf(Anvil.enabled && type === 'rpcServer')('default', async () => {
+      const { porto } = getPorto()
+      const client = Porto_internal.getClient(porto).extend(() => ({
+        mode: 'anvil',
+      }))
+
+      const capabilities = await Actions.getCapabilities(client)
+      vi.spyOn(Actions, 'getCapabilities').mockResolvedValue({
+        ...capabilities,
+        contracts: {
+          ...capabilities.contracts,
+          accountImplementation: {
+            address: accountOldProxyAddress,
+            version: '0.0.1',
+          },
+          accountProxy: {
+            address: accountOldProxyAddress,
+            version: '0.0.1',
+          },
+        },
+      })
+
+      const { address } = await porto.provider.request({
+        method: 'wallet_createAccount',
+      })
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        id,
+      })
+
+      vi.resetAllMocks()
+
+      const version = await porto.provider.request({
+        method: 'wallet_getAccountVersion',
+      })
+      expect(version).toMatchInlineSnapshot(`
+        {
+          "current": "0.0.1",
+          "latest": "0.1.1",
+        }
+      `)
+
+      const { id: id2 } = await porto.provider.request({
+        method: 'wallet_updateAccount',
+      })
+
+      if (id2)
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id: id2,
+        })
+
+      {
+        const version = await porto.provider.request({
+          method: 'wallet_getAccountVersion',
+        })
+        expect(version).toMatchInlineSnapshot(`
+          {
+            "current": "0.1.1",
+            "latest": "0.1.1",
+          }
+        `)
+      }
+    })
   })
 
   describe('personal_sign', () => {
-    // TODO(relay): counterfactual signature verification
-    test.skipIf(type === 'relay')('default', async () => {
+    test.runIf(!Anvil.enabled)('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto)
+
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       const signature = await porto.provider.request({
         method: 'personal_sign',
@@ -686,10 +828,15 @@ describe.each([
       })
       expect(signature).toBeDefined()
 
-      const valid = await verifyMessage(client, {
-        address,
-        message: 'hello',
-        signature,
+      const { valid } = await porto.provider.request({
+        method: 'wallet_verifySignature',
+        params: [
+          {
+            address,
+            digest: hashMessage('hello'),
+            signature,
+          },
+        ],
       })
       expect(valid).toBe(true)
     })
@@ -703,7 +850,7 @@ describe.each([
       porto.provider.on('connect', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -911,7 +1058,7 @@ describe.each([
       porto.provider.on('disconnect', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -923,6 +1070,58 @@ describe.each([
     })
   })
 
+  describe.runIf(Anvil.enabled)('wallet_getCapabilities', () => {
+    test('default', async () => {
+      const { porto } = getPorto()
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+      })
+
+      const keys = Object.keys(capabilities)
+      expect(keys).matchSnapshot()
+
+      const values = Object.values(capabilities)
+      const { atomic, feeToken, permissions, sponsor } = values[0]!
+      expect(atomic).matchSnapshot()
+      expect(feeToken.supported).matchSnapshot()
+      expect(feeToken.tokens.length).matchSnapshot()
+      expect(permissions).matchSnapshot()
+      expect(sponsor).matchSnapshot()
+    })
+
+    test('behavior: chainId', async () => {
+      const { client, porto } = getPorto()
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+        params: [undefined, [Hex.fromNumber(client.chain.id)]],
+      })
+
+      const keys = Object.keys(capabilities)
+      expect(keys).matchSnapshot()
+
+      const values = Object.values(capabilities)
+      const { atomic, feeToken, permissions, sponsor } = values[0]!
+      expect(atomic).matchSnapshot()
+      expect(feeToken.supported).matchSnapshot()
+      expect(
+        feeToken.tokens
+          .map((x) => ({ ...x, nativeRate: null }))
+          .toSorted((a, b) => a.address.localeCompare(b.address)),
+      ).matchSnapshot()
+      expect(permissions).matchSnapshot()
+      expect(sponsor).matchSnapshot()
+    })
+
+    test('behavior: unsupported chain', async () => {
+      const { porto } = getPorto()
+      const capabilities = await porto.provider.request({
+        method: 'wallet_getCapabilities',
+        params: [undefined, ['0x1']],
+      })
+      expect(capabilities).toMatchInlineSnapshot(`{}`)
+    })
+  })
+
   describe('wallet_sendCalls', () => {
     test('default', async () => {
       const { porto } = getPorto()
@@ -931,7 +1130,7 @@ describe.each([
       }))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await setBalance(client, {
         address,
@@ -976,6 +1175,258 @@ describe.each([
       ).toBe(69420n)
     })
 
+    test.runIf(type === 'rpcServer' && Anvil.enabled)(
+      'behavior: `feeToken` capability',
+      async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
+
+        const { address } = await porto.provider.request({
+          method: 'wallet_createAccount',
+        })
+        await setBalance(client, {
+          address,
+          value: Value.fromEther('10000'),
+        })
+
+        const alice = Hex.random(20)
+
+        const { id } = await porto.provider.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              calls: [
+                {
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [alice, 100n],
+                    functionName: 'mint',
+                  }),
+                  to: exp1Address,
+                },
+              ],
+              capabilities: {
+                feeToken: '0x0000000000000000000000000000000000000000',
+              },
+              from: address,
+              version: '1',
+            },
+          ],
+        })
+
+        expect(id).toBeDefined()
+
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id,
+        })
+
+        expect(
+          await readContract(client, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [address],
+            functionName: 'balanceOf',
+          }),
+        ).toBe(Value.fromEther('10000'))
+        expect(
+          await readContract(client, {
+            abi: exp1Abi,
+            address: exp1Address,
+            args: [alice],
+            functionName: 'balanceOf',
+          }),
+        ).toBe(100n)
+      },
+    )
+
+    test.runIf(type === 'rpcServer' && Anvil.enabled)(
+      'behavior: fee sponsor',
+      async () => {
+        const { client, porto } = getPorto()
+
+        const sponsorKey = Key.createSecp256k1()
+        const sponsorAccount = await createAccount(client, {
+          deploy: true,
+          keys: [sponsorKey],
+        })
+
+        const handler = Sponsor.rpcHandler({
+          address: sponsorAccount.address,
+          key: {
+            privateKey: sponsorKey.privateKey!(),
+            type: sponsorKey.type,
+          },
+          transports: porto._internal.config.transports,
+        })
+        const server = await Http.createServer(createRequestListener(handler))
+
+        const { address } = await porto.provider.request({
+          method: 'wallet_createAccount',
+        })
+        await setBalance(client, {
+          address,
+          value: Value.fromEther('10000'),
+        })
+
+        const userBalance_pre = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        const sponsorBalance_pre = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address],
+          functionName: 'balanceOf',
+        })
+
+        const { id } = await porto.provider.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              calls: [
+                {
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [Hex.random(20), Value.fromEther('1')],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
+                },
+              ],
+              capabilities: {
+                sponsorUrl: server.url,
+              },
+              from: address,
+              version: '1',
+            },
+          ],
+        })
+
+        expect(id).toBeDefined()
+
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id,
+        })
+
+        const userBalance_post = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        const sponsorBalance_post = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address],
+          functionName: 'balanceOf',
+        })
+
+        // Check if user was debited 1 EXP.
+        expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
+
+        // Check if sponsor was debited the fee payment.
+        expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+      },
+    )
+
+    test.runIf(type === 'rpcServer' && Anvil.enabled)(
+      'behavior: fee sponsor (porto config)',
+      async () => {
+        const {
+          client,
+          porto: { _internal },
+        } = getPorto()
+
+        const sponsorKey = Key.createSecp256k1()
+        const sponsorAccount = await createAccount(client, {
+          deploy: true,
+          keys: [sponsorKey],
+        })
+
+        const handler = Sponsor.rpcHandler({
+          address: sponsorAccount.address,
+          key: {
+            privateKey: sponsorKey.privateKey!(),
+            type: sponsorKey.type,
+          },
+          transports: _internal.config.transports,
+        })
+        const server = await Http.createServer(createRequestListener(handler))
+
+        const { porto } = getPorto({ sponsorUrl: server.url })
+
+        const { address } = await porto.provider.request({
+          method: 'wallet_createAccount',
+        })
+        await setBalance(client, {
+          address,
+          value: Value.fromEther('10000'),
+        })
+
+        const userBalance_pre = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        const sponsorBalance_pre = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address],
+          functionName: 'balanceOf',
+        })
+
+        const { id } = await porto.provider.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              calls: [
+                {
+                  data: encodeFunctionData({
+                    abi: exp1Abi,
+                    args: [Hex.random(20), Value.fromEther('1')],
+                    functionName: 'transfer',
+                  }),
+                  to: exp1Address,
+                },
+              ],
+              from: address,
+              version: '1',
+            },
+          ],
+        })
+
+        expect(id).toBeDefined()
+
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id,
+        })
+
+        const userBalance_post = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        const sponsorBalance_post = await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [sponsorAccount.address],
+          functionName: 'balanceOf',
+        })
+
+        // Check if user was debited 1 EXP.
+        expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
+
+        // Check if sponsor was debited the fee payment.
+        expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+      },
+    )
+
     test('behavior: use inferred permissions', async () => {
       const { porto } = getPorto()
       const client = Porto_internal.getClient(porto).extend(() => ({
@@ -983,7 +1434,7 @@ describe.each([
       }))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await setBalance(client, {
         address,
@@ -993,7 +1444,7 @@ describe.each([
       const alice = Hex.random(20)
 
       await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -1001,7 +1452,7 @@ describe.each([
               calls: [{ to: exp1Address }],
               spend: [
                 {
-                  limit: Hex.fromNumber(69420),
+                  limit: Hex.fromNumber(Value.fromEther('50')),
                   period: 'day',
                   token: exp1Address,
                 },
@@ -1019,7 +1470,7 @@ describe.each([
               {
                 data: encodeFunctionData({
                   abi: exp1Abi,
-                  args: [alice, 40_000n],
+                  args: [alice, Value.fromEther('50')],
                   functionName: 'transfer',
                 }),
                 to: exp1Address,
@@ -1044,7 +1495,7 @@ describe.each([
           args: [alice],
           functionName: 'balanceOf',
         }),
-      ).toBe(40_000n)
+      ).toBe(Value.fromEther('50'))
     })
 
     test('behavior: `permissions` capability', async () => {
@@ -1054,7 +1505,7 @@ describe.each([
       }))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await setBalance(client, {
         address,
@@ -1064,7 +1515,7 @@ describe.each([
       const alice = Hex.random(20)
 
       const permissions = await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -1120,132 +1571,109 @@ describe.each([
       ).toBe(40_000n)
     })
 
-    test('behavior: `permissions.calls` unauthorized', async () => {
-      const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+    // TODO: remove condition once Anvil supports reverts on delegated accounts.
+    test.runIf(type === 'rpcServer')(
+      'behavior: `permissions.calls` unauthorized',
+      async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
 
-      const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
-      })
-      await setBalance(client, {
-        address,
-        value: Value.fromEther('10000'),
-      })
+        const { address } = await porto.provider.request({
+          method: 'wallet_createAccount',
+        })
+        await setBalance(client, {
+          address,
+          value: Value.fromEther('10000'),
+        })
 
-      const alice = '0x0000000000000000000000000000000000069422'
+        const alice = '0x0000000000000000000000000000000000069422'
 
-      const permissions = await porto.provider.request({
-        method: 'experimental_grantPermissions',
-        params: [
-          {
-            expiry: 9999999999,
-            permissions: {
-              calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-              spend: [
-                {
-                  limit: Hex.fromNumber(69420),
-                  period: 'day',
-                  token: exp1Address,
-                },
-              ],
-            },
-          },
-        ],
-      })
-      await expect(() =>
-        porto.provider.request({
-          method: 'wallet_sendCalls',
+        const permissions = await porto.provider.request({
+          method: 'wallet_grantPermissions',
           params: [
             {
-              calls: [
-                {
-                  data: encodeFunctionData({
-                    abi: exp1Abi,
-                    args: [alice, 69420n],
-                    functionName: 'mint',
-                  }),
-                  to: exp1Address,
-                },
-              ],
-              capabilities: {
-                permissions,
+              expiry: 9999999999,
+              permissions: {
+                calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+                spend: [
+                  {
+                    limit: Hex.fromNumber(69420),
+                    period: 'day',
+                    token: exp1Address,
+                  },
+                ],
               },
-              from: address,
-              version: '1',
             },
           ],
-        }),
-      ).rejects.toThrowError('Unauthorized')
-    })
-
-    test('behavior: `permissions.spend` exceeded', async () => {
-      const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
-        mode: 'anvil',
-      }))
-
-      const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
-      })
-      await setBalance(client, {
-        address,
-        value: Value.fromEther('10000'),
-      })
-
-      const alice = Hex.random(20)
-
-      const permissions = await porto.provider.request({
-        method: 'experimental_grantPermissions',
-        params: [
-          {
-            expiry: 9999999999,
-            permissions: {
-              calls: [{ to: exp1Address }],
-              spend: [
-                {
-                  limit: Hex.fromNumber(69420),
-                  period: 'day',
-                  token: exp1Address,
-                },
-              ],
-            },
-          },
-        ],
-      })
-
-      const { id } = await porto.provider.request({
-        method: 'wallet_sendCalls',
-        params: [
-          {
-            calls: [
+        })
+        await expect(() =>
+          porto.provider.request({
+            method: 'wallet_sendCalls',
+            params: [
               {
-                data: encodeFunctionData({
-                  abi: exp1Abi,
-                  args: [alice, 50_000n],
-                  functionName: 'transfer',
-                }),
-                to: exp1Address,
+                calls: [
+                  {
+                    data: encodeFunctionData({
+                      abi: exp1Abi,
+                      args: [alice, 69420n],
+                      functionName: 'mint',
+                    }),
+                    to: exp1Address,
+                  },
+                ],
+                capabilities: {
+                  permissions,
+                },
+                from: address,
+                version: '1',
               },
             ],
-            capabilities: {
-              permissions,
+          }),
+        ).rejects.toThrowError('Unauthorized')
+      },
+    )
+
+    // TODO: remove condition once Anvil supports reverts on delegated accounts.
+    test.runIf(type === 'rpcServer')(
+      'behavior: `permissions.spend` exceeded',
+      async () => {
+        const { porto } = getPorto()
+        const client = Porto_internal.getClient(porto).extend(() => ({
+          mode: 'anvil',
+        }))
+
+        const { address } = await porto.provider.request({
+          method: 'wallet_createAccount',
+        })
+        await setBalance(client, {
+          address,
+          value: Value.fromEther('10000'),
+        })
+
+        const alice = Hex.random(20)
+
+        const permissions = await porto.provider.request({
+          method: 'wallet_grantPermissions',
+          params: [
+            {
+              expiry: 9999999999,
+              permissions: {
+                calls: [{ to: exp1Address }],
+                spend: [
+                  {
+                    limit: Hex.fromNumber(Value.fromEther('50')),
+                    period: 'day',
+                    token: exp1Address,
+                  },
+                ],
+              },
             },
-            from: address,
-            version: '1',
-          },
-        ],
-      })
+          ],
+        })
 
-      expect(id).toBeDefined()
-
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
-        id,
-      })
-
-      await expect(() =>
-        porto.provider.request({
+        const { id } = await porto.provider.request({
           method: 'wallet_sendCalls',
           params: [
             {
@@ -1253,7 +1681,7 @@ describe.each([
                 {
                   data: encodeFunctionData({
                     abi: exp1Abi,
-                    args: [alice, 50_000n],
+                    args: [alice, Value.fromEther('50')],
                     functionName: 'transfer',
                   }),
                   to: exp1Address,
@@ -1266,9 +1694,40 @@ describe.each([
               version: '1',
             },
           ],
-        }),
-      ).rejects.toThrowError('ExceededSpendLimit')
-    })
+        })
+
+        expect(id).toBeDefined()
+
+        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+          id,
+        })
+
+        await expect(() =>
+          porto.provider.request({
+            method: 'wallet_sendCalls',
+            params: [
+              {
+                calls: [
+                  {
+                    data: encodeFunctionData({
+                      abi: exp1Abi,
+                      args: [alice, Value.fromEther('200')],
+                      functionName: 'transfer',
+                    }),
+                    to: exp1Address,
+                  },
+                ],
+                capabilities: {
+                  permissions,
+                },
+                from: address,
+                version: '1',
+              },
+            ],
+          }),
+        ).rejects.toThrowError('ExceededSpendLimit')
+      },
+    )
 
     test('behavior: revoked permission', async () => {
       const { porto } = getPorto()
@@ -1277,7 +1736,7 @@ describe.each([
       }))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await setBalance(client, {
         address,
@@ -1287,7 +1746,7 @@ describe.each([
       const alice = Hex.random(20)
 
       const permissions = await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -1343,7 +1802,7 @@ describe.each([
       ).toBe(69420n)
 
       await porto.provider.request({
-        method: 'experimental_revokePermissions',
+        method: 'wallet_revokePermissions',
         params: [{ id: permissions.id }],
       })
       await expect(() =>
@@ -1379,7 +1838,7 @@ describe.each([
       }))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await setBalance(client, {
         address,
@@ -1389,7 +1848,7 @@ describe.each([
       const alice = Hex.random(20)
 
       const { id } = await porto.provider.request({
-        method: 'experimental_grantPermissions',
+        method: 'wallet_grantPermissions',
         params: [
           {
             expiry: 9999999999,
@@ -1439,7 +1898,7 @@ describe.each([
       }))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await setBalance(client, {
         address,
@@ -1480,7 +1939,7 @@ describe.each([
       const { porto } = getPorto()
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
 
       await expect(() =>
@@ -1511,7 +1970,7 @@ describe.each([
       }))
 
       const { address } = await porto.provider.request({
-        method: 'experimental_createAccount',
+        method: 'wallet_createAccount',
       })
       await setBalance(client, {
         address,
@@ -1849,188 +2308,6 @@ describe.each([
     })
 
     describe('behavior: admin', () => {
-      test.skipIf(type === 'relay')('default', async () => {
-        const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
-          mode: 'anvil',
-        }))
-
-        const alice = Hex.random(20)
-
-        const privateKey = P256.randomPrivateKey()
-        const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-          includePrefix: false,
-        })
-
-        const { accounts } = await porto.provider.request({
-          method: 'wallet_connect',
-          params: [
-            {
-              capabilities: {
-                createAccount: true,
-              },
-            },
-          ],
-        })
-
-        await setBalance(client, {
-          address: accounts[0]?.address!,
-          value: Value.fromEther('10000'),
-        })
-
-        const key = {
-          publicKey,
-          type: 'p256',
-        } as const
-
-        await porto.provider.request({
-          method: 'experimental_grantAdmin',
-          params: [
-            {
-              key,
-            },
-          ],
-        })
-
-        const { digest, ...request } = await porto.provider.request({
-          method: 'wallet_prepareCalls',
-          params: [
-            {
-              calls: [
-                {
-                  data: encodeFunctionData({
-                    abi: exp1Abi,
-                    args: [alice, 40_000n],
-                    functionName: 'transfer',
-                  }),
-                  to: exp1Address,
-                },
-              ],
-              key,
-            },
-          ],
-        })
-
-        const signature = P256.sign({ payload: digest, privateKey })
-
-        const result = await porto.provider.request({
-          method: 'wallet_sendPreparedCalls',
-          params: [
-            {
-              ...request,
-              key,
-              signature: Signature.toHex(signature),
-            },
-          ],
-        })
-
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
-          id: result[0]!.id,
-        })
-
-        expect(
-          await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
-            args: [alice],
-            functionName: 'balanceOf',
-          }),
-        ).toBe(40_000n)
-      })
-
-      test.skipIf(type === 'relay')('WebCryptoP256', async () => {
-        const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
-          mode: 'anvil',
-        }))
-
-        const alice = Hex.random(20)
-
-        const keyPair = await WebCryptoP256.createKeyPair()
-        const publicKey = PublicKey.toHex(keyPair.publicKey, {
-          includePrefix: false,
-        })
-
-        const { accounts } = await porto.provider.request({
-          method: 'wallet_connect',
-          params: [
-            {
-              capabilities: {
-                createAccount: true,
-              },
-            },
-          ],
-        })
-
-        await setBalance(client, {
-          address: accounts[0]?.address!,
-          value: Value.fromEther('10000'),
-        })
-
-        const key = {
-          prehash: true,
-          publicKey,
-          type: 'p256',
-        } as const
-
-        await porto.provider.request({
-          method: 'experimental_grantAdmin',
-          params: [
-            {
-              key,
-            },
-          ],
-        })
-
-        const { digest, ...request } = await porto.provider.request({
-          method: 'wallet_prepareCalls',
-          params: [
-            {
-              calls: [
-                {
-                  data: encodeFunctionData({
-                    abi: exp1Abi,
-                    args: [alice, 40_000n],
-                    functionName: 'transfer',
-                  }),
-                  to: exp1Address,
-                },
-              ],
-              key,
-            },
-          ],
-        })
-
-        const signature = await WebCryptoP256.sign({
-          payload: digest,
-          privateKey: keyPair.privateKey,
-        })
-
-        const result = await porto.provider.request({
-          method: 'wallet_sendPreparedCalls',
-          params: [
-            {
-              ...request,
-              key,
-              signature: Signature.toHex(signature),
-            },
-          ],
-        })
-
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
-          id: result[0]!.id,
-        })
-
-        expect(
-          await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
-            args: [alice],
-            functionName: 'balanceOf',
-          }),
-        ).toBe(40_000n)
-      })
-
       test('Secp256k1', async () => {
         const { porto } = getPorto()
         const client = Porto_internal.getClient(porto).extend(() => ({
@@ -2065,7 +2342,7 @@ describe.each([
         } as const
 
         await porto.provider.request({
-          method: 'experimental_grantAdmin',
+          method: 'wallet_grantAdmin',
           params: [
             {
               key,

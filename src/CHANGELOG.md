@@ -1,5 +1,71 @@
 # porto
 
+## 0.0.25
+
+### Patch Changes
+
+- [#319](https://github.com/ithacaxyz/porto/pull/319) [`2e705ca`](https://github.com/ithacaxyz/porto/commit/2e705cae334a7c9d3ff3948bf81842d202fb3088) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `experimental_*` methods to `wallet_*`
+
+## 0.0.24
+
+### Patch Changes
+
+- [`9f1fdda`](https://github.com/ithacaxyz/porto/commit/9f1fdda5e2e3469351bf0b81beb897a81a966f9c) Thanks [@jxom](https://github.com/jxom)! - Updated chain contract addresses.
+
+- [#260](https://github.com/ithacaxyz/porto/pull/260) [`64de74b`](https://github.com/ithacaxyz/porto/commit/64de74bdc536241f1b11c1737ee32fe9dc4d3e88) Thanks [@jxom](https://github.com/jxom)! - Fall back to popup if iframe is embedded on an insecure origin (HTTP).
+
+## 0.0.23
+
+### Patch Changes
+
+- [#232](https://github.com/ithacaxyz/porto/pull/232) [`e7d480c`](https://github.com/ithacaxyz/porto/commit/e7d480c7ebf4b77ed02778cbb6e8b8d76e06cbec) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `default` & `relay` attributes from `transports`. Use a single transport instead.
+
+  ```diff
+  Porto.create({
+    ...
+    transports: {
+  -   1: {
+  -     default: http('https://rpc.example.com'),
+  -     relay: http('https://relay.example.com')
+  -   },
+  +   1: http('https://rpc.example.com')
+    },
+  })
+  ```
+
+- [#183](https://github.com/ithacaxyz/porto/pull/183) [`81792f5`](https://github.com/ithacaxyz/porto/commit/81792f5994756e42e2406aadd29b941870bae10e) Thanks [@tmm](https://github.com/tmm)! - Added support for dark/light icon types.
+
+- [#234](https://github.com/ithacaxyz/porto/pull/234) [`8b2dff9`](https://github.com/ithacaxyz/porto/commit/8b2dff9095bfdb996747962883b7fd0b2da829a6) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renames "Relay" keyword instances to "RPC Server".
+
+  - `Mode.relay` → `Mode.rpcServer`
+  - `import { Relay } from 'porto'` → `import { RpcServer } from 'porto'`
+
+- [`775a687`](https://github.com/ithacaxyz/porto/commit/775a6877920665a0e23ec9efe70945838c51386a) Thanks [@tmm](https://github.com/tmm)! - Added form support to inline iframe.
+
+- [#237](https://github.com/ithacaxyz/porto/pull/237) [`6ce420e`](https://github.com/ithacaxyz/porto/commit/6ce420ef727aeb7ecc69cd5782c6deda9673f625) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `RpcServer.getFeeTokens` function. Use `RpcServer.getCapabilities` instead.
+
+- [`c99968e`](https://github.com/ithacaxyz/porto/commit/c99968ea4ba343d434c1c7b48417641637d544b1) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Updated to Relay v7 APIs.
+
+- [`2c445a1`](https://github.com/ithacaxyz/porto/commit/2c445a19a2af7a0bd9df6f72f071417d23f28ee7) Thanks [@jxom](https://github.com/jxom)! - Added `Account`, `Key`, `Relay` modules.
+
+- [#237](https://github.com/ithacaxyz/porto/pull/237) [`6ce420e`](https://github.com/ithacaxyz/porto/commit/6ce420ef727aeb7ecc69cd5782c6deda9673f625) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed non-version attributes from `RpcServer.health`. It now returns a `string` indicating the current version of the RPC Server. To get the previous behavior, use `RpcServer.getCapabilities` instead.
+
+- [`42107cb`](https://github.com/ithacaxyz/porto/commit/42107cb611533f14761259374c0e39be4391d627) Thanks [@o-az](https://github.com/o-az)! - Set porto default storage to memory on server-side
+
+## 0.0.22
+
+### Patch Changes
+
+- [#172](https://github.com/ithacaxyz/porto/pull/172) [`c27df5e`](https://github.com/ithacaxyz/porto/commit/c27df5e736e182325de1b661f2e213434dff4ad5) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Pointed default configuration to Base Sepolia, and updated WebAuthn Relying Party to `stg.id.porto.sh`.
+
+## 0.0.21
+
+### Patch Changes
+
+- [#127](https://github.com/ithacaxyz/porto/pull/127) [`3d51095`](https://github.com/ithacaxyz/porto/commit/3d510958b206bae18fe2231e3bbbca2fffe9a29c) Thanks [@jxom](https://github.com/jxom)! - Added `experimental_getAccountVersion`.
+
+- [#144](https://github.com/ithacaxyz/porto/pull/144) [`88f33a5`](https://github.com/ithacaxyz/porto/commit/88f33a5b8ce51643cc25d286870d1732d3821a95) Thanks [@tmm](https://github.com/tmm)! - Fixed `wallet_getCallsStatus` response parsing.
+
 ## 0.0.20
 
 ### Patch Changes

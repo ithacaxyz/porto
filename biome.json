@@ -28,11 +28,10 @@
       "!extension/.output/**",
       "!extension/.wxt/**",
       "!src/core/internal/_generated/**",
-      "!**/*tsconfig.json",
-      "!**/*tsconfig.*.json",
-      "!**/*package.json",
+      "!test/**/_generated/**",
       "!apps/**/routeTree.gen.ts",
-      "!apps/**/dist/**"
+      "!apps/**/dist/**",
+      "!**/_dist/**"
     ]
   },
   "formatter": {
@@ -74,9 +73,11 @@
       "nursery": {
         "noFloatingPromises": "error",
         "useSortedClasses": {
-          "fix": "unsafe",
+          "fix": "safe",
           "level": "error",
-          "options": {}
+          "options": {
+            "functions": ["clsx", "cx", "cva"]
+          }
         }
       },
       "performance": {
@@ -95,6 +96,22 @@
       }
     }
   },
+  "overrides": [
+    {
+      "assist": {
+        "actions": {
+          "source": {
+            "useSortedKeys": "off"
+          }
+        }
+      },
+      "includes": [
+        "**/*tsconfig.json",
+        "**/*tsconfig.*.json",
+        "**/*package.json"
+      ]
+    }
+  ],
   "vcs": {
     "clientKind": "git",
     "enabled": true,

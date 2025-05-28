@@ -1,0 +1,51 @@
+# Chains
+
+Porto chains are re-exported from [Viem](https://viem.sh/docs/chains/introduction).
+
+## Usage
+
+```ts twoslash
+import { Chains } from 'porto'
+
+const chain = Chains.baseSepolia
+```
+
+## Supported Chains
+
+Porto currently supports the following chains:
+
+| Chain | Value |
+| ----- | ------ |
+| Base | 🚧 |
+| Base Sepolia | `Chains.baseSepolia` |
+
+## Wagmi Usage
+
+Chains can be directly used with [Wagmi's Config](https://wagmi.sh/react/api/createConfig)
+
+```ts twoslash
+import { Chains } from 'porto'
+import { porto } from 'porto/wagmi'
+import { createConfig, http } from 'wagmi'
+
+export const config = createConfig({
+  chains: [Chains.baseSepolia], // [!code hl]
+  connectors: [porto()],
+  transports: {
+    [Chains.baseSepolia.id]: http() // [!code hl]
+  }
+})
+```
+
+## Vanilla Usage
+
+Chains can be used directly with the [`Porto.create`](/sdk/api/porto/create#chains) method.
+
+```ts twoslash
+import { Porto, Chains } from 'porto'
+
+// Create a Porto instance that uses Base Sepolia
+const porto = Porto.create({
+  chains: [Chains.baseSepolia] // [!code hl]
+})
+```

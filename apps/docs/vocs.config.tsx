@@ -1,6 +1,11 @@
+import ChildProcess from 'node:child_process'
 import Icons from 'unplugin-icons/vite'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
+
+const commitSha =
+  ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
+  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
 
 export default defineConfig({
   description: 'Next-gen Account for Ethereum',
@@ -11,6 +16,7 @@ export default defineConfig({
           content="width=device-width, initial-scale=1, maximum-scale=1"
           name="viewport"
         />
+        <meta content={commitSha} name="X-App-Version" />
       </>
     )
   },
@@ -27,44 +33,94 @@ export default defineConfig({
         link: 'https://github.com/ithacaxyz/account',
         text: 'GitHub',
       },
-    ],
-    '/relay': [
       {
         items: [
           {
-            disabled: true,
-            link: '/relay/rpc',
-            text: 'Overview 🚧',
+            link: '/contracts/account',
+            text: 'Account',
           },
           {
-            disabled: true,
-            link: '/relay/rpc/wallet_createAccount',
-            text: 'wallet_createAccount 🚧',
+            link: '/contracts/orchestrator',
+            text: 'Orchestrator',
           },
           {
-            disabled: true,
-            link: '/relay/rpc/wallet_getKeys',
-            text: 'wallet_getKeys 🚧',
+            link: '/contracts/simulator',
+            text: 'Simulator',
+          },
+        ],
+        text: 'Contracts',
+      },
+      {
+        link: '/contracts/benchmarks',
+        text: 'Benchmarks',
+      },
+      {
+        link: '/contracts/security',
+        text: 'Security',
+      },
+      {
+        link: '/contracts/bug-bounty',
+        text: 'Bug Bounty',
+      },
+    ],
+    '/rpc-server': [
+      {
+        link: '/rpc-server',
+        text: 'Overview',
+      },
+      {
+        link: 'https://github.com/ithacaxyz/rpc-server-issues',
+        text: 'GitHub',
+      },
+      {
+        items: [
+          {
+            link: '/rpc-server/wallet_getCapabilities',
+            text: 'wallet_getCapabilities',
           },
           {
-            disabled: true,
-            link: '/relay/rpc/wallet_prepareCalls',
-            text: 'wallet_prepareCalls 🚧',
+            link: '/rpc-server/wallet_prepareCreateAccount',
+            text: 'wallet_prepareCreateAccount',
           },
           {
-            disabled: true,
-            link: '/relay/rpc/wallet_prepareUpgradeAccount',
-            text: 'wallet_prepareUpgradeAccount 🚧',
+            link: '/rpc-server/wallet_createAccount',
+            text: 'wallet_createAccount',
           },
           {
-            disabled: true,
-            link: '/relay/rpc/wallet_sendPreparedCalls',
-            text: 'wallet_sendPreparedCalls 🚧',
+            link: '/rpc-server/wallet_getAccounts',
+            text: 'wallet_getAccounts',
           },
           {
-            disabled: true,
-            link: '/relay/rpc/wallet_upgradeAccount',
-            text: 'wallet_upgradeAccount 🚧',
+            link: '/rpc-server/wallet_getKeys',
+            text: 'wallet_getKeys',
+          },
+          {
+            link: '/rpc-server/wallet_prepareCalls',
+            text: 'wallet_prepareCalls',
+          },
+          {
+            link: '/rpc-server/wallet_sendPreparedCalls',
+            text: 'wallet_sendPreparedCalls',
+          },
+          {
+            link: '/rpc-server/wallet_prepareUpgradeAccount',
+            text: 'wallet_prepareUpgradeAccount',
+          },
+          {
+            link: '/rpc-server/wallet_upgradeAccount',
+            text: 'wallet_upgradeAccount',
+          },
+          {
+            link: '/rpc-server/wallet_getCallsStatus',
+            text: 'wallet_getCallsStatus',
+          },
+          {
+            link: '/rpc-server/wallet_verifySignature',
+            text: 'wallet_verifySignature',
+          },
+          {
+            link: '/rpc-server/wallet_health',
+            text: 'wallet_health',
           },
         ],
         text: 'RPC Reference',
@@ -76,19 +132,34 @@ export default defineConfig({
         text: 'Getting Started',
       },
       {
-        link: '/demo',
-        text: 'Demo',
-      },
-      {
         link: 'https://github.com/ithacaxyz/porto',
         text: 'GitHub',
       },
       {
+        link: 'https://deepwiki.com/ithacaxyz/porto',
+        text: 'DeepWiki',
+      },
+      {
+        link: '/sdk/faq',
+        text: 'FAQ',
+      },
+      {
         items: [
           {
-            disabled: true,
-            link: '/sdk/guides/connection',
-            text: 'Connecting to Apps 🚧',
+            link: '/sdk/guides/discover-accounts',
+            text: 'Onboard & Discover Accounts',
+          },
+          {
+            link: '/sdk/guides/payments',
+            text: 'Payments',
+          },
+          {
+            link: '/sdk/guides/permissions',
+            text: 'Permissions',
+          },
+          {
+            link: '/sdk/guides/subscriptions',
+            text: 'Subscriptions',
           },
           {
             disabled: true,
@@ -97,13 +168,8 @@ export default defineConfig({
           },
           {
             disabled: true,
-            link: '/sdk/guides/payments',
-            text: 'Payments 🚧',
-          },
-          {
-            disabled: true,
-            link: '/sdk/guides/subscriptions',
-            text: 'Subscriptions 🚧',
+            link: '/sdk/guides/sponsoring',
+            text: 'Fee Sponsoring 🚧',
           },
         ],
         text: 'Guides',
@@ -121,78 +187,21 @@ export default defineConfig({
             text: 'Porto',
           },
           {
-            disabled: true,
             link: '/sdk/api/chains',
-            text: 'Chains 🚧',
+            text: 'Chains',
           },
           {
-            collapsed: true,
-            disabled: true,
-            items: [
-              {
-                disabled: true,
-                link: '/sdk/api/dialog/iframe',
-                text: '.iframe',
-              },
-              {
-                disabled: true,
-                link: '/sdk/api/dialog/popup',
-                text: '.popup',
-              },
-            ],
             link: '/sdk/api/dialog',
-            text: 'Dialog 🚧',
+            text: 'Dialog',
           },
           {
-            collapsed: true,
-            disabled: true,
-            items: [
-              {
-                disabled: true,
-                link: '/sdk/api/mode/dialog',
-                text: '.dialog',
-              },
-              {
-                disabled: true,
-                link: '/sdk/api/mode/contract',
-                text: '.contract',
-              },
-              {
-                disabled: true,
-                link: '/sdk/api/mode/relay',
-                text: '.relay',
-              },
-            ],
             link: '/sdk/api/mode',
-            text: 'Mode 🚧',
+            text: 'Mode',
           },
           {
             collapsed: true,
-            disabled: true,
-            items: [
-              {
-                disabled: true,
-                link: '/sdk/api/storage/cookie',
-                text: '.cookie',
-              },
-              {
-                disabled: true,
-                link: '/sdk/api/storage/idb',
-                text: '.idb',
-              },
-              {
-                disabled: true,
-                link: '/sdk/api/storage/localstorage',
-                text: '.localStorage',
-              },
-              {
-                disabled: true,
-                link: '/sdk/api/storage/memory',
-                text: '.memory',
-              },
-            ],
             link: '/sdk/api/storage',
-            text: 'Storage 🚧',
+            text: 'Storage',
           },
         ],
         text: 'API Reference',
@@ -204,36 +213,29 @@ export default defineConfig({
             text: 'Overview',
           },
           {
+            link: '/sdk/wagmi/connector',
+            text: 'Connector',
+          },
+          {
             collapsed: true,
-            disabled: true,
             items: [
               {
-                disabled: true,
                 link: '/sdk/wagmi/connect',
                 text: 'connect',
               },
               {
-                disabled: true,
-                link: '/sdk/wagmi/createAccount',
-                text: 'createAccount',
-              },
-              {
-                disabled: true,
                 link: '/sdk/wagmi/disconnect',
                 text: 'disconnect',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/grantPermissions',
                 text: 'grantPermissions',
               },
               {
-                disabled: true,
-                link: '/sdk/wagmi/permissions',
-                text: 'permissions',
+                link: '/sdk/wagmi/getPermissions',
+                text: 'getPermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/revokePermissions',
                 text: 'revokePermissions',
               },
@@ -243,39 +245,20 @@ export default defineConfig({
                 text: 'upgradeAccount',
               },
             ],
-            text: 'Actions 🚧',
+            text: 'Actions',
           },
           {
             collapsed: true,
-            disabled: true,
             items: [
               {
-                disabled: true,
-                link: '/sdk/wagmi/useConnect',
-                text: 'useConnect',
-              },
-              {
-                disabled: true,
-                link: '/sdk/wagmi/useCreateAccount',
-                text: 'useCreateAccount',
-              },
-              {
-                disabled: true,
-                link: '/sdk/wagmi/useDisconnect',
-                text: 'useDisconnect',
-              },
-              {
-                disabled: true,
                 link: '/sdk/wagmi/useGrantPermissions',
                 text: 'useGrantPermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/usePermissions',
                 text: 'usePermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/useRevokePermissions',
                 text: 'useRevokePermissions',
               },
@@ -285,7 +268,7 @@ export default defineConfig({
                 text: 'useUpgradeAccount',
               },
             ],
-            text: 'Hooks 🚧',
+            text: 'Hooks',
           },
         ],
         text: 'Wagmi Reference',
@@ -295,6 +278,10 @@ export default defineConfig({
           {
             link: '/sdk/rpc',
             text: 'Overview',
+          },
+          {
+            link: '/sdk/rpc/capabilities',
+            text: 'Capabilities',
           },
           {
             link: '/sdk/rpc/eth_accounts',
@@ -311,38 +298,6 @@ export default defineConfig({
           {
             link: '/sdk/rpc/eth_signTypedData_V4',
             text: 'eth_signTypedData_V4',
-          },
-          {
-            link: '/sdk/rpc/experimental_createAccount',
-            text: 'experimental_createAccount',
-          },
-          {
-            link: '/sdk/rpc/experimental_getAccountVersion',
-            text: 'experimental_getAccountVersion',
-          },
-          {
-            link: '/sdk/rpc/experimental_getAdmins',
-            text: 'experimental_getAdmins',
-          },
-          {
-            link: '/sdk/rpc/experimental_getPermissions',
-            text: 'experimental_getPermissions',
-          },
-          {
-            link: '/sdk/rpc/experimental_grantAdmin',
-            text: 'experimental_grantAdmin',
-          },
-          {
-            link: '/sdk/rpc/experimental_grantPermissions',
-            text: 'experimental_grantPermissions',
-          },
-          {
-            link: '/sdk/rpc/experimental_revokeAdmin',
-            text: 'experimental_revokeAdmin',
-          },
-          {
-            link: '/sdk/rpc/experimental_revokePermissions',
-            text: 'experimental_revokePermissions',
           },
           {
             link: '/sdk/rpc/personal_sign',
@@ -363,6 +318,18 @@ export default defineConfig({
           {
             link: '/sdk/rpc/wallet_getCallsStatus',
             text: 'wallet_getCallsStatus',
+          },
+          {
+            link: '/sdk/rpc/wallet_getPermissions',
+            text: 'wallet_getPermissions',
+          },
+          {
+            link: '/sdk/rpc/wallet_grantPermissions',
+            text: 'wallet_grantPermissions',
+          },
+          {
+            link: '/sdk/rpc/wallet_revokePermissions',
+            text: 'wallet_revokePermissions',
           },
           {
             link: '/sdk/rpc/wallet_prepareCalls',
@@ -398,8 +365,8 @@ export default defineConfig({
       text: 'SDK',
     },
     {
-      link: '/relay/rpc',
-      text: 'Relay',
+      link: '/rpc-server',
+      text: 'RPC Server',
     },
     {
       link: '/contracts',
@@ -411,8 +378,10 @@ export default defineConfig({
       Mkcert({
         hosts: [
           'localhost',
+          'prod.localhost',
           'stg.localhost',
-          process.env.ANVIL === 'true' ? 'anvil.localhost' : '',
+          'dev.localhost',
+          'anvil.localhost',
         ],
       }),
       Icons({ compiler: 'jsx', jsx: 'react' }) as never,

@@ -1,0 +1,284 @@
+import { TryItOut } from '../../../components/TryItOut'
+import { parseEther, toHex } from 'viem'
+
+# `useGrantPermissions`
+
+Hook for granting permissions for an Application to perform actions on behalf of the account.
+
+Internally uses [`wallet_grantPermissions`](/sdk/rpc/wallet_grantPermissions).
+
+```tsx twoslash
+import * as React from 'react'
+// ---cut---
+import { Hooks } from 'porto/wagmi'
+import { parseEther, toHex } from 'viem'
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+export function App() {
+  const grantPermissions = Hooks.useGrantPermissions()
+
+  return (
+    <button onClick={() => grantPermissions.mutate({
+      expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+      permissions: {
+        calls: [{
+          signature: 'transfer(address,uint256)',
+          to: token
+        }],
+        spend: [{
+          limit: parseEther('50'), // 50 EXP
+          period: 'day',
+          token: token,
+        }]
+      },
+    })}>Grant Permissions</button>
+  )
+}
+```
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+    const response = await provider.request({
+      method: 'wallet_grantPermissions',
+      params: [{
+        expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+        permissions: {
+          calls: [{ to: token }],
+          spend: [{
+            limit: toHex(parseEther('50')), // 50 EXP
+            period: 'minute',
+            token: token,
+          }],
+        },
+      }]
+    })
+
+    return response
+  }}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>
+
+## App-managed Keys
+
+You can also grant permissions to a specific signing key by providing the `key` parameter. This is useful for when the application wants to perform signing themselves, instead of the wallet.
+
+```tsx twoslash
+import * as React from 'react'
+// ---cut---
+import { Hooks } from 'porto/wagmi'
+import { parseEther, toHex } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+export function App() {
+  const grantPermissions = Hooks.useGrantPermissions()
+  const account = privateKeyToAccount('0x...') // [!code focus]
+
+  return (
+    <button onClick={() => grantPermissions.mutate({
+      expiry: Math.floor(Date.now() / 1_000) + 7 * 24 * 60 * 60, // 1 week
+      key: { // [!code focus]
+        publicKey: account.address, // [!code focus]
+        type: 'secp256k1', // [!code focus]
+      }, // [!code focus]
+      permissions: {
+        calls: [{
+          signature: 'transfer(address,uint256)',
+          to: token
+        }],
+        spend: [{
+          limit: parseEther('50'), // 50 EXP
+          period: 'day',
+          token: token,
+        }]
+      },
+    })}>Grant Permissions</button>
+  )
+}
+```
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to grant permissions for. If not provided, will use the connected account.
+
+### expiry
+
+`number`
+
+Timestamp (in seconds) when the permission expires.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const grantPermissions = Hooks.useGrantPermissions()
+
+  // Grant permissions for 1 hour
+  grantPermissions.mutate({
+    expiry: Math.floor(Date.now() / 1000) + 60 * 60
+    // ...
+  })
+}
+```
+
+### key
+
+Optional key to use for signing. If provided, the application can use this key to sign transactions.
+
+```ts
+type Key = {
+  /** Public key */
+  publicKey: `0x${string}`
+  /** Key type */
+  type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+}
+```
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+import { privateKeyToAccount } from 'viem/accounts'
+
+function Example() {
+  const grantPermissions = Hooks.useGrantPermissions()
+  const account = privateKeyToAccount('0x...')
+
+  grantPermissions.mutate({
+    key: {
+      publicKey: account.address,
+      type: 'secp256k1',
+    }
+    // ...
+  })
+}
+```
+
+### permissions
+
+Permissions to grant to the account.
+
+```ts
+type Permissions = {
+  /** Call permissions */
+  calls: {
+    /** Function signature or 4-byte signature */
+    signature?: string
+    /** Authorized target address */
+    to?: `0x${string}`
+  }[]
+
+  /** Spend permissions */
+  spend: {
+    /** Spending limit (in wei) per period */
+    limit: `0x${string}`
+    /** Period of the spend limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token to set the limit on (defaults to native token) */
+    token?: `0x${string}`
+  }[]
+}
+```
+
+### onError
+
+`((error: Error, variables: GrantPermissionsParameters, context: unknown) => void) | undefined`
+
+Function to invoke if the mutation encounters an error.
+
+### onMutate
+
+`((variables: GrantPermissionsParameters) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke before the mutation function and before `onSuccess` or `onError` are invoked.
+
+### onSettled
+
+`((data: unknown, error: Error | null, variables: GrantPermissionsParameters, context: unknown) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke when the mutation is settled (either succeeded or failed).
+
+### onSuccess
+
+`((data: unknown, variables: GrantPermissionsParameters, context: unknown) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke if the mutation is successful.
+
+## Return Type
+
+Returns a [`TanStack Query` mutation result](https://tanstack.com/query/latest/docs/react/reference/useMutation) with the following properties:
+
+### data
+
+`unknown`
+
+Data returned from the mutation.
+
+### error
+
+`Error | null`
+
+Error encountered during mutation execution, if any.
+
+### isError
+
+`boolean`
+
+True if the mutation encountered an error.
+
+### isIdle
+
+`boolean`
+
+True if the mutation has not been called yet.
+
+### isLoading
+
+`boolean`
+
+True if the mutation is in a loading state.
+
+### isPending
+
+`boolean`
+
+True if the mutation is in a pending state.
+
+### isSuccess
+
+`boolean`
+
+True if the mutation was successful.
+
+### mutate
+
+`(variables: GrantPermissionsParameters) => void`
+
+Function to trigger the mutation.
+
+### mutateAsync
+
+`(variables: GrantPermissionsParameters) => Promise<unknown>`
+
+Async function to trigger the mutation and get a promise that resolves when the mutation is complete.
+
+### reset
+
+`() => void`
+
+Function to reset the mutation state.
+
+### status
+
+`'error' | 'idle' | 'loading' | 'success'`
+
+Current status of the mutation.

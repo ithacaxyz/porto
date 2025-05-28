@@ -12,15 +12,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.15",
+    "@ariakit/react": "catalog:",
     "@porto/apps": "workspace:*",
+    "@sentry/react": "catalog:",
+    "@sentry/vite-plugin": "catalog:",
     "@tanstack/query-sync-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "@tanstack/react-router": "catalog:",
-    "@sentry/react": "catalog:",
-    "@sentry/vite-plugin": "catalog:",
     "@wagmi/core": "catalog:",
+    "cuer": "^0.0.2",
     "cva": "catalog:",
     "ox": "catalog:",
     "porto": "workspace:*",
@@ -30,8 +31,8 @@
     "zustand": "catalog:"
   },
   "devDependencies": {
-    "@porto/apps": "workspace:*",
     "@iconify/json": "catalog:",
+    "@porto/apps": "workspace:*",
     "@svgr/core": "catalog:",
     "@svgr/plugin-jsx": "catalog:",
     "@tailwindcss/vite": "catalog:",
@@ -43,18 +44,17 @@
     "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
     "tailwindcss": "catalog:",
-    "tailwindcss-animate": "^1.0.7",
-    "typed-query-selector": "^2.12.0",
+    "tw-animate-css": "catalog:",
     "typescript": "catalog:",
     "unplugin-icons": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
   },
-  "packageManager": "pnpm@10.6.3",
+  "packageManager": "pnpm@10.10.0",
   "repository": {
     "type": "git",
-    "directory": "app",
+    "directory": "apps/dialog",
     "url": "https://github.com/ithacaxyz/porto"
   }
 }

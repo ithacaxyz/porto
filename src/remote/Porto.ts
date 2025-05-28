@@ -29,9 +29,16 @@ export const defaultConfig = {
         },
       },
       requireConnection: false,
+      requireUpdatedAccount: false,
     },
     {
-      method: 'experimental_grantAdmin',
+      method: 'wallet_getAccountVersion',
+      modes: {
+        headless: true,
+      },
+    },
+    {
+      method: 'wallet_grantAdmin',
       modes: {
         dialog: {
           sameOrigin: true,
@@ -39,10 +46,22 @@ export const defaultConfig = {
       },
     },
     {
-      method: 'experimental_upgradeAccount',
+      method: 'wallet_revokeAdmin',
+      modes: {
+        dialog: {
+          sameOrigin: true,
+        },
+      },
+    },
+    {
+      method: 'wallet_upgradeAccount',
       modes: {
         headless: true,
       },
+    },
+    {
+      method: 'wallet_updateAccount',
+      requireUpdatedAccount: false,
     },
     {
       method: 'wallet_connect',
@@ -55,6 +74,7 @@ export const defaultConfig = {
           : undefined,
       },
       requireConnection: false,
+      requireUpdatedAccount: false,
     },
     {
       method: 'wallet_createAccount',
@@ -67,9 +87,16 @@ export const defaultConfig = {
           : undefined,
       },
       requireConnection: false,
+      requireUpdatedAccount: false,
     },
     {
       method: 'wallet_getCallsStatus',
+      modes: {
+        headless: true,
+      },
+    },
+    {
+      method: 'wallet_getCapabilities',
       modes: {
         headless: true,
       },
@@ -111,18 +138,24 @@ export function create(
 ): Porto {
   const {
     chains = defaultConfig.chains,
+    feeToken = defaultConfig.feeToken,
     mode = defaultConfig.mode,
     messenger = defaultConfig.messenger,
     methodPolicies = defaultConfig.methodPolicies,
+    sponsorUrl,
     storage = defaultConfig.storage,
+    storageKey = defaultConfig.storageKey,
     transports = defaultConfig.transports,
   } = parameters
 
   const porto = Porto_.create({
     announceProvider: false,
     chains,
+    feeToken,
     mode,
+    sponsorUrl,
     storage,
+    storageKey,
     transports,
   })
 
@@ -140,9 +173,9 @@ export function create(
     methodPolicies,
     mode,
     ready() {
-      const { chain } = porto._internal.store.getState()
+      const { chainId } = porto._internal.store.getState()
       return messenger.ready({
-        chain,
+        chainId,
         methodPolicies,
       })
     },
@@ -176,21 +209,24 @@ export type Config<
 
 export type MethodPolicy = {
   method: string
-  modes: {
-    headless?:
-      | true
-      | {
-          sameOrigin?: boolean | undefined
-        }
-      | undefined
-    dialog?:
-      | true
-      | {
-          sameOrigin?: boolean | undefined
-        }
-      | undefined
-  }
+  modes?:
+    | {
+        headless?:
+          | true
+          | {
+              sameOrigin?: boolean | undefined
+            }
+          | undefined
+        dialog?:
+          | true
+          | {
+              sameOrigin?: boolean | undefined
+            }
+          | undefined
+      }
+    | undefined
   requireConnection?: boolean | undefined
+  requireUpdatedAccount?: boolean | undefined
 }
 export type MethodPolicies = readonly MethodPolicy[]
 

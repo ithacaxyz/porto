@@ -11,7 +11,7 @@ export function SignIn(props: SignIn.Props) {
   const { loading, onApprove, permissions } = props
 
   const account = Hooks.useAccount(porto)
-  const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   return (
     <Layout loading={loading} loadingTitle="Signing in...">
@@ -20,7 +20,12 @@ export function SignIn(props: SignIn.Props) {
           content={
             <>
               Authenticate with your Porto account to start using{' '}
-              <span className="font-medium">{hostname}</span>.
+              {hostname ? (
+                <span className="font-medium">{hostname}</span>
+              ) : (
+                'this website'
+              )}
+              .
             </>
           }
           icon={LucideLogIn}
@@ -28,12 +33,13 @@ export function SignIn(props: SignIn.Props) {
         />
       </Layout.Header>
 
-      <Permissions {...permissions} />
+      <Permissions title="Permissions requested" {...permissions} />
 
       <Layout.Footer>
         <Layout.Footer.Actions>
           <Button
-            className="flex-grow"
+            className="w-full"
+            data-testid="sign-up"
             onClick={() => onApprove({ signIn: false })}
             type="button"
           >
@@ -41,7 +47,8 @@ export function SignIn(props: SignIn.Props) {
           </Button>
 
           <Button
-            className="flex-grow"
+            className="w-full"
+            data-testid="sign-in"
             onClick={() => onApprove({ signIn: true })}
             type="button"
             variant="accent"

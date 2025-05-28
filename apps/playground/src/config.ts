@@ -2,10 +2,11 @@ import { PortoConfig } from '@porto/apps'
 import {
   exp1Address as exp1Address_,
   exp2Address as exp2Address_,
+  expNftAddress as expNftAddress_,
 } from '@porto/apps/contracts'
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
-import { Chains, Dialog, Mode, Porto } from 'porto'
+import { Dialog, Mode, Porto } from 'porto'
 
 const config = PortoConfig.getConfig()
 const host = PortoConfig.getDialogHost()
@@ -13,6 +14,7 @@ const chainId = config.chains[0].id
 
 export const exp1Address = exp1Address_[chainId]
 export const exp2Address = exp2Address_[chainId]
+export const expNftAddress = expNftAddress_[chainId]
 
 export const modes = {
   contract: Mode.contract(),
@@ -29,11 +31,7 @@ export const modes = {
     host,
     renderer: Dialog.popup(),
   }),
-  relay: Mode.relay({
-    feeToken: {
-      [Chains.odysseyTestnet.id]: exp1Address,
-    },
-  }),
+  rpc: Mode.rpcServer(),
 }
 export type ModeType = keyof typeof modes
 
@@ -65,8 +63,11 @@ export const permissions = () =>
     },
   }) as const
 
+const sponsor = new URLSearchParams(window.location.search).get('sponsor')
+
 export const porto = Porto.create({
   ...config,
   // We will be deferring mode setup until after hydration.
   mode: null,
+  sponsorUrl: sponsor ? `${window.location.origin}/sponsor` : undefined,
 })

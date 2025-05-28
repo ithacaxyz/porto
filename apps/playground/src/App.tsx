@@ -1,4 +1,4 @@
-import { exp1Abi } from '@porto/apps/contracts'
+import { exp1Abi, expNftAbi } from '@porto/apps/contracts'
 import {
   AbiFunction,
   Hex,
@@ -11,18 +11,18 @@ import {
   Value,
 } from 'ox'
 import { Chains } from 'porto'
-import { getClient } from 'porto/core/internal/porto'
 import * as React from 'react'
+import { hashMessage, hashTypedData } from 'viem'
 import {
   generatePrivateKey,
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
-import { verifyMessage, verifyTypedData } from 'viem/actions'
 
 import {
   exp1Address,
   exp2Address,
+  expNftAddress,
   type ModeType,
   mipd,
   modes,
@@ -48,7 +48,7 @@ export function App() {
             <option value="popup-dialog">Dialog (popup)</option>
             <option value="inline-dialog">Dialog (inline)</option>
             <option value="contract">Contract</option>
-            <option value="relay">Relay</option>
+            <option value="rpc">RPC Server</option>
           </select>
         </div>
         <hr />
@@ -68,6 +68,7 @@ export function App() {
         <Disconnect />
         <UpgradeAccount />
         <GetAccountVersion />
+        <UpdateAccount />
         <div>
           <br />
           <hr />
@@ -133,7 +134,7 @@ function State() {
       ) : (
         <>
           <p>Address: {state.accounts[0].address}</p>
-          <p>Chain ID: {state.chain.id}</p>
+          <p>Chain ID: {state.chainId}</p>
           <p>
             Keys:{' '}
             <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
@@ -268,11 +269,11 @@ function Register() {
   const [result, setResult] = React.useState<unknown | null>(null)
   return (
     <div>
-      <h3>experimental_createAccount</h3>
+      <h3>wallet_createAccount</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_createAccount' })
+            .request({ method: 'wallet_createAccount' })
             .then(setResult)
         }
         type="button"
@@ -288,12 +289,12 @@ function AddFunds() {
   const [result, setResult] = React.useState<unknown | null>(null)
   return (
     <div>
-      <h3>experimental_addFunds</h3>
+      <h3>wallet_addFunds</h3>
       <button
         onClick={() =>
           porto.provider
             .request({
-              method: 'experimental_addFunds',
+              method: 'wallet_addFunds',
               params: [
                 {
                   token: exp1Address,
@@ -350,11 +351,11 @@ function GetAccountVersion() {
   const [result, setResult] = React.useState<unknown | null>(null)
   return (
     <div>
-      <h3>experimental_getAccountVersion</h3>
+      <h3>wallet_getAccountVersion</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_getAccountVersion' })
+            .request({ method: 'wallet_getAccountVersion' })
             .then(setResult)
         }
         type="button"
@@ -392,12 +393,12 @@ function GrantPermissions() {
   const [result, setResult] = React.useState<any | null>(null)
   return (
     <div>
-      <h3>experimental_grantPermissions</h3>
+      <h3>wallet_grantPermissions</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
           const result = await porto.provider.request({
-            method: 'experimental_grantPermissions',
+            method: 'wallet_grantPermissions',
             params: [permissions()],
           })
           setResult(result)
@@ -414,7 +415,7 @@ function RevokePermissions() {
   const [revoked, setRevoked] = React.useState(false)
   return (
     <div>
-      <h3>experimental_revokePermissions</h3>
+      <h3>wallet_revokePermissions</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -423,7 +424,7 @@ function RevokePermissions() {
 
           setRevoked(false)
           await porto.provider.request({
-            method: 'experimental_revokePermissions',
+            method: 'wallet_revokePermissions',
             params: [{ id }],
           })
           setRevoked(true)
@@ -442,11 +443,11 @@ function GetPermissions() {
 
   return (
     <div>
-      <h3>experimental_getPermissions</h3>
+      <h3>wallet_getPermissions</h3>
       <button
         onClick={() =>
           porto.provider
-            .request({ method: 'experimental_getPermissions' })
+            .request({ method: 'wallet_getPermissions' })
             .then(setResult)
         }
         type="button"
@@ -467,7 +468,7 @@ function GrantAdmin() {
   const [result, setResult] = React.useState<any | null>(null)
   return (
     <div>
-      <h3>experimental_grantAdmin</h3>
+      <h3>wallet_grantAdmin</h3>
       {providers.map(({ info, provider }) => (
         <button
           key={info.uuid}
@@ -476,7 +477,7 @@ function GrantAdmin() {
               method: 'eth_requestAccounts',
             })
             const result = await porto.provider.request({
-              method: 'experimental_grantAdmin',
+              method: 'wallet_grantAdmin',
               params: [
                 {
                   key: {
@@ -502,12 +503,10 @@ function GetAdmins() {
   const [result, setResult] = React.useState<any | null>(null)
   return (
     <div>
-      <h3>experimental_getAdmins</h3>
+      <h3>wallet_getAdmins</h3>
       <button
         onClick={() => {
-          porto.provider
-            .request({ method: 'experimental_getAdmins' })
-            .then(setResult)
+          porto.provider.request({ method: 'wallet_getAdmins' }).then(setResult)
         }}
         type="button"
       >
@@ -522,7 +521,7 @@ function RevokeAdmin() {
   const [revoked, setRevoked] = React.useState(false)
   return (
     <div>
-      <h3>experimental_revokeAdmin</h3>
+      <h3>wallet_revokeAdmin</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -531,7 +530,7 @@ function RevokeAdmin() {
 
           setRevoked(false)
           await porto.provider.request({
-            method: 'experimental_revokeAdmin',
+            method: 'wallet_revokeAdmin',
             params: [{ id }],
           })
           setRevoked(true)
@@ -541,6 +540,27 @@ function RevokeAdmin() {
         <button type="submit">Revoke Admin</button>
       </form>
       {revoked && <p>Admin revoked.</p>}
+    </div>
+  )
+}
+
+function UpdateAccount() {
+  const [result, setResult] = React.useState<unknown>(null)
+
+  return (
+    <div>
+      <h3>wallet_updateAccount</h3>
+      <button
+        onClick={() =>
+          porto.provider
+            .request({ method: 'wallet_updateAccount' })
+            .then(setResult)
+        }
+        type="button"
+      >
+        Update Account
+      </button>
+      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
@@ -556,7 +576,7 @@ function UpgradeAccount() {
 
   return (
     <div>
-      <h3>experimental_upgradeAccount</h3>
+      <h3>wallet_upgradeAccount</h3>
       <p>
         <button
           onClick={() => {
@@ -596,7 +616,7 @@ function UpgradeAccount() {
             const account = privateKeyToAccount(privateKey as Hex.Hex)
 
             const { context, signPayloads } = await porto.provider.request({
-              method: 'experimental_prepareUpgradeAccount',
+              method: 'wallet_prepareUpgradeAccount',
               params: [
                 {
                   address: account.address,
@@ -614,7 +634,7 @@ function UpgradeAccount() {
             )
 
             const address = await porto.provider.request({
-              method: 'experimental_upgradeAccount',
+              method: 'wallet_upgradeAccount',
               params: [{ context, signatures }],
             })
             setResult(address)
@@ -644,6 +664,7 @@ function SendCalls() {
         const formData = new FormData(e.target as HTMLFormElement)
         const action = formData.get('action') as string | null
         const address = formData.get('address') as `0x${string}` | null
+        const feeToken = formData.get('feeToken') as string | null
 
         const result = await porto.provider.request({
           method: 'eth_accounts',
@@ -712,6 +733,12 @@ function SendCalls() {
                 ),
                 to: exp1Address,
               },
+              {
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(expNftAbi, 'mint'),
+                ),
+                to: expNftAddress,
+              },
             ] as const
 
           if (action === 'revert')
@@ -729,6 +756,23 @@ function SendCalls() {
               },
             ] as const
 
+          if (action === 'mint-nft')
+            return [
+              {
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(exp1Abi, 'approve'),
+                  [expNftAddress, Value.fromEther('10')],
+                ),
+                to: exp1Address,
+              },
+              {
+                data: AbiFunction.encodeData(
+                  AbiFunction.fromAbi(expNftAbi, 'mint'),
+                ),
+                to: expNftAddress,
+              },
+            ] as const
+
           return [
             {
               to: recipient,
@@ -742,6 +786,11 @@ function SendCalls() {
           params: [
             {
               calls,
+              capabilities: {
+                feeToken: (feeToken === 'ETH'
+                  ? '0x0000000000000000000000000000000000000000'
+                  : undefined) as any,
+              },
               from: account,
               version: '1',
             },
@@ -756,11 +805,19 @@ function SendCalls() {
         <select name="action">
           <option value="mint">Mint 100 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
-          <option value="mint-transfer">Mint 100 EXP2 + Transfer 50 EXP</option>
+          <option value="mint-transfer">
+            Mint 100 EXP2 + Transfer 50 EXP + Mint NFT
+          </option>
+          <option value="mint-nft">Mint NFT</option>
           <option value="revert">Revert</option>
           <option value="noop">Noop Calls</option>
         </select>
         <input name="address" placeholder="address" type="text" />
+        Fee Token:
+        <select defaultValue="EXP" name="feeToken">
+          <option value="EXP">EXP</option>
+          <option value="ETH">ETH</option>
+        </select>
         <button type="submit">Send</button>
       </div>
 
@@ -947,11 +1004,17 @@ function SignMessage() {
             method: 'eth_accounts',
           })
 
-          const valid = await verifyMessage(getClient(porto), {
-            address: account,
-            message,
-            signature,
+          const { valid } = await porto.provider.request({
+            method: 'wallet_verifySignature',
+            params: [
+              {
+                address: account,
+                digest: hashMessage(message),
+                signature,
+              },
+            ],
           })
+
           setValid(valid)
         }}
       >
@@ -1011,10 +1074,15 @@ function SignTypedData() {
             method: 'eth_accounts',
           })
 
-          const valid = await verifyTypedData(getClient(porto), {
-            ...typedData,
-            address: account,
-            signature,
+          const { valid } = await porto.provider.request({
+            method: 'wallet_verifySignature',
+            params: [
+              {
+                address: account,
+                digest: hashTypedData(typedData),
+                signature,
+              },
+            ],
           })
           setValid(valid)
         }}
@@ -1048,7 +1116,7 @@ function GrantKeyPermissions() {
           keyPair = { privateKey, publicKey }
 
           const result = await porto.provider.request({
-            method: 'experimental_grantPermissions',
+            method: 'wallet_grantPermissions',
             params: [
               {
                 key: { publicKey, type: 'p256' },
@@ -1148,7 +1216,7 @@ function PrepareCalls() {
           params: [
             {
               calls,
-              chainId: Hex.fromNumber(Chains.odysseyTestnet.id),
+              chainId: Hex.fromNumber(Chains.portoDev.id),
               key: {
                 publicKey: keyPair.publicKey,
                 type: 'p256',

@@ -1,25 +1,26 @@
 import { PortoConfig } from '@porto/apps'
-import { Chains, Mode, Porto } from 'porto'
-import { createConfig, createStorage, http } from 'wagmi'
+import { Dialog, Mode } from 'porto'
+import { porto } from 'porto/wagmi'
+import { createConfig, createStorage } from 'wagmi'
 
-if (typeof window !== 'undefined') {
-  const host = PortoConfig.getDialogHost()
-  Porto.create({
-    mode: Mode.dialog({
-      host,
-    }),
-  })
-}
+const portoConfig = PortoConfig.getConfig()
+
+export const connector = porto({
+  ...portoConfig,
+  mode: Mode.dialog({
+    host: PortoConfig.getDialogHost(),
+    renderer: Dialog.iframe(),
+  }),
+})
 
 export const config = createConfig({
-  chains: [Chains.odysseyTestnet, Chains.odysseyDevnet],
+  chains: portoConfig.chains,
+  connectors: [connector],
+  multiInjectedProviderDiscovery: false,
   storage: createStorage({
     storage: typeof window !== 'undefined' ? localStorage : undefined,
   }),
-  transports: {
-    [Chains.odysseyTestnet.id]: http(),
-    [Chains.odysseyDevnet.id]: http(),
-  },
+  transports: portoConfig.transports,
 })
 
 declare module 'wagmi' {

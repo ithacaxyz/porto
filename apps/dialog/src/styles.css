@@ -2,21 +2,21 @@
 
 @custom-variant dark (&:is(.scheme-light-dark *));
 
+@theme {
+  --text-base: 15px;
+  --text-base--line-height: calc(1.325 / 1);
+}
+
 html,
 :host {
-  background-color: var(--background-color-primary);
+  @apply bg-transparent;
+}
+
+body {
+  @apply text-base;
 }
 
 [data-dialog] {
   --height-button: 40px;
   --radius-default: 8px;
-}
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  @apply appearance-none;
-}
-
-input[type="number"] {
-  appearance: textfield;
 }

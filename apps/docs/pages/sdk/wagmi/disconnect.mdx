@@ -1,0 +1,38 @@
+# `disconnect`
+
+VanillaJS action for disconnecting an account. Uses [`wallet_disconnect`](/sdk/rpc/wallet_disconnect) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, porto } from 'porto/wagmi'
+import { config } from './config'
+
+// Disconnect from the current account
+await Actions.disconnect(config)
+
+// Disconnect from a specific connector
+await Actions.disconnect(config, {
+  connector: porto(),
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/wagmi/config.ts]
+```
+
+:::
+
+## Parameters
+
+### connector
+
+`Connector | CreateConnectorFn`
+
+The connector to disconnect from. If not provided, the current connector will be used.
+
+## Return Value
+
+`void`

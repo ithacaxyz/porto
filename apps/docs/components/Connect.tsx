@@ -1,16 +1,24 @@
-import { Hooks } from 'porto/wagmi'
-import * as React from 'react'
-import { useAccount, useConnectors } from 'wagmi'
-import LucideCheck from '~icons/lucide/check'
-
+import { Env } from '@porto/apps'
+import {
+  useAccount,
+  useChainId,
+  useConnect,
+  useConnectors,
+  useDisconnect,
+} from 'wagmi'
+import LucideWallet from '~icons/lucide/wallet'
 import { Button } from './Button'
+import { permissions } from './HomePage'
+
+const idOrigin = `https://${Env.get()}.id.porto.sh`
 
 export function Connect(props: Connect.Props) {
   const { variant = 'default', signInText = 'Sign in' } = props
 
   const account = useAccount()
-  const connect = Hooks.useConnect()
-  const disconnect = Hooks.useDisconnect()
+  const connect = useConnect()
+  const chainId = useChainId()
+  const disconnect = useDisconnect()
   const connectors = useConnectors()
   const connector = connectors.find(
     (connector) => connector.id === 'xyz.ithaca.porto',
@@ -18,31 +26,21 @@ export function Connect(props: Connect.Props) {
 
   const size = variant === 'topnav' ? 'small' : 'default'
 
-  const [copied, setCopied] = React.useState(false)
-  const copyToClipboard = React.useCallback(() => {
-    if (copied) return
-    if (!account.address) return
-    navigator.clipboard.writeText(account.address)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2_000)
-  }, [account.address, copied])
-
   if (account.address)
     return (
       <div className="flex items-center gap-2">
-        <Button onClick={() => copyToClipboard()} size={size}>
-          {copied && (
-            <div className="absolute inset-0 flex items-center justify-center gap-1.5">
-              <LucideCheck />
-              Copied
-            </div>
-          )}
-          <div className={copied ? 'invisible' : undefined}>
-            {account.address.slice(0, 6)}...{account.address.slice(-4)}
-          </div>
+        <Button
+          className="gap-2"
+          render={
+            // biome-ignore lint/a11y/useAnchorContent:
+            <a href={idOrigin} />
+          }
+          size={size}
+        >
+          <LucideWallet className="text-gray10" /> Porto ID
         </Button>
         <Button
-          onClick={() => disconnect.mutate({})}
+          onClick={() => disconnect.disconnect()}
           size={size}
           variant="destructive"
         >
@@ -62,7 +60,14 @@ export function Connect(props: Connect.Props) {
   return (
     <div>
       <Button
-        onClick={() => connect.mutate({ connector: connector! })}
+        onClick={() =>
+          connect.connect({
+            capabilities: {
+              grantPermissions: permissions(chainId),
+            },
+            connector: connector!,
+          })
+        }
         size={size}
         variant={variant === 'topnav' ? 'accentTint' : 'accent'}
       >

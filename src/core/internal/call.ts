@@ -1,12 +1,11 @@
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
-
-import * as Delegation from './_generated/contracts/Delegation.js'
-import * as Key from './key.js'
+import * as Key from '../Key.js'
+import * as PortoAccount from './_generated/contracts/PortoAccount.js'
 
 /** Stub address for self-execution. */
-export const self = '0x2323232323232323232323232323232323232323'
+export const selfAddress = '0x2323232323232323232323232323232323232323'
 
 export type Call = {
   to: Address.Address
@@ -24,10 +23,10 @@ export function authorize(parameters: authorize.Parameters) {
   const { key } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'authorize'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'authorize'),
       [Key.serialize(key)],
     ),
-    to: self,
+    to: selfAddress,
   } as const satisfies Call
 }
 
@@ -60,10 +59,10 @@ export function setCanExecute(parameters: setCanExecute.Parameters = {}) {
 
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'setCanExecute'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'setCanExecute'),
       [hash, to, selector, enabled],
     ),
-    to: self,
+    to: selfAddress,
   } as const satisfies Call
 }
 
@@ -90,10 +89,10 @@ export function setLabel(parameters: setLabel.Parameters) {
   const { label } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'setLabel'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'setLabel'),
       [label],
     ),
-    to: self,
+    to: selfAddress,
   } as const satisfies Call
 }
 
@@ -115,10 +114,10 @@ export function setSpendLimit(parameters: setSpendLimit.Parameters) {
   const token = parameters.token ?? '0x0000000000000000000000000000000000000000'
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'setSpendLimit'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'setSpendLimit'),
       [key.hash, token, Key.toSerializedSpendPeriod[period], limit],
     ),
-    to: self,
+    to: selfAddress,
   } as const satisfies Call
 }
 
@@ -147,10 +146,10 @@ export function setSignatureCheckerApproval(
   const { address, key, enabled } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'setSignatureCheckerApproval'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'setSignatureCheckerApproval'),
       [key.hash, address, enabled],
     ),
-    to: self,
+    to: selfAddress,
   } as const satisfies Call
 }
 
@@ -175,10 +174,10 @@ export function removeSpendLimit(parameters: removeSpendLimit.Parameters) {
   const { key, token, period } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'removeSpendLimit'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'removeSpendLimit'),
       [key.hash, token, Key.toSerializedSpendPeriod[period]],
     ),
-    to: self,
+    to: selfAddress,
   } as const satisfies Call
 }
 
@@ -203,10 +202,10 @@ export function revoke(parameters: revoke.Parameters) {
   const { keyHash } = parameters
   return {
     data: AbiFunction.encodeData(
-      AbiFunction.fromAbi(Delegation.abi, 'revoke'),
+      AbiFunction.fromAbi(PortoAccount.abi, 'revoke'),
       [keyHash],
     ),
-    to: self,
+    to: selfAddress,
   } as const satisfies Call
 }
 
@@ -214,5 +213,33 @@ export declare namespace revoke {
   export type Parameters = {
     /** Key hash to revoke. */
     keyHash: Hex.Hex
+  }
+}
+
+/**
+ * Instantiates values to populate a call to upgrade the proxy account.
+ *
+ * @param parameters - Parameters.
+ * @returns Instantiated values.
+ */
+export function upgradeProxyAccount(
+  parameters: upgradeProxyAccount.Parameters,
+) {
+  const { address, to = selfAddress } = parameters
+  return {
+    data: AbiFunction.encodeData(
+      AbiFunction.fromAbi(PortoAccount.abi, 'upgradeProxyAccount'),
+      [address],
+    ),
+    to,
+  } as const satisfies Call
+}
+
+export declare namespace upgradeProxyAccount {
+  export type Parameters = {
+    /** The account to upgrade to. */
+    address: Address.Address
+    /** The address to upgrade the address to. */
+    to?: Address.Address | undefined
   }
 }

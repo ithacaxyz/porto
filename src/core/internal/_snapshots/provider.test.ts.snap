@@ -2,257 +2,6 @@
 
 exports[`contract > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-exports[`contract > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
-
-exports[`contract > experimental_grantAdmin > default 1`] = `
-{
-  "id": "0x0000000000000000000000000000000000069420",
-  "publicKey": "0x0000000000000000000000000000000000069420",
-  "type": "address",
-}
-`;
-
-exports[`contract > experimental_grantPermissions > behavior: no permissions 1`] = `
-[RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
-
-Path: params.0.permissions.calls
-Value: []]
-`;
-
-exports[`contract > experimental_grantPermissions > behavior: provided key 1`] = `
-{
-  "address": null,
-  "chainId": undefined,
-  "expiry": 9999999999,
-  "id": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
-  "key": {
-    "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
-    "type": "p256",
-  },
-  "permissions": {
-    "calls": [
-      {
-        "signature": "mint()",
-      },
-    ],
-  },
-}
-`;
-
-exports[`contract > experimental_grantPermissions > behavior: provided key 2`] = `
-{
-  "address": null,
-  "chainId": undefined,
-  "expiry": 9999999999,
-  "id": "0x0000000000000000000000000000000000000000",
-  "key": {
-    "publicKey": "0x0000000000000000000000000000000000000000",
-    "type": "address",
-  },
-  "permissions": {
-    "calls": [
-      {
-        "signature": "mint()",
-      },
-    ],
-    "spend": [
-      {
-        "limit": "0x14d1120d7b160000",
-        "period": "day",
-      },
-    ],
-  },
-}
-`;
-
-exports[`contract > experimental_grantPermissions > behavior: provided key 3`] = `
-[
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": undefined,
-    "privateKey": {
-      "privateKey": [Function],
-    },
-    "publicKey": null,
-    "role": "admin",
-    "type": "webauthn-p256",
-  },
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": {
-      "calls": [
-        {
-          "signature": "mint()",
-        },
-      ],
-    },
-    "publicKey": null,
-    "role": "session",
-    "type": "p256",
-  },
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": {
-      "calls": [
-        {
-          "signature": "mint()",
-        },
-      ],
-      "spend": [
-        {
-          "limit": 1500000000000000000n,
-          "period": "day",
-        },
-      ],
-    },
-    "publicKey": null,
-    "role": "session",
-    "type": "address",
-  },
-]
-`;
-
-exports[`contract > experimental_grantPermissions > behavior: unlimited expiry 1`] = `
-[RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
-
-Path: params.0.expiry]
-`;
-
-exports[`contract > experimental_grantPermissions > default 1`] = `
-[
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": undefined,
-    "privateKey": {
-      "privateKey": [Function],
-    },
-    "publicKey": null,
-    "role": "admin",
-    "type": "webauthn-p256",
-  },
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": {
-      "calls": [
-        {
-          "signature": "mint()",
-        },
-      ],
-    },
-    "prehash": true,
-    "privateKey": CryptoKey {},
-    "publicKey": null,
-    "role": "session",
-    "type": "p256",
-  },
-]
-`;
-
-exports[`contract > experimental_revokeAdmin > default 1`] = `
-[
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": undefined,
-    "privateKey": {
-      "privateKey": [Function],
-    },
-    "publicKey": null,
-    "role": "admin",
-    "type": "webauthn-p256",
-  },
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "publicKey": null,
-    "role": "admin",
-    "type": "address",
-  },
-]
-`;
-
-exports[`contract > experimental_revokeAdmin > default 2`] = `
-[
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": undefined,
-    "privateKey": {
-      "privateKey": [Function],
-    },
-    "publicKey": null,
-    "role": "admin",
-    "type": "webauthn-p256",
-  },
-]
-`;
-
-exports[`contract > experimental_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke permissions.]`;
-
-exports[`contract > experimental_revokePermissions > default 1`] = `
-[
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": undefined,
-    "privateKey": {
-      "privateKey": [Function],
-    },
-    "publicKey": null,
-    "role": "admin",
-    "type": "webauthn-p256",
-  },
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": {
-      "calls": [
-        {
-          "signature": "mint()",
-        },
-      ],
-    },
-    "prehash": true,
-    "privateKey": CryptoKey {},
-    "publicKey": null,
-    "role": "session",
-    "type": "p256",
-  },
-]
-`;
-
-exports[`contract > experimental_revokePermissions > default 2`] = `
-[
-  {
-    "expiry": null,
-    "hash": null,
-    "id": null,
-    "permissions": undefined,
-    "privateKey": {
-      "privateKey": [Function],
-    },
-    "publicKey": null,
-    "role": "admin",
-    "type": "webauthn-p256",
-  },
-]
-`;
-
 exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
@@ -382,21 +131,95 @@ exports[`contract > wallet_disconnect > default 1`] = `
 ]
 `;
 
-exports[`contract > wallet_sendCalls > behavior: no calls.to 1`] = `
-[RpcResponse.InvalidParamsError: Expected required property
+exports[`contract > wallet_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
-Path: params.0.calls.0.to]
+exports[`contract > wallet_getCapabilities > behavior: chainId 1`] = `
+[
+  "0x7a69",
+]
 `;
 
-exports[`contract > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+exports[`contract > wallet_getCapabilities > behavior: chainId 2`] = `
+{
+  "status": "supported",
+}
+`;
 
-exports[`contract > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+exports[`contract > wallet_getCapabilities > behavior: chainId 3`] = `false`;
 
-exports[`relay > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`contract > wallet_getCapabilities > behavior: chainId 4`] = `[]`;
 
-exports[`relay > experimental_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+exports[`contract > wallet_getCapabilities > behavior: chainId 5`] = `
+{
+  "supported": true,
+}
+`;
 
-exports[`relay > experimental_grantAdmin > default 1`] = `
+exports[`contract > wallet_getCapabilities > behavior: chainId 6`] = `
+{
+  "supported": false,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 3`] = `false`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 4`] = `[]`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > behavior: unsupported chain 6`] = `
+{
+  "supported": false,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > default 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`contract > wallet_getCapabilities > default 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`contract > wallet_getCapabilities > default 3`] = `false`;
+
+exports[`contract > wallet_getCapabilities > default 4`] = `0`;
+
+exports[`contract > wallet_getCapabilities > default 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`contract > wallet_getCapabilities > default 6`] = `
+{
+  "supported": false,
+}
+`;
+
+exports[`contract > wallet_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
+exports[`contract > wallet_grantAdmin > default 1`] = `
 {
   "id": "0x0000000000000000000000000000000000069420",
   "publicKey": "0x0000000000000000000000000000000000069420",
@@ -404,17 +227,18 @@ exports[`relay > experimental_grantAdmin > default 1`] = `
 }
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: no permissions 1`] = `
+exports[`contract > wallet_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
 
 Path: params.0.permissions.calls
 Value: []]
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: provided key 1`] = `
+exports[`contract > wallet_grantPermissions > behavior: provided key 1`] = `
 {
   "address": null,
-  "chainId": undefined,
+  "capabilities": null,
+  "chainId": null,
   "expiry": 9999999999,
   "id": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
   "key": {
@@ -431,10 +255,11 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 1`] = `
 }
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: provided key 2`] = `
+exports[`contract > wallet_grantPermissions > behavior: provided key 2`] = `
 {
   "address": null,
-  "chainId": undefined,
+  "capabilities": null,
+  "chainId": null,
   "expiry": 9999999999,
   "id": "0x0000000000000000000000000000000000000000",
   "key": {
@@ -457,7 +282,7 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 2`] = `
 }
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
+exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
     "expiry": null,
@@ -510,13 +335,13 @@ exports[`relay > experimental_grantPermissions > behavior: provided key 3`] = `
 ]
 `;
 
-exports[`relay > experimental_grantPermissions > behavior: unlimited expiry 1`] = `
+exports[`contract > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
 [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
 
 Path: params.0.expiry]
 `;
 
-exports[`relay > experimental_grantPermissions > default 1`] = `
+exports[`contract > wallet_grantPermissions > default 1`] = `
 [
   {
     "expiry": null,
@@ -550,7 +375,7 @@ exports[`relay > experimental_grantPermissions > default 1`] = `
 ]
 `;
 
-exports[`relay > experimental_revokeAdmin > default 1`] = `
+exports[`contract > wallet_revokeAdmin > default 1`] = `
 [
   {
     "expiry": null,
@@ -575,7 +400,7 @@ exports[`relay > experimental_revokeAdmin > default 1`] = `
 ]
 `;
 
-exports[`relay > experimental_revokeAdmin > default 2`] = `
+exports[`contract > wallet_revokeAdmin > default 2`] = `
 [
   {
     "expiry": null,
@@ -592,9 +417,9 @@ exports[`relay > experimental_revokeAdmin > default 2`] = `
 ]
 `;
 
-exports[`relay > experimental_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke admins.]`;
+exports[`contract > wallet_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke permissions.]`;
 
-exports[`relay > experimental_revokePermissions > default 1`] = `
+exports[`contract > wallet_revokePermissions > default 1`] = `
 [
   {
     "expiry": null,
@@ -628,7 +453,7 @@ exports[`relay > experimental_revokePermissions > default 1`] = `
 ]
 `;
 
-exports[`relay > experimental_revokePermissions > default 2`] = `
+exports[`contract > wallet_revokePermissions > default 2`] = `
 [
   {
     "expiry": null,
@@ -645,7 +470,19 @@ exports[`relay > experimental_revokePermissions > default 2`] = `
 ]
 `;
 
-exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
+exports[`contract > wallet_sendCalls > behavior: no calls.to 1`] = `
+[RpcResponse.InvalidParamsError: Expected required property
+
+Path: params.0.calls.0.to]
+`;
+
+exports[`contract > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+
+exports[`contract > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+
+exports[`rpcServer > eth_accounts > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
+exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
     "expiry": null,
@@ -677,7 +514,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
 ]
 `;
 
-exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
+exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
     "expiry": null,
@@ -711,7 +548,7 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` + \`grantPermissio
 ]
 `;
 
-exports[`relay > wallet_connect > behavior: \`createAccount\` capability > 
+exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability > 
         [
           {
             "expiry": null,
@@ -740,20 +577,20 @@ exports[`relay > wallet_connect > behavior: \`createAccount\` capability >
 ]
 `;
 
-exports[`relay > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
+exports[`rpcServer > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
 [RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
 
 Path: params.0.capabilities.grantPermissions.permissions.calls
 Value: []]
 `;
 
-exports[`relay > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
+exports[`rpcServer > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
 [RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
 
 Path: params.0.capabilities.grantPermissions.expiry]
 `;
 
-exports[`relay > wallet_connect > default 1`] = `
+exports[`rpcServer > wallet_connect > default 1`] = `
 [
   {
     "expiry": null,
@@ -768,18 +605,346 @@ exports[`relay > wallet_connect > default 1`] = `
 ]
 `;
 
-exports[`relay > wallet_disconnect > default 1`] = `
+exports[`rpcServer > wallet_disconnect > default 1`] = `
 [
   [Provider.DisconnectedError: The provider is disconnected from all chains.],
 ]
 `;
 
-exports[`relay > wallet_sendCalls > behavior: no calls.to 1`] = `
+exports[`rpcServer > wallet_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 3`] = `true`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 4`] = `
+[
+  {
+    "address": "0x0000000000000000000000000000000000000000",
+    "decimals": 18,
+    "kind": "ETH",
+    "nativeRate": null,
+    "symbol": "ETH",
+  },
+  {
+    "address": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+    "decimals": 18,
+    "kind": "USDT",
+    "nativeRate": null,
+    "symbol": "EXP",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > behavior: chainId 6`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 1`] = `
+[
+  "0x7a69",
+]
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 2`] = `
+{
+  "status": "supported",
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 3`] = `true`;
+
+exports[`rpcServer > wallet_getCapabilities > default 4`] = `2`;
+
+exports[`rpcServer > wallet_getCapabilities > default 5`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`rpcServer > wallet_getCapabilities > default 6`] = `
+{
+  "supported": true,
+}
+`;
+
+exports[`rpcServer > wallet_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
+
+exports[`rpcServer > wallet_grantAdmin > default 1`] = `
+{
+  "id": "0x0000000000000000000000000000000000069420",
+  "publicKey": "0x0000000000000000000000000000000000069420",
+  "type": "address",
+}
+`;
+
+exports[`rpcServer > wallet_grantPermissions > behavior: no permissions 1`] = `
+[RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
+
+Path: params.0.permissions.calls
+Value: []]
+`;
+
+exports[`rpcServer > wallet_grantPermissions > behavior: provided key 1`] = `
+{
+  "address": null,
+  "capabilities": null,
+  "chainId": null,
+  "expiry": 9999999999,
+  "id": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
+  "key": {
+    "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
+    "type": "p256",
+  },
+  "permissions": {
+    "calls": [
+      {
+        "signature": "mint()",
+      },
+    ],
+  },
+}
+`;
+
+exports[`rpcServer > wallet_grantPermissions > behavior: provided key 2`] = `
+{
+  "address": null,
+  "capabilities": null,
+  "chainId": null,
+  "expiry": 9999999999,
+  "id": "0x0000000000000000000000000000000000000000",
+  "key": {
+    "publicKey": "0x0000000000000000000000000000000000000000",
+    "type": "address",
+  },
+  "permissions": {
+    "calls": [
+      {
+        "signature": "mint()",
+      },
+    ],
+    "spend": [
+      {
+        "limit": "0x14d1120d7b160000",
+        "period": "day",
+      },
+    ],
+  },
+}
+`;
+
+exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
+[
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "privateKey": {
+      "privateKey": [Function],
+    },
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+    "publicKey": null,
+    "role": "session",
+    "type": "p256",
+  },
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": 1500000000000000000n,
+          "period": "day",
+        },
+      ],
+    },
+    "publicKey": null,
+    "role": "session",
+    "type": "address",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
+[RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
+
+Path: params.0.expiry]
+`;
+
+exports[`rpcServer > wallet_grantPermissions > default 1`] = `
+[
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "privateKey": {
+      "privateKey": [Function],
+    },
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+    "prehash": true,
+    "privateKey": CryptoKey {},
+    "publicKey": null,
+    "role": "session",
+    "type": "p256",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
+[
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "privateKey": {
+      "privateKey": [Function],
+    },
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "publicKey": null,
+    "role": "admin",
+    "type": "address",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_revokeAdmin > default 2`] = `
+[
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "privateKey": {
+      "privateKey": [Function],
+    },
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke admins.]`;
+
+exports[`rpcServer > wallet_revokePermissions > default 1`] = `
+[
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "privateKey": {
+      "privateKey": [Function],
+    },
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+    "prehash": true,
+    "privateKey": CryptoKey {},
+    "publicKey": null,
+    "role": "session",
+    "type": "p256",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_revokePermissions > default 2`] = `
+[
+  {
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "privateKey": {
+      "privateKey": [Function],
+    },
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+]
+`;
+
+exports[`rpcServer > wallet_sendCalls > behavior: no calls.to 1`] = `
 [RpcResponse.InvalidParamsError: Expected required property
 
 Path: params.0.calls.0.to]
 `;
 
-exports[`relay > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+exports[`rpcServer > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
 
-exports[`relay > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
+exports[`rpcServer > wallet_sendCalls > behavior: permission does not exist 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;

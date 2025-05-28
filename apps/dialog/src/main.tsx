@@ -28,18 +28,27 @@ if (import.meta.env.PROD) {
 
 const offInitialized = Events.onInitialized(porto, (payload) => {
   const { mode, referrer } = payload
+
   Dialog.store.setState({
     mode,
     referrer: {
       ...referrer,
-      origin: new URL(referrer.origin),
+
+      // If there is no referrer, it is likely the user is using Porto in
+      // an incognito window.
+      //
+      // Note: It could be tempting to pass `window.location.href` from the
+      // parent window via `postMessage` as a workaround, but that could easily
+      // be tampered with (ie. malicious websites could pass a different URL to
+      // the dialog).
+      url: document.referrer ? new URL(document.referrer) : undefined,
     },
   })
 })
 
 const offDialogRequest = Events.onDialogRequest(
   porto,
-  ({ account, request }) => {
+  ({ account, request, requireUpdatedAccount }) => {
     const connectedAccount = porto._internal.store.getState().accounts[0]
     const needsSync = account && account.address !== connectedAccount?.address
 
@@ -52,7 +61,8 @@ const offDialogRequest = Events.onDialogRequest(
       })
 
     Router.router.navigate({
-      search: (search) => ({ ...search, ...request, account }) as never,
+      search: (search) =>
+        ({ ...search, ...request, account, requireUpdatedAccount }) as never,
       to: '/dialog/' + (request?.method ?? ''),
     })
   },

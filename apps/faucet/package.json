@@ -9,14 +9,13 @@
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
-    "hono": "^4.7.5",
     "porto": "workspace:*",
     "viem": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250402.0",
-    "@types/node": "^22.14.0",
+    "@cloudflare/workers-types": "^4.20250412.0",
+    "@types/node": "catalog:",
     "typescript": "catalog:",
-    "wrangler": "^4.7.0"
+    "wrangler": "^4.10.0"
   }
 }

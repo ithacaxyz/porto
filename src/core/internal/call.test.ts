@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
-
+import * as Key from '../Key.js'
 import * as Call from './call.js'
-import * as Key from './key.js'
 
 describe('authorize', () => {
   test('default', () => {

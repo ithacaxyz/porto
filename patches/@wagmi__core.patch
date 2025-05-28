@@ -1,0 +1,15 @@
+diff --git a/dist/esm/actions/waitForCallsStatus.js b/dist/esm/actions/waitForCallsStatus.js
+index f260e6aaf5543776608a5568a10c48819de376c3..85e49e16860a1a1d21ed5d1a0535df606553ae65 100644
+--- a/dist/esm/actions/waitForCallsStatus.js
++++ b/dist/esm/actions/waitForCallsStatus.js
+@@ -2,8 +2,8 @@ import { waitForCallsStatus as viem_waitForCallsStatus, } from 'viem/actions';
+ import { getConnectorClient } from './getConnectorClient.js';
+ /** https://wagmi.sh/core/api/actions/waitForCallsStatus */
+ export async function waitForCallsStatus(config, parameters) {
+-    const { connector, id } = parameters;
++    const { connector } = parameters;
+     const client = await getConnectorClient(config, { connector });
+-    return viem_waitForCallsStatus(client, { id });
++    return viem_waitForCallsStatus(client, parameters);
+ }
+ //# sourceMappingURL=waitForCallsStatus.js.map

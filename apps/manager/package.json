@@ -12,8 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.15",
-    "@ariakit/tailwind": "^0.1.4",
+    "@ariakit/react": "catalog:",
+    "@ariakit/tailwind": "catalog:",
     "@porto/apps": "workspace:*",
     "@sentry/react": "catalog:",
     "@sentry/vite-plugin": "catalog:",
@@ -24,13 +24,11 @@
     "@wagmi/core": "catalog:",
     "cuer": "^0.0.2",
     "cva": "catalog:",
-    "human-id": "^4.1.1",
-    "match-sorter": "^8.0.0",
     "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "sonner": "^2.0.3",
+    "sonner": "catalog:",
     "wagmi": "catalog:"
   },
   "devDependencies": {
@@ -46,8 +44,7 @@
     "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
     "tailwindcss": "catalog:",
-    "tailwindcss-animate": "^1.0.7",
-    "typed-query-selector": "^2.12.0",
+    "tw-animate-css": "catalog:",
     "typescript": "catalog:",
     "unplugin-icons": "catalog:",
     "vite": "catalog:",

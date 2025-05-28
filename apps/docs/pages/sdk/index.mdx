@@ -4,7 +4,7 @@ import { Connect } from '../../components/Connect'
 
 ## Overview
 
-The Porto SDK is a TypeScript library designed for Applications and Wallets to create, manage, and 
+The Porto SDK is a TypeScript library designed for Applications and Wallets to create, manage, and
 interact with universal next-gen accounts on Ethereum.
 
 Try signing into your account:
@@ -31,9 +31,39 @@ bun i porto
 
 :::
 
-## Usage
+## Wagmi Usage
 
-You can get started with Porto by creating a new instance with `Porto.create(){:ts}`
+Porto is best used in conjunction with [Wagmi](https://wagmi.sh/) to provide a seamless experience for developers and end-users.
+
+::::steps
+
+### 1. Set up Wagmi
+
+Get started with Wagmi by following the [official guide](https://wagmi.sh/react/getting-started).
+
+### 2. Configure Porto
+
+After you have set up Wagmi, you can set up Porto by using the `porto(){:ts}` connector.
+
+```ts [wagmi.ts] twoslash
+import { porto } from 'porto/wagmi' // [!code ++]
+import { http, createConfig, createStorage } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+
+export const wagmiConfig = createConfig({
+  chains: [baseSepolia],
+  connectors: [porto()], // [!code ++]
+  storage: createStorage({ storage: localStorage }),
+  transports: {
+    [baseSepolia.id]: http(),
+  },
+})
+```
+
+:::tip
+If you are using a Account Connection library and cannot supply a custom connector,
+you can use `Porto.create()` to create a new instance of Porto, and inject itself
+into the Account Connection library via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963).
 
 ```ts
 import { Porto } from 'porto'
@@ -41,65 +71,14 @@ import { Porto } from 'porto'
 Porto.create()
 ```
 
-This will internally inject a Porto instance into your Application via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963).
-Modern Wallet Connection libraries will automatically detect the injected instance.
-
-Supported wallet connection libraries include:
-
-- [Wagmi](https://wagmi.sh)
-- [Privy](https://privy.io)
-- [AppKit](https://reown.com/appkit)
-- [Dynamic](https://dynamic.xyz)
-- [RainbowKit](https://rainbowkit.com)
-- [Thirdweb](https://thirdweb.com)
-
-:::tip
-If you wish to use Porto directly, without relying on Wallet Connection libraries, you can use Porto's [EIP-1193 `provider` instance](https://eips.ethereum.org/EIPS/eip-1193).
-
-```ts twoslash
-import { Porto } from 'porto'
-
-const porto = Porto.create()
-
-const { accounts } = await porto.provider.request({ 
-  method: 'wallet_connect'
-})
-```
-
+Supported Account Connection libraries include: [Privy](https://privy.io), [ConnectKit](https://docs.family.co/connectkit), [AppKit](https://reown.com/appkit), [Dynamic](https://dynamic.xyz), [RainbowKit](https://rainbowkit.com), [Thirdweb](https://thirdweb.com).
 :::
 
-### Usage with Wagmi
+### 3. Use Porto
 
-Porto can be used in conjunction with [Wagmi](https://wagmi.sh/) to provide a seamless experience for developers and end-users.
+This means you can now use Wagmi-compatible Hooks like `useConnect`.
 
-::::steps
-
-#### 1. Set up Wagmi
-
-Get started with Wagmi by following the [official guide](https://wagmi.sh/react/getting-started).
-
-#### 2. Set up Porto
-
-After you have set up Wagmi, you can set up Porto by using the `porto(){:ts}` connector.
-
-```ts [wagmi.ts] twoslash
-import { porto } from 'porto/wagmi' // [!code ++]
-import { http, createConfig, createStorage } from 'wagmi'
-import { odysseyTestnet } from 'wagmi/chains'
-
-export const wagmiConfig = createConfig({
-  chains: [odysseyTestnet],
-  connectors: [porto()], // [!code ++]
-  storage: createStorage({ storage: localStorage }),
-  transports: {
-    [odysseyTestnet.id]: http(),
-  },
-})
-```
-
-#### 3. Use Porto
-
-This means you can now use Wagmi-compatible Hooks like `useConnect`. For more info, check out the [Wagmi Reference](#TODO).
+See [Wagmi Reference](/sdk/wagmi) for a set of compatible Wagmi Hooks.
 
 ```tsx twoslash
 import * as React from 'react'
@@ -121,9 +100,72 @@ function Connect() {
 }
 ```
 
-:::tip
-You can also use a pre-existing [Wallet Connection library](https://wagmi.sh/react/guides/connect-wallet#third-party-libraries) to handle the connection logic for your users.
-:::
-
-
 ::::
+
+## Vanilla Usage
+
+You can get started with Porto by creating a new instance with `Porto.create(){:ts}`.
+
+Once set up, you can use the `provider` instance to interact with Porto.
+
+```ts
+import { Porto } from 'porto'
+
+const porto = Porto.create()
+
+const { accounts } = await porto.provider.request({ 
+  method: 'wallet_connect'
+})
+```
+
+See [RPC Reference](/sdk/rpc) for a list of all available methods.
+
+## Secure Origins (HTTPS)
+
+Porto is designed to be used on secure origins (HTTPS). If you are using HTTP,
+Porto will fallback to using a popup instead of an iframe. This is because
+WebAuthn is not supported on iframes embedded on insecure origins (HTTP).
+
+Web frameworks typically default to HTTP in development environments. You
+will need to ensure to turn on HTTPS in development to leverage the Porto iframe.
+
+### Vite
+
+HTTPS can be enabled on Vite's dev server by installing and configuring the `vite-plugin-mkcert` plugin.
+
+```bash
+npm i vite-plugin-mkcert
+```
+
+```ts [vite.config.ts]
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import mkcert from 'vite-plugin-mkcert' // [!code ++]
+
+export default defineConfig({
+  plugins: [
+    mkcert(), // [!code ++]
+    react(),
+  ],
+})
+```
+
+### Next.js
+
+HTTPS can be enabled on Next.js' dev server by setting the `--experimental-https` flag on the `next dev` command.
+
+```bash
+next dev --experimental-https
+```
+
+### Caddy
+
+HTTPS can be enabled by running [Caddy](https://caddyserver.com) as a reverse proxy in front of your dev server. [Install Caddy](https://caddyserver.com/docs/install) and create a `Caddyfile` pointing to your dev server.
+
+```text
+example.localhost {
+  reverse_proxy localhost:5713
+}
+```
+
+Then run [`caddy run`](https://caddyserver.com/docs/command-line#caddy-run) or [`caddy start`](https://caddyserver.com/docs/command-line#caddy-start) and visit `http://example.localhost`.

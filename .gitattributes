@@ -5,3 +5,6 @@
 .env.example linguist-language=Dotenv
 .dev.vars.example linguist-language=Dotenv
 .vscode/*.json linguist-language=JSON-with-Comments
+wrangler.json linguist-language=JSON-with-Comments
+
+routeTree.gen.ts linguist-generated=true

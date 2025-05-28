@@ -1,13 +1,13 @@
 import { Value } from 'ox'
 
-export const randomArrayElement = <T>(array: T[]): T =>
-  array[Math.floor(Math.random() * array.length)] as T
-
-export const shuffleArray = <T>(array: T[]): T[] =>
-  array.sort(() => Math.random() - 0.5)
-
-export const sum = (array: number[]) =>
-  array.reduce((accumulator, currentValue) => accumulator + currentValue, 0)
+export namespace ArrayUtils {
+  export function sum(array: number[]) {
+    return array.reduce(
+      (accumulator, currentValue) => accumulator + currentValue,
+      0,
+    )
+  }
+}
 
 export namespace StringFormatter {
   export function truncate(

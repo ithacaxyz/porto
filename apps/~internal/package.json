@@ -6,6 +6,7 @@
     ".": "./lib/index.ts",
     "./components": "./components/index.ts",
     "./contracts": "./_generated/contracts.ts",
+    "./hooks": "./hooks/index.ts",
     "./styles.css": "./styles/index.css"
   },
   "scripts": {
@@ -21,12 +22,13 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "tailwindcss": "catalog:",
-    "tailwindcss-animate": "^1.0.7",
+    "tw-animate-css": "catalog:",
     "wagmi": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "unplugin-icons": "catalog:",
     "vite": "catalog:"
   }
 }

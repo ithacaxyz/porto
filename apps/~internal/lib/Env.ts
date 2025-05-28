@@ -1,7 +1,14 @@
-export const defaultEnv = 'prod'
+export const defaultEnv = (() => {
+  if (import.meta.env.MODE === 'test') {
+    if (import.meta.env.VITE_LOCAL === 'true') return 'anvil'
+    return 'dev'
+  }
+  if (import.meta.env.VITE_VERCEL_ENV === 'preview') return 'dev'
+  return 'stg'
+})()
 
-export const envs = ['anvil', 'stg', 'prod'] as const
-export type Env = 'anvil' | 'stg' | 'prod'
+export const envs = ['anvil', 'dev', 'prod', 'stg'] as const
+export type Env = 'anvil' | 'dev' | 'prod' | 'stg'
 
 export function get(): Env {
   if (typeof window === 'undefined') return defaultEnv

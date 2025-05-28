@@ -1,6 +1,6 @@
 import * as Hex_ox from 'ox/Hex'
 
-import { Type } from './schema.js'
+import { Type } from './typebox.js'
 
 export const Address = Type.TemplateLiteral('0x${string}')
 export const Hex = Type.TemplateLiteral('0x${string}')

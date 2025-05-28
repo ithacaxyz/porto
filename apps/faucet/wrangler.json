@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "account_id": "ba6ee3674b03f08481e57ff9992c601e",
   "compatibility_date": "2025-03-14",
   "compatibility_flags": [
     "nodejs_compat",

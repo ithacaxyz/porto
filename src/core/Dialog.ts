@@ -1,5 +1,6 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
+import { logger } from './internal/logger.js'
 import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
@@ -7,6 +8,7 @@ import type { QueuedRequest, Store } from './Porto.js'
 
 /** Dialog interface. */
 export type Dialog = {
+  name: string
   setup: (parameters: { host: string; internal: Internal }) => {
     close: () => void
     destroy: () => void
@@ -30,19 +32,24 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
  *
  * @returns iframe dialog.
  */
-export function iframe() {
+export function iframe(options: iframe.Options = {}) {
+  const { skipProtocolCheck, skipUnsupported } = options
+
   // Safari does not support WebAuthn credential creation in iframes.
   // Fall back to popup dialog.
   // Tracking: https://github.com/WebKit/standards-positions/issues/304
   const includesUnsupported = (
     requests: readonly RpcRequest.RpcRequest[] | undefined,
   ) =>
+    !skipUnsupported &&
     UserAgent.isSafari() &&
     requests?.some((x) =>
       ['wallet_connect', 'eth_requestAccounts'].includes(x.method),
     )
 
+  if (typeof window === 'undefined') return noop()
   return from({
+    name: 'iframe',
     setup(parameters) {
       const { host, internal } = parameters
       const { store } = internal
@@ -59,9 +66,10 @@ export function iframe() {
       document.body.appendChild(root)
 
       const iframe = document.createElement('iframe')
+      iframe.setAttribute('data-testid', 'porto')
       iframe.setAttribute(
         'allow',
-        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}`,
+        `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}; clipboard-write`,
       )
       iframe.setAttribute('aria-closed', 'true')
       iframe.setAttribute('aria-label', 'Porto Wallet')
@@ -86,6 +94,7 @@ export function iframe() {
         }
 
         dialog iframe {
+          background-color: transparent;
           border-radius: 14px;
         }
 
@@ -143,13 +152,13 @@ export function iframe() {
       let methodPolicies: Messenger.ReadyOptions['methodPolicies'] | undefined
 
       messenger.on('ready', (options) => {
-        const { chain } = options
+        const { chainId } = options
 
         if (!methodPolicies) methodPolicies = options?.methodPolicies
 
         store.setState((x) => ({
           ...x,
-          chain,
+          chainId,
         }))
 
         messenger.send('__internal', {
@@ -180,8 +189,8 @@ export function iframe() {
 
       const bodyStyle = Object.assign({}, document.body.style)
 
-      // 1password extension adds `inert` attribute to `dialog` and inserts itself there rendering itself unusable
-      // watch from `inert` and remove it
+      // 1password extension adds `inert` attribute to `dialog` and inserts itself (`<com-1password-notification />`) there
+      // rendering itself unusable: watch for `inert` on `dialog` and remove it
       const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           if (mutation.type !== 'attributes') continue
@@ -204,6 +213,16 @@ export function iframe() {
           iframe.style.display = 'none'
           iframe.setAttribute('hidden', 'true')
           iframe.setAttribute('aria-closed', 'true')
+
+          // 1password extension sometimes adds `inert` attribute to `dialog` siblings and does not clean up
+          // remove when `dialog` closes (after `<com-1password-notification />` closes)
+          for (const sibling of root.parentNode
+            ? Array.from(root.parentNode.children)
+            : []) {
+            if (sibling === root) continue
+            if (!sibling.hasAttribute('inert')) continue
+            sibling.removeAttribute('inert')
+          }
         },
         destroy() {
           fallback?.destroy()
@@ -230,7 +249,29 @@ export function iframe() {
           iframe.style.display = 'block'
         },
         async syncRequests(requests) {
-          if (includesUnsupported(requests.map((x) => x.request)))
+          const headless = requests?.every(
+            (request) =>
+              methodPolicies?.find(
+                (policy) => policy.method === request.request.method,
+              )?.modes?.headless === true,
+          )
+          const insecureProtocol = (() => {
+            if (skipProtocolCheck) return false
+            const insecure = !window.location.protocol.startsWith('https')
+            if (insecure)
+              logger.warnOnce(
+                'Detected insecure protocol (HTTP).',
+                `\n\nThe Porto iframe is not supported on HTTP origins (${window.location.origin})`,
+                'due to lack of WebAuthn support.',
+                'See https://porto.sh/sdk#secure-origins-https for more information.',
+              )
+            return insecure
+          })()
+          const unsupported = includesUnsupported(
+            requests.map((x) => x.request),
+          )
+
+          if (!headless && (unsupported || insecureProtocol))
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>
@@ -248,13 +289,31 @@ export function iframe() {
   })
 }
 
+export declare namespace iframe {
+  export type Options = {
+    /**
+     * Skips check for insecure protocol (HTTP).
+     * @default false
+     */
+    skipProtocolCheck?: boolean | undefined
+    /**
+     * Skips check for unsupported iframe requests that result
+     * to a popup.
+     * @default false
+     */
+    skipUnsupported?: boolean | undefined
+  }
+}
+
 /**
  * Instantiates a popup dialog.
  *
  * @returns Popup dialog.
  */
 export function popup() {
+  if (typeof window === 'undefined') return noop()
   return from({
+    name: 'popup',
     setup(parameters) {
       const { host, internal } = parameters
       const { store } = internal
@@ -264,7 +323,7 @@ export function popup() {
       let popup: Window | null = null
 
       function onBlur() {
-        handleBlur(store)
+        if (popup) handleBlur(store)
       }
 
       let messenger: Messenger.Bridge | undefined
@@ -331,6 +390,25 @@ export function popup() {
 }
 
 /**
+ * Instantiates a noop dialog.
+ *
+ * @returns Noop dialog.
+ */
+export function noop() {
+  return from({
+    name: 'noop',
+    setup() {
+      return {
+        close() {},
+        destroy() {},
+        open() {},
+        async syncRequests() {},
+      }
+    },
+  })
+}
+
+/**
  * Instantiates an inline iframe dialog rendered on a provided `element`.
  *
  * @param options - Options.
@@ -338,7 +416,9 @@ export function popup() {
  */
 export function experimental_inline(options: inline.Options) {
   const { element } = options
+  if (typeof window === 'undefined') return noop()
   return from({
+    name: 'inline',
     setup(parameters) {
       const { host, internal } = parameters
       const { store } = internal
@@ -360,11 +440,18 @@ export function experimental_inline(options: inline.Options) {
       iframe.setAttribute('tabindex', '0')
       iframe.setAttribute(
         'sandbox',
-        'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
+        'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
       iframe.setAttribute('src', host)
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
+
+      root.appendChild(document.createElement('style')).textContent = `
+        div iframe {
+          background-color: transparent;
+          border-radius: 14px;
+        }
+      `
 
       root.appendChild(iframe)
 
@@ -449,7 +536,7 @@ export function requiresConfirmation(
   const { methodPolicies, targetOrigin } = options
   const policy = methodPolicies?.find((x) => x.method === request.method)
   if (!policy) return true
-  if (policy.modes.headless) {
+  if (policy.modes?.headless) {
     if (
       typeof policy.modes.headless === 'object' &&
       policy.modes.headless.sameOrigin &&
@@ -462,15 +549,21 @@ export function requiresConfirmation(
 }
 
 export function getReferrer() {
-  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  const icon = isDark
-    ? (document.querySelector(
-        'link[rel="icon"][media="(prefers-color-scheme: dark)"]',
-      ) as HTMLLinkElement)
-    : (document.querySelector('link[rel="icon"]') as HTMLLinkElement)
+  const icon = (() => {
+    const dark = document.querySelector(
+      'link[rel="icon"][media="(prefers-color-scheme: dark)"]',
+    )?.href
+    const light =
+      document.querySelector(
+        'link[rel="icon"][media="(prefers-color-scheme: light)"]',
+      )?.href ?? document.querySelector('link[rel="icon"]')?.href
+    if (dark && light && dark !== light) return { dark, light }
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    if (isDark) return dark
+    return light
+  })()
   return {
-    icon: icon?.href,
-    origin: location.origin,
+    icon,
     title: document.title,
   }
 }

@@ -1,0 +1,11 @@
+## Keys
+
+There exists three different key roles:
+
+- **Admin keys** are capable of adding and modifying other keys, and capable of spending an unlimited amount of tokens and calling any contract and selector.
+- **Normal keys** can only call contracts as defined by the permissions set on it, and spend the amount of tokens afforded to it by permissions.
+- **Session keys** are like normal keys, except they also have an expiry.
+
+Setting permissions on an admin key is not allowed and will return an error.
+
+For complete details on keys, including their signature encoding, public key encoding, and key hashes, refer to the [Key section](/contracts/account#keys).

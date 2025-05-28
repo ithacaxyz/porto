@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": [".", "../src/**/*.test.ts", "../src/**/*.test.tsx"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "paths": {
+      "porto": ["../src/index.ts"],
+      "porto/internal": ["../src/internal/index.ts"],
+      "porto/remote": ["../src/remote/index.ts"],
+      "porto/server": ["../src/server/index.ts"],
+      "porto/wagmi": ["../src/wagmi/index.ts"]
+    }
+  }
+}

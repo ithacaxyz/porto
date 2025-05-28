@@ -1,13 +1,17 @@
 import { type Address, Secp256k1 } from 'ox'
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { setBalance as setBalance_viem, writeContract } from 'viem/actions'
-import { waitForCallsStatus } from 'viem/experimental'
+import {
+  setBalance as setBalance_viem,
+  waitForCallsStatus,
+  waitForTransactionReceipt,
+  writeContract,
+} from 'viem/actions'
 
-import * as Account from '../../src/core/internal/account.js'
-import * as Key from '../../src/core/internal/key.js'
+import * as Account from '../../src/core/Account.js'
 import type { Client } from '../../src/core/internal/porto.js'
-import * as Relay from '../../src/core/internal/relay.js'
+import * as Key from '../../src/core/Key.js'
+import * as RpcServer from '../../src/core/RpcServer.js'
 import * as Anvil from './anvil.js'
 import { exp1Abi, exp1Address } from './porto.js'
 
@@ -15,13 +19,13 @@ export async function createAccount(
   client: Client,
   parameters: {
     deploy?: boolean | undefined
-    keys: NonNullable<Relay.createAccount.Parameters['keys']>
+    keys: NonNullable<RpcServer.createAccount.Parameters['keys']>
     setBalance?: false | bigint | undefined
   },
 ) {
   const { deploy, keys, setBalance: balance = parseEther('10000') } = parameters
 
-  const account = await Relay.createAccount(client, { keys })
+  const account = await RpcServer.createAccount(client, { keys })
 
   if (balance)
     await setBalance(client, {
@@ -30,7 +34,7 @@ export async function createAccount(
     })
 
   if (deploy) {
-    const { id } = await Relay.sendCalls(client, {
+    const { id } = await RpcServer.sendCalls(client, {
       account,
       calls: [],
       feeToken: exp1Address,
@@ -78,7 +82,7 @@ export async function getUpgradedAccount(
 
   const { account } = await getAccount(client, { keys, setBalance })
 
-  const request = await Relay.prepareUpgradeAccount(client, {
+  const request = await RpcServer.prepareUpgradeAccount(client, {
     address: account.address,
     feeToken: exp1Address,
     keys,
@@ -88,7 +92,7 @@ export async function getUpgradedAccount(
     request.digests.map((payload) => account.sign({ payload })),
   )
 
-  const { bundles } = await Relay.upgradeAccount(client, {
+  const { bundles } = await RpcServer.upgradeAccount(client, {
     ...request,
     signatures,
   })
@@ -123,27 +127,23 @@ export async function setBalance(
       functionName: 'mint',
     })
   } else {
-    const key = Key.fromHeadlessWebAuthnP256({
-      privateKey: process.env.VITE_ADMIN_PRIVATE_KEY! as `0x${string}`,
+    const privateKey = (() => {
+      const dispatchType = process.env.VITE_DISPATCH_TYPE
+      if (dispatchType === 'release')
+        return process.env.VITE_FAUCET_PRIVATE_KEY_RELEASE
+      if (dispatchType === 'deployment')
+        return process.env.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT
+      return process.env.VITE_FAUCET_PRIVATE_KEY
+    })() as `0x${string}`
+    const hash = await writeContract(client, {
+      abi: exp1Abi,
+      account: privateKeyToAccount(privateKey),
+      address: exp1Address,
+      args: [address, value],
+      functionName: 'mint',
     })
-    const account = Account.from({
-      address: process.env.VITE_ADMIN_ADDRESS! as `0x${string}`,
-      keys: [key],
-    })
-    const { id } = await Relay.sendCalls(client, {
-      account,
-      calls: [
-        {
-          abi: exp1Abi,
-          args: [address, value],
-          functionName: 'mint',
-          to: exp1Address,
-        },
-      ],
-      feeToken: exp1Address,
-    })
-    await waitForCallsStatus(client, {
-      id,
+    await waitForTransactionReceipt(client, {
+      hash,
     })
   }
 }

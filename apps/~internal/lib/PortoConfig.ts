@@ -1,53 +1,51 @@
-import { Address } from 'ox'
 import { Chains, Mode } from 'porto'
 import { Porto } from 'porto/remote'
 import { http, ValueOf } from 'viem'
 
-import { exp1Address } from '../_generated/contracts'
 import * as Env from './Env'
 import * as Sentry from './Sentry'
 
-export const feeToken = {
-  [Chains.odysseyTestnet.id]: exp1Address[Chains.odysseyTestnet.id],
-  [Chains.odysseyDevnet.id]: exp1Address[Chains.odysseyDevnet.id],
-} satisfies Record<number, Address.Address>
+const mock = import.meta.env.MODE === 'test'
 
 const config = {
   anvil: {
-    chains: [Chains.odysseyTestnet],
-    mode: Mode.relay({
-      feeToken,
+    chains: [Chains.anvil],
+    mode: Mode.rpcServer({
+      mock,
+      persistPreCalls: false,
     }),
+  },
+  dev: {
+    chains: [Chains.portoDev],
+    mode: Mode.rpcServer({
+      mock,
+      persistPreCalls: false,
+    }),
+    storageKey: 'porto.store.dev',
     transports: {
-      [Chains.odysseyTestnet.id]: {
-        default: http('http://127.0.0.1:8545/1'),
-        relay: http('http://127.0.0.1:9119/1'),
-      },
+      [Chains.portoDev.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   prod: {
-    chains: [Chains.odysseyTestnet],
-    mode: Mode.contract(),
+    chains: [Chains.base],
+    feeToken: 'USDC',
+    mode: Mode.rpcServer({
+      mock,
+      persistPreCalls: false,
+    }),
     transports: {
-      [Chains.odysseyTestnet.id]: {
-        default: http(),
-        relay: http('https://relay.ithaca.xyz', Sentry.httpTransportOptions()),
-      },
+      [Chains.base.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   stg: {
-    chains: [Chains.odysseyDevnet],
-    mode: Mode.relay({
-      feeToken,
+    chains: [Chains.baseSepolia],
+    mode: Mode.rpcServer({
+      mock,
+      persistPreCalls: false,
     }),
+    storageKey: 'porto.store.stg',
     transports: {
-      [Chains.odysseyDevnet.id]: {
-        default: http(),
-        relay: http(
-          'https://relay-staging.ithaca.xyz',
-          Sentry.httpTransportOptions(),
-        ),
-      },
+      [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
@@ -56,9 +54,12 @@ const dialogHosts = {
   anvil: import.meta.env.PROD
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
+  dev: import.meta.env.PROD
+    ? 'https://dev.id.porto.sh/dialog/'
+    : 'https://dev.localhost:5174/dialog/',
   prod: import.meta.env.PROD
     ? 'https://id.porto.sh/dialog/'
-    : 'https://localhost:5174/dialog/',
+    : 'https://prod.localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
     : 'https://stg.localhost:5174/dialog/',
@@ -84,7 +85,7 @@ export function getDialogHost(env = Env.get()): string {
       '/dialog/?env=' +
       env
     )
-  return dialogHosts[env] as string
+  return dialogHosts[env] + '?env=' + env
 }
 
 export type Chain = ValueOf<typeof config>['chains'][number]

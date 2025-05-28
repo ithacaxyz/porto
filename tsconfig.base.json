@@ -36,6 +36,8 @@
     "lib": ["ES2023", "DOM"],
 
     // Skip type checking for node modules
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    "types": ["typed-query-selector/strict"]
   }
 }

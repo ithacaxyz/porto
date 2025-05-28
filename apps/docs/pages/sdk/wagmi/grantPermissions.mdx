@@ -1,0 +1,207 @@
+# `grantPermissions`
+
+VanillaJS action for granting permissions to an application. Uses [`wallet_grantPermissions`](/sdk/rpc/wallet_grantPermissions) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { toHex, parseEther } from 'viem'
+import { Actions, porto } from 'porto/wagmi'
+import { config } from './config'
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+const permissions = await Actions.grantPermissions(config, {
+  expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
+  permissions: {
+    calls: [{
+      signature: 'transfer(address,uint256)',
+      to: token
+    }],
+    spend: [{
+      limit: toHex(parseEther('50')), // 50 EXP
+      period: 'day',
+      token: token,
+    }]
+  },
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/wagmi/config.ts]
+```
+
+:::
+
+### App-managed Keys
+
+Applications can also grant permissions to a specific signing key by providing the `key` parameter.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { privateKeyToAccount, toHex, parseEther } from 'viem'
+import { Actions, porto } from 'porto/wagmi'
+import { config } from './config'
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+const account = privateKeyToAccount('0x...') // [!code focus]
+
+// Grant permissions with custom key
+const permission = await Actions.grantPermissions(config, {
+  expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
+  key: { // [!code focus]
+    publicKey: account.address, // [!code focus]
+    type: 'secp256k1', // [!code focus]
+  }, // [!code focus]
+  permissions: {
+    calls: [{
+      signature: 'transfer(address,uint256)',
+      to: token
+    }],
+    spend: [{
+      limit: toHex(parseEther('50')), // 50 EXP
+      period: 'day',
+      token: token,
+    }]
+  },
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/wagmi/config.ts]
+```
+
+:::
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to grant permissions on. Defaults to the current account.
+
+### chainId
+
+`number | undefined`
+
+Chain ID to grant permissions on.
+
+### connector
+
+`Connector | CreateConnectorFn`
+
+The connector to use.
+
+### expiry
+
+`number`
+
+Expiry timestamp of the permissions.
+
+### key
+
+Key to grant permissions to. Defaults to a wallet-managed key.
+
+```ts
+type Key = {
+  /** Public key */
+  publicKey: `0x${string}`
+  /** Key type */
+  type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+}
+```
+
+### permissions
+
+Permissions to grant.
+
+```ts
+type Permissions = {
+  /** Call permissions */
+  calls: {
+    /** Function signature or 4-byte signature */
+    signature?: string
+    /** Authorized target address */
+    to?: `0x${string}`
+  }[]
+
+  /** Spend permissions */
+  spend: {
+    /** Spending limit (in wei) per period */
+    limit: `0x${string}`
+    /** Period of the spend limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token to set the limit on (defaults to native token) */
+    token?: `0x${string}`
+  }[]
+}
+```
+
+## Return Value
+
+### address
+
+`Address`
+
+Address of the account.
+
+### chainId
+
+`number`
+
+Chain ID of the account.
+
+### expiry
+
+`number`
+
+Expiry timestamp of the permissions.
+
+### id
+
+`string`
+
+Permission ID.
+
+### key
+
+Key to grant permissions to.
+
+```ts
+type Key = {
+  /** Public key */
+  publicKey: `0x${string}`
+  /** Key type */
+  type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+}
+```
+
+### permissions
+
+Permissions to grant to the account.
+
+```ts
+type Permissions = {
+  /** Call permissions */
+  calls: {
+    /** Function signature or 4-byte signature */
+    signature?: string
+    /** Authorized target address */
+    to?: `0x${string}`
+  }[]
+
+  /** Spend permissions */
+  spend: {
+    /** Spending limit (in wei) per period */
+    limit: `0x${string}`
+    /** Period of the spend limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token to set the limit on (defaults to native token) */
+    token?: `0x${string}`
+  }[]
+}
+```

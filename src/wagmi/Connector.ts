@@ -2,7 +2,6 @@ import {
   ChainNotConfiguredError,
   type Connector,
   createConnector,
-  type Transport,
 } from '@wagmi/core'
 import {
   type Address,
@@ -15,11 +14,10 @@ import {
   withRetry,
 } from 'viem'
 import type { Chain } from '../core/Chains.js'
-import * as Request from '../core/internal/typebox/request.js'
-import * as Schema from '../core/internal/typebox/schema.js'
+import * as Typebox from '../core/internal/typebox/typebox.js'
 import type { ExactPartial } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
-import * as Storage from '../core/Storage.js'
+import * as RpcSchema from '../core/RpcSchema.js'
 
 export function porto<const chains extends readonly [Chain, ...Chain[]]>(
   config: ExactPartial<Porto.Config<chains>> = {},
@@ -29,11 +27,13 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
     connect(parameters?: {
       chainId?: number | undefined
       isReconnecting?: boolean | undefined
-      capabilities: Schema.StaticDecode<
-        typeof Request.wallet_connect.Capabilities
-      > & {
-        force?: boolean | undefined
-      }
+      capabilities?:
+        | (Typebox.StaticDecode<
+            typeof RpcSchema.wallet_connect.Capabilities
+          > & {
+            force?: boolean | undefined
+          })
+        | undefined
     }): Promise<{
       accounts: readonly Address[]
       chainId: number
@@ -44,33 +44,15 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
   return createConnector<Provider, Properties>((wagmiConfig) => {
     const chains = config.chains ?? wagmiConfig.chains ?? []
 
-    const storage = (() => {
-      if (config.storage) return config.storage
-      if (wagmiConfig.storage)
-        return Storage.from({
-          ...wagmiConfig.storage,
-          sizeLimit: 1024 * 1024 * 5, // ≈5MB
-        })
-      return undefined
-    })()
-
     const transports = (() => {
       if (config.transports) return config.transports
-      return Object.entries(wagmiConfig.transports ?? {}).reduce(
-        (transports, [chainId, transport]) => ({
-          // biome-ignore lint/performance/noAccumulatingSpread:
-          ...transports,
-          [chainId]: 'default' in transport ? transport.default : transport,
-        }),
-        {} as Record<number, Transport>,
-      )
+      return wagmiConfig.transports
     })()
 
     const porto = Porto.create({
       ...config,
       announceProvider: false,
       chains: chains as never,
-      storage,
       transports,
     })
 
@@ -92,8 +74,8 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
               if (!('capabilities' in rest)) return undefined
               return [
                 {
-                  capabilities: Schema.Encode(
-                    Request.wallet_connect.Capabilities,
+                  capabilities: Typebox.Encode(
+                    RpcSchema.wallet_connect.Capabilities,
                     rest.capabilities,
                   ),
                 },

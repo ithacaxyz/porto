@@ -28,8 +28,8 @@ yarn-error.log*
 next-env.d.ts
 
 # forge
-contracts/cache
-contracts/out
+contracts/**/cache
+contracts/**/out
 
 # lib
 src/_dist
@@ -49,3 +49,6 @@ _
 dist
 build
 .cache
+
+.opencode
+OpenCode.md

@@ -1,17 +1,24 @@
 import * as Ariakit from '@ariakit/react'
-import { Button, Spinner } from '@porto/apps/components'
+import { Button, Spinner, Toast } from '@porto/apps/components'
 import { exp1Address } from '@porto/apps/contracts'
+import { useCopyToClipboard } from '@porto/apps/hooks'
 import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
+import { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
-import { useAccount, useBlockNumber, useChainId } from 'wagmi'
-import { useSendCalls } from 'wagmi/experimental'
-import { CustomToast } from '~/components/CustomToast'
+import {
+  useAccount,
+  useChainId,
+  useDisconnect,
+  useSendCalls,
+  useWaitForCallsStatus,
+  useWatchBlockNumber,
+} from 'wagmi'
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
@@ -19,9 +26,12 @@ import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info } from '~/hooks/useTokenInfo'
-import { porto } from '~/lib/Porto'
-import { config } from '~/lib/Wagmi'
-import { DateFormatter, StringFormatter, sum, ValueFormatter } from '~/utils'
+import {
+  ArrayUtils,
+  DateFormatter,
+  StringFormatter,
+  ValueFormatter,
+} from '~/utils'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
 import ExternalLinkIcon from '~icons/lucide/external-link'
@@ -51,55 +61,43 @@ function TokenSymbol({
 }
 
 export function Dashboard() {
-  const account = useAccount()
+  const [, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
+
   const chainId = useChainId()
-  const disconnect = Hooks.useDisconnect()
+  const account = useAccount()
+
+  const blockExplorer = account.chain?.blockExplorers?.default.url ?? ''
+
+  const disconnect = useDisconnect()
   const permissions = Hooks.usePermissions()
 
-  const { data: transfers } = useAddressTransfers({
-    chainIds: [chainId],
-  })
-  const { data: assets, refetch: refetchSwapAssets } = useSwapAssets({
-    chainId: chainId,
-  })
+  const addressTransfers = useAddressTransfers({ chainId })
+  const swapAssets = useSwapAssets({ chainId })
 
-  const { data: blockNumber } = useBlockNumber({
-    watch: { enabled: account.status === 'connected', pollingInterval: 800 },
+  useWatchBlockNumber({
+    enabled: account.status === 'connected',
+    onBlockNumber: async (_blockNumber) => {
+      await Promise.all([
+        swapAssets.refetch().catch((error) => console.error(error)),
+        permissions.refetch().catch((error) => console.error(error)),
+        addressTransfers.refetch().catch((error) => console.error(error)),
+      ])
+    },
+    pollingInterval: 1_000,
   })
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
-  React.useEffect(() => {
-    refetchSwapAssets()
-  }, [blockNumber])
 
   const revokePermissions = Hooks.useRevokePermissions()
 
-  const [selectedChains, _setSelectedChains] = React.useState(
-    config.chains.map((c) => c.id.toString()),
-  )
-
-  const filteredTransfers = React.useMemo(() => {
-    return transfers
-      ?.filter((c) =>
-        selectedChains.some((cc) => cc === c?.chainId?.toString()),
-      )
-      .flatMap((chainTransfer) =>
-        chainTransfer?.items.map((item) => ({
-          chainId: chainTransfer.chainId,
-          ...item,
-        })),
-      )
-  }, [transfers, selectedChains])
-
   const totalBalance = React.useMemo(() => {
-    if (!assets) return 0n
-    return sum(
-      assets.map(
+    if (!swapAssets.data) return 0n
+    return ArrayUtils.sum(
+      swapAssets.data.map(
         (asset) =>
-          Number(Value.format(asset.balance, asset.decimals)) * asset.price,
+          Number(Value.format(asset.balance, asset.decimals)) *
+          (asset.price ?? 0),
       ),
     )
-  }, [assets])
+  }, [swapAssets.data])
 
   const admins = Hooks.useAdmins({
     query: {
@@ -114,7 +112,7 @@ export function Dashboard() {
     mutation: {
       onError: (error) => {
         toast.custom((t) => (
-          <CustomToast
+          <Toast
             className={t}
             description={error.message}
             kind="error"
@@ -124,7 +122,7 @@ export function Dashboard() {
       },
       onSuccess: () => {
         toast.custom((t) => (
-          <CustomToast
+          <Toast
             className={t}
             description="You have revoked a recovery admin"
             kind="success"
@@ -158,7 +156,7 @@ export function Dashboard() {
             />
 
             <Button
-              onClick={() => disconnect.mutate({})}
+              onClick={() => disconnect.disconnect({})}
               size="small"
               variant="destructive"
             >
@@ -182,8 +180,7 @@ export function Dashboard() {
         <Ariakit.Button
           className="flex w-[150px] items-center justify-center gap-3 hover:cursor-pointer!"
           onClick={() =>
-            navigator.clipboard
-              .writeText(account.address ?? '')
+            copyToClipboard(account.address ?? '')
               .then(() => toast.success('Copied address to clipboard'))
               .catch(() => toast.error('Failed to copy address to clipboard'))
           }
@@ -205,7 +202,14 @@ export function Dashboard() {
       <hr className="border-gray5" />
       <div className="h-4" />
 
-      <details className="group" open={assets && assets?.length > 0}>
+      <details
+        className="group"
+        open={
+          swapAssets.data &&
+          swapAssets.data?.length > 0 &&
+          swapAssets.data.some((asset) => asset.balance !== 0n)
+        }
+      >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
 
@@ -213,11 +217,13 @@ export function Dashboard() {
             className="ml-2"
             onClick={async (event) => {
               event.preventDefault()
-              if (!account.address) {
+              if (!account.address)
                 return toast.error('No account address found')
-              }
-              await porto.provider.request({
-                method: 'experimental_addFunds',
+
+              const provider =
+                (await account.connector?.getProvider()) as Porto.Porto['provider']
+              await provider.request({
+                method: 'wallet_addFunds',
                 params: [
                   {
                     address: account.address,
@@ -238,12 +244,17 @@ export function Dashboard() {
         <PaginatedTable
           columns={[
             { header: 'Name', key: 'name', width: 'w-[40%]' },
-            { align: 'right', header: '', key: 'balance', width: 'w-[20%]' },
-            { align: 'right', header: '', key: 'symbol', width: 'w-[20%]' },
+            {
+              align: 'right',
+              header: 'Amount',
+              key: 'amount',
+              width: 'w-[20%]',
+            },
+            { align: 'right', header: 'Value', key: 'value', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
-          data={assets}
+          data={swapAssets.data}
           emptyMessage="No balances available for this account"
           renderRow={(asset) => (
             <AssetRow
@@ -267,7 +278,7 @@ export function Dashboard() {
 
       <details
         className="group tabular-nums"
-        open={filteredTransfers?.length > 0}
+        open={!!addressTransfers.data?.items?.length}
       >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           History
@@ -276,10 +287,11 @@ export function Dashboard() {
         <PaginatedTable
           columns={[
             { header: 'Time', key: 'time' },
-            { header: 'Account', key: 'recipient' },
+            { header: 'From', key: 'sender' },
+            { header: 'To', key: 'recipient' },
             { align: 'right', header: 'Amount', key: 'amount' },
           ]}
-          data={filteredTransfers}
+          data={addressTransfers.data?.items}
           emptyMessage="No transactions yet"
           renderRow={(transfer) => {
             const amount = Number.parseFloat(
@@ -297,29 +309,41 @@ export function Dashboard() {
                 <td className="py-1 text-left">
                   <a
                     className="flex flex-row items-center"
-                    href={`https://explorer.ithaca.xyz/tx/${transfer?.transaction_hash}`}
+                    href={`${blockExplorer}/tx/${transfer?.transaction_hash}`}
                     rel="noreferrer"
                     target="_blank"
                   >
                     <ExternalLinkIcon className="mr-1 size-4 text-gray10" />
-                    <span className="min-w-[50px] text-gray11 sm:min-w-[65px]">
-                      {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))}{' '}
-                      ago
+                    <span className="min-w-[35px] text-gray11 sm:min-w-[65px]">
+                      {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))}
                     </span>
                   </a>
                 </td>
-                <td className="flex min-w-full items-center py-1 text-left font-medium">
-                  <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3 p-0.5">
-                    <AccountIcon className="size-4 rounded-full text-gray10" />
+                <td className="py-1 text-left font-medium">
+                  <div className="flex items-center">
+                    <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
+                      <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
+                    </div>
+                    <TruncatedAddress
+                      address={transfer?.to.hash ?? ''}
+                      className="ml-2"
+                    />
                   </div>
-                  <TruncatedAddress
-                    address={transfer?.to.hash ?? ''}
-                    className="ml-2"
-                  />
+                </td>
+                <td className="py-1 text-left font-medium">
+                  <div className="flex items-center">
+                    <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
+                      <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
+                    </div>
+                    <TruncatedAddress
+                      address={transfer?.to.hash ?? ''}
+                      className="ml-2"
+                    />
+                  </div>
                 </td>
                 <td className="py-1 text-right text-gray12">
-                  <span className="text-md">{amount}</span>
-                  <div className="inline-block w-[65px]">
+                  <span className="text-sm sm:text-md">{amount}</span>
+                  <div className="inline-block w-[45px]">
                     <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
                       <TokenSymbol
                         address={transfer?.token.address as Address.Address}
@@ -370,6 +394,15 @@ export function Dashboard() {
 
             const time = DateFormatter.timeToDuration(permission.expiry * 1_000)
 
+            const periods = {
+              day: 'daily',
+              hour: 'hourly',
+              minute: 'minutely',
+              month: 'monthly',
+              week: 'weekly',
+              year: 'yearly',
+            } as const
+
             return (
               <tr
                 className="*:text-xs! *:sm:text-sm!"
@@ -378,7 +411,7 @@ export function Dashboard() {
                 <td className="max-w-[50px] py-3 text-left">
                   <a
                     className="flex flex-row items-center"
-                    href={`https://explorer.ithaca.xyz/address/${permission.address}`}
+                    href={`${blockExplorer}/address/${permission.address}`}
                     rel="noreferrer"
                     target="_blank"
                   >
@@ -416,7 +449,9 @@ export function Dashboard() {
                   </div>
                 </td>
                 <td className="w-[30px] pl-1">
-                  <span className="text-gray11">{spend?.period}ly</span>
+                  <span className="text-gray11">
+                    {periods[spend?.period as keyof typeof periods]}
+                  </span>
                 </td>
                 <td className="w-min max-w-[25px] text-right">
                   <Ariakit.Button
@@ -510,9 +545,8 @@ export function Dashboard() {
                     <td className="text-right">
                       <Ariakit.Button
                         className="size-7 rounded-full px-1 pt-1 hover:bg-gray4"
-                        onClick={() => {
-                          navigator.clipboard
-                            .writeText(key.publicKey)
+                        onClick={() =>
+                          copyToClipboard(key.publicKey)
                             .then(() =>
                               toast.success('Copied address to clipboard'),
                             )
@@ -521,7 +555,7 @@ export function Dashboard() {
                                 'Failed to copy address to clipboard',
                               ),
                             )
-                        }}
+                        }
                       >
                         <CopyIcon className="m-auto size-4 text-gray10 sm:size-5" />
                       </Ariakit.Button>
@@ -654,8 +688,10 @@ function AssetRow({
     'default',
   )
 
+  const chainId = useChainId()
+
   const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
-    chainId: 911_867,
+    chainId,
   })
 
   const formattedBalance = React.useMemo(
@@ -663,13 +699,23 @@ function AssetRow({
     [value, decimals],
   )
 
+  // total value of the asset
+  const totalValue = React.useMemo(
+    () => price * Number(formattedBalance),
+    [price, formattedBalance],
+  )
+
   const sendCalls = useSendCalls({
     mutation: {
       onError: (error) => {
-        const notAllowed = error.message.includes('not allowed')
+        const userRejected = error.message
+          .toLowerCase()
+          .includes('user rejected')
+        if (userRejected) return
+        const notAllowed = error.message.toLowerCase().includes('not allowed')
         toast.custom(
           (t) => (
-            <CustomToast
+            <Toast
               className={t}
               description={
                 notAllowed
@@ -688,40 +734,38 @@ function AssetRow({
         sendForm.setState('submitFailed', (count) => +count + 1)
         sendForm.setState('submitSucceed', 0)
       },
-      onSuccess: (data) => {
-        refetchSwapAssets()
-        toast.custom(
-          (t) => (
-            <CustomToast
-              className={t}
-              description={
-                <p>
-                  You successfully sent {sendFormState.values.sendAmount}{' '}
-                  {symbol}
-                  <br />
-                  <a
-                    className="text-gray12 underline"
-                    href={`https://explorer.ithaca.xyz/tx/${data}`}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    View on explorer
-                  </a>
-                </p>
-              }
-              kind="success"
-              title="Transaction completed"
-            />
-          ),
-
-          { duration: 4_500 },
-        )
+      onSuccess: (_data) => {
         refetchSwapAssets()
         sendForm.setState('submitSucceed', (count) => +count + 1)
         sendForm.setState('submitFailed', 0)
       },
     },
   })
+
+  const callStatus = useWaitForCallsStatus({
+    id: sendCalls.data?.id,
+  })
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  React.useEffect(() => {
+    if (callStatus.isSuccess) {
+      const [receipt] = callStatus.data?.receipts ?? []
+      const hash = receipt?.transactionHash
+      if (!hash) return
+      toast.custom(
+        (t) => (
+          <Toast
+            className={t}
+            description={`You successfully sent ${sendFormState.values.sendAmount} ${symbol}`}
+            kind="success"
+            title="Transaction completed"
+          />
+        ),
+
+        { duration: 4_500 },
+      )
+    }
+  }, [callStatus.data?.id])
 
   const sendForm = Ariakit.useFormStore({
     defaultValues: {
@@ -738,10 +782,14 @@ function AssetRow({
     }
   })
 
-  sendForm.useSubmit(async (state) => {
+  async function submitForm(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) {
+    event.preventDefault()
+
     if (
-      !Address.validate(state.values.sendRecipient) ||
-      !state.values.sendAmount
+      !Address.validate(sendFormState.values.sendRecipient) ||
+      !sendFormState.values.sendAmount
     )
       return
     sendCalls.sendCalls({
@@ -750,8 +798,8 @@ function AssetRow({
           data: encodeFunctionData({
             abi: erc20Abi,
             args: [
-              state.values.sendRecipient,
-              Value.from(state.values.sendAmount, decimals),
+              sendFormState.values.sendRecipient,
+              Value.from(sendFormState.values.sendAmount, decimals),
             ],
             functionName: 'transfer',
           }),
@@ -759,10 +807,12 @@ function AssetRow({
         },
       ],
     })
-  })
+  }
 
   const ref = React.useRef<HTMLTableCellElement | null>(null)
   useClickOutside([ref], () => setViewState('default'))
+
+  if (value === 0n) return null
 
   return (
     <tr className="font-normal sm:text-sm">
@@ -776,7 +826,7 @@ function AssetRow({
           </td>
           <td className="w-[20%] text-right text-md">{formattedBalance}</td>
           <td className="w-[20%] pl-3.5 text-right text-md">
-            ${ValueFormatter.formatToPrice(price)}
+            ${ValueFormatter.formatToPrice(totalValue)}
           </td>
           <td className="w-[20%] pr-1.5 pl-3 text-left text-sm">
             <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
@@ -903,11 +953,18 @@ function AssetRow({
                   inputMode="decimal"
                   max={formattedBalance}
                   name={sendForm.names.sendAmount}
+                  onInput={(event) => {
+                    sendForm.setValue(
+                      sendForm.names.sendAmount,
+                      event.currentTarget.value,
+                    )
+                  }}
                   placeholder="0.00"
                   required={true}
                   spellCheck={false}
                   step="any"
                   type="number"
+                  value={sendFormState.values.sendAmount}
                 />
               </div>
             </div>
@@ -930,7 +987,7 @@ function AssetRow({
                 'my-auto mr-0.5 ml-1 rounded-full p-2 sm:mr-1 sm:ml-2',
                 {
                   'animate-pulse bg-accent text-white hover:bg-accentHover':
-                    sendCalls.isPending,
+                    sendCalls.isPending || callStatus.isFetching,
                   'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7':
                     sendFormState.errors.sendAmount?.length ||
                     sendFormState.errors.sendRecipient?.length,
@@ -940,8 +997,10 @@ function AssetRow({
                   ? 'bg-accent text-white hover:bg-accentHover'
                   : 'cursor-not-allowed bg-gray4 *:text-gray8! hover:bg-gray7',
               )}
+              onClick={submitForm}
+              type="button"
             >
-              {sendCalls.isPending ? (
+              {sendCalls.isPending || callStatus.isFetching ? (
                 <Spinner className="size-3! sm:size-4!" />
               ) : (
                 <SendIcon className="size-3 sm:size-4!" />

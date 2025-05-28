@@ -13,7 +13,7 @@ export function SignUp(props: SignUp.Props) {
 
   const [showLearn, setShowLearn] = useState(false)
 
-  const hostname = Dialog.useStore((state) => state.referrer?.origin.hostname)
+  const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   if (showLearn) return <SignUp.Learn onDone={() => setShowLearn(false)} />
   return (
@@ -23,7 +23,12 @@ export function SignUp(props: SignUp.Props) {
           content={
             <>
               Create a new passkey wallet to start using{' '}
-              <span className="font-medium">{hostname}</span>.
+              {hostname ? (
+                <span className="font-medium">{hostname}</span>
+              ) : (
+                'this website'
+              )}
+              .
             </>
           }
           icon={LucideLogIn}
@@ -31,25 +36,27 @@ export function SignUp(props: SignUp.Props) {
         />
       </Layout.Header>
 
-      <Permissions {...permissions} />
+      <Permissions title="Permissions requested" {...permissions} />
 
       <Layout.Footer>
         <Layout.Footer.Actions>
           {enableSignIn ? (
             <Button
+              data-testid="sign-in"
               onClick={() => onApprove({ selectAccount: true, signIn: true })}
               type="button"
             >
               Sign in
             </Button>
           ) : (
-            <Button onClick={onReject} type="button">
+            <Button data-testid="cancel" onClick={onReject} type="button">
               No thanks
             </Button>
           )}
 
           <Button
             className="flex-grow"
+            data-testid="sign-up"
             onClick={() => onApprove({ signIn: false })}
             type="button"
             variant="accent"
@@ -59,19 +66,17 @@ export function SignUp(props: SignUp.Props) {
         </Layout.Footer.Actions>
 
         <button
-          className="flex w-full cursor-pointer items-center justify-between border-primary border-t px-3 pt-3"
+          className="flex w-full cursor-pointer items-center justify-between border-primary border-t p-3 pb-0"
           onClick={() => setShowLearn(true)}
           type="button"
         >
-          <div className="flex items-center gap-1">
-            <Question />
+          <div className="flex items-center gap-1.5">
+            <Question className="mt-px size-5 text-gray9" />
             <span className="font-medium text-[14px]">
               Learn about passkeys
             </span>
           </div>
-          <div className="text-secondary">
-            <ChevronRight />
-          </div>
+          <ChevronRight className="size-5 text-gray12 opacity-50" />
         </button>
       </Layout.Footer>
     </Layout>

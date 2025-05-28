@@ -1,0 +1,46 @@
+# Dialog
+
+Porto dialog is a renderer that displays the account interface in a modal dialog.
+As with everything else, Porto comes pre-configured with a default dialog renderer suitable for the user's browser of choice.
+That means that you don't need to do anything to use the dialog.
+
+## Behavior
+
+- The dialog opens automatically when a request requires user confirmation
+- The dialog closes when:
+  - The user completes the requested action
+  - The user clicks outside the dialog
+  - The user presses the Escape key
+- When the dialog closes due to a user cancellation, all pending requests will be rejected with a `UserRejectedRequestError`
+
+## Dialog.iframe
+
+The [`iframe`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe) dialog is Porto's default rendering option.
+
+### Usage
+
+```ts twoslash
+import { Porto, Dialog, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.dialog({
+    renderer: Dialog.iframe() // [!code focus]
+  })
+})
+```
+
+## Dialog.popup
+
+The `popup` dialog is the same as the `iframe` dialog but uses a popup window instead of an `iframe`.
+
+### Usage
+
+```ts twoslash
+import { Porto, Dialog, Mode } from 'porto'
+
+const porto = Porto.create({
+  mode: Mode.dialog({
+    renderer: Dialog.popup() // [!code focus]
+  })
+})
+```

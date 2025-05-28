@@ -1,13 +1,14 @@
-import { Hooks } from 'porto/wagmi'
 import { formatEther, parseEther } from 'viem'
 import {
   type BaseError,
   useAccount,
-  useConnectors,
+  useConnect,
+  useDisconnect,
   useReadContract,
+  useSendCalls,
+  useWaitForCallsStatus,
 } from 'wagmi'
-import { useSendCalls, useWaitForCallsStatus } from 'wagmi/experimental'
-import { exp1Address, exp1Config } from './_generated/contracts'
+import { exp1Address, exp1Config } from './contracts'
 
 export function App() {
   const { isConnected } = useAccount()
@@ -28,7 +29,7 @@ export function App() {
 
 function Account() {
   const account = useAccount()
-  const disconnect = Hooks.useDisconnect()
+  const disconnect = useDisconnect()
 
   return (
     <div>
@@ -43,8 +44,8 @@ function Account() {
       </div>
 
       {account.status !== 'disconnected' && (
-        <button onClick={() => disconnect.mutate({})} type="button">
-          Disconnect
+        <button onClick={() => disconnect.disconnect()} type="button">
+          Sign out
         </button>
       )}
     </div>
@@ -52,28 +53,22 @@ function Account() {
 }
 
 function Connect() {
-  const connectors = useConnectors()
-  const connect = Hooks.useConnect()
+  const connect = useConnect()
+  const [connector] = connect.connectors
 
   return (
     <div>
       <h2>Connect</h2>
-      {connectors
-        .filter((x) => x.id === 'xyz.ithaca.porto')
-        ?.map((connector) => (
-          <div key={connector.uid}>
-            <button
-              onClick={() =>
-                connect.mutate({
-                  connector,
-                })
-              }
-              type="button"
-            >
-              Connect
-            </button>
-          </div>
-        ))}
+      <button
+        onClick={() =>
+          connect.connect({
+            connector,
+          })
+        }
+        type="button"
+      >
+        Sign in
+      </button>
       <div>{connect.status}</div>
       <div>{connect.error?.message}</div>
     </div>

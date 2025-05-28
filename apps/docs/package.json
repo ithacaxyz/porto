@@ -9,7 +9,7 @@
     "preview": "vocs preview"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.15",
+    "@ariakit/react": "catalog:",
     "@porto/apps": "workspace:*",
     "@tanstack/query-sync-storage-persister": "catalog:",
     "@tanstack/react-query": "catalog:",
@@ -17,9 +17,10 @@
     "cva": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
-    "react-router": "^7",
     "react-dom": "catalog:",
+    "react-router": "^7",
     "shiki": "^1",
+    "sonner": "catalog:",
     "tailwindcss": "catalog:",
     "viem": "catalog:",
     "vocs": "latest",
@@ -35,5 +36,5 @@
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.10.0"
 }

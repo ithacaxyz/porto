@@ -1,15 +1,20 @@
-import 'viem/window'
 import * as Ariakit from '@ariakit/react'
-import { Button, Spinner } from '@porto/apps/components'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { cx } from 'cva'
+import { UserAgent } from '@porto/apps'
+import { Button, Spinner, Toast } from '@porto/apps/components'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { baseSepolia } from 'porto/core/Chains'
+import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import type { EIP1193Provider } from 'viem'
-import { Connector, useConnectors } from 'wagmi'
-import { CustomToast } from '~/components/CustomToast'
-import { porto } from '~/lib/Porto'
+import {
+  Connector,
+  useConnect,
+  useConnectors,
+  useDisconnect,
+  useSwitchChain,
+} from 'wagmi'
 import { mipdConfig } from '~/lib/Wagmi'
+
 import SecurityIcon from '~icons/ic/outline-security'
 import CheckMarkIcon from '~icons/lucide/check'
 import ChevronRightIcon from '~icons/lucide/chevron-right'
@@ -17,59 +22,17 @@ import XIcon from '~icons/lucide/x'
 import { Layout } from './-components/Layout'
 
 export const Route = createFileRoute('/_layout/recovery')({
+  beforeLoad: ({ context }) => {
+    if (!context.account.isConnected) throw redirect({ to: '/' })
+
+    return { account: context.account, queryClient: context.queryClient }
+  },
   component: RouteComponent,
 })
 
-function ActionableFeedback({ feedback }: { feedback: 'success' | 'pending' }) {
-  return (
-    <div className="w-[350px]">
-      {feedback === 'pending' ? (
-        <div className="mx-auto mb-3.5 flex size-12 items-center justify-center rounded-full bg-blue4 px-2 text-blue10">
-          <Spinner />
-        </div>
-      ) : (
-        <div className="mx-auto mb-3.5 flex size-12 items-center justify-center rounded-full bg-emerald-100 px-2 text-emerald-600 dark:bg-emerald-200">
-          <CheckMarkIcon className="size-7" />
-        </div>
-      )}
-
-      <div className="flex flex-col items-center gap-y-2 text-center">
-        <React.Fragment>
-          {feedback === 'pending' ? (
-            <React.Fragment>
-              <p className="text-center font-medium text-2xl">
-                Approve in wallet
-              </p>
-              <p className="text-lg">Please check your wallet for a request.</p>
-              <p className="font-normal text-base text-gray10">
-                This will verify ownership of the wallet,
-                <br />
-                and allow it to recover this passkey.
-              </p>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <p className="text-center font-medium text-2xl">
-                Added recovery method
-              </p>
-              <p className="text-lg">
-                You can now use this wallet to recover your passkey if you ever
-                lose access.
-              </p>
-              <Button
-                className="mt-2 h-11! w-full text-lg!"
-                render={<Link to="/">Done</Link>}
-                variant="accent"
-              />
-            </React.Fragment>
-          )}
-        </React.Fragment>
-      </div>
-    </div>
-  )
-}
-
 function RouteComponent() {
+  const { account: portoAccount } = Route.useRouteContext()
+
   const [view, setView] = React.useState<'default' | 'success' | 'loading'>(
     'default',
   )
@@ -79,7 +42,29 @@ function RouteComponent() {
     return _connectors.filter((c) => !c.id.toLowerCase().includes('porto'))
   }, [_connectors])
 
-  if (!connectors.length) return null
+  const connect = useConnect({ config: mipdConfig })
+  const disconnect = useDisconnect({ config: mipdConfig })
+  const switchChain = useSwitchChain({ config: mipdConfig })
+
+  const grantAdmin = Hooks.useGrantAdmin()
+
+  async function tryConnect(connector: Connector) {
+    try {
+      const {
+        accounts: [address],
+      } = await connect.connectAsync({ connector })
+      return address
+    } catch {
+      await disconnect.disconnectAsync()
+      return undefined
+    }
+  }
+
+  const disconnectAll = async () =>
+    Promise.all([
+      disconnect.disconnectAsync(),
+      ...connectors.map((connector) => connector.disconnect()),
+    ])
 
   const connectThenGrantAdmin = async (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -89,38 +74,96 @@ function RouteComponent() {
     event.stopPropagation()
 
     try {
-      const provider = (await connector.getProvider()) as EIP1193Provider
-      const [address] = await provider.request({
-        method: 'eth_requestAccounts',
+      // 1. disconnect in case user is connected from previous sessions
+      await disconnectAll()
+
+      // 2. try to connect -- this could fail for a number of reasons:
+      // - one of which is the user doesn't have the chain configured
+      let address = await tryConnect(connector)
+      if (!address) {
+        await switchChain.switchChainAsync({
+          chainId: baseSepolia.id,
+        })
+        address = await tryConnect(connector)
+      }
+
+      if (!address) throw new Error('Failed to connect to wallet')
+
+      const granted = await grantAdmin.mutateAsync({
+        address: portoAccount.address,
+        key: { publicKey: address, type: 'address' },
       })
 
-      if (!address) return
-
-      await porto.provider.request({
-        method: 'experimental_grantAdmin',
-        params: [
-          {
-            key: { publicKey: address, type: 'address' },
-          },
-        ],
-      })
+      if (!granted) throw new Error('Failed to grant admin permissions')
 
       setView('success')
+      await disconnectAll()
     } catch (error) {
+      await disconnectAll()
+      console.info(error)
+      let message = 'Encountered an error while granting admin permissions.'
+      if (
+        error instanceof Error &&
+        error.message.includes('Key already granted')
+      ) {
+        message = 'Key already granted as admin'
+      }
       toast.custom((t) => (
-        <CustomToast
+        <Toast
           className={t}
-          description={
-            error instanceof Error
-              ? error.message
-              : 'Encountered an error while granting admin permissions.'
-          }
-          kind="error"
-          title="Error Connecting"
+          description={message}
+          kind="warn"
+          title="Did not go through"
         />
       ))
+    } finally {
+      await disconnectAll()
     }
   }
+
+  if (UserAgent.isMobile())
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-y-4 px-3">
+        <p className="rounded-lg border border-gray5/50 bg-surface px-2.5 py-1 text-center font-medium text-lg">
+          Coming soon
+        </p>
+        <p className="text-center">
+          Adding a recovery wallet is not supported on mobile yet.
+          <br />
+          Please use a desktop browser with a wallet extension to add a recovery
+          wallet.
+        </p>
+        <Button
+          className="w-full"
+          render={
+            <Link from="/recovery" to="/">
+              Go back
+            </Link>
+          }
+        />
+      </div>
+    )
+
+  if (!connectors.length)
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-y-4 px-3">
+        <p className="rounded-lg border border-gray5/50 bg-surface px-2.5 py-1 text-center font-medium text-lg">
+          No wallets found
+        </p>
+        <p className="text-center">
+          Please use a desktop browser with a wallet extension to add a recovery
+          wallet.
+        </p>
+        <Button
+          className="w-full"
+          render={
+            <Link from="/recovery" to="/">
+              Go back
+            </Link>
+          }
+        />
+      </div>
+    )
 
   return (
     <React.Fragment>
@@ -139,11 +182,7 @@ function RouteComponent() {
         />
       </div>
 
-      <div
-        className={cx(
-          'mx-auto flex h-full w-full flex-col items-center justify-center bg-transparent min-[550px]:max-w-[395px]',
-        )}
-      >
+      <div className="mx-auto flex h-full w-full flex-col items-center justify-center bg-transparent min-[550px]:max-w-[395px]">
         {view === 'success' ? (
           <ActionableFeedback feedback="success" />
         ) : view === 'loading' ? (
@@ -194,7 +233,11 @@ function RouteComponent() {
 
             <Button
               className="my-4 h-11! w-full font-medium text-lg!"
-              onClick={() => toast.dismiss()}
+              onClick={() => {
+                disconnectAll()
+                  .catch(() => {})
+                  .finally(() => toast.dismiss())
+              }}
               render={
                 <Link className="" to="..">
                   I'll do this later
@@ -205,5 +248,54 @@ function RouteComponent() {
         )}
       </div>
     </React.Fragment>
+  )
+}
+
+function ActionableFeedback({ feedback }: { feedback: 'success' | 'pending' }) {
+  return (
+    <div className="w-[350px]">
+      {feedback === 'pending' ? (
+        <div className="mx-auto mb-3.5 flex size-12 items-center justify-center rounded-full bg-blue4 px-2 text-blue10">
+          <Spinner />
+        </div>
+      ) : (
+        <div className="mx-auto mb-3.5 flex size-12 items-center justify-center rounded-full bg-emerald-100 px-2 text-emerald-600 dark:bg-emerald-200">
+          <CheckMarkIcon className="size-7" />
+        </div>
+      )}
+
+      <div className="flex flex-col items-center gap-y-2 text-center">
+        <React.Fragment>
+          {feedback === 'pending' ? (
+            <React.Fragment>
+              <p className="text-center font-medium text-2xl">
+                Approve in wallet
+              </p>
+              <p className="text-lg">Please check your wallet for a request.</p>
+              <p className="font-normal text-base text-gray10">
+                This will verify ownership of the wallet,
+                <br />
+                and allow it to recover this passkey.
+              </p>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <p className="text-center font-medium text-2xl">
+                Added recovery method
+              </p>
+              <p className="text-lg">
+                You can now use this wallet to recover your passkey if you ever
+                lose access.
+              </p>
+              <Button
+                className="mt-2 h-11! w-full text-lg!"
+                render={<Link to="/">Done</Link>}
+                variant="accent"
+              />
+            </React.Fragment>
+          )}
+        </React.Fragment>
+      </div>
+    </div>
   )
 }

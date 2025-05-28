@@ -20,7 +20,7 @@ import * as Porto from 'porto/Porto'
 
 ## Examples
 
-The simplest way to create a new Porto instance is to call the `Porto.create(){:ts}` function. 
+The simplest way to create a new Porto instance is to call the `Porto.create(){:ts}` function.
 This will automatically inject Porto's provider into your Application via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963).
 
 ```ts twoslash
@@ -37,7 +37,6 @@ import { Porto } from 'porto'
 
 const porto = Porto.create({ announceProvider: false })
 ```
-
 
 :::
 
@@ -67,18 +66,6 @@ const accounts = await porto.provider.request({
   }}
 />
 
-### Modes
-
-TODO
-
-### Storage
-
-TODO
-
-### Custom Chains
-
-TODO
-
 ## Parameters
 
 ### announceProvider
@@ -91,13 +78,20 @@ Whether to announce the provider via [EIP-6963](https://eips.ethereum.org/EIPS/e
 ### chains
 
 - **Type:** `readonly [Chains.Chain, ...Chains.Chain[]]{:ts}`
-- **Default:** `[Chains.odysseyTestnet]{:ts}`
+- **Default:** `[Chains.baseSepolia]{:ts}`
 
 List of supported chains.
 
 :::tip
-See [`Chains`](#TODO) for a list of Porto-supported chains.
+See [`Chains`](/sdk/api/chains) for a list of Porto-supported chains.
 :::
+
+### feeToken
+
+- **Type:** `'ETH' | 'EXP' | 'USDC'`
+- **Default:** `EXP` (note: will change to `USDC` on Porto launch)
+
+Token to use to pay for fees.
 
 ### mode
 
@@ -110,10 +104,10 @@ Available:
 
 - [`Mode.contract()`](#TODO): Requests & signing is handled locally, and coordinated with the delegation contract.
 - [`Mode.dialog()`](#TODO): Requests & signing is handled via an iframe or popup dialog.
-- [`Mode.relay()`](#TODO): Requests & signing is handled locally, and coordinated with the Porto Relay.
+- [`Mode.rpcServer()`](#TODO): Requests & signing is handled locally, and coordinated with the Porto RPC.
 
 :::warning
-Using `Mode.contract()` or `Mode.relay()` comes with some caveats. Please refer to the [`Mode.contract()`](#TODO) or [`Mode.relay()`](#TODO) documentation for more information.
+Using `Mode.contract()` or `Mode.rpcServer()` comes with some caveats. Please refer to the [`Mode.contract()`](#TODO) or [`Mode.rpcServer()`](#TODO) documentation for more information.
 :::
 
 ### storage
@@ -125,14 +119,14 @@ Storage to use.
 
 Available:
 
-- [`Storage.idb()`](#TODO): Uses IndexedDB
-- [`Storage.memory()`](#TODO): Uses In-memory store
-- [`Storage.localStorage()`](#TODO): Uses `window.localStorage{:ts}`
-- [`Storage.cookie()`](#TODO): Uses `document.cookie{:ts}`
+- [`Storage.idb()`](/sdk/api/storage#storageidb): Uses IndexedDB
+- [`Storage.memory()`](/sdk/api/storage#storagememory): Uses In-memory store
+- [`Storage.localStorage()`](/sdk/api/storage#storagelocalstorage): Uses `window.localStorage{:ts}`
+- [`Storage.cookie()`](/sdk/api/storage#storagecookie): Uses `document.cookie{:ts}`
 
 ### transports
 
-- **Type:** `{ [chainId: string]: Transport | { default: Transport; relay?: Transport | undefined } }{:ts}`
+- **Type:** `{ [chainId: string]: Transport }{:ts}`
 - **Default:** `{}{:ts}`
 
 Transport to use for each chain.

@@ -22,6 +22,7 @@ type Request = {
     context: { quote: unknown };
     /** Key that signed the digest and produced the signature. */
     key: {
+      prehash?: boolean
       publicKey: `0x${string}`;
       type: 'address' | 'secp256k1' | 'p256' | 'webauthn-256';
     };

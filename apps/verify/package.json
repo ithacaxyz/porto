@@ -1,0 +1,16 @@
+{
+  "name": "verify",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm dlx wrangler@latest --config='wrangler.json' dev",
+    "build": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --dry-run",
+    "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250412.0",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "^4.10.0"
+  }
+}

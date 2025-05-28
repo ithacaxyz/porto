@@ -1,0 +1,90 @@
+import Fees from './snippets/fees.mdx'
+import Keys from './snippets/keys.mdx'
+import Selectors from './snippets/selectors.mdx'
+
+# `wallet_sendPreparedCalls`
+
+Sends a prepared call bundle.
+
+:::tip
+This method is intended to be used in conjunction with [`wallet_prepareCalls`](/rpc-server/wallet_prepareCalls).
+:::
+
+<Fees />
+<Keys />
+<Selectors />
+
+## Request
+
+```ts
+type Request = {
+  method: 'wallet_sendPreparedCalls',
+  params: [{
+    capabilities?: {
+      // This will be passed to `feePayer` if specified for additional on-chain verification.
+      feeSignature?: `0x${string}`,
+    },
+    context: {
+      quote: {
+        chainId: `0x${string}`,
+        intent: {
+          eoa: `0x${string}`,
+          executionData: `0x${string}`,
+          nonce: `0x${string}`,
+          payer: `0x${string}`,
+          paymentToken: `0x${string}`,
+          prePaymentMaxAmount: `0x${string}`,
+          totalPaymentMaxAmount: `0x${string}`,
+          combinedGas: `0x${string}`,
+          encodedPreCalls: `0x${string}`[],
+          initData: `0x${string}`,
+          prePaymentAmount: `0x${string}`,
+          totalPaymentAmount: `0x${string}`,
+          paymentRecipient: `0x${string}`,
+          signature: `0x${string}`,
+          paymentSignature: `0x${string}`,
+          supportedAccountImplementation: `0x${string}`,
+        },
+        txGas: `0x${string}`,
+        nativeFeeEstimate: {
+          maxFeePerGas: number,
+          maxPriorityFeePerGas: number,
+        },
+        // UNIX timestamp the quote expires at.
+        ttl: number,
+        authorizationAddress?: `0x${string}`,
+        entrypoint: `0x${string}`,
+        // The RPC servers signature over the quote.
+        signature: {
+          y_parity: boolean,
+          r: `0x${string}`,
+          s: `0x${string}`,
+        },
+        // The hash of the quote.
+        hash: `0x${string}`,
+      },
+    },
+    // The key that signed the bundle. See "Keys".
+    key: {
+      type: 'p256' | 'webauthnp256' | 'secp256k1',
+      publicKey: `0x${string}`,
+      // Whether the bundle digest will be prehashed by the key.
+      prehash: boolean,
+    },
+    signature: `0x${string}`,
+  }],
+}
+```
+
+## Response
+
+A bundle ID for use with [`wallet_getCallsStatus`].
+
+```ts
+type Response = {
+  // The bundle ID
+  id: `0x${string}`
+}
+```
+
+[`wallet_getCallsStatus`]: /rpc-server/wallet_getCallsStatus

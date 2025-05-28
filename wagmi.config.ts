@@ -1,35 +1,68 @@
+import * as fs from 'node:fs'
 import { defineConfig } from '@wagmi/cli'
-import { blockExplorer } from '@wagmi/cli/plugins'
-import { odysseyDevnet, odysseyTestnet } from './src/core/Chains.js'
+import { foundry } from '@wagmi/cli/plugins'
+import { anvil, base, baseSepolia, portoDev } from './src/core/Chains.js'
+import * as anvilAddresses from './test/src/_generated/addresses.js'
 
 const address = {
   exp1: {
-    [odysseyDevnet.id]: '0x541a5505620A658932e326D0dC996C460f5AcBE1',
-    [odysseyTestnet.id]: '0x706aa5c8e5cc2c67da21ee220718f6f6b154e75c',
+    [anvil.id]: anvilAddresses.exp1Address,
+    [base.id]: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
+    [baseSepolia.id]: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
+    [portoDev.id]: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
   },
   exp2: {
-    [odysseyDevnet.id]: '0x0Ee2d43FcaAF97e22E6Bfade9C7a9Cfcca309f25',
-    [odysseyTestnet.id]: '0x390dd40042a844f92b499069cfe983236d9fe204',
+    [anvil.id]: anvilAddresses.exp2Address,
+    [base.id]: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
+    [baseSepolia.id]: '0x62a9d6de963a5590f6fba5119e937f167677bfe7',
+    [portoDev.id]: '0x502ff46e72c47b8c3183db8919700377eed66d2e',
+  },
+  expNft: {
+    [anvil.id]: anvilAddresses.expNftAddress,
+    [base.id]: '0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9',
+    [baseSepolia.id]: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
+    [portoDev.id]: '0xEF86CEc1CEf0C78E5725fA6Cc3E9929788bBde35',
   },
 } as const
 
+const examples = fs
+  .readdirSync('examples')
+  .filter((dir) => fs.statSync(`examples/${dir}`).isDirectory())
+  .map((dir) => `examples/${dir}/src`)
+
 export default defineConfig([
-  ...['examples/next/src', 'examples/vite-react/src'].map((path) => ({
+  ...['apps/wagmi/src', ...examples].map((path) => ({
     contracts: [],
-    out: `${path}/_generated/contracts.ts`,
+    out: `${path}/contracts.ts`,
     plugins: [
-      blockExplorer({
-        baseUrl: odysseyTestnet.blockExplorers.default.apiUrl,
-        contracts: [
-          {
-            address: address.exp1[odysseyTestnet.id],
-            name: 'EXP1',
-          },
-          {
-            address: address.exp2[odysseyTestnet.id],
-            name: 'EXP2',
-          },
-        ],
+      foundry({
+        deployments: {
+          ExperimentERC20: address.exp1[baseSepolia.id],
+          ExperimentERC721: address.expNft[baseSepolia.id],
+        },
+        forge: {
+          build: false,
+        },
+        getName(name) {
+          if (name === 'ExperimentERC20') return 'exp1'
+          if (name === 'ExperimentERC721') return 'expNft'
+          return name
+        },
+        project: './contracts/demo',
+      }),
+      foundry({
+        deployments: {
+          ExperimentERC20: address.exp2[baseSepolia.id],
+        },
+        forge: {
+          build: false,
+        },
+        getName(name) {
+          if (name === 'ExperimentERC20') return 'exp2'
+          return name
+        },
+        include: ['ExperimentERC20.json'],
+        project: './contracts/demo',
       }),
     ],
   })),
@@ -37,21 +70,34 @@ export default defineConfig([
     contracts: [],
     out: `${path}/_generated/contracts.ts`,
     plugins: [
-      blockExplorer({
-        baseUrl: odysseyTestnet.blockExplorers.default.apiUrl,
-        chainId: odysseyTestnet.id,
-        contracts: [
-          {
-            address,
-            name: 'EXP1',
-          },
-          {
-            address,
-            name: 'EXP2',
-          },
-        ],
-        getAddress: (config) =>
-          config.address[odysseyTestnet.id] as `0x${string}`,
+      foundry({
+        deployments: {
+          ExperimentERC20: address.exp1,
+          ExperimentERC721: address.expNft,
+        },
+        forge: {
+          build: false,
+        },
+        getName(name) {
+          if (name === 'ExperimentERC20') return 'exp1'
+          if (name === 'ExperimentERC721') return 'expNft'
+          return name
+        },
+        project: './contracts/demo',
+      }),
+      foundry({
+        deployments: {
+          ExperimentERC20: address.exp2,
+        },
+        forge: {
+          build: false,
+        },
+        getName(name) {
+          if (name === 'ExperimentERC20') return 'exp2'
+          return name
+        },
+        include: ['ExperimentERC20.json'],
+        project: './contracts/demo',
       }),
     ],
   })),

@@ -1,0 +1,290 @@
+import { GuideDemoContainer } from '../../../components/GuideDemoContainer'
+import { Example } from '../../../components/guides/Payments'
+
+# Payments
+
+This guide will walk you through the process of creating a payment flow from the perspective of
+interacting with a contract with [EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) (the [`useSendCalls` Hook](https://wagmi.sh/react/api/hooks/useSendCalls))
+to submit a bundle of contract calls to Porto.
+
+:::tip
+While this guide is focused on contract calls, in the future, we will have a more succinct and streamlined approach for taking stablecoin
+payments and handling asset distribution.
+:::
+
+<GuideDemoContainer src="ithacaxyz/porto/tree/main/examples/payments">
+  <Example />
+</GuideDemoContainer>
+
+## Steps
+
+::::steps
+
+### Connect Account
+
+Follow the [Onboard & Discover Accounts](/sdk/guides/discover-accounts) guide to get this set up.
+
+### Create `BuyNow` Component
+
+We will add a simple "Buy Now" button that will trigger the payment flow.
+
+```tsx twoslash [BuyNow.tsx]
+import * as React from 'react'
+
+export function BuyNow() {
+  return (
+    <form>
+      <button type="submit">Buy Now</button>
+    </form>
+  )
+}
+```
+
+### Hook up `useSendCalls`
+
+Next, we will add the [`useSendCalls`](https://wagmi.sh/react/api/hooks/useSendCalls) hook to submit a batch of contract calls.
+
+- For the first call, we will request for the user to allow us to spend `10 EXP` (a payment hold),
+- For the second call, we will mint the NFT which will also debit `10 EXP` from the user's account.
+
+:::note
+For this example, we are using the [ExperimentERC20 contract](https://github.com/ithacaxyz/porto/blob/main/contracts/demo/src/ExperimentERC20.sol) for `EXP` token, and
+the [ExperimentERC721 contract](https://github.com/ithacaxyz/porto/blob/main/contracts/demo/src/ExperimentERC721.sol) for the "Running Sneaker" NFT.
+:::
+
+:::code-group
+
+```tsx [BuyNow.tsx]
+import * as React from 'react'
+import { useSendCalls } from 'wagmi' // [!code ++]
+import { parseEther } from 'viem' // [!code ++]
+import { expConfig, nftConfig } from './abi' // [!code ++]
+
+export function BuyNow() {
+  const { sendCalls } = useSendCalls() // [!code ++]
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) { // [!code ++]
+    event.preventDefault() // [!code ++]
+    sendCalls({ // [!code ++]
+      calls: [ // [!code ++]
+        { // [!code ++]
+          abi: expConfig.abi, // [!code ++]
+          args: [nftConfig.address, parseEther('10')], // [!code ++]
+          functionName: 'approve', // [!code ++]
+          to: expConfig.address // [!code ++]
+        }, // [!code ++]
+        { // [!code ++]
+          abi: nftConfig.abi, // [!code ++]
+          functionName: 'mint', // [!code ++]
+          to: nftConfig.address // [!code ++]
+        } // [!code ++]
+      ] // [!code ++]
+    }) // [!code ++]
+  } // [!code ++]
+
+  return (
+    <form> {/* [!code --] */}
+    <form onSubmit={submit}> {/* [!code ++] */}
+      <button type="submit">Buy Now</button>
+    </form>
+  )
+}
+```
+
+```ts twoslash [abi.ts] filename="abi.ts"
+// [!include ~/snippets/abi.ts]
+```
+
+:::
+
+### Add Pending State
+
+We will also display the pending state to the user while we are waiting for them
+to approve the request.
+
+:::code-group
+
+```tsx [BuyNow.tsx]
+import * as React from 'react'
+import { useSendCalls } from 'wagmi'
+import { parseEther } from 'viem'
+import { expConfig, nftConfig } from './abi'
+
+export function BuyNow() {
+  const { isPending, sendCalls } = useSendCalls()
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    sendCalls({
+      calls: [
+        {
+          abi: expConfig.abi,
+          args: [nftConfig.address, parseEther('10')],
+          functionName: 'approve',
+          to: expConfig.address
+        },
+        {
+          abi: nftConfig.abi,
+          functionName: 'mint',
+          to: nftConfig.address
+        }
+      ]
+    })
+  }
+
+  return (
+    <form onSubmit={submit}>
+      <button
+        disabled={isPending} // [!code ++]
+        type="submit"
+      >
+        Buy now {/* [!code --] */}
+        {isPending ? 'Check prompt' : 'Buy Now'} {/* [!code ++] */}
+      </button>
+    </form>
+  )
+}
+```
+
+```ts twoslash [abi.ts] filename="abi.ts"
+// [!include ~/snippets/abi.ts]
+```
+
+:::
+
+### Hook up `useWaitForCallsStatus`
+
+Now that we have the calls submitted, we can hook up the [`useWaitForCallsStatus`](https://wagmi.sh/react/api/hooks/useWaitForCallsStatus) hook to wait for the calls to be confirmed,
+and show a "Completing purchase" message to the user.
+
+:::code-group
+
+```tsx [BuyNow.tsx]
+import * as React from 'react'
+import { useSendCalls } from 'wagmi' // [!code --]
+import { useSendCalls, useWaitForCallsStatus } from 'wagmi' // [!code ++]
+import { parseEther }from 'viem'
+import { expConfig, nftConfig } from './abi'
+
+export function BuyNow() {
+  const {
+    data, // [!code ++]
+    isPending,
+    sendCalls
+  } = useSendCalls()
+
+  const { isLoading: isConfirming } = useWaitForCallsStatus({ // [!code ++]
+    id: data?.id,  // [!code ++]
+  })  // [!code ++]
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    sendCalls({
+      calls: [
+        {
+          abi: expConfig.abi,
+          args: [nftConfig.address, parseEther('10')],
+          functionName: 'approve',
+          to: expConfig.address
+        },
+        {
+          abi: nftConfig.abi,
+          functionName: 'mint',
+          to: nftConfig.address
+        }
+      ]
+    })
+  }
+
+  return (
+    <form onSubmit={submit}>
+      <button disabled={isPending || isConfirming} type="submit">
+        {isPending ? ( {
+          'Check prompt' {
+        ) : isConfirming ? ( // [!code ++]
+          'Completing purchase' // [!code ++]
+        ) : ( // [!code ++]
+          'Buy Now'
+        )}
+      </button>
+    </form>
+  )
+}
+```
+
+```ts twoslash [abi.ts] filename="abi.ts"
+// [!include ~/snippets/abi.ts]
+```
+
+:::
+
+### Display Success State
+
+:::code-group
+
+```tsx [BuyNow.tsx]
+import * as React from 'react'
+import { parseEther }from 'viem'
+import { useSendCalls, useWaitForCallsStatus } from 'wagmi'
+import { expConfig, nftConfig } from './abi'
+
+export function BuyNow() {
+  const { data, isPending, sendCalls } = useSendCalls()
+
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed, // [!code ++]
+  } = useWaitForCallsStatus({
+    id: data?.id,
+  })
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    sendCalls({
+      calls: [
+        {
+          abi: expConfig.abi,
+          args: [nftConfig.address, parseEther('10')],
+          functionName: 'approve',
+          to: expConfig.address
+        },
+        {
+          abi: nftConfig.abi,
+          functionName: 'mint',
+          to: nftConfig.address
+        }
+      ]
+    })
+  }
+
+  if (isConfirmed) // [!code ++]
+    return ( // [!code ++]
+      <div> {/* [!code ++] */}
+        <img alt="Running Sneaker" src="/sneaker.png" /> {/* [!code ++] */}
+        <div>Purchase complete!</div> {/* [!code ++] */}
+      </div> // [!code ++]
+    ) // [!code ++]
+
+  return (
+    <form onSubmit={submit}>
+      <button disabled={isPending || isConfirming} type="submit">
+        {isPending ? (
+          'Check prompt'
+        ) : isConfirming ? (
+          'Completing purchase'
+        ) : (
+          'Buy Now'
+        )}
+      </button>
+    </form>
+  )
+}
+```
+
+```ts twoslash [abi.ts] filename="abi.ts"
+// [!include ~/snippets/abi.ts]
+```
+
+:::
+
+::::

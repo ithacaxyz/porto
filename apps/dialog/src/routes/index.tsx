@@ -1,21 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import Ear from '~icons/lucide/ear'
-import { Layout } from './-components/Layout'
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return (
-    <Layout>
-      <Layout.Header>
-        <Layout.Header.Default
-          content={<p className="text-secondary">No active requests yet.</p>}
-          icon={Ear}
-          title="Listening..."
-        />
-      </Layout.Header>
-    </Layout>
-  )
+  return <div />
 }

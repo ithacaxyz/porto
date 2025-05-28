@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "check:types": "tsc --noEmit",
-    "dev": "vite --port 5173"
+    "dev": "vite --port 5173",
+    "dev:anvil": "ANVIL=true vite --port 5173"
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
@@ -18,6 +19,7 @@
     "viem": "catalog:"
   },
   "devDependencies": {
+    "@mjackson/node-fetch-server": "^0.6.1",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
@@ -27,5 +29,5 @@
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.10.0"
 }

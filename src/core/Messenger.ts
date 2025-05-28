@@ -24,7 +24,7 @@ export type Messenger = {
 }
 
 export type ReadyOptions = {
-  chain: Porto.State['chain']
+  chainId: Porto.State['chainId']
   methodPolicies?: Porto_remote.MethodPolicies | undefined
 }
 
@@ -64,8 +64,7 @@ export type Schema = [
           type: 'init'
           mode: 'inline-iframe' | 'iframe' | 'popup' | 'popup-standalone'
           referrer: {
-            icon?: string | undefined
-            origin: string
+            icon?: string | { light: string; dark: string } | undefined
             title: string
           }
         }

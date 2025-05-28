@@ -1,18 +1,22 @@
 import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import type * as Account from './account.js'
+
+import type * as Account from '../Account.js'
+import type * as Key from '../Key.js'
+import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
-import type * as Key from './key.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
-import type * as Rpc from './typebox/rpc.js'
-import * as Schema from './typebox/schema.js'
-import type { Compute, PartialBy } from './types.js'
+import * as PreCalls from './preCalls.js'
+import * as FeeToken from './typebox/feeToken.js'
+import type * as RpcRequest from './typebox/request.js'
+import * as Typebox from './typebox/typebox.js'
+import type { PartialBy } from './types.js'
 
-type Request = Rpc.parseRequest.ReturnType
+type Request = RpcRequest.parseRequest.ReturnType
 
-type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
+export type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
   /** Viem Client. */
   client: Porto.Client
   /** RPC Request. */
@@ -48,6 +52,20 @@ export type Mode = {
     }) => Promise<{
       /** Account. */
       account: Account.Account
+      /** Pre-calls to be executed (e.g. key authorization). */
+      preCalls?: PreCalls.PreCalls | undefined
+    }>
+
+    getAccountVersion: (parameters: {
+      /** Address of the account to get the version of. */
+      address: Address.Address
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<{
+      /** Latest version. */
+      latest: string
+      /** Current version. */
+      current: string
     }>
 
     getCallsStatus: (parameters: {
@@ -55,7 +73,20 @@ export type Mode = {
       id: Hex.Hex
       /** Internal properties. */
       internal: ActionsInternal
-    }) => Promise<Schema.Static<typeof Rpc.wallet_getCallsStatus.Response>>
+    }) => Promise<
+      Typebox.Static<typeof RpcSchema.wallet_getCallsStatus.Response>
+    >
+
+    getCapabilities: (parameters: {
+      /** Chain IDs to get the capabilities for. */
+      chainIds: readonly Hex.Hex[]
+      /** Internal properties. */
+      internal: Omit<ActionsInternal, 'client'> & {
+        getClient: (chainId: Hex.Hex | number) => Porto.Client
+      }
+    }) => Promise<
+      Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
+    >
 
     grantAdmin: (parameters: {
       /** Account to authorize the keys for. */
@@ -63,7 +94,7 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
+      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Key to authorize. */
       key: Key.from.Value
     }) => Promise<{ key: Key.Key }>
@@ -75,7 +106,12 @@ export type Mode = {
       internal: ActionsInternal
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
-    }) => Promise<{ key: Key.Key }>
+    }) => Promise<{
+      /** Key. */
+      key: Key.Key
+      /** Pre-calls to be executed. */
+      preCalls?: PreCalls.PreCalls | undefined
+    }>
 
     loadAccounts: (parameters: {
       /** Credential ID to use to load an existing account. */
@@ -89,6 +125,8 @@ export type Mode = {
     }) => Promise<{
       /** Accounts. */
       accounts: readonly Account.Account[]
+      /** Pre-calls to be executed (e.g. key authorization). */
+      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     prepareCalls: (parameters: {
@@ -99,12 +137,20 @@ export type Mode = {
       /** Key that will be used to sign over the digest. */
       key: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'>
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
+      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Pre-calls to be executed. */
+      preCalls?: PreCalls.PreCalls | undefined
+      /** Sponsor URL. */
+      sponsorUrl?: string | undefined
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
+      /** Capabilities. */
+      capabilities?:
+        | RpcSchema.wallet_prepareCalls.Response['capabilities']
+        | undefined
       /** Context for `sendPreparedCalls` */
       context: PrepareCallsContext
       /** Key that will sign over the digest. */
@@ -117,7 +163,7 @@ export type Mode = {
       /** Address of the account to import. */
       address: Address.Address
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
+      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Label to associate with the account. */
       label?: string | undefined
       /** Internal properties. */
@@ -135,7 +181,7 @@ export type Mode = {
       /** Account to revoke the permissions for. */
       account: Account.Account
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
+      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** ID of the admin to revoke. */
       id: Hex.Hex
       /** Internal properties. */
@@ -146,7 +192,7 @@ export type Mode = {
       /** Account to revoke the permissions for. */
       account: Account.Account
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
+      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** ID of the permissions to revoke. */
       id: Hex.Hex
       /** Internal properties. */
@@ -159,11 +205,15 @@ export type Mode = {
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: Address.Address | undefined
-      /** Permissions ID to use to execute the calls. */
-      permissionsId?: Hex.Hex | undefined
+      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Permissions ID to use to execute the calls. */
+      permissionsId?: Hex.Hex | undefined
+      /** Pre-calls to be executed. */
+      preCalls?: PreCalls.PreCalls | undefined
+      /** Sponsor URL. */
+      sponsorUrl?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     sendPreparedCalls: (parameters: {
@@ -197,6 +247,13 @@ export type Mode = {
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
 
+    updateAccount: (parameters: {
+      /** Account to update. */
+      account: Account.Account
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<{ id?: Hex.Hex | undefined }>
+
     upgradeAccount: (parameters: {
       /** Account to upgrade. */
       account: Account.Account
@@ -225,12 +282,12 @@ export type Mode = {
  * @returns Mode.
  */
 export function from<const mode extends from.Parameters>(
-  mode: mode | from.Parameters,
-): Compute<mode & Pick<Mode, 'setup'>> {
+  mode: from.Parameters,
+): Mode {
   return {
     ...mode,
-    setup: mode.setup ?? (() => {}),
-  } as mode & Pick<Mode, 'setup'>
+    setup: mode.setup ?? (() => () => {}),
+  }
 }
 
 export declare namespace from {

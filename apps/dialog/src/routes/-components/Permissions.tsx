@@ -14,16 +14,18 @@ import LucideVault from '~icons/lucide/vault'
 import WalletIcon from '~icons/lucide/wallet-cards'
 
 export function Permissions(props: Permissions.Props) {
-  const { spend = [], calls = [] } = props
+  const { calls = [], spend = [], title } = props
 
   if (spend.length === 0 && calls.length === 0) return null
 
   return (
     <div className="px-3">
-      <div className="flex items-center gap-3 text-[13px] text-secondary">
-        <span>Permissions requested</span>
-        <div className="h-px flex-1 border-primary border-t"></div>
-      </div>
+      {title && (
+        <div className="flex items-center gap-3 text-[13px] text-secondary">
+          <span>{title}</span>
+          <div className="h-px flex-1 border-primary border-t"></div>
+        </div>
+      )}
       <div className="divide-y divide-[color:var(--border-color-primary)]">
         {spend.map((spend) => (
           <SpendPermission
@@ -39,8 +41,9 @@ export function Permissions(props: Permissions.Props) {
 
 export declare namespace Permissions {
   type Props = {
-    spend?: readonly SpendPermission.Props[]
     calls?: ContractAccessPermission.Props['calls']
+    spend?: readonly SpendPermission.Props[]
+    title?: string | undefined
   }
 }
 
@@ -110,9 +113,9 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
   const explorerUrl = chain?.blockExplorers?.default?.url
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col py-3">
       <button
-        className="flex items-center gap-2 py-3 text-[15px] text-secondary"
+        className="flex items-center gap-2 text-[15px] text-secondary"
         onClick={() => setIsOpen(!isOpen)}
         type="button"
       >
@@ -127,7 +130,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
         )}
       </button>
       {isOpen && (
-        <div className="space-y-2 pl-2">
+        <div className="space-y-2 pt-3 pl-2">
           <div className="flex items-center font-medium text-secondary text-xs">
             <div className="w-[60%] pl-8">
               <span>Contract</span>
@@ -158,7 +161,7 @@ function ContractAccessPermission(props: ContractAccessPermission.Props) {
                       target="_blank"
                     >
                       {StringFormatter.truncate(call.to)}
-                      <ExternalLinkIcon className="ml-1 h-3 w-3 flex-shrink-0" />
+                      <ExternalLinkIcon className="ml-1 h-3 w-3 flex-shrink-0 text-secondary" />
                     </a>
                   ) : (
                     'Any contract'
