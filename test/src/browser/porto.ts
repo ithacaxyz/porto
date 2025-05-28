@@ -2,7 +2,7 @@ import { Chains, Dialog, Mode, Porto } from 'porto'
 import * as Porto_internal from '../../../src/core/internal/porto.js'
 
 const chain =
-  import.meta.env.VITE_LOCAL !== 'false' ? Chains.anvil : Chains.portoDev
+  import.meta.env.VITE_LOCAL !== 'false' ? Chains.anvil : Chains.baseSepoliaDev
 
 export const getPorto = () =>
   Porto.create({
