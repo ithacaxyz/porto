@@ -1370,6 +1370,7 @@ function Install() {
           <Install.Radio value="npm" />
           <Install.Radio value="pnpm" />
           <Install.Radio value="yarn" />
+          <Install.Radio value="bun" />
         </Ariakit.RadioGroup>
         <div className="font-[300] font-mono text-[15px] text-gray12 tracking-[-2.8%] max-[486px]:text-[12px]">
           <span className="text-gray8">{'>'}</span>{' '}
@@ -1396,7 +1397,7 @@ namespace Install {
 
   declare namespace Radio {
     export type Props = {
-      value: 'npm' | 'pnpm' | 'yarn'
+      value: 'npm' | 'pnpm' | 'yarn' | 'bun'
     }
   }
 }
