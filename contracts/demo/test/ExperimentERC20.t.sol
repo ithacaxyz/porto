@@ -69,7 +69,7 @@ contract ExperimentERC20Test is Test {
         erc.mint(address(wallet.addr), type(uint128).max);
 
         // Test non-owner cannot set cap
-        vm.expectRevert("Only owner");
+        vm.expectRevert("Unauthorized()");
         vm.prank(nonOwnerWallet.addr);
         erc.setMintCap(1000 ether);
 

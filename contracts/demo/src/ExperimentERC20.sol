@@ -2,20 +2,20 @@
 pragma solidity ^0.8.13;
 
 import {ERC20} from "solady/tokens/ERC20.sol";
+import {Ownable} from "solady/auth/Ownable.sol";
 
-contract ExperimentERC20 is ERC20 {
+contract ExperimentERC20 is ERC20, Ownable {
     string internal _name;
     string internal _symbol;
     uint256 internal _scalar;
-    address internal _owner;
     uint256 internal _mintCap;
 
     constructor(string memory name_, string memory symbol_, uint256 scalar_) {
         _name = name_;
         _symbol = symbol_;
         _scalar = scalar_;
-        _owner = msg.sender;
         _mintCap = type(uint128).max;
+        _initializeOwner(msg.sender);
     }
 
     function name() public view virtual override returns (string memory) {
@@ -30,8 +30,7 @@ contract ExperimentERC20 is ERC20 {
         return 18;
     }
 
-    function setMintCap(uint256 mintCap) public virtual {
-        require(msg.sender == _owner, "Only owner");
+    function setMintCap(uint256 mintCap) public virtual onlyOwner {
         _mintCap = mintCap;
     }
 
