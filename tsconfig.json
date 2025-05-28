@@ -1,17 +1,8 @@
 {
-  // This configuration is used for local development and type checking.
-  "extends": "./tsconfig.base.json",
-  "include": ["scripts", "src", "test"],
-  "exclude": ["src/_dist"],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "jsx": "react-jsx",
-    "paths": {
-      "porto": ["src/index.ts"],
-      "porto/internal": ["src/internal/index.ts"],
-      "porto/remote": ["src/remote/index.ts"],
-      "porto/server": ["src/server/index.ts"],
-      "porto/wagmi": ["src/wagmi/index.ts"]
-    }
-  }
+  "files": [],
+  "references": [
+    { "path": "./scripts/tsconfig.json" },
+    { "path": "./src/tsconfig.json" },
+    { "path": "./test/tsconfig.json" }
+  ]
 }
