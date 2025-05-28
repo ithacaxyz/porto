@@ -59,13 +59,7 @@ export const baseSepolia = /*#__PURE__*/ define({
 })
 
 export const baseSepoliaDev = /*#__PURE__*/ define({
-  ...chains.baseSepolia,
-  contracts: {
-    ...chains.baseSepolia.contracts,
-    portoAccount: {
-      address: '0x623b5b44647871268d481d2930f60d5d7f37a1fe',
-    },
-  },
+  ...baseSepolia,
   rpcUrls: {
     default: {
       http: ['https://base-sepolia-dev.rpc.ithaca.xyz'],
