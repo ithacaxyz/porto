@@ -6,6 +6,7 @@ export const porto = Porto.create({
     host: 'http://localhost:5175/dialog/',
     renderer: Dialog.iframe({
       skipProtocolCheck: true,
+      skipUnsupported: true,
     }),
   }),
 })
