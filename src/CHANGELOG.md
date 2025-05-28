@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.26
+
+### Patch Changes
+
+- [`d34baac`](https://github.com/ithacaxyz/porto/commit/d34baac8a78cf212532575f49ba2d079775a8ae8) Thanks [@jxom](https://github.com/jxom)! - Developer Preview.
+
 ## 0.0.25
 
 ### Patch Changes
