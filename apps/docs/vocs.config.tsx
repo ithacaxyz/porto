@@ -56,6 +56,10 @@ export default defineConfig({
         text: 'Contracts',
       },
       {
+        link: '/contracts/address-book',
+        text: 'Address Book',
+      },
+      {
         link: '/contracts/benchmarks',
         text: 'Benchmarks',
       },
