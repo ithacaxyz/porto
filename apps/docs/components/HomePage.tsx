@@ -1,9 +1,9 @@
-import * as Ariakit from "@ariakit/react";
-import { LogoLockup } from "@porto/apps/components";
-import { exp1Config, exp2Config } from "@porto/apps/contracts";
-import { Hooks } from "porto/wagmi";
-import * as React from "react";
-import { Link } from "react-router";
+import * as Ariakit from '@ariakit/react'
+import { LogoLockup } from '@porto/apps/components'
+import { exp1Config, exp2Config } from '@porto/apps/contracts'
+import { Hooks } from 'porto/wagmi'
+import * as React from 'react'
+import { Link } from 'react-router'
 import {
   ConnectorAlreadyConnectedError,
   useAccount,
@@ -11,13 +11,13 @@ import {
   useChainId,
   useConnectors,
   useReadContract,
-} from "wagmi";
+} from 'wagmi'
 
-import LucideChevronLeft from "~icons/lucide/chevron-left";
-import LucideChevronRight from "~icons/lucide/chevron-right";
-import LucidePictureInPicture2 from "~icons/lucide/picture-in-picture-2";
-import { Button } from "./Button";
-import { LimitDemo, MintDemo, PayDemo, SwapDemo } from "./DemoApp";
+import LucideChevronLeft from '~icons/lucide/chevron-left'
+import LucideChevronRight from '~icons/lucide/chevron-right'
+import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
+import { Button } from './Button'
+import { LimitDemo, MintDemo, PayDemo, SwapDemo } from './DemoApp'
 
 export function HomePage() {
   return (
@@ -49,7 +49,7 @@ export function HomePage() {
           </div>
           <div className="bg-gray3/50 p-[16px] font-mono text-[15px] max-[486px]:p-[12px] max-[486px]:text-[13px] dark:bg-gray1">
             <p className={`before:mr-3 before:text-gray8 before:content-['1']`}>
-              import {"{"} Porto {"}"} from 'porto'
+              import {'{'} Porto {'}'} from 'porto'
             </p>
             <p className={`before:mr-3 before:text-gray8 before:content-['2']`}>
               Porto.
@@ -70,14 +70,14 @@ export function HomePage() {
               Developer-first
             </p>
             <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Integrate in just seconds. Works with{" "}
+              Integrate in just seconds. Works with{' '}
               <a className="font-mono brightness-150" href="https://wagmi.sh">
                 wagmi
-              </a>{" "}
-              and{" "}
+              </a>{' '}
+              and{' '}
               <a className="font-mono brightness-150" href="https://viem.sh">
                 viem
-              </a>{" "}
+              </a>{' '}
               without code changes.
             </p>
           </div>
@@ -173,12 +173,12 @@ export function HomePage() {
         <Demo />
       </div>
     </div>
-  );
+  )
 }
 
 function Install() {
-  const store = Ariakit.useRadioStore({ defaultValue: "npm" });
-  const state = Ariakit.useStoreState(store);
+  const store = Ariakit.useRadioStore({ defaultValue: 'npm' })
+  const state = Ariakit.useStoreState(store)
   return (
     <div className="flex max-h-[30px] w-full justify-between gap-1">
       <Ariakit.RadioProvider store={store}>
@@ -188,17 +188,17 @@ function Install() {
           <Install.Radio value="yarn" />
         </Ariakit.RadioGroup>
         <div className="font-[300] font-mono text-[15px] text-gray12 tracking-[-2.8%] max-[486px]:text-[12px]">
-          <span className="text-gray8">{">"}</span>{" "}
+          <span className="text-gray8">{'>'}</span>{' '}
           <span className="text-blue9">{state.value}</span> install porto
         </div>
       </Ariakit.RadioProvider>
     </div>
-  );
+  )
 }
 
 namespace Install {
   export function Radio(props: Radio.Props) {
-    const { value } = props;
+    const { value } = props
     return (
       // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
       <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] transition-all has-checked:border-blue9 has-checked:text-gray12">
@@ -207,43 +207,43 @@ namespace Install {
         </Ariakit.VisuallyHidden>
         {value}
       </label>
-    );
+    )
   }
 
   declare namespace Radio {
     export type Props = {
-      value: "npm" | "pnpm" | "yarn";
-    };
+      value: 'npm' | 'pnpm' | 'yarn'
+    }
   }
 }
 
-const steps = ["sign-in", "mint", "swap", "send", "spend"];
+const steps = ['sign-in', 'mint', 'swap', 'send', 'spend']
 
 function Demo() {
-  const account = useAccount();
-  const chainId = useChainId();
-  const [step, setStep] = React.useState<(typeof steps)[number]>("sign-in");
+  const account = useAccount()
+  const chainId = useChainId()
+  const [step, setStep] = React.useState<(typeof steps)[number]>('sign-in')
 
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false)
 
   React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    setIsMounted(true)
+  }, [])
 
   useAccountEffect({
     onConnect() {
-      setStep("mint");
+      setStep('mint')
     },
     onDisconnect() {
-      setStep("sign-in");
+      setStep('sign-in')
     },
-  });
+  })
 
   const shared = {
     args: [account.address!],
-    functionName: "balanceOf",
+    functionName: 'balanceOf',
     query: { enabled: Boolean(account.address) },
-  } as const;
+  } as const
   const { data: exp1Balance } = useReadContract({
     abi: exp1Config.abi,
     address: exp1Config.address[chainId],
@@ -251,7 +251,7 @@ function Demo() {
     query: {
       refetchInterval: 1000,
     },
-  });
+  })
   const { data: exp2Balance } = useReadContract({
     abi: exp2Config.abi,
     address: exp2Config.address[chainId],
@@ -259,7 +259,7 @@ function Demo() {
     query: {
       refetchInterval: 1000,
     },
-  });
+  })
 
   return (
     <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4">
@@ -269,7 +269,7 @@ function Demo() {
           Playground
         </div>
         <div className="flex items-center gap-1">
-          Ready to integrate?{" "}
+          Ready to integrate?{' '}
           <Link className="text-blue9" to="/demo">
             Explore →
           </Link>
@@ -279,31 +279,31 @@ function Demo() {
         {isMounted && (
           <div className="relative flex h-full w-full items-center justify-center">
             <div className="w-full max-w-[277px]">
-              {step === "sign-in" && <SignIn next={() => setStep("mint")} />}
-              {step === "mint" && (
+              {step === 'sign-in' && <SignIn next={() => setStep('mint')} />}
+              {step === 'mint' && (
                 <MintDemo
                   address={account.address}
                   exp1Balance={exp1Balance}
-                  next={() => setStep("swap")}
+                  next={() => setStep('swap')}
                 />
               )}
-              {step === "swap" && (
+              {step === 'swap' && (
                 <SwapDemo
                   address={account.address}
                   exp1Balance={exp1Balance}
                   exp2Balance={exp2Balance}
-                  next={() => setStep("send")}
+                  next={() => setStep('send')}
                 />
               )}
-              {step === "send" && (
+              {step === 'send' && (
                 <PayDemo
                   address={account.address}
                   exp1Balance={exp1Balance}
                   exp2Balance={exp2Balance}
-                  next={() => setStep("spend")}
+                  next={() => setStep('spend')}
                 />
               )}
-              {step === "spend" && <LimitDemo address={account.address} />}
+              {step === 'spend' && <LimitDemo address={account.address} />}
             </div>
           </div>
         )}
@@ -325,7 +325,7 @@ function Demo() {
                 )}
               </div>
               <div className="max-w-[24ch] space-y-1 pb-8">
-                {step === "sign-in" && (
+                {step === 'sign-in' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Sign in or sign up
@@ -335,7 +335,7 @@ function Demo() {
                     </p>
                   </>
                 )}
-                {step === "mint" && (
+                {step === 'mint' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Transact with ease
@@ -346,7 +346,7 @@ function Demo() {
                     </p>
                   </>
                 )}
-                {step === "swap" && (
+                {step === 'swap' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Swap spontaneously
@@ -356,7 +356,7 @@ function Demo() {
                     </p>
                   </>
                 )}
-                {step === "send" && (
+                {step === 'send' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Flexibility with fees
@@ -367,7 +367,7 @@ function Demo() {
                     </p>
                   </>
                 )}
-                {step === "spend" && (
+                {step === 'spend' && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Get rid of clicks
@@ -401,7 +401,7 @@ function Demo() {
                   data-disabled={!account.isConnected}
                   key={s}
                   onClick={() => {
-                    if (account.isConnected) setStep(s);
+                    if (account.isConnected) setStep(s)
                   }}
                   type="button"
                 />
@@ -411,18 +411,18 @@ function Demo() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
 function SignIn({ next }: { next: () => void }) {
   const connect = Hooks.useConnect({
     mutation: {
       onError(error) {
-        if (error instanceof ConnectorAlreadyConnectedError) next();
+        if (error instanceof ConnectorAlreadyConnectedError) next()
       },
     },
-  });
-  const connector = usePortoConnector();
+  })
+  const connector = usePortoConnector()
 
   if (connect.isPending)
     return (
@@ -430,7 +430,7 @@ function SignIn({ next }: { next: () => void }) {
         <LucidePictureInPicture2 className="size-5" />
         Check passkey prompt
       </Button>
-    );
+    )
 
   return (
     <div className="flex w-full gap-2">
@@ -459,7 +459,7 @@ function SignIn({ next }: { next: () => void }) {
         Sign in
       </Button>
     </div>
-  );
+  )
 }
 
 function WorksAnywhereIcon() {
@@ -494,7 +494,7 @@ function WorksAnywhereIcon() {
         stroke-width="2"
       />
     </svg>
-  );
+  )
 }
 
 function ProgrammableIcon(): JSX.Element {
@@ -516,7 +516,7 @@ function ProgrammableIcon(): JSX.Element {
       <path d="m14 15 3-3-3-3" />
       <rect height="18" rx="2" width="18" x="3" y="3" />
     </svg>
-  );
+  )
 }
 
 function NoDeveloperLockInIcon() {
@@ -544,7 +544,7 @@ function NoDeveloperLockInIcon() {
         stroke-width="2"
       />
     </svg>
-  );
+  )
 }
 
 function TryItOut() {
@@ -565,7 +565,7 @@ function TryItOut() {
       <circle cx="12" cy="12" r="10" />
       <polygon points="10 8 16 12 10 16 10 8" />
     </svg>
-  );
+  )
 }
 
 function BuiltByIthacaIcon() {
@@ -600,7 +600,7 @@ function BuiltByIthacaIcon() {
         stroke-width="2"
       />
     </svg>
-  );
+  )
 }
 
 function ModernEIPSupportIcon() {
@@ -712,7 +712,7 @@ function ModernEIPSupportIcon() {
         strokeWidth="2"
       />
     </svg>
-  );
+  )
 }
 
 function PortoIcon() {
@@ -735,7 +735,7 @@ function PortoIcon() {
           height="79"
           id="mask0_1_76"
           maskUnits="userSpaceOnUse"
-          style={{ maskType: "alpha" }}
+          style={{ maskType: 'alpha' }}
           width="95"
           x="0"
           y="0"
@@ -792,7 +792,7 @@ function PortoIcon() {
           height="79"
           id="mask0_1_116"
           maskUnits="userSpaceOnUse"
-          style={{ maskType: "alpha" }}
+          style={{ maskType: 'alpha' }}
           width="95"
           x="0"
           y="0"
@@ -838,7 +838,7 @@ function PortoIcon() {
         </g>
       </g>
     </svg>
-  );
+  )
 }
 
 function DemoIcon() {
@@ -859,7 +859,7 @@ function DemoIcon() {
         stroke-width="1.5"
       />
     </svg>
-  );
+  )
 }
 
 function GitHubIcon() {
@@ -876,10 +876,10 @@ function GitHubIcon() {
         fill="currentColor"
       />
     </svg>
-  );
+  )
 }
 
 function usePortoConnector() {
-  const connectors = useConnectors();
-  return connectors.find((connector) => connector.id === "xyz.ithaca.porto")!;
+  const connectors = useConnectors()
+  return connectors.find((connector) => connector.id === 'xyz.ithaca.porto')!
 }
