@@ -45,31 +45,32 @@ export function HomePage() {
 
   return (
     <div className="flex justify-center gap-[32px]">
-      <div className="flex flex-1 flex-col items-start max-lg:max-w-[452px]">
-        <p className="font-[300] text-[13px] text-gray10 tracking-[-0.25px] dark:text-gray11">
-          Introducing
-        </p>
-
+      <div className="flex flex-1 flex-col items-start max-[1024px]:max-w-[452px]">
         <div className="h-2" />
 
-        <div className="w-[115px]">
+        <div className="w-[110px] pr-1 pb-1">
           <LogoLockup />
         </div>
 
         <div className="h-3" />
 
-        <p className="font-[300] text-[15px] text-gray10 leading-[21px] tracking-[-2.8%] dark:text-gray11">
-          Integrate onboarding, authentication, payments, and recovery into your
-          product, with no app or extension required.
+        <p className="font-[400] text-[16px] text-black leading-[21px] tracking-[-2%] dark:text-gray11">
+          Sign in with superpowers. Buy, swap, subscribe, and much more. No
+          passwords or extensions required.
+        </p>
+
+        <p className="mt-1 font-[300] text-[14px] text-gray10 leading-[21px] tracking-[-2%] dark:text-gray9">
+          Porto imagines a world where passwords are a thing of the past, and
+          where the web is built natively for payments.
         </p>
 
         <div className="h-4" />
 
-        <div className="w-full overflow-hidden rounded-[8px] border border-gray5">
+        <div className="w-full overflow-hidden rounded-xl border border-gray4">
           <div className="flex items-center border-gray5 border-b p-[16px]">
             <Install />
           </div>
-          <div className="bg-gray3/50 p-[16px] font-mono max-[486px]:p-[12px] max-[486px]:text-[13px] dark:bg-gray1">
+          <div className="bg-gray3/50 p-[16px] font-mono text-[15px] max-[486px]:p-[12px] max-[486px]:text-[13px] dark:bg-gray1">
             <p className={`before:mr-3 before:text-gray8 before:content-['1']`}>
               import {'{'} Porto {'}'} from 'porto'
             </p>
@@ -80,7 +81,7 @@ export function HomePage() {
           </div>
         </div>
 
-        <div className="h-4" />
+        <div className="h-3" />
 
         <div className="w-full min-lg:hidden">
           <Ariakit.Button
@@ -108,50 +109,63 @@ export function HomePage() {
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Works anywhere
+              Developer-first
             </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Let your users create a wallet in seconds using <i>iFrames</i>,
-              with no additional apps or extensions.
+            <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Integrate in just seconds. Works with{' '}
+              <a
+                className="font-mono brightness-40 dark:brightness-150"
+                href="https://wagmi.sh"
+              >
+                wagmi
+              </a>{' '}
+              and{' '}
+              <a
+                className="font-mono brightness-40 dark:brightness-150"
+                href="https://viem.sh"
+              >
+                viem
+              </a>{' '}
+              without code changes.
             </p>
           </div>
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
+          <div className="rounded-xl border border-gray4 p-4 transition-transform dark:hover:brightness-110">
             <div className="size-[24px]">
               <NoDeveloperLockInIcon />
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              No developer lock-in
+              Flexible & low cost
             </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Use self-custodied Porto wallets with any Ethereum-based app or
-              chain.
-            </p>
-          </div>
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
-            <div className="size-[24px]">
-              <BuiltByIthacaIcon />
-            </div>
-            <div className="h-2" />
-            <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Built by Ithaca
-            </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Created by the team behind Reth, Foundry, Wagmi, Viem, and other
-              top open source tools.
+            <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Best-in-class gas costs & latency. Pay fees in any supported
+              currency.
             </p>
           </div>
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
+          <div className="rounded-xl border border-gray4 p-4 transition-transform dark:hover:brightness-110">
             <div className="size-[24px]">
               <ModernEIPSupportIcon />
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Modern EIP support
+              Simple & modular
             </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Bleeding-edge features built on top of EIPs such as 1193, 6963,
-              7702, 5792, and more.
+            <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Use headlessly, or with UI. No extensions, API keys, passwords, or
+              seed phrases needed.
+            </p>
+          </div>
+          <div className="rounded-xl border border-gray4 p-4 transition-transform dark:hover:brightness-110">
+            <div className="size-[24px]">
+              <ProgrammableIcon />
+            </div>
+            <div className="h-2" />
+            <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
+              Programmable
+            </p>
+            <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Supports subscriptions & usage-based pricing for creators,
+              streamers, agents, and more.
             </p>
           </div>
         </div>
@@ -160,14 +174,14 @@ export function HomePage() {
 
         <div className="flex w-full items-center gap-4 font-[400] text-[14px] text-gray9 leading-[18px] tracking-[-0.25px]">
           <div>Ready to get started?</div>
-          <div className="h-[1px] w-full flex-1 bg-gray6" />
+          <div className="h-[1px] w-full flex-1 bg-gray3" />
         </div>
 
         <div className="h-4" />
 
         <div className="flex w-full gap-2 max-[486px]:flex-col">
           <Ariakit.Button
-            className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
+            className="flex h-[40px] cursor-default items-center justify-center gap-2 rounded-full bg-gray3 px-4 font-[400] transition-all hover:bg-gray4"
             render={<Link to="/sdk" />}
           >
             <div className="size-[1em]">
@@ -176,7 +190,7 @@ export function HomePage() {
             Documentation
           </Ariakit.Button>
           <Ariakit.Button
-            className="flex h-[40px] items-center justify-center gap-[6px] rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
+            className="flex h-[40px] cursor-default items-center justify-center gap-2 rounded-full bg-gray3 px-4 font-[400] transition-all hover:bg-gray4"
             render={
               // biome-ignore lint/a11y/useAnchorContent: <explanation>
               <a
@@ -1350,7 +1364,7 @@ function Install() {
   const store = Ariakit.useRadioStore({ defaultValue: 'npm' })
   const state = Ariakit.useStoreState(store)
   return (
-    <div className="flex max-h-[26px] w-full justify-between gap-1">
+    <div className="flex max-h-[30px] w-full justify-between gap-1">
       <Ariakit.RadioProvider store={store}>
         <Ariakit.RadioGroup className="flex gap-1">
           <Install.Radio value="npm" />
@@ -1371,7 +1385,7 @@ namespace Install {
     const { value } = props
     return (
       // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
-      <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] has-checked:border-blue9 has-checked:text-gray12">
+      <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] transition-all has-checked:border-blue9 has-checked:text-gray12">
         <Ariakit.VisuallyHidden>
           <Ariakit.Radio value={value} />
         </Ariakit.VisuallyHidden>
@@ -1422,6 +1436,28 @@ function WorksAnywhereIcon() {
   )
 }
 
+function ProgrammableIcon() {
+  return (
+    <svg
+      className="lucide lucide-square-code-icon lucide-square-code"
+      fill="none"
+      height="24"
+      stroke="#3C9EFF"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      width="24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>Programmable</title>
+      <path d="m10 9-3 3 3 3" />
+      <path d="m14 15 3-3-3-3" />
+      <rect height="18" rx="2" width="18" x="3" y="3" />
+    </svg>
+  )
+}
+
 function NoDeveloperLockInIcon() {
   return (
     <svg
@@ -1442,41 +1478,6 @@ function NoDeveloperLockInIcon() {
       <path
         d="M10 21V8C10 7.73478 9.89464 7.48043 9.70711 7.29289C9.51957 7.10536 9.26522 7 9 7H4C3.73478 7 3.48043 7.10536 3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 20.2652 3.10536 20.5196 3.29289 20.7071C3.48043 20.8946 3.73478 21 4 21H16C16.2652 21 16.5196 20.8946 16.7071 20.7071C16.8946 20.5196 17 20.2652 17 20V15C17 14.7348 16.8946 14.4804 16.7071 14.2929C16.5196 14.1054 16.2652 14 16 14H3"
         stroke="#F76B15"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
-
-function BuiltByIthacaIcon() {
-  return (
-    <svg
-      fill="none"
-      height="100%"
-      viewBox="0 0 24 24"
-      width="100%"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <title>Built by Ithaca</title>
-      <path
-        d="M22 18H2C2 19.0609 2.42143 20.0783 3.17157 20.8284C3.92172 21.5786 4.93913 22 6 22H18C19.0609 22 20.0783 21.5786 20.8284 20.8284C21.5786 20.0783 22 19.0609 22 18Z"
-        stroke="#0090FF"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-      <path
-        d="M21 14L10 2L3 14H21Z"
-        stroke="#0090FF"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-      <path
-        d="M10 2V18"
-        stroke="#0090FF"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="2"
