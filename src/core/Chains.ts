@@ -58,24 +58,11 @@ export const baseSepolia = /*#__PURE__*/ define({
   },
 })
 
-export const portoDev = /*#__PURE__*/ define({
-  blockExplorers: {
-    default: {
-      apiUrl: '',
-      name: '',
-      url: '',
-    },
-  },
-  contracts: {
-    portoAccount: {
-      address: '0x44c2b63838b6115ad6bcc7340c82badd8983ad98',
-    },
-  },
-  id: 28_404,
-  name: 'Porto Dev',
-  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+export const baseSepoliaDev = /*#__PURE__*/ define({
+  ...baseSepolia,
   rpcUrls: {
-    default: { http: ['https://porto-dev.rpc.ithaca.xyz'] },
+    default: {
+      http: ['https://base-sepolia-dev.rpc.ithaca.xyz'],
+    },
   },
-  testnet: true,
 })

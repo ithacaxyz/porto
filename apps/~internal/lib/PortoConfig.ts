@@ -16,14 +16,17 @@ const config = {
     }),
   },
   dev: {
-    chains: [Chains.portoDev],
+    chains: [Chains.baseSepoliaDev],
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
     storageKey: 'porto.store.dev',
     transports: {
-      [Chains.portoDev.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.baseSepoliaDev.id]: http(
+        undefined,
+        Sentry.httpTransportOptions(),
+      ),
     },
   },
   prod: {
