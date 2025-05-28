@@ -71,11 +71,17 @@ export function HomePage() {
             </p>
             <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
               Integrate in just seconds. Works with{' '}
-              <a className="font-mono brightness-40 dark:brightness-150" href="https://wagmi.sh">
+              <a
+                className="font-mono brightness-40 dark:brightness-150"
+                href="https://wagmi.sh"
+              >
                 wagmi
               </a>{' '}
               and{' '}
-              <a className="font-mono brightness-40 dark:brightness-150" href="https://viem.sh">
+              <a
+                className="font-mono brightness-40 dark:brightness-150"
+                href="https://viem.sh"
+              >
                 viem
               </a>{' '}
               without code changes.

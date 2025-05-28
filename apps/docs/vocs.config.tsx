@@ -3,7 +3,7 @@ import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  description: 'Next-gen Account for Ethereum',
+  description: 'Sign in with superpowers. Buy, swap, subscribe, and much more. No passwords or extensions required.',
   head() {
     return (
       <>
@@ -11,6 +11,10 @@ export default defineConfig({
           content="width=device-width, initial-scale=1, maximum-scale=1"
           name="viewport"
         />
+        <meta content="/og-image.png" property="og:image" />
+        <meta content="image/png" property="og:image:type" />
+        <meta content="1200" property="og:image:width" />
+        <meta content="630" property="og:image:height" />
       </>
     )
   },
