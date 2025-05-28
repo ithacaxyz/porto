@@ -1,9 +1,9 @@
-import * as Ariakit from '@ariakit/react'
-import { LogoLockup } from '@porto/apps/components'
-import { exp1Config, exp2Config } from '@porto/apps/contracts'
-import { Hooks } from 'porto/wagmi'
-import * as React from 'react'
-import { Link } from 'react-router'
+import * as Ariakit from "@ariakit/react";
+import { LogoLockup } from "@porto/apps/components";
+import { exp1Config, exp2Config } from "@porto/apps/contracts";
+import { Hooks } from "porto/wagmi";
+import * as React from "react";
+import { Link } from "react-router";
 import {
   ConnectorAlreadyConnectedError,
   useAccount,
@@ -11,45 +11,45 @@ import {
   useChainId,
   useConnectors,
   useReadContract,
-} from 'wagmi'
+} from "wagmi";
 
-import LucideChevronLeft from '~icons/lucide/chevron-left'
-import LucideChevronRight from '~icons/lucide/chevron-right'
-import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
-import { Button } from './Button'
-import { LimitDemo, MintDemo, PayDemo, SwapDemo } from './DemoApp'
+import LucideChevronLeft from "~icons/lucide/chevron-left";
+import LucideChevronRight from "~icons/lucide/chevron-right";
+import LucidePictureInPicture2 from "~icons/lucide/picture-in-picture-2";
+import { Button } from "./Button";
+import { LimitDemo, MintDemo, PayDemo, SwapDemo } from "./DemoApp";
 
 export function HomePage() {
   return (
     <div className="flex justify-center gap-[32px]">
       <div className="flex flex-1 flex-col items-start max-[1024px]:max-w-[452px]">
-        <p className="font-[300] text-[13px] text-gray10 tracking-[-0.25px] dark:text-gray11">
-          Introducing
-        </p>
-
         <div className="h-2" />
 
-        <div className="w-[115px]">
+        <div className="w-[110px] pr-1 pb-1">
           <LogoLockup />
         </div>
 
         <div className="h-3" />
 
-        <p className="font-[300] text-[15px] text-gray10 leading-[21px] tracking-[-2.8%] dark:text-gray11">
-          What if passwords did not exist? What if the web was built natively
-          for payments? Porto gives your accounts the superpowers to answer
-          these two questions.
+        <p className="font-[400] text-[16px] text-black leading-[21px] tracking-[-2%] dark:text-gray11">
+          Sign in with superpowers. Buy, swap, subscribe, and much more. No
+          passwords or extensions required.
+        </p>
+
+        <p className="mt-1 font-[300] text-[14px] text-gray10 leading-[21px] tracking-[-2%] dark:text-gray9">
+          Porto imagines a world where passwords are a thing of the past, and
+          where the web is built natively for payments.
         </p>
 
         <div className="h-4" />
 
-        <div className="w-full overflow-hidden rounded-[8px] border border-gray5">
+        <div className="w-full overflow-hidden rounded-2xl border border-gray4">
           <div className="flex items-center border-gray5 border-b p-[16px]">
             <Install />
           </div>
-          <div className="bg-gray3/50 p-[16px] font-mono max-[486px]:p-[12px] max-[486px]:text-[13px] dark:bg-gray1">
+          <div className="bg-gray3/50 p-[16px] font-mono text-[15px] max-[486px]:p-[12px] max-[486px]:text-[13px] dark:bg-gray1">
             <p className={`before:mr-3 before:text-gray8 before:content-['1']`}>
-              import {'{'} Porto {'}'} from 'porto'
+              import {"{"} Porto {"}"} from 'porto'
             </p>
             <p className={`before:mr-3 before:text-gray8 before:content-['2']`}>
               Porto.
@@ -58,10 +58,10 @@ export function HomePage() {
           </div>
         </div>
 
-        <div className="h-4" />
+        <div className="h-3" />
 
-        <div className="grid w-full grid-cols-2 gap-2 max-[486px]:grid-cols-1">
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
+        <div className="grid w-full grid-cols-2 gap-3 max-[486px]:grid-cols-1">
+          <div className="rounded-2xl border border-gray4 p-4 transition-transform hover:brightness-110">
             <div className="size-[24px]">
               <WorksAnywhereIcon />
             </div>
@@ -69,70 +69,55 @@ export function HomePage() {
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
               Developer-first
             </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Works with Wagmi and Viem, no code changes.
+            <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Integrate in just seconds. Works with{" "}
+              <a className="font-mono brightness-150" href="https://wagmi.sh">
+                wagmi
+              </a>{" "}
+              and{" "}
+              <a className="font-mono brightness-150" href="https://viem.sh">
+                viem
+              </a>{" "}
+              without code changes.
             </p>
           </div>
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
+          <div className="rounded-2xl border border-gray4 p-4 transition-transform hover:brightness-110">
             <div className="size-[24px]">
               <NoDeveloperLockInIcon />
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Cheap and Fast
+              Flexible & low cost
             </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              State of the art gas costs and transaction latency.
-            </p>
-          </div>
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
-            <div className="size-[24px]">
-              <BuiltByIthacaIcon />
-            </div>
-            <div className="h-2" />
-            <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Modular
-            </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Works standalone or headless.
+            <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Best-in-class gas costs & latency. Pay fees in any supported
+              currency.
             </p>
           </div>
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
+          <div className="rounded-2xl border border-gray4 p-4 transition-transform hover:brightness-110">
             <div className="size-[24px]">
               <ModernEIPSupportIcon />
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Great UX
+              Simple & modular
             </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              No browser extensions, API keys, passwords, or seed phrases.
+            <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Use headlessly, or with UI. No extensions, API keys, passwords, or
+              seed phrases needed.
             </p>
           </div>
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
+          <div className="rounded-2xl border border-gray4 p-4 transition-transform hover:brightness-110">
             <div className="size-[24px]">
-              <WorksAnywhereIcon />
+              <ProgrammableIcon />
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Predictable Fees
+              Programmable
             </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Fixed fees paid in any supported currency. No need to hold
-              chain-specific gas tokens.
-            </p>
-          </div>
-          <div className="rounded-[13px] border border-gray4 p-[16px]">
-            <div className="size-[24px]">
-              <NoDeveloperLockInIcon />
-            </div>
-            <div className="h-2" />
-            <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Programmable accounts
-            </p>
-            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Subscriptions, usage-based pricing, gaming, creator payments, and
-              agentic workflows.
+            <p className="mt-1 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Supports subscriptions & usage-based pricing for creators,
+              streamers, agents, and more.
             </p>
           </div>
         </div>
@@ -141,14 +126,14 @@ export function HomePage() {
 
         <div className="flex w-full items-center gap-4 font-[400] text-[14px] text-gray9 leading-[18px] tracking-[-0.25px]">
           <div>Ready to get started?</div>
-          <div className="h-[1px] w-full flex-1 bg-gray6" />
+          <div className="h-[1px] w-full flex-1 bg-gray3" />
         </div>
 
         <div className="h-4" />
 
         <div className="flex w-full gap-2 max-[486px]:flex-col">
           <Ariakit.Button
-            className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
+            className="flex h-[40px] cursor-default items-center justify-center gap-2 rounded-full bg-gray3 px-4 font-[400] transition-all hover:bg-gray4"
             render={<Link to="/sdk" />}
           >
             <div className="size-[1em]">
@@ -157,7 +142,7 @@ export function HomePage() {
             Documentation
           </Ariakit.Button>
           <Ariakit.Button
-            className="flex h-[40px] items-center justify-center gap-2 rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
+            className="flex h-[40px] cursor-default items-center justify-center gap-2 rounded-full bg-gray3 px-4 font-[400] transition-all hover:bg-gray4"
             render={<Link to="/demo" />}
           >
             <div className="size-[1em]">
@@ -166,7 +151,7 @@ export function HomePage() {
             Demo
           </Ariakit.Button>
           <Ariakit.Button
-            className="flex h-[40px] items-center justify-center gap-[6px] rounded-full border border-gray7 px-4 font-[400] hover:bg-gray3"
+            className="flex h-[40px] cursor-default items-center justify-center gap-[6px] rounded-full bg-gray3 px-4 font-[400] transition-all hover:bg-gray4"
             render={
               // biome-ignore lint/a11y/useAnchorContent: <explanation>
               <a
@@ -188,14 +173,14 @@ export function HomePage() {
         <Demo />
       </div>
     </div>
-  )
+  );
 }
 
 function Install() {
-  const store = Ariakit.useRadioStore({ defaultValue: 'npm' })
-  const state = Ariakit.useStoreState(store)
+  const store = Ariakit.useRadioStore({ defaultValue: "npm" });
+  const state = Ariakit.useStoreState(store);
   return (
-    <div className="flex max-h-[26px] w-full justify-between gap-1">
+    <div className="flex max-h-[30px] w-full justify-between gap-1">
       <Ariakit.RadioProvider store={store}>
         <Ariakit.RadioGroup className="flex gap-1">
           <Install.Radio value="npm" />
@@ -203,62 +188,62 @@ function Install() {
           <Install.Radio value="yarn" />
         </Ariakit.RadioGroup>
         <div className="font-[300] font-mono text-[15px] text-gray12 tracking-[-2.8%] max-[486px]:text-[12px]">
-          <span className="text-gray8">{'>'}</span>{' '}
+          <span className="text-gray8">{">"}</span>{" "}
           <span className="text-blue9">{state.value}</span> install porto
         </div>
       </Ariakit.RadioProvider>
     </div>
-  )
+  );
 }
 
 namespace Install {
   export function Radio(props: Radio.Props) {
-    const { value } = props
+    const { value } = props;
     return (
       // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
-      <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] has-checked:border-blue9 has-checked:text-gray12">
+      <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] transition-all has-checked:border-blue9 has-checked:text-gray12">
         <Ariakit.VisuallyHidden>
           <Ariakit.Radio value={value} />
         </Ariakit.VisuallyHidden>
         {value}
       </label>
-    )
+    );
   }
 
   declare namespace Radio {
     export type Props = {
-      value: 'npm' | 'pnpm' | 'yarn'
-    }
+      value: "npm" | "pnpm" | "yarn";
+    };
   }
 }
 
-const steps = ['sign-in', 'mint', 'swap', 'send', 'spend']
+const steps = ["sign-in", "mint", "swap", "send", "spend"];
 
 function Demo() {
-  const account = useAccount()
-  const chainId = useChainId()
-  const [step, setStep] = React.useState<(typeof steps)[number]>('sign-in')
+  const account = useAccount();
+  const chainId = useChainId();
+  const [step, setStep] = React.useState<(typeof steps)[number]>("sign-in");
 
-  const [isMounted, setIsMounted] = React.useState(false)
+  const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
   useAccountEffect({
     onConnect() {
-      setStep('mint')
+      setStep("mint");
     },
     onDisconnect() {
-      setStep('sign-in')
+      setStep("sign-in");
     },
-  })
+  });
 
   const shared = {
     args: [account.address!],
-    functionName: 'balanceOf',
+    functionName: "balanceOf",
     query: { enabled: Boolean(account.address) },
-  } as const
+  } as const;
   const { data: exp1Balance } = useReadContract({
     abi: exp1Config.abi,
     address: exp1Config.address[chainId],
@@ -266,7 +251,7 @@ function Demo() {
     query: {
       refetchInterval: 1000,
     },
-  })
+  });
   const { data: exp2Balance } = useReadContract({
     abi: exp2Config.abi,
     address: exp2Config.address[chainId],
@@ -274,47 +259,51 @@ function Demo() {
     query: {
       refetchInterval: 1000,
     },
-  })
+  });
 
   return (
     <div className="flex h-full flex-col rounded-[20px] bg-gray3/50 p-4">
-      <div className="flex w-full justify-end">
-        <Link
-          className="flex items-center gap-1 font-[400] text-[14px] text-blue9 tracking-[-2.8%]"
-          to="/demo"
-        >
-          Discover →
-        </Link>
+      <div className="flex w-full items-center justify-between gap-1 px-2 font-[400] text-[14px] text-gray9 tracking-[-2.8%]">
+        <div className="flex items-center gap-1">
+          <TryItOut />
+          Playground
+        </div>
+        <div className="flex items-center gap-1">
+          Ready to integrate?{" "}
+          <Link className="text-blue9" to="/demo">
+            Explore →
+          </Link>
+        </div>
       </div>
       <div className="flex-1">
         {isMounted && (
           <div className="relative flex h-full w-full items-center justify-center">
             <div className="w-full max-w-[277px]">
-              {step === 'sign-in' && <SignIn next={() => setStep('mint')} />}
-              {step === 'mint' && (
+              {step === "sign-in" && <SignIn next={() => setStep("mint")} />}
+              {step === "mint" && (
                 <MintDemo
                   address={account.address}
                   exp1Balance={exp1Balance}
-                  next={() => setStep('swap')}
+                  next={() => setStep("swap")}
                 />
               )}
-              {step === 'swap' && (
+              {step === "swap" && (
                 <SwapDemo
                   address={account.address}
                   exp1Balance={exp1Balance}
                   exp2Balance={exp2Balance}
-                  next={() => setStep('send')}
+                  next={() => setStep("send")}
                 />
               )}
-              {step === 'send' && (
+              {step === "send" && (
                 <PayDemo
                   address={account.address}
                   exp1Balance={exp1Balance}
                   exp2Balance={exp2Balance}
-                  next={() => setStep('spend')}
+                  next={() => setStep("spend")}
                 />
               )}
-              {step === 'spend' && <LimitDemo address={account.address} />}
+              {step === "spend" && <LimitDemo address={account.address} />}
             </div>
           </div>
         )}
@@ -335,8 +324,8 @@ function Demo() {
                   </button>
                 )}
               </div>
-              <div className="max-w-[24ch] space-y-1">
-                {step === 'sign-in' && (
+              <div className="max-w-[24ch] space-y-1 pb-8">
+                {step === "sign-in" && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Sign in or sign up
@@ -346,7 +335,7 @@ function Demo() {
                     </p>
                   </>
                 )}
-                {step === 'mint' && (
+                {step === "mint" && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Transact with ease
@@ -357,7 +346,7 @@ function Demo() {
                     </p>
                   </>
                 )}
-                {step === 'swap' && (
+                {step === "swap" && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Swap spontaneously
@@ -367,7 +356,7 @@ function Demo() {
                     </p>
                   </>
                 )}
-                {step === 'send' && (
+                {step === "send" && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Flexibility with fees
@@ -378,7 +367,7 @@ function Demo() {
                     </p>
                   </>
                 )}
-                {step === 'spend' && (
+                {step === "spend" && (
                   <>
                     <p className="text-center font-[500] text-[19px] text-gray12 tracking-[-2.8%]">
                       Get rid of clicks
@@ -404,7 +393,7 @@ function Demo() {
               </div>
             </div>
             <div className="h-4" />
-            <div className="flex items-center justify-center gap-1">
+            <div className="flex items-center justify-center gap-1 pb-2">
               {steps.map((s) => (
                 <button
                   className="size-[7px] rounded-full bg-gray6 transition-all duration-150 hover:not-data-[active=true]:not-data-[disabled=true]:scale-150 hover:not-data-[disabled=true]:bg-gray9 data-[active=true]:w-6 data-[active=true]:bg-gray9"
@@ -412,7 +401,7 @@ function Demo() {
                   data-disabled={!account.isConnected}
                   key={s}
                   onClick={() => {
-                    if (account.isConnected) setStep(s)
+                    if (account.isConnected) setStep(s);
                   }}
                   type="button"
                 />
@@ -422,18 +411,18 @@ function Demo() {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function SignIn({ next }: { next: () => void }) {
   const connect = Hooks.useConnect({
     mutation: {
       onError(error) {
-        if (error instanceof ConnectorAlreadyConnectedError) next()
+        if (error instanceof ConnectorAlreadyConnectedError) next();
       },
     },
-  })
-  const connector = usePortoConnector()
+  });
+  const connector = usePortoConnector();
 
   if (connect.isPending)
     return (
@@ -441,7 +430,7 @@ function SignIn({ next }: { next: () => void }) {
         <LucidePictureInPicture2 className="size-5" />
         Check passkey prompt
       </Button>
-    )
+    );
 
   return (
     <div className="flex w-full gap-2">
@@ -470,7 +459,7 @@ function SignIn({ next }: { next: () => void }) {
         Sign in
       </Button>
     </div>
-  )
+  );
 }
 
 function WorksAnywhereIcon() {
@@ -505,7 +494,29 @@ function WorksAnywhereIcon() {
         stroke-width="2"
       />
     </svg>
-  )
+  );
+}
+
+function ProgrammableIcon(): JSX.Element {
+  return (
+    <svg
+      className="lucide lucide-square-code-icon lucide-square-code"
+      fill="none"
+      height="24"
+      stroke="#3C9EFF"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      width="24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>Programmable</title>
+      <path d="m10 9-3 3 3 3" />
+      <path d="m14 15 3-3-3-3" />
+      <rect height="18" rx="2" width="18" x="3" y="3" />
+    </svg>
+  );
 }
 
 function NoDeveloperLockInIcon() {
@@ -533,7 +544,28 @@ function NoDeveloperLockInIcon() {
         stroke-width="2"
       />
     </svg>
-  )
+  );
+}
+
+function TryItOut() {
+  return (
+    <svg
+      className="lucide lucide-circle-play-icon lucide-circle-play"
+      fill="none"
+      height="18"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      width="18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>Try it out</title>
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="10 8 16 12 10 16 10 8" />
+    </svg>
+  );
 }
 
 function BuiltByIthacaIcon() {
@@ -549,16 +581,16 @@ function BuiltByIthacaIcon() {
       <path
         d="M22 18H2C2 19.0609 2.42143 20.0783 3.17157 20.8284C3.92172 21.5786 4.93913 22 6 22H18C19.0609 22 20.0783 21.5786 20.8284 20.8284C21.5786 20.0783 22 19.0609 22 18Z"
         stroke="#0090FF"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M21 14L10 2L3 14H21Z"
         stroke="#0090FF"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M10 2V18"
@@ -568,7 +600,7 @@ function BuiltByIthacaIcon() {
         stroke-width="2"
       />
     </svg>
-  )
+  );
 }
 
 function ModernEIPSupportIcon() {
@@ -584,79 +616,79 @@ function ModernEIPSupportIcon() {
       <path
         d="M12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20Z"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M12 14C12.5304 14 13.0391 13.7893 13.4142 13.4142C13.7893 13.0391 14 12.5304 14 12C14 11.4696 13.7893 10.9609 13.4142 10.5858C13.0391 10.2107 12.5304 10 12 10C11.4696 10 10.9609 10.2107 10.5858 10.5858C10.2107 10.9609 10 11.4696 10 12C10 12.5304 10.2107 13.0391 10.5858 13.4142C10.9609 13.7893 11.4696 14 12 14Z"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M12 2V4"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M12 22V20"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M17 20.6599L16 18.9299"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M11 10.2701L7 3.34009"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M20.6601 17L18.9301 16"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M3.33997 7L5.06997 8"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M14 12H22"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M2 12H4"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M20.6601 7L18.9301 8"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M3.33997 17L5.06997 16"
@@ -668,19 +700,19 @@ function ModernEIPSupportIcon() {
       <path
         d="M17 3.34009L16 5.07009"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
       <path
         d="M11 13.73L7 20.66"
         stroke="#12A594"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
       />
     </svg>
-  )
+  );
 }
 
 function PortoIcon() {
@@ -694,16 +726,16 @@ function PortoIcon() {
     >
       <g className="not-dark:hidden">
         <path
-          clip-rule="evenodd"
+          clipRule="evenodd"
           d="M6.56757 0C2.9404 0 0 2.9404 0 6.56757V74.4324C0 76.4475 1.63356 78.0811 3.64865 78.0811H91.2162C93.2313 78.0811 94.8649 76.4475 94.8649 74.4324V6.56757C94.8649 2.9404 91.9245 0 88.2973 0H6.56757ZM78.4461 6.56757C73.4084 6.56757 69.3245 10.6515 69.3245 15.6892C69.3245 20.7269 73.4084 24.8108 78.4461 24.8108H79.1758C84.2136 24.8108 88.2975 20.7269 88.2975 15.6892C88.2975 10.6515 84.2136 6.56757 79.1758 6.56757H78.4461Z"
           fill="#999999"
-          fill-rule="evenodd"
+          fillRule="evenodd"
         />
         <mask
           height="79"
           id="mask0_1_76"
           maskUnits="userSpaceOnUse"
-          style={{ maskType: 'alpha' }}
+          style={{ maskType: "alpha" }}
           width="95"
           x="0"
           y="0"
@@ -760,7 +792,7 @@ function PortoIcon() {
           height="79"
           id="mask0_1_116"
           maskUnits="userSpaceOnUse"
-          style={{ maskType: 'alpha' }}
+          style={{ maskType: "alpha" }}
           width="95"
           x="0"
           y="0"
@@ -806,7 +838,7 @@ function PortoIcon() {
         </g>
       </g>
     </svg>
-  )
+  );
 }
 
 function DemoIcon() {
@@ -827,7 +859,7 @@ function DemoIcon() {
         stroke-width="1.5"
       />
     </svg>
-  )
+  );
 }
 
 function GitHubIcon() {
@@ -844,10 +876,10 @@ function GitHubIcon() {
         fill="currentColor"
       />
     </svg>
-  )
+  );
 }
 
 function usePortoConnector() {
-  const connectors = useConnectors()
-  return connectors.find((connector) => connector.id === 'xyz.ithaca.porto')!
+  const connectors = useConnectors();
+  return connectors.find((connector) => connector.id === "xyz.ithaca.porto")!;
 }
