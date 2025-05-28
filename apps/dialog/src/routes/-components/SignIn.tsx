@@ -39,6 +39,7 @@ export function SignIn(props: SignIn.Props) {
         <Layout.Footer.Actions>
           <Button
             className="w-full"
+            data-testid="sign-up"
             onClick={() => onApprove({ signIn: false })}
             type="button"
           >
@@ -47,6 +48,7 @@ export function SignIn(props: SignIn.Props) {
 
           <Button
             className="w-full"
+            data-testid="sign-in"
             onClick={() => onApprove({ signIn: true })}
             type="button"
             variant="accent"
