@@ -1,9 +1,0 @@
-{
-  "extends": "../tsconfig.base.json",
-  "include": ["."],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
-  "compilerOptions": {
-    "noEmit": true,
-    "jsx": "react-jsx"
-  }
-}
