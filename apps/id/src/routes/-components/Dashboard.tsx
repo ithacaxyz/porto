@@ -276,92 +276,98 @@ export function Dashboard() {
       <hr className="border-gray5" />
       <div className="h-4" />
 
-      <details
-        className="group tabular-nums"
-        open={!!addressTransfers.data?.items?.length}
-      >
-        <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
-          History
-        </summary>
+      {import.meta.env.DEV && (
+        <>
+          <details
+            className="group tabular-nums"
+            open={!!addressTransfers.data?.items?.length}
+          >
+            <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+              History
+            </summary>
 
-        <PaginatedTable
-          columns={[
-            { header: 'Time', key: 'time' },
-            { header: 'From', key: 'sender' },
-            { header: 'To', key: 'recipient' },
-            { align: 'right', header: 'Amount', key: 'amount' },
-          ]}
-          data={addressTransfers.data?.items}
-          emptyMessage="No transactions yet"
-          renderRow={(transfer) => {
-            const amount = Number.parseFloat(
-              ValueFormatter.format(
-                BigInt(transfer?.total.value ?? 0),
-                Number(transfer?.total.decimals ?? 0),
-              ),
-            ).toFixed(2)
+            <PaginatedTable
+              columns={[
+                { header: 'Time', key: 'time' },
+                { header: 'From', key: 'sender' },
+                { header: 'To', key: 'recipient' },
+                { align: 'right', header: 'Amount', key: 'amount' },
+              ]}
+              data={addressTransfers.data?.items}
+              emptyMessage="No transactions yet"
+              renderRow={(transfer) => {
+                const amount = Number.parseFloat(
+                  ValueFormatter.format(
+                    BigInt(transfer?.total.value ?? 0),
+                    Number(transfer?.total.decimals ?? 0),
+                  ),
+                ).toFixed(2)
 
-            return (
-              <tr
-                className="text-xs sm:text-sm"
-                key={`${transfer?.transaction_hash}-${transfer?.block_number}`}
-              >
-                <td className="py-1 text-left">
-                  <a
-                    className="flex flex-row items-center"
-                    href={`${blockExplorer}/tx/${transfer?.transaction_hash}`}
-                    rel="noreferrer"
-                    target="_blank"
+                return (
+                  <tr
+                    className="text-xs sm:text-sm"
+                    key={`${transfer?.transaction_hash}-${transfer?.block_number}`}
                   >
-                    <ExternalLinkIcon className="mr-1 size-4 text-gray10" />
-                    <span className="min-w-[35px] text-gray11 sm:min-w-[65px]">
-                      {DateFormatter.ago(new Date(transfer?.timestamp ?? ''))}
-                    </span>
-                  </a>
-                </td>
-                <td className="py-1 text-left font-medium">
-                  <div className="flex items-center">
-                    <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
-                      <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
-                    </div>
-                    <TruncatedAddress
-                      address={transfer?.to.hash ?? ''}
-                      className="ml-2"
-                    />
-                  </div>
-                </td>
-                <td className="py-1 text-left font-medium">
-                  <div className="flex items-center">
-                    <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
-                      <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
-                    </div>
-                    <TruncatedAddress
-                      address={transfer?.to.hash ?? ''}
-                      className="ml-2"
-                    />
-                  </div>
-                </td>
-                <td className="py-1 text-right text-gray12">
-                  <span className="text-sm sm:text-md">{amount}</span>
-                  <div className="inline-block w-[45px]">
-                    <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
-                      <TokenSymbol
-                        address={transfer?.token.address as Address.Address}
-                        display="symbol"
-                      />
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            )
-          }}
-          showMoreText="more transactions"
-        />
-      </details>
+                    <td className="py-1 text-left">
+                      <a
+                        className="flex flex-row items-center"
+                        href={`${blockExplorer}/tx/${transfer?.transaction_hash}`}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        <ExternalLinkIcon className="mr-1 size-4 text-gray10" />
+                        <span className="min-w-[35px] text-gray11 sm:min-w-[65px]">
+                          {DateFormatter.ago(
+                            new Date(transfer?.timestamp ?? ''),
+                          )}
+                        </span>
+                      </a>
+                    </td>
+                    <td className="py-1 text-left font-medium">
+                      <div className="flex items-center">
+                        <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
+                          <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
+                        </div>
+                        <TruncatedAddress
+                          address={transfer?.to.hash ?? ''}
+                          className="ml-2"
+                        />
+                      </div>
+                    </td>
+                    <td className="py-1 text-left font-medium">
+                      <div className="flex items-center">
+                        <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
+                          <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
+                        </div>
+                        <TruncatedAddress
+                          address={transfer?.to.hash ?? ''}
+                          className="ml-2"
+                        />
+                      </div>
+                    </td>
+                    <td className="py-1 text-right text-gray12">
+                      <span className="text-sm sm:text-md">{amount}</span>
+                      <div className="inline-block w-[45px]">
+                        <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
+                          <TokenSymbol
+                            address={transfer?.token.address as Address.Address}
+                            display="symbol"
+                          />
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              }}
+              showMoreText="more transactions"
+            />
+          </details>
 
-      <div className="h-4" />
-      <hr className="border-gray5" />
-      <div className="h-4" />
+          <div className="h-4" />
+          <hr className="border-gray5" />
+          <div className="h-4" />
+        </>
+      )}
 
       <details
         className="group pb-1 tabular-nums"
