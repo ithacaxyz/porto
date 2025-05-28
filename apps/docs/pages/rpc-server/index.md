@@ -10,6 +10,10 @@ The RPC server has passthrough to a standard Ethereum node.
 We'd love to hear your feedback. Report any issues or feature suggestions [on the issue tracker](https://github.com/ithacaxyz/rpc-server-issues).
 :::
 
+:::warning
+The RPC server is expected to change after the developer preview, including the removal of PREP (e.g. `wallet_createAccount`).
+:::
+
 ## Endpoints
 
 The RPC server has multiple endpoints, one for each chain/environment.
