@@ -15,18 +15,15 @@ contract ExperimentERC721Test is Test {
     function setUp() public {
         token = new ExperimentERC20("EXP", "EXP", 0);
         nft = new ExperimentERC721(
-            "GEN",
-            "Ithaca Genesis",
-            "This is a description.",
-            "https://example.com/image.png",
-            address(token),
-            1000
+            "GEN", "Ithaca Genesis", "This is a description.", "https://example.com/image.png", address(token), 1000
         );
     }
 
     function test_mint() public {
         token.mint(address(this), 3000);
+        token.approve(address(nft), type(uint256).max);
         nft.mint();
+
         assertEq(nft.balanceOf(address(this)), 1);
         assertEq(nft.ownerOf(0), address(this));
         assertEq(
