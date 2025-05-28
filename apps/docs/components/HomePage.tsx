@@ -36,8 +36,9 @@ export function HomePage() {
         <div className="h-3" />
 
         <p className="font-[300] text-[15px] text-gray10 leading-[21px] tracking-[-2.8%] dark:text-gray11">
-          Integrate onboarding, authentication, payments, and recovery into your
-          product, with no app or extension required.
+          What if passwords did not exist? What if the web was built natively
+          for payments? Porto gives your accounts the superpowers to answer
+          these two questions.
         </p>
 
         <div className="h-4" />
@@ -66,11 +67,10 @@ export function HomePage() {
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Works anywhere
+              Developer-first
             </p>
             <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Let your users create a wallet in seconds using <i>iFrames</i>,
-              with no additional apps or extensions.
+              Works with Wagmi and Viem, no code changes.
             </p>
           </div>
           <div className="rounded-[13px] border border-gray4 p-[16px]">
@@ -79,11 +79,10 @@ export function HomePage() {
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              No developer lock-in
+              Cheap and Fast
             </p>
             <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Use self-custodied Porto wallets with any Ethereum-based app or
-              chain.
+              State of the art gas costs and transaction latency.
             </p>
           </div>
           <div className="rounded-[13px] border border-gray4 p-[16px]">
@@ -92,11 +91,10 @@ export function HomePage() {
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Built by Ithaca
+              Modular
             </p>
             <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Created by the team behind Reth, Foundry, Wagmi, Viem, and other
-              top open source tools.
+              Works standalone or headless.
             </p>
           </div>
           <div className="rounded-[13px] border border-gray4 p-[16px]">
@@ -105,11 +103,36 @@ export function HomePage() {
             </div>
             <div className="h-2" />
             <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
-              Modern EIP support
+              Great UX
             </p>
             <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
-              Bleeding-edge features built on top of EIPs such as 1193, 6963,
-              7702, 5792, and more.
+              No browser extensions, API keys, passwords, or seed phrases.
+            </p>
+          </div>
+          <div className="rounded-[13px] border border-gray4 p-[16px]">
+            <div className="size-[24px]">
+              <WorksAnywhereIcon />
+            </div>
+            <div className="h-2" />
+            <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
+              Predictable Fees
+            </p>
+            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Fixed fees paid in any supported currency. No need to hold
+              chain-specific gas tokens.
+            </p>
+          </div>
+          <div className="rounded-[13px] border border-gray4 p-[16px]">
+            <div className="size-[24px]">
+              <NoDeveloperLockInIcon />
+            </div>
+            <div className="h-2" />
+            <p className="font-[400] text-[15px] text-gray12 leading-[21px] tracking-[-2.8%]">
+              Programmable accounts
+            </p>
+            <p className="mt-2 font-[300] text-[13px] text-gray10 leading-[18px] tracking-[-0.25px]">
+              Subscriptions, usage-based pricing, gaming, creator payments, and
+              agentic workflows.
             </p>
           </div>
         </div>
