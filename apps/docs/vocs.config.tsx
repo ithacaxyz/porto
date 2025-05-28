@@ -8,7 +8,8 @@ const commitSha =
   process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
 
 export default defineConfig({
-  description: 'Next-gen Account for Ethereum',
+  description:
+    'Sign in with superpowers. Buy, swap, subscribe, and much more. No passwords or extensions required.',
   head() {
     return (
       <>
@@ -16,6 +17,10 @@ export default defineConfig({
           content="width=device-width, initial-scale=1, maximum-scale=1"
           name="viewport"
         />
+        <meta content="https://porto.sh/og-image.png" property="og:image" />
+        <meta content="image/png" property="og:image:type" />
+        <meta content="1200" property="og:image:width" />
+        <meta content="630" property="og:image:height" />
         <meta content={commitSha} name="X-App-Version" />
       </>
     )
