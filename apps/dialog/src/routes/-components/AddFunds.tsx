@@ -213,23 +213,15 @@ export function AddFunds(props: AddFunds.Props) {
                 </Button>
               )}
             </div>
-            <p className="text-center text-[13px] text-gray10">
+            <p className="text-center text-[13px] text-gray10 *:cursor-pointer">
               By using this service, you agree to the provider's{' '}
-              <a
-                className="text-gray11"
-                href="/"
-                rel="noreferrer"
-                target="_blank"
-              >
+              {/** biome-ignore lint/a11y/useValidAnchor: proper link will be added soon */}
+              <a className="text-gray11" rel="noreferrer" target="_blank">
                 Terms of Use
               </a>{' '}
               and{' '}
-              <a
-                className="text-gray11"
-                href="/"
-                rel="noreferrer"
-                target="_blank"
-              >
+              {/** biome-ignore lint/a11y/useValidAnchor: proper link will be added soon */}
+              <a className="text-gray11" rel="noreferrer" target="_blank">
                 Privacy Policy
               </a>
               .

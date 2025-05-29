@@ -835,7 +835,6 @@ export function SendTip(props: {
 }
 
 const tiers = [
-  { amount: Value.fromEther('2'), unit: 'week' },
   { amount: Value.fromEther('7'), unit: 'month' },
   { amount: Value.fromEther('75'), unit: 'year' },
 ] as const
@@ -1369,7 +1368,6 @@ function Install() {
         <Ariakit.RadioGroup className="flex gap-1">
           <Install.Radio value="npm" />
           <Install.Radio value="pnpm" />
-          <Install.Radio value="yarn" />
           <Install.Radio value="bun" />
         </Ariakit.RadioGroup>
         <div className="font-[300] font-mono text-[15px] text-gray12 tracking-[-2.8%] max-[486px]:text-[12px]">
