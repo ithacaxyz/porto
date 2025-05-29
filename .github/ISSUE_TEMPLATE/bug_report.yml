@@ -14,6 +14,47 @@ body:
         - label: I checked there isn't [already an issue](https://github.com/ithacaxyz/porto/issues) for the bug I encountered.
           required: true
 
+  - type: input
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      placeholder: iOS, Android, Windows, macOS, Linux, etc.
+    validations:
+      required: true
+
+
+  - type: input
+    attributes:
+      label: Browser
+      description: What browser are you using?
+      placeholder: Chrome, Firefox, Safari, Edge, etc.
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: This issue happens in multiple browsers
+      description: By submitting this issue, you checked that this issue happens in multiple browsers.
+      options:
+        - label: I checked that this issue happens in multiple browsers.
+          required: true
+
+  - type: input
+    attributes:
+      label: Password Manager
+      description: What password manager are you using?
+      placeholder:  1Password, BitWarden, iCloud Keychain (passkeys), Google Password Manager, etc.
+    validations:
+      required: false
+
+  - type: input
+    attributes:
+      label: TypeScript Version
+      description: What version of TypeScript are you using? Porto requires `typescript@>=5.4`.
+      placeholder: x.y.z (do not write `latest`)
+    validations:
+      required: false
+
   - type: textarea
     attributes:
       label: Describe the bug
@@ -76,6 +117,3 @@ body:
       description: Anything that will give us more context about the issue you are encountering. Browser, OS, passkey/password manager, etc.
     validations:
       required: false
-
-
-
