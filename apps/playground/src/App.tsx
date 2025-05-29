@@ -216,10 +216,7 @@ function Connect() {
               .catch((error) => {
                 console.error(error)
                 setError(
-                  Json.stringify({
-                    error: error.message,
-                    payload,
-                  }),
+                  Json.stringify({ error: error.message, payload }, null, 2),
                 )
               })
           }}
@@ -245,10 +242,7 @@ function Connect() {
               .catch((error) => {
                 console.error(error)
                 setError(
-                  Json.stringify({
-                    error: error.message,
-                    payload,
-                  }),
+                  Json.stringify({ error: error.message, payload }, null, 2),
                 )
               })
           }}
@@ -258,7 +252,7 @@ function Connect() {
         </button>
       </div>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
-      <pre>{error ? <pre>{error}</pre> : null}</pre>
+      {error ? <pre>{error}</pre> : null}
     </div>
   )
 }
