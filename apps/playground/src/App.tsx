@@ -185,6 +185,8 @@ function Events() {
 function Connect() {
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
   const [result, setResult] = React.useState<unknown | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
   return (
     <div>
       <h3>wallet_connect</h3>
@@ -214,6 +216,10 @@ function Connect() {
                 ],
               })
               .then(setResult)
+              .catch((error) => {
+                console.error(error)
+                setError(error.message)
+              })
           }
           type="button"
         >
@@ -236,6 +242,10 @@ function Connect() {
                 ],
               })
               .then(setResult)
+              .catch((error) => {
+                console.error(error)
+                setError(error.message)
+              })
           }
           type="button"
         >
@@ -243,6 +253,7 @@ function Connect() {
         </button>
       </div>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+      {error ? <pre>{error}</pre> : null}
     </div>
   )
 }
