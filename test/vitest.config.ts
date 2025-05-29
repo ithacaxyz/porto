@@ -51,7 +51,11 @@ export default defineConfig(({ mode }) => {
             browser: {
               enabled: true,
               headless: true,
-              instances: [{ browser: 'chromium' }, { browser: 'webkit' }],
+              instances: [
+                { browser: 'chromium' },
+                { browser: 'firefox' },
+                { browser: 'webkit' },
+              ],
               provider: 'playwright',
               screenshotFailures: false,
             },
