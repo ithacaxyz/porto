@@ -31,6 +31,7 @@ export type ReadyOptions = {
 /** Bridge messenger. */
 export type Bridge = Messenger & {
   ready: (options: ReadyOptions) => void
+  waitForReady: () => Promise<ReadyOptions>
 }
 
 /** Messenger schema. */
@@ -161,8 +162,8 @@ export function bridge(parameters: bridge.Parameters): Bridge {
 
   let pending = false
 
-  const ready = promise.withResolvers<void>()
-  from_.on('ready', () => ready.resolve())
+  const ready = promise.withResolvers<ReadyOptions>()
+  from_.on('ready', ready.resolve)
 
   const messenger = from({
     destroy() {
@@ -189,6 +190,9 @@ export function bridge(parameters: bridge.Parameters): Bridge {
     ...messenger,
     ready(options) {
       messenger.send('ready', options)
+    },
+    waitForReady() {
+      return ready.promise
     },
   }
 }
@@ -222,6 +226,9 @@ export function noop(): Bridge {
       return Promise.resolve(undefined as never)
     },
     sendAsync() {
+      return Promise.resolve(undefined as never)
+    },
+    waitForReady() {
       return Promise.resolve(undefined as never)
     },
   }
