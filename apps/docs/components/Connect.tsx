@@ -8,7 +8,7 @@ import {
 } from 'wagmi'
 import LucideWallet from '~icons/lucide/wallet'
 import { Button } from './Button'
-import { permissions } from './HomePage'
+import { permissions } from './constants'
 
 const idOrigin = `https://${Env.get()}.id.porto.sh`
 

@@ -32,6 +32,7 @@ import LucideTrash2 from '~icons/lucide/trash-2'
 import LucideX from '~icons/lucide/x'
 import { config } from '../wagmi.config'
 import { Button } from './Button'
+import { type ChainId, permissions } from './constants'
 
 const env = Env.get()
 
@@ -453,23 +454,6 @@ function Demo() {
     </div>
   )
 }
-
-type ChainId = (typeof config)['state']['chainId']
-
-export const permissions = (chainId: ChainId) =>
-  ({
-    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-    permissions: {
-      calls: [{ to: exp1Config.address[chainId] }],
-      spend: [
-        {
-          limit: Value.fromEther('100'),
-          period: 'hour',
-          token: exp1Config.address[chainId],
-        },
-      ],
-    },
-  }) as const
 
 function SignIn(props: { chainId: ChainId; next: () => void }) {
   const { chainId, next } = props
