@@ -258,7 +258,7 @@ function Connect() {
         </button>
       </div>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
-      {error ? <pre>{error}</pre> : null}
+      <pre>{error ? <pre>{error}</pre> : null}</pre>
     </div>
   )
 }
