@@ -200,53 +200,58 @@ function Connect() {
       </label>
       <div>
         <button
-          onClick={() =>
-            porto.provider
+          onClick={() => {
+            const payload = {
+              capabilities: {
+                createAccount: false,
+                grantPermissions: grantPermissions ? permissions() : undefined,
+              },
+            } as const
+            return porto.provider
               .request({
                 method: 'wallet_connect',
-                params: [
-                  {
-                    capabilities: {
-                      createAccount: false,
-                      grantPermissions: grantPermissions
-                        ? permissions()
-                        : undefined,
-                    },
-                  },
-                ],
+                params: [payload],
               })
               .then(setResult)
               .catch((error) => {
                 console.error(error)
-                setError(error.message)
+                setError(
+                  Json.stringify({
+                    error: error.message,
+                    payload,
+                  }),
+                )
               })
-          }
+          }}
           type="button"
         >
           Login
         </button>
         <button
-          onClick={() =>
-            porto.provider
+          onClick={() => {
+            const payload = {
+              capabilities: {
+                createAccount: true,
+                grantPermissions: grantPermissions ? permissions() : undefined,
+              },
+            } as const
+
+            return porto.provider
               .request({
                 method: 'wallet_connect',
-                params: [
-                  {
-                    capabilities: {
-                      createAccount: true,
-                      grantPermissions: grantPermissions
-                        ? permissions()
-                        : undefined,
-                    },
-                  },
-                ],
+                params: [payload],
               })
               .then(setResult)
               .catch((error) => {
                 console.error(error)
-                setError(error.message)
+                setError(
+                  Json.stringify({
+                    error: error.message,
+                    payload,
+                  }),
+                )
               })
-          }
+          }}
           type="button"
         >
           Register
