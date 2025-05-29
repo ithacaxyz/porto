@@ -19,6 +19,7 @@ import * as PermissionsRequest from '../permissionsRequest.js'
 import type { Client } from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import * as FeeToken from '../typebox/feeToken.js'
+import * as U from '../utils.js'
 import * as RpcServer_viem from '../viem/actions.js'
 
 export const defaultPermissionsFeeLimit = {
@@ -208,6 +209,18 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         ).then((x) => x.reduce((acc, curr) => ({ ...acc, ...curr }), {}))
 
         return capabilities
+      },
+
+      async getKeys(parameters) {
+        const { account, internal } = parameters
+        const { client } = internal
+
+        const keys = await RpcServer.getKeys(client, { account })
+
+        return U.uniqBy(
+          [...(account.keys ?? []), ...keys],
+          (key) => key.publicKey,
+        )
       },
 
       async grantAdmin(parameters) {

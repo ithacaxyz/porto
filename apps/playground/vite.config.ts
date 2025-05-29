@@ -30,7 +30,7 @@ const logger = createLogger('info', {
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [
-    process.env.VITEST === 'true'
+    mode === 'test'
       ? null
       : mkcert({
           hosts: [

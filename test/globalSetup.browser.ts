@@ -4,13 +4,17 @@ export default async function () {
   let process_dialog: process.ChildProcess | undefined
   await fetch('http://localhost:5175').catch(() => {
     return new Promise<void>((resolve) => {
-      process_dialog = process.spawn('pnpm', [
-        '--filter',
-        'dialog',
-        'dev',
-        '--mode',
-        'test',
-      ])
+      process_dialog = process.spawn(
+        'pnpm',
+        ['--filter', 'dialog', 'dev', '--mode', 'test'],
+        {
+          env: {
+            ...(process as any).env,
+            ...import.meta.env,
+            ANVIL: 'true',
+          },
+        },
+      )
       process_dialog.stdout?.on('data', (data) => {
         if (data.toString().includes('ready')) resolve()
       })

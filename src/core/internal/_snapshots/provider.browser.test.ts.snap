@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`wallet_getPermissions > behavior: grant on connect; grant another; get after connect 1`] = `
+[
+  {
+    "address": null,
+    "chainId": null,
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": null,
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`wallet_getPermissions > behavior: grant on connect; grant another; get after connect 2`] = `
+[
+  {
+    "address": null,
+    "chainId": null,
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": null,
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+]
+`;

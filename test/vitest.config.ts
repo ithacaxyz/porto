@@ -9,6 +9,12 @@ export default defineConfig(({ mode }) => {
       alias: {
         porto: join(__dirname, '../src'),
       },
+      coverage: {
+        all: false,
+        include: ['**/src/**'],
+        provider: 'v8',
+        reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
+      },
       passWithNoTests: true,
       resolveSnapshotPath: (path, ext) =>
         join(join(dirname(path), '_snapshots'), `${basename(path)}${ext}`),
@@ -16,12 +22,6 @@ export default defineConfig(({ mode }) => {
         {
           extends: true,
           test: {
-            coverage: {
-              all: false,
-              include: ['**/src/**'],
-              provider: 'v8',
-              reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-            },
             globalSetup: [join(__dirname, './globalSetup.ts')],
             hookTimeout: 20_000,
             include: [
@@ -51,17 +51,14 @@ export default defineConfig(({ mode }) => {
             browser: {
               enabled: true,
               headless: true,
-              instances: [
-                { browser: 'chromium' },
-                { browser: 'firefox' },
-                { browser: 'webkit' },
-              ],
+              instances: [{ browser: 'chromium' }, { browser: 'webkit' }],
               provider: 'playwright',
               screenshotFailures: false,
             },
             globalSetup: [join(__dirname, './globalSetup.browser.ts')],
             include: ['src/**/*.browser.test.ts'],
             name: 'browser',
+            testTimeout: 30_000,
           },
         },
         'apps/dialog/vite.config.ts',

@@ -16,6 +16,7 @@ export type Schema =
           method:
             | 'wallet_getCapabilities'
             | 'wallet_getCallsStatus'
+            | 'wallet_getPermissions'
             | 'wallet_grantPermissions'
             | 'wallet_revokePermissions'
             | 'wallet_sendCalls'
@@ -88,6 +89,10 @@ export type Schema =
       | {
           Request: Static<typeof Rpc.wallet_getCapabilities.Request>
           ReturnType: Static<typeof Rpc.wallet_getCapabilities.Response>
+        }
+      | {
+          Request: Static<typeof Rpc.wallet_getKeys.Request>
+          ReturnType: Static<typeof Rpc.wallet_getKeys.Response>
         }
       | {
           Request: Static<typeof Rpc.wallet_getCallsStatus.Request>

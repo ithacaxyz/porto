@@ -14,6 +14,7 @@ import type * as Porto from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import type * as FeeToken from '../typebox/feeToken.js'
 import * as Typebox from '../typebox/typebox.js'
+import * as U from '../utils.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
@@ -251,6 +252,33 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const provider = getProvider(store)
         const result = await provider.request(request)
         return result
+      },
+
+      async getKeys(parameters) {
+        const { account, internal } = parameters
+        const { store } = internal
+
+        const provider = getProvider(store)
+        const result = await provider.request({
+          method: 'wallet_getKeys',
+          params: [
+            {
+              address: account.address,
+            },
+          ],
+        })
+
+        const keys = Typebox.Decode(
+          RpcSchema_porto.wallet_getKeys.Response,
+          result satisfies Typebox.Static<
+            typeof RpcSchema_porto.wallet_getKeys.Response
+          >,
+        )
+
+        return U.uniqBy(
+          [...(account.keys ?? []), ...keys],
+          (key) => key.publicKey,
+        )
       },
 
       async grantAdmin(parameters) {

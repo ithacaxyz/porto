@@ -17,6 +17,7 @@ import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
+import * as U from '../utils.js'
 
 /**
  * Mode for a WebAuthn-based environment that interacts directly
@@ -239,6 +240,27 @@ export function contract(parameters: contract.Parameters = {}) {
         return capabilities
       },
 
+      async getKeys(parameters) {
+        const { account, internal } = parameters
+        const { client } = internal
+
+        const keyCount = await readContract(client, {
+          abi: AccountContract.abi,
+          address: account.address,
+          functionName: 'keyCount',
+        })
+        const keys = await Promise.all(
+          Array.from({ length: Number(keyCount) }, (_, index) =>
+            AccountContract.keyAt(client, { account: account.address, index }),
+          ),
+        )
+
+        return U.uniqBy(
+          [...(account.keys ?? []), ...keys],
+          (key) => key.publicKey,
+        )
+      },
+
       async grantAdmin(parameters) {
         const { account, internal } = parameters
         const { client } = internal
@@ -353,9 +375,7 @@ export function contract(parameters: contract.Parameters = {}) {
             storage: internal.config.storage,
           })
 
-        return {
-          accounts: [account],
-        }
+        return { accounts: [account] }
       },
 
       async prepareCalls(parameters) {

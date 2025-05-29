@@ -67,6 +67,7 @@ export function CheckBalance(props: CheckBalance.Props) {
 
           <Button
             className="flex-grow"
+            data-testid="add-funds"
             onClick={() => setStep('add-funds')}
             type="button"
             variant="accent"

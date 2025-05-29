@@ -217,6 +217,190 @@ exports[`contract > wallet_getCapabilities > default 6`] = `
 }
 `;
 
+exports[`contract > wallet_getPermissions > behavior: grant on connect; grant another; get after connect 1`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`contract > wallet_getPermissions > behavior: grant on connect; grant another; get after connect 2`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`contract > wallet_getPermissions > behavior: grant on connect; grant another; get after connect 3`] = `[]`;
+
+exports[`contract > wallet_getPermissions > behavior: provided keys 1`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`contract > wallet_getPermissions > behavior: provided keys 2`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`contract > wallet_getPermissions > behavior: provided keys 3`] = `[]`;
+
 exports[`contract > wallet_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
 
 exports[`contract > wallet_grantAdmin > default 1`] = `
@@ -684,6 +868,338 @@ exports[`rpcServer > wallet_getCapabilities > default 6`] = `
 {
   "supported": true,
 }
+`;
+
+exports[`rpcServer > wallet_getPermissions > behavior: grant on connect; grant another; get after connect 1`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`rpcServer > wallet_getPermissions > behavior: grant on connect; grant another; get after connect 2`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`rpcServer > wallet_getPermissions > behavior: grant on connect; grant another; get after connect 3`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "0x1249c58b",
+          "to": undefined,
+        },
+        {
+          "signature": "0x32323232",
+          "to": "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
+        },
+        {
+          "signature": "0x703a60cd",
+          "to": "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x56bc75e2d63100000",
+          "period": "year",
+          "token": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "0x1249c58b",
+          "to": undefined,
+        },
+        {
+          "signature": "0x32323232",
+          "to": "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
+        },
+        {
+          "signature": "0x703a60cd",
+          "to": "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+          "token": "0x0000000000000000000000000000000000000000",
+        },
+        {
+          "limit": "0x56bc75e2d63100000",
+          "period": "day",
+          "token": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`rpcServer > wallet_getPermissions > behavior: provided keys 1`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`rpcServer > wallet_getPermissions > behavior: provided keys 2`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+        },
+      ],
+    },
+  },
+]
+`;
+
+exports[`rpcServer > wallet_getPermissions > behavior: provided keys 3`] = `
+[
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "0x1249c58b",
+          "to": undefined,
+        },
+        {
+          "signature": "0x32323232",
+          "to": "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
+        },
+        {
+          "signature": "0x703a60cd",
+          "to": "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x56bc75e2d63100000",
+          "period": "year",
+          "token": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": "0x7a69",
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "0x1249c58b",
+          "to": undefined,
+        },
+        {
+          "signature": "0x32323232",
+          "to": "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
+        },
+        {
+          "signature": "0x703a60cd",
+          "to": "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+          "token": "0x0000000000000000000000000000000000000000",
+        },
+        {
+          "limit": "0x56bc75e2d63100000",
+          "period": "day",
+          "token": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+        },
+      ],
+    },
+  },
+]
 `;
 
 exports[`rpcServer > wallet_grantAdmin > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;

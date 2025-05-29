@@ -38,6 +38,18 @@ export const defaultConfig = {
       },
     },
     {
+      method: 'wallet_getKeys',
+      modes: {
+        headless: true,
+      },
+    },
+    {
+      method: 'wallet_getPermissions',
+      modes: {
+        headless: true,
+      },
+    },
+    {
       method: 'wallet_grantAdmin',
       modes: {
         dialog: {

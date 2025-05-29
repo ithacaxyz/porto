@@ -113,6 +113,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
                 <Button
                   className="flex-grow"
+                  data-testid="confirm"
                   disabled={!prepareCallsQuery.isSuccess}
                   onClick={onApprove}
                   type="button"

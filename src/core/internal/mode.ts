@@ -88,26 +88,36 @@ export type Mode = {
       Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
     >
 
+    getKeys: (parameters: {
+      /** Account to get the keys for. */
+      account: Account.Account
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<readonly Key.Key[]>
+
     grantAdmin: (parameters: {
-      /** Account to authorize the keys for. */
+      /** Account to grant admin for. */
       account: Account.Account
       /** Internal properties. */
       internal: ActionsInternal
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
       feeToken?: FeeToken.Symbol | Address.Address | undefined
-      /** Key to authorize. */
+      /** Key to authorize as an admin. */
       key: Key.from.Value
-    }) => Promise<{ key: Key.Key }>
+    }) => Promise<{
+      /** Key the admin is granted to. */
+      key: Key.Key
+    }>
 
     grantPermissions: (parameters: {
-      /** Account to authorize the keys for. */
+      /** Account to grant permissions for. */
       account: Account.Account
       /** Internal properties. */
       internal: ActionsInternal
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
     }) => Promise<{
-      /** Key. */
+      /** Key the permissions are granted to. */
       key: Key.Key
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined

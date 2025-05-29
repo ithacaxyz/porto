@@ -160,7 +160,12 @@ export function AddFunds(props: AddFunds.Props) {
               </div>
             </div>
             <div className="col-span-1 row-span-1 space-y-3.5">
-              <Button className="w-full flex-1" type="submit" variant="accent">
+              <Button
+                className="w-full flex-1"
+                data-testid="buy"
+                type="submit"
+                variant="accent"
+              >
                 Buy & deposit
               </Button>
               {import.meta.env.VITE_FLAGS?.includes('onramp') && (
@@ -291,6 +296,7 @@ export function AddFunds(props: AddFunds.Props) {
           <Layout.Footer.Actions>
             <Button
               className="flex-grow"
+              data-testid="done"
               onClick={() => onApprove({ id: deposit.data!.id })}
               variant="default"
             >

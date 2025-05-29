@@ -33,9 +33,7 @@ export type BaseKey<
   type extends string = string,
   privateKey = unknown,
 > = Compute<
-  Key_typebox.Base & {
-    /** Permissions. */
-    permissions?: Permissions | undefined
+  Key_typebox.WithPermissions & {
     /** Whether the key will need its digest (SHA256) prehashed when signing. */
     prehash?: boolean | undefined
     /** Private key. */

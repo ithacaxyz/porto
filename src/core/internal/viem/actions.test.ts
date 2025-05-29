@@ -395,14 +395,35 @@ describe('getKeys', () => {
   test('behavior: deployed account; multiple keys', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const key_2 = Key.createSecp256k1()
+    const key_3 = Key.createP256({
+      permissions: {
+        calls: [
+          {
+            to: exp1Address,
+          },
+        ],
+        spend: [
+          {
+            limit: Value.fromEther('100'),
+            period: 'minute',
+            token: exp1Address,
+          },
+        ],
+      },
+      role: 'session',
+    })
     const account = await TestActions.createAccount(client, {
       keys: [key, key_2],
     })
 
-    await sendCalls(client, {
+    const { id } = await sendCalls(client, {
       account,
+      authorizeKeys: [key_3],
       calls: [],
       feeToken,
+    })
+    await waitForCallsStatus(client, {
+      id,
     })
 
     const result = await getKeys(client, {
@@ -417,6 +438,10 @@ describe('getKeys', () => {
     expect(result[1]?.publicKey).toBe(Hex.padLeft(key_2.publicKey, 32))
     expect(result[1]?.role).toBe(key_2.role)
     expect(result[1]?.type).toBe(key_2.type)
+    expect(result[2]?.hash).toBe(key_3.hash)
+    expect(result[2]?.publicKey).toBe(key_3.publicKey)
+    expect(result[2]?.role).toBe('normal')
+    expect(result[2]?.type).toBe(key_3.type)
   })
 })
 

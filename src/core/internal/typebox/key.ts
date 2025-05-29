@@ -73,3 +73,11 @@ export const Permissions = Type.Object({
   spend: Typebox.Optional(SpendPermissions),
 })
 export type Permissions = Typebox.StaticDecode<typeof Permissions>
+
+export const WithPermissions = Type.Intersect([
+  Base,
+  Type.Object({
+    permissions: Typebox.Optional(Permissions),
+  }),
+])
+export type WithPermissions = Typebox.StaticDecode<typeof WithPermissions>

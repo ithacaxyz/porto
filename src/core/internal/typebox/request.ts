@@ -30,6 +30,7 @@ export const Request = Type.Union([
   RpcRequest.wallet_disconnect.Request,
   RpcRequest.wallet_getCallsStatus.Request,
   RpcRequest.wallet_getCapabilities.Request,
+  RpcRequest.wallet_getKeys.Request,
   RpcRequest.wallet_prepareCalls.Request,
   RpcRequest.wallet_sendCalls.Request,
   RpcRequest.wallet_sendPreparedCalls.Request,
