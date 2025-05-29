@@ -14,20 +14,14 @@ This method is intended to be used in conjunction with [`wallet_prepareUpgradeAc
 type Request = {
   method: 'wallet_upgradeAccount',
   params: [{
-    // EIP-7702 authorization object that was signed by the EOA root key.
-    authorization: {
-      // usually 0 to allow for replayability
-      chainId: `0x${string}`,
-      // the contract the account delegates to
-      address: `0x${string}`,
-      nonce: `0x${string}`,
-      yParity: `0x${string}`,
-      r: `0x${string}`,
-      s: `0x${string}`,
-    },
     // Context that includes the prepared pre-call. 
     // As returned by `wallet_prepareUpgradeAccount`
     context: {
+      authorization: {
+        chainId: `0x${string}`,
+        address: `0x${string}`,
+        nonce: `0x${string}`,
+      },
       preCall: {
         eoa: `0x${string}`,
         executionData: `0x${string}`,
@@ -35,8 +29,8 @@ type Request = {
         signature: `0x${string}`,
       },
     },
-    // signature over the pre-call digest from `wallet_prepareUpgradeAccount`
-    signature: `0x${string}`,
+    // Tuple of signatures over the digests from `wallet_prepareUpgradeAccount`
+    signatures: [authSignature: `0x${string}`, preCallSignature: `0x${string}`],
   }],
 }
 ```
