@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.28
+
+### Patch Changes
+
+- [`87c88d2`](https://github.com/ithacaxyz/porto/commit/87c88d21dd4d2fe839e9a1d06da5cfab8044d1de) Thanks [@jxom](https://github.com/jxom)! - Fixed decoding of `adminsChanged` event.
+
 ## 0.0.27
 
 ### Patch Changes
