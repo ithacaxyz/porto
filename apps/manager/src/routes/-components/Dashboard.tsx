@@ -42,6 +42,8 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
+import { useTokenStandard } from '~/hooks/useCheckTokenType'
+import { useNFTInfo } from '~/hooks/useNFTInfo'
 
 function TokenSymbol({
   address,
@@ -50,7 +52,9 @@ function TokenSymbol({
   address?: Address.Address | undefined
   display?: 'symbol' | 'name' | 'address'
 }) {
-  const { data: tokenInfo } = useErc20Info(address)
+  const tokenStandard = useTokenStandard(address)
+
+  const { data: tokenInfo } = tokenStandard.standard === 'ERC20' ? useErc20Info(address) : useNFTInfo(address);
 
   if (!address) return null
 
