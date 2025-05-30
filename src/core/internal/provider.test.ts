@@ -12,6 +12,7 @@ import {
 } from 'ox'
 import { Key, Mode } from 'porto'
 import { Sponsor } from 'porto/server'
+import { ServerActions } from 'porto/viem'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
 import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
@@ -26,7 +27,6 @@ import {
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
 import * as Porto_internal from './porto.js'
-import * as Actions from './viem/actions.js'
 
 describe.each([
   ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
@@ -903,8 +903,8 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const capabilities = await Actions.getCapabilities(client)
-      vi.spyOn(Actions, 'getCapabilities').mockResolvedValue({
+      const capabilities = await ServerActions.getCapabilities(client)
+      vi.spyOn(ServerActions, 'getCapabilities').mockResolvedValue({
         ...capabilities,
         contracts: {
           ...capabilities.contracts,
