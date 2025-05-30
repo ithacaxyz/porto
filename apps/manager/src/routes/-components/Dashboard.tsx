@@ -42,6 +42,7 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
+import { useEnsNames } from '~/hooks/useEnsNames'
 
 function TokenSymbol({
   address,
@@ -133,6 +134,15 @@ export function Dashboard() {
       },
     },
   })
+
+  const transfers = addressTransfers.data?.items ?? []
+
+  const allAddrs = transfers.flatMap(tx => [
+    tx.from.hash as string,
+    tx.to.hash as string,
+  ])
+
+  const ensMap = useEnsNames(allAddrs)
 
   return (
     <>
@@ -330,7 +340,7 @@ export function Dashboard() {
                           <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
                         </div>
                         <TruncatedAddress
-                          address={transfer?.to.hash ?? ''}
+                          address={ensMap[transfer?.from.hash ?? ''] ?? transfer?.from.hash ?? ''}
                           className="ml-2"
                         />
                       </div>
@@ -341,7 +351,7 @@ export function Dashboard() {
                           <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
                         </div>
                         <TruncatedAddress
-                          address={transfer?.to.hash ?? ''}
+                          address={ensMap[transfer?.to.hash ?? ''] ?? transfer?.to.hash ?? ''}
                           className="ml-2"
                         />
                       </div>
@@ -887,7 +897,7 @@ function AssetRow({
                             'peer',
                             'w-full font-mono text-xs placeholder:text-gray10 focus:outline-none sm:text-sm dark:text-gray12',
                             valid &&
-                              'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
+                            'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
                           )}
                           data-field={`${address}-recipient`}
                           name={sendForm.names.sendRecipient}

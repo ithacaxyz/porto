@@ -23,9 +23,10 @@ export function TruncatedAddress({
       )}
       {...restProps}
     >
-      <span className="text-gray12">{left}</span>
-      <p className="mb-1 font-bold text-gray9">...</p>
-      <span className="text-gray12">{right}</span>
+      {address.includes('.eth') ? <span className='text-gray12'>{address}</span> : 
+      (<><span className="text-gray12">{left}</span>
+        <p className="mb-1 font-bold text-gray9">...</p>
+        <span className="text-gray12">{right}</span></>)}
     </div>
   )
 }
