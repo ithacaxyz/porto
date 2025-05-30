@@ -4,6 +4,7 @@ import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 import { verifyHash } from 'viem/actions'
+import * as Actions from '../../viem/ServerActions.js'
 import * as Account from '../Account.js'
 import type * as Chains from '../Chains.js'
 import type * as Key from '../Key.js'
@@ -14,7 +15,6 @@ import * as Porto_internal from './porto.js'
 import * as RpcRequest from './typebox/request.js'
 import * as Rpc from './typebox/rpc.js'
 import * as Typebox from './typebox/typebox.js'
-import * as Actions from './viem/actions.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -992,7 +992,6 @@ export function from<
 
           const result = await Actions.verifySignature(client, {
             address,
-            chainId,
             digest,
             signature,
           }).catch(async () => {

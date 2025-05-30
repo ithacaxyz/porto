@@ -4,16 +4,22 @@ import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import { type Client, createClient, http, zeroAddress } from 'viem'
+import {
+  type Client,
+  createClient,
+  http,
+  type Transport,
+  zeroAddress,
+} from 'viem'
+import * as Actions from '../viem/ServerActions.js'
 import * as Account from './Account.js'
 import type { Chain } from './Chains.js'
 import type * as Capabilities from './internal/rpcServer/typebox/capabilities.js'
 import type * as Quote from './internal/rpcServer/typebox/quote.js'
 import type { MaybePromise, OneOf, RequiredBy } from './internal/types.js'
-import * as Actions from './internal/viem/actions.js'
 import * as Key from './Key.js'
 
-export { getCapabilities, health } from './internal/viem/actions.js'
+export { getCapabilities, health } from '../viem/ServerActions.js'
 
 /**
  * Creates a new Porto Account via the RPC.
@@ -26,7 +32,7 @@ export { getCapabilities, health } from './internal/viem/actions.js'
  * @returns Result.
  */
 export async function createAccount(
-  client: Client,
+  client: Client<Transport, Chain>,
   parameters: createAccount.Parameters,
 ): Promise<createAccount.ReturnType> {
   if (parameters.signatures) {
@@ -150,7 +156,7 @@ export namespace createIdSigner {
  * @returns Accounts.
  */
 export async function getAccounts(
-  client: Client,
+  client: Client<Transport, Chain>,
   parameters: getAccounts.Parameters,
 ): Promise<getAccounts.ReturnType> {
   const { keyId } = parameters
@@ -165,7 +171,7 @@ export async function getAccounts(
 }
 
 export namespace getAccounts {
-  export type Parameters = Omit<Actions.getAccounts.Parameters, 'id'> & {
+  export type Parameters = {
     keyId: Hex.Hex
   }
 
@@ -206,7 +212,7 @@ export namespace getIdDigest {
  * @returns Account keys.
  */
 export async function getKeys(
-  client: Client,
+  client: Client<Transport, Chain>,
   parameters: getKeys.Parameters,
 ): Promise<getKeys.ReturnType> {
   const account = Account.from(parameters.account)
@@ -215,7 +221,7 @@ export async function getKeys(
 }
 
 export namespace getKeys {
-  export type Parameters = Omit<Actions.getKeys.Parameters, 'address'> & {
+  export type Parameters = {
     account: Account.Account | Address.Address
   }
 
@@ -235,7 +241,7 @@ export namespace getKeys {
  * @returns Prepared properties.
  */
 export async function prepareCalls<const calls extends readonly unknown[]>(
-  client: Client,
+  client: Client<Transport, Chain>,
   parameters: prepareCalls.Parameters<calls>,
 ): Promise<prepareCalls.ReturnType> {
   const {
@@ -390,7 +396,7 @@ export namespace prepareCalls {
  * @returns Result.
  */
 export async function prepareCreateAccount(
-  client: Client,
+  client: Client<Transport, Chain>,
   parameters: prepareCreateAccount.Parameters,
 ) {
   const { chain = client.chain, keys } = parameters
@@ -464,7 +470,7 @@ export namespace prepareCreateAccount {
  * @returns Result.
  */
 export async function prepareUpgradeAccount(
-  client: Client,
+  client: Client<Transport, Chain>,
   parameters: prepareUpgradeAccount.Parameters,
 ) {
   const { address, feeToken, permissionsFeeLimit } = parameters
@@ -583,7 +589,7 @@ export declare namespace prepareUpgradeAccount {
  * @returns Bundle identifier.
  */
 export async function sendCalls<const calls extends readonly unknown[]>(
-  client: Client,
+  client: Client<Transport, Chain>,
   parameters: sendCalls.Parameters<calls>,
 ) {
   // If a signature is provided, broadcast the calls to the RPC Server.

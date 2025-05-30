@@ -1,7 +1,7 @@
 /**
- * Viem Actions for JSON-RPC methods.
+ * Actions for Porto RPC Server.
  *
- * @see https://github.com/ithacaxyz/relay/blob/main/src/rpc.rs
+ * @see https://porto.sh/rpc-server
  */
 
 import { AssertError, TransformEncodeCheckError } from '@sinclair/typebox/value'
@@ -19,7 +19,9 @@ import {
   type Calls,
   type Chain,
   type Client,
+  type GetChainParameter,
   type Narrow,
+  type Transport,
   type ValueOf,
   withCache,
 } from 'viem'
@@ -28,10 +30,10 @@ import {
   type GetExecuteErrorReturnType,
   getExecuteError,
 } from 'viem/experimental/erc7821'
-import type { sendCalls } from '../../RpcServer.js'
-import * as RpcSchema from '../rpcServer/rpcSchema.js'
-import * as Typebox from '../typebox/typebox.js'
-import { Value } from '../typebox/typebox.js'
+import * as RpcSchema from '../core/internal/rpcServer/rpcSchema.js'
+import * as Typebox from '../core/internal/typebox/typebox.js'
+import { Value } from '../core/internal/typebox/typebox.js'
+import type { sendCalls } from '../core/RpcServer.js'
 
 /**
  * Creates a new account.
@@ -93,9 +95,9 @@ export namespace createAccount {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function getAccounts(
-  client: Client,
-  parameters: getAccounts.Parameters,
+export async function getAccounts<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getAccounts.Parameters<chain>,
 ): Promise<getAccounts.ReturnType> {
   const { chain = client.chain, keyId: id } = parameters
   try {
@@ -118,16 +120,26 @@ export async function getAccounts(
 }
 
 export namespace getAccounts {
-  export type Parameters = {
-    chain?: Chain | undefined
-    keyId: Hex.Hex
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    GetChainParameter<chain> & {
+      keyId: Hex.Hex
+    }
 
   export type ReturnType = RpcSchema.wallet_getAccounts.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
 
+/**
+ * Gets the capabilities for a given chain ID.
+ *
+ * @example
+ * TODO
+ *
+ * @param client - The client to use.
+ * @param options - Options.
+ * @returns Result.
+ */
 export async function getCapabilities<
   const chainIds extends readonly number[] | undefined = undefined,
   const raw extends boolean = false,
@@ -245,9 +257,9 @@ export namespace getCallsStatus {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function getKeys(
-  client: Client,
-  parameters: getKeys.Parameters,
+export async function getKeys<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getKeys.Parameters<chain>,
 ): Promise<getKeys.ReturnType> {
   const { address, chain = client.chain } = parameters
   try {
@@ -270,12 +282,9 @@ export async function getKeys(
 }
 
 export namespace getKeys {
-  export type Parameters = Omit<
-    RpcSchema.wallet_getKeys.Parameters,
-    'chain_id'
-  > & {
-    chain?: Chain | undefined
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    Omit<RpcSchema.wallet_getKeys.Parameters, 'chain_id'> &
+      GetChainParameter<chain>
 
   export type ReturnType = RpcSchema.wallet_getKeys.Response
 
@@ -320,9 +329,12 @@ export namespace health {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function prepareCalls<const calls extends readonly unknown[]>(
-  client: Client,
-  parameters: prepareCalls.Parameters<calls>,
+export async function prepareCalls<
+  const calls extends readonly unknown[],
+  chain extends Chain | undefined,
+>(
+  client: Client<Transport, chain>,
+  parameters: prepareCalls.Parameters<calls, chain>,
 ): Promise<prepareCalls.ReturnType> {
   const { address, capabilities, chain = client.chain, key } = parameters
 
@@ -349,7 +361,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
           Value.Encode(RpcSchema.wallet_prepareCalls.Parameters, {
             calls,
             capabilities,
-            chainId: chain!.id,
+            chainId: chain?.id!,
             from: address,
             key: key
               ? {
@@ -376,13 +388,13 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 export namespace prepareCalls {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
+    chain extends Chain | undefined = Chain | undefined,
   > = {
     address?: Address.Address | undefined
     calls: Calls<Narrow<calls>>
     capabilities: RpcSchema.wallet_prepareCalls.Capabilities
-    chain?: Chain | undefined
     key: RpcSchema.wallet_prepareCalls.Parameters['key']
-  }
+  } & GetChainParameter<chain>
 
   export type ReturnType = RpcSchema.wallet_prepareCalls.Response
 
@@ -402,9 +414,9 @@ export namespace prepareCalls {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function prepareCreateAccount(
-  client: Client,
-  parameters: prepareCreateAccount.Parameters,
+export async function prepareCreateAccount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: prepareCreateAccount.Parameters<chain>,
 ): Promise<prepareCreateAccount.ReturnType> {
   const { capabilities, chain = client.chain } = parameters
   try {
@@ -432,12 +444,9 @@ export async function prepareCreateAccount(
 }
 
 export namespace prepareCreateAccount {
-  export type Parameters = Omit<
-    RpcSchema.wallet_prepareCreateAccount.Parameters,
-    'chainId'
-  > & {
-    chain?: Chain | undefined
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    Omit<RpcSchema.wallet_prepareCreateAccount.Parameters, 'chainId'> &
+      GetChainParameter<chain>
 
   export type ReturnType = RpcSchema.wallet_prepareCreateAccount.Response
 
@@ -454,9 +463,9 @@ export namespace prepareCreateAccount {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function prepareUpgradeAccount(
-  client: Client,
-  parameters: prepareUpgradeAccount.Parameters,
+export async function prepareUpgradeAccount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: prepareUpgradeAccount.Parameters<chain>,
 ): Promise<prepareUpgradeAccount.ReturnType> {
   const { address, capabilities, chain = client.chain } = parameters
 
@@ -514,11 +523,11 @@ export async function prepareUpgradeAccount(
   }
 }
 export namespace prepareUpgradeAccount {
-  export type Parameters = {
-    address: Address.Address
-    capabilities: RpcSchema.wallet_prepareUpgradeAccount.Capabilities
-    chain?: Chain | undefined
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    {
+      address: Address.Address
+      capabilities: RpcSchema.wallet_prepareUpgradeAccount.Capabilities
+    } & GetChainParameter<chain>
 
   export type ReturnType = Omit<
     RpcSchema.wallet_prepareUpgradeAccount.Response,
@@ -680,11 +689,11 @@ export namespace upgradeAccount {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function verifySignature(
-  client: Client,
-  parameters: verifySignature.Parameters,
+export async function verifySignature<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: verifySignature.Parameters<chain>,
 ): Promise<verifySignature.ReturnType> {
-  const { address, chainId = client.chain?.id, digest, signature } = parameters
+  const { address, chain = client.chain, digest, signature } = parameters
   try {
     const method = 'wallet_verifySignature' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -693,7 +702,7 @@ export async function verifySignature(
         method,
         params: [
           Value.Encode(RpcSchema.wallet_verifySignature.Parameters, {
-            chainId,
+            chainId: chain?.id,
             digest,
             keyIdOrAddress: address,
             signature,
@@ -712,13 +721,13 @@ export async function verifySignature(
 }
 
 export namespace verifySignature {
-  export type Parameters = Omit<
-    RpcSchema.wallet_verifySignature.Parameters,
-    'chainId' | 'keyIdOrAddress'
-  > & {
-    address: Address.Address
-    chainId?: number | undefined
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    Omit<
+      RpcSchema.wallet_verifySignature.Parameters,
+      'chainId' | 'keyIdOrAddress'
+    > & {
+      address: Address.Address
+    } & GetChainParameter<chain>
 
   export type ReturnType = RpcSchema.wallet_verifySignature.Response
 
@@ -832,5 +841,184 @@ export class SchemaCoderError extends Errors.BaseError<
     super(message, {
       cause,
     })
+  }
+}
+
+export type Decorator<chain extends Chain | undefined = Chain | undefined> = {
+  /**
+   * Creates a new account.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  createAccount: (
+    parameters: createAccount.Parameters,
+  ) => Promise<createAccount.ReturnType>
+  /**
+   * Gets the accounts for a given key identifier.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  getAccounts: (
+    parameters: getAccounts.Parameters<chain>,
+  ) => Promise<getAccounts.ReturnType>
+  /**
+   * Gets the status of a call bundle.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  getCallsStatus: (
+    parameters: getCallsStatus.Parameters,
+  ) => Promise<getCallsStatus.ReturnType>
+  /**
+   * Gets the capabilities for a given chain ID.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param options - Options.
+   * @returns Result.
+   */
+  getCapabilities: <
+    const chainIds extends readonly number[] | undefined = undefined,
+    const raw extends boolean = false,
+  >() => Promise<getCapabilities.ReturnType<chainIds, raw>>
+  /**
+   * Gets the keys for a given account.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  getKeys: (
+    parameters: getKeys.Parameters<chain>,
+  ) => Promise<getKeys.ReturnType>
+  /**
+   * Gets the health of the RPC.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @returns Result.
+   */
+  health: () => Promise<health.ReturnType>
+  /**
+   * Prepares a call bundle.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  prepareCalls: <const calls extends readonly unknown[]>(
+    parameters: prepareCalls.Parameters<calls, chain>,
+  ) => Promise<prepareCalls.ReturnType>
+  /**
+   * Prepares a new account creation.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  prepareCreateAccount: (
+    parameters: prepareCreateAccount.Parameters<chain>,
+  ) => Promise<prepareCreateAccount.ReturnType>
+  /**
+   * Prepares an account upgrade.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  prepareUpgradeAccount: (
+    parameters: prepareUpgradeAccount.Parameters<chain>,
+  ) => Promise<prepareUpgradeAccount.ReturnType>
+  /**
+   * Broadcasts a signed call bundle.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  sendPreparedCalls: (
+    parameters: sendPreparedCalls.Parameters,
+  ) => Promise<sendPreparedCalls.ReturnType>
+  /**
+   * Broadcasts an account upgrade.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  upgradeAccount: (
+    parameters: upgradeAccount.Parameters,
+  ) => Promise<upgradeAccount.ReturnType>
+  /**
+   * Verifies a signature.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  verifySignature: (
+    parameters: verifySignature.Parameters<chain>,
+  ) => Promise<verifySignature.ReturnType>
+}
+
+export function decorator<
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+>(client: Client<transport, chain>): Decorator {
+  return {
+    createAccount: (parameters) => createAccount(client, parameters),
+    getAccounts: (parameters) => getAccounts(client, parameters),
+    getCallsStatus: (parameters) => getCallsStatus(client, parameters),
+    getCapabilities: () => getCapabilities(client),
+    getKeys: (parameters) => getKeys(client, parameters),
+    health: () => health(client),
+    prepareCalls: (parameters) => prepareCalls(client, parameters),
+    prepareCreateAccount: (parameters) =>
+      prepareCreateAccount(client, parameters),
+    prepareUpgradeAccount: (parameters) =>
+      prepareUpgradeAccount(client, parameters),
+    sendPreparedCalls: (parameters) => sendPreparedCalls(client, parameters),
+    upgradeAccount: (parameters) => upgradeAccount(client, parameters),
+    verifySignature: (parameters) => verifySignature(client, parameters),
   }
 }

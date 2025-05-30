@@ -9,6 +9,7 @@ import * as TypedData from 'ox/TypedData'
 import * as Value from 'ox/Value'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { waitForCallsStatus } from 'viem/actions'
+import * as ServerActions from '../../../viem/ServerActions.js'
 import * as Account from '../../Account.js'
 import * as Key from '../../Key.js'
 import * as RpcServer from '../../RpcServer.js'
@@ -20,7 +21,6 @@ import type { Client } from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import * as FeeToken from '../typebox/feeToken.js'
 import * as U from '../utils.js'
-import * as RpcServer_viem from '../viem/actions.js'
 
 export const defaultPermissionsFeeLimit = {
   ETH: '0.0001',
@@ -142,7 +142,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { id, internal } = parameters
         const { client } = internal
 
-        const result = await RpcServer_viem.getCallsStatus(client, {
+        const result = await ServerActions.getCallsStatus(client, {
           id,
         })
 
@@ -769,7 +769,7 @@ export async function resolveFeeToken(
   const { feeToken: defaultFeeToken } = store.getState()
   const { feeToken: overrideFeeToken } = parameters ?? {}
 
-  const feeTokens = await RpcServer_viem.getCapabilities(client).then(
+  const feeTokens = await ServerActions.getCapabilities(client).then(
     (capabilities) => capabilities.fees.tokens,
   )
   let feeToken = feeTokens?.find((feeToken) => {

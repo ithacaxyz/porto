@@ -497,30 +497,10 @@ export namespace wallet_getCapabilities {
   export const Response = Type.Record(
     Primitive.Hex,
     Type.Object({
-      atomic: Type.Object({
-        status: Type.Union([
-          Type.Literal('supported'),
-          Type.Literal('unsupported'),
-        ]),
-      }),
-      feeToken: Type.Object({
-        supported: Type.Boolean(),
-        tokens: Type.Array(
-          Type.Object({
-            address: Primitive.Address,
-            decimals: Type.Number(),
-            kind: Type.String(),
-            nativeRate: Typebox.Optional(Primitive.BigInt),
-            symbol: Type.String(),
-          }),
-        ),
-      }),
-      permissions: Type.Object({
-        supported: Type.Boolean(),
-      }),
-      sponsor: Type.Object({
-        supported: Type.Boolean(),
-      }),
+      atomic: C.atomic.GetCapabilitiesResponse,
+      feeToken: C.feeToken.GetCapabilitiesResponse,
+      permissions: C.permissions.GetCapabilitiesResponse,
+      sponsor: C.sponsor.GetCapabilitiesResponse,
     }),
   )
   export type Response = Typebox.StaticDecode<typeof Response>
@@ -549,7 +529,7 @@ export namespace wallet_prepareCalls {
     feeToken: Typebox.Optional(C.feeToken.Request),
     permissions: Typebox.Optional(C.permissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
-    sponsorUrl: Typebox.Optional(Type.String()),
+    sponsorUrl: Typebox.Optional(C.sponsorUrl.Request),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 

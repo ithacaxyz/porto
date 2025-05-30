@@ -282,6 +282,103 @@ export default defineConfig({
         ],
         text: 'Wagmi Reference',
       },
+      // {
+      //   items: [
+      //     {
+      //       link: '/sdk/viem',
+      //       text: 'Overview',
+      //     },
+      //     {
+      //       link: '/sdk/viem/client',
+      //       text: 'Client',
+      //     },
+      //     {
+      //       collapsed: true,
+      //       items: [
+      //         {
+      //           link: '/sdk/viem/connect',
+      //           text: 'connect',
+      //         },
+      //         {
+      //           link: '/sdk/viem/disconnect',
+      //           text: 'disconnect',
+      //         },
+      //         {
+      //           link: '/sdk/viem/grantPermissions',
+      //           text: 'grantPermissions',
+      //         },
+      //         {
+      //           link: '/sdk/viem/getPermissions',
+      //           text: 'getPermissions',
+      //         },
+      //         {
+      //           link: '/sdk/viem/revokePermissions',
+      //           text: 'revokePermissions',
+      //         },
+      //         {
+      //           link: '/sdk/viem/upgradeAccount',
+      //           text: 'upgradeAccount',
+      //         },
+      //       ],
+      //       text: 'Wallet Actions',
+      //     },
+      //     {
+      //       collapsed: true,
+      //       items: [
+      //         {
+      //           link: '/sdk/viem/createAccount',
+      //           text: 'createAccount',
+      //         },
+      //         {
+      //           link: '/sdk/viem/getAccounts',
+      //           text: 'getAccounts',
+      //         },
+      //         {
+      //           link: '/sdk/viem/getCallsStatus',
+      //           text: 'getCallsStatus',
+      //         },
+      //         {
+      //           link: '/sdk/viem/getCapabilities',
+      //           text: 'getCapabilities',
+      //         },
+      //         {
+      //           link: '/sdk/viem/getKeys',
+      //           text: 'getKeys',
+      //         },
+      //         {
+      //           link: '/sdk/viem/health',
+      //           text: 'health',
+      //         },
+      //         {
+      //           link: '/sdk/viem/prepareCalls',
+      //           text: 'prepareCalls',
+      //         },
+      //         {
+      //           link: '/sdk/viem/prepareCreateAccount',
+      //           text: 'prepareCreateAccount',
+      //         },
+      //         {
+      //           link: '/sdk/viem/prepareUpgradeAccount',
+      //           text: 'prepareUpgradeAccount',
+      //         },
+      //         {
+      //           link: '/sdk/viem/sendPreparedCalls',
+      //           text: 'sendPreparedCalls',
+      //         },
+      //         {
+      //           link: '/sdk/viem/upgradeAccount',
+      //           text: 'upgradeAccount',
+      //         },
+      //         {
+      //           link: '/sdk/viem/verifySignature',
+      //           text: 'verifySignature',
+      //         },
+      //       ],
+      //       text: 'Server Actions',
+      //     },
+      //   ],
+      //   text: 'Viem Reference',
+      // },
       {
         items: [
           {
