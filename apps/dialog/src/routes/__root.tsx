@@ -8,6 +8,7 @@ import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
+import LucideCompass from '~icons/lucide/compass'
 import LucideExpand from '~icons/lucide/expand'
 import { Layout } from './-components/Layout'
 import { TitleBar } from './-components/TitleBar'
@@ -24,6 +25,8 @@ export const Route = createRootRoute({
     ],
   }),
 })
+
+const isInAppBrowser = UserAgent.isInAppBrowser()
 
 function RouteComponent() {
   React.useEffect(() => {
@@ -135,22 +138,35 @@ function RouteComponent() {
             </CheckReferrer>
           </div>
         </div>
-
-        {UserAgent.isInAppBrowser() && (
-          <div className="absolute inset-0 flex flex-col items-center justify-between p-4 backdrop-blur-md">
-            <div />
-            <div className="flex flex-col items-center text-center">
-              <LucideExpand />
-              <div>Open in browser</div>
-              <div>
-                This in-app browser does not yet support Porto.{' '}
-                <span>Please open this page in your device’s browser.</span>
-              </div>
-            </div>
-            <button type="button">Open in default browser</button>
-          </div>
-        )}
       </div>
+
+      {isInAppBrowser && (
+        <div className="absolute inset-0 flex flex-col items-center justify-between p-4 backdrop-blur-md">
+          <div className="mb-10 flex flex-col items-center gap-2 text-center">
+            <div className="flex size-16 items-center justify-center rounded-full border border-gray2 bg-gray7">
+              <LucideExpand className="size-7.5" />
+            </div>
+
+            <div className="-tracking-[2.8%] font-medium text-[28px] text-gray12">
+              Open in browser
+            </div>
+            <div className="-tracking-[2.8%] text-[18px] text-gray12 leading-[26px]">
+              This in-app browser does not yet support Porto.{' '}
+              <span className="text-gray11">
+                Please open this page in your device’s browser.
+              </span>
+            </div>
+          </div>
+
+          <button
+            className="-tracking-[2.8%] flex h-[52px] w-full items-center justify-center gap-2 rounded-full border border-gray3 bg-gray4 font-medium text-[18px] text-gray12"
+            type="button"
+          >
+            <LucideCompass className="size-4.5 text-gray12" />
+            Open in default browser
+          </button>
+        </div>
+      )}
 
       <React.Suspense>
         <TanStackRouterDevtools position="bottom-right" />
