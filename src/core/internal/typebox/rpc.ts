@@ -98,6 +98,7 @@ export namespace eth_signTypedData_v4 {
 export namespace wallet_getAdmins {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
+    chainId: Typebox.Optional(Primitive.Number),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
@@ -109,6 +110,7 @@ export namespace wallet_getAdmins {
 
   export const Response = Type.Object({
     address: Primitive.Address,
+    chainId: Primitive.Number,
     keys: Type.Array(
       Type.Intersect([
         Type.Pick(Key.Base, ['id', 'publicKey', 'type']),
@@ -152,7 +154,7 @@ export namespace wallet_grantAdmin {
 
   export const Response = Type.Object({
     address: Primitive.Address,
-    chainId: Primitive.Hex,
+    chainId: Primitive.Number,
     key: wallet_getAdmins.Response.properties.keys.items,
   })
   export type Response = Typebox.StaticDecode<typeof Response>

@@ -234,6 +234,34 @@ describe.each([
         }),
       ).rejects.matchSnapshot()
     })
+
+    test('behavior: disconnect > connect > getAdmins', async () => {
+      const { porto } = getPorto()
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+
+      await porto.provider.request({
+        method: 'wallet_disconnect',
+      })
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+      })
+
+      const { address, keys } = await porto.provider.request({
+        method: 'wallet_getAdmins',
+      })
+      expect(address).toBeDefined()
+      expect(keys.length).toBe(1)
+    })
   })
 
   describe('wallet_grantPermissions', () => {
@@ -460,7 +488,7 @@ describe.each([
       expect(permissions.length).toBe(2)
     })
 
-    test('behavior: grant on connect; grant another; get after connect', async () => {
+    test('behavior: grant on connect > grant another > get after connect', async () => {
       const { client, porto } = getPorto()
       const { accounts } = await porto.provider.request({
         method: 'wallet_connect',

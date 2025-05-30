@@ -269,7 +269,7 @@ export function from<
 
           return Typebox.Encode(Rpc.wallet_grantAdmin.Response, {
             address: account.address,
-            chainId: Hex.fromNumber(client.chain.id),
+            chainId: client.chain.id,
             key: admins.at(-1)!,
           } satisfies Rpc.wallet_grantAdmin.Response) satisfies Typebox.Static<
             typeof Rpc.wallet_grantAdmin.Response
@@ -380,7 +380,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address }] = request._decoded.params ?? [{}]
+          const [{ address, chainId }] = request._decoded.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -389,11 +389,23 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const keys = getAdmins(account.keys ?? [])
+          const client = getClient(chainId)
+
+          const keys = await getMode().actions.getKeys({
+            account,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+          const admins = getAdmins(keys)
 
           return Typebox.Encode(Rpc.wallet_getAdmins.Response, {
             address: account.address,
-            keys,
+            chainId: client.chain.id,
+            keys: admins,
           } satisfies Rpc.wallet_getAdmins.Response) satisfies Typebox.Static<
             typeof Rpc.wallet_getAdmins.Response
           >

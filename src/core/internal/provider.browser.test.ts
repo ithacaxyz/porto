@@ -107,6 +107,42 @@ describe('wallet_createAccount', () => {
   })
 })
 
+describe('wallet_getAdmins', () => {
+  test('default', async () => {
+    porto = getPorto()
+
+    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
+      iframe.getByTestId('sign-up').click(),
+    )
+
+    const { address, keys } = await porto.provider.request({
+      method: 'wallet_getAdmins',
+    })
+    expect(address).toBeDefined()
+    expect(keys.length).toBe(1)
+  })
+
+  test('behavior: disconnect > connect > getAdmins', async () => {
+    porto = getPorto()
+
+    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
+      iframe.getByTestId('sign-up').click(),
+    )
+
+    await run(porto.provider.request({ method: 'wallet_disconnect' }))
+
+    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
+      iframe.getByTestId('sign-in').click(),
+    )
+
+    const { address, keys } = await porto.provider.request({
+      method: 'wallet_getAdmins',
+    })
+    expect(address).toBeDefined()
+    expect(keys.length).toBe(1)
+  })
+})
+
 describe('wallet_getPermissions', () => {
   test('default', async () => {
     porto = getPorto()
