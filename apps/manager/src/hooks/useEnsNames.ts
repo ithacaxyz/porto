@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
 import { useQueries } from '@tanstack/react-query'
+import { Address } from 'ox/Address'
+import { useMemo } from 'react'
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Address } from 'ox/Address'
 
 export function useEnsNames(addresses: string[]) {
   const client = useMemo(
@@ -11,19 +11,19 @@ export function useEnsNames(addresses: string[]) {
         chain: mainnet,
         transport: http(),
       }),
-    []
+    [],
   )
 
   const uniqueAddrs = useMemo(
     () => Array.from(new Set(addresses.filter(Boolean))),
-    [addresses]
+    [addresses],
   )
 
   const queries = useQueries({
     queries: uniqueAddrs.map((addr) => ({
-      queryKey: ['ensName', addr],
-      queryFn: () => client.getEnsName({ address: addr as Address }),
       enabled: Boolean(addr),
+      queryFn: () => client.getEnsName({ address: addr as Address }),
+      queryKey: ['ensName', addr],
       staleTime: 1000 * 60 * 5,
     })),
   })
