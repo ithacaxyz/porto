@@ -18,3 +18,28 @@ export function isMobile() {
     )
   )
 }
+
+export function isInAppBrowser() {
+  const userAgent = navigator.userAgent
+  const userAgentMatch = userAgent.match(inappRegex) !== null
+  if (userAgentMatch) return true
+  const isTelegram =
+    'TelegramWebview' in window || // Android
+    'TelegramWebviewProxy' in window || // iPhone
+    'TelegramWebviewProxyProto' in window // iPhone
+  if (isTelegram) return true
+  return false
+}
+// based on https://github.com/shalanah/inapp-spy/blob/main/src/regexInApp.ts
+const inAppRegExps = [
+  'WebView',
+  '(iPhone|iPod|iPad)(?!.*Safari/)', // Apple devices but not with "Safari/" following
+  'Android.*wv\\)',
+  'FB_\\w|FB\\w', // Match Facebook FB_ or FB then word char
+  'Snapchat',
+  'GSA',
+] as const
+const inappRegex = new RegExp(
+  `${inAppRegExps.map((reg) => `(${reg})`).join('|')}`,
+  'ig',
+)

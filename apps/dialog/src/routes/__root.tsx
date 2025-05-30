@@ -8,6 +8,7 @@ import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
+import LucideExpand from '~icons/lucide/expand'
 import { Layout } from './-components/Layout'
 import { TitleBar } from './-components/TitleBar'
 import { UpdateAccount } from './-components/UpdateAccount'
@@ -134,6 +135,21 @@ function RouteComponent() {
             </CheckReferrer>
           </div>
         </div>
+
+        {UserAgent.isInAppBrowser() && (
+          <div className="absolute inset-0 flex flex-col items-center justify-between p-4 backdrop-blur-md">
+            <div />
+            <div className="flex flex-col items-center text-center">
+              <LucideExpand />
+              <div>Open in browser</div>
+              <div>
+                This in-app browser does not yet support Porto.{' '}
+                <span>Please open this page in your device’s browser.</span>
+              </div>
+            </div>
+            <button type="button">Open in default browser</button>
+          </div>
+        )}
       </div>
 
       <React.Suspense>
