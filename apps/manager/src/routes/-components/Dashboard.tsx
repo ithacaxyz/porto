@@ -23,9 +23,10 @@ import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
+import { useTokenStandard } from '~/hooks/useTokenStandard'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
-import { useErc20Info } from '~/hooks/useTokenInfo'
+import { useErc20Info, useErc721Info } from '~/hooks/useTokenInfo'
 import {
   ArrayUtils,
   DateFormatter,
@@ -42,8 +43,6 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
-import { useTokenStandard } from '~/hooks/useCheckTokenType'
-import { useNFTInfo } from '~/hooks/useNFTInfo'
 
 function TokenSymbol({
   address,
@@ -54,7 +53,10 @@ function TokenSymbol({
 }) {
   const tokenStandard = useTokenStandard(address)
 
-  const { data: tokenInfo } = tokenStandard.standard === 'ERC20' ? useErc20Info(address) : useNFTInfo(address);
+  const { data: tokenInfo } =
+    tokenStandard.standard === 'ERC20'
+      ? useErc20Info(address)
+      : useErc721Info(address)
 
   if (!address) return null
 
