@@ -10,7 +10,7 @@ import { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
+import { createPublicClient, encodeFunctionData, erc20Abi, formatEther, http } from 'viem'
 import {
   useAccount,
   useChainId,
@@ -43,6 +43,7 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
+import { mainnet } from 'viem/chains'
 
 function TokenSymbol({
   address,
@@ -812,8 +813,27 @@ function AssetRow({
   ) {
     event.preventDefault()
 
+    let resolvedEnsAddress: Address.Address | undefined = undefined;
+    if (sendFormState.values.sendRecipient.endsWith('.eth')) {
+      const publicClient = createPublicClient({
+        chain: mainnet,
+        transport: http()
+      })
+
+      const resolvedAddress = await publicClient.getEnsAddress({
+        name: sendFormState.values.sendRecipient,
+      })
+
+      if (!resolvedAddress) {
+        toast.error('Failed to resolve ENS name')
+        return
+      }
+
+      resolvedEnsAddress = resolvedAddress;
+    }
+
     if (
-      !Address.validate(sendFormState.values.sendRecipient) ||
+      !Address.validate(resolvedEnsAddress ?? sendFormState.values.sendRecipient) ||
       !sendFormState.values.sendAmount
     )
       return
@@ -823,7 +843,7 @@ function AssetRow({
           data: encodeFunctionData({
             abi: erc20Abi,
             args: [
-              sendFormState.values.sendRecipient,
+              resolvedEnsAddress as Address.Address ?? sendFormState.values.sendRecipient,
               Value.from(sendFormState.values.sendAmount, decimals),
             ],
             functionName: 'transfer',
@@ -905,7 +925,7 @@ function AssetRow({
                             'peer',
                             'w-full font-mono text-xs placeholder:text-gray10 focus:outline-none sm:text-sm dark:text-gray12',
                             valid &&
-                              'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
+                            'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
                           )}
                           data-field={`${address}-recipient`}
                           name={sendForm.names.sendRecipient}
@@ -915,7 +935,7 @@ function AssetRow({
                               value,
                             )
                           }
-                          pattern="^0x[a-fA-F0-9]{40}$"
+                          pattern="^(0x[a-fA-F0-9]{40}|[a-z0-9]+(?:-[a-z0-9]+)*\.eth)$"
                           placeholder="0xAbcD..."
                           required={true}
                           spellCheck={false}
