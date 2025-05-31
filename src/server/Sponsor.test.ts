@@ -1,6 +1,6 @@
 import { createRequestListener } from '@mjackson/node-fetch-server'
 import { Value } from 'ox'
-import { Key, RpcServer } from 'porto'
+import { Key, ServerActions } from 'porto'
 import { Sponsor } from 'porto/server'
 import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -59,7 +59,7 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
       functionName: 'balanceOf',
     })
 
-    const result = await RpcServer.sendCalls(client, {
+    const result = await ServerActions.sendCalls(client, {
       account: userAccount,
       calls: [
         {
@@ -106,7 +106,7 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
     })
 
     await expect(() =>
-      RpcServer.sendCalls(client, {
+      ServerActions.sendCalls(client, {
         account: userAccount,
         calls: [
           {
@@ -130,7 +130,7 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
     const { server, sponsorAccount } = await setup()
 
     await expect(() =>
-      RpcServer.sendCalls(client, {
+      ServerActions.sendCalls(client, {
         account: sponsorAccount,
         calls: [],
         feeToken,

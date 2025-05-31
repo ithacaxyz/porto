@@ -13,8 +13,8 @@ import {
   getPorto,
 } from '../../test/src/porto.js'
 import * as AccountContract from '../core/internal/accountContract.js'
-import * as Key from '../viem/Key.js'
-import * as Rpc from './RpcServer.js'
+import * as Key from './Key.js'
+import * as Rpc from './ServerActions.js'
 
 const { client } = getPorto()
 

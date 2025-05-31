@@ -33,7 +33,7 @@ import {
 import * as RpcSchema from '../../core/internal/rpcServer/rpcSchema.js'
 import * as Typebox from '../../core/internal/typebox/typebox.js'
 import { Value } from '../../core/internal/typebox/typebox.js'
-import type { sendCalls } from '../RpcServer.js'
+import type { sendCalls } from '../ServerActions.js'
 
 /**
  * Creates a new account.

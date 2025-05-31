@@ -8,4 +8,4 @@ export * as Storage from './core/Storage.js'
 
 export * as Account from './viem/Account.js'
 export * as Key from './viem/Key.js'
-export * as RpcServer from './viem/RpcServer.js'
+export * as ServerActions from './viem/ServerActions.js'

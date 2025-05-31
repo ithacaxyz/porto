@@ -11,7 +11,7 @@ import { writeContract } from 'viem/actions'
 import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-import { Key, RpcServer } from '../../src/index.js'
+import { Key, ServerActions } from '../../src/index.js'
 import { Sponsor } from '../../src/server/index.js'
 import {
   accountNewProxyAddress,
@@ -166,7 +166,7 @@ export default defineConfig(({ mode }) => ({
 
         // Create app-sponsor account.
         const sponsorKey = Key.createSecp256k1()
-        const sponsorAccount = await RpcServer.createAccount(relayClient, {
+        const sponsorAccount = await ServerActions.createAccount(relayClient, {
           keys: [sponsorKey],
         })
         await writeContract(anvilClient, {
@@ -176,7 +176,7 @@ export default defineConfig(({ mode }) => ({
           chain: null,
           functionName: 'mint',
         })
-        await RpcServer.sendCalls(relayClient, {
+        await ServerActions.sendCalls(relayClient, {
           account: sponsorAccount,
           calls: [],
           feeToken: exp1Address,

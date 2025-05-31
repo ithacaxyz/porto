@@ -8,7 +8,7 @@ import { exp1Abi, exp1Address } from '../../../test/src/porto.js'
 import { getPorto } from '../../../test/src/porto.js'
 import type * as Capabilities from '../../core/internal/rpcServer/typebox/capabilities.js'
 import * as Key from '../Key.js'
-import { sendCalls } from '../RpcServer.js'
+import { sendCalls } from '../ServerActions.js'
 import {
   createAccount,
   getAccounts,
