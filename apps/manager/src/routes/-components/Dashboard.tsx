@@ -10,7 +10,14 @@ import { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { createPublicClient, encodeFunctionData, erc20Abi, formatEther, http } from 'viem'
+import {
+  createPublicClient,
+  encodeFunctionData,
+  erc20Abi,
+  formatEther,
+  http,
+} from 'viem'
+import { mainnet } from 'viem/chains'
 import {
   useAccount,
   useChainId,
@@ -43,7 +50,6 @@ import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
-import { mainnet } from 'viem/chains'
 
 function TokenSymbol({
   address,
@@ -813,11 +819,11 @@ function AssetRow({
   ) {
     event.preventDefault()
 
-    let resolvedEnsAddress: Address.Address | undefined = undefined;
+    let resolvedEnsAddress: Address.Address | undefined = undefined
     if (sendFormState.values.sendRecipient.endsWith('.eth')) {
       const publicClient = createPublicClient({
         chain: mainnet,
-        transport: http()
+        transport: http(),
       })
 
       const resolvedAddress = await publicClient.getEnsAddress({
@@ -829,11 +835,13 @@ function AssetRow({
         return
       }
 
-      resolvedEnsAddress = resolvedAddress;
+      resolvedEnsAddress = resolvedAddress
     }
 
     if (
-      !Address.validate(resolvedEnsAddress ?? sendFormState.values.sendRecipient) ||
+      !Address.validate(
+        resolvedEnsAddress ?? sendFormState.values.sendRecipient,
+      ) ||
       !sendFormState.values.sendAmount
     )
       return
@@ -843,7 +851,8 @@ function AssetRow({
           data: encodeFunctionData({
             abi: erc20Abi,
             args: [
-              resolvedEnsAddress as Address.Address ?? sendFormState.values.sendRecipient,
+              (resolvedEnsAddress as Address.Address) ??
+                sendFormState.values.sendRecipient,
               Value.from(sendFormState.values.sendAmount, decimals),
             ],
             functionName: 'transfer',
@@ -925,7 +934,7 @@ function AssetRow({
                             'peer',
                             'w-full font-mono text-xs placeholder:text-gray10 focus:outline-none sm:text-sm dark:text-gray12',
                             valid &&
-                            'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
+                              'not-data-focus-visible:not-focus-visible:not-focus:not-aria-invalid:text-transparent',
                           )}
                           data-field={`${address}-recipient`}
                           name={sendForm.names.sendRecipient}
