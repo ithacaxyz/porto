@@ -1,7 +1,7 @@
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
-import * as Key from '../Key.js'
+import * as Key from '../../viem/Key.js'
 import * as PortoAccount from './_generated/contracts/PortoAccount.js'
 
 /** Stub address for self-execution. */

@@ -9,9 +9,9 @@ import * as TypedData from 'ox/TypedData'
 import * as Value from 'ox/Value'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { waitForCallsStatus } from 'viem/actions'
+import * as Account from '../../../viem/Account.js'
+import * as Key from '../../../viem/Key.js'
 import * as ServerActions from '../../../viem/ServerActions.js'
-import * as Account from '../../Account.js'
-import * as Key from '../../Key.js'
 import * as RpcServer from '../../RpcServer.js'
 import * as AccountContract from '../accountContract.js'
 import * as Call from '../call.js'
@@ -123,7 +123,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { accountImplementation } = contracts
 
         const latest = await AccountContract.getEip712Domain(client, {
-          account: accountImplementation,
+          account: Account.from(accountImplementation),
         }).then((x) => x.version)
 
         const current = await AccountContract.getEip712Domain(client, {

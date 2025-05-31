@@ -7,11 +7,10 @@ import {
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
-
-import * as Account from '../../src/core/Account.js'
 import type { Client } from '../../src/core/internal/porto.js'
-import * as Key from '../../src/core/Key.js'
 import * as RpcServer from '../../src/core/RpcServer.js'
+import * as Account from '../../src/viem/Account.js'
+import * as Key from '../../src/viem/Key.js'
 import * as Anvil from './anvil.js'
 import { exp1Abi, exp1Address } from './porto.js'
 
@@ -89,7 +88,7 @@ export async function getUpgradedAccount(
   })
 
   const signatures = await Promise.all(
-    request.digests.map((payload) => account.sign({ payload })),
+    request.digests.map((hash) => account.sign({ hash })),
   )
 
   const { bundles } = await RpcServer.upgradeAccount(client, {

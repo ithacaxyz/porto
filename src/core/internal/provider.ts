@@ -4,10 +4,10 @@ import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 import { verifyHash } from 'viem/actions'
+import * as Account from '../../viem/Account.js'
+import type * as Key from '../../viem/Key.js'
 import * as Actions from '../../viem/ServerActions.js'
-import * as Account from '../Account.js'
 import type * as Chains from '../Chains.js'
-import type * as Key from '../Key.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Permissions from './permissions.js'
@@ -928,7 +928,7 @@ export function from<
             throw new ox_Provider.ChainDisconnectedError()
 
           const hash = await getMode().actions.sendPreparedCalls({
-            account,
+            account: Account.from(account),
             context,
             internal: {
               client,

@@ -11,13 +11,13 @@ import {
   type Transport,
   zeroAddress,
 } from 'viem'
-import * as Actions from '../viem/ServerActions.js'
-import * as Account from './Account.js'
+import * as Account from '../viem/Account.js'
+import * as Key from '../viem/Key.js'
+import * as ServerActions from '../viem/ServerActions.js'
 import type { Chain } from './Chains.js'
 import type * as Capabilities from './internal/rpcServer/typebox/capabilities.js'
 import type * as Quote from './internal/rpcServer/typebox/quote.js'
 import type { MaybePromise, OneOf, RequiredBy } from './internal/types.js'
-import * as Key from './Key.js'
 
 export { getCapabilities, health } from '../viem/ServerActions.js'
 
@@ -37,7 +37,7 @@ export async function createAccount(
 ): Promise<createAccount.ReturnType> {
   if (parameters.signatures) {
     const { account, context, signatures } = parameters
-    await Actions.createAccount(client, {
+    await ServerActions.createAccount(client, {
       context,
       signatures,
     })
@@ -54,7 +54,8 @@ export async function createAccount(
 
   const hasSessionKey = keys.some((x) => x.role === 'session')
   const orchestrator = hasSessionKey
-    ? (await Actions.getCapabilities(client)).contracts.orchestrator.address
+    ? (await ServerActions.getCapabilities(client)).contracts.orchestrator
+        .address
     : undefined
 
   const keys_rpc = keys.map((key) =>
@@ -94,8 +95,8 @@ export namespace createAccount {
   export type Parameters = OneOf<
     | {
         account: RequiredBy<Account.Account, 'keys'>
-        context: Actions.createAccount.Parameters['context']
-        signatures: Actions.createAccount.Parameters['signatures']
+        context: ServerActions.createAccount.Parameters['context']
+        signatures: ServerActions.createAccount.Parameters['signatures']
       }
     | (Omit<prepareCreateAccount.Parameters, 'keys'> & {
         /**
@@ -117,7 +118,7 @@ export namespace createAccount {
   export type ReturnType = RequiredBy<Account.Account, 'keys'>
 
   export type ErrorType =
-    | Actions.createAccount.ErrorType
+    | ServerActions.createAccount.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -160,7 +161,7 @@ export async function getAccounts(
   parameters: getAccounts.Parameters,
 ): Promise<getAccounts.ReturnType> {
   const { keyId } = parameters
-  const accounts = await Actions.getAccounts(client, { keyId })
+  const accounts = await ServerActions.getAccounts(client, { keyId })
   return accounts.map((account) => {
     const keys = account.keys.map(Key.fromRpcServer)
     return Account.from({
@@ -177,7 +178,7 @@ export namespace getAccounts {
 
   export type ReturnType = readonly RequiredBy<Account.Account, 'keys'>[]
 
-  export type ErrorType = Actions.getAccounts.ErrorType
+  export type ErrorType = ServerActions.getAccounts.ErrorType
 }
 
 /**
@@ -216,7 +217,7 @@ export async function getKeys(
   parameters: getKeys.Parameters,
 ): Promise<getKeys.ReturnType> {
   const account = Account.from(parameters.account)
-  const keys = await Actions.getKeys(client, { address: account.address })
+  const keys = await ServerActions.getKeys(client, { address: account.address })
   return keys.map(Key.fromRpcServer)
 }
 
@@ -227,7 +228,7 @@ export namespace getKeys {
 
   export type ReturnType = readonly Key.Key[]
 
-  export type ErrorType = Actions.getKeys.ErrorType
+  export type ErrorType = ServerActions.getKeys.ErrorType
 }
 
 /**
@@ -263,7 +264,8 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
     (x) => x.role === 'session',
   )
   const orchestrator = hasSessionKey
-    ? (await Actions.getCapabilities(client)).contracts.orchestrator.address
+    ? (await ServerActions.getCapabilities(client)).contracts.orchestrator
+        .address
     : undefined
 
   const idSigner = createIdSigner()
@@ -308,7 +310,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
       })
     : client
 
-  const { capabilities, context, digest } = await Actions.prepareCalls(
+  const { capabilities, context, digest } = await ServerActions.prepareCalls(
     client_,
     {
       address: account?.address,
@@ -345,7 +347,7 @@ export namespace prepareCalls {
     /** Account to prepare the calls for. */
     account?: Account.Account | undefined
     /** Calls to prepare. */
-    calls?: Actions.prepareCalls.Parameters<calls>['calls'] | undefined
+    calls?: ServerActions.prepareCalls.Parameters<calls>['calls'] | undefined
     /** Key that will be used to sign the calls. */
     key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
     /** Permissions fee limit. */
@@ -372,16 +374,16 @@ export namespace prepareCalls {
   } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
-    capabilities: Actions.prepareCalls.ReturnType['capabilities'] & {
+    capabilities: ServerActions.prepareCalls.ReturnType['capabilities'] & {
       quote: Quote.Quote
     }
-    context: Actions.prepareCalls.ReturnType['context']
-    digest: Actions.prepareCalls.ReturnType['digest']
+    context: ServerActions.prepareCalls.ReturnType['context']
+    digest: ServerActions.prepareCalls.ReturnType['digest']
     key: Parameters['key']
   }
 
   export type ErrorType =
-    | Actions.prepareCalls.ErrorType
+    | ServerActions.prepareCalls.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -401,7 +403,7 @@ export async function prepareCreateAccount(
 ) {
   const { chain = client.chain, keys } = parameters
 
-  const { contracts } = await Actions.getCapabilities(client)
+  const { contracts } = await ServerActions.getCapabilities(client)
 
   const delegation = parameters.delegation ?? contracts.accountProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
@@ -416,7 +418,7 @@ export async function prepareCreateAccount(
   )
 
   const { address, capabilities, context, digests } =
-    await Actions.prepareCreateAccount(client, {
+    await ServerActions.prepareCreateAccount(client, {
       capabilities: {
         authorizeKeys,
         delegation,
@@ -449,13 +451,13 @@ export namespace prepareCreateAccount {
 
   export type ReturnType = {
     account: RequiredBy<Account.Account, 'keys'>
-    capabilities: Actions.prepareCreateAccount.ReturnType['capabilities']
-    context: Actions.prepareCreateAccount.ReturnType['context']
-    digests: Actions.prepareCreateAccount.ReturnType['digests']
+    capabilities: ServerActions.prepareCreateAccount.ReturnType['capabilities']
+    context: ServerActions.prepareCreateAccount.ReturnType['context']
+    digests: ServerActions.prepareCreateAccount.ReturnType['digests']
   }
 
   export type ErrorType =
-    | Actions.prepareCreateAccount.ErrorType
+    | ServerActions.prepareCreateAccount.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -475,7 +477,7 @@ export async function prepareUpgradeAccount(
 ) {
   const { address, feeToken, permissionsFeeLimit } = parameters
 
-  const { contracts } = await Actions.getCapabilities(client)
+  const { contracts } = await ServerActions.getCapabilities(client)
 
   // Create root id signer
   const idSigner_root = createIdSigner()
@@ -517,7 +519,7 @@ export async function prepareUpgradeAccount(
   }))
 
   const { capabilities, context, digests } =
-    await Actions.prepareUpgradeAccount(client, {
+    await ServerActions.prepareUpgradeAccount(client, {
       address,
       capabilities: {
         authorizeKeys,
@@ -565,16 +567,16 @@ export declare namespace prepareUpgradeAccount {
   }
 
   export type ReturnType = Omit<
-    Actions.prepareUpgradeAccount.ReturnType,
+    ServerActions.prepareUpgradeAccount.ReturnType,
     'context'
   > & {
-    context: Actions.prepareUpgradeAccount.ReturnType['context'] & {
+    context: ServerActions.prepareUpgradeAccount.ReturnType['context'] & {
       account: Account.Account
     }
   }
 
   export type ErrorType =
-    | Actions.prepareUpgradeAccount.ErrorType
+    | ServerActions.prepareUpgradeAccount.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -595,7 +597,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   // If a signature is provided, broadcast the calls to the RPC Server.
   if (parameters.signature) {
     const { context, key, signature } = parameters
-    return await Actions.sendPreparedCalls(client, {
+    return await ServerActions.sendPreparedCalls(client, {
       capabilities: parameters.capabilities,
       context,
       key: Key.toRpcServer(key),
@@ -663,7 +665,7 @@ export declare namespace sendCalls {
     | {
         /** Capabilities. */
         capabilities?:
-          | Actions.sendPreparedCalls.Parameters['capabilities']
+          | ServerActions.sendPreparedCalls.Parameters['capabilities']
           | undefined
         /** Context. */
         context: prepareCalls.ReturnType['context']
@@ -697,10 +699,10 @@ export declare namespace sendCalls {
       })
   >
 
-  export type ReturnType = Actions.sendPreparedCalls.ReturnType
+  export type ReturnType = ServerActions.sendPreparedCalls.ReturnType
 
   export type ErrorType =
-    | Actions.sendPreparedCalls.ErrorType
+    | ServerActions.sendPreparedCalls.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -720,7 +722,7 @@ export async function upgradeAccount(
 ) {
   const { context, signatures } = parameters
 
-  const { bundles } = await Actions.upgradeAccount(client, {
+  const { bundles } = await ServerActions.upgradeAccount(client, {
     context,
     signatures,
   })
@@ -737,12 +739,12 @@ export declare namespace upgradeAccount {
     signatures: readonly Hex.Hex[]
   }
 
-  export type ReturnType = Actions.upgradeAccount.ReturnType & {
+  export type ReturnType = ServerActions.upgradeAccount.ReturnType & {
     account: Account.Account
   }
 
   export type ErrorType =
-    | Actions.upgradeAccount.ErrorType
+    | ServerActions.upgradeAccount.ErrorType
     | Errors.GlobalErrorType
 }
 

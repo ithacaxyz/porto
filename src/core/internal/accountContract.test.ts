@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest'
 
 import { getAccount } from '../../../test/src/actions.js'
 import { exp1Address, exp1Config, getPorto } from '../../../test/src/porto.js'
-import * as Key from '../Key.js'
+import * as Key from '../../viem/Key.js'
 import * as AccountContract from './accountContract.js'
 import * as Call from './call.js'
 
@@ -682,7 +682,7 @@ describe('prepareExecute', () => {
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.sign({ payload })),
+        signPayloads.map((hash) => account.sign({ hash })),
       )
 
       await AccountContract.execute(client, {
@@ -729,7 +729,7 @@ describe('prepareExecute', () => {
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.sign({ payload })),
+        signPayloads.map((hash) => account.sign({ hash })),
       )
 
       await AccountContract.execute(client, {
@@ -772,7 +772,7 @@ describe('prepareExecute', () => {
       )
 
       const signatures = await Promise.all(
-        signPayloads.map((payload) => account.sign({ payload })),
+        signPayloads.map((hash) => account.sign({ hash })),
       )
 
       await AccountContract.execute(client, {

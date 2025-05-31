@@ -29,8 +29,8 @@ import {
   encodeExecuteData,
   getExecuteError as getExecuteError_viem,
 } from 'viem/experimental/erc7821'
-import * as Account from '../Account.js'
-import * as Key from '../Key.js'
+import * as Account from '../../viem/Account.js'
+import * as Key from '../../viem/Key.js'
 import type * as Storage from '../Storage.js'
 import * as PortoAccount from './_generated/contracts/PortoAccount.js'
 import * as Call from './call.js'
@@ -81,7 +81,7 @@ export async function execute<
     })
     const authorizationSignature = authorizationPayload
       ? await account.sign?.({
-          payload: authorizationPayload,
+          hash: authorizationPayload,
         })
       : undefined
 

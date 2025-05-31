@@ -10,8 +10,8 @@ import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { encodeFunctionData, parseAbi } from 'viem'
 import { call, readContract } from 'viem/actions'
-import * as Account from '../../Account.js'
-import * as Key from '../../Key.js'
+import * as Account from '../../../viem/Account.js'
+import * as Key from '../../../viem/Key.js'
 import * as AccountContract from '../accountContract.js'
 import * as Call from '../call.js'
 import * as Mode from '../mode.js'
@@ -126,11 +126,11 @@ export function contract(parameters: contract.Parameters = {}) {
         })
         const [executeSignature, authorizationSignature] = await Promise.all([
           account.sign?.({
-            payload: executePayload,
+            hash: executePayload,
           }),
           authorizationPayload
             ? account.sign?.({
-                payload: authorizationPayload,
+                hash: authorizationPayload,
               })
             : undefined,
         ])

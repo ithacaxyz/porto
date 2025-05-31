@@ -7,8 +7,8 @@ import * as Anvil from '../../test/src/anvil.js'
 import { exp1Abi, exp1Address } from '../../test/src/porto.js'
 import { getPorto } from '../../test/src/porto.js'
 import type * as Capabilities from '../core/internal/rpcServer/typebox/capabilities.js'
-import * as Key from '../core/Key.js'
 import { sendCalls } from '../core/RpcServer.js'
+import * as Key from './Key.js'
 import {
   createAccount,
   getAccounts,
