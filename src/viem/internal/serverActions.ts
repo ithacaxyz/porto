@@ -30,10 +30,10 @@ import {
   type GetExecuteErrorReturnType,
   getExecuteError,
 } from 'viem/experimental/erc7821'
-import * as RpcSchema from '../core/internal/rpcServer/rpcSchema.js'
-import * as Typebox from '../core/internal/typebox/typebox.js'
-import { Value } from '../core/internal/typebox/typebox.js'
-import type { sendCalls } from '../core/RpcServer.js'
+import * as RpcSchema from '../../core/internal/rpcServer/rpcSchema.js'
+import * as Typebox from '../../core/internal/typebox/typebox.js'
+import { Value } from '../../core/internal/typebox/typebox.js'
+import type { sendCalls } from '../RpcServer.js'
 
 /**
  * Creates a new account.
@@ -844,181 +844,181 @@ export class SchemaCoderError extends Errors.BaseError<
   }
 }
 
-export type Decorator<chain extends Chain | undefined = Chain | undefined> = {
-  /**
-   * Creates a new account.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  createAccount: (
-    parameters: createAccount.Parameters,
-  ) => Promise<createAccount.ReturnType>
-  /**
-   * Gets the accounts for a given key identifier.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  getAccounts: (
-    parameters: getAccounts.Parameters<chain>,
-  ) => Promise<getAccounts.ReturnType>
-  /**
-   * Gets the status of a call bundle.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  getCallsStatus: (
-    parameters: getCallsStatus.Parameters,
-  ) => Promise<getCallsStatus.ReturnType>
-  /**
-   * Gets the capabilities for a given chain ID.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param options - Options.
-   * @returns Result.
-   */
-  getCapabilities: <
-    const chainIds extends readonly number[] | undefined = undefined,
-    const raw extends boolean = false,
-  >() => Promise<getCapabilities.ReturnType<chainIds, raw>>
-  /**
-   * Gets the keys for a given account.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  getKeys: (
-    parameters: getKeys.Parameters<chain>,
-  ) => Promise<getKeys.ReturnType>
-  /**
-   * Gets the health of the RPC.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @returns Result.
-   */
-  health: () => Promise<health.ReturnType>
-  /**
-   * Prepares a call bundle.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  prepareCalls: <const calls extends readonly unknown[]>(
-    parameters: prepareCalls.Parameters<calls, chain>,
-  ) => Promise<prepareCalls.ReturnType>
-  /**
-   * Prepares a new account creation.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  prepareCreateAccount: (
-    parameters: prepareCreateAccount.Parameters<chain>,
-  ) => Promise<prepareCreateAccount.ReturnType>
-  /**
-   * Prepares an account upgrade.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - Client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  prepareUpgradeAccount: (
-    parameters: prepareUpgradeAccount.Parameters<chain>,
-  ) => Promise<prepareUpgradeAccount.ReturnType>
-  /**
-   * Broadcasts a signed call bundle.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  sendPreparedCalls: (
-    parameters: sendPreparedCalls.Parameters,
-  ) => Promise<sendPreparedCalls.ReturnType>
-  /**
-   * Broadcasts an account upgrade.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - Client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  upgradeAccount: (
-    parameters: upgradeAccount.Parameters,
-  ) => Promise<upgradeAccount.ReturnType>
-  /**
-   * Verifies a signature.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  verifySignature: (
-    parameters: verifySignature.Parameters<chain>,
-  ) => Promise<verifySignature.ReturnType>
-}
+// export type Decorator<chain extends Chain | undefined = Chain | undefined> = {
+//   /**
+//    * Creates a new account.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   createAccount: (
+//     parameters: createAccount.Parameters,
+//   ) => Promise<createAccount.ReturnType>
+//   /**
+//    * Gets the accounts for a given key identifier.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   getAccounts: (
+//     parameters: getAccounts.Parameters<chain>,
+//   ) => Promise<getAccounts.ReturnType>
+//   /**
+//    * Gets the status of a call bundle.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   getCallsStatus: (
+//     parameters: getCallsStatus.Parameters,
+//   ) => Promise<getCallsStatus.ReturnType>
+//   /**
+//    * Gets the capabilities for a given chain ID.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param options - Options.
+//    * @returns Result.
+//    */
+//   getCapabilities: <
+//     const chainIds extends readonly number[] | undefined = undefined,
+//     const raw extends boolean = false,
+//   >() => Promise<getCapabilities.ReturnType<chainIds, raw>>
+//   /**
+//    * Gets the keys for a given account.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   getKeys: (
+//     parameters: getKeys.Parameters<chain>,
+//   ) => Promise<getKeys.ReturnType>
+//   /**
+//    * Gets the health of the RPC.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @returns Result.
+//    */
+//   health: () => Promise<health.ReturnType>
+//   /**
+//    * Prepares a call bundle.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   prepareCalls: <const calls extends readonly unknown[]>(
+//     parameters: prepareCalls.Parameters<calls, chain>,
+//   ) => Promise<prepareCalls.ReturnType>
+//   /**
+//    * Prepares a new account creation.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   prepareCreateAccount: (
+//     parameters: prepareCreateAccount.Parameters<chain>,
+//   ) => Promise<prepareCreateAccount.ReturnType>
+//   /**
+//    * Prepares an account upgrade.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - Client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   prepareUpgradeAccount: (
+//     parameters: prepareUpgradeAccount.Parameters<chain>,
+//   ) => Promise<prepareUpgradeAccount.ReturnType>
+//   /**
+//    * Broadcasts a signed call bundle.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   sendPreparedCalls: (
+//     parameters: sendPreparedCalls.Parameters,
+//   ) => Promise<sendPreparedCalls.ReturnType>
+//   /**
+//    * Broadcasts an account upgrade.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - Client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   upgradeAccount: (
+//     parameters: upgradeAccount.Parameters,
+//   ) => Promise<upgradeAccount.ReturnType>
+//   /**
+//    * Verifies a signature.
+//    *
+//    * @example
+//    * TODO
+//    *
+//    * @param client - The client to use.
+//    * @param parameters - Parameters.
+//    * @returns Result.
+//    */
+//   verifySignature: (
+//     parameters: verifySignature.Parameters<chain>,
+//   ) => Promise<verifySignature.ReturnType>
+// }
 
-export function decorator<
-  transport extends Transport = Transport,
-  chain extends Chain | undefined = Chain | undefined,
->(client: Client<transport, chain>): Decorator {
-  return {
-    createAccount: (parameters) => createAccount(client, parameters),
-    getAccounts: (parameters) => getAccounts(client, parameters),
-    getCallsStatus: (parameters) => getCallsStatus(client, parameters),
-    getCapabilities: () => getCapabilities(client),
-    getKeys: (parameters) => getKeys(client, parameters),
-    health: () => health(client),
-    prepareCalls: (parameters) => prepareCalls(client, parameters),
-    prepareCreateAccount: (parameters) =>
-      prepareCreateAccount(client, parameters),
-    prepareUpgradeAccount: (parameters) =>
-      prepareUpgradeAccount(client, parameters),
-    sendPreparedCalls: (parameters) => sendPreparedCalls(client, parameters),
-    upgradeAccount: (parameters) => upgradeAccount(client, parameters),
-    verifySignature: (parameters) => verifySignature(client, parameters),
-  }
-}
+// export function decorator<
+//   transport extends Transport = Transport,
+//   chain extends Chain | undefined = Chain | undefined,
+// >(client: Client<transport, chain>): Decorator {
+//   return {
+//     createAccount: (parameters) => createAccount(client, parameters),
+//     getAccounts: (parameters) => getAccounts(client, parameters),
+//     getCallsStatus: (parameters) => getCallsStatus(client, parameters),
+//     getCapabilities: () => getCapabilities(client),
+//     getKeys: (parameters) => getKeys(client, parameters),
+//     health: () => health(client),
+//     prepareCalls: (parameters) => prepareCalls(client, parameters),
+//     prepareCreateAccount: (parameters) =>
+//       prepareCreateAccount(client, parameters),
+//     prepareUpgradeAccount: (parameters) =>
+//       prepareUpgradeAccount(client, parameters),
+//     sendPreparedCalls: (parameters) => sendPreparedCalls(client, parameters),
+//     upgradeAccount: (parameters) => upgradeAccount(client, parameters),
+//     verifySignature: (parameters) => verifySignature(client, parameters),
+//   }
+// }

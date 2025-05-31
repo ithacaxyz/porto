@@ -11,15 +11,15 @@ import {
   type Transport,
   zeroAddress,
 } from 'viem'
+import type { Chain } from '../core/Chains.js'
+import type * as Capabilities from '../core/internal/rpcServer/typebox/capabilities.js'
+import type * as Quote from '../core/internal/rpcServer/typebox/quote.js'
+import type { MaybePromise, OneOf, RequiredBy } from '../core/internal/types.js'
 import * as Account from '../viem/Account.js'
+import * as ServerActions from '../viem/internal/serverActions.js'
 import * as Key from '../viem/Key.js'
-import * as ServerActions from '../viem/ServerActions.js'
-import type { Chain } from './Chains.js'
-import type * as Capabilities from './internal/rpcServer/typebox/capabilities.js'
-import type * as Quote from './internal/rpcServer/typebox/quote.js'
-import type { MaybePromise, OneOf, RequiredBy } from './internal/types.js'
 
-export { getCapabilities, health } from '../viem/ServerActions.js'
+export { getCapabilities, health } from '../viem/internal/serverActions.js'
 
 /**
  * Creates a new Porto Account via the RPC.

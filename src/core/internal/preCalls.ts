@@ -1,6 +1,6 @@
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import * as RpcServer from '../RpcServer.js'
+import * as RpcServer from '../../viem/RpcServer.js'
 import * as Storage from '../Storage.js'
 
 export type PreCalls = readonly {

@@ -12,8 +12,8 @@ import {
   exp2Config,
   getPorto,
 } from '../../test/src/porto.js'
+import * as AccountContract from '../core/internal/accountContract.js'
 import * as Key from '../viem/Key.js'
-import * as AccountContract from './internal/accountContract.js'
 import * as Rpc from './RpcServer.js'
 
 const { client } = getPorto()

@@ -8,9 +8,9 @@ import {
   writeContract,
 } from 'viem/actions'
 import type { Client } from '../../src/core/internal/porto.js'
-import * as RpcServer from '../../src/core/RpcServer.js'
 import * as Account from '../../src/viem/Account.js'
 import * as Key from '../../src/viem/Key.js'
+import * as RpcServer from '../../src/viem/RpcServer.js'
 import * as Anvil from './anvil.js'
 import { exp1Abi, exp1Address } from './porto.js'
 
