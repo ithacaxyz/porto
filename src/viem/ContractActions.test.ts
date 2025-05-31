@@ -3,11 +3,11 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { getBalance, readContract } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
-import { getAccount } from '../../../test/src/actions.js'
-import { exp1Address, exp1Config, getPorto } from '../../../test/src/porto.js'
-import * as Key from '../../viem/Key.js'
-import * as AccountContract from './accountContract.js'
-import * as Call from './call.js'
+import { getAccount } from '../../test/src/actions.js'
+import { exp1Address, exp1Config, getPorto } from '../../test/src/porto.js'
+import * as Call from '../core/internal/call.js'
+import * as AccountContract from './ContractActions.js'
+import * as Key from './Key.js'
 
 describe('execute', () => {
   describe('behavior: authorize', () => {

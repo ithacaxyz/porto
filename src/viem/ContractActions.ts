@@ -29,14 +29,17 @@ import {
   encodeExecuteData,
   getExecuteError as getExecuteError_viem,
 } from 'viem/experimental/erc7821'
-import * as Account from '../../viem/Account.js'
-import * as Key from '../../viem/Key.js'
-import type * as Storage from '../Storage.js'
-import * as PortoAccount from './_generated/contracts/PortoAccount.js'
-import * as Call from './call.js'
-import type { OneOf } from './types.js'
+import * as PortoAccount from '../core/internal/_generated/contracts/PortoAccount.js'
+import * as Call from '../core/internal/call.js'
+import type { OneOf } from '../core/internal/types.js'
+import type * as Storage from '../core/Storage.js'
+import * as Account from './Account.js'
+import * as Key from './Key.js'
 
-export { abi, code } from './_generated/contracts/PortoAccount.js'
+export {
+  abi,
+  code,
+} from '../core/internal/_generated/contracts/PortoAccount.js'
 
 /**
  * Executes a set of calls on a delegated account.

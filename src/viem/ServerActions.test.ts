@@ -12,7 +12,7 @@ import {
   exp2Config,
   getPorto,
 } from '../../test/src/porto.js'
-import * as AccountContract from '../core/internal/accountContract.js'
+import * as AccountContract from './ContractActions.js'
 import * as Key from './Key.js'
 import * as Rpc from './ServerActions.js'
 
