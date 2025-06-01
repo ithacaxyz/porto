@@ -10,7 +10,9 @@ import LucideWallet from '~icons/lucide/wallet'
 import { Button } from './Button'
 import { permissions } from './constants'
 
-const idOrigin = `https://${Env.get()}.id.porto.sh`
+const idOrigin = import.meta.env.DEV
+  ? `https://${Env.get()}.localhost:5174`
+  : `https://${Env.get()}.id.porto.sh`
 
 export function Connect(props: Connect.Props) {
   const { variant = 'default', signInText = 'Sign in' } = props
@@ -33,7 +35,7 @@ export function Connect(props: Connect.Props) {
           className="gap-2"
           render={
             // biome-ignore lint/a11y/useAnchorContent:
-            <a href={idOrigin} />
+            <a href={idOrigin} rel="noreferrer" target="_blank" />
           }
           size={size}
         >
