@@ -44,6 +44,25 @@ services:
       RUST_LOG: debug
       RELAY_MNEMONIC: "test test test test test test test test test test test junk"
     command: --config-only --registry /app/registry.yaml
+    healthcheck:
+      test: ["CMD", "cast", "rpc", "--rpc-url", "http://localhost:9119", "health"]
+      interval: 2s
+      retries: 5
+
+  proxy:
+    image: oven/bun:latest
+    labels:
+      - dev.orbstack.domains=rpc.local
+    command: bun run index.ts
+    environment:
+      ANVIL_URL: http://anvil:8545
+      RELAY_URL: http://relay:9119
+      PORT: 9200
+    volumes:
+      - ./docker/proxy:/app
+    ports:
+      - "9200:9200"
+    working_dir: /app
       
 volumes:
   relay:
