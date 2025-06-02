@@ -1,0 +1,29 @@
+services:
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    entrypoint: ["anvil"]
+    command: --odyssey --host 0.0.0.0 --port 8545 --fork-url https://base-sepolia.rpc.ithaca.xyz
+    labels:
+      - dev.orbstack.domains=anvil.local
+    ports:
+      - "8545:8545"
+    healthcheck:
+      test: ["CMD", "cast", "block-number", "--rpc-url", "http://localhost:8545"]
+      interval: 2s
+      retries: 5
+
+  relay:
+    image: ghcr.io/ithacaxyz/relay:latest
+    labels:
+      - dev.orbstack.domains=relay.local
+    ports:
+      - "9119:9119"
+    volumes:
+      - ./relay.yaml:/app/relay.yaml
+    depends_on:
+      anvil:
+        condition: service_healthy
+    environment:
+      RELAY_MNEMONIC: "test test test test test test test test test test test junk"
+    command: --config-only
+      
