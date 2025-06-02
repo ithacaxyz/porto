@@ -43,3 +43,12 @@ export function useErc721Info(address?: Address.Address | undefined) {
     scopeKey: address,
   })
 }
+
+export function useETHInfo() {
+  return {
+    data: {
+      name: 'Ether',
+      symbol: 'ETH',
+    },
+  }
+}
