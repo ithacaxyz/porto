@@ -2,13 +2,13 @@ import { AbiFunction, Hex, P256, PublicKey, Value, WebCryptoP256 } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
-import * as TestActions from '../../../../test/src/actions.js'
-import * as Anvil from '../../../../test/src/anvil.js'
-import { exp1Abi, exp1Address } from '../../../../test/src/porto.js'
-import { getPorto } from '../../../../test/src/porto.js'
-import * as Key from '../../Key.js'
-import { sendCalls } from '../../RpcServer.js'
-import type * as Capabilities from '../rpcServer/typebox/capabilities.js'
+import * as TestActions from '../../../test/src/actions.js'
+import * as Anvil from '../../../test/src/anvil.js'
+import { exp1Abi, exp1Address } from '../../../test/src/porto.js'
+import { getPorto } from '../../../test/src/porto.js'
+import type * as Capabilities from '../../core/internal/rpcServer/typebox/capabilities.js'
+import * as Key from '../Key.js'
+import { sendCalls } from '../ServerActions.js'
 import {
   createAccount,
   getAccounts,
@@ -22,7 +22,7 @@ import {
   sendPreparedCalls,
   upgradeAccount,
   verifySignature,
-} from './actions.js'
+} from './serverActions.js'
 
 const { client, delegation } = getPorto()
 

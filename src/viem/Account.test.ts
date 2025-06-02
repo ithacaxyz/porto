@@ -1,11 +1,11 @@
 import { Hex } from 'ox'
-import { verifyHash } from 'viem/actions'
+import { verifyHash, verifyMessage } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { createAccount } from '../../test/src/actions.js'
 import { getPorto } from '../../test/src/porto.js'
+import * as Key from '../viem/Key.js'
 import * as Account from './Account.js'
-import * as Key from './Key.js'
 
 const { client } = getPorto()
 
@@ -36,6 +36,12 @@ describe('from', () => {
             "type": "p256",
           },
         ],
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "porto",
+        "type": "local",
       }
     `)
   })
@@ -46,8 +52,33 @@ describe('from', () => {
     expect(account).toMatchInlineSnapshot(`
       {
         "address": "0x0000000000000000000000000000000000000000",
+        "keys": undefined,
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "porto",
+        "type": "local",
       }
     `)
+  })
+
+  test('behavior: signMessage (key)', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await createAccount(client, {
+      deploy: true,
+      keys: [key],
+    })
+
+    const signature = await account.signMessage({ message: 'hello world' })
+
+    const valid = await verifyMessage(client, {
+      address: account.address,
+      message: 'hello world',
+      signature,
+    })
+
+    expect(valid).toBe(true)
   })
 })
 
@@ -62,6 +93,11 @@ describe('fromPrivateKey', () => {
         "address": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "keys": undefined,
         "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
       }
     `)
   })

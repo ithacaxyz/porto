@@ -11,10 +11,10 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
-import * as Call from './internal/call.js'
-import type * as ServerKey_typebox from './internal/rpcServer/typebox/key.js'
-import type * as ServerPermission_typebox from './internal/rpcServer/typebox/permission.js'
-import type * as Key_typebox from './internal/typebox/key.js'
+import * as Call from '../core/internal/call.js'
+import type * as ServerKey_typebox from '../core/internal/rpcServer/typebox/key.js'
+import type * as ServerPermission_typebox from '../core/internal/rpcServer/typebox/permission.js'
+import type * as Key_typebox from '../core/internal/typebox/key.js'
 import type {
   Compute,
   ExactPartial,
@@ -24,8 +24,8 @@ import type {
   RequiredBy,
   UnionOmit,
   UnionRequiredBy,
-} from './internal/types.js'
-import type * as Storage from './Storage.js'
+} from '../core/internal/types.js'
+import type * as Storage from '../core/Storage.js'
 
 type PrivateKeyFn = () => Hex.Hex
 

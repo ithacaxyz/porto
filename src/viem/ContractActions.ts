@@ -29,14 +29,18 @@ import {
   encodeExecuteData,
   getExecuteError as getExecuteError_viem,
 } from 'viem/experimental/erc7821'
-import * as Account from '../Account.js'
-import * as Key from '../Key.js'
-import type * as Storage from '../Storage.js'
-import * as PortoAccount from './_generated/contracts/PortoAccount.js'
-import * as Call from './call.js'
-import type { OneOf } from './types.js'
+import * as PortoAccount from '../core/internal/_generated/contracts/PortoAccount.js'
+import * as Call from '../core/internal/call.js'
+import type { OneOf } from '../core/internal/types.js'
+import type * as Storage from '../core/Storage.js'
+import * as Account from './Account.js'
+import type { GetAccountParameter } from './internal/utils.js'
+import * as Key from './Key.js'
 
-export { abi, code } from './_generated/contracts/PortoAccount.js'
+export {
+  abi,
+  code,
+} from '../core/internal/_generated/contracts/PortoAccount.js'
 
 /**
  * Executes a set of calls on a delegated account.
@@ -51,39 +55,47 @@ export { abi, code } from './_generated/contracts/PortoAccount.js'
 export async function execute<
   const calls extends readonly unknown[],
   chain extends Chain | undefined,
-  account extends Account.Account,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain>,
+  client: Client<Transport, chain, account>,
   parameters: execute.Parameters<calls, account>,
 ): Promise<execute.ReturnType> {
+  const { account = client.account } = parameters
+
+  const account_ = account ? Account.from(account) : undefined
+  if (!account_) throw new Error('account is required.')
+
   // Block expression to obtain the execution request and signatures.
   const { request, signatures } = await (async () => {
-    const { account, nonce, key, signatures, storage } = parameters
+    const { nonce, key, signatures, storage } = parameters
 
     // If an execution has been prepared, we can early return the request and signatures.
     if (nonce && signatures) return { request: parameters, signatures }
 
     // Otherwise, we need to prepare the execution (compute payloads and sign over them).
-    const { request, signPayloads: payloads } = await prepareExecute(
-      client,
-      parameters,
-    )
+    const { request, signPayloads: payloads } = await prepareExecute(client, {
+      ...parameters,
+      account: account_,
+    })
 
     const [executePayload, authorizationPayload] = payloads as [
       Hex.Hex,
       Hex.Hex | undefined,
     ]
 
-    const executionSignature = await Account.sign(account, {
+    const executionSignature = await Account.sign(account_, {
       key: authorizationPayload ? null : key,
       payload: executePayload,
       storage,
     })
-    const authorizationSignature = authorizationPayload
-      ? await account.sign?.({
-          payload: authorizationPayload,
-        })
-      : undefined
+    const authorizationSignature = await (async () => {
+      if (!authorizationPayload) return undefined
+      if (account_.source !== 'privateKey')
+        throw new Error('cannot sign authorization without root key.')
+      return account_.sign?.({
+        hash: authorizationPayload,
+      })
+    })()
 
     return {
       request,
@@ -93,7 +105,7 @@ export async function execute<
     }
   })()
 
-  const { account, authorization, calls, executor, nonce } = request
+  const { authorization, calls, executor, nonce } = request
 
   const [executeSignature, authorizationSignature] =
     (signatures as [Hex.Hex, Hex.Hex]) || []
@@ -127,7 +139,7 @@ export async function execute<
       account: typeof executor === 'undefined' ? null : executor,
       authorizationList,
       data: encodeExecuteData({ calls, opData }),
-      to: account.address,
+      to: account_.address,
     } as SendTransactionParameters)
   } catch (e) {
     parseExecutionError(e, { calls })
@@ -138,32 +150,25 @@ export async function execute<
 export declare namespace execute {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
-    account extends Account.Account = Account.Account,
-  > = Pick<EncodeExecuteDataParameters<calls>, 'calls'> & {
-    /**
-     * The delegated account to execute the calls on.
-     */
-    account: account | Account.Account
-    /**
-     * Contract address to delegate to.
-     */
-    delegation?: account extends {
-      sign: NonNullable<Account.Account['sign']>
-    }
-      ? Address.Address | undefined
-      : undefined
-    /**
-     * The executor of the execute transaction.
-     *
-     * - `Account`: execution will be attempted with the specified account.
-     * - `undefined`: the transaction will be filled by the JSON-RPC server.
-     */
-    executor?: Account_viem | undefined
-    /**
-     * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
-     */
-    storage?: Storage.Storage | undefined
-  } & OneOf<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = Pick<EncodeExecuteDataParameters<calls>, 'calls'> &
+    GetAccountParameter<account> & {
+      /**
+       * Contract address to delegate to.
+       */
+      delegation?: Address.Address | undefined
+      /**
+       * The executor of the execute transaction.
+       *
+       * - `Account`: execution will be attempted with the specified account.
+       * - `undefined`: the transaction will be filled by the JSON-RPC server.
+       */
+      executor?: Account_viem | undefined
+      /**
+       * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
+       */
+      storage?: Storage.Storage | undefined
+    } & OneOf<
       | {
           /**
            * EIP-7702 Authorization to use for delegation.
@@ -198,34 +203,36 @@ export declare namespace execute {
  * @param parameters - Parameters.
  * @returns EIP-712 domain.
  */
-export async function getEip712Domain<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getEip712Domain.Parameters,
+export async function getEip712Domain<
+  chain extends Chain | undefined,
+  account extends Account.Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: getEip712Domain.Parameters<account>,
 ): Promise<TypedData.Domain> {
-  const account = Account.from(parameters.account)
+  const { account = client.account } = parameters
+  const account_ = account ? Account.from(account) : undefined
+  if (!account_) throw new Error('account is required.')
 
   const {
     domain: { name, version },
   } = await getEip712Domain_viem(client, {
-    address: account.address,
+    address: account_.address,
   })
 
   if (!client.chain) throw new Error('client.chain is required')
   return {
     chainId: client.chain.id,
     name,
-    verifyingContract: account.address,
+    verifyingContract: account_.address,
     version,
   }
 }
 
 export declare namespace getEip712Domain {
-  export type Parameters = {
-    /**
-     * The delegated account to get the EIP-712 domain for.
-     */
-    account: Account.Account | Address.Address
-  }
+  export type Parameters<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = GetAccountParameter<account>
 }
 
 /**
@@ -235,17 +242,21 @@ export declare namespace getEip712Domain {
  * @param parameters - Parameters.
  * @returns Key.
  */
-export async function keyAt<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: keyAt.Parameters,
+export async function keyAt<
+  chain extends Chain | undefined,
+  account extends Account.Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: keyAt.Parameters<account>,
 ) {
-  const { index } = parameters
+  const { account = client.account, index } = parameters
 
-  const account = Account.from(parameters.account)
+  const account_ = account ? Account.from(account) : undefined
+  if (!account_) throw new Error('account is required.')
 
   const key = await readContract(client, {
     abi: PortoAccount.abi,
-    address: account.address,
+    address: account_.address,
     args: [BigInt(index)],
     functionName: 'keyAt',
   })
@@ -254,11 +265,9 @@ export async function keyAt<chain extends Chain | undefined>(
 }
 
 export declare namespace keyAt {
-  export type Parameters = {
-    /**
-     * The delegated account to extract the key from.
-     */
-    account: Account.Account | Address.Address
+  export type Parameters<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = GetAccountParameter<account> & {
     /**
      * Index of the key to extract.
      */
@@ -279,16 +288,19 @@ export declare namespace keyAt {
 export async function prepareExecute<
   const calls extends readonly unknown[],
   chain extends Chain | undefined,
-  account extends Account.Account,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain>,
+  client: Client<Transport, chain, account>,
   parameters: prepareExecute.Parameters<calls, account>,
 ): Promise<prepareExecute.ReturnType<calls>> {
-  const { account, delegation, executor, ...rest } = parameters
+  const { account = client.account, delegation, executor, ...rest } = parameters
+
+  const account_ = account ? Account.from(account) : undefined
+  if (!account_) throw new Error('account is required.')
 
   const calls = parameters.calls.map((call: any) => ({
     data: call.data ?? '0x',
-    to: call.to === Call.selfAddress ? account.address : call.to,
+    to: call.to === Call.selfAddress ? account_.address : call.to,
     value: call.value ?? 0n,
   }))
 
@@ -307,7 +319,7 @@ export async function prepareExecute<
   const [executePayload, [authorization, authorizationPayload]] =
     await Promise.all([
       getExecuteSignPayload(client, {
-        account,
+        account: account_,
         calls,
         delegation,
         nonce,
@@ -318,7 +330,7 @@ export async function prepareExecute<
         if (!delegation) return []
 
         const authorization = await prepareAuthorization(client, {
-          account: account.address,
+          account: account_.address,
           // chainId: 0,
           contractAddress: delegation,
           executor,
@@ -337,7 +349,7 @@ export async function prepareExecute<
   return {
     request: {
       ...rest,
-      account,
+      account: account_,
       authorization,
       calls,
       executor,
@@ -353,29 +365,27 @@ export async function prepareExecute<
 export declare namespace prepareExecute {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
-    account extends Account.Account = Account.Account,
-  > = Pick<execute.Parameters<calls, account>, 'calls'> & {
-    /**
-     * The delegated account to execute the calls on.
-     */
-    account: account | Account.Account
-    /**
-     * Contract address to delegate to.
-     */
-    delegation?: Address.Address | undefined
-    /**
-     * The executor of the execute transaction.
-     *
-     * - `Account`: execution will be attempted with the specified account.
-     * - `undefined`: the transaction will be filled by the JSON-RPC server.
-     */
-    executor?: Account_viem | undefined
-  }
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = Pick<execute.Parameters<calls, account>, 'calls'> &
+    GetAccountParameter<account> & {
+      /**
+       * Contract address to delegate to.
+       */
+      delegation?: Address.Address | undefined
+      /**
+       * The executor of the execute transaction.
+       *
+       * - `Account`: execution will be attempted with the specified account.
+       * - `undefined`: the transaction will be filled by the JSON-RPC server.
+       */
+      executor?: Account_viem | undefined
+    }
 
   export type ReturnType<
     calls extends readonly unknown[] = readonly unknown[],
   > = {
-    request: Omit<Parameters<calls>, 'delegation'> & {
+    request: Omit<Parameters<calls>, 'account' | 'delegation'> & {
+      account: Account.Account
       authorization?: Authorization_viem | undefined
       nonce: bigint
     }
@@ -449,6 +459,66 @@ export class ExecutionError extends Errors.BaseError<BaseError> {
   }
 }
 
+export type Decorator<
+  account extends Account.Account | undefined = Account.Account | undefined,
+> = {
+  /**
+   * Executes a set of calls on a delegated account.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client.
+   * @param parameters - Execution parameters.
+   * @returns Transaction hash.
+   */
+  execute: <const calls extends readonly unknown[]>(
+    parameters: execute.Parameters<calls, account>,
+  ) => Promise<execute.ReturnType>
+  /**
+   * Returns the EIP-712 domain for a delegated account. Used for the execution
+   * signing payload.
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns EIP-712 domain.
+   */
+  getEip712Domain: (
+    parameters: getEip712Domain.Parameters<account>,
+  ) => Promise<TypedData.Domain>
+  /**
+   * Returns the key at the given index.
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns Key.
+   */
+  keyAt: (parameters: keyAt.Parameters<account>) => Promise<Key.Key>
+  /**
+   * Prepares the payloads to sign over and fills the request to execute a set of calls.
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns Prepared properties.
+   */
+  prepareExecute: <calls extends readonly unknown[] = readonly unknown[]>(
+    parameters: prepareExecute.Parameters<calls, account>,
+  ) => Promise<prepareExecute.ReturnType<calls>>
+}
+
+export function decorator<
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account.Account | undefined = Account.Account | undefined,
+>(client: Client<transport, chain, account>): Decorator<account> {
+  return {
+    execute: (parameters) => execute(client, parameters),
+    getEip712Domain: (parameters) => getEip712Domain(client, parameters),
+    keyAt: (parameters) => keyAt(client, parameters),
+    prepareExecute: (parameters) => prepareExecute(client, parameters),
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////
 // Internal
 ///////////////////////////////////////////////////////////////////////////
@@ -457,21 +527,25 @@ export class ExecutionError extends Errors.BaseError<BaseError> {
 async function getExecuteSignPayload<
   const calls extends readonly unknown[],
   chain extends Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain>,
+  client: Client<Transport, chain, account>,
   parameters: getExecuteSignPayload.Parameters<calls>,
 ): Promise<Hex.Hex> {
-  const { account, delegation, nonce } = parameters
+  const { account = client.account, delegation, nonce } = parameters
+
+  const account_ = account ? Account.from(account) : undefined
+  if (!account_) throw new Error('account is required.')
 
   // Structure calls into EIP-7821 execution format.
   const calls = parameters.calls.map((call: any) => ({
     data: call.data ?? '0x',
-    to: call.to === Call.selfAddress ? account.address : call.to,
+    to: call.to === Call.selfAddress ? account_.address : call.to,
     value: call.value ?? 0n,
   }))
 
   const address = await (async () => {
-    if (!delegation) return account.address
+    if (!delegation) return account_.address
     const { data } = await call(client, {
       data: encodeFunctionData({
         abi: parseAbi(['function implementation() view returns (address)']),
@@ -492,7 +566,7 @@ async function getExecuteSignPayload<
     domain: {
       chainId: client.chain.id,
       name: domain.name,
-      verifyingContract: account.address,
+      verifyingContract: account_.address,
       version: domain.version,
     },
     message: {

@@ -73,7 +73,7 @@
   },
   "knip": {
     "entry": [
-      "src/{index,remote/index,server/index,wagmi/index}.ts!"
+      "src/{index,remote/index,server/index,viem/index,wagmi/index}.ts!"
     ],
     "ignore": [
       "**/test/**",

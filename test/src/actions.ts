@@ -7,11 +7,10 @@ import {
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
-
-import * as Account from '../../src/core/Account.js'
 import type { Client } from '../../src/core/internal/porto.js'
-import * as Key from '../../src/core/Key.js'
-import * as RpcServer from '../../src/core/RpcServer.js'
+import * as Account from '../../src/viem/Account.js'
+import * as Key from '../../src/viem/Key.js'
+import * as ServerActions from '../../src/viem/ServerActions.js'
 import * as Anvil from './anvil.js'
 import { exp1Abi, exp1Address } from './porto.js'
 
@@ -19,13 +18,13 @@ export async function createAccount(
   client: Client,
   parameters: {
     deploy?: boolean | undefined
-    keys: NonNullable<RpcServer.createAccount.Parameters['keys']>
+    keys: NonNullable<ServerActions.createAccount.Parameters['keys']>
     setBalance?: false | bigint | undefined
   },
 ) {
   const { deploy, keys, setBalance: balance = parseEther('10000') } = parameters
 
-  const account = await RpcServer.createAccount(client, { keys })
+  const account = await ServerActions.createAccount(client, { keys })
 
   if (balance)
     await setBalance(client, {
@@ -34,7 +33,7 @@ export async function createAccount(
     })
 
   if (deploy) {
-    const { id } = await RpcServer.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [],
       feeToken: exp1Address,
@@ -82,17 +81,17 @@ export async function getUpgradedAccount(
 
   const { account } = await getAccount(client, { keys, setBalance })
 
-  const request = await RpcServer.prepareUpgradeAccount(client, {
+  const request = await ServerActions.prepareUpgradeAccount(client, {
     address: account.address,
     feeToken: exp1Address,
     keys,
   })
 
   const signatures = await Promise.all(
-    request.digests.map((payload) => account.sign({ payload })),
+    request.digests.map((hash) => account.sign({ hash })),
   )
 
-  const { bundles } = await RpcServer.upgradeAccount(client, {
+  const { bundles } = await ServerActions.upgradeAccount(client, {
     ...request,
     signatures,
   })

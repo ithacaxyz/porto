@@ -1,8 +1,8 @@
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import type * as Porto_remote from '../remote/Porto.js'
-import * as internal from './internal/messenger.js'
 import * as promise from './internal/promise.js'
+import * as Utils from './internal/utils.js'
 import type * as Porto from './Porto.js'
 
 /** Messenger interface. */
@@ -134,7 +134,7 @@ export function fromWindow(
     async send(topic, payload, target) {
       const id = crypto.randomUUID()
       w.postMessage(
-        internal.normalizeMessage({ id, payload, topic }),
+        Utils.normalizeValue({ id, payload, topic }),
         target ?? targetOrigin ?? '*',
       )
       return { id, payload, topic } as never

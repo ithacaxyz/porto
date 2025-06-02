@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { RpcServer } from 'porto'
+import { ServerActions } from 'porto'
 import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
 import { Hooks } from 'porto/remote'
 import { porto } from './Porto.js'
@@ -21,7 +21,7 @@ export function useFetch(parameters: useFetch.Parameters) {
 
   return useQuery<FeeToken>({
     async queryFn() {
-      const feeTokens = await RpcServer.getCapabilities(client).then(
+      const feeTokens = await ServerActions.getCapabilities(client).then(
         (capabilities) => capabilities.fees.tokens,
       )
 

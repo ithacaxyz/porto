@@ -2,15 +2,19 @@ import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import type { Compute, RequiredBy } from './internal/types.js'
+import {
+  hashMessage,
+  hashTypedData,
+  type LocalAccount,
+  type PartialBy,
+} from 'viem'
+import { toAccount } from 'viem/accounts'
+import type { Assign, Compute, RequiredBy } from '../core/internal/types.js'
+import type * as Storage from '../core/Storage.js'
 import * as Key from './Key.js'
-import type * as Storage from './Storage.js'
 
-/** A delegated account. */
-export type Account = {
-  address: Address.Address
+export type Account = LocalAccount<'porto' | 'privateKey'> & {
   keys?: readonly Key.Key[] | undefined
-  sign?: ((parameters: { payload: Hex.Hex }) => Promise<Hex.Hex>) | undefined
 }
 
 /**
@@ -25,11 +29,52 @@ export function from<const account extends from.Parameters>(
   const account = (
     typeof parameters === 'string' ? { address: parameters } : parameters
   ) as from.AccountParameter
-  return account as never
+  const {
+    address,
+    sign: sign_,
+    signMessage,
+    signTransaction,
+    signTypedData,
+    type,
+  } = toAccount({
+    address: account.address,
+    sign({ hash }) {
+      if (account.source === 'privateKey') return account.sign!({ hash })
+      return sign(account as never, {
+        payload: hash,
+      })
+    },
+    signMessage({ message }) {
+      return sign(account as never, {
+        payload: hashMessage(message),
+      })
+    },
+    signTransaction() {
+      throw new Error('`signTransaction` not supported on porto accounts.')
+    },
+    signTypedData(typedData) {
+      return sign(account as never, {
+        payload: hashTypedData(typedData),
+      })
+    },
+  })
+  return {
+    address,
+    keys: account.keys ?? undefined,
+    sign: sign_,
+    signMessage,
+    signTransaction,
+    signTypedData,
+    source: account.source ?? 'porto',
+    type,
+  } as never
 }
 
 export declare namespace from {
-  type AccountParameter = Omit<Account, 'type'>
+  type AccountParameter = PartialBy<
+    Pick<Account, 'address' | 'keys' | 'sign' | 'source'>,
+    'sign' | 'source'
+  >
 
   type Parameters<
     account extends Address.Address | AccountParameter =
@@ -42,7 +87,9 @@ export declare namespace from {
       | Address.Address
       | AccountParameter,
   > = Readonly<
-    account extends AccountParameter ? account : { address: account }
+    account extends AccountParameter
+      ? Assign<Account, account>
+      : { address: account }
   >
 }
 
@@ -64,14 +111,15 @@ export function fromPrivateKey<
   return from({
     address,
     keys,
-    async sign({ payload }) {
+    async sign({ hash }) {
       return Signature.toHex(
         Secp256k1.sign({
-          payload,
+          payload: hash,
           privateKey,
         }),
       )
     },
+    source: 'privateKey',
   }) as fromPrivateKey.ReturnType<options>
 }
 
@@ -84,10 +132,10 @@ export declare namespace fromPrivateKey {
   }
 
   type ReturnType<options extends Options = Options> = Readonly<
-    RequiredBy<Omit<Account, 'keys'>, 'sign'> &
+    (RequiredBy<Omit<Account, 'keys'>, 'sign'> &
       (options['keys'] extends readonly Key.Key[]
         ? { keys: options['keys'] }
-        : { keys?: Account['keys'] })
+        : { keys?: Account['keys'] })) & { source: 'privateKey' }
   >
 }
 
@@ -138,11 +186,11 @@ export async function sign(
   const key = getKey(account, parameters)
 
   const sign = (() => {
-    // If we have no key, use the root signing key.
-    if (!key) return account.sign
-    return (parameters: { payload: Hex.Hex }) =>
+    if (account.source === 'privateKey') return account.sign
+    if (!key) return undefined
+    return ({ hash }: { hash: Hex.Hex }) =>
       Key.sign(key, {
-        ...parameters,
+        payload: hash,
         storage,
       })
   })()
@@ -151,7 +199,7 @@ export async function sign(
   if (!sign) throw new Error('cannot find key to sign with.')
 
   // Sign the payload.
-  return await sign({ payload })
+  return await sign({ hash: payload })
 }
 
 export declare namespace sign {

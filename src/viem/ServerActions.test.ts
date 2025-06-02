@@ -12,9 +12,9 @@ import {
   exp2Config,
   getPorto,
 } from '../../test/src/porto.js'
-import * as AccountContract from './internal/accountContract.js'
+import * as AccountContract from './ContractActions.js'
 import * as Key from './Key.js'
-import * as Rpc from './RpcServer.js'
+import * as Rpc from './ServerActions.js'
 
 const { client } = getPorto()
 
@@ -376,7 +376,7 @@ describe('prepareCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await Rpc.sendPreparedCalls(client, {
       ...request,
       key: request.key!,
       signature,
@@ -446,7 +446,7 @@ describe('prepareCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await Rpc.sendPreparedCalls(client, {
       ...request_2,
       key: request_2.key!,
       signature: signature_2,
@@ -522,7 +522,7 @@ describe('prepareCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await Rpc.sendPreparedCalls(client, {
       ...request_2,
       key: request_2.key!,
       signature: signature_2,
@@ -592,7 +592,7 @@ describe('prepareCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await Rpc.sendPreparedCalls(client, {
       ...request_2,
       key: request_2.key!,
       signature: signature_2,

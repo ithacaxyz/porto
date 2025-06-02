@@ -5,12 +5,13 @@ import type * as RpcResponse from 'ox/RpcResponse'
 import { http, type Transport } from 'viem'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
-import type * as Account from './Account.js'
+import type * as Account from '../viem/Account.js'
 import * as Chains from './Chains.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import * as FeeToken from './internal/typebox/feeToken.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
+import * as Utils from './internal/utils.js'
 import * as Mode from './Mode.js'
 import * as Storage from './Storage.js'
 
@@ -77,17 +78,10 @@ export function create(
           name: config.storageKey,
           partialize(state) {
             return {
-              accounts: state.accounts.map((account) => ({
-                ...account,
-                keys: account.keys?.map((key) => ({
-                  ...key,
-                  privateKey:
-                    typeof key.privateKey === 'function'
-                      ? undefined
-                      : key.privateKey,
-                })),
-                sign: undefined,
-              })),
+              accounts: state.accounts.map((account) =>
+                // omit non-serializable properties (e.g. functions).
+                Utils.normalizeValue(account),
+              ),
               chainId: state.chainId,
               feeToken: state.feeToken,
             } as unknown as State
