@@ -16,26 +16,34 @@ services:
     depends_on:
       anvil:
         condition: service_healthy
-    image: ghcr.io/foundry-rs/foundry:latest
+    build:
+      context: ./docker/config
+      dockerfile: Dockerfile
+    user: root
     entrypoint: /bin/sh
     volumes:
-      - ./config2.sh:/app/config2.sh
-    command: -c "bash ./app/config2.sh"
+      - ./contracts/account:/app/account
+      - ./contracts/demo:/app/demo
+      - ./docker/config:/app/
+      - relay:/app/shared
+    command: -c "bash ./run.sh"
 
   relay:
-    image: ghcr.io/ithacaxyz/relay:latest
+    image: ghcr.io/ithacaxyz/relay:3fc0de2
+    platform: linux/x86_64
     labels:
       - dev.orbstack.domains=relay.local
     ports:
       - "9119:9119"
     volumes:
-      - ./relay.yaml:/app/relay.yaml
+      - relay:/app
     depends_on:
       config:
         condition: service_completed_successfully
     environment:
+      RUST_LOG: debug
       RELAY_MNEMONIC: "test test test test test test test test test test test junk"
-    command: --config-only
+    command: --config-only --registry /app/registry.yaml
       
 volumes:
-  node_modules:
+  relay:
