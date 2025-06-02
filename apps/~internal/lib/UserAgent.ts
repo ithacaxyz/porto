@@ -23,11 +23,7 @@ export function isInAppBrowser() {
   const userAgent = navigator.userAgent
   const userAgentMatch = userAgent.match(inappRegex) !== null
   if (userAgentMatch) return true
-  const isTelegram =
-    'TelegramWebview' in window || // Android
-    'TelegramWebviewProxy' in window || // iPhone
-    'TelegramWebviewProxyProto' in window // iPhone
-  if (isTelegram) return true
+  if (isTelegram()) return true
   return false
 }
 // based on https://github.com/shalanah/inapp-spy/blob/main/src/regexInApp.ts
@@ -43,3 +39,33 @@ const inappRegex = new RegExp(
   `${inAppRegExps.map((reg) => `(${reg})`).join('|')}`,
   'ig',
 )
+
+export function getInAppBrowserName() {
+  const userAgent = navigator.userAgent
+  const userAgentMatch = userAgent.match(inappRegex) !== null
+  if (userAgentMatch) {
+    if (
+      /(\bFB[\w_]+\/(Messenger))|(^(?!.*\buseragents)(?!.*\bIABMV).*(FB_IAB|FBAN).*)/i.test(
+        userAgent,
+      )
+    )
+      return 'Facebook Messenger'
+    if (/\bFB[\w_]+\//.test(userAgent)) return 'Facebook'
+    if (/\bInstagram/i.test(userAgent)) return 'Instagram'
+    if (/\bBarcelona/i.test(userAgent)) return 'Threads'
+    if (/musical_ly|Bytedance/i.test(userAgent)) return 'TikTok'
+    if (/Snapchat/i.test(userAgent)) return 'Snapchat'
+    if (/LinkedInApp/i.test(userAgent)) return 'LinkedIn'
+    if (/\bTwitter/i.test(userAgent)) return 'Twitter'
+  }
+  if (isTelegram()) return 'Telegram'
+  return
+}
+
+function isTelegram() {
+  return (
+    'TelegramWebview' in window || // Android
+    'TelegramWebviewProxy' in window || // iPhone
+    'TelegramWebviewProxyProto' in window // iPhone
+  )
+}
