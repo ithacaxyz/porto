@@ -16,12 +16,15 @@ This method is intended to be used in conjunction with [`wallet_upgradeAccount`]
 
 ## Request
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Request = {
   method: 'wallet_prepareUpgradeAccount',
   params: [{
-    address: `0x${string}`,
-    chainId: `0x${string}`,
+    address: Address,
+    chainId: Hex,
     capabilities: {
       authorizeKeys: {
         // See "Keys"
@@ -29,26 +32,26 @@ type Request = {
           expiry?: number,
           type: 'p256' | 'webauthnp256' | 'secp256k1',
           role: 'admin' | 'normal' | 'session',
-          publicKey: `0x${string}`,
+          publicKey: Hex,
         },
         permissions: ({
           type: 'call',
           // See "Selectors"
           selector: string,
-          to: `0x${string}`,
+          to: Address,
         } | {
           type: 'spend',
           limit: number,
           period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
           // defaults to the native token (address zero)
-          token?: `0x${string}`,
+          token?: Address,
         })[],
       }[],
-      delegation: `0x${string}`,
+      delegation: Address,
       // defaults to the EOA
-      feePayer?: `0x${string}`,
+      feePayer?: Address,
       // defaults to the native token
-      feeToken?: `0x${string}`,
+      feeToken?: Address,
     },
   }],
 }
@@ -58,7 +61,10 @@ type Request = {
 
 Please refer to [`wallet_prepareCalls`] for a detailed explanation of the response.
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex, TypedData } from 'viem'
+
+// ---cut---
 type Response = {
   // The context returned depending on whether
   // a precall or normal bundle was prepared.
@@ -68,84 +74,84 @@ type Response = {
   // relay is returned.
   context: {
     quote: {
-      chainId: `0x${string}`,
+      chainId: Hex,
       intent: {
-        eoa: `0x${string}`,
-        executionData: `0x${string}`,
-        nonce: `0x${string}`,
-        payer: `0x${string}`,
-        paymentToken: `0x${string}`,
-        prePaymentMaxAmount: `0x${string}`,
-        totalPaymentMaxAmount: `0x${string}`,
-        combinedGas: `0x${string}`,
-        encodedPreCalls: `0x${string}`[],
-        initData: `0x${string}`,
-        prePaymentAmount: `0x${string}`,
-        totalPaymentAmount: `0x${string}`,
-        paymentRecipient: `0x${string}`,
-        signature: `0x${string}`,
-        paymentSignature: `0x${string}`,
-        supportedAccountImplementation: `0x${string}`,
+        eoa: Address,
+        executionData: Hex,
+        nonce: Hex,
+        payer: Address,
+        paymentToken: Address,
+        prePaymentMaxAmount: Hex,
+        totalPaymentMaxAmount: Hex,
+        combinedGas: Hex,
+        encodedPreCalls: Hex[],
+        initData: Hex,
+        prePaymentAmount: Hex,
+        totalPaymentAmount: Hex,
+        paymentRecipient: Address,
+        signature: Hex,
+        paymentSignature: Hex,
+        supportedAccountImplementation: Address,
       },
-      txGas: `0x${string}`,
+      txGas: Hex,
       nativeFeeEstimate: {
         maxFeePerGas: number,
         maxPriorityFeePerGas: number,
       },
       // UNIX timestamp the quote expires at.
       ttl: number,
-      authorizationAddress?: `0x${string}`,
-      entrypoint: `0x${string}`,
+      authorizationAddress?: Address,
+      entrypoint: Address,
       // The RPC servers signature over the quote.
       signature: {
-        y_parity: bool,
-        r: `0x${string}`,
-        s: `0x${string}`,
+        y_parity: boolean,
+        r: Hex,
+        s: Hex,
       },
       // The hash of the quote.
-      hash: `0x${string}`,
+      hash: Hash,
     },
   },
   // the digest of the bundle that the user needs to sign
-  digest: `0x${string}`,
+  digest: Hash,
   // EIP-712 typed data of the precall or bundle.
-  typedData: any,
+  typedData: TypedData,
   // capabilities assigned to the account
   capabilities: {
     authorizeKeys: {
       // key hash
-      hash: `0x${string}`,
+      hash: Hash,
       // See "Keys"
       key: {
         expiry?: number,
         type: 'p256' | 'webauthnp256' | 'secp256k1',
         role: 'admin' | 'normal' | 'session',
-        publicKey: `0x${string}`,
+        publicKey: Hex,
       },
       permissions: ({
         type: 'call',
         // See "Selectors"
         selector: string,
-        to: `0x${string}`,
+        to: Address,
       } | {
         type: 'spend',
         limit: number,
         period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
         // defaults to the native token (address zero)
-        token?: `0x${string}`,
+        token?: Address,
       })[],
     }[],
     // Key revocations.
     revokeKeys: {
-      hash: `0x${string}`,
-      id?: `0x${string}`
+      hash: Hash,
+      id?: Address
     }[],
     // Simulated asset diffs, where the first element of the tuple is the recipient or sender.
     assetDiff: [
-       `0x${string}`,
+       Address,
        {
          // Omitted if this is the native token.
-         address?: `0x${string}`,
+         address?: Address,
          decimals?: number,
          direction: 'incoming' | 'outgoing',
          name?: string,

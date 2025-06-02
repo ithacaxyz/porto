@@ -16,62 +16,65 @@ This method is intended to be used in conjunction with [`wallet_prepareCalls`](/
 
 ## Request
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Request = {
   method: 'wallet_sendPreparedCalls',
   params: [{
     capabilities?: {
       // This will be passed to `feePayer` if specified for additional on-chain verification.
-      feeSignature?: `0x${string}`,
+      feeSignature?: Hex,
     },
     context: {
       quote: {
-        chainId: `0x${string}`,
+        chainId: Hex,
         intent: {
-          eoa: `0x${string}`,
-          executionData: `0x${string}`,
-          nonce: `0x${string}`,
-          payer: `0x${string}`,
-          paymentToken: `0x${string}`,
-          prePaymentMaxAmount: `0x${string}`,
-          totalPaymentMaxAmount: `0x${string}`,
-          combinedGas: `0x${string}`,
-          encodedPreCalls: `0x${string}`[],
-          initData: `0x${string}`,
-          prePaymentAmount: `0x${string}`,
-          totalPaymentAmount: `0x${string}`,
-          paymentRecipient: `0x${string}`,
-          signature: `0x${string}`,
-          paymentSignature: `0x${string}`,
-          supportedAccountImplementation: `0x${string}`,
+          eoa: Address,
+          executionData: Hex,
+          nonce: Hex,
+          payer: Address,
+          paymentToken: Address,
+          prePaymentMaxAmount: Hex,
+          totalPaymentMaxAmount: Hex,
+          combinedGas: Hex,
+          encodedPreCalls: Hex[],
+          initData: Hex,
+          prePaymentAmount: Hex,
+          totalPaymentAmount: Hex,
+          paymentRecipient: Address,
+          signature: Hex,
+          paymentSignature: Hex,
+          supportedAccountImplementation: Address,
         },
-        txGas: `0x${string}`,
+        txGas: Hex,
         nativeFeeEstimate: {
           maxFeePerGas: number,
           maxPriorityFeePerGas: number,
         },
         // UNIX timestamp the quote expires at.
         ttl: number,
-        authorizationAddress?: `0x${string}`,
-        entrypoint: `0x${string}`,
+        authorizationAddress?: Address,
+        entrypoint: Address,
         // The RPC servers signature over the quote.
         signature: {
           y_parity: boolean,
-          r: `0x${string}`,
-          s: `0x${string}`,
+          r: Hex,
+          s: Hex,
         },
         // The hash of the quote.
-        hash: `0x${string}`,
+        hash: Hash,
       },
     },
     // The key that signed the bundle. See "Keys".
     key: {
       type: 'p256' | 'webauthnp256' | 'secp256k1',
-      publicKey: `0x${string}`,
+      publicKey: Hex,
       // Whether the bundle digest will be prehashed by the key.
       prehash: boolean,
     },
-    signature: `0x${string}`,
+    signature: Hex,
   }],
 }
 ```
@@ -80,10 +83,13 @@ type Request = {
 
 A bundle ID for use with [`wallet_getCallsStatus`].
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Response = {
   // The bundle ID
-  id: `0x${string}`
+  id: Hex
 }
 ```
 
