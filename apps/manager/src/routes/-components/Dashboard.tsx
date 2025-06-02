@@ -10,7 +10,7 @@ import { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
+import { encodeFunctionData, erc20Abi, formatEther, zeroAddress } from 'viem'
 import {
   useAccount,
   useChainId,
@@ -25,7 +25,7 @@ import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
-import { useErc20Info, useErc721Info } from '~/hooks/useTokenInfo'
+import { useErc20Info, useErc721Info, useETHInfo } from '~/hooks/useTokenInfo'
 import { useTokenStandard } from '~/hooks/useTokenStandard'
 import {
   ArrayUtils,
@@ -56,7 +56,7 @@ function TokenSymbol({
   const { data: tokenInfo } =
     tokenStandard.standard === 'ERC20'
       ? useErc20Info(address)
-      : useErc721Info(address)
+      : tokenStandard.standard === 'ETH' ? useETHInfo() : useErc721Info(address)
 
   if (!address) return null
 
@@ -808,6 +808,17 @@ function AssetRow({
       !sendFormState.values.sendAmount
     )
       return
+
+    if (address == zeroAddress){
+      sendCalls.sendCalls({
+      calls: [
+        {
+          to: sendFormState.values.sendRecipient as Address.Address,
+          value: Value.from(sendFormState.values.sendAmount, 18)
+        },
+      ],
+    })
+    }else{
     sendCalls.sendCalls({
       calls: [
         {
@@ -822,7 +833,7 @@ function AssetRow({
           to: address,
         },
       ],
-    })
+    })}
   }
 
   const ref = React.useRef<HTMLTableCellElement | null>(null)

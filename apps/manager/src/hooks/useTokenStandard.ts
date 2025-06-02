@@ -1,14 +1,20 @@
 import { Address } from 'ox'
-import { erc20Abi } from 'viem'
+import { erc20Abi, zeroAddress } from 'viem'
 import { useReadContracts } from 'wagmi'
 
-export type TokenStandard = { standard: 'ERC20' } | { standard: 'ERC721' }
+export type TokenStandard = { standard: 'ERC20' } | { standard: 'ERC721' } | { standard: 'ETH' }
 
 /**
  * Simplified: call `decimals()` via useReadContracts.
  * If it returns a number → ERC-20, otherwise → ERC-721.
+ * If the address is zeroAddress, return ETH.
  */
 export function useTokenStandard(address?: Address.Address) {
+
+  if (address == zeroAddress) {
+    return {standard: 'ETH'} as TokenStandard
+  }
+
   const response = useReadContracts({
     allowFailure: false,
     contracts: [
