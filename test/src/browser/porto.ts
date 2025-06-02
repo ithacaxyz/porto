@@ -1,5 +1,4 @@
 import { Chains, Dialog, Mode, Porto } from 'porto'
-import * as Porto_internal from '../../../src/core/internal/porto.js'
 
 const chain =
   import.meta.env.VITE_LOCAL !== 'false' ? Chains.anvil : Chains.portoDev
@@ -15,8 +14,3 @@ export const getPorto = () =>
       }),
     }),
   })
-
-export const getClient = (porto: Porto.Porto) =>
-  Porto_internal.getClient(porto).extend(() => ({
-    mode: 'anvil',
-  }))

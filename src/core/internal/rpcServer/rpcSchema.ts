@@ -5,8 +5,7 @@
  */
 
 import type * as RpcSchema_ox from 'ox/RpcSchema'
-
-import type * as RpcSchema from '../../RpcSchema.js'
+import type * as RpcSchema_viem from '../../../viem/RpcSchema.js'
 import type { Static } from '../typebox/typebox.js'
 import type * as Rpc from './typebox/rpc.js'
 
@@ -67,4 +66,4 @@ export type Schema = RpcSchema_ox.From<
     }
 >
 
-export type Viem = RpcSchema.ToViem<Schema>
+export type Viem = RpcSchema_viem.Server

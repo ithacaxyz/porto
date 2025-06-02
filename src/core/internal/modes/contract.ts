@@ -13,10 +13,10 @@ import { call, readContract } from 'viem/actions'
 import * as Account from '../../../viem/Account.js'
 import * as ContractActions from '../../../viem/ContractActions.js'
 import * as Key from '../../../viem/Key.js'
+import type { ServerClient } from '../../../viem/ServerClient.js'
 import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
-import type * as Porto from '../porto.js'
 import * as U from '../utils.js'
 
 /**
@@ -43,7 +43,7 @@ export function contract(parameters: contract.Parameters = {}) {
 
   async function prepareUpgradeAccount(parameters: {
     address: Address.Address
-    client: Porto.Client
+    client: ServerClient
     label?: string | undefined
     keystoreHost?: string | undefined
     mock?: boolean | undefined

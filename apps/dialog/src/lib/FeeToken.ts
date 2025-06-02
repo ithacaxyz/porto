@@ -17,7 +17,7 @@ export function useFetch(parameters: useFetch.Parameters) {
   const { addressOrSymbol } = parameters
 
   const activeFeeToken = Hooks.usePortoStore(porto, (state) => state.feeToken)
-  const client = Hooks.useClient(porto)
+  const client = Hooks.useServerClient(porto)
 
   return useQuery<FeeToken>({
     async queryFn() {

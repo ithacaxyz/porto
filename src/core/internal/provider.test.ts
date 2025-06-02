@@ -26,7 +26,8 @@ import {
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
-import * as Porto_internal from './porto.js'
+import * as ServerClient from '../../viem/ServerClient.js'
+import * as WalletClient from '../../viem/WalletClient.js'
 
 describe.each([
   ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
@@ -89,7 +90,7 @@ describe.each([
   describe('eth_sendTransaction', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -120,7 +121,7 @@ describe.each([
 
       expect(hash).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id: hash,
       })
 
@@ -167,7 +168,7 @@ describe.each([
       const messages: any[] = []
 
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -626,7 +627,7 @@ describe.each([
   describe('wallet_revokeAdmin', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -694,7 +695,7 @@ describe.each([
   describe('wallet_revokePermissions', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -849,7 +850,7 @@ describe.each([
 
     test.runIf(Anvil.enabled)('behavior: outdated account', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -874,7 +875,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -899,7 +900,7 @@ describe.each([
   describe.skip('wallet_updateAccount', () => {
     test.runIf(Anvil.enabled && type === 'rpcServer')('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -938,7 +939,7 @@ describe.each([
         ],
       })
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -959,7 +960,7 @@ describe.each([
       })
 
       if (id2)
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: id2,
         })
 
@@ -1287,7 +1288,7 @@ describe.each([
   describe('wallet_sendCalls', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1323,7 +1324,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -1341,7 +1342,7 @@ describe.each([
       'behavior: `feeToken` capability',
       async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -1380,7 +1381,7 @@ describe.each([
 
         expect(id).toBeDefined()
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id,
         })
 
@@ -1470,7 +1471,7 @@ describe.each([
 
         expect(id).toBeDefined()
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id,
         })
 
@@ -1564,7 +1565,7 @@ describe.each([
 
         expect(id).toBeDefined()
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id,
         })
 
@@ -1591,7 +1592,7 @@ describe.each([
 
     test('behavior: use inferred permissions', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1646,7 +1647,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -1662,7 +1663,7 @@ describe.each([
 
     test('behavior: `permissions` capability', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1719,7 +1720,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -1738,7 +1739,7 @@ describe.each([
       'behavior: `permissions.calls` unauthorized',
       async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -1802,7 +1803,7 @@ describe.each([
       'behavior: `permissions.spend` exceeded',
       async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -1860,7 +1861,7 @@ describe.each([
 
         expect(id).toBeDefined()
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id,
         })
 
@@ -1893,7 +1894,7 @@ describe.each([
 
     test('behavior: revoked permission', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -1950,7 +1951,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -1995,7 +1996,7 @@ describe.each([
 
     test('behavior: not provider-managed permission', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -2055,7 +2056,7 @@ describe.each([
 
     test('behavior: permission does not exist', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -2127,7 +2128,7 @@ describe.each([
   describe('wallet_getCallsStatus', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
@@ -2176,7 +2177,7 @@ describe.each([
     describe('behavior: permissions', () => {
       test('default', async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -2257,7 +2258,7 @@ describe.each([
           ],
         })
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: result[0]!.id,
         })
 
@@ -2273,7 +2274,7 @@ describe.each([
 
       test('WebCryptoP256', async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -2358,7 +2359,7 @@ describe.each([
           ],
         })
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: result[0]!.id,
         })
 
@@ -2374,7 +2375,7 @@ describe.each([
 
       test('Secp256k1', async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -2454,7 +2455,7 @@ describe.each([
           ],
         })
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: result[0]!.id,
         })
 
@@ -2472,7 +2473,7 @@ describe.each([
     describe('behavior: admin', () => {
       test('Secp256k1', async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -2544,7 +2545,7 @@ describe.each([
           ],
         })
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: result[0]!.id,
         })
 

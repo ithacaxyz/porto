@@ -7,15 +7,15 @@ import {
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
-import type { Client } from '../../src/core/internal/porto.js'
 import * as Account from '../../src/viem/Account.js'
 import * as Key from '../../src/viem/Key.js'
 import * as ServerActions from '../../src/viem/ServerActions.js'
+import type { ServerClient } from '../../src/viem/ServerClient.js'
 import * as Anvil from './anvil.js'
 import { exp1Abi, exp1Address } from './porto.js'
 
 export async function createAccount(
-  client: Client,
+  client: ServerClient,
   parameters: {
     deploy?: boolean | undefined
     keys: NonNullable<ServerActions.createAccount.Parameters['keys']>
@@ -47,7 +47,7 @@ export async function createAccount(
 }
 
 export async function getAccount(
-  client: Client,
+  client: ServerClient,
   parameters: {
     keys?: readonly Key.Key[] | undefined
     setBalance?: false | bigint | undefined
@@ -71,7 +71,7 @@ export async function getAccount(
 }
 
 export async function getUpgradedAccount(
-  client: Client,
+  client: ServerClient,
   parameters: {
     keys: readonly Key.Key[]
     setBalance?: false | bigint | undefined
@@ -104,7 +104,7 @@ export async function getUpgradedAccount(
 }
 
 export async function setBalance(
-  client: Client,
+  client: ServerClient,
   parameters: {
     address: Address.Address
     value: bigint

@@ -1,6 +1,6 @@
 import { Chains, Mode, Porto, Storage } from 'porto'
 import { http } from 'viem'
-import * as Porto_internal from '../../src/core/internal/porto.js'
+import * as ServerClient from '../../src/viem/ServerClient.js'
 import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
 import * as RpcServer from './rpcServer.js'
@@ -63,7 +63,7 @@ ${rpcUrl} \\
     } as Porto.Config['transports'],
   })
 
-  const client = Porto_internal.getClient(porto).extend(() => ({
+  const client = ServerClient.fromPorto(porto).extend(() => ({
     mode: 'anvil',
   }))
 

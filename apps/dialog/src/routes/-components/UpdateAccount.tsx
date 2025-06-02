@@ -20,7 +20,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const version = UpdateAccount.useAccountVersion()
   const { current, latest } = version.data ?? {}
 
-  const client = Hooks.useClient(porto)
+  const client = Hooks.useServerClient(porto)
   const getCapabilitiesQuery = useQuery({
     enabled: !!client,
     queryFn: () => ServerActions.getCapabilities(client),
@@ -195,18 +195,18 @@ export namespace UpdateAccount {
 
   export function useAccountVersion() {
     const account = useAccount()
-    const providerClient = Hooks.useProviderClient(porto)
+    const walletClient = Hooks.useWalletClient(porto)
 
     return useQuery({
       enabled: !!account.isConnected,
       async queryFn() {
-        const version = await providerClient.request({
+        const version = await walletClient.request({
           method: 'wallet_getAccountVersion',
           params: [{}],
         })
         return version
       },
-      queryKey: ['version', providerClient.uid],
+      queryKey: ['version', walletClient.uid],
     })
   }
 }

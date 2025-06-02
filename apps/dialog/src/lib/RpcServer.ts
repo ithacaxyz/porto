@@ -23,7 +23,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
   } = props
 
   const account = Hooks.useAccount(porto, { address })
-  const client = Hooks.useClient(porto, { chainId })
+  const client = Hooks.useServerClient(porto, { chainId })
   const feeToken = FeeToken.useFetch({
     addressOrSymbol: props.feeToken,
   })

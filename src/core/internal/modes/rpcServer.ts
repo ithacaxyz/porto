@@ -14,10 +14,10 @@ import * as ContractActions from '../../../viem/ContractActions.js'
 import * as ServerActions_internal from '../../../viem/internal/serverActions.js'
 import * as Key from '../../../viem/Key.js'
 import * as ServerActions from '../../../viem/ServerActions.js'
+import type { ServerClient } from '../../../viem/ServerClient.js'
 import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
-import type { Client } from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import * as FeeToken from '../typebox/feeToken.js'
 import * as U from '../utils.js'
@@ -718,7 +718,7 @@ export declare namespace rpcServer {
 }
 
 async function getAuthorizeKeyPreCalls(
-  client: Client,
+  client: ServerClient,
   parameters: getAuthorizeKeyPreCalls.Parameters,
 ) {
   const { account, authorizeKey, feeToken } = parameters
