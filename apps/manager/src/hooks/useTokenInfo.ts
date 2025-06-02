@@ -45,8 +45,10 @@ export function useErc721Info(address?: Address.Address | undefined) {
 }
 
 export function useETHInfo() {
-  return {data:{
-    name: 'Ether',
-    symbol: 'ETH',
-  }}
+  return {
+    data: {
+      name: 'Ether',
+      symbol: 'ETH',
+    },
+  }
 }

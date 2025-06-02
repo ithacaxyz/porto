@@ -56,7 +56,9 @@ function TokenSymbol({
   const { data: tokenInfo } =
     tokenStandard.standard === 'ERC20'
       ? useErc20Info(address)
-      : tokenStandard.standard === 'ETH' ? useETHInfo() : useErc721Info(address)
+      : tokenStandard.standard === 'ETH'
+        ? useETHInfo()
+        : useErc721Info(address)
 
   if (!address) return null
 
@@ -809,31 +811,32 @@ function AssetRow({
     )
       return
 
-    if (address == zeroAddress){
+    if (address === zeroAddress) {
       sendCalls.sendCalls({
-      calls: [
-        {
-          to: sendFormState.values.sendRecipient as Address.Address,
-          value: Value.from(sendFormState.values.sendAmount, 18)
-        },
-      ],
-    })
-    }else{
-    sendCalls.sendCalls({
-      calls: [
-        {
-          data: encodeFunctionData({
-            abi: erc20Abi,
-            args: [
-              sendFormState.values.sendRecipient,
-              Value.from(sendFormState.values.sendAmount, decimals),
-            ],
-            functionName: 'transfer',
-          }),
-          to: address,
-        },
-      ],
-    })}
+        calls: [
+          {
+            to: sendFormState.values.sendRecipient as Address.Address,
+            value: Value.from(sendFormState.values.sendAmount, 18),
+          },
+        ],
+      })
+    } else {
+      sendCalls.sendCalls({
+        calls: [
+          {
+            data: encodeFunctionData({
+              abi: erc20Abi,
+              args: [
+                sendFormState.values.sendRecipient,
+                Value.from(sendFormState.values.sendAmount, decimals),
+              ],
+              functionName: 'transfer',
+            }),
+            to: address,
+          },
+        ],
+      })
+    }
   }
 
   const ref = React.useRef<HTMLTableCellElement | null>(null)

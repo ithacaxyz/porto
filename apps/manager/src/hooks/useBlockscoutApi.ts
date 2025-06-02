@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { anvil, portoDev } from 'porto/core/Chains'
 import * as React from 'react'
+import { zeroAddress } from 'viem'
 import { useAccount, useChainId, useWatchBlockNumber } from 'wagmi'
 import { base, baseSepolia } from 'wagmi/chains'
 import { urlWithCorsBypass } from '~/lib/Constants'
 import { useReadBalances } from './useReadBalances'
-import { zeroAddress } from 'viem'
 
 export function addressApiEndpoint(chainId: PortoConfig.ChainId) {
   if (chainId === anvil.id || chainId === portoDev.id)
@@ -19,40 +19,43 @@ export function addressApiEndpoint(chainId: PortoConfig.ChainId) {
 }
 
 export function filterEthTransfers(ethCallsData: { items: any[] }) {
-  const filteredEthCalls = ethCallsData.items.filter((tx: { to: { is_contract: any }; value: string | number }) =>
-        tx.to.is_contract == false && tx.value !== '0'
-      );
+  const filteredEthCalls = ethCallsData.items.filter(
+    (tx: { to: { is_contract: any }; value: string | number }) =>
+      tx.to.is_contract === false && tx.value !== '0',
+  )
 
-      const sanitizedEthCalls: TokenTransfer[] = filteredEthCalls.map((tx: any) => ({
-        block_hash: tx.block_hash,
-        block_number: tx.block_number,
-        from: tx.from,
-        log_index: tx.log_index ?? 0,
-        method: '',
-        timestamp: tx.timestamp,
-        to: tx.to,
-        token: {
-          address: zeroAddress,
-          circulating_market_cap: 0,
-          decimals: '18',
-          exchange_rate: 0,
-          holders: '0',
-          icon_url: '',
-          name: 'Ether',
-          symbol: 'ETH',
-          total_supply: '0',
-          type: 'ETH',
-          volume_24h: 0,
-        },
-        total: {
-          decimals: '18',
-          value: tx.value,
-        },
-        transaction_hash: tx.transaction_hash,
-        type: 'coin-transfer',
-      }));
+  const sanitizedEthCalls: TokenTransfer[] = filteredEthCalls.map(
+    (tx: any) => ({
+      block_hash: tx.block_hash,
+      block_number: tx.block_number,
+      from: tx.from,
+      log_index: tx.log_index ?? 0,
+      method: '',
+      timestamp: tx.timestamp,
+      to: tx.to,
+      token: {
+        address: zeroAddress,
+        circulating_market_cap: 0,
+        decimals: '18',
+        exchange_rate: 0,
+        holders: '0',
+        icon_url: '',
+        name: 'Ether',
+        symbol: 'ETH',
+        total_supply: '0',
+        type: 'ETH',
+        volume_24h: 0,
+      },
+      total: {
+        decimals: '18',
+        value: tx.value,
+      },
+      transaction_hash: tx.transaction_hash,
+      type: 'coin-transfer',
+    }),
+  )
 
-  return sanitizedEthCalls;
+  return sanitizedEthCalls
 }
 
 export function useAddressTransfers({
@@ -80,9 +83,12 @@ export function useAddressTransfers({
       const url = `${apiEndpoint}/addresses/${userAddress}/token-transfers`
       const response = await fetch(urlWithCorsBypass(url))
 
-      let internalTxns = await fetch(urlWithCorsBypass(`${apiEndpoint}/addresses/${userAddress}/internal-transactions`))
-      const ethTransfers = filterEthTransfers(await internalTxns.json());
-
+      let internalTxns = await fetch(
+        urlWithCorsBypass(
+          `${apiEndpoint}/addresses/${userAddress}/internal-transactions`,
+        ),
+      )
+      const ethTransfers = filterEthTransfers(await internalTxns.json())
 
       const data = (await response.json()) as {
         items: Array<TokenTransfer>
@@ -94,10 +100,10 @@ export function useAddressTransfers({
         next_page_params: null,
       }
 
-      data.items = [...data.items, ...ethTransferData.items];
+      data.items = [...data.items, ...ethTransferData.items]
       data.items.sort((a, b) => {
-        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-      });
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      })
 
       return {
         items: data.items,
