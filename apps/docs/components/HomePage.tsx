@@ -766,7 +766,7 @@ export function SendTip(props: {
       </div>
 
       <div className="flex w-full justify-between px-1.5">
-        <div className="-tracking-[2.8%] text-[14px] text-gray9">Received</div>
+        <div className="-tracking-[2.8%] text-[14px] text-gray9">Received</div>{' '}
         <div className="-tracking-[2.8%] font-medium text-[14px] text-gray9">
           <span className="text-gray12">
             {ValueFormatter.format(exp1Balance ?? 0)}
