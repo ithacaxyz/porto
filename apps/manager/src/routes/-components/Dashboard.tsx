@@ -53,10 +53,18 @@ function TokenSymbol({
 }) {
   const tokenStandard = useTokenStandard(address)
 
-  const { data: tokenInfo } =
-    tokenStandard.standard === 'ERC20'
-      ? useErc20Info(address)
-      : useErc721Info(address)
+  const { data: tokenInfoErc20 } = useErc20Info({
+    address,
+    enabled: tokenStandard.standard === 'ERC20',
+  })
+
+  const { data: tokenInfo721 } = useErc721Info({
+    address,
+    enabled: tokenStandard.standard === 'ERC721',
+  })
+
+  const tokenInfo =
+    tokenStandard.standard === 'ERC20' ? tokenInfoErc20 : tokenInfo721
 
   if (!address) return null
 
