@@ -135,10 +135,6 @@ patchedDependencies:
 importers:
 
   .:
-    dependencies:
-      porto:
-        specifier: link:src
-        version: link:src
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.17.1
@@ -751,22 +747,6 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.19.4)(yaml@2.8.0)
-
-  docker:
-    dependencies:
-      porto:
-        specifier: workspace:*
-        version: link:../src
-      viem:
-        specifier: 'catalog:'
-        version: 2.30.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28)
-      yaml:
-        specifier: ^2.8.0
-        version: 2.8.0
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.15.21
 
   examples/next.js:
     dependencies:

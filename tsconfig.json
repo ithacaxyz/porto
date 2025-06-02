@@ -1,7 +1,6 @@
 {
   "files": [],
   "references": [
-    { "path": "./docker/tsconfig.json" },
     { "path": "./scripts/tsconfig.json" },
     { "path": "./src/tsconfig.json" },
     { "path": "./test/tsconfig.json" }

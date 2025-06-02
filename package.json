@@ -115,8 +115,5 @@
       "@wagmi/core": "patches/@wagmi__core.patch",
       "@vitest/browser": "patches/@vitest__browser.patch"
     }
-  },
-  "dependencies": {
-    "porto": "link:src"
   }
 }
