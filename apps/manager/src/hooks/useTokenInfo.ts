@@ -7,7 +7,7 @@ export function useErc20Info({
   enabled,
 }: {
   address?: Address.Address | undefined
-  enabled?: boolean
+  enabled?: boolean | undefined
 }) {
   return useReadContracts({
     allowFailure: false,
@@ -36,7 +36,7 @@ export function useErc721Info({
   enabled,
 }: {
   address?: Address.Address | undefined
-  enabled?: boolean
+  enabled?: boolean | undefined
 }) {
   return useReadContracts({
     allowFailure: false,
