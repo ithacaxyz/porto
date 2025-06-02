@@ -1,4 +1,4 @@
-import { custom, type PublicRpcSchema, type Transport } from 'viem'
+import { custom, type Transport } from 'viem'
 import { createClient, type Client as viem_Client } from 'viem'
 import type * as Chains from '../core/Chains.js'
 import type { Internal } from '../core/internal/porto.js'
@@ -10,12 +10,7 @@ export type WalletClient<
   transport extends Transport = Transport,
   chain extends Chains.Chain = Chains.Chain,
   account extends Account | undefined = Account | undefined,
-> = viem_Client<
-  transport,
-  chain,
-  account,
-  [...PublicRpcSchema, ...RpcSchema.Wallet]
->
+> = viem_Client<transport, chain, account, RpcSchema.Wallet>
 
 const clientCache = new Map<string, any>()
 /**

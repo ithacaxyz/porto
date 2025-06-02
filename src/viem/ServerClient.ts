@@ -1,5 +1,5 @@
 import * as Json from 'ox/Json'
-import { fallback, http, type PublicRpcSchema, type Transport } from 'viem'
+import { fallback, http, type Transport } from 'viem'
 import { createClient, type Client as viem_Client } from 'viem'
 import type * as Chains from '../core/Chains.js'
 import type { Internal } from '../core/internal/porto.js'
@@ -10,12 +10,7 @@ export type ServerClient<
   transport extends Transport = Transport,
   chain extends Chains.Chain = Chains.Chain,
   account extends Account | undefined = Account | undefined,
-> = viem_Client<
-  transport,
-  chain,
-  account,
-  [...PublicRpcSchema, ...RpcSchema.Server]
->
+> = viem_Client<transport, chain, account, RpcSchema.Server>
 
 const clientCache = new Map<string, any>()
 
