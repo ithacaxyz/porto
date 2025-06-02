@@ -6,12 +6,8 @@ import {
   type PublicRpcSchema,
   type Transport,
 } from 'viem'
-import {
-  createClient,
-  type Account as viem_Account,
-  type Client as viem_Client,
-} from 'viem'
-
+import { createClient, type Client as viem_Client } from 'viem'
+import type { Account } from '../../viem/Account.js'
 import type * as Chains from '../Chains.js'
 import type * as Mode from '../Mode.js'
 import type { Config, Store } from '../Porto.js'
@@ -22,7 +18,7 @@ import type * as RpcSchema_server from './rpcServer/rpcSchema.js'
 export type Client<chain extends Chains.Chain = Chains.Chain> = viem_Client<
   Transport,
   chain,
-  viem_Account | undefined,
+  Account | undefined,
   [...PublicRpcSchema, ...RpcSchema_server.Viem]
 >
 
@@ -30,7 +26,7 @@ export type ProviderClient<chain extends Chains.Chain = Chains.Chain> =
   viem_Client<
     Transport,
     chain,
-    viem_Account | undefined,
+    Account | undefined,
     [...PublicRpcSchema, ...RpcSchema.Viem]
   >
 

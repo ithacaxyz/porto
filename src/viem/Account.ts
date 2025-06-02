@@ -13,7 +13,7 @@ import type { Assign, Compute, RequiredBy } from '../core/internal/types.js'
 import type * as Storage from '../core/Storage.js'
 import * as Key from './Key.js'
 
-export type Account = LocalAccount & {
+export type Account = LocalAccount<'porto' | 'privateKey'> & {
   keys?: readonly Key.Key[] | undefined
 }
 
@@ -88,10 +88,7 @@ export declare namespace from {
       | AccountParameter,
   > = Readonly<
     account extends AccountParameter
-      ? Assign<
-          LocalAccount & { keys?: readonly Key.Key[] | undefined },
-          account
-        >
+      ? Assign<Account, account>
       : { address: account }
   >
 }
@@ -135,10 +132,10 @@ export declare namespace fromPrivateKey {
   }
 
   type ReturnType<options extends Options = Options> = Readonly<
-    RequiredBy<Omit<Account, 'keys'>, 'sign'> &
+    (RequiredBy<Omit<Account, 'keys'>, 'sign'> &
       (options['keys'] extends readonly Key.Key[]
         ? { keys: options['keys'] }
-        : { keys?: Account['keys'] })
+        : { keys?: Account['keys'] })) & { source: 'privateKey' }
   >
 }
 

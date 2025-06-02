@@ -64,7 +64,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         payload: digest,
         wrap: false,
       })
-      const { id } = await ServerActions.sendCalls(client, {
+      const { id } = await ServerActions.sendPreparedCalls(client, {
         ...request,
         key: request.key!,
         signature,

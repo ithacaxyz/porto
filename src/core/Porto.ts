@@ -7,6 +7,7 @@ import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 import type * as Account from '../viem/Account.js'
 import * as Chains from './Chains.js'
+import * as Messenger_internal from './internal/messenger.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import * as FeeToken from './internal/typebox/feeToken.js'
@@ -77,17 +78,10 @@ export function create(
           name: config.storageKey,
           partialize(state) {
             return {
-              accounts: state.accounts.map((account) => ({
-                ...account,
-                keys: account.keys?.map((key) => ({
-                  ...key,
-                  privateKey:
-                    typeof key.privateKey === 'function'
-                      ? undefined
-                      : key.privateKey,
-                })),
-                sign: undefined,
-              })),
+              accounts: state.accounts.map((account) =>
+                // omit non-serializable properties (e.g. functions).
+                Messenger_internal.normalizeMessage(account),
+              ),
               chainId: state.chainId,
               feeToken: state.feeToken,
             } as unknown as State

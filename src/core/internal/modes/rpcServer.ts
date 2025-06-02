@@ -590,7 +590,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const { id } = await ServerActions.sendCalls(client, {
+        const { id } = await ServerActions.sendPreparedCalls(client, {
           context: context as never,
           key,
           signature,
