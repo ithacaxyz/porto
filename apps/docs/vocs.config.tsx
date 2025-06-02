@@ -326,6 +326,28 @@ export default defineConfig({
       //       collapsed: true,
       //       items: [
       //         {
+      //           link: '/sdk/viem/execute',
+      //           text: 'execute',
+      //         },
+      //         {
+      //           link: '/sdk/viem/getEip712Domain',
+      //           text: 'getEip712Domain',
+      //         },
+      //         {
+      //           link: '/sdk/viem/keyAt',
+      //           text: 'keyAt',
+      //         },
+      //         {
+      //           link: '/sdk/viem/prepareExecute',
+      //           text: 'prepareExecute',
+      //         },
+      //       ],
+      //       text: 'Contract Actions',
+      //     },
+      //     {
+      //       collapsed: true,
+      //       items: [
+      //         {
       //           link: '/sdk/viem/createAccount',
       //           text: 'createAccount',
       //         },

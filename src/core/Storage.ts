@@ -2,6 +2,7 @@ import { createStore, del, get, set } from 'idb-keyval'
 import * as Json from 'ox/Json'
 
 import type { MaybePromise } from './internal/types.js'
+import * as Utils from './internal/utils.js'
 
 export type Storage = {
   getItem: <value>(name: string) => MaybePromise<value | null>
@@ -52,7 +53,7 @@ export function idb() {
       await del(name, store)
     },
     async setItem(name, value) {
-      await set(name, value, store)
+      await set(name, Utils.normalizeValue(value), store)
     },
     sizeLimit: 1024 * 1024 * 50, // ≈50MB
   })
