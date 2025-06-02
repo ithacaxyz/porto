@@ -21,7 +21,6 @@ echo "ExperimentERC20 deployed to: $EXP1_ADDRESS"
 echo "ExperimentERC20 deployed to: $EXP2_ADDRESS"
 
 cp /app/relay.yaml /app/shared/relay.yaml
-cp /app/registry.yaml /app/shared/registry.yaml
 
 yq -i ".orchestrator = \"$ORCHESTRATOR_ADDRESS\"" /app/shared/relay.yaml
 yq -i ".account_registry = \"$ACCOUNT_REGISTRY_ADDRESS\"" /app/shared/relay.yaml
@@ -30,6 +29,8 @@ yq -i ".simulator = \"$SIMULATOR_ADDRESS\"" /app/shared/relay.yaml
 
 yq -i ".chain.fee_tokens[1] = \"$EXP1_ADDRESS\"" /app/shared/relay.yaml
 yq -i ".chain.fee_tokens[2] = \"$EXP2_ADDRESS\"" /app/shared/relay.yaml
+
+touch /app/shared/registry.yaml
 
 yq -i ".31337[0].address = \"$EXP1_ADDRESS\"" /app/shared/registry.yaml
 yq -i ".31337[0].kind = \"USDT\"" /app/shared/registry.yaml
