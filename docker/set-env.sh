@@ -1,2 +1,0 @@
-# JSON-RPC curl request to get `wallet_getCapabilities`
-curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"wallet_getCapabilities","params":[],"id":1}' http://localhost:8545

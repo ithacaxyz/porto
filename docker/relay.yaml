@@ -5,11 +5,14 @@ server:
   max_connections: 5000
 chain:
   endpoints:
-  - http://anvil:8545
+    - http://anvil:8545
   sequencer_endpoints: {}
   fee_tokens:
-  - '0x0000000000000000000000000000000000000000'
-  fee_recipient: '0x0000000000000000000000000000000000000000'
+    - 0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2
+    - 0x62a9d6de963a5590f6fba5119e937f167677bfe7
+    - "0x0000000000000000000000000000000000000000"
+    - 0x036cbd53842c5426634e7929541ec2318f3dcf7e
+  fee_recipient: "0x0000000000000000000000000000000000000000"
 quote:
   constantRate: null
   gas:
@@ -22,7 +25,7 @@ onramp:
     apiUrl: https://api.banxa-sandbox.com/
     blockchain: base
     secrets:
-      api_key: ''
+      api_key: ""
 transactions:
   num_signers: 16
   max_pending_transactions: 100
@@ -32,11 +35,11 @@ transactions:
   nonce_check_interval: 60
   transaction_timeout: 60
   public_node_endpoints: {}
-  priority_fee_percentile: 20.0
-orchestrator: 
+  priority_fee_percentile: 20
+orchestrator: "0x1692bc8d0c73a7540ecb572e85c0775e68c55d25"
 legacy_orchestrators: []
 legacy_delegations: []
-delegation_proxy: 
-account_registry: 
-simulator: 
+delegation_proxy: "0x623b5b44647871268d481d2930f60d5d7f37a1fe"
+account_registry: "0xb0ade72d82538e2a6b1bc114a083b81cb6d5517f"
+simulator: "0x16a74f9a8856582ed90da3d11e8febf23b22c821"
 database_url: null
