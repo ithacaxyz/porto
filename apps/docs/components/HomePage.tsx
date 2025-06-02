@@ -934,7 +934,7 @@ export function Subscribe(props: {
     }
   })
 
-  if (permission && activeTier && activeTierIndex)
+  if (permission && activeTier && activeTierIndex !== -1)
     return (
       <div className="w-full max-w-78.75 rounded-[13px] bg-gray1">
         <div className="flex justify-between border-gray4 border-b px-4 pt-4 pb-3.5">
