@@ -1,13 +1,15 @@
 {
-  "name": "config",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "@porto/docker",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "config": "node --experimental-strip-types config.mts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.10.0"
+  "dependencies": {
+    "porto": "workspace:*",
+    "viem": "catalog:",
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
+  }
 }

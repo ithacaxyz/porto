@@ -9,7 +9,6 @@ chain:
   sequencer_endpoints: {}
   fee_tokens:
   - '0x0000000000000000000000000000000000000000'
-  - 0xe1aa25618fa0c7a1cfdab5d6b456af611873b629
   fee_recipient: '0x0000000000000000000000000000000000000000'
 quote:
   constantRate: null
@@ -34,10 +33,10 @@ transactions:
   transaction_timeout: 60
   public_node_endpoints: {}
   priority_fee_percentile: 20.0
-orchestrator: 0xa15bb66138824a1c7167f5e85b957d04dd34e468
+orchestrator: 
 legacy_orchestrators: []
 legacy_delegations: []
-delegation_proxy: 0x8ce361602b935680e8dec218b820ff5056beb7af
-account_registry: 0x700b6a60ce7eaaea56f065753d8dcb9653dbad35
-simulator: 0x196dbcbb54b8ec4958c959d8949ebfe87ac2aaaf
+delegation_proxy: 
+account_registry: 
+simulator: 
 database_url: null
