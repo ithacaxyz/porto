@@ -29,31 +29,45 @@ export function from<const account extends from.Parameters>(
   const account = (
     typeof parameters === 'string' ? { address: parameters } : parameters
   ) as from.AccountParameter
-  return Object.assign(
-    toAccount({
-      address: account.address,
-      sign({ hash }) {
-        if (account.source === 'privateKey') return account.sign!({ hash })
-        return sign(account as never, {
-          payload: hash,
-        })
-      },
-      signMessage({ message }) {
-        return sign(account as never, {
-          payload: hashMessage(message),
-        })
-      },
-      signTransaction() {
-        throw new Error('sign transaction not supported on delegated accounts.')
-      },
-      signTypedData(typedData) {
-        return sign(account as never, {
-          payload: hashTypedData(typedData),
-        })
-      },
-    }),
-    { keys: account.keys, source: account.source ?? 'porto' },
-  ) as never
+  const {
+    address,
+    sign: sign_,
+    signMessage,
+    signTransaction,
+    signTypedData,
+    type,
+  } = toAccount({
+    address: account.address,
+    sign({ hash }) {
+      if (account.source === 'privateKey') return account.sign!({ hash })
+      return sign(account as never, {
+        payload: hash,
+      })
+    },
+    signMessage({ message }) {
+      return sign(account as never, {
+        payload: hashMessage(message),
+      })
+    },
+    signTransaction() {
+      throw new Error('`signTransaction` not supported on porto accounts.')
+    },
+    signTypedData(typedData) {
+      return sign(account as never, {
+        payload: hashTypedData(typedData),
+      })
+    },
+  })
+  return {
+    address,
+    keys: account.keys ?? undefined,
+    sign: sign_,
+    signMessage,
+    signTransaction,
+    signTypedData,
+    source: account.source ?? 'porto',
+    type,
+  } as never
 }
 
 export declare namespace from {
@@ -74,7 +88,10 @@ export declare namespace from {
       | AccountParameter,
   > = Readonly<
     account extends AccountParameter
-      ? Assign<LocalAccount, account>
+      ? Assign<
+          LocalAccount & { keys?: readonly Key.Key[] | undefined },
+          account
+        >
       : { address: account }
   >
 }

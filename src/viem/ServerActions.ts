@@ -7,6 +7,7 @@ import * as Signature from 'ox/Signature'
 import {
   type Client,
   createClient,
+  type GetChainParameter,
   http,
   type Transport,
   zeroAddress,
@@ -19,7 +20,11 @@ import * as Account from './Account.js'
 import * as ServerActions from './internal/serverActions.js'
 import * as Key from './Key.js'
 
-export { getCapabilities, health } from './internal/serverActions.js'
+export {
+  getCallsStatus,
+  getCapabilities,
+  health,
+} from './internal/serverActions.js'
 
 /**
  * Creates a new Porto Account via the RPC.
@@ -31,9 +36,9 @@ export { getCapabilities, health } from './internal/serverActions.js'
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function createAccount(
-  client: Client<Transport, Chain>,
-  parameters: createAccount.Parameters,
+export async function createAccount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: createAccount.Parameters<chain>,
 ): Promise<createAccount.ReturnType> {
   if (parameters.signatures) {
     const { account, context, signatures } = parameters
@@ -65,7 +70,10 @@ export async function createAccount(
   )
   const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
-  const request = await prepareCreateAccount(client, { ...parameters, keys })
+  const request = await prepareCreateAccount(client, {
+    ...parameters,
+    keys,
+  } as never)
 
   const signatures = signers.map((signer, index) =>
     signer.sign({ digest: request.digests[index]! }),
@@ -92,28 +100,30 @@ export async function createAccount(
 }
 
 export namespace createAccount {
-  export type Parameters = OneOf<
-    | {
-        account: RequiredBy<Account.Account, 'keys'>
-        context: ServerActions.createAccount.Parameters['context']
-        signatures: ServerActions.createAccount.Parameters['signatures']
-      }
-    | (Omit<prepareCreateAccount.Parameters, 'keys'> & {
-        /**
-         * Keys to authorize.
-         *
-         * Accepts:
-         * - An array of keys.
-         * - A function that returns an array of keys. The function will be called
-         *   with the key's unique `id` as a parameter.
-         */
-        keys:
-          | readonly Key.Key[]
-          | ((p: {
-              ids: readonly Hex.Hex[]
-            }) => MaybePromise<readonly Key.Key[]>)
-      })
-  >
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    GetChainParameter<chain> &
+      OneOf<
+        | {
+            account: RequiredBy<Account.Account, 'keys'>
+            context: ServerActions.createAccount.Parameters['context']
+            signatures: ServerActions.createAccount.Parameters['signatures']
+          }
+        | (Omit<prepareCreateAccount.Parameters, 'chain' | 'keys'> & {
+            /**
+             * Keys to authorize.
+             *
+             * Accepts:
+             * - An array of keys.
+             * - A function that returns an array of keys. The function will be called
+             *   with the key's unique `id` as a parameter.
+             */
+            keys:
+              | readonly Key.Key[]
+              | ((p: {
+                  ids: readonly Hex.Hex[]
+                }) => MaybePromise<readonly Key.Key[]>)
+          })
+      >
 
   export type ReturnType = RequiredBy<Account.Account, 'keys'>
 
@@ -156,12 +166,12 @@ export namespace createIdSigner {
  * @param parameters - Parameters.
  * @returns Accounts.
  */
-export async function getAccounts(
-  client: Client<Transport, Chain>,
-  parameters: getAccounts.Parameters,
+export async function getAccounts<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getAccounts.Parameters<chain>,
 ): Promise<getAccounts.ReturnType> {
-  const { keyId } = parameters
-  const accounts = await ServerActions.getAccounts(client, { keyId })
+  const { chain, keyId } = parameters
+  const accounts = await ServerActions.getAccounts(client, { chain, keyId })
   return accounts.map((account) => {
     const keys = account.keys.map(Key.fromRpcServer)
     return Account.from({
@@ -172,9 +182,10 @@ export async function getAccounts(
 }
 
 export namespace getAccounts {
-  export type Parameters = {
-    keyId: Hex.Hex
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    GetChainParameter<chain> & {
+      keyId: Hex.Hex
+    }
 
   export type ReturnType = readonly RequiredBy<Account.Account, 'keys'>[]
 
@@ -212,19 +223,24 @@ export namespace getIdDigest {
  * @param parameters - Parameters.
  * @returns Account keys.
  */
-export async function getKeys(
-  client: Client<Transport, Chain>,
-  parameters: getKeys.Parameters,
+export async function getKeys<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getKeys.Parameters<chain>,
 ): Promise<getKeys.ReturnType> {
+  const { chain } = parameters
   const account = Account.from(parameters.account)
-  const keys = await ServerActions.getKeys(client, { address: account.address })
+  const keys = await ServerActions.getKeys(client, {
+    address: account.address,
+    chain,
+  })
   return keys.map(Key.fromRpcServer)
 }
 
 export namespace getKeys {
-  export type Parameters = {
-    account: Account.Account | Address.Address
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    GetChainParameter<chain> & {
+      account: Account.Account | Address.Address
+    }
 
   export type ReturnType = readonly Key.Key[]
 
@@ -241,12 +257,16 @@ export namespace getKeys {
  * @param parameters - Prepare call bundle parameters.
  * @returns Prepared properties.
  */
-export async function prepareCalls<const calls extends readonly unknown[]>(
-  client: Client<Transport, Chain>,
-  parameters: prepareCalls.Parameters<calls>,
+export async function prepareCalls<
+  const calls extends readonly unknown[],
+  chain extends Chain | undefined = Chain | undefined,
+>(
+  client: Client<Transport, chain>,
+  parameters: prepareCalls.Parameters<calls, chain>,
 ): Promise<prepareCalls.ReturnType> {
   const {
     calls,
+    chain,
     key,
     feeToken,
     nonce,
@@ -327,6 +347,7 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
           hash: key.hash,
         })),
       },
+      chain,
       key: key ? Key.toRpcServer(key) : undefined,
     },
   )
@@ -341,7 +362,8 @@ export async function prepareCalls<const calls extends readonly unknown[]>(
 export namespace prepareCalls {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
-  > = {
+    chain extends Chain | undefined = Chain | undefined,
+  > = GetChainParameter<chain> & {
     /** Additional keys to authorize on the account. */
     authorizeKeys?: readonly Key.Key[] | undefined
     /** Account to prepare the calls for. */
@@ -397,8 +419,8 @@ export namespace prepareCalls {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function prepareCreateAccount(
-  client: Client<Transport, Chain>,
+export async function prepareCreateAccount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
   parameters: prepareCreateAccount.Parameters,
 ) {
   const { chain = client.chain, keys } = parameters
@@ -440,14 +462,13 @@ export async function prepareCreateAccount(
 }
 
 export namespace prepareCreateAccount {
-  export type Parameters = {
-    /** Chain to prepare the account for. */
-    chain?: Chain | undefined
-    /** Contract address to delegate to. */
-    delegation?: Address.Address | undefined
-    /** Keys to authorize. */
-    keys: readonly Key.Key[]
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    GetChainParameter<chain> & {
+      /** Contract address to delegate to. */
+      delegation?: Address.Address | undefined
+      /** Keys to authorize. */
+      keys: readonly Key.Key[]
+    }
 
   export type ReturnType = {
     account: RequiredBy<Account.Account, 'keys'>
@@ -471,11 +492,11 @@ export namespace prepareCreateAccount {
  * @param parameters - Parameters.
  * @returns Result.
  */
-export async function prepareUpgradeAccount(
-  client: Client<Transport, Chain>,
-  parameters: prepareUpgradeAccount.Parameters,
-) {
-  const { address, feeToken, permissionsFeeLimit } = parameters
+export async function prepareUpgradeAccount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: prepareUpgradeAccount.Parameters<chain>,
+): Promise<prepareUpgradeAccount.ReturnType> {
+  const { address, chain, feeToken, permissionsFeeLimit } = parameters
 
   const { contracts } = await ServerActions.getCapabilities(client)
 
@@ -518,7 +539,7 @@ export async function prepareUpgradeAccount(
     }),
   }))
 
-  const { capabilities, context, digests } =
+  const { capabilities, context, digests, typedData } =
     await ServerActions.prepareUpgradeAccount(client, {
       address,
       capabilities: {
@@ -526,6 +547,7 @@ export async function prepareUpgradeAccount(
         delegation,
         feeToken,
       },
+      chain,
     })
 
   const account = Account.from({
@@ -540,31 +562,33 @@ export async function prepareUpgradeAccount(
       account,
     },
     digests,
+    typedData,
   }
 }
 
 export declare namespace prepareUpgradeAccount {
-  export type Parameters = {
-    /** Address of the account to upgrade. */
-    address: Address.Address
-    /** Contract address to delegate to. */
-    delegation?: Address.Address | undefined
-    /** Fee token. */
-    feeToken?: Address.Address | undefined
-    /**
-     * Keys to authorize.
-     *
-     * Accepts:
-     * - An array of keys.
-     * - A function that returns an array of keys. The function will be called
-     *   with the key's unique `id` as a parameter.
-     */
-    keys:
-      | readonly Key.Key[]
-      | ((p: { ids: readonly Hex.Hex[] }) => MaybePromise<readonly Key.Key[]>)
-    /** Permissions fee limit. */
-    permissionsFeeLimit?: bigint | undefined
-  }
+  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
+    GetChainParameter<chain> & {
+      /** Address of the account to upgrade. */
+      address: Address.Address
+      /** Contract address to delegate to. */
+      delegation?: Address.Address | undefined
+      /** Fee token. */
+      feeToken?: Address.Address | undefined
+      /**
+       * Keys to authorize.
+       *
+       * Accepts:
+       * - An array of keys.
+       * - A function that returns an array of keys. The function will be called
+       *   with the key's unique `id` as a parameter.
+       */
+      keys:
+        | readonly Key.Key[]
+        | ((p: { ids: readonly Hex.Hex[] }) => MaybePromise<readonly Key.Key[]>)
+      /** Permissions fee limit. */
+      permissionsFeeLimit?: bigint | undefined
+    }
 
   export type ReturnType = Omit<
     ServerActions.prepareUpgradeAccount.ReturnType,
@@ -590,9 +614,12 @@ export declare namespace prepareUpgradeAccount {
  * @param parameters - Parameters.
  * @returns Bundle identifier.
  */
-export async function sendCalls<const calls extends readonly unknown[]>(
-  client: Client<Transport, Chain>,
-  parameters: sendCalls.Parameters<calls>,
+export async function sendCalls<
+  const calls extends readonly unknown[],
+  chain extends Chain | undefined = Chain | undefined,
+>(
+  client: Client<Transport, chain>,
+  parameters: sendCalls.Parameters<calls, chain>,
 ) {
   // If a signature is provided, broadcast the calls to the RPC Server.
   if (parameters.signature) {
@@ -604,6 +631,8 @@ export async function sendCalls<const calls extends readonly unknown[]>(
       signature,
     })
   }
+
+  const { chain } = parameters
 
   // If no signature is provided, prepare the calls and sign them.
   const account = Account.from(parameters.account)
@@ -620,6 +649,7 @@ export async function sendCalls<const calls extends readonly unknown[]>(
         account,
         authorizeKeys,
         calls,
+        chain,
         feeToken: parameters.feeToken,
         key,
         preCalls: true,
@@ -635,9 +665,10 @@ export async function sendCalls<const calls extends readonly unknown[]>(
   // Prepare main bundle.
   const { capabilities, context, digest } = await prepareCalls(client, {
     ...parameters,
+    chain,
     key,
     preCalls,
-  })
+  } as never)
 
   // Sign over the bundles.
   const signature = await Key.sign(key, {
@@ -661,43 +692,48 @@ export async function sendCalls<const calls extends readonly unknown[]>(
 export declare namespace sendCalls {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
-  > = OneOf<
-    | {
-        /** Capabilities. */
-        capabilities?:
-          | ServerActions.sendPreparedCalls.Parameters['capabilities']
-          | undefined
-        /** Context. */
-        context: prepareCalls.ReturnType['context']
-        /** Key. */
-        key: NonNullable<prepareCalls.ReturnType['key']>
-        /** Signature. */
-        signature: Hex.Hex
-      }
-    | (Omit<prepareCalls.Parameters<calls>, 'account' | 'key' | 'preCalls'> & {
-        /** Account to send the calls with. */
-        account: Account.Account
-        /** Key to sign the bundle with. */
-        key?: Key.Key | undefined
-        /** Calls to execute before the main bundle. */
-        preCalls?:
-          | readonly OneOf<
-              | {
-                  context: prepareCalls.ReturnType['context']
-                  signature: Hex.Hex
-                }
-              | (Pick<
-                  prepareCalls.Parameters<calls>,
-                  'authorizeKeys' | 'calls' | 'revokeKeys'
-                > & {
-                  key: Key.Key
-                })
-            >[]
-          | undefined
-        /** Sponsor URL. */
-        sponsorUrl?: string | undefined
-      })
-  >
+    chain extends Chain | undefined = Chain | undefined,
+  > = GetChainParameter<chain> &
+    OneOf<
+      | {
+          /** Capabilities. */
+          capabilities?:
+            | ServerActions.sendPreparedCalls.Parameters['capabilities']
+            | undefined
+          /** Context. */
+          context: prepareCalls.ReturnType['context']
+          /** Key. */
+          key: NonNullable<prepareCalls.ReturnType['key']>
+          /** Signature. */
+          signature: Hex.Hex
+        }
+      | (Omit<
+          prepareCalls.Parameters<calls>,
+          'account' | 'chain' | 'key' | 'preCalls'
+        > & {
+          /** Account to send the calls with. */
+          account: Account.Account
+          /** Key to sign the bundle with. */
+          key?: Key.Key | undefined
+          /** Calls to execute before the main bundle. */
+          preCalls?:
+            | readonly OneOf<
+                | {
+                    context: prepareCalls.ReturnType['context']
+                    signature: Hex.Hex
+                  }
+                | (Pick<
+                    prepareCalls.Parameters<calls>,
+                    'authorizeKeys' | 'calls' | 'revokeKeys'
+                  > & {
+                    key: Key.Key
+                  })
+              >[]
+            | undefined
+          /** Sponsor URL. */
+          sponsorUrl?: string | undefined
+        })
+    >
 
   export type ReturnType = ServerActions.sendPreparedCalls.ReturnType
 
@@ -746,6 +782,202 @@ export declare namespace upgradeAccount {
   export type ErrorType =
     | ServerActions.upgradeAccount.ErrorType
     | Errors.GlobalErrorType
+}
+
+export type Decorator<chain extends Chain | undefined = Chain | undefined> = {
+  /**
+   * Creates a new Porto Account.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  createAccount: (
+    parameters: createAccount.Parameters<chain>,
+  ) => Promise<createAccount.ReturnType>
+  /**
+   * Gets the accounts for a given key identifier.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns Accounts.
+   */
+  getAccounts: (
+    parameters: getAccounts.Parameters<chain>,
+  ) => Promise<getAccounts.ReturnType>
+  /**
+   * Gets the status of a call bundle.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  getCallsStatus: (
+    parameters: ServerActions.getCallsStatus.Parameters,
+  ) => Promise<ServerActions.getCallsStatus.ReturnType>
+  /**
+   * Gets the capabilities for a given chain ID.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param options - Options.
+   * @returns Result.
+   */
+  getCapabilities: <
+    const chainIds extends readonly number[] | undefined = undefined,
+    const raw extends boolean = false,
+  >() => Promise<ServerActions.getCapabilities.ReturnType<chainIds, raw>>
+  /**
+   * Gets the keys for a given account.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  getKeys: (
+    parameters: getKeys.Parameters<chain>,
+  ) => Promise<getKeys.ReturnType>
+  /**
+   * Gets the health of the RPC.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @returns Result.
+   */
+  health: () => Promise<ServerActions.health.ReturnType>
+  /**
+   * Prepares a call bundle.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  prepareCalls: <const calls extends readonly unknown[]>(
+    parameters: prepareCalls.Parameters<calls, chain>,
+  ) => Promise<prepareCalls.ReturnType>
+  /**
+   * Prepares a new account creation.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  prepareCreateAccount: (
+    parameters: prepareCreateAccount.Parameters<chain>,
+  ) => Promise<prepareCreateAccount.ReturnType>
+  /**
+   * Prepares an account upgrade.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  prepareUpgradeAccount: (
+    parameters: prepareUpgradeAccount.Parameters<chain>,
+  ) => Promise<prepareUpgradeAccount.ReturnType>
+  /**
+   * Broadcasts a call bundle.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  sendCalls: <const calls extends readonly unknown[]>(
+    parameters: sendCalls.Parameters<calls, chain>,
+  ) => Promise<sendCalls.ReturnType>
+  /**
+   * Broadcasts a signed call bundle.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  sendPreparedCalls: (
+    parameters: ServerActions.sendPreparedCalls.Parameters,
+  ) => Promise<ServerActions.sendPreparedCalls.ReturnType>
+  /**
+   * Broadcasts an account upgrade.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - Client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  upgradeAccount: (
+    parameters: upgradeAccount.Parameters,
+  ) => Promise<upgradeAccount.ReturnType>
+  /**
+   * Verifies a signature.
+   *
+   * @example
+   * TODO
+   *
+   * @param client - The client to use.
+   * @param parameters - Parameters.
+   * @returns Result.
+   */
+  verifySignature: (
+    parameters: ServerActions.verifySignature.Parameters<chain>,
+  ) => Promise<ServerActions.verifySignature.ReturnType>
+}
+
+export function decorator<
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+>(client: Client<transport, chain>): Decorator {
+  return {
+    createAccount: (parameters) => createAccount(client, parameters),
+    getAccounts: (parameters) => getAccounts(client, parameters),
+    getCallsStatus: (parameters) =>
+      ServerActions.getCallsStatus(client, parameters),
+    getCapabilities: () => ServerActions.getCapabilities(client),
+    getKeys: (parameters) => getKeys(client, parameters),
+    health: () => ServerActions.health(client),
+    prepareCalls: (parameters) => prepareCalls(client, parameters),
+    prepareCreateAccount: (parameters) =>
+      prepareCreateAccount(client, parameters),
+    prepareUpgradeAccount: (parameters) =>
+      prepareUpgradeAccount(client, parameters),
+    sendCalls: (parameters) => sendCalls(client, parameters),
+    sendPreparedCalls: (parameters) =>
+      ServerActions.sendPreparedCalls(client, parameters),
+    upgradeAccount: (parameters) => upgradeAccount(client, parameters),
+    verifySignature: (parameters) =>
+      ServerActions.verifySignature(client, parameters),
+  }
 }
 
 function resolvePermissions(
