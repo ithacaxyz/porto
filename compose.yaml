@@ -22,8 +22,6 @@ services:
       context: "${DOCKER_BUILD_CONTEXT}"
       dockerfile: ./docker/config/Dockerfile
     user: root
-    env_file:
-      - .env
     environment:
       DOCKER_BUILD_CONTEXT: ${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}
     volumes:
@@ -46,8 +44,6 @@ services:
     depends_on:
       config:
         condition: service_completed_successfully
-    env_file:
-      - .env
     environment:
       RELAY_MNEMONIC: "test test test test test test test test test test test junk"
       DOCKER_BUILD_CONTEXT: ${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}
@@ -63,8 +59,6 @@ services:
       dockerfile: ./docker/proxy/Dockerfile
     labels:
       - dev.orbstack.domains=rpc.local
-    env_file:
-      - .env
     environment:
       ANVIL_URL: http://anvil:8545
       RELAY_URL: http://relay:9119
