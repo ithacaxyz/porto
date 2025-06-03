@@ -40,20 +40,12 @@ export function iframe(options: iframe.Options = {}) {
   // Tracking: https://github.com/WebKit/standards-positions/issues/304
   const includesUnsupported = (
     requests: readonly RpcRequest.RpcRequest[] | undefined,
-  ) => {
-    if (skipUnsupported) return false
-    // FireFox Android
-    if (UserAgent.isMobile() && UserAgent.isFirefox()) return true
-    if (
-      UserAgent.isSafari() &&
-      requests?.some((x) =>
-        ['wallet_connect', 'eth_requestAccounts'].includes(x.method),
-      )
+  ) =>
+    !skipUnsupported &&
+    UserAgent.isSafari() &&
+    requests?.some((x) =>
+      ['wallet_connect', 'eth_requestAccounts'].includes(x.method),
     )
-      return true
-
-    return false
-  }
 
   if (typeof window === 'undefined') return noop()
   return from({
