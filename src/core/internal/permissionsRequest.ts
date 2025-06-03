@@ -34,24 +34,21 @@ export async function toKey(
   if (!request) return undefined
 
   const expiry = request.expiry ?? 0
+  const type = request.key?.type ?? 'secp256k1'
   const permissions = request.permissions ?? {}
+  const publicKey = request?.key?.publicKey ?? '0x'
 
-  if (!request.key) {
-    return await Key.createWebCryptoP256({
-      expiry,
-      permissions,
-      role: 'session',
-    })
-  }
-
-  const type = request.key.type ?? 'secp256k1'
-  const publicKey = request.key.publicKey
-
-  return Key.from({
+  const key = Key.from({
     expiry,
     permissions,
     publicKey,
     role: 'session',
     type,
+  })
+  if (request?.key) return key
+
+  return await Key.createWebCryptoP256({
+    ...key,
+    role: 'session',
   })
 }
