@@ -1,6 +1,8 @@
 Bun.serve({
-  async fetch(req) {
-    const body = await req.json()
+  async fetch(request) {
+    if (request.method === 'GET') return new Response('Nada')
+
+    const body = await request.json()
     const target =
       body.method &&
       (body.method.startsWith('wallet_') || body.method === 'health')

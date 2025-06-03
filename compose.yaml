@@ -23,7 +23,7 @@ services:
     user: root
     volumes:
       - relay:/app/shared
-    command: -c "bash ./run.sh"
+    command: ["sh", "-c", "bash ./run.sh"]
 
   relay:
     image: ghcr.io/ithacaxyz/relay:3fc0de2
