@@ -1,4 +1,5 @@
 import { AbiFunction, Secp256k1, Value } from 'ox'
+import { Mode } from 'porto'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getBalance, readContract } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -12,7 +13,7 @@ import * as Key from './Key.js'
 describe('execute', () => {
   describe('behavior: authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account } = await getAccount(client)
 
       const key = Key.createHeadlessWebAuthnP256()
@@ -42,7 +43,7 @@ describe('execute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account } = await getAccount(client)
 
       await AccountContract.execute(client, {
@@ -77,7 +78,7 @@ describe('execute', () => {
     })
 
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account, privateKey } = await getAccount(client)
 
       const key = Key.createHeadlessWebAuthnP256()
@@ -108,7 +109,7 @@ describe('execute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account, privateKey } = await getAccount(client)
 
       await AccountContract.execute(client, {
@@ -144,7 +145,7 @@ describe('execute', () => {
     })
 
     test('key: P256, keysToAuthorize: [P256]', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account } = await getAccount(client)
 
       const key = Key.createHeadlessWebAuthnP256()
@@ -186,7 +187,7 @@ describe('execute', () => {
     })
 
     test('key: P256, keysToAuthorize: [WebCryptoP256]', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account } = await getAccount(client)
 
       const key = Key.createHeadlessWebAuthnP256()
@@ -241,7 +242,7 @@ describe('execute', () => {
 
   describe('behavior: arbitrary calls', () => {
     test('key: p256, executor: JSON-RPC', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
 
       const key = Key.createHeadlessWebAuthnP256()
 
@@ -288,7 +289,7 @@ describe('execute', () => {
     })
 
     test('key: p256, executor: JSON-RPC, mint tokens', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
 
       const key = Key.createHeadlessWebAuthnP256()
 
@@ -321,7 +322,7 @@ describe('execute', () => {
     })
 
     test('key: secp256k1, executor: JSON-RPC', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
 
       const key = Key.createSecp256k1()
 
@@ -368,7 +369,7 @@ describe('execute', () => {
     })
 
     test('key: webcrypto, executor: JSON-RPC', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
 
       const key = await Key.createWebCryptoP256({
         role: 'session',
@@ -428,7 +429,7 @@ describe('execute', () => {
     })
 
     test('key: owner, executor: JSON-RPC', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account } = await getAccount(client)
 
       await AccountContract.execute(client, {
@@ -471,7 +472,7 @@ describe('execute', () => {
     })
 
     test('key: owner, executor: EOA', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account, privateKey } = await getAccount(client)
 
       await AccountContract.execute(client, {
@@ -518,7 +519,7 @@ describe('execute', () => {
   // TODO: unskip once Anvil supports reverts on delegated accounts.
   describe.skip('behavior: spend limits', () => {
     test('default', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
 
       const key = Key.createHeadlessWebAuthnP256({
         role: 'session',
@@ -591,7 +592,7 @@ describe('execute', () => {
 
   // TODO: unskip once Anvil supports reverts on delegated accounts.
   test.skip('error: insufficient funds', async () => {
-    const { client, delegation } = getPorto()
+    const { client, delegation } = getPorto({ mode: Mode.contract })
     const { account } = await getAccount(client)
 
     await expect(() =>
@@ -614,7 +615,7 @@ describe('execute', () => {
       role: 'session',
     })
 
-    const { client, delegation } = getPorto()
+    const { client, delegation } = getPorto({ mode: Mode.contract })
     const { account } = await getAccount(client)
 
     await AccountContract.execute(client, {
@@ -639,7 +640,7 @@ describe('execute', () => {
 
   // TODO: unskip once Anvil supports reverts on delegated accounts.
   test.skip('error: key does not exist ', async () => {
-    const { client, delegation } = getPorto()
+    const { client, delegation } = getPorto({ mode: Mode.contract })
     const { account } = await getAccount(client)
 
     const key = Key.createHeadlessWebAuthnP256()
@@ -663,7 +664,7 @@ describe('execute', () => {
 describe('prepareExecute', () => {
   describe('authorize', () => {
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account } = await getAccount(client)
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
@@ -705,7 +706,7 @@ describe('prepareExecute', () => {
     })
 
     test('delegated: true, key: owner, keysToAuthorize: [P256], executor: JSON-RPC', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account } = await getAccount(client)
 
       await AccountContract.execute(client, {
@@ -752,7 +753,7 @@ describe('prepareExecute', () => {
     })
 
     test('delegated: false, key: owner, keysToAuthorize: [P256], executor: EOA', async () => {
-      const { client, delegation } = getPorto()
+      const { client, delegation } = getPorto({ mode: Mode.contract })
       const { account, privateKey } = await getAccount(client)
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
