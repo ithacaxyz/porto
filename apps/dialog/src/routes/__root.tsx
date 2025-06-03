@@ -228,7 +228,12 @@ function CheckUnsupportedBrowser(props: CheckUnsupportedBrowser.Props) {
   const action = (
     <p>
       Please switch to a{' '}
-      <a href="https://porto.sh/sdk/faq#which-browsers-are-supported">
+      <a
+        className="text-primary underline"
+        href="https://porto.sh/sdk/faq#which-browsers-are-supported"
+        rel="noreferrer"
+        target="_blank"
+      >
         supported browser
       </a>
       .
@@ -242,7 +247,7 @@ function CheckUnsupportedBrowser(props: CheckUnsupportedBrowser.Props) {
             isUnsupportedBrowser ? (
               <>
                 This browser has not implemented the Web APIs required for Porto
-                to Operate.
+                to operate.
                 <br />
                 {action}
               </>
