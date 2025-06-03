@@ -8,10 +8,12 @@ export async function connect(
   client: Client,
   parameters: connect.Parameters = {},
 ): Promise<connect.ReturnType> {
+  const method = 'wallet_connect' as const
+  type Method = typeof method
   const response = await client.request<
-    Extract<RpcSchema_viem.Wallet[number], { Method: 'wallet_connect' }>
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_connect',
+    method,
     params: [
       {
         capabilities: Typebox.Encode(
@@ -42,10 +44,12 @@ export declare namespace connect {
 }
 
 export async function disconnect(client: Client) {
+  const method = 'wallet_disconnect' as const
+  type Method = typeof method
   await client.request<
-    Extract<RpcSchema_viem.Wallet[number], { Method: 'wallet_disconnect' }>
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_disconnect',
+    method,
   })
 }
 
@@ -53,10 +57,12 @@ export async function getAdmins(
   client: Client,
   parameters: getAdmins.Parameters = {},
 ): Promise<getAdmins.ReturnType> {
+  const method = 'wallet_getAdmins' as const
+  type Method = typeof method
   const response = await client.request<
-    Extract<RpcSchema_viem.Wallet[number], { Method: 'wallet_getAdmins' }>
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_getAdmins',
+    method,
     params: [
       Typebox.Encode(
         RpcSchema.wallet_getAdmins.Parameters,
@@ -90,10 +96,12 @@ export async function getPermissions(
   client: Client,
   parameters: getPermissions.Parameters = {},
 ): Promise<getPermissions.ReturnType> {
+  const method = 'wallet_getPermissions' as const
+  type Method = typeof method
   const response = await client.request<
-    Extract<RpcSchema_viem.Wallet[number], { Method: 'wallet_getPermissions' }>
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_getPermissions',
+    method,
     params: [
       Typebox.Encode(
         RpcSchema.wallet_getPermissions.Parameters,
@@ -127,10 +135,12 @@ export async function grantAdmin(
   client: Client,
   parameters: grantAdmin.Parameters,
 ): Promise<grantAdmin.ReturnType> {
+  const method = 'wallet_grantAdmin' as const
+  type Method = typeof method
   const response = await client.request<
-    Extract<RpcSchema_viem.Wallet[number], { Method: 'wallet_grantAdmin' }>
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_grantAdmin',
+    method,
     params: [
       Typebox.Encode(
         RpcSchema.wallet_grantAdmin.Parameters,
@@ -168,13 +178,12 @@ export async function grantPermissions(
   client: Client,
   parameters: grantPermissions.Parameters,
 ): Promise<grantPermissions.ReturnType> {
+  const method = 'wallet_grantPermissions' as const
+  type Method = typeof method
   const response = await client.request<
-    Extract<
-      RpcSchema_viem.Wallet[number],
-      { Method: 'wallet_grantPermissions' }
-    >
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_grantPermissions',
+    method,
     params: [
       Typebox.Encode(
         RpcSchema.wallet_grantPermissions.Parameters,
@@ -208,10 +217,12 @@ export async function revokeAdmin(
   client: Client,
   parameters: revokeAdmin.Parameters,
 ) {
+  const method = 'wallet_revokeAdmin' as const
+  type Method = typeof method
   await client.request<
-    Extract<RpcSchema_viem.Wallet[number], { Method: 'wallet_revokeAdmin' }>
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_revokeAdmin',
+    method,
     params: [
       Typebox.Encode(
         RpcSchema.wallet_revokeAdmin.Parameters,
@@ -236,13 +247,12 @@ export async function revokePermissions(
   parameters: revokePermissions.Parameters,
 ) {
   const { address, id, ...capabilities } = parameters
+  const method = 'wallet_revokePermissions' as const
+  type Method = typeof method
   await client.request<
-    Extract<
-      RpcSchema_viem.Wallet[number],
-      { Method: 'wallet_revokePermissions' }
-    >
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_revokePermissions',
+    method,
     params: [
       Typebox.Encode(RpcSchema.wallet_revokePermissions.Parameters, {
         address,
@@ -272,13 +282,12 @@ export async function upgradeAccount(
 ): Promise<upgradeAccount.ReturnType> {
   const { account, chainId, ...capabilities } = parameters
 
+  const method = 'wallet_prepareUpgradeAccount' as const
+  type Method = typeof method
   const { context, signPayloads } = await client.request<
-    Extract<
-      RpcSchema_viem.Wallet[number],
-      { Method: 'wallet_prepareUpgradeAccount' }
-    >
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
-    method: 'wallet_prepareUpgradeAccount',
+    method,
     params: [
       Typebox.Encode(RpcSchema.wallet_prepareUpgradeAccount.Parameters, {
         address: account.address,
@@ -292,10 +301,12 @@ export async function upgradeAccount(
     signPayloads.map((hash) => account.sign({ hash })),
   )
 
+  const method_upgrade = 'wallet_upgradeAccount' as const
+  type Method_upgrade = typeof method_upgrade
   const response = await client.request<
-    Extract<RpcSchema_viem.Wallet[number], { Method: 'wallet_upgradeAccount' }>
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method_upgrade }>
   >({
-    method: 'wallet_upgradeAccount',
+    method: method_upgrade,
     params: [
       Typebox.Encode(RpcSchema.wallet_upgradeAccount.Parameters, {
         context,
