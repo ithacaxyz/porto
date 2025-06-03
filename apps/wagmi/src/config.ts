@@ -1,21 +1,23 @@
+import { PortoConfig } from '@porto/apps'
 import { Mode } from 'porto'
 import { porto } from 'porto/wagmi'
-import { createConfig, createStorage, http } from 'wagmi'
-import { baseSepolia } from 'wagmi/chains'
+import { createConfig, createStorage } from 'wagmi'
+
+const config = PortoConfig.getConfig()
 
 export const wagmiConfig = createConfig({
-  chains: [baseSepolia],
+  chains: config.chains,
   connectors: [
     porto({
+      ...config,
       mode: Mode.dialog({
-        host: import.meta.env.VITE_DIALOG_HOST,
+        host: PortoConfig.getDialogHost(),
       }),
     }),
   ],
+  multiInjectedProviderDiscovery: false,
   storage: createStorage({ storage: localStorage }),
-  transports: {
-    [baseSepolia.id]: http(),
-  },
+  transports: config.transports,
 })
 
 declare module 'wagmi' {

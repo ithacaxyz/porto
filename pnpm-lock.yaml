@@ -658,6 +658,9 @@ importers:
 
   apps/wagmi:
     dependencies:
+      '@porto/apps':
+        specifier: workspace:*
+        version: link:../~internal
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.77.1(react@19.1.0)

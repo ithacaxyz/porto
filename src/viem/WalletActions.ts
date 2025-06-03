@@ -16,7 +16,10 @@ export async function connect(
       {
         capabilities: Typebox.Encode(
           RpcSchema.wallet_connect.Capabilities,
-          parameters satisfies RpcSchema.wallet_connect.Capabilities,
+          Typebox.Clean(
+            RpcSchema.wallet_connect.Capabilities,
+            parameters satisfies RpcSchema.wallet_connect.Capabilities,
+          ),
         ),
       },
     ],
@@ -57,7 +60,10 @@ export async function getAdmins(
     params: [
       Typebox.Encode(
         RpcSchema.wallet_getAdmins.Parameters,
-        parameters satisfies RpcSchema.wallet_getAdmins.Parameters,
+        Typebox.Clean(
+          RpcSchema.wallet_getAdmins.Parameters,
+          parameters satisfies RpcSchema.wallet_getAdmins.Parameters,
+        ),
       ),
     ],
   })
@@ -91,7 +97,10 @@ export async function getPermissions(
     params: [
       Typebox.Encode(
         RpcSchema.wallet_getPermissions.Parameters,
-        parameters satisfies RpcSchema.wallet_getPermissions.Parameters,
+        Typebox.Clean(
+          RpcSchema.wallet_getPermissions.Parameters,
+          parameters satisfies RpcSchema.wallet_getPermissions.Parameters,
+        ),
       ),
     ],
   })
@@ -125,7 +134,10 @@ export async function grantAdmin(
     params: [
       Typebox.Encode(
         RpcSchema.wallet_grantAdmin.Parameters,
-        parameters satisfies RpcSchema.wallet_grantAdmin.Parameters,
+        Typebox.Clean(
+          RpcSchema.wallet_grantAdmin.Parameters,
+          parameters satisfies RpcSchema.wallet_grantAdmin.Parameters,
+        ),
       ),
     ],
   })
@@ -166,7 +178,10 @@ export async function grantPermissions(
     params: [
       Typebox.Encode(
         RpcSchema.wallet_grantPermissions.Parameters,
-        parameters satisfies RpcSchema.wallet_grantPermissions.Parameters,
+        Typebox.Clean(
+          RpcSchema.wallet_grantPermissions.Parameters,
+          parameters satisfies RpcSchema.wallet_grantPermissions.Parameters,
+        ),
       ),
     ],
   })
@@ -200,7 +215,10 @@ export async function revokeAdmin(
     params: [
       Typebox.Encode(
         RpcSchema.wallet_revokeAdmin.Parameters,
-        parameters satisfies RpcSchema.wallet_revokeAdmin.Parameters,
+        Typebox.Clean(
+          RpcSchema.wallet_revokeAdmin.Parameters,
+          parameters satisfies RpcSchema.wallet_revokeAdmin.Parameters,
+        ),
       ),
     ],
   })

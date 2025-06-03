@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@porto/apps": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
