@@ -424,7 +424,11 @@ export function from<type extends Key['type']>(
 
   const publicKey = (() => {
     const publicKey = key.publicKey
-    if (publicKey === '0x') return publicKey
+    if (
+      publicKey === '0x0000000000000000000000000000000000000000' ||
+      publicKey === '0x'
+    )
+      return publicKey
     if (type === 'secp256k1' || type === 'address') {
       const isAddress =
         Hex.size(publicKey) === 20 ||
