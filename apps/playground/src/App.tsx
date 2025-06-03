@@ -185,6 +185,7 @@ function Events() {
 function Connect() {
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
   const [result, setResult] = React.useState<unknown | null>(null)
+  const [payload, setPayload] = React.useState<unknown | null>(null)
   const [error, setError] = React.useState<string | null>(null)
 
   return (
@@ -215,9 +216,8 @@ function Connect() {
               .then(setResult)
               .catch((error) => {
                 console.error(error)
-                setError(
-                  Json.stringify({ error: error.message, payload }, null, 2),
-                )
+                setPayload(payload)
+                setError(Json.stringify(error, null, 2))
               })
           }}
           type="button"
@@ -241,9 +241,8 @@ function Connect() {
               .then(setResult)
               .catch((error) => {
                 console.error(error)
-                setError(
-                  Json.stringify({ error: error.message, payload }, null, 2),
-                )
+                setPayload(payload)
+                setError(Json.stringify(error, null, 2))
               })
           }}
           type="button"
@@ -252,7 +251,18 @@ function Connect() {
         </button>
       </div>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
-      {error ? <pre>{error}</pre> : null}
+      {error ? (
+        <details open={false}>
+          <summary>Error</summary>
+          <div>
+            <pre>{error}</pre>
+          </div>
+          <div>
+            <p>Payload:</p>
+            <pre>{Json.stringify(payload, null, 2)}</pre>
+          </div>
+        </details>
+      ) : null}
     </div>
   )
 }
