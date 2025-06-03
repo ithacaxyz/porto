@@ -228,13 +228,6 @@ export async function disconnect(
     transport: (opts) => custom(provider)({ ...opts, retryCount: 0 }),
   })
   await WalletActions.disconnect(client)
-  const method = 'wallet_disconnect'
-  type method = typeof method
-  await provider?.request<{
-    Method: method
-    Parameters: never
-    ReturnType: never
-  }>({ method })
 }
 
 export declare namespace disconnect {
