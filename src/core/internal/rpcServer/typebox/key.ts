@@ -1,7 +1,7 @@
 /**
  * RPC account key.
  *
- * @see https://github.com/ithacaxyz/relay/blob/main/src/types/key.rs
+ * @see https://github.com/ithacaxyz/porto/blob/main/apps/docs/pages/contracts/account.md#keys
  */
 
 import * as Primitive from '../../typebox/primitive.js'
