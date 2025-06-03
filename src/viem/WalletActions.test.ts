@@ -1,7 +1,5 @@
-import { Value } from 'ox'
 import { WalletClient } from 'porto/viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { getCode } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { setBalance } from '../../test/src/actions.js'
 import { getPorto } from '../../test/src/porto.js'
