@@ -218,7 +218,11 @@ function Connect() {
                 console.error(error)
                 setPayload(payload)
                 setError(
-                  Json.stringify({ ...error, message: error.message }, null, 2),
+                  Json.stringify(
+                    { ...error, message: error.message, trace: error.stack },
+                    null,
+                    2,
+                  ),
                 )
               })
           }}
@@ -245,7 +249,11 @@ function Connect() {
                 console.error(error)
                 setPayload(payload)
                 setError(
-                  Json.stringify({ ...error, message: error.message }, null, 2),
+                  Json.stringify(
+                    { ...error, message: error.message, trace: error.stack },
+                    null,
+                    2,
+                  ),
                 )
               })
           }}
