@@ -1,3 +1,10 @@
+/**
+ * Porto Wallet Actions.
+ *
+ * Note: These Actions will eventually be upstreamed into `viem` once an
+ * API is solidified & stable.
+ */
+
 import type { Client, PrivateKeyAccount } from 'viem'
 import * as Typebox from '../core/internal/typebox/typebox.js'
 import * as RpcSchema from '../core/RpcSchema.js'
