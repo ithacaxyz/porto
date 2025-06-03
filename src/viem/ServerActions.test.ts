@@ -161,7 +161,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       signatures,
     })
 
-    expect(result.account.keys).toContain(key)
+    expect(result.account.keys![0]!.publicKey).toBe(key.publicKey)
   })
 })
 

@@ -419,7 +419,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
