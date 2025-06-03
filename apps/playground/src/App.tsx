@@ -242,7 +242,9 @@ function Connect() {
               .catch((error) => {
                 console.error(error)
                 setPayload(payload)
-                setError(Json.stringify(error, null, 2))
+                setError(
+                  Json.stringify({ ...error, message: error.message }, null, 2),
+                )
               })
           }}
           type="button"
