@@ -214,22 +214,10 @@ function Connect() {
               })
               .then(setResult)
               .catch((error) => {
+                console.info(payload)
+                console.error(error)
                 setError(
-                  Json.stringify(
-                    {
-                      payload,
-                      ...(error instanceof Error
-                        ? {
-                            cause: error.cause,
-                            message: error.message,
-                            name: error.name,
-                            stack: error.stack,
-                          }
-                        : { error }),
-                    },
-                    null,
-                    2,
-                  ),
+                  Json.stringify({ error: error.message, payload }, null, 2),
                 )
               })
           }}
@@ -239,7 +227,6 @@ function Connect() {
         </button>
         <button
           onClick={() => {
-            console.info('wallet_connect')
             const payload = {
               capabilities: {
                 createAccount: true,
@@ -254,25 +241,10 @@ function Connect() {
               })
               .then(setResult)
               .catch((error) => {
+                console.info(payload)
                 console.error(error)
                 setError(
-                  Json.stringify(
-                    {
-                      payload,
-                      ...(error instanceof Error
-                        ? {
-                            error: {
-                              cause: error.cause,
-                              message: error.message,
-                              name: error.name,
-                              stack: error.stack,
-                            },
-                          }
-                        : { error }),
-                    },
-                    null,
-                    2,
-                  ),
+                  Json.stringify({ error: error.message, payload }, null, 2),
                 )
               })
           }}
