@@ -119,7 +119,7 @@ function RouteComponent() {
             className="flex flex-grow *:w-full"
             key={request?.id ? request.id.toString() : '-1'} // rehydrate on id changes
           >
-            <CheckInAppBrowser>
+            <CheckUnsupportedBrowser>
               <CheckReferrer>
                 {status === 'connecting' || status === 'reconnecting' ? (
                   <Layout loading loadingTitle="Loading...">
@@ -133,7 +133,7 @@ function RouteComponent() {
                   <Outlet />
                 )}
               </CheckReferrer>
-            </CheckInAppBrowser>
+            </CheckUnsupportedBrowser>
           </div>
         </div>
       </div>
@@ -202,32 +202,58 @@ declare namespace CheckReferrer {
 }
 
 const isInAppBrowser = UserAgent.isInAppBrowser()
+const isUnsupportedBrowser = UserAgent.isUnsupportedBrowser()
 
-function CheckInAppBrowser(props: CheckInAppBrowser.Props) {
+function CheckUnsupportedBrowser(props: CheckUnsupportedBrowser.Props) {
   const { children } = props
 
   const [proceed, setProceed] = React.useState(false)
 
-  if (!isInAppBrowser) return children
+  if (!isInAppBrowser && !isUnsupportedBrowser) return children
   if (proceed) return children
 
   const browserName = UserAgent.getInAppBrowserName()
+  const message = (
+    <>
+      {browserName ? (
+        <>
+          <span className="font-medium">{browserName}</span>'s in-app
+        </>
+      ) : (
+        'In-app'
+      )}
+    </>
+  )
+
+  const action = (
+    <p>
+      Please switch to a{' '}
+      <a href="https://porto.sh/sdk/faq#which-browsers-are-supported">
+        supported browser
+      </a>
+      .
+    </p>
+  )
   return (
     <Layout>
       <Layout.Header>
         <Layout.Header.Default
           content={
-            <>
-              {browserName ? (
-                <>
-                  <span className="font-medium">{browserName}</span>'s i
-                </>
-              ) : (
-                'I'
-              )}
-              n-app browser does not support Porto. Please open this page in
-              your device's browser.
-            </>
+            isUnsupportedBrowser ? (
+              <>
+                This browser has not implemented the Web APIs required for Porto
+                to Operate.
+                <br />
+                {action}
+              </>
+            ) : (
+              <>
+                {message} browser does not support Porto. Please open this page
+                in your device's browser.
+                <br />
+                {action}
+              </>
+            )
           }
           icon={LucideCircleAlert}
           title="Unsupported browser"
@@ -253,7 +279,7 @@ function CheckInAppBrowser(props: CheckInAppBrowser.Props) {
   )
 }
 
-declare namespace CheckInAppBrowser {
+declare namespace CheckUnsupportedBrowser {
   type Props = {
     children: React.ReactNode
   }

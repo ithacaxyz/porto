@@ -1,3 +1,8 @@
+export function isUnsupportedBrowser() {
+  const firefoxAndroid = isFirefox() && isMobile()
+  return typeof window?.PublicKeyCredential === 'undefined' || firefoxAndroid
+}
+
 export function isFirefox() {
   const ua = navigator.userAgent.toLowerCase()
   return ua.includes('firefox')
@@ -9,7 +14,11 @@ export function isSafari() {
 }
 
 export function isMobile() {
+  if (window.navigator?.userAgentData?.mobile) return true
+
   return (
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Browser_detection_using_the_user_agent#alternatives_to_ua_sniffing
+    navigator.maxTouchPoints > 1 ||
     /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
       navigator.userAgent,
     ) ||

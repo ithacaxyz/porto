@@ -12,3 +12,11 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+interface Navigator {
+  userAgentData: {
+    mobile: boolean
+    platform: string
+    brands: Array<{ brand: string; version: string }>
+  }
+}
