@@ -21,7 +21,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     meta: [
       {
         content: __APP_VERSION__,
-        name: 'X-App-Version',
+        name: 'x-app-version',
       },
     ],
   }),

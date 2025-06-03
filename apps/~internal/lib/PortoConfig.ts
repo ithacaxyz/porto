@@ -75,13 +75,13 @@ const dialogHosts = {
     : 'https://anvil.localhost:5174/dialog/',
   dev: import.meta.env.PROD
     ? 'https://dev.id.porto.sh/dialog/'
-    : 'https://dev.localhost:5174/dialog/',
+    : 'https://dev.localhost:5175/dialog/',
   prod: import.meta.env.PROD
     ? 'https://id.porto.sh/dialog/'
-    : 'https://prod.localhost:5174/dialog/',
+    : 'https://prod.localhost:5175/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
-    : 'https://localhost:5174/dialog/',
+    : 'https://localhost:5175/dialog/',
 } as const satisfies Record<Env.Env, string | undefined>
 
 export function getConfig(

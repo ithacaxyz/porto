@@ -35,7 +35,7 @@ export function App() {
   React.useEffect(() => porto._internal.setMode(modes[mode]), [mode])
 
   return (
-    <>
+    <main>
       <div className="max-w-[768px] p-2">
         <h1>Playground</h1>
         <div className="flex gap-2">
@@ -116,7 +116,7 @@ export function App() {
       <div className="fixed top-0 left-[calc(768px+var(--spacing)*2)] p-4">
         <div id="porto" />
       </div>
-    </>
+    </main>
   )
 }
 
@@ -135,10 +135,10 @@ function State() {
         <>
           <p>Address: {state.accounts[0].address}</p>
           <p>Chain ID: {state.chainId}</p>
-          <p>
-            Keys:{' '}
+          <div>
+            <p>Keys:</p>
             <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
-          </p>
+          </div>
         </>
       )}
     </div>
@@ -185,7 +185,6 @@ function Events() {
 function Connect() {
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
   const [result, setResult] = React.useState<unknown | null>(null)
-  const [payload, setPayload] = React.useState<unknown | null>(null)
   const [error, setError] = React.useState<string | null>(null)
 
   return (
@@ -215,11 +214,19 @@ function Connect() {
               })
               .then(setResult)
               .catch((error) => {
-                console.error(error)
-                setPayload(payload)
                 setError(
                   Json.stringify(
-                    { ...error, message: error.message, trace: error.stack },
+                    {
+                      payload,
+                      ...(error instanceof Error
+                        ? {
+                            cause: error.cause,
+                            message: error.message,
+                            name: error.name,
+                            stack: error.stack,
+                          }
+                        : { error }),
+                    },
                     null,
                     2,
                   ),
@@ -232,6 +239,7 @@ function Connect() {
         </button>
         <button
           onClick={() => {
+            console.info('wallet_connect')
             const payload = {
               capabilities: {
                 createAccount: true,
@@ -247,10 +255,21 @@ function Connect() {
               .then(setResult)
               .catch((error) => {
                 console.error(error)
-                setPayload(payload)
                 setError(
                   Json.stringify(
-                    { ...error, message: error.message, trace: error.stack },
+                    {
+                      payload,
+                      ...(error instanceof Error
+                        ? {
+                            error: {
+                              cause: error.cause,
+                              message: error.message,
+                              name: error.name,
+                              stack: error.stack,
+                            },
+                          }
+                        : { error }),
+                    },
                     null,
                     2,
                   ),
@@ -263,18 +282,7 @@ function Connect() {
         </button>
       </div>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
-      {error ? (
-        <details open={false}>
-          <summary>Error</summary>
-          <div>
-            <pre>{error}</pre>
-          </div>
-          <div>
-            <p>Payload:</p>
-            <pre>{Json.stringify(payload, null, 2)}</pre>
-          </div>
-        </details>
-      ) : null}
+      {error ? <pre>{error}</pre> : null}
     </div>
   )
 }
@@ -609,7 +617,7 @@ function UpgradeAccount() {
   return (
     <div>
       <h3>wallet_upgradeAccount</h3>
-      <p>
+      <div>
         <button
           onClick={() => {
             const privateKey = generatePrivateKey()
@@ -624,7 +632,7 @@ function UpgradeAccount() {
           Create EOA
         </button>
         {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
-      </p>
+      </div>
       <div>
         <input
           onChange={(e) => setPrivateKey(e.target.value)}
@@ -677,9 +685,10 @@ function UpgradeAccount() {
         </button>
       </div>
       {result ? (
-        <p>
-          Upgraded account. <pre>{JSON.stringify(result, null, 2)}</pre>
-        </p>
+        <div>
+          <p>Upgraded account.</p>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
       ) : null}
     </div>
   )
@@ -833,7 +842,7 @@ function SendCalls() {
     >
       <h3>wallet_sendCalls</h3>
 
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div className="flex gap-2 overflow-auto">
         <select name="action">
           <option value="mint">Mint 100 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
@@ -852,7 +861,6 @@ function SendCalls() {
         </select>
         <button type="submit">Send</button>
       </div>
-
       {id && (
         <>
           <pre>{id}</pre>
