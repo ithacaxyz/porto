@@ -107,7 +107,7 @@ export async function setBalance(
   client: ServerClient,
   parameters: {
     address: Address.Address
-    value: bigint
+    value?: bigint | undefined
   },
 ) {
   const { address, value = parseEther('10000') } = parameters

@@ -86,7 +86,7 @@ export function contract(parameters: contract.Parameters = {}) {
       },
     )
 
-    return { context: request, signPayloads }
+    return { context: U.normalizeValue(request), signPayloads }
   }
 
   return Mode.from({
