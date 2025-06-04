@@ -13,12 +13,8 @@ export * from './typebox/rpc.js'
 
 export type Schema = RpcSchema_ox.From<
   | {
-      Request: Static<typeof Rpc.relay_health.Request>
-      ReturnType: Static<typeof Rpc.relay_health.Response>
-    }
-  | {
-      Request: Static<typeof Rpc.wallet_createAccount.Request>
-      ReturnType: Static<typeof Rpc.wallet_createAccount.Response>
+      Request: Static<typeof Rpc.health.Request>
+      ReturnType: Static<typeof Rpc.health.Response>
     }
   | {
       Request: Static<typeof Rpc.wallet_feeTokens.Request>
@@ -45,10 +41,6 @@ export type Schema = RpcSchema_ox.From<
       ReturnType: Static<typeof Rpc.wallet_prepareCalls.Response>
     }
   | {
-      Request: Static<typeof Rpc.wallet_prepareCreateAccount.Request>
-      ReturnType: Static<typeof Rpc.wallet_prepareCreateAccount.Response>
-    }
-  | {
       Request: Static<typeof Rpc.wallet_prepareUpgradeAccount.Request>
       ReturnType: Static<typeof Rpc.wallet_prepareUpgradeAccount.Response>
     }
@@ -58,7 +50,7 @@ export type Schema = RpcSchema_ox.From<
     }
   | {
       Request: Static<typeof Rpc.wallet_upgradeAccount.Request>
-      ReturnType: Static<typeof Rpc.wallet_upgradeAccount.Response>
+      ReturnType: undefined
     }
   | {
       Request: Static<typeof Rpc.wallet_verifySignature.Request>

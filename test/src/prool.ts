@@ -159,7 +159,8 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
             if (
               body.method &&
               (body.method.startsWith('relay_') ||
-                body.method.startsWith('wallet_'))
+                body.method.startsWith('wallet_') ||
+                body.method === 'health')
             )
               return `http://${host}:${port_relay}`
             return endpoint
