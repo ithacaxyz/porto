@@ -16,7 +16,6 @@ import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/rpcServer/typebox/capabilities.js'
 import type * as Quote from '../core/internal/rpcServer/typebox/quote.js'
 import type { OneOf, RequiredBy } from '../core/internal/types.js'
-import * as U from '../core/internal/utils.js'
 import * as Account from './Account.js'
 import * as ServerActions from './internal/serverActions.js'
 import type { GetAccountParameter } from './internal/utils.js'
@@ -284,12 +283,10 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
       delegation,
     })
 
-  const account = U.normalizeValue(
-    Account.from({
-      address,
-      keys,
-    }),
-  )
+  const account = Account.from({
+    address,
+    keys,
+  })
 
   return {
     capabilities,

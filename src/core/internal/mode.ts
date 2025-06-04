@@ -53,8 +53,6 @@ export type Mode = {
     }) => Promise<{
       /** Account. */
       account: Account.Account
-      /** Pre-calls to be executed (e.g. key authorization). */
-      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     getAccountVersion: (parameters: {
