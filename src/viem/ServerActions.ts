@@ -2,8 +2,6 @@ import * as AbiParameters from 'ox/AbiParameters'
 import * as Address from 'ox/Address'
 import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as Signature from 'ox/Signature'
 import {
   type Calls,
   type Client,
@@ -17,7 +15,7 @@ import {
 import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/rpcServer/typebox/capabilities.js'
 import type * as Quote from '../core/internal/rpcServer/typebox/quote.js'
-import type { MaybePromise, OneOf, RequiredBy } from '../core/internal/types.js'
+import type { OneOf, RequiredBy } from '../core/internal/types.js'
 import * as U from '../core/internal/utils.js'
 import * as Account from './Account.js'
 import * as ServerActions from './internal/serverActions.js'
@@ -29,136 +27,6 @@ export {
   getCapabilities,
   health,
 } from './internal/serverActions.js'
-
-/**
- * Creates a new Porto Account via the RPC.
- *
- * @example
- * TODO
- *
- * @param client - Client to use.
- * @param parameters - Parameters.
- * @returns Result.
- */
-export async function createAccount<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: createAccount.Parameters<chain>,
-): Promise<createAccount.ReturnType> {
-  if (parameters.signatures) {
-    const { account, context, signatures } = parameters
-    await ServerActions.createAccount(client, {
-      context,
-      signatures,
-    })
-    return account
-  }
-
-  // Create root id signer
-  const idSigner_root = createIdSigner()
-
-  const keys =
-    typeof parameters.keys === 'function'
-      ? await parameters.keys({ ids: [idSigner_root.id] })
-      : parameters.keys
-
-  const hasSessionKey = keys.some((x) => x.role === 'session')
-  const orchestrator = hasSessionKey
-    ? (await ServerActions.getCapabilities(client)).contracts.orchestrator
-        .address
-    : undefined
-
-  const keys_rpc = keys.map((key) =>
-    Key.toRpcServer(key, {
-      orchestrator,
-    }),
-  )
-  const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
-
-  const request = await prepareCreateAccount(client, {
-    ...parameters,
-    keys,
-  } as never)
-
-  const signatures = signers.map((signer, index) =>
-    signer.sign({ digest: request.digests[index]! }),
-  )
-
-  await createAccount(client, {
-    ...request,
-    signatures: signatures.map((signature, index) => ({
-      publicKey: keys_rpc[index]!.publicKey,
-      type: keys_rpc[index]!.type,
-      value: signature,
-    })),
-  })
-
-  const account = Account.from({
-    address: request.account.address,
-    keys: keys.map((key, index) => ({
-      ...key,
-      id: signers[index]!.id,
-    })),
-  })
-
-  return account
-}
-
-export namespace createAccount {
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    GetChainParameter<chain> &
-      OneOf<
-        | {
-            account: RequiredBy<Account.Account, 'keys'>
-            context: ServerActions.createAccount.Parameters['context']
-            signatures: ServerActions.createAccount.Parameters['signatures']
-          }
-        | (Omit<prepareCreateAccount.Parameters, 'chain' | 'keys'> & {
-            /**
-             * Keys to authorize.
-             *
-             * Accepts:
-             * - An array of keys.
-             * - A function that returns an array of keys. The function will be called
-             *   with the key's unique `id` as a parameter.
-             */
-            keys:
-              | readonly Key.Key[]
-              | ((p: {
-                  ids: readonly Hex.Hex[]
-                }) => MaybePromise<readonly Key.Key[]>)
-          })
-      >
-
-  export type ReturnType = RequiredBy<Account.Account, 'keys'>
-
-  export type ErrorType =
-    | ServerActions.createAccount.ErrorType
-    | Errors.GlobalErrorType
-}
-
-/**
- * Creates an ephemeral signer to sign over an Account's key identifier.
- *
- * @returns ID Signer.
- */
-function createIdSigner(): createIdSigner.ReturnType {
-  const privateKey = Secp256k1.randomPrivateKey()
-  const publicKey = Secp256k1.getPublicKey({ privateKey })
-  const id = Address.fromPublicKey(publicKey)
-  return {
-    id,
-    sign({ digest }) {
-      return Signature.toHex(Secp256k1.sign({ payload: digest, privateKey }))
-    },
-  } as const
-}
-
-export namespace createIdSigner {
-  export type ReturnType = {
-    id: Hex.Hex
-    sign(p: { digest: Hex.Hex }): Hex.Hex
-  }
-}
 
 /**
  * Gets the accounts for a given key identifier.
@@ -296,18 +164,8 @@ export async function prepareCalls<
         .address
     : undefined
 
-  const idSigner = createIdSigner()
   const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) => {
-    if (key.role === 'admin')
-      return Key.toRpcServer(
-        {
-          ...key,
-          signature: idSigner.sign({
-            digest: getIdDigest({ id: idSigner.id, key }),
-          }),
-        },
-        { orchestrator },
-      )
+    if (key.role === 'admin') return Key.toRpcServer(key, { orchestrator })
 
     const permissions = resolvePermissions(key, {
       feeToken,
@@ -418,79 +276,6 @@ export namespace prepareCalls {
 }
 
 /**
- * Prepares a new Porto Account via the RPC.
- *
- * @example
- * TODO
- *
- * @param client - Client to use.
- * @param parameters - Parameters.
- * @returns Result.
- */
-export async function prepareCreateAccount<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: prepareCreateAccount.Parameters<chain>,
-) {
-  const { chain = client.chain, keys } = parameters
-
-  const { contracts } = await ServerActions.getCapabilities(client)
-
-  const delegation = parameters.delegation ?? contracts.accountProxy.address
-  const hasSessionKey = keys.some((x) => x.role === 'session')
-  const orchestrator = hasSessionKey
-    ? contracts.orchestrator.address
-    : undefined
-
-  const authorizeKeys = keys.map((key) =>
-    Key.toRpcServer(key, {
-      orchestrator,
-    }),
-  )
-
-  const { address, capabilities, context, digests } =
-    await ServerActions.prepareCreateAccount(client, {
-      capabilities: {
-        authorizeKeys,
-        delegation,
-      },
-      chain,
-    })
-
-  const account = Account.from({
-    address,
-    keys,
-  })
-
-  return {
-    account,
-    capabilities,
-    context,
-    digests,
-  }
-}
-
-export namespace prepareCreateAccount {
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    GetChainParameter<chain> & {
-      /** Contract address to delegate to. */
-      delegation?: Address.Address | undefined
-      /** Keys to authorize. */
-      keys: readonly Key.Key[]
-    }
-
-  export type ReturnType = {
-    account: RequiredBy<Account.Account, 'keys'>
-    capabilities: ServerActions.prepareCreateAccount.ReturnType['capabilities']
-    context: ServerActions.prepareCreateAccount.ReturnType['context']
-    digests: ServerActions.prepareCreateAccount.ReturnType['digests']
-  }
-
-  export type ErrorType =
-    | ServerActions.prepareCreateAccount.ErrorType
-    | Errors.GlobalErrorType
-}
-
-/**
  * Prepares an account upgrade.
  *
  * @example
@@ -504,17 +289,9 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: prepareUpgradeAccount.Parameters<chain>,
 ): Promise<prepareUpgradeAccount.ReturnType> {
-  const { address, chain, feeToken, permissionsFeeLimit } = parameters
+  const { address, chain, feeToken, keys, permissionsFeeLimit } = parameters
 
   const { contracts } = await ServerActions.getCapabilities(client)
-
-  // Create root id signer
-  const idSigner_root = createIdSigner()
-
-  const keys =
-    typeof parameters.keys === 'function'
-      ? await parameters.keys({ ids: [idSigner_root.id] })
-      : parameters.keys
 
   const delegation = parameters.delegation ?? contracts.accountProxy.address
   const hasSessionKey = keys.some((x) => x.role === 'session')
@@ -522,7 +299,7 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
     ? contracts.orchestrator.address
     : undefined
 
-  const keys_rpc = keys.map((key) => {
+  const authorizeKeys = keys.map((key) => {
     const permissions =
       key.role === 'session'
         ? resolvePermissions(key, {
@@ -538,24 +315,14 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
       { orchestrator },
     )
   })
-  const signers = [idSigner_root, ...keys.slice(1).map(createIdSigner)]
 
-  const authorizeKeys = signers.map((signer, index) => ({
-    ...keys_rpc[index]!,
-    signature: signer.sign({
-      digest: getIdDigest({ id: signer.id, key: keys[index]! }),
-    }),
-  }))
-
-  const { capabilities, context, digests, typedData } =
+  const { capabilities, chainId, context, digests, typedData } =
     await ServerActions.prepareUpgradeAccount(client, {
       address,
-      capabilities: {
-        authorizeKeys,
-        delegation,
-        feeToken,
-      },
+      authorizeKeys,
       chain,
+      delegation,
+      feeToken,
     })
 
   const account = U.normalizeValue(
@@ -567,6 +334,7 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
 
   return {
     capabilities,
+    chainId,
     context: {
       ...context,
       account,
@@ -585,17 +353,8 @@ export declare namespace prepareUpgradeAccount {
       delegation?: Address.Address | undefined
       /** Fee token. */
       feeToken?: Address.Address | undefined
-      /**
-       * Keys to authorize.
-       *
-       * Accepts:
-       * - An array of keys.
-       * - A function that returns an array of keys. The function will be called
-       *   with the key's unique `id` as a parameter.
-       */
-      keys:
-        | readonly Key.Key[]
-        | ((p: { ids: readonly Hex.Hex[] }) => MaybePromise<readonly Key.Key[]>)
+      /** Keys to authorize. */
+      keys: readonly Key.Key[]
       /** Permissions fee limit. */
       permissionsFeeLimit?: bigint | undefined
     }
@@ -781,26 +540,20 @@ export async function upgradeAccount(
 ) {
   const { context, signatures } = parameters
 
-  const { bundles } = await ServerActions.upgradeAccount(client, {
+  await ServerActions.upgradeAccount(client, {
     context,
     signatures,
   })
 
-  return {
-    account: context.account,
-    bundles,
-  }
+  // TODO(prep): option to eager upgrade.
+
+  return undefined
 }
 
 export declare namespace upgradeAccount {
-  export type Parameters = {
-    context: prepareUpgradeAccount.ReturnType['context']
-    signatures: readonly Hex.Hex[]
-  }
+  export type Parameters = ServerActions.upgradeAccount.Parameters
 
-  export type ReturnType = ServerActions.upgradeAccount.ReturnType & {
-    account: Account.Account
-  }
+  export type ReturnType = ServerActions.upgradeAccount.ReturnType
 
   export type ErrorType =
     | ServerActions.upgradeAccount.ErrorType
@@ -811,19 +564,6 @@ export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account.Account | undefined = Account.Account | undefined,
 > = {
-  /**
-   * Creates a new Porto Account.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - Client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  createAccount: (
-    parameters: createAccount.Parameters<chain>,
-  ) => Promise<createAccount.ReturnType>
   /**
    * Gets the accounts for a given key identifier.
    *
@@ -901,19 +641,6 @@ export type Decorator<
     parameters: prepareCalls.Parameters<calls, chain, account>,
   ) => Promise<prepareCalls.ReturnType>
   /**
-   * Prepares a new account creation.
-   *
-   * @example
-   * TODO
-   *
-   * @param client - The client to use.
-   * @param parameters - Parameters.
-   * @returns Result.
-   */
-  prepareCreateAccount: (
-    parameters: prepareCreateAccount.Parameters<chain>,
-  ) => Promise<prepareCreateAccount.ReturnType>
-  /**
    * Prepares an account upgrade.
    *
    * @example
@@ -986,7 +713,6 @@ export function decorator<
   account extends Account.Account | undefined = Account.Account | undefined,
 >(client: Client<transport, chain, account>): Decorator<chain, account> {
   return {
-    createAccount: (parameters) => createAccount(client, parameters),
     getAccounts: (parameters) => getAccounts(client, parameters),
     getCallsStatus: (parameters) =>
       ServerActions.getCallsStatus(client, parameters),
@@ -994,8 +720,6 @@ export function decorator<
     getKeys: (parameters) => getKeys(client, parameters),
     health: () => ServerActions.health(client),
     prepareCalls: (parameters) => prepareCalls(client, parameters),
-    prepareCreateAccount: (parameters) =>
-      prepareCreateAccount(client, parameters),
     prepareUpgradeAccount: (parameters) =>
       prepareUpgradeAccount(client, parameters),
     sendCalls: (parameters) => sendCalls(client, parameters),
