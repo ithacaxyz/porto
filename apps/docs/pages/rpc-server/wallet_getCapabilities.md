@@ -30,10 +30,6 @@ type Response = {
   // the chain ID as hex
   [chainId: Hex]: {
     contracts: {
-      accountRegistry: {
-        address: Address,
-        version?: string,
-      },
       delegationImplementation: {
         address: Address,
         version?: string,
@@ -98,10 +94,6 @@ cast rpc --rpc-url https://porto-dev.rpc.ithaca.xyz wallet_getCapabilities '[284
 {
   "0x14a34": {
     "contracts": {
-        "accountRegistry": {
-          "address": "0x623b5b44647871268d481d2930f60d5d7f37a1fe",
-          "version": null
-        },
         "delegationImplementation": {
           "address": "0x5c4fd1f648a89802b7fcd0bced8a35567d99cf15",
           "version": "0.1.2"

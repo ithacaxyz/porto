@@ -86,12 +86,10 @@ export namespace wallet_getCapabilities {
     Primitive.Hex,
     Type.Object({
       contracts: Type.Object({
-        /** Account registry address. */
-        accountImplementation: VersionedContract,
         /** Account implementation address. */
-        accountProxy: VersionedContract,
+        accountImplementation: VersionedContract,
         /** Account proxy address. */
-        accountRegistry: VersionedContract,
+        accountProxy: VersionedContract,
         /** Legacy account implementation address. */
         legacyAccountImplementations: Type.Array(VersionedContract),
         /** Legacy orchestrator address. */

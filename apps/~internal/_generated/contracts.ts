@@ -760,6 +760,22 @@ export const exp1Abi = [
   },
   {
     inputs: [],
+    name: 'cancelOwnershipHandover',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: 'pendingOwner', type: 'address' },
+    ],
+    name: 'completeOwnershipHandover',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'decimals',
     outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
     stateMutability: 'view',
@@ -790,6 +806,22 @@ export const exp1Abi = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'owner',
+    outputs: [{ internalType: 'address', name: 'result', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: 'pendingOwner', type: 'address' },
+    ],
+    name: 'ownershipHandoverExpiresAt',
+    outputs: [{ internalType: 'uint256', name: 'result', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       { internalType: 'address', name: 'owner', type: 'address' },
       { internalType: 'address', name: 'spender', type: 'address' },
@@ -800,6 +832,27 @@ export const exp1Abi = [
       { internalType: 'bytes32', name: 's', type: 'bytes32' },
     ],
     name: 'permit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'requestOwnershipHandover',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'mintCap', type: 'uint256' }],
+    name: 'setMintCap',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -851,6 +904,13 @@ export const exp1Abi = [
     type: 'function',
   },
   {
+    inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -878,6 +938,51 @@ export const exp1Abi = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'pendingOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipHandoverCanceled',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'pendingOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipHandoverRequested',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'oldOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
       { indexed: true, internalType: 'address', name: 'from', type: 'address' },
       { indexed: true, internalType: 'address', name: 'to', type: 'address' },
       {
@@ -892,12 +997,16 @@ export const exp1Abi = [
   },
   { inputs: [], name: 'AllowanceOverflow', type: 'error' },
   { inputs: [], name: 'AllowanceUnderflow', type: 'error' },
+  { inputs: [], name: 'AlreadyInitialized', type: 'error' },
   { inputs: [], name: 'InsufficientAllowance', type: 'error' },
   { inputs: [], name: 'InsufficientBalance', type: 'error' },
   { inputs: [], name: 'InvalidPermit', type: 'error' },
+  { inputs: [], name: 'NewOwnerIsZeroAddress', type: 'error' },
+  { inputs: [], name: 'NoHandoverRequest', type: 'error' },
   { inputs: [], name: 'Permit2AllowanceIsFixedAtInfinity', type: 'error' },
   { inputs: [], name: 'PermitExpired', type: 'error' },
   { inputs: [], name: 'TotalSupplyOverflow', type: 'error' },
+  { inputs: [], name: 'Unauthorized', type: 'error' },
 ] as const
 
 /**
@@ -976,6 +1085,22 @@ export const exp2Abi = [
   },
   {
     inputs: [],
+    name: 'cancelOwnershipHandover',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: 'pendingOwner', type: 'address' },
+    ],
+    name: 'completeOwnershipHandover',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'decimals',
     outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
     stateMutability: 'view',
@@ -1006,6 +1131,22 @@ export const exp2Abi = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'owner',
+    outputs: [{ internalType: 'address', name: 'result', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: 'pendingOwner', type: 'address' },
+    ],
+    name: 'ownershipHandoverExpiresAt',
+    outputs: [{ internalType: 'uint256', name: 'result', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       { internalType: 'address', name: 'owner', type: 'address' },
       { internalType: 'address', name: 'spender', type: 'address' },
@@ -1016,6 +1157,27 @@ export const exp2Abi = [
       { internalType: 'bytes32', name: 's', type: 'bytes32' },
     ],
     name: 'permit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'requestOwnershipHandover',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'mintCap', type: 'uint256' }],
+    name: 'setMintCap',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -1067,6 +1229,13 @@ export const exp2Abi = [
     type: 'function',
   },
   {
+    inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -1094,6 +1263,51 @@ export const exp2Abi = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'pendingOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipHandoverCanceled',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'pendingOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipHandoverRequested',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'oldOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
       { indexed: true, internalType: 'address', name: 'from', type: 'address' },
       { indexed: true, internalType: 'address', name: 'to', type: 'address' },
       {
@@ -1108,12 +1322,16 @@ export const exp2Abi = [
   },
   { inputs: [], name: 'AllowanceOverflow', type: 'error' },
   { inputs: [], name: 'AllowanceUnderflow', type: 'error' },
+  { inputs: [], name: 'AlreadyInitialized', type: 'error' },
   { inputs: [], name: 'InsufficientAllowance', type: 'error' },
   { inputs: [], name: 'InsufficientBalance', type: 'error' },
   { inputs: [], name: 'InvalidPermit', type: 'error' },
+  { inputs: [], name: 'NewOwnerIsZeroAddress', type: 'error' },
+  { inputs: [], name: 'NoHandoverRequest', type: 'error' },
   { inputs: [], name: 'Permit2AllowanceIsFixedAtInfinity', type: 'error' },
   { inputs: [], name: 'PermitExpired', type: 'error' },
   { inputs: [], name: 'TotalSupplyOverflow', type: 'error' },
+  { inputs: [], name: 'Unauthorized', type: 'error' },
 ] as const
 
 /**
