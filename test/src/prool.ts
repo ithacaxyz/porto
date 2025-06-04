@@ -107,7 +107,6 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         `${image}:${version}`,
         ...toArgs({
           ...rest,
-          accountRegistry: '0x0000000000000000000000000000000000000000',
           endpoint: endpoint?.replaceAll(
             /127\.0\.0\.1|0\.0\.0\.0/g,
             'host.docker.internal',
