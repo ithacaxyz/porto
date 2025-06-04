@@ -343,12 +343,13 @@ export function from<
           >
         }
 
+        // TODO(prep): rm
         case 'wallet_createAccount': {
           const [{ chainId, label }] = request._decoded.params ?? [{}]
 
           const client = getClient(chainId)
 
-          const { account, preCalls } = await getMode().actions.createAccount({
+          const { account } = await getMode().actions.createAccount({
             internal: {
               client,
               config,
@@ -367,12 +368,12 @@ export function from<
           emitter.emit('connect', {
             chainId: Hex.fromNumber(client.chain.id),
           })
+
           return {
             address: account.address,
             capabilities: {
               admins: getAdmins(account.keys ?? []),
               ...(permissions.length > 0 ? { permissions } : {}),
-              preCalls,
             },
           } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
         }
@@ -760,13 +761,12 @@ export function from<
             if (createAccount) {
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
-              const { account, preCalls } =
-                await getMode().actions.createAccount({
-                  internal,
-                  label,
-                  permissions,
-                })
-              return { accounts: [account], preCalls }
+              const { account } = await getMode().actions.createAccount({
+                internal,
+                label,
+                permissions,
+              })
+              return { accounts: [account] }
             }
             const account = state.accounts[0]
             const { address, credentialId } = (() => {

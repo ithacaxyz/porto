@@ -64,9 +64,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { internal, permissions } = parameters
+        const { permissions } = parameters
         const { client } = parameters.internal
-        const { storage } = internal.config
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
@@ -77,40 +76,16 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
               userId: Bytes.from(eoa.address),
             })
           : Key.createHeadlessWebAuthnP256()
+        const sessionKey = await PermissionsRequest.toKey(permissions)
 
         const account = await ServerActions.upgradeAccount(client, {
           account: eoa,
-          authorizeKeys: [adminKey],
+          authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
         })
 
         address_internal = eoa.address
 
-        const feeToken = await resolveFeeToken(internal, {
-          permissionsFeeLimit,
-        })
-        const authorizeKey = await PermissionsRequest.toKey(permissions)
-
-        const preCalls = authorizeKey
-          ? // TODO(rpcServer): remove double webauthn sign.
-            await getAuthorizeKeyPreCalls(client, {
-              account,
-              authorizeKey,
-              feeToken,
-            })
-          : []
-        if (persistPreCalls)
-          await PreCalls.add(preCalls, {
-            address: account.address,
-            storage,
-          })
-
-        return {
-          account: Account.from({
-            ...account,
-            keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
-          }),
-          preCalls,
-        }
+        return { account }
       },
 
       async getAccountVersion(parameters) {

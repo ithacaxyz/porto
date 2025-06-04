@@ -889,14 +889,9 @@ describe('e2e', () => {
     })
 
     test('batch authorize + mint', async () => {
-      // 1. Initialize Account with Admin Key.
-      const key = Key.createHeadlessWebAuthnP256()
-      const account = await TestActions.createAccount(client, {
-        keys: [key],
-      })
-
-      // 2. Authorize a new Session Key.
-      const newKey = Key.createP256({
+      // 1. Initialize Account with Admin Key & Session Key.
+      const adminKey = Key.createHeadlessWebAuthnP256()
+      const sessionKey = Key.createP256({
         permissions: {
           calls: [{ to: exp2Address }],
           spend: [
@@ -908,6 +903,9 @@ describe('e2e', () => {
           ],
         },
         role: 'session',
+      })
+      const account = await TestActions.createAccount(client, {
+        keys: [adminKey, sessionKey],
       })
 
       // 3. Mint 100 ERC20 tokens to Account with new Session Key.
@@ -922,13 +920,7 @@ describe('e2e', () => {
           },
         ],
         feeToken: exp1Address,
-        key: newKey,
-        preCalls: [
-          {
-            authorizeKeys: [newKey],
-            key,
-          },
-        ],
+        key: sessionKey,
       })
       expect(id).toBeDefined()
 
@@ -936,7 +928,7 @@ describe('e2e', () => {
         id,
       })
 
-      // 4. Verify that Account has 100 ERC20 tokens.
+      // 3. Verify that Account has 100 ERC20 tokens.
       expect(
         await readContract(client, {
           abi: exp2Abi,
@@ -950,12 +942,8 @@ describe('e2e', () => {
 
   describe('behavior: call permissions', () => {
     test('default', async () => {
-      // 1. Initialize account with Admin Key
+      // 1. Initialize account with Admin Key & Session Key.
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await TestActions.createAccount(client, {
-        keys: [adminKey],
-      })
-
       const sessionKey = Key.createP256({
         permissions: {
           calls: [
@@ -973,8 +961,11 @@ describe('e2e', () => {
         },
         role: 'session',
       })
+      const account = await TestActions.createAccount(client, {
+        keys: [adminKey, sessionKey],
+      })
 
-      // 2. Mint 100 ERC20 tokens to Account (and initialize scoped Session Key).
+      // 2. Mint 100 ERC20 tokens to Account.
       {
         const { id } = await Rpc.sendCalls(client, {
           account,
@@ -988,12 +979,6 @@ describe('e2e', () => {
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          preCalls: [
-            {
-              authorizeKeys: [sessionKey],
-              key: adminKey,
-            },
-          ],
         })
         expect(id).toBeDefined()
 
@@ -1014,12 +999,8 @@ describe('e2e', () => {
     })
 
     test('multiple calls', async () => {
-      // 1. Initialize account with Admin Key.
+      // 1. Initialize account with Admin Key & Session Key.
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await TestActions.createAccount(client, {
-        keys: [adminKey],
-      })
-
       const sessionKey = Key.createP256({
         permissions: {
           calls: [
@@ -1037,6 +1018,9 @@ describe('e2e', () => {
         },
         role: 'session',
       })
+      const account = await TestActions.createAccount(client, {
+        keys: [adminKey, sessionKey],
+      })
 
       // 2. Mint 100 ERC20 tokens to Account (and initialize scoped Session Key).
       {
@@ -1052,12 +1036,6 @@ describe('e2e', () => {
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          preCalls: [
-            {
-              authorizeKeys: [sessionKey],
-              key: adminKey,
-            },
-          ],
         })
         expect(id).toBeDefined()
 
@@ -1112,10 +1090,6 @@ describe('e2e', () => {
     test('multiple calls (w/ admin key, then session key)', async () => {
       // 1. Initialize account with Admin Key and Session Key (with call permission).
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await TestActions.createAccount(client, {
-        keys: [adminKey],
-      })
-
       const sessionKey = Key.createP256({
         permissions: {
           calls: [
@@ -1133,8 +1107,11 @@ describe('e2e', () => {
         },
         role: 'session',
       })
+      const account = await TestActions.createAccount(client, {
+        keys: [adminKey, sessionKey],
+      })
 
-      // 2. Mint 100 ERC20 tokens to Account with Admin Key (and initialize scoped Session Key).
+      // 2. Mint 100 ERC20 tokens to Account with Admin Key.
       {
         const { id } = await Rpc.sendCalls(client, {
           account,
@@ -1148,12 +1125,6 @@ describe('e2e', () => {
           ],
           feeToken: exp1Address,
           key: adminKey,
-          preCalls: [
-            {
-              authorizeKeys: [sessionKey],
-              key: adminKey,
-            },
-          ],
         })
         expect(id).toBeDefined()
 
@@ -1210,10 +1181,6 @@ describe('e2e', () => {
 
       // 1. Initialize account with Admin Key and Session Key (with call permission).
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await TestActions.createAccount(client, {
-        keys: [adminKey],
-      })
-
       const sessionKey = Key.createP256({
         permissions: {
           calls: [
@@ -1236,6 +1203,9 @@ describe('e2e', () => {
         },
         role: 'session',
       })
+      const account = await TestActions.createAccount(client, {
+        keys: [adminKey, sessionKey],
+      })
 
       // 2. Mint 100 ERC20 tokens to Account (and initialize scoped Session Key).
       {
@@ -1257,12 +1227,6 @@ describe('e2e', () => {
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          preCalls: [
-            {
-              authorizeKeys: [sessionKey],
-              key: adminKey,
-            },
-          ],
         })
         expect(id).toBeDefined()
 
@@ -1283,12 +1247,8 @@ describe('e2e', () => {
     })
 
     test('error: invalid target', async () => {
-      // 1. Initialize account with Admin Key.
+      // 1. Initialize account with Admin Key & Session Key.
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await TestActions.createAccount(client, {
-        keys: [adminKey],
-      })
-
       const sessionKey = Key.createP256({
         permissions: {
           calls: [
@@ -1306,8 +1266,11 @@ describe('e2e', () => {
         },
         role: 'session',
       })
+      const account = await TestActions.createAccount(client, {
+        keys: [adminKey, sessionKey],
+      })
 
-      // 2. Try to mint ERC20 tokens to Account with Session Key (and initialize scoped Session Key).
+      // 2. Try to mint ERC20 tokens to Account with Session Key.
       await expect(() =>
         Rpc.sendCalls(client, {
           account,
@@ -1321,23 +1284,13 @@ describe('e2e', () => {
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          preCalls: [
-            {
-              authorizeKeys: [sessionKey],
-              key: adminKey,
-            },
-          ],
         }),
       ).rejects.toThrowError('Reason: Unauthorized')
     })
 
     test('error: invalid selector', async () => {
-      // 1. Initialize account with Admin Key.
+      // 1. Initialize account with Admin Key & Session Key.
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await TestActions.createAccount(client, {
-        keys: [adminKey],
-      })
-
       const sessionKey = Key.createP256({
         permissions: {
           calls: [
@@ -1355,8 +1308,11 @@ describe('e2e', () => {
         },
         role: 'session',
       })
+      const account = await TestActions.createAccount(client, {
+        keys: [adminKey, sessionKey],
+      })
 
-      // 2. Try to mint ERC20 tokens to Account with Session Key (and initialize scoped Session Key).
+      // 2. Try to mint ERC20 tokens to Account with Session Key.
       await expect(() =>
         Rpc.sendCalls(client, {
           account,
@@ -1385,10 +1341,6 @@ describe('e2e', () => {
     test('session key', async () => {
       // 1. Initialize account with Admin Key and Session Key (with permissions).
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await TestActions.createAccount(client, {
-        keys: [adminKey],
-      })
-
       const sessionKey = Key.createP256({
         permissions: {
           calls: [
@@ -1407,6 +1359,9 @@ describe('e2e', () => {
         },
         role: 'session',
       })
+      const account = await TestActions.createAccount(client, {
+        keys: [adminKey, sessionKey],
+      })
 
       // 2. Mint 100 ERC20 tokens to Account with Session Key.
       {
@@ -1422,12 +1377,6 @@ describe('e2e', () => {
           ],
           feeToken: exp1Address,
           key: sessionKey,
-          preCalls: [
-            {
-              authorizeKeys: [sessionKey],
-              key: adminKey,
-            },
-          ],
         })
         expect(id).toBeDefined()
 
