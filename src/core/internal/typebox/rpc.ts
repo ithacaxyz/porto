@@ -395,6 +395,7 @@ export namespace wallet_connect {
   export const Capabilities = Type.Object({
     createAccount: Typebox.Optional(C.createAccount.Request),
     credentialId: Typebox.Optional(Type.String()),
+    email: Typebox.Optional(Type.Boolean()),
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
     keyId: Typebox.Optional(Primitive.Hex),
     preCalls: Typebox.Optional(C.preCalls.Request),
