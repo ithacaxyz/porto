@@ -10,14 +10,7 @@ COPY . /usr/src/app
 WORKDIR /usr/src/app
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN pnpm --filter manager --filter dialog build
-
-FROM base AS manager
-COPY --from=build /usr/src/app/apps/manager/dist /apps/manager
-WORKDIR /apps/manager
-RUN pnpm add -g serve
-EXPOSE 8000
-CMD [ "serve", "/apps/manager", "-l", "8000" ]
+RUN pnpm --filter dialog build
 
 FROM base AS dialog
 COPY --from=build /usr/src/app/apps/dialog/dist /apps/dialog
