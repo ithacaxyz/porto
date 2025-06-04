@@ -165,7 +165,7 @@ export default defineConfig(({ mode }) => ({
         // Create app-sponsor account.
         const sponsorKey = Key.createSecp256k1()
         const sponsorAccount = await ServerActions.createAccount(relayClient, {
-          keys: [sponsorKey],
+          authorizeKeys: [sponsorKey],
         })
         await writeContract(anvilClient, {
           abi: exp1Abi,

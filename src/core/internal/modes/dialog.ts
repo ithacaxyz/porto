@@ -48,7 +48,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     ? {
                         address: account.address,
                         credentialId: (adminKey as any)?.credentialId,
-                        keyId: adminKey?.id,
                       }
                     : undefined,
                   request,
