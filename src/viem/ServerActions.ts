@@ -1,7 +1,7 @@
-import * as AbiParameters from 'ox/AbiParameters'
 import * as Address from 'ox/Address'
 import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
+import * as Secp256k1 from 'ox/Secp256k1'
 import {
   type Calls,
   type Client,
@@ -29,60 +29,33 @@ export {
 } from './internal/serverActions.js'
 
 /**
- * Gets the accounts for a given key identifier.
+ * Creates a new Porto Account using an ephemeral EOA.
  *
  * @example
  * TODO
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns Accounts.
+ * @returns Result.
  */
-export async function getAccounts<chain extends Chain | undefined>(
+export async function createAccount<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getAccounts.Parameters<chain>,
-): Promise<getAccounts.ReturnType> {
-  const { chain, keyId } = parameters
-  const accounts = await ServerActions.getAccounts(client, { chain, keyId })
-  return accounts.map((account) => {
-    const keys = account.keys.map(Key.fromRpcServer)
-    return Account.from({
-      address: account.address,
-      keys,
-    })
+  parameters: createAccount.Parameters<chain>,
+): Promise<createAccount.ReturnType> {
+  const account = Account.fromPrivateKey(Secp256k1.randomPrivateKey(), {
+    keys: parameters.authorizeKeys,
+  })
+  return await upgradeAccount(client, {
+    ...(parameters as any),
+    account,
   })
 }
 
-export namespace getAccounts {
+export declare namespace createAccount {
   export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    GetChainParameter<chain> & {
-      keyId: Hex.Hex
-    }
+    Omit<upgradeAccount.UnpreparedParameters<chain>, 'account'>
 
-  export type ReturnType = readonly RequiredBy<Account.Account, 'keys'>[]
-
-  export type ErrorType = ServerActions.getAccounts.ErrorType
-}
-
-/**
- * Gets the digest to sign over a candidate key identifier.
- *
- * @param parameters - Parameters.
- * @returns Digest.
- */
-export function getIdDigest(parameters: getIdDigest.Parameters): Hex.Hex {
-  const { id, key } = parameters
-  return AbiParameters.encode(
-    [{ type: 'bytes' }, { type: 'address' }],
-    [Key.hash(key), id],
-  )
-}
-
-export namespace getIdDigest {
-  export type Parameters = {
-    id: Hex.Hex
-    key: Key.Key
-  }
+  export type ReturnType = RequiredBy<Account.Account, 'keys'>
 }
 
 /**
@@ -289,7 +262,7 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: prepareUpgradeAccount.Parameters<chain>,
 ): Promise<prepareUpgradeAccount.ReturnType> {
-  const { address, chain, feeToken, keys, permissionsFeeLimit } = parameters
+  const { address, authorizeKeys: keys, chain } = parameters
 
   const { contracts } = await ServerActions.getCapabilities(client)
 
@@ -299,22 +272,9 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
     ? contracts.orchestrator.address
     : undefined
 
-  const authorizeKeys = keys.map((key) => {
-    const permissions =
-      key.role === 'session'
-        ? resolvePermissions(key, {
-            feeToken,
-            permissionsFeeLimit,
-          })
-        : undefined
-    return Key.toRpcServer(
-      {
-        ...key,
-        permissions,
-      },
-      { orchestrator },
-    )
-  })
+  const authorizeKeys = keys.map((key) =>
+    Key.toRpcServer(key, { orchestrator }),
+  )
 
   const { capabilities, chainId, context, digests, typedData } =
     await ServerActions.prepareUpgradeAccount(client, {
@@ -322,7 +282,6 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
       authorizeKeys,
       chain,
       delegation,
-      feeToken,
     })
 
   const account = U.normalizeValue(
@@ -349,14 +308,10 @@ export declare namespace prepareUpgradeAccount {
     GetChainParameter<chain> & {
       /** Address of the account to upgrade. */
       address: Address.Address
+      /** Keys to authorize. */
+      authorizeKeys: readonly Key.Key[]
       /** Contract address to delegate to. */
       delegation?: Address.Address | undefined
-      /** Fee token. */
-      feeToken?: Address.Address | undefined
-      /** Keys to authorize. */
-      keys: readonly Key.Key[]
-      /** Permissions fee limit. */
-      permissionsFeeLimit?: bigint | undefined
     }
 
   export type ReturnType = Omit<
@@ -534,28 +489,63 @@ export declare namespace sendPreparedCalls {
  * @param parameters - Parameters.
  * @returns Result.
  */
+export async function upgradeAccount<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: upgradeAccount.Parameters<chain>,
+): Promise<upgradeAccount.ReturnType>
 export async function upgradeAccount(
   client: Client,
   parameters: upgradeAccount.Parameters,
 ) {
+  if (parameters.account) {
+    const { account } = parameters
+    const { digests, ...request } = await prepareUpgradeAccount(client, {
+      ...parameters,
+      address: account.address,
+    })
+
+    const signatures = {
+      auth: await account.sign({ hash: digests.authDigest }),
+      preCall: await account.sign({ hash: digests.preCallDigest }),
+    }
+
+    return await upgradeAccount(client, {
+      ...request,
+      signatures,
+    })
+  }
+
   const { context, signatures } = parameters
+
+  const account = Account.from(context.account)
 
   await ServerActions.upgradeAccount(client, {
     context,
     signatures,
   })
 
-  // TODO(prep): option to eager upgrade.
-
-  return undefined
+  return account
 }
 
 export declare namespace upgradeAccount {
-  export type Parameters = ServerActions.upgradeAccount.Parameters
+  type Parameters<chain extends Chain | undefined = Chain | undefined> = OneOf<
+    PreparedParameters | UnpreparedParameters<chain>
+  >
 
-  export type ReturnType = ServerActions.upgradeAccount.ReturnType
+  type PreparedParameters = {
+    context: prepareUpgradeAccount.ReturnType['context']
+    signatures: ServerActions.upgradeAccount.Parameters['signatures']
+  }
 
-  export type ErrorType =
+  type UnpreparedParameters<
+    chain extends Chain | undefined = Chain | undefined,
+  > = Omit<prepareUpgradeAccount.Parameters<chain>, 'address'> & {
+    account: Account.Account<'privateKey'>
+  }
+
+  type ReturnType = RequiredBy<Account.Account, 'keys'>
+
+  type ErrorType =
     | ServerActions.upgradeAccount.ErrorType
     | Errors.GlobalErrorType
 }
@@ -565,18 +555,18 @@ export type Decorator<
   account extends Account.Account | undefined = Account.Account | undefined,
 > = {
   /**
-   * Gets the accounts for a given key identifier.
+   * Creates a new Porto Account using an ephemeral EOA.
    *
    * @example
    * TODO
    *
    * @param client - Client.
    * @param parameters - Parameters.
-   * @returns Accounts.
+   * @returns Result.
    */
-  getAccounts: (
-    parameters: getAccounts.Parameters<chain>,
-  ) => Promise<getAccounts.ReturnType>
+  createAccount: (
+    parameters: createAccount.Parameters<chain>,
+  ) => Promise<createAccount.ReturnType>
   /**
    * Gets the status of a call bundle.
    *
@@ -690,7 +680,7 @@ export type Decorator<
    * @returns Result.
    */
   upgradeAccount: (
-    parameters: upgradeAccount.Parameters,
+    parameters: upgradeAccount.Parameters<chain>,
   ) => Promise<upgradeAccount.ReturnType>
   /**
    * Verifies a signature.
@@ -713,7 +703,7 @@ export function decorator<
   account extends Account.Account | undefined = Account.Account | undefined,
 >(client: Client<transport, chain, account>): Decorator<chain, account> {
   return {
-    getAccounts: (parameters) => getAccounts(client, parameters),
+    createAccount: (parameters) => createAccount(client, parameters),
     getCallsStatus: (parameters) =>
       ServerActions.getCallsStatus(client, parameters),
     getCapabilities: () => ServerActions.getCapabilities(client),

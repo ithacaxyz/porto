@@ -28,8 +28,8 @@ export async function createAccount(
 
   const request = await ServerActions.prepareUpgradeAccount(client, {
     address: account.address,
+    authorizeKeys: keys,
     feeToken: exp1Address,
-    keys,
   })
 
   const signatures = {

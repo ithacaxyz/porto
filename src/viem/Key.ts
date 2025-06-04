@@ -954,14 +954,7 @@ export function toRpcServer(
   key: toRpcServer.Value,
   options: toRpcServer.Options = {},
 ): RequiredBy<Server, 'prehash'> {
-  const {
-    expiry = 0,
-    prehash = false,
-    publicKey,
-    role = 'admin',
-    signature,
-    type,
-  } = key
+  const { expiry = 0, prehash = false, publicKey, role = 'admin', type } = key
   const { orchestrator } = options
 
   // biome-ignore lint/complexity/useFlatMap:
@@ -1012,7 +1005,6 @@ export function toRpcServer(
     prehash,
     publicKey: serializePublicKey(publicKey),
     role: toRpcServerKeyRole[role],
-    signature,
     type: toRpcServerKeyType[type],
   }
 }
@@ -1021,13 +1013,7 @@ export declare namespace toRpcServer {
   type Value = PartialBy<
     Pick<
       Key,
-      | 'expiry'
-      | 'prehash'
-      | 'permissions'
-      | 'publicKey'
-      | 'role'
-      | 'signature'
-      | 'type'
+      'expiry' | 'prehash' | 'permissions' | 'publicKey' | 'role' | 'type'
     >,
     'expiry' | 'role'
   >
