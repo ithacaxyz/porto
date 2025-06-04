@@ -503,22 +503,3 @@ These functions are helpers that can be called publicly.
 
 ---
 
-### Initialization
-
-#### `initializePREP`
-
-  ```solidity
-  function initializePREP(bytes calldata initData) public virtual returns (bool)
-  ```
- Can be called by anyone, but typically by the Orchestrator or a deployer as part of the PREP (EIP-7717) initialization flow.
-- **Description:** Initializes the account as a Pre-Executed Proxy (PREP).
-    - If already initialized (i.e., `rPREP` is non-zero), it returns `true`.
-    - Decodes `initData` (expected to be ERC7821-style batch execution: `abi.encode(calls, abi.encodePacked(bytes32(saltAndAccount)))`).
-    - Computes and stores the `rPREP` value.
-    - Executes the `calls` decoded from `initData` internally.
-- **Usage:**
-    - `initData`: Encoded data containing calls to be executed upon initialization and the salt/account info for PREP.
-    - This function allows the account to be set up and its initial state configured atomically with its PREP validation.
-    - Reverts if `initData` is invalid or if the address is not a valid PREP address (resulting in `r == 0`).
-
----

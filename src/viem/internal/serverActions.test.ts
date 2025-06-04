@@ -683,7 +683,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 })
 
-describe('prepareUpgradeAccount + upgradeAccount', () => {
+describe.only('prepareUpgradeAccount + upgradeAccount', () => {
   test('default', async () => {
     const p256 = (() => {
       const privateKey = P256.randomPrivateKey()

@@ -50,13 +50,6 @@ struct Intent {
     ////////////////////////////////////////////////////////////////////////
     // Additional Fields (Not included in EIP-712)
     ////////////////////////////////////////////////////////////////////////
-    /// @dev Optional data for `initPREP` on the account.
-    /// This is encoded using ERC7821 style batch execution encoding.
-    /// (ERC7821 is a variant of ERC7579).
-    /// `abi.encode(calls, abi.encodePacked(bytes32(saltAndAccount)))`,
-    /// where `calls` is of type `Call[]`,
-    /// and `saltAndAccount` is `bytes32((uint256(salt) << 160) | uint160(account))`.
-    bytes initData;
     /// @dev The actual pre payment amount, requested by the filler. MUST be less than or equal to `prePaymentMaxAmount`
     uint256 prePaymentAmount;
     /// @dev The actual total payment amount, requested by the filler. MUST be less than or equal to `totalPaymentMaxAmount`

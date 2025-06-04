@@ -29,7 +29,6 @@ type Request = {
           totalPaymentMaxAmount: Hex,
           combinedGas: Hex,
           encodedPreCalls: Hex[],
-          initData: Hex,
           prePaymentAmount: Hex,
           totalPaymentAmount: Hex,
           paymentRecipient: Address,

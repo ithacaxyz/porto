@@ -24,6 +24,7 @@ export const instances = {
     orchestrator: orchestratorAddress,
     simulator: simulatorAddress,
     txGasBuffer: 100_000n,
+    version: '6d94e05',
   }),
 } as const
 

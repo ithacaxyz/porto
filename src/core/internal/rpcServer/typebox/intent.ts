@@ -35,16 +35,6 @@ export const Intent = Type.Object({
    * This allows for more efficient safe forwarding to the EOA.
    */
   executionData: Primitive.Hex,
-  /**
-   * Optional data for `initPREP` on the delegation.
-   *
-   * This is encoded using ERC7821 style batch execution encoding.
-   * (ERC7821 is a variant of ERC7579).
-   * `abi.encode(calls, abi.encodePacked(bytes32(saltAndDelegation)))`,
-   * where `calls` is of type `Call[]`,
-   * and `saltAndDelegation` is `bytes32((uint256(salt) << 160) | uint160(delegation))`.
-   */
-  initData: Primitive.Hex,
   /** Per delegated EOA.
    *
    * # Memory layout
@@ -135,7 +125,6 @@ export type Intent = Typebox.StaticDecode<typeof Intent>
 export const Partial = Type.Object({
   eoa: Primitive.Address,
   executionData: Primitive.Hex,
-  initData: Primitive.Hex,
   nonce: Primitive.BigInt,
 })
 export type Partial = Typebox.StaticDecode<typeof Partial>
