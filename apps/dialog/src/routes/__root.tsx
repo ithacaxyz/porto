@@ -246,8 +246,8 @@ function CheckUnsupportedBrowser(props: CheckUnsupportedBrowser.Props) {
           content={
             isUnsupportedBrowser ? (
               <>
-                This browser has not implemented the Web APIs required for Porto
-                to operate.
+                This browser does not support Porto. Please switch to a
+                supported browser.
                 <br />
                 {action}
               </>
