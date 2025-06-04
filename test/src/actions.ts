@@ -26,20 +26,9 @@ export async function createAccount(
 
   const { account } = await getAccount(client, { keys, setBalance })
 
-  const request = await ServerActions.prepareUpgradeAccount(client, {
-    address: account.address,
-    authorizeKeys: keys,
-    feeToken: exp1Address,
-  })
-
-  const signatures = {
-    auth: await account.sign({ hash: request.digests.authDigest }),
-    preCall: await account.sign({ hash: request.digests.preCallDigest }),
-  }
-
   await ServerActions.upgradeAccount(client, {
-    ...request,
-    signatures,
+    account,
+    authorizeKeys: keys,
   })
 
   if (deploy) {

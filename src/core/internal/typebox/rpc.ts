@@ -393,10 +393,10 @@ export namespace porto_ping {
 
 export namespace wallet_connect {
   export const Capabilities = Type.Object({
+    address: Typebox.Optional(Primitive.Address),
     createAccount: Typebox.Optional(C.createAccount.Request),
     credentialId: Typebox.Optional(Type.String()),
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
-    keyId: Typebox.Optional(Primitive.Hex),
     preCalls: Typebox.Optional(C.preCalls.Request),
     selectAccount: Typebox.Optional(Type.Boolean()),
   })

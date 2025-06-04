@@ -769,42 +769,42 @@ export function from<
               return { accounts: [account], preCalls }
             }
             const account = state.accounts[0]
-            const { credentialId, keyId } = (() => {
-              if (capabilities?.keyId && capabilities.credentialId)
+            const { address, credentialId } = (() => {
+              if (capabilities?.address && capabilities.credentialId)
                 return {
+                  address: capabilities.address,
                   credentialId: capabilities.credentialId,
-                  keyId: capabilities.keyId,
                 }
               if (selectAccount)
-                return { credentialId: undefined, keyId: undefined }
+                return { address: undefined, credentialId: undefined }
               for (const key of account?.keys ?? []) {
                 if (key.type === 'webauthn-p256' && key.role === 'admin')
                   return {
+                    address: account?.address,
                     credentialId:
                       (key as any).credentialId ??
                       key.privateKey?.credential?.id,
-                    keyId: key.id,
                   }
               }
-              return { credentialId: undefined, keyId: undefined }
+              return { address: undefined, credentialId: undefined }
             })()
             const loadAccountsParams = {
               internal,
               permissions,
             }
             try {
-              // try to restore from stored account (`keyId`/`credentialId`) to avoid multiple prompts
+              // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
               return await getMode().actions.loadAccounts({
+                address,
                 credentialId,
-                keyId,
                 ...loadAccountsParams,
               })
             } catch (error) {
               if (error instanceof ox_Provider.UserRejectedRequestError)
                 throw error
 
-              // error with `keyId`/`credentialId` likely means one or both are stale, retry
-              if (keyId && credentialId)
+              // error with `address`/`credentialId` likely means one or both are stale, retry
+              if (address && credentialId)
                 return await getMode().actions.loadAccounts(loadAccountsParams)
               throw error
             }
