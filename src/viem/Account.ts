@@ -9,11 +9,13 @@ import {
   type PartialBy,
 } from 'viem'
 import { toAccount } from 'viem/accounts'
-import type { Assign, Compute, RequiredBy } from '../core/internal/types.js'
+import type { Assign, Compute } from '../core/internal/types.js'
 import type * as Storage from '../core/Storage.js'
 import * as Key from './Key.js'
 
-export type Account = LocalAccount<'porto' | 'privateKey'> & {
+export type Account<
+  source extends 'porto' | 'privateKey' = 'porto' | 'privateKey',
+> = LocalAccount<source> & {
   keys?: readonly Key.Key[] | undefined
   sign: NonNullable<LocalAccount['sign']>
 }
@@ -133,7 +135,7 @@ export declare namespace fromPrivateKey {
   }
 
   type ReturnType<options extends Options = Options> = Readonly<
-    (RequiredBy<Omit<Account, 'keys'>, 'sign'> &
+    (Omit<Account, 'keys'> &
       (options['keys'] extends readonly Key.Key[]
         ? { keys: options['keys'] }
         : { keys?: Account['keys'] })) & { source: 'privateKey' }

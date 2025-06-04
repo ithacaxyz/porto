@@ -1,5 +1,4 @@
 import { Hex, Value } from 'ox'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../test/src/actions.js'
@@ -13,6 +12,7 @@ import {
   getPorto,
 } from '../../test/src/porto.js'
 import * as AccountContract from './ContractActions.js'
+import { ContractActions } from './index.js'
 import * as Key from './Key.js'
 import * as Rpc from './ServerActions.js'
 
@@ -20,43 +20,54 @@ const { client } = getPorto()
 
 describe('createAccount', () => {
   test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-
-    const account = await Rpc.createAccount(client, { keys: [key] })
-
-    expect(account.address).toBeDefined()
-    expect(account.keys[0]?.publicKey).toBe(key.publicKey)
-  })
-
-  test('behavior: keys function', async () => {
-    let id: string | undefined
     const account = await Rpc.createAccount(client, {
-      keys(p) {
-        id = p.ids[0]
-        return [Key.createHeadlessWebAuthnP256()]
-      },
+      authorizeKeys: [Key.createHeadlessWebAuthnP256()],
     })
 
-    expect(account.address).toBeDefined()
-    expect(id).toBeDefined()
+    expect(account).toBeDefined()
+  })
+})
+
+describe('upgradeAccount', () => {
+  test('default', async () => {
+    const { account } = await TestActions.getAccount(client)
+    const adminKey = Key.createHeadlessWebAuthnP256()
+
+    await Rpc.upgradeAccount(client, {
+      account,
+      authorizeKeys: [adminKey],
+    })
+
+    // Verify that RPC Server has registered the admin key.
+    const keys = await Rpc.getKeys(client, {
+      account,
+    })
+    expect(keys.length).toBe(1)
+    expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
+
+    // Upgrade account onchain
+    const { id } = await Rpc.sendCalls(client, {
+      account,
+      calls: [],
+      key: adminKey,
+    })
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    // Check that account now has keys onchain
+    const key = await ContractActions.keyAt(client, {
+      account,
+      index: 0,
+    })
+    expect(key.publicKey).toEqual(adminKey.publicKey)
   })
 
   test('behavior: multiple keys', async () => {
-    const key1 = Key.createHeadlessWebAuthnP256()
-
-    const key2 = Key.createSecp256k1()
-
-    const account = await Rpc.createAccount(client, {
-      keys: [key1, key2],
-    })
-
-    expect(account.address).toBeDefined()
-    expect(account.keys[0]?.publicKey).toBe(key1.publicKey)
-    expect(account.keys[1]?.publicKey).toBe(key2.publicKey)
-  })
-
-  test('behavior: permissions', async () => {
-    const key = Key.createHeadlessWebAuthnP256({
+    const { account } = await TestActions.getAccount(client)
+    const adminKey = Key.createHeadlessWebAuthnP256()
+    const sessionKey = Key.createP256({
+      expiry: 99999999,
       permissions: {
         calls: [
           {
@@ -70,51 +81,96 @@ describe('createAccount', () => {
           },
         ],
       },
+      role: 'session',
     })
 
-    const account = await Rpc.createAccount(client, {
-      keys: [key],
+    await Rpc.upgradeAccount(client, {
+      account,
+      authorizeKeys: [adminKey, sessionKey],
     })
 
-    expect(account.address).toBeDefined()
-    expect(account.keys[0]?.publicKey).toBe(key.publicKey)
-    expect(account.keys[0]?.permissions).toMatchInlineSnapshot(`
-      {
-        "calls": [
-          {
-            "signature": "mint()",
-          },
-        ],
-        "spend": [
-          {
-            "limit": 100n,
-            "period": "minute",
-          },
-        ],
-      }
-    `)
+    // Verify that RPC Server has registered the admin key.
+    const keys = await Rpc.getKeys(client, {
+      account,
+    })
+    expect(keys.length).toBe(2)
+    expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
+    expect(keys[1]!.publicKey).toBe(sessionKey.publicKey)
+
+    // Upgrade account onchain
+    const { id } = await Rpc.sendCalls(client, {
+      account,
+      calls: [],
+      key: adminKey,
+    })
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    // Check that account now has keys onchain
+    const key = await ContractActions.keyAt(client, {
+      account,
+      index: 0,
+    })
+    expect(key.publicKey).toEqual(adminKey.publicKey)
+
+    const key2 = await ContractActions.keyAt(client, {
+      account,
+      index: 1,
+    })
+    expect(key2.publicKey).toEqual(sessionKey.publicKey)
   })
-})
 
-describe('getAccounts', () => {
-  test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
+  test('behavior: prepared upgrade', async () => {
+    const { account } = await TestActions.getAccount(client)
+    const adminKey = Key.createHeadlessWebAuthnP256()
 
-    const account = await Rpc.createAccount(client, { keys: [key] })
-    const accounts = await Rpc.getAccounts(client, {
-      keyId: account.keys[0]!.id!,
+    const { digests, ...request } = await Rpc.prepareUpgradeAccount(client, {
+      address: account.address,
+      authorizeKeys: [adminKey],
     })
 
-    expect(accounts[0]!.address).toBe(account.address)
-    expect(accounts[0]!.keys[0]?.publicKey).toBe(key.publicKey)
+    const signatures = {
+      auth: await account.sign({ hash: digests.authDigest }),
+      preCall: await account.sign({ hash: digests.preCallDigest }),
+    }
+
+    await Rpc.upgradeAccount(client, {
+      ...request,
+      signatures,
+    })
+
+    // Verify that RPC Server has registered the admin key.
+    const keys = await Rpc.getKeys(client, {
+      account,
+    })
+    expect(keys.length).toBe(1)
+    expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
+
+    // Upgrade account onchain
+    const { id } = await Rpc.sendCalls(client, {
+      account,
+      calls: [],
+      key: adminKey,
+    })
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    // Check that account now has keys onchain
+    const key = await ContractActions.keyAt(client, {
+      account,
+      index: 0,
+    })
+    expect(key.publicKey).toEqual(adminKey.publicKey)
   })
 })
 
 describe('getKeys', () => {
   test('default', async () => {
     const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
 
-    const account = await Rpc.createAccount(client, { keys: [key] })
     const keys = await Rpc.getKeys(client, {
       account,
     })
@@ -125,44 +181,14 @@ describe('getKeys', () => {
 
   test('behavior: address', async () => {
     const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, { keys: [key] })
 
-    const account = await Rpc.createAccount(client, { keys: [key] })
     const keys = await Rpc.getKeys(client, {
       account: account.address,
     })
 
     expect(keys.length).toBe(1)
     expect(keys[0]!.publicKey).toBe(key.publicKey)
-  })
-})
-
-describe('prepareUpgradeAccount + upgradeAccount', () => {
-  test.only('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const eoa = privateKeyToAccount(generatePrivateKey())
-
-    await TestActions.setBalance(client, {
-      address: eoa.address,
-      value: Value.fromEther('10'),
-    })
-
-    const request = await Rpc.prepareUpgradeAccount(client, {
-      address: eoa.address,
-      feeToken: exp1Address,
-      keys: [key],
-    })
-
-    const signatures = {
-      auth: await eoa.sign({ hash: request.digests.authDigest }),
-      preCall: await eoa.sign({ hash: request.digests.preCallDigest }),
-    }
-
-    await Rpc.upgradeAccount(client, {
-      ...request,
-      signatures,
-    })
-
-    // expect(result.account.keys![0]!.publicKey).toBe(key.publicKey)
   })
 })
 
@@ -615,18 +641,12 @@ describe('prepareCalls', () => {
   })
 })
 
-describe.each([
-  ['e2e: new account', { mode: 'new' }],
-  ['e2e: upgraded account', { mode: 'upgraded' }],
-])('%s', (_, { mode }) => {
-  const initializeAccount =
-    mode === 'new' ? TestActions.createAccount : TestActions.getUpgradedAccount
-
+describe('e2e', () => {
   describe('behavior: arbitrary calls', () => {
     test('mint erc20', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [key],
       })
 
@@ -663,7 +683,7 @@ describe.each([
     test.runIf(Anvil.enabled)('mint erc20; no fee token (ETH)', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [key],
       })
 
@@ -699,7 +719,7 @@ describe.each([
     test('noop', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [key],
       })
 
@@ -720,7 +740,7 @@ describe.each([
     test('error: contract error (insufficient erc20 balance)', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [key],
       })
 
@@ -745,7 +765,7 @@ describe.each([
     test.skip('error: contract error (insufficient eth balance)', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [key],
       })
 
@@ -769,7 +789,7 @@ describe.each([
     test('authorize admin keys', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [key],
       })
 
@@ -816,7 +836,7 @@ describe.each([
     test('authorize key with previous key', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [key],
       })
 
@@ -871,7 +891,7 @@ describe.each([
     test('batch authorize + mint', async () => {
       // 1. Initialize Account with Admin Key.
       const key = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [key],
       })
 
@@ -932,7 +952,7 @@ describe.each([
     test('default', async () => {
       // 1. Initialize account with Admin Key
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [adminKey],
       })
 
@@ -996,7 +1016,7 @@ describe.each([
     test('multiple calls', async () => {
       // 1. Initialize account with Admin Key.
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [adminKey],
       })
 
@@ -1092,7 +1112,7 @@ describe.each([
     test('multiple calls (w/ admin key, then session key)', async () => {
       // 1. Initialize account with Admin Key and Session Key (with call permission).
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [adminKey],
       })
 
@@ -1190,7 +1210,7 @@ describe.each([
 
       // 1. Initialize account with Admin Key and Session Key (with call permission).
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [adminKey],
       })
 
@@ -1265,7 +1285,7 @@ describe.each([
     test('error: invalid target', async () => {
       // 1. Initialize account with Admin Key.
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [adminKey],
       })
 
@@ -1314,7 +1334,7 @@ describe.each([
     test('error: invalid selector', async () => {
       // 1. Initialize account with Admin Key.
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [adminKey],
       })
 
@@ -1365,7 +1385,7 @@ describe.each([
     test('session key', async () => {
       // 1. Initialize account with Admin Key and Session Key (with permissions).
       const adminKey = Key.createHeadlessWebAuthnP256()
-      const account = await initializeAccount(client, {
+      const account = await TestActions.createAccount(client, {
         keys: [adminKey],
       })
 
