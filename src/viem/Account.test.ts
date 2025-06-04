@@ -204,6 +204,7 @@ describe('sign', () => {
     const payload = Hex.random(32)
 
     await expect(
+      // @ts-expect-error - testing error case.
       Account.sign(nextAccount, {
         payload,
       }),

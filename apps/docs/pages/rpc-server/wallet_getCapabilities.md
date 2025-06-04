@@ -4,11 +4,14 @@ Gets supported [EIP-5792 Capabilities](https://eips.ethereum.org/EIPS/eip-5792#w
 
 ## Request
 
-```ts
+```ts twoslash
+import { Hex } from 'viem'
+
+// ---cut---
 type Request = {
   method: 'wallet_getCapabilities',
   // the chain ids
-  params: `0x${string}`[],
+  params: Hex[],
 }
 ```
 
@@ -19,37 +22,40 @@ A map of chain IDs to the capabilities supported by the RPC server on those chai
 - contract addresses (`contracts`)
 - fee configuration (`fees`), such as supported fee tokens (`fees.tokens`), and quote lifetimes (`fees.quoteConfig.ttl`)
 
-```ts
+```ts twoslash
+import { Address, Hex } from 'viem'
+
+// ---cut---
 type Response = {
   // the chain ID as hex
-  [`0x${string}`]: {
+  [chainId: Hex]: {
     contracts: {
       accountRegistry: {
-        address: `0x${string}`,
+        address: Address,
         version?: string,
       },
       delegationImplementation: {
-        address: `0x${string}`,
+        address: Address,
         version?: string,
       },
       delegationProxy: {
-        address: `0x${string}`,
+        address: Address,
         version?: string,
       },
       entrypoint: {
-        address: `0x${string}`,
+        address: Address,
         version?: string,
       },
       legacyDelegations?: {
-        address: `0x${string}`,
+        address: Address,
         version?: string,
       }[],
       legacyEntrypoints?: {
-        address: `0x${string}`,
+        address: Address,
         version?: string,
       }[],
       simulator: {
-        address: `0x${string}`,
+        address: Address,
         version?: string,
       },
     },
@@ -68,13 +74,13 @@ type Response = {
       },
       // the recipient of fees
       // if this is the zero address, fees are accumulated in the entrypoint
-      recipient: `0x${string}`,
+      recipient: Address,
       tokens: {
-        address: `0x${string}`,
+        address: Address,
         decimals: number,
         kind: 'USDC' | 'USDT' | 'ETH',
         // the rate of the fee token to native tokens
-        nativeRate: `0x${string}`,
+        nativeRate: Hex,
         symbol: string,
       }[],
     },

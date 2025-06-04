@@ -119,19 +119,21 @@ function RouteComponent() {
             className="flex flex-grow *:w-full"
             key={request?.id ? request.id.toString() : '-1'} // rehydrate on id changes
           >
-            <CheckReferrer>
-              {status === 'connecting' || status === 'reconnecting' ? (
-                <Layout loading loadingTitle="Loading...">
-                  <div />
-                </Layout>
-              ) : search.requireUpdatedAccount ? (
-                <UpdateAccount.CheckUpdate>
+            <CheckInAppBrowser>
+              <CheckReferrer>
+                {status === 'connecting' || status === 'reconnecting' ? (
+                  <Layout loading loadingTitle="Loading...">
+                    <div />
+                  </Layout>
+                ) : search.requireUpdatedAccount ? (
+                  <UpdateAccount.CheckUpdate>
+                    <Outlet />
+                  </UpdateAccount.CheckUpdate>
+                ) : (
                   <Outlet />
-                </UpdateAccount.CheckUpdate>
-              ) : (
-                <Outlet />
-              )}
-            </CheckReferrer>
+                )}
+              </CheckReferrer>
+            </CheckInAppBrowser>
           </div>
         </div>
       </div>
@@ -194,6 +196,64 @@ function CheckReferrer(props: CheckReferrer.Props) {
 }
 
 declare namespace CheckReferrer {
+  type Props = {
+    children: React.ReactNode
+  }
+}
+
+const isInAppBrowser = UserAgent.isInAppBrowser()
+
+function CheckInAppBrowser(props: CheckInAppBrowser.Props) {
+  const { children } = props
+
+  const [proceed, setProceed] = React.useState(false)
+
+  if (!isInAppBrowser) return children
+  if (proceed) return children
+
+  const browserName = UserAgent.getInAppBrowserName()
+  return (
+    <Layout>
+      <Layout.Header>
+        <Layout.Header.Default
+          content={
+            <>
+              {browserName ? (
+                <>
+                  <span className="font-medium">{browserName}</span>'s i
+                </>
+              ) : (
+                'I'
+              )}
+              n-app browser does not support Porto. Please open this page in
+              your device's browser.
+            </>
+          }
+          icon={LucideCircleAlert}
+          title="Unsupported browser"
+          variant="destructive"
+        />
+      </Layout.Header>
+
+      <Layout.Footer>
+        <Layout.Footer.Actions>
+          <Button
+            className="flex-1"
+            onClick={() => setProceed(true)}
+            variant="destructive"
+          >
+            Proceed anyway
+          </Button>
+          <Button className="flex-1" onClick={() => Actions.rejectAll(porto)}>
+            Close
+          </Button>
+        </Layout.Footer.Actions>
+      </Layout.Footer>
+    </Layout>
+  )
+}
+
+declare namespace CheckInAppBrowser {
   type Props = {
     children: React.ReactNode
   }

@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
+  - "docker/*"
   - "examples/*"
   - "src"
   - "test/e2e"

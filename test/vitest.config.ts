@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
               '!src/**/*.browser.test.ts',
               'src/**/*.test.ts',
               ...(env.VITE_LOCAL === 'false'
-                ? ['!src/**/*accountContract.test.ts']
+                ? ['!src/**/*ContractActions.test.ts']
                 : []),
             ],
             name: 'default',

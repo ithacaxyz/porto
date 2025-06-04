@@ -12,7 +12,7 @@ import {
 } from '@sinclair/typebox/type'
 
 export { Type } from '@sinclair/typebox/type'
-export { Decode, Encode, Value } from '@sinclair/typebox/value'
+export { Clean, Decode, Encode, Value } from '@sinclair/typebox/value'
 
 import type { DeepReadonly, OneOf as OneOfType } from '../types.js'
 

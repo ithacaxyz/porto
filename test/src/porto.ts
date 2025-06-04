@@ -34,12 +34,14 @@ export function getPorto(
     sponsorUrl?: string | undefined
   } = {},
 ) {
-  const { mode = Mode.contract, sponsorUrl } = parameters
+  const { mode = Mode.rpcServer, sponsorUrl } = parameters
   const porto = Porto.create({
     chains: [chain],
     mode: mode({
       mock: true,
       permissionsFeeLimit: {
+        ETH: '0.1',
+        USDC: '100',
         USDT: '100',
       },
     }),

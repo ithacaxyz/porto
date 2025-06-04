@@ -178,6 +178,7 @@ export declare namespace useConnect {
   >
 }
 
+/** @deprecated use `useConnect` instead */
 export function useCreateAccount<
   config extends Config = ResolvedRegister['config'],
   context = unknown,

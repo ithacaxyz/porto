@@ -15,6 +15,7 @@ import * as Key from './Key.js'
 
 export type Account = LocalAccount<'porto' | 'privateKey'> & {
   keys?: readonly Key.Key[] | undefined
+  sign: NonNullable<LocalAccount['sign']>
 }
 
 /**

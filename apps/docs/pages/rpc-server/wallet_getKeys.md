@@ -4,12 +4,15 @@ Get all keys for an account.
 
 ## Request
 
-```ts
+```ts twoslash
+import { Address, Hex } from 'viem'
+
+// ---cut---
 type Request = {
   method: 'wallet_getKeys',
   params: [{
-    address: `0x${string}`,
-    chainId: `0x${string}`,
+    address: Address,
+    chainId: Hex,
   }],
 }
 ```
@@ -18,26 +21,29 @@ type Request = {
 
 Each key associated with an account, along with the permissions set on the keys.
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Response = {
   // key hash
-  hash: `0x${string}`,
+  hash: Hash,
   key: {
     expiry?: number,
     type: 'p256' | 'webauthnp256' | 'secp256k1',
     role: 'admin' | 'normal' | 'session',
-    publicKey: `0x${string}`,
+    publicKey: Hex,
   },
   permissions: ({
     type: 'call',
     selector: string,
-    to: `0x${string}`,
+    to: Address,
   } | {
     type: 'spend',
     limit: number,
     period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
     // defaults to the native token (address zero)
-    token?: `0x${string}`,
+    token?: Address,
   })[],
 }[]
 ```

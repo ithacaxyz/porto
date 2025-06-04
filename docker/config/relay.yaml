@@ -1,0 +1,42 @@
+server:
+  address: 0.0.0.0
+  port: 9119
+  metrics_port: 9120
+  max_connections: 5000
+chain:
+  endpoints:
+    - http://anvil:8545
+  sequencer_endpoints: {}
+  fee_tokens:
+    - "0x0000000000000000000000000000000000000000"
+  fee_recipient: "0x0000000000000000000000000000000000000000"
+quote:
+  constantRate: 1.0
+  gas:
+    intentBuffer: 100000
+    txBuffer: 100000
+  ttl: 30
+  rateTtl: 300
+onramp:
+  banxa:
+    apiUrl: https://api.banxa-sandbox.com/
+    blockchain: base
+    secrets:
+      api_key: ""
+transactions:
+  num_signers: 16
+  max_pending_transactions: 100
+  max_transactions_per_signer: 16
+  max_queued_per_eoa: 1
+  balance_check_interval: 5
+  nonce_check_interval: 60
+  transaction_timeout: 60
+  public_node_endpoints: {}
+  priority_fee_percentile: 20
+orchestrator: 
+legacy_orchestrators: []
+legacy_delegations: []
+delegation_proxy: 
+account_registry: 
+simulator: 
+database_url: null

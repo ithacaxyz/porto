@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.29
+
+### Patch Changes
+
+- [`8275a95`](https://github.com/ithacaxyz/porto/commit/8275a9534ff48affeb940757c0884b09c2010973) Thanks [@jxom](https://github.com/jxom)! - Added `porto/viem` module. Documentation coming soon.
+
 ## 0.0.28
 
 ### Patch Changes

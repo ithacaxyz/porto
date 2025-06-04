@@ -128,8 +128,8 @@ export default defineConfig({
             text: 'wallet_verifySignature',
           },
           {
-            link: '/rpc-server/wallet_health',
-            text: 'wallet_health',
+            link: '/rpc-server/health',
+            text: 'health',
           },
         ],
         text: 'RPC Reference',

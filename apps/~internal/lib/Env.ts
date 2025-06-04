@@ -4,6 +4,7 @@ export const defaultEnv = (() => {
     return 'dev'
   }
   if (import.meta.env.VITE_VERCEL_ENV === 'preview') return 'dev'
+  if (import.meta.env.VITE_DEFAULT_ENV) return import.meta.env.VITE_DEFAULT_ENV
   return 'stg'
 })()
 

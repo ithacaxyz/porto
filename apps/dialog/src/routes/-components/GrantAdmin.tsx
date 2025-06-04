@@ -38,7 +38,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
               </div>
             }
             icon={prepareCallsQuery.isError ? TriangleAlert : undefined}
-            title="Add backup method"
+            title="Add recovery method"
             variant={prepareCallsQuery.isError ? 'warning' : 'default'}
           />
         </Layout.Header>

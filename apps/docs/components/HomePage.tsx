@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { Env } from '@porto/apps'
 import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
@@ -33,8 +32,6 @@ import LucideX from '~icons/lucide/x'
 import { config } from '../wagmi.config'
 import { Button } from './Button'
 import { type ChainId, permissions } from './constants'
-
-const env = Env.get()
 
 export function HomePage() {
   const [isMounted, setIsMounted] = React.useState(false)
@@ -524,6 +521,8 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
 export function BuyNow(props: { chainId: ChainId; next: () => void }) {
   const { chainId, next } = props
 
+  const SNEAKER_COST = Value.fromEther('10')
+
   const { address } = useAccount()
   const { data: exp1Balance } = useReadContract({
     abi: exp1Config.abi,
@@ -538,7 +537,7 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
   // Since we use USDC as the fee token in production,
   // we will mint EXP to the user if they don't have any
   // in the call bundle.
-  const shouldMintExp = exp1Balance === 0n && env === 'prod'
+  const shouldMintExp = exp1Balance && exp1Balance < SNEAKER_COST
 
   const { data, isPending, sendCalls } = useSendCalls({
     mutation: {
@@ -766,7 +765,7 @@ export function SendTip(props: {
       </div>
 
       <div className="flex w-full justify-between px-1.5">
-        <div className="-tracking-[2.8%] text-[14px] text-gray9">Received</div>
+        <div className="-tracking-[2.8%] text-[14px] text-gray9">Received</div>{' '}
         <div className="-tracking-[2.8%] font-medium text-[14px] text-gray9">
           <span className="text-gray12">
             {ValueFormatter.format(exp1Balance ?? 0)}
@@ -934,7 +933,7 @@ export function Subscribe(props: {
     }
   })
 
-  if (permission && activeTier && activeTierIndex)
+  if (permission && activeTier && activeTierIndex !== -1)
     return (
       <div className="w-full max-w-78.75 rounded-[13px] bg-gray1">
         <div className="flex justify-between border-gray4 border-b px-4 pt-4 pb-3.5">

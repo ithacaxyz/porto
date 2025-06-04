@@ -10,7 +10,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -42,7 +42,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -88,7 +88,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` capability >
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -360,7 +360,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -419,7 +419,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -453,7 +453,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -478,7 +478,7 @@ exports[`contract > wallet_revokeAdmin > default 2`] = `
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -497,7 +497,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -531,7 +531,7 @@ exports[`contract > wallet_revokePermissions > default 2`] = `
     "id": null,
     "permissions": undefined,
     "privateKey": {
-      "privateKey": [Function],
+      "privateKey": undefined,
     },
     "publicKey": null,
     "role": "admin",
@@ -854,81 +854,7 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
 ]
 `;
 
-exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 3`] = `
-[
-  {
-    "address": null,
-    "chainId": null,
-    "expiry": 9999999999,
-    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-    "key": {
-      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-      "type": "secp256k1",
-    },
-    "permissions": {
-      "calls": [
-        {
-          "signature": "0x1249c58b",
-          "to": null,
-        },
-        {
-          "signature": "0x32323232",
-          "to": null,
-        },
-        {
-          "signature": "0x703a60cd",
-          "to": null,
-        },
-      ],
-      "spend": [
-        {
-          "limit": "0x56bc75e2d63100000",
-          "period": "year",
-          "token": null,
-        },
-      ],
-    },
-  },
-  {
-    "address": null,
-    "chainId": null,
-    "expiry": 9999999999,
-    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
-    "key": {
-      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
-      "type": "p256",
-    },
-    "permissions": {
-      "calls": [
-        {
-          "signature": "0x1249c58b",
-          "to": null,
-        },
-        {
-          "signature": "0x32323232",
-          "to": null,
-        },
-        {
-          "signature": "0x703a60cd",
-          "to": null,
-        },
-      ],
-      "spend": [
-        {
-          "limit": "0x14d1120d7b160000",
-          "period": "day",
-          "token": null,
-        },
-        {
-          "limit": "0x56bc75e2d63100000",
-          "period": "day",
-          "token": null,
-        },
-      ],
-    },
-  },
-]
-`;
+exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 3`] = `[]`;
 
 exports[`rpcServer > wallet_grantAdmin > default 1`] = `
 {

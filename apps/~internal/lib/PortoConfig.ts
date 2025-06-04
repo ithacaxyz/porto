@@ -7,45 +7,64 @@ import * as Sentry from './Sentry'
 
 const mock = import.meta.env.MODE === 'test'
 
+const defaultChain = {
+  anvil: Chains.anvil,
+  dev: import.meta.env.VITE_DEV_CHAIN_ID
+    ? Chains.define({
+        ...Chains.portoDev,
+        id: Number(
+          import.meta.env.VITE_DEV_CHAIN_ID,
+        ) as (typeof Chains.portoDev)['id'],
+        rpcUrls: {
+          default: {
+            http: [import.meta.env.VITE_DEV_RPC_URL],
+          },
+        },
+      })
+    : Chains.portoDev,
+  prod: Chains.base,
+  stg: Chains.baseSepolia,
+} as const satisfies Record<Env.Env, Chains.Chain>
+
 const config = {
   anvil: {
-    chains: [Chains.anvil],
+    chains: [defaultChain.anvil],
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
   },
   dev: {
-    chains: [Chains.portoDev],
+    chains: [defaultChain.dev],
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
     storageKey: 'porto.store.dev',
     transports: {
-      [Chains.portoDev.id]: http(undefined, Sentry.httpTransportOptions()),
+      [defaultChain.dev.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   prod: {
-    chains: [Chains.base],
+    chains: [defaultChain.prod],
     feeToken: 'USDC',
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
     transports: {
-      [Chains.base.id]: http(undefined, Sentry.httpTransportOptions()),
+      [defaultChain.prod.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   stg: {
-    chains: [Chains.baseSepolia],
+    chains: [defaultChain.stg],
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
     storageKey: 'porto.store.stg',
     transports: {
-      [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
+      [defaultChain.stg.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
@@ -72,20 +91,24 @@ export function getConfig(
 }
 
 export function getDialogHost(env = Env.get()): string {
-  if (
-    import.meta.env.VITE_VERCEL_ENV === 'preview' &&
-    import.meta.env.VITE_VERCEL_BRANCH_URL
-  )
-    return (
-      'https://' +
-      import.meta.env.VITE_VERCEL_BRANCH_URL.replace(
-        /(.*)(-git.*)/,
-        'dialogporto$2',
-      ) +
-      '/dialog/?env=' +
-      env
+  const url = (() => {
+    if (import.meta.env.VITE_DIALOG_HOST)
+      return import.meta.env.VITE_DIALOG_HOST
+    if (
+      import.meta.env.VITE_VERCEL_ENV === 'preview' &&
+      import.meta.env.VITE_VERCEL_BRANCH_URL
     )
-  return dialogHosts[env] + '?env=' + env
+      return (
+        'https://' +
+        import.meta.env.VITE_VERCEL_BRANCH_URL.replace(
+          /(.*)(-git.*)/,
+          'dialogporto$2',
+        ) +
+        '/dialog/'
+      )
+    return dialogHosts[env]
+  })()
+  return url + '?env=' + env
 }
 
 export type Chain = ValueOf<typeof config>['chains'][number]

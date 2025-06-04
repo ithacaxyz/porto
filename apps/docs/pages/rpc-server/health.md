@@ -1,4 +1,4 @@
-# `wallet_health`
+# `health`
 
 Health check for the RPC server. Returns the version of the server.
 
@@ -6,7 +6,7 @@ Health check for the RPC server. Returns the version of the server.
 
 ```ts
 type Request = {
-  method: 'wallet_health',
+  method: 'health',
 }
 ```
 
@@ -19,7 +19,7 @@ type Response = string; // the version
 ## Example
 
 ```sh
-cast rpc --rpc-url https://base-sepolia.rpc.ithaca.xyz wallet_health
+cast rpc --rpc-url https://base-sepolia.rpc.ithaca.xyz health
 ```
 
 ```ts

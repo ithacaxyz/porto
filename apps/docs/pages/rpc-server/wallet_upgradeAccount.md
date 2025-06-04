@@ -8,63 +8,66 @@ This method is intended to be used in conjunction with [`wallet_prepareUpgradeAc
 
 ## Request
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Request = {
   method: 'wallet_upgradeAccount',
   params: [{
     // As returned by `wallet_prepareUpgradeAccount`
     context: {
       quote: {
-        chainId: `0x${string}`,
+        chainId: Hex,
         intent: {
-          eoa: `0x${string}`,
-          executionData: `0x${string}`,
-          nonce: `0x${string}`,
-          payer: `0x${string}`,
-          paymentToken: `0x${string}`,
-          prePaymentMaxAmount: `0x${string}`,
-          totalPaymentMaxAmount: `0x${string}`,
-          combinedGas: `0x${string}`,
-          encodedPreCalls: `0x${string}`[],
-          initData: `0x${string}`,
-          prePaymentAmount: `0x${string}`,
-          totalPaymentAmount: `0x${string}`,
-          paymentRecipient: `0x${string}`,
-          signature: `0x${string}`,
-          paymentSignature: `0x${string}`,
-          supportedAccountImplementation: `0x${string}`,
+          eoa: Address,
+          executionData: Hex,
+          nonce: Hex,
+          payer: Address,
+          paymentToken: Address,
+          prePaymentMaxAmount: Hex,
+          totalPaymentMaxAmount: Hex,
+          combinedGas: Hex,
+          encodedPreCalls: Hex[],
+          initData: Hex,
+          prePaymentAmount: Hex,
+          totalPaymentAmount: Hex,
+          paymentRecipient: Address,
+          signature: Hex,
+          paymentSignature: Hex,
+          supportedAccountImplementation: Address,
         },
-        txGas: `0x${string}`,
+        txGas: Hex,
         nativeFeeEstimate: {
           maxFeePerGas: number,
           maxPriorityFeePerGas: number,
         },
         // UNIX timestamp the quote expires at.
         ttl: number,
-        authorizationAddress?: `0x${string}`,
-        entrypoint: `0x${string}`,
+        authorizationAddress?: Address,
+        entrypoint: Address,
         // The RPC servers signature over the quote.
         signature: {
-          y_parity: bool,
-          r: `0x${string}`,
-          s: `0x${string}`,
+          y_parity: boolean,
+          r: Hex,
+          s: Hex,
         },
         // The hash of the quote.
-        hash: `0x${string}`,
+        hash: Hash,
       },
     },
     // signature over the intent digest from `wallet_prepareUpgradeAccount`
-    signature: `0x${string}`,
+    signature: Hex,
     // The EIP-7702 authorization signed with the root EOA key.
     authorization: {
       // usually 0 to allow for replayability
-      chainId: `0x${string}`,
+      chainId: Hex,
       // the contract the account delegates to
-      address: `0x${string}`,
-      nonce: `0x${string}`,
-      yParity: `0x${string}`,
-      r: `0x${string}`,
-      s: `0x${string}`,
+      address: Address,
+      nonce: Hex,
+      yParity: Hex,
+      r: Hex,
+      s: Hex,
     },
   }],
 }
@@ -74,10 +77,13 @@ type Request = {
 
 A series of bundle IDs for use with [`wallet_getCallsStatus`].
 
-```ts
+```ts twoslash
+import { Hex } from 'viem'
+
+// ---cut---
 type Response = {
   bundles: {
-    id: `0x${string}`
+    id: Hex
   }[],
 }
 ```

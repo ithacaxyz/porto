@@ -25,6 +25,25 @@ The RPC server has multiple endpoints, one for each chain/environment.
 
 Each endpoint has passthrough to Ethereum RPCs for the corresponding network.
 
+## Local Development
+
+To run the RPC Server locally, you can use the following command:
+
+```sh
+curl -sSL s.porto.sh/docker | docker compose -f - up -d
+```
+
+Once complete, the RPC Server will be available at `http://localhost:9200`:
+
+```sh
+cast block-number --rpc-url http://localhost:9200
+cast rpc --rpc-url http://localhost:9200 wallet_getCapabilities "[31337]"
+```
+
+:::tip
+If you have [OrbStack](https://orbstack.dev/) installed, you can also query the RPC Server at `https://rpc.local`.
+:::
+
 ## Account management
 
 Accounts are managed through the RPC using the following methods:
