@@ -16,7 +16,6 @@ import { Sponsor } from '../../src/server/index.js'
 import {
   accountNewProxyAddress,
   accountProxyAddress,
-  accountRegistryAddress,
   exp1Address,
   orchestratorAddress,
   simulatorAddress,
@@ -119,7 +118,6 @@ export default defineConfig(({ mode }) => {
             const containerName = 'playground'
             ChildProcess.spawnSync('docker', ['rm', '-f', containerName])
             const stop = await rpcServer({
-              accountRegistry: accountRegistryAddress,
               containerName: 'playground',
               delegationProxy: accountProxy,
               endpoint: anvilConfig.rpcUrl,

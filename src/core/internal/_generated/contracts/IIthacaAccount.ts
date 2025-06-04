@@ -33,25 +33,6 @@ export const abi = [
   },
   {
     "type": "function",
-    "name": "initializePREP",
-    "inputs": [
-      {
-        "name": "initData",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
     "name": "pay",
     "inputs": [
       {
