@@ -88,14 +88,6 @@ export default defineConfig({
             text: 'wallet_getCapabilities',
           },
           {
-            link: '/rpc-server/wallet_prepareCreateAccount',
-            text: 'wallet_prepareCreateAccount',
-          },
-          {
-            link: '/rpc-server/wallet_createAccount',
-            text: 'wallet_createAccount',
-          },
-          {
             link: '/rpc-server/wallet_getAccounts',
             text: 'wallet_getAccounts',
           },

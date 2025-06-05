@@ -62,7 +62,6 @@ export function App() {
         <h2>Account Management</h2>
         <Connect />
         <Login />
-        <Register />
         <AddFunds />
         <Accounts />
         <Disconnect />
@@ -271,26 +270,6 @@ function Accounts() {
         Get Accounts
       </button>
       <pre>{result}</pre>
-    </div>
-  )
-}
-
-function Register() {
-  const [result, setResult] = React.useState<unknown | null>(null)
-  return (
-    <div>
-      <h3>wallet_createAccount</h3>
-      <button
-        onClick={() =>
-          porto.provider
-            .request({ method: 'wallet_createAccount' })
-            .then(setResult)
-        }
-        type="button"
-      >
-        Register
-      </button>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }

@@ -14,7 +14,6 @@ export const Request = Type.Union([
   RpcRequest.eth_requestAccounts.Request,
   RpcRequest.eth_sendTransaction.Request,
   RpcRequest.eth_signTypedData_v4.Request,
-  RpcRequest.wallet_createAccount.Request,
   RpcRequest.wallet_getAccountVersion.Request,
   RpcRequest.wallet_getAdmins.Request,
   RpcRequest.wallet_getPermissions.Request,

@@ -343,41 +343,6 @@ export function from<
           >
         }
 
-        // TODO(prep): rm
-        case 'wallet_createAccount': {
-          const [{ chainId, label }] = request._decoded.params ?? [{}]
-
-          const client = getClient(chainId)
-
-          const { account } = await getMode().actions.createAccount({
-            internal: {
-              client,
-              config,
-              request,
-              store,
-            },
-            label,
-          })
-
-          const permissions = getActivePermissions(account.keys ?? [], {
-            address: account.address,
-          })
-
-          store.setState((x) => ({ ...x, accounts: [account] }))
-
-          emitter.emit('connect', {
-            chainId: Hex.fromNumber(client.chain.id),
-          })
-
-          return {
-            address: account.address,
-            capabilities: {
-              admins: getAdmins(account.keys ?? []),
-              ...(permissions.length > 0 ? { permissions } : {}),
-            },
-          } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
-        }
-
         case 'wallet_getAdmins': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
@@ -702,7 +667,7 @@ export function from<
             capabilities: {
               ...(permissions.length > 0 ? { permissions } : {}),
             },
-          } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
+          } satisfies Typebox.Static<typeof Rpc.wallet_upgradeAccount.Response>
         }
 
         case 'porto_ping': {

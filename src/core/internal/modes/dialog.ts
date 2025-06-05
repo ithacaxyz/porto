@@ -125,22 +125,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const provider = getProvider(store)
 
         const account = await (async () => {
-          if (request.method === 'wallet_createAccount') {
-            // Send a request off to the dialog to create an account.
-            const { address, capabilities } = await provider.request(request)
-
-            const { preCalls } = capabilities ?? {}
-            if (preCalls)
-              await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                address,
-                storage,
-              })
-
-            return Account.from({
-              address,
-            })
-          }
-
           if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
             const [{ capabilities }] = request._decoded.params ?? [{}]
@@ -495,7 +479,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot prepare create account for method: ' + request.method,
           )
 
-        const feeToken = await resolveFeeToken(internal, parameters)
+        const feeToken = await resolveFeeToken(internal)
 
         const provider = getProvider(store)
         return await provider.request({

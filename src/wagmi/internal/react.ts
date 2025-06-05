@@ -26,7 +26,6 @@ import * as Typebox from '../../core/internal/typebox/typebox.js'
 import * as RpcSchema from '../../core/RpcSchema.js'
 import {
   connect,
-  createAccount,
   disconnect,
   getAdmins,
   getPermissions,
@@ -174,50 +173,6 @@ export declare namespace useConnect {
     connect.ReturnType,
     connect.ErrorType,
     connect.Parameters<config>,
-    context
-  >
-}
-
-/** @deprecated use `useConnect` instead */
-export function useCreateAccount<
-  config extends Config = ResolvedRegister['config'],
-  context = unknown,
->(
-  parameters: useCreateAccount.Parameters<config, context> = {},
-): useCreateAccount.ReturnType<config, context> {
-  const { mutation } = parameters
-  const config = useConfig(parameters)
-  return useMutation({
-    ...mutation,
-    async mutationFn(variables) {
-      return createAccount(config as Config, variables)
-    },
-    mutationKey: ['createAccount'],
-  })
-}
-
-export declare namespace useCreateAccount {
-  type Parameters<
-    config extends Config = Config,
-    context = unknown,
-  > = ConfigParameter<config> & {
-    mutation?:
-      | UseMutationParameters<
-          createAccount.ReturnType,
-          createAccount.ErrorType,
-          createAccount.Parameters<config>,
-          context
-        >
-      | undefined
-  }
-
-  type ReturnType<
-    config extends Config = Config,
-    context = unknown,
-  > = UseMutationResult<
-    createAccount.ReturnType,
-    createAccount.ErrorType,
-    createAccount.Parameters<config>,
     context
   >
 }
