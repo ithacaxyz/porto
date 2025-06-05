@@ -88,4 +88,3 @@ cast block-number --rpc-url https://base-sepolia.rpc.ithaca.xyz
 [`wallet_prepareCalls`]: /rpc-server/wallet_prepareCalls
 [`wallet_sendPreparedCalls`]: /rpc-server/wallet_sendPreparedCalls
 [`wallet_getCallsStatus`]: /rpc-server/wallet_getCallsStatus
-[PREP]: https://blog.biconomy.io/prep-deep-dive/
