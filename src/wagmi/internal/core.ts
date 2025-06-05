@@ -11,7 +11,6 @@ import {
   getConnectorClient,
   disconnect as wagmi_disconnect,
 } from '@wagmi/core/actions'
-import type * as RpcSchema_ox from 'ox/RpcSchema'
 import {
   type Address,
   type Chain,
@@ -105,99 +104,6 @@ export declare namespace connect {
       connector: Connector | CreateConnectorFn
       force?: boolean | undefined
     }
-
-  type ReturnType<config extends Config = Config> = ConnectReturnType<config>
-
-  // TODO: Exhaustive ErrorType
-  type ErrorType = BaseError
-}
-
-/** @deprecated use `connect` instead */
-export async function createAccount<config extends Config>(
-  config: config,
-  parameters: createAccount.Parameters<config>,
-): Promise<createAccount.ReturnType<config>> {
-  // "Register" connector if not already created
-  let connector: Connector
-  if (typeof parameters.connector === 'function') {
-    connector = config._internal.connectors.setup(parameters.connector)
-  } else connector = parameters.connector
-
-  // Check if connector is already connected
-  if (connector.uid === config.state.current)
-    throw new ConnectorAlreadyConnectedError()
-
-  if (parameters.chainId && parameters.chainId !== config.state.chainId)
-    throw new ChainMismatchError({
-      chain:
-        config.chains.find((chain) => chain.id === parameters.chainId) ??
-        ({
-          id: parameters.chainId,
-          name: `Chain ${parameters.chainId}`,
-        } as Chain),
-      currentChainId: config.state.chainId,
-    })
-
-  try {
-    config.setState((x) => ({ ...x, status: 'connecting' }))
-    connector.emitter.emit('message', { type: 'connecting' })
-
-    const provider = (await connector.getProvider()) as
-      | EIP1193Provider
-      | undefined
-    if (!provider) throw new ProviderNotFoundError()
-
-    const { label } = parameters
-    const method = 'wallet_createAccount'
-    type method = typeof method
-    await provider.request<{
-      Method: method
-      Parameters?: RpcSchema_ox.ExtractParams<RpcSchema.Schema, method>
-      ReturnType: RpcSchema_ox.ExtractReturnType<RpcSchema.Schema, method>
-    }>({
-      method,
-      params: [{ label }],
-    })
-
-    // we already connected, but call `connector.connect` so connector even listeners are set up
-    const data = await connector.connect({
-      chainId: parameters.chainId,
-      isReconnecting: true,
-    })
-    const accounts = data.accounts as readonly [Address, ...Address[]]
-
-    connector.emitter.off('connect', config._internal.events.connect)
-    connector.emitter.on('change', config._internal.events.change)
-    connector.emitter.on('disconnect', config._internal.events.disconnect)
-
-    await config.storage?.setItem('recentConnectorId', connector.id)
-    config.setState((x) => ({
-      ...x,
-      connections: new Map(x.connections).set(connector.uid, {
-        accounts,
-        chainId: data.chainId,
-        connector,
-      }),
-      current: connector.uid,
-      status: 'connected',
-    }))
-
-    return { accounts, chainId: data.chainId }
-  } catch (error) {
-    config.setState((x) => ({
-      ...x,
-      // Keep existing connector connected in case of error
-      status: x.current ? 'connected' : 'disconnected',
-    }))
-    throw error
-  }
-}
-
-export declare namespace createAccount {
-  type Parameters<config extends Config = Config> = ChainIdParameter<config> & {
-    connector: Connector | CreateConnectorFn
-    label?: string | undefined
-  }
 
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
 

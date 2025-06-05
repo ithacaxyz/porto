@@ -34,10 +34,6 @@ export type Schema =
           ReturnType: Static<typeof Rpc.porto_ping.Response>
         }
       | {
-          Request: Static<typeof Rpc.wallet_createAccount.Request>
-          ReturnType: Static<typeof Rpc.wallet_createAccount.Response>
-        }
-      | {
           Request: Static<typeof Rpc.wallet_grantAdmin.Request>
           ReturnType: Static<typeof Rpc.wallet_grantAdmin.Response>
         }

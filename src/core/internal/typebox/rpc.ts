@@ -160,37 +160,6 @@ export namespace wallet_grantAdmin {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace wallet_createAccount {
-  export const Parameters = Type.Intersect([
-    Type.Object({
-      chainId: Typebox.Optional(Primitive.Number),
-      label: Typebox.Optional(Type.String()),
-    }),
-  ])
-  export type Parameters = Typebox.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_createAccount'),
-    params: Typebox.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Typebox.StaticDecode<typeof Request>
-
-  export const ResponseCapabilities = Type.Object({
-    admins: Typebox.Optional(wallet_getAdmins.Response.properties.keys),
-    permissions: Typebox.Optional(C.permissions.Response),
-    preCalls: Typebox.Optional(C.preCalls.Response),
-  })
-  export type ResponseCapabilities = Typebox.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    capabilities: Typebox.Optional(ResponseCapabilities),
-  })
-  export type Response = Typebox.StaticDecode<typeof Response>
-}
-
 export namespace wallet_grantPermissions {
   export const Parameters = Permissions.Request
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
