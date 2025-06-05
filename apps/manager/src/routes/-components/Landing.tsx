@@ -1,7 +1,9 @@
 import { Button, IndeterminateLoader, LogoMark } from '@porto/apps/components'
 import * as React from 'react'
 import { useAccount, useConnect, useConnectors } from 'wagmi'
-import EraserIcon from '~icons/lucide/eraser'
+import LucideCircleCheck from '~icons/lucide/circle-check'
+import LucideCircleX from '~icons/lucide/circle-x'
+import IconScanFace from '~icons/porto/scan-face'
 import { Layout } from './Layout'
 
 export function Landing() {
@@ -9,14 +11,14 @@ export function Landing() {
   const connect = useConnect()
   const [connector] = useConnectors()
 
-  const [label, setLabel] = React.useState('Porto Account')
+  const [email, setEmail] = React.useState('')
 
   return (
     <>
       <Layout.Header left={false} right={undefined} />
 
       <div className="flex h-full flex-col items-center justify-between gap-y-4 rounded-3xl">
-        <form className="flex h-full w-full max-w-[328px] flex-col justify-center gap-y-6 max-lg:gap-y-20">
+        <div className="flex h-full w-full max-w-[328px] flex-col justify-center gap-y-6 max-lg:gap-y-20">
           {account.isConnecting ? (
             <IndeterminateLoader
               align="vertical"
@@ -41,52 +43,58 @@ export function Landing() {
                 </p>
               </div>
               <div>
-                <div className="flex h-12.5 items-center rounded-4xl border border-gray7 bg-gray1 py-2 pr-2 pl-4">
-                  <input
-                    autoCapitalize="off"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    className="w-full font-[500] text-[19px] focus:outline-none focus:ring-0"
-                    maxLength={32}
-                    name="label"
-                    onChange={(e) => setLabel(e.target.value)}
-                    placeholder="Enter a name…"
-                    spellCheck={false}
-                    type="text"
-                    value={label}
-                  />
-                  <button
-                    className="rounded-full bg-accentTint p-2 transition-all duration-200 hover:bg-accentTintHover active:scale-90"
-                    onClick={() => setLabel('')}
-                    type="button"
-                  >
-                    <EraserIcon className="size-5 text-accent" />
-                  </button>
-                </div>
-
-                <div className="h-3" />
-
-                <p className="text-center text-[15px] text-gray10">
-                  You can't change this name later.
-                </p>
-
-                <div className="h-4" />
-
-                <Button
-                  className="h-12.5! w-full bg-gray12! text-gray1! text-lg! hover:bg-gray12/90!"
-                  onClick={() =>
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault()
                     connect.connect({
                       capabilities: {
-                        createAccount: { label },
+                        createAccount: { label: email },
                       },
                       connector: connector!,
                     })
-                  }
-                  type="button"
-                  variant="default"
+                  }}
                 >
-                  Create
-                </Button>
+                  <div className="group peer flex h-12.5 items-center rounded-4xl border border-gray7 bg-gray1 py-2 pr-2 pl-4">
+                    <label className="sr-only" htmlFor="email">
+                      Email
+                    </label>
+                    <input
+                      autoCapitalize="off"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      className="w-full font-[500] text-[19px] focus:outline-none focus:ring-0"
+                      maxLength={32}
+                      name="label"
+                      onChange={(e) => setEmail(e.target.value)}
+                      pattern=".*@.*\..+"
+                      placeholder="example@ithaca.xyz"
+                      required
+                      spellCheck={false}
+                      type="email"
+                      value={email}
+                    />
+                    <div className="hidden rounded-full bg-successTint p-2 group-has-[:valid]:block">
+                      <LucideCircleCheck className="size-5 text-success" />
+                    </div>
+                    <div className="hidden rounded-full bg-destructiveTint p-2 group-has-[:user-invalid]:block">
+                      <LucideCircleX className="size-5 text-destructive" />
+                    </div>
+                  </div>
+
+                  <div className="-tracking-[2.8%] mt-3 hidden w-full rounded-full bg-red3 p-2 text-center text-[15px] text-red9 leading-[24px] peer-has-[:user-invalid]:block">
+                    This email is not a valid one.
+                  </div>
+
+                  <div className="h-4" />
+
+                  <Button
+                    className="h-12.5! w-full bg-gray12! text-gray1! text-lg! hover:bg-gray12/90!"
+                    type="submit"
+                    variant="default"
+                  >
+                    Create account
+                  </Button>
+                </form>
 
                 <div className="h-3" />
 
@@ -99,7 +107,7 @@ export function Landing() {
                 <div className="h-6" />
 
                 <Button
-                  className="h-12.5! w-full text-lg!"
+                  className="flex h-12.5! w-full items-center gap-2 text-lg!"
                   onClick={() =>
                     connect.connect({
                       capabilities: {
@@ -112,12 +120,13 @@ export function Landing() {
                   type="button"
                   variant="accent"
                 >
+                  <IconScanFace className="size-5.25" />
                   Sign in
                 </Button>
               </div>
             </>
           )}
-        </form>
+        </div>
       </div>
 
       <Layout.IntegrateFooter />
