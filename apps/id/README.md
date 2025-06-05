@@ -1,4 +1,4 @@
-# manager
+# id
 
 ## dev
 
@@ -6,7 +6,7 @@ From root, run:
 
 ```sh
 pnpm i
-pnpm dev:manager
+pnpm dev:id
 ```
 
 ### Icons
