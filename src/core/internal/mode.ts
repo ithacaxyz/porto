@@ -171,8 +171,6 @@ export type Mode = {
     prepareUpgradeAccount: (parameters: {
       /** Address of the account to import. */
       address: Address.Address
-      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Label to associate with the account. */
       label?: string | undefined
       /** Internal properties. */

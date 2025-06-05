@@ -189,27 +189,19 @@ describe('sign', () => {
   })
 
   test('behavior: no keys', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await createAccount(client, {
-      deploy: true,
-      keys: [key],
-    })
-
-    const nextAccount = Account.from({
-      ...account,
+    const account = Account.from({
+      address: '0x0000000000000000000000000000000000000000',
       keys: undefined,
-      sign: undefined,
     })
 
     const payload = Hex.random(32)
 
     await expect(
-      // @ts-expect-error - testing error case.
-      Account.sign(nextAccount, {
+      Account.sign(account, {
         payload,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[Error: cannot find key to sign with.]',
+      `[Error: cannot find key to sign with.]`,
     )
   })
 })

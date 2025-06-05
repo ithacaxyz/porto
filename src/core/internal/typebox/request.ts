@@ -3,6 +3,7 @@ import * as Json from 'ox/Json'
 import * as RpcResponse from 'ox/RpcResponse'
 import * as RpcRequest from './rpc.js'
 import { type StaticDecode, type StaticEncode, Type, Value } from './typebox.js'
+import * as U from '../utils.js'
 
 export * from './rpc.js'
 
@@ -38,7 +39,7 @@ export const Request = Type.Union([
 ])
 
 export function parseRequest(request: unknown): parseRequest.ReturnType {
-  const raw = Value.Convert(Request, request)
+  const raw = Value.Convert(Request, U.normalizeValue(request))
 
   const method = RpcRequest[(raw as any).method as keyof typeof RpcRequest]
   if (method) {

@@ -2204,7 +2204,7 @@ describe.each([
                     calls: [{ to: exp1Address }],
                     spend: [
                       {
-                        limit: Hex.fromNumber(42069n),
+                        limit: Hex.fromNumber(Value.fromEther('5')),
                         period: 'day',
                         token: exp1Address,
                       },
@@ -2301,7 +2301,7 @@ describe.each([
                     calls: [{ to: exp1Address }],
                     spend: [
                       {
-                        limit: Hex.fromNumber(42069n),
+                        limit: Hex.fromNumber(Value.fromEther('5')),
                         period: 'day',
                         token: exp1Address,
                       },
@@ -2401,7 +2401,7 @@ describe.each([
                     calls: [{ to: exp1Address }],
                     spend: [
                       {
-                        limit: Hex.fromNumber(42069n),
+                        limit: Hex.fromNumber(Value.fromEther('5')),
                         period: 'day',
                         token: exp1Address,
                       },
