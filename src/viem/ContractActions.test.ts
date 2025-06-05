@@ -669,7 +669,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await AccountContract.prepareExecute(
+      const { request, digests } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -682,9 +682,12 @@ describe('prepareExecute', () => {
         },
       )
 
-      const signatures = await Promise.all(
-        signPayloads.map((hash) => account.sign({ hash })),
-      )
+      const signatures = {
+        auth: digests.auth
+          ? await account.sign({ hash: digests.auth })
+          : undefined,
+        exec: await account.sign({ hash: digests.exec }),
+      } as const
 
       await AccountContract.execute(client, {
         ...request,
@@ -717,7 +720,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await AccountContract.prepareExecute(
+      const { request, digests } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -729,9 +732,12 @@ describe('prepareExecute', () => {
         },
       )
 
-      const signatures = await Promise.all(
-        signPayloads.map((hash) => account.sign({ hash })),
-      )
+      const signatures = {
+        auth: digests.auth
+          ? await account.sign({ hash: digests.auth })
+          : undefined,
+        exec: await account.sign({ hash: digests.exec }),
+      } as const
 
       await AccountContract.execute(client, {
         ...request,
@@ -758,7 +764,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await AccountContract.prepareExecute(
+      const { request, digests } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -772,9 +778,12 @@ describe('prepareExecute', () => {
         },
       )
 
-      const signatures = await Promise.all(
-        signPayloads.map((hash) => account.sign({ hash })),
-      )
+      const signatures = {
+        auth: digests.auth
+          ? await account.sign({ hash: digests.auth })
+          : undefined,
+        exec: await account.sign({ hash: digests.exec }),
+      } as const
 
       await AccountContract.execute(client, {
         ...request,

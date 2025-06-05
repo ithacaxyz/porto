@@ -291,7 +291,7 @@ export async function upgradeAccount(
 
   const method = 'wallet_prepareUpgradeAccount' as const
   type Method = typeof method
-  const { context, signPayloads } = await client.request<
+  const { context, digests } = await client.request<
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
@@ -304,9 +304,10 @@ export async function upgradeAccount(
     ],
   })
 
-  const signatures = await Promise.all(
-    signPayloads.map((hash) => account.sign({ hash })),
-  )
+  const signatures = {
+    auth: await account.sign({ hash: digests.auth }),
+    exec: await account.sign({ hash: digests.exec }),
+  }
 
   const method_upgrade = 'wallet_upgradeAccount' as const
   type Method_upgrade = typeof method_upgrade

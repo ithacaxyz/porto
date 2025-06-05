@@ -465,8 +465,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return {
           account,
           context: result.context as any,
+          digest: result.digest,
           key: result.key,
-          signPayloads: [result.digest],
         }
       },
 

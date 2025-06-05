@@ -93,7 +93,7 @@ type Response = {
   // authorization digest and the initialization digest (pre-call).
   digests: {
     auth: Hash,
-    init: Hash,
+    exec: Hash,
   },
   // EIP-712 typed data of the precall. This can be used to rebuild (and verify)
   // the provided digest.

@@ -77,16 +77,19 @@ export function contract(parameters: contract.Parameters = {}) {
         `contract \`portoAccount\` not found on chain ${client.chain.name}.`,
       )
 
-    const { request, signPayloads } = await ContractActions.prepareExecute(
-      client,
-      {
-        account,
-        calls: Mode.getAuthorizeCalls(account.keys),
-        delegation,
-      },
-    )
+    const { digests, request } = await ContractActions.prepareExecute(client, {
+      account,
+      calls: Mode.getAuthorizeCalls(account.keys),
+      delegation,
+    })
 
-    return { context: U.normalizeValue(request), signPayloads }
+    return {
+      context: U.normalizeValue(request),
+      digests: {
+        auth: digests.auth!,
+        exec: digests.exec,
+      },
+    }
   }
 
   return Mode.from({
@@ -107,10 +110,7 @@ export function contract(parameters: contract.Parameters = {}) {
         )
 
         // Prepare the account for creation.
-        const {
-          context,
-          signPayloads: [executePayload, authorizationPayload],
-        } = await prepareUpgradeAccount({
+        const { context, digests } = await prepareUpgradeAccount({
           address,
           client,
           keystoreHost,
@@ -124,22 +124,25 @@ export function contract(parameters: contract.Parameters = {}) {
         const account = Account.fromPrivateKey(privateKey, {
           keys: context.account.keys,
         })
-        const [executeSignature, authorizationSignature] = await Promise.all([
+        const [exec, auth] = await Promise.all([
           account.sign?.({
-            hash: executePayload,
+            hash: digests.exec,
           }),
-          authorizationPayload
+          digests.auth
             ? account.sign?.({
-                hash: authorizationPayload,
+                hash: digests.auth,
               })
             : undefined,
         ])
-        const signatures = [executeSignature, authorizationSignature] as const
+        const signatures = {
+          auth,
+          exec,
+        }
 
         // Execute the account creation.
         // TODO: wait for tx to be included?
         await ContractActions.execute(client, {
-          ...(context as any),
+          ...context,
           account,
           signatures,
           storage: internal.config.storage,
@@ -382,7 +385,7 @@ export function contract(parameters: contract.Parameters = {}) {
         const { internal, key } = parameters
         const { client } = internal
 
-        const { request, signPayloads } = await ContractActions.prepareExecute(
+        const { request, digests } = await ContractActions.prepareExecute(
           client,
           parameters,
         )
@@ -390,8 +393,8 @@ export function contract(parameters: contract.Parameters = {}) {
         return {
           account: request.account,
           context: { calls: request.calls, nonce: request.nonce },
+          digest: digests.exec,
           key,
-          signPayloads,
         }
       },
 
@@ -480,7 +483,10 @@ export function contract(parameters: contract.Parameters = {}) {
           account,
           calls: context.calls,
           nonce: context.nonce,
-          signatures: [signature],
+          signatures: {
+            auth: undefined,
+            exec: signature,
+          },
           storage: internal.config.storage,
         })
 
