@@ -50,6 +50,7 @@ export function Landing() {
                     connect.connect({
                       capabilities: {
                         createAccount: { label: email },
+                        email: false,
                       },
                       connector: connector!,
                     })

@@ -172,7 +172,7 @@ export function Dashboard() {
           <div>
             {emailData ? (
               <div className="flex items-center gap-2">
-                {/* TODO: Sparkle `bg-repeat` https://tailwindcss.com/docs/background-repeat */}
+                {/* TODO: Sparkle spotlight effect `bg-repeat` https://tailwindcss.com/docs/background-repeat */}
                 <div className="-tracking-[2.8%] min-w-10 px-2 font-medium text-[15px] text-gray12 blur-sm">
                   {emailData.email}
                 </div>
