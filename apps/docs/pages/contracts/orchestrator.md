@@ -40,7 +40,7 @@ struct Intent {
     /// @dev The combined gas limit for payment, verification, and calling the EOA.
     uint256 combinedGas;
     /// @dev Optional array of encoded SignedCalls that will be verified and executed
-    /// after PREP (if any) and before the validation of the overall Intent.
+    /// before the validation of the overall Intent.
     /// A PreCall will NOT have its gas limit or payment applied.
     /// The overall Intent's gas limit and payment will be applied, encompassing all its PreCalls.
     /// The execution of a PreCall will check and increment the nonce in the PreCall.

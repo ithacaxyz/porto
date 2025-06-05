@@ -4,8 +4,6 @@ import Keys from './snippets/keys.mdx'
 
 Prepares an account for upgrade by generating initialization data and an EIP-7702 authorization item.
 
-Upgrading an account is different from [creating an account](/rpc-server/wallet_prepareCreateAccount). Upgrading an account generates an EIP-7702 authorization for an existing EOA, whereas creating an account using the RPC server generates a new EOA using [PREP].
-
 The returned EIP-7702 authorization item must be signed by the EOA root key, as well as the intent digest.
 
 :::tip
@@ -165,5 +163,4 @@ type Response = {
 }
 ```
 
-[PREP]: https://blog.biconomy.io/prep-deep-dive/
 [`wallet_prepareCalls`]: /rpc-server/wallet_prepareCalls
