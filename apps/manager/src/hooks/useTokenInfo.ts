@@ -2,7 +2,13 @@ import { Address } from 'ox'
 import { erc20Abi, erc721Abi } from 'viem'
 import { useReadContracts } from 'wagmi'
 
-export function useErc20Info(address?: Address.Address | undefined) {
+export function useErc20Info({
+  address,
+  enabled,
+}: {
+  address?: Address.Address | undefined
+  enabled?: boolean | undefined
+}) {
   return useReadContracts({
     allowFailure: false,
     contracts: [
@@ -12,7 +18,7 @@ export function useErc20Info(address?: Address.Address | undefined) {
       { abi: erc20Abi, address, functionName: 'totalSupply' },
     ],
     query: {
-      enabled: !!address && Address.validate(address),
+      enabled: enabled && !!address && Address.validate(address),
       refetchInterval: 10_000,
       select: ([name, symbol, decimals, totalSupply]) => ({
         decimals,
@@ -25,7 +31,13 @@ export function useErc20Info(address?: Address.Address | undefined) {
   })
 }
 
-export function useErc721Info(address?: Address.Address | undefined) {
+export function useErc721Info({
+  address,
+  enabled,
+}: {
+  address?: Address.Address | undefined
+  enabled?: boolean | undefined
+}) {
   return useReadContracts({
     allowFailure: false,
     contracts: [
@@ -33,7 +45,7 @@ export function useErc721Info(address?: Address.Address | undefined) {
       { abi: erc721Abi, address, functionName: 'symbol' },
     ],
     query: {
-      enabled: !!address && Address.validate(address),
+      enabled: enabled && !!address && Address.validate(address),
       refetchInterval: 10_000,
       select: ([name, symbol]) => ({
         name,

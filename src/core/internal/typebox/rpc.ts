@@ -160,37 +160,6 @@ export namespace wallet_grantAdmin {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace wallet_createAccount {
-  export const Parameters = Type.Intersect([
-    Type.Object({
-      chainId: Typebox.Optional(Primitive.Number),
-      label: Typebox.Optional(Type.String()),
-    }),
-  ])
-  export type Parameters = Typebox.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_createAccount'),
-    params: Typebox.Optional(Type.Tuple([Parameters])),
-  })
-  export type Request = Typebox.StaticDecode<typeof Request>
-
-  export const ResponseCapabilities = Type.Object({
-    admins: Typebox.Optional(wallet_getAdmins.Response.properties.keys),
-    permissions: Typebox.Optional(C.permissions.Response),
-    preCalls: Typebox.Optional(C.preCalls.Response),
-  })
-  export type ResponseCapabilities = Typebox.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    capabilities: Typebox.Optional(ResponseCapabilities),
-  })
-  export type Response = Typebox.StaticDecode<typeof Response>
-}
-
 export namespace wallet_grantPermissions {
   export const Parameters = Permissions.Request
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
@@ -276,7 +245,10 @@ export namespace wallet_prepareUpgradeAccount {
 
   export const Response = Type.Object({
     context: Type.Unknown(),
-    signPayloads: Type.Array(Primitive.Hex),
+    digests: Type.Object({
+      auth: Primitive.Hex,
+      exec: Primitive.Hex,
+    }),
   })
   export type Response = Typebox.StaticDecode<typeof Response>
 }
@@ -347,7 +319,10 @@ export namespace wallet_updateAccount {
 export namespace wallet_upgradeAccount {
   export const Parameters = Type.Object({
     context: Type.Unknown(),
-    signatures: Type.Array(Primitive.Hex),
+    signatures: Type.Object({
+      auth: Primitive.Hex,
+      exec: Primitive.Hex,
+    }),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
@@ -393,10 +368,10 @@ export namespace porto_ping {
 
 export namespace wallet_connect {
   export const Capabilities = Type.Object({
+    address: Typebox.Optional(Primitive.Address),
     createAccount: Typebox.Optional(C.createAccount.Request),
     credentialId: Typebox.Optional(Type.String()),
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
-    keyId: Typebox.Optional(Primitive.Hex),
     preCalls: Typebox.Optional(C.preCalls.Request),
     selectAccount: Typebox.Optional(Type.Boolean()),
   })
@@ -497,30 +472,10 @@ export namespace wallet_getCapabilities {
   export const Response = Type.Record(
     Primitive.Hex,
     Type.Object({
-      atomic: Type.Object({
-        status: Type.Union([
-          Type.Literal('supported'),
-          Type.Literal('unsupported'),
-        ]),
-      }),
-      feeToken: Type.Object({
-        supported: Type.Boolean(),
-        tokens: Type.Array(
-          Type.Object({
-            address: Primitive.Address,
-            decimals: Type.Number(),
-            kind: Type.String(),
-            nativeRate: Typebox.Optional(Primitive.BigInt),
-            symbol: Type.String(),
-          }),
-        ),
-      }),
-      permissions: Type.Object({
-        supported: Type.Boolean(),
-      }),
-      sponsor: Type.Object({
-        supported: Type.Boolean(),
-      }),
+      atomic: C.atomic.GetCapabilitiesResponse,
+      feeToken: C.feeToken.GetCapabilitiesResponse,
+      permissions: C.permissions.GetCapabilitiesResponse,
+      sponsor: C.sponsor.GetCapabilitiesResponse,
     }),
   )
   export type Response = Typebox.StaticDecode<typeof Response>
@@ -549,7 +504,7 @@ export namespace wallet_prepareCalls {
     feeToken: Typebox.Optional(C.feeToken.Request),
     permissions: Typebox.Optional(C.permissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
-    sponsorUrl: Typebox.Optional(Type.String()),
+    sponsorUrl: Typebox.Optional(C.sponsorUrl.Request),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 

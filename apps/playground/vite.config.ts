@@ -11,12 +11,11 @@ import { writeContract } from 'viem/actions'
 import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
-import { Key, RpcServer } from '../../src/index.js'
+import { Key, ServerActions } from '../../src/index.js'
 import { Sponsor } from '../../src/server/index.js'
 import {
   accountNewProxyAddress,
   accountProxyAddress,
-  accountRegistryAddress,
   exp1Address,
   orchestratorAddress,
   simulatorAddress,
@@ -101,7 +100,6 @@ export default defineConfig(({ mode }) => ({
           const containerName = 'playground'
           spawnSync('docker', ['rm', '-f', containerName])
           const stop = await rpcServer({
-            accountRegistry: accountRegistryAddress,
             containerName: 'playground',
             delegationProxy: accountProxy,
             endpoint: anvilConfig.rpcUrl,
@@ -116,6 +114,7 @@ export default defineConfig(({ mode }) => ({
             orchestrator: orchestratorAddress,
             simulator: simulatorAddress,
             txGasBuffer: 100_000n,
+            version: '6d94e05',
           }).start()
           await fetch(rpcServerConfig.rpcUrl + '/start')
           return stop
@@ -166,8 +165,8 @@ export default defineConfig(({ mode }) => ({
 
         // Create app-sponsor account.
         const sponsorKey = Key.createSecp256k1()
-        const sponsorAccount = await RpcServer.createAccount(relayClient, {
-          keys: [sponsorKey],
+        const sponsorAccount = await ServerActions.createAccount(relayClient, {
+          authorizeKeys: [sponsorKey],
         })
         await writeContract(anvilClient, {
           abi: exp1Abi,
@@ -176,7 +175,7 @@ export default defineConfig(({ mode }) => ({
           chain: null,
           functionName: 'mint',
         })
-        await RpcServer.sendCalls(relayClient, {
+        await ServerActions.sendCalls(relayClient, {
           account: sponsorAccount,
           calls: [],
           feeToken: exp1Address,

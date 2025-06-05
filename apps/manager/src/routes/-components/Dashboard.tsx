@@ -53,10 +53,18 @@ function TokenSymbol({
 }) {
   const tokenStandard = useTokenStandard(address)
 
-  const { data: tokenInfo } =
-    tokenStandard.standard === 'ERC20'
-      ? useErc20Info(address)
-      : useErc721Info(address)
+  const { data: tokenInfoErc20 } = useErc20Info({
+    address,
+    enabled: tokenStandard.standard === 'ERC20',
+  })
+
+  const { data: tokenInfo721 } = useErc721Info({
+    address,
+    enabled: tokenStandard.standard === 'ERC721',
+  })
+
+  const tokenInfo =
+    tokenStandard.standard === 'ERC20' ? tokenInfoErc20 : tokenInfo721
 
   if (!address) return null
 
@@ -149,6 +157,30 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
+              onClick={async (event) => {
+                event.preventDefault()
+                if (!account.address)
+                  return toast.error('No account address found')
+
+                const provider =
+                  (await account.connector?.getProvider()) as Porto.Porto['provider']
+                await provider.request({
+                  method: 'wallet_addFunds',
+                  params: [
+                    {
+                      address: account.address,
+                      token: exp1Address[chainId as keyof typeof exp1Address],
+                      value: Hex.fromNumber(25n),
+                    },
+                  ],
+                })
+              }}
+              size="small"
+              variant="accent"
+            >
+              Add funds
+            </Button>
+            <Button
               render={
                 <a
                   href="https://t.me/porto_devs"
@@ -160,7 +192,6 @@ export function Dashboard() {
               }
               size="small"
             />
-
             <Button
               onClick={() => disconnect.disconnect({})}
               size="small"
@@ -219,33 +250,6 @@ export function Dashboard() {
       >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
-
-          <Button
-            className="ml-2"
-            onClick={async (event) => {
-              event.preventDefault()
-              if (!account.address)
-                return toast.error('No account address found')
-
-              const provider =
-                (await account.connector?.getProvider()) as Porto.Porto['provider']
-              await provider.request({
-                method: 'wallet_addFunds',
-                params: [
-                  {
-                    address: account.address,
-                    token: exp1Address[chainId as keyof typeof exp1Address],
-                    value: Hex.fromNumber(25n),
-                  },
-                ],
-              })
-            }}
-            size="small"
-            type="button"
-            variant="default"
-          >
-            Add funds
-          </Button>
         </summary>
 
         <PaginatedTable

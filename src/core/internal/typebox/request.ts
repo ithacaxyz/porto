@@ -1,6 +1,7 @@
 import type { Union } from '@sinclair/typebox/type'
 import * as Json from 'ox/Json'
 import * as RpcResponse from 'ox/RpcResponse'
+import * as U from '../utils.js'
 import * as RpcRequest from './rpc.js'
 import { type StaticDecode, type StaticEncode, Type, Value } from './typebox.js'
 
@@ -13,7 +14,6 @@ export const Request = Type.Union([
   RpcRequest.eth_requestAccounts.Request,
   RpcRequest.eth_sendTransaction.Request,
   RpcRequest.eth_signTypedData_v4.Request,
-  RpcRequest.wallet_createAccount.Request,
   RpcRequest.wallet_getAccountVersion.Request,
   RpcRequest.wallet_getAdmins.Request,
   RpcRequest.wallet_getPermissions.Request,
@@ -38,7 +38,7 @@ export const Request = Type.Union([
 ])
 
 export function parseRequest(request: unknown): parseRequest.ReturnType {
-  const raw = Value.Convert(Request, request)
+  const raw = Value.Convert(Request, U.normalizeValue(request))
 
   const method = RpcRequest[(raw as any).method as keyof typeof RpcRequest]
   if (method) {

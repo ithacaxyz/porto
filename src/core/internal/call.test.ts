@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import * as Key from '../Key.js'
+import * as Key from '../../viem/Key.js'
 import * as Call from './call.js'
 
 describe('authorize', () => {

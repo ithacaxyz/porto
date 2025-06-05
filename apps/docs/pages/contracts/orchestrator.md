@@ -50,7 +50,6 @@ struct Intent {
     ////////////////////////////////////////////////////////////////////////
     // Additional Fields (Not included in EIP-712)
     ////////////////////////////////////////////////////////////////////////
-    
     /// @dev The actual pre payment amount, requested by the filler. MUST be less than or equal to `prePaymentMaxAmount`
     uint256 prePaymentAmount;
     /// @dev The actual total payment amount, requested by the filler. MUST be less than or equal to `totalPaymentMaxAmount`

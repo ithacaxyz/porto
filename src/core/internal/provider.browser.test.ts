@@ -3,7 +3,7 @@ import { waitForCallsStatus } from 'viem/actions'
 import { afterEach, describe, expect, test } from 'vitest'
 import { getPorto } from '../../../test/src/browser/porto.js'
 import { run } from '../../../test/src/browser/utils.js'
-import { getClient } from './porto.js'
+import * as WalletClient from '../../viem/WalletClient.js'
 
 let porto: Porto.Porto | undefined
 afterEach(() => {
@@ -55,7 +55,10 @@ describe('wallet_connect', () => {
     porto = getPorto()
 
     await run(
-      porto.provider.request({ method: 'wallet_createAccount' }),
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
     await run(porto.provider.request({ method: 'wallet_disconnect' }))
@@ -92,18 +95,6 @@ describe('wallet_disconnect', () => {
         [Provider.DisconnectedError: The provider is disconnected from all chains.],
       ]
     `)
-  })
-})
-
-describe('wallet_createAccount', () => {
-  test('default', async () => {
-    porto = getPorto()
-
-    const { address } = await run(
-      porto.provider.request({ method: 'wallet_createAccount' }),
-      (iframe) => iframe.getByTestId('sign-up').click(),
-    )
-    expect(address).toBeDefined()
   })
 })
 
@@ -243,7 +234,6 @@ describe('wallet_getPermissions', () => {
       ).matchSnapshot()
     }
 
-    const client = getClient(porto)
     const { id } = await run(
       porto.provider.request({
         method: 'wallet_sendCalls',
@@ -256,7 +246,7 @@ describe('wallet_getPermissions', () => {
         await iframe.getByTestId('confirm').click()
       },
     )
-    await waitForCallsStatus(client, {
+    await waitForCallsStatus(WalletClient.fromPorto(porto), {
       id,
     })
 

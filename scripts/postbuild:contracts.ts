@@ -61,18 +61,18 @@ await buildContracts(
   ),
 )
 
-// Remove PortoAccountOld.sol.
+// Remove IthacaAccountOld.sol.
 await Fs.rm(
   Path.resolve(
     import.meta.dirname,
-    '../contracts/account/src/PortoAccountOld.sol',
+    '../contracts/account/src/IthacaAccountOld.sol',
   ),
 )
 
-// Remove PortoAccountNew.sol.
+// Remove IthacaAccountNew.sol.
 await Fs.rm(
   Path.resolve(
     import.meta.dirname,
-    '../contracts/account/src/PortoAccountNew.sol',
+    '../contracts/account/src/IthacaAccountNew.sol',
   ),
 )

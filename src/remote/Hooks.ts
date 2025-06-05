@@ -4,8 +4,9 @@ import { useStore } from 'zustand'
 import { useShallow } from 'zustand/shallow'
 
 import type * as Chains from '../core/Chains.js'
-import * as Porto_internal from '../core/internal/porto.js'
 import type * as Porto from '../core/Porto.js'
+import * as ServerClient from '../viem/ServerClient.js'
+import * as WalletClient from '../viem/WalletClient.js'
 import type * as Remote from './Porto.js'
 
 /**
@@ -70,29 +71,6 @@ export function useChain<
 }
 
 export namespace useChain {
-  export type Parameters = {
-    chainId?: number | undefined
-  }
-}
-
-/**
- * Hook to access and subscribe to the client of the Porto instance.
- *
- * @param porto - Porto instance.
- * @returns Client.
- */
-export function useClient<
-  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(
-  porto: Pick<Remote.Porto<chains>, '_internal'>,
-  parameters: useClient.Parameters = {},
-) {
-  const defaultChainId = useChain(porto)?.id
-  const chainId = parameters.chainId ?? defaultChainId
-  return Porto_internal.getClient(porto, { chainId })
-}
-
-export namespace useClient {
   export type Parameters = {
     chainId?: number | undefined
   }
@@ -175,18 +153,41 @@ export function useRequest<
 }
 
 /**
- * Hook to access and subscribe to the provider client of the Porto instance.
+ * Hook to access and subscribe to the server client of the Porto instance.
  *
  * @param porto - Porto instance.
- * @returns Provider client.
+ * @returns Server Client.
  */
-export function useProviderClient<
+export function useServerClient<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(porto: Pick<Remote.Porto<chains>, '_internal' | 'provider'>) {
-  return useMemo(() => Porto_internal.getProviderClient(porto), [porto])
+>(
+  porto: Pick<Remote.Porto<chains>, '_internal'>,
+  parameters: useServerClient.Parameters = {},
+) {
+  const defaultChainId = useChain(porto)?.id
+  const chainId = parameters.chainId ?? defaultChainId
+  return ServerClient.fromPorto(porto, { chainId })
 }
 
-export namespace useProviderClient {
+export namespace useServerClient {
+  export type Parameters = {
+    chainId?: number | undefined
+  }
+}
+
+/**
+ * Hook to access and subscribe to the wallet client of the Porto instance.
+ *
+ * @param porto - Porto instance.
+ * @returns Wallet Client.
+ */
+export function useWalletClient<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(porto: Pick<Remote.Porto<chains>, '_internal' | 'provider'>) {
+  return useMemo(() => WalletClient.fromPorto(porto), [porto])
+}
+
+export namespace useWalletClient {
   export type Parameters = {
     chainId?: number | undefined
   }
