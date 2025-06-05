@@ -454,24 +454,6 @@ Functions to read data from the account.
 - **Usage:**
     - `keyHash`: The hash of the key.
 
-#### `rPREP` (View Function)
-
-  ```solidity
-  function rPREP() public view virtual returns (bytes32)
-  ```
-
-- **Description:** Returns the `r` value of the PREP (Pre-Executed Proxy) signature, if the account has been initialized as a PREP. Returns `0` if not initialized.
-- **Usage:** Used in conjunction with EIP-7717 (PREP) for counterfactual proxy deployment and initialization.
-
-#### `isPREP`
-
-  ```solidity
-  function isPREP() public view virtual returns (bool)
-  ```
-
-- **Description:** Returns `true` if the account has been correctly initialized as a PREP and the `rPREP` value is set and valid.
-- **Usage:** To check if the account is a valid PREP.
-
 ---
 
 ### Helpers

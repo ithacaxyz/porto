@@ -13,7 +13,7 @@ export const Intent = Type.Object({
   combinedGas: Primitive.BigInt,
   /**
    * Optional array of encoded Intents that will be verified and executed
-   * after PREP (if any) and before the validation of the overall Intent.
+   * before the validation of the overall Intent.
    *
    * A PreCall will NOT have its gas limit or payment applied.
    * The overall Intent's gas limit and payment will be applied, encompassing all its PreCalls.
