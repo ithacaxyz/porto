@@ -519,8 +519,8 @@ export async function upgradeAccount(
     })
 
     const signatures = {
-      auth: await account.sign({ hash: digests.authDigest }),
-      preCall: await account.sign({ hash: digests.preCallDigest }),
+      auth: await account.sign({ hash: digests.auth }),
+      exec: await account.sign({ hash: digests.exec }),
     }
 
     return await upgradeAccount(client, {

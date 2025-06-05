@@ -399,11 +399,9 @@ export namespace wallet_prepareUpgradeAccount {
     /** Digests to sign over. */
     digests: Type.Object({
       /** Digest of the authorization object. */
-      // TODO(prep): rename to auth
-      authDigest: Primitive.Hex,
+      auth: Primitive.Hex,
       /** Digest of the pre-call. */
-      // TODO(prep): rename to preCall
-      preCallDigest: Primitive.Hex,
+      exec: Primitive.Hex,
     }),
     /** EIP-712 typed data digest. */
     typedData: Type.Object({
@@ -503,7 +501,7 @@ export namespace wallet_upgradeAccount {
     /** Signatures of the `wallet_prepareUpgradeAccount` digests. */
     signatures: Type.Object({
       auth: Primitive.Hex,
-      preCall: Primitive.Hex,
+      exec: Primitive.Hex,
     }),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
