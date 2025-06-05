@@ -1,6 +1,5 @@
-import { Button, LogoMark } from '@porto/apps/components'
+import { Button } from '@porto/apps/components'
 import { Link } from '@tanstack/react-router'
-import { cx } from 'cva'
 import type { PropsWithChildren } from 'react'
 
 import CircleHelp from '~icons/lucide/circle-help'
@@ -29,24 +28,13 @@ export namespace Layout {
   }
 
   export function Header(props: {
-    left?: boolean | string | undefined
-    leftClassName?: string | undefined
+    left?: React.ReactNode | undefined
     right?: React.ReactNode | undefined
   }) {
-    const { left, leftClassName, right } = props
+    const { left, right } = props
     return (
       <div className="flex items-center justify-between">
-        <div className="min-lg:opacity-0">
-          {left ? (
-            <div className={cx(leftClassName, 'font-[500] text-[24px]')}>
-              {left}
-            </div>
-          ) : left === false ? null : (
-            <div className="h-[28px] w-[40px]">
-              <LogoMark />
-            </div>
-          )}
-        </div>
+        {left}
         {right ?? (
           <Button render={<Link to="/about" />} size="square" variant="outline">
             <CircleHelp className="size-5 text-gray10" />

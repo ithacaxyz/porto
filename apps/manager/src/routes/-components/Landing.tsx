@@ -46,6 +46,7 @@ export function Landing() {
                 <form
                   onSubmit={(event) => {
                     event.preventDefault()
+                    // TODO: `account_setEmail`
                     connect.connect({
                       capabilities: {
                         createAccount: { label: email },
@@ -55,7 +56,7 @@ export function Landing() {
                   }}
                 >
                   <div className="group peer flex h-12.5 items-center rounded-4xl border border-gray7 bg-gray1 py-2 pr-2 pl-4">
-                    <label className="sr-only" htmlFor="email">
+                    <label className="sr-only" htmlFor="label">
                       Email
                     </label>
                     <input
