@@ -459,9 +459,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { account, id, internal } = parameters
         const { client } = internal
 
-        const key = account.keys?.find(
-          (key) => key.publicKey === id || key.id === id,
-        )
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         try {
@@ -489,9 +487,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { account, id, internal } = parameters
         const { client } = internal
 
-        const key = account.keys?.find(
-          (key) => key.publicKey === id || key.id === id,
-        )
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         // We shouldn't be able to revoke the admin keys.

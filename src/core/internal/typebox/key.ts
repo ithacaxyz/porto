@@ -8,7 +8,7 @@ export const Base = Type.Object({
   /** The hash of the key. */
   hash: Primitive.Hex,
   /** The id of the key. */
-  id: Typebox.Optional(Primitive.Hex),
+  id: Primitive.Hex,
   /** Public key. */
   publicKey: Primitive.Hex,
   /** Role. */

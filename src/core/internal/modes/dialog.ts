@@ -165,7 +165,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             const sessionKeys = account.capabilities?.permissions
               ?.map((permission) => {
-                if (permission.id === key?.publicKey) return key
+                if (permission.id === key?.id) return key
                 try {
                   return Permissions.toKey(
                     Typebox.Decode(Permissions.Schema, permission),
@@ -406,7 +406,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     const key_ = Permissions.toKey(
                       Typebox.Decode(Permissions.Schema, permission),
                     )
-                    if (key_.publicKey === key?.publicKey) return key
+                    if (key_.id === key?.id) return key
                     return key_
                   } catch (err) {
                     return undefined
@@ -503,7 +503,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_revokeAdmin')
           throw new Error('Cannot revoke admin for method: ' + request.method)
 
-        const key = account.keys?.find((key) => key.publicKey === id)
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         const feeToken = await resolveFeeToken(internal, parameters)
@@ -532,7 +532,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot revoke permissions for method: ' + request.method,
           )
 
-        const key = account.keys?.find((key) => key.publicKey === id)
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         // We shouldn't be able to revoke admins.

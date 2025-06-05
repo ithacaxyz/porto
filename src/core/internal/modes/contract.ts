@@ -415,7 +415,7 @@ export function contract(parameters: contract.Parameters = {}) {
         const { account, id, internal } = parameters
         const { client } = internal
 
-        const key = account.keys?.find((key) => key.publicKey === id)
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         await ContractActions.execute(client, {
@@ -429,7 +429,7 @@ export function contract(parameters: contract.Parameters = {}) {
         const { account, id, internal } = parameters
         const { client } = internal
 
-        const key = account.keys?.find((key) => key.publicKey === id)
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         // We shouldn't be able to revoke the admin keys.
