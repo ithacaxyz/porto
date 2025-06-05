@@ -529,9 +529,7 @@ export function from<
             },
           })
 
-          const keys = account.keys?.filter(
-            (key) => key.publicKey !== id && key.id !== id,
-          )
+          const keys = account.keys?.filter((key) => key.id !== id)
 
           store.setState((x) => ({
             ...x,
@@ -580,9 +578,7 @@ export function from<
             },
           })
 
-          const keys = account.keys?.filter(
-            (key) => key.publicKey !== id && key.id !== id,
-          )
+          const keys = account.keys?.filter((key) => key.id !== id)
 
           store.setState((x) => ({
             ...x,

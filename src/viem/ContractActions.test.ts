@@ -36,6 +36,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         hash: key.hash,
+        id: key.id,
         publicKey: key.publicKey,
         role: key.role,
         type: 'webauthn-p256',
@@ -71,6 +72,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         hash: key.hash,
+        id: key.id,
         publicKey: key.publicKey,
         role: key.role,
         type: 'webauthn-p256',
@@ -102,6 +104,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         hash: key.hash,
+        id: key.id,
         publicKey: key.publicKey,
         role: key.role,
         type: 'webauthn-p256',
@@ -138,6 +141,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         hash: key.hash,
+        id: key.id,
         publicKey: key.publicKey,
         role: key.role,
         type: 'webauthn-p256',
@@ -180,6 +184,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: nextKey.expiry,
         hash: nextKey.hash,
+        id: nextKey.id,
         publicKey: nextKey.publicKey,
         role: nextKey.role,
         type: 'webauthn-p256',
@@ -233,6 +238,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: nextKey.expiry,
         hash: nextKey.hash,
+        id: nextKey.id,
         publicKey: nextKey.publicKey,
         role: nextKey.role,
         type: 'p256',
@@ -702,6 +708,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
+        id: keyToAuthorize.id,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
         type: 'webauthn-p256',
@@ -752,6 +759,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
+        id: keyToAuthorize.id,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
         type: 'webauthn-p256',
@@ -798,6 +806,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
+        id: keyToAuthorize.id,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
         type: 'webauthn-p256',
