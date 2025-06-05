@@ -38,7 +38,7 @@ export default defineConfig({
       ? SentryVitePlugin({
           authToken: process.env.SENTRY_AUTH_TOKEN,
           org: 'ithaca',
-          project: 'porto-id',
+          project: 'porto-manager',
         })
       : null,
     TsconfigPaths(),
