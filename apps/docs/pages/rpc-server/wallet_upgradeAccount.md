@@ -36,7 +36,7 @@ type Request = {
     // Object of signatures over the digests from `wallet_prepareUpgradeAccount`
     signatures: {
       auth: Hex,
-      init: Hex,
+      exec: Hex,
     },
   }],
 }

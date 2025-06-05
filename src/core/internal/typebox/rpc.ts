@@ -245,7 +245,10 @@ export namespace wallet_prepareUpgradeAccount {
 
   export const Response = Type.Object({
     context: Type.Unknown(),
-    signPayloads: Type.Array(Primitive.Hex),
+    digests: Type.Object({
+      auth: Primitive.Hex,
+      exec: Primitive.Hex,
+    }),
   })
   export type Response = Typebox.StaticDecode<typeof Response>
 }
@@ -316,7 +319,10 @@ export namespace wallet_updateAccount {
 export namespace wallet_upgradeAccount {
   export const Parameters = Type.Object({
     context: Type.Unknown(),
-    signatures: Type.Array(Primitive.Hex),
+    signatures: Type.Object({
+      auth: Primitive.Hex,
+      exec: Primitive.Hex,
+    }),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 

@@ -72,50 +72,43 @@ export async function execute<
     // If an execution has been prepared, we can early return the request and signatures.
     if (nonce && signatures) return { request: parameters, signatures }
 
-    // Otherwise, we need to prepare the execution (compute payloads and sign over them).
-    const { request, signPayloads: payloads } = await prepareExecute(client, {
+    // Otherwise, we need to prepare the execution (compute digests and sign over them).
+    const { digests, request } = await prepareExecute(client, {
       ...parameters,
       account: account_,
     })
 
-    const [executePayload, authorizationPayload] = payloads as [
-      Hex.Hex,
-      Hex.Hex | undefined,
-    ]
-
-    const executionSignature = await Account.sign(account_, {
-      key: authorizationPayload ? null : key,
-      payload: executePayload,
+    const exec = await Account.sign(account_, {
+      key: digests.auth ? null : key,
+      payload: digests.exec,
       storage,
     })
-    const authorizationSignature = await (async () => {
-      if (!authorizationPayload) return undefined
+    const auth = await (async () => {
+      if (!digests.auth) return undefined
       if (account_.source !== 'privateKey')
         throw new Error('cannot sign authorization without root key.')
       return account_.sign?.({
-        hash: authorizationPayload,
+        hash: digests.auth,
       })
     })()
 
     return {
       request,
-      signatures: authorizationSignature
-        ? [executionSignature, authorizationSignature]
-        : [executionSignature],
+      signatures: {
+        auth,
+        exec,
+      },
     }
   })()
 
   const { authorization, calls, executor, nonce } = request
 
-  const [executeSignature, authorizationSignature] =
-    (signatures as [Hex.Hex, Hex.Hex]) || []
-
   // If an authorization signature is provided, it means that we will need to designate
   // the EOA to the delegation contract. We will need to construct an authorization list
   // to do so.
   const authorizationList = (() => {
-    if (!authorizationSignature) return undefined
-    const signature = Signature.from(authorizationSignature)
+    if (!signatures.auth) return undefined
+    const signature = Signature.from(signatures.auth)
     return [
       {
         ...authorization,
@@ -131,7 +124,7 @@ export async function execute<
   // signature.
   const opData = AbiParameters.encodePacked(
     ['uint256', 'bytes'],
-    [nonce, executeSignature],
+    [nonce, signatures.exec],
   )
 
   try {
@@ -181,7 +174,10 @@ export declare namespace execute {
           /**
            * Signature for execution. Required if the `executor` is not the EOA.
            */
-          signatures: readonly Hex.Hex[]
+          signatures: {
+            auth?: Hex.Hex | undefined
+            exec: Hex.Hex
+          }
         }
       | {
           /**
@@ -318,7 +314,7 @@ export async function prepareExecute<
   // Compute the signing payloads for execution and EIP-7702 authorization (optional).
   const [executePayload, [authorization, authorizationPayload]] =
     await Promise.all([
-      getExecuteSignPayload(client, {
+      getExecuteDigest(client, {
         account: account_,
         calls,
         delegation,
@@ -347,6 +343,10 @@ export async function prepareExecute<
     ])
 
   return {
+    digests: {
+      auth: authorizationPayload,
+      exec: executePayload,
+    },
     request: {
       ...rest,
       account: account_,
@@ -355,10 +355,6 @@ export async function prepareExecute<
       executor,
       nonce,
     },
-    signPayloads: [
-      executePayload,
-      ...(authorizationPayload ? [authorizationPayload] : []),
-    ],
   } as never
 }
 
@@ -384,14 +380,15 @@ export declare namespace prepareExecute {
   export type ReturnType<
     calls extends readonly unknown[] = readonly unknown[],
   > = {
+    digests: {
+      auth?: Hex.Hex | undefined
+      exec: Hex.Hex
+    }
     request: Omit<Parameters<calls>, 'account' | 'delegation'> & {
       account: Account.Account
       authorization?: Authorization_viem | undefined
       nonce: bigint
     }
-    signPayloads:
-      | [executePayload: Hex.Hex]
-      | [executePayload: Hex.Hex, authorizationPayload: Hex.Hex]
   }
 }
 
@@ -524,13 +521,13 @@ export function decorator<
 ///////////////////////////////////////////////////////////////////////////
 
 /** @internal */
-async function getExecuteSignPayload<
+async function getExecuteDigest<
   const calls extends readonly unknown[],
   chain extends Chain | undefined,
   account extends Account.Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: getExecuteSignPayload.Parameters<calls>,
+  parameters: getExecuteDigest.Parameters<calls>,
 ): Promise<Hex.Hex> {
   const { account = client.account, delegation, nonce } = parameters
 
@@ -590,7 +587,7 @@ async function getExecuteSignPayload<
   })
 }
 
-export declare namespace getExecuteSignPayload {
+export declare namespace getExecuteDigest {
   export type Parameters<
     calls extends readonly unknown[] = readonly unknown[],
   > = {

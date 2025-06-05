@@ -606,7 +606,7 @@ function UpgradeAccount() {
           onClick={async () => {
             const account = privateKeyToAccount(privateKey as Hex.Hex)
 
-            const { context, signPayloads } = await porto.provider.request({
+            const { context, digests } = await porto.provider.request({
               method: 'wallet_prepareUpgradeAccount',
               params: [
                 {
@@ -620,9 +620,10 @@ function UpgradeAccount() {
               ],
             })
 
-            const signatures = await Promise.all(
-              signPayloads.map((hash) => account.sign({ hash })),
-            )
+            const signatures = {
+              auth: await account.sign({ hash: digests.auth }),
+              exec: await account.sign({ hash: digests.exec }),
+            }
 
             const address = await porto.provider.request({
               method: 'wallet_upgradeAccount',

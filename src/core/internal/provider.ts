@@ -386,7 +386,7 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { context, signPayloads } =
+          const { context, digests } =
             await getMode().actions.prepareUpgradeAccount({
               address,
               internal: {
@@ -403,7 +403,7 @@ export function from<
 
           return {
             context,
-            signPayloads: signPayloads.map((x) => x as never),
+            digests,
           } satisfies Typebox.Static<
             typeof Rpc.wallet_prepareUpgradeAccount.Response
           >
@@ -850,21 +850,20 @@ export function from<
           if (chainId && chainId !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
-          const { signPayloads, ...rest } =
-            await getMode().actions.prepareCalls({
-              account: Account.from(account),
-              calls,
-              feeToken: capabilities?.feeToken,
-              internal: {
-                client,
-                config,
-                request,
-                store,
-              },
-              key,
-              preCalls: capabilities?.preCalls as any,
-              sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
-            })
+          const { digest, ...rest } = await getMode().actions.prepareCalls({
+            account: Account.from(account),
+            calls,
+            feeToken: capabilities?.feeToken,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+            key,
+            preCalls: capabilities?.preCalls as any,
+            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
+          })
 
           return Typebox.Encode(Rpc.wallet_prepareCalls.Response, {
             capabilities: rest.capabilities,
@@ -877,7 +876,7 @@ export function from<
               calls: rest.context.calls,
               nonce: rest.context.nonce,
             },
-            digest: signPayloads[0]!,
+            digest,
             key,
           }) satisfies Typebox.Static<typeof Rpc.wallet_prepareCalls.Response>
         }

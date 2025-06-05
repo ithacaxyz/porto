@@ -162,10 +162,10 @@ export type Mode = {
         | undefined
       /** Context for `sendPreparedCalls` */
       context: PrepareCallsContext
+      /** Digest to sign. */
+      digest: Hex.Hex
       /** Key that will sign over the digest. */
       key: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'>
-      /** Payloads to sign. */
-      signPayloads: readonly Hex.Hex[]
     }>
 
     prepareUpgradeAccount: (parameters: {
@@ -178,10 +178,13 @@ export type Mode = {
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
     }) => Promise<{
+      /** Digests to sign. */
+      digests: {
+        auth: Hex.Hex
+        exec: Hex.Hex
+      }
       /** Filled context for the `createAccount` implementation. */
       context: unknown
-      /** Hex payloads to sign over. */
-      signPayloads: readonly Hex.Hex[]
     }>
 
     revokeAdmin: (parameters: {
@@ -269,7 +272,10 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
       /** Preparation signatures (from `prepareUpgradeAccount`). */
-      signatures: readonly Hex.Hex[]
+      signatures: {
+        auth: Hex.Hex
+        exec: Hex.Hex
+      }
     }) => Promise<{
       /** Account. */
       account: Account.Account

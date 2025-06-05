@@ -876,7 +876,13 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
           "to": null,
         },
       ],
-      "spend": undefined,
+      "spend": [
+        {
+          "limit": "0x56bc75e2d63100000",
+          "period": "year",
+          "token": null,
+        },
+      ],
     },
   },
   {

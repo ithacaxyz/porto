@@ -413,8 +413,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             calls,
             nonce: context.quote?.intent!.nonce,
           },
+          digest,
           key,
-          signPayloads: [digest],
         }
       },
 
@@ -448,7 +448,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         return {
           context,
-          signPayloads: [digests.authDigest, digests.preCallDigest],
+          digests: {
+            auth: digests.authDigest,
+            exec: digests.preCallDigest,
+          },
         }
       },
 
@@ -654,8 +657,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         await ServerActions.upgradeAccount(client, {
           context: context as any,
           signatures: {
-            auth: signatures[0]!,
-            preCall: signatures[1]!,
+            auth: signatures.auth,
+            preCall: signatures.exec,
           },
         })
 
