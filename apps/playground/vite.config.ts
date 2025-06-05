@@ -185,7 +185,7 @@ export default defineConfig(({ mode }) => {
           const sponsorAccount = await ServerActions.createAccount(
             relayClient,
             {
-              keys: [sponsorKey],
+              authorizeKeys: [sponsorKey],
             },
           )
           await writeContract(anvilClient, {
