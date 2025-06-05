@@ -2301,7 +2301,7 @@ describe.each([
 
   describe('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
     describe('behavior: permissions', () => {
-      test.only('default', async () => {
+      test('default', async () => {
         const { porto } = getPorto()
         const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
@@ -2398,7 +2398,7 @@ describe.each([
         ).toBe(40_000n)
       })
 
-      test.only('WebCryptoP256', async () => {
+      test('WebCryptoP256', async () => {
         const { porto } = getPorto()
         const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
