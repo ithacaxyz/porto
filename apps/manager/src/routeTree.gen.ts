@@ -14,9 +14,9 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as PlaygroundImport } from './routes/playground'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout.index'
-import { Route as LayoutVerifyImport } from './routes/_layout.verify'
 import { Route as LayoutRecoveryImport } from './routes/_layout.recovery'
 import { Route as LayoutAboutImport } from './routes/_layout.about'
+import { Route as LayoutEmailVerifyImport } from './routes/_layout.email.verify'
 
 // Create/Update Routes
 
@@ -37,12 +37,6 @@ const LayoutIndexRoute = LayoutIndexImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutVerifyRoute = LayoutVerifyImport.update({
-  id: '/verify',
-  path: '/verify',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
 const LayoutRecoveryRoute = LayoutRecoveryImport.update({
   id: '/recovery',
   path: '/recovery',
@@ -52,6 +46,12 @@ const LayoutRecoveryRoute = LayoutRecoveryImport.update({
 const LayoutAboutRoute = LayoutAboutImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutEmailVerifyRoute = LayoutEmailVerifyImport.update({
+  id: '/email/verify',
+  path: '/email/verify',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -87,18 +87,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutRecoveryImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/verify': {
-      id: '/_layout/verify'
-      path: '/verify'
-      fullPath: '/verify'
-      preLoaderRoute: typeof LayoutVerifyImport
-      parentRoute: typeof LayoutImport
-    }
     '/_layout/': {
       id: '/_layout/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof LayoutIndexImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/email/verify': {
+      id: '/_layout/email/verify'
+      path: '/email/verify'
+      fullPath: '/email/verify'
+      preLoaderRoute: typeof LayoutEmailVerifyImport
       parentRoute: typeof LayoutImport
     }
   }
@@ -109,15 +109,15 @@ declare module '@tanstack/react-router' {
 interface LayoutRouteChildren {
   LayoutAboutRoute: typeof LayoutAboutRoute
   LayoutRecoveryRoute: typeof LayoutRecoveryRoute
-  LayoutVerifyRoute: typeof LayoutVerifyRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutEmailVerifyRoute: typeof LayoutEmailVerifyRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAboutRoute: LayoutAboutRoute,
   LayoutRecoveryRoute: LayoutRecoveryRoute,
-  LayoutVerifyRoute: LayoutVerifyRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutEmailVerifyRoute: LayoutEmailVerifyRoute,
 }
 
 const LayoutRouteWithChildren =
@@ -128,16 +128,16 @@ export interface FileRoutesByFullPath {
   '/playground': typeof PlaygroundRoute
   '/about': typeof LayoutAboutRoute
   '/recovery': typeof LayoutRecoveryRoute
-  '/verify': typeof LayoutVerifyRoute
   '/': typeof LayoutIndexRoute
+  '/email/verify': typeof LayoutEmailVerifyRoute
 }
 
 export interface FileRoutesByTo {
   '/playground': typeof PlaygroundRoute
   '/about': typeof LayoutAboutRoute
   '/recovery': typeof LayoutRecoveryRoute
-  '/verify': typeof LayoutVerifyRoute
   '/': typeof LayoutIndexRoute
+  '/email/verify': typeof LayoutEmailVerifyRoute
 }
 
 export interface FileRoutesById {
@@ -146,23 +146,23 @@ export interface FileRoutesById {
   '/playground': typeof PlaygroundRoute
   '/_layout/about': typeof LayoutAboutRoute
   '/_layout/recovery': typeof LayoutRecoveryRoute
-  '/_layout/verify': typeof LayoutVerifyRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/email/verify': typeof LayoutEmailVerifyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/verify' | '/'
+  fullPaths: '' | '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
   fileRoutesByTo: FileRoutesByTo
-  to: '/playground' | '/about' | '/recovery' | '/verify' | '/'
+  to: '/playground' | '/about' | '/recovery' | '/' | '/email/verify'
   id:
     | '__root__'
     | '/_layout'
     | '/playground'
     | '/_layout/about'
     | '/_layout/recovery'
-    | '/_layout/verify'
     | '/_layout/'
+    | '/_layout/email/verify'
   fileRoutesById: FileRoutesById
 }
 
@@ -195,8 +195,8 @@ export const routeTree = rootRoute
       "children": [
         "/_layout/about",
         "/_layout/recovery",
-        "/_layout/verify",
-        "/_layout/"
+        "/_layout/",
+        "/_layout/email/verify"
       ]
     },
     "/playground": {
@@ -210,12 +210,12 @@ export const routeTree = rootRoute
       "filePath": "_layout.recovery.tsx",
       "parent": "/_layout"
     },
-    "/_layout/verify": {
-      "filePath": "_layout.verify.tsx",
-      "parent": "/_layout"
-    },
     "/_layout/": {
       "filePath": "_layout.index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/email/verify": {
+      "filePath": "_layout.email.verify.tsx",
       "parent": "/_layout"
     }
   }
