@@ -261,7 +261,13 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: prepareUpgradeAccount.Parameters<chain>,
 ): Promise<prepareUpgradeAccount.ReturnType> {
-  const { address, authorizeKeys: keys, chain } = parameters
+  const {
+    address,
+    authorizeKeys: keys,
+    chain,
+    feeToken,
+    permissionsFeeLimit,
+  } = parameters
 
   const { contracts } = await ServerActions.getCapabilities(client)
 
@@ -271,9 +277,16 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
     ? contracts.orchestrator.address
     : undefined
 
-  const authorizeKeys = keys.map((key) =>
-    Key.toRpcServer(key, { orchestrator }),
-  )
+  const authorizeKeys = keys.map((key) => {
+    const permissions =
+      key.role === 'session'
+        ? resolvePermissions(key, {
+            feeToken,
+            permissionsFeeLimit,
+          })
+        : {}
+    return Key.toRpcServer({ ...key, permissions }, { orchestrator })
+  })
 
   const { capabilities, chainId, context, digests, typedData } =
     await ServerActions.prepareUpgradeAccount(client, {
@@ -309,6 +322,10 @@ export declare namespace prepareUpgradeAccount {
       authorizeKeys: readonly Key.Key[]
       /** Contract address to delegate to. */
       delegation?: Address.Address | undefined
+      /** Fee token. */
+      feeToken?: Address.Address | undefined
+      /** Permissions fee limit. */
+      permissionsFeeLimit?: bigint | undefined
     }
 
   export type ReturnType = Omit<

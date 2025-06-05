@@ -41,8 +41,8 @@ export default defineConfig(({ mode }) => {
                     },
                   }
                 : {},
-            setupFiles: [join(__dirname, './setup.ts')],
             retry: 3,
+            setupFiles: [join(__dirname, './setup.ts')],
             testTimeout: 20_000,
           },
         },

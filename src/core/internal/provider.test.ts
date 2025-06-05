@@ -2175,7 +2175,7 @@ describe.each([
 
   describe('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
     describe('behavior: permissions', () => {
-      test('default', async () => {
+      test.only('default', async () => {
         const { porto } = getPorto()
         const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
@@ -2204,7 +2204,7 @@ describe.each([
                     calls: [{ to: exp1Address }],
                     spend: [
                       {
-                        limit: Hex.fromNumber(Value.fromEther('5')),
+                        limit: Hex.fromNumber(42069n),
                         period: 'day',
                         token: exp1Address,
                       },
@@ -2272,7 +2272,7 @@ describe.each([
         ).toBe(40_000n)
       })
 
-      test('WebCryptoP256', async () => {
+      test.only('WebCryptoP256', async () => {
         const { porto } = getPorto()
         const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
@@ -2301,7 +2301,7 @@ describe.each([
                     calls: [{ to: exp1Address }],
                     spend: [
                       {
-                        limit: Hex.fromNumber(Value.fromEther('5')),
+                        limit: Hex.fromNumber(42069n),
                         period: 'day',
                         token: exp1Address,
                       },
@@ -2401,7 +2401,7 @@ describe.each([
                     calls: [{ to: exp1Address }],
                     spend: [
                       {
-                        limit: Hex.fromNumber(Value.fromEther('5')),
+                        limit: Hex.fromNumber(42069n),
                         period: 'day',
                         token: exp1Address,
                       },

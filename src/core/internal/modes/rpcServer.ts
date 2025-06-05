@@ -64,8 +64,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { permissions } = parameters
-        const { client } = parameters.internal
+        const { permissions, internal } = parameters
+        const { client } = internal
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
@@ -78,9 +78,15 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions)
 
+        const feeToken = await resolveFeeToken(internal, {
+          permissionsFeeLimit,
+        })
+
         const account = await ServerActions.upgradeAccount(client, {
           account: eoa,
           authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
+          feeToken: feeToken.address,
+          permissionsFeeLimit: feeToken.permissionsFeeLimit,
         })
 
         address_internal = eoa.address
@@ -423,11 +429,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions)
 
+        const feeToken = await resolveFeeToken(internal, {
+          permissionsFeeLimit,
+        })
+
         const { context, digests } = await ServerActions.prepareUpgradeAccount(
           client,
           {
             address,
             authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
+            feeToken: feeToken.address,
+            permissionsFeeLimit: feeToken.permissionsFeeLimit,
           },
         )
 
