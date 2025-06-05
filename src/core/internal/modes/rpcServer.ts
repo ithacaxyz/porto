@@ -64,14 +64,16 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { permissions, internal } = parameters
+        const { label, permissions, internal } = parameters
         const { client } = internal
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
-              label: eoa.address,
+              label:
+                label ??
+                `${eoa.address.slice(0, 8)}\u2026${eoa.address.slice(-6)}`,
               rpId: keystoreHost,
               userId: Bytes.from(eoa.address),
             })
@@ -417,12 +419,13 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareUpgradeAccount(parameters) {
-        const { address, internal, permissions } = parameters
+        const { address, label, internal, permissions } = parameters
         const { client } = internal
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
-              label: address,
+              label:
+                label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`,
               rpId: keystoreHost,
               userId: Bytes.from(address),
             })
