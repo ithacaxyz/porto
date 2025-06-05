@@ -410,44 +410,31 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         }
       },
 
-      async prepareUpgradeAccount(_parameters) {
-        throw new Error('TODO')
-        // const { address, internal, permissions } = parameters
-        // const { client } = internal
+      async prepareUpgradeAccount(parameters) {
+        const { address, internal, permissions } = parameters
+        const { client } = internal
 
-        // const feeToken = await resolveFeeToken(internal, {
-        //   ...parameters,
-        //   permissionsFeeLimit,
-        // })
+        const adminKey = !mock
+          ? await Key.createWebAuthnP256({
+              label: address,
+              rpId: keystoreHost,
+              userId: Bytes.from(address),
+            })
+          : Key.createHeadlessWebAuthnP256()
+        const sessionKey = await PermissionsRequest.toKey(permissions)
 
-        // const authorizeKey = await PermissionsRequest.toKey(permissions)
-        // const { context, digests } = await ServerActions.prepareUpgradeAccount(
-        //   client,
-        //   {
-        //     address,
-        //     feeToken: feeToken.address,
-        //     async keys({ ids }) {
-        //       const id = ids[0]!
-        //       const label = parameters.label ?? 'Porto Account'
+        const { context, digests } = await ServerActions.prepareUpgradeAccount(
+          client,
+          {
+            address,
+            authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
+          },
+        )
 
-        //       const key = !mock
-        //         ? await Key.createWebAuthnP256({
-        //             label,
-        //             rpId: keystoreHost,
-        //             userId: Bytes.from(id),
-        //           })
-        //         : Key.createHeadlessWebAuthnP256()
-
-        //       return [key, ...(authorizeKey ? [authorizeKey] : [])]
-        //     },
-        //     permissionsFeeLimit: feeToken.permissionsFeeLimit,
-        //   },
-        // )
-
-        // return {
-        //   context,
-        //   signPayloads: digests,
-        // }
+        return {
+          context,
+          signPayloads: [digests.authDigest, digests.preCallDigest],
+        }
       },
 
       async revokeAdmin(parameters) {
@@ -645,17 +632,19 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
       },
 
-      async upgradeAccount(_parameters) {
-        throw new Error('TODO')
-        // const { account, context, internal, signatures } = parameters
-        // const { client } = internal
+      async upgradeAccount(parameters) {
+        const { account, context, internal, signatures } = parameters
+        const { client } = internal
 
-        // await ServerActions.upgradeAccount(client, {
-        //   context: context as any,
-        //   signatures,
-        // })
+        await ServerActions.upgradeAccount(client, {
+          context: context as any,
+          signatures: {
+            auth: signatures[0]!,
+            preCall: signatures[1]!,
+          },
+        })
 
-        // return { account }
+        return { account }
       },
     },
     name: 'rpc',

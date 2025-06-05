@@ -424,7 +424,6 @@ export function from<
           const { context, signPayloads } =
             await getMode().actions.prepareUpgradeAccount({
               address,
-              feeToken: capabilities?.feeToken,
               internal: {
                 client,
                 config,
