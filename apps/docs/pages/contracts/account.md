@@ -484,4 +484,3 @@ These functions are helpers that can be called publicly.
     - The returned digest should be signed by an authorized key to authorize the execution.
 
 ---
-

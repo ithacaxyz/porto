@@ -140,13 +140,6 @@ All nonces are stored and incremented in the storage of the account. The orchest
 Since all the data like nonce and signature is added in their corresponding fields in the intent. 
 The executionData requires no additional `opData` and uses the `0x0100...` single batch encoding described [here](/contracts/account#modes).
 
-#### Account Creation 
-We currently use PREP to initialize provably rootless 7702 accounts. 
-All the initialization data goes in the `initData` field.
-:::info
-More Details Coming Soon
-:::
-
 ### PreCalls
 PreCalls are an optional sequence of operations that can be embedded within an Intent. They are executed *after* account initialization, but *before* the main Intent's signature is validated and before any of payment tranches are processed by the Orchestrator.
 
