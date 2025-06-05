@@ -1,10 +1,10 @@
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import * as RpcServer from '../RpcServer.js'
+import * as ServerActions from '../../viem/ServerActions.js'
 import * as Storage from '../Storage.js'
 
 export type PreCalls = readonly {
-  context: RpcServer.prepareCalls.ReturnType['context']
+  context: ServerActions.prepareCalls.ReturnType['context']
   signature: Hex.Hex
 }[]
 

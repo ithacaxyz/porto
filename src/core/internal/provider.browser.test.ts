@@ -1,10 +1,17 @@
 import type { Porto } from 'porto'
+import { waitForCallsStatus } from 'viem/actions'
 import { afterEach, describe, expect, test } from 'vitest'
 import { getPorto } from '../../../test/src/browser/porto.js'
 import { run } from '../../../test/src/browser/utils.js'
+import * as WalletClient from '../../viem/WalletClient.js'
 
 let porto: Porto.Porto | undefined
-afterEach(() => porto?.destroy())
+afterEach(() => {
+  porto?.destroy()
+  window.localStorage.clear()
+  window.sessionStorage.clear()
+  document.cookie = ''
+})
 
 describe('eth_accounts', () => {
   test('default', async () => {
@@ -48,7 +55,10 @@ describe('wallet_connect', () => {
     porto = getPorto()
 
     await run(
-      porto.provider.request({ method: 'wallet_createAccount' }),
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
     await run(porto.provider.request({ method: 'wallet_disconnect' }))
@@ -88,14 +98,165 @@ describe('wallet_disconnect', () => {
   })
 })
 
-describe('wallet_createAccount', () => {
+describe('wallet_getAdmins', () => {
   test('default', async () => {
     porto = getPorto()
 
-    const { address } = await run(
-      porto.provider.request({ method: 'wallet_createAccount' }),
+    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
+      iframe.getByTestId('sign-up').click(),
+    )
+
+    const { address, keys } = await porto.provider.request({
+      method: 'wallet_getAdmins',
+    })
+    expect(address).toBeDefined()
+    expect(keys.length).toBe(1)
+  })
+
+  test('behavior: disconnect > connect > getAdmins', async () => {
+    porto = getPorto()
+
+    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
+      iframe.getByTestId('sign-up').click(),
+    )
+
+    await run(porto.provider.request({ method: 'wallet_disconnect' }))
+
+    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
+      iframe.getByTestId('sign-in').click(),
+    )
+
+    const { address, keys } = await porto.provider.request({
+      method: 'wallet_getAdmins',
+    })
+    expect(address).toBeDefined()
+    expect(keys.length).toBe(1)
+  })
+})
+
+describe('wallet_getPermissions', () => {
+  test('default', async () => {
+    porto = getPorto()
+
+    await run(
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              grantPermissions: {
+                expiry: 9999999999,
+                permissions: {
+                  calls: [{ signature: 'mint()' }],
+                },
+              },
+            },
+          },
+        ],
+      }),
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
-    expect(address).toBeDefined()
+
+    await run(
+      porto.provider.request({
+        method: 'wallet_grantPermissions',
+        params: [
+          {
+            expiry: 9999999999,
+            permissions: { calls: [{ signature: 'mint()' }] },
+          },
+        ],
+      }),
+      (iframe) => iframe.getByTestId('grant').click(),
+    )
+
+    const permissions = await run(
+      porto.provider.request({
+        method: 'wallet_getPermissions',
+      }),
+    )
+    expect(permissions.length).toBe(2)
+  })
+
+  test('behavior: grant on connect; grant another; get after connect', async () => {
+    porto = getPorto()
+
+    await run(
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+              grantPermissions: {
+                expiry: 9999999999,
+                key: {
+                  publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+                  type: 'secp256k1',
+                },
+                permissions: {
+                  calls: [{ signature: 'mint()' }],
+                },
+              },
+            },
+          },
+        ],
+      }),
+      (iframe) => iframe.getByTestId('sign-up').click(),
+    )
+
+    await run(
+      porto.provider.request({
+        method: 'wallet_grantPermissions',
+        params: [
+          {
+            expiry: 9999999999,
+            key: {
+              publicKey:
+                '0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
+              type: 'p256',
+            },
+            permissions: {
+              calls: [{ signature: 'mint()' }],
+            },
+          },
+        ],
+      }),
+      (iframe) => iframe.getByTestId('grant').click(),
+    )
+
+    {
+      const permissions = await porto.provider.request({
+        method: 'wallet_getPermissions',
+      })
+      expect(
+        permissions.map((x) => ({ ...x, address: null, chainId: null })),
+      ).matchSnapshot()
+    }
+
+    const { id } = await run(
+      porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [{ calls: [] }],
+      }),
+      async (iframe) => {
+        await iframe.getByTestId('add-funds').click()
+        await iframe.getByTestId('buy').click()
+        await iframe.getByTestId('done').click()
+        await iframe.getByTestId('confirm').click()
+      },
+    )
+    await waitForCallsStatus(WalletClient.fromPorto(porto), {
+      id,
+    })
+
+    {
+      const permissions = await porto.provider.request({
+        method: 'wallet_getPermissions',
+      })
+      expect(
+        permissions.map((x) => ({ ...x, address: null, chainId: null })),
+      ).matchSnapshot()
+    }
   })
 })

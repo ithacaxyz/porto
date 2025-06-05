@@ -6,16 +6,12 @@ import { Hooks } from 'porto/remote'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import LucideDiamondPlus from '~icons/lucide/diamond-plus'
-import { NotFound } from './NotFound'
 import { Permissions } from './Permissions'
 
 export function GrantPermissions(props: GrantPermissions.Props) {
   const { address, permissions, loading, onApprove, onReject } = props
 
   const account = Hooks.useAccount(porto, { address })
-
-  if (!permissions?.spend) return <NotFound />
-  if (permissions.spend.length === 0) return <NotFound />
 
   return (
     <Layout loading={loading} loadingTitle="Authorizing...">
@@ -39,12 +35,18 @@ export function GrantPermissions(props: GrantPermissions.Props) {
 
       <Layout.Footer>
         <Layout.Footer.Actions>
-          <Button className="flex-1" onClick={onReject} type="button">
+          <Button
+            className="flex-1"
+            data-testid="cancel"
+            onClick={onReject}
+            type="button"
+          >
             Cancel
           </Button>
 
           <Button
             className="flex-1"
+            data-testid="grant"
             onClick={onApprove}
             type="button"
             variant="accent"

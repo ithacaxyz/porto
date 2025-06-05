@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { Env } from '@porto/apps'
 import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
@@ -32,8 +31,7 @@ import LucideTrash2 from '~icons/lucide/trash-2'
 import LucideX from '~icons/lucide/x'
 import { config } from '../wagmi.config'
 import { Button } from './Button'
-
-const env = Env.get()
+import { type ChainId, permissions } from './constants'
 
 export function HomePage() {
   const [isMounted, setIsMounted] = React.useState(false)
@@ -454,23 +452,6 @@ function Demo() {
   )
 }
 
-type ChainId = (typeof config)['state']['chainId']
-
-export const permissions = (chainId: ChainId) =>
-  ({
-    expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-    permissions: {
-      calls: [{ to: exp1Config.address[chainId] }],
-      spend: [
-        {
-          limit: Value.fromEther('100'),
-          period: 'hour',
-          token: exp1Config.address[chainId],
-        },
-      ],
-    },
-  }) as const
-
 function SignIn(props: { chainId: ChainId; next: () => void }) {
   const { chainId, next } = props
 
@@ -540,6 +521,8 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
 export function BuyNow(props: { chainId: ChainId; next: () => void }) {
   const { chainId, next } = props
 
+  const SNEAKER_COST = Value.fromEther('10')
+
   const { address } = useAccount()
   const { data: exp1Balance } = useReadContract({
     abi: exp1Config.abi,
@@ -554,7 +537,7 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
   // Since we use USDC as the fee token in production,
   // we will mint EXP to the user if they don't have any
   // in the call bundle.
-  const shouldMintExp = exp1Balance === 0n && env === 'prod'
+  const shouldMintExp = exp1Balance && exp1Balance < SNEAKER_COST
 
   const { data, isPending, sendCalls } = useSendCalls({
     mutation: {
@@ -782,7 +765,7 @@ export function SendTip(props: {
       </div>
 
       <div className="flex w-full justify-between px-1.5">
-        <div className="-tracking-[2.8%] text-[14px] text-gray9">Received</div>
+        <div className="-tracking-[2.8%] text-[14px] text-gray9">Received</div>{' '}
         <div className="-tracking-[2.8%] font-medium text-[14px] text-gray9">
           <span className="text-gray12">
             {ValueFormatter.format(exp1Balance ?? 0)}
@@ -950,7 +933,7 @@ export function Subscribe(props: {
     }
   })
 
-  if (permission && activeTier && activeTierIndex)
+  if (permission && activeTier && activeTierIndex !== -1)
     return (
       <div className="w-full max-w-78.75 rounded-[13px] bg-gray1">
         <div className="flex justify-between border-gray4 border-b px-4 pt-4 pb-3.5">
@@ -1369,7 +1352,6 @@ function Install() {
         <Ariakit.RadioGroup className="flex gap-1">
           <Install.Radio value="npm" />
           <Install.Radio value="pnpm" />
-          <Install.Radio value="yarn" />
           <Install.Radio value="bun" />
         </Ariakit.RadioGroup>
         <div className="font-[300] font-mono text-[15px] text-gray12 tracking-[-2.8%] max-[486px]:text-[12px]">

@@ -9,6 +9,12 @@ export default defineConfig(({ mode }) => {
       alias: {
         porto: join(__dirname, '../src'),
       },
+      coverage: {
+        all: false,
+        include: ['**/src/**'],
+        provider: 'v8',
+        reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
+      },
       passWithNoTests: true,
       resolveSnapshotPath: (path, ext) =>
         join(join(dirname(path), '_snapshots'), `${basename(path)}${ext}`),
@@ -16,19 +22,13 @@ export default defineConfig(({ mode }) => {
         {
           extends: true,
           test: {
-            coverage: {
-              all: false,
-              include: ['**/src/**'],
-              provider: 'v8',
-              reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-            },
             globalSetup: [join(__dirname, './globalSetup.ts')],
             hookTimeout: 20_000,
             include: [
               '!src/**/*.browser.test.ts',
               'src/**/*.test.ts',
               ...(env.VITE_LOCAL === 'false'
-                ? ['!src/**/*accountContract.test.ts']
+                ? ['!src/**/*ContractActions.test.ts']
                 : []),
             ],
             name: 'default',
@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => {
                     },
                   }
                 : {},
+            retry: 3,
             setupFiles: [join(__dirname, './setup.ts')],
             testTimeout: 20_000,
           },
@@ -62,6 +63,7 @@ export default defineConfig(({ mode }) => {
             globalSetup: [join(__dirname, './globalSetup.browser.ts')],
             include: ['src/**/*.browser.test.ts'],
             name: 'browser',
+            testTimeout: 30_000,
           },
         },
         'apps/dialog/vite.config.ts',

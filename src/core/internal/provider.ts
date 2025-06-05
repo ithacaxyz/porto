@@ -4,9 +4,11 @@ import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
 import { verifyHash } from 'viem/actions'
-import * as Account from '../Account.js'
+import * as Account from '../../viem/Account.js'
+import * as Actions from '../../viem/internal/serverActions.js'
+import type * as Key from '../../viem/Key.js'
+import * as ServerClient from '../../viem/ServerClient.js'
 import type * as Chains from '../Chains.js'
-import type * as Key from '../Key.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Permissions from './permissions.js'
@@ -14,7 +16,6 @@ import * as Porto_internal from './porto.js'
 import * as RpcRequest from './typebox/request.js'
 import * as Rpc from './typebox/rpc.js'
 import * as Typebox from './typebox/typebox.js'
-import * as Actions from './viem/actions.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -41,7 +42,7 @@ export function from<
   function getClient(chainId_?: Hex.Hex | number | undefined) {
     const chainId =
       typeof chainId_ === 'string' ? Hex.toNumber(chainId_) : chainId_
-    return Porto_internal.getClient({ _internal: parameters }, { chainId })
+    return ServerClient.fromPorto({ _internal: parameters }, { chainId })
   }
 
   const preparedAccounts_internal: Account.Account[] = []
@@ -269,7 +270,7 @@ export function from<
 
           return Typebox.Encode(Rpc.wallet_grantAdmin.Response, {
             address: account.address,
-            chainId: Hex.fromNumber(client.chain.id),
+            chainId: client.chain.id,
             key: admins.at(-1)!,
           } satisfies Rpc.wallet_grantAdmin.Response) satisfies Typebox.Static<
             typeof Rpc.wallet_grantAdmin.Response
@@ -342,45 +343,11 @@ export function from<
           >
         }
 
-        case 'wallet_createAccount': {
-          const [{ chainId, label }] = request._decoded.params ?? [{}]
-
-          const client = getClient(chainId)
-
-          const { account, preCalls } = await getMode().actions.createAccount({
-            internal: {
-              client,
-              config,
-              request,
-              store,
-            },
-            label,
-          })
-
-          const permissions = getActivePermissions(account.keys ?? [], {
-            address: account.address,
-          })
-
-          store.setState((x) => ({ ...x, accounts: [account] }))
-
-          emitter.emit('connect', {
-            chainId: Hex.fromNumber(client.chain.id),
-          })
-          return {
-            address: account.address,
-            capabilities: {
-              admins: getAdmins(account.keys ?? []),
-              ...(permissions.length > 0 ? { permissions } : {}),
-              preCalls,
-            },
-          } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
-        }
-
         case 'wallet_getAdmins': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address }] = request._decoded.params ?? [{}]
+          const [{ address, chainId }] = request._decoded.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
@@ -389,11 +356,23 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
-          const keys = getAdmins(account.keys ?? [])
+          const client = getClient(chainId)
+
+          const keys = await getMode().actions.getKeys({
+            account,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+          const admins = getAdmins(keys)
 
           return Typebox.Encode(Rpc.wallet_getAdmins.Response, {
             address: account.address,
-            keys,
+            chainId: client.chain.id,
+            keys: admins,
           } satisfies Rpc.wallet_getAdmins.Response) satisfies Typebox.Static<
             typeof Rpc.wallet_getAdmins.Response
           >
@@ -410,7 +389,6 @@ export function from<
           const { context, signPayloads } =
             await getMode().actions.prepareUpgradeAccount({
               address,
-              feeToken: capabilities?.feeToken,
               internal: {
                 client,
                 config,
@@ -466,21 +444,62 @@ export function from<
           >
         }
 
+        case 'wallet_getKeys': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [{ address, chainId }] = request._decoded.params ?? [{}]
+
+          const account = state.accounts.find((account) =>
+            Address.isEqual(account.address, address),
+          )
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const client = getClient(chainId)
+
+          const keys = await getMode().actions.getKeys({
+            account,
+            internal: { client, config, request, store },
+          })
+
+          return Typebox.Encode(
+            Rpc.wallet_getKeys.Response,
+            keys satisfies Rpc.wallet_getKeys.Response,
+          ) satisfies Typebox.Static<typeof Rpc.wallet_getKeys.Response>
+        }
+
         case 'wallet_getPermissions': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const [{ address }] = request._decoded.params ?? [{}]
+          const [{ address, chainId }] = request._decoded.params ?? [{}]
 
           const account = address
             ? state.accounts.find((account) =>
                 Address.isEqual(account.address, address),
               )
             : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
 
-          return getActivePermissions(account?.keys ?? [], {
-            address: account!.address,
+          const client = getClient(chainId)
+
+          const keys = await getMode().actions.getKeys({
+            account,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
           })
+          const permissions = getActivePermissions(keys, {
+            address: account.address,
+            chainId: client.chain.id,
+          })
+
+          return permissions satisfies Typebox.Static<
+            typeof Rpc.wallet_getPermissions.Response
+          >
         }
 
         case 'wallet_revokeAdmin': {
@@ -648,7 +667,7 @@ export function from<
             capabilities: {
               ...(permissions.length > 0 ? { permissions } : {}),
             },
-          } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
+          } satisfies Typebox.Static<typeof Rpc.wallet_upgradeAccount.Response>
         }
 
         case 'porto_ping': {
@@ -706,51 +725,50 @@ export function from<
             if (createAccount) {
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
-              const { account, preCalls } =
-                await getMode().actions.createAccount({
-                  internal,
-                  label,
-                  permissions,
-                })
-              return { accounts: [account], preCalls }
+              const { account } = await getMode().actions.createAccount({
+                internal,
+                label,
+                permissions,
+              })
+              return { accounts: [account] }
             }
             const account = state.accounts[0]
-            const { credentialId, keyId } = (() => {
-              if (capabilities?.keyId && capabilities.credentialId)
+            const { address, credentialId } = (() => {
+              if (capabilities?.address && capabilities.credentialId)
                 return {
+                  address: capabilities.address,
                   credentialId: capabilities.credentialId,
-                  keyId: capabilities.keyId,
                 }
               if (selectAccount)
-                return { credentialId: undefined, keyId: undefined }
+                return { address: undefined, credentialId: undefined }
               for (const key of account?.keys ?? []) {
                 if (key.type === 'webauthn-p256' && key.role === 'admin')
                   return {
+                    address: account?.address,
                     credentialId:
                       (key as any).credentialId ??
                       key.privateKey?.credential?.id,
-                    keyId: key.id,
                   }
               }
-              return { credentialId: undefined, keyId: undefined }
+              return { address: undefined, credentialId: undefined }
             })()
             const loadAccountsParams = {
               internal,
               permissions,
             }
             try {
-              // try to restore from stored account (`keyId`/`credentialId`) to avoid multiple prompts
+              // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
               return await getMode().actions.loadAccounts({
+                address,
                 credentialId,
-                keyId,
                 ...loadAccountsParams,
               })
             } catch (error) {
               if (error instanceof ox_Provider.UserRejectedRequestError)
                 throw error
 
-              // error with `keyId`/`credentialId` likely means one or both are stale, retry
-              if (keyId && credentialId)
+              // error with `address`/`credentialId` likely means one or both are stale, retry
+              if (address && credentialId)
                 return await getMode().actions.loadAccounts(loadAccountsParams)
               throw error
             }
@@ -875,7 +893,7 @@ export function from<
             throw new ox_Provider.ChainDisconnectedError()
 
           const hash = await getMode().actions.sendPreparedCalls({
-            account,
+            account: Account.from(account),
             context,
             internal: {
               client,
@@ -939,7 +957,6 @@ export function from<
 
           const result = await Actions.verifySignature(client, {
             address,
-            chainId,
             digest,
             signature,
           }).catch(async () => {

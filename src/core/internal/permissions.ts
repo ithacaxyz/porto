@@ -1,6 +1,6 @@
 import type * as Address from 'ox/Address'
 
-import * as Key from '../Key.js'
+import * as Key from '../../viem/Key.js'
 import * as Permissions_ from './typebox/permissions.js'
 import type { StaticDecode } from './typebox/typebox.js'
 

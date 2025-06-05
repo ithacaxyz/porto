@@ -1,6 +1,6 @@
 import { useAccount, useChainId, useConnect, useDisconnect } from 'wagmi'
 import { Button } from '../Button'
-import { permissions } from '../HomePage'
+import { permissions } from '../constants'
 
 export function SignInButton() {
   const chainId = useChainId()

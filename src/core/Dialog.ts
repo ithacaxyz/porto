@@ -149,12 +149,8 @@ export function iframe(options: iframe.Options = {}) {
         waitForReady: true,
       })
 
-      let methodPolicies: Messenger.ReadyOptions['methodPolicies'] | undefined
-
       messenger.on('ready', (options) => {
         const { chainId } = options
-
-        if (!methodPolicies) methodPolicies = options?.methodPolicies
 
         store.setState((x) => ({
           ...x,
@@ -249,6 +245,8 @@ export function iframe(options: iframe.Options = {}) {
           iframe.style.display = 'block'
         },
         async syncRequests(requests) {
+          const { methodPolicies } = await messenger.waitForReady()
+
           const headless = requests?.every(
             (request) =>
               methodPolicies?.find(

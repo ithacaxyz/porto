@@ -1,0 +1,87 @@
+name: Bug Report (User/Demo/App)
+description: Report bugs or issues with the Porto UI, demo, or apps.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! The more info you provide, the more we can help you.
+
+  - type: checkboxes
+    attributes:
+      label: Check existing issues
+      description: By submitting this issue, you checked there isn't [already an issue](https://github.com/ithacaxyz/porto/issues) for this bug.
+      options:
+        - label: I checked there isn't [already an issue](https://github.com/ithacaxyz/porto/issues) for the bug I encountered.
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: Clear and concise description of the bug. If you intend to submit a PR for this issue, tell us in the description. Thanks!
+      placeholder: I am doing… What I expect is… What is actually happening…
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: Where did this happen?
+      description: "Please provide a link to the site where this issue happened. For most issues, you will likely get asked to provide a link so why not add one now :) If a report is vague (e.g. just snippets, generic error message, screenshot, etc.) and has no reproduction, it will receive a \"Needs Reproduction\" label and be auto-closed."
+      placeholder: https://porto.sh
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps or code snippets to reproduce the behavior.
+    validations:
+      required: false
+
+  - type: dropdown
+    attributes:
+      label: Operating System
+      options:
+        - 'iOS'
+        - 'iPadOS'
+        - 'macOS'
+        - 'Android'
+        - 'Linux'
+        - 'Windows'
+        - 'Other'
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Browser
+      options:
+        - 'Safari'
+        - 'Brave'
+        - 'Chrome'
+        - 'Firefox'
+        - 'Other'
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Password Manager
+      options:
+        - 'iCloud Keychain (passkeys)'
+        - '1Password'
+        - 'Bitwarden'
+        - 'Google Password Manager'
+        - 'Other'
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Anything else?
+      description: Anything that will give us more context about the issue you are encountering. If you selected "Other" above for OS/Browser/Password Manager, please let us know more details.
+    validations:
+      required: false
+
+
+

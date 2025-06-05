@@ -21,32 +21,38 @@ It provides some off-chain context to the array of inner transaction `receipts`.
 
 The parameter is a call bundle ID, as returned by e.g. [`wallet_sendPreparedCalls`].
 
-```ts
+```ts twoslash
+import { Hex } from 'viem'
+
+// ---cut---
 type Request = {
   method: 'wallet_getCallsStatus',
   // the call bundle ID
-  params: [`0x${string}`],
+  params: [Hex],
 }
 ```
 
 ## Response
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Response = {
-  id: `0x${string}`,
+  id: Hex,
   status: number, // See "Status Codes"
   receipts?: {
     logs: {
-      chainId: `0x${string}`,
-      address: `0x${string}`,
-      data: `0x${string}`,
-      topics: `0x${string}`[],
+      chainId: Hex,
+      address: Address,
+      data: Hex,
+      topics: Hex[],
     }[],
-    status: `0x${string}`, // Hex 1 or 0 for success or failure, respectively
-    blockHash?: `0x${string}`,
-    blockNumber?: `0x${string}`,
-    gasUsed: `0x${string}`,
-    transactionHash: `0x${string}`,
+    status: Hex, // Hex 1 or 0 for success or failure, respectively
+    blockHash?: Hash,
+    blockNumber?: Hex,
+    gasUsed: Hex,
+    transactionHash: Hash,
   }[],
 }
 ```

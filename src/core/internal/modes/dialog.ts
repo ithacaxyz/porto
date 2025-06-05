@@ -2,9 +2,9 @@ import * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
-import * as Account from '../../Account.js'
+import * as Account from '../../../viem/Account.js'
+import * as Key from '../../../viem/Key.js'
 import * as Dialog from '../../Dialog.js'
-import * as Key from '../../Key.js'
 import type { QueuedRequest } from '../../Porto.js'
 import * as RpcSchema_porto from '../../RpcSchema.js'
 import * as Mode from '../mode.js'
@@ -14,6 +14,7 @@ import type * as Porto from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import type * as FeeToken from '../typebox/feeToken.js'
 import * as Typebox from '../typebox/typebox.js'
+import * as U from '../utils.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
@@ -47,7 +48,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     ? {
                         address: account.address,
                         credentialId: (adminKey as any)?.credentialId,
-                        keyId: adminKey?.id,
                       }
                     : undefined,
                   request,
@@ -125,22 +125,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const provider = getProvider(store)
 
         const account = await (async () => {
-          if (request.method === 'wallet_createAccount') {
-            // Send a request off to the dialog to create an account.
-            const { address, capabilities } = await provider.request(request)
-
-            const { preCalls } = capabilities ?? {}
-            if (preCalls)
-              await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                address,
-                storage,
-              })
-
-            return Account.from({
-              address,
-            })
-          }
-
           if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
             const [{ capabilities }] = request._decoded.params ?? [{}]
@@ -251,6 +235,33 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const provider = getProvider(store)
         const result = await provider.request(request)
         return result
+      },
+
+      async getKeys(parameters) {
+        const { account, internal } = parameters
+        const { store } = internal
+
+        const provider = getProvider(store)
+        const result = await provider.request({
+          method: 'wallet_getKeys',
+          params: [
+            {
+              address: account.address,
+            },
+          ],
+        })
+
+        const keys = Typebox.Decode(
+          RpcSchema_porto.wallet_getKeys.Response,
+          result satisfies Typebox.Static<
+            typeof RpcSchema_porto.wallet_getKeys.Response
+          >,
+        )
+
+        return U.uniqBy(
+          [...(account.keys ?? []), ...keys],
+          (key) => key.publicKey,
+        )
       },
 
       async grantAdmin(parameters) {
@@ -468,7 +479,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot prepare create account for method: ' + request.method,
           )
 
-        const feeToken = await resolveFeeToken(internal, parameters)
+        const feeToken = await resolveFeeToken(internal)
 
         const provider = getProvider(store)
         return await provider.request({

@@ -1,9 +1,8 @@
 import type * as RpcSchema from 'ox/RpcSchema'
-import type { PublicRpcSchema } from 'viem'
-
+import type * as RpcSchema_viem from '../viem/RpcSchema.js'
 import type * as Rpc from './internal/typebox/request.js'
 import type { Static } from './internal/typebox/typebox.js'
-import type { DeepReadonly, UnionToTuple } from './internal/types.js'
+import type { DeepReadonly } from './internal/types.js'
 
 export * from './internal/typebox/rpc.js'
 
@@ -16,6 +15,7 @@ export type Schema =
           method:
             | 'wallet_getCapabilities'
             | 'wallet_getCallsStatus'
+            | 'wallet_getPermissions'
             | 'wallet_grantPermissions'
             | 'wallet_revokePermissions'
             | 'wallet_sendCalls'
@@ -32,10 +32,6 @@ export type Schema =
       | {
           Request: Static<typeof Rpc.porto_ping.Request>
           ReturnType: Static<typeof Rpc.porto_ping.Response>
-        }
-      | {
-          Request: Static<typeof Rpc.wallet_createAccount.Request>
-          ReturnType: Static<typeof Rpc.wallet_createAccount.Response>
         }
       | {
           Request: Static<typeof Rpc.wallet_grantAdmin.Request>
@@ -90,6 +86,10 @@ export type Schema =
           ReturnType: Static<typeof Rpc.wallet_getCapabilities.Response>
         }
       | {
+          Request: Static<typeof Rpc.wallet_getKeys.Request>
+          ReturnType: Static<typeof Rpc.wallet_getKeys.Response>
+        }
+      | {
           Request: Static<typeof Rpc.wallet_getCallsStatus.Request>
           ReturnType: Static<typeof Rpc.wallet_getCallsStatus.Response>
         }
@@ -111,22 +111,4 @@ export type Schema =
         }
     >
 
-export type Viem = [
-  ...PublicRpcSchema,
-  ...ToViem<Exclude<Schema, RpcSchema.Eth>>,
-]
-
-export type ToViem<schema extends RpcSchema.Generic> =
-  UnionToTuple<schema> extends [
-    infer head extends RpcSchema.Generic,
-    ...infer tail extends RpcSchema.Generic[],
-  ]
-    ? [
-        {
-          Method: head['Request']['method']
-          Parameters: head['Request']['params']
-          ReturnType: head['ReturnType']
-        },
-        ...ToViem<tail[number]>,
-      ]
-    : []
+export type Viem = RpcSchema_viem.Wallet

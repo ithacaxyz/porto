@@ -1,6 +1,5 @@
 export {
   connect,
-  createAccount,
   disconnect,
   getAdmins,
   getPermissions,

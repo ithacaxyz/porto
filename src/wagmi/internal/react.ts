@@ -22,9 +22,10 @@ import type {
   UseQueryReturnType,
 } from 'wagmi/query'
 
+import * as Typebox from '../../core/internal/typebox/typebox.js'
+import * as RpcSchema from '../../core/RpcSchema.js'
 import {
   connect,
-  createAccount,
   disconnect,
   getAdmins,
   getPermissions,
@@ -77,7 +78,10 @@ export function useAdmins<
         if (event.type !== 'adminsChanged') return
         queryClient.setQueryData(queryKey, (data: any) => ({
           ...data,
-          keys: event.data,
+          keys: Typebox.Decode(
+            RpcSchema.wallet_getAdmins.Response.properties.keys,
+            event.data,
+          ),
         }))
       })
     })()
@@ -169,49 +173,6 @@ export declare namespace useConnect {
     connect.ReturnType,
     connect.ErrorType,
     connect.Parameters<config>,
-    context
-  >
-}
-
-export function useCreateAccount<
-  config extends Config = ResolvedRegister['config'],
-  context = unknown,
->(
-  parameters: useCreateAccount.Parameters<config, context> = {},
-): useCreateAccount.ReturnType<config, context> {
-  const { mutation } = parameters
-  const config = useConfig(parameters)
-  return useMutation({
-    ...mutation,
-    async mutationFn(variables) {
-      return createAccount(config as Config, variables)
-    },
-    mutationKey: ['createAccount'],
-  })
-}
-
-export declare namespace useCreateAccount {
-  type Parameters<
-    config extends Config = Config,
-    context = unknown,
-  > = ConfigParameter<config> & {
-    mutation?:
-      | UseMutationParameters<
-          createAccount.ReturnType,
-          createAccount.ErrorType,
-          createAccount.Parameters<config>,
-          context
-        >
-      | undefined
-  }
-
-  type ReturnType<
-    config extends Config = Config,
-    context = unknown,
-  > = UseMutationResult<
-    createAccount.ReturnType,
-    createAccount.ErrorType,
-    createAccount.Parameters<config>,
     context
   >
 }
@@ -377,7 +338,10 @@ export function usePermissions<
         (await activeConnector.getProvider?.()) as EIP1193Provider
       provider.current?.on('message', (event) => {
         if (event.type !== 'permissionsChanged') return
-        queryClient.setQueryData(queryKey, event.data)
+        queryClient.setQueryData(
+          queryKey,
+          Typebox.Decode(RpcSchema.wallet_getPermissions.Response, event.data),
+        )
       })
     })()
   }, [address, activeConnector, queryClient])

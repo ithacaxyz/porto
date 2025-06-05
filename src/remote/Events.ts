@@ -1,5 +1,4 @@
 import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
 import * as Provider from 'ox/Provider'
 import type { Payload } from '../core/Messenger.js'
 import * as Actions from './Actions.js'
@@ -25,7 +24,6 @@ export function onDialogRequest(
       | {
           address: Address.Address
           credentialId?: string | undefined
-          keyId?: Hex.Hex | undefined
         }
       | undefined
     requireUpdatedAccount?: boolean | undefined

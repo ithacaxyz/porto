@@ -12,6 +12,7 @@ import {
 } from 'ox'
 import { Key, Mode } from 'porto'
 import { Sponsor } from 'porto/server'
+import { ServerActions } from 'porto/viem'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
 import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test, vi } from 'vitest'
@@ -25,8 +26,8 @@ import {
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
-import * as Porto_internal from './porto.js'
-import * as Actions from './viem/actions.js'
+import * as ServerClient from '../../viem/ServerClient.js'
+import * as WalletClient from '../../viem/WalletClient.js'
 
 describe.each([
   ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
@@ -74,7 +75,8 @@ describe.each([
     test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -89,13 +91,18 @@ describe.each([
   describe('eth_sendTransaction', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -120,7 +127,7 @@ describe.each([
 
       expect(hash).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id: hash,
       })
 
@@ -139,9 +146,14 @@ describe.each([
     test.runIf(!Anvil.enabled)('default', async () => {
       const { porto } = getPorto()
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       const signature = await porto.provider.request({
         method: 'eth_signTypedData_v4',
         params: [address, TypedData.serialize(typedData)],
@@ -167,15 +179,19 @@ describe.each([
       const messages: any[] = []
 
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
       porto.provider.on('message', (message) => messages.push(message))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       await setBalance(client, {
         address,
@@ -234,6 +250,34 @@ describe.each([
         }),
       ).rejects.matchSnapshot()
     })
+
+    test('behavior: disconnect > connect > getAdmins', async () => {
+      const { porto } = getPorto()
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+
+      await porto.provider.request({
+        method: 'wallet_disconnect',
+      })
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+      })
+
+      const { address, keys } = await porto.provider.request({
+        method: 'wallet_getAdmins',
+      })
+      expect(address).toBeDefined()
+      expect(keys.length).toBe(1)
+    })
   })
 
   describe('wallet_grantPermissions', () => {
@@ -244,7 +288,8 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_grantPermissions',
@@ -282,7 +327,8 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
 
       const permissions = await porto.provider.request({
@@ -362,7 +408,8 @@ describe.each([
     test('behavior: no permissions', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await expect(
         porto.provider.request({
@@ -387,7 +434,8 @@ describe.each([
     test('behavior: unlimited expiry', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await expect(
         porto.provider.request({
@@ -410,21 +458,12 @@ describe.each([
     })
   })
 
-  describe('wallet_createAccount', () => {
-    test('default', async () => {
-      const { porto } = getPorto()
-      const account = await porto.provider.request({
-        method: 'wallet_createAccount',
-      })
-      expect(account).toBeDefined()
-    })
-  })
-
   describe('wallet_getPermissions', () => {
     test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_grantPermissions',
@@ -459,21 +498,159 @@ describe.each([
       })
       expect(permissions.length).toBe(2)
     })
+
+    test('behavior: grant on connect > grant another > get after connect', async () => {
+      const { client, porto } = getPorto()
+      const { accounts } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+              grantPermissions: {
+                expiry: 9999999999,
+                key: {
+                  publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+                  type: 'secp256k1',
+                },
+                permissions: {
+                  calls: [{ signature: 'mint()' }],
+                },
+              },
+            },
+          },
+        ],
+      })
+      await porto.provider.request({
+        method: 'wallet_grantPermissions',
+        params: [
+          {
+            expiry: 9999999999,
+            key: {
+              publicKey:
+                '0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
+              type: 'p256',
+            },
+            permissions: {
+              calls: [{ signature: 'mint()' }],
+              spend: [
+                {
+                  limit: Hex.fromNumber(Value.fromEther('1.5')),
+                  period: 'day',
+                },
+              ],
+            },
+          },
+        ],
+      })
+
+      {
+        const permissions = await porto.provider.request({
+          method: 'wallet_getPermissions',
+        })
+        expect(
+          permissions.map((x) => ({
+            ...x,
+            address: null,
+            chainId: null,
+            permissions: {
+              calls: x.permissions?.calls?.map((x) => ({
+                ...x,
+                to: null,
+              })),
+              spend: x.permissions?.spend?.map((x) => ({
+                ...x,
+                token: null,
+              })),
+            },
+          })),
+        ).matchSnapshot()
+      }
+
+      await setBalance(client, {
+        address: accounts[0]!.address,
+        value: Value.fromEther('10000'),
+      })
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [{ calls: [] }],
+      })
+      await waitForCallsStatus(client, {
+        id,
+      })
+
+      {
+        const permissions = await porto.provider.request({
+          method: 'wallet_getPermissions',
+        })
+        expect(
+          permissions.map((x) => ({
+            ...x,
+            address: null,
+            chainId: null,
+            permissions: {
+              calls: x.permissions?.calls?.map((x) => ({
+                ...x,
+                to: null,
+              })),
+              spend: x.permissions?.spend?.map((x) => ({
+                ...x,
+                token: null,
+              })),
+            },
+          })),
+        ).matchSnapshot()
+      }
+
+      await porto.provider.request({
+        method: 'wallet_disconnect',
+      })
+      await porto.provider.request({
+        method: 'wallet_connect',
+      })
+
+      {
+        const permissions = await porto.provider.request({
+          method: 'wallet_getPermissions',
+        })
+        expect(
+          permissions.map((x) => ({
+            ...x,
+            address: null,
+            chainId: null,
+            permissions: {
+              calls: x.permissions?.calls?.map((x) => ({
+                ...x,
+                to: null,
+              })),
+              spend: x.permissions?.spend?.map((x) => ({
+                ...x,
+                token: null,
+              })),
+            },
+          })),
+        ).matchSnapshot()
+      }
+    })
   })
 
   describe('wallet_revokeAdmin', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
       const messages: any[] = []
       porto.provider.on('message', (message) => messages.push(message))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       await setBalance(client, {
         address,
@@ -532,16 +709,20 @@ describe.each([
   describe('wallet_revokePermissions', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
       const messages: any[] = []
       porto.provider.on('message', (message) => messages.push(message))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       await setBalance(client, {
         address,
@@ -603,7 +784,8 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
 
       const accounts = porto._internal.store.getState().accounts
@@ -623,7 +805,8 @@ describe.each([
       const { porto } = getPorto()
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
 
       const version = await porto.provider.request({
@@ -631,8 +814,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.2.0",
-          "latest": "0.2.0",
+          "current": "0.3.2",
+          "latest": "0.3.2",
         }
       `)
     })
@@ -640,9 +823,13 @@ describe.each([
     test('behavior: provided address', async () => {
       const { porto } = getPorto()
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       const version = await porto.provider.request({
         method: 'wallet_getAccountVersion',
@@ -650,8 +837,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.2.0",
-          "latest": "0.2.0",
+          "current": "0.3.2",
+          "latest": "0.3.2",
         }
       `)
     })
@@ -672,7 +859,8 @@ describe.each([
       const { porto } = getPorto()
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
 
       await expect(
@@ -687,13 +875,18 @@ describe.each([
 
     test.runIf(Anvil.enabled)('behavior: outdated account', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -712,7 +905,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -727,7 +920,7 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.2.0",
+          "latest": "0.3.2",
         }
       `)
     })
@@ -737,12 +930,12 @@ describe.each([
   describe.skip('wallet_updateAccount', () => {
     test.runIf(Anvil.enabled && type === 'rpcServer')('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const capabilities = await Actions.getCapabilities(client)
-      vi.spyOn(Actions, 'getCapabilities').mockResolvedValue({
+      const capabilities = await ServerActions.getCapabilities(client)
+      vi.spyOn(ServerActions, 'getCapabilities').mockResolvedValue({
         ...capabilities,
         contracts: {
           ...capabilities.contracts,
@@ -757,9 +950,14 @@ describe.each([
         },
       })
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -776,7 +974,7 @@ describe.each([
         ],
       })
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -797,7 +995,7 @@ describe.each([
       })
 
       if (id2)
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: id2,
         })
 
@@ -819,9 +1017,14 @@ describe.each([
     test.runIf(!Anvil.enabled)('default', async () => {
       const { porto } = getPorto()
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       const signature = await porto.provider.request({
         method: 'personal_sign',
         params: [Hex.fromString('hello'), address],
@@ -850,7 +1053,8 @@ describe.each([
       porto.provider.on('connect', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -1058,7 +1262,8 @@ describe.each([
       porto.provider.on('disconnect', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -1125,13 +1330,18 @@ describe.each([
   describe('wallet_sendCalls', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1161,7 +1371,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -1179,13 +1389,22 @@ describe.each([
       'behavior: `feeToken` capability',
       async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1218,7 +1437,7 @@ describe.each([
 
         expect(id).toBeDefined()
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id,
         })
 
@@ -1262,9 +1481,18 @@ describe.each([
         })
         const server = await Http.createServer(createRequestListener(handler))
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1308,7 +1536,7 @@ describe.each([
 
         expect(id).toBeDefined()
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id,
         })
 
@@ -1359,9 +1587,18 @@ describe.each([
 
         const { porto } = getPorto({ sponsorUrl: server.url })
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1402,7 +1639,7 @@ describe.each([
 
         expect(id).toBeDefined()
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id,
         })
 
@@ -1429,13 +1666,18 @@ describe.each([
 
     test('behavior: use inferred permissions', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1484,7 +1726,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -1500,13 +1742,18 @@ describe.each([
 
     test('behavior: `permissions` capability', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1557,7 +1804,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -1576,13 +1823,22 @@ describe.each([
       'behavior: `permissions.calls` unauthorized',
       async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1640,13 +1896,22 @@ describe.each([
       'behavior: `permissions.spend` exceeded',
       async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1698,7 +1963,7 @@ describe.each([
 
         expect(id).toBeDefined()
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id,
         })
 
@@ -1731,13 +1996,18 @@ describe.each([
 
     test('behavior: revoked permission', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1788,7 +2058,7 @@ describe.each([
 
       expect(id).toBeDefined()
 
-      await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
         id,
       })
 
@@ -1833,13 +2103,18 @@ describe.each([
 
     test('behavior: not provider-managed permission', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1893,13 +2168,18 @@ describe.each([
 
     test('behavior: permission does not exist', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1938,9 +2218,13 @@ describe.each([
     test('behavior: no calls.to', async () => {
       const { porto } = getPorto()
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       await expect(() =>
         porto.provider.request({
@@ -1965,13 +2249,18 @@ describe.each([
   describe('wallet_getCallsStatus', () => {
     test('default', async () => {
       const { porto } = getPorto()
-      const client = Porto_internal.getClient(porto).extend(() => ({
+      const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -2014,7 +2303,7 @@ describe.each([
     describe('behavior: permissions', () => {
       test('default', async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -2095,7 +2384,7 @@ describe.each([
           ],
         })
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: result[0]!.id,
         })
 
@@ -2111,7 +2400,7 @@ describe.each([
 
       test('WebCryptoP256', async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -2196,7 +2485,7 @@ describe.each([
           ],
         })
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: result[0]!.id,
         })
 
@@ -2212,7 +2501,7 @@ describe.each([
 
       test('Secp256k1', async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -2292,7 +2581,7 @@ describe.each([
           ],
         })
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: result[0]!.id,
         })
 
@@ -2310,7 +2599,7 @@ describe.each([
     describe('behavior: admin', () => {
       test('Secp256k1', async () => {
         const { porto } = getPorto()
-        const client = Porto_internal.getClient(porto).extend(() => ({
+        const client = ServerClient.fromPorto(porto).extend(() => ({
           mode: 'anvil',
         }))
 
@@ -2382,7 +2671,7 @@ describe.each([
           ],
         })
 
-        await waitForCallsStatus(Porto_internal.getProviderClient(porto), {
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
           id: result[0]!.id,
         })
 

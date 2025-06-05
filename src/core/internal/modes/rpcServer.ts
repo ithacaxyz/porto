@@ -5,21 +5,23 @@ import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
+import * as Secp256k1 from 'ox/Secp256k1'
 import * as TypedData from 'ox/TypedData'
 import * as Value from 'ox/Value'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { waitForCallsStatus } from 'viem/actions'
-import * as Account from '../../Account.js'
-import * as Key from '../../Key.js'
-import * as RpcServer from '../../RpcServer.js'
-import * as AccountContract from '../accountContract.js'
+import * as Account from '../../../viem/Account.js'
+import * as ContractActions from '../../../viem/ContractActions.js'
+import * as ServerActions_internal from '../../../viem/internal/serverActions.js'
+import * as Key from '../../../viem/Key.js'
+import * as ServerActions from '../../../viem/ServerActions.js'
+import type { ServerClient } from '../../../viem/ServerClient.js'
 import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
-import type { Client } from '../porto.js'
 import * as PreCalls from '../preCalls.js'
 import * as FeeToken from '../typebox/feeToken.js'
-import * as RpcServer_viem from '../viem/actions.js'
+import * as U from '../utils.js'
 
 export const defaultPermissionsFeeLimit = {
   ETH: '0.0001',
@@ -43,7 +45,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
     persistPreCalls = true,
   } = config
 
-  let id_internal: Hex.Hex | undefined
+  let address_internal: Hex.Hex | undefined
 
   const keystoreHost = (() => {
     if (config.keystoreHost === 'self') return undefined
@@ -62,70 +64,50 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { internal, permissions } = parameters
-        const { client } = parameters.internal
-        const { storage } = internal.config
+        const { label, permissions, internal } = parameters
+        const { client } = internal
 
-        let id: Hex.Hex | undefined
-        const account = await RpcServer.createAccount(client, {
-          async keys({ ids }) {
-            id = ids[0]!
-            const label = parameters.label ?? 'Porto Account'
+        const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
-            const key = !mock
-              ? await Key.createWebAuthnP256({
-                  label,
-                  rpId: keystoreHost,
-                  userId: Bytes.from(id),
-                })
-              : Key.createHeadlessWebAuthnP256()
-
-            return [key]
-          },
-        })
-
-        if (id) id_internal = id
+        const adminKey = !mock
+          ? await Key.createWebAuthnP256({
+              label:
+                label ??
+                `${eoa.address.slice(0, 8)}\u2026${eoa.address.slice(-6)}`,
+              rpId: keystoreHost,
+              userId: Bytes.from(eoa.address),
+            })
+          : Key.createHeadlessWebAuthnP256()
+        const sessionKey = await PermissionsRequest.toKey(permissions)
 
         const feeToken = await resolveFeeToken(internal, {
           permissionsFeeLimit,
         })
-        const authorizeKey = await PermissionsRequest.toKey(permissions)
 
-        const preCalls = authorizeKey
-          ? // TODO(rpcServer): remove double webauthn sign.
-            await getAuthorizeKeyPreCalls(client, {
-              account,
-              authorizeKey,
-              feeToken,
-            })
-          : []
-        if (persistPreCalls)
-          await PreCalls.add(preCalls, {
-            address: account.address,
-            storage,
-          })
+        const account = await ServerActions.upgradeAccount(client, {
+          account: eoa,
+          authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
+          feeToken: feeToken.address,
+          permissionsFeeLimit: feeToken.permissionsFeeLimit,
+        })
 
-        return {
-          account: Account.from({
-            ...account,
-            keys: [...account.keys, ...(authorizeKey ? [authorizeKey] : [])],
-          }),
-          preCalls,
-        }
+        address_internal = eoa.address
+
+        return { account }
       },
 
       async getAccountVersion(parameters) {
         const { address, internal } = parameters
         const { client } = internal
 
-        const { contracts } = await RpcServer.getCapabilities(client)
+        const { contracts } = await ServerActions.getCapabilities(client)
         const { accountImplementation } = contracts
 
-        const latest = await AccountContract.getEip712Domain(client, {
-          account: accountImplementation,
+        const latest = await ContractActions.getEip712Domain(client, {
+          account: Account.from(accountImplementation),
         }).then((x) => x.version)
 
-        const current = await AccountContract.getEip712Domain(client, {
+        const current = await ContractActions.getEip712Domain(client, {
           account: address,
         })
           .then((x) => x.version)
@@ -141,7 +123,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { id, internal } = parameters
         const { client } = internal
 
-        const result = await RpcServer_viem.getCallsStatus(client, {
+        const result = await ServerActions_internal.getCallsStatus(client, {
           id,
         })
 
@@ -186,7 +168,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           chainIds.map(async (chainId) => {
             const capabilities = await (async () => {
               try {
-                return await RpcServer.getCapabilities(getClient(chainId), {
+                return await ServerActions.getCapabilities(getClient(chainId), {
                   raw: true,
                 })
               } catch (e) {
@@ -210,6 +192,18 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         return capabilities
       },
 
+      async getKeys(parameters) {
+        const { account, internal } = parameters
+        const { client } = internal
+
+        const keys = await ServerActions.getKeys(client, { account })
+
+        return U.uniqBy(
+          [...(account.keys ?? []), ...keys],
+          (key) => key.publicKey,
+        )
+      },
+
       async grantAdmin(parameters) {
         const { account, internal } = parameters
         const { client } = internal
@@ -217,7 +211,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const authorizeKey = Key.from(parameters.key)
 
         const feeToken = await resolveFeeToken(internal, parameters)
-        const { id } = await RpcServer.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           authorizeKeys: [authorizeKey],
           feeToken: feeToken.address,
@@ -272,7 +266,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         // Prepare calls to sign over the session key to authorize.
         const { context, digest } = authorizeKey
-          ? await RpcServer.prepareCalls(client, {
+          ? await ServerActions.prepareCalls(client, {
               authorizeKeys: [authorizeKey],
               feeToken: feeToken.address,
               permissionsFeeLimit: feeToken.permissionsFeeLimit,
@@ -280,64 +274,64 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             })
           : ({ context: undefined, digest: '0x' } as const)
 
-        const { credentialId, keyId, webAuthnSignature } = await (async () => {
-          if (mock) {
-            if (!id_internal) throw new Error('id_internal not found.')
-            return {
-              credentialId: undefined,
-              keyId: id_internal,
-            } as const
-          }
-
-          // If the address and credentialId are provided, we can skip the
-          // WebAuthn discovery step.
-          if (parameters.keyId && parameters.credentialId)
-            return {
-              credentialId: parameters.credentialId,
-              keyId: parameters.keyId,
+        const { address, credentialId, webAuthnSignature } =
+          await (async () => {
+            if (mock) {
+              if (!address_internal)
+                throw new Error('address_internal not found.')
+              return {
+                address: address_internal,
+                credentialId: undefined,
+              } as const
             }
 
-          // Discovery step. We need to do this to extract the key id
-          // to query for the Account.
-          // We will also optionally sign over a digest to authorize
-          // a session key if the user has provided one.
-          const webAuthnSignature = await WebAuthnP256.sign({
-            challenge: digest,
-            rpId: keystoreHost,
-          })
-          const response = webAuthnSignature.raw
-            .response as AuthenticatorAssertionResponse
+            // If the address and credentialId are provided, we can skip the
+            // WebAuthn discovery step.
+            if (parameters.address && parameters.credentialId)
+              return {
+                address: parameters.address,
+                credentialId: parameters.credentialId,
+              }
 
-          const keyId = Bytes.toHex(new Uint8Array(response.userHandle!))
-          const credentialId = webAuthnSignature.raw.id
+            // Discovery step. We need to do this to extract the key id
+            // to query for the Account.
+            // We will also optionally sign over a digest to authorize
+            // a session key if the user has provided one.
+            const webAuthnSignature = await WebAuthnP256.sign({
+              challenge: digest,
+              rpId: keystoreHost,
+            })
+            const response = webAuthnSignature.raw
+              .response as AuthenticatorAssertionResponse
 
-          return { credentialId, keyId, webAuthnSignature }
-        })()
+            const address = Bytes.toHex(new Uint8Array(response.userHandle!))
+            const credentialId = webAuthnSignature.raw.id
 
-        const accounts = await RpcServer.getAccounts(client, { keyId })
-        if (!accounts[0]) throw new Error('account not found')
+            return { address, credentialId, webAuthnSignature }
+          })()
+
+        const keys = await ServerActions.getKeys(client, { account: address })
 
         // Instantiate the account based off the extracted address and keys.
         const account = Account.from({
-          ...accounts[0],
-          keys: [
-            ...accounts[0].keys,
-            ...(authorizeKey ? [authorizeKey] : []),
-          ].map((key, i) => {
-            // Assume that the first key is the admin WebAuthn key.
-            if (i === 0) {
-              if (key.type === 'webauthn-p256')
-                return Key.fromWebAuthnP256({
-                  ...key,
-                  credential: {
-                    id: credentialId!,
-                    publicKey: PublicKey.fromHex(key.publicKey),
-                  },
-                  id: keyId,
-                })
-            }
-            return key
-          }),
+          address,
+          keys: [...keys, ...(authorizeKey ? [authorizeKey] : [])].map(
+            (key, i) => {
+              // Assume that the first key is the admin WebAuthn key.
+              if (i === 0) {
+                if (key.type === 'webauthn-p256')
+                  return Key.fromWebAuthnP256({
+                    ...key,
+                    credential: {
+                      id: credentialId!,
+                      publicKey: PublicKey.fromHex(key.publicKey),
+                    },
+                    id: address,
+                  })
+              }
+              return key
+            },
+          ),
         })
 
         // Get the signature of the authorize session key pre-call.
@@ -397,17 +391,15 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
-        const { capabilities, context, digest } = await RpcServer.prepareCalls(
-          client,
-          {
+        const { capabilities, context, digest } =
+          await ServerActions.prepareCalls(client, {
             account,
             calls,
             feeToken: feeToken.address,
             key,
             preCalls,
             sponsorUrl,
-          },
-        )
+          })
 
         return {
           account,
@@ -427,41 +419,36 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareUpgradeAccount(parameters) {
-        const { address, internal, permissions } = parameters
+        const { address, label, internal, permissions } = parameters
         const { client } = internal
 
+        const adminKey = !mock
+          ? await Key.createWebAuthnP256({
+              label:
+                label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`,
+              rpId: keystoreHost,
+              userId: Bytes.from(address),
+            })
+          : Key.createHeadlessWebAuthnP256()
+        const sessionKey = await PermissionsRequest.toKey(permissions)
+
         const feeToken = await resolveFeeToken(internal, {
-          ...parameters,
           permissionsFeeLimit,
         })
 
-        const authorizeKey = await PermissionsRequest.toKey(permissions)
-        const { context, digests } = await RpcServer.prepareUpgradeAccount(
+        const { context, digests } = await ServerActions.prepareUpgradeAccount(
           client,
           {
             address,
+            authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
             feeToken: feeToken.address,
-            async keys({ ids }) {
-              const id = ids[0]!
-              const label = parameters.label ?? 'Porto Account'
-
-              const key = !mock
-                ? await Key.createWebAuthnP256({
-                    label,
-                    rpId: keystoreHost,
-                    userId: Bytes.from(id),
-                  })
-                : Key.createHeadlessWebAuthnP256()
-
-              return [key, ...(authorizeKey ? [authorizeKey] : [])]
-            },
             permissionsFeeLimit: feeToken.permissionsFeeLimit,
           },
         )
 
         return {
           context,
-          signPayloads: digests,
+          signPayloads: [digests.authDigest, digests.preCallDigest],
         }
       },
 
@@ -476,7 +463,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         try {
           const feeToken = await resolveFeeToken(internal, parameters)
-          const { id } = await RpcServer.sendCalls(client, {
+          const { id } = await ServerActions.sendCalls(client, {
             account,
             feeToken: feeToken.address,
             revokeKeys: [key],
@@ -485,7 +472,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             id,
           })
         } catch (e) {
-          const error = e as RpcServer.sendCalls.ErrorType
+          const error = e as ServerActions.sendCalls.ErrorType
           if (
             error.name === 'Rpc.ExecutionError' &&
             error.abiError?.name === 'KeyDoesNotExist'
@@ -509,7 +496,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         try {
           const feeToken = await resolveFeeToken(internal, parameters)
-          const { id } = await RpcServer.sendCalls(client, {
+          const { id } = await ServerActions.sendCalls(client, {
             account,
             feeToken: feeToken.address,
             revokeKeys: [key],
@@ -518,7 +505,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             id,
           })
         } catch (e) {
-          const error = e as RpcServer.sendCalls.ErrorType
+          const error = e as ServerActions.sendCalls.ErrorType
           if (
             error.name === 'Rpc.ExecutionError' &&
             error.abiError?.name === 'KeyDoesNotExist'
@@ -555,7 +542,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
-        const result = await RpcServer.sendCalls(client, {
+        const result = await ServerActions.sendCalls(client, {
           account,
           calls,
           feeToken: feeToken.address,
@@ -579,7 +566,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const { id } = await RpcServer.sendCalls(client, {
+        const { id } = await ServerActions.sendPreparedCalls(client, {
           context: context as never,
           key,
           signature,
@@ -640,14 +627,14 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         )
         if (!key) throw new Error('admin key not found.')
 
-        const { contracts } = await RpcServer.getCapabilities(client)
+        const { contracts } = await ServerActions.getCapabilities(client)
         const { accountImplementation } = contracts
         if (!accountImplementation)
           throw new Error('accountImplementation not found.')
 
         const feeToken = await resolveFeeToken(internal)
 
-        return await RpcServer.sendCalls(client, {
+        return await ServerActions.sendCalls(client, {
           account,
           calls: [
             Call.upgradeProxyAccount({
@@ -664,9 +651,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { account, context, internal, signatures } = parameters
         const { client } = internal
 
-        await RpcServer.upgradeAccount(client, {
+        await ServerActions.upgradeAccount(client, {
           context: context as any,
-          signatures,
+          signatures: {
+            auth: signatures[0]!,
+            preCall: signatures[1]!,
+          },
         })
 
         return { account }
@@ -707,7 +697,7 @@ export declare namespace rpcServer {
 }
 
 async function getAuthorizeKeyPreCalls(
-  client: Client,
+  client: ServerClient,
   parameters: getAuthorizeKeyPreCalls.Parameters,
 ) {
   const { account, authorizeKey, feeToken } = parameters
@@ -717,7 +707,7 @@ async function getAuthorizeKeyPreCalls(
   )
   if (!adminKey) throw new Error('admin key not found.')
 
-  const { context, digest } = await RpcServer.prepareCalls(client, {
+  const { context, digest } = await ServerActions.prepareCalls(client, {
     account,
     authorizeKeys: [authorizeKey],
     feeToken: feeToken.address,
@@ -756,7 +746,7 @@ export async function resolveFeeToken(
   const { feeToken: defaultFeeToken } = store.getState()
   const { feeToken: overrideFeeToken } = parameters ?? {}
 
-  const feeTokens = await RpcServer_viem.getCapabilities(client).then(
+  const feeTokens = await ServerActions_internal.getCapabilities(client).then(
     (capabilities) => capabilities.fees.tokens,
   )
   let feeToken = feeTokens?.find((feeToken) => {

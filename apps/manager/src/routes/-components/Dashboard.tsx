@@ -25,7 +25,8 @@ import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
-import { useErc20Info } from '~/hooks/useTokenInfo'
+import { useErc20Info, useErc721Info } from '~/hooks/useTokenInfo'
+import { useTokenStandard } from '~/hooks/useTokenStandard'
 import {
   ArrayUtils,
   DateFormatter,
@@ -50,7 +51,20 @@ function TokenSymbol({
   address?: Address.Address | undefined
   display?: 'symbol' | 'name' | 'address'
 }) {
-  const { data: tokenInfo } = useErc20Info(address)
+  const tokenStandard = useTokenStandard(address)
+
+  const { data: tokenInfoErc20 } = useErc20Info({
+    address,
+    enabled: tokenStandard.standard === 'ERC20',
+  })
+
+  const { data: tokenInfo721 } = useErc721Info({
+    address,
+    enabled: tokenStandard.standard === 'ERC721',
+  })
+
+  const tokenInfo =
+    tokenStandard.standard === 'ERC20' ? tokenInfoErc20 : tokenInfo721
 
   if (!address) return null
 
@@ -143,6 +157,30 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
+              onClick={async (event) => {
+                event.preventDefault()
+                if (!account.address)
+                  return toast.error('No account address found')
+
+                const provider =
+                  (await account.connector?.getProvider()) as Porto.Porto['provider']
+                await provider.request({
+                  method: 'wallet_addFunds',
+                  params: [
+                    {
+                      address: account.address,
+                      token: exp1Address[chainId as keyof typeof exp1Address],
+                      value: Hex.fromNumber(25n),
+                    },
+                  ],
+                })
+              }}
+              size="small"
+              variant="accent"
+            >
+              Add funds
+            </Button>
+            <Button
               render={
                 <a
                   href="https://t.me/porto_devs"
@@ -154,7 +192,6 @@ export function Dashboard() {
               }
               size="small"
             />
-
             <Button
               onClick={() => disconnect.disconnect({})}
               size="small"
@@ -213,33 +250,6 @@ export function Dashboard() {
       >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
-
-          <Button
-            className="ml-2"
-            onClick={async (event) => {
-              event.preventDefault()
-              if (!account.address)
-                return toast.error('No account address found')
-
-              const provider =
-                (await account.connector?.getProvider()) as Porto.Porto['provider']
-              await provider.request({
-                method: 'wallet_addFunds',
-                params: [
-                  {
-                    address: account.address,
-                    token: exp1Address[chainId as keyof typeof exp1Address],
-                    value: Hex.fromNumber(25n),
-                  },
-                ],
-              })
-            }}
-            size="small"
-            type="button"
-            variant="default"
-          >
-            Add funds
-          </Button>
         </summary>
 
         <PaginatedTable
@@ -297,12 +307,15 @@ export function Dashboard() {
               data={addressTransfers.data?.items}
               emptyMessage="No transactions yet"
               renderRow={(transfer) => {
-                const amount = Number.parseFloat(
-                  ValueFormatter.format(
-                    BigInt(transfer?.total.value ?? 0),
-                    Number(transfer?.total.decimals ?? 0),
-                  ),
-                ).toFixed(2)
+                const isErc721Transfer = transfer?.token.type === 'ERC-721'
+                const amount = isErc721Transfer
+                  ? BigInt(1)
+                  : Number.parseFloat(
+                      ValueFormatter.format(
+                        BigInt(transfer?.total.value ?? 0),
+                        Number(transfer?.total.decimals ?? 0),
+                      ),
+                    ).toFixed(2)
 
                 return (
                   <tr

@@ -13,8 +13,6 @@ export const Base = Type.Object({
   publicKey: Primitive.Hex,
   /** Role. */
   role: Type.Union([Type.Literal('admin'), Type.Literal('session')]),
-  /** Signature. */
-  signature: Typebox.Optional(Primitive.Hex),
   /** Key type. */
   type: Type.Union([
     Type.Literal('address'),
@@ -73,3 +71,11 @@ export const Permissions = Type.Object({
   spend: Typebox.Optional(SpendPermissions),
 })
 export type Permissions = Typebox.StaticDecode<typeof Permissions>
+
+export const WithPermissions = Type.Intersect([
+  Base,
+  Type.Object({
+    permissions: Typebox.Optional(Permissions),
+  }),
+])
+export type WithPermissions = Typebox.StaticDecode<typeof WithPermissions>

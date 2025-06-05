@@ -1,5 +1,5 @@
-name: Bug Report
-description: Report bugs or issues.
+name: Bug Report (Developer)
+description: Report bugs or issues with the `porto` developer library.
 body:
   - type: markdown
     attributes:

@@ -4,8 +4,6 @@ import Keys from './snippets/keys.mdx'
 
 Verifies a signature from a key associated with an account.
 
-The account and key must exist on-chain, unless it is a [PREP](https://blog.biconomy.io/prep-deep-dive/)  account created through [`wallet_createAccount`](/rpc-server/wallet_createAccount).
-
 The validity of the signature is returned along with a proof that can be executed using e.g. `eth_call`.
 
 :::note
@@ -40,14 +38,6 @@ type Response = {
     account: `0x${string}`,
     // the key hash that signed the digest.
     keyHash: `0x${string}`,
-    // PREP account initialization data
-    prepInitData?: `0x${string}`,
-    // signature proving that account is associated with the requested `keyId`
-    idSignature?: {
-      y_parity: boolean,
-      r: `0x${string}`,
-      s: `0x${string}`,
-    },
   }
 }
 ```
@@ -63,6 +53,4 @@ To verify that provided account is indeed tied to the provided `keyId`, user can
 2. Verify the returned `idSignature`. It is only returned for accounts that are not yet delegated.
 
 To verify that the signature is valid for the returned account, user can call
-`unwrapAndValidateSignature` on the returned account. For non-delegated PREP accounts, this call
-will have to be preceded by `initializePREP` with `prepInitData` and a state override delegating
-the account to `Delegation` contract.
+`unwrapAndValidateSignature` on the returned account.

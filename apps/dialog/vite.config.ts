@@ -13,7 +13,7 @@ const commitSha =
   process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: '/dialog/',
   build: {
     outDir: './dist/dialog',
@@ -24,14 +24,13 @@ export default defineConfig({
     'import.meta.env.ANVIL': process.env.ANVIL === 'true',
     'import.meta.env.VITE_FAUCET_URL':
       process.env.ANVIL === 'true'
-        ? process.env.VITEST === 'true'
+        ? mode === 'test'
           ? '"http://localhost:5173/faucet"'
           : '"https://anvil.localhost:5173/faucet"'
         : process.env.VITE_FAUCET_URL,
-    'import.meta.env.VITEST': process.env.VITEST === 'true',
   },
   plugins: [
-    process.env.VITEST === 'true'
+    mode === 'test'
       ? null
       : Mkcert({
           hosts: [
@@ -55,4 +54,4 @@ export default defineConfig({
     TsconfigPaths(),
     TanStackRouterVite(),
   ],
-})
+}))

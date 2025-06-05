@@ -10,27 +10,34 @@ This method is intended to be used in conjunction with [`wallet_prepareUpgradeAc
 
 ## Request
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Request = {
   method: 'wallet_upgradeAccount',
   params: [{
     // Context that includes the prepared pre-call. 
     // As returned by `wallet_prepareUpgradeAccount`
     context: {
+      address: Address,
       authorization: {
-        chainId: `0x${string}`,
-        address: `0x${string}`,
-        nonce: `0x${string}`,
+        address: Address,
+        chainId: Hex,
+        nonce: Hex,
       },
       preCall: {
-        eoa: `0x${string}`,
-        executionData: `0x${string}`,
-        nonce: `0x${string}`,
-        signature: `0x${string}`,
+        eoa: Address,
+        executionData: Hex,
+        nonce: Hex,
+        signature: Hex,
       },
     },
-    // Tuple of signatures over the digests from `wallet_prepareUpgradeAccount`
-    signatures: [authSignature: `0x${string}`, preCallSignature: `0x${string}`],
+    // Object of signatures over the digests from `wallet_prepareUpgradeAccount`
+    signatures: {
+      auth: Hex,
+      init: Hex,
+    },
   }],
 }
 ```

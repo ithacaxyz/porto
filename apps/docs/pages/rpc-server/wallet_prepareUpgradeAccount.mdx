@@ -15,18 +15,21 @@ This method is intended to be used in conjunction with [`wallet_upgradeAccount`]
 
 ## Request
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Request = {
   method: 'wallet_prepareUpgradeAccount',
   params: [{
     // Address of the EOA to upgrade.
-    address: `0x${string}`,
+    address: Hex,
     // Optional chain ID to upgrade on. If not specified, the RPC
     // Server will handle what chain to upgrade on. This chain will
     // be the "source"/"home" chain of the account.
-    chainId?: `0x${string}`,
+    chainId?: Hex,
     // Address of the account contract to delegate to.
-    delegation: `0x${string}`,
+    delegation: Address,
     // Additional capabilities.
     capabilities: {
       authorizeKeys: {
@@ -35,19 +38,19 @@ type Request = {
           expiry?: number,
           type: 'p256' | 'webauthnp256' | 'secp256k1',
           role: 'admin' | 'normal' | 'session',
-          publicKey: `0x${string}`,
+          publicKey: Hex,
         },
         permissions: ({
           type: 'call',
           // See "Selectors"
           selector: string,
-          to: `0x${string}`,
+          to: Address,
         } | {
           type: 'spend',
           limit: number,
           period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
           // defaults to the native token (address zero)
-          token?: `0x${string}`,
+          token?: Address,
         })[],
       }[],
     },
@@ -57,33 +60,41 @@ type Request = {
 
 ## Response
 
-```ts
+```ts twoslash
+import { Address, Hash, Hex } from 'viem'
+
+// ---cut---
 type Response = {
   // Chain ID of the account.
-  chainId: `0x${string}`,
+  chainId: Hex,
   // Context that includes the prepared pre-call. 
   context: {
+    // Account address
+    address: Address,
     // Unsigned authorization object to be signed by the EOA root key.
     authorization: {
       // Contract address to delegate to.
-      address: `0x${string}`,
+      address: Address,
       // Permitted chain ID. 
       // Note: `0x0` allows for replayability across chains.
-      chainId: `0x${string}`,
+      chainId: Hex,
       // Permitted nonce.
-      nonce: `0x${string}`,
+      nonce: Hex,
     },
     // Unsigned pre-call to be signed by the EOA root key.
     preCall: {
-      eoa: `0x${string}`,
-      executionData: `0x${string}`,
-      nonce: `0x${string}`,
-      signature: `0x${string}`,
+      eoa: Address,
+      executionData: Hex,
+      nonce: Hex,
+      signature: Hex,
     },
   },
-  // Tuple of digests to be signed by the EOA root key. Includes the
-  // authorization digest and the pre-call digest.
-  digest: [authDigest: `0x${string}`, preCallDigest: `0x${string}`],
+  // Object of digests to be signed by the EOA root key. Includes the
+  // authorization digest and the initialization digest (pre-call).
+  digests: {
+    auth: Hash,
+    init: Hash,
+  },
   // EIP-712 typed data of the precall. This can be used to rebuild (and verify)
   // the provided digest.
   typedData: any,
@@ -91,31 +102,31 @@ type Response = {
   capabilities: {
     authorizeKeys: {
       // key hash
-      hash: `0x${string}`,
+      hash: Hash,
       // See "Keys"
       key: {
         expiry?: number,
         type: 'p256' | 'webauthnp256' | 'secp256k1',
         role: 'admin' | 'normal' | 'session',
-        publicKey: `0x${string}`,
+        publicKey: Hex,
       },
       permissions: ({
         type: 'call',
         // See "Selectors"
         selector: string,
-        to: `0x${string}`,
+        to: Address,
       } | {
         type: 'spend',
         limit: number,
         period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year',
         // defaults to the native token (address zero)
-        token?: `0x${string}`,
+        token?: Address,
       })[],
     }[],
     // Key revocations.
     revokeKeys: {
-      hash: `0x${string}`,
-      id?: `0x${string}`
+      hash: Hash,
+      id?: Address
     }[],
   }
 }

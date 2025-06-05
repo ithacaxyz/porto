@@ -1,5 +1,29 @@
 # porto
 
+## 0.0.29
+
+### Patch Changes
+
+- [`8275a95`](https://github.com/ithacaxyz/porto/commit/8275a9534ff48affeb940757c0884b09c2010973) Thanks [@jxom](https://github.com/jxom)! - Added `porto/viem` module. Documentation coming soon.
+
+## 0.0.28
+
+### Patch Changes
+
+- [`87c88d2`](https://github.com/ithacaxyz/porto/commit/87c88d21dd4d2fe839e9a1d06da5cfab8044d1de) Thanks [@jxom](https://github.com/jxom)! - Fixed decoding of `adminsChanged` event.
+
+## 0.0.27
+
+### Patch Changes
+
+- [#367](https://github.com/ithacaxyz/porto/pull/367) [`959faca`](https://github.com/ithacaxyz/porto/commit/959faca2d6388da187e80fe0936c1e08fcc9a5f0) Thanks [@jxom](https://github.com/jxom)! - Added remote fetch permissions on `wallet_getPermissions`.
+
+- [#360](https://github.com/ithacaxyz/porto/pull/360) [`abf9e3b`](https://github.com/ithacaxyz/porto/commit/abf9e3bb84cdf98da97a3fffed13a9711dad729a) Thanks [@jxom](https://github.com/jxom)! - Improved `methodPolicies` handling in Dialog renderer.
+
+- [#360](https://github.com/ithacaxyz/porto/pull/360) [`abf9e3b`](https://github.com/ithacaxyz/porto/commit/abf9e3bb84cdf98da97a3fffed13a9711dad729a) Thanks [@jxom](https://github.com/jxom)! - Added `waitForReady` property to `Bridge` messenger. This will return a pending promise if the receiving end has not instantiated yet, and will immediately resolve if it has.
+
+- [#367](https://github.com/ithacaxyz/porto/pull/367) [`959faca`](https://github.com/ithacaxyz/porto/commit/959faca2d6388da187e80fe0936c1e08fcc9a5f0) Thanks [@jxom](https://github.com/jxom)! - Added remote fetch admins on `wallet_getAdmins`.
+
 ## 0.0.26
 
 ### Patch Changes

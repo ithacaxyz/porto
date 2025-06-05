@@ -2,6 +2,7 @@ import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import type * as Porto_remote from '../remote/Porto.js'
 import * as promise from './internal/promise.js'
+import * as Utils from './internal/utils.js'
 import type * as Porto from './Porto.js'
 
 /** Messenger interface. */
@@ -31,6 +32,7 @@ export type ReadyOptions = {
 /** Bridge messenger. */
 export type Bridge = Messenger & {
   ready: (options: ReadyOptions) => void
+  waitForReady: () => Promise<ReadyOptions>
 }
 
 /** Messenger schema. */
@@ -131,7 +133,10 @@ export function fromWindow(
     },
     async send(topic, payload, target) {
       const id = crypto.randomUUID()
-      w.postMessage({ id, payload, topic }, target ?? targetOrigin ?? '*')
+      w.postMessage(
+        Utils.normalizeValue({ id, payload, topic }),
+        target ?? targetOrigin ?? '*',
+      )
       return { id, payload, topic } as never
     },
     async sendAsync(topic, payload) {
@@ -161,8 +166,8 @@ export function bridge(parameters: bridge.Parameters): Bridge {
 
   let pending = false
 
-  const ready = promise.withResolvers<void>()
-  from_.on('ready', () => ready.resolve())
+  const ready = promise.withResolvers<ReadyOptions>()
+  from_.on('ready', ready.resolve)
 
   const messenger = from({
     destroy() {
@@ -189,6 +194,9 @@ export function bridge(parameters: bridge.Parameters): Bridge {
     ...messenger,
     ready(options) {
       messenger.send('ready', options)
+    },
+    waitForReady() {
+      return ready.promise
     },
   }
 }
@@ -222,6 +230,9 @@ export function noop(): Bridge {
       return Promise.resolve(undefined as never)
     },
     sendAsync() {
+      return Promise.resolve(undefined as never)
+    },
+    waitForReady() {
       return Promise.resolve(undefined as never)
     },
   }

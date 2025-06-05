@@ -2,8 +2,9 @@ import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 
-import type * as Account from '../Account.js'
-import type * as Key from '../Key.js'
+import type * as Account from '../../viem/Account.js'
+import type * as Key from '../../viem/Key.js'
+import type { ServerClient } from '../../viem/ServerClient.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
@@ -18,7 +19,7 @@ type Request = RpcRequest.parseRequest.ReturnType
 
 export type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
   /** Viem Client. */
-  client: Porto.Client
+  client: ServerClient
   /** RPC Request. */
   request: Request
 }
@@ -52,8 +53,6 @@ export type Mode = {
     }) => Promise<{
       /** Account. */
       account: Account.Account
-      /** Pre-calls to be executed (e.g. key authorization). */
-      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     getAccountVersion: (parameters: {
@@ -82,42 +81,52 @@ export type Mode = {
       chainIds: readonly Hex.Hex[]
       /** Internal properties. */
       internal: Omit<ActionsInternal, 'client'> & {
-        getClient: (chainId: Hex.Hex | number) => Porto.Client
+        getClient: (chainId: Hex.Hex | number) => ServerClient
       }
     }) => Promise<
       Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
     >
 
+    getKeys: (parameters: {
+      /** Account to get the keys for. */
+      account: Account.Account
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<readonly Key.Key[]>
+
     grantAdmin: (parameters: {
-      /** Account to authorize the keys for. */
+      /** Account to grant admin for. */
       account: Account.Account
       /** Internal properties. */
       internal: ActionsInternal
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
       feeToken?: FeeToken.Symbol | Address.Address | undefined
-      /** Key to authorize. */
+      /** Key to authorize as an admin. */
       key: Key.from.Value
-    }) => Promise<{ key: Key.Key }>
+    }) => Promise<{
+      /** Key the admin is granted to. */
+      key: Key.Key
+    }>
 
     grantPermissions: (parameters: {
-      /** Account to authorize the keys for. */
+      /** Account to grant permissions for. */
       account: Account.Account
       /** Internal properties. */
       internal: ActionsInternal
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
     }) => Promise<{
-      /** Key. */
+      /** Key the permissions are granted to. */
       key: Key.Key
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
     }>
 
     loadAccounts: (parameters: {
+      /** Address of the account to load. */
+      address?: Hex.Hex | undefined
       /** Credential ID to use to load an existing account. */
       credentialId?: string | undefined
-      /** Key ID of the account to load. */
-      keyId?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Permissions to grant. */
@@ -162,8 +171,6 @@ export type Mode = {
     prepareUpgradeAccount: (parameters: {
       /** Address of the account to import. */
       address: Address.Address
-      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Label to associate with the account. */
       label?: string | undefined
       /** Internal properties. */

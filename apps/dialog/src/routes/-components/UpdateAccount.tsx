@@ -1,7 +1,7 @@
 import { Button } from '@porto/apps/components'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
-import { Account, Key, RpcServer as RpcServer_porto } from 'porto'
+import { Account, Key, ServerActions } from 'porto'
 import { Call } from 'porto/internal'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -20,10 +20,10 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const version = UpdateAccount.useAccountVersion()
   const { current, latest } = version.data ?? {}
 
-  const client = Hooks.useClient(porto)
+  const client = Hooks.useServerClient(porto)
   const getCapabilitiesQuery = useQuery({
     enabled: !!client,
-    queryFn: () => RpcServer_porto.getCapabilities(client),
+    queryFn: () => ServerActions.getCapabilities(client),
     queryKey: ['getCapabilities', client.uid],
   })
   const { contracts } = getCapabilitiesQuery.data ?? {}
@@ -64,7 +64,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
         payload: digest,
         wrap: false,
       })
-      const { id } = await RpcServer_porto.sendCalls(client, {
+      const { id } = await ServerActions.sendPreparedCalls(client, {
         ...request,
         key: request.key!,
         signature,
@@ -195,18 +195,18 @@ export namespace UpdateAccount {
 
   export function useAccountVersion() {
     const account = useAccount()
-    const providerClient = Hooks.useProviderClient(porto)
+    const walletClient = Hooks.useWalletClient(porto)
 
     return useQuery({
       enabled: !!account.isConnected,
       async queryFn() {
-        const version = await providerClient.request({
+        const version = await walletClient.request({
           method: 'wallet_getAccountVersion',
           params: [{}],
         })
         return version
       },
-      queryKey: ['version', providerClient.uid],
+      queryKey: ['version', walletClient.uid],
     })
   }
 }

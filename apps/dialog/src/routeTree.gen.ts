@@ -19,7 +19,6 @@ import { Route as DialogWalletrevokePermissionsImport } from './routes/dialog/wa
 import { Route as DialogWalletrevokeAdminImport } from './routes/dialog/wallet_revokeAdmin'
 import { Route as DialogWalletgrantPermissionsImport } from './routes/dialog/wallet_grantPermissions'
 import { Route as DialogWalletgrantAdminImport } from './routes/dialog/wallet_grantAdmin'
-import { Route as DialogWalletcreateAccountImport } from './routes/dialog/wallet_createAccount'
 import { Route as DialogWalletconnectImport } from './routes/dialog/wallet_connect'
 import { Route as DialogWalletaddFundsImport } from './routes/dialog/wallet_addFunds'
 import { Route as DialogPlaygroundImport } from './routes/dialog/playground'
@@ -77,12 +76,6 @@ const DialogWalletgrantPermissionsRoute =
 const DialogWalletgrantAdminRoute = DialogWalletgrantAdminImport.update({
   id: '/dialog/wallet_grantAdmin',
   path: '/dialog/wallet_grantAdmin',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DialogWalletcreateAccountRoute = DialogWalletcreateAccountImport.update({
-  id: '/dialog/wallet_createAccount',
-  path: '/dialog/wallet_createAccount',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -188,13 +181,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogWalletconnectImport
       parentRoute: typeof rootRoute
     }
-    '/dialog/wallet_createAccount': {
-      id: '/dialog/wallet_createAccount'
-      path: '/dialog/wallet_createAccount'
-      fullPath: '/dialog/wallet_createAccount'
-      preLoaderRoute: typeof DialogWalletcreateAccountImport
-      parentRoute: typeof rootRoute
-    }
     '/dialog/wallet_grantAdmin': {
       id: '/dialog/wallet_grantAdmin'
       path: '/dialog/wallet_grantAdmin'
@@ -258,7 +244,6 @@ export interface FileRoutesByFullPath {
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
-  '/dialog/wallet_createAccount': typeof DialogWalletcreateAccountRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
@@ -277,7 +262,6 @@ export interface FileRoutesByTo {
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
-  '/dialog/wallet_createAccount': typeof DialogWalletcreateAccountRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
@@ -297,7 +281,6 @@ export interface FileRoutesById {
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
-  '/dialog/wallet_createAccount': typeof DialogWalletcreateAccountRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
@@ -318,7 +301,6 @@ export interface FileRouteTypes {
     | '/dialog/playground'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
-    | '/dialog/wallet_createAccount'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
     | '/dialog/wallet_revokeAdmin'
@@ -336,7 +318,6 @@ export interface FileRouteTypes {
     | '/dialog/playground'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
-    | '/dialog/wallet_createAccount'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
     | '/dialog/wallet_revokeAdmin'
@@ -354,7 +335,6 @@ export interface FileRouteTypes {
     | '/dialog/playground'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
-    | '/dialog/wallet_createAccount'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
     | '/dialog/wallet_revokeAdmin'
@@ -374,7 +354,6 @@ export interface RootRouteChildren {
   DialogPlaygroundRoute: typeof DialogPlaygroundRoute
   DialogWalletaddFundsRoute: typeof DialogWalletaddFundsRoute
   DialogWalletconnectRoute: typeof DialogWalletconnectRoute
-  DialogWalletcreateAccountRoute: typeof DialogWalletcreateAccountRoute
   DialogWalletgrantAdminRoute: typeof DialogWalletgrantAdminRoute
   DialogWalletgrantPermissionsRoute: typeof DialogWalletgrantPermissionsRoute
   DialogWalletrevokeAdminRoute: typeof DialogWalletrevokeAdminRoute
@@ -393,7 +372,6 @@ const rootRouteChildren: RootRouteChildren = {
   DialogPlaygroundRoute: DialogPlaygroundRoute,
   DialogWalletaddFundsRoute: DialogWalletaddFundsRoute,
   DialogWalletconnectRoute: DialogWalletconnectRoute,
-  DialogWalletcreateAccountRoute: DialogWalletcreateAccountRoute,
   DialogWalletgrantAdminRoute: DialogWalletgrantAdminRoute,
   DialogWalletgrantPermissionsRoute: DialogWalletgrantPermissionsRoute,
   DialogWalletrevokeAdminRoute: DialogWalletrevokeAdminRoute,
@@ -421,7 +399,6 @@ export const routeTree = rootRoute
         "/dialog/playground",
         "/dialog/wallet_addFunds",
         "/dialog/wallet_connect",
-        "/dialog/wallet_createAccount",
         "/dialog/wallet_grantAdmin",
         "/dialog/wallet_grantPermissions",
         "/dialog/wallet_revokeAdmin",
@@ -454,9 +431,6 @@ export const routeTree = rootRoute
     },
     "/dialog/wallet_connect": {
       "filePath": "dialog/wallet_connect.tsx"
-    },
-    "/dialog/wallet_createAccount": {
-      "filePath": "dialog/wallet_createAccount.tsx"
     },
     "/dialog/wallet_grantAdmin": {
       "filePath": "dialog/wallet_grantAdmin.tsx"

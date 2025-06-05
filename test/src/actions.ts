@@ -7,34 +7,32 @@ import {
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
-
-import * as Account from '../../src/core/Account.js'
-import type { Client } from '../../src/core/internal/porto.js'
-import * as Key from '../../src/core/Key.js'
-import * as RpcServer from '../../src/core/RpcServer.js'
+import * as Account from '../../src/viem/Account.js'
+import * as Key from '../../src/viem/Key.js'
+import * as ServerActions from '../../src/viem/ServerActions.js'
+import type { ServerClient } from '../../src/viem/ServerClient.js'
 import * as Anvil from './anvil.js'
 import { exp1Abi, exp1Address } from './porto.js'
 
 export async function createAccount(
-  client: Client,
+  client: ServerClient,
   parameters: {
     deploy?: boolean | undefined
-    keys: NonNullable<RpcServer.createAccount.Parameters['keys']>
+    keys: readonly Key.Key[]
     setBalance?: false | bigint | undefined
   },
 ) {
-  const { deploy, keys, setBalance: balance = parseEther('10000') } = parameters
+  const { deploy, keys, setBalance } = parameters
 
-  const account = await RpcServer.createAccount(client, { keys })
+  const { account } = await getAccount(client, { keys, setBalance })
 
-  if (balance)
-    await setBalance(client, {
-      address: account.address,
-      value: balance,
-    })
+  await ServerActions.upgradeAccount(client, {
+    account,
+    authorizeKeys: keys,
+  })
 
   if (deploy) {
-    const { id } = await RpcServer.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [],
       feeToken: exp1Address,
@@ -48,7 +46,7 @@ export async function createAccount(
 }
 
 export async function getAccount(
-  client: Client,
+  client: ServerClient,
   parameters: {
     keys?: readonly Key.Key[] | undefined
     setBalance?: false | bigint | undefined
@@ -71,44 +69,11 @@ export async function getAccount(
   }
 }
 
-export async function getUpgradedAccount(
-  client: Client,
-  parameters: {
-    keys: readonly Key.Key[]
-    setBalance?: false | bigint | undefined
-  },
-) {
-  const { keys, setBalance } = parameters
-
-  const { account } = await getAccount(client, { keys, setBalance })
-
-  const request = await RpcServer.prepareUpgradeAccount(client, {
-    address: account.address,
-    feeToken: exp1Address,
-    keys,
-  })
-
-  const signatures = await Promise.all(
-    request.digests.map((payload) => account.sign({ payload })),
-  )
-
-  const { bundles } = await RpcServer.upgradeAccount(client, {
-    ...request,
-    signatures,
-  })
-
-  await waitForCallsStatus(client, {
-    id: bundles[0]!.id,
-  })
-
-  return account
-}
-
 export async function setBalance(
-  client: Client,
+  client: ServerClient,
   parameters: {
     address: Address.Address
-    value: bigint
+    value?: bigint | undefined
   },
 ) {
   const { address, value = parseEther('10000') } = parameters

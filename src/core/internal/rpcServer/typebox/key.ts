@@ -18,8 +18,6 @@ export const Key = Type.Object({
   publicKey: Primitive.Hex,
   /** Role. */
   role: Type.Union([Type.Literal('admin'), Type.Literal('normal')]),
-  /** Signature. */
-  signature: Typebox.Optional(Primitive.Hex),
   /** Key type. */
   type: Type.Union([
     Type.Literal('p256'),

@@ -62,7 +62,6 @@ export function App() {
         <h2>Account Management</h2>
         <Connect />
         <Login />
-        <Register />
         <AddFunds />
         <Accounts />
         <Disconnect />
@@ -185,6 +184,8 @@ function Events() {
 function Connect() {
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
   const [result, setResult] = React.useState<unknown | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
+
   return (
     <div>
       <h3>wallet_connect</h3>
@@ -198,51 +199,59 @@ function Connect() {
       </label>
       <div>
         <button
-          onClick={() =>
-            porto.provider
+          onClick={() => {
+            const payload = {
+              capabilities: {
+                createAccount: false,
+                grantPermissions: grantPermissions ? permissions() : undefined,
+              },
+            } as const
+            return porto.provider
               .request({
                 method: 'wallet_connect',
-                params: [
-                  {
-                    capabilities: {
-                      createAccount: false,
-                      grantPermissions: grantPermissions
-                        ? permissions()
-                        : undefined,
-                    },
-                  },
-                ],
+                params: [payload],
               })
               .then(setResult)
-          }
+              .catch((error) => {
+                console.error(error)
+                setError(
+                  Json.stringify({ error: error.message, payload }, null, 2),
+                )
+              })
+          }}
           type="button"
         >
           Login
         </button>
         <button
-          onClick={() =>
-            porto.provider
+          onClick={() => {
+            const payload = {
+              capabilities: {
+                createAccount: true,
+                grantPermissions: grantPermissions ? permissions() : undefined,
+              },
+            } as const
+
+            return porto.provider
               .request({
                 method: 'wallet_connect',
-                params: [
-                  {
-                    capabilities: {
-                      createAccount: true,
-                      grantPermissions: grantPermissions
-                        ? permissions()
-                        : undefined,
-                    },
-                  },
-                ],
+                params: [payload],
               })
               .then(setResult)
-          }
+              .catch((error) => {
+                console.error(error)
+                setError(
+                  Json.stringify({ error: error.message, payload }, null, 2),
+                )
+              })
+          }}
           type="button"
         >
           Register
         </button>
       </div>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+      {error ? <pre>{error}</pre> : null}
     </div>
   )
 }
@@ -261,26 +270,6 @@ function Accounts() {
         Get Accounts
       </button>
       <pre>{result}</pre>
-    </div>
-  )
-}
-
-function Register() {
-  const [result, setResult] = React.useState<unknown | null>(null)
-  return (
-    <div>
-      <h3>wallet_createAccount</h3>
-      <button
-        onClick={() =>
-          porto.provider
-            .request({ method: 'wallet_createAccount' })
-            .then(setResult)
-        }
-        type="button"
-      >
-        Register
-      </button>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
