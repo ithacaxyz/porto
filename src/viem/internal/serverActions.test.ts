@@ -492,8 +492,8 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
 
     const { digests } = request
     const signatures = {
-      auth: await eoa.sign({ hash: digests.authDigest }),
-      preCall: await eoa.sign({ hash: digests.preCallDigest }),
+      auth: await eoa.sign({ hash: digests.auth }),
+      exec: await eoa.sign({ hash: digests.exec }),
     }
 
     await upgradeAccount(client, {
@@ -586,8 +586,8 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
 
     const { digests } = request
     const signatures = {
-      auth: await eoa.sign({ hash: digests.authDigest }),
-      preCall: await eoa.sign({ hash: digests.preCallDigest }),
+      auth: await eoa.sign({ hash: digests.auth }),
+      exec: await eoa.sign({ hash: digests.exec }),
     }
 
     await upgradeAccount(client, {
@@ -711,8 +711,8 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
 
     const { digests } = request
     const signatures = {
-      auth: await eoa.sign({ hash: digests.authDigest }),
-      preCall: await eoa.sign({ hash: digests.preCallDigest }),
+      auth: await eoa.sign({ hash: digests.auth }),
+      exec: await eoa.sign({ hash: digests.exec }),
     }
 
     await upgradeAccount(client, {
