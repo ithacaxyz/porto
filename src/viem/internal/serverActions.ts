@@ -517,11 +517,11 @@ export async function verifySignature<chain extends Chain | undefined>(
         method,
         params: [
           Value.Encode(RpcSchema.wallet_verifySignature.Parameters, {
+            address,
             chainId: chain?.id,
             digest,
-            keyIdOrAddress: address,
             signature,
-          }),
+          } as RpcSchema.wallet_verifySignature.Parameters),
         ],
       },
       {

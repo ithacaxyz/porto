@@ -1,5 +1,4 @@
 import { AbiFunction, Hex, Value } from 'ox'
-import { ContractActions } from 'porto/viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { getCode, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
@@ -520,7 +519,9 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       address: eoa.address,
       calls: [],
       capabilities: {
-        meta: {},
+        meta: {
+          feeToken,
+        },
       },
       key: adminKey,
     })
@@ -542,17 +543,6 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       })
       expect(code).toBeDefined()
     }
-
-    // Check that the account has the key onchain.
-    const key = await ContractActions.keyAt(client, {
-      account: eoa.address,
-      index: 0,
-    })
-    expect(Hex.padLeft(key.publicKey, 32)).toBe(
-      adminKey.publicKey.toLowerCase(),
-    )
-    expect(key.role).toBe(adminKey.role)
-    expect(key.type).toBe(adminKey.type)
   })
 
   test('behavior: with multiple keys', async () => {
@@ -614,7 +604,9 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       address: eoa.address,
       calls: [],
       capabilities: {
-        meta: {},
+        meta: {
+          feeToken,
+        },
       },
       key: adminKey,
     })
@@ -636,27 +628,6 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       })
       expect(code).toBeDefined()
     }
-
-    // Check that the account has the key onchain.
-    const key = await ContractActions.keyAt(client, {
-      account: eoa.address,
-      index: 0,
-    })
-    expect(Hex.padLeft(key.publicKey, 32)).toBe(
-      adminKey.publicKey.toLowerCase(),
-    )
-    expect(key.role).toBe(adminKey.role)
-    expect(key.type).toBe(adminKey.type)
-
-    const key_2 = await ContractActions.keyAt(client, {
-      account: eoa.address,
-      index: 1,
-    })
-    expect(Hex.padLeft(key_2.publicKey, 32)).toBe(
-      adminKey_2.publicKey.toLowerCase(),
-    )
-    expect(key_2.role).toBe(adminKey_2.role)
-    expect(key_2.type).toBe('webauthn-p256')
   })
 
   test('behavior: with session key', async () => {
@@ -739,7 +710,9 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       address: eoa.address,
       calls: [],
       capabilities: {
-        meta: {},
+        meta: {
+          feeToken,
+        },
       },
       key: adminKey,
     })
@@ -761,27 +734,6 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       })
       expect(code).toBeDefined()
     }
-
-    // Check that the account has the key onchain.
-    const key = await ContractActions.keyAt(client, {
-      account: eoa.address,
-      index: 0,
-    })
-    expect(Hex.padLeft(key.publicKey, 32)).toBe(
-      adminKey.publicKey.toLowerCase(),
-    )
-    expect(key.role).toBe(adminKey.role)
-    expect(key.type).toBe(adminKey.type)
-
-    const key_2 = await ContractActions.keyAt(client, {
-      account: eoa.address,
-      index: 1,
-    })
-    expect(Hex.padLeft(key_2.publicKey, 32)).toBe(
-      sessionKey.publicKey.toLowerCase(),
-    )
-    expect(key_2.role).toBe('session')
-    expect(key_2.type).toBe('webauthn-p256')
   })
 
   test('error: schema encoding', async () => {

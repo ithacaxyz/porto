@@ -49,6 +49,7 @@ describe('upgradeAccount', () => {
     const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [],
+      feeToken: exp1Address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
@@ -101,6 +102,7 @@ describe('upgradeAccount', () => {
     const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [],
+      feeToken: exp1Address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
@@ -151,6 +153,7 @@ describe('upgradeAccount', () => {
     const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [],
+      feeToken: exp1Address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
