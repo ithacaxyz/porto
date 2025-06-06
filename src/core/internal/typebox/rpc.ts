@@ -371,6 +371,7 @@ export namespace wallet_connect {
     address: Typebox.Optional(Primitive.Address),
     createAccount: Typebox.Optional(C.createAccount.Request),
     credentialId: Typebox.Optional(Type.String()),
+    email: Typebox.Optional(Type.Boolean()),
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
     selectAccount: Typebox.Optional(Type.Boolean()),

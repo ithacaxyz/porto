@@ -29,24 +29,28 @@ export namespace Layout {
   }
 
   export function Header(props: {
-    left?: boolean | string | undefined
+    left?: React.ReactNode | boolean | string | undefined
     leftClassName?: string | undefined
     right?: React.ReactNode | undefined
   }) {
     const { left, leftClassName, right } = props
     return (
       <div className="flex items-center justify-between">
-        <div className="min-lg:opacity-0">
-          {left ? (
-            <div className={cx(leftClassName, 'font-[500] text-[24px]')}>
-              {left}
-            </div>
-          ) : left === false ? null : (
-            <div className="h-[28px] w-[40px]">
-              <LogoMark />
-            </div>
-          )}
-        </div>
+        {typeof left === 'object' ? (
+          left
+        ) : (
+          <div className="min-lg:opacity-0">
+            {typeof left === 'string' ? (
+              <div className={cx(leftClassName, 'font-[500] text-[24px]')}>
+                {left}
+              </div>
+            ) : left === false ? null : (
+              <div className="h-[28px] w-[40px]">
+                <LogoMark />
+              </div>
+            )}
+          </div>
+        )}
         {right ?? (
           <Button render={<Link to="/about" />} size="square" variant="outline">
             <CircleHelp className="size-5 text-gray10" />

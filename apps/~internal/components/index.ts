@@ -1,5 +1,6 @@
 export * from './Button.tsx'
 export * from './IndeterminateLoader.tsx'
+export * from './Input.tsx'
 export * from './LogoLockup.tsx'
 export * from './LogoMark.tsx'
 export * from './Spinner.tsx'
