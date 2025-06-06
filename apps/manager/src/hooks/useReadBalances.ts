@@ -17,7 +17,7 @@ export function useReadBalances({
   address?: Address.Address | undefined
   chainId: PortoConfig.ChainId
 }) {
-  const assets = defaultAssets[chainId]?.filter(
+  const assets = (defaultAssets[chainId] ?? []).filter(
     (asset) => asset.address !== '0x0000000000000000000000000000000000000000',
   )
 
