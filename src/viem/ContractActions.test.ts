@@ -36,6 +36,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         hash: key.hash,
+        id: key.id,
         publicKey: key.publicKey,
         role: key.role,
         type: 'webauthn-p256',
@@ -71,6 +72,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         hash: key.hash,
+        id: key.id,
         publicKey: key.publicKey,
         role: key.role,
         type: 'webauthn-p256',
@@ -102,6 +104,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         hash: key.hash,
+        id: key.id,
         publicKey: key.publicKey,
         role: key.role,
         type: 'webauthn-p256',
@@ -138,6 +141,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: key.expiry,
         hash: key.hash,
+        id: key.id,
         publicKey: key.publicKey,
         role: key.role,
         type: 'webauthn-p256',
@@ -180,6 +184,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: nextKey.expiry,
         hash: nextKey.hash,
+        id: nextKey.id,
         publicKey: nextKey.publicKey,
         role: nextKey.role,
         type: 'webauthn-p256',
@@ -233,6 +238,7 @@ describe('execute', () => {
       ).toEqual({
         expiry: nextKey.expiry,
         hash: nextKey.hash,
+        id: nextKey.id,
         publicKey: nextKey.publicKey,
         role: nextKey.role,
         type: 'p256',
@@ -669,7 +675,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await AccountContract.prepareExecute(
+      const { request, digests } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -682,9 +688,12 @@ describe('prepareExecute', () => {
         },
       )
 
-      const signatures = await Promise.all(
-        signPayloads.map((hash) => account.sign({ hash })),
-      )
+      const signatures = {
+        auth: digests.auth
+          ? await account.sign({ hash: digests.auth })
+          : undefined,
+        exec: await account.sign({ hash: digests.exec }),
+      } as const
 
       await AccountContract.execute(client, {
         ...request,
@@ -699,6 +708,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
+        id: keyToAuthorize.id,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
         type: 'webauthn-p256',
@@ -717,7 +727,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await AccountContract.prepareExecute(
+      const { request, digests } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -729,9 +739,12 @@ describe('prepareExecute', () => {
         },
       )
 
-      const signatures = await Promise.all(
-        signPayloads.map((hash) => account.sign({ hash })),
-      )
+      const signatures = {
+        auth: digests.auth
+          ? await account.sign({ hash: digests.auth })
+          : undefined,
+        exec: await account.sign({ hash: digests.exec }),
+      } as const
 
       await AccountContract.execute(client, {
         ...request,
@@ -746,6 +759,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
+        id: keyToAuthorize.id,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
         type: 'webauthn-p256',
@@ -758,7 +772,7 @@ describe('prepareExecute', () => {
 
       const keyToAuthorize = Key.createHeadlessWebAuthnP256()
 
-      const { request, signPayloads } = await AccountContract.prepareExecute(
+      const { request, digests } = await AccountContract.prepareExecute(
         client,
         {
           account,
@@ -772,9 +786,12 @@ describe('prepareExecute', () => {
         },
       )
 
-      const signatures = await Promise.all(
-        signPayloads.map((hash) => account.sign({ hash })),
-      )
+      const signatures = {
+        auth: digests.auth
+          ? await account.sign({ hash: digests.auth })
+          : undefined,
+        exec: await account.sign({ hash: digests.exec }),
+      } as const
 
       await AccountContract.execute(client, {
         ...request,
@@ -789,6 +806,7 @@ describe('prepareExecute', () => {
       ).toEqual({
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
+        id: keyToAuthorize.id,
         publicKey: keyToAuthorize.publicKey,
         role: keyToAuthorize.role,
         type: 'webauthn-p256',

@@ -89,19 +89,6 @@ export const defaultConfig = {
       requireUpdatedAccount: false,
     },
     {
-      method: 'wallet_createAccount',
-      modes: {
-        dialog: true,
-        headless: !UserAgent.isSafari()
-          ? {
-              sameOrigin: true,
-            }
-          : undefined,
-      },
-      requireConnection: false,
-      requireUpdatedAccount: false,
-    },
-    {
       method: 'wallet_getCallsStatus',
       modes: {
         headless: true,

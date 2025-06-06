@@ -35,7 +35,7 @@ export function App() {
   React.useEffect(() => porto._internal.setMode(modes[mode]), [mode])
 
   return (
-    <>
+    <main>
       <div className="max-w-[768px] p-2">
         <h1>Playground</h1>
         <div className="flex gap-2">
@@ -62,7 +62,6 @@ export function App() {
         <h2>Account Management</h2>
         <Connect />
         <Login />
-        <Register />
         <AddFunds />
         <Accounts />
         <Disconnect />
@@ -116,7 +115,7 @@ export function App() {
       <div className="fixed top-0 left-[calc(768px+var(--spacing)*2)] p-4">
         <div id="porto" />
       </div>
-    </>
+    </main>
   )
 }
 
@@ -135,10 +134,10 @@ function State() {
         <>
           <p>Address: {state.accounts[0].address}</p>
           <p>Chain ID: {state.chainId}</p>
-          <p>
-            Keys:{' '}
+          <div>
+            <p>Keys:</p>
             <pre>{Json.stringify(state.accounts?.[0]?.keys, null, 2)}</pre>
-          </p>
+          </div>
         </>
       )}
     </div>
@@ -214,6 +213,7 @@ function Connect() {
               })
               .then(setResult)
               .catch((error) => {
+                console.info(payload)
                 console.error(error)
                 setError(
                   Json.stringify({ error: error.message, payload }, null, 2),
@@ -240,6 +240,7 @@ function Connect() {
               })
               .then(setResult)
               .catch((error) => {
+                console.info(payload)
                 console.error(error)
                 setError(
                   Json.stringify({ error: error.message, payload }, null, 2),
@@ -271,26 +272,6 @@ function Accounts() {
         Get Accounts
       </button>
       <pre>{result}</pre>
-    </div>
-  )
-}
-
-function Register() {
-  const [result, setResult] = React.useState<unknown | null>(null)
-  return (
-    <div>
-      <h3>wallet_createAccount</h3>
-      <button
-        onClick={() =>
-          porto.provider
-            .request({ method: 'wallet_createAccount' })
-            .then(setResult)
-        }
-        type="button"
-      >
-        Register
-      </button>
-      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )
 }
@@ -587,7 +568,7 @@ function UpgradeAccount() {
   return (
     <div>
       <h3>wallet_upgradeAccount</h3>
-      <p>
+      <div>
         <button
           onClick={() => {
             const privateKey = generatePrivateKey()
@@ -602,7 +583,7 @@ function UpgradeAccount() {
           Create EOA
         </button>
         {accountData && <pre>{JSON.stringify(accountData, null, 2)}</pre>}
-      </p>
+      </div>
       <div>
         <input
           onChange={(e) => setPrivateKey(e.target.value)}
@@ -625,7 +606,7 @@ function UpgradeAccount() {
           onClick={async () => {
             const account = privateKeyToAccount(privateKey as Hex.Hex)
 
-            const { context, signPayloads } = await porto.provider.request({
+            const { context, digests } = await porto.provider.request({
               method: 'wallet_prepareUpgradeAccount',
               params: [
                 {
@@ -639,9 +620,10 @@ function UpgradeAccount() {
               ],
             })
 
-            const signatures = await Promise.all(
-              signPayloads.map((hash) => account.sign({ hash })),
-            )
+            const signatures = {
+              auth: await account.sign({ hash: digests.auth }),
+              exec: await account.sign({ hash: digests.exec }),
+            }
 
             const address = await porto.provider.request({
               method: 'wallet_upgradeAccount',
@@ -655,9 +637,10 @@ function UpgradeAccount() {
         </button>
       </div>
       {result ? (
-        <p>
-          Upgraded account. <pre>{JSON.stringify(result, null, 2)}</pre>
-        </p>
+        <div>
+          <p>Upgraded account.</p>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
       ) : null}
     </div>
   )
@@ -811,7 +794,7 @@ function SendCalls() {
     >
       <h3>wallet_sendCalls</h3>
 
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div className="flex gap-2 overflow-auto">
         <select name="action">
           <option value="mint">Mint 100 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
@@ -830,7 +813,6 @@ function SendCalls() {
         </select>
         <button type="submit">Send</button>
       </div>
-
       {id && (
         <>
           <pre>{id}</pre>

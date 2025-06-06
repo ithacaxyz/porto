@@ -1,23 +1,19 @@
-import { AbiFunction, Hex, P256, PublicKey, Value, WebCryptoP256 } from 'ox'
+import { AbiFunction, Hex, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { readContract, waitForCallsStatus } from 'viem/actions'
+import { getCode, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
 import { exp1Abi, exp1Address } from '../../../test/src/porto.js'
 import { getPorto } from '../../../test/src/porto.js'
-import type * as Capabilities from '../../core/internal/rpcServer/typebox/capabilities.js'
 import * as Key from '../Key.js'
 import { sendCalls } from '../ServerActions.js'
 import {
-  createAccount,
-  getAccounts,
   getCallsStatus,
   getCapabilities,
   getKeys,
   health,
   prepareCalls,
-  prepareCreateAccount,
   prepareUpgradeAccount,
   sendPreparedCalls,
   upgradeAccount,
@@ -65,218 +61,6 @@ describe('getCapabilities', () => {
       expect(capabilities.fees.recipient).toBeDefined()
       expect(capabilities.fees.tokens).toBeDefined()
     }
-  })
-})
-
-describe('prepareCreateAccount + createAccount', () => {
-  const getKey = (publicKey: Hex.Hex) =>
-    ({
-      expiry: 6942069420,
-      permissions: [
-        {
-          selector: AbiFunction.getSelector(
-            AbiFunction.fromAbi(exp1Abi, 'mint'),
-          ),
-          to: exp1Address,
-          type: 'call',
-        },
-        {
-          selector: AbiFunction.getSelector(
-            AbiFunction.fromAbi(exp1Abi, 'transfer'),
-          ),
-          to: exp1Address,
-          type: 'call',
-        },
-        {
-          limit: Value.fromEther('100'),
-          period: 'minute',
-          token: exp1Address,
-          type: 'spend',
-        },
-      ],
-      publicKey,
-      role: 'admin',
-      type: 'webauthnp256',
-    }) as const satisfies Capabilities.authorizeKeys.Request[number]
-
-  test('default', async () => {
-    const tmp = privateKeyToAccount(generatePrivateKey())
-
-    const keyPair = await WebCryptoP256.createKeyPair()
-    const publicKey = PublicKey.toHex(keyPair.publicKey, {
-      includePrefix: false,
-    })
-    const key = getKey(publicKey)
-
-    const request = await prepareCreateAccount(client, {
-      capabilities: {
-        authorizeKeys: [key],
-        delegation,
-      },
-    })
-
-    expect(request.context).toBeDefined()
-    expect(request.capabilities.authorizeKeys[0]?.expiry).toBe(key.expiry)
-    expect(request.capabilities.authorizeKeys[0]?.publicKey).toBe(publicKey)
-    expect(request.capabilities.authorizeKeys[0]?.role).toBe(key.role)
-    expect(request.capabilities.authorizeKeys[0]?.type).toBe(key.type)
-    expect(request.capabilities.authorizeKeys[0]?.permissions.length).toBe(3)
-
-    const signature = await tmp.sign({ hash: request.digests[0]! })
-
-    await createAccount(client, {
-      ...request,
-      signatures: [
-        {
-          publicKey: key.publicKey,
-          type: key.type,
-          value: signature,
-        },
-      ],
-    })
-  })
-
-  test('behavior: multiple keys', async () => {
-    const key_1 = await (async () => {
-      const keyPair = await WebCryptoP256.createKeyPair()
-      const publicKey = PublicKey.toHex(keyPair.publicKey, {
-        includePrefix: false,
-      })
-      return {
-        ...getKey(publicKey),
-        tmp: privateKeyToAccount(generatePrivateKey()),
-      } as const
-    })()
-    const key_2 = await (async () => {
-      const privateKey = P256.randomPrivateKey()
-      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-        includePrefix: false,
-      })
-      return {
-        ...getKey(publicKey),
-        tmp: privateKeyToAccount(generatePrivateKey()),
-      } as const
-    })()
-    const keys = [key_1, key_2] as const
-
-    const request = await prepareCreateAccount(client, {
-      capabilities: {
-        authorizeKeys: keys,
-        delegation,
-      },
-    })
-
-    expect(request.context).toBeDefined()
-    expect(request.capabilities.authorizeKeys.length).toBe(keys.length)
-
-    const signatures = await Promise.all(
-      keys.map(async (key, index) => {
-        const signature = await key.tmp.sign({ hash: request.digests[index]! })
-        return {
-          publicKey: key.publicKey,
-          type: key.type,
-          value: signature,
-        } as const
-      }),
-    )
-
-    await createAccount(client, {
-      ...request,
-      signatures,
-    })
-  })
-
-  test('error: schema encoding', async () => {
-    await expect(() =>
-      prepareCreateAccount(client, {
-        capabilities: {
-          authorizeKeys: [
-            {
-              // @ts-expect-error
-              ...getKey('INVALID!'),
-            },
-          ],
-          delegation,
-        },
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Rpc.SchemaCoderError: Expected string to match '^0x(.*)$'
-
-      Path: capabilities.authorizeKeys.0.publicKey
-      Value: "INVALID!"
-
-      Details: The encoded value does not match the expected schema]
-    `)
-
-    await expect(() =>
-      prepareCreateAccount(client, {
-        capabilities: {
-          authorizeKeys: [
-            {
-              ...getKey(
-                '0x0000000000000000000000000000000000000000000000000000000000000000',
-              ),
-              // @ts-expect-error
-              role: 'beef',
-            },
-          ],
-          delegation,
-        },
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Rpc.SchemaCoderError: Expected 'admin'
-
-      Path: capabilities.authorizeKeys.0.role
-      Value: "beef"
-
-      Details: The encoded value does not match the expected schema]
-    `)
-  })
-})
-
-describe('getAccounts', () => {
-  test('default', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await TestActions.createAccount(client, {
-      keys: [key],
-    })
-
-    const result = await getAccounts(client, {
-      keyId: account.keys[0]!.id!,
-    })
-
-    expect(result.length).toBe(1)
-    expect(result[0]?.address).toBe(account.address)
-    expect(result[0]?.keys.length).toBe(1)
-    expect(result[0]?.keys[0]?.hash).toBe(key.hash)
-    expect(result[0]?.keys[0]?.publicKey).toBe(key.publicKey)
-    expect(result[0]?.keys[0]?.role).toBe(key.role)
-    expect(result[0]?.keys[0]?.type).toBe('webauthnp256')
-  })
-
-  test('behavior: deployed account', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await TestActions.createAccount(client, {
-      keys: [key],
-    })
-
-    await sendCalls(client, {
-      account,
-      calls: [],
-      feeToken,
-    })
-
-    const result = await getAccounts(client, {
-      keyId: account.keys[0]!.id!,
-    })
-
-    expect(result.length).toBe(1)
-    expect(result[0]?.address).toBe(account.address)
-    expect(result[0]?.keys.length).toBe(1)
-    expect(result[0]?.keys[0]?.hash).toBe(key.hash)
-    expect(result[0]?.keys[0]?.publicKey).toBe(key.publicKey)
-    expect(result[0]?.keys[0]?.role).toBe(key.role)
-    expect(result[0]?.keys[0]?.type).toBe('webauthnp256')
   })
 })
 
@@ -685,58 +469,323 @@ describe('prepareCalls + sendPreparedCalls', () => {
 
 describe('prepareUpgradeAccount + upgradeAccount', () => {
   test('default', async () => {
-    const p256 = (() => {
-      const privateKey = P256.randomPrivateKey()
-      const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
-        includePrefix: false,
-      })
-      return {
-        privateKey,
-        publicKey,
-      } as const
-    })()
-
     const eoa = privateKeyToAccount(generatePrivateKey())
+    const adminKey = {
+      expiry: 0,
+      permissions: [],
+      prehash: false,
+      publicKey: Hex.padLeft(eoa.address, 32),
+      role: 'admin',
+      type: 'secp256k1',
+    } as const
 
     await TestActions.setBalance(client, {
       address: eoa.address,
-      value: Value.fromEther('10000'),
-    })
-
-    const signature = await eoa.sign({
-      hash: Hex.random(32),
     })
 
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
+      authorizeKeys: [adminKey],
+      delegation,
+    })
+
+    const { digests } = request
+    const signatures = {
+      auth: await eoa.sign({ hash: digests.auth }),
+      exec: await eoa.sign({ hash: digests.exec }),
+    }
+
+    await upgradeAccount(client, {
+      ...request,
+      signatures,
+    })
+
+    {
+      // Account won't be upgraded onchain just yet.
+      const code = await getCode(client, {
+        address: eoa.address,
+      })
+      expect(code).toBeUndefined()
+    }
+
+    // RPC Server should have registered the keys.
+    const keys = await getKeys(client, {
+      address: eoa.address,
+    })
+    expect(keys.length).toBe(1)
+
+    // Perform a call to deploy the account.
+    const req = await prepareCalls(client, {
+      address: eoa.address,
+      calls: [],
       capabilities: {
+        meta: {
+          feeToken,
+        },
+      },
+      key: adminKey,
+    })
+    const signature = await eoa.sign({ hash: req.digest })
+    const { id } = await sendPreparedCalls(client, {
+      ...req,
+      key: req.key!,
+      signature,
+    })
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    {
+      // Account will be upgraded now.
+      const code = await getCode(client, {
+        address: eoa.address,
+      })
+      expect(code).toBeDefined()
+    }
+  })
+
+  test('behavior: with multiple keys', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+    const adminKey = {
+      expiry: 0,
+      permissions: [],
+      prehash: false,
+      publicKey: Hex.padLeft(eoa.address, 32),
+      role: 'admin',
+      type: 'secp256k1',
+    } as const
+    const adminKey_2 = {
+      expiry: 0,
+      permissions: [],
+      prehash: false,
+      publicKey: Hex.random(32),
+      role: 'admin',
+      type: 'webauthnp256',
+    } as const
+
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+    })
+
+    const request = await prepareUpgradeAccount(client, {
+      address: eoa.address,
+      authorizeKeys: [adminKey, adminKey_2],
+      delegation,
+    })
+
+    const { digests } = request
+    const signatures = {
+      auth: await eoa.sign({ hash: digests.auth }),
+      exec: await eoa.sign({ hash: digests.exec }),
+    }
+
+    await upgradeAccount(client, {
+      ...request,
+      signatures,
+    })
+
+    {
+      // Account won't be upgraded onchain just yet.
+      const code = await getCode(client, {
+        address: eoa.address,
+      })
+      expect(code).toBeUndefined()
+    }
+
+    // RPC Server should have registered the keys.
+    const keys = await getKeys(client, {
+      address: eoa.address,
+    })
+    expect(keys.length).toBe(2)
+
+    // Perform a call to deploy the account.
+    const req = await prepareCalls(client, {
+      address: eoa.address,
+      calls: [],
+      capabilities: {
+        meta: {
+          feeToken,
+        },
+      },
+      key: adminKey,
+    })
+    const signature = await eoa.sign({ hash: req.digest })
+    const { id } = await sendPreparedCalls(client, {
+      ...req,
+      key: req.key!,
+      signature,
+    })
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    {
+      // Account will be upgraded onchain now.
+      const code = await getCode(client, {
+        address: eoa.address,
+      })
+      expect(code).toBeDefined()
+    }
+  })
+
+  test('behavior: with session key', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+    const adminKey = {
+      expiry: 0,
+      permissions: [],
+      prehash: false,
+      publicKey: Hex.padLeft(eoa.address, 32),
+      role: 'admin',
+      type: 'secp256k1',
+    } as const
+    const sessionKey = {
+      expiry: 999999999,
+      permissions: [
+        {
+          selector: AbiFunction.getSelector(
+            AbiFunction.fromAbi(exp1Abi, 'mint'),
+          ),
+          to: exp1Address,
+          type: 'call',
+        },
+        {
+          selector: AbiFunction.getSelector(
+            AbiFunction.fromAbi(exp1Abi, 'transfer'),
+          ),
+          to: exp1Address,
+          type: 'call',
+        },
+        {
+          limit: Value.fromEther('100'),
+          period: 'minute',
+          token: exp1Address,
+          type: 'spend',
+        },
+      ],
+      prehash: false,
+      publicKey: Hex.random(32),
+      role: 'normal',
+      type: 'webauthnp256',
+    } as const
+
+    await TestActions.setBalance(client, {
+      address: eoa.address,
+    })
+
+    const request = await prepareUpgradeAccount(client, {
+      address: eoa.address,
+      authorizeKeys: [adminKey, sessionKey],
+      delegation,
+    })
+
+    const { digests } = request
+    const signatures = {
+      auth: await eoa.sign({ hash: digests.auth }),
+      exec: await eoa.sign({ hash: digests.exec }),
+    }
+
+    await upgradeAccount(client, {
+      ...request,
+      signatures,
+    })
+
+    {
+      // Account won't be upgraded onchain just yet.
+      const code = await getCode(client, {
+        address: eoa.address,
+      })
+      expect(code).toBeUndefined()
+    }
+
+    // RPC Server should have registered the keys.
+    const keys = await getKeys(client, {
+      address: eoa.address,
+    })
+    expect(keys.length).toBe(2)
+
+    // Perform a call to deploy the account.
+    const req = await prepareCalls(client, {
+      address: eoa.address,
+      calls: [],
+      capabilities: {
+        meta: {
+          feeToken,
+        },
+      },
+      key: adminKey,
+    })
+    const signature = await eoa.sign({ hash: req.digest })
+    const { id } = await sendPreparedCalls(client, {
+      ...req,
+      key: req.key!,
+      signature,
+    })
+
+    await waitForCallsStatus(client, {
+      id,
+    })
+
+    {
+      // Account will be upgraded onchain now.
+      const code = await getCode(client, {
+        address: eoa.address,
+      })
+      expect(code).toBeDefined()
+    }
+  })
+
+  test('error: schema encoding', async () => {
+    await expect(() =>
+      prepareUpgradeAccount(client, {
+        address: '0x0000000000000000000000000000000000000000',
         authorizeKeys: [
           {
             expiry: 0,
             permissions: [],
-            publicKey: p256.publicKey,
+            prehash: false,
+            // @ts-expect-error
+            publicKey: 'INVALID!',
             role: 'admin',
-            signature,
-            type: 'webauthnp256',
+            type: 'secp256k1',
           },
         ],
         delegation,
-        feeToken,
-      },
-    })
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [Rpc.SchemaCoderError: Expected string to match '^0x(.*)$'
 
-    const signatures = await Promise.all(
-      request.digests.map((digest) =>
-        eoa.sign({
-          hash: digest,
-        }),
-      ),
-    )
+      Path: capabilities.authorizeKeys.0.publicKey
+      Value: "INVALID!"
 
-    await upgradeAccount(client, {
-      context: request.context,
-      signatures,
-    })
+      Details: The encoded value does not match the expected schema]
+    `)
+
+    await expect(() =>
+      prepareUpgradeAccount(client, {
+        address: '0x0000000000000000000000000000000000000000',
+        authorizeKeys: [
+          {
+            expiry: 0,
+            permissions: [],
+            prehash: false,
+            // @ts-expect-error
+            publicKey: 'INVALID!',
+            role: 'admin',
+            type: 'secp256k1',
+          },
+        ],
+        delegation,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [Rpc.SchemaCoderError: Expected string to match '^0x(.*)$'
+
+      Path: capabilities.authorizeKeys.0.publicKey
+      Value: "INVALID!"
+
+      Details: The encoded value does not match the expected schema]
+    `)
   })
 })
 

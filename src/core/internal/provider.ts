@@ -343,40 +343,6 @@ export function from<
           >
         }
 
-        case 'wallet_createAccount': {
-          const [{ chainId, label }] = request._decoded.params ?? [{}]
-
-          const client = getClient(chainId)
-
-          const { account, preCalls } = await getMode().actions.createAccount({
-            internal: {
-              client,
-              config,
-              request,
-              store,
-            },
-            label,
-          })
-
-          const permissions = getActivePermissions(account.keys ?? [], {
-            address: account.address,
-          })
-
-          store.setState((x) => ({ ...x, accounts: [account] }))
-
-          emitter.emit('connect', {
-            chainId: Hex.fromNumber(client.chain.id),
-          })
-          return {
-            address: account.address,
-            capabilities: {
-              admins: getAdmins(account.keys ?? []),
-              ...(permissions.length > 0 ? { permissions } : {}),
-              preCalls,
-            },
-          } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
-        }
-
         case 'wallet_getAdmins': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
@@ -420,10 +386,9 @@ export function from<
 
           const client = getClient(chainId)
 
-          const { context, signPayloads } =
+          const { context, digests } =
             await getMode().actions.prepareUpgradeAccount({
               address,
-              feeToken: capabilities?.feeToken,
               internal: {
                 client,
                 config,
@@ -438,7 +403,7 @@ export function from<
 
           return {
             context,
-            signPayloads: signPayloads.map((x) => x as never),
+            digests,
           } satisfies Typebox.Static<
             typeof Rpc.wallet_prepareUpgradeAccount.Response
           >
@@ -564,9 +529,7 @@ export function from<
             },
           })
 
-          const keys = account.keys?.filter(
-            (key) => key.publicKey !== id && key.id !== id,
-          )
+          const keys = account.keys?.filter((key) => key.id !== id)
 
           store.setState((x) => ({
             ...x,
@@ -615,9 +578,7 @@ export function from<
             },
           })
 
-          const keys = account.keys?.filter(
-            (key) => key.publicKey !== id && key.id !== id,
-          )
+          const keys = account.keys?.filter((key) => key.id !== id)
 
           store.setState((x) => ({
             ...x,
@@ -702,7 +663,7 @@ export function from<
             capabilities: {
               ...(permissions.length > 0 ? { permissions } : {}),
             },
-          } satisfies Typebox.Static<typeof Rpc.wallet_createAccount.Response>
+          } satisfies Typebox.Static<typeof Rpc.wallet_upgradeAccount.Response>
         }
 
         case 'porto_ping': {
@@ -760,51 +721,50 @@ export function from<
             if (createAccount) {
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
-              const { account, preCalls } =
-                await getMode().actions.createAccount({
-                  internal,
-                  label,
-                  permissions,
-                })
-              return { accounts: [account], preCalls }
+              const { account } = await getMode().actions.createAccount({
+                internal,
+                label,
+                permissions,
+              })
+              return { accounts: [account] }
             }
             const account = state.accounts[0]
-            const { credentialId, keyId } = (() => {
-              if (capabilities?.keyId && capabilities.credentialId)
+            const { address, credentialId } = (() => {
+              if (capabilities?.address && capabilities.credentialId)
                 return {
+                  address: capabilities.address,
                   credentialId: capabilities.credentialId,
-                  keyId: capabilities.keyId,
                 }
               if (selectAccount)
-                return { credentialId: undefined, keyId: undefined }
+                return { address: undefined, credentialId: undefined }
               for (const key of account?.keys ?? []) {
                 if (key.type === 'webauthn-p256' && key.role === 'admin')
                   return {
+                    address: account?.address,
                     credentialId:
                       (key as any).credentialId ??
                       key.privateKey?.credential?.id,
-                    keyId: key.id,
                   }
               }
-              return { credentialId: undefined, keyId: undefined }
+              return { address: undefined, credentialId: undefined }
             })()
             const loadAccountsParams = {
               internal,
               permissions,
             }
             try {
-              // try to restore from stored account (`keyId`/`credentialId`) to avoid multiple prompts
+              // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
               return await getMode().actions.loadAccounts({
+                address,
                 credentialId,
-                keyId,
                 ...loadAccountsParams,
               })
             } catch (error) {
               if (error instanceof ox_Provider.UserRejectedRequestError)
                 throw error
 
-              // error with `keyId`/`credentialId` likely means one or both are stale, retry
-              if (keyId && credentialId)
+              // error with `address`/`credentialId` likely means one or both are stale, retry
+              if (address && credentialId)
                 return await getMode().actions.loadAccounts(loadAccountsParams)
               throw error
             }
@@ -886,21 +846,20 @@ export function from<
           if (chainId && chainId !== client.chain.id)
             throw new ox_Provider.ChainDisconnectedError()
 
-          const { signPayloads, ...rest } =
-            await getMode().actions.prepareCalls({
-              account: Account.from(account),
-              calls,
-              feeToken: capabilities?.feeToken,
-              internal: {
-                client,
-                config,
-                request,
-                store,
-              },
-              key,
-              preCalls: capabilities?.preCalls as any,
-              sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
-            })
+          const { digest, ...rest } = await getMode().actions.prepareCalls({
+            account: Account.from(account),
+            calls,
+            feeToken: capabilities?.feeToken,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+            key,
+            preCalls: capabilities?.preCalls as any,
+            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
+          })
 
           return Typebox.Encode(Rpc.wallet_prepareCalls.Response, {
             capabilities: rest.capabilities,
@@ -913,7 +872,7 @@ export function from<
               calls: rest.context.calls,
               nonce: rest.context.nonce,
             },
-            digest: signPayloads[0]!,
+            digest,
             key,
           }) satisfies Typebox.Static<typeof Rpc.wallet_prepareCalls.Response>
         }

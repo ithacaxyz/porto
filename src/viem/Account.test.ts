@@ -29,6 +29,7 @@ describe('from', () => {
           {
             "expiry": 42069,
             "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
+            "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
             "permissions": undefined,
             "privateKey": [Function],
             "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
@@ -189,27 +190,19 @@ describe('sign', () => {
   })
 
   test('behavior: no keys', async () => {
-    const key = Key.createHeadlessWebAuthnP256()
-    const account = await createAccount(client, {
-      deploy: true,
-      keys: [key],
-    })
-
-    const nextAccount = Account.from({
-      ...account,
+    const account = Account.from({
+      address: '0x0000000000000000000000000000000000000000',
       keys: undefined,
-      sign: undefined,
     })
 
     const payload = Hex.random(32)
 
     await expect(
-      // @ts-expect-error - testing error case.
-      Account.sign(nextAccount, {
+      Account.sign(account, {
         payload,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '[Error: cannot find key to sign with.]',
+      `[Error: cannot find key to sign with.]`,
     )
   })
 })

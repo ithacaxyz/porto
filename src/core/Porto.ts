@@ -1,5 +1,4 @@
 import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import { http, type Transport } from 'viem'
@@ -15,12 +14,14 @@ import * as Utils from './internal/utils.js'
 import * as Mode from './Mode.js'
 import * as Storage from './Storage.js'
 
+const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
+
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia],
   feeToken: 'EXP',
-  mode: typeof window !== 'undefined' ? Mode.dialog() : Mode.rpcServer(),
-  storage: typeof window !== 'undefined' ? Storage.idb() : Storage.memory(),
+  mode: browser ? Mode.dialog() : Mode.rpcServer(),
+  storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {
     [Chains.baseSepolia.id]: http(),
@@ -218,7 +219,6 @@ export type QueuedRequest<result = unknown> = {
     | {
         address: Address.Address
         credentialId?: string | undefined
-        keyId?: Hex.Hex | undefined
       }
     | undefined
   request: RpcRequest.RpcRequest

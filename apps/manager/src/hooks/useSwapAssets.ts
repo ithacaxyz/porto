@@ -50,6 +50,7 @@ export function useSwapAssets({ chainId }: { chainId: PortoConfig.ChainId }) {
           balancesAssets.map((asset) => [asset.address, asset]),
         )
         return assets.map((asset) => ({
+          balance: 0n,
           ...asset,
           ...balancesMap.get(asset.address),
         })) as ReadonlyArray<Prettify<AssetWithPrice>>

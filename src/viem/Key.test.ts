@@ -19,10 +19,11 @@ describe('createP256', () => {
   test('default', () => {
     const key = Key.createP256()
 
-    const { hash, publicKey, ...rest } = key
+    const { hash, id, publicKey, ...rest } = key
 
-    expect(publicKey).toBeDefined()
     expect(hash).toBeDefined()
+    expect(id).toBeDefined()
+    expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
@@ -39,10 +40,11 @@ describe('createSecp256k1', () => {
   test('default', () => {
     const key = Key.createSecp256k1()
 
-    const { hash, publicKey, ...rest } = key
+    const { hash, id, publicKey, ...rest } = key
 
     expect(publicKey).toBeDefined()
     expect(hash).toBeDefined()
+    expect(id).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
@@ -116,14 +118,14 @@ describe('createWebAuthnP256', () => {
       userId: Bytes.from('0x0000000000000000000000000000000000000000'),
     })
 
-    const { hash, publicKey, ...rest } = key
+    const { hash, id, publicKey, ...rest } = key
 
     expect(publicKey).toBeDefined()
     expect(hash).toBeDefined()
+    expect(id).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
-        "id": "0x0000000000000000000000000000000000000000",
         "permissions": undefined,
         "privateKey": {
           "credential": {
@@ -168,9 +170,10 @@ describe('createWebCryptoP256', () => {
   test('default', async () => {
     const key = await Key.createWebCryptoP256()
 
-    const { hash, publicKey, ...rest } = key
+    const { hash, id, publicKey, ...rest } = key
 
     expect(hash).toBeDefined()
+    expect(id).toBeDefined()
     expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
@@ -198,6 +201,7 @@ describe('deserialize', () => {
       {
         "expiry": 0,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
+        "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "role": "admin",
         "type": "p256",
@@ -217,6 +221,7 @@ describe('deserialize', () => {
       {
         "expiry": 0,
         "hash": "0x6364f61156f50881a6e5b27442a97c2f218cba981f5bcd1a398750515212b1ab",
+        "id": "0xe9cf8e14602e9f081668f2839e63ceb23c6e0e5a",
         "publicKey": "0xe9cf8e14602e9f081668f2839e63ceb23c6e0e5a",
         "role": "admin",
         "type": "secp256k1",
@@ -235,6 +240,7 @@ describe('deserialize', () => {
       {
         "expiry": 0,
         "hash": "0xf3d20b7404e4008e6a4df9ffbce26e5f275296eda26b4e82e6c6ea05ad85b650",
+        "id": "0xed7ac7c7b35b77e97be67b84f5889e0ab3412222",
         "publicKey": "0xed7ac7c7b35b77e97be67b84f5889e0ab3412222",
         "role": "admin",
         "type": "secp256k1",
@@ -269,6 +275,7 @@ describe('from', () => {
       {
         "expiry": 69420,
         "hash": "0x8708c3265105bf57dd6be9e79d384bde46f64e9cf75ddeb72bca10de17986b33",
+        "id": "0x144f4bf8bda60e5bf0e9f11a509e55a14987a6c5a63aed81bcb6939f9f5abc7c3598cce19015350ce8d30f11e57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
         "privateKey": [Function],
         "publicKey": "0x144f4bf8bda60e5bf0e9f11a509e55a14987a6c5a63aed81bcb6939f9f5abc7c3598cce19015350ce8d30f11e57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
         "role": "admin",
@@ -287,6 +294,7 @@ describe('from', () => {
       {
         "expiry": 0,
         "hash": "0x8f76ad68e08f96d89aecd0d57e451be5152675b77ae73134389656e0bc3d695a",
+        "id": "0xe57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
         "publicKey": "0xe57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
         "role": "admin",
         "type": "secp256k1",
@@ -303,6 +311,7 @@ describe('from', () => {
       {
         "expiry": 0,
         "hash": "0x8f76ad68e08f96d89aecd0d57e451be5152675b77ae73134389656e0bc3d695a",
+        "id": "0xe57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
         "publicKey": "0xe57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
         "role": "admin",
         "type": "secp256k1",
@@ -319,6 +328,7 @@ describe('from', () => {
       {
         "expiry": 0,
         "hash": "0xc17311fbf840057e649cef2df2acac84d1fc35a37d754f5f1aa5c00f0d887b21",
+        "id": "0x03febc0a78f3e15613be7be0bd84abcd1652d3f0",
         "publicKey": "0x03febc0a78f3e15613be7be0bd84abcd1652d3f0",
         "role": "admin",
         "type": "secp256k1",
@@ -342,7 +352,6 @@ describe('from', () => {
         return '0x'
       },
       publicKey,
-
       type: 'p256',
     })
     const serialized = Key.serialize(key)
@@ -350,6 +359,7 @@ describe('from', () => {
     expect({
       ...Key.deserialize(serialized),
       hash: undefined,
+      id: undefined,
     }).toEqual({
       expiry: 69420,
       publicKey,
@@ -370,6 +380,7 @@ describe('fromP256', () => {
       {
         "expiry": 0,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
+        "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "permissions": undefined,
         "privateKey": [Function],
         "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
@@ -390,6 +401,7 @@ describe('fromP256', () => {
       {
         "expiry": 69420,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
+        "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "permissions": undefined,
         "privateKey": [Function],
         "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
@@ -432,6 +444,7 @@ describe('fromRpcServer', () => {
       {
         "expiry": 0,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
+        "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "permissions": {
           "calls": [
             {
@@ -470,6 +483,7 @@ describe('fromSecp256k1', () => {
       {
         "expiry": 0,
         "hash": "0xd325ebfdb383f9fca8e4e1c443cdceddda39f1f860824156b75ec85f11b94a35",
+        "id": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "permissions": undefined,
         "privateKey": [Function],
         "publicKey": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
@@ -488,6 +502,7 @@ describe('fromSecp256k1', () => {
       {
         "expiry": 0,
         "hash": "0x6ce15638cb31daec095a6f3834f344957f69c7dc09ff935917447b3d65976595",
+        "id": "0x0000000000000000000000000000000000000000",
         "permissions": undefined,
         "privateKey": undefined,
         "publicKey": "0x0000000000000000000000000000000000000000",
@@ -507,6 +522,7 @@ describe('fromSecp256k1', () => {
       {
         "expiry": 0,
         "hash": "0xd325ebfdb383f9fca8e4e1c443cdceddda39f1f860824156b75ec85f11b94a35",
+        "id": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "permissions": undefined,
         "privateKey": undefined,
         "publicKey": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
@@ -611,6 +627,7 @@ describe('fromWebCryptoP256', () => {
       {
         "expiry": 0,
         "hash": "0xa2085f4d3a69fcf0182dbe60a3b7da9b5fd8b2b54d7ea39d345ba82d6edc8fe1",
+        "id": "0x410e2eb4820de45c0dd6730c300c3c66b8bc5885c963067fe0ff29c5e480329009d8fbd71e76257a2d5577e2211a62114eca15c9218d488209fa789a45497124",
         "permissions": undefined,
         "prehash": true,
         "privateKey": CryptoKey {},
@@ -689,7 +706,6 @@ describe('toRpcServer', () => {
         "prehash": false,
         "publicKey": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "role": "admin",
-        "signature": undefined,
         "type": "p256",
       }
     `)

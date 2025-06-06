@@ -48,7 +48,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     ? {
                         address: account.address,
                         credentialId: (adminKey as any)?.credentialId,
-                        keyId: adminKey?.id,
                       }
                     : undefined,
                   request,
@@ -126,22 +125,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const provider = getProvider(store)
 
         const account = await (async () => {
-          if (request.method === 'wallet_createAccount') {
-            // Send a request off to the dialog to create an account.
-            const { address, capabilities } = await provider.request(request)
-
-            const { preCalls } = capabilities ?? {}
-            if (preCalls)
-              await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                address,
-                storage,
-              })
-
-            return Account.from({
-              address,
-            })
-          }
-
           if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
             const [{ capabilities }] = request._decoded.params ?? [{}]
@@ -182,7 +165,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             const sessionKeys = account.capabilities?.permissions
               ?.map((permission) => {
-                if (permission.id === key?.publicKey) return key
+                if (permission.id === key?.id) return key
                 try {
                   return Permissions.toKey(
                     Typebox.Decode(Permissions.Schema, permission),
@@ -423,7 +406,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     const key_ = Permissions.toKey(
                       Typebox.Decode(Permissions.Schema, permission),
                     )
-                    if (key_.publicKey === key?.publicKey) return key
+                    if (key_.id === key?.id) return key
                     return key_
                   } catch (err) {
                     return undefined
@@ -482,8 +465,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return {
           account,
           context: result.context as any,
+          digest: result.digest,
           key: result.key,
-          signPayloads: [result.digest],
         }
       },
 
@@ -496,7 +479,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot prepare create account for method: ' + request.method,
           )
 
-        const feeToken = await resolveFeeToken(internal, parameters)
+        const feeToken = await resolveFeeToken(internal)
 
         const provider = getProvider(store)
         return await provider.request({
@@ -520,7 +503,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_revokeAdmin')
           throw new Error('Cannot revoke admin for method: ' + request.method)
 
-        const key = account.keys?.find((key) => key.publicKey === id)
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         const feeToken = await resolveFeeToken(internal, parameters)
@@ -549,7 +532,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot revoke permissions for method: ' + request.method,
           )
 
-        const key = account.keys?.find((key) => key.publicKey === id)
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         // We shouldn't be able to revoke admins.

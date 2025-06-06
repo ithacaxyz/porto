@@ -16,10 +16,6 @@ const Authorization = Type.Object({
   address: Primitive.Address,
   chainId: Primitive.Number,
   nonce: Primitive.Number,
-  r: Primitive.Hex,
-  s: Primitive.Hex,
-  v: Typebox.Optional(Primitive.BigInt),
-  yParity: Typebox.Optional(Primitive.Number),
 })
 
 const Call = Type.Object({
@@ -28,9 +24,9 @@ const Call = Type.Object({
   value: Typebox.Optional(Primitive.BigInt),
 })
 
-export namespace relay_health {
+export namespace health {
   export const Request = Type.Object({
-    method: Type.Literal('relay_health'),
+    method: Type.Literal('health'),
     params: Type.Undefined(),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
@@ -86,12 +82,10 @@ export namespace wallet_getCapabilities {
     Primitive.Hex,
     Type.Object({
       contracts: Type.Object({
-        /** Account registry address. */
-        accountImplementation: VersionedContract,
         /** Account implementation address. */
-        accountProxy: VersionedContract,
+        accountImplementation: VersionedContract,
         /** Account proxy address. */
-        accountRegistry: VersionedContract,
+        accountProxy: VersionedContract,
         /** Legacy account implementation address. */
         legacyAccountImplementations: Type.Array(VersionedContract),
         /** Legacy orchestrator address. */
@@ -193,114 +187,6 @@ export namespace wallet_getKeys {
 
   /** Response for `wallet_getKeys`. */
   export const Response = C.authorizeKeys.Response
-  export type Response = Typebox.StaticDecode<typeof Response>
-}
-
-export namespace wallet_prepareCreateAccount {
-  /** Capabilities for `wallet_prepareCreateAccount` request. */
-  export const Capabilities = Type.Object({
-    /** Keys to authorize on the account. */
-    authorizeKeys: C.authorizeKeys.Request,
-    /** Contract address to delegate to. */
-    delegation: Primitive.Address,
-  })
-  export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
-
-  /** Capabilities for `wallet_prepareCreateAccount` response. */
-  export const ResponseCapabilities = Type.Object({
-    /** Keys authorized on the account. */
-    authorizeKeys: C.authorizeKeys.Response,
-    /** Contract address delegated to. */
-    delegation: Primitive.Address,
-  })
-  export type ResponseCapabilities = Typebox.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  /** Parameters for `wallet_prepareCreateAccount` request. */
-  export const Parameters = Type.Object({
-    /** Capabilities for the account. */
-    capabilities: Capabilities,
-    /** The chain ID to create the account on. */
-    chainId: Primitive.Number,
-  })
-  export type Parameters = Typebox.StaticDecode<typeof Parameters>
-
-  /** Request for `wallet_prepareCreateAccount`. */
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_prepareCreateAccount'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Typebox.StaticDecode<typeof Request>
-
-  /** Response for `wallet_prepareCreateAccount`. */
-  export const Response = Type.Object({
-    address: Primitive.Address,
-    capabilities: ResponseCapabilities,
-    context: Type.Object({
-      account: Type.Object({
-        address: Primitive.Address,
-        initCalls: Type.Array(Call),
-        salt: Type.Number(),
-        signedAuthorization: Authorization,
-      }),
-      chainId: Primitive.Number,
-    }),
-    digests: Type.Array(Primitive.Hex),
-  })
-  export type Response = Typebox.StaticDecode<typeof Response>
-}
-
-export namespace wallet_createAccount {
-  /** Capabilities for `wallet_createAccount` request. */
-  export const Capabilities = Type.Object({
-    /** Keys to authorize on the account. */
-    authorizeKeys: C.authorizeKeys.Request,
-    /** Contract address to delegate to. */
-    delegation: Primitive.Address,
-  })
-  export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
-
-  /** Capabilities for `wallet_createAccount` response. */
-  export const ResponseCapabilities = Type.Object({
-    /** Keys authorized on the account. */
-    authorizeKeys: C.authorizeKeys.Response,
-    /** Contract address delegated to. */
-    delegation: Primitive.Address,
-  })
-  export type ResponseCapabilities = Typebox.StaticDecode<
-    typeof ResponseCapabilities
-  >
-
-  /** Parameters for `wallet_createAccount` request. */
-  export const Parameters = Type.Object({
-    /** Context. */
-    context: wallet_prepareCreateAccount.Response.properties.context,
-    /** Signatures. */
-    signatures: Type.Array(
-      Type.Object({
-        /** Whether the digest was prehashed. */
-        prehash: Typebox.Optional(Type.Boolean()),
-        /** The public key of the account. */
-        publicKey: Primitive.Hex,
-        /** The type of the account. */
-        type: Key.Key.properties.type,
-        /** The value of the account. */
-        value: Primitive.Hex,
-      }),
-    ),
-  })
-  export type Parameters = Typebox.StaticDecode<typeof Parameters>
-
-  /** Request for `wallet_createAccount`. */
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_createAccount'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Typebox.StaticDecode<typeof Request>
-
-  /** Response for `wallet_createAccount`. */
-  export const Response = Type.Undefined()
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
@@ -469,15 +355,6 @@ export namespace wallet_prepareUpgradeAccount {
   export const Capabilities = Type.Object({
     /** Keys to authorize on the account. */
     authorizeKeys: C.authorizeKeys.Request,
-    /** Contract address to delegate to. */
-    delegation: Primitive.Address,
-    /**
-     * ERC20 token to pay for the gas of the calls.
-     * If `None`, the native token will be used.
-     */
-    feeToken: Typebox.Optional(Primitive.Address),
-    /** Optional preCalls to execute before signature verification. */
-    preCalls: Typebox.Optional(Type.Array(PreCall.PreCall)),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 
@@ -489,7 +366,9 @@ export namespace wallet_prepareUpgradeAccount {
     // TODO: `Primitive.Number`
     capabilities: Capabilities,
     /** Capabilities. */
-    chainId: Type.Number(),
+    chainId: Typebox.Optional(Type.Number()),
+    /** Contract address to delegate to. */
+    delegation: Primitive.Address,
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
@@ -501,7 +380,42 @@ export namespace wallet_prepareUpgradeAccount {
   export type Request = Typebox.StaticDecode<typeof Request>
 
   /** Response for `wallet_prepareUpgradeAccount`. */
-  export const Response = Type.Omit(wallet_prepareCalls.Response, ['key'])
+  export const Response = Type.Object({
+    /** Capabilities. */
+    capabilities: Capabilities,
+    /** Chain ID to initialize the account on. */
+    chainId: Type.Number(),
+    /** Context. */
+    context: Type.Object({
+      /** Address of the EOA to upgrade. */
+      address: Primitive.Address,
+      /** Unsigned authorization object to be signed by the EOA root key. */
+      authorization: Authorization,
+      /** Chain ID to initialize the account on. */
+      chainId: Primitive.Number,
+      /** Unsigned pre-call to be signed by the EOA root key. */
+      preCall: PreCall.PreCall,
+    }),
+    /** Digests to sign over. */
+    digests: Type.Object({
+      /** Digest of the authorization object. */
+      auth: Primitive.Hex,
+      /** Digest of the pre-call. */
+      exec: Primitive.Hex,
+    }),
+    /** EIP-712 typed data digest. */
+    typedData: Type.Object({
+      domain: Type.Object({
+        chainId: Typebox.Optional(Primitive.Number),
+        name: Type.String(),
+        verifyingContract: Primitive.Address,
+        version: Type.String(),
+      }),
+      message: Type.Record(Type.String(), Type.Unknown()),
+      primaryType: Type.String(),
+      types: Type.Record(Type.String(), Type.Unknown()),
+    }),
+  })
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
@@ -573,17 +487,22 @@ export namespace wallet_sendPreparedCalls {
 
 export namespace wallet_upgradeAccount {
   export const Parameters = Type.Object({
-    /** Signed authorization. */
-    authorization: Authorization,
-    /** Signed quote of the prepared bundle. */
+    /** Context. */
     context: Type.Object({
-      /** Signed quote of the prepared bundle. */
-      preCall: Typebox.Optional(Type.Partial(PreCall.PreCall)),
-      /** The call bundle. */
-      quote: Typebox.Optional(Type.Partial(Quote.Signed)),
+      /** Address of the EOA to upgrade. */
+      address: Primitive.Address,
+      /** Unsigned authorization object to be signed by the EOA root key. */
+      authorization: Authorization,
+      /** Chain ID to initialize the account on. */
+      chainId: Primitive.Number,
+      /** Unsigned pre-call to be signed by the EOA root key. */
+      preCall: PreCall.PreCall,
     }),
-    /** Signature of the `wallet_prepareUpgradeAccount` digest. */
-    signature: Primitive.Hex,
+    /** Signatures of the `wallet_prepareUpgradeAccount` digests. */
+    signatures: Type.Object({
+      auth: Primitive.Hex,
+      exec: Primitive.Hex,
+    }),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
 
@@ -594,22 +513,17 @@ export namespace wallet_upgradeAccount {
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 
-  /** Response for `wallet_sendPreparedCalls`. */
-  export const Response = Type.Object({
-    /** Call bundles that were executed. */
-    bundles: Type.Array(wallet_sendPreparedCalls.Response),
-  })
-  export type Response = Typebox.StaticDecode<typeof Response>
+  export type Response = undefined
 }
 
 export namespace wallet_verifySignature {
   export const Parameters = Type.Object({
+    /** Account address. */
+    address: Primitive.Hex,
     /** Chain ID of the account with the given key configured. */
     chainId: Type.Number(),
     /** Digest of the message to verify. */
     digest: Primitive.Hex,
-    /** Key ID or address of the account. */
-    keyIdOrAddress: Primitive.Hex,
     /** Signature to verify. */
     signature: Primitive.Hex,
   })
@@ -630,18 +544,10 @@ export namespace wallet_verifySignature {
         Type.Object({
           /** Address of an account (either delegated or stored) that the signature was verified against. */
           account: Primitive.Address,
-          /** Signature proving that account is associated with the requested `keyId`. */
-          idSignature: Typebox.Optional(
-            Type.Object({
-              r: Primitive.Hex,
-              s: Primitive.Hex,
-              v: Primitive.Hex,
-            }),
-          ),
           /** The key hash that signed the digest. */
+          initPreCall: Typebox.Optional(PreCall.PreCall),
+          /** Initialization precall. Provided, if account is a stored account which has not been delegated. */
           keyHash: Primitive.Hex,
-          /** PREP account initialization data. Provided, if account is a stored PREP account. */
-          prep_init_data: Typebox.Optional(Primitive.Hex),
         }),
         Type.Null(),
       ]),

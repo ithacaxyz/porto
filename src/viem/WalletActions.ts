@@ -5,11 +5,45 @@
  * API is solidified & stable.
  */
 
-import type { Client, PrivateKeyAccount } from 'viem'
+import type {
+  Chain,
+  Client,
+  PrivateKeyAccount,
+  Transport,
+  WalletActions as viem_WalletActions,
+} from 'viem'
+import {
+  getAddresses,
+  getCallsStatus,
+  getCapabilities,
+  getChainId,
+  requestAddresses,
+  sendCalls,
+  showCallsStatus,
+  signMessage,
+  signTypedData,
+  waitForCallsStatus,
+  writeContract,
+} from 'viem/actions'
 import * as Typebox from '../core/internal/typebox/typebox.js'
 import * as RpcSchema from '../core/RpcSchema.js'
 import type * as Account from './Account.js'
 import type * as RpcSchema_viem from './RpcSchema.js'
+
+const supportedWalletActions = [
+  'getAddresses',
+  'getCallsStatus',
+  'getCapabilities',
+  'getChainId',
+  'requestAddresses',
+  'sendCalls',
+  'showCallsStatus',
+  'signMessage',
+  'signTypedData',
+  'showCallsStatus',
+  'waitForCallsStatus',
+  'writeContract',
+] as const satisfies (keyof viem_WalletActions)[]
 
 export async function connect(
   client: Client,
@@ -291,7 +325,7 @@ export async function upgradeAccount(
 
   const method = 'wallet_prepareUpgradeAccount' as const
   type Method = typeof method
-  const { context, signPayloads } = await client.request<
+  const { context, digests } = await client.request<
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
@@ -304,9 +338,10 @@ export async function upgradeAccount(
     ],
   })
 
-  const signatures = await Promise.all(
-    signPayloads.map((hash) => account.sign({ hash })),
-  )
+  const signatures = {
+    auth: await account.sign({ hash: digests.auth }),
+    exec: await account.sign({ hash: digests.exec }),
+  }
 
   const method_upgrade = 'wallet_upgradeAccount' as const
   type Method_upgrade = typeof method_upgrade
@@ -346,4 +381,50 @@ export declare namespace upgradeAccount {
   type ReturnType = Typebox.StaticDecode<
     typeof RpcSchema.wallet_upgradeAccount.Response
   >
+}
+
+export type Decorator<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account.Account | undefined = Account.Account | undefined,
+> = Pick<
+  viem_WalletActions<chain, account>,
+  (typeof supportedWalletActions)[number]
+> & {
+  connect: (parameters: connect.Parameters) => Promise<connect.ReturnType>
+  disconnect: () => Promise<void>
+  getPermissions: (
+    parameters: getPermissions.Parameters,
+  ) => Promise<getPermissions.ReturnType>
+  grantPermissions: (
+    parameters: grantPermissions.Parameters,
+  ) => Promise<grantPermissions.ReturnType>
+  revokePermissions: (parameters: revokePermissions.Parameters) => Promise<void>
+  upgradeAccount: (
+    parameters: upgradeAccount.Parameters,
+  ) => Promise<upgradeAccount.ReturnType>
+}
+
+export function decorator<
+  chain extends Chain | undefined,
+  account extends Account.Account | undefined,
+>(client: Client<Transport, chain, account>): Decorator<chain, account> {
+  return {
+    connect: (parameters) => connect(client, parameters),
+    disconnect: () => disconnect(client),
+    getAddresses: () => getAddresses(client),
+    getCallsStatus: (parameters) => getCallsStatus(client, parameters),
+    getCapabilities: () => getCapabilities(client),
+    getChainId: () => getChainId(client),
+    getPermissions: (parameters) => getPermissions(client, parameters),
+    grantPermissions: (parameters) => grantPermissions(client, parameters),
+    requestAddresses: () => requestAddresses(client),
+    revokePermissions: (parameters) => revokePermissions(client, parameters),
+    sendCalls: (parameters) => sendCalls(client, parameters),
+    showCallsStatus: (parameters) => showCallsStatus(client, parameters),
+    signMessage: (parameters) => signMessage(client, parameters),
+    signTypedData: (parameters) => signTypedData(client, parameters),
+    upgradeAccount: (parameters) => upgradeAccount(client, parameters),
+    waitForCallsStatus: (parameters) => waitForCallsStatus(client, parameters),
+    writeContract: (parameters) => writeContract(client, parameters),
+  }
 }

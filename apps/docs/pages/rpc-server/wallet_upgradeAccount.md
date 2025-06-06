@@ -1,6 +1,8 @@
 # `wallet_upgradeAccount`
 
-Finalizes an account upgrade and broadcasts it on-chain.
+Completes the upgrade of a counterfactual¹ Porto Account.
+
+¹: The upgrade is not performed on-chain immediately, sparing the user the gas cost. Instead, the signed upgrade is sent to the RPC server, which stores it and automatically executes and finalizes the upgrade when the user submits their next transaction (e.g., a send call).
 
 :::tip
 This method is intended to be used in conjunction with [`wallet_prepareUpgradeAccount`](/rpc-server/wallet_prepareUpgradeAccount).
@@ -15,59 +17,26 @@ import { Address, Hash, Hex } from 'viem'
 type Request = {
   method: 'wallet_upgradeAccount',
   params: [{
+    // Context that includes the prepared pre-call. 
     // As returned by `wallet_prepareUpgradeAccount`
     context: {
-      quote: {
+      address: Address,
+      authorization: {
+        address: Address,
         chainId: Hex,
-        intent: {
-          eoa: Address,
-          executionData: Hex,
-          nonce: Hex,
-          payer: Address,
-          paymentToken: Address,
-          prePaymentMaxAmount: Hex,
-          totalPaymentMaxAmount: Hex,
-          combinedGas: Hex,
-          encodedPreCalls: Hex[],
-          initData: Hex,
-          prePaymentAmount: Hex,
-          totalPaymentAmount: Hex,
-          paymentRecipient: Address,
-          signature: Hex,
-          paymentSignature: Hex,
-          supportedAccountImplementation: Address,
-        },
-        txGas: Hex,
-        nativeFeeEstimate: {
-          maxFeePerGas: number,
-          maxPriorityFeePerGas: number,
-        },
-        // UNIX timestamp the quote expires at.
-        ttl: number,
-        authorizationAddress?: Address,
-        entrypoint: Address,
-        // The RPC servers signature over the quote.
-        signature: {
-          y_parity: boolean,
-          r: Hex,
-          s: Hex,
-        },
-        // The hash of the quote.
-        hash: Hash,
+        nonce: Hex,
+      },
+      preCall: {
+        eoa: Address,
+        executionData: Hex,
+        nonce: Hex,
+        signature: Hex,
       },
     },
-    // signature over the intent digest from `wallet_prepareUpgradeAccount`
-    signature: Hex,
-    // The EIP-7702 authorization signed with the root EOA key.
-    authorization: {
-      // usually 0 to allow for replayability
-      chainId: Hex,
-      // the contract the account delegates to
-      address: Address,
-      nonce: Hex,
-      yParity: Hex,
-      r: Hex,
-      s: Hex,
+    // Object of signatures over the digests from `wallet_prepareUpgradeAccount`
+    signatures: {
+      auth: Hex,
+      exec: Hex,
     },
   }],
 }
@@ -75,17 +44,6 @@ type Request = {
 
 ## Response
 
-A series of bundle IDs for use with [`wallet_getCallsStatus`].
-
-```ts twoslash
-import { Hex } from 'viem'
-
-// ---cut---
-type Response = {
-  bundles: {
-    id: Hex
-  }[],
-}
+```ts
+type Response = void
 ```
-
-[`wallet_getCallsStatus`]: /rpc-server/wallet_getCallsStatus

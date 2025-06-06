@@ -4,7 +4,7 @@ RPC_URL=http://anvil:8545
 
 ACCOUNT_REGISTRY_ADDRESS=$(forge create AccountRegistry --config-path ./account/foundry.toml --json --broadcast --rpc-url $RPC_URL --private-key $ANVIL_PRIVATE_KEY | jq -r '.deployedTo')
 ORCHESTRATOR_ADDRESS=$(forge create Orchestrator --config-path ./account/foundry.toml --json --broadcast --rpc-url $RPC_URL --private-key $ANVIL_PRIVATE_KEY --constructor-args 0x0000000000000000000000000000000000000000 | jq -r '.deployedTo')
-ACCOUNT_ADDRESS=$(forge create PortoAccount --config-path ./account/foundry.toml --json --broadcast --rpc-url $RPC_URL --private-key $ANVIL_PRIVATE_KEY --constructor-args $ORCHESTRATOR_ADDRESS | jq -r '.deployedTo')
+ACCOUNT_ADDRESS=$(forge create IthacaAccount --config-path ./account/foundry.toml --json --broadcast --rpc-url $RPC_URL --private-key $ANVIL_PRIVATE_KEY --constructor-args $ORCHESTRATOR_ADDRESS | jq -r '.deployedTo')
 ACCOUNT_PROXY_ADDRESS=$(forge create EIP7702Proxy --config-path ./account/foundry.toml --json --broadcast --rpc-url $RPC_URL --private-key $ANVIL_PRIVATE_KEY --constructor-args $ACCOUNT_ADDRESS $ANVIL_ADDRESS | jq -r '.deployedTo')
 SIMULATOR_ADDRESS=$(forge create Simulator --config-path ./account/foundry.toml --json --broadcast --rpc-url $RPC_URL --private-key $ANVIL_PRIVATE_KEY | jq -r '.deployedTo')
 

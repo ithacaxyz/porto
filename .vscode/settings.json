@@ -55,6 +55,7 @@
     "**/_/**": true,
     "**/dist/**": true,
     "**/routeTree.gen.ts": true,
+    "contracts": true,
     "pnpm-lock.yaml": true
   },
   "tailwindCSS.experimental.classRegex": [

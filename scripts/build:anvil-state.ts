@@ -7,10 +7,9 @@ import { deployContract, waitForTransactionReceipt } from 'viem/actions'
 import { type Address, Value } from 'ox'
 
 import * as Anvil from '../test/src/anvil.js'
-import * as AccountRegistry from '../src/core/internal/_generated/contracts/AccountRegistry.js'
-import * as PortoAccount from '../src/core/internal/_generated/contracts/PortoAccount.js'
-import * as PortoAccountOld from '../src/core/internal/_generated/contracts/PortoAccountOld.js'
-import * as PortoAccountNew from '../src/core/internal/_generated/contracts/PortoAccountNew.js'
+import * as IthacaAccount from '../src/core/internal/_generated/contracts/IthacaAccount.js'
+import * as IthacaAccountOld from '../src/core/internal/_generated/contracts/IthacaAccountOld.js'
+import * as IthacaAccountNew from '../src/core/internal/_generated/contracts/IthacaAccountNew.js'
 import * as EIP7702Proxy from '../src/core/internal/_generated/contracts/EIP7702Proxy.js'
 import * as Orchestrator from '../src/core/internal/_generated/contracts/Orchestrator.js'
 import * as ExperimentERC20 from '../src/core/internal/_generated/contracts/ExperimentERC20.js'
@@ -35,19 +34,6 @@ const client = createTestClient({
 
 let exports = []
 
-{
-  // Deploy AccountRegistry contract.
-  const hash = await deployContract(client, {
-    abi: AccountRegistry.abi,
-    bytecode: AccountRegistry.code,
-    chain: null,
-  })
-  const { contractAddress } = await waitForTransactionReceipt(client, {
-    hash,
-  })
-  exports.push(`export const accountRegistryAddress = '${contractAddress}'`)
-}
-
 let orchestratorAddress: Address.Address | null | undefined
 {
   // Deploy Orchestrator contract.
@@ -65,11 +51,11 @@ let orchestratorAddress: Address.Address | null | undefined
 }
 
 {
-  // Deploy PortoAccount contract.
+  // Deploy IthacaAccount contract.
   const hash = await deployContract(client, {
-    abi: PortoAccount.abi,
+    abi: IthacaAccount.abi,
     args: [orchestratorAddress!],
-    bytecode: PortoAccount.code,
+    bytecode: IthacaAccount.code,
     chain: null,
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {
@@ -111,11 +97,11 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
 }
 
 {
-  // Deploy PortoAccountOld contract.
+  // Deploy IthacaAccountOld contract.
   const hash = await deployContract(client, {
-    abi: PortoAccountOld.abi,
+    abi: IthacaAccountOld.abi,
     args: [orchestratorAddress!],
-    bytecode: PortoAccountOld.code,
+    bytecode: IthacaAccountOld.code,
     chain: null,
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {
@@ -137,11 +123,11 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
 }
 
 {
-  // Deploy PortoAccountNew contract.
+  // Deploy IthacaAccountNew contract.
   const hash = await deployContract(client, {
-    abi: PortoAccountNew.abi,
+    abi: IthacaAccountNew.abi,
     args: [orchestratorAddress!],
-    bytecode: PortoAccountNew.code,
+    bytecode: IthacaAccountNew.code,
     chain: null,
   })
   const { contractAddress } = await waitForTransactionReceipt(client, {

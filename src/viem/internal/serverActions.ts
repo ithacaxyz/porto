@@ -8,13 +8,10 @@ import { AssertError, TransformEncodeCheckError } from '@sinclair/typebox/value'
 import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
-import * as Authorization from 'ox/Authorization'
 import * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
-import * as Signature from 'ox/Signature'
 import {
-  type Authorization as Authorization_viem,
   BaseError,
   type Calls,
   type Chain,
@@ -25,7 +22,6 @@ import {
   type ValueOf,
   withCache,
 } from 'viem'
-import { prepareAuthorization } from 'viem/actions'
 import {
   type GetExecuteErrorReturnType,
   getExecuteError,
@@ -33,102 +29,8 @@ import {
 import * as RpcSchema from '../../core/internal/rpcServer/rpcSchema.js'
 import * as Typebox from '../../core/internal/typebox/typebox.js'
 import { Value } from '../../core/internal/typebox/typebox.js'
+import * as U from '../../core/internal/utils.js'
 import type { sendCalls } from '../ServerActions.js'
-
-/**
- * Creates a new account.
- *
- * @example
- * TODO
- *
- * @param client - The client to use.
- * @param parameters - Parameters.
- * @returns Result.
- */
-export async function createAccount(
-  client: Client,
-  parameters: createAccount.Parameters,
-): Promise<createAccount.ReturnType> {
-  const { context, signatures } = parameters
-  try {
-    const method = 'wallet_createAccount' as const
-    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    await client.request<Schema>(
-      {
-        method,
-        params: [
-          Value.Encode(RpcSchema.wallet_createAccount.Parameters, {
-            context: {
-              account: context.account,
-              chainId: context.chainId,
-            },
-            signatures,
-          } satisfies RpcSchema.wallet_createAccount.Parameters),
-        ],
-      },
-      {
-        retryCount: 0,
-      },
-    )
-    return undefined
-  } catch (error) {
-    parseSchemaError(error)
-    throw error
-  }
-}
-
-export namespace createAccount {
-  export type Parameters = RpcSchema.wallet_createAccount.Parameters
-
-  export type ReturnType = RpcSchema.wallet_createAccount.Response
-
-  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
-}
-
-/**
- * Gets the accounts for a given key identifier.
- *
- * @example
- * TODO
- *
- * @param client - The client to use.
- * @param parameters - Parameters.
- * @returns Result.
- */
-export async function getAccounts<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getAccounts.Parameters<chain>,
-): Promise<getAccounts.ReturnType> {
-  const { chain = client.chain, keyId: id } = parameters
-  try {
-    const method = 'wallet_getAccounts' as const
-    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>({
-      method,
-      params: [
-        Value.Encode(RpcSchema.wallet_getAccounts.Parameters, {
-          chainId: chain?.id,
-          id,
-        }),
-      ],
-    })
-    return Value.Parse(RpcSchema.wallet_getAccounts.Response, result)
-  } catch (error) {
-    parseSchemaError(error)
-    throw error
-  }
-}
-
-export namespace getAccounts {
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    GetChainParameter<chain> & {
-      keyId: Hex.Hex
-    }
-
-  export type ReturnType = RpcSchema.wallet_getAccounts.Response
-
-  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
-}
 
 /**
  * Gets the capabilities for a given chain ID.
@@ -301,7 +203,7 @@ export namespace getKeys {
  * @returns Result.
  */
 export async function health(client: Client): Promise<health.ReturnType> {
-  const method = 'relay_health' as const
+  const method = 'health' as const
   type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
   const result = await withCache(
     () =>
@@ -310,11 +212,11 @@ export async function health(client: Client): Promise<health.ReturnType> {
       }),
     { cacheKey: method },
   )
-  return Value.Parse(RpcSchema.relay_health.Response, result)
+  return Value.Parse(RpcSchema.health.Response, result)
 }
 
 export namespace health {
-  export type ReturnType = RpcSchema.relay_health.Response
+  export type ReturnType = RpcSchema.health.Response
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
 }
@@ -405,55 +307,6 @@ export namespace prepareCalls {
 }
 
 /**
- * Prepares a new account creation.
- *
- * @example
- * TODO
- *
- * @param client - The client to use.
- * @param parameters - Parameters.
- * @returns Result.
- */
-export async function prepareCreateAccount<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: prepareCreateAccount.Parameters<chain>,
-): Promise<prepareCreateAccount.ReturnType> {
-  const { capabilities, chain = client.chain } = parameters
-  try {
-    const method = 'wallet_prepareCreateAccount' as const
-    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>(
-      {
-        method,
-        params: [
-          Value.Encode(RpcSchema.wallet_prepareCreateAccount.Parameters, {
-            capabilities,
-            chainId: chain?.id,
-          }),
-        ],
-      },
-      {
-        retryCount: 0,
-      },
-    )
-    return Value.Parse(RpcSchema.wallet_prepareCreateAccount.Response, result)
-  } catch (error) {
-    parseSchemaError(error)
-    throw error
-  }
-}
-
-export namespace prepareCreateAccount {
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<RpcSchema.wallet_prepareCreateAccount.Parameters, 'chainId'> &
-      GetChainParameter<chain>
-
-  export type ReturnType = RpcSchema.wallet_prepareCreateAccount.Response
-
-  export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
-}
-
-/**
  * Prepares an account upgrade.
  *
  * @example
@@ -467,55 +320,39 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: prepareUpgradeAccount.Parameters<chain>,
 ): Promise<prepareUpgradeAccount.ReturnType> {
-  const { address, capabilities, chain = client.chain } = parameters
+  const {
+    address,
+    chain = client.chain,
+    delegation,
+    ...capabilities
+  } = parameters
 
   try {
     const method = 'wallet_prepareUpgradeAccount' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const [result, [authorization, authorizationDigest]] = await Promise.all([
-      client.request<Schema>(
-        {
-          method,
-          params: [
-            Value.Encode(RpcSchema.wallet_prepareUpgradeAccount.Parameters, {
-              address,
-              capabilities,
-              chainId: chain?.id,
-            }),
-          ],
-        },
-        {
-          retryCount: 0,
-        },
-      ),
-      (async () => {
-        const authorization = await prepareAuthorization(client, {
-          account: address,
-          chainId: 0,
-          contractAddress: capabilities.delegation,
-        })
-        return [
-          authorization,
-          Authorization.getSignPayload({
-            address: authorization.address,
-            chainId: authorization.chainId,
-            nonce: BigInt(authorization.nonce),
-          }),
-        ]
-      })(),
-    ])
-    const parsed = Value.Parse(
-      RpcSchema.wallet_prepareUpgradeAccount.Response,
-      result,
-    )
-    return {
-      ...parsed,
-      context: {
-        ...parsed.context,
-        authorization,
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(
+            RpcSchema.wallet_prepareUpgradeAccount.Parameters,
+            Value.Clean(
+              RpcSchema.wallet_prepareUpgradeAccount.Parameters,
+              U.normalizeValue({
+                address,
+                capabilities,
+                chainId: chain?.id,
+                delegation,
+              } satisfies RpcSchema.wallet_prepareUpgradeAccount.Parameters),
+            ),
+          ),
+        ],
       },
-      digests: [parsed.digest, authorizationDigest],
-    }
+      {
+        retryCount: 0,
+      },
+    )
+    return Value.Parse(RpcSchema.wallet_prepareUpgradeAccount.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error)
@@ -524,20 +361,18 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
 }
 export namespace prepareUpgradeAccount {
   export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    {
-      address: Address.Address
-      capabilities: RpcSchema.wallet_prepareUpgradeAccount.Capabilities
-    } & GetChainParameter<chain>
+    Typebox.StaticDecode<
+      typeof RpcSchema.wallet_prepareUpgradeAccount.Parameters.properties.capabilities
+    > &
+      Omit<
+        Typebox.StaticDecode<
+          typeof RpcSchema.wallet_prepareUpgradeAccount.Parameters
+        >,
+        'capabilities' | 'chainId'
+      > &
+      GetChainParameter<chain>
 
-  export type ReturnType = Omit<
-    RpcSchema.wallet_prepareUpgradeAccount.Response,
-    'context' | 'digest'
-  > & {
-    context: RpcSchema.wallet_prepareUpgradeAccount.Response['context'] & {
-      authorization: Authorization_viem
-    }
-    digests: [execute: Hex.Hex, auth: Hex.Hex]
-  }
+  export type ReturnType = RpcSchema.wallet_prepareUpgradeAccount.Response
 
   export type ErrorType =
     | parseSchemaError.ErrorType
@@ -606,7 +441,7 @@ export namespace sendPreparedCalls {
 }
 
 /**
- * Broadcasts an account upgrade.
+ * Submits an account upgrade to the RPC Server.
  *
  * @example
  * TODO
@@ -621,41 +456,26 @@ export async function upgradeAccount(
 ): Promise<upgradeAccount.ReturnType> {
   const { context, signatures } = parameters
 
-  const authorization = (() => {
-    const { address, chainId, nonce } = context.authorization
-    const signature = Signature.from(signatures[1]!)
-    return {
-      address,
-      chainId,
-      nonce,
-      r: Hex.fromNumber(signature.r),
-      s: Hex.fromNumber(signature.s),
-      yParity: signature.yParity,
-    } as const
-  })()
-
   try {
     const method = 'wallet_upgradeAccount' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
-    const result = await client.request<Schema>(
+    await client.request<Schema>(
       {
         method,
         params: [
-          Value.Encode(RpcSchema.wallet_upgradeAccount.Parameters, {
-            authorization,
-            context: {
-              preCall: context.preCall,
-              quote: context.quote,
-            },
-            signature: signatures[0]!,
-          } satisfies RpcSchema.wallet_upgradeAccount.Parameters),
+          Value.Encode(
+            RpcSchema.wallet_upgradeAccount.Parameters,
+            Value.Clean(RpcSchema.wallet_upgradeAccount.Parameters, {
+              context,
+              signatures,
+            } satisfies RpcSchema.wallet_upgradeAccount.Parameters),
+          ),
         ],
       },
       {
         retryCount: 0,
       },
     )
-    return Value.Parse(RpcSchema.wallet_upgradeAccount.Response, result)
   } catch (error) {
     parseSchemaError(error)
     parseExecutionError(error)
@@ -664,12 +484,7 @@ export async function upgradeAccount(
 }
 
 export namespace upgradeAccount {
-  export type Parameters = {
-    context: RpcSchema.wallet_upgradeAccount.Parameters['context'] & {
-      authorization: Authorization_viem<number, false>
-    }
-    signatures: readonly Hex.Hex[]
-  }
+  export type Parameters = RpcSchema.wallet_upgradeAccount.Parameters
 
   export type ReturnType = RpcSchema.wallet_upgradeAccount.Response
 
@@ -702,11 +517,11 @@ export async function verifySignature<chain extends Chain | undefined>(
         method,
         params: [
           Value.Encode(RpcSchema.wallet_verifySignature.Parameters, {
+            address,
             chainId: chain?.id,
             digest,
-            keyIdOrAddress: address,
             signature,
-          }),
+          } as RpcSchema.wallet_verifySignature.Parameters),
         ],
       },
       {

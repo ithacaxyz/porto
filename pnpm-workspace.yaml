@@ -36,7 +36,7 @@ catalog:
   tw-animate-css: "^1.2.8"
   typescript: "^5.8.3"
   unplugin-icons: "^22.1.0"
-  viem: "^2.29.2"
+  viem: "^2.30.6"
   vite: "^6.0.7"
   vitest: "^3.1.1"
   vite-plugin-mkcert: "^1.17.8"

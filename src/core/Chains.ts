@@ -18,7 +18,7 @@ export const anvil = /*#__PURE__*/ define({
   contracts: {
     ...chains.anvil.contracts,
     portoAccount: {
-      address: '0x8ce361602b935680e8dec218b820ff5056beb7af',
+      address: '0xb19b36b1456e65e3a6d514d3f715f204bd59f431',
     },
   },
   rpcUrls: {
@@ -68,7 +68,7 @@ export const portoDev = /*#__PURE__*/ define({
   },
   contracts: {
     portoAccount: {
-      address: '0x44c2b63838b6115ad6bcc7340c82badd8983ad98',
+      address: '0xca03dc4665a8c3603cb4fd5ce71af9649dc00d44',
     },
   },
   id: 28_404,

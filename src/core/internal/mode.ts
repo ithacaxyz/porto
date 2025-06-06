@@ -53,8 +53,6 @@ export type Mode = {
     }) => Promise<{
       /** Account. */
       account: Account.Account
-      /** Pre-calls to be executed (e.g. key authorization). */
-      preCalls?: PreCalls.PreCalls | undefined
     }>
 
     getAccountVersion: (parameters: {
@@ -125,10 +123,10 @@ export type Mode = {
     }>
 
     loadAccounts: (parameters: {
+      /** Address of the account to load. */
+      address?: Hex.Hex | undefined
       /** Credential ID to use to load an existing account. */
       credentialId?: string | undefined
-      /** Key ID of the account to load. */
-      keyId?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Permissions to grant. */
@@ -164,17 +162,15 @@ export type Mode = {
         | undefined
       /** Context for `sendPreparedCalls` */
       context: PrepareCallsContext
+      /** Digest to sign. */
+      digest: Hex.Hex
       /** Key that will sign over the digest. */
       key: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'>
-      /** Payloads to sign. */
-      signPayloads: readonly Hex.Hex[]
     }>
 
     prepareUpgradeAccount: (parameters: {
       /** Address of the account to import. */
       address: Address.Address
-      /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
-      feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Label to associate with the account. */
       label?: string | undefined
       /** Internal properties. */
@@ -182,10 +178,13 @@ export type Mode = {
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
     }) => Promise<{
+      /** Digests to sign. */
+      digests: {
+        auth: Hex.Hex
+        exec: Hex.Hex
+      }
       /** Filled context for the `createAccount` implementation. */
       context: unknown
-      /** Hex payloads to sign over. */
-      signPayloads: readonly Hex.Hex[]
     }>
 
     revokeAdmin: (parameters: {
@@ -273,7 +272,10 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
       /** Preparation signatures (from `prepareUpgradeAccount`). */
-      signatures: readonly Hex.Hex[]
+      signatures: {
+        auth: Hex.Hex
+        exec: Hex.Hex
+      }
     }) => Promise<{
       /** Account. */
       account: Account.Account

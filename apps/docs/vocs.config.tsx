@@ -21,7 +21,7 @@ export default defineConfig({
         <meta content="image/png" property="og:image:type" />
         <meta content="1200" property="og:image:width" />
         <meta content="630" property="og:image:height" />
-        <meta content={commitSha} name="X-App-Version" />
+        <meta content={commitSha} name="x-app-version" />
       </>
     )
   },
@@ -86,14 +86,6 @@ export default defineConfig({
           {
             link: '/rpc-server/wallet_getCapabilities',
             text: 'wallet_getCapabilities',
-          },
-          {
-            link: '/rpc-server/wallet_prepareCreateAccount',
-            text: 'wallet_prepareCreateAccount',
-          },
-          {
-            link: '/rpc-server/wallet_createAccount',
-            text: 'wallet_createAccount',
           },
           {
             link: '/rpc-server/wallet_getAccounts',

@@ -2,11 +2,10 @@ import Keys from './snippets/keys.mdx'
 
 # `wallet_prepareUpgradeAccount`
 
-Prepares an account for upgrade by generating initialization data and an EIP-7702 authorization item.
+Prepares an Externally-Owned Account (EOA) to be upgraded into a Porto Account.
 
-Upgrading an account is different from [creating an account](/rpc-server/wallet_prepareCreateAccount). Upgrading an account generates an EIP-7702 authorization for an existing EOA, whereas creating an account using the RPC server generates a new EOA using [PREP].
-
-The returned EIP-7702 authorization item must be signed by the EOA root key, as well as the intent digest.
+The returned `authorization` object and `digest` must be signed by the EOA root key,
+and forwarded to [`wallet_upgradeAccount`](/rpc-server/wallet_upgradeAccount).
 
 :::tip
 This method is intended to be used in conjunction with [`wallet_upgradeAccount`](/rpc-server/wallet_upgradeAccount).
@@ -23,8 +22,15 @@ import { Address, Hash, Hex } from 'viem'
 type Request = {
   method: 'wallet_prepareUpgradeAccount',
   params: [{
-    address: Address,
-    chainId: Hex,
+    // Address of the EOA to upgrade.
+    address: Hex,
+    // Optional chain ID to upgrade on. If not specified, the RPC
+    // Server will handle what chain to upgrade on. This chain will
+    // be the "source"/"home" chain of the account.
+    chainId?: Hex,
+    // Address of the account contract to delegate to.
+    delegation: Address,
+    // Additional capabilities.
     capabilities: {
       authorizeKeys: {
         // See "Keys"
@@ -47,11 +53,6 @@ type Request = {
           token?: Address,
         })[],
       }[],
-      delegation: Address,
-      // defaults to the EOA
-      feePayer?: Address,
-      // defaults to the native token
-      feeToken?: Address,
     },
   }],
 }
@@ -59,64 +60,45 @@ type Request = {
 
 ## Response
 
-Please refer to [`wallet_prepareCalls`] for a detailed explanation of the response.
-
 ```ts twoslash
-import { Address, Hash, Hex, TypedData } from 'viem'
+import { Address, Hash, Hex } from 'viem'
 
 // ---cut---
 type Response = {
-  // The context returned depending on whether
-  // a precall or normal bundle was prepared.
-  //
-  // In the case of a precall, the precall itself
-  // is returned, otherwise a quote signed by the
-  // relay is returned.
+  // Chain ID of the account.
+  chainId: Hex,
+  // Context that includes the prepared pre-call. 
   context: {
-    quote: {
+    // Account address
+    address: Address,
+    // Unsigned authorization object to be signed by the EOA root key.
+    authorization: {
+      // Contract address to delegate to.
+      address: Address,
+      // Permitted chain ID. 
+      // Note: `0x0` allows for replayability across chains.
       chainId: Hex,
-      intent: {
-        eoa: Address,
-        executionData: Hex,
-        nonce: Hex,
-        payer: Address,
-        paymentToken: Address,
-        prePaymentMaxAmount: Hex,
-        totalPaymentMaxAmount: Hex,
-        combinedGas: Hex,
-        encodedPreCalls: Hex[],
-        initData: Hex,
-        prePaymentAmount: Hex,
-        totalPaymentAmount: Hex,
-        paymentRecipient: Address,
-        signature: Hex,
-        paymentSignature: Hex,
-        supportedAccountImplementation: Address,
-      },
-      txGas: Hex,
-      nativeFeeEstimate: {
-        maxFeePerGas: number,
-        maxPriorityFeePerGas: number,
-      },
-      // UNIX timestamp the quote expires at.
-      ttl: number,
-      authorizationAddress?: Address,
-      entrypoint: Address,
-      // The RPC servers signature over the quote.
-      signature: {
-        y_parity: boolean,
-        r: Hex,
-        s: Hex,
-      },
-      // The hash of the quote.
-      hash: Hash,
+      // Permitted nonce.
+      nonce: Hex,
+    },
+    // Unsigned pre-call to be signed by the EOA root key.
+    preCall: {
+      eoa: Address,
+      executionData: Hex,
+      nonce: Hex,
+      signature: Hex,
     },
   },
-  // the digest of the bundle that the user needs to sign
-  digest: Hash,
-  // EIP-712 typed data of the precall or bundle.
-  typedData: TypedData,
-  // capabilities assigned to the account
+  // Object of digests to be signed by the EOA root key. Includes the
+  // authorization digest and the initialization digest (pre-call).
+  digests: {
+    auth: Hash,
+    exec: Hash,
+  },
+  // EIP-712 typed data of the precall. This can be used to rebuild (and verify)
+  // the provided digest.
+  typedData: any,
+  // Capabilities assigned to the account.
   capabilities: {
     authorizeKeys: {
       // key hash
@@ -146,25 +128,6 @@ type Response = {
       hash: Hash,
       id?: Address
     }[],
-    // Simulated asset diffs, where the first element of the tuple is the recipient or sender.
-    assetDiff: [
-       Address,
-       {
-         // Omitted if this is the native token.
-         address?: Address,
-         decimals?: number,
-         direction: 'incoming' | 'outgoing',
-         name?: string,
-         symbol?: string,
-         type?: 'erc20' | 'erc721',
-         uri?: string,
-         // For ERC721, the asset ID. For ERC20 the value moved.
-         value: number,
-       }[]
-    ][],
   }
 }
 ```
-
-[PREP]: https://blog.biconomy.io/prep-deep-dive/
-[`wallet_prepareCalls`]: /rpc-server/wallet_prepareCalls

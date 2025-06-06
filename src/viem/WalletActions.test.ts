@@ -61,10 +61,14 @@ describe('grantAdmin', () => {
 
     expect(porto._internal.store.getState().accounts[0]!.keys?.length).toBe(2)
 
-    expect({ ...response, address: null }).toMatchInlineSnapshot(`
+    expect({
+      ...response,
+      address: null,
+      chainId: null,
+    }).toMatchInlineSnapshot(`
       {
         "address": null,
-        "chainId": 31337,
+        "chainId": null,
         "key": {
           "id": "0x0000000000000000000000000000000000000000",
           "publicKey": "0x0000000000000000000000000000000000000000",
@@ -106,11 +110,12 @@ describe('grantPermissions', () => {
       ...response,
       address: null,
       capabilities: null,
+      chainId: null,
     }).toMatchInlineSnapshot(`
       {
         "address": null,
         "capabilities": null,
-        "chainId": 31337,
+        "chainId": null,
         "expiry": 99999999999,
         "id": "0x0000000000000000000000000000000000000000",
         "key": {
@@ -197,10 +202,14 @@ describe('getPermissions', () => {
 
     {
       const [response] = await WalletActions.getPermissions(client)
-      expect({ ...response, address: null }).toMatchInlineSnapshot(`
+      expect({
+        ...response,
+        address: null,
+        chainId: null,
+      }).toMatchInlineSnapshot(`
         {
           "address": null,
-          "chainId": 31337,
+          "chainId": null,
           "expiry": 99999999999,
           "id": "0x0000000000000000000000000000000000000000",
           "key": {

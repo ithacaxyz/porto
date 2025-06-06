@@ -18,19 +18,18 @@ export async function createAccount(
   client: ServerClient,
   parameters: {
     deploy?: boolean | undefined
-    keys: NonNullable<ServerActions.createAccount.Parameters['keys']>
+    keys: readonly Key.Key[]
     setBalance?: false | bigint | undefined
   },
 ) {
-  const { deploy, keys, setBalance: balance = parseEther('10000') } = parameters
+  const { deploy, keys, setBalance } = parameters
 
-  const account = await ServerActions.createAccount(client, { keys })
+  const { account } = await getAccount(client, { keys, setBalance })
 
-  if (balance)
-    await setBalance(client, {
-      address: account.address,
-      value: balance,
-    })
+  await ServerActions.upgradeAccount(client, {
+    account,
+    authorizeKeys: keys,
+  })
 
   if (deploy) {
     const { id } = await ServerActions.sendCalls(client, {
@@ -68,39 +67,6 @@ export async function getAccount(
     account,
     privateKey,
   }
-}
-
-export async function getUpgradedAccount(
-  client: ServerClient,
-  parameters: {
-    keys: readonly Key.Key[]
-    setBalance?: false | bigint | undefined
-  },
-) {
-  const { keys, setBalance } = parameters
-
-  const { account } = await getAccount(client, { keys, setBalance })
-
-  const request = await ServerActions.prepareUpgradeAccount(client, {
-    address: account.address,
-    feeToken: exp1Address,
-    keys,
-  })
-
-  const signatures = await Promise.all(
-    request.digests.map((hash) => account.sign({ hash })),
-  )
-
-  const { bundles } = await ServerActions.upgradeAccount(client, {
-    ...request,
-    signatures,
-  })
-
-  await waitForCallsStatus(client, {
-    id: bundles[0]!.id,
-  })
-
-  return account
 }
 
 export async function setBalance(

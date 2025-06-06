@@ -20,7 +20,7 @@
 - kind: ETH
 31337:
 - kind: ETH
-- address: 0x238c8cd93ee9f8c7edf395548ef60c0d2e46665e
+- address: 0x8ce361602b935680e8dec218b820ff5056beb7af
   kind: USDT
 - address: 0xe1aa25618fa0c7a1cfdab5d6b456af611873b629
   kind: USDT

@@ -19,7 +19,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
   {
     "expiry": 9999999999,
     "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
-    "id": undefined,
+    "id": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
     "permissions": {
       "calls": [
         {
@@ -569,7 +569,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
   {
     "expiry": 9999999999,
     "hash": "0x594638e5e062340ffb82ba40803ebb7b0958358e0e94b585f5b2d9c8250a4a12",
-    "id": undefined,
+    "id": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
     "permissions": {
       "calls": [
         {
@@ -707,7 +707,7 @@ exports[`rpcServer > wallet_getCapabilities > behavior: chainId 4`] = `
     "symbol": "ETH",
   },
   {
-    "address": "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+    "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
     "decimals": 18,
     "kind": "USDT",
     "nativeRate": null,
@@ -854,7 +854,73 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
 ]
 `;
 
-exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 3`] = `[]`;
+exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 3`] = `
+[
+  {
+    "address": null,
+    "chainId": null,
+    "expiry": 9999999999,
+    "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    "key": {
+      "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "type": "secp256k1",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "0x1249c58b",
+          "to": null,
+        },
+        {
+          "signature": "0x32323232",
+          "to": null,
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x56bc75e2d63100000",
+          "period": "year",
+          "token": null,
+        },
+      ],
+    },
+  },
+  {
+    "address": null,
+    "chainId": null,
+    "expiry": 9999999999,
+    "id": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+    "key": {
+      "publicKey": "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe",
+      "type": "p256",
+    },
+    "permissions": {
+      "calls": [
+        {
+          "signature": "0x1249c58b",
+          "to": null,
+        },
+        {
+          "signature": "0x32323232",
+          "to": null,
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0x14d1120d7b160000",
+          "period": "day",
+          "token": null,
+        },
+        {
+          "limit": "0x56bc75e2d63100000",
+          "period": "day",
+          "token": null,
+        },
+      ],
+    },
+  },
+]
+`;
 
 exports[`rpcServer > wallet_grantAdmin > default 1`] = `
 {

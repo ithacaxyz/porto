@@ -55,7 +55,10 @@ describe('wallet_connect', () => {
     porto = getPorto()
 
     await run(
-      porto.provider.request({ method: 'wallet_createAccount' }),
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
     await run(porto.provider.request({ method: 'wallet_disconnect' }))
@@ -92,18 +95,6 @@ describe('wallet_disconnect', () => {
         [Provider.DisconnectedError: The provider is disconnected from all chains.],
       ]
     `)
-  })
-})
-
-describe('wallet_createAccount', () => {
-  test('default', async () => {
-    porto = getPorto()
-
-    const { address } = await run(
-      porto.provider.request({ method: 'wallet_createAccount' }),
-      (iframe) => iframe.getByTestId('sign-up').click(),
-    )
-    expect(address).toBeDefined()
   })
 })
 

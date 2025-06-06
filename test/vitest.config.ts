@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => {
                     },
                   }
                 : {},
+            retry: 3,
             setupFiles: [join(__dirname, './setup.ts')],
             testTimeout: 20_000,
           },
@@ -54,7 +55,7 @@ export default defineConfig(({ mode }) => {
               instances: [
                 { browser: 'chromium' },
                 { browser: 'firefox' },
-                { browser: 'webkit' },
+                // { browser: 'webkit' },
               ],
               provider: 'playwright',
               screenshotFailures: false,

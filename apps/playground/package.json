@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "vite build",
     "check:types": "tsc --noEmit",
     "dev": "vite --port 5173",
-    "dev:anvil": "ANVIL=true vite --port 5173"
+    "dev:anvil": "ANVIL=true vite --port 5173",
+    "start": "vite preview"
   },
   "dependencies": {
     "@porto/apps": "workspace:*",

@@ -54,8 +54,11 @@ pnpm test # Test
 # Install Foundry
 foundryup
 
-forge build --config-path ./contracts/foundry.toml # Build
-forge test --config-path ./contracts/foundry.toml # Test
+forge build --config-path ./contracts/account/foundry.toml # Build
+forge test --config-path ./contracts/account/foundry.toml # Test
+
+forge build --config-path ./contracts/demo/foundry.toml # Build
+forge test --config-path ./contracts/demo/foundry.toml # Test
 ```
 
 ## License

@@ -10,10 +10,6 @@ The RPC server has passthrough to a standard Ethereum node.
 We'd love to hear your feedback. Report any issues or feature suggestions [on the issue tracker](https://github.com/ithacaxyz/rpc-server-issues).
 :::
 
-:::warning
-The RPC server is expected to change after the developer preview, including the removal of PREP (e.g. `wallet_createAccount`).
-:::
-
 ## Endpoints
 
 The RPC server has multiple endpoints, one for each chain/environment.
@@ -47,17 +43,6 @@ If you have [OrbStack](https://orbstack.dev/) installed, you can also query the 
 ## Account management
 
 Accounts are managed through the RPC using the following methods:
-
-### Account creation
-
-In order to facilitate account discovery, account creation is split into two steps:
-
-- [`wallet_prepareCreateAccount`]: Generate an account and a corresponding address.
-- [`wallet_createAccount`]: Create the account on chain.
-
-Accounts are created using [PREP], which proves that neither the RPC server nor the user knows the underlying private key for the EOA.
-
-[`wallet_prepareCreateAccount`] also returns a series of digests that must be signed with the admin keys of the account. These signatures are used to register the key and account in an on-chain registry, allowing users to discover their accounts using their keys later on.
 
 ### Account upgrade
 
@@ -96,8 +81,6 @@ cast block-number --rpc-url https://base-sepolia.rpc.ithaca.xyz
 ```
 
 [`wallet_getCapabilities`]: /rpc-server/wallet_getCapabilities
-[`wallet_prepareCreateAccount`]: /rpc-server/wallet_prepareCreateAccount
-[`wallet_createAccount`]: /rpc-server/wallet_createAccount
 [`wallet_prepareUpgradeAccount`]: /rpc-server/wallet_prepareUpgradeAccount
 [`wallet_upgradeAccount`]: /rpc-server/wallet_upgradeAccount
 [`wallet_getKeys`]: /rpc-server/wallet_getKeys
@@ -105,4 +88,3 @@ cast block-number --rpc-url https://base-sepolia.rpc.ithaca.xyz
 [`wallet_prepareCalls`]: /rpc-server/wallet_prepareCalls
 [`wallet_sendPreparedCalls`]: /rpc-server/wallet_sendPreparedCalls
 [`wallet_getCallsStatus`]: /rpc-server/wallet_getCallsStatus
-[PREP]: https://blog.biconomy.io/prep-deep-dive/

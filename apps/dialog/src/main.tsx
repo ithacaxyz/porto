@@ -54,10 +54,10 @@ const offDialogRequest = Events.onDialogRequest(
 
     if (needsSync)
       Actions.connect(Wagmi.config, {
+        address: account.address,
         connector: getConnectors(Wagmi.config)[0]!,
         credentialId: account.credentialId,
         force: true,
-        keyId: account.keyId,
       })
 
     Router.router.navigate({

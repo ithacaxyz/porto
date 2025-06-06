@@ -75,7 +75,8 @@ describe.each([
     test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -94,9 +95,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -140,9 +146,14 @@ describe.each([
     test.runIf(!Anvil.enabled)('default', async () => {
       const { porto } = getPorto()
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       const signature = await porto.provider.request({
         method: 'eth_signTypedData_v4',
         params: [address, TypedData.serialize(typedData)],
@@ -174,9 +185,13 @@ describe.each([
 
       porto.provider.on('message', (message) => messages.push(message))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       await setBalance(client, {
         address,
@@ -273,7 +288,8 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_grantPermissions',
@@ -311,7 +327,8 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
 
       const permissions = await porto.provider.request({
@@ -391,7 +408,8 @@ describe.each([
     test('behavior: no permissions', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await expect(
         porto.provider.request({
@@ -416,7 +434,8 @@ describe.each([
     test('behavior: unlimited expiry', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await expect(
         porto.provider.request({
@@ -439,21 +458,12 @@ describe.each([
     })
   })
 
-  describe('wallet_createAccount', () => {
-    test('default', async () => {
-      const { porto } = getPorto()
-      const account = await porto.provider.request({
-        method: 'wallet_createAccount',
-      })
-      expect(account).toBeDefined()
-    })
-  })
-
   describe('wallet_getPermissions', () => {
     test('default', async () => {
       const { porto } = getPorto()
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_grantPermissions',
@@ -634,9 +644,13 @@ describe.each([
       const messages: any[] = []
       porto.provider.on('message', (message) => messages.push(message))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       await setBalance(client, {
         address,
@@ -702,9 +716,13 @@ describe.each([
       const messages: any[] = []
       porto.provider.on('message', (message) => messages.push(message))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       await setBalance(client, {
         address,
@@ -766,7 +784,8 @@ describe.each([
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
 
       const accounts = porto._internal.store.getState().accounts
@@ -786,7 +805,8 @@ describe.each([
       const { porto } = getPorto()
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
 
       const version = await porto.provider.request({
@@ -794,8 +814,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.2.0",
-          "latest": "0.2.0",
+          "current": "0.3.2",
+          "latest": "0.3.2",
         }
       `)
     })
@@ -803,9 +823,13 @@ describe.each([
     test('behavior: provided address', async () => {
       const { porto } = getPorto()
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       const version = await porto.provider.request({
         method: 'wallet_getAccountVersion',
@@ -813,8 +837,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.2.0",
-          "latest": "0.2.0",
+          "current": "0.3.2",
+          "latest": "0.3.2",
         }
       `)
     })
@@ -835,7 +859,8 @@ describe.each([
       const { porto } = getPorto()
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
 
       await expect(
@@ -854,9 +879,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -890,7 +920,7 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.2.0",
+          "latest": "0.3.2",
         }
       `)
     })
@@ -920,9 +950,14 @@ describe.each([
         },
       })
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -982,9 +1017,14 @@ describe.each([
     test.runIf(!Anvil.enabled)('default', async () => {
       const { porto } = getPorto()
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       const signature = await porto.provider.request({
         method: 'personal_sign',
         params: [Hex.fromString('hello'), address],
@@ -1013,7 +1053,8 @@ describe.each([
       porto.provider.on('connect', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -1221,7 +1262,8 @@ describe.each([
       porto.provider.on('disconnect', (message) => messages.push(message))
 
       await porto.provider.request({
-        method: 'wallet_createAccount',
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
       await porto.provider.request({
         method: 'wallet_disconnect',
@@ -1292,9 +1334,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1346,9 +1393,18 @@ describe.each([
           mode: 'anvil',
         }))
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1425,9 +1481,18 @@ describe.each([
         })
         const server = await Http.createServer(createRequestListener(handler))
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1522,9 +1587,18 @@ describe.each([
 
         const { porto } = getPorto({ sponsorUrl: server.url })
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1596,9 +1670,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1667,9 +1746,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -1743,9 +1827,18 @@ describe.each([
           mode: 'anvil',
         }))
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1807,9 +1900,18 @@ describe.each([
           mode: 'anvil',
         }))
 
-        const { address } = await porto.provider.request({
-          method: 'wallet_createAccount',
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [
+            {
+              capabilities: { createAccount: true },
+            },
+          ],
         })
+        const address = account!.address
+
         await setBalance(client, {
           address,
           value: Value.fromEther('10000'),
@@ -1898,9 +2000,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -2000,9 +2107,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -2060,9 +2172,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
@@ -2101,9 +2218,13 @@ describe.each([
     test('behavior: no calls.to', async () => {
       const { porto } = getPorto()
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
 
       await expect(() =>
         porto.provider.request({
@@ -2132,9 +2253,14 @@ describe.each([
         mode: 'anvil',
       }))
 
-      const { address } = await porto.provider.request({
-        method: 'wallet_createAccount',
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
       })
+      const address = account!.address
+
       await setBalance(client, {
         address,
         value: Value.fromEther('10000'),
