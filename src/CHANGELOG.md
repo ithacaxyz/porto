@@ -1,5 +1,59 @@
 # porto
 
+## 0.0.30
+
+### Patch Changes
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Removed `ServerActions.prepareCreateAccount`. Use `ServerActions.createAccount` or `ServerActions.upgradeAccount` instead.
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Renamed `keys` to `authorizeKeys` on `ServerActions.prepareUpgradeAccount` and `ServerActions.upgradeAccount`.
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Removed `ServerActions.getAccounts`.
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `wallet_createAccount`. Use `wallet_connect` with the `createAccount` capability instead.
+
+  ```diff
+  provider.request({
+  - method: 'wallet_createAccount',
+  + method: 'wallet_connect',
+  + params: [
+  +   {
+  +     capabilities: {
+  +       createAccount: true,
+  +     },
+  +   },
+  + ],
+  })
+  ```
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Modified `ContractActions.execute#signatures` parameter to be an object instead of an array.
+
+  ```diff
+  ContractActions.execute({
+    ...
+  - signatures: ['0x...', '0x...']
+  + signatures: {
+  +   auth: '0x...',
+  +   exec: '0x...',
+  + },
+  })
+  ```
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/wagmi`):** Removed `useCreateAccount`/`createAccount` actions. Use `useConnect`/`connect` instead.
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Renamed `ContractActions.prepareExecute#signPayloads` to `ContractActions.prepareExecute#digests` parameter, and changed the type to be an object instead of an array.
+
+  ```diff
+  ContractActions.prepareExecute({
+    ...
+  - digests: ['0x...', '0x...']
+  + digests: {
+  +   auth: '0x...',
+  +   exec: '0x...',
+  + },
+  })
+  ```
+
 ## 0.0.29
 
 ### Patch Changes
