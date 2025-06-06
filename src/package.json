@@ -1,7 +1,7 @@
 {
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.0.29",
+  "version": "0.0.25",
   "type": "module",
   "main": "./_dist/index.js",
   "types": "./_dist/index.d.ts",
@@ -48,6 +48,7 @@
   "repository": "ithacaxyz/porto",
   "contributors": [
     "jxom.eth <jake@ithaca.xyz>",
-    "awkweb.eth <tom@ithaca.xyz>"
+    "awkweb.eth <tom@ithaca.xyz>",
+    "esm.eth <omar@ithaca.xyz>"
   ]
 }
