@@ -20,7 +20,6 @@ export function useReadBalances({
   const assets = defaultAssets[chainId]?.filter(
     (asset) => asset.address !== '0x0000000000000000000000000000000000000000',
   )
-  if (!assets) throw new Error(`Unsupported chainId: ${chainId}`)
 
   const account = useAccount()
   const accountAddress = address ?? account.address
