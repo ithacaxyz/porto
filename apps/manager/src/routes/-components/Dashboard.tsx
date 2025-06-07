@@ -10,7 +10,14 @@ import { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
+import {
+  createPublicClient,
+  encodeFunctionData,
+  erc20Abi,
+  formatEther,
+  http,
+} from 'viem'
+import { mainnet } from 'viem/chains'
 import {
   useAccount,
   useChainId,
@@ -24,6 +31,7 @@ import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
+import { useEnsNames } from '~/hooks/useEnsNames'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info, useErc721Info } from '~/hooks/useTokenInfo'
 import { useTokenStandard } from '~/hooks/useTokenStandard'
@@ -147,6 +155,15 @@ export function Dashboard() {
       },
     },
   })
+
+  const transfers = addressTransfers.data?.items ?? []
+
+  const allAddrs = transfers.flatMap((tx) => [
+    tx.from.hash as string,
+    tx.to.hash as string,
+  ])
+
+  const ensMap = useEnsNames(allAddrs)
 
   return (
     <>
@@ -343,7 +360,11 @@ export function Dashboard() {
                           <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
                         </div>
                         <TruncatedAddress
-                          address={transfer?.to.hash ?? ''}
+                          address={
+                            ensMap[transfer?.from.hash ?? ''] ??
+                            transfer?.from.hash ??
+                            ''
+                          }
                           className="ml-2"
                         />
                       </div>
@@ -354,7 +375,11 @@ export function Dashboard() {
                           <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
                         </div>
                         <TruncatedAddress
-                          address={transfer?.to.hash ?? ''}
+                          address={
+                            ensMap[transfer?.to.hash ?? ''] ??
+                            transfer?.to.hash ??
+                            ''
+                          }
                           className="ml-2"
                         />
                       </div>
@@ -807,8 +832,29 @@ function AssetRow({
   ) {
     event.preventDefault()
 
+    let resolvedEnsAddress: Address.Address | undefined = undefined
+    if (sendFormState.values.sendRecipient.endsWith('.eth')) {
+      const publicClient = createPublicClient({
+        chain: mainnet,
+        transport: http(),
+      })
+
+      const resolvedAddress = await publicClient.getEnsAddress({
+        name: sendFormState.values.sendRecipient,
+      })
+
+      if (!resolvedAddress) {
+        toast.error('Failed to resolve ENS name')
+        return
+      }
+
+      resolvedEnsAddress = resolvedAddress
+    }
+
     if (
-      !Address.validate(sendFormState.values.sendRecipient) ||
+      !Address.validate(
+        resolvedEnsAddress ?? sendFormState.values.sendRecipient,
+      ) ||
       !sendFormState.values.sendAmount
     )
       return
@@ -818,7 +864,8 @@ function AssetRow({
           data: encodeFunctionData({
             abi: erc20Abi,
             args: [
-              sendFormState.values.sendRecipient,
+              (resolvedEnsAddress as Address.Address) ??
+                sendFormState.values.sendRecipient,
               Value.from(sendFormState.values.sendAmount, decimals),
             ],
             functionName: 'transfer',
@@ -910,7 +957,7 @@ function AssetRow({
                               value,
                             )
                           }
-                          pattern="^0x[a-fA-F0-9]{40}$"
+                          pattern="^(0x[a-fA-F0-9]{40}|[a-z0-9]+(?:-[a-z0-9]+)*\.eth)$"
                           placeholder="0xAbcD..."
                           required={true}
                           spellCheck={false}
