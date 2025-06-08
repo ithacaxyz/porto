@@ -404,7 +404,7 @@ export function Dashboard() {
               align: 'left',
               header: 'Amount',
               key: 'amount',
-              width: 'w-[120px]',
+              width: 'w-[85px]',
             },
             { align: 'left', header: '', key: 'period', width: 'w-[60px]' },
             { align: 'right', header: '', key: 'action' },
@@ -432,21 +432,21 @@ export function Dashboard() {
                 className="*:text-xs! *:sm:text-sm!"
                 key={`${permission.id}-${permission.expiry}`}
               >
-                <td className="max-w-[50px] py-3 text-left">
+                <td className="py-1 text-left">
                   <a
                     className="flex flex-row items-center"
                     href={`${blockExplorer}/address/${permission.address}`}
                     rel="noreferrer"
                     target="_blank"
                   >
-                    <span className="min-w-[37px] text-gray11">{time}</span>
-                    <ExternalLinkIcon className="mr-2 size-4 text-gray10" />
+                    <span className="min-w-[35px] text-gray11">{time}</span>
+                    <ExternalLinkIcon className="mr-1 size-3.75 text-gray10" />
                   </a>
                 </td>
                 <td className="text-right">
                   <div className="flex flex-row items-center gap-x-0 sm:gap-x-2">
-                    <div className="flex size-7 items-center justify-center rounded-full bg-blue-100">
-                      <WorldIcon className="m-auto size-5 text-blue-400" />
+                    <div className="hidden size-6.25 items-center justify-center rounded-full bg-blue-100 sm:flex">
+                      <WorldIcon className="size-4 text-blue-400" />
                     </div>
 
                     <TruncatedAddress
@@ -461,7 +461,7 @@ export function Dashboard() {
                   </span>
                 </td>
                 <td className="w-[50px] text-right">
-                  <div className="flex w-fit min-w-fit max-w-[105px] flex-row items-end justify-end gap-x-2 overflow-hidden whitespace-nowrap rounded-2xl bg-gray3 px-1.5 py-1 text-right font-[500] text-gray10">
+                  <div className="flex w-fit min-w-fit max-w-[105px] flex-row items-end justify-end gap-x-2 overflow-hidden whitespace-nowrap rounded-2xl bg-gray3 px-1.5 py-1 text-right font-[500] text-gray10 text-xs">
                     <span className="truncate">
                       {formatEther(
                         Hex.toBigInt(spend?.limit as unknown as Hex.Hex),
@@ -487,7 +487,10 @@ export function Dashboard() {
                     )}
                     disabled={time === 'expired'}
                     onClick={() => {
-                      revokePermissions.mutate({ id: permission.id })
+                      revokePermissions.mutate({
+                        address: account.address,
+                        id: permission.id,
+                      })
                     }}
                   >
                     {time === 'expired' ? (
@@ -528,8 +531,7 @@ export function Dashboard() {
         <table className="my-3 w-full">
           <thead>
             <tr className="text-gray10 *:font-normal *:text-sm">
-              <th className="text-left">ID</th>
-              <th className="text-left">Public Key</th>
+              <th className="text-left">Key ID</th>
               <th className="invisible text-right">Action</th>
             </tr>
           </thead>
@@ -557,15 +559,6 @@ export function Dashboard() {
                       </div>
                     </td>
 
-                    <td className="text-left">
-                      <div className="flex flex-row items-center gap-x-2 font-medium">
-                        <TruncatedAddress
-                          address={key.publicKey}
-                          className="text-sm sm:text-md"
-                        />
-                      </div>
-                    </td>
-
                     <td className="text-right">
                       <Ariakit.Button
                         className="size-7 rounded-full px-1 pt-1 hover:bg-gray4"
@@ -581,10 +574,10 @@ export function Dashboard() {
                             )
                         }
                       >
-                        <CopyIcon className="m-auto size-4 text-gray10 sm:size-5" />
+                        <CopyIcon className="m-auto size-4 text-gray10" />
                       </Ariakit.Button>
                       <Ariakit.Button
-                        className="size-8 rounded-full p-1 hover:bg-red-100"
+                        className="size-8 rounded-full p-1 text-gray11 hover:bg-red-100 hover:text-red-500"
                         onClick={() => {
                           if (!id || !address) return
                           revokeAdmin.mutate({
@@ -593,7 +586,7 @@ export function Dashboard() {
                           })
                         }}
                       >
-                        <XIcon className={cx('m-auto size-5 text-red-500')} />
+                        <XIcon className={cx('m-auto size-5')} />
                       </Ariakit.Button>
                     </td>
                   </tr>
