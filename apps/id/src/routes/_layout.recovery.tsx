@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { UserAgent } from '@porto/apps'
 import { Button, Spinner, Toast } from '@porto/apps/components'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { baseSepolia } from 'porto/core/Chains'
@@ -120,29 +119,6 @@ function RouteComponent() {
       await disconnectAll()
     }
   }
-
-  if (UserAgent.isMobile())
-    return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-y-4 px-3">
-        <p className="rounded-lg border border-gray5/50 bg-surface px-2.5 py-1 text-center font-medium text-lg">
-          Coming soon
-        </p>
-        <p className="text-center">
-          Adding a recovery wallet is not supported on mobile yet.
-          <br />
-          Please use a desktop browser with a wallet extension to add a recovery
-          wallet.
-        </p>
-        <Button
-          className="w-full"
-          render={
-            <Link from="/recovery" to="/">
-              Go back
-            </Link>
-          }
-        />
-      </div>
-    )
 
   if (!connectors.length)
     return (

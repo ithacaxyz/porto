@@ -43,3 +43,4 @@ catalog:
   wagmi: "^2.15.4"
   zustand: "^5.0.3"
   "@vitejs/plugin-react": "^4.3.4"
+  unplugin-turbo-console: "^2.1.3"
