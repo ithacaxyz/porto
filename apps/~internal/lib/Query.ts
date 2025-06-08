@@ -10,21 +10,15 @@ export const client: QueryClient = new QueryClient({
     },
   },
   mutationCache: new MutationCache({
-    onError: (error, variables) => {
+    onError: (error) => {
       if (import.meta.env.MODE !== 'development') return
       console.error(error)
-      console.info(JSON.stringify(variables, undefined, 2))
-    },
-    onSettled: () => {
-      if (client.isMutating() === 1) return client.invalidateQueries()
     },
   }),
   queryCache: new QueryCache({
     onError: (error, query) => {
       if (import.meta.env.MODE !== 'development') return
-      if (query.state.data !== undefined) {
-        console.error(error)
-      }
+      if (query.state.data !== undefined) console.error(error)
     },
   }),
 })
