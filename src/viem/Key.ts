@@ -25,6 +25,7 @@ import type {
   UnionOmit,
   UnionRequiredBy,
 } from '../core/internal/types.js'
+import * as UserAgent from '../core/internal/userAgent.js'
 import type * as Storage from '../core/Storage.js'
 
 type PrivateKeyFn = () => Hex.Hex
@@ -239,12 +240,21 @@ export async function createWebAuthnP256(
 ) {
   const { createFn, label, rpId, userId } = parameters
 
+  const authenticatorSelection = (
+    UserAgent.isFirefoxAndroid()
+      ? {
+          requireResidentKey: true,
+          residentKey: 'required',
+          userVerification: 'required',
+        }
+      : {
+          requireResidentKey: false,
+          residentKey: 'preferred',
+          userVerification: 'required',
+        }
+  ) satisfies AuthenticatorSelectionCriteria
   const credential = await WebAuthnP256.createCredential({
-    authenticatorSelection: {
-      requireResidentKey: false,
-      residentKey: 'preferred',
-      userVerification: 'required',
-    },
+    authenticatorSelection,
     createFn,
     rp: rpId
       ? {
