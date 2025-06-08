@@ -22,6 +22,7 @@ import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
 import * as FeeToken from '../typebox/feeToken.js'
+import * as UserAgent from '../userAgent.js'
 import * as U from '../utils.js'
 
 export const defaultPermissionsFeeLimit = {
@@ -311,9 +312,26 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             })
             const response = webAuthnSignature.raw
               .response as AuthenticatorAssertionResponse
-
-            const address = Bytes.toHex(new Uint8Array(response.userHandle!))
             const credentialId = webAuthnSignature.raw.id
+
+            let address: Address.Address
+            if (!response.userHandle || response.userHandle.byteLength === 0) {
+              if (UserAgent.isFirefoxAndroid()) {
+                const storedAddress =
+                  UserAgent.getAddressForCredential(credentialId)
+                if (!storedAddress) {
+                  throw new Error(
+                    'Firefox Android: Cannot find stored address for this credential. ' +
+                      'This may be the first time using this credential. Please recreate your account.',
+                  )
+                }
+                address = storedAddress
+              } else {
+                throw new Error(
+                  'WebAuthn userHandle is null or empty - credential may be corrupted',
+                )
+              }
+            } else address = Bytes.toHex(new Uint8Array(response.userHandle))
 
             return { address, credentialId, webAuthnSignature }
           })()

@@ -25,6 +25,7 @@ import type {
   UnionOmit,
   UnionRequiredBy,
 } from '../core/internal/types.js'
+import * as UserAgent from '../core/internal/userAgent.js'
 import type * as Storage from '../core/Storage.js'
 
 type PrivateKeyFn = () => Hex.Hex
@@ -239,12 +240,21 @@ export async function createWebAuthnP256(
 ) {
   const { createFn, label, rpId, userId } = parameters
 
+  const authenticatorSelection = (
+    UserAgent.isFirefoxAndroid()
+      ? {
+          requireResidentKey: true,
+          residentKey: 'required',
+          userVerification: 'required',
+        }
+      : {
+          requireResidentKey: false,
+          residentKey: 'preferred',
+          userVerification: 'required',
+        }
+  ) satisfies AuthenticatorSelectionCriteria
   const credential = await WebAuthnP256.createCredential({
-    authenticatorSelection: {
-      requireResidentKey: false,
-      residentKey: 'preferred',
-      userVerification: 'required',
-    },
+    authenticatorSelection,
     createFn,
     rp: rpId
       ? {
@@ -259,7 +269,7 @@ export async function createWebAuthnP256(
     },
   })
 
-  return fromWebAuthnP256({
+  const key = fromWebAuthnP256({
     ...parameters,
     credential: {
       id: credential.id,
@@ -267,6 +277,10 @@ export async function createWebAuthnP256(
     },
     id: Bytes.toHex(userId),
   })
+
+  UserAgent.storeAddressForCredential(credential.id, Bytes.toHex(userId))
+
+  return key
 }
 
 export declare namespace createWebAuthnP256 {
@@ -913,8 +927,20 @@ export async function sign(
       })
 
       const response = raw.response as AuthenticatorAssertionResponse
-      const id = Bytes.toHex(new Uint8Array(response.userHandle!))
-      if (key.id && !Address.isEqual(key.id, id))
+
+      let id: Hex.Hex | undefined
+      if (!response.userHandle || response.userHandle.byteLength === 0) {
+        if (UserAgent.isFirefoxAndroid()) {
+          // Use stored address mapping for Firefox Android
+          id = UserAgent.getAddressForCredential(credential.id) || undefined
+        } else {
+          throw new Error(
+            'WebAuthn userHandle is null or empty - credential may be corrupted',
+          )
+        }
+      } else id = Bytes.toHex(new Uint8Array(response.userHandle))
+
+      if (key.id && id && !Address.isEqual(key.id, id))
         throw new Error(
           `supplied webauthn key "${key.id}" does not match signature webauthn key "${id}"`,
         )
