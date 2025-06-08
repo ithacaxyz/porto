@@ -113,14 +113,7 @@ export function Dashboard() {
     )
   }, [swapAssets.data])
 
-  const admins = Hooks.useAdmins({
-    query: {
-      select: ({ address, keys }) => ({
-        address,
-        keys: keys.filter((key) => key.type === 'address'),
-      }),
-    },
-  })
+  const admins = Hooks.useAdmins()
 
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
