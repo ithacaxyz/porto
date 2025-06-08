@@ -16,7 +16,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
 
   const admins = Hooks.useAdmins()
   const revokeKey = admins?.data?.keys?.find(
-    (admin) => admin.id === revokeKeyId,
+    (admin) => admin.id.toLowerCase() === revokeKeyId.toLowerCase(),
   )
 
   const prepareCallsQuery = RpcServer.usePrepareCalls({
