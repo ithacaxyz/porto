@@ -113,11 +113,22 @@ export function Dashboard() {
     )
   }, [swapAssets.data])
 
-  const admins = Hooks.useAdmins()
+  const admins = Hooks.useAdmins({
+    query: {
+      enabled: account.status === 'connected',
+      select: (data) => ({
+        address: data.address,
+        keys: data.keys.filter((key) =>
+          ['address', 'secp256k1'].includes(key.type),
+        ),
+      }),
+    },
+  })
 
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
       onError: (error) => {
+        if (error.name === 'UserRejectedRequestError') return
         toast.custom((t) => (
           <Toast
             className={t}
@@ -577,7 +588,8 @@ export function Dashboard() {
                         onClick={() => {
                           if (!id || !address) return
                           revokeAdmin.mutate({
-                            id: key?.id,
+                            address: account.address,
+                            id: key.id,
                           })
                         }}
                       >
