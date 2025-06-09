@@ -508,12 +508,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
         )
         if (!key) return
 
-        // Prevent revoking the primary key (webauthn-p256 key with id matching account address)
+        // Cannot revoke the only WebAuthn key left
         if (
           key.type === 'webauthn-p256' &&
-          Address.isEqual(key.id, account.address)
+          account.keys?.filter((key) => key.type === 'webauthn-p256').length ===
+            1
         )
-          throw new Error('Cannot revoke the only webauthn-p256 key left.')
+          throw new Error('revoke the only WebAuthn key left.')
 
         const feeToken = await resolveFeeToken(internal, parameters)
 

@@ -5,6 +5,9 @@ on:
   repository_dispatch:
     types: ['relay-release', 'relay-deployment']
 
+env:
+   ACTIONS_RUNNER_DEBUG: true
+
 jobs:
   checks:
     name: Checks
