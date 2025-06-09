@@ -493,6 +493,10 @@ export function contract(parameters: contract.Parameters = {}) {
         return hash
       },
 
+      async setEmail() {
+        throw new Provider.UnsupportedMethodError()
+      },
+
       async signPersonalMessage(parameters) {
         const { account, data, internal } = parameters
 
@@ -548,6 +552,10 @@ export function contract(parameters: contract.Parameters = {}) {
         address_internal = account.address
 
         return { account }
+      },
+
+      async verifyEmail() {
+        throw new Provider.UnsupportedMethodError()
       },
     },
     name: 'contract',

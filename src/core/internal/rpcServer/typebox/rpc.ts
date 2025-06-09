@@ -24,6 +24,52 @@ const Call = Type.Object({
   value: Typebox.Optional(Primitive.BigInt),
 })
 
+export namespace account_setEmail {
+  /** Parameters for `account_setEmail` request. */
+  export const Parameters = Type.Object({
+    /** Email to set for wallet address. */
+    email: Type.String(),
+    /** Address to set email. */
+    walletAddress: Primitive.Address,
+  })
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
+
+  /** Request for `account_setEmail`. */
+  export const Request = Type.Object({
+    method: Type.Literal('account_setEmail'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Typebox.StaticDecode<typeof Request>
+
+  /** Response for `account_setEmail`. */
+  export const Response = Type.Null()
+  export type Response = Typebox.StaticDecode<typeof Response>
+}
+
+export namespace account_verifyEmail {
+  /** Parameters for `account_verifyEmail` request. */
+  export const Parameters = Type.Object({
+    // TODO: `Primitive.Number`
+    chainId: Type.Number(),
+    email: Type.String(),
+    signature: Primitive.Hex,
+    token: Type.String(),
+    walletAddress: Primitive.Address,
+  })
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
+
+  /** Request for `account_verifyEmail`. */
+  export const Request = Type.Object({
+    method: Type.Literal('account_verifyEmail'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Typebox.StaticDecode<typeof Request>
+
+  /** Response for `account_verifyEmail`. */
+  export const Response = Type.Null()
+  export type Response = Typebox.StaticDecode<typeof Response>
+}
+
 export namespace health {
   export const Request = Type.Object({
     method: Type.Literal('health'),

@@ -1,7 +1,18 @@
 import { Button } from '@porto/apps/components'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Address } from 'ox'
+import { Actions } from 'porto/wagmi'
 import * as React from 'react'
-import { useAccount, useConnect, useConnectors, useSignMessage } from 'wagmi'
+import * as v from 'valibot'
+import {
+  BaseError,
+  useAccount,
+  useConfig,
+  useConnect,
+  useConnectors,
+  useSignMessage,
+} from 'wagmi'
 import LucideCheck from '~icons/lucide/check'
 import LucideFingerprint from '~icons/lucide/fingerprint'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
@@ -10,37 +21,56 @@ import { Layout } from './-components/Layout.tsx'
 
 export const Route = createFileRoute('/_layout/email/verify')({
   component: RouteComponent,
-  validateSearch(_search) {
-    // TODO: Wire up search params from email link
-    // if (!search.email) throw new Error("Email is required")
-    // if (!search.token) throw new Error("Token is required")
+  head() {
     return {
-      email: 'user@example.com',
-      token: 'xyz',
+      meta: [
+        {
+          title: 'Verify Email',
+        },
+      ],
     }
   },
+  validateSearch: v.object({
+    address: v.pipe(v.string(), v.check(Address.validate, 'Invalid address')),
+    email: v.pipe(v.string(), v.email()),
+    token: v.string(),
+  }),
 })
 
 function RouteComponent() {
-  const { status } = useAccount()
+  const config = useConfig()
+  const { chainId, status } = useAccount()
   const [connector] = useConnectors()
-  const { email } = Route.useSearch()
+  const { address, email, token } = Route.useSearch()
 
   const connect = useConnect()
+  const verifyEmail = useMutation<
+    null,
+    BaseError,
+    Actions.verifyEmail.Parameters<typeof config>
+  >({
+    async mutationFn(variables) {
+      console.log(variables)
+      return await Actions.verifyEmail(config, variables)
+    },
+    mutationKey: ['verifyEmail'],
+  })
   const signMessage = useSignMessage({
     mutation: {
-      onSuccess(_data) {
-        // TODO: `account_verifyEmail`
-        setVerifiedStatus('success')
+      onSuccess(data) {
+        verifyEmail.mutate({
+          chainId: chainId as never,
+          email,
+          signature: data,
+          token,
+          walletAddress: address as Address.Address,
+        })
       },
     },
   })
-  const [verifiedStatus, setVerifiedStatus] = React.useState<
-    'initial' | 'error' | 'success'
-  >('initial')
 
   const content = React.useMemo(() => {
-    if (verifiedStatus === 'initial')
+    if (verifyEmail.status === 'idle')
       return {
         description:
           "When you're ready, we will ask you to sign from your Porto account.",
@@ -52,7 +82,7 @@ function RouteComponent() {
         subtext: "We just need to make sure it's you!",
         title: 'Signature required',
       }
-    if (verifiedStatus === 'success')
+    if (verifyEmail.status === 'success')
       return {
         icon: (
           <div className="flex size-15 items-center justify-center rounded-full bg-green3">
@@ -78,7 +108,7 @@ function RouteComponent() {
         'We could not verify ownership of the Porto account that you are linking this email to.',
       title: 'Signature failed',
     }
-  }, [email, verifiedStatus])
+  }, [email, verifyEmail.status])
 
   return (
     <div className="flex h-full flex-col justify-between">
@@ -104,7 +134,7 @@ function RouteComponent() {
         <div className="-tracking-[2.8%] text-center text-[17px] text-gray10 leading-[24px]">
           {content.subtext}
         </div>
-        {verifiedStatus === 'success' ? (
+        {verifyEmail.status === 'success' ? (
           <Button
             className="mt-4 w-full "
             render={<Link to="/">Done</Link>}
@@ -119,8 +149,7 @@ function RouteComponent() {
                 connect.connect({ connector: connector! })
               else
                 signMessage.signMessage({
-                  message:
-                    'You are requested by id.porto.sh to confirm ownership of this account.',
+                  message: `${email}${token}`,
                 })
             }}
             variant={
@@ -134,7 +163,7 @@ function RouteComponent() {
               </>
             ) : status === 'disconnected' ? (
               'Sign in'
-            ) : verifiedStatus === 'error' ? (
+            ) : verifyEmail.status === 'error' ? (
               'Try again'
             ) : (
               'Continue'

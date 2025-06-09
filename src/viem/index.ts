@@ -1,4 +1,5 @@
 export * as Account from './Account.js'
+export * as AccountActions from './AccountActions.js'
 export type { CapabilitiesSchema } from './CapabilitiesSchema.js'
 export * as ContractActions from './ContractActions.js'
 export { decorator as contractActions } from './ContractActions.js'

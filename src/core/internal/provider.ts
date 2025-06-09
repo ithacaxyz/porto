@@ -67,6 +67,67 @@ export function from<
       const state = store.getState()
 
       switch (request.method) {
+        case 'account_setEmail': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const { email, walletAddress } = request.params[0] ?? {}
+
+          const account = walletAddress
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, walletAddress),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          const client = getClient()
+
+          return await getMode().actions.setEmail({
+            email,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+            walletAddress,
+          })
+        }
+
+        case 'account_verifyEmail': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [parameters] = request._decoded.params
+          const { chainId, email, signature, token, walletAddress } = parameters
+
+          const client = getClient(chainId)
+
+          if (chainId && chainId !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
+
+          const account = walletAddress
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, walletAddress),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          return await getMode().actions.verifyEmail({
+            chainId,
+            email,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+            signature,
+            token,
+            walletAddress,
+          })
+        }
+
         case 'wallet_addFunds': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
@@ -710,6 +771,7 @@ export function from<
 
           const {
             createAccount,
+            email,
             grantPermissions: permissions,
             selectAccount,
           } = capabilities ?? {}
@@ -722,7 +784,7 @@ export function from<
           }
 
           const { accounts, preCalls } = await (async () => {
-            if (createAccount) {
+            if (email || createAccount) {
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await getMode().actions.createAccount({
@@ -730,6 +792,12 @@ export function from<
                 label,
                 permissions,
               })
+              if (email && label)
+                await getMode().actions.setEmail({
+                  email: label,
+                  internal,
+                  walletAddress: account.address,
+                })
               return { accounts: [account] }
             }
             const account = state.accounts[0]

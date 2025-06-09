@@ -239,6 +239,24 @@ export type Mode = {
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
 
+    setEmail: (parameters: {
+      /** Email to link to address. */
+      email: string
+      /** Address to link email. */
+      walletAddress: Address.Address
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<null>
+
+    verifyEmail: (parameters: {
+      chainId: number
+      email: string
+      signature: Hex.Hex
+      token: string
+      walletAddress: Address.Address
+      internal: ActionsInternal
+    }) => Promise<null>
+
     signPersonalMessage: (parameters: {
       /** Account to sign the message with. */
       account: Account.Account

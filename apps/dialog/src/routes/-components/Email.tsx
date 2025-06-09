@@ -43,7 +43,7 @@ export function Email(props: Email.Props) {
 
       <Permissions title="Permissions requested" {...permissions} />
 
-      <div className="group peer flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
+      <div className="group flex min-h-[48px] w-full flex-col items-center justify-center space-y-3 px-3 pb-3">
         <Button
           className="flex w-full gap-2"
           data-testid="sign-in"
@@ -92,19 +92,6 @@ export function Email(props: Email.Props) {
           </Button>
         </form>
       </div>
-
-      <Layout.Footer className="block peer-has-focus:hidden">
-        <div className="flex w-full flex-col gap-2 border-gray5 border-t px-3 pt-3">
-          <div className="-tracking-[2.8%] flex items-center gap-2 font-medium text-[15px] text-gray12 leading-none">
-            <IconScanFace className="size-5.25 text-blue9" />
-            What is a passkey?
-          </div>
-          <div className="-tracking-[2.8%] text-[15px] text-gray11 leading-[20px]">
-            Passkeys are the fastest & most secure way to sign in on the
-            internet.
-          </div>
-        </div>
-      </Layout.Footer>
     </Layout>
   )
 }

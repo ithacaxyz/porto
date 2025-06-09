@@ -7,6 +7,45 @@ import * as Primitive from './primitive.js'
 import * as Typebox from './typebox.js'
 import { Type } from './typebox.js'
 
+export namespace account_setEmail {
+  export const Parameters = Type.Object({
+    email: Type.String(),
+    walletAddress: Primitive.Address,
+  })
+
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('account_setEmail'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Typebox.StaticDecode<typeof Request>
+
+  export const Response = Type.Null()
+  export type Response = Typebox.StaticDecode<typeof Response>
+}
+
+export namespace account_verifyEmail {
+  export const Parameters = Type.Object({
+    chainId: Primitive.Number,
+    email: Type.String(),
+    signature: Primitive.Hex,
+    token: Type.String(),
+    walletAddress: Primitive.Address,
+  })
+
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('account_verifyEmail'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Typebox.StaticDecode<typeof Request>
+
+  export const Response = Type.Null()
+  export type Response = Typebox.StaticDecode<typeof Response>
+}
+
 export namespace wallet_addFunds {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),

@@ -21,6 +21,7 @@ import {
 } from 'viem'
 import * as Typebox from '../../core/internal/typebox/typebox.js'
 import * as RpcSchema from '../../core/RpcSchema.js'
+import * as AccountActions from '../../viem/AccountActions.js'
 import * as WalletActions from '../../viem/WalletActions.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
 
@@ -298,6 +299,32 @@ export declare namespace revokePermissions {
   type ErrorType = BaseError
 }
 
+export async function setEmail<config extends Config>(
+  config: config,
+  parameters: setEmail.Parameters<config>,
+): Promise<setEmail.ReturnType> {
+  const { chainId, connector, walletAddress } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: walletAddress,
+    chainId,
+    connector,
+  })
+
+  return AccountActions.setEmail(client, parameters)
+}
+
+export declare namespace setEmail {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    AccountActions.setEmail.Parameters
+
+  type ReturnType = AccountActions.setEmail.ReturnType
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
 export async function upgradeAccount<config extends Config>(
   config: config,
   parameters: upgradeAccount.Parameters<config>,
@@ -379,6 +406,32 @@ export declare namespace upgradeAccount {
     }
 
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
+export async function verifyEmail<config extends Config>(
+  config: config,
+  parameters: verifyEmail.Parameters<config>,
+): Promise<verifyEmail.ReturnType> {
+  const { chainId, connector, walletAddress } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: walletAddress,
+    chainId,
+    connector,
+  })
+
+  return AccountActions.verifyEmail(client, parameters)
+}
+
+export declare namespace verifyEmail {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    AccountActions.verifyEmail.Parameters
+
+  type ReturnType = AccountActions.verifyEmail.ReturnType
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError

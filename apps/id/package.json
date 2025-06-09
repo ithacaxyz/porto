@@ -29,6 +29,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "sonner": "catalog:",
+    "valibot": "^1.1.0",
     "wagmi": "catalog:"
   },
   "devDependencies": {

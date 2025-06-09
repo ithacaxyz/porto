@@ -577,6 +577,16 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         return id
       },
 
+      async setEmail(parameters) {
+        const { email, internal, walletAddress } = parameters
+        const { client } = internal
+
+        return await ServerActions.setEmail(client, {
+          email,
+          walletAddress,
+        })
+      },
+
       async signPersonalMessage(parameters) {
         const { account, data } = parameters
 
@@ -653,6 +663,20 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         return { account }
+      },
+
+      async verifyEmail(parameters) {
+        const { chainId, email, signature, token, internal, walletAddress } =
+          parameters
+        const { client } = internal
+
+        return await ServerActions.verifyEmail(client, {
+          chainId,
+          email,
+          signature,
+          token,
+          walletAddress,
+        })
       },
     },
     name: 'rpc',

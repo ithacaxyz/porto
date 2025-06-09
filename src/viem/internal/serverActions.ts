@@ -441,6 +441,61 @@ export namespace sendPreparedCalls {
 }
 
 /**
+ * Sets email for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function setEmail(
+  client: Client,
+  parameters: setEmail.Parameters,
+): Promise<setEmail.ReturnType> {
+  const { email, walletAddress } = parameters
+
+  try {
+    const method = 'account_setEmail' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(
+            RpcSchema.account_setEmail.Parameters,
+            Value.Clean(RpcSchema.account_setEmail.Parameters, {
+              email,
+              walletAddress,
+            } satisfies RpcSchema.account_setEmail.Parameters),
+          ),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return Value.Parse(RpcSchema.account_setEmail.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace setEmail {
+  export type Parameters = RpcSchema.account_setEmail.Parameters
+
+  export type ReturnType = RpcSchema.account_setEmail.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Submits an account upgrade to the RPC Server.
  *
  * @example
@@ -487,6 +542,64 @@ export namespace upgradeAccount {
   export type Parameters = RpcSchema.wallet_upgradeAccount.Parameters
 
   export type ReturnType = RpcSchema.wallet_upgradeAccount.Response
+
+  export type ErrorType =
+    | parseSchemaError.ErrorType
+    | parseExecutionError.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Verifies email for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function verifyEmail(
+  client: Client,
+  parameters: verifyEmail.Parameters,
+): Promise<verifyEmail.ReturnType> {
+  const { chainId, email, signature, token, walletAddress } = parameters
+
+  try {
+    const method = 'account_verifyEmail' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>(
+      {
+        method,
+        params: [
+          Value.Encode(
+            RpcSchema.account_verifyEmail.Parameters,
+            Value.Clean(RpcSchema.account_verifyEmail.Parameters, {
+              chainId,
+              email,
+              signature,
+              token,
+              walletAddress,
+            } satisfies RpcSchema.account_verifyEmail.Parameters),
+          ),
+        ],
+      },
+      {
+        retryCount: 0,
+      },
+    )
+    return Value.Parse(RpcSchema.account_verifyEmail.Response, result)
+  } catch (error) {
+    parseSchemaError(error)
+    parseExecutionError(error)
+    throw error
+  }
+}
+
+export namespace verifyEmail {
+  export type Parameters = RpcSchema.account_verifyEmail.Parameters
+
+  export type ReturnType = RpcSchema.account_verifyEmail.Response
 
   export type ErrorType =
     | parseSchemaError.ErrorType

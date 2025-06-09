@@ -154,6 +154,7 @@ export function Dashboard() {
   })
 
   // TODO: `useQuery` + `account_email`
+  const showManageEmail = false
   const [emailData, setEmailData] = React.useState<
     | {
         email: string
@@ -169,73 +170,29 @@ export function Dashboard() {
       <div className="h-3" />
       <Layout.Header
         left={
-          <div>
-            {emailData ? (
-              <div className="flex items-center gap-2">
-                {/* TODO: Sparkle spotlight effect `bg-repeat` https://tailwindcss.com/docs/background-repeat */}
-                <div className="-tracking-[2.8%] min-w-10 px-2 font-medium text-[15px] text-gray12 blur-sm">
-                  {emailData.email}
-                </div>
-                {emailData.verified ? (
-                  <Ariakit.PopoverProvider>
-                    <Ariakit.PopoverDisclosure className="flex size-8 items-center justify-center rounded-full bg-green3">
-                      <LucideBadgeCheck className="size-4 text-green9" />
-                    </Ariakit.PopoverDisclosure>
-                    <Ariakit.Popover
-                      className="flex w-[230px] flex-col gap-1 rounded-[11px] border border-gray3 bg-gray1 p-4"
-                      gutter={4}
-                    >
-                      <Ariakit.PopoverHeading className="-tracking-[0.25px] font-medium text-[14px] text-gray12">
-                        Your email is verified.
-                      </Ariakit.PopoverHeading>
-                      <Ariakit.PopoverDescription className="-tracking-[0.25px] text-[13px] text-gray9 leading-[18px]">
-                        It can be used to restore your account to new devices.
-                      </Ariakit.PopoverDescription>
-                      <Button
-                        className="mt-1 flex w-fit gap-1"
-                        onClick={() => setEmailData(undefined)}
-                        size="small"
-                        type="button"
+          showManageEmail && (
+            <div>
+              {emailData ? (
+                <div className="flex items-center gap-2">
+                  {/* TODO: Sparkle spotlight effect `bg-repeat` https://tailwindcss.com/docs/background-repeat */}
+                  <div className="-tracking-[2.8%] min-w-10 px-2 font-medium text-[15px] text-gray12 blur-sm">
+                    {emailData.email}
+                  </div>
+                  {emailData.verified ? (
+                    <Ariakit.PopoverProvider>
+                      <Ariakit.PopoverDisclosure className="flex size-8 items-center justify-center rounded-full bg-green3">
+                        <LucideBadgeCheck className="size-4 text-green9" />
+                      </Ariakit.PopoverDisclosure>
+                      <Ariakit.Popover
+                        className="flex w-[230px] flex-col gap-1 rounded-[11px] border border-gray3 bg-gray1 p-4"
+                        gutter={4}
                       >
-                        <LucidePencil className="size-3.25 " />
-                        Change email
-                      </Button>
-                    </Ariakit.Popover>
-                  </Ariakit.PopoverProvider>
-                ) : (
-                  <Ariakit.PopoverProvider>
-                    <Ariakit.PopoverDisclosure className="flex size-8 items-center justify-center rounded-full bg-amber2">
-                      <LucideTriangleAlert className="size-4 text-amber8" />
-                    </Ariakit.PopoverDisclosure>
-                    <Ariakit.Popover
-                      className="flex w-[240px] flex-col gap-1 rounded-[11px] border border-gray3 bg-gray1 p-4"
-                      gutter={4}
-                    >
-                      <Ariakit.PopoverHeading className="-tracking-[0.25px] font-medium text-[14px] text-gray12">
-                        Email not verified
-                      </Ariakit.PopoverHeading>
-                      <Ariakit.PopoverDescription className="-tracking-[0.25px] text-[13px] text-gray9 leading-[18px]">
-                        Please click the verification link to fully enable
-                        Balance.
-                      </Ariakit.PopoverDescription>
-                      <div className="flex gap-1">
-                        <Button
-                          className="mt-1 flex w-fit gap-1"
-                          onClick={() =>
-                            // TODO: `account_resendVerifyEmail`
-                            setEmailData((x) =>
-                              x && 'email' in x
-                                ? { email: x.email, verified: true }
-                                : x,
-                            )
-                          }
-                          size="small"
-                          type="button"
-                          variant="accent"
-                        >
-                          <LucideRefreshCw className="size-3.25 " />
-                          Resend
-                        </Button>
+                        <Ariakit.PopoverHeading className="-tracking-[0.25px] font-medium text-[14px] text-gray12">
+                          Your email is verified.
+                        </Ariakit.PopoverHeading>
+                        <Ariakit.PopoverDescription className="-tracking-[0.25px] text-[13px] text-gray9 leading-[18px]">
+                          It can be used to restore your account to new devices.
+                        </Ariakit.PopoverDescription>
                         <Button
                           className="mt-1 flex w-fit gap-1"
                           onClick={() => setEmailData(undefined)}
@@ -245,52 +202,100 @@ export function Dashboard() {
                           <LucidePencil className="size-3.25 " />
                           Change email
                         </Button>
-                      </div>
-                    </Ariakit.Popover>
-                  </Ariakit.PopoverProvider>
-                )}
-              </div>
-            ) : (
-              <form
-                className="group flex items-center"
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  // TODO: `account_setEmail`
-                  const formData = new FormData(event.target as HTMLFormElement)
-                  const email = formData.get('email')?.toString()!
-                  setEmailData({ email, verified: false })
-                  setEmail('')
-                }}
-              >
-                <div className="flex size-8 items-center justify-center rounded-full bg-blue3">
-                  <LucideShieldCheck className="size-4 text-blue9" />
+                      </Ariakit.Popover>
+                    </Ariakit.PopoverProvider>
+                  ) : (
+                    <Ariakit.PopoverProvider>
+                      <Ariakit.PopoverDisclosure className="flex size-8 items-center justify-center rounded-full bg-amber2">
+                        <LucideTriangleAlert className="size-4 text-amber8" />
+                      </Ariakit.PopoverDisclosure>
+                      <Ariakit.Popover
+                        className="flex w-[240px] flex-col gap-1 rounded-[11px] border border-gray3 bg-gray1 p-4"
+                        gutter={4}
+                      >
+                        <Ariakit.PopoverHeading className="-tracking-[0.25px] font-medium text-[14px] text-gray12">
+                          Email not verified
+                        </Ariakit.PopoverHeading>
+                        <Ariakit.PopoverDescription className="-tracking-[0.25px] text-[13px] text-gray9 leading-[18px]">
+                          Please click the verification link to fully enable
+                          Balance.
+                        </Ariakit.PopoverDescription>
+                        <div className="flex gap-1">
+                          <Button
+                            className="mt-1 flex w-fit gap-1"
+                            onClick={() =>
+                              // TODO: `account_resendVerifyEmail`
+                              setEmailData((x) =>
+                                x && 'email' in x
+                                  ? { email: x.email, verified: true }
+                                  : x,
+                              )
+                            }
+                            size="small"
+                            type="button"
+                            variant="accent"
+                          >
+                            <LucideRefreshCw className="size-3.25 " />
+                            Resend
+                          </Button>
+                          <Button
+                            className="mt-1 flex w-fit gap-1"
+                            onClick={() => setEmailData(undefined)}
+                            size="small"
+                            type="button"
+                          >
+                            <LucidePencil className="size-3.25 " />
+                            Change email
+                          </Button>
+                        </div>
+                      </Ariakit.Popover>
+                    </Ariakit.PopoverProvider>
+                  )}
                 </div>
-                <label className="sr-only" htmlFor="email">
-                  Email
-                </label>
-                <input
-                  className="-tracking-[2.8%] min-w-10 px-2 font-medium text-[15px] text-gray12 outline-none placeholder:text-gray9"
-                  name="email"
-                  onChange={(event) => setEmail(event.target.value)}
-                  pattern=".*@.*\..+"
-                  placeholder="Link your email..."
-                  required
-                  style={{
-                    width: email.length ? `${email.length + 2}ch` : 'auto',
+              ) : (
+                <form
+                  className="group flex items-center"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    // TODO: `account_setEmail`
+                    const formData = new FormData(
+                      event.target as HTMLFormElement,
+                    )
+                    const email = formData.get('email')?.toString()!
+                    setEmailData({ email, verified: false })
+                    setEmail('')
                   }}
-                  type="email"
-                  value={email}
-                />
-                <Button
-                  className="hidden! group-has-[input:valid]:block!"
-                  size="small"
-                  type="submit"
                 >
-                  Save
-                </Button>
-              </form>
-            )}
-          </div>
+                  <div className="flex size-8 items-center justify-center rounded-full bg-blue3">
+                    <LucideShieldCheck className="size-4 text-blue9" />
+                  </div>
+                  <label className="sr-only" htmlFor="email">
+                    Email
+                  </label>
+                  <input
+                    className="-tracking-[2.8%] min-w-10 px-2 font-medium text-[15px] text-gray12 outline-none placeholder:text-gray9"
+                    name="email"
+                    onChange={(event) => setEmail(event.target.value)}
+                    pattern=".*@.*\..+"
+                    placeholder="Link your email..."
+                    required
+                    style={{
+                      width: email.length ? `${email.length + 2}ch` : 'auto',
+                    }}
+                    type="email"
+                    value={email}
+                  />
+                  <Button
+                    className="hidden! group-has-[input:valid]:block!"
+                    size="small"
+                    type="submit"
+                  >
+                    Save
+                  </Button>
+                </form>
+              )}
+            </div>
+          )
         }
         right={
           <div className="flex gap-2">

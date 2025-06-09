@@ -48,7 +48,7 @@ function RouteComponent() {
 
       const params = request.params ?? []
 
-      await Actions.respond(porto, {
+      return Actions.respond(porto, {
         ...request,
         params: [
           {
@@ -64,13 +64,12 @@ function RouteComponent() {
                     label: email,
                   }
                 : params[0]?.capabilities?.createAccount || !signIn,
+              email: Boolean(email),
               selectAccount,
             },
           },
         ],
       } as typeof request)
-      // TODO: `account_setEmail`
-      return
     },
   })
 
