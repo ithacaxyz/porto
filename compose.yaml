@@ -19,20 +19,18 @@ services:
       anvil:
         condition: service_healthy
     build:
-      context: "${DOCKER_BUILD_CONTEXT}"
+      context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
       dockerfile: ./docker/config/Dockerfile
     user: root
-    environment:
-      DOCKER_BUILD_CONTEXT: ${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}
     volumes:
       - relay:/app/shared
     command: ["sh", "-c", "bash ./run.sh"]
 
   relay:
     build:
-      context: "${DOCKER_BUILD_CONTEXT}"
+      context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
       dockerfile_inline: |
-        FROM ghcr.io/ithacaxyz/relay:3fc0de2
+        FROM ghcr.io/ithacaxyz/relay:latest
         COPY --from=ghcr.io/foundry-rs/foundry:latest /usr/local/bin/cast /usr/local/bin/cast
     platform: linux/x86_64
     labels:
@@ -46,7 +44,6 @@ services:
         condition: service_completed_successfully
     environment:
       RELAY_MNEMONIC: "test test test test test test test test test test test junk"
-      DOCKER_BUILD_CONTEXT: ${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}
     command: --config-only --registry /app/registry.yaml
     healthcheck:
       test: ["CMD", "cast", "rpc", "--rpc-url", "http://localhost:9119", "health"]
@@ -55,14 +52,13 @@ services:
 
   proxy:
     build:
-      context: "${DOCKER_BUILD_CONTEXT}"
+      context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
       dockerfile: ./docker/proxy/Dockerfile
     labels:
       - dev.orbstack.domains=rpc.local
     environment:
       ANVIL_URL: http://anvil:8545
       RELAY_URL: http://relay:9119
-      DOCKER_BUILD_CONTEXT: ${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}
       PORT: 9200
     ports:
       - "9200:9200"

@@ -37,6 +37,5 @@ orchestrator:
 legacy_orchestrators: []
 legacy_delegations: []
 delegation_proxy: 
-account_registry: 
 simulator: 
 database_url: null
