@@ -8,21 +8,7 @@ import { Layout } from './Layout'
 
 export function Landing() {
   const account = useAccount()
-  const connect = useConnect({
-    mutation: {
-      async onSuccess(data, variables) {
-        if (
-          variables.capabilities?.createAccount &&
-          typeof variables.capabilities?.createAccount === 'object'
-        ) {
-          // TODO: `account_setEmail`
-          const address = data.accounts.at(0)
-          const email = variables.capabilities?.createAccount.label
-          console.log({ address, email })
-        }
-      },
-    },
-  })
+  const connect = useConnect()
   const [connector] = useConnectors()
 
   const [email, setEmail] = React.useState('')
@@ -58,12 +44,12 @@ export function Landing() {
               </div>
               <div>
                 <form
-                  onSubmit={(event) => {
+                  onSubmit={async (event) => {
                     event.preventDefault()
                     connect.connect({
                       capabilities: {
                         createAccount: { label: email },
-                        email: false,
+                        email: true,
                       },
                       connector: connector!,
                     })

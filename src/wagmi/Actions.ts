@@ -7,7 +7,5 @@ export {
   grantPermissions,
   revokeAdmin,
   revokePermissions,
-  setEmail,
   upgradeAccount,
-  verifyEmail,
 } from './internal/core.js'

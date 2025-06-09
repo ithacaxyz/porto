@@ -703,17 +703,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return id
       },
 
-      async setEmail(parameters) {
-        const { internal } = parameters
-        const { request, store } = internal
-
-        if (request.method !== 'account_setEmail')
-          throw new Error('Cannot set email for method: ' + request.method)
-
-        const provider = getProvider(store)
-        return await provider.request(request)
-      },
-
       async signPersonalMessage(parameters) {
         const { internal } = parameters
         const { store, request } = internal
@@ -764,17 +753,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
         await provider.request(request)
 
         return { account }
-      },
-
-      async verifyEmail(parameters) {
-        const { internal } = parameters
-        const { request, store } = internal
-
-        if (request.method !== 'account_verifyEmail')
-          throw new Error('Cannot verify email for method: ' + request.method)
-
-        const provider = getProvider(store)
-        return await provider.request(request)
       },
     },
     name: 'dialog',

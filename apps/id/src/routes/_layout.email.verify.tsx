@@ -1,33 +1,24 @@
 import { Button } from '@porto/apps/components'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Address } from 'ox'
-import { Actions } from 'porto/wagmi'
+import { Address, Hash, Hex } from 'ox'
+import { ServerActions } from 'porto/viem'
 import * as React from 'react'
 import * as v from 'valibot'
-import {
-  BaseError,
-  useAccount,
-  useConfig,
-  useConnect,
-  useConnectors,
-  useSignMessage,
-} from 'wagmi'
+import { createClient } from 'viem'
+import { useAccount, useConnect, useConnectors, useSignMessage } from 'wagmi'
 import LucideCheck from '~icons/lucide/check'
 import LucideFingerprint from '~icons/lucide/fingerprint'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
+import * as Porto from '../lib/Porto.ts'
 import { Layout } from './-components/Layout.tsx'
 
 export const Route = createFileRoute('/_layout/email/verify')({
   component: RouteComponent,
   head() {
     return {
-      meta: [
-        {
-          title: 'Verify Email',
-        },
-      ],
+      meta: [{ title: 'Verify Email' }],
     }
   },
   validateSearch: v.object({
@@ -38,33 +29,32 @@ export const Route = createFileRoute('/_layout/email/verify')({
 })
 
 function RouteComponent() {
-  const config = useConfig()
   const { chainId, status } = useAccount()
   const [connector] = useConnectors()
   const { address, email, token } = Route.useSearch()
 
   const connect = useConnect()
-  const verifyEmail = useMutation<
-    null,
-    BaseError,
-    Actions.verifyEmail.Parameters<typeof config>
-  >({
+  const verifyEmail = useMutation<null, Error, { signature: Hex.Hex }>({
     async mutationFn(variables) {
-      console.log(variables)
-      return await Actions.verifyEmail(config, variables)
+      const client = createClient({
+        chain: Porto.config.chains.find((chain) => chain.id === chainId),
+        pollingInterval: 1_000,
+        transport: Porto.config.transports[chainId as never]!,
+      })
+      return await ServerActions.verifyEmail(client, {
+        chainId: chainId as never,
+        email,
+        signature: variables.signature,
+        token,
+        walletAddress: address as Address.Address,
+      })
     },
     mutationKey: ['verifyEmail'],
   })
   const signMessage = useSignMessage({
     mutation: {
       onSuccess(data) {
-        verifyEmail.mutate({
-          chainId: chainId as never,
-          email,
-          signature: data,
-          token,
-          walletAddress: address as Address.Address,
-        })
+        verifyEmail.mutate({ signature: data })
       },
     },
   })
@@ -149,7 +139,7 @@ function RouteComponent() {
                 connect.connect({ connector: connector! })
               else
                 signMessage.signMessage({
-                  message: `${email}${token}`,
+                  message: Hash.keccak256(Hex.fromString(`${email}${token}`)),
                 })
             }}
             variant={
