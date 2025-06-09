@@ -444,8 +444,8 @@ export function from<type extends Key['type']>(
       publicKey,
       type,
     }),
-    id: id ?? publicKey,
-    publicKey,
+    id: (id ?? publicKey).toLowerCase() as Hex.Hex,
+    publicKey: publicKey.toLowerCase() as Hex.Hex,
     role,
     type,
   } satisfies BaseKey<string> as never

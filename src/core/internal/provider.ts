@@ -529,7 +529,9 @@ export function from<
             },
           })
 
-          const keys = account.keys?.filter((key) => key.id !== id)
+          const keys = account.keys?.filter(
+            (key) => key.id.toLowerCase() !== id.toLowerCase(),
+          )
 
           store.setState((x) => ({
             ...x,
@@ -578,7 +580,9 @@ export function from<
             },
           })
 
-          const keys = account.keys?.filter((key) => key.id !== id)
+          const keys = account.keys?.filter(
+            (key) => key.id.toLowerCase() !== id.toLowerCase(),
+          )
 
           store.setState((x) => ({
             ...x,

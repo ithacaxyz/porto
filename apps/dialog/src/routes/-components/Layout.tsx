@@ -150,8 +150,8 @@ export namespace Layout {
 
     // Account Footer
     export function Account(props: Account.Props) {
-      const { address, onClick } = props
-
+      const { onClick } = props
+      const address = Address.checksum(props.address)
       return (
         <div className="flex h-full w-full items-center justify-between border-primary border-t px-3 pt-3">
           <div className="text-[13px] text-secondary">Account</div>

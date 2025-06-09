@@ -471,7 +471,7 @@ importers:
         specifier: ^4.10.0
         version: 4.16.1(@cloudflare/workers-types@4.20250525.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
-  apps/manager:
+  apps/id:
     dependencies:
       '@ariakit/react':
         specifier: 'catalog:'
