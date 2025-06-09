@@ -515,6 +515,22 @@ export function from<
             : state.accounts[0]
           if (!account) throw new ox_Provider.UnauthorizedError()
 
+          // Find the key to be revoked
+          const keyToRevoke = account.keys?.find(
+            (key) => key.id.toLowerCase() === id.toLowerCase(),
+          )
+
+          // Prevent revoking the only webauthn-p256 key left in the array of keys
+          if (
+            keyToRevoke &&
+            account.keys?.filter((key) => key.type === 'webauthn-p256')
+              .length === 1
+          ) {
+            throw new RpcResponse.InvalidParamsError({
+              message: 'Cannot revoke the only webauthn-p256 key left.',
+            })
+          }
+
           const client = getClient()
 
           await getMode().actions.revokeAdmin({
