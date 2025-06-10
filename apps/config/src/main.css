@@ -1,0 +1,68 @@
+/* reset */
+* {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+:root {
+  interpolate-size: allow-keywords;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* base styles */
+:root {
+  background-color: #f9f9f9;
+  color: #8d8d8d;
+  color-scheme: light;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: inherit;
+  font-weight: inherit;
+  outline-color: #f0f0f0;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: inherit;
+}
+button {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+input {
+  font-size: inherit;
+  font-weight: inherit;
+}
+pre {
+  overflow: scroll;
+}
+#root {
+  min-height: 100dvh;
+}
