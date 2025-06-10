@@ -503,9 +503,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_revokeAdmin')
           throw new Error('Cannot revoke admin for method: ' + request.method)
 
-        const key = account.keys?.find(
-          (key) => key.id.toLowerCase() === id.toLowerCase(),
-        )
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         // Cannot revoke the only WebAuthn key left

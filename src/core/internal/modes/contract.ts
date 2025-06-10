@@ -415,9 +415,7 @@ export function contract(parameters: contract.Parameters = {}) {
         const { account, id, internal } = parameters
         const { client } = internal
 
-        const key = account.keys?.find(
-          (key) => key.id.toLowerCase() === id.toLowerCase(),
-        )
+        const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
         // Cannot revoke the only WebAuthn key left
