@@ -8,8 +8,8 @@ import { IconStar } from './icons/IconStar.js'
 import uniswapAlt from './uniswap-alt.png'
 import uniswap from './uniswap.png'
 
+// biome-ignore format: themes are organized by layer
 const themes = stylex.create({
-  // biome-ignore format: themes are organized by layer
   light: {
     '--layer-background': '#EDEDED',
 
