@@ -61,7 +61,7 @@ The encoding of a key pair's public key depends on the key type:
 | secp256r1 (P256) | `abi.encode(x, y) `   | Stores both x and y coordinates for the secp256r1 curve.                       |
 | webAuthn          | `abi.encode(x, y)`    | Stores both x and y coordinates of the public key on the elliptic curve.      |
 | secp256k1        | `abi.encode(address)` | Stores only the Ethereum address derived from the public key (truncated hash). |
-| external | `abi.encode(address(signer), bytes12(salt)) `| Stores the address of the external signer, and a bytes12 salt value | 
+| external | `abi.encodePacked(address(signer), bytes12(salt)) `| Stores the address of the external signer, and a bytes12 salt value | 
 
 #### Signature encoding
 
