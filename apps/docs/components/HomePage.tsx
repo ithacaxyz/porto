@@ -409,7 +409,7 @@ function Demo() {
               <div className="flex items-center justify-center gap-1">
                 {steps.map((s) => (
                   <button
-                    className="size-[7px] rounded-full bg-gray6 transition-all duration-150 hover:not-data-[active=true]:not-data-[disabled=true]:scale-150 hover:not-data-[disabled=true]:bg-gray9 data-[active=true]:w-6 data-[active=true]:bg-gray9"
+                    className="size-[7px] rounded-full bg-gray6 transition-[width,background-color,transform] duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform hover:not-data-[active=true]:not-data-[disabled=true]:scale-150 hover:not-data-[disabled=true]:bg-gray9 data-[active=true]:w-6 data-[active=true]:bg-gray9"
                     data-active={s === step}
                     data-disabled={status !== 'connected' || step === 'end'}
                     key={s}
