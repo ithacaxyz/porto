@@ -124,9 +124,9 @@ forge test --config-path ./contracts/demo/foundry.toml
 
 #### Wagmi Modules (`src/wagmi/`)
 
-- **`Actions`** - Wagmi Actions 
+- **`Actions`** - Wagmi Actions
 - **`Connector`** - Wagmi Connector
-- **`Hooks`** - React Hooks 
+- **`Hooks`** - React Hooks
 - **`Query`** - Wagmi Query utilities
 
 ### Applications (`apps/`)
@@ -150,7 +150,7 @@ forge test --config-path ./contracts/demo/foundry.toml
 
 1. **Create a feature branch**: Against `main`, named `claude/feature-name`
 2. **Develop features**: Ensure to add any relevant tests for new functionality
-3. **Run tests**: `pnpm test` and `pnpm test:browser` 
+3. **Run tests**: `pnpm test` and `pnpm test:browser`
 4. **Check code quality**: `pnpm check`
 5. **Build and validate**: `pnpm build && pnpm check:build`
 6. **Add changeset**: If any public API or behavioral changes were made to the library (`src/`), add a changeset with `pnpm changeset`. Changesets should use past tense verbs (e.g. `Added new feature`). Any breaking changes should be noted with a `**Breaking:**` prefix with a description of how to migrate.
@@ -170,4 +170,4 @@ forge test --config-path ./contracts/demo/foundry.toml
 - Bundle size limits must be respected (`pnpm check:size`)
 - No unused dependencies (`pnpm check:knip`)
 
-This file should be updated when major architectural changes are made to the codebase. 
+This file should be updated when major architectural changes are made to the codebase.
