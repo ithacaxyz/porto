@@ -1,0 +1,65 @@
+name: 🤖 Claude Action Request
+description: Request Claude AI to perform a specific action on the repository
+title: "[Claude] "
+labels: ["claude-action"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for requesting Claude to help with the Porto repository! 
+        
+        **⚠️ Important:** Only repository maintainers (users with write/admin permissions) can trigger Claude actions.
+        
+        Claude will automatically respond to this issue and perform the requested action if you have the required permissions.
+        
+        **Note:** This will trigger Claude to:
+        - Analyze your request
+        - Perform the requested changes
+        - Provide feedback on what was done
+        
+        Please be specific about what you want Claude to do.
+
+  - type: textarea
+    id: action-request
+    attributes:
+      label: "Action Request"
+      description: "Describe what you want Claude to do. Be specific about the task, files to modify, or features to implement."
+      value: "@claude "
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: What priority should this action have?
+      options:
+        - Low
+        - Medium
+        - High
+        - Critical
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional Context"
+      description: "Provide any additional context, requirements, or constraints for the action."
+      placeholder: |
+        - Related files or directories
+        - Specific requirements or constraints
+        - Expected behavior or outcomes
+        - Dependencies or prerequisites
+
+  - type: markdown
+    attributes:
+      value: |
+        ## How this works
+        
+        1. **Automatic Response**: Claude will automatically respond to this issue within a few minutes
+        2. **Action Execution**: Claude will analyze your request and perform the necessary changes
+        3. **Feedback**: Claude will provide detailed feedback about what was done
+        4. **Review**: You can review the changes and request modifications if needed
+        
+        **Tip**: You can also mention `@claude` in any comment on this issue to request additional actions or clarifications.
