@@ -170,4 +170,24 @@ forge test --config-path ./contracts/demo/foundry.toml
 - Bundle size limits must be respected (`pnpm check:size`)
 - No unused dependencies (`pnpm check:knip`)
 
+## AI Assistant Guidelines
+
+When working with this repository, AI assistants should follow these additional guidelines:
+
+### PR Review Comments
+
+- **Always wrap PR review comments in `<details>` tags** that are closed by default
+- Use descriptive summary text in the `<summary>` tag
+- This improves PR browsability by allowing users to easily scan through activity without long review comments cluttering the view
+
+Example format:
+```html
+<details>
+<summary>🔍 Code Review: [Brief description]</summary>
+
+[Your detailed review comments here]
+
+</details>
+```
+
 This file should be updated when major architectural changes are made to the codebase.
