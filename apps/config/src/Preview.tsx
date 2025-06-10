@@ -9,6 +9,7 @@ import uniswapAlt from './uniswap-alt.png'
 import uniswap from './uniswap.png'
 
 const themes = stylex.create({
+  // biome-ignore format: themes are organized by layer
   light: {
     '--layer-background': '#EDEDED',
 

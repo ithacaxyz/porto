@@ -6,37 +6,19 @@ type HexColor = `#${string}`
 const PLACEHOLDER_COLOR = '#F0F0F0'
 
 const styles = stylex.create({
-  main: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: 160,
-    height: 40,
-    padding: '0 12px',
-    color: '#202020',
-    border: '1px solid #E8E8E8',
-    borderRadius: 20,
-  },
-  mainFocused: {
-    outline: '2px solid #0090FF',
-    outlineOffset: '-1px',
-  },
-  valueInput: {
-    height: '100%',
-    padding: 0,
-    border: 0,
-    outline: 0,
-    background: 'transparent',
-  },
   colorInput: {
-    flexShrink: 0,
-    width: 22,
-    height: 22,
-    padding: 0,
-    border: '1px solid #E8E8E8',
-    borderRadius: '50%',
-    background: 'none',
-    cursor: 'pointer',
+    '::-moz-color-swatch': {
+      appearance: 'none',
+      border: 0,
+    },
+    '::-webkit-color-swatch': {
+      appearance: 'none',
+      border: 0,
+      borderRadius: '50%',
+      height: 22,
+      margin: 0,
+      width: 22,
+    },
     ':active': {
       transform: 'translateY(1px)',
     },
@@ -44,18 +26,36 @@ const styles = stylex.create({
       outline: '2px solid #0090FF',
       outlineOffset: '-2px',
     },
-    '::-webkit-color-swatch': {
-      appearance: 'none',
-      width: 22,
-      height: 22,
-      margin: 0,
-      border: 0,
-      borderRadius: '50%',
-    },
-    '::-moz-color-swatch': {
-      appearance: 'none',
-      border: 0,
-    },
+    background: 'none',
+    border: '1px solid #E8E8E8',
+    borderRadius: '50%',
+    cursor: 'pointer',
+    flexShrink: 0,
+    height: 22,
+    padding: 0,
+    width: 22,
+  },
+  main: {
+    alignItems: 'center',
+    border: '1px solid #E8E8E8',
+    borderRadius: 20,
+    color: '#202020',
+    display: 'flex',
+    height: 40,
+    justifyContent: 'space-between',
+    padding: '0 12px',
+    width: 160,
+  },
+  mainFocused: {
+    outline: '2px solid #0090FF',
+    outlineOffset: '-1px',
+  },
+  valueInput: {
+    background: 'transparent',
+    border: 0,
+    height: '100%',
+    outline: 0,
+    padding: 0,
   },
 })
 
@@ -86,16 +86,15 @@ export function ColorInput({
   }
 
   return (
-    <div
-      {...stylex.props(
-        styles.main,
-        focused && styles.mainFocused,
-      )}
-    >
+    <div {...stylex.props(styles.main, focused && styles.mainFocused)}>
       <input
-        type='text'
-        spellCheck={false}
-        value={valueInput}
+        onBlur={() => {
+          const finalColor =
+            prepareHexColor(valueInput) ?? lastValidValue.current
+          onChange(finalColor)
+          setValueInput(finalColor ?? '')
+          setFocused(false)
+        }}
         onChange={(e) => {
           setValueInput(e.target.value)
           onChange(prepareHexColor(e.target.value))
@@ -104,19 +103,15 @@ export function ColorInput({
           e.target.select()
           setFocused(true)
         }}
-        onBlur={() => {
-          const finalColor = prepareHexColor(valueInput) ?? lastValidValue.current
-          onChange(finalColor)
-          setValueInput(finalColor ?? '')
-          setFocused(false)
-        }}
+        spellCheck={false}
+        type="text"
+        value={valueInput}
         {...stylex.props(styles.valueInput)}
       />
       <input
-        type='color'
+        onChange={() => {}}
+        type="color"
         value={color ?? PLACEHOLDER_COLOR}
-        onChange={() => {
-        }}
         {...stylex.props(styles.colorInput)}
         style={{
           backgroundColor: color ?? PLACEHOLDER_COLOR,

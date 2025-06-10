@@ -7,8 +7,8 @@ export const animations = ['none', 'essential', 'all'] as const
 
 export type Color = `#${string}`
 
-export type ThemeRadius = typeof radiuses[number]
-export type ThemeAnimations = typeof animations[number]
+export type ThemeRadius = (typeof radiuses)[number]
+export type ThemeAnimations = (typeof animations)[number]
 
 // layers: surfaces on which content is placed
 // indicators: elements that indicate state
@@ -55,12 +55,12 @@ const c = '#FFFFFF'
 export const baseThemes = [
   // biome-ignore format: themes are organized by layer
   {
-    id: 'light',
-    parent: null,
-    name: 'Light',
-    previewUrl: themePreviewLight,
-    radius: 'm',
     animations: 'all',
+    borderColor: c,
+    borderWidth: 1,
+    id: 'light',
+    indicator: c,
+    indicatorContent: c,
     indicatorShape: 'circle',
 
     layerBackground: c,
@@ -69,24 +69,24 @@ export const baseThemes = [
     layerBaseMuted: c,
     layerRaised: c,
     layerRaisedContent: c,
-    indicator: c,
-    indicatorContent: c,
-    radiusSmall: 0,
-    radiusMedium: 0,
+    name: 'Light',
+    parent: null,
+    previewUrl: themePreviewLight,
+    radius: 'm',
     radiusLarge: 0,
+    radiusMedium: 0,
+    radiusSmall: 0,
     separatorColor: c,
     separatorWidth: 1,
-    borderColor: c,
-    borderWidth: 1,
     shadowColor: c,
   },
   {
-    id: 'dark',
-    parent: 'light',
-    name: 'Dark',
-    previewUrl: themePreviewDark,
-    radius: 'm',
     animations: 'all',
+    borderColor: c,
+    borderWidth: 1,
+    id: 'dark',
+    indicator: c,
+    indicatorContent: c,
     indicatorShape: 'square',
 
     layerBackground: c,
@@ -95,24 +95,24 @@ export const baseThemes = [
     layerBaseMuted: c,
     layerRaised: c,
     layerRaisedContent: c,
-    indicator: c,
-    indicatorContent: c,
-    radiusSmall: 0,
-    radiusMedium: 0,
+    name: 'Dark',
+    parent: 'light',
+    previewUrl: themePreviewDark,
+    radius: 'm',
     radiusLarge: 0,
+    radiusMedium: 0,
+    radiusSmall: 0,
     separatorColor: c,
     separatorWidth: 1,
-    borderColor: c,
-    borderWidth: 1,
     shadowColor: c,
   },
   {
-    id: 'pink',
-    parent: 'light',
-    name: 'Pink',
-    previewUrl: themePreviewPink,
-    radius: 'm',
     animations: 'all',
+    borderColor: c,
+    borderWidth: 1,
+    id: 'pink',
+    indicator: c,
+    indicatorContent: c,
     indicatorShape: 'circle',
 
     layerBackground: c,
@@ -121,15 +121,15 @@ export const baseThemes = [
     layerBaseMuted: c,
     layerRaised: c,
     layerRaisedContent: c,
-    indicator: c,
-    indicatorContent: c,
-    radiusSmall: 0,
-    radiusMedium: 0,
+    name: 'Pink',
+    parent: 'light',
+    previewUrl: themePreviewPink,
+    radius: 'm',
     radiusLarge: 0,
+    radiusMedium: 0,
+    radiusSmall: 0,
     separatorColor: c,
     separatorWidth: 1,
-    borderColor: c,
-    borderWidth: 1,
     shadowColor: c,
   },
 ] as const satisfies readonly Theme[]
