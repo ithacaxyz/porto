@@ -1,0 +1,62 @@
+name: Update Bot PR Comments
+on:
+  issue_comment:
+    types: [created]
+
+env:
+  TARGET_USERNAMES: 'claude'
+
+jobs:
+  wrap-comment:
+    # Only run on pull request comments
+    if: github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    
+    permissions:
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Check if comment is from specific user
+        id: check-user
+        env:
+          COMMENT_USER: ${{ github.event.comment.user.login }}
+          TARGET_USER: ${{ env.TARGET_USERNAMES }}
+        run: |
+          if [ "$COMMENT_USER" = "$TARGET_USER" ]; then
+            echo "should_wrap=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_wrap=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Wrap comment in details
+        if: steps.check-user.outputs.should_wrap == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const comment = context.payload.comment;
+            const body = comment.body;
+            
+            // Check if comment is already wrapped in details
+            if (body.trim().startsWith('<details>') && body.trim().endsWith('</details>')) {
+              console.log('Comment is already wrapped in details tag')
+              return
+            }
+            
+            // Wrap the comment
+            const wrappedBody = `<details>
+            <summary>Comment from ${comment.user.login}</summary>
+            
+            ${body}
+            </details>`
+            
+            // Update the comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: comment.id,
+              body: wrappedBody
+            })
+            
+            console.log('Comment wrapped successfully')
