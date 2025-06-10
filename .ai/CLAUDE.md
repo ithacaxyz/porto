@@ -192,6 +192,52 @@ forge test --config-path ./contracts/demo/foundry.toml
 
 When working with this repository, AI assistants should follow these additional guidelines:
 
+### Documentation Writing Style
+
+When writing or editing documentation files, follow these style guidelines:
+
+#### Voice and Perspective
+
+**Use Third Person for Technical Documentation**
+- ✅ "The Porto SDK is a TypeScript library designed for Applications and Wallets"
+- ✅ "Porto can be used in conjunction with Wagmi"
+- ✅ "This will internally inject a Porto instance"
+- ❌ "We designed Porto to..." or "Our SDK allows you to..."
+
+**Use Second Person for Instructions**
+When giving direct instructions to developers, use second person:
+- ✅ "You can get started with Porto by creating a new instance"
+- ✅ "After you have set up Wagmi, you can set up Porto"
+
+**Avoid First Person**
+Never use "we," "our," or "I" in technical documentation:
+- ❌ "We implemented it, ran it for weeks..."
+- ✅ "PREP was implemented and ran for a number of weeks"
+- ❌ "we don't want to think about it"
+- ✅ "this adds unnecessary complexity"
+- ❌ "We do not really care about..."
+- ✅ "The provable resource-lock capabilities are not prioritized..."
+
+#### Examples
+
+**Before (First Person):**
+```markdown
+We implemented PREP and ran it for weeks, evaluated the pros/cons and we didn't think it was worth it. We replaced it with an ephemeral private key approach.
+```
+
+**After (Third Person):**
+```markdown
+PREP was implemented and ran for a number of weeks. After evaluating the pros/cons, it was decided that the pattern did not meet the needs of the Porto Stack. It was replaced with an ephemeral private key approach.
+```
+
+#### Additional Guidelines
+
+- Use clear, concise language
+- Maintain technical accuracy while improving readability
+- Reference specific code with inline formatting or code blocks
+- Include relevant file paths and line numbers when applicable
+- Use passive voice when appropriate to maintain objectivity
+
 ### PR Review Comments
 
 - **Always wrap PR review comments in `<details>` tags** that are closed by default
