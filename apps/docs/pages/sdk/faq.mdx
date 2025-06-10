@@ -44,3 +44,29 @@ Porto supports the following operating systems:
 
 If an operating system is not listed above, it likely works but is not officially supported.
 If you would like to request support, please open up a GitHub issue.
+
+## Why did Ithaca drop PREP in favor of the ephemeral PK approach?
+
+**TL;DR**: We implemented it, ran it for weeks, evaluated the pros/cons and we didn't think it was worth it. We replaced it with an ephemeral private key that's in-place upgraded to a EIP7702 account, and then forgotten.
+
+### What is PREP?
+
+PREP is a technique by Biconomy which is ~basically Nick's method but for EIP7702.
+
+**Pros**:
+- Cheap smart account deployments with resource lock capabilities. It's basically a cheaper method than Create2-based smart account deployments.
+- Can tie the account initialization with the deployment transaction, which means that you don't have the Gnosis Safe-style vulnerability of uninitialized accounts across chains.
+
+**Cons**:
+- Everything in Create2-based smart contract deployments. Just PITA to get the same address for a user across every chain, it's doable, but we don't want to think about it.
+- With Passkey, you have the issue of 'discoverability', i.e. how do you know which passkey is for which address? So you usually want to name your passkey with your address. So there's a chicken-egg problem where you cannot know the address of your account because the passkey pubkey is baked into the address generation process, but you also cannot name the passkey after-the-fact because of how webauthn works. So to solve this we had to create a registry and do some smart stuff to decouple the passkey creation from the account while getting the no-frontrunning benefit.
+- The biggest disqualifier was our inability to do "Create Account w/ Passkey + add session key" in 1 Passkey popup. Basically we think to do 'real world' auth you need to be able to say "I am creating an account with a passkey AND I am also authorizing the app to e.g. spend $1/hour on my behalf" (or similar, w/ session keys). This just isn't possible because webauthn.create() cannot be used to also sign an additional payload, and baking the session key creation code in the initcode was unacceptable for x-chain deployments.
+
+### So what did we do instead?
+
+Instead of doing any of the complex stuff, we just said:
+
+1. On sign up, generate an ephemeral private key. This signs an EIP7702 with chainid=0, which is x-chain replayable. It also signs a Passkey addition, with a modified EIP712 that's also x-chain replayable. If you want to do the 'single auth popup + session key', the private key signs that as well. 1-click everything. Simple.
+2. We then immediately forget the private key. This all happens in the iframe's context, so there's never an opportunity for a malicious app to 'steal' that private key.
+3. This makes it trivial to have the same address on every chain.
+4. We do not really care about the provable resource-lock stuff, we get it, people care about it, we don't really.
