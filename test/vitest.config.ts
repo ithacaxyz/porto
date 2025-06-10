@@ -1,9 +1,19 @@
 import { basename, dirname, join } from 'node:path'
+import * as Process from 'node:process'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
 
+const requiredEnvVariables = ['VITE_GECKO_API']
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+
+  for (const envVariable of requiredEnvVariables)
+    if (!env[envVariable]) {
+      console.error(`Environment variable ${envVariable} is not set\n`)
+      Process.exit(1)
+    }
+
   return {
     test: {
       alias: {
