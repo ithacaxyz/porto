@@ -247,7 +247,7 @@ PREP was implemented and ran for a number of weeks. After evaluating the pros/co
 
 ### PR Review Comments
 
-- **Always wrap PR review comments in `<details>` tags** that are closed by default
+- @claude should **Always wrap PR review comments in `<details>` tags**
 - Use descriptive summary text in the `<summary>` tag
 - This improves PR browsability by allowing users to easily scan through activity without long review comments cluttering the view
 
