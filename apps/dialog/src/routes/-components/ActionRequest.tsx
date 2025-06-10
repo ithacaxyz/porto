@@ -378,6 +378,7 @@ export namespace ActionRequest {
         className={cx(
           'space-y-3 overflow-hidden rounded-lg px-3 will-change-transform',
           'transition-[background-color,padding,max-height] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
+          'transform-gpu perspective-1000',
           {
             'bg-surface py-3': !error,
             'bg-warningTint py-2 text-warning': error,
@@ -385,12 +386,6 @@ export namespace ActionRequest {
             'max-h-[500px]': !loading,
           },
         )}
-        style={{
-          // Hardware acceleration for smooth animations on mobile Safari
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden',
-          perspective: 1000,
-        }}
       >
         {(() => {
           if (error)
@@ -421,17 +416,12 @@ export namespace ActionRequest {
                   <div 
                     className={cx(
                       'overflow-hidden transition-[max-height,opacity] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
-                      'will-change-transform',
+                      'will-change-transform transform-gpu',
                       {
                         'max-h-0 opacity-0': !viewQuote,
                         'max-h-[200px] opacity-100': viewQuote,
                       }
                     )}
-                    style={{
-                      // Hardware acceleration for smooth height transitions
-                      transform: 'translateZ(0)',
-                      backfaceVisibility: 'hidden',
-                    }}
                   >
                     <ActionRequest.Details
                       quote={quote}
@@ -443,14 +433,10 @@ export namespace ActionRequest {
                       className={cx(
                         'flex w-full justify-between text-[13px] text-secondary',
                         'transition-transform duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]',
-                        'hover:scale-[1.02] active:scale-[0.98] will-change-transform'
+                        'hover:scale-[1.02] active:scale-[0.98] will-change-transform transform-gpu'
                       )}
                       onClick={() => setViewQuote(true)}
                       type="button"
-                      style={{
-                        transform: 'translateZ(0)',
-                        backfaceVisibility: 'hidden',
-                      }}
                     >
                       <span>More details</span>
                       <ChevronDown className="size-4 text-secondary transition-transform duration-200" />
