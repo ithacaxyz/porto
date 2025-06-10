@@ -1,6 +1,6 @@
-name: 🤖 Claude Action Request
+name: Claude Request
 description: Request Claude AI to perform a specific action on the repository
-title: "[Claude] "
+title: "claude: "
 labels: ["claude-action"]
 body:
   - type: markdown
