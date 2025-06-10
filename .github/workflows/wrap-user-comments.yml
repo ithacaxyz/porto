@@ -29,25 +29,25 @@ jobs:
           else
             echo "should_wrap=false" >> $GITHUB_OUTPUT
           fi
-      
+            
+      # Fixed version of the workflow
       - name: Wrap comment in details
         if: steps.check-user.outputs.should_wrap == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const comment = context.payload.comment
-            const body = comment.body
-            const targetUser = process.env.TARGET_USERNAME
+            const comment = context.payload.comment;
+            const body = comment.body;
             
-            // More robust check for existing details tags
+            // Check for existing details tags
             if (body.includes('<details>') && body.includes('</details>')) {
-              console.log('Comment appears to already contain details tags')
-              return
+              console.log('Comment already contains details tags');
+              return;
             }
             
-            // Wrap the comment with proper formatting
-            const wrappedBody = `<details><summary>${targetUser} Comment</summary>${body}</details>`
+            // Wrap with proper formatting
+            const wrappedBody = `<details><summary>Claude Review</summary>${body}</details>`;
             
             try {
               await github.rest.issues.updateComment({
@@ -55,9 +55,9 @@ jobs:
                 repo: context.repo.repo,
                 comment_id: comment.id,
                 body: wrappedBody
-              })
-              console.log('Comment wrapped successfully')
+              });
+              console.log('Comment wrapped successfully');
             } catch (error) {
-              console.error('Failed to wrap comment:', error.message)
-              process.exit(1)
+              console.error('Failed to wrap comment:', error.message);
+              // Don't fail the workflow for cosmetic features
             }
