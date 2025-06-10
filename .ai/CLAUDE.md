@@ -181,6 +181,7 @@ When working with this repository, AI assistants should follow these additional 
 - This improves PR browsability by allowing users to easily scan through activity without long review comments cluttering the view
 
 Example format:
+
 ```html
 <details>
 <summary>🔍 Code Review: [Brief description]</summary>
