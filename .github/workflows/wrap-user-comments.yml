@@ -4,13 +4,14 @@ on:
     types: [created]
 
 env:
-  TARGET_USERNAMES: 'claude'
+  TARGET_USERNAME: 'claude'
 
 jobs:
   wrap-comment:
     # Only run on pull request comments
     if: github.event.issue.pull_request
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     
     permissions:
       pull-requests: write
@@ -21,7 +22,7 @@ jobs:
         id: check-user
         env:
           COMMENT_USER: ${{ github.event.comment.user.login }}
-          TARGET_USER: ${{ env.TARGET_USERNAMES }}
+          TARGET_USER: ${{ env.TARGET_USERNAME }}
         run: |
           if [ "$COMMENT_USER" = "$TARGET_USER" ]; then
             echo "should_wrap=true" >> $GITHUB_OUTPUT
@@ -35,28 +36,28 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const comment = context.payload.comment;
-            const body = comment.body;
+            const comment = context.payload.comment
+            const body = comment.body
+            const targetUser = process.env.TARGET_USERNAME
             
-            // Check if comment is already wrapped in details
-            if (body.trim().startsWith('<details>') && body.trim().endsWith('</details>')) {
-              console.log('Comment is already wrapped in details tag')
+            // More robust check for existing details tags
+            if (body.includes('<details>') && body.includes('</details>')) {
+              console.log('Comment appears to already contain details tags')
               return
             }
             
-            // Wrap the comment
-            const wrappedBody = `<details>
-            <summary>Comment from ${comment.user.login}</summary>
+            // Wrap the comment with proper formatting
+            const wrappedBody = `<details><summary>${targetUser} Comment</summary>${body}</details>`
             
-            ${body}
-            </details>`
-            
-            // Update the comment
-            await github.rest.issues.updateComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: comment.id,
-              body: wrappedBody
-            })
-            
-            console.log('Comment wrapped successfully')
+            try {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+                body: wrappedBody
+              })
+              console.log('Comment wrapped successfully')
+            } catch (error) {
+              console.error('Failed to wrap comment:', error.message)
+              process.exit(1)
+            }
