@@ -245,6 +245,40 @@ PREP was implemented and ran for a number of weeks. After evaluating the pros/co
 - Include relevant file paths and line numbers when applicable
 - Use passive voice when appropriate to maintain objectivity
 
+### Code Style Guidelines
+
+#### Error Handling Patterns
+
+- **Handle non-success cases first**: When checking status/result conditions, handle error cases first before the success case
+- **Eager extraction**: Pull out specific values early rather than checking arrays/objects in-line
+- **Prefer specific error types**: Use appropriate error types from imported modules (e.g., `RpcResponse.ResourceNotFoundError()` vs generic errors)
+
+Example pattern:
+```ts
+const result = await someOperation()
+
+// Handle non-success cases first
+if (result.status !== 200) {
+  // handle error cases
+  switch (result.status) {
+    case 400: throw new SomeError()
+    default: throw new OtherError()
+  }
+}
+
+// Eagerly extract values
+const item = result.items?.[0]
+if (!item) throw new RpcResponse.ResourceNotFoundError()
+
+// Return success case
+return item.value
+```
+
+#### Code Structure
+
+- **Early returns**: Use early returns for error conditions to reduce nesting
+- **Concise conditionals**: Prefer simple existence checks (`if (!item)`) over verbose array checks (`if (array && array.length > 0)`)
+
 ### PR Review Comments
 
 - @claude should **Always wrap PR review comments in `<details>` tags**

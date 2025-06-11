@@ -176,32 +176,31 @@ export function from<
 
           // Poll for transaction status and return actual transaction hash
           const result = await waitForCallsStatus(client, { id })
-          
-          if (result.status === 200) {
-            // Return the first transaction hash from receipts
-            if (result.receipts && result.receipts.length > 0) {
-              return result.receipts[0].transactionHash satisfies Typebox.Static<
-                typeof Rpc.eth_sendTransaction.Response
-              >
+
+          if (result.status !== 200) {
+            // Handle non-success cases
+            switch (result.status) {
+              case 100:
+                // Still pending - this shouldn't happen as waitForCallsStatus waits for completion
+                throw new ox_Provider.TimeoutError()
+              case 300:
+                // Offchain failure
+                throw new ox_Provider.TransactionRejectedError()
+              case 400:
+              case 500:
+                // Chain rules failure (full or partial revert)
+                throw new ox_Provider.TransactionRejectedError()
+              default:
+                throw new ox_Provider.InternalError()
             }
-            throw new ox_Provider.ResourceNotFoundError()
           }
-          
-          // Handle non-200 status codes
-          switch (result.status) {
-            case 100:
-              // Still pending - this shouldn't happen as waitForCallsStatus waits for completion
-              throw new ox_Provider.TimeoutError()
-            case 300:
-              // Offchain failure
-              throw new ox_Provider.TransactionRejectedError()
-            case 400:
-            case 500:
-              // Chain rules failure (full or partial revert)
-              throw new ox_Provider.TransactionRejectedError()
-            default:
-              throw new ox_Provider.InternalError()
-          }
+
+          const receipt = result.receipts?.[0]
+          if (!receipt) throw new RpcResponse.ResourceNotFoundError()
+
+          return receipt.transactionHash satisfies Typebox.Static<
+            typeof Rpc.eth_sendTransaction.Response
+          >
         }
 
         case 'eth_signTypedData_v4': {
