@@ -5,8 +5,8 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import * as v from 'valibot'
 import { useAccount, useConnect, useConnectors } from 'wagmi'
+import { FingerprintIcon } from '~/components/Printfinger.tsx'
 import LucideCheck from '~icons/lucide/check'
-import LucideFingerprint from '~icons/lucide/fingerprint'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
 import { Layout } from './-components/Layout.tsx'
@@ -66,7 +66,7 @@ function RouteComponent() {
         "When you're ready, we will ask you to sign from your Porto account.",
       icon: (
         <div className="flex size-15 items-center justify-center rounded-full bg-blue3">
-          <LucideFingerprint className="size-7 text-blue9" />
+          <FingerprintIcon className="size-7 text-blue9" />
         </div>
       ),
       subtext: "We just need to make sure it's you!",

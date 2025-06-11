@@ -20,6 +20,7 @@ import {
   useWatchBlockNumber,
 } from 'wagmi'
 import { DevOnly } from '~/components/DevOnly'
+import { FingerprintIcon } from '~/components/Printfinger.tsx'
 import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
 import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
@@ -172,6 +173,17 @@ export function Dashboard() {
     <>
       <DevOnly />
       <div className="h-3" />
+
+      <div className="flex size-15 items-center justify-center rounded-full bg-blue3">
+        <FingerprintIcon className="size-7 text-blue9" />
+      </div>
+      <div className="flex size-15 items-center justify-center rounded-full bg-blue3">
+        <img
+          alt="fingerprint"
+          className="size-7 text-blue9"
+          src="/icons/printfinger.svg"
+        />
+      </div>
       <Layout.Header
         left={
           showManageEmail && (
@@ -690,15 +702,15 @@ export function Dashboard() {
                   >
                     <td className="text-left">
                       <div className="flex flex-row items-center gap-x-2">
-                        <div className="hidden size-6.25 items-center justify-center rounded-full bg-emerald-100 sm:flex">
+                        <div className="flex size-6.25 items-center justify-center rounded-full bg-emerald-100">
                           <WalletIcon className="size-4 text-teal-600" />
                         </div>
-                        <span className="font-medium text-gray12">
+                        <div className="w-full font-medium text-gray12">
                           <TruncatedAddress
                             address={key.id ?? key.publicKey}
-                            className="text-sm sm:text-md"
+                            className="justify-start text-left text-sm sm:text-md"
                           />
-                        </span>
+                        </div>
                       </div>
                     </td>
 
@@ -720,7 +732,7 @@ export function Dashboard() {
                         <CopyIcon className="m-auto size-4 text-gray10" />
                       </Ariakit.Button>
                       <Ariakit.Button
-                        className="size-8 rounded-full p-1 text-gray11 hover:bg-red-100 hover:text-red-500"
+                        className="size-8 rounded-full p-1 pr-0 text-gray11 hover:bg-red-100 hover:text-red-500"
                         onClick={() => {
                           if (!id || !address) return
                           revokeAdmin.mutate({
@@ -729,7 +741,7 @@ export function Dashboard() {
                           })
                         }}
                       >
-                        <XIcon className={cx('m-auto size-5')} />
+                        <XIcon className={cx('size-5')} />
                       </Ariakit.Button>
                     </td>
                   </tr>
