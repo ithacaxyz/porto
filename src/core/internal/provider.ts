@@ -3,7 +3,7 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
-import { verifyHash } from 'viem/actions'
+import { verifyHash, waitForCallsStatus } from 'viem/actions'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/serverActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -174,9 +174,34 @@ export function from<
             preCalls: capabilities?.preCalls as any,
           })
 
-          return id satisfies Typebox.Static<
-            typeof Rpc.eth_sendTransaction.Response
-          >
+          // Poll for transaction status and return actual transaction hash
+          const result = await waitForCallsStatus(client, { id })
+          
+          if (result.status === 200) {
+            // Return the first transaction hash from receipts
+            if (result.receipts && result.receipts.length > 0) {
+              return result.receipts[0].transactionHash satisfies Typebox.Static<
+                typeof Rpc.eth_sendTransaction.Response
+              >
+            }
+            throw new ox_Provider.ResourceNotFoundError()
+          }
+          
+          // Handle non-200 status codes
+          switch (result.status) {
+            case 100:
+              // Still pending - this shouldn't happen as waitForCallsStatus waits for completion
+              throw new ox_Provider.TimeoutError()
+            case 300:
+              // Offchain failure
+              throw new ox_Provider.TransactionRejectedError()
+            case 400:
+            case 500:
+              // Chain rules failure (full or partial revert)
+              throw new ox_Provider.TransactionRejectedError()
+            default:
+              throw new ox_Provider.InternalError()
+          }
         }
 
         case 'eth_signTypedData_v4': {
