@@ -84,13 +84,12 @@ function RouteComponent() {
           <Button
             className="flex-grow"
             render={
-              // biome-ignore lint/a11y/useAnchorContent: <explanation>
-              <a href="https://porto.sh" rel="noreferrer" target="_blank" />
+              <a href="https://porto.sh" rel="noreferrer" target="_blank">
+                Integrate now
+              </a>
             }
             variant="invert"
-          >
-            Integrate now
-          </Button>
+          />
         </div>
       </div>
 

@@ -52,7 +52,11 @@ export namespace Layout {
           </div>
         )}
         {right ?? (
-          <Button render={<Link to="/about" />} size="square" variant="outline">
+          <Button
+            render={<Link aria-label="About Porto" to="/about" />}
+            size="square"
+            variant="outline"
+          >
             <CircleHelp className="size-5 text-gray10" />
           </Button>
         )}
@@ -69,12 +73,16 @@ export namespace Layout {
         <Button
           className="h-min w-min! px-2! py-1"
           render={
-            // biome-ignore lint/a11y/useAnchorContent:
-            <a href="https://porto.sh" rel="noreferrer" target="_blank" />
+            <a
+              aria-label="Learn more about Porto"
+              href="https://porto.sh"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Learn more
+            </a>
           }
-        >
-          Learn more
-        </Button>
+        />
       </div>
     )
   }
