@@ -29,7 +29,6 @@ export namespace account_verifyEmail {
   export const Parameters = Type.Object({
     chainId: Primitive.Number,
     email: Type.String(),
-    signature: Primitive.Hex,
     token: Type.String(),
     walletAddress: Primitive.Address,
   })

@@ -26,6 +26,10 @@ export type Schema =
     >
   | RpcSchema.From<
       | {
+          Request: Static<typeof Rpc.account_verifyEmail.Request>
+          ReturnType: Static<typeof Rpc.account_verifyEmail.Response>
+        }
+      | {
           Request: Static<typeof Rpc.wallet_addFunds.Request>
           ReturnType: Static<typeof Rpc.wallet_addFunds.Response>
         }

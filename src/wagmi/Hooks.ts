@@ -8,4 +8,5 @@ export {
   useRevokeAdmin,
   useRevokePermissions,
   useUpgradeAccount,
+  useVerifyEmail,
 } from './internal/react.js'

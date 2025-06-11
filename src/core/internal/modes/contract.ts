@@ -97,7 +97,6 @@ export function contract(parameters: contract.Parameters = {}) {
       async addFunds() {
         throw new Provider.UnsupportedMethodError()
       },
-
       async createAccount(parameters) {
         const { label, internal, permissions } = parameters
         const { client } = internal
@@ -556,6 +555,10 @@ export function contract(parameters: contract.Parameters = {}) {
         address_internal = account.address
 
         return { account }
+      },
+
+      async verifyEmail() {
+        throw new Provider.UnsupportedMethodError()
       },
     },
     name: 'contract',

@@ -25,6 +25,7 @@ import { Route as DialogPlaygroundImport } from './routes/dialog/playground'
 import { Route as DialogPersonalsignImport } from './routes/dialog/personal_sign'
 import { Route as DialogEthsendTransactionImport } from './routes/dialog/eth_sendTransaction'
 import { Route as DialogEthrequestAccountsImport } from './routes/dialog/eth_requestAccounts'
+import { Route as DialogAccountverifyEmailImport } from './routes/dialog/account_verifyEmail'
 import { Route as DialogSplatImport } from './routes/dialog/$'
 
 // Create/Update Routes
@@ -115,6 +116,12 @@ const DialogEthrequestAccountsRoute = DialogEthrequestAccountsImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DialogAccountverifyEmailRoute = DialogAccountverifyEmailImport.update({
+  id: '/dialog/account_verifyEmail',
+  path: '/dialog/account_verifyEmail',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DialogSplatRoute = DialogSplatImport.update({
   id: '/dialog/$',
   path: '/dialog/$',
@@ -137,6 +144,13 @@ declare module '@tanstack/react-router' {
       path: '/dialog/$'
       fullPath: '/dialog/$'
       preLoaderRoute: typeof DialogSplatImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/account_verifyEmail': {
+      id: '/dialog/account_verifyEmail'
+      path: '/dialog/account_verifyEmail'
+      fullPath: '/dialog/account_verifyEmail'
+      preLoaderRoute: typeof DialogAccountverifyEmailImport
       parentRoute: typeof rootRoute
     }
     '/dialog/eth_requestAccounts': {
@@ -238,6 +252,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
+  '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
@@ -256,6 +271,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
+  '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
@@ -275,6 +291,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
+  '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
@@ -295,6 +312,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dialog/$'
+    | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
     | '/dialog/personal_sign'
@@ -312,6 +330,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dialog/$'
+    | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
     | '/dialog/personal_sign'
@@ -329,6 +348,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dialog/$'
+    | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
     | '/dialog/personal_sign'
@@ -348,6 +368,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DialogSplatRoute: typeof DialogSplatRoute
+  DialogAccountverifyEmailRoute: typeof DialogAccountverifyEmailRoute
   DialogEthrequestAccountsRoute: typeof DialogEthrequestAccountsRoute
   DialogEthsendTransactionRoute: typeof DialogEthsendTransactionRoute
   DialogPersonalsignRoute: typeof DialogPersonalsignRoute
@@ -366,6 +387,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DialogSplatRoute: DialogSplatRoute,
+  DialogAccountverifyEmailRoute: DialogAccountverifyEmailRoute,
   DialogEthrequestAccountsRoute: DialogEthrequestAccountsRoute,
   DialogEthsendTransactionRoute: DialogEthsendTransactionRoute,
   DialogPersonalsignRoute: DialogPersonalsignRoute,
@@ -393,6 +415,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dialog/$",
+        "/dialog/account_verifyEmail",
         "/dialog/eth_requestAccounts",
         "/dialog/eth_sendTransaction",
         "/dialog/personal_sign",
@@ -413,6 +436,9 @@ export const routeTree = rootRoute
     },
     "/dialog/$": {
       "filePath": "dialog/$.tsx"
+    },
+    "/dialog/account_verifyEmail": {
+      "filePath": "dialog/account_verifyEmail.tsx"
     },
     "/dialog/eth_requestAccounts": {
       "filePath": "dialog/eth_requestAccounts.tsx"

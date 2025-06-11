@@ -1,17 +1,14 @@
 import { Button } from '@porto/apps/components'
-import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Address, Hex } from 'ox'
-import { ServerActions } from 'porto/viem'
+import { Address } from 'ox'
+import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import * as v from 'valibot'
-import { createClient } from 'viem'
 import { useAccount, useConnect, useConnectors } from 'wagmi'
 import LucideCheck from '~icons/lucide/check'
 import LucideFingerprint from '~icons/lucide/fingerprint'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
-import { config as portoConfig } from '../lib/Porto.ts'
 import { Layout } from './-components/Layout.tsx'
 
 export const Route = createFileRoute('/_layout/email/verify')({
@@ -34,38 +31,19 @@ function RouteComponent() {
   const { address, email, token } = Route.useSearch()
 
   const connect = useConnect()
-  const verifyEmail = useMutation<null, Error>({
-    async mutationFn(variables) {
-      const client = createClient({
-        chain: portoConfig.chains.find((chain) => chain.id === chainId),
-        pollingInterval: 1_000,
-        transport: portoConfig.transports[chainId as never]!,
-      })
-      return await ServerActions.verifyEmail(client, {
-        chainId: chainId as never,
-        email,
-        token,
-        walletAddress: address as Address.Address,
-      })
-    },
-    mutationKey: ['verifyEmail'],
-    onSettled(data, error) {
-      console.log({ data, error })
-    },
-  })
+  const verifyEmail = Hooks.useVerifyEmail()
 
   const content = React.useMemo(() => {
-    if (verifyEmail.status === 'idle')
+    if (verifyEmail.status === 'error')
       return {
-        description:
-          "When you're ready, we will ask you to sign from your Porto account.",
         icon: (
-          <div className="flex size-15 items-center justify-center rounded-full bg-blue3">
-            <LucideFingerprint className="size-7 text-blue9" />
+          <div className="flex size-15 items-center justify-center rounded-full bg-red3">
+            <LucideOctagonAlert className="size-7 text-red10" />
           </div>
         ),
-        subtext: "We just need to make sure it's you!",
-        title: 'Signature required',
+        subtext:
+          'We could not verify ownership of the Porto account that you are linking this email to.',
+        title: 'Signature failed',
       }
     if (verifyEmail.status === 'success')
       return {
@@ -84,14 +62,15 @@ function RouteComponent() {
         title: 'Email is verified',
       }
     return {
+      description:
+        "When you're ready, we will ask you to sign from your Porto account.",
       icon: (
-        <div className="flex size-15 items-center justify-center rounded-full bg-red3">
-          <LucideOctagonAlert className="size-7 text-red10" />
+        <div className="flex size-15 items-center justify-center rounded-full bg-blue3">
+          <LucideFingerprint className="size-7 text-blue9" />
         </div>
       ),
-      subtext:
-        'We could not verify ownership of the Porto account that you are linking this email to.',
-      title: 'Signature failed',
+      subtext: "We just need to make sure it's you!",
+      title: 'Signature required',
     }
   }, [email, verifyEmail.status])
 
@@ -132,7 +111,13 @@ function RouteComponent() {
             onClick={() => {
               if (status === 'disconnected')
                 connect.connect({ connector: connector! })
-              else verifyEmail.mutate()
+              else
+                verifyEmail.mutate({
+                  chainId: chainId as never,
+                  email,
+                  token,
+                  walletAddress: address as never,
+                })
             }}
             variant={
               connect.isPending || verifyEmail.isPending ? undefined : 'accent'

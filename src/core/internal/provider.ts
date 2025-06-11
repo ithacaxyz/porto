@@ -7,7 +7,6 @@ import { verifyHash } from 'viem/actions'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/serverActions.js'
 import type * as Key from '../../viem/Key.js'
-import * as ServerActions from '../../viem/ServerActions.js'
 import * as ServerClient from '../../viem/ServerClient.js'
 import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
@@ -68,6 +67,40 @@ export function from<
       const state = store.getState()
 
       switch (request.method) {
+        case 'account_verifyEmail': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [parameters] = request._decoded.params
+          const { chainId, email, token, walletAddress } = parameters
+
+          const client = getClient(chainId)
+
+          if (chainId && chainId !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
+
+          const account = walletAddress
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, walletAddress),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          return await getMode().actions.verifyEmail({
+            account,
+            chainId,
+            email,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+            token,
+            walletAddress,
+          })
+        }
+
         case 'wallet_addFunds': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
@@ -728,15 +761,11 @@ export function from<
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await getMode().actions.createAccount({
+                email,
                 internal,
                 label,
                 permissions,
               })
-              if (email && label)
-                await ServerActions.setEmail(client, {
-                  email: label,
-                  walletAddress: account.address,
-                })
               return { accounts: [account] }
             }
             const account = state.accounts[0]

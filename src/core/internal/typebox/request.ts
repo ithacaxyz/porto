@@ -8,6 +8,7 @@ import { type StaticDecode, type StaticEncode, Type, Value } from './typebox.js'
 export * from './rpc.js'
 
 export const Request = Type.Union([
+  RpcRequest.account_verifyEmail.Request,
   RpcRequest.wallet_addFunds.Request,
   RpcRequest.eth_accounts.Request,
   RpcRequest.eth_chainId.Request,

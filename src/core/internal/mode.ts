@@ -44,6 +44,8 @@ export type Mode = {
     }) => Promise<{ id: Hex.Hex }>
 
     createAccount: (parameters: {
+      /** Whether to link `label` to account address as email. */
+      email?: boolean | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Label to associate with the WebAuthn credential. */
@@ -280,6 +282,15 @@ export type Mode = {
       /** Account. */
       account: Account.Account
     }>
+
+    verifyEmail: (parameters: {
+      account: Account.Account
+      chainId: number
+      email: string
+      token: string
+      walletAddress: Address.Address
+      internal: ActionsInternal
+    }) => Promise<null>
   }
   name: string
   setup: (parameters: {

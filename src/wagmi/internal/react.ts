@@ -34,6 +34,7 @@ import {
   revokeAdmin,
   revokePermissions,
   upgradeAccount,
+  verifyEmail,
 } from './core.js'
 import { getAdminsQueryKey, getPermissionsQueryKey } from './query.js'
 import type { ConfigParameter } from './types.js'
@@ -518,6 +519,49 @@ export declare namespace useUpgradeAccount {
     upgradeAccount.ReturnType,
     upgradeAccount.ErrorType,
     upgradeAccount.Parameters<config>,
+    context
+  >
+}
+
+export function useVerifyEmail<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useVerifyEmail.Parameters<config, context> = {},
+): useVerifyEmail.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return verifyEmail(config as Config, variables)
+    },
+    mutationKey: ['verifyEmail'],
+  })
+}
+
+export declare namespace useVerifyEmail {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          verifyEmail.ReturnType,
+          verifyEmail.ErrorType,
+          verifyEmail.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    verifyEmail.ReturnType,
+    verifyEmail.ErrorType,
+    verifyEmail.Parameters<config>,
     context
   >
 }

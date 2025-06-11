@@ -618,11 +618,7 @@ export async function verifyEmail(
   client: Client,
   parameters: verifyEmail.Parameters,
 ) {
-  const { chainId, token, email, walletAddress } = parameters
-  const account = Account.from(walletAddress)
-  const signature = await account.sign({
-    hash: Hash.keccak256(Hex.fromString(`${email}${token}`)),
-  })
+  const { chainId, email, signature, token, walletAddress } = parameters
   return await ServerActions.verifyEmail(client, {
     chainId,
     email,
@@ -633,10 +629,7 @@ export async function verifyEmail(
 }
 
 export declare namespace verifyEmail {
-  export type Parameters = Omit<
-    ServerActions.verifyEmail.Parameters,
-    'signature'
-  >
+  export type Parameters = ServerActions.verifyEmail.Parameters
 
   export type ReturnType = ServerActions.verifyEmail.ReturnType
 

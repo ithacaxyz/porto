@@ -762,6 +762,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return { account }
       },
+
+      async verifyEmail(parameters) {
+        const { internal } = parameters
+        const { request, store } = internal
+
+        if (request.method !== 'account_verifyEmail')
+          throw new Error('Cannot verify email for method: ' + request.method)
+
+        const provider = getProvider(store)
+        return await provider.request(request)
+      },
     },
     name: 'dialog',
     setup(parameters) {

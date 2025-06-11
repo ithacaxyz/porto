@@ -1,5 +1,6 @@
 import * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
+import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
@@ -64,7 +65,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { label, permissions, internal } = parameters
+        const { email, label, permissions, internal } = parameters
         const { client } = internal
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
@@ -92,6 +93,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         address_internal = eoa.address
+
+        if (email && label)
+          await ServerActions.setEmail(client, {
+            email: label,
+            walletAddress: account.address,
+          })
 
         return { account }
       },
@@ -661,6 +668,31 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
 
         return { account }
+      },
+
+      async verifyEmail(parameters) {
+        const { account, chainId, email, token, internal, walletAddress } =
+          parameters
+        const { client } = internal
+
+        // Only admin keys can sign personal messages.
+        const key = account.keys?.find(
+          (key) => key.role === 'admin' && key.privateKey,
+        )
+        if (!key) throw new Error('cannot find admin key to sign with.')
+
+        const signature = await Account.sign(account, {
+          key,
+          payload: Hash.keccak256(Hex.fromString(`${email}${token}`)),
+        })
+
+        return await ServerActions.verifyEmail(client, {
+          chainId,
+          email,
+          signature,
+          token,
+          walletAddress,
+        })
       },
     },
     name: 'rpc',
