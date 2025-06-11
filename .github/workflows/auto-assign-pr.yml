@@ -20,18 +20,24 @@ jobs:
             const pr = context.payload.pull_request
             const author = pr.user.login
 
+            if (pr.user.type === 'Bot') return
+            if (pr.head.repo.full_name !== pr.base.repo.full_name) return
+
             // Check if PR already has assignees
             if (pr.assignees.length > 0) {
               console.info(`PR #${pr.number} already has assignees. Skipping assignment.`)
               return
             }
-
-            // Assign the PR to the author
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr.number,
-              assignees: [author]
-            })
-
-            console.info(`Successfully assigned PR #${pr.number} to ${author}`)
+              
+            try {
+              // Assign the PR to the author
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                assignees: [author]
+              })
+              console.info(`Successfully assigned PR #${pr.number} to ${author}`)
+            } catch (error) {
+              console.warn(`Failed to assign PR #${pr.number} to ${author}: ${error.message}`)
+            }
