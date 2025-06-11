@@ -62,7 +62,6 @@ export function Landing() {
                     <input
                       autoCapitalize="off"
                       autoComplete="off"
-                      autoCorrect="off"
                       className="w-full font-[500] text-[19px] focus:outline-none focus:ring-0"
                       maxLength={32}
                       name="label"
