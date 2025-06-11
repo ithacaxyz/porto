@@ -1,40 +1,28 @@
 {
-  "name": "playground",
+  "name": "config",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "vite build",
     "check:types": "tsc --noEmit",
     "dev": "vite --port 5173",
-    "dev:anvil": "ANVIL=true vite --port 5173",
     "start": "vite preview"
   },
   "dependencies": {
-    "@porto/apps": "workspace:*",
     "@react-spring/web": "^10.0.1",
     "@stylexjs/stylex": "^0.13.1",
-    "@tailwindcss/vite": "catalog:",
     "colord": "^2.9.3",
-    "mipd": "^0.0.7",
-    "ox": "catalog:",
-    "porto": "workspace:*",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "tailwindcss": "catalog:",
-    "viem": "catalog:"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@mjackson/node-fetch-server": "^0.6.1",
     "@stylex-extend/core": "^0.7.1",
     "@stylex-extend/vite": "^0.7.1",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
     "globals": "catalog:",
-    "prool": "^0.0.23",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-mkcert": "catalog:"
+    "vite": "catalog:"
   },
   "packageManager": "pnpm@10.10.0"
 }

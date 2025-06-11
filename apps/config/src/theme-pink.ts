@@ -1,0 +1,26 @@
+import * as stylex from '@stylexjs/stylex'
+
+export const vars = stylex.defineVars({
+  '--indicator': '#FCE3EF',
+  '--indicator-content': '#FF007A',
+  '--indicator-shape': 'circle',
+  '--layer-background': '#FCE3EF',
+  '--layer-base': '#FCFCFC',
+  '--layer-base-content': '#202020',
+  '--layer-base-faint': '#8D8D8D',
+  '--layer-base-muted': '#8D8D8D',
+  '--layer-primary': '#FF007A',
+  '--layer-primary-content': '#FFFFFF',
+  '--layer-raised': '#FF007A',
+  '--layer-raised-content': '#FFFFFF',
+  '--layer-secondary': '#F0F0F0',
+  '--layer-secondary-content': '#202020',
+  '--radius-large': '20px',
+  '--radius-medium': '18px',
+  '--radius-small': '5px',
+  '--separator-color': '#F0F0F0',
+  '--separator-width': '1px',
+  '--window-border-color': 'transparent',
+  '--window-border-width': '0px',
+  '--window-shadow-color': '#00000033',
+})

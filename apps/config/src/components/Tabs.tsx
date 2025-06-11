@@ -19,6 +19,7 @@ const styles = stylex.create({
   main: {
     display: 'flex',
     flexDirection: 'row',
+    height: 32,
     userSelect: 'none',
     width: '100%',
   },
@@ -35,7 +36,7 @@ const styles = stylex.create({
     background: '#0090FF',
     borderRadius: 2,
     height: 2,
-    inset: 'auto 0 2px',
+    inset: 'auto 0 0',
     opacity: 'var(--tab-bar-opacity)',
     position: 'absolute',
     transform: 'scale(var(--tab-bar-scale), 1)',
@@ -43,6 +44,9 @@ const styles = stylex.create({
     willChange: 'transform, opacity',
   },
   tabButton: {
+    ':focus-visible': {
+      '--focus-ring-opacity': 1,
+    },
     background: 'transparent',
     border: '0',
     borderRadius: 4,
@@ -50,11 +54,16 @@ const styles = stylex.create({
     cursor: 'pointer',
     display: 'flex',
     fontSize: 19,
-    outline: {
-      ':focus-visible': '2px solid #0090FF',
-      default: 'none',
-    },
+    outline: 0,
     padding: '0 8px',
+  },
+  tabButtonFocusRing: {
+    background: 'transparent',
+    border: '2px solid #0090FF',
+    borderRadius: 4,
+    inset: '2px -8px -4px',
+    opacity: 'var(--focus-ring-opacity, 0)',
+    position: 'absolute',
   },
   tabSelected: {
     '--tab-bar-opacity': 1,
@@ -103,14 +112,10 @@ export function Tabs({
 
   // focus handling
   useEffect(() => {
-    if (!focused.current) {
-      return
+    if (focused.current) {
+      document.getElementById(selected)?.focus()
     }
-    const selectedButton = container.current?.querySelector(
-      '[tabindex="0"]',
-    ) as null | HTMLElement
-    selectedButton?.focus()
-  }, [])
+  }, [selected])
 
   return (
     <div
@@ -156,6 +161,7 @@ export function Tab({
       <div {...stylex.props(styles.tab, selected && styles.tabSelected)}>
         {tab.label}
         <div {...stylex.props(styles.tabBar)} />
+        <div {...stylex.props(styles.tabButtonFocusRing)} />
       </div>
     </button>
   )

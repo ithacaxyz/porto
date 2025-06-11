@@ -36,6 +36,9 @@ export function App() {
           onTabsChange={(id) => {
             setMode(id.replace('tab-', '') as ConfigMode)
           }}
+          secondaryAction={
+            <Button label="Export" size="medium" variant="fill" />
+          }
           selectedTab={`tab-${mode}`}
           tabs={[
             { id: 'tab-general', label: 'General', panelId: 'panel-general' },
@@ -45,8 +48,14 @@ export function App() {
           {mode === 'theming' && (
             <>
               <PanelSectionBaseTheme
-                onBaseThemeChange={(parent) => {
-                  setTheme({ ...theme, parent })
+                onBaseThemeChange={(id) => {
+                  const theme = baseThemes.find((theme) => theme.id === id)
+                  if (theme) {
+                    setTheme({
+                      ...theme,
+                      parent: id,
+                    })
+                  }
                 }}
                 selected={theme.parent ?? theme.id}
                 themes={baseThemes}

@@ -103,6 +103,11 @@ export function ColorInput({
           e.target.select()
           setFocused(true)
         }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.currentTarget.blur()
+          }
+        }}
         spellCheck={false}
         type="text"
         value={valueInput}

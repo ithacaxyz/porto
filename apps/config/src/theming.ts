@@ -1,40 +1,50 @@
 import themePreviewDark from './theme-preview-dark.png'
 import themePreviewLight from './theme-preview-light.png'
 import themePreviewPink from './theme-preview-pink.png'
+// import { theme as themeLight } from './themes/dark/theme.stylex.js'
+// import { theme as themeDark } from './themes/light/theme.stylex.js'
+// import { theme as themePink } from './themes/pink/theme.stylex.js'
 
 export const radiuses = ['xs', 's', 'm', 'l'] as const
 export const animations = ['none', 'essential', 'all'] as const
 
-export type Color = `#${string}`
+export type Color = `#${string}` | 'transparent'
 
 export type ThemeRadius = (typeof radiuses)[number]
 export type ThemeAnimations = (typeof animations)[number]
 
 // layers: surfaces on which content is placed
 // indicators: elements that indicate state
+// separator: lines that separate content inside the widget
+// border: the outer border of the main widget
+// shadow: the shadow of the main widget
 export type Theme = {
-  // biome-ignore format: themes are organized by layer
-
   id: string
   parent: string | null
   name: string
   previewUrl: string
-  radius: ThemeRadius
+  radius: ThemeRadius // todo: remove
   animations: ThemeAnimations
 
+  indicator: Color
+  indicatorContent: Color
   indicatorShape: 'circle' | 'square'
 
   layerBackground: Color
 
+  layerPrimary: Color
+  layerPrimaryContent: Color
+
+  layerSecondary: Color
+  layerSecondaryContent: Color
+
   layerBase: Color
   layerBaseContent: Color
   layerBaseMuted: Color
+  layerBaseFaint: Color
 
   layerRaised: Color
   layerRaisedContent: Color
-
-  indicator: Color
-  indicatorContent: Color
 
   radiusSmall: number
   radiusMedium: number
@@ -43,32 +53,33 @@ export type Theme = {
   separatorColor: Color
   separatorWidth: number
 
-  borderColor: Color
-  borderWidth: number
-
-  shadowColor: Color
+  windowBorderColor: Color
+  windowBorderWidth: number
+  windowShadowColor: Color
 }
 
-// default color for now
-const c = '#FFFFFF'
+// default color
+const missingColor = '#FF00FF'
 
 export const baseThemes = [
-  // biome-ignore format: themes are organized by layer
   {
+    // light theme
     animations: 'all',
-    borderColor: c,
-    borderWidth: 1,
     id: 'light',
-    indicator: c,
-    indicatorContent: c,
+    indicator: missingColor,
+    indicatorContent: missingColor,
     indicatorShape: 'circle',
-
-    layerBackground: c,
-    layerBase: c,
-    layerBaseContent: c,
-    layerBaseMuted: c,
-    layerRaised: c,
-    layerRaisedContent: c,
+    layerBackground: missingColor,
+    layerBase: missingColor,
+    layerBaseContent: missingColor,
+    layerBaseFaint: missingColor,
+    layerBaseMuted: missingColor,
+    layerPrimary: missingColor,
+    layerPrimaryContent: missingColor,
+    layerRaised: missingColor,
+    layerRaisedContent: missingColor,
+    layerSecondary: missingColor,
+    layerSecondaryContent: missingColor,
     name: 'Light',
     parent: null,
     previewUrl: themePreviewLight,
@@ -76,25 +87,30 @@ export const baseThemes = [
     radiusLarge: 0,
     radiusMedium: 0,
     radiusSmall: 0,
-    separatorColor: c,
+    separatorColor: missingColor,
     separatorWidth: 1,
-    shadowColor: c,
+    windowBorderColor: missingColor,
+    windowBorderWidth: 1,
+    windowShadowColor: missingColor,
   },
   {
+    // dark theme
     animations: 'all',
-    borderColor: c,
-    borderWidth: 1,
     id: 'dark',
-    indicator: c,
-    indicatorContent: c,
+    indicator: missingColor,
+    indicatorContent: missingColor,
     indicatorShape: 'square',
-
-    layerBackground: c,
-    layerBase: c,
-    layerBaseContent: c,
-    layerBaseMuted: c,
-    layerRaised: c,
-    layerRaisedContent: c,
+    layerBackground: missingColor,
+    layerBase: missingColor,
+    layerBaseContent: missingColor,
+    layerBaseFaint: missingColor,
+    layerBaseMuted: missingColor,
+    layerPrimary: missingColor,
+    layerPrimaryContent: missingColor,
+    layerRaised: missingColor,
+    layerRaisedContent: missingColor,
+    layerSecondary: missingColor,
+    layerSecondaryContent: missingColor,
     name: 'Dark',
     parent: 'light',
     previewUrl: themePreviewDark,
@@ -102,25 +118,30 @@ export const baseThemes = [
     radiusLarge: 0,
     radiusMedium: 0,
     radiusSmall: 0,
-    separatorColor: c,
+    separatorColor: missingColor,
     separatorWidth: 1,
-    shadowColor: c,
+    windowBorderColor: missingColor,
+    windowBorderWidth: 1,
+    windowShadowColor: missingColor,
   },
   {
+    // pink theme
     animations: 'all',
-    borderColor: c,
-    borderWidth: 1,
     id: 'pink',
-    indicator: c,
-    indicatorContent: c,
+    indicator: missingColor,
+    indicatorContent: missingColor,
     indicatorShape: 'circle',
-
-    layerBackground: c,
-    layerBase: c,
-    layerBaseContent: c,
-    layerBaseMuted: c,
-    layerRaised: c,
-    layerRaisedContent: c,
+    layerBackground: missingColor,
+    layerBase: missingColor,
+    layerBaseContent: missingColor,
+    layerBaseFaint: missingColor,
+    layerBaseMuted: missingColor,
+    layerPrimary: missingColor,
+    layerPrimaryContent: missingColor,
+    layerRaised: missingColor,
+    layerRaisedContent: missingColor,
+    layerSecondary: missingColor,
+    layerSecondaryContent: missingColor,
     name: 'Pink',
     parent: 'light',
     previewUrl: themePreviewPink,
@@ -128,8 +149,10 @@ export const baseThemes = [
     radiusLarge: 0,
     radiusMedium: 0,
     radiusSmall: 0,
-    separatorColor: c,
+    separatorColor: missingColor,
     separatorWidth: 1,
-    shadowColor: c,
+    windowBorderColor: missingColor,
+    windowBorderWidth: 1,
+    windowShadowColor: missingColor,
   },
 ] as const satisfies readonly Theme[]

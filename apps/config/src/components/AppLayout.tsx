@@ -8,7 +8,6 @@ const styles = stylex.create({
   main: {
     display: 'grid',
     fontSize: 16,
-    fontWeight: 500,
     gap: 0,
     gridTemplateColumns: '1fr 360px',
     height: '100dvh',

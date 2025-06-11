@@ -62,6 +62,7 @@ const styles = stylex.create({
     alignItems: 'center',
     display: 'flex',
     gap: 16,
+    height: 32,
     justifyContent: 'space-between',
     marginLeft: -8,
     width: '100%',

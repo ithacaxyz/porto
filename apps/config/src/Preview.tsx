@@ -1,92 +1,14 @@
-// biome-ignore format: themes are organized by layer
-
-import type { Theme } from './theming.js'
-
 import { a, useTransition } from '@react-spring/web'
 import * as stylex from '@stylexjs/stylex'
 import { IconSettings } from './icons/IconSettings.js'
-import { IconStar } from './icons/IconStar.js'
-
-import uniswapAlt from './uniswap-alt.png'
+import { IconSignIn } from './icons/IconSignIn.js'
+import { IconStart } from './icons/IconStart.js'
+import { theme as themeDark } from './themes/dark/theme.stylex.js'
+import { theme as themeLight } from './themes/light/theme.stylex.js'
+import { theme as themePink } from './themes/pink/theme.stylex.js'
+import type { Theme } from './theming.js'
 import uniswap from './uniswap.png'
-
-const themes = stylex.create({
-  light: {
-    '--layer-background': '#EDEDED',
-
-    '--layer-base': '#FCFCFC',
-    '--layer-base-content': '#202020',
-    '--layer-base-muted': '#8D8D8D',
-
-    '--layer-raised': '#FCFCFC',
-    '--layer-raised-content': '#8D8D8D',
-
-    '--indicator': '#E3F1FB',
-    '--indicator-content': '#0588F0',
-
-    '--radius-small': '5px',
-    '--radius-medium': '5px',
-    '--radius-large': '14px',
-
-    '--separator-width': '1px',
-    '--separator-color': '#D9D9D9',
-
-    '--border-color': '#D9D9D9',
-    '--border-width': '1px',
-
-    '--shadow-color': 'rgba(0, 0, 0, 0.07)',
-  },
-  dark: {
-    '--layer-background': '#313131',
-
-    '--layer-base': '#111111',
-    '--layer-base-content': '#EEEEEE',
-    '--layer-base-muted': '#6E6E6E',
-
-    '--layer-raised': '#111111',
-    '--layer-raised-content': '#6E6E6E',
-
-    '--indicator': '#0D2847',
-    '--indicator-content': '#3B9EFF',
-
-    '--radius-small': '0',
-    '--radius-medium': '0',
-    '--radius-large': '0',
-
-    '--separator-width': '1px',
-    '--separator-color': '#222222',
-
-    '--border-color': '#222222',
-    '--border-width': '1px',
-
-    '--shadow-color': 'rgba(0, 0, 0, 0.2)',
-  },
-  pink: {
-    '--layer-background': '#FCE3EF',
-
-    '--layer-base': '#FCFCFC',
-    '--layer-base-content': '#202020',
-    '--layer-base-muted': '#8D8D8D',
-
-    '--layer-raised': '#FF007A',
-    '--layer-raised-content': '#FFFFFF',
-
-    '--indicator': '#FCE3EF',
-    '--indicator-content': '#FF007A',
-
-    '--radius-small': '5px',
-    '--radius-medium': '5px',
-    '--radius-large': '20px',
-
-    '--separator-width': '1px',
-    '--separator-color': '#F0F0F0',
-
-    '--border-color': 'transparent',
-    '--border-width': '0',
-
-    '--shadow-color': 'rgba(0, 0, 0, 0.2)',
-  },
-})
+import uniswapAlt from './uniswap-alt.png'
 
 const styles = stylex.create({
   main: {
@@ -95,116 +17,190 @@ const styles = stylex.create({
     padding: '24px 0 24px 24px',
   },
   view: {
-    position: 'relative',
-    display: 'grid',
-    width: '100%',
-    height: '100%',
-    placeItems: 'center',
     background: 'var(--layer-background)',
-    transition: 'background 0.1s ease-in-out',
     borderRadius: 12,
+    display: 'grid',
+    height: '100%',
     padding: 24,
+    placeItems: 'center',
+    position: 'relative',
+    transition: 'background 0.1s ease-in-out',
+    width: '100%',
   },
-  widgetWrapper: {
+  viewWidgetWrapper: {
+    left: '50%',
     position: 'absolute',
     top: '50%',
-    left: '50%',
     transform: 'translate(-50%, -50%)',
   },
   widgetBase: {
-    overflow: 'hidden',
-    width: 282,
-    height: 305,
-    color: 'var(--layer-base-content)',
     background: 'var(--layer-base)',
     borderRadius: 'var(--radius-large)',
-    border: 'var(--border-width) solid var(--border-color)',
     boxShadow: '0px 4px 44px var(--shadow-color)',
+    color: 'var(--layer-base-content)',
+    outline: 'var(--window-border-width) solid var(--window-border-color)',
+    // height: 305,
+    overflow: 'hidden',
     userSelect: 'none',
+    width: 282,
   },
-  widgetHeader: {
-    display: 'flex',
+  widgetButton: {
+    ':active': {
+      transform: 'translateY(1px)',
+    },
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-    height: 34,
-    padding: '0 12px',
-    fontSize: 13,
-    color: 'var(--layer-raised-content)',
+    background: 'var(--layer-secondary)',
+    border: '0',
+    borderRadius: 'var(--radius-medium)',
+    color: 'var(--layer-secondary-content)',
+    cursor: 'pointer',
+    display: 'flex',
+    fontSize: 15,
+    fontWeight: 500,
+    gap: 6,
+    height: 36,
+    justifyContent: 'center',
+    padding: 0,
+    width: '100%',
+  },
+  widgetButtonPrimary: {
+    background: 'var(--layer-primary)',
+    color: 'var(--layer-primary-content)',
+  },
+  widgetContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    fontSize: 15,
+    gap: 10,
+    lineHeight: 1.5,
+    padding: 12,
+  },
+  widgetDynamicVars: (theme: Theme) => ({
+    '--indicator-medium-radius':
+      theme.indicatorShape === 'circle' ? '50%' : 'var(--radius-medium)',
+  }),
+  widgetHeader: {
+    alignItems: 'center',
     background: 'var(--layer-raised)',
     borderBottom: 'var(--separator-width) solid var(--separator-color)',
+    color: 'var(--layer-raised-content)',
+    display: 'flex',
+    fontSize: 13,
+    gap: 8,
+    height: 34,
+    justifyContent: 'space-between',
+    padding: '0 12px',
+  },
+  widgetHeaderSettings: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
   },
   widgetHeaderTitle: {
-    display: 'flex',
     alignItems: 'center',
+    display: 'flex',
     gap: 8,
   },
   widgetIconSmall: {
+    borderRadius: 'var(--radius-small)',
+    height: 20,
     overflow: 'hidden',
     width: 20,
-    height: 20,
-    borderRadius: 'var(--radius-small)',
-  },
-  widgetHeaderSettings: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  widgetContent: {
-    padding: 12,
-    fontSize: 15,
-  },
-  widgetInfoRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
   },
   widgetInfoIndicator: {
-    display: 'grid',
-    placeItems: 'center',
-    width: 30,
-    height: 30,
     background: 'var(--indicator)',
+    borderRadius: 'var(--indicator-medium-radius)',
     color: 'var(--indicator-content)',
+    display: 'grid',
+    height: 32,
+    placeItems: 'center',
+    width: 32,
+  },
+  widgetInput: {
+    '::placeholder': {
+      color: 'var(--layer-base-faint)',
+      fontWeight: 500,
+    },
+    background: 'transparent',
+    border: '1px solid var(--separator-color)',
     borderRadius: 'var(--radius-medium)',
+    display: 'block',
+    fontSize: 15,
+    height: 38,
+    padding: '0 16px',
+    width: '100%',
+  },
+  widgetInputLabel: {
+    alignItems: 'center',
+    color: 'var(--layer-base-muted)',
+    display: 'flex',
+    fontSize: 12,
+    inset: '0 16px 0 auto',
+    pointerEvents: 'none',
+    position: 'absolute',
+  },
+  widgetInputWrapper: {
+    position: 'relative',
+  },
+  widgetLabel: {
+    alignItems: 'center',
+    color: 'var(--layer-base-muted)',
+    display: 'flex',
+    fontSize: 13,
+    gap: 8,
+    height: 20,
+  },
+  widgetLabelLine: {
+    background: 'var(--separator-color)',
+    flexGrow: 1,
+    height: 1,
+  },
+  widgetScreenIntroTitle: {
+    alignItems: 'center',
+    display: 'flex',
+    fontSize: 18,
+    fontWeight: 500,
+    gap: 8,
+    paddingBottom: 6,
   },
 })
 
-export function Preview({
-  theme,
-}: {
-  theme: Theme
-}) {
+export function Preview({ theme }: { theme: Theme }) {
   const transitions = useTransition(theme, {
-    keys: (theme) => String(theme.parent),
-    from: {
-      opacity: 0,
-      transform: 'scale3d(0.8, 0.8, 1)',
+    config: {
+      friction: 140,
+      mass: 3,
+      tension: 2000,
     },
     enter: {
       opacity: 1,
-      transform: 'scale3d(1, 1, 1)',
+      transform: 'translateY(0) scale3d(1, 1, 1)',
     },
+    from: {
+      opacity: 0,
+      transform: 'translateY(20px) scale3d(0.85, 0.85, 1)',
+    },
+    // immediate: true,
+    keys: (theme) => String(theme.parent),
     leave: {
       immediate: true,
       opacity: 0,
-    },
-    config: {
-      mass: 2,
-      tension: 2000,
-      friction: 120,
     },
   })
   return (
     <div
       {...stylex.props(
         styles.main,
-        themes[theme.parent as keyof typeof themes] ?? themes.light,
+        theme.parent === 'dark'
+          ? themeDark.vars
+          : theme.parent === 'pink'
+            ? themePink.vars
+            : themeLight.vars,
       )}
     >
       <div {...stylex.props(styles.view)}>
         {transitions((astyles, theme) => (
-          <div {...stylex.props(styles.widgetWrapper)}>
+          <div {...stylex.props(styles.viewWidgetWrapper)}>
             <a.div style={astyles}>
               <WidgetSignIn theme={theme} />
             </a.div>
@@ -215,20 +211,18 @@ export function Preview({
   )
 }
 
-function WidgetSignIn({
-  theme,
-}: {
-  theme: Theme
-}) {
+function WidgetSignIn({ theme }: { theme: Theme }) {
   return (
-    <section {...stylex.props(styles.widgetBase)}>
+    <section
+      {...stylex.props(styles.widgetBase, styles.widgetDynamicVars(theme))}
+    >
       <header {...stylex.props(styles.widgetHeader)}>
         <div {...stylex.props(styles.widgetHeaderTitle)}>
           <img
-            alt=''
+            alt=""
+            height={20}
             src={theme.parent === 'pink' ? uniswapAlt : uniswap}
             width={20}
-            height={20}
             {...stylex.props(styles.widgetIconSmall)}
           />
           uniswap.org
@@ -238,12 +232,47 @@ function WidgetSignIn({
         </div>
       </header>
       <div {...stylex.props(styles.widgetContent)}>
-        <div {...stylex.props(styles.widgetInfoRow)}>
-          <div {...stylex.props(styles.widgetInfoIndicator)}>
-            <IconStar />
+        <div>
+          <div {...stylex.props(styles.widgetScreenIntroTitle)}>
+            <div {...stylex.props(styles.widgetInfoIndicator)}>
+              <IconStart />
+            </div>
+            <div>Get started</div>
           </div>
-          <div>Request</div>
+          <div>
+            Authenticate with your passkey wallet to start using{' '}
+            <strong>uniswap.org</strong>.
+          </div>
         </div>
+        <button
+          tabIndex={-1}
+          type="button"
+          {...stylex.props(styles.widgetButton, styles.widgetButtonPrimary)}
+        >
+          <IconSignIn />
+          Sign in
+        </button>
+        <div {...stylex.props(styles.widgetLabel)}>
+          <div>First time, or lost access?</div>
+          <div {...stylex.props(styles.widgetLabelLine)} />
+        </div>
+        <div {...stylex.props(styles.widgetInputWrapper)}>
+          <input
+            placeholder="example@ithaca.xyz"
+            tabIndex={-1}
+            type="text"
+            {...stylex.props(styles.widgetInput)}
+            disabled
+          />
+          <div {...stylex.props(styles.widgetInputLabel)}>Optional</div>
+        </div>
+        <button
+          tabIndex={-1}
+          type="button"
+          {...stylex.props(styles.widgetButton)}
+        >
+          Create account
+        </button>
       </div>
     </section>
   )
