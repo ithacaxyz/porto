@@ -15,7 +15,7 @@ jobs:
     name: Check permissions
     runs-on: ubuntu-latest
     outputs:
-      has-permission: ${{ steps.check.outputs.has-permission }}
+      has-permission: ${{ steps.check.outputs.result }}
     steps:
       - name: Check if user has write permissions
         id: check
@@ -45,8 +45,8 @@ jobs:
               return false;
             }
 
-  claude-assistant:
-    name: Claude Assistant
+  claude-code-action:
+    name: Run Claude
     needs: check-permissions
     if: |
       needs.check-permissions.outputs.has-permission == 'true' && (
@@ -86,10 +86,10 @@ jobs:
             return shouldReview;
 
       - name: Run Claude Code Action
-        if: steps.check_pr_review.outputs.should_review != 'true'
+        if: steps.check_pr_review.outputs.result == 'false'
         uses: anthropics/claude-code-action@beta
         env: 
-          NODE_VERSION: 23.9.0
+          NODE_VERSION: ${{ env.NODE_VERSION }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -103,8 +103,10 @@ jobs:
             You can create pull requests using the `mcp__github__create_pull_request` tool.
 
       - name: Run Claude PR Review
-        if: steps.check_pr_review.outputs.should_review == 'true'
+        if: steps.check_pr_review.outputs.result == 'true'
         uses: anthropics/claude-code-action@beta
+        env: 
+          NODE_VERSION: ${{ env.NODE_VERSION }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
