@@ -1,0 +1,75 @@
+# Overview
+
+Porto ships with first-class modules that extend and compose with [Viem](https://viem.sh), 
+such as: [Wallet Actions](#TODO), [RPC Server Actions](#TODO), [Contract Actions](#TODO), a Porto-specific 
+[Account implementation](#TODO), and more.
+
+:::info
+The end-goal is for most of this functionality to be upstreamed into Viem itself once
+more concepts become standardized (e.g. authorizing permissions, Porto Server JSON-RPC methods, etc).
+:::
+
+## Getting Started
+
+### Application Developers
+
+Application Developers can use the [Porto Dialog](/sdk/api/mode#modedialog) with Viem by passing Porto's EIP-1193 `provider` as
+a transport to a [Viem Client](https://viem.sh/docs/clients/intro).
+
+Once instantiated, you can utilize Viem's [Wallet Actions](https://viem.sh/docs/actions/wallet/introduction) to interact with Porto, or Porto's
+custom [`WalletActions`](/sdk/viem/WalletActions) module.
+
+```ts twoslash
+import { createClient, custom, parseEther } from 'viem' // [!code focus]
+import { Porto } from 'porto' // [!code focus]
+import { WalletActions } from 'porto/viem' 
+import * as Actions from 'viem/actions' 
+
+// Instantiate a Porto instance. // [!code focus]
+const porto = Porto.create() // [!code focus]
+
+// Instantiate a Viem Client with Porto's EIP-1193 provider. // [!code focus]
+const client = createClient({ // [!code focus]
+  transport: custom(porto.provider), // [!code focus]
+}) // [!code focus]
+
+const { accounts } = await WalletActions.connect(client)
+
+const { id } = await Actions.sendCalls(client, {
+  account: '0x',
+  calls: [{ to: '0x...', value: parseEther('0.001') }],
+})
+```
+
+### Wallet Developers
+
+Wallet and Account Developers can use the [Porto RPC Server](https://porto.sh/rpc-server) with Viem by instantiating
+a [Viem Client](https://viem.sh/docs/clients/intro) with a Porto-compatible Chain.
+
+Once instantiated, you can utilize Viem's [Public Actions](https://viem.sh/docs/actions/public/introduction) or the
+custom [`ServerActions`](/sdk/viem/ServerActions) module to interact with the RPC Server.
+
+```ts twoslash
+import { createClient, http } from 'viem' // [!code focus]
+import { Chains } from 'porto' // [!code focus]
+import { Key, ServerActions } from 'porto/viem'
+import * as Actions from 'viem/actions'
+
+const client = createClient({ // [!code focus]
+  chain: Chains.baseSepolia, // [!code focus]
+  transport: http(), // [!code focus]
+}) // [!code focus]
+
+const account = await ServerActions.createAccount(client, {
+  authorizeKeys: [Key.createSecp256k1()],
+})
+
+const chainId = await Actions.getChainId(client)
+```
+
+
+
+
+
+
+

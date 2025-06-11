@@ -1,0 +1,197 @@
+import { WalletActions } from 'porto/viem'
+import { parseEther, toHex } from 'viem'
+import { TryItOut } from '../../../components/TryItOut'
+
+# `connect`
+
+Viem Action for connecting an account using [ERC-7846](https://github.com/ethereum/ERCs/pull/779). Uses [`wallet_connect`](/sdk/rpc/wallet_connect) under the hood.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
+
+const result = await WalletActions.connect(client) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+<TryItOut
+  fn={async ({ client }) => {
+    return await WalletActions.connect(client)
+  }}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>
+
+### Grant Permissions
+
+You can grant permissions for an application to perform actions on behalf of the account by providing the `grantPermissions` parameter.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { WalletActions } from 'porto/viem'
+import { parseEther, toHex } from 'viem'
+import { client } from './config'
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+const result = await WalletActions.connect(client, {
+  grantPermissions: { // [!code focus]
+    expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour // [!code focus]
+    permissions: { // [!code focus]
+      calls: [{ // [!code focus]
+        signature: 'transfer(address,uint256)', // [!code focus]
+        to: token, // [!code focus]
+      }], // [!code focus]
+      spend: [{ // [!code focus]
+        limit: parseEther('50'), // 50 EXP // [!code focus]
+        period: 'day', // [!code focus]
+        token: token, // [!code focus]
+      }], // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+<TryItOut
+  fn={async ({ client }) => {
+    return await WalletActions.connect(client, {
+      grantPermissions: { 
+        expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour 
+        permissions: { 
+          calls: [{ 
+            signature: 'transfer(address,uint256)', 
+            to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', 
+          }], 
+          spend: [{ 
+            limit: parseEther('50'), // 50 EXP 
+            period: 'day', 
+            token: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', 
+          }], 
+        }, 
+      }, 
+    })
+  }}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>
+
+## Parameters
+
+### grantPermissions
+
+Permissions to grant to the account.
+
+```ts
+type GrantPermissions = {
+  /** Expiry timestamp for the permissions */
+  expiry: number
+
+  /** Key to grant permissions to. Defaults to a wallet-managed key. */
+  key?: {
+    /** Public key. Accepts an address for `address` & `secp256k1` types. */
+    publicKey?: `0x${string}`
+    /** Key type. */
+    type?: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+  }
+
+  /** Permissions to grant */
+  permissions: {
+    /** Call permissions */
+    calls: {
+      /** Function signature or 4-byte signature */
+      signature?: string
+      /** Authorized target address */
+      to?: `0x${string}`
+    }[]
+
+    /** Spend permissions */
+    spend: {
+      /** Spending limit (in wei) per period */
+      limit: `0x${string}`
+      /** Period of the spend limit */
+      period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+      /** ERC20 token to set the limit on (defaults to native token) */
+      token?: `0x${string}`
+    }[]
+  }
+}
+```
+
+## Return Value
+
+```ts
+type ConnectResponse = {
+  /** Array of accounts available to the user */
+  accounts: {
+    /** Account address */
+    address: `0x${string}`
+    
+    /** Optional capabilities associated with the account */ 
+    capabilities?: {
+      /** Admin keys authorized on the account */
+      admins?: {
+        /** Key ID */
+        id: `0x${string}`
+        /** Public key of the admin */
+        publicKey: `0x${string}`
+        /** Key type */
+        type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+      }[]
+
+      /** Permissions granted on the account */
+      permissions?: {
+        /** Account address */
+        address: `0x${string}`
+        /** Chain ID */
+        chainId?: number
+        /** Permission expiry timestamp */
+        expiry: number
+        /** Permission ID */
+        id: `0x${string}`
+        /** Key associated with the permission */
+        key: {
+          /** Public key */
+          publicKey: `0x${string}`
+          /** Key type */
+          type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+        }
+        /** Permission details */
+        permissions: {
+          /** Call permissions */
+          calls: {
+            /** Function signature */
+            signature?: string
+            /** Target contract address */
+            to?: `0x${string}`
+          }[]
+          /** Spend permissions */
+          spend?: {
+            /** Spending limit per period */
+            limit: `0x${string}`
+            /** Period for the spending limit */
+            period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+            /** Token address (defaults to native token if not provided) */
+            token?: `0x${string}`
+          }[]
+        }
+      }[]
+    }
+  }[]
+}
+```

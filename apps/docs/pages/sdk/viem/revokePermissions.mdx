@@ -1,0 +1,42 @@
+# `revokePermissions`
+
+Viem Action for revoking permissions. Uses [`wallet_revokePermissions`](/sdk/rpc/wallet_revokePermissions) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
+
+await WalletActions.revokePermissions(client, { // [!code focus]
+  id: '0x...', // Permission ID to revoke // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to revoke permissions for. Defaults to the client's account.
+
+### feeToken
+
+`Address | undefined`
+
+Optional fee token to use for the transaction.
+
+### id
+
+`string`
+
+ID of the permission to revoke.

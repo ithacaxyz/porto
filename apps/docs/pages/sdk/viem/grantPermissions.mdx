@@ -1,36 +1,36 @@
 # `grantPermissions`
 
-VanillaJS action for granting permissions to an application. Uses Viem's [`grantPermissions`](/sdk/viem/grantPermissions) under the hood.
+Viem Action for granting permissions to an application. Uses [`wallet_grantPermissions`](/sdk/rpc/wallet_grantPermissions) under the hood.
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { toHex, parseEther } from 'viem'
-import { Actions, porto } from 'porto/wagmi'
-import { config } from './config'
+import { parseEther } from 'viem'
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
 
 const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 
-const permissions = await Actions.grantPermissions(config, {
-  expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour
-  permissions: {
-    calls: [{
-      signature: 'transfer(address,uint256)',
-      to: token
-    }],
-    spend: [{
-      limit: parseEther('50'), // 50 EXP
-      period: 'day',
-      token: token,
-    }]
-  },
-})
+const permissions = await WalletActions.grantPermissions(client, { // [!code focus]
+  expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour // [!code focus]
+  permissions: { // [!code focus]
+    calls: [{ // [!code focus]
+      signature: 'transfer(address,uint256)', // [!code focus]
+      to: token // [!code focus]
+    }], // [!code focus]
+    spend: [{ // [!code focus]
+      limit: parseEther('50'), // 50 EXP // [!code focus]
+      period: 'day', // [!code focus]
+      token: token, // [!code focus]
+    }] // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
-// [!include ~/snippets/wagmi/config.ts]
+// [!include ~/snippets/viem/config.ts]
 ```
 
 :::
@@ -42,15 +42,15 @@ Applications can also grant permissions to a specific signing key by providing t
 :::code-group
 
 ```ts twoslash [example.ts]
-import { privateKeyToAccount, toHex, parseEther } from 'viem'
-import { Actions, porto } from 'porto/wagmi'
-import { config } from './config'
+import { privateKeyToAccount, parseEther } from 'viem'
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
 
 const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
 const account = privateKeyToAccount('0x...') // [!code focus]
 
 // Grant permissions with custom key
-const permission = await Actions.grantPermissions(config, {
+const permission = await WalletActions.grantPermissions(client, {
   expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
   key: { // [!code focus]
     publicKey: account.address, // [!code focus]
@@ -71,7 +71,7 @@ const permission = await Actions.grantPermissions(config, {
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
-// [!include ~/snippets/wagmi/config.ts]
+// [!include ~/snippets/viem/config.ts]
 ```
 
 :::
@@ -82,19 +82,7 @@ const permission = await Actions.grantPermissions(config, {
 
 `Address | undefined`
 
-Address of the account to grant permissions on. Defaults to the current account.
-
-### chainId
-
-`number | undefined`
-
-Chain ID to grant permissions on.
-
-### connector
-
-`Connector | CreateConnectorFn`
-
-The connector to use.
+Address of the account to grant permissions on.
 
 ### expiry
 
@@ -153,7 +141,7 @@ Address of the account.
 
 `number`
 
-Chain ID of the account.
+Chain ID that the permissions are granted on.
 
 ### expiry
 
