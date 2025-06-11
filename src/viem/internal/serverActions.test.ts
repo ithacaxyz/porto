@@ -853,3 +853,6 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     expect(result.valid).toBe(false)
   })
 })
+
+// TODO: Figure out way to get `token` from server (e.g. email link from inbox)
+describe.todo('setEmail + verifyEmail')

@@ -284,11 +284,17 @@ export type Mode = {
     }>
 
     verifyEmail: (parameters: {
+      /** Account to sign the email + token with. */
       account: Account.Account
+      /** Chain ID to verify against. */
       chainId: number
+      /** Email to link to wallet address. */
       email: string
+      /** Generated token value. */
       token: string
+      /** Wallet address to link to email. */
       walletAddress: Address.Address
+      /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<null>
   }
