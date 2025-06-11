@@ -16,7 +16,7 @@ if (
   Process.env.VITE_VERCEL_ENV === 'production'
 ) {
   NodeFS.writeFileSync(
-    NodePath.join(process.cwd(), 'public', 'robots.txt'),
+    NodePath.join(Process.cwd(), 'public', 'robots.txt'),
     ['User-agent: *', 'Allow: /'].join('\n'),
   )
 }
