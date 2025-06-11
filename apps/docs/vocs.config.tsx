@@ -518,6 +518,10 @@ export default defineConfig({
       link: '/contracts',
       text: 'Contracts',
     },
+    {
+      link: '/changelog',
+      text: 'Changelog',
+    },
   ],
   vite: {
     plugins: [
