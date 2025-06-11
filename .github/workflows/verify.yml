@@ -5,6 +5,9 @@ on:
   repository_dispatch:
     types: ['relay-release', 'relay-deployment']
 
+env:
+   ACTIONS_RUNNER_DEBUG: true
+
 jobs:
   checks:
     name: Checks
@@ -94,7 +97,7 @@ jobs:
 
       - name: Install Playwright
         if: matrix.browser == 'true'
-        run: pnpx playwright install --with-deps
+        run: pnpx playwright@1.53.0 install --with-deps
 
       - name: Test
         uses: nick-fields/retry@v3

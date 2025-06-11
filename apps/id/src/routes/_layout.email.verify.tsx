@@ -1,17 +1,17 @@
 import { Button } from '@porto/apps/components'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Address, Hash, Hex } from 'ox'
+import { Address, Hex } from 'ox'
 import { ServerActions } from 'porto/viem'
 import * as React from 'react'
 import * as v from 'valibot'
 import { createClient } from 'viem'
-import { useAccount, useConnect, useConnectors, useSignMessage } from 'wagmi'
+import { useAccount, useConnect, useConnectors } from 'wagmi'
 import LucideCheck from '~icons/lucide/check'
 import LucideFingerprint from '~icons/lucide/fingerprint'
 import LucideOctagonAlert from '~icons/lucide/octagon-alert'
 import LucidePictureInPicture2 from '~icons/lucide/picture-in-picture-2'
-import * as Porto from '../lib/Porto.ts'
+import { config as portoConfig } from '../lib/Porto.ts'
 import { Layout } from './-components/Layout.tsx'
 
 export const Route = createFileRoute('/_layout/email/verify')({
@@ -34,28 +34,23 @@ function RouteComponent() {
   const { address, email, token } = Route.useSearch()
 
   const connect = useConnect()
-  const verifyEmail = useMutation<null, Error, { signature: Hex.Hex }>({
+  const verifyEmail = useMutation<null, Error>({
     async mutationFn(variables) {
       const client = createClient({
-        chain: Porto.config.chains.find((chain) => chain.id === chainId),
+        chain: portoConfig.chains.find((chain) => chain.id === chainId),
         pollingInterval: 1_000,
-        transport: Porto.config.transports[chainId as never]!,
+        transport: portoConfig.transports[chainId as never]!,
       })
       return await ServerActions.verifyEmail(client, {
         chainId: chainId as never,
         email,
-        signature: variables.signature,
         token,
         walletAddress: address as Address.Address,
       })
     },
     mutationKey: ['verifyEmail'],
-  })
-  const signMessage = useSignMessage({
-    mutation: {
-      onSuccess(data) {
-        verifyEmail.mutate({ signature: data })
-      },
+    onSettled(data, error) {
+      console.log({ data, error })
     },
   })
 
@@ -133,20 +128,17 @@ function RouteComponent() {
         ) : (
           <Button
             className="mt-4 flex w-full items-center gap-2"
-            disabled={connect.isPending || signMessage.isPending}
+            disabled={connect.isPending || verifyEmail.isPending}
             onClick={() => {
               if (status === 'disconnected')
                 connect.connect({ connector: connector! })
-              else
-                signMessage.signMessage({
-                  message: Hash.keccak256(Hex.fromString(`${email}${token}`)),
-                })
+              else verifyEmail.mutate()
             }}
             variant={
-              connect.isPending || signMessage.isPending ? undefined : 'accent'
+              connect.isPending || verifyEmail.isPending ? undefined : 'accent'
             }
           >
-            {connect.isPending || signMessage.isPending ? (
+            {connect.isPending || verifyEmail.isPending ? (
               <>
                 <LucidePictureInPicture2 className="size-5" />
                 Check passkey prompt

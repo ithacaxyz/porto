@@ -1,11 +1,25 @@
 import ChildProcess from 'node:child_process'
+import NodeFS from 'node:fs'
+import NodePath from 'node:path'
+import Process from 'node:process'
 import Icons from 'unplugin-icons/vite'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
-  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
+  Process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
+
+// don't index porto.sh except in production
+if (
+  Process.env.NODE_ENV === 'production' &&
+  Process.env.VITE_VERCEL_ENV === 'production'
+) {
+  NodeFS.writeFileSync(
+    NodePath.join(Process.cwd(), 'public', 'robots.txt'),
+    ['User-agent: *', 'Allow: /'].join('\n'),
+  )
+}
 
 export default defineConfig({
   description:
@@ -22,6 +36,14 @@ export default defineConfig({
         <meta content="1200" property="og:image:width" />
         <meta content="630" property="og:image:height" />
         <meta content={commitSha} name="x-app-version" />
+        <meta
+          content={
+            process.env.VITE_VERCEL_ENV !== 'production'
+              ? 'noindex, nofollow'
+              : 'index, follow'
+          }
+          name="robots"
+        />
       </>
     )
   },
@@ -274,125 +296,125 @@ export default defineConfig({
         ],
         text: 'Wagmi Reference',
       },
-      // {
-      //   items: [
-      //     {
-      //       link: '/sdk/viem',
-      //       text: 'Overview',
-      //     },
-      //     {
-      //       link: '/sdk/viem/client',
-      //       text: 'Client',
-      //     },
-      //     {
-      //       collapsed: true,
-      //       items: [
-      //         {
-      //           link: '/sdk/viem/connect',
-      //           text: 'connect',
-      //         },
-      //         {
-      //           link: '/sdk/viem/disconnect',
-      //           text: 'disconnect',
-      //         },
-      //         {
-      //           link: '/sdk/viem/grantPermissions',
-      //           text: 'grantPermissions',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getPermissions',
-      //           text: 'getPermissions',
-      //         },
-      //         {
-      //           link: '/sdk/viem/revokePermissions',
-      //           text: 'revokePermissions',
-      //         },
-      //         {
-      //           link: '/sdk/viem/upgradeAccount',
-      //           text: 'upgradeAccount',
-      //         },
-      //       ],
-      //       text: 'Wallet Actions',
-      //     },
-      //     {
-      //       collapsed: true,
-      //       items: [
-      //         {
-      //           link: '/sdk/viem/execute',
-      //           text: 'execute',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getEip712Domain',
-      //           text: 'getEip712Domain',
-      //         },
-      //         {
-      //           link: '/sdk/viem/keyAt',
-      //           text: 'keyAt',
-      //         },
-      //         {
-      //           link: '/sdk/viem/prepareExecute',
-      //           text: 'prepareExecute',
-      //         },
-      //       ],
-      //       text: 'Contract Actions',
-      //     },
-      //     {
-      //       collapsed: true,
-      //       items: [
-      //         {
-      //           link: '/sdk/viem/createAccount',
-      //           text: 'createAccount',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getAccounts',
-      //           text: 'getAccounts',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getCallsStatus',
-      //           text: 'getCallsStatus',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getCapabilities',
-      //           text: 'getCapabilities',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getKeys',
-      //           text: 'getKeys',
-      //         },
-      //         {
-      //           link: '/sdk/viem/health',
-      //           text: 'health',
-      //         },
-      //         {
-      //           link: '/sdk/viem/prepareCalls',
-      //           text: 'prepareCalls',
-      //         },
-      //         {
-      //           link: '/sdk/viem/prepareCreateAccount',
-      //           text: 'prepareCreateAccount',
-      //         },
-      //         {
-      //           link: '/sdk/viem/prepareUpgradeAccount',
-      //           text: 'prepareUpgradeAccount',
-      //         },
-      //         {
-      //           link: '/sdk/viem/sendPreparedCalls',
-      //           text: 'sendPreparedCalls',
-      //         },
-      //         {
-      //           link: '/sdk/viem/upgradeAccount',
-      //           text: 'upgradeAccount',
-      //         },
-      //         {
-      //           link: '/sdk/viem/verifySignature',
-      //           text: 'verifySignature',
-      //         },
-      //       ],
-      //       text: 'Server Actions',
-      //     },
-      //   ],
-      //   text: 'Viem Reference',
-      // },
+      {
+        items: [
+          {
+            link: '/sdk/viem',
+            text: 'Overview',
+          },
+          // {
+          //   link: '/sdk/viem/Account',
+          //   text: 'Account',
+          // },
+          // {
+          //   link: '/sdk/viem/Key',
+          //   text: 'Key',
+          // },
+          {
+            collapsed: true,
+            items: [
+              {
+                link: '/sdk/viem/connect',
+                text: 'connect',
+              },
+              {
+                link: '/sdk/viem/disconnect',
+                text: 'disconnect',
+              },
+              {
+                link: '/sdk/viem/grantPermissions',
+                text: 'grantPermissions',
+              },
+              {
+                link: '/sdk/viem/getPermissions',
+                text: 'getPermissions',
+              },
+              {
+                link: '/sdk/viem/revokePermissions',
+                text: 'revokePermissions',
+              },
+              // {
+              //   link: '/sdk/viem/upgradeAccount',
+              //   text: 'upgradeAccount',
+              // },
+            ],
+            text: 'Wallet Actions',
+          },
+          // {
+          //   collapsed: true,
+          //   items: [
+          //     {
+          //       link: '/sdk/viem/execute',
+          //       text: 'execute',
+          //     },
+          //     {
+          //       link: '/sdk/viem/getEip712Domain',
+          //       text: 'getEip712Domain',
+          //     },
+          //     {
+          //       link: '/sdk/viem/keyAt',
+          //       text: 'keyAt',
+          //     },
+          //     {
+          //       link: '/sdk/viem/prepareExecute',
+          //       text: 'prepareExecute',
+          //     },
+          //   ],
+          //   text: 'Contract Actions',
+          // },
+          // {
+          //   collapsed: true,
+          //   items: [
+          //     {
+          //       link: '/sdk/viem/createAccount',
+          //       text: 'createAccount',
+          //     },
+          //     {
+          //       link: '/sdk/viem/getAccounts',
+          //       text: 'getAccounts',
+          //     },
+          //     {
+          //       link: '/sdk/viem/getCallsStatus',
+          //       text: 'getCallsStatus',
+          //     },
+          //     {
+          //       link: '/sdk/viem/getCapabilities',
+          //       text: 'getCapabilities',
+          //     },
+          //     {
+          //       link: '/sdk/viem/getKeys',
+          //       text: 'getKeys',
+          //     },
+          //     {
+          //       link: '/sdk/viem/health',
+          //       text: 'health',
+          //     },
+          //     {
+          //       link: '/sdk/viem/prepareCalls',
+          //       text: 'prepareCalls',
+          //     },
+          //     {
+          //       link: '/sdk/viem/prepareUpgradeAccount',
+          //       text: 'prepareUpgradeAccount',
+          //     },
+          //     {
+          //       link: '/sdk/viem/sendPreparedCalls',
+          //       text: 'sendPreparedCalls',
+          //     },
+          //     {
+          //       link: '/sdk/viem/upgradeAccount',
+          //       text: 'upgradeAccount',
+          //     },
+          //     {
+          //       link: '/sdk/viem/verifySignature',
+          //       text: 'verifySignature',
+          //     },
+          //   ],
+          //   text: 'Server Actions',
+          // },
+        ],
+        text: 'Viem Reference',
+      },
       {
         items: [
           {

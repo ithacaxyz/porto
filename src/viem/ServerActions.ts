@@ -1,6 +1,7 @@
 import * as Address from 'ox/Address'
 import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
+import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import {
   type Calls,
@@ -617,7 +618,11 @@ export async function verifyEmail(
   client: Client,
   parameters: verifyEmail.Parameters,
 ) {
-  const { chainId, token, signature, email, walletAddress } = parameters
+  const { chainId, token, email, walletAddress } = parameters
+  const account = Account.from(walletAddress)
+  const signature = await account.sign({
+    hash: Hash.keccak256(Hex.fromString(`${email}${token}`)),
+  })
   return await ServerActions.verifyEmail(client, {
     chainId,
     email,
@@ -628,7 +633,10 @@ export async function verifyEmail(
 }
 
 export declare namespace verifyEmail {
-  export type Parameters = ServerActions.verifyEmail.Parameters
+  export type Parameters = Omit<
+    ServerActions.verifyEmail.Parameters,
+    'signature'
+  >
 
   export type ReturnType = ServerActions.verifyEmail.ReturnType
 

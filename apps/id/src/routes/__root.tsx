@@ -23,6 +23,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         content: __APP_VERSION__,
         name: 'x-app-version',
       },
+      {
+        content:
+          import.meta.env.VITE_VERCEL_ENV !== 'production'
+            ? 'noindex, nofollow'
+            : 'index, follow',
+        name: 'robots',
+      },
     ],
   }),
 })

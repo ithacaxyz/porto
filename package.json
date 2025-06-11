@@ -50,7 +50,7 @@
     "knip": "^5.50.5",
     "markdownlint-cli2": "^0.18.1",
     "ox": "catalog:",
-    "playwright": "^1.51.1",
+    "playwright": "1.53.0",
     "prool": "catalog:",
     "publint": "^0.2.12",
     "sherif": "1.5.0",

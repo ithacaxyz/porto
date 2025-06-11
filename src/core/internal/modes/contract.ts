@@ -418,6 +418,14 @@ export function contract(parameters: contract.Parameters = {}) {
         const key = account.keys?.find((key) => key.id === id)
         if (!key) return
 
+        // Cannot revoke the only WebAuthn key left
+        if (
+          key.type === 'webauthn-p256' &&
+          account.keys?.filter((key) => key.type === 'webauthn-p256').length ===
+            1
+        )
+          throw new Error('revoke the only WebAuthn key left.')
+
         await ContractActions.execute(client, {
           account,
           calls: [Call.revoke({ keyHash: key.hash })],

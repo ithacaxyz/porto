@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@iconify/json": "catalog:",
+    "@tanstack/react-query-devtools": "catalog:",
     "@svgr/core": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

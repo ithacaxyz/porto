@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Json } from 'ox'
 import type { Porto } from 'porto'
 import { codeToHtml } from 'shiki'
+import { Client, createClient, custom } from 'viem'
 import { useAccount, useConnectors } from 'wagmi'
 
 import { Button } from './Button'
@@ -23,9 +24,14 @@ export function TryItOut(props: TryItOut.Props) {
 
   const mutation = useMutation({
     async mutationFn() {
+      const provider =
+        (await connector?.getProvider()) as unknown as Porto.Porto['provider']
+      const client = createClient({
+        transport: custom(provider),
+      })
       const json = await fn({
-        provider:
-          (await connector?.getProvider()) as unknown as Porto.Porto['provider'],
+        client,
+        provider,
       })
       const html = await codeToHtml(
         transformResultCode(Json.stringify(json, null, 2)),
@@ -86,7 +92,10 @@ export function TryItOut(props: TryItOut.Props) {
 export namespace TryItOut {
   export interface Props {
     exampleSlug?: string
-    fn: (parameters: { provider: Porto.Porto['provider'] }) => Promise<unknown>
+    fn: (parameters: {
+      client: Client
+      provider: Porto.Porto['provider']
+    }) => Promise<unknown>
     requireConnection?: boolean
     transformResultCode?: (code: string) => string
   }
