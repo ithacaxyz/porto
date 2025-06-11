@@ -3,7 +3,7 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
-import { verifyHash, waitForCallsStatus } from 'viem/actions'
+import { verifyHash } from 'viem/actions'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/serverActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -175,7 +175,7 @@ export function from<
           })
 
           // Poll for transaction status and return actual transaction hash
-          const result = await waitForCallsStatus(client, { id })
+          const result = await pollForCallsStatus(client, { id })
 
           if (result.status !== 200) {
             // Handle non-success cases
@@ -1047,6 +1047,30 @@ export declare namespace from {
       ...Chains.Chain[],
     ],
   > = Porto_internal.Internal<chains> & { store: Porto.Store }
+}
+
+async function pollForCallsStatus(
+  client: ServerClient.ServerClient,
+  parameters: { id: Hex.Hex },
+): Promise<Actions.getCallsStatus.ReturnType> {
+  const maxAttempts = 60 // Maximum 60 seconds timeout (60 attempts * 1 second)
+  let attempts = 0
+
+  while (attempts < maxAttempts) {
+    const result = await Actions.getCallsStatus(client, parameters)
+    
+    // If status is confirmed (200) or failed (300, 400, 500), return immediately
+    if (result.status !== 100) {
+      return result
+    }
+    
+    // Wait 1 second before next attempt (matches client polling interval)
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    attempts++
+  }
+  
+  // If we reach here, we've timed out
+  throw new ox_Provider.TimeoutError()
 }
 
 function announce(provider: Provider) {
