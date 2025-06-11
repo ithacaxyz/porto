@@ -9,7 +9,7 @@ import { Type } from './typebox.js'
 
 export namespace account_setEmail {
   export const Parameters = Type.Object({
-    email: Type.String(),
+    email: Type.String({ format: 'email' }),
     walletAddress: Primitive.Address,
   })
 
@@ -28,7 +28,7 @@ export namespace account_setEmail {
 export namespace account_verifyEmail {
   export const Parameters = Type.Object({
     chainId: Primitive.Number,
-    email: Type.String(),
+    email: Type.String({ format: 'email' }),
     token: Type.String(),
     walletAddress: Primitive.Address,
   })

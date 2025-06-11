@@ -12,7 +12,7 @@ export function Input(props: Input.Props) {
 }
 
 export namespace Input {
-  export const displayName = 'Button'
+  export const displayName = 'Input'
 
   export interface Props
     extends Omit<

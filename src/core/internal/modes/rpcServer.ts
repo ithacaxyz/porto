@@ -675,7 +675,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           parameters
         const { client } = internal
 
-        // Only admin keys can sign personal messages.
+        // Only allow admin keys can sign message.
         const key = account.keys?.find(
           (key) => key.role === 'admin' && key.privateKey,
         )

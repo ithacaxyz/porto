@@ -28,7 +28,7 @@ export namespace account_setEmail {
   /** Parameters for `account_setEmail` request. */
   export const Parameters = Type.Object({
     /** Email to set for wallet address. */
-    email: Type.String(),
+    email: Type.String({ format: 'email' }),
     /** Address to set email. */
     walletAddress: Primitive.Address,
   })
@@ -51,7 +51,7 @@ export namespace account_verifyEmail {
   export const Parameters = Type.Object({
     // TODO: `Primitive.Number`
     chainId: Type.Number(),
-    email: Type.String(),
+    email: Type.String({ format: 'email' }),
     signature: Primitive.Hex,
     token: Type.String(),
     walletAddress: Primitive.Address,
