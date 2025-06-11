@@ -17,6 +17,42 @@ import { ChangelogDate } from '../components/ChangelogDate'
 
 # Changelog
 
+## Email Support & Removal of PREP
+
+<ChangelogDate date="2025-06-12" />
+
+:::warning
+This release will require you to recreate your testnet account with Porto. We've made fundamental improvements that ensure smoother upgrades in the future. Don't worry, these types of breaking upgrades will not occur in production.
+:::
+
+<div className="flex justify-center">
+  <img className="w-[300px]" src="/email-signup.png" alt="Email Signup" />
+</div>
+
+Porto now **optionally** captures email addresses during sign-up to build more connected experiences. 
+Provide your email during onboarding to streamline Porto's upcoming onramp integration that requires email 
+verification, and enable the ability to recover your account via email in the future.
+
+Porto automatically handles email verification with secure links sent to your inbox. 
+Your email address becomes part of your passkey naming strategy, making your accounts more discoverable 
+and user-friendly across devices and applications.
+
+---
+
+We've also simplified our account creation architecture by removing [PREP (Provably Rootless EIP-7702 Proxy)](https://blog.biconomy.io/prep-deep-dive/) 
+in favor of ephemeral private keys. On each signup, Porto generates a private key for the user (on their device), 
+which is used to sign a cross-chain compatible [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization, 
+and then immediately discarded for security.
+
+This new pattern solves the core UX challenge of enabling "Create Account + Grant Permission" flows in a 
+single Passkey interaction. You can now authorize both sign up and spending permissions in 
+one user action, eliminating the complex workarounds that PREP required to make these flows 
+cross-chain compatible.
+
+The ephemeral key approach maintains the same address across all chains while drastically reducing 
+implementation complexity. All operations happen within a secure iframe sandbox, ensuring malicious 
+applications never access the ephemeral private key.
+
 ## Announcing Developer Preview
 
 <ChangelogDate date="2025-05-28" />
