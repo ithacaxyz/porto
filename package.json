@@ -64,7 +64,7 @@
     "vitest": "catalog:",
     "wagmi": "catalog:"
   },
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.12.1",
   "engines": {
     "node": ">=22.5"
   },
@@ -110,7 +110,6 @@
   ],
   "pnpm": {
     "patchedDependencies": {
-      "@tanstack/react-router": "patches/@tanstack__react-router.patch",
       "@wagmi/cli": "patches/@wagmi__cli.patch",
       "@wagmi/core": "patches/@wagmi__core.patch",
       "@vitest/browser": "patches/@vitest__browser.patch"
