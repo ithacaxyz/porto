@@ -1,11 +1,25 @@
 import ChildProcess from 'node:child_process'
+import NodeFS from 'node:fs'
+import NodePath from 'node:path'
+import Process from 'node:process'
 import Icons from 'unplugin-icons/vite'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
-  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
+  Process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
+
+// don't index porto.sh except in production
+if (
+  Process.env.NODE_ENV === 'production' &&
+  Process.env.VITE_VERCEL_ENV === 'production'
+) {
+  NodeFS.writeFileSync(
+    NodePath.join(process.cwd(), 'public', 'robots.txt'),
+    ['User-agent: *', 'Allow: /'].join('\n'),
+  )
+}
 
 export default defineConfig({
   description:
@@ -22,6 +36,14 @@ export default defineConfig({
         <meta content="1200" property="og:image:width" />
         <meta content="630" property="og:image:height" />
         <meta content={commitSha} name="x-app-version" />
+        <meta
+          content={
+            process.env.VITE_VERCEL_ENV !== 'production'
+              ? 'noindex, nofollow'
+              : 'index, follow'
+          }
+          name="robots"
+        />
       </>
     )
   },
