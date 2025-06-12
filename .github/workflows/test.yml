@@ -30,7 +30,7 @@ jobs:
       - name: Trigger relay release and wait
         if: inputs.relay-ref != ''
         env:
-          GH_TOKEN: ${{ secrets.RELAY_GH_TOKEN2 }}
+          GH_TOKEN: ${{ secrets.RELAY_GH_TOKEN }}
         run: |
           # Trigger the workflow
           gh workflow run release.yml \
@@ -91,7 +91,7 @@ jobs:
         with:
           registry: ghcr.io
           username: jxom
-          password: ${{ secrets.RELAY_GH_TOKEN2 }}
+          password: ${{ secrets.RELAY_GH_TOKEN }}
 
       - name: Install Playwright
         if: matrix.browser == 'true'
