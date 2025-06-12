@@ -56,8 +56,8 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           timeout_minutes: "60"
-          disallowed_tools: "npm,yarn"
-          allowed_tools: "mcp__github__create_pull_request,mcp__github__create_pending_pull_request_review,mcp__github__get_pull_request_diff,mcp__github__add_pull_request_review_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,Bash(pnpm check),Bash(pnpm check:*),Bash(pnpm test),Bash(pnpm test:*),Bash(pnpm install),Bash(pnpm build)"
+          disallowed_tools: "npm,yarn,pnpm"
+          allowed_tools: "mcp__github__create_pull_request,mcp__github__create_pending_pull_request_review,mcp__github__get_pull_request_diff,mcp__github__add_pull_request_review_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,Bash(bun check),Bash(bun check:*),Bash(bun test),Bash(bun test:*),Bash(bun install),Bash(bun build)"
           direct_prompt: |-
             Please review this PR and provide inline feedback using the GitHub review system. Follow these steps:
 

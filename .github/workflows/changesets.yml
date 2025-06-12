@@ -31,8 +31,10 @@ jobs:
           fetch-depth: 0
           submodules: 'recursive'
 
-      - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@main
+      - name: Set up bun
+        uses: oven-sh/setup-bun@main
+        with:
+          bun-version: 'latest'
 
       - name: PR or publish
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
@@ -40,8 +42,8 @@ jobs:
           title: 'chore: version packages'
           commit: 'chore: version packages'
           createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
-          publish: pnpm changeset:publish
-          version: pnpm changeset:version
+          publish: bun changeset:publish
+          version: bun changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -49,6 +51,6 @@ jobs:
       - name: Publish Prerelease
         run: |
           git reset --hard origin/main
-          pnpm clean
-          pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'
+          bun clean
+          bun changeset:prepublish
+          bun x pkg-pr-new publish --bun --compact './src'

@@ -31,5 +31,5 @@ jobs:
         uses: andresz1/size-limit-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          package_manager: pnpm
+          package_manager: bun
 

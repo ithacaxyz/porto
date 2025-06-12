@@ -9,7 +9,7 @@ runs:
       with:
         version: nightly-f86a66ea206d5e3405dce7cdfffc7c843a8b43cf
 
-    - name: Set up pnpm
-      uses: wevm/actions/.github/actions/pnpm@main
+    - name: Set up bun
+      uses: wevm/actions/.github/actions/bun@main
       with:
-        node-version: 23.9.0
+        bun-version: 'latest'

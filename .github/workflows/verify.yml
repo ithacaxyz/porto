@@ -18,10 +18,10 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Check code
-        run: pnpm check
+        run: bun check
 
       - name: Check types
-        run: pnpm check:types
+        run: bun check:types
 
   build:
     name: Build
@@ -38,16 +38,16 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Build
-        run: pnpm build
+        run: bun build
 
       - name: Check build
-        run: pnpm check:build
+        run: bun check:build
 
       - name: Check for unused files, dependencies, and exports
-        run: pnpm check:knip
+        run: bun check:knip
 
       - name: Check size
-        run: pnpm check:size
+        run: bun check:size
 
   test:
     name: Test

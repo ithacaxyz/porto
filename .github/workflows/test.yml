@@ -99,4 +99,4 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
-          command: pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
+          command: bun ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}

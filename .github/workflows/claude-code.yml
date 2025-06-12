@@ -73,13 +73,13 @@ jobs:
       - name: Run Claude Code Action
         uses: anthropics/claude-code-action@beta
         env: 
-          NODE_VERSION: 23.9.0
+          BUN_VERSION: 'latest'
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           timeout_minutes: "60"
-          disallowed_tools: "npm,yarn"
-          allowed_tools: "mcp__github__create_pull_request,Bash(pnpm check),Bash(pnpm check:*),Bash(pnpm test),Bash(pnpm test:*),Bash(pnpm install),Bash(pnpm build)"
+          disallowed_tools: "npm,yarn,pnpm"
+          allowed_tools: "mcp__github__create_pull_request,Bash(bun check),Bash(bun check:*),Bash(bun test),Bash(bun test:*),Bash(bun install),Bash(bun build)"
           custom_instructions: |
             You MUST follow the development workflow described in CLAUDE.md.
             You MUST open a draft pull request after creating a branch.
