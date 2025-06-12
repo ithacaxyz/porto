@@ -18,6 +18,7 @@ import {
   privateKeyToAccount,
   privateKeyToAddress,
 } from 'viem/accounts'
+
 import {
   exp1Address,
   exp2Address,
@@ -196,19 +197,7 @@ function Connect() {
               capabilities: {
                 createAccount: false,
                 grantPermissions: grantPermissions ? permissions() : undefined,
-                signInWithEthereum: siwe
-                  ? await (async () => {
-                      const chainId = await porto.provider.request({
-                        method: 'eth_chainId',
-                      })
-                      return {
-                        chainId: Number(chainId),
-                        domain: window.location.hostname,
-                        nonce: 'deadbeef',
-                        uri: `${window.location.origin}/`,
-                      } as const
-                    })()
-                  : undefined,
+                signInWithEthereum: await siwePayload(siwe),
               },
             } as const
             return porto.provider
@@ -235,19 +224,7 @@ function Connect() {
               capabilities: {
                 createAccount: true,
                 grantPermissions: grantPermissions ? permissions() : undefined,
-                signInWithEthereum: siwe
-                  ? await (async () => {
-                      const chainId = await porto.provider.request({
-                        method: 'eth_chainId',
-                      })
-                      return {
-                        chainId: Number(chainId),
-                        domain: window.location.hostname,
-                        nonce: 'deadbeef',
-                        uri: `${window.location.origin}/`,
-                      } as const
-                    })()
-                  : undefined,
+                signInWithEthereum: await siwePayload(siwe),
               },
             } as const
 
@@ -292,6 +269,19 @@ function Connect() {
       {error ? <pre>{error}</pre> : null}
     </div>
   )
+}
+
+async function siwePayload(enabled: boolean) {
+  if (!enabled) return undefined
+  const chainId = await porto.provider.request({
+    method: 'eth_chainId',
+  })
+  return {
+    chainId: Number(chainId),
+    domain: window.location.hostname,
+    nonce: 'deadbeef',
+    uri: `${window.location.origin}/`,
+  } as const
 }
 
 function Accounts() {

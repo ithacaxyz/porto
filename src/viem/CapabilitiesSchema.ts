@@ -10,7 +10,7 @@ export type CapabilitiesSchema = {
     >
     Response: Pick<
       Type.StaticDecode<typeof Rpc.wallet_connect.ResponseCapabilities>,
-      'permissions' | 'signInWithEthereum'
+      'permissions'
     >
   }
   getCapabilities: {
