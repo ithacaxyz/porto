@@ -476,24 +476,53 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method !== 'wallet_prepareUpgradeAccount')
           throw new Error(
-            'Cannot prepare create account for method: ' + request.method,
+            'Cannot prepare upgrade for method: ' + request.method,
           )
 
-        const feeToken = await resolveFeeToken(internal)
+        // Extract the capabilities from the request.
+        const [{ capabilities }] = request._decoded.params ?? [{}]
 
+        // Parse the authorize key into a structured key.
+        const key = await PermissionsRequest.toKey(
+          capabilities?.grantPermissions,
+        )
+
+        // Convert the key into a permission.
+        const permissionsRequest = key
+          ? Typebox.Encode(
+              PermissionsRequest.Schema,
+              PermissionsRequest.fromKey(key),
+            )
+          : undefined
+
+        // Send a request off to the dialog to prepare the upgrade.
         const provider = getProvider(store)
-        return await provider.request({
+        const { context, digests } = await provider.request({
           ...request,
           params: [
             {
               ...request.params?.[0],
               capabilities: {
                 ...request.params?.[0]?.capabilities,
-                feeToken,
+                grantPermissions: permissionsRequest,
               },
             },
           ],
         })
+
+        type Context = { account: Account.Account }
+        const keys = (context as Context).account.keys?.map((k) => {
+          if (k.id === key?.id) return key
+          return k
+        })
+
+        return {
+          context: {
+            ...(context as Context),
+            account: { ...(context as Context).account, keys },
+          },
+          digests,
+        }
       },
 
       async revokeAdmin(parameters) {

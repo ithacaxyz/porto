@@ -47,6 +47,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
   } = config
 
   let address_internal: Hex.Hex | undefined
+  let email_internal: string | undefined
 
   const keystoreHost = (() => {
     if (config.keystoreHost === 'self') return undefined
@@ -426,7 +427,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareUpgradeAccount(parameters) {
-        const { address, label, internal, permissions } = parameters
+        const { address, email, label, internal, permissions } = parameters
         const { client } = internal
 
         const adminKey = !mock
@@ -452,6 +453,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             permissionsFeeLimit: feeToken.permissionsFeeLimit,
           },
         )
+
+        if (email) email_internal = label
 
         return {
           context,
@@ -666,6 +669,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           context: context as any,
           signatures,
         })
+
+        if (email_internal)
+          await ServerActions.setEmail(client, {
+            email: email_internal,
+            walletAddress: account.address,
+          })
 
         return { account }
       },

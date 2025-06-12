@@ -173,6 +173,8 @@ export type Mode = {
     prepareUpgradeAccount: (parameters: {
       /** Address of the account to import. */
       address: Address.Address
+      /** Whether to link `label` to account address as email. */
+      email?: boolean | undefined
       /** Label to associate with the account. */
       label?: string | undefined
       /** Internal properties. */

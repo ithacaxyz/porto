@@ -260,37 +260,6 @@ export namespace wallet_getPermissions {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace wallet_prepareUpgradeAccount {
-  export const Capabilities = Type.Object({
-    feeToken: Typebox.Optional(C.feeToken.Request),
-    grantPermissions: Typebox.Optional(C.grantPermissions.Request),
-  })
-  export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
-
-  export const Parameters = Type.Object({
-    address: Primitive.Address,
-    capabilities: Typebox.Optional(Capabilities),
-    chainId: Typebox.Optional(Primitive.Number),
-    label: Typebox.Optional(Type.String()),
-  })
-  export type Parameters = Typebox.StaticDecode<typeof Parameters>
-
-  export const Request = Type.Object({
-    method: Type.Literal('wallet_prepareUpgradeAccount'),
-    params: Type.Tuple([Parameters]),
-  })
-  export type Request = Typebox.StaticDecode<typeof Request>
-
-  export const Response = Type.Object({
-    context: Type.Unknown(),
-    digests: Type.Object({
-      auth: Primitive.Hex,
-      exec: Primitive.Hex,
-    }),
-  })
-  export type Response = Typebox.StaticDecode<typeof Response>
-}
-
 export namespace wallet_revokeAdmin {
   export const Capabilities = Type.Object({
     feeToken: Typebox.Optional(C.feeToken.Request),
@@ -371,6 +340,7 @@ export namespace wallet_upgradeAccount {
   export type Request = Typebox.StaticDecode<typeof Request>
 
   export const ResponseCapabilities = Type.Object({
+    admins: Typebox.Optional(wallet_getAdmins.Response.properties.keys),
     permissions: Typebox.Optional(C.permissions.Response),
   })
   export type ResponseCapabilities = Typebox.StaticDecode<
@@ -597,6 +567,38 @@ export namespace wallet_prepareCalls {
     }),
     digest: Primitive.Hex,
     key: Parameters.properties.key,
+  })
+  export type Response = Typebox.StaticDecode<typeof Response>
+}
+
+export namespace wallet_prepareUpgradeAccount {
+  export const Capabilities = Type.Intersect([
+    wallet_connect.Capabilities,
+    Type.Object({
+      label: Typebox.Optional(Type.String()),
+    }),
+  ])
+  export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
+
+  export const Parameters = Type.Object({
+    address: Primitive.Address,
+    capabilities: Typebox.Optional(Capabilities),
+    chainId: Typebox.Optional(Primitive.Number),
+  })
+  export type Parameters = Typebox.StaticDecode<typeof Parameters>
+
+  export const Request = Type.Object({
+    method: Type.Literal('wallet_prepareUpgradeAccount'),
+    params: Type.Tuple([Parameters]),
+  })
+  export type Request = Typebox.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    context: Type.Unknown(),
+    digests: Type.Object({
+      auth: Primitive.Hex,
+      exec: Primitive.Hex,
+    }),
   })
   export type Response = Typebox.StaticDecode<typeof Response>
 }

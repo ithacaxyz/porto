@@ -17,6 +17,7 @@ import { Route as DialogWalletupdateAccountImport } from './routes/dialog/wallet
 import { Route as DialogWalletsendCallsImport } from './routes/dialog/wallet_sendCalls'
 import { Route as DialogWalletrevokePermissionsImport } from './routes/dialog/wallet_revokePermissions'
 import { Route as DialogWalletrevokeAdminImport } from './routes/dialog/wallet_revokeAdmin'
+import { Route as DialogWalletprepareUpgradeAccountImport } from './routes/dialog/wallet_prepareUpgradeAccount'
 import { Route as DialogWalletgrantPermissionsImport } from './routes/dialog/wallet_grantPermissions'
 import { Route as DialogWalletgrantAdminImport } from './routes/dialog/wallet_grantAdmin'
 import { Route as DialogWalletconnectImport } from './routes/dialog/wallet_connect'
@@ -66,6 +67,13 @@ const DialogWalletrevokeAdminRoute = DialogWalletrevokeAdminImport.update({
   path: '/dialog/wallet_revokeAdmin',
   getParentRoute: () => rootRoute,
 } as any)
+
+const DialogWalletprepareUpgradeAccountRoute =
+  DialogWalletprepareUpgradeAccountImport.update({
+    id: '/dialog/wallet_prepareUpgradeAccount',
+    path: '/dialog/wallet_prepareUpgradeAccount',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 const DialogWalletgrantPermissionsRoute =
   DialogWalletgrantPermissionsImport.update({
@@ -209,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogWalletgrantPermissionsImport
       parentRoute: typeof rootRoute
     }
+    '/dialog/wallet_prepareUpgradeAccount': {
+      id: '/dialog/wallet_prepareUpgradeAccount'
+      path: '/dialog/wallet_prepareUpgradeAccount'
+      fullPath: '/dialog/wallet_prepareUpgradeAccount'
+      preLoaderRoute: typeof DialogWalletprepareUpgradeAccountImport
+      parentRoute: typeof rootRoute
+    }
     '/dialog/wallet_revokeAdmin': {
       id: '/dialog/wallet_revokeAdmin'
       path: '/dialog/wallet_revokeAdmin'
@@ -261,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
+  '/dialog/wallet_prepareUpgradeAccount': typeof DialogWalletprepareUpgradeAccountRoute
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
@@ -280,6 +296,7 @@ export interface FileRoutesByTo {
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
+  '/dialog/wallet_prepareUpgradeAccount': typeof DialogWalletprepareUpgradeAccountRoute
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
@@ -300,6 +317,7 @@ export interface FileRoutesById {
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
   '/dialog/wallet_grantPermissions': typeof DialogWalletgrantPermissionsRoute
+  '/dialog/wallet_prepareUpgradeAccount': typeof DialogWalletprepareUpgradeAccountRoute
   '/dialog/wallet_revokeAdmin': typeof DialogWalletrevokeAdminRoute
   '/dialog/wallet_revokePermissions': typeof DialogWalletrevokePermissionsRoute
   '/dialog/wallet_sendCalls': typeof DialogWalletsendCallsRoute
@@ -321,6 +339,7 @@ export interface FileRouteTypes {
     | '/dialog/wallet_connect'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
+    | '/dialog/wallet_prepareUpgradeAccount'
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
@@ -339,6 +358,7 @@ export interface FileRouteTypes {
     | '/dialog/wallet_connect'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
+    | '/dialog/wallet_prepareUpgradeAccount'
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
@@ -357,6 +377,7 @@ export interface FileRouteTypes {
     | '/dialog/wallet_connect'
     | '/dialog/wallet_grantAdmin'
     | '/dialog/wallet_grantPermissions'
+    | '/dialog/wallet_prepareUpgradeAccount'
     | '/dialog/wallet_revokeAdmin'
     | '/dialog/wallet_revokePermissions'
     | '/dialog/wallet_sendCalls'
@@ -377,6 +398,7 @@ export interface RootRouteChildren {
   DialogWalletconnectRoute: typeof DialogWalletconnectRoute
   DialogWalletgrantAdminRoute: typeof DialogWalletgrantAdminRoute
   DialogWalletgrantPermissionsRoute: typeof DialogWalletgrantPermissionsRoute
+  DialogWalletprepareUpgradeAccountRoute: typeof DialogWalletprepareUpgradeAccountRoute
   DialogWalletrevokeAdminRoute: typeof DialogWalletrevokeAdminRoute
   DialogWalletrevokePermissionsRoute: typeof DialogWalletrevokePermissionsRoute
   DialogWalletsendCallsRoute: typeof DialogWalletsendCallsRoute
@@ -396,6 +418,8 @@ const rootRouteChildren: RootRouteChildren = {
   DialogWalletconnectRoute: DialogWalletconnectRoute,
   DialogWalletgrantAdminRoute: DialogWalletgrantAdminRoute,
   DialogWalletgrantPermissionsRoute: DialogWalletgrantPermissionsRoute,
+  DialogWalletprepareUpgradeAccountRoute:
+    DialogWalletprepareUpgradeAccountRoute,
   DialogWalletrevokeAdminRoute: DialogWalletrevokeAdminRoute,
   DialogWalletrevokePermissionsRoute: DialogWalletrevokePermissionsRoute,
   DialogWalletsendCallsRoute: DialogWalletsendCallsRoute,
@@ -424,6 +448,7 @@ export const routeTree = rootRoute
         "/dialog/wallet_connect",
         "/dialog/wallet_grantAdmin",
         "/dialog/wallet_grantPermissions",
+        "/dialog/wallet_prepareUpgradeAccount",
         "/dialog/wallet_revokeAdmin",
         "/dialog/wallet_revokePermissions",
         "/dialog/wallet_sendCalls",
@@ -463,6 +488,9 @@ export const routeTree = rootRoute
     },
     "/dialog/wallet_grantPermissions": {
       "filePath": "dialog/wallet_grantPermissions.tsx"
+    },
+    "/dialog/wallet_prepareUpgradeAccount": {
+      "filePath": "dialog/wallet_prepareUpgradeAccount.tsx"
     },
     "/dialog/wallet_revokeAdmin": {
       "filePath": "dialog/wallet_revokeAdmin.tsx"

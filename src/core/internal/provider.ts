@@ -413,16 +413,21 @@ export function from<
         }
 
         case 'wallet_prepareUpgradeAccount': {
-          const [{ address, capabilities, chainId, label }] = request._decoded
+          const [{ address, capabilities, chainId }] = request._decoded
             .params ?? [{}]
 
-          const { grantPermissions: permissions } = capabilities ?? {}
+          const {
+            email,
+            label,
+            grantPermissions: permissions,
+          } = capabilities ?? {}
 
           const client = getClient(chainId)
 
           const { context, digests } =
             await getMode().actions.prepareUpgradeAccount({
               address,
+              email,
               internal: {
                 client,
                 config,
@@ -687,6 +692,7 @@ export function from<
             signatures,
           })
 
+          const admins = getAdmins(account.keys ?? [])
           const permissions = getActivePermissions(account.keys ?? [], {
             address: account.address,
           })
@@ -699,6 +705,7 @@ export function from<
           return {
             address: account.address,
             capabilities: {
+              admins,
               ...(permissions.length > 0 ? { permissions } : {}),
             },
           } satisfies Typebox.Static<typeof Rpc.wallet_upgradeAccount.Response>
