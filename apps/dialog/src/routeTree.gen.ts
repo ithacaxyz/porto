@@ -31,35 +31,32 @@ import { Route as DialogSplatImport } from './routes/dialog/$'
 
 // Create/Update Routes
 
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DialogIndexRoute = DialogIndexImport.update({
+const DialogIndexRoute = DialogIndexRouteImport.update({
   id: '/dialog/',
   path: '/dialog/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DialogWalletupdateAccountRoute = DialogWalletupdateAccountImport.update({
-  id: '/dialog/wallet_updateAccount',
-  path: '/dialog/wallet_updateAccount',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DialogWalletsendCallsRoute = DialogWalletsendCallsImport.update({
+const DialogWallet_updateAccountRoute =
+  DialogWallet_updateAccountRouteImport.update({
+    id: '/dialog/wallet_updateAccount',
+    path: '/dialog/wallet_updateAccount',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DialogWallet_sendCallsRoute = DialogWallet_sendCallsRouteImport.update({
   id: '/dialog/wallet_sendCalls',
   path: '/dialog/wallet_sendCalls',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DialogWalletrevokePermissionsRoute =
-  DialogWalletrevokePermissionsImport.update({
+const DialogWallet_revokePermissionsRoute =
+  DialogWallet_revokePermissionsRouteImport.update({
     id: '/dialog/wallet_revokePermissions',
     path: '/dialog/wallet_revokePermissions',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 const DialogWalletrevokeAdminRoute = DialogWalletrevokeAdminImport.update({
@@ -79,61 +76,55 @@ const DialogWalletgrantPermissionsRoute =
   DialogWalletgrantPermissionsImport.update({
     id: '/dialog/wallet_grantPermissions',
     path: '/dialog/wallet_grantPermissions',
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => rootRouteImport,
   } as any)
-
-const DialogWalletgrantAdminRoute = DialogWalletgrantAdminImport.update({
+const DialogWallet_grantAdminRoute = DialogWallet_grantAdminRouteImport.update({
   id: '/dialog/wallet_grantAdmin',
   path: '/dialog/wallet_grantAdmin',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DialogWalletconnectRoute = DialogWalletconnectImport.update({
+const DialogWallet_connectRoute = DialogWallet_connectRouteImport.update({
   id: '/dialog/wallet_connect',
   path: '/dialog/wallet_connect',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DialogWalletaddFundsRoute = DialogWalletaddFundsImport.update({
+const DialogWallet_addFundsRoute = DialogWallet_addFundsRouteImport.update({
   id: '/dialog/wallet_addFunds',
   path: '/dialog/wallet_addFunds',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DialogPlaygroundRoute = DialogPlaygroundImport.update({
+const DialogPlaygroundRoute = DialogPlaygroundRouteImport.update({
   id: '/dialog/playground',
   path: '/dialog/playground',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DialogPersonalsignRoute = DialogPersonalsignImport.update({
+const DialogPersonal_signRoute = DialogPersonal_signRouteImport.update({
   id: '/dialog/personal_sign',
   path: '/dialog/personal_sign',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DialogEthsendTransactionRoute = DialogEthsendTransactionImport.update({
-  id: '/dialog/eth_sendTransaction',
-  path: '/dialog/eth_sendTransaction',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DialogEthrequestAccountsRoute = DialogEthrequestAccountsImport.update({
-  id: '/dialog/eth_requestAccounts',
-  path: '/dialog/eth_requestAccounts',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DialogAccountverifyEmailRoute = DialogAccountverifyEmailImport.update({
-  id: '/dialog/account_verifyEmail',
-  path: '/dialog/account_verifyEmail',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DialogSplatRoute = DialogSplatImport.update({
+const DialogEth_sendTransactionRoute =
+  DialogEth_sendTransactionRouteImport.update({
+    id: '/dialog/eth_sendTransaction',
+    path: '/dialog/eth_sendTransaction',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DialogEth_requestAccountsRoute =
+  DialogEth_requestAccountsRouteImport.update({
+    id: '/dialog/eth_requestAccounts',
+    path: '/dialog/eth_requestAccounts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DialogAccount_verifyEmailRoute =
+  DialogAccount_verifyEmailRouteImport.update({
+    id: '/dialog/account_verifyEmail',
+    path: '/dialog/account_verifyEmail',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DialogSplatRoute = DialogSplatRouteImport.update({
   id: '/dialog/$',
   path: '/dialog/$',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -267,10 +258,10 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
-  '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
-  '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
-  '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
-  '/dialog/personal_sign': typeof DialogPersonalsignRoute
+  '/dialog/account_verifyEmail': typeof DialogAccount_verifyEmailRoute
+  '/dialog/eth_requestAccounts': typeof DialogEth_requestAccountsRoute
+  '/dialog/eth_sendTransaction': typeof DialogEth_sendTransactionRoute
+  '/dialog/personal_sign': typeof DialogPersonal_signRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
@@ -283,14 +274,13 @@ export interface FileRoutesByFullPath {
   '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog': typeof DialogIndexRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
-  '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
-  '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
-  '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
-  '/dialog/personal_sign': typeof DialogPersonalsignRoute
+  '/dialog/account_verifyEmail': typeof DialogAccount_verifyEmailRoute
+  '/dialog/eth_requestAccounts': typeof DialogEth_requestAccountsRoute
+  '/dialog/eth_sendTransaction': typeof DialogEth_sendTransactionRoute
+  '/dialog/personal_sign': typeof DialogPersonal_signRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
@@ -303,15 +293,14 @@ export interface FileRoutesByTo {
   '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog': typeof DialogIndexRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dialog/$': typeof DialogSplatRoute
-  '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
-  '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
-  '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
-  '/dialog/personal_sign': typeof DialogPersonalsignRoute
+  '/dialog/account_verifyEmail': typeof DialogAccount_verifyEmailRoute
+  '/dialog/eth_requestAccounts': typeof DialogEth_requestAccountsRoute
+  '/dialog/eth_sendTransaction': typeof DialogEth_sendTransactionRoute
+  '/dialog/personal_sign': typeof DialogPersonal_signRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
@@ -324,7 +313,6 @@ export interface FileRoutesById {
   '/dialog/wallet_updateAccount': typeof DialogWalletupdateAccountRoute
   '/dialog/': typeof DialogIndexRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -385,14 +373,13 @@ export interface FileRouteTypes {
     | '/dialog/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DialogSplatRoute: typeof DialogSplatRoute
-  DialogAccountverifyEmailRoute: typeof DialogAccountverifyEmailRoute
-  DialogEthrequestAccountsRoute: typeof DialogEthrequestAccountsRoute
-  DialogEthsendTransactionRoute: typeof DialogEthsendTransactionRoute
-  DialogPersonalsignRoute: typeof DialogPersonalsignRoute
+  DialogAccount_verifyEmailRoute: typeof DialogAccount_verifyEmailRoute
+  DialogEth_requestAccountsRoute: typeof DialogEth_requestAccountsRoute
+  DialogEth_sendTransactionRoute: typeof DialogEth_sendTransactionRoute
+  DialogPersonal_signRoute: typeof DialogPersonal_signRoute
   DialogPlaygroundRoute: typeof DialogPlaygroundRoute
   DialogWalletaddFundsRoute: typeof DialogWalletaddFundsRoute
   DialogWalletconnectRoute: typeof DialogWalletconnectRoute
@@ -406,13 +393,130 @@ export interface RootRouteChildren {
   DialogIndexRoute: typeof DialogIndexRoute
 }
 
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/': {
+      id: '/dialog/'
+      path: '/dialog'
+      fullPath: '/dialog'
+      preLoaderRoute: typeof DialogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/wallet_updateAccount': {
+      id: '/dialog/wallet_updateAccount'
+      path: '/dialog/wallet_updateAccount'
+      fullPath: '/dialog/wallet_updateAccount'
+      preLoaderRoute: typeof DialogWallet_updateAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/wallet_sendCalls': {
+      id: '/dialog/wallet_sendCalls'
+      path: '/dialog/wallet_sendCalls'
+      fullPath: '/dialog/wallet_sendCalls'
+      preLoaderRoute: typeof DialogWallet_sendCallsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/wallet_revokePermissions': {
+      id: '/dialog/wallet_revokePermissions'
+      path: '/dialog/wallet_revokePermissions'
+      fullPath: '/dialog/wallet_revokePermissions'
+      preLoaderRoute: typeof DialogWallet_revokePermissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/wallet_revokeAdmin': {
+      id: '/dialog/wallet_revokeAdmin'
+      path: '/dialog/wallet_revokeAdmin'
+      fullPath: '/dialog/wallet_revokeAdmin'
+      preLoaderRoute: typeof DialogWallet_revokeAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/wallet_grantPermissions': {
+      id: '/dialog/wallet_grantPermissions'
+      path: '/dialog/wallet_grantPermissions'
+      fullPath: '/dialog/wallet_grantPermissions'
+      preLoaderRoute: typeof DialogWallet_grantPermissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/wallet_grantAdmin': {
+      id: '/dialog/wallet_grantAdmin'
+      path: '/dialog/wallet_grantAdmin'
+      fullPath: '/dialog/wallet_grantAdmin'
+      preLoaderRoute: typeof DialogWallet_grantAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/wallet_connect': {
+      id: '/dialog/wallet_connect'
+      path: '/dialog/wallet_connect'
+      fullPath: '/dialog/wallet_connect'
+      preLoaderRoute: typeof DialogWallet_connectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/wallet_addFunds': {
+      id: '/dialog/wallet_addFunds'
+      path: '/dialog/wallet_addFunds'
+      fullPath: '/dialog/wallet_addFunds'
+      preLoaderRoute: typeof DialogWallet_addFundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/playground': {
+      id: '/dialog/playground'
+      path: '/dialog/playground'
+      fullPath: '/dialog/playground'
+      preLoaderRoute: typeof DialogPlaygroundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/personal_sign': {
+      id: '/dialog/personal_sign'
+      path: '/dialog/personal_sign'
+      fullPath: '/dialog/personal_sign'
+      preLoaderRoute: typeof DialogPersonal_signRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/eth_sendTransaction': {
+      id: '/dialog/eth_sendTransaction'
+      path: '/dialog/eth_sendTransaction'
+      fullPath: '/dialog/eth_sendTransaction'
+      preLoaderRoute: typeof DialogEth_sendTransactionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/eth_requestAccounts': {
+      id: '/dialog/eth_requestAccounts'
+      path: '/dialog/eth_requestAccounts'
+      fullPath: '/dialog/eth_requestAccounts'
+      preLoaderRoute: typeof DialogEth_requestAccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/account_verifyEmail': {
+      id: '/dialog/account_verifyEmail'
+      path: '/dialog/account_verifyEmail'
+      fullPath: '/dialog/account_verifyEmail'
+      preLoaderRoute: typeof DialogAccount_verifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialog/$': {
+      id: '/dialog/$'
+      path: '/dialog/$'
+      fullPath: '/dialog/$'
+      preLoaderRoute: typeof DialogSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DialogSplatRoute: DialogSplatRoute,
-  DialogAccountverifyEmailRoute: DialogAccountverifyEmailRoute,
-  DialogEthrequestAccountsRoute: DialogEthrequestAccountsRoute,
-  DialogEthsendTransactionRoute: DialogEthsendTransactionRoute,
-  DialogPersonalsignRoute: DialogPersonalsignRoute,
+  DialogAccount_verifyEmailRoute: DialogAccount_verifyEmailRoute,
+  DialogEth_requestAccountsRoute: DialogEth_requestAccountsRoute,
+  DialogEth_sendTransactionRoute: DialogEth_sendTransactionRoute,
+  DialogPersonal_signRoute: DialogPersonal_signRoute,
   DialogPlaygroundRoute: DialogPlaygroundRoute,
   DialogWalletaddFundsRoute: DialogWalletaddFundsRoute,
   DialogWalletconnectRoute: DialogWalletconnectRoute,
@@ -426,8 +530,7 @@ const rootRouteChildren: RootRouteChildren = {
   DialogWalletupdateAccountRoute: DialogWalletupdateAccountRoute,
   DialogIndexRoute: DialogIndexRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 

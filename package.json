@@ -2,32 +2,79 @@
   "name": "porto",
   "private": true,
   "type": "module",
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "docker/*",
+      "examples/*",
+      "src"
+    ],
+    "catalog": {
+      "@ariakit/react": "^0.4.17",
+      "@ariakit/tailwind": "^0.1.7",
+      "@iconify/json": "^2.2.347",
+      "@sentry/react": "^9",
+      "@sentry/vite-plugin": "^3",
+      "@svgr/core": "^8.1.0",
+      "@svgr/plugin-jsx": "^8.1.0",
+      "@tanstack/query-sync-storage-persister": "^5.74.3",
+      "@tanstack/react-query": "^5.74.3",
+      "@tanstack/react-query-persist-client": "^5.74.3",
+      "@tanstack/react-router": "^1.114.25",
+      "@tanstack/router-plugin": "^1.114.17",
+      "@tanstack/react-query-devtools": "^5.74.3",
+      "@tanstack/react-router-devtools": "^1.114.25",
+      "@types/node": "^22.14.1",
+      "@types/react": "^19",
+      "@types/react-dom": "^19",
+      "@wagmi/core": "^2.17.2",
+      "cva": "npm:class-variance-authority@^0.7.1",
+      "globals": "^16.0.0",
+      "ox": "^0.1.1",
+      "prool": "^0.0.23",
+      "react": "^19",
+      "react-dom": "^19",
+      "sonner": "^2.0.5",
+      "tailwindcss": "^4.1.8",
+      "@tailwindcss/vite": "^4.1.8",
+      "tw-animate-css": "^1.3.4",
+      "typescript": "^5.8.3",
+      "unplugin-icons": "^22.1.0",
+      "viem": "^2.30.6",
+      "vite": "^6.0.7",
+      "vitest": "^3.1.1",
+      "vite-plugin-mkcert": "^1.17.8",
+      "wagmi": "^2.15.4",
+      "zustand": "^5.0.3",
+      "@vitejs/plugin-react": "^4.3.4"
+    }
+  },
   "scripts": {
-    "build": "pnpm clean && tsc --project ./tsconfig.build.json",
-    "build:anvil-state": "tsx scripts/build:anvil-state.ts",
-    "build:contracts": "tsx scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && tsx scripts/postbuild:contracts.ts && pnpm wagmi generate",
-    "changeset:prepublish": "pnpm build && tsx ./scripts/prepublish.ts",
-    "changeset:publish": "pnpm changeset:prepublish && changeset publish",
-    "changeset:version": "changeset version && pnpm format",
+    "build": "bun clean && tsc --project ./tsconfig.build.json",
+    "build:anvil-state": "bun scripts/build:anvil-state.ts",
+    "build:contracts": "bun scripts/prebuild:contracts.ts && forge build --config-path ./contracts/account/foundry.toml && forge build --config-path ./contracts/demo/foundry.toml && bun scripts/postbuild:contracts.ts && bun wagmi generate",
+    "changeset:prepublish": "bun build && bun ./scripts/prepublish.ts",
+    "changeset:publish": "bun changeset:prepublish && changeset publish",
+    "changeset:version": "changeset version && bun format",
     "check": "biome check . --fix --unsafe",
     "check:markdown": "markdownlint-cli2 --config .github/.markdownlint-cli2.jsonc '**/*.md' '**/*.mdx'",
-    "check:build": "tsx ./scripts/prepublish.ts && publint --strict ./src && attw --pack ./src --profile esm-only",
+    "check:build": "bun ./scripts/prepublish.ts && publint --strict ./src && attw --pack ./src --profile esm-only",
     "check:knip": "knip --production",
     "check:repo": "sherif --ignore-rule packages-without-package-json",
     "check:size": "size-limit",
-    "check:types": "pnpm run --r --parallel check:types && tsc -b",
+    "check:types": "bun --filter='*' check:types && tsc -b",
     "clean": "rm -rf src/_dist ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
-    "deps": "pnpx taze -r",
-    "dev": "pnpm preconstruct && pnpm --filter playground --filter dialog --filter id dev",
-    "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter id dev",
-    "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example --filter dialog --filter id dev",
-    "docs:build": "pnpm --filter docs build",
-    "docs:dev": "pnpm --filter docs --filter dialog --filter id dev",
+    "deps": "bunx taze -r",
+    "dev": "bun preconstruct && bun --filter playground --filter dialog --filter id dev",
+    "dev:anvil": "bun preconstruct && ANVIL=true bun --filter playground --filter dialog --filter id dev",
+    "dev:wagmi": "bun preconstruct && bun --filter wagmi-example --filter dialog --filter id dev",
+    "docs:build": "bun --filter docs build",
+    "docs:dev": "bun --filter docs --filter dialog --filter id dev",
     "format": "biome format --write",
-    "postinstall": "git submodule update --init --recursive && pnpm preconstruct",
-    "preconstruct": "tsx ./scripts/preconstruct.ts",
-    "preinstall": "pnpx only-allow pnpm",
-    "prepare": "pnpm simple-git-hooks",
+    "postinstall": "git submodule update --init --recursive && bun preconstruct",
+    "preconstruct": "bun ./scripts/preconstruct.ts",
+    "preinstall": "bunx only-allow bun",
+    "prepare": "bun simple-git-hooks",
     "test": "vitest -c ./test/vitest.config.ts --project default",
     "test:browser": "vitest -c ./test/vitest.config.ts --project browser"
   },
@@ -64,12 +111,12 @@
     "vitest": "catalog:",
     "wagmi": "catalog:"
   },
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "bun@1.2.15",
   "engines": {
     "node": ">=22.5"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm check"
+    "pre-commit": "bun check"
   },
   "knip": {
     "entry": [
@@ -108,7 +155,7 @@
       "import": "*"
     }
   ],
-  "pnpm": {
+  "bun": {
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
       "@wagmi/cli": "patches/@wagmi__cli.patch",

@@ -24,8 +24,8 @@ jobs:
 
       - name: Lint and format
         run: |
-          pnpm check
-          pnpm check:markdown
+          bun check
+          bun check:markdown
 
       - name: Commit
         uses: autofix-ci/action@2891949f3779a1cafafae1523058501de3d4e944

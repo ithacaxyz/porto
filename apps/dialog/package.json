@@ -8,7 +8,7 @@
     "build": "vite build",
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
-    "prepreview": "pnpm build",
+    "prepreview": "bun run build",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -8,3 +8,4 @@
 wrangler.json linguist-language=JSON-with-Comments
 
 routeTree.gen.ts linguist-generated=true
+bun.lock linguist-generated=JSON-with-Comments

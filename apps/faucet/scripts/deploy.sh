@@ -10,7 +10,7 @@ if [ -z "$PRIVATE_KEY" ]; then
 fi
 
 # deploy worker
-pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars
+bunx wrangler@latest --config='wrangler.json' deploy --keep-vars
 
 # push private key to secret store
-echo "$PRIVATE_KEY" | pnpm dlx wrangler@latest --config='wrangler.json' secret put DRIP_PRIVATE_KEY
+echo "$PRIVATE_KEY" | bunx wrangler@latest --config='wrangler.json' secret put DRIP_PRIVATE_KEY

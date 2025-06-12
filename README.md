@@ -37,15 +37,15 @@ For documentation and guides, visit [porto.sh](https://porto.sh).
 ### Apps
 
 ```bash
-pnpm install # Install dependencies
-pnpm dev # Run id, playground, and iframe dialog
+bun install # Install dependencies
+bun dev # Run id, playground, and iframe dialog
 ```
 
 ### Tests
 
 ```bash
-pnpm install # Install dependencies
-pnpm test # Test
+bun install # Install dependencies
+bun test # Test
 ```
 
 ### Contracts

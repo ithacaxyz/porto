@@ -5,8 +5,8 @@
 From root, run:
 
 ```sh
-pnpm i
-pnpm dev
+bun install
+bun dev
 ```
 
 ### Icons

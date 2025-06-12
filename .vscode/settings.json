@@ -39,7 +39,8 @@
     "*.css": "tailwindcss",
     "*.svg": "html",
     "**/wrangler.json": "jsonc",
-    "biome.json": "jsonc"
+    "biome.json": "jsonc",
+    "bun.lock": "jsonc"
   },
 
   "files.exclude": {

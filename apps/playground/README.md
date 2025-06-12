@@ -3,7 +3,7 @@
 ## Development
 
 ```bash
-pnpm dev:anvil
+bun dev:anvil
 ```
 
 ## Guides
@@ -13,7 +13,7 @@ pnpm dev:anvil
 #### 1. Start Development Environment
 
 ```bash
-pnpm dev:anvil
+bun dev:anvil
 ```
 
 #### 2. Navigate to the Playground
