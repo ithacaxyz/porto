@@ -38,6 +38,7 @@ export function App() {
     <main>
       <div className="max-w-[768px] p-2">
         <h1>Playground</h1>
+
         <div className="flex gap-2">
           Mode:
           <select
@@ -111,6 +112,11 @@ export function App() {
         </div>
         <h2>Misc.</h2>
         <GetCapabilities />
+        <div>
+          <br />
+          <hr />
+        </div>
+        <ShowClientCapabilities />
       </div>
       <div className="fixed top-0 left-[calc(768px+var(--spacing)*2)] p-4">
         <div id="porto" />
@@ -1257,6 +1263,27 @@ function PrepareCalls() {
         </>
       )}
     </form>
+  )
+}
+
+function ShowClientCapabilities() {
+  const [userClientCapabilities, setUserClientCapabilities] =
+    React.useState<PublicKeyCredentialClientCapabilities | null>(null)
+
+  React.useEffect(() => {
+    const check = async () => {
+      const capabilities = await PublicKeyCredential.getClientCapabilities()
+      setUserClientCapabilities(capabilities)
+      console.info(capabilities)
+    }
+    check().catch(console.error)
+  }, [])
+
+  return (
+    <details className="">
+      <summary>User Client Capabilities</summary>
+      <pre>{JSON.stringify(userClientCapabilities, null, 2)}</pre>
+    </details>
   )
 }
 
