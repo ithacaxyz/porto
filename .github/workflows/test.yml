@@ -22,8 +22,30 @@ env:
    ACTIONS_RUNNER_DEBUG: true
 
 jobs:
+  relay-release:
+    name: Relay Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Trigger relay release and wait
+        if: inputs.relay-ref != ''
+        env:
+          GH_TOKEN: ${{ secrets.RELAY_GH_TOKEN2 }}
+        run: |
+          # Trigger the workflow
+          gh workflow run release.yml \
+            --repo ithacaxyz/relay \
+            --ref ${{ inputs.relay-ref }}
+          
+          sleep 5
+          
+          # Get the latest run ID and wait for it to complete
+          run_id=$(gh run list --repo ithacaxyz/relay --workflow=release.yml --limit=1 --json databaseId | jq -r '.[0].databaseId')
+          gh run watch $run_id --repo ithacaxyz/relay
+
   test:
     name: Tests (${{ matrix.local == 'true' && 'Local' || 'Deployment' }}, ${{ matrix.browser == 'true' && 'Browser' || 'Node' }})
+    needs: relay-release
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -69,7 +91,7 @@ jobs:
         with:
           registry: ghcr.io
           username: jxom
-          password: ${{ secrets.RELAY_GH_TOKEN }}
+          password: ${{ secrets.RELAY_GH_TOKEN2 }}
 
       - name: Install Playwright
         if: matrix.browser == 'true'
