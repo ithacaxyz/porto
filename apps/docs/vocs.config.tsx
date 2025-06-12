@@ -263,7 +263,6 @@ export default defineConfig({
                 text: 'revokePermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/upgradeAccount',
                 text: 'upgradeAccount',
               },
@@ -286,7 +285,6 @@ export default defineConfig({
                 text: 'useRevokePermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/useUpgradeAccount',
                 text: 'useUpgradeAccount',
               },
@@ -337,10 +335,10 @@ export default defineConfig({
                 link: '/sdk/viem/revokePermissions',
                 text: 'revokePermissions',
               },
-              // {
-              //   link: '/sdk/viem/upgradeAccount',
-              //   text: 'upgradeAccount',
-              // },
+              {
+                link: '/sdk/viem/upgradeAccount',
+                text: 'upgradeAccount',
+              },
             ],
             text: 'Wallet Actions',
           },
@@ -474,6 +472,10 @@ export default defineConfig({
             text: 'wallet_grantPermissions',
           },
           {
+            link: '/sdk/rpc/wallet_prepareUpgradeAccount',
+            text: 'wallet_prepareUpgradeAccount',
+          },
+          {
             link: '/sdk/rpc/wallet_revokePermissions',
             text: 'wallet_revokePermissions',
           },
@@ -488,6 +490,10 @@ export default defineConfig({
           {
             link: '/sdk/rpc/wallet_sendPreparedCalls',
             text: 'wallet_sendPreparedCalls',
+          },
+          {
+            link: '/sdk/rpc/wallet_upgradeAccount',
+            text: 'wallet_upgradeAccount',
           },
         ],
         text: 'RPC Reference',
