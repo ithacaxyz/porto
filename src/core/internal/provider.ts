@@ -807,7 +807,6 @@ export function from<
                 signInWithEthereum: siwePayload,
               }
               try {
-                capabilities?.signInWithEthereum?.resources
                 // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
                 return await getMode().actions.loadAccounts({
                   address,
@@ -844,12 +843,7 @@ export function from<
                     })
                   : [],
                 preCalls,
-                ...(signInWithEthereum && {
-                  signInWithEthereum: {
-                    message: '',
-                    signature: '0x',
-                  },
-                }),
+                ...(signInWithEthereum && { signInWithEthereum }),
               },
             })),
           } satisfies Typebox.Static<typeof Rpc.wallet_connect.Response>

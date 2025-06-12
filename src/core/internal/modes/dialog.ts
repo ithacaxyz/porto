@@ -124,7 +124,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
 
-        const account = await (async () => {
+        const { account, signInWithEthereum } = await (async () => {
           if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
             const [{ capabilities }] = request._decoded.params ?? [{}]
@@ -183,10 +183,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 storage,
               })
 
-            return Account.from({
-              address: account.address,
-              keys: [...adminKeys, ...sessionKeys],
-            })
+            return {
+              account: Account.from({
+                address: account.address,
+                keys: [...adminKeys, ...sessionKeys],
+              }),
+              signInWithEthereum: account.capabilities?.signInWithEthereum,
+            }
           }
 
           throw new Error(
@@ -196,6 +199,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           account,
+          signInWithEthereum,
         }
       },
 
@@ -349,10 +353,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
 
-        const accounts = await (async () => {
+        const { accounts, signInWithEthereum } = await (async () => {
           if (request.method === 'eth_requestAccounts') {
             const addresses = await provider.request(request)
-            return addresses.map((address) => Account.from({ address }))
+            return {
+              accounts: addresses.map((address) => Account.from({ address })),
+            }
           }
 
           if (request.method === 'wallet_connect') {
@@ -396,29 +402,34 @@ export function dialog(parameters: dialog.Parameters = {}) {
               }),
             )
 
-            return accounts.map((account) => {
-              const adminKeys = account.capabilities?.admins
-                ?.map((key) => Key.from(key))
-                .filter(Boolean) as readonly Key.Key[]
-              const sessionKeys = account.capabilities?.permissions
-                ?.map((permission) => {
-                  try {
-                    const key_ = Permissions.toKey(
-                      Typebox.Decode(Permissions.Schema, permission),
-                    )
-                    if (key_.id === key?.id) return key
-                    return key_
-                  } catch (err) {
-                    return undefined
-                  }
-                })
-                .filter(Boolean) as readonly Key.Key[]
+            return {
+              accounts: accounts.map((account) => {
+                const adminKeys = account.capabilities?.admins
+                  ?.map((key) => Key.from(key))
+                  .filter(Boolean) as readonly Key.Key[]
+                const sessionKeys = account.capabilities?.permissions
+                  ?.map((permission) => {
+                    try {
+                      const key_ = Permissions.toKey(
+                        Typebox.Decode(Permissions.Schema, permission),
+                      )
+                      if (key_.id === key?.id) return key
+                      return key_
+                    } catch (err) {
+                      return undefined
+                    }
+                  })
+                  .filter(Boolean) as readonly Key.Key[]
 
-              return Account.from({
-                address: account.address,
-                keys: [...adminKeys, ...sessionKeys],
-              })
-            })
+                return Account.from({
+                  address: account.address,
+                  keys: [...adminKeys, ...sessionKeys],
+                })
+              }),
+              signInWithEthereum:
+                // TODO: Support multiple
+                accounts.at(0)?.capabilities?.signInWithEthereum,
+            }
           }
 
           throw new Error('Cannot load accounts for method: ' + request.method)
@@ -426,6 +437,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           accounts,
+          signInWithEthereum,
         }
       },
 

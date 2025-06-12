@@ -104,10 +104,6 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const { message, signature } = await (async () => {
           if (!signInWithEthereum) return {}
-          const key = account.keys?.find(
-            (key) => key.role === 'admin' && key.privateKey,
-          )
-          if (!key) throw new Error('cannot find admin key to sign with.')
           const message = Siwe.createMessage({
             ...signInWithEthereum,
             address: account.address,
@@ -115,7 +111,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           return {
             message,
             signature: await Account.sign(account, {
-              key,
+              key: adminKey,
               payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
             }),
           }
