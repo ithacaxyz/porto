@@ -201,12 +201,18 @@ AI Assistants must follow the PR template:
 
 <!-- Detailed list of changes in bullet point format. -->
 
-### Checklist
+### Areas Touched
 
-- [ ] All tests pass
-- [ ] Code is properly formatted
-- [ ] Types are valid
-- [ ] Build succeeds
+<!-- 
+Contextual list of areas of the project touched. 
+
+Example:
+- Dialog (`apps/dialog`)
+- Documentation (`apps/docs`)
+- ID Web App (`apps/id`)
+- `porto` Library (`src/`)
+
+-->
 ```
 
 ## Documentation Writing Style
