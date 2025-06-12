@@ -74,7 +74,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
               label:
-                label ??
+                label ||
                 `${eoa.address.slice(0, 8)}\u2026${eoa.address.slice(-6)}`,
               rpId: keystoreHost,
               userId: Bytes.from(eoa.address),
@@ -433,7 +433,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
               label:
-                label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`,
+                label || `${address.slice(0, 8)}\u2026${address.slice(-6)}`,
               rpId: keystoreHost,
               userId: Bytes.from(address),
             })

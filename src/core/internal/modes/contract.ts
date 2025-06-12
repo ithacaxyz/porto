@@ -52,7 +52,7 @@ export function contract(parameters: contract.Parameters = {}) {
     const { address, client, keystoreHost, mock, permissions } = parameters
 
     const label =
-      parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+      parameters.label || `${address.slice(0, 8)}\u2026${address.slice(-6)}`
 
     const key = !mock
       ? await Key.createWebAuthnP256({
