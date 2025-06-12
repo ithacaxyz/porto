@@ -118,8 +118,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })()
 
         return {
-          account,
-          signInWithEthereum: signature ? { message, signature } : undefined,
+          account: {
+            ...account,
+            signInWithEthereum: signature ? { message, signature } : undefined,
+          },
         }
       },
 
@@ -415,9 +417,13 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })()
 
         return {
-          accounts: [account],
+          accounts: [
+            {
+              ...account,
+              signInWithEthereum: siweResult.signature ? siweResult : undefined,
+            },
+          ],
           preCalls,
-          signInWithEthereum: siweResult.signature ? siweResult : undefined,
         }
       },
 

@@ -124,7 +124,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
 
-        const { account, signInWithEthereum } = await (async () => {
+        const { account } = await (async () => {
           if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
             const [{ capabilities }] = request._decoded.params ?? [{}]
@@ -184,11 +184,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
               })
 
             return {
-              account: Account.from({
-                address: account.address,
-                keys: [...adminKeys, ...sessionKeys],
-              }),
-              signInWithEthereum: account.capabilities?.signInWithEthereum,
+              account: {
+                ...Account.from({
+                  address: account.address,
+                  keys: [...adminKeys, ...sessionKeys],
+                }),
+                signInWithEthereum: account.capabilities?.signInWithEthereum,
+              },
             }
           }
 
@@ -197,10 +199,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           )
         })()
 
-        return {
-          account,
-          signInWithEthereum,
-        }
+        return { account }
       },
 
       async getAccountVersion(parameters) {
@@ -353,7 +352,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
 
-        const { accounts, signInWithEthereum } = await (async () => {
+        const accounts = await (async () => {
           if (request.method === 'eth_requestAccounts') {
             const addresses = await provider.request(request)
             return {
@@ -421,24 +420,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   })
                   .filter(Boolean) as readonly Key.Key[]
 
-                return Account.from({
-                  address: account.address,
-                  keys: [...adminKeys, ...sessionKeys],
-                })
+                return {
+                  ...Account.from({
+                    address: account.address,
+                    keys: [...adminKeys, ...sessionKeys],
+                  }),
+                  signInWithEthereum: account.capabilities?.signInWithEthereum,
+                }
               }),
-              signInWithEthereum:
-                // TODO: Support multiple
-                accounts.at(0)?.capabilities?.signInWithEthereum,
             }
           }
 
           throw new Error('Cannot load accounts for method: ' + request.method)
         })()
 
-        return {
-          accounts,
-          signInWithEthereum,
-        }
+        return accounts
       },
 
       async prepareCalls(parameters) {

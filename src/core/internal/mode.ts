@@ -57,14 +57,14 @@ export type Mode = {
       signInWithEthereum?: Compute<Omit<Siwe.Message, 'address'>> | undefined
     }) => Promise<{
       /** Account. */
-      account: Account.Account
-      /** Formatted SIWE message and signature. */
-      signInWithEthereum?:
-        | {
-            message: string
-            signature: Hex.Hex
-          }
-        | undefined
+      account: Account.Account & {
+        signInWithEthereum?:
+          | {
+              message: string
+              signature: Hex.Hex
+            }
+          | undefined
+      }
     }>
 
     getAccountVersion: (parameters: {
@@ -147,16 +147,16 @@ export type Mode = {
       signInWithEthereum?: Compute<Omit<Siwe.Message, 'address'>> | undefined
     }) => Promise<{
       /** Accounts. */
-      accounts: readonly Account.Account[]
+      accounts: readonly (Account.Account & {
+        signInWithEthereum?:
+          | {
+              message: string
+              signature: Hex.Hex
+            }
+          | undefined
+      })[]
       /** Pre-calls to be executed (e.g. key authorization). */
       preCalls?: PreCalls.PreCalls | undefined
-      /** Formatted SIWE message and signature. */
-      signInWithEthereum?:
-        | {
-            message: string
-            signature: Hex.Hex
-          }
-        | undefined
     }>
 
     prepareCalls: (parameters: {
