@@ -5,7 +5,7 @@ export default async function () {
   await fetch('http://localhost:5175').catch(() => {
     return new Promise<void>((resolve) => {
       process_dialog = process.spawn(
-        'pnpm',
+        'bun',
         ['--filter', 'dialog', 'dev', '--mode', 'test'],
         {
           env: {
@@ -27,7 +27,7 @@ export default async function () {
     await fetch('http://localhost:5173').catch(() => {
       return new Promise<void>((resolve) => {
         process_playground = process.spawn(
-          'pnpm',
+          'bun',
           ['--filter', 'playground', 'dev', '--mode', 'test'],
           {
             env: {

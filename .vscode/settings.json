@@ -56,6 +56,7 @@
     "**/_/**": true,
     "**/dist/**": true,
     "**/routeTree.gen.ts": true,
+    "bun.lock": true,
     "contracts": true,
     "pnpm-lock.yaml": true
   },
