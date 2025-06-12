@@ -4,6 +4,8 @@ Hook to upgrade an Externally-Owned Account (EOA) into a Porto Account.
 
 Internally uses [`wallet_prepareUpgradeAccount`](/sdk/rpc/wallet_prepareUpgradeAccount) & [`wallet_upgradeAccount`](/sdk/rpc/wallet_upgradeAccount).
 
+## Usage
+
 :::code-group
 
 ```tsx twoslash [example.ts]
@@ -35,7 +37,7 @@ function Example() {
 
 You can grant permissions for an application to perform actions on behalf of the account by providing the `grantPermissions` parameter.
 
-```tsx twoslash 
+```tsx twoslash
 // @noErrors
 import { Hooks, porto } from 'porto/wagmi'
 import { parseEther } from 'viem'
