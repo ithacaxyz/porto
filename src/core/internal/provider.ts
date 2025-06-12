@@ -756,59 +756,76 @@ export function from<
             store,
           }
 
-          const { accounts, preCalls } = await (async () => {
-            if (email || createAccount) {
-              const { label = undefined } =
-                typeof createAccount === 'object' ? createAccount : {}
-              const { account } = await getMode().actions.createAccount({
-                email,
-                internal,
-                label,
-                permissions,
-              })
-              return { accounts: [account] }
-            }
-            const account = state.accounts[0]
-            const { address, credentialId } = (() => {
-              if (capabilities?.address && capabilities.credentialId)
-                return {
-                  address: capabilities.address,
-                  credentialId: capabilities.credentialId,
-                }
-              if (selectAccount)
-                return { address: undefined, credentialId: undefined }
-              for (const key of account?.keys ?? []) {
-                if (key.type === 'webauthn-p256' && key.role === 'admin')
-                  return {
-                    address: account?.address,
-                    credentialId:
-                      (key as any).credentialId ??
-                      key.privateKey?.credential?.id,
-                  }
-              }
-              return { address: undefined, credentialId: undefined }
-            })()
-            const loadAccountsParams = {
-              internal,
-              permissions,
-            }
-            try {
-              // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
-              return await getMode().actions.loadAccounts({
-                address,
-                credentialId,
-                ...loadAccountsParams,
-              })
-            } catch (error) {
-              if (error instanceof ox_Provider.UserRejectedRequestError)
-                throw error
+          const siwePayload = capabilities?.signInWithEthereum
+            ? ({
+                ...capabilities?.signInWithEthereum,
+                resources: capabilities?.signInWithEthereum.resources as
+                  | string[]
+                  | undefined,
+                version: capabilities?.signInWithEthereum?.version ?? '1',
+              } as const)
+            : undefined
 
-              // error with `address`/`credentialId` likely means one or both are stale, retry
-              if (address && credentialId)
-                return await getMode().actions.loadAccounts(loadAccountsParams)
-              throw error
-            }
-          })()
+          const { accounts, preCalls, signInWithEthereum } =
+            await (async () => {
+              if (email || createAccount) {
+                const { label = undefined } =
+                  typeof createAccount === 'object' ? createAccount : {}
+                const { account, signInWithEthereum } =
+                  await getMode().actions.createAccount({
+                    email,
+                    internal,
+                    label,
+                    permissions,
+                    signInWithEthereum: siwePayload,
+                  })
+                return { accounts: [account], signInWithEthereum }
+              }
+              const account = state.accounts[0]
+              const { address, credentialId } = (() => {
+                if (capabilities?.address && capabilities.credentialId)
+                  return {
+                    address: capabilities.address,
+                    credentialId: capabilities.credentialId,
+                  }
+                if (selectAccount)
+                  return { address: undefined, credentialId: undefined }
+                for (const key of account?.keys ?? []) {
+                  if (key.type === 'webauthn-p256' && key.role === 'admin')
+                    return {
+                      address: account?.address,
+                      credentialId:
+                        (key as any).credentialId ??
+                        key.privateKey?.credential?.id,
+                    }
+                }
+                return { address: undefined, credentialId: undefined }
+              })()
+              const loadAccountsParams = {
+                internal,
+                permissions,
+                signInWithEthereum: siwePayload,
+              }
+              try {
+                capabilities?.signInWithEthereum?.resources
+                // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
+                return await getMode().actions.loadAccounts({
+                  address,
+                  credentialId,
+                  ...loadAccountsParams,
+                })
+              } catch (error) {
+                if (error instanceof ox_Provider.UserRejectedRequestError)
+                  throw error
+
+                // error with `address`/`credentialId` likely means one or both are stale, retry
+                if (address && credentialId)
+                  return await getMode().actions.loadAccounts(
+                    loadAccountsParams,
+                  )
+                throw error
+              }
+            })()
 
           store.setState((x) => ({ ...x, accounts }))
 
@@ -827,6 +844,12 @@ export function from<
                     })
                   : [],
                 preCalls,
+                ...(signInWithEthereum && {
+                  signInWithEthereum: {
+                    message: '',
+                    signature: '0x',
+                  },
+                }),
               },
             })),
           } satisfies Typebox.Static<typeof Rpc.wallet_connect.Response>

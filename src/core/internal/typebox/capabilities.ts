@@ -27,6 +27,30 @@ export namespace createAccount {
   export type Request = Typebox.StaticDecode<typeof Request>
 }
 
+export namespace signInWithEthereum {
+  export const Request = Type.Object({
+    chainId: Primitive.Number,
+    domain: Type.String(),
+    expirationTime: Typebox.Optional(Type.Date()),
+    issuedAt: Typebox.Optional(Type.Date()),
+    nonce: Type.String(),
+    notBefore: Typebox.Optional(Type.Date()),
+    requestId: Typebox.Optional(Type.String()),
+    resources: Typebox.Optional(Type.Array(Type.String())),
+    scheme: Typebox.Optional(Type.String()),
+    statement: Typebox.Optional(Type.String()),
+    uri: Type.String(),
+    version: Typebox.Optional(Type.Literal('1')),
+  })
+  export type Request = Typebox.StaticDecode<typeof Request>
+
+  export const Response = Type.Object({
+    message: Type.String(),
+    signature: Primitive.Hex,
+  })
+  export type Response = Typebox.StaticDecode<typeof Response>
+}
+
 export namespace feeToken {
   export const GetCapabilitiesResponse = Type.Object({
     supported: Type.Boolean(),

@@ -413,6 +413,7 @@ export namespace wallet_connect {
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
     selectAccount: Typebox.Optional(Type.Boolean()),
+    signInWithEthereum: Typebox.Optional(C.signInWithEthereum.Request),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 
@@ -432,6 +433,7 @@ export namespace wallet_connect {
     admins: Typebox.Optional(wallet_getAdmins.Response.properties.keys),
     permissions: Typebox.Optional(C.permissions.Response),
     preCalls: Typebox.Optional(C.preCalls.Response),
+    signInWithEthereum: Typebox.Optional(C.signInWithEthereum.Response),
   })
   export type ResponseCapabilities = Typebox.StaticDecode<
     typeof ResponseCapabilities
