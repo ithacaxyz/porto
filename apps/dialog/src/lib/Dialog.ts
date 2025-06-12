@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow'
 import { createStore } from 'zustand/vanilla'
 
 export const store = createStore<store.State>(() => ({
+  error: null,
   mode: 'popup-standalone',
   referrer: undefined,
 }))
@@ -16,6 +17,13 @@ export declare namespace store {
           url?: URL | undefined
         })
       | undefined
+    error: {
+      action: 'close' | 'retry-in-popup'
+      message: string
+      name: string
+      secondaryMessage?: string
+      title: string
+    } | null
   }
 }
 type Payload = Extract<Messenger.Payload<'__internal'>, { type: 'init' }>
