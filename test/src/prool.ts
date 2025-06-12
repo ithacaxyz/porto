@@ -43,7 +43,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
     feeTokens,
     image = 'ghcr.io/ithacaxyz/relay',
     signersMnemonic = 'test test test test test test test test test test test junk',
-    version = 'latest',
+    version = process.env.VITE_RELAY_VERSION || 'latest',
     ...rest
   } = args
 

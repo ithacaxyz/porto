@@ -1,0 +1,83 @@
+name: Test
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      relay-ref:
+        type: string
+        description: 'Relay ref to use'
+        default: ''
+      contracts-ref:
+        type: string
+        description: 'Contracts ref to use'
+        default: ''
+      porto-ref:
+        type: string
+        description: 'Porto ref to use'
+        default: 'main'
+  repository_dispatch:
+    types: ['relay-release', 'relay-deployment']
+
+env:
+   ACTIONS_RUNNER_DEBUG: true
+
+jobs:
+  test:
+    name: Tests (${{ matrix.local == 'true' && 'Local' || 'Deployment' }}, ${{ matrix.browser == 'true' && 'Browser' || 'Node' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        # Only run deployment tests on main branch or when triggered by a repository dispatch, and also when a *-ref input is not provided.
+        local: ${{ fromJSON(((github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && (inputs.relay-ref == '' && inputs.contracts-ref == '' && inputs.porto-ref == 'main')) && '["true", "false"]' || '["true"]') }}
+        browser: ['true', 'false']
+    env: 
+      CI: true
+      VITE_LOCAL: ${{ matrix.local }}
+      VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+      VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
+      VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
+      VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
+      VITE_DISPATCH_TYPE: ${{ github.event_name == 'repository_dispatch' && github.event.action || '' }}
+      VITE_GECKO_API: ${{ secrets.VITE_GECKO_API }}
+      VITE_RELAY_VERSION: ${{ inputs.relay-ref }}
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          ref: ${{ inputs.porto-ref }}
+
+      - name: Checkout contracts submodule at specific ref
+        if: inputs.contracts-ref != ''
+        run: |
+          cd contracts/account
+          git fetch origin ${{ inputs.contracts-ref }}
+          git checkout ${{ inputs.contracts-ref }}
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Set up Docker
+        if: matrix.local == 'true'
+        uses: docker/setup-docker-action@v4
+
+      - name: Login to GitHub Container Registry
+        if: matrix.local == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: jxom
+          password: ${{ secrets.RELAY_GH_TOKEN }}
+
+      - name: Install Playwright
+        if: matrix.browser == 'true'
+        run: pnpx playwright@1.53.0 install --with-deps
+
+      - name: Test
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 30
+          command: pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
