@@ -75,6 +75,10 @@ function RouteComponent() {
         },
         {
           onError: (e) => {
+            // This detects an error that can sometimes happen when calling
+            // navigator.credentials.create() from inside an iframe, notably
+            // the Firefox + Bitwarden extension combination.
+            // See https://github.com/bitwarden/clients/issues/12590
             if (
               e?.message?.includes("Invalid 'sameOriginWithAncestors' value")
             ) {
@@ -89,7 +93,8 @@ function RouteComponent() {
                   title: 'Passkey creation not supported',
                 },
               })
-              // Prevent the response from being sent since the error is handled by the dialog
+              // Prevent the response from being sent,
+              // since the error is handled by the dialog.
               return { cancelResponse: true }
             }
           },
