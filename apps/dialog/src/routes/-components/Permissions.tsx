@@ -1,17 +1,11 @@
 import { Spinner } from '@porto/apps/components'
 import { Hex } from 'ox'
-import { Hooks } from 'porto/remote'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { erc20Abi } from 'viem'
 import { useReadContract } from 'wagmi'
-import { porto } from '~/lib/Porto'
-import { StringFormatter, ValueFormatter } from '~/utils'
+import { ValueFormatter } from '~/utils'
 import LucideBanknote from '~icons/lucide/banknote'
-import LucideChevronDown from '~icons/lucide/chevron-down'
-import LucideChevronUp from '~icons/lucide/chevron-up'
-import ExternalLinkIcon from '~icons/lucide/external-link'
-import LucideVault from '~icons/lucide/vault'
-import WalletIcon from '~icons/lucide/wallet-cards'
+import LucideShieldCheck from '~icons/lucide/shield-check'
 
 export function Permissions(props: Permissions.Props) {
   const { calls = [], spend = [], title } = props
@@ -19,7 +13,7 @@ export function Permissions(props: Permissions.Props) {
   if (spend.length === 0 && calls.length === 0) return null
 
   return (
-    <div className="px-3">
+    <div className="px-3 pb-1">
       {title && (
         <div className="flex items-center gap-3 text-[13px] text-secondary">
           <span>{title}</span>
@@ -33,7 +27,7 @@ export function Permissions(props: Permissions.Props) {
             {...spend}
           />
         ))}
-        {calls.length > 0 && <ContractAccessPermission calls={calls} />}
+        {calls.length > 0 && <ContractAccessPermission />}
       </div>
     </div>
   )
@@ -41,7 +35,12 @@ export function Permissions(props: Permissions.Props) {
 
 export declare namespace Permissions {
   type Props = {
-    calls?: ContractAccessPermission.Props['calls']
+    calls?:
+      | readonly {
+          signature?: string
+          to?: `0x${string}`
+        }[]
+      | undefined
     spend?: readonly SpendPermission.Props[]
     title?: string | undefined
   }
@@ -86,7 +85,7 @@ function SpendPermission(props: SpendPermission.Props) {
         )}
       </div>
       <div>
-        Spend{' '}
+        Spend up to{' '}
         <span className="font-medium text-primary">
           {isLoading ? '' : displayAmount} {symbol.data ?? 'ETH'}
         </span>{' '}
@@ -104,86 +103,13 @@ declare namespace SpendPermission {
   }
 }
 
-function ContractAccessPermission(props: ContractAccessPermission.Props) {
-  const { calls } = props
-
-  const [isOpen, setIsOpen] = useState(false)
-
-  const chain = Hooks.useChain(porto)
-  const explorerUrl = chain?.blockExplorers?.default?.url
-
+function ContractAccessPermission() {
   return (
-    <div className="flex flex-col py-3">
-      <button
-        className="flex items-center gap-2 text-[15px] text-secondary"
-        onClick={() => setIsOpen(!isOpen)}
-        type="button"
-      >
-        <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
-          <LucideVault className="size-[14px]" />
-        </div>
-        <span className="flex-1 text-left">Access-related permissions</span>
-        {isOpen ? (
-          <LucideChevronUp className="h-4 w-4" />
-        ) : (
-          <LucideChevronDown className="h-4 w-4" />
-        )}
-      </button>
-      {isOpen && (
-        <div className="space-y-2 pt-3 pl-2">
-          <div className="flex items-center font-medium text-secondary text-xs">
-            <div className="w-[60%] pl-8">
-              <span>Contract</span>
-            </div>
-            <div className="w-[40%]">
-              <span>Function</span>
-            </div>
-          </div>
-          {calls.map((call) => (
-            <div
-              className="flex items-center text-xs"
-              key={`call-${call.signature}-${call.to}`}
-            >
-              <div className="flex w-[60%] min-w-0 items-center">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-jade4">
-                  <WalletIcon className="h-4 w-4 text-jade9" />
-                </div>
-                <span className="ml-2 truncate font-mono text-xs">
-                  {call.to ? (
-                    <a
-                      className="inline-flex cursor-pointer items-center whitespace-nowrap transition-colors hover:text-primary hover:underline"
-                      href={
-                        explorerUrl
-                          ? `${explorerUrl}/address/${call.to}`
-                          : undefined
-                      }
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      {StringFormatter.truncate(call.to)}
-                      <ExternalLinkIcon className="ml-1 h-3 w-3 flex-shrink-0 text-secondary" />
-                    </a>
-                  ) : (
-                    'Any contract'
-                  )}
-                </span>
-              </div>
-              <div className="w-[40%] font-mono">
-                {call.signature || 'Any function'}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="flex items-center gap-2 py-3 text-[15px] text-secondary">
+      <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
+        <LucideShieldCheck className="size-[14px]" />
+      </div>
+      <div>Perform actions on your behalf</div>
     </div>
   )
-}
-
-declare namespace ContractAccessPermission {
-  type Props = {
-    calls: readonly {
-      signature?: string
-      to?: `0x${string}`
-    }[]
-  }
 }
