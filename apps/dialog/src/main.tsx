@@ -53,8 +53,7 @@ const offDialogRequest = Events.onDialogRequest(
     const needsSync = account && account.address !== connectedAccount?.address
 
     // Clear errors when the request is null (i.e. when the dialog is closed).
-    if (!request)
-      Dialog.store.setState({ error: null })
+    if (!request) Dialog.store.setState({ error: null })
 
     if (needsSync)
       Actions.connect(Wagmi.config, {
