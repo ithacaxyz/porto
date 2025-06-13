@@ -50,7 +50,7 @@ export function getPorto(
     transports: {
       [chain.id]: http(rpcUrl, {
         async onFetchRequest(_, init) {
-          if (process.env.VITE_RPC_LOGS !== 'true') return
+          if (process.env.VITE_RPC_DEBUG !== 'true') return
           console.log(`curl \\
 ${rpcUrl} \\
 -X POST \\
@@ -58,7 +58,7 @@ ${rpcUrl} \\
 -d '${JSON.stringify(JSON.parse(init.body as string))}'`)
         },
         async onFetchResponse(response) {
-          if (process.env.VITE_RPC_LOGS !== 'true') return
+          if (process.env.VITE_RPC_DEBUG !== 'true') return
           console.log('> ' + JSON.stringify(await response.clone().json()))
         },
       }),

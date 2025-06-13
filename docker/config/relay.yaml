@@ -35,7 +35,7 @@ transactions:
   priority_fee_percentile: 20
 orchestrator: 
 legacy_orchestrators: []
-legacy_delegations: []
+legacy_delegation_proxies: []
 delegation_proxy: 
 simulator: 
 database_url: null

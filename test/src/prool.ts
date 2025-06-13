@@ -10,6 +10,7 @@ import { execa } from 'prool/processes'
 
 type RpcServerParameters = {
   containerName?: string | undefined
+  constantRate?: number | undefined
   endpoint: string
   delegationProxy: string
   feeTokens: string[]
@@ -88,8 +89,6 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
       const port_relay = port + 1
 
       const args_ = [
-        '-e',
-        `GECKO_API=${process.env.VITE_GECKO_API}`,
         '--name',
         containerName,
         '--network',
@@ -107,6 +106,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         `${image}:${version}`,
         ...toArgs({
           ...rest,
+          constantRate: 1.0,
           endpoint: endpoint?.replaceAll(
             /127\.0\.0\.1|0\.0\.0\.0/g,
             'host.docker.internal',
@@ -130,10 +130,14 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
             setTimeout(3_000).then(resolve)
             process.stdout.on('data', (data) => {
               const message = data.toString()
+              if (import.meta.env.VITE_RPC_DEBUG === 'true')
+                console.log(message)
               if (message.includes('Started relay service')) resolve()
             })
             process.stderr.on('data', (data) => {
               const message = data.toString()
+              if (import.meta.env.VITE_RPC_DEBUG === 'true')
+                console.log(message)
               if (message.includes('WARNING')) return
               reject(data)
             })
