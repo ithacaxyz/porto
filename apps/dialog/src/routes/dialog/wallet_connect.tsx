@@ -86,7 +86,7 @@ function RouteComponent() {
                   name: 'CREDENTIAL_CREATION_FAILED',
                   secondaryMessage:
                     'Please try again in a popup window for better compatibility.',
-                  title: 'Passkey Creation Not Supported',
+                  title: 'Passkey creation not supported',
                 },
               })
               // Prevent the response from being sent since the error is handled by the dialog
