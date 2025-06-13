@@ -159,13 +159,6 @@ function CheckError(props: CheckError.Props) {
 
   if (!error) return children
 
-  const closeAndClearError = () => {
-    Actions.rejectAll(porto)
-    setTimeout(() => {
-      Dialog.store.setState({ error: null })
-    }, 100)
-  }
-
   const mainAction =
     error.action === 'retry-in-popup'
       ? {
@@ -181,12 +174,12 @@ function CheckError(props: CheckError.Props) {
         }
       : {
           label: 'Close',
-          onClick: closeAndClearError,
+          onClick: () => Actions.rejectAll(porto),
         }
 
   const secondaryAction = error.action !== 'close' && {
     label: 'Cancel',
-    onClick: closeAndClearError,
+    onClick: () => Actions.rejectAll(porto),
   }
 
   return (
