@@ -99,11 +99,10 @@ export async function respond<result>(
     )
   } catch (e) {
     const error = e as RpcResponse.BaseError
-    if (options?.onError?.(error)?.cancelResponse === true) {
+    if (options?.onError?.(error)?.cancelResponse === true)
       // If the onError callback sets cancelResponse to true,
       // we do not send a response.
       return
-    }
     messenger.send(
       'rpc-response',
       Object.assign(RpcResponse.from({ ...shared, error, status: 'error' }), {
