@@ -189,27 +189,21 @@ function Events() {
 
 function Connect() {
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
+  const [siwe, setSiwe] = React.useState<boolean>(false)
   const [result, setResult] = React.useState<unknown | null>(null)
   const [error, setError] = React.useState<string | null>(null)
 
   return (
     <div>
       <h3>wallet_connect</h3>
-      <label>
-        <input
-          checked={grantPermissions}
-          onChange={() => setGrantPermissions((x) => !x)}
-          type="checkbox"
-        />
-        Grant Permissions
-      </label>
       <div>
         <button
-          onClick={() => {
+          onClick={async () => {
             const payload = {
               capabilities: {
                 createAccount: false,
                 grantPermissions: grantPermissions ? permissions() : undefined,
+                signInWithEthereum: await siwePayload(siwe),
               },
             } as const
             return porto.provider
@@ -231,11 +225,12 @@ function Connect() {
           Login
         </button>
         <button
-          onClick={() => {
+          onClick={async () => {
             const payload = {
               capabilities: {
                 createAccount: true,
                 grantPermissions: grantPermissions ? permissions() : undefined,
+                signInWithEthereum: await siwePayload(siwe),
               },
             } as const
 
@@ -258,10 +253,41 @@ function Connect() {
           Register
         </button>
       </div>
+      <div>
+        <label>
+          <input
+            checked={grantPermissions}
+            onChange={() => setGrantPermissions((x) => !x)}
+            type="checkbox"
+          />
+          Grant Permissions
+        </label>
+        <label>
+          <input
+            checked={siwe}
+            onChange={() => setSiwe((x) => !x)}
+            type="checkbox"
+          />
+          Sign in with Ethereum
+        </label>
+      </div>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
       {error ? <pre>{error}</pre> : null}
     </div>
   )
+}
+
+async function siwePayload(enabled: boolean) {
+  if (!enabled) return undefined
+  const chainId = await porto.provider.request({
+    method: 'eth_chainId',
+  })
+  return {
+    chainId: Number(chainId),
+    domain: window.location.hostname,
+    nonce: 'deadbeef',
+    uri: `${window.location.origin}/`,
+  } as const
 }
 
 function Accounts() {

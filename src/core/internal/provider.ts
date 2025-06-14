@@ -763,6 +763,16 @@ export function from<
             store,
           }
 
+          const siwePayload = capabilities?.signInWithEthereum
+            ? ({
+                ...capabilities?.signInWithEthereum,
+                resources: capabilities?.signInWithEthereum.resources as
+                  | string[]
+                  | undefined,
+                version: capabilities?.signInWithEthereum?.version ?? '1',
+              } as const)
+            : undefined
+
           const { accounts, preCalls } = await (async () => {
             if (email || createAccount) {
               const { label = undefined } =
@@ -772,6 +782,7 @@ export function from<
                 internal,
                 label,
                 permissions,
+                signInWithEthereum: siwePayload,
               })
               return { accounts: [account] }
             }
@@ -798,6 +809,7 @@ export function from<
             const loadAccountsParams = {
               internal,
               permissions,
+              signInWithEthereum: siwePayload,
             }
             try {
               // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
@@ -834,6 +846,9 @@ export function from<
                     })
                   : [],
                 preCalls,
+                ...(account.signInWithEthereum && {
+                  signInWithEthereum: account.signInWithEthereum,
+                }),
               },
             })),
           } satisfies Typebox.Static<typeof Rpc.wallet_connect.Response>
