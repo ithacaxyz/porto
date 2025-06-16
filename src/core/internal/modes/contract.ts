@@ -6,6 +6,7 @@ import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
+import * as Siwe from 'ox/Siwe'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { encodeFunctionData, parseAbi } from 'viem'
@@ -98,7 +99,7 @@ export function contract(parameters: contract.Parameters = {}) {
         throw new Provider.UnsupportedMethodError()
       },
       async createAccount(parameters) {
-        const { label, internal, permissions } = parameters
+        const { label, internal, permissions, signInWithEthereum } = parameters
         const { client } = internal
 
         // Generate a random private key and derive the address.
@@ -149,7 +150,26 @@ export function contract(parameters: contract.Parameters = {}) {
 
         address_internal = account.address
 
-        return { account }
+        const { message, signature } = await (async () => {
+          if (!signInWithEthereum) return {}
+          const message = Siwe.createMessage({
+            ...signInWithEthereum,
+            address: account.address,
+          })
+          return {
+            message,
+            signature: await Account.sign(account, {
+              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+            }),
+          }
+        })()
+
+        return {
+          account: {
+            ...account,
+            signInWithEthereum: signature ? { message, signature } : undefined,
+          },
+        }
       },
 
       async getAccountVersion(parameters) {
@@ -300,7 +320,7 @@ export function contract(parameters: contract.Parameters = {}) {
       },
 
       async loadAccounts(parameters) {
-        const { internal, permissions } = parameters
+        const { internal, permissions, signInWithEthereum } = parameters
         const { client } = internal
 
         const { address, credentialId } = await (async () => {
@@ -377,7 +397,33 @@ export function contract(parameters: contract.Parameters = {}) {
             storage: internal.config.storage,
           })
 
-        return { accounts: [account] }
+        const siweResult = await (async () => {
+          if (!signInWithEthereum) return {}
+          const key = account.keys?.find(
+            (key) => key.role === 'admin' && key.privateKey,
+          )
+          if (!key) throw new Error('cannot find admin key to sign with.')
+          const message = Siwe.createMessage({
+            ...signInWithEthereum,
+            address: account.address,
+          })
+          return {
+            message,
+            signature: await Account.sign(account, {
+              key,
+              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+            }),
+          }
+        })()
+
+        return {
+          accounts: [
+            {
+              ...account,
+              signInWithEthereum: siweResult.signature ? siweResult : undefined,
+            },
+          ],
+        }
       },
 
       async prepareCalls(parameters) {
