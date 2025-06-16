@@ -1,0 +1,42 @@
+# Account
+
+The Porto `Account` is a light wrapper around the Viem Account that adds support 
+for [Porto `Key`s](/sdk/viem/key).
+
+:::tip
+This abstraction is built for [Wallet Developers](/sdk/viem#wallet-developers) interacting with the
+RPC Server directly. If you are an [Application Developer](/sdk/viem#application-developers)
+that uses Porto via Wagmi or the EIP-1193 Provider (`porto.provider`), you probably don't need to use this.
+:::
+
+<div className="flex align-center justify-center">
+  <img className="max-w-[400px] dark:hidden" src="/account-diagram-light.png" alt="Account Diagram" />
+  <img className="max-w-[400px] hidden dark:block" src="/account-diagram-dark.png" alt="Account Diagram" />
+</div>
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, Key, ServerActions } from 'porto/viem'
+import { client } from './config'
+
+const passkey = await Key.createWebAuthnP256({
+  label: 'My Passkey',
+})
+
+const account = Account.fromPrivateKey('0x...', { // [!code hl]
+  keys: [passkey] // [!code hl]
+}) // [!code hl]
+
+await ServerActions.upgradeAccount(client, {
+  account,
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::

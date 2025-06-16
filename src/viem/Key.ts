@@ -257,7 +257,7 @@ export async function createWebAuthnP256(
       : undefined,
     user: {
       displayName: label,
-      id: userId,
+      id: userId ?? Bytes.fromString(label),
       name: label,
     },
   })
@@ -268,7 +268,11 @@ export async function createWebAuthnP256(
       id: credential.id,
       publicKey: credential.publicKey,
     },
-    id: Bytes.toHex(userId),
+    id: userId
+      ? Bytes.toHex(userId)
+      : PublicKey.toHex(credential.publicKey, {
+          includePrefix: false,
+        }),
   })
 }
 
@@ -289,7 +293,7 @@ export declare namespace createWebAuthnP256 {
     /** Relying Party ID. */
     rpId?: string | undefined
     /** User ID. */
-    userId: Bytes.Bytes
+    userId?: Bytes.Bytes | undefined
   }
 }
 

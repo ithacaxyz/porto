@@ -1,0 +1,86 @@
+# `Account.from`
+
+Instantiates a delegated account from an address or account parameters.
+
+## Usage
+
+### From Address
+
+```ts twoslash
+import { Account } from 'porto/viem'
+
+const account = Account.from('0x742d35Cc6634C0532925a3b8D2c88F65b5c92B23') // [!code focus]
+```
+
+### From Account Parameters
+
+```ts twoslash
+import { Account, Key } from 'porto/viem'
+
+const passkey = await Key.createWebAuthnP256({
+  label: 'My Passkey',
+})
+
+const account = Account.from({ // [!code focus]
+  address: '0x742d35Cc6634C0532925a3b8D2c88F65b5c92B23', // [!code focus]
+  keys: [passkey], // [!code focus]
+}) // [!code focus]
+```
+
+### With Custom Sign Function
+
+```ts twoslash
+import { Account } from 'porto/viem'
+
+const account = Account.from({ // [!code focus]
+  address: '0x742d35Cc6634C0532925a3b8D2c88F65b5c92B23', // [!code focus]
+  async sign({ hash }) { // [!code focus]
+    // Custom signing logic // [!code focus]
+    return '0x...' // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### parameters
+
+- **Type:** `string | AccountParameter`
+
+Either an address string or an account parameter object.
+
+```ts
+type AccountParameter = {
+  /** Account address */
+  address: `0x${string}`
+  
+  /** Optional array of keys associated with the account */
+  keys?: readonly Key.Key[] | undefined
+  
+  /** Optional custom signing function */
+  sign?: (args: { hash: `0x${string}` }) => Promise<`0x${string}`> | `0x${string}`
+  
+  /** Account source type */
+  source?: 'porto' | 'privateKey' | undefined
+}
+```
+
+## Return Value
+
+```ts
+type Account = LocalAccount & {
+  /** Account address */
+  address: `0x${string}`
+  
+  /** Optional array of keys associated with the account */
+  keys?: readonly Key.Key[] | undefined
+  
+  /** Required signing function */
+  sign: (args: { hash: `0x${string}` }) => Promise<`0x${string}`> | `0x${string}`
+  
+  /** Account source */
+  source: 'porto' | 'privateKey'
+}
+```
+
+Returns a Porto Account that extends Viem's `LocalAccount` with additional Porto-specific properties.
