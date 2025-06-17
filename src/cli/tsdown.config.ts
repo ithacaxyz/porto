@@ -10,7 +10,7 @@ export default defineConfig({
   format: ['esm'],
   minify: true,
   outDir: resolve(import.meta.dirname, '../_dist/cli'),
-  target: 'node22',
+  target: 'node20',
 })
 
 ////////////////////////////////////////////////////////////////////////
