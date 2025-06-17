@@ -19,6 +19,9 @@ export function parseSearchRequest<
 ): parseSearchRequest.ReturnType<method> {
   const { method } = parameters
   try {
+    // Request has already been parsed.
+    if (search._decoded) return search as never
+
     const request = RpcRequest.parseRequest(search)
     if (request.method === method)
       return {

@@ -353,7 +353,7 @@ export declare namespace AddFunds {
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
     onSuccess?: () => void
-    tokenAddress: Address.Address
+    tokenAddress?: Address.Address | undefined
     value?: bigint | undefined
   }
 }

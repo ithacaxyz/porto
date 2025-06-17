@@ -48,7 +48,7 @@ export namespace account_verifyEmail {
 export namespace wallet_addFunds {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
-    token: Primitive.Address,
+    token: Typebox.Optional(Primitive.Address),
     value: Typebox.Optional(Primitive.BigInt),
   })
 
@@ -56,7 +56,7 @@ export namespace wallet_addFunds {
 
   export const Request = Type.Object({
     method: Type.Literal('wallet_addFunds'),
-    params: Type.Tuple([Parameters]),
+    params: Type.Optional(Type.Tuple([Parameters])),
   })
   export type Request = Typebox.StaticDecode<typeof Request>
 

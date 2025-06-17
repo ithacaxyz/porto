@@ -1,6 +1,9 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as prompts from '@clack/prompts'
+import open from 'open'
+import { RpcRequest } from 'ox'
+import * as RpcSchema from '../../core/RpcSchema.js'
 import * as Key from '../../viem/Key.js'
 import * as ServerActions from '../../viem/ServerActions.js'
 import * as Context from './context.js'
@@ -23,14 +26,55 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   })
   s.stop('Created. ')
 
-  prompts.log.info('Address: ' + account.address)
+  const openDialog = args.fund
+    ? true
+    : await prompts.confirm({
+        initialValue: true,
+        message: 'Open Porto dialog to fund your account?',
+      })
+
+  if (openDialog) {
+    const store = RpcRequest.createStore<RpcSchema.Schema>()
+    const request = store.prepare({
+      method: 'wallet_addFunds',
+      params: [
+        {
+          address: account.address,
+        },
+      ],
+    })
+
+    const search = new URLSearchParams([
+      ['id', request.id.toString()],
+      ['method', request.method],
+      ['params', JSON.stringify(request.params)],
+      [
+        'referrer',
+        JSON.stringify({
+          title: 'Porto CLI',
+          url: 'cli://porto',
+        }),
+      ],
+    ])
+
+    const dialogUrl = `https://${args.dialog}/dialog/${request.method}?${search.toString()}`
+    prompts.log.info(`Opening ${dialogUrl}`)
+    try {
+      await open(dialogUrl)
+      prompts.log.success('Browser window opened successfully')
+    } catch (error) {
+      prompts.log.error(`Failed to open browser window: ${error}`)
+      prompts.log.info(`You can manually open: ${dialogUrl}`)
+    }
+  }
 
   const reveal = await prompts.confirm({
     initialValue: false,
     message: 'Reveal private key? (This will be visible in terminal history)',
   })
 
-  if (reveal) prompts.log.warn('Private key: ' + key.privateKey!()!)
+  prompts.log.info('Address: ' + account.address)
+  if (reveal) prompts.log.info('Private key: ' + key.privateKey!()!)
   else {
     // Write to secure file
     const keyFile = path.join(import.meta.dirname, `${account.address}.key`)
@@ -44,6 +88,10 @@ export declare namespace createAccount {
   type Arguments = {
     /** Chain name. */
     chain?: string | undefined
+    /** Dialog Hostname. */
+    dialog?: string | undefined
+    /** Open dialog to fund account. */
+    fund?: boolean | undefined
     /** RPC Server URL. */
     rpc?: string | undefined
   }

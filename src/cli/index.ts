@@ -17,6 +17,12 @@ cli
     `Chain name (available: ${Utils.getChainNames().join(', ')})`,
     { default: 'base-sepolia' },
   )
+  .option('-d, --dialog <hostname>', 'Dialog Hostname', {
+    default: 'id.porto.sh',
+  })
+  .option('-f, --fund', 'Fund account', {
+    default: false,
+  })
   .option('-r, --rpc <rpc_url>', 'RPC server URL')
   .action(Commands.createAccount)
 

@@ -105,7 +105,7 @@ export function from<
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
 
-          const { address, value, token } = request.params[0] ?? {}
+          const { address, value, token } = request.params?.[0] ?? {}
 
           const account = address
             ? state.accounts.find((account) =>

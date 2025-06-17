@@ -958,6 +958,9 @@ importers:
       cac:
         specifier: ^6
         version: 6.7.14
+      open:
+        specifier: ^10
+        version: 10.1.2
 
 packages:
 
