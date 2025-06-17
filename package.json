@@ -79,11 +79,12 @@
       "src/{index,remote/index,server/index,viem/index,wagmi/index}.ts!"
     ],
     "ignore": [
-      "**/test/**",
-      "scripts/**",
-      "contracts/**",
-      "**/internal/**",
       "**/_generated/**",
+      "**/internal/**",
+      "**/test/**",
+      "contracts/**",
+      "scripts/**",
+      "src/cli/**",
       "wagmi.config.ts"
     ],
     "ignoreBinaries": [
