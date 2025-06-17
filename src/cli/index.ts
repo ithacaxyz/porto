@@ -5,9 +5,9 @@ import { createClient, http } from 'viem'
 import { getChainId } from 'viem/actions'
 
 import * as Chains from '../core/Chains.js'
+import pkgJson from '../package.json' with { type: 'json' }
 import * as Key from '../viem/Key.js'
 import * as ServerActions from '../viem/ServerActions.js'
-import pkgJson from '../package.json' with { type: 'json' }
 
 const cli = cac('porto')
 

@@ -1,16 +1,16 @@
-import { resolve } from 'node:path'
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
+  clean: true,
+  dts: false,
   entry: [resolve(import.meta.dirname, 'index.ts')],
   external: getExternals(),
   format: ['esm'],
-  target: 'node22',
-  outDir: resolve(import.meta.dirname, '../_dist/cli'),
-  clean: true,
   minify: true,
-  dts: false,
+  outDir: resolve(import.meta.dirname, '../_dist/cli'),
+  target: 'node22',
 })
 
 ////////////////////////////////////////////////////////////////////////
