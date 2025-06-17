@@ -17,7 +17,7 @@ cli
     `Chain name (available: ${Utils.getChainNames().join(', ')})`,
     { default: 'base-sepolia' },
   )
-  .option('-d, --dialog <hostname>', 'Dialog Hostname', {
+  .option('-d, --dialog <hostname>', 'Dialog hostname', {
     default: 'id.porto.sh',
   })
   .option('-f, --fund', 'Fund account', {
