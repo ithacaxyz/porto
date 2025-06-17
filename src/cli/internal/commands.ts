@@ -1,6 +1,6 @@
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as prompts from '@clack/prompts'
-import * as fs from 'fs'
-import * as path from 'path'
 import * as Key from '../../viem/Key.js'
 import * as ServerActions from '../../viem/ServerActions.js'
 import * as Context from './context.js'
