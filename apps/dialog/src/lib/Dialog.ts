@@ -8,7 +8,11 @@ export const store = createStore<store.State>(() => {
     const referrer = new URLSearchParams(window.location.search).get('referrer')
     if (!referrer) return undefined
     try {
-      return JSON.parse(referrer)
+      const parsed = JSON.parse(referrer)
+      return {
+        ...parsed,
+        url: parsed.url ? new URL(parsed.url) : undefined,
+      }
     } catch {}
     return undefined
   })()
@@ -16,10 +20,7 @@ export const store = createStore<store.State>(() => {
   return {
     error: null,
     mode: 'popup-standalone',
-    referrer: {
-      ...referrer,
-      url: referrer?.url ? new URL(referrer.url) : undefined,
-    },
+    referrer,
   }
 })
 
