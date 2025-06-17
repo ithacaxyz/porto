@@ -9,7 +9,7 @@ import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
 import type * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
+import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import {
   BaseError,
@@ -27,7 +27,7 @@ import {
   getExecuteError,
 } from 'viem/experimental/erc7821'
 import * as RpcSchema from '../../core/internal/rpcServer/rpcSchema.js'
-import * as Typebox from '../../core/internal/typebox/typebox.js'
+import type * as Typebox from '../../core/internal/typebox/typebox.js'
 import { Value } from '../../core/internal/typebox/typebox.js'
 import * as U from '../../core/internal/utils.js'
 import type { sendCalls } from '../ServerActions.js'

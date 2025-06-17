@@ -851,7 +851,7 @@ describe.each([
           method: 'wallet_getAccountVersion',
         }),
       ).rejects.toMatchInlineSnapshot(
-        `[Provider.DisconnectedError: The provider is disconnected from all chains.]`,
+        '[Provider.DisconnectedError: The provider is disconnected from all chains.]',
       )
     })
 
@@ -869,7 +869,7 @@ describe.each([
           params: [{ address: '0x0000000000000000000000000000000000000000' }],
         }),
       ).rejects.toMatchInlineSnapshot(
-        `[Provider.UnauthorizedError: The requested method and/or account has not been authorized by the user.]`,
+        '[Provider.UnauthorizedError: The requested method and/or account has not been authorized by the user.]',
       )
     })
 
@@ -1323,7 +1323,7 @@ describe.each([
         method: 'wallet_getCapabilities',
         params: [undefined, ['0x1']],
       })
-      expect(capabilities).toMatchInlineSnapshot(`{}`)
+      expect(capabilities).toMatchInlineSnapshot('{}')
     })
   })
 

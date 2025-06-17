@@ -41,6 +41,7 @@ export const Request = Type.Union([
 export function parseRequest(request: unknown): parseRequest.ReturnType {
   const raw = Value.Convert(Request, U.normalizeValue(request))
 
+  // biome-ignore lint/performance/noDynamicNamespaceImportAccess: _
   const method = RpcRequest[(raw as any).method as keyof typeof RpcRequest]
   if (method) {
     const error = Value.Errors(method.Request, raw).First()

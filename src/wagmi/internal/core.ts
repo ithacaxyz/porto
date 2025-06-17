@@ -19,8 +19,8 @@ import {
   custom,
   type EIP1193Provider,
 } from 'viem'
-import * as Typebox from '../../core/internal/typebox/typebox.js'
-import * as RpcSchema from '../../core/RpcSchema.js'
+import type * as Typebox from '../../core/internal/typebox/typebox.js'
+import type * as RpcSchema from '../../core/RpcSchema.js'
 import * as AccountActions from '../../viem/AccountActions.js'
 import * as WalletActions from '../../viem/WalletActions.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
@@ -140,7 +140,7 @@ export async function disconnect(
 export declare namespace disconnect {
   type Parameters = ConnectorParameter
 
-  // biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
+  // biome-ignore lint/suspicious/noConfusingVoidType: _
   type ReturnType = void
 
   // TODO: Exhaustive ErrorType

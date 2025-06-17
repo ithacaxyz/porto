@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0-beta.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -68,10 +68,10 @@
       },
       "correctness": {
         "noInvalidPositionAtImportRule": "off",
+        "noUnusedVariables": "off",
         "useExhaustiveDependencies": "error"
       },
       "nursery": {
-        "noFloatingPromises": "error",
         "useSortedClasses": {
           "fix": "safe",
           "level": "error",
@@ -85,8 +85,17 @@
       },
       "recommended": true,
       "style": {
+        "noInferrableTypes": "error",
         "noNonNullAssertion": "off",
         "noParameterAssign": "error",
+        "noUnusedTemplateLiteral": "error",
+        "noUselessElse": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useNumberNamespace": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
         "useTemplate": "off"
       },
       "suspicious": {

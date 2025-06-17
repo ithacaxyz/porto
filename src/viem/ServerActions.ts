@@ -1,6 +1,6 @@
 import * as Address from 'ox/Address'
 import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
+import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import {
   type Calls,

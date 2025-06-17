@@ -1,5 +1,5 @@
 import * as AriaKit from '@ariakit/react'
-import { PortoConfig, Query } from '@porto/apps'
+import { type PortoConfig, Query } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import {
   exp1Abi,

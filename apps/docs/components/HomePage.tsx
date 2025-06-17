@@ -2,7 +2,7 @@ import * as Ariakit from '@ariakit/react'
 import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
-import { Address, P256, Provider, PublicKey, Value } from 'ox'
+import { type Address, P256, Provider, PublicKey, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
@@ -29,7 +29,7 @@ import LucidePlay from '~icons/lucide/play'
 import LucideSparkle from '~icons/lucide/sparkle'
 import LucideTrash2 from '~icons/lucide/trash-2'
 import LucideX from '~icons/lucide/x'
-import { config } from '../wagmi.config'
+import type { config } from '../wagmi.config'
 import { Button } from './Button'
 import { type ChainId, permissions } from './constants'
 
@@ -190,7 +190,7 @@ export function HomePage() {
           <Ariakit.Button
             className="flex h-[40px] cursor-default items-center justify-center gap-2 rounded-full bg-gray3 px-4 font-[400] transition-all hover:bg-gray4"
             render={
-              // biome-ignore lint/a11y/useAnchorContent: <explanation>
+              // biome-ignore lint/a11y/useAnchorContent: _
               <a
                 href="https://github.com/ithacaxyz/porto"
                 rel="noreferrer"
@@ -585,7 +585,7 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
   })
   React.useEffect(() => {
     if (isConfirmed) next()
-  }, [isConfirmed])
+  }, [isConfirmed, next])
   React.useEffect(() => {
     if (error)
       toast.custom((t) => (
@@ -1006,7 +1006,7 @@ export function Subscribe(props: {
           <Ariakit.FormGroupLabel>Select tier</Ariakit.FormGroupLabel>
         </Ariakit.VisuallyHidden>
         {tiers.map((tier, index) => (
-          // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
+          // biome-ignore lint/a11y/noLabelWithoutControl: _
           <label
             className="inset-ring flex h-31.25 flex-1 rounded-[13px] border border-gray5 p-3.5 [&:has(input:checked)]:inset-ring-[var(--color-blue9)] [&:has(input:checked)]:border-accent"
             key={tier.unit}
@@ -1376,7 +1376,7 @@ namespace Install {
   export function Radio(props: Radio.Props) {
     const { value } = props
     return (
-      // biome-ignore lint/a11y/noLabelWithoutControl: <explanation>
+      // biome-ignore lint/a11y/noLabelWithoutControl: _
       <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] transition-all has-checked:border-blue9 has-checked:text-gray12">
         <Ariakit.VisuallyHidden>
           <Ariakit.Radio value={value} />

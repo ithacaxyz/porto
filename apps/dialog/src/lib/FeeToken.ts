@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { ServerActions } from 'porto'
-import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
+import type * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
 import { Hooks } from 'porto/remote'
 import { porto } from './Porto.js'
 

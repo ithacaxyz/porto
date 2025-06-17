@@ -21,7 +21,7 @@ import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
-import * as FeeToken from '../typebox/feeToken.js'
+import type * as FeeToken from '../typebox/feeToken.js'
 import * as U from '../utils.js'
 
 export const defaultPermissionsFeeLimit = {
@@ -179,7 +179,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                 return await ServerActions.getCapabilities(getClient(chainId), {
                   raw: true,
                 })
-              } catch (e) {
+              } catch {
                 return null
               }
             })()
@@ -194,7 +194,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
               },
             } as const
           }),
-          // biome-ignore lint/performance/noAccumulatingSpread:
+          // biome-ignore lint/performance/noAccumulatingSpread: _
         ).then((x) => x.reduce((acc, curr) => ({ ...acc, ...curr }), {}))
 
         return capabilities

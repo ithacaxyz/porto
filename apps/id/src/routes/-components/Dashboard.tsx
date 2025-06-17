@@ -6,7 +6,7 @@ import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
-import { Porto } from 'porto'
+import type { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -805,7 +805,7 @@ function PaginatedTable<T>({
         <tbody className="border-transparent border-t-10">
           {itemsToShow && itemsToShow?.length > 0 ? (
             itemsToShow?.map((item, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              // biome-ignore lint/suspicious/noArrayIndexKey: _
               <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
             ))
           ) : (
@@ -909,7 +909,7 @@ function AssetRow({
     id: sendCalls.data?.id,
   })
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   React.useEffect(() => {
     if (callStatus.isSuccess) {
       const [receipt] = callStatus.data?.receipts ?? []

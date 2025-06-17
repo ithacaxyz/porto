@@ -10,6 +10,7 @@ afterEach(() => {
   porto?.destroy()
   window.localStorage.clear()
   window.sessionStorage.clear()
+  // biome-ignore lint/suspicious/noDocumentCookie: do what i want
   document.cookie = ''
 })
 

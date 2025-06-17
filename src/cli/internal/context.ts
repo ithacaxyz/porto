@@ -8,6 +8,7 @@ import * as Utils from './utils.js'
 export async function getClient(options: getClient.Options = {}) {
   const chain = Utils.kebabToCamel(options.chain!) as keyof typeof Chains
   const client = createClient({
+    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: _
     chain: Chains[chain] as Chains.Chain,
     transport: http(options.rpc),
   })

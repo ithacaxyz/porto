@@ -1,6 +1,6 @@
 // TODO: add node:http adapter.
 
-import { Address, Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
+import { Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
 import type * as RpcSchema from '../core/internal/rpcServer/rpcSchema.js'
 import * as Rpc from '../core/internal/rpcServer/typebox/rpc.js'

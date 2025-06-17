@@ -1,4 +1,4 @@
-import { PortoConfig } from '@porto/apps'
+import type { PortoConfig } from '@porto/apps'
 import { porto as portoConnector } from 'porto/wagmi'
 import { createConfig, createStorage } from 'wagmi'
 import * as Porto from './Porto'

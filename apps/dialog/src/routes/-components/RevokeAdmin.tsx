@@ -1,7 +1,7 @@
 import { Button } from '@porto/apps/components'
-import { Address, Hex } from 'ox'
+import type { Address, Hex } from 'ox'
 import { Key } from 'porto'
-import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken'
+import type * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken'
 import { Hooks } from 'porto/wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'

@@ -197,7 +197,7 @@ export function bridge(parameters: bridge.Parameters): Bridge {
   return {
     ...messenger,
     ready(options) {
-      messenger.send('ready', options)
+      void messenger.send('ready', options)
     },
     waitForReady() {
       return ready.promise

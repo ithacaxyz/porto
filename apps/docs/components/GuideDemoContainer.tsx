@@ -19,8 +19,9 @@ export function GuideDemoContainer(props: {
       <div className="flex h-[300px] items-center justify-center">
         <div>{children}</div>
       </div>
-      <div className="h-4"></div>
+      <div className="h-4" />
       <div className="absolute right-0 bottom-0 left-0 flex justify-between p-4">
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: _ */}
         <div
           className="flex cursor-pointer items-center gap-[6px] rounded-lg bg-surface px-2 font-mono text-[12px] tracking-tight max-sm:hidden"
           onClick={() => copy(`pnpx gitpick ${src}`)}

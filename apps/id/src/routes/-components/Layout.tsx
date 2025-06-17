@@ -15,7 +15,7 @@ export namespace Layout {
   }
 
   export function Content(props: PropsWithChildren) {
-    const { children, ...rest } = props
+    const { ...rest } = props
     return (
       <div
         className="ml-[calc(var(--spacing-hero)+1rem)] flex w-full flex-1 flex-col py-6 max-md:py-4 max-lg:ml-0"

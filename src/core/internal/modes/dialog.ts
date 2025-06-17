@@ -1,4 +1,4 @@
-import * as Address from 'ox/Address'
+import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
@@ -170,7 +170,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   return Permissions.toKey(
                     Typebox.Decode(Permissions.Schema, permission),
                   )
-                } catch (err) {
+                } catch {
                   return undefined
                 }
               })
@@ -408,7 +408,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     )
                     if (key_.id === key?.id) return key
                     return key_
-                  } catch (err) {
+                  } catch {
                     return undefined
                   }
                 })

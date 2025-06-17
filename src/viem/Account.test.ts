@@ -202,7 +202,7 @@ describe('sign', () => {
         payload,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: cannot find key to sign with.]`,
+      '[Error: cannot find key to sign with.]',
     )
   })
 })

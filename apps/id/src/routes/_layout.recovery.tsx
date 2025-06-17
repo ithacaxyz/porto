@@ -6,7 +6,7 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import {
-  Connector,
+  type Connector,
   useConnect,
   useConnectors,
   useDisconnect,
