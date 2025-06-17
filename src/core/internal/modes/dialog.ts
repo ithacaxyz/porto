@@ -183,10 +183,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 storage,
               })
 
-            return Account.from({
-              address: account.address,
-              keys: [...adminKeys, ...sessionKeys],
-            })
+            return {
+              ...Account.from({
+                address: account.address,
+                keys: [...adminKeys, ...sessionKeys],
+              }),
+              signInWithEthereum: account.capabilities?.signInWithEthereum,
+            }
           }
 
           throw new Error(
@@ -414,10 +417,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 })
                 .filter(Boolean) as readonly Key.Key[]
 
-              return Account.from({
-                address: account.address,
-                keys: [...adminKeys, ...sessionKeys],
-              })
+              return {
+                ...Account.from({
+                  address: account.address,
+                  keys: [...adminKeys, ...sessionKeys],
+                }),
+                signInWithEthereum: account.capabilities?.signInWithEthereum,
+              } as const
             })
           }
 

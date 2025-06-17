@@ -1,6 +1,7 @@
 import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
+import * as Siwe from 'ox/Siwe'
 
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
@@ -13,7 +14,7 @@ import * as PreCalls from './preCalls.js'
 import * as FeeToken from './typebox/feeToken.js'
 import type * as RpcRequest from './typebox/request.js'
 import * as Typebox from './typebox/typebox.js'
-import type { PartialBy } from './types.js'
+import type { Compute, PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
 
@@ -52,9 +53,18 @@ export type Mode = {
       label?: string | undefined
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
+      /** Adds support for offchain authentication using ERC-4361. */
+      signInWithEthereum?: Compute<Omit<Siwe.Message, 'address'>> | undefined
     }) => Promise<{
       /** Account. */
-      account: Account.Account
+      account: Account.Account & {
+        signInWithEthereum?:
+          | {
+              message: string
+              signature: Hex.Hex
+            }
+          | undefined
+      }
     }>
 
     getAccountVersion: (parameters: {
@@ -133,9 +143,18 @@ export type Mode = {
       internal: ActionsInternal
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
+      /** Adds support for offchain authentication using ERC-4361. */
+      signInWithEthereum?: Compute<Omit<Siwe.Message, 'address'>> | undefined
     }) => Promise<{
       /** Accounts. */
-      accounts: readonly Account.Account[]
+      accounts: readonly (Account.Account & {
+        signInWithEthereum?:
+          | {
+              message: string
+              signature: Hex.Hex
+            }
+          | undefined
+      })[]
       /** Pre-calls to be executed (e.g. key authorization). */
       preCalls?: PreCalls.PreCalls | undefined
     }>
