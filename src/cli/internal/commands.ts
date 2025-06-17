@@ -88,7 +88,7 @@ export declare namespace createAccount {
   type Arguments = {
     /** Chain name. */
     chain?: string | undefined
-    /** Dialog Hostname. */
+    /** Dialog hostname. */
     dialog?: string | undefined
     /** Open dialog to fund account. */
     fund?: boolean | undefined
