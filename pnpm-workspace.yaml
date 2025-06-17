@@ -3,6 +3,7 @@ packages:
   - "docker/*"
   - "examples/*"
   - "src"
+  - "src/cli"
   - "test/e2e"
 
 catalog:

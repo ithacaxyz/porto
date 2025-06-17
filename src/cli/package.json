@@ -1,0 +1,9 @@
+{
+  "name": "@porto/cli",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@clack/prompts": "~0.11.0",
+    "cac": "^6"
+  }
+}

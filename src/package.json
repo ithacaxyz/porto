@@ -3,6 +3,9 @@
   "description": "Next-gen Account for Ethereum",
   "version": "0.0.29",
   "type": "module",
+  "bin": {
+    "porto": "./_dist/cli/index.js"
+  },
   "main": "./_dist/index.js",
   "types": "./_dist/index.d.ts",
   "typings": "./_dist/index.d.ts",
