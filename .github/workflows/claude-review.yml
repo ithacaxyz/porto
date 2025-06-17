@@ -2,7 +2,7 @@ name: Claude Review
 
 on:
   pull_request:
-    types: [ready_for_review]
+    types: [opened, ready_for_review, labeled]
 
 jobs:
   claude-review:
@@ -27,8 +27,32 @@ jobs:
             // Check if this is a PR-related event and not authored by Claude
             const isNotClaude = context.payload.pull_request?.user?.login !== 'claude-bot' && 
                                 context.payload.issue?.user?.login !== 'claude-bot';
-            core.setOutput('should_review', isNotClaude);
-            return isNotClaude;
+            
+            // Check if this is a labeled event with the 'claude-review' label
+            const isClaudeReviewLabel = context.eventName === 'pull_request' && 
+                                       context.payload.action === 'labeled' && 
+                                       context.payload.label?.name === 'claude-review';
+            
+            // Check if PR is not a draft (for opened/ready_for_review events)
+            const isNotDraft = !context.payload.pull_request?.draft;
+            
+            // Should review if:
+            // 1. Claude review label was added, OR
+            // 2. PR was opened/ready_for_review and is not a draft
+            const shouldReview = isNotClaude && (isClaudeReviewLabel || 
+                                (context.payload.action !== 'labeled' && isNotDraft));
+            
+            console.log(`Event: ${context.eventName}, Action: ${context.payload.action}`);
+            console.log(`Label name: "${context.payload.label?.name}"`);
+            console.log(`Checking conditions:`);
+            console.log(`  eventName === 'pull_request': ${context.eventName === 'pull_request'}`);
+            console.log(`  action === 'labeled': ${context.payload.action === 'labeled'}`);
+            console.log(`  label name === 'claude-review': ${context.payload.label?.name === 'claude-review'}`);
+            console.log(`Is not Claude: ${isNotClaude}, Is claude-review label: ${isClaudeReviewLabel}, Is not draft: ${isNotDraft}`);
+            console.log(`Should review: ${shouldReview}`);
+            
+            core.setOutput('should_review', shouldReview);
+            return shouldReview;
 
       - name: Run Claude PR Review
         if: steps.check_pr_review.outputs.should_review == 'true'
@@ -44,7 +68,7 @@ jobs:
 
             1. **Start a review**: Use `mcp__github__create_pending_pull_request_review` to begin a pending review
             2. **Get diff information**: Use `mcp__github__get_pull_request_diff` to understand the code changes and line numbers
-            3. **Add inline comments**: Use `mcp__github__add_pull_request_review_comment_to_pending_review` for each specific piece of feedback on particular lines
+            3. **Add inline comments**: Use `mcp__github__add_pull_request_review_comment_to_pending_review` for each specific piece of feedback on particular lines, you MUST favor suggestions (using ```suggestion <code> ```) instead of direct code blocks.
             4. **Submit the review**: Use `mcp__github__submit_pending_pull_request_review` with event type "COMMENT" (not "REQUEST_CHANGES") to publish all comments as a non-blocking review
 
             Focus your review on:

@@ -1,0 +1,70 @@
+# `Account.fromPrivateKey`
+
+Instantiates a Porto Account instance from a private key. This creates an account with a `'privateKey'` source that can sign transactions locally.
+
+## Usage
+
+```ts twoslash
+import { Account } from 'porto/viem'
+
+const account = Account.fromPrivateKey('0x...') // [!code focus]
+```
+
+### With Keys
+
+You can associate additional keys with the account for multi-key authentication:
+
+```ts twoslash
+import { Account, Key } from 'porto/viem'
+
+const passkey = await Key.createWebAuthnP256({
+  label: 'My Passkey',
+})
+
+const account = Account.fromPrivateKey('0x...', { // [!code focus]
+  keys: [passkey], // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### privateKey
+
+- **Type:** `0x${string}`
+
+The private key to create the account from. Must be a valid 32-byte hex string.
+
+### options
+
+Optional configuration for the account.
+
+#### options.keys
+
+- **Type:** `readonly Key.Key[]`
+
+An array of keys to associate with the account.
+
+```ts
+type Options = {
+  /** Keys to associate with the account */
+  keys?: readonly Key.Key[] | undefined
+}
+```
+
+## Return Value
+
+```ts
+type Account = LocalAccount & {
+  /** Account address */
+  address: `0x${string}`
+  
+  /** Optional array of keys associated with the account */
+  keys?: readonly Key.Key[] | undefined
+  
+  /** Required signing function */
+  sign: (args: { hash: `0x${string}` }) => Promise<`0x${string}`> | `0x${string}`
+  
+  /** Account source - always 'privateKey' for this function */
+  source: 'privateKey'
+}
+```

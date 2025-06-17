@@ -1,0 +1,168 @@
+# `Key.fromWebAuthnP256`
+
+Instantiates a WebAuthnP256 key from existing WebAuthn credential parameters. This allows you to create a Porto key from an existing WebAuthn credential.
+
+## Usage
+
+### From WebAuthn Credential
+
+```ts twoslash
+import { Key } from 'porto/viem'
+import { Bytes, WebAuthnP256 } from 'ox'
+
+const credential = await WebAuthnP256.createCredential({
+  user: {
+    displayName: 'My Key',
+    id: Bytes.fromString('user123'),
+    name: 'My Key',
+  },
+})
+
+const key = Key.fromWebAuthnP256({ // [!code focus]
+  credential: { // [!code focus]
+    id: credential.id, // [!code focus]
+    publicKey: credential.publicKey, // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
+### Session Key with Permissions
+
+```ts twoslash
+import { Key } from 'porto/viem'
+import { Bytes, WebAuthnP256 } from 'ox'
+import { parseEther } from 'viem'
+
+const credential = await WebAuthnP256.createCredential({
+  user: {
+    displayName: 'Payment Key',
+    id: Bytes.fromString('payment-key'),
+    name: 'Payment Key',
+  },
+})
+
+const key = Key.fromWebAuthnP256({ // [!code focus]
+  credential: { // [!code focus]
+    id: credential.id, // [!code focus]
+    publicKey: credential.publicKey, // [!code focus]
+  }, // [!code focus]
+  expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour // [!code focus]
+  permissions: { // [!code focus]
+    calls: [{ // [!code focus]
+      signature: 'transfer(address,uint256)', // [!code focus]
+      to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+    spend: [{ // [!code focus]
+      limit: parseEther('100'), // 100 tokens // [!code focus]
+      period: 'day', // [!code focus]
+      token: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+  }, // [!code focus]
+  role: 'session', // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### credential
+
+- **Type:** `Credential`
+
+WebAuthn credential (required).
+
+```ts
+type Credential = {
+  /** Credential ID (base64url string) */
+  id: string
+  /** P256 public key (65 bytes including 0x04 prefix) */
+  publicKey: Uint8Array
+}
+```
+
+### expiry
+
+- **Type:** `number | undefined`
+
+The expiry timestamp of the key (Unix timestamp). Defaults to 0 (never expires).
+
+### id
+
+- **Type:** `` `0x${string}` | undefined``
+
+Custom key ID. If not provided, derived from public key.
+
+### permissions
+
+The permissions associated with the key.
+
+```ts
+type Permissions = {
+  /** Call permissions - which functions the key can call */
+  calls?: {
+    /** Function signature or 4-byte selector */
+    signature?: string | undefined
+    /** Target contract address */
+    to?: `0x${string}` | undefined
+  }[] | undefined
+  
+  /** Spend permissions - spending limits for tokens */
+  spend?: {
+    /** Spending limit per period (in wei) */
+    limit: `0x${string}`
+    /** Time period for the spending limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token address (defaults to native token if not provided) */
+    token?: `0x${string}` | undefined
+  }[] | undefined
+}
+```
+
+### role
+
+- **Type:** `"admin" | "session" | undefined`
+
+The role of the key. Defaults to 'admin'.
+
+### rpId
+
+- **Type:** `string | undefined`
+
+Relying Party ID (domain). Used during signing.
+
+## Return Value
+
+```ts
+type WebAuthnKey = {
+  /** WebAuthn credential and relying party info */
+  credential: {
+    /** Credential ID */
+    id: string
+    /** P256 public key */
+    publicKey: Uint8Array
+  }
+  
+  /** Key expiry timestamp */
+  expiry: number
+  
+  /** Key hash identifier */
+  hash: `0x${string}`
+  
+  /** Key ID (custom ID or derived from public key) */
+  id: `0x${string}`
+  
+  /** Optional permissions */
+  permissions?: Permissions | undefined
+  
+  /** Public key (64 bytes, uncompressed, without 0x04 prefix) */
+  publicKey: `0x${string}`
+  
+  /** Key role */
+  role: 'admin' | 'session'
+  
+  /** Relying Party ID */
+  rpId: string | undefined
+  
+  /** Key type - always 'webauthn-p256' */
+  type: 'webauthn-p256'
+}
+```

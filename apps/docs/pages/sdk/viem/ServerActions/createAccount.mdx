@@ -1,0 +1,63 @@
+# `ServerActions.createAccount`
+
+Viem Action for instantiating a new Porto Account. Uses [`wallet_prepareUpgradeAccount`](/rpc-server/wallet_prepareUpgradeAccount) and [`wallet_upgradeAccount`](/rpc-server/wallet_upgradeAccount) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ServerActions, Key } from 'porto/viem'
+import { client } from './config'
+
+const account = await ServerActions.createAccount(client, { // [!code focus]
+  authorizeKeys: [Key.createSecp256k1()], // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### authorizeKeys
+
+- **Type:** `readonly Key.Key[]`
+
+Keys to authorize on the account.
+
+### delegation
+
+- **Type:** `Address.Address`
+
+Delegation address for the account.
+
+### feeToken
+
+- **Type:** `Address.Address`
+
+Fee token address to cover gas fees.
+
+### permissionsFeeLimit
+
+- **Type:** `bigint`
+
+Fee limit for permissions.
+
+## Return Value
+
+```ts
+type CreateAccountReturnType = {
+  /** Account address */
+  address: `0x${string}`
+  /** Authorized keys on the account */
+  keys: Key.Key[]
+  /** Account type */
+  type: 'porto'
+}
+```
+
+Returns a new Porto Account with the specified authorized keys.

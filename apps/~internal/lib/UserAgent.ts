@@ -9,12 +9,7 @@ declare global {
 }
 
 export function isUnsupportedBrowser() {
-  /**
-   * Firefox Android doesn't work when with `wallet_grantPermissions`, `personal_sign`, `wallet_grantAdmin`
-   * reason is unknown yet.
-   */
-  const firefoxAndroid = isFirefox() && isMobile()
-  return typeof window?.PublicKeyCredential === 'undefined' || firefoxAndroid
+  return typeof window?.PublicKeyCredential === 'undefined'
 }
 
 export function isFirefox() {

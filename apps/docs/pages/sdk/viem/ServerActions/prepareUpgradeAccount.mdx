@@ -1,0 +1,61 @@
+# `ServerActions.prepareUpgradeAccount`
+
+Viem Action for preparing an EOA to be upgraded to a Porto Account. Uses [`wallet_prepareUpgradeAccount`](/sdk/rpc/wallet_prepareUpgradeAccount) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ServerActions, Key } from 'porto/viem'
+import { client } from './config'
+
+const adminKey = Key.createSecp256k1({ role: 'admin' })
+
+const prepared = await ServerActions.prepareUpgradeAccount(client, { // [!code focus]
+  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  authorizeKeys: [adminKey], // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### address
+
+- **Type:** `Address.Address`
+
+Address of the EOA account to upgrade.
+
+### authorizeKeys
+
+- **Type:** `readonly Key.Key[]`
+
+Keys to authorize on the upgraded account.
+
+### delegation
+
+- **Type:** `Address.Address`
+
+Contract address to delegate to. Defaults to the account proxy contract.
+
+### feeToken
+
+- **Type:** `Address.Address`
+
+Token to use for transaction fees.
+
+### permissionsFeeLimit
+
+- **Type:** `bigint`
+
+Fee limit for session key permissions.
+
+## Return Value
+
+See [`wallet_prepareUpgradeAccount`](/rpc-server/wallet_prepareUpgradeAccount#response).

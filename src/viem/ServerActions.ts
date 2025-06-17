@@ -15,7 +15,7 @@ import {
 import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/rpcServer/typebox/capabilities.js'
 import type * as Quote from '../core/internal/rpcServer/typebox/quote.js'
-import type { OneOf, RequiredBy } from '../core/internal/types.js'
+import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
 import * as Account from './Account.js'
 import * as ServerActions from './internal/serverActions.js'
 import type { GetAccountParameter } from './internal/utils.js'
@@ -548,9 +548,16 @@ export async function upgradeAccount(
 ) {
   if (parameters.account) {
     const { account } = parameters
+    const authorizeKeys = [
+      ...(account.keys ?? []),
+      ...(parameters.authorizeKeys ?? []),
+    ].filter(
+      (key, index, array) => array.findIndex((k) => k.id === key.id) === index,
+    )
     const { digests, ...request } = await prepareUpgradeAccount(client, {
       ...parameters,
       address: account.address,
+      authorizeKeys,
     })
 
     const signatures = {
@@ -588,7 +595,10 @@ export declare namespace upgradeAccount {
 
   type UnpreparedParameters<
     chain extends Chain | undefined = Chain | undefined,
-  > = Omit<prepareUpgradeAccount.Parameters<chain>, 'address'> & {
+  > = PartialBy<
+    Omit<prepareUpgradeAccount.Parameters<chain>, 'address'>,
+    'authorizeKeys'
+  > & {
     account: Account.Account<'privateKey'>
   }
 

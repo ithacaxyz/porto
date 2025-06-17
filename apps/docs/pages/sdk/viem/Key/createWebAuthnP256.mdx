@@ -1,0 +1,135 @@
+# `Key.createWebAuthnP256`
+
+Creates a WebAuthnP256 key using the [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API). This generates a hardware-backed key that leverages platform authenticators like Touch ID, Face ID, or hardware security keys.
+
+## Usage
+
+### Admin Key (Default)
+
+```ts twoslash
+import { Key } from 'porto/viem'
+
+const key = await Key.createWebAuthnP256({ // [!code focus]
+  label: 'My Account Key', // [!code focus]
+}) // [!code focus]
+```
+
+### Session Key with Permissions
+
+```ts twoslash
+import { Key } from 'porto/viem'
+import { parseEther } from 'viem'
+
+const key = await Key.createWebAuthnP256({ // [!code focus]
+  label: 'Payment Key', // [!code focus]
+  role: 'session', // [!code focus]
+  permissions: { // [!code focus]
+    calls: [{ // [!code focus]
+      signature: 'transfer(address,uint256)', // [!code focus]
+      to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+    spend: [{ // [!code focus]
+      limit: parseEther('100'), // 100 tokens // [!code focus]
+      period: 'day', // [!code focus]
+      token: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### createFn
+
+- **Type:** `Function | undefined`
+
+The credential creation function. Useful for environments that do not support the WebAuthn API natively (i.e. React Native or testing environments).
+
+### expiry
+
+- **Type:** `number | undefined`
+
+The expiry timestamp of the key.
+
+### permissions
+
+The permissions of the key.
+
+```ts
+type Permissions = {
+  /** Call permissions - which functions the key can call */
+  calls?: {
+    /** Function signature or 4-byte selector */
+    signature?: string | undefined
+    /** Target contract address */
+    to?: `0x${string}` | undefined
+  }[] | undefined
+  
+  /** Spend permissions - spending limits for tokens */
+  spend?: {
+    /** Spending limit per period (in wei) */
+    limit: `0x${string}`
+    /** Time period for the spending limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token address (defaults to native token if not provided) */
+    token?: `0x${string}` | undefined
+  }[] | undefined
+}
+```
+
+### role
+
+- **Type:** `"admin" | "session" | undefined`
+
+The role of the key.
+
+### rpId
+
+- **Type:** `string | undefined`
+
+The Relying Party ID of the key.
+
+### userId
+
+- **Type:** `Uint8Array | undefined`
+
+The User ID of the key.
+
+## Return Value
+
+```ts
+type WebAuthnKey = {
+  /** Key expiry timestamp */
+  expiry: number
+  
+  /** Key hash identifier */
+  hash: `0x${string}`
+  
+  /** Key ID (user ID or derived from public key) */
+  id: `0x${string}`
+  
+  /** Optional permissions */
+  permissions?: Permissions | undefined
+  
+  /** WebAuthn credential and relying party info */
+  privateKey: {
+    credential: {
+      /** Credential ID */
+      id: string
+      /** P256 public key */
+      publicKey: Uint8Array
+    }
+    /** Relying Party ID */
+    rpId: string | undefined
+  }
+  
+  /** Public key (64 bytes, uncompressed, without 0x04 prefix) */
+  publicKey: `0x${string}`
+  
+  /** Key role */
+  role: 'admin' | 'session'
+  
+  /** Key type - always 'webauthn-p256' */
+  type: 'webauthn-p256'
+}
+```

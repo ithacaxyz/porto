@@ -1,0 +1,143 @@
+# `Key.fromSecp256k1`
+
+Instantiates a Secp256k1 key from existing parameters. This allows you to create a Porto key from an existing secp256k1 private key, Ethereum address, or public key.
+
+## Usage
+
+### From Private Key
+
+```ts twoslash
+import { Key } from 'porto/viem'
+import { Secp256k1 } from 'ox'
+
+const privateKey = Secp256k1.randomPrivateKey()
+
+const key = Key.fromSecp256k1({ // [!code focus]
+  privateKey, // [!code focus]
+}) // [!code focus]
+```
+
+### From Ethereum Address
+
+```ts twoslash
+import { Key } from 'porto/viem'
+
+const key = Key.fromSecp256k1({ // [!code focus]
+  address: '0x742d35Cc6634C0532925a3b8D2c88F65b5c92B23', // [!code focus]
+}) // [!code focus]
+```
+
+### Session Key
+
+```ts twoslash
+import { Key } from 'porto/viem'
+import { Secp256k1 } from 'ox'
+import { parseEther } from 'viem'
+
+const privateKey = Secp256k1.randomPrivateKey()
+
+const key = Key.fromSecp256k1({ // [!code focus]
+  expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour // [!code focus]
+  permissions: { // [!code focus]
+    calls: [{ // [!code focus]
+      signature: 'transfer(address,uint256)', // [!code focus]
+      to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+    spend: [{ // [!code focus]
+      limit: parseEther('50'), // 50 EXP // [!code focus]
+      period: 'day', // [!code focus]
+      token: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+  }, // [!code focus]
+  privateKey, // [!code focus]
+  role: 'session', // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### address
+
+- **Type:** `` `0x${string}` ``
+
+Ethereum address for address-only keys. Must provide one of: `address`, `publicKey`, or `privateKey`.
+
+### expiry
+
+- **Type:** `number | undefined`
+
+The expiry timestamp of the key (Unix timestamp). Defaults to 0 (never expires).
+
+### permissions
+
+The permissions associated with the key.
+
+```ts
+type Permissions = {
+  /** Call permissions - which functions the key can call */
+  calls?: {
+    /** Function signature or 4-byte selector */
+    signature?: string | undefined
+    /** Target contract address */
+    to?: `0x${string}` | undefined
+  }[] | undefined
+  
+  /** Spend permissions - spending limits for tokens */
+  spend?: {
+    /** Spending limit per period (in wei) */
+    limit: `0x${string}`
+    /** Time period for the spending limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token address (defaults to native token if not provided) */
+    token?: `0x${string}` | undefined
+  }[] | undefined
+}
+```
+
+### privateKey
+
+- **Type:** `` `0x${string}` ``
+
+Secp256k1 private key (enables signing). Must provide one of: `address`, `publicKey`, or `privateKey`.
+
+### publicKey
+
+- **Type:** `` `0x${string}` ``
+
+Secp256k1 public key (uncompressed). Must provide one of: `address`, `publicKey`, or `privateKey`.
+
+### role
+
+- **Type:** `"admin" | "session" | undefined`
+
+The role of the key. Defaults to 'admin'.
+
+## Return Value
+
+```ts
+type Secp256k1Key = {
+  /** Key expiry timestamp */
+  expiry: number
+  
+  /** Key hash identifier */
+  hash: `0x${string}`
+  
+  /** Key ID (lowercase Ethereum address) */
+  id: `0x${string}`
+  
+  /** Optional permissions */
+  permissions?: Permissions | undefined
+  
+  /** Private key function (only if created with privateKey) */
+  privateKey?: (() => `0x${string}`) | undefined
+  
+  /** Public key (Ethereum address derived from secp256k1 key) */
+  publicKey: `0x${string}`
+  
+  /** Key role */
+  role: 'admin' | 'session'
+  
+  /** Key type - always 'secp256k1' */
+  type: 'secp256k1'
+}
+```

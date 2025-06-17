@@ -119,21 +119,23 @@ function RouteComponent() {
             className="flex flex-grow *:w-full"
             key={request?.id ? request.id.toString() : '-1'} // rehydrate on id changes
           >
-            <CheckUnsupportedBrowser>
-              <CheckReferrer>
-                {status === 'connecting' || status === 'reconnecting' ? (
-                  <Layout loading loadingTitle="Loading...">
-                    <div />
-                  </Layout>
-                ) : search.requireUpdatedAccount ? (
-                  <UpdateAccount.CheckUpdate>
+            <CheckError>
+              <CheckUnsupportedBrowser>
+                <CheckReferrer>
+                  {status === 'connecting' || status === 'reconnecting' ? (
+                    <Layout loading loadingTitle="Loading…">
+                      <div />
+                    </Layout>
+                  ) : search.requireUpdatedAccount ? (
+                    <UpdateAccount.CheckUpdate>
+                      <Outlet />
+                    </UpdateAccount.CheckUpdate>
+                  ) : (
                     <Outlet />
-                  </UpdateAccount.CheckUpdate>
-                ) : (
-                  <Outlet />
-                )}
-              </CheckReferrer>
-            </CheckUnsupportedBrowser>
+                  )}
+                </CheckReferrer>
+              </CheckUnsupportedBrowser>
+            </CheckError>
           </div>
         </div>
       </div>
@@ -148,6 +150,85 @@ function RouteComponent() {
       </React.Suspense>
     </>
   )
+}
+
+function CheckError(props: CheckError.Props) {
+  const { children } = props
+
+  const error = Dialog.useStore((state) => state.error)
+
+  if (!error) return children
+
+  const mainAction =
+    error.action === 'retry-in-popup'
+      ? {
+          label: 'Try in popup',
+          onClick: () => {
+            // clear error state and switch to popup mode
+            Dialog.store.setState({ error: null })
+            porto.messenger.send('__internal', {
+              mode: 'popup',
+              type: 'switch',
+            })
+          },
+        }
+      : {
+          label: 'Close',
+          onClick: () => Actions.rejectAll(porto),
+        }
+
+  const secondaryAction = error.action !== 'close' && {
+    label: 'Cancel',
+    onClick: () => Actions.rejectAll(porto),
+  }
+
+  return (
+    <Layout>
+      <Layout.Header className="flex-grow">
+        <Layout.Header.Default
+          content={
+            <div className="space-y-2">
+              <div>{error.message}</div>
+              {error.secondaryMessage && (
+                <div className="text-secondary">{error.secondaryMessage}</div>
+              )}
+            </div>
+          }
+          icon={LucideCircleAlert}
+          title={error.title}
+          variant="warning"
+        />
+      </Layout.Header>
+      <Layout.Footer>
+        <Layout.Footer.Actions>
+          {secondaryAction && (
+            <Button
+              data-testid="secondary-action"
+              onClick={secondaryAction.onClick}
+              type="button"
+            >
+              {secondaryAction.label}
+            </Button>
+          )}
+          <Button
+            className="flex-grow"
+            data-testid="primary-action"
+            onClick={mainAction.onClick}
+            type="button"
+            variant="accent"
+          >
+            {mainAction.label}
+          </Button>
+        </Layout.Footer.Actions>
+      </Layout.Footer>
+    </Layout>
+  )
+}
+
+declare namespace CheckError {
+  type Props = {
+    children: React.ReactNode
+  }
 }
 
 function CheckReferrer(props: CheckReferrer.Props) {

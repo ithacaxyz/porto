@@ -20,6 +20,18 @@ jobs:
             const pr = context.payload.pull_request
             const author = pr.user.login
 
+            // Check if PR author is not an org member
+            if (!pr.user.site_admin) {
+              console.info(`PR #${pr.number} author is not an org member. Skipping assignment.`)
+              return
+            }
+
+            // Check if PR author is a bot
+            if (pr.user.type === 'Bot') {
+              console.info(`PR #${pr.number} author is a bot. Skipping assignment.`)
+              return
+            }
+
             // Check if PR already has assignees
             if (pr.assignees.length > 0) {
               console.info(`PR #${pr.number} already has assignees. Skipping assignment.`)

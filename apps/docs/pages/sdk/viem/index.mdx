@@ -1,8 +1,8 @@
 # Overview
 
 Porto ships with first-class modules that extend and compose with [Viem](https://viem.sh),
-such as: [Wallet Actions](/sdk/viem/wallet-actions), [RPC Server Actions](#TODO), [Contract Actions](#TODO), a Porto-specific
-[Account implementation](#TODO), and more.
+such as: [Wallet Actions](/sdk/viem/WalletActions), [RPC Server Actions](/sdk/viem/ServerActions), a Porto-specific
+[Account implementation](/sdk/viem/Account), and more.
 
 :::info
 The end-goal is for most of this functionality to be upstreamed into Viem itself once
@@ -17,7 +17,7 @@ Application Developers can use the [Porto Dialog](/sdk/api/mode#modedialog) with
 a transport to a [Viem Client](https://viem.sh/docs/clients/intro).
 
 Once instantiated, you can utilize Viem's [Wallet Actions](https://viem.sh/docs/actions/wallet/introduction) to interact with Porto, or Porto's
-custom [`WalletActions`](/sdk/viem/wallet-actions) module.
+custom [`WalletActions`](/sdk/viem/WalletActions) module.
 
 ```ts twoslash
 import { createClient, custom, parseEther } from 'viem' // [!code focus]
@@ -47,7 +47,7 @@ Wallet and Account Developers can use the [Porto RPC Server](https://porto.sh/rp
 a [Viem Client](https://viem.sh/docs/clients/intro) with a Porto-compatible Chain.
 
 Once instantiated, you can utilize Viem's [Public Actions](https://viem.sh/docs/actions/public/introduction) or the
-custom [`ServerActions`](#TODO) module to interact with the RPC Server.
+custom [`ServerActions`](/sdk/viem/ServerActions) module to interact with the RPC Server.
 
 ```ts twoslash
 import { createClient, http } from 'viem' // [!code focus]

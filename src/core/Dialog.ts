@@ -54,7 +54,7 @@ export function iframe(options: iframe.Options = {}) {
       const { host, internal } = parameters
       const { store } = internal
 
-      const fallback = popup()?.setup(parameters)
+      const fallback = popup().setup(parameters)
 
       let open = false
 
@@ -177,6 +177,11 @@ export function iframe(options: iframe.Options = {}) {
           iframe.style.height = `${payload.height}px`
           if (!isMobile()) iframe.style.width = `${payload.width}px`
         }
+
+        if (payload.type === 'switch' && payload.mode === 'popup') {
+          fallback.open()
+          fallback.syncRequests(store.getState().requestQueue)
+        }
       })
 
       function onEscape(event: KeyboardEvent) {
@@ -200,7 +205,7 @@ export function iframe(options: iframe.Options = {}) {
 
       return {
         close() {
-          fallback?.close()
+          fallback.close()
           open = false
           root.close()
           Object.assign(document.body.style, bodyStyle ?? '')
@@ -221,7 +226,7 @@ export function iframe(options: iframe.Options = {}) {
           }
         },
         destroy() {
-          fallback?.destroy()
+          fallback.destroy()
           this.close()
           document.removeEventListener('keydown', onEscape)
           messenger.destroy()

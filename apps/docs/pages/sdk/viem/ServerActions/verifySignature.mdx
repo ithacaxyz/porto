@@ -1,0 +1,54 @@
+# `ServerActions.verifySignature`
+
+Viem Action for verifying a signature against an account. Uses [`wallet_verifySignature`](/rpc-server/wallet_verifySignature) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ServerActions } from 'porto/viem'
+import { client } from './config'
+
+const isValid = await ServerActions.verifySignature(client, { // [!code focus]
+  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  digest: '0x...', // [!code focus]
+  signature: '0x...', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### address
+
+- **Type:** `Address.Address`
+
+Account address to verify the signature against.
+
+### chain
+
+- **Type:** `Chain | undefined`
+
+Chain to verify on. Defaults to `client.chain`.
+
+### digest
+
+- **Type:** `Hex.Hex`
+
+Digest that was signed.
+
+### signature
+
+- **Type:** `Hex.Hex`
+
+The signature to verify.
+
+## Return Value
+
+See [`wallet_verifySignature`](/rpc-server/wallet_verifySignature#response).

@@ -1,0 +1,73 @@
+# `wallet_upgradeAccount`
+
+Completes the upgrade of a counterfactual¹ Porto Account.
+
+¹: The upgrade is not performed on-chain immediately, sparing the user the gas cost. Instead, the signed upgrade is sent to the RPC server, which stores it and automatically executes and finalizes the upgrade when the user submits their next transaction (e.g., a send call).
+
+:::tip
+This method is intended to be used in conjunction with [`wallet_prepareUpgradeAccount`](/sdk/rpc/wallet_prepareUpgradeAccount).
+:::
+
+## Request
+
+```ts twoslash
+// @noErrors
+import { Hex } from 'viem'
+
+// ---cut---
+type Request = {
+  method: 'wallet_upgradeAccount',
+  params: [{
+    /** Context from `wallet_prepareUpgradeAccount`. */
+    context: unknown
+    /** Signatures that the EOA signed. */
+    signatures: {
+      auth: Hex
+      exec: Hex
+    }
+  }]
+}
+```
+
+## Response
+
+```ts twoslash
+import { Address } from 'viem'
+
+// ---cut---
+type Response = {
+  /** Address of the EOA. */
+  address: Address
+}
+```
+
+## Example
+
+```ts twoslash
+import { Porto } from 'porto'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const { provider } = Porto.create()
+
+const eoa = privateKeyToAccount('0x...')
+
+const { context, digests } = await provider.request({
+  method: 'wallet_prepareUpgradeAccount',
+  params: [{
+    address: eoa.address,
+  }],
+})
+
+const signatures = {
+  auth: await eoa.sign({ hash: digests.auth }),
+  exec: await eoa.sign({ hash: digests.exec }),
+} as const
+
+const response = await provider.request({ // [!code focus]
+  method: 'wallet_upgradeAccount', // [!code focus]
+  params: [{ // [!code focus]
+    context, // [!code focus]
+    signatures, // [!code focus]
+  }], // [!code focus]
+}) // [!code focus]
+```

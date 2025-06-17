@@ -241,11 +241,14 @@ export async function createWebAuthnP256(
 
   const credential = await WebAuthnP256.createCredential({
     authenticatorSelection: {
-      requireResidentKey: false,
-      residentKey: 'preferred',
+      requireResidentKey: true,
+      residentKey: 'required',
       userVerification: 'required',
     },
     createFn,
+    extensions: {
+      credProps: true,
+    },
     rp: rpId
       ? {
           id: rpId,
@@ -254,7 +257,7 @@ export async function createWebAuthnP256(
       : undefined,
     user: {
       displayName: label,
-      id: userId,
+      id: userId ?? Bytes.fromString(label),
       name: label,
     },
   })
@@ -265,7 +268,11 @@ export async function createWebAuthnP256(
       id: credential.id,
       publicKey: credential.publicKey,
     },
-    id: Bytes.toHex(userId),
+    id: userId
+      ? Bytes.toHex(userId)
+      : PublicKey.toHex(credential.publicKey, {
+          includePrefix: false,
+        }),
   })
 }
 
@@ -286,7 +293,7 @@ export declare namespace createWebAuthnP256 {
     /** Relying Party ID. */
     rpId?: string | undefined
     /** User ID. */
-    userId: Bytes.Bytes
+    userId?: Bytes.Bytes | undefined
   }
 }
 
@@ -892,7 +899,7 @@ export async function sign(
 
       const cacheKey = `porto.webauthnVerified.${key.hash}`
       const now = Date.now()
-      const verificationTimeout = 10 * 60 * 1000 // 10 minutes in milliseconds
+      const verificationTimeout = 10 * 60 * 1_000 // 10 minutes in milliseconds
 
       let requireVerification = true
       if (storage) {
@@ -913,10 +920,15 @@ export async function sign(
       })
 
       const response = raw.response as AuthenticatorAssertionResponse
+      if (!response?.userHandle)
+        throw new Error('No user handle in response', {
+          cause: { response },
+        })
       const id = Bytes.toHex(new Uint8Array(response.userHandle!))
       if (key.id && !Address.isEqual(key.id, id))
         throw new Error(
           `supplied webauthn key "${key.id}" does not match signature webauthn key "${id}"`,
+          { cause: { id, key } },
         )
 
       if (requireVerification && storage) await storage.setItem(cacheKey, now)

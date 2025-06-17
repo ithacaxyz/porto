@@ -1,0 +1,129 @@
+# `wallet_prepareUpgradeAccount`
+
+Requests to prepare an Externally-Owned Account (EOA) to be upgraded into a Porto Account.
+
+:::tip
+This method is intended to be used in conjunction with [`wallet_upgradeAccount`](/sdk/rpc/wallet_upgradeAccount).
+:::
+
+## Request
+
+```ts twoslash
+// @noErrors
+import { Hex } from 'viem'
+
+// ---cut---
+type Request = {
+  method: 'wallet_prepareUpgradeAccount',
+  params: [{
+    /** Address of the EOA to upgrade. */
+    address: Hex,
+    /** 
+     * Optional chain ID to upgrade on. If not specified, Porto 
+     * will handle what chain to upgrade on. This chain will
+     * be the "source"/"home" chain of the account.
+     */
+    chainId?: Hex,
+    /** Optional capabilities to request. */
+    capabilities?: {
+      /** Grant permissions. */
+      grantPermissions?: PermissionsRequestCapabilities['grantPermissions']
+    }
+  }]
+}
+```
+
+Capabilities:
+
+- [`PermissionsRequestCapabilities`](/sdk/rpc/capabilities#request-capabilities-1)
+
+## Response
+
+```ts twoslash
+import { Hex } from 'viem'
+
+// ---cut---
+type Response = {
+  /** Context to pass to `wallet_upgradeAccount`. */
+  context: unknown
+  /** Digests the EOA must sign to upgrade. */
+  digests: {
+    auth: Hex
+    exec: Hex
+  }
+}
+```
+
+## Example
+
+```ts twoslash
+import { Porto } from 'porto'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const { provider } = Porto.create()
+
+const eoa = privateKeyToAccount('0x...')
+
+const { context, digests } = await provider.request({ // [!code focus]
+  method: 'wallet_prepareUpgradeAccount', // [!code focus]
+  params: [{ // [!code focus]
+    address: eoa.address, // [!code focus]
+  }], // [!code focus]
+}) // [!code focus]
+
+const signatures = {
+  auth: await eoa.sign({ hash: digests.auth }),
+  exec: await eoa.sign({ hash: digests.exec }),
+} as const
+
+const response = await provider.request({
+  method: 'wallet_upgradeAccount',
+  params: [{
+    context,
+    signatures,
+  }],
+})
+```
+
+### Grant Permissions
+
+You can grant permissions for an Application to perform actions on behalf of the account
+by providing the `grantPermissions` capability with a value.
+
+In the example below, the Application is granted permission to perform `transfer` calls on the EXP ERC20 contract,
+with a spending limit of up to `50 EXP` per minute.
+
+```ts twoslash
+import { Porto } from 'porto'
+
+const { provider } = Porto.create()
+// ---cut---
+import { privateKeyToAccount } from 'viem/accounts'
+import { parseEther, toHex } from 'viem'
+
+const eoa = privateKeyToAccount('0x...')
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+const { context, digests } = await provider.request({
+  method: 'wallet_prepareUpgradeAccount',
+  params: [{
+    address: eoa.address,
+    capabilities: {
+      grantPermissions: {
+        expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+        permissions: {
+          calls: [{ 
+            signature: 'transfer(address,uint256)',
+            to: token,
+          }],
+          spend: [{ 
+            limit: toHex(parseEther('50')), // 50 EXP
+            period: 'minute',
+            token: token,
+          }],
+        },
+      },
+    },
+  }],
+})
+```

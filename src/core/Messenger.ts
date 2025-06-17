@@ -71,6 +71,10 @@ export type Schema = [
           }
         }
       | {
+          type: 'switch'
+          mode: 'inline-iframe' | 'iframe' | 'popup' | 'popup-standalone'
+        }
+      | {
           type: 'resize'
           height?: number | undefined
           width?: number | undefined

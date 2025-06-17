@@ -52,6 +52,15 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: os-version
+    attributes:
+      label: Operating System version
+      description: What version of the operating system mentioned are you using?
+      placeholder: x.y.z (do not write `latest`)
+    validations:
+      required: true
+
   - type: dropdown
     attributes:
       label: Browser
@@ -64,6 +73,15 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser version
+      description: What version of the borwser mentioned are you using?
+      placeholder: x.y.z (do not write `latest`)
+    validations:
+      required: true
+
   - type: dropdown
     attributes:
       label: Password Manager
@@ -73,6 +91,15 @@ body:
         - 'Bitwarden'
         - 'Google Password Manager'
         - 'Other'
+    validations:
+      required: true
+
+  - type: input
+    id: pw-manager-verion
+    attributes:
+      label: Passwоrd Manager version
+      description: What version of the Passwоrd Manager mentioned are you using?
+      placeholder: x.y.z (do not write `latest`)
     validations:
       required: true
 

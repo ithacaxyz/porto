@@ -1,0 +1,64 @@
+# `ServerActions.sendPreparedCalls`
+
+Viem Action for broadcasting a prepared and signed call bundle. Uses [`wallet_sendPreparedCalls`](/rpc-server/wallet_sendPreparedCalls) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ServerActions, Key } from 'porto/viem'
+import { parseEther } from 'viem'
+import { client, account } from './config'
+
+const key = Key.createSecp256k1()
+
+// Prepare the calls
+const request = await ServerActions.prepareCalls(client, {
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('0.01'),
+  }],
+  key,
+})
+
+// Sign the digest // [!code focus]
+const signature = await Key.sign(key, { payload: request.digest }) // [!code focus]
+
+// Send the prepared calls // [!code focus]
+const result = await ServerActions.sendPreparedCalls(client, { // [!code focus]
+  ...request, // [!code focus]
+  signature, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### context
+
+- **Type:** `object`
+
+Context returned from `ServerActions.prepareCalls`.
+
+### key
+
+- **Type:** `Pick<Key.Key, 'publicKey' | 'prehash' | 'type'>`
+
+Key used to sign the calls.
+
+### signature
+
+- **Type:** `Hex.Hex`
+
+Signature over the digest from `ServerActions.prepareCalls`.
+
+## Return Value
+
+See [`wallet_sendPreparedCalls`](/rpc-server/wallet_sendPreparedCalls#response).

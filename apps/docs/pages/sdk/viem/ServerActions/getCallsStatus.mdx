@@ -1,0 +1,34 @@
+# `ServerActions.getCallsStatus`
+
+Viem Action for retrieving the status of a call bundle. Uses [`wallet_getCallsStatus`](/rpc-server/wallet_getCallsStatus) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ServerActions } from 'porto/viem'
+import { client } from './config'
+
+const status = await ServerActions.getCallsStatus(client, { // [!code focus]
+  id: '0x1234...', // Bundle ID from sendCalls // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### id
+
+- **Type:** `Hex.Hex`
+
+The bundle identifier.
+
+## Return Value
+
+See [`wallet_getCallsStatus`](/rpc-server/wallet_getCallsStatus#response).

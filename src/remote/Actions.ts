@@ -61,9 +61,14 @@ export async function respond<result>(
   porto: Pick<Remote.Porto<any>, 'messenger' | 'provider'>,
   request: Porto.QueuedRequest['request'],
   options?: {
-    selector?: (result: result) => unknown
     error?: RpcResponse.ErrorObject | undefined
+    onError?: (error: RpcResponse.BaseError) =>
+      | undefined
+      | {
+          cancelResponse: boolean
+        }
     result?: result | undefined
+    selector?: (result: result) => unknown
   },
 ) {
   const { messenger, provider } = porto
@@ -94,6 +99,10 @@ export async function respond<result>(
     )
   } catch (e) {
     const error = e as RpcResponse.BaseError
+    if (options?.onError?.(error)?.cancelResponse === true)
+      // If the onError callback sets cancelResponse to true,
+      // we do not send a response.
+      return
     messenger.send(
       'rpc-response',
       Object.assign(RpcResponse.from({ ...shared, error, status: 'error' }), {

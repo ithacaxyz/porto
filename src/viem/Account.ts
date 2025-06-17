@@ -145,7 +145,7 @@ export declare namespace fromPrivateKey {
 
 export function getKey(
   account: Account,
-  parameters: getKey.Parameters,
+  parameters: getKey.Parameters = {},
 ): Key.Key | undefined {
   const { key, role } = parameters
 

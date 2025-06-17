@@ -1,0 +1,84 @@
+# `ServerActions.sendCalls`
+
+Viem Action for broadcasting a call bundle to the RPC Server. This is a convenience function that prepares, signs, and sends calls in one operation.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ServerActions, Key } from 'porto/viem'
+import { parseEther } from 'viem'
+import { client, account } from './config'
+
+const key = Key.createSecp256k1()
+
+const result = await ServerActions.sendCalls(client, { // [!code focus]
+  account, // [!code focus]
+  calls: [{ // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    value: parseEther('0.01'), // [!code focus]
+  }], // [!code focus]
+  key, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### account
+
+- **Type:** `Account.Account | undefined`
+
+The account to send calls from. Defaults to `client.account`.
+
+### authorizeKeys
+
+- **Type:** `readonly Key.Key[]`
+
+Additional keys to authorize on the account.
+
+### calls
+
+- **Type:** `Calls[]`
+
+Array of calls to execute.
+
+### feeToken
+
+- **Type:** `Address.Address`
+
+Token to use to cover fees.
+
+### key
+
+- **Type:** `Key.Key`
+
+Key to sign the bundle with. If not provided, will attempt to find an appropriate key from the account.
+
+### preCalls
+
+- **Type:** `readonly PreCall[]`
+
+Calls to execute before the main bundle.
+
+### revokeKeys
+
+- **Type:** `readonly Key.Key[]`
+
+Keys to revoke from the account.
+
+### sponsorUrl
+
+- **Type:** `string`
+
+URL of a sponsor to handle fees.
+
+## Return Value
+
+See [`wallet_sendPreparedCalls`](/rpc-server/wallet_sendPreparedCalls#response).
