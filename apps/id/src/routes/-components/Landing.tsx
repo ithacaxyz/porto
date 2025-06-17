@@ -1,5 +1,11 @@
-import { Button, IndeterminateLoader, LogoMark } from '@porto/apps/components'
+import {
+  Button,
+  IndeterminateLoader,
+  LogoMark,
+  Toast,
+} from '@porto/apps/components'
 import * as React from 'react'
+import { toast } from 'sonner'
 import { useAccount, useConnect, useConnectors } from 'wagmi'
 import LucideCircleCheck from '~icons/lucide/circle-check'
 import LucideCircleX from '~icons/lucide/circle-x'
@@ -8,7 +14,21 @@ import { Layout } from './Layout'
 
 export function Landing() {
   const account = useAccount()
-  const connect = useConnect()
+  const connect = useConnect({
+    mutation: {
+      onError(error) {
+        if (error.message.includes('email already verified'))
+          toast.custom((t) => (
+            <Toast
+              className={t}
+              description="Email already verified for account."
+              kind="error"
+              title="Create account failed"
+            />
+          ))
+      },
+    },
+  })
   const [connector] = useConnectors()
 
   const [email, setEmail] = React.useState('')

@@ -460,6 +460,15 @@ function SignIn(props: { chainId: ChainId; next: () => void }) {
     mutation: {
       onError(error) {
         if (error instanceof ConnectorAlreadyConnectedError) next()
+        else if (error.message.includes('email already verified'))
+          toast.custom((t) => (
+            <Toast
+              className={t}
+              description="Email already verified for account."
+              kind="error"
+              title="Create account failed"
+            />
+          ))
       },
       onSuccess() {
         next()
