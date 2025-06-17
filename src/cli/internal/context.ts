@@ -5,7 +5,7 @@ import * as Chains from '../../core/Chains.js'
 import * as Utils from './utils.js'
 
 /** Gets a Viem client for RPC Server. */
-export async function getClient(options: getPorto.Options = {}) {
+export async function getClient(options: getClient.Options = {}) {
   const chain = Utils.kebabToCamel(options.chain!) as keyof typeof Chains
   const client = createClient({
     chain: Chains[chain] as Chains.Chain,
@@ -18,7 +18,7 @@ export async function getClient(options: getPorto.Options = {}) {
   return client
 }
 
-export declare namespace getPorto {
+export declare namespace getClient {
   type Options = {
     /** Chain name. */
     chain?: string | undefined
