@@ -14,15 +14,15 @@ const cli = cac('porto')
 cli.command('[root]', 'Display usage').action(cli.outputHelp)
 
 cli
-  .command('create-merchant [alias: cm]', 'Create a merchant account')
-  .alias('cm')
+  .command('create-account [alias: ca]', 'Create a Porto Account')
+  .alias('ca')
   .option(
     '-c, --chain <chain>',
     `Chain name (available: ${Utils.getChainNames().join(', ')})`,
     { default: 'base-sepolia' },
   )
   .option('-r, --rpc <rpc_url>', 'RPC server URL')
-  .action(Commands.createMerchant)
+  .action(Commands.createAccount)
 
 cli.help()
 cli.version(pkgJson.version)
@@ -30,14 +30,14 @@ cli.version(pkgJson.version)
 cli.parse()
 
 namespace Commands {
-  /** Creates a merchant account. */
-  export async function createMerchant(
+  /** Creates a Porto account. */
+  export async function createAccount(
     _: unknown,
-    args: createMerchant.Arguments,
+    args: createAccount.Arguments,
   ) {
     const client = await Context.getClient(args)
 
-    prompts.intro('Create Merchant Account')
+    prompts.intro('Create Account')
 
     const key = Key.createSecp256k1()
 
@@ -55,7 +55,7 @@ namespace Commands {
     prompts.log.info('Private key: ' + key.privateKey!()!)
   }
 
-  export declare namespace createMerchant {
+  export declare namespace createAccount {
     type Arguments = {
       /** Chain name. */
       chain?: string | undefined
