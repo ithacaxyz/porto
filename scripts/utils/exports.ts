@@ -28,6 +28,8 @@ export function getExports({
     .filter((entry) => !exclude.some((x) => matchesGlob(entry.name, x)))
 
   for (const parentEntry of entries) {
+    if (parentEntry.name === 'cli') continue
+
     if (!parentEntry.isDirectory()) {
       if (parentEntry.name.endsWith('test.ts')) continue
       if (
