@@ -15,7 +15,7 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
 
   const s = prompts.spinner()
 
-  const adminKey = args.serverKey ? Key.createSecp256k1() : undefined
+  const adminKey = args.adminKey ? Key.createSecp256k1() : undefined
 
   // Register public key for verification.
   if (adminKey) Dialog.messenger.registerPublicKey(adminKey.publicKey)
@@ -85,6 +85,6 @@ export declare namespace createAccount {
     /** Dialog hostname. */
     dialog?: string | undefined
     /** Create a server key with admin privileges. */
-    serverKey?: boolean | undefined
+    adminKey?: boolean | undefined
   }
 }
