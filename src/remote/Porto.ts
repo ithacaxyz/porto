@@ -14,10 +14,8 @@ const messenger = (() => {
   if (typeof window === 'undefined') return Messenger.noop()
 
   const url = new URL(window.location.href)
-  const callbackMode = url.searchParams.get('callbackMode')
-  const callbackUrl = url.searchParams.get('callbackUrl')
-  if (callbackMode === 'localRelay' && callbackUrl)
-    return Messenger.localRelay({ callbackUrl })
+  const relayUrl = url.searchParams.get('relayUrl')
+  if (relayUrl) return Messenger.cliRelay({ relayUrl })
 
   return Messenger.bridge({
     from: Messenger.fromWindow(window),

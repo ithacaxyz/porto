@@ -75,6 +75,8 @@ export function AddFunds(props: AddFunds.Props) {
     'default',
   )
 
+  if (deposit.isSuccess) return
+
   if (view === 'default')
     return (
       <Layout loading={loading} loadingTitle="Adding funds...">
@@ -322,7 +324,7 @@ export declare namespace AddFunds {
     address?: Address.Address | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
-    tokenAddress: Address.Address
+    tokenAddress?: Address.Address | undefined
     value?: bigint | undefined
   }
 }

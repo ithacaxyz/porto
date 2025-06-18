@@ -71,6 +71,13 @@ const offDialogRequest = Events.onDialogRequest(
   },
 )
 
+porto.messenger.on('success', (payload) => {
+  Router.router.navigate({
+    search: (search) => ({ ...search, ...payload }) as never,
+    to: '/dialog/success',
+  })
+})
+
 porto.ready()
 
 const rootElement = document.querySelector('div#root')

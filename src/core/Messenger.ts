@@ -61,6 +61,14 @@ export type Schema = [
     response: undefined
   },
   {
+    topic: 'success'
+    payload: {
+      title: string
+      content: string
+    }
+    response: undefined
+  },
+  {
     topic: '__internal'
     payload:
       | {
@@ -244,19 +252,57 @@ export function noop(): Bridge {
 }
 
 /**
- * Creates a local relay messenger that sends messages via fetch to a callback URL.
+ * Creates a CLI relay messenger that sends messages via fetch to a relay URL
+ * and receives events via server-sent events.
  *
  * @param options - Options.
  * @returns Local relay messenger.
  */
-export function localRelay(options: localRelay.Options): Messenger {
-  const { callbackUrl } = options
+export function cliRelay(options: cliRelay.Options): Messenger {
+  const { relayUrl } = options
+
+  let eventSource: EventSource | null = null
+  const listenerSets = new Map<
+    string,
+    Set<(payload: any, event: any) => void>
+  >()
+
+  function connect() {
+    if (!relayUrl || eventSource) return
+
+    eventSource = new EventSource(relayUrl)
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        if (!data.topic) return
+        if (!data.payload) return
+
+        const listeners = listenerSets.get(data.topic)
+        if (!listeners) return
+
+        for (const listener of listeners)
+          listener(data.payload, { data, origin: relayUrl })
+      } catch (error) {
+        console.error('Error parsing SSE message:', error)
+      }
+    }
+
+    eventSource.onerror = (error) => {
+      console.error('SSE connection error:', error)
+      eventSource?.close()
+      eventSource = null
+      // attempt to reconnect in 1s
+      setTimeout(connect, 1000)
+    }
+  }
+  connect()
 
   async function request(topic: Topic, payload: any) {
     const id = crypto.randomUUID()
     const data = { id, payload, topic }
 
-    const response = await fetch(callbackUrl, {
+    const response = await fetch(relayUrl, {
       body: JSON.stringify(data),
       headers: {
         'Content-Type': 'application/json',
@@ -268,9 +314,22 @@ export function localRelay(options: localRelay.Options): Messenger {
   }
 
   return {
-    destroy() {},
-    on() {
-      return () => {}
+    destroy() {
+      eventSource?.close()
+      eventSource = null
+      listenerSets.clear()
+    },
+    on(topic, listener) {
+      if (!listenerSets.has(topic)) listenerSets.set(topic, new Set())
+      listenerSets.get(topic)!.add(listener)
+
+      return () => {
+        const listeners = listenerSets.get(topic)
+        if (!listeners) return
+
+        listeners.delete(listener)
+        if (listeners.size === 0) listenerSets.delete(topic)
+      }
     },
     async send(topic, payload) {
       const { id } = await request(topic, payload)
@@ -291,11 +350,11 @@ export function localRelay(options: localRelay.Options): Messenger {
   }
 }
 
-export declare namespace localRelay {
+export declare namespace cliRelay {
   export type Options = {
     /**
-     * Callback URL to send messages to.
+     * Relay URL for both sending messages (POST) and receiving events (GET).
      */
-    callbackUrl: string
+    relayUrl: string
   }
 }

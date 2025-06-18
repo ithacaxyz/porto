@@ -1,14 +1,17 @@
+import type { ServerResponse } from 'node:http'
 import * as Url from 'node:url'
 import type * as Messenger from '../core/Messenger.js'
 import * as Http from './internal/http.js'
 
-export type LocalRelay = Messenger.Messenger & { callbackUrl: string }
+export type CliRelay = Messenger.Messenger & { relayUrl: string }
 
-export async function localRelay(): Promise<LocalRelay> {
+export async function cliRelay(): Promise<CliRelay> {
   const listenerSets = new Map<
     string,
     Set<(payload: any, event: any) => void>
   >()
+
+  const streams = new Set<ServerResponse>()
 
   const server = await Http.createServer((req, res) => {
     const url = Url.parse(req.url!, true)
@@ -23,7 +26,22 @@ export async function localRelay(): Promise<LocalRelay> {
       return
     }
 
-    if (req.method === 'POST' && url.pathname === '/callback') {
+    if (req.method === 'GET' && url.pathname === '/') {
+      res.writeHead(200, {
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'Content-Type': 'text/event-stream',
+      })
+
+      streams.add(res)
+
+      req.on('close', () => streams.delete(res))
+
+      return
+    }
+
+    if (req.method === 'POST' && url.pathname === '/') {
       let body = ''
 
       req.on('data', (chunk) => (body += chunk.toString()))
@@ -54,12 +72,17 @@ export async function localRelay(): Promise<LocalRelay> {
     }
   })
 
-  const callbackUrl = `${server.url}/callback`
+  const relayUrl = server.url
 
   return {
-    callbackUrl,
     destroy() {
       listenerSets.clear()
+      for (const stream of streams)
+        try {
+          stream.end()
+        } catch {}
+
+      streams.clear()
       server.close()
     },
     on(topic, listener) {
@@ -74,10 +97,23 @@ export async function localRelay(): Promise<LocalRelay> {
         if (listeners.size === 0) listenerSets.delete(topic)
       }
     },
-    send() {
-      throw new Error('Not implemented')
+    relayUrl,
+    async send(topic, payload) {
+      const id = crypto.randomUUID()
+      const data = { id, payload, topic }
+
+      const eventData = `data: ${JSON.stringify(data)}\n\n`
+      for (const stream of streams) {
+        try {
+          stream.write(eventData)
+        } catch {
+          streams.delete(stream)
+        }
+      }
+
+      return { id, payload, topic } as never
     },
-    sendAsync() {
+    async sendAsync() {
       throw new Error('Not implemented')
     },
   }

@@ -4,14 +4,17 @@ import * as Dialog from '../core/Dialog.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Messenger from './Messenger.js'
 
+export const messenger = await Messenger.cliRelay()
+
 /**
  * Instantiates a CLI dialog.
  *
  * @returns CLI dialog.
  */
 export async function cli() {
-  const messenger = await Messenger.localRelay()
   const store = RpcRequest.createStore<RpcSchema.Schema>()
+
+  let isOpen = false
 
   return Dialog.from({
     name: 'cli',
@@ -43,14 +46,15 @@ export async function cli() {
                 url: 'cli://porto',
               }),
             ],
-            ['callbackMode', 'localRelay'],
-            ['callbackUrl', messenger.callbackUrl],
+            ['relayUrl', messenger.relayUrl],
           ])
 
           const host = parameters.host.replace(/\/$/, '')
           const url = host + '/' + request.method + '?' + search.toString()
 
           open(url)
+
+          isOpen = true
         },
         async syncRequests(requests) {
           if (requests.length > 1)
@@ -61,7 +65,8 @@ export async function cli() {
 
           const request = store.prepare(requests[0]!.request)
 
-          this.open({ request })
+          if (!isOpen) this.open({ request })
+          else messenger.send('rpc-requests', requests)
         },
       }
     },
@@ -70,6 +75,6 @@ export async function cli() {
 
 export declare namespace cli {
   type Options = {
-    messenger: Messenger.LocalRelay
+    messenger: Messenger.CliRelay
   }
 }

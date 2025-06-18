@@ -6,7 +6,10 @@ import * as Commands from '../internal/commands.js'
 
 const cli = cac('porto')
 
-cli.command('[root]', 'Display usage').action(cli.outputHelp)
+cli.command('[root]', 'Display usage').action(() => {
+  cli.outputHelp()
+  process.exit(0)
+})
 
 cli
   .command('onboard [alias: o]', 'Create a Porto Account')
