@@ -3,7 +3,10 @@ import * as Url from 'node:url'
 import type * as Messenger from '../core/Messenger.js'
 import * as Http from './internal/http.js'
 
-export type CliRelay = Messenger.Messenger & { relayUrl: string }
+export type CliRelay = Messenger.Messenger & {
+  relayUrl: string
+  registerPublicKey: (publicKey: string) => void
+}
 
 export async function cliRelay(): Promise<CliRelay> {
   const listenerSets = new Map<
@@ -12,6 +15,9 @@ export async function cliRelay(): Promise<CliRelay> {
   >()
 
   const streams = new Set<ServerResponse>()
+
+  // Store for CLI public keys with expiration
+  const keys = new Set<string>()
 
   const server = await Http.createServer((req, res) => {
     const url = Url.parse(req.url!, true)
@@ -66,6 +72,12 @@ export async function cliRelay(): Promise<CliRelay> {
           res.end('Invalid JSON')
         }
       })
+    } else if (req.method === 'GET' && url.pathname === '/.well-known/keys') {
+      res.writeHead(200, {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ keys: Array.from(keys) }))
     } else {
       res.writeHead(404, { 'Content-Type': 'text/plain' })
       res.end('not found')
@@ -96,6 +108,9 @@ export async function cliRelay(): Promise<CliRelay> {
         listeners.delete(listener)
         if (listeners.size === 0) listenerSets.delete(topic)
       }
+    },
+    registerPublicKey(publicKey: string) {
+      keys.add(publicKey)
     },
     relayUrl,
     async send(topic, payload) {

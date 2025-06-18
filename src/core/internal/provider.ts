@@ -752,6 +752,7 @@ export function from<
           const {
             createAccount,
             email,
+            grantAdmins: admins,
             grantPermissions: permissions,
             selectAccount,
           } = capabilities ?? {}
@@ -768,6 +769,7 @@ export function from<
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await getMode().actions.createAccount({
+                admins,
                 email,
                 internal,
                 label,

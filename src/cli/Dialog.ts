@@ -24,11 +24,7 @@ export async function cli() {
       })
 
       return {
-        close() {
-          throw new Error(
-            'renderer (`cli`) does not support programmatic closing.',
-          )
-        },
+        close() {},
         destroy() {
           messenger.destroy()
         },
