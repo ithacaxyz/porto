@@ -21,6 +21,7 @@ export type Messenger = {
   sendAsync: <const topic extends Topic>(
     topic: topic | Topic,
     payload: Payload<topic>,
+    targetOrigin?: string | undefined,
   ) => Promise<Response<topic>>
 }
 
@@ -143,8 +144,8 @@ export function fromWindow(
       )
       return { id, payload, topic } as never
     },
-    async sendAsync(topic, payload) {
-      const { id } = await this.send(topic, payload)
+    async sendAsync(topic, payload, target) {
+      const { id } = await this.send(topic, payload, target)
       return new Promise<any>((resolve) => this.on(topic as Topic, resolve, id))
     },
   })
@@ -239,5 +240,62 @@ export function noop(): Bridge {
     waitForReady() {
       return Promise.resolve(undefined as never)
     },
+  }
+}
+
+/**
+ * Creates a local relay messenger that sends messages via fetch to a callback URL.
+ *
+ * @param options - Options.
+ * @returns Local relay messenger.
+ */
+export function localRelay(options: localRelay.Options): Messenger {
+  const { callbackUrl } = options
+
+  async function request(topic: Topic, payload: any) {
+    const id = crypto.randomUUID()
+    const data = { id, payload, topic }
+
+    const response = await fetch(callbackUrl, {
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
+
+    return { id, payload, response, topic }
+  }
+
+  return {
+    destroy() {},
+    on() {
+      return () => {}
+    },
+    async send(topic, payload) {
+      const { id } = await request(topic, payload)
+      return { id, payload, topic } as never
+    },
+    async sendAsync(topic, payload) {
+      const { response } = await request(topic, payload)
+
+      if (!response.ok)
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+
+      const contentType = response.headers.get('content-type')
+      if (contentType?.includes('application/json'))
+        return await response.json()
+
+      return undefined as never
+    },
+  }
+}
+
+export declare namespace localRelay {
+  export type Options = {
+    /**
+     * Callback URL to send messages to.
+     */
+    callbackUrl: string
   }
 }

@@ -24,6 +24,8 @@ function RouteComponent() {
   const { params = [] } = request
   const { capabilities } = params[0] ?? {}
 
+  const mode = Dialog.useStore((state) => state.mode)
+
   const address = Hooks.usePortoStore(
     porto,
     (state) => state.accounts[0]?.address,
@@ -100,6 +102,16 @@ function RouteComponent() {
           },
         },
       )
+    },
+    onSuccess: () => {
+      if (mode !== 'popup-standalone') return
+      Router.router.navigate({
+        search: {
+          content: 'You have successfully created an account.',
+          title: 'Account created',
+        },
+        to: '/dialog/success',
+      })
     },
   })
 

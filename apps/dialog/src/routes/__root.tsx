@@ -102,7 +102,7 @@ function RouteComponent() {
       <div
         data-dialog
         {...{ [`data-${mode === 'inline-iframe' ? 'iframe' : mode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
-        className="border-primary contain-content data-iframe:rounded-[14px] data-iframe:border"
+        className="border-primary contain-content data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-standalone:max-w-[360px] data-iframe:rounded-[14px] data-popup-standalone:rounded-[14px] data-iframe:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
       >
         <TitleBar
           mode={mode}
@@ -112,7 +112,7 @@ function RouteComponent() {
         />
 
         <div
-          className="flex not-in-data-popup-standalone:h-fit in-data-popup-standalone:min-h-dvh flex-col overflow-hidden bg-primary pt-titlebar"
+          className="flex h-fit flex-col overflow-hidden bg-primary pt-titlebar"
           ref={contentRef}
         >
           <div

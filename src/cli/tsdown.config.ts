@@ -5,11 +5,11 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
   clean: true,
   dts: false,
-  entry: [resolve(import.meta.dirname, 'index.ts')],
+  entry: [resolve(import.meta.dirname, 'bin/index.ts')],
   external: getExternals(),
   format: ['esm'],
   minify: true,
-  outDir: resolve(import.meta.dirname, '../_dist/cli'),
+  outDir: resolve(import.meta.dirname, '../_dist/cli/bin'),
   target: 'node20',
 })
 

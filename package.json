@@ -21,7 +21,7 @@
     "deps": "pnpx taze -r",
     "dev": "pnpm preconstruct && pnpm --filter playground --filter dialog --filter id dev",
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter id dev",
-    "dev:cli": "tsx src/cli/index.ts",
+    "dev:cli": "tsx src/cli/bin/index.ts",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example --filter dialog --filter id dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter docs --filter dialog --filter id dev",

@@ -221,7 +221,7 @@ export type QueuedRequest<result = unknown> = {
         credentialId?: string | undefined
       }
     | undefined
-  request: RpcRequest.RpcRequest
+  request: RpcRequest.RpcRequest & { _internal?: unknown }
 } & OneOf<
   | {
       status: 'pending'
