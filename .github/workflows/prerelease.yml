@@ -1,0 +1,31 @@
+name: Prerelease
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  prerelease:
+    name: Prerelease
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    timeout-minutes: 5
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Publish Prerelease
+        run: |
+          git reset --hard origin/main
+          pnpm clean
+          pnpm changeset:prepublish
+          pnpx pkg-pr-new publish --pnpm --compact './src'
