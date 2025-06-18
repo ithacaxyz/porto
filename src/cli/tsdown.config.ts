@@ -5,11 +5,11 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
   clean: true,
   dts: false,
-  entry: [resolve(import.meta.dirname, 'index.ts')],
+  entry: [resolve(import.meta.dirname, 'bin/index.ts')],
   external: getExternals(),
   format: ['esm'],
   minify: true,
-  outDir: resolve(import.meta.dirname, '../_dist/cli'),
+  outDir: resolve(import.meta.dirname, '../_dist/cli/bin'),
   target: 'node20',
 })
 
@@ -25,6 +25,8 @@ function getExternals() {
   const dependencies = pkgJson.dependencies || {}
 
   for (const [depName] of Object.entries(dependencies)) {
+    if (depName === 'ox') continue
+
     // Add a regex pattern for the package and all its subpaths
     externals.push(
       new RegExp(`^${depName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\/.*)?$`),

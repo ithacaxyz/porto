@@ -38,12 +38,14 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
       /** Token to add funds to. */
-      token: Address.Address
+      token?: Address.Address | undefined
       /** Amount to add. */
       value?: bigint | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     createAccount: (parameters: {
+      /** Admins to grant. */
+      admins?: readonly Pick<Key.Key, 'publicKey' | 'type'>[] | undefined
       /** Whether to link `label` to account address as email. */
       email?: boolean | undefined
       /** Internal properties. */

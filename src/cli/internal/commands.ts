@@ -1,50 +1,90 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { setTimeout } from 'node:timers/promises'
 import * as prompts from '@clack/prompts'
 import * as Key from '../../viem/Key.js'
-import * as ServerActions from '../../viem/ServerActions.js'
+import * as WalletActions from '../../viem/WalletActions.js'
+import * as Dialog from '../Dialog.js'
 import * as Context from './context.js'
 
 /** Creates a Porto account. */
 export async function createAccount(_: unknown, args: createAccount.Arguments) {
-  const client = await Context.getClient(args)
+  const client = await Context.getWalletClient(args)
 
-  prompts.intro('Create Account')
-
-  const key = Key.createSecp256k1()
+  prompts.intro('Create a Porto Account')
 
   const s = prompts.spinner()
-  s.start('Creating...')
-  const account = await ServerActions.createAccount(client, {
-    authorizeKeys: [key],
-  }).catch((error) => {
-    s.stop('Failed. ')
-    throw error
+
+  const adminKey = args.serverKey ? Key.createSecp256k1() : undefined
+
+  // Register public key for verification.
+  if (adminKey) Dialog.messenger.registerPublicKey(adminKey.publicKey)
+
+  // Create an account.
+  s.start('Creating account (check browser window)...')
+  const { accounts } = await WalletActions.connect(client, {
+    createAccount: true,
+    grantAdmins: adminKey
+      ? [
+          {
+            publicKey: adminKey.publicKey,
+            type: adminKey.type,
+          },
+        ]
+      : undefined,
   })
-  s.stop('Created. ')
+  s.stop('Account created.')
 
-  prompts.log.info('Address: ' + account.address)
+  // Onramp the account.
+  s.start('Onramping (check browser window)...')
+  await client.request({
+    method: 'wallet_addFunds',
+    params: [
+      {
+        address: accounts[0]!.address,
+      },
+    ],
+  })
+  s.stop('Onramped.')
 
-  const reveal = await prompts.confirm({
-    initialValue: false,
-    message: 'Reveal private key? (This will be visible in terminal history)',
+  // Send success message to the dialog.
+  Dialog.messenger.send('success', {
+    content: 'You have successfully created an account.',
+    title: 'Account created',
   })
 
-  if (reveal) prompts.log.warn('Private key: ' + key.privateKey!()!)
-  else {
-    // Write to secure file
-    const keyFile = path.join(import.meta.dirname, `${account.address}.key`)
-    fs.writeFileSync(keyFile, key.privateKey!()!, { mode: 0o600 })
-    fs.chmodSync(keyFile, 0o600)
-    prompts.log.info(`Private key saved securely to: ${keyFile}`)
+  if (adminKey) {
+    const reveal = await prompts.confirm({
+      initialValue: false,
+      message: 'Reveal admin private key? (This will be visible in terminal)',
+    })
+
+    if (reveal)
+      prompts.log.info('Admin private key: ' + adminKey?.privateKey!()!)
+    else {
+      const keyFile = path.join(
+        import.meta.dirname,
+        `${accounts[0]!.address}.key`,
+      )
+      fs.writeFileSync(keyFile, adminKey?.privateKey!()!, { mode: 0o600 })
+      fs.chmodSync(keyFile, 0o600)
+      prompts.log.info(`Admin key saved securely to: ${keyFile}`)
+    }
   }
+
+  const env = args.dialog?.split(/\.|-/)[0]
+  prompts.log.info('Address: ' + accounts[0]!.address)
+  prompts.log.info(`Manage your account at: https://${env ?? ''}.id.porto.sh`)
+
+  await setTimeout(1_000)
+  process.exit(0)
 }
 
 export declare namespace createAccount {
   type Arguments = {
-    /** Chain name. */
-    chain?: string | undefined
-    /** RPC Server URL. */
-    rpc?: string | undefined
+    /** Dialog hostname. */
+    dialog?: string | undefined
+    /** Create a server key with admin privileges. */
+    serverKey?: boolean | undefined
   }
 }

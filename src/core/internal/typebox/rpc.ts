@@ -48,7 +48,7 @@ export namespace account_verifyEmail {
 export namespace wallet_addFunds {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
-    token: Primitive.Address,
+    token: Typebox.Optional(Primitive.Address),
     value: Typebox.Optional(Primitive.BigInt),
   })
 
@@ -380,6 +380,9 @@ export namespace wallet_connect {
     createAccount: Typebox.Optional(C.createAccount.Request),
     credentialId: Typebox.Optional(Type.String()),
     email: Typebox.Optional(Type.Boolean()),
+    grantAdmins: Typebox.Optional(
+      Type.Array(wallet_grantAdmin.Parameters.properties.key),
+    ),
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
     selectAccount: Typebox.Optional(Type.Boolean()),

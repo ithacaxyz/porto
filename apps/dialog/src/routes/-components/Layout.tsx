@@ -51,9 +51,9 @@ export namespace Layout {
     }
 
     export function Default(props: Default.Props) {
-      const { icon: Icon, title, content, variant } = props
+      const { icon: Icon, title, content, subContent, variant } = props
       return (
-        <div>
+        <div className="flex flex-col gap-3 pb-1">
           <div className="flex items-center gap-2">
             {Icon && (
               <div className={Default.className({ variant })}>
@@ -62,9 +62,18 @@ export namespace Layout {
             )}
             <div className="font-medium text-[18px] text-primary">{title}</div>
           </div>
-          {content && (
-            <div className="mt-2 mb-1 text-[15px] text-primary leading-[22px]">
-              {content}
+          {(content || subContent) && (
+            <div className="flex flex-col gap-0.5">
+              {content && (
+                <div className="text-[15px] text-primary leading-[22px]">
+                  {content}
+                </div>
+              )}
+              {subContent && (
+                <div className="text-[15px] text-secondary leading-[20px]">
+                  {subContent}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -76,6 +85,7 @@ export namespace Layout {
       export interface Props extends VariantProps<typeof className> {
         content?: React.ReactNode
         icon?: React.FC<React.SVGProps<SVGSVGElement>> | undefined
+        subContent?: React.ReactNode
         title: string
       }
 

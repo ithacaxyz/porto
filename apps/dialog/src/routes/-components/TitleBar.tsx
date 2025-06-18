@@ -6,6 +6,7 @@ import { porto } from '~/lib/Porto'
 import type { useVerify } from '~/lib/Referrer'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideGlobe from '~icons/lucide/globe'
+import LucideTerminal from '~icons/lucide/terminal'
 import LucideX from '~icons/lucide/x'
 
 const env = (
@@ -38,7 +39,9 @@ export function TitleBar(props: TitleBar.Props) {
       ref={ref}
     >
       <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-gray6">
-        {icon && url ? (
+        {url?.startsWith('cli') ? (
+          <LucideTerminal className="size-3.5 text-primary" />
+        ) : icon && url?.startsWith('http') ? (
           <div className="p-[3px]">
             {typeof icon === 'string' ? (
               <img
@@ -70,7 +73,9 @@ export function TitleBar(props: TitleBar.Props) {
       </div>
 
       <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-secondary leading-[22px]">
-        {url ? (
+        {url?.startsWith('cli') ? (
+          referrer?.title
+        ) : url ? (
           <div className="flex overflow-hidden" title={url}>
             {subdomain && (
               <>
@@ -97,7 +102,7 @@ export function TitleBar(props: TitleBar.Props) {
         )}
       </div>
 
-      {mode !== 'inline-iframe' && (
+      {mode !== 'inline-iframe' && mode !== 'popup-standalone' && (
         <button
           onClick={() => Actions.rejectAll(porto)}
           title="Close Dialog"

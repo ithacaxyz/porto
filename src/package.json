@@ -4,7 +4,7 @@
   "version": "0.0.30",
   "type": "module",
   "bin": {
-    "porto": "./_dist/cli/index.js"
+    "porto": "./_dist/cli/bin/index.js"
   },
   "main": "./_dist/index.js",
   "types": "./_dist/index.d.ts",
@@ -21,6 +21,7 @@
     "@sinclair/typebox": "~0.34",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
+    "open": "^10.1.0",
     "ox": "^0.6.12",
     "zustand": "^5.0.1"
   },

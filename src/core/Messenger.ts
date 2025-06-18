@@ -21,6 +21,7 @@ export type Messenger = {
   sendAsync: <const topic extends Topic>(
     topic: topic | Topic,
     payload: Payload<topic>,
+    targetOrigin?: string | undefined,
   ) => Promise<Response<topic>>
 }
 
@@ -56,6 +57,14 @@ export type Schema = [
     topic: 'rpc-response'
     payload: RpcResponse.RpcResponse & {
       _request: RpcRequest.RpcRequest
+    }
+    response: undefined
+  },
+  {
+    topic: 'success'
+    payload: {
+      title: string
+      content: string
     }
     response: undefined
   },
@@ -143,8 +152,8 @@ export function fromWindow(
       )
       return { id, payload, topic } as never
     },
-    async sendAsync(topic, payload) {
-      const { id } = await this.send(topic, payload)
+    async sendAsync(topic, payload, target) {
+      const { id } = await this.send(topic, payload, target)
       return new Promise<any>((resolve) => this.on(topic as Topic, resolve, id))
     },
   })
@@ -239,5 +248,113 @@ export function noop(): Bridge {
     waitForReady() {
       return Promise.resolve(undefined as never)
     },
+  }
+}
+
+/**
+ * Creates a CLI relay messenger that sends messages via fetch to a relay URL
+ * and receives events via server-sent events.
+ *
+ * @param options - Options.
+ * @returns Local relay messenger.
+ */
+export function cliRelay(options: cliRelay.Options): Messenger {
+  const { relayUrl } = options
+
+  let eventSource: EventSource | null = null
+  const listenerSets = new Map<
+    string,
+    Set<(payload: any, event: any) => void>
+  >()
+
+  function connect() {
+    if (!relayUrl || eventSource) return
+
+    eventSource = new EventSource(relayUrl)
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        if (!data.topic) return
+        if (!data.payload) return
+
+        const listeners = listenerSets.get(data.topic)
+        if (!listeners) return
+
+        for (const listener of listeners)
+          listener(data.payload, { data, origin: relayUrl })
+      } catch (error) {
+        console.error('Error parsing SSE message:', error)
+      }
+    }
+
+    eventSource.onerror = (error) => {
+      console.error('SSE connection error:', error)
+      eventSource?.close()
+      eventSource = null
+      // attempt to reconnect in 1s
+      setTimeout(connect, 1000)
+    }
+  }
+  connect()
+
+  async function request(topic: Topic, payload: any) {
+    const id = crypto.randomUUID()
+    const data = { id, payload, topic }
+
+    const response = await fetch(relayUrl, {
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
+
+    return { id, payload, response, topic }
+  }
+
+  return {
+    destroy() {
+      eventSource?.close()
+      eventSource = null
+      listenerSets.clear()
+    },
+    on(topic, listener) {
+      if (!listenerSets.has(topic)) listenerSets.set(topic, new Set())
+      listenerSets.get(topic)!.add(listener)
+
+      return () => {
+        const listeners = listenerSets.get(topic)
+        if (!listeners) return
+
+        listeners.delete(listener)
+        if (listeners.size === 0) listenerSets.delete(topic)
+      }
+    },
+    async send(topic, payload) {
+      const { id } = await request(topic, payload)
+      return { id, payload, topic } as never
+    },
+    async sendAsync(topic, payload) {
+      const { response } = await request(topic, payload)
+
+      if (!response.ok)
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+
+      const contentType = response.headers.get('content-type')
+      if (contentType?.includes('application/json'))
+        return await response.json()
+
+      return undefined as never
+    },
+  }
+}
+
+export declare namespace cliRelay {
+  export type Options = {
+    /**
+     * Relay URL for both sending messages (POST) and receiving events (GET).
+     */
+    relayUrl: string
   }
 }

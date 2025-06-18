@@ -12,7 +12,7 @@ export type Dialog = {
   setup: (parameters: { host: string; internal: Internal }) => {
     close: () => void
     destroy: () => void
-    open: () => void
+    open: (parameters: any) => void
     syncRequests: (requests: readonly QueuedRequest[]) => Promise<void>
   }
 }

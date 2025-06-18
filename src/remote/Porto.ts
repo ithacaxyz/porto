@@ -2,7 +2,7 @@ import type * as RpcRequest from 'ox/RpcRequest'
 import { createStore, type StoreApi } from 'zustand/vanilla'
 
 import type * as Chains from '../core/Chains.js'
-import type { ExactPartial } from '../core/internal/types.js'
+import type { ExactPartial, OneOf } from '../core/internal/types.js'
 import * as UserAgent from '../core/internal/userAgent.js'
 import * as Messenger from '../core/Messenger.js'
 import * as Mode from '../core/Mode.js'
@@ -10,15 +10,22 @@ import * as Porto_ from '../core/Porto.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Storage from '../core/Storage.js'
 
+const messenger = (() => {
+  if (typeof window === 'undefined') return Messenger.noop()
+
+  const url = new URL(window.location.href)
+  const relayUrl = url.searchParams.get('relayUrl')
+  if (relayUrl) return Messenger.cliRelay({ relayUrl })
+
+  return Messenger.bridge({
+    from: Messenger.fromWindow(window),
+    to: Messenger.fromWindow(window.opener ?? window.parent),
+  })
+})() as Messenger.Bridge | Messenger.Messenger
+
 export const defaultConfig = {
   ...Porto_.defaultConfig,
-  messenger:
-    typeof window !== 'undefined'
-      ? Messenger.bridge({
-          from: Messenger.fromWindow(window),
-          to: Messenger.fromWindow(window.opener ?? window.parent),
-        })
-      : Messenger.noop(),
+  messenger,
   methodPolicies: [
     {
       method: 'eth_requestAccounts',
@@ -173,7 +180,8 @@ export function create(
     mode,
     ready() {
       const { chainId } = porto._internal.store.getState()
-      return messenger.ready({
+      if (!('ready' in messenger)) return
+      return (messenger as Messenger.Bridge).ready({
         chainId,
         methodPolicies,
       })
@@ -188,7 +196,7 @@ export type Porto<
   ],
 > = Porto_.Porto<chains> & {
   mode: Mode.Mode
-  messenger: Messenger.Bridge
+  messenger: OneOf<Messenger.Bridge | Messenger.Messenger>
   methodPolicies?: MethodPolicies | undefined
   ready: () => void
   _internal: Porto_.Porto<chains>['_internal'] & {
@@ -202,7 +210,7 @@ export type Config<
     ...Chains.Chain[],
   ],
 > = Porto_.Config<chains> & {
-  messenger?: Messenger.Bridge | undefined
+  messenger?: OneOf<Messenger.Bridge | Messenger.Messenger> | undefined
   methodPolicies?: MethodPolicies | undefined
 }
 
