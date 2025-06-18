@@ -63,6 +63,9 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       await open(dialogUrl)
       prompts.log.success('Browser window opened successfully')
     } catch (error) {
+      prompts.log.error(`Failed to open browser: ${error instanceof Error ? error.message : String(error)}`)
+      prompts.log.info(`Manually open: ${dialogUrl}`)
+    }
       prompts.log.error(`Failed to open browser window: ${error}`)
       prompts.log.info(`You can manually open: ${dialogUrl}`)
     }
