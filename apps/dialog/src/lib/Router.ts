@@ -19,7 +19,8 @@ export function parseSearchRequest<
 ): parseSearchRequest.ReturnType<method> {
   const { method } = parameters
   try {
-    // Request has already been parsed.
+    // Avoid re-parsing already decoded requests to prevent double-processing
+    if ('_decoded' in search && search._decoded) return search as never
     if (search._decoded) return search as never
 
     const request = RpcRequest.parseRequest(search)
