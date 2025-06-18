@@ -18,6 +18,8 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   s.stop(
     `Account created. Manage your account at: https://${env ?? ''}.id.porto.sh`,
   )
+
+  process.exit(0)
 }
 
 export declare namespace createAccount {

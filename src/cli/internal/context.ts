@@ -6,23 +6,17 @@ import * as Mode from '../../core/Mode.js'
 import * as Porto from '../../core/Porto.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 import * as Dialog from '../Dialog.js'
-import * as Messenger from '../Messenger.js'
 import * as Utils from './utils.js'
 
 /** Gets a Viem client for Porto Dialog. */
 export async function getWalletClient(options: getWalletClient.Options = {}) {
   const { dialog: host } = options
-  const messenger = await Messenger.localRelay()
-  const renderer = Dialog.cli({
-    messenger,
-  })
-  const mode = Mode.dialog({
-    host: host ? new URL('/dialog', 'https://' + host).toString() : undefined,
-    renderer,
-  })
   const porto = Porto.create({
     announceProvider: false,
-    mode,
+    mode: Mode.dialog({
+      host: host ? new URL('/dialog', 'https://' + host).toString() : undefined,
+      renderer: await Dialog.cli(),
+    }),
   })
   return WalletClient.fromPorto(porto)
 }

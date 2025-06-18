@@ -1,19 +1,16 @@
-import type * as ChildProcess from 'node:child_process'
 import open from 'open'
 import { RpcRequest } from 'ox'
 import * as Dialog from '../core/Dialog.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
-import type * as Messenger from './Messenger.js'
+import * as Messenger from './Messenger.js'
 
 /**
  * Instantiates a CLI dialog.
  *
  * @returns CLI dialog.
  */
-export function cli(options: cli.Options) {
-  const { messenger } = options
-
-  let browser: ChildProcess.ChildProcess | undefined
+export async function cli() {
+  const messenger = await Messenger.localRelay()
   const store = RpcRequest.createStore<RpcSchema.Schema>()
 
   return Dialog.from({
@@ -30,7 +27,6 @@ export function cli(options: cli.Options) {
           )
         },
         destroy() {
-          if (browser) browser.kill()
           messenger.destroy()
         },
         open(p: { request: RpcRequest.RpcRequest }) {
@@ -54,9 +50,7 @@ export function cli(options: cli.Options) {
           const host = parameters.host.replace(/\/$/, '')
           const url = host + '/' + request.method + '?' + search.toString()
 
-          open(url).then((b) => {
-            browser = b
-          })
+          open(url)
         },
         async syncRequests(requests) {
           if (requests.length > 1)
