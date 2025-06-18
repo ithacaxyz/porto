@@ -57,10 +57,12 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       ],
     ])
 
-    const dialogUrl = `https://${args.dialog}/dialog/${request.method}?${search.toString()}`
-    prompts.log.info(`Opening ${dialogUrl}`)
+    const dialogUrl = new URL(
+      `https://${args.dialog}/dialog/${request.method}?${search.toString()}`,
+    )
+    prompts.log.info(`Opening ${dialogUrl.hostname}`)
     try {
-      await open(dialogUrl)
+      await open(dialogUrl.toString())
       prompts.log.success('Browser window opened successfully')
     } catch (error) {
       prompts.log.error(
