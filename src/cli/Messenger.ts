@@ -1,6 +1,6 @@
 import * as Url from 'node:url'
 import type * as Messenger from '../core/Messenger.js'
-import * as Server from './internal/server.js'
+import * as Http from './internal/http.js'
 
 export type LocalRelay = Messenger.Messenger & { callbackUrl: string }
 
@@ -10,7 +10,7 @@ export async function localRelay(): Promise<LocalRelay> {
     Set<(payload: any, event: any) => void>
   >()
 
-  const server = await Server.createServer((req, res) => {
+  const server = await Http.createServer((req, res) => {
     const url = Url.parse(req.url!, true)
 
     res.setHeader('Access-Control-Allow-Origin', '*')
