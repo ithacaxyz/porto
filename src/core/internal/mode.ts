@@ -44,6 +44,8 @@ export type Mode = {
     }) => Promise<{ id: Hex.Hex }>
 
     createAccount: (parameters: {
+      /** Admins to grant. */
+      admins?: readonly Pick<Key.Key, 'publicKey' | 'type'>[] | undefined
       /** Whether to link `label` to account address as email. */
       email?: boolean | undefined
       /** Internal properties. */

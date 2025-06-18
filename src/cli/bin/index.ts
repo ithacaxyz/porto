@@ -14,6 +14,13 @@ cli.command('[root]', 'Display usage').action(() => {
 cli
   .command('onboard [alias: o]', 'Create a Porto Account')
   .alias('o')
+  .option(
+    '-a, --admin-key',
+    'Create and provision an additional admin key for server access',
+    {
+      default: false,
+    },
+  )
   .option('-d, --dialog <hostname>', 'Dialog hostname', {
     default: 'id.porto.sh',
   })
