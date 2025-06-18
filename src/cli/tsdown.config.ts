@@ -25,6 +25,8 @@ function getExternals() {
   const dependencies = pkgJson.dependencies || {}
 
   for (const [depName] of Object.entries(dependencies)) {
+    if (depName === 'ox') continue
+
     // Add a regex pattern for the package and all its subpaths
     externals.push(
       new RegExp(`^${depName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\/.*)?$`),
