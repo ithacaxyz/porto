@@ -26,9 +26,11 @@ export function CheckBalance(props: CheckBalance.Props) {
     return (
       <AddFunds
         address={address}
-        onApprove={() => setStep('success')}
+        onApprove={() => {
+          query.refetch()
+          setStep('success')
+        }}
         onReject={onReject}
-        onSuccess={() => query.refetch()}
         tokenAddress={feeToken.data?.address!}
       />
     )

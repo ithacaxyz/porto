@@ -11,7 +11,6 @@ import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
-import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
 import PencilIcon from '~icons/lucide/pencil'
@@ -25,7 +24,6 @@ export function AddFunds(props: AddFunds.Props) {
   const {
     onApprove,
     onReject,
-    onSuccess,
     tokenAddress,
     value = BigInt(presetAmounts[0]!),
   } = props
@@ -41,7 +39,7 @@ export function AddFunds(props: AddFunds.Props) {
   const [amount, setAmount] = React.useState<string>(value.toString())
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   const [view, setView] = React.useState<
-    'default' | 'deposit-crypto' | 'success' | 'error'
+    'default' | 'deposit-crypto' | 'error'
   >('default')
 
   const deposit = useMutation({
@@ -66,9 +64,8 @@ export function AddFunds(props: AddFunds.Props) {
       const data = (await response.json()) as { id: Hex.Hex }
       return data
     },
-    onSuccess: () => {
-      setView('success')
-      onSuccess?.()
+    onSuccess: (data) => {
+      onApprove(data)
     },
   })
 
@@ -280,33 +277,6 @@ export function AddFunds(props: AddFunds.Props) {
       </Layout>
     )
 
-  if (view === 'success')
-    return (
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            content="Your funds have been deposited to your Porto account."
-            icon={CheckIcon}
-            title={`Deposited $${amount}`}
-            variant="success"
-          />
-        </Layout.Header>
-
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button
-              className="flex-grow"
-              data-testid="done"
-              onClick={() => onApprove({ id: deposit.data!.id })}
-              variant="default"
-            >
-              Done
-            </Button>
-          </Layout.Footer.Actions>
-        </Layout.Footer>
-      </Layout>
-    )
-
   if (view === 'error')
     return (
       <Layout>
@@ -352,7 +322,6 @@ export declare namespace AddFunds {
     address?: Address.Address | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
-    onSuccess?: () => void
     tokenAddress: Address.Address
     value?: bigint | undefined
   }
