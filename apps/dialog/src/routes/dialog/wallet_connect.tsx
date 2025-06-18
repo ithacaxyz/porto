@@ -126,6 +126,7 @@ function RouteComponent() {
         loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
         permissions={capabilities?.grantPermissions?.permissions}
+        variant={capabilities?.createAccount ? 'sign-up' : 'sign-in'}
       />
     )
 

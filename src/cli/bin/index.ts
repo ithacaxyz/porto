@@ -9,8 +9,8 @@ const cli = cac('porto')
 cli.command('[root]', 'Display usage').action(cli.outputHelp)
 
 cli
-  .command('create-account [alias: ca]', 'Create a Porto Account')
-  .alias('ca')
+  .command('onboard [alias: o]', 'Create a Porto Account')
+  .alias('o')
   .option('-d, --dialog <hostname>', 'Dialog hostname', {
     default: 'id.porto.sh',
   })

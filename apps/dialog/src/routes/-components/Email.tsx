@@ -15,6 +15,9 @@ export function Email(props: Email.Props) {
     variant = 'sign-in',
   } = props
 
+  const cli = Dialog.useStore((state) =>
+    state.referrer?.url?.toString().startsWith('cli'),
+  )
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   const onSubmit = React.useCallback<React.FormEventHandler<HTMLFormElement>>(
@@ -27,21 +30,23 @@ export function Email(props: Email.Props) {
     [onApprove],
   )
 
+  const content = cli ? undefined : (
+    <>
+      Authenticate with your Porto account to start using{' '}
+      {hostname ? (
+        <span className="font-medium">{hostname}</span>
+      ) : (
+        'this website'
+      )}
+      .
+    </>
+  )
+
   return (
     <Layout loading={loading} loadingTitle="Signing up...">
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
-          content={
-            <>
-              Authenticate with your Porto account to start using{' '}
-              {hostname ? (
-                <span className="font-medium">{hostname}</span>
-              ) : (
-                'this website'
-              )}
-              .
-            </>
-          }
+          content={content}
           icon={LucideLogIn}
           title="Get started"
         />
@@ -113,6 +118,6 @@ export namespace Email {
     loading: boolean
     onApprove: (p: { email?: string; signIn?: boolean }) => void
     permissions?: Permissions.Props
-    variant?: 'sign-in' | 'upgrade'
+    variant?: 'sign-in' | 'sign-up' | 'upgrade'
   }
 }

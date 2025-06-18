@@ -62,18 +62,20 @@ export namespace Layout {
             )}
             <div className="font-medium text-[18px] text-primary">{title}</div>
           </div>
-          <div className="flex flex-col gap-0.5">
-            {content && (
-              <div className="text-[15px] text-primary leading-[22px]">
-                {content}
-              </div>
-            )}
-            {subContent && (
-              <div className="text-[15px] text-secondary leading-[20px]">
-                {subContent}
-              </div>
-            )}
-          </div>
+          {(content || subContent) && (
+            <div className="flex flex-col gap-0.5">
+              {content && (
+                <div className="text-[15px] text-primary leading-[22px]">
+                  {content}
+                </div>
+              )}
+              {subContent && (
+                <div className="text-[15px] text-secondary leading-[20px]">
+                  {subContent}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )
     }

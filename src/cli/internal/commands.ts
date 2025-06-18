@@ -10,14 +10,15 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
 
   const s = prompts.spinner()
   s.start('Check browser window...')
-  await WalletActions.connect(client, {
+  const { accounts } = await WalletActions.connect(client, {
     createAccount: true,
   })
 
   const env = args.dialog?.split(/\.|-/)[0]
-  s.stop(
-    `Account created. Manage your account at: https://${env ?? ''}.id.porto.sh`,
-  )
+  s.stop('Account created.')
+
+  prompts.log.info('Address: ' + accounts[0]!.address)
+  prompts.log.info(`Manage your account at: https://${env ?? ''}.id.porto.sh`)
 
   process.exit(0)
 }
