@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.31
+
+### Patch Changes
+
+- [#479](https://github.com/ithacaxyz/porto/pull/479) [`186b700`](https://github.com/ithacaxyz/porto/commit/186b7006cc4ff1c0f1ca20db50ad5cd576c10504) Thanks [@jxom](https://github.com/jxom)! - **CLI:** Refactored account onboarding.
+
 ## 0.0.30
 
 ### Patch Changes
