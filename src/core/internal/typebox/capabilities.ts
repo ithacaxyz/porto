@@ -53,6 +53,15 @@ export namespace grantPermissions {
   export type Request = Typebox.StaticDecode<typeof Request>
 }
 
+export namespace merchant {
+  export const GetCapabilitiesResponse = Type.Object({
+    supported: Type.Boolean(),
+  })
+  export type GetCapabilitiesResponse = Typebox.StaticDecode<
+    typeof GetCapabilitiesResponse
+  >
+}
+
 export namespace permissions {
   export const GetCapabilitiesResponse = Type.Object({
     supported: Type.Boolean(),
@@ -83,16 +92,7 @@ export namespace preCalls {
   export type Response = Typebox.StaticDecode<typeof Response>
 }
 
-export namespace sponsor {
-  export const GetCapabilitiesResponse = Type.Object({
-    supported: Type.Boolean(),
-  })
-  export type GetCapabilitiesResponse = Typebox.StaticDecode<
-    typeof GetCapabilitiesResponse
-  >
-}
-
-export namespace sponsorUrl {
+export namespace merchantRpcUrl {
   export const Request = Type.String()
   export type Request = Typebox.StaticDecode<typeof Request>
 }

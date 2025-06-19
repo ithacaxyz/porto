@@ -12,7 +12,7 @@ import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 import { Key, ServerActions } from '../../src/index.js'
-import { Sponsor } from '../../src/server/index.js'
+import { MerchantRpc } from '../../src/server/index.js'
 import {
   accountNewProxyAddress,
   accountProxyAddress,
@@ -180,37 +180,36 @@ export default defineConfig(({ mode }) => {
             return res.end(JSON.stringify({ id: hash }))
           })
 
-          // Create app-sponsor account.
-          const sponsorKey = Key.createSecp256k1()
-          const sponsorAccount = await ServerActions.createAccount(
+          // Create merchant account.
+          const merchantKey = Key.createSecp256k1()
+          const merchantAccount = await ServerActions.createAccount(
             relayClient,
             {
-              authorizeKeys: [sponsorKey],
+              authorizeKeys: [merchantKey],
             },
           )
           await writeContract(anvilClient, {
             abi: exp1Abi,
             address: exp1Address,
-            args: [sponsorAccount.address, parseEther('10000')],
+            args: [merchantAccount.address, parseEther('10000')],
             chain: null,
             functionName: 'mint',
           })
           await ServerActions.sendCalls(relayClient, {
-            account: sponsorAccount,
+            account: merchantAccount,
             calls: [],
             feeToken: exp1Address,
           })
 
-          // Handle sponsor requests on `/sponsor`.
-          // TODO: move to CF worker for compatibility with non-anvil (prod/stg/dev) environments.
+          // Handle merchant requests on `/merchant`.
           server.middlewares.use(async (req, res, next) => {
-            if (!req.url?.startsWith('/sponsor')) return next()
+            if (!req.url?.startsWith('/merchant')) return next()
             if (req.method !== 'POST') return next()
 
-            const handler = Sponsor.rpcHandler({
-              address: sponsorAccount.address,
+            const handler = MerchantRpc.requestHandler({
+              address: merchantAccount.address,
               key: {
-                privateKey: sponsorKey.privateKey!(),
+                privateKey: merchantKey.privateKey!(),
                 type: 'secp256k1',
               },
               transports: {

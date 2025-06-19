@@ -906,8 +906,9 @@ export function from<
               store,
             },
             key,
+            merchantRpcUrl:
+              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
             preCalls: capabilities?.preCalls as any,
-            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
           })
 
           return Typebox.Encode(Rpc.wallet_prepareCalls.Response, {
@@ -983,9 +984,10 @@ export function from<
               request,
               store,
             },
+            merchantRpcUrl:
+              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,
-            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
           })
 
           return { id } satisfies Typebox.Static<

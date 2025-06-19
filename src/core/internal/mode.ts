@@ -155,8 +155,8 @@ export type Mode = {
       internal: ActionsInternal
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
@@ -228,8 +228,8 @@ export type Mode = {
       permissionsId?: Hex.Hex | undefined
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     sendPreparedCalls: (parameters: {

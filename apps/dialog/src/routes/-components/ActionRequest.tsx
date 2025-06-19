@@ -34,9 +34,9 @@ export function ActionRequest(props: ActionRequest.Props) {
     chainId,
     feeToken,
     loading,
+    merchantRpcUrl,
     onApprove,
     onReject,
-    sponsorUrl,
   } = props
 
   const account = Hooks.useAccount(porto, { address })
@@ -46,7 +46,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     calls,
     chainId,
     feeToken,
-    sponsorUrl,
+    merchantRpcUrl,
   })
 
   const assetDiff = prepareCallsQuery.data?.capabilities.assetDiff
@@ -73,6 +73,7 @@ export function ActionRequest(props: ActionRequest.Props) {
             error={prepareCallsQuery.error}
             errorMessage="An error occurred while simulating the action. Proceed with caution."
             loading={prepareCallsQuery.isPending}
+            merchantRpcUrl={merchantRpcUrl}
             quote={quote}
           >
             {assetDiff && address && (
@@ -142,10 +143,10 @@ export namespace ActionRequest {
     checkBalance?: boolean | undefined
     feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
     loading?: boolean | undefined
+    merchantRpcUrl?: string | undefined
     onApprove: () => void
     onReject: () => void
     quote?: Quote | undefined
-    sponsorUrl?: string | undefined
   }
 
   export function AssetDiff(props: AssetDiff.Props) {
@@ -293,7 +294,7 @@ export namespace ActionRequest {
     }
   }
   export function Details(props: Details.Props) {
-    const { sponsorUrl } = props
+    const { merchantRpcUrl } = props
 
     const quote = useQuote(porto, props.quote)
     const chain = Hooks.useChain(porto, { chainId: props.quote.chainId })
@@ -308,7 +309,7 @@ export namespace ActionRequest {
 
     return (
       <div className="space-y-1.5">
-        {!sponsorUrl && (
+        {!merchantRpcUrl && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
             <span className="text-[14px] text-secondary leading-4">
               Fees (est.)
@@ -352,7 +353,7 @@ export namespace ActionRequest {
   export namespace Details {
     export type Props = {
       chain?: Chains.Chain | undefined
-      sponsorUrl?: string | undefined
+      merchantRpcUrl?: string | undefined
       quote: Quote_typebox.Quote
     }
   }
@@ -364,7 +365,7 @@ export namespace ActionRequest {
       errorMessage = 'An error occurred. Proceed with caution.',
       loading,
       quote,
-      sponsorUrl,
+      merchantRpcUrl,
     } = props
 
     // default to `true` if no children, otherwise false
@@ -413,8 +414,8 @@ export namespace ActionRequest {
                   {children && <div className="h-[1px] w-full bg-gray6" />}
                   <div className={viewQuote ? undefined : 'hidden'}>
                     <ActionRequest.Details
+                      merchantRpcUrl={merchantRpcUrl}
                       quote={quote}
-                      sponsorUrl={sponsorUrl}
                     />
                   </div>
                   {!viewQuote && (
@@ -443,7 +444,7 @@ export namespace ActionRequest {
       errorMessage?: string | undefined
       loading?: boolean | undefined
       quote?: Quote_typebox.Quote | undefined
-      sponsorUrl?: string | undefined
+      merchantRpcUrl?: string | undefined
     }
   }
 

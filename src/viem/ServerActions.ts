@@ -123,7 +123,7 @@ export async function prepareCalls<
     permissionsFeeLimit,
     preCalls,
     revokeKeys,
-    sponsorUrl,
+    merchantRpcUrl,
   } = parameters
 
   const account_ = account ? Account.from(account) : undefined
@@ -161,10 +161,10 @@ export async function prepareCalls<
         }))
       : undefined
 
-  const client_ = sponsorUrl
+  const client_ = merchantRpcUrl
     ? createClient({
         chain: client.chain,
-        transport: http(sponsorUrl),
+        transport: http(merchantRpcUrl),
       })
     : client
 
@@ -229,8 +229,8 @@ export namespace prepareCalls {
         | undefined
       /** Additional keys to revoke from the account. */
       revokeKeys?: readonly Key.Key[] | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
@@ -450,8 +450,8 @@ export declare namespace sendCalls {
               })
           >[]
         | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     }
 
   export type ReturnType = ServerActions.sendPreparedCalls.ReturnType

@@ -63,11 +63,11 @@ export const permissions = () =>
     },
   }) as const
 
-const sponsor = new URLSearchParams(window.location.search).get('sponsor')
+const merchant = new URLSearchParams(window.location.search).get('merchant')
 
 export const porto = Porto.create({
   ...config,
+  merchantRpcUrl: merchant ? `${window.location.origin}/merchant` : undefined,
   // We will be deferring mode setup until after hydration.
   mode: null,
-  sponsorUrl: sponsor ? `${window.location.origin}/sponsor` : undefined,
 })

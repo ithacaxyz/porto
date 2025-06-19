@@ -1,7 +1,7 @@
 import { createRequestListener } from '@mjackson/node-fetch-server'
 import { Value } from 'ox'
 import { Key, ServerActions } from 'porto'
-import { Sponsor } from 'porto/server'
+import { MerchantRpc } from 'porto/server'
 import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
@@ -16,17 +16,17 @@ const feeToken = exp1Address
 
 let server: Http.Server | undefined
 async function setup() {
-  const sponsorKey = Key.createSecp256k1()
-  const sponsorAccount = await TestActions.createAccount(client, {
+  const merchantKey = Key.createSecp256k1()
+  const merchantAccount = await TestActions.createAccount(client, {
     deploy: true,
-    keys: [sponsorKey],
+    keys: [merchantKey],
   })
 
-  const handler = Sponsor.rpcHandler({
-    address: sponsorAccount.address,
+  const handler = MerchantRpc.requestHandler({
+    address: merchantAccount.address,
     key: {
-      privateKey: sponsorKey.privateKey!(),
-      type: sponsorKey.type,
+      privateKey: merchantKey.privateKey!(),
+      type: merchantKey.type,
     },
     transports: porto._internal.config.transports,
   })
@@ -34,12 +34,12 @@ async function setup() {
   if (server) await server.closeAsync()
   server = await Http.createServer(createRequestListener(handler))
 
-  return { server, sponsorAccount }
+  return { merchantAccount, server }
 }
 
 describe.runIf(Anvil.enabled)('rpcHandler', () => {
   test('default', async () => {
-    const { server, sponsorAccount } = await setup()
+    const { server, merchantAccount } = await setup()
 
     const userKey = Key.createHeadlessWebAuthnP256()
     const userAccount = await TestActions.createAccount(client, {
@@ -52,10 +52,10 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
-    const sponsorBalance_pre = await readContract(client, {
+    const merchantBalance_pre = await readContract(client, {
       abi: exp1Abi,
       address: exp1Address,
-      args: [sponsorAccount.address],
+      args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
 
@@ -70,7 +70,7 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
         },
       ],
       feeToken,
-      sponsorUrl: server.url,
+      merchantRpcUrl: server.url,
     })
 
     await waitForCallsStatus(client, {
@@ -83,18 +83,18 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
-    const sponsorBalance_post = await readContract(client, {
+    const merchantBalance_post = await readContract(client, {
       abi: exp1Abi,
       address: exp1Address,
-      args: [sponsorAccount.address],
+      args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
 
     // Check if user was credited with 1 EXP.
     expect(userBalance_post).toBe(userBalance_pre + Value.fromEther('1'))
 
-    // Check if sponsor was debited the fee payment.
-    expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+    // Check if merchant was debited the fee payment.
+    expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
   test('error: contract error', async () => {
@@ -121,20 +121,20 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
           },
         ],
         feeToken,
-        sponsorUrl: server.url,
+        merchantRpcUrl: server.url,
       }),
     ).rejects.toThrowError('InsufficientAllowance')
   })
 
-  test('error: eoa is sponsor', async () => {
-    const { server, sponsorAccount } = await setup()
+  test('error: eoa is merchant', async () => {
+    const { server, merchantAccount } = await setup()
 
     await expect(() =>
       ServerActions.sendCalls(client, {
-        account: sponsorAccount,
+        account: merchantAccount,
         calls: [],
         feeToken,
-        sponsorUrl: server.url,
+        merchantRpcUrl: server.url,
       }),
     ).rejects.toThrowError()
   })

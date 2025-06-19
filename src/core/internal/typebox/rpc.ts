@@ -486,8 +486,8 @@ export namespace wallet_getCapabilities {
     Type.Object({
       atomic: C.atomic.GetCapabilitiesResponse,
       feeToken: C.feeToken.GetCapabilitiesResponse,
+      merchant: C.merchant.GetCapabilitiesResponse,
       permissions: C.permissions.GetCapabilitiesResponse,
-      sponsor: C.sponsor.GetCapabilitiesResponse,
     }),
   )
   export type Response = Typebox.StaticDecode<typeof Response>
@@ -514,9 +514,9 @@ export namespace wallet_getKeys {
 export namespace wallet_prepareCalls {
   export const Capabilities = Type.Object({
     feeToken: Typebox.Optional(C.feeToken.Request),
+    merchantRpcUrl: Typebox.Optional(C.merchantRpcUrl.Request),
     permissions: Typebox.Optional(C.permissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
-    sponsorUrl: Typebox.Optional(C.sponsorUrl.Request),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 

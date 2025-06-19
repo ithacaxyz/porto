@@ -31,13 +31,13 @@ type Request = {
     capabilities?: {
       /** Custom fee token to use. */
       feeToken?: `0x${string}`;
+      /** URL of the merchant endpoint that will front the request. */
+      merchantRpcUrl?: string
       /** Permissions to use for this request. */
       permissions?: {
         /** ID of the permission. */
         id?: `0x${string}`;
       };
-      /** URL of the sponsor endpoint that will front the request. */
-      sponsorUrl?: string
     };
     /** 
      * Chain ID to send the calls to.

@@ -222,11 +222,11 @@ export function contract(parameters: contract.Parameters = {}) {
             supported: false,
             tokens: [],
           },
+          merchant: {
+            supported: false,
+          },
           permissions: {
             supported: true,
-          },
-          sponsor: {
-            supported: false,
           },
         } as const
 

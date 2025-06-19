@@ -11,7 +11,7 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { Key, Mode } from 'porto'
-import { Sponsor } from 'porto/server'
+import { MerchantRpc } from 'porto/server'
 import { ServerActions } from 'porto/viem'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
 import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
@@ -35,7 +35,7 @@ describe.each([
 ] as const)('%s', (type, mode) => {
   if (!mode) return
 
-  const getPorto = (config: { sponsorUrl?: string | undefined } = {}) =>
+  const getPorto = (config: { merchantRpcUrl?: string | undefined } = {}) =>
     getPorto_({
       ...config,
       mode,
@@ -1286,12 +1286,12 @@ describe.each([
       expect(keys).matchSnapshot()
 
       const values = Object.values(capabilities)
-      const { atomic, feeToken, permissions, sponsor } = values[0]!
+      const { atomic, feeToken, permissions, merchant } = values[0]!
       expect(atomic).matchSnapshot()
       expect(feeToken.supported).matchSnapshot()
       expect(feeToken.tokens.length).matchSnapshot()
       expect(permissions).matchSnapshot()
-      expect(sponsor).matchSnapshot()
+      expect(merchant).matchSnapshot()
     })
 
     test('behavior: chainId', async () => {
@@ -1305,7 +1305,7 @@ describe.each([
       expect(keys).matchSnapshot()
 
       const values = Object.values(capabilities)
-      const { atomic, feeToken, permissions, sponsor } = values[0]!
+      const { atomic, feeToken, permissions, merchant } = values[0]!
       expect(atomic).matchSnapshot()
       expect(feeToken.supported).matchSnapshot()
       expect(
@@ -1314,7 +1314,7 @@ describe.each([
           .toSorted((a, b) => a.address.localeCompare(b.address)),
       ).matchSnapshot()
       expect(permissions).matchSnapshot()
-      expect(sponsor).matchSnapshot()
+      expect(merchant).matchSnapshot()
     })
 
     test('behavior: unsupported chain', async () => {
@@ -1461,21 +1461,21 @@ describe.each([
     )
 
     test.runIf(type === 'rpcServer' && Anvil.enabled)(
-      'behavior: fee sponsor',
+      'behavior: merchant fee sponsor',
       async () => {
         const { client, porto } = getPorto()
 
-        const sponsorKey = Key.createSecp256k1()
-        const sponsorAccount = await createAccount(client, {
+        const merchantKey = Key.createSecp256k1()
+        const merchantAccount = await createAccount(client, {
           deploy: true,
-          keys: [sponsorKey],
+          keys: [merchantKey],
         })
 
-        const handler = Sponsor.rpcHandler({
-          address: sponsorAccount.address,
+        const handler = MerchantRpc.requestHandler({
+          address: merchantAccount.address,
           key: {
-            privateKey: sponsorKey.privateKey!(),
-            type: sponsorKey.type,
+            privateKey: merchantKey.privateKey!(),
+            type: merchantKey.type,
           },
           transports: porto._internal.config.transports,
         })
@@ -1504,10 +1504,10 @@ describe.each([
           args: [address],
           functionName: 'balanceOf',
         })
-        const sponsorBalance_pre = await readContract(client, {
+        const merchantBalance_pre = await readContract(client, {
           abi: exp1Abi,
           address: exp1Address,
-          args: [sponsorAccount.address],
+          args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
 
@@ -1526,7 +1526,7 @@ describe.each([
                 },
               ],
               capabilities: {
-                sponsorUrl: server.url,
+                merchantRpcUrl: server.url,
               },
               from: address,
               version: '1',
@@ -1546,46 +1546,46 @@ describe.each([
           args: [address],
           functionName: 'balanceOf',
         })
-        const sponsorBalance_post = await readContract(client, {
+        const merchantBalance_post = await readContract(client, {
           abi: exp1Abi,
           address: exp1Address,
-          args: [sponsorAccount.address],
+          args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
 
         // Check if user was debited 1 EXP.
         expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
 
-        // Check if sponsor was debited the fee payment.
-        expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+        // Check if merchant was debited the fee payment.
+        expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
       },
     )
 
     test.runIf(type === 'rpcServer' && Anvil.enabled)(
-      'behavior: fee sponsor (porto config)',
+      'behavior: merchant fee sponsor (porto config)',
       async () => {
         const {
           client,
           porto: { _internal },
         } = getPorto()
 
-        const sponsorKey = Key.createSecp256k1()
-        const sponsorAccount = await createAccount(client, {
+        const merchantKey = Key.createSecp256k1()
+        const merchantAccount = await createAccount(client, {
           deploy: true,
-          keys: [sponsorKey],
+          keys: [merchantKey],
         })
 
-        const handler = Sponsor.rpcHandler({
-          address: sponsorAccount.address,
+        const handler = MerchantRpc.requestHandler({
+          address: merchantAccount.address,
           key: {
-            privateKey: sponsorKey.privateKey!(),
-            type: sponsorKey.type,
+            privateKey: merchantKey.privateKey!(),
+            type: merchantKey.type,
           },
           transports: _internal.config.transports,
         })
         const server = await Http.createServer(createRequestListener(handler))
 
-        const { porto } = getPorto({ sponsorUrl: server.url })
+        const { porto } = getPorto({ merchantRpcUrl: server.url })
 
         const {
           accounts: [account],
@@ -1610,10 +1610,10 @@ describe.each([
           args: [address],
           functionName: 'balanceOf',
         })
-        const sponsorBalance_pre = await readContract(client, {
+        const merchantBalance_pre = await readContract(client, {
           abi: exp1Abi,
           address: exp1Address,
-          args: [sponsorAccount.address],
+          args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
 
@@ -1649,18 +1649,18 @@ describe.each([
           args: [address],
           functionName: 'balanceOf',
         })
-        const sponsorBalance_post = await readContract(client, {
+        const merchantBalance_post = await readContract(client, {
           abi: exp1Abi,
           address: exp1Address,
-          args: [sponsorAccount.address],
+          args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
 
         // Check if user was debited 1 EXP.
         expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
 
-        // Check if sponsor was debited the fee payment.
-        expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+        // Check if merchant was debited the fee payment.
+        expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
       },
     )
 

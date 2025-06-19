@@ -1,1 +1,1 @@
-export * as Sponsor from './Sponsor.js'
+export * as MerchantRpc from './MerchantRpc.js'

@@ -59,8 +59,8 @@ export function create(
       parameters.announceProvider ?? defaultConfig.announceProvider,
     chains,
     feeToken: parameters.feeToken ?? defaultConfig.feeToken,
+    merchantRpcUrl: parameters.merchantRpcUrl,
     mode: parameters.mode ?? defaultConfig.mode,
-    sponsorUrl: parameters.sponsorUrl,
     storage: parameters.storage ?? defaultConfig.storage,
     storageKey: parameters.storageKey ?? defaultConfig.storageKey,
     transports,
@@ -159,9 +159,9 @@ export type Config<
    */
   mode: Mode.Mode | null
   /**
-   * URL to use for app-based sponsorship.
+   * URL to use for merchant functionality.
    */
-  sponsorUrl?: string | undefined
+  merchantRpcUrl?: string | undefined
   /**
    * Storage to use.
    * @default Storage.idb()

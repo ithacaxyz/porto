@@ -21,7 +21,7 @@ export type CapabilitiesSchema = {
   sendCalls: {
     Request: Pick<
       Type.StaticDecode<typeof Rpc.wallet_prepareCalls.Capabilities>,
-      'feeToken' | 'permissions' | 'sponsorUrl'
+      'feeToken' | 'permissions' | 'merchantRpcUrl'
     >
   }
 }

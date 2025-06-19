@@ -273,10 +273,10 @@ describe('prepareCalls + sendPreparedCalls', () => {
       keys: [userKey],
     })
 
-    const sponsorKey = Key.createSecp256k1()
-    const sponsorAccount = await TestActions.createAccount(client, {
+    const merchantKey = Key.createSecp256k1()
+    const merchantAccount = await TestActions.createAccount(client, {
       deploy: true,
-      keys: [sponsorKey],
+      keys: [merchantKey],
     })
 
     const userBalance_pre = await readContract(client, {
@@ -285,10 +285,10 @@ describe('prepareCalls + sendPreparedCalls', () => {
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
-    const sponsorBalance_pre = await readContract(client, {
+    const merchantBalance_pre = await readContract(client, {
       abi: exp1Abi,
       address: exp1Address,
-      args: [sponsorAccount.address],
+      args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
 
@@ -304,7 +304,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       ],
       capabilities: {
         meta: {
-          feePayer: sponsorAccount.address,
+          feePayer: merchantAccount.address,
           feeToken,
         },
       },
@@ -319,13 +319,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
       payload: request.digest,
       wrap: false,
     })
-    const sponsorSignature = await Key.sign(sponsorKey, {
+    const merchantSignature = await Key.sign(merchantKey, {
       payload: request.digest,
     })
 
     const result = await sendPreparedCalls(client, {
       capabilities: {
-        feeSignature: sponsorSignature,
+        feeSignature: merchantSignature,
       },
       context: request.context,
       key: request.key!,
@@ -342,18 +342,18 @@ describe('prepareCalls + sendPreparedCalls', () => {
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
-    const sponsorBalance_post = await readContract(client, {
+    const merchantBalance_post = await readContract(client, {
       abi: exp1Abi,
       address: exp1Address,
-      args: [sponsorAccount.address],
+      args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
 
     // Check if user was credited with 1 EXP.
     expect(userBalance_post).toBe(userBalance_pre + Value.fromEther('1'))
 
-    // Check if sponsor was debited the fee payment.
-    expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+    // Check if merchant was debited the fee payment.
+    expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
   test('behavior: contract calls', async () => {

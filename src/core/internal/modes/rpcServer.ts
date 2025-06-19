@@ -170,10 +170,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             supported: true,
             tokens: [],
           },
-          permissions: {
+          merchant: {
             supported: true,
           },
-          sponsor: {
+          permissions: {
             supported: true,
           },
         } as const
@@ -389,7 +389,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, key, sponsorUrl } = parameters
+        const { account, calls, internal, key, merchantRpcUrl } = parameters
         const {
           client,
           config: { storage },
@@ -411,8 +411,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             calls,
             feeToken: feeToken.address,
             key,
+            merchantRpcUrl,
             preCalls,
-            sponsorUrl,
           })
 
         return {
@@ -536,7 +536,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, sponsorUrl } = parameters
+        const { account, calls, internal, merchantRpcUrl } = parameters
         const {
           client,
           config: { storage },
@@ -567,8 +567,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           calls,
           feeToken: feeToken.address,
           key,
+          merchantRpcUrl,
           preCalls,
-          sponsorUrl,
         })
 
         await PreCalls.clear({
