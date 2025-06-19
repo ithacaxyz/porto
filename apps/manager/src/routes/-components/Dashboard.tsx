@@ -10,7 +10,7 @@ import { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
+import { encodeFunctionData, erc20Abi, formatEther, zeroAddress } from 'viem'
 import {
   useAccount,
   useChainId,
@@ -812,21 +812,31 @@ function AssetRow({
       !sendFormState.values.sendAmount
     )
       return
-    sendCalls.sendCalls({
-      calls: [
-        {
-          data: encodeFunctionData({
-            abi: erc20Abi,
-            args: [
-              sendFormState.values.sendRecipient,
-              Value.from(sendFormState.values.sendAmount, decimals),
-            ],
-            functionName: 'transfer',
-          }),
-          to: address,
-        },
-      ],
-    })
+
+    // ETH should have `to` as the recipient, `value` as the amount, and `data` as the empty string
+    // ERC20 should have `to` as the token address, `data` as the encoded function data, and `value` as the empty string
+
+    const calls = []
+
+    if (address === zeroAddress)
+      calls.push({
+        to: sendFormState.values.sendRecipient,
+        value: Value.from(sendFormState.values.sendAmount, decimals),
+      })
+    else
+      calls.push({
+        data: encodeFunctionData({
+          abi: erc20Abi,
+          args: [
+            sendFormState.values.sendRecipient,
+            Value.from(sendFormState.values.sendAmount, decimals),
+          ],
+          functionName: 'transfer',
+        }),
+        to: address,
+      })
+
+    sendCalls.sendCalls({ calls })
   }
 
   const ref = React.useRef<HTMLTableCellElement | null>(null)
