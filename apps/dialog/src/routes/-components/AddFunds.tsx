@@ -23,7 +23,12 @@ const presetAmounts = ['25', '50', '100', '250'] as const
 const onrampOptions = import.meta.env.VITE_ONRAMP_OPTIONS?.split(',') ?? []
 
 function stripeOnrampUrl(amount: number) {
-  if (amount < 1 || amount > 30_000) throw new Error('Amount is too high')
+  if (amount < 1 || amount > 30_000) {
+    console.warn(
+      `Invalid amount for Stripe onramp: ${amount}. Must be between 1 and 30,000.`,
+    )
+    return
+  }
 
   const searchParams = new URLSearchParams({
     destination_currency: 'usdc',
