@@ -16,6 +16,7 @@ function RouteComponent() {
       <section className="flex max-w-xs flex-col gap-4">
         <PayButton variant="apple" />
         <PayButton variant="google" />
+        <PayButton variant="stripe" />
       </section>
     </main>
   )

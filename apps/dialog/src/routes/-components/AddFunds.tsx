@@ -18,7 +18,22 @@ import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import XIcon from '~icons/lucide/x'
 
-const presetAmounts = ['25', '50', '100', '250']
+const presetAmounts = ['25', '50', '100', '250'] as const
+
+function stripeOnrampUrl(amount: number) {
+  if (amount < 1 || amount > 30_000) throw new Error('Amount is too high')
+
+  const searchParams = new URLSearchParams({
+    destination_currency: 'usdc',
+    destination_network: 'base',
+    ref: 'porto',
+    source_amount: amount.toString(),
+    source_currency: 'usd',
+  })
+  const url = new URL('https://crypto.link.com')
+  url.search = searchParams.toString()
+  return url.toString()
+}
 
 export function AddFunds(props: AddFunds.Props) {
   const {
@@ -168,10 +183,10 @@ export function AddFunds(props: AddFunds.Props) {
                 Buy & deposit
               </Button>
               {import.meta.env.VITE_FLAGS?.includes('onramp') && (
-                <>
-                  <PayButton variant="apple" />
-                  <PayButton variant="google" />
-                </>
+                <PayButton
+                  url={stripeOnrampUrl(Number(amount))}
+                  variant="stripe"
+                />
               )}
             </div>
             <div className="col-span-1 row-span-1">
