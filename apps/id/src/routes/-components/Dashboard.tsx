@@ -957,16 +957,7 @@ function AssetRow({
       return
 
     // ETH should have `to` as the recipient, `value` as the amount, and `data` as the empty string
-    // ERC20 should have `to` as the recipient, `data` as the encoded function data, and `value` as the empty string
-
-    const data = encodeFunctionData({
-      abi: erc20Abi,
-      args: [
-        sendFormState.values.sendRecipient,
-        Value.from(sendFormState.values.sendAmount, decimals),
-      ],
-      functionName: 'transfer',
-    })
+    // ERC20 should have `to` as the token address, `data` as the encoded function data, and `value` as the empty string
 
     const calls = []
 
@@ -975,7 +966,18 @@ function AssetRow({
         to: sendFormState.values.sendRecipient,
         value: Value.from(sendFormState.values.sendAmount, decimals),
       })
-    else calls.push({ data, to: address })
+    else
+      calls.push({
+        data: encodeFunctionData({
+          abi: erc20Abi,
+          args: [
+            sendFormState.values.sendRecipient,
+            Value.from(sendFormState.values.sendAmount, decimals),
+          ],
+          functionName: 'transfer',
+        }),
+        to: address,
+      })
 
     sendCalls.sendCalls({ calls })
   }
