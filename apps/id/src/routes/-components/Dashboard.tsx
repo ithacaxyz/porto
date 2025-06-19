@@ -955,21 +955,29 @@ function AssetRow({
       !sendFormState.values.sendAmount
     )
       return
-    sendCalls.sendCalls({
-      calls: [
-        {
-          data: encodeFunctionData({
-            abi: erc20Abi,
-            args: [
-              sendFormState.values.sendRecipient,
-              Value.from(sendFormState.values.sendAmount, decimals),
-            ],
-            functionName: 'transfer',
-          }),
-          to: address,
-        },
+
+    // ETH should have `to` as the recipient, `value` as the amount, and `data` as the empty string
+    // ERC20 should have `to` as the recipient, `data` as the encoded function data, and `value` as the empty string
+
+    const data = encodeFunctionData({
+      abi: erc20Abi,
+      args: [
+        sendFormState.values.sendRecipient,
+        Value.from(sendFormState.values.sendAmount, decimals),
       ],
+      functionName: 'transfer',
     })
+
+    const calls = []
+
+    if (address === '0x0000000000000000000000000000000000000000')
+      calls.push({
+        to: sendFormState.values.sendRecipient,
+        value: Value.from(sendFormState.values.sendAmount, decimals),
+      })
+    else calls.push({ data, to: address })
+
+    sendCalls.sendCalls({ calls })
   }
 
   const ref = React.useRef<HTMLTableCellElement | null>(null)
