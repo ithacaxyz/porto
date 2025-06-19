@@ -10,7 +10,7 @@ import type { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { encodeFunctionData, erc20Abi, formatEther } from 'viem'
+import { encodeFunctionData, erc20Abi, formatEther, zeroAddress } from 'viem'
 import {
   useAccount,
   useChainId,
@@ -961,7 +961,7 @@ function AssetRow({
 
     const calls = []
 
-    if (address === '0x0000000000000000000000000000000000000000')
+    if (address === zeroAddress)
       calls.push({
         to: sendFormState.values.sendRecipient,
         value: Value.from(sendFormState.values.sendAmount, decimals),
