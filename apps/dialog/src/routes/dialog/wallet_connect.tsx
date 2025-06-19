@@ -56,12 +56,17 @@ function RouteComponent() {
       const capabilities = params[0]?.capabilities
       const grantAdmins = capabilities?.grantAdmins
 
+      // If any admins need to be authorized, we need to check the
+      // authority & validity of the request.
       if (grantAdmins && grantAdmins.length > 0) {
+        // If the request did not come from a local relay (CLI), do
+        // not allow.
         if (!relayUrl || new URL(relayUrl).hostname !== 'localhost')
           return Actions.respond(porto, request, {
             error: new Provider.UnauthorizedError(),
           }).catch(() => {})
 
+        // If the keys are not trusted by the relay, do not allow.
         const publicKeys = grantAdmins.map((admin) => admin.publicKey)
         const isValid = await verifyKeys(relayUrl, publicKeys)
         if (!isValid)

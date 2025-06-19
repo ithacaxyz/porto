@@ -1,7 +1,12 @@
 {
   "extends": "../tsconfig.base.json",
   "include": ["."],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx", "cli/**/*"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/bin/**",
+    "**/tsdown.config.ts"
+  ],
   "compilerOptions": {
     "noEmit": true,
     "jsx": "react-jsx"

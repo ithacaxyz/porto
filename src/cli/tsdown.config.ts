@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  clean: true,
+  clean: false,
   dts: false,
   entry: [resolve(import.meta.dirname, 'bin/index.ts')],
   external: getExternals(),
