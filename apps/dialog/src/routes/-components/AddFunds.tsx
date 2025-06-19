@@ -20,6 +20,8 @@ import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250'] as const
 
+const onrampOptions = import.meta.env.VITE_ONRAMP_OPTIONS?.split(',') ?? []
+
 function stripeOnrampUrl(amount: number) {
   if (amount < 1 || amount > 30_000) throw new Error('Amount is too high')
 
@@ -182,7 +184,7 @@ export function AddFunds(props: AddFunds.Props) {
               >
                 Buy & deposit
               </Button>
-              {import.meta.env.VITE_FLAGS?.includes('onramp') && (
+              {onrampOptions.includes('stripe-hosted') && (
                 <PayButton
                   url={stripeOnrampUrl(Number(amount))}
                   variant="stripe"
@@ -215,7 +217,7 @@ export function AddFunds(props: AddFunds.Props) {
                   </div>
                 </div>
               </Button>
-              {import.meta.env.VITE_FLAGS?.includes('onramp') && (
+              {onrampOptions.includes('card') && (
                 <Button className="w-full px-3!" type="button">
                   <div className="flex w-full flex-row items-center justify-between">
                     <div className="flex items-center gap-2">
