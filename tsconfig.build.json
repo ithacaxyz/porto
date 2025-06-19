@@ -3,12 +3,13 @@
   "extends": "./tsconfig.base.json",
   "include": ["src"],
   "exclude": [
-    "src/cli/**/*",
+    "**/bin/**",
     "src/**/*.bench.ts",
     "src/**/*.bench-d.ts",
     "src/**/*.snap-d.ts",
     "src/**/*.test.ts",
-    "src/**/*.test-d.ts"
+    "src/**/*.test-d.ts",
+    "src/**/tsdown.config.ts"
   ],
   "compilerOptions": {
     "declaration": true,
