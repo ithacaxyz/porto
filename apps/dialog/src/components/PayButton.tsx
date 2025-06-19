@@ -30,7 +30,7 @@ export function PayButton(props: PayButton.Props) {
         )}
         {...rest}
         // biome-ignore lint/a11y/useAnchorContent: AriaKit composition
-        render={<a href={url} target="_blank" />}
+        render={<a href={url} rel="noreferrer" target="_blank" />}
       >
         Continue with
         <img
