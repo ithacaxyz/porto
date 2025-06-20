@@ -108,7 +108,7 @@ function RouteComponent() {
       <div
         data-dialog
         {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
-        className="border-primary contain-content data-standalone:mx-auto data-standalone:h-fit data-standalone:max-w-[360px] data-iframe:rounded-[14px] data-standalone:rounded-[14px] data-iframe:border data-standalone:border data-standalone:[@media(min-height:400px)]:mt-8"
+        className="border-primary contain-content data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-standalone:max-w-[360px] data-iframe:rounded-[14px] data-popup-standalone:rounded-[14px] data-iframe:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
       >
         <TitleBar
           mode={mode}
