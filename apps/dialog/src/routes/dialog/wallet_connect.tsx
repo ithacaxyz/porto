@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import * as Provider from 'ox/Provider'
 import { Actions, Hooks } from 'porto/remote'
+import * as React from 'react'
 
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
@@ -30,9 +31,11 @@ function RouteComponent() {
     (state) => state.accounts[0]?.address,
   )
 
-  const signIn =
-    (address && !capabilities?.createAccount) ||
-    capabilities?.createAccount === false
+  const actions = React.useMemo<readonly ('sign-in' | 'sign-up')[]>(() => {
+    if (capabilities?.createAccount) return ['sign-up']
+    if (address) return ['sign-in']
+    return ['sign-in', 'sign-up']
+  }, [capabilities?.createAccount, address])
 
   const respond = useMutation({
     async mutationFn({
@@ -134,6 +137,7 @@ function RouteComponent() {
   if (capabilities?.email ?? true)
     return (
       <Email
+        actions={actions}
         defaultValue={
           typeof capabilities?.createAccount === 'object'
             ? capabilities?.createAccount?.label || ''
@@ -142,25 +146,24 @@ function RouteComponent() {
         loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
         permissions={capabilities?.grantPermissions?.permissions}
-        variant={capabilities?.createAccount ? 'sign-up' : 'sign-in'}
       />
     )
 
-  if (signIn)
+  if (actions.includes('sign-up'))
     return (
-      <SignIn
+      <SignUp
+        enableSignIn={actions.includes('sign-in')}
         loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
+        onReject={() => Actions.reject(porto, request)}
         permissions={capabilities?.grantPermissions?.permissions}
       />
     )
 
   return (
-    <SignUp
-      enableSignIn={!capabilities?.createAccount}
+    <SignIn
       loading={respond.isPending}
       onApprove={(options) => respond.mutate(options)}
-      onReject={() => Actions.reject(porto, request)}
       permissions={capabilities?.grantPermissions?.permissions}
     />
   )

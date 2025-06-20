@@ -41,16 +41,6 @@ describe('eth_accounts', () => {
 })
 
 describe('wallet_connect', () => {
-  test('sign up', async () => {
-    porto = getPorto()
-
-    const { accounts } = await interact(
-      porto.provider.request({ method: 'wallet_connect' }),
-      (iframe) => iframe.getByTestId('sign-up').click(),
-    )
-    expect(accounts.length).toBe(1)
-  })
-
   test('sign in', async () => {
     porto = getPorto()
 
@@ -76,7 +66,10 @@ describe('wallet_disconnect', () => {
     porto = getPorto()
 
     await interact(
-      porto.provider.request({ method: 'wallet_connect' }),
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
@@ -104,7 +97,10 @@ describe('wallet_getAdmins', () => {
     porto = getPorto()
 
     await interact(
-      porto.provider.request({ method: 'wallet_connect' }),
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
@@ -119,7 +115,10 @@ describe('wallet_getAdmins', () => {
     porto = getPorto()
 
     await interact(
-      porto.provider.request({ method: 'wallet_connect' }),
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
@@ -148,6 +147,7 @@ describe('wallet_getPermissions', () => {
         params: [
           {
             capabilities: {
+              createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
                 permissions: {
