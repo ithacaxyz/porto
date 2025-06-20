@@ -32,7 +32,9 @@ export function PayButton(props: PayButton.Props) {
         // biome-ignore lint/a11y/useAnchorContent: AriaKit composition
         render={<a href={url} rel="noreferrer" target="_blank" />}
       >
-        Continue with
+        <span>
+          Continue with <span className="sr-only">Stripe Link</span>
+        </span>
         <img
           alt="Stripe Link"
           className="mr-0.5 ml-1.5 inline size-13"
