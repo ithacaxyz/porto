@@ -2,7 +2,7 @@ import type { Porto } from 'porto'
 import { waitForCallsStatus } from 'viem/actions'
 import { afterEach, describe, expect, test } from 'vitest'
 import { getPorto } from '../../../test/src/browser/porto.js'
-import { run } from '../../../test/src/browser/utils.js'
+import { interact } from '../../../test/src/browser/utils.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 
 let porto: Porto.Porto | undefined
@@ -18,15 +18,14 @@ describe('eth_accounts', () => {
   test('default', async () => {
     porto = getPorto()
 
-    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
-      iframe.getByTestId('sign-up').click(),
+    await interact(
+      porto.provider.request({ method: 'wallet_connect' }),
+      (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
-    const accounts = await run(
-      porto.provider.request({
-        method: 'eth_accounts',
-      }),
-    )
+    const accounts = await porto.provider.request({
+      method: 'eth_accounts',
+    })
     expect(accounts.length).toBe(1)
   })
 
@@ -42,29 +41,19 @@ describe('eth_accounts', () => {
 })
 
 describe('wallet_connect', () => {
-  test('sign up', async () => {
-    porto = getPorto()
-
-    const { accounts } = await run(
-      porto.provider.request({ method: 'wallet_connect' }),
-      (iframe) => iframe.getByTestId('sign-up').click(),
-    )
-    expect(accounts.length).toBe(1)
-  })
-
   test('sign in', async () => {
     porto = getPorto()
 
-    await run(
+    await interact(
       porto.provider.request({
         method: 'wallet_connect',
         params: [{ capabilities: { createAccount: true } }],
       }),
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
-    await run(porto.provider.request({ method: 'wallet_disconnect' }))
+    await porto.provider.request({ method: 'wallet_disconnect' })
 
-    const { accounts } = await run(
+    const { accounts } = await interact(
       porto.provider.request({ method: 'wallet_connect' }),
       (iframe) => iframe.getByTestId('sign-in').click(),
     )
@@ -76,17 +65,21 @@ describe('wallet_disconnect', () => {
   test('default', async () => {
     porto = getPorto()
 
-    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
-      iframe.getByTestId('sign-up').click(),
+    await interact(
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
+      (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
     const messages: any[] = []
     porto.provider.on('disconnect', (message) => messages.push(message))
 
-    await run(porto.provider.request({ method: 'wallet_disconnect' }))
+    await porto.provider.request({ method: 'wallet_disconnect' })
 
     await expect(
-      run(porto.provider.request({ method: 'eth_accounts' })),
+      porto.provider.request({ method: 'eth_accounts' }),
     ).rejects.toThrowError()
 
     const accounts2 = porto._internal.store.getState().accounts
@@ -103,8 +96,12 @@ describe('wallet_getAdmins', () => {
   test('default', async () => {
     porto = getPorto()
 
-    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
-      iframe.getByTestId('sign-up').click(),
+    await interact(
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
+      (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
     const { address, keys } = await porto.provider.request({
@@ -117,14 +114,19 @@ describe('wallet_getAdmins', () => {
   test('behavior: disconnect > connect > getAdmins', async () => {
     porto = getPorto()
 
-    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
-      iframe.getByTestId('sign-up').click(),
+    await interact(
+      porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      }),
+      (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
-    await run(porto.provider.request({ method: 'wallet_disconnect' }))
+    await porto.provider.request({ method: 'wallet_disconnect' })
 
-    await run(porto.provider.request({ method: 'wallet_connect' }), (iframe) =>
-      iframe.getByTestId('sign-in').click(),
+    await interact(
+      porto.provider.request({ method: 'wallet_connect' }),
+      (iframe) => iframe.getByTestId('sign-in').click(),
     )
 
     const { address, keys } = await porto.provider.request({
@@ -139,12 +141,13 @@ describe('wallet_getPermissions', () => {
   test('default', async () => {
     porto = getPorto()
 
-    await run(
+    await interact(
       porto.provider.request({
         method: 'wallet_connect',
         params: [
           {
             capabilities: {
+              createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
                 permissions: {
@@ -158,7 +161,7 @@ describe('wallet_getPermissions', () => {
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
-    await run(
+    await interact(
       porto.provider.request({
         method: 'wallet_grantPermissions',
         params: [
@@ -171,18 +174,16 @@ describe('wallet_getPermissions', () => {
       (iframe) => iframe.getByTestId('grant').click(),
     )
 
-    const permissions = await run(
-      porto.provider.request({
-        method: 'wallet_getPermissions',
-      }),
-    )
+    const permissions = await porto.provider.request({
+      method: 'wallet_getPermissions',
+    })
     expect(permissions.length).toBe(2)
   })
 
   test('behavior: grant on connect; grant another; get after connect', async () => {
     porto = getPorto()
 
-    await run(
+    await interact(
       porto.provider.request({
         method: 'wallet_connect',
         params: [
@@ -206,7 +207,7 @@ describe('wallet_getPermissions', () => {
       (iframe) => iframe.getByTestId('sign-up').click(),
     )
 
-    await run(
+    await interact(
       porto.provider.request({
         method: 'wallet_grantPermissions',
         params: [
@@ -235,7 +236,7 @@ describe('wallet_getPermissions', () => {
       ).matchSnapshot()
     }
 
-    const { id } = await run(
+    const { id } = await interact(
       porto.provider.request({
         method: 'wallet_sendCalls',
         params: [{ calls: [] }],

@@ -120,7 +120,6 @@ export function Email(props: Email.Props) {
           // the user may want to sign in with a different passkey.
           <Button
             className="flex w-full gap-2"
-            data-testid="sign-in"
             onClick={() => {
               setLoadingTitle('Signing in...')
               onApprove({ selectAccount: true, signIn: true })
