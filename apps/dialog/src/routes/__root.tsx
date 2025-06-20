@@ -66,14 +66,14 @@ function RouteComponent() {
           if (height === lastHeight) return
 
           const titlebarHeight = titlebarRef.current?.clientHeight ?? 0
-          const modeHeight =
-            mode === 'popup'
-              ? UserAgent.isSafari()
-                ? 28 // safari: 27px title bar, 1px in borders
-                : UserAgent.isFirefox()
-                  ? 63 // firefox: 27px title bar, 34px address bar, 2px in borders
-                  : 63 // chrome: 27px title bar, 34px address bar, 2px in borders
-              : 2
+          const modeHeight = (() => {
+            if (mode === 'popup' && !UserAgent.isMobile()) {
+              if (UserAgent.isSafari()) return 27 + 1 // safari: 27px title bar, 1px in borders
+              return 27 + 34 + 2 // others: 27px title bar, 34px address bar, 2px in borders
+            }
+            return 2 // standalone: 2px in borders
+          })()
+
           const totalHeight = height + titlebarHeight + modeHeight
           lastHeight = height
 
@@ -95,14 +95,20 @@ function RouteComponent() {
     }
   }, [mode])
 
+  const styleMode = React.useMemo(() => {
+    if (mode === 'inline-iframe') return 'iframe' // condense to "iframe" for style simplicity
+    if (mode === 'popup' && UserAgent.isMobile()) return 'standalone' // popups on mobile look "standalone"
+    return mode
+  }, [mode])
+
   return (
     <>
       <HeadContent />
 
       <div
         data-dialog
-        {...{ [`data-${mode === 'inline-iframe' ? 'iframe' : mode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
-        className="border-primary contain-content data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-standalone:max-w-[360px] data-iframe:rounded-[14px] data-popup-standalone:rounded-[14px] data-iframe:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
+        {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
+        className="border-primary contain-content data-standalone:mx-auto data-standalone:h-fit data-standalone:max-w-[360px] data-iframe:rounded-[14px] data-standalone:rounded-[14px] data-iframe:border data-standalone:border data-standalone:[@media(min-height:400px)]:mt-8"
       >
         <TitleBar
           mode={mode}

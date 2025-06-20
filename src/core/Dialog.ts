@@ -364,7 +364,7 @@ export function popup() {
           })
 
           messenger.send('__internal', {
-            mode: isMobile() ? 'popup-standalone' : 'popup',
+            mode: 'popup',
             referrer: getReferrer(),
             type: 'init',
           })
