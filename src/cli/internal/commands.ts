@@ -72,9 +72,8 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     }
   }
 
-  const env = args.dialog?.split(/\.|-/)[0]
   prompts.log.info('Address: ' + accounts[0]!.address)
-  prompts.log.info(`Manage your account at: https://${env ?? ''}.id.porto.sh`)
+  prompts.log.info('Manage your account at: https://id.porto.sh')
 
   await setTimeout(1_000)
   process.exit(0)

@@ -148,6 +148,9 @@ importers:
       '@changesets/cli':
         specifier: ^2.27.7
         version: 2.29.4
+      '@clack/prompts':
+        specifier: ~0.11.0
+        version: 0.11.0
       '@mjackson/node-fetch-server':
         specifier: ^0.6.1
         version: 0.6.1
@@ -178,6 +181,9 @@ importers:
       '@wagmi/core':
         specifier: 'catalog:'
         version: 2.17.2(patch_hash=049ef0ca2574b9586b51482584b89fb1376b94c1a64fe84d4c0ed4a1e795d9f3)(@tanstack/query-core@5.77.1)(@types/react@19.1.5)(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(viem@2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28))
+      cac:
+        specifier: ^6
+        version: 6.7.14
       http-proxy:
         specifier: ^1.18.1
         version: 1.18.1
@@ -952,15 +958,6 @@ importers:
       zustand:
         specifier: ^5.0.1
         version: 5.0.5(@types/react@19.1.5)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
-
-  src/cli:
-    dependencies:
-      '@clack/prompts':
-        specifier: ~0.11.0
-        version: 0.11.0
-      cac:
-        specifier: ^6
-        version: 6.7.14
 
 packages:
 
