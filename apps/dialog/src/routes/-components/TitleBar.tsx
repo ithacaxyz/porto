@@ -102,7 +102,7 @@ export function TitleBar(props: TitleBar.Props) {
         )}
       </div>
 
-      {mode !== 'inline-iframe' && mode !== 'popup-standalone' && (
+      {mode !== 'inline-iframe' && mode !== 'standalone' && (
         <button
           onClick={() => Actions.rejectAll(porto)}
           title="Close Dialog"
