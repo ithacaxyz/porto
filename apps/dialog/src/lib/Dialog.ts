@@ -19,7 +19,7 @@ export const store = createStore<store.State>(() => {
 
   return {
     error: null,
-    mode: 'standalone',
+    mode: 'popup-standalone',
     referrer,
   }
 })

@@ -73,7 +73,7 @@ export type Schema = [
     payload:
       | {
           type: 'init'
-          mode: 'inline-iframe' | 'iframe' | 'popup' | 'standalone'
+          mode: 'inline-iframe' | 'iframe' | 'popup' | 'popup-standalone'
           referrer: {
             icon?: string | { light: string; dark: string } | undefined
             title: string
@@ -81,7 +81,7 @@ export type Schema = [
         }
       | {
           type: 'switch'
-          mode: 'inline-iframe' | 'iframe' | 'popup' | 'standalone'
+          mode: 'inline-iframe' | 'iframe' | 'popup' | 'popup-standalone'
         }
       | {
           type: 'resize'

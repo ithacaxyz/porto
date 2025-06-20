@@ -97,7 +97,7 @@ function RouteComponent() {
 
   const styleMode = React.useMemo(() => {
     if (mode === 'inline-iframe') return 'iframe' // condense to "iframe" for style simplicity
-    if (mode === 'popup' && UserAgent.isMobile()) return 'standalone' // popups on mobile look "standalone"
+    if (mode === 'popup' && UserAgent.isMobile()) return 'popup-standalone' // popups on mobile look "standalone"
     return mode
   }, [mode])
 
