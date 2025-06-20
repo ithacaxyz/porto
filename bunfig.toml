@@ -1,3 +1,4 @@
-telemetry = false
-[run]
-bun = true
+run.bun = true
+bun.run = true
+
+logLevel = "debug"

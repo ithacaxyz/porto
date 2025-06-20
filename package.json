@@ -2,53 +2,6 @@
   "name": "porto",
   "private": true,
   "type": "module",
-  "workspaces": {
-    "packages": [
-      "apps/*",
-      "docker/*",
-      "examples/*",
-      "src"
-    ],
-    "catalog": {
-      "@ariakit/react": "^0.4.17",
-      "@ariakit/tailwind": "^0.1.7",
-      "@iconify/json": "^2.2.347",
-      "@sentry/react": "^9",
-      "@sentry/vite-plugin": "^3",
-      "@svgr/core": "^8.1.0",
-      "@svgr/plugin-jsx": "^8.1.0",
-      "@tanstack/query-sync-storage-persister": "^5.74.3",
-      "@tanstack/react-query": "^5.74.3",
-      "@tanstack/react-query-persist-client": "^5.74.3",
-      "@tanstack/react-router": "^1.114.25",
-      "@tanstack/router-plugin": "^1.114.17",
-      "@tanstack/react-query-devtools": "^5.74.3",
-      "@tanstack/react-router-devtools": "^1.114.25",
-      "@types/node": "^22.14.1",
-      "@types/react": "^19",
-      "@types/react-dom": "^19",
-      "@wagmi/core": "^2.17.2",
-      "cva": "npm:class-variance-authority@^0.7.1",
-      "globals": "^16.0.0",
-      "ox": "^0.1.1",
-      "prool": "^0.0.23",
-      "react": "^19",
-      "react-dom": "^19",
-      "sonner": "^2.0.5",
-      "tailwindcss": "^4.1.8",
-      "@tailwindcss/vite": "^4.1.8",
-      "tw-animate-css": "^1.3.4",
-      "typescript": "^5.8.3",
-      "unplugin-icons": "^22.1.0",
-      "viem": "^2.30.6",
-      "vite": "^6.0.7",
-      "vitest": "^3.1.1",
-      "vite-plugin-mkcert": "^1.17.8",
-      "wagmi": "^2.15.4",
-      "zustand": "^5.0.3",
-      "@vitejs/plugin-react": "^4.3.4"
-    }
-  },
   "scripts": {
     "build": "bun clean && tsc --project ./tsconfig.build.json",
     "build:anvil-state": "bun scripts/build:anvil-state.ts",
@@ -112,7 +65,55 @@
     "wagmi": "catalog:"
   },
   "packageManager": "bun@1.2.15",
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "docker/*",
+      "examples/*",
+      "src"
+    ],
+    "catalog": {
+      "@ariakit/react": "^0.4.17",
+      "@ariakit/tailwind": "^0.1.7",
+      "@iconify/json": "^2.2.347",
+      "@sentry/react": "^9",
+      "@sentry/vite-plugin": "^3",
+      "@svgr/core": "^8.1.0",
+      "@svgr/plugin-jsx": "^8.1.0",
+      "@tanstack/query-sync-storage-persister": "^5.74.3",
+      "@tanstack/react-query": "^5.74.3",
+      "@tanstack/react-query-persist-client": "^5.74.3",
+      "@tanstack/react-router": "^1.114.25",
+      "@tanstack/router-plugin": "^1.114.17",
+      "@tanstack/react-query-devtools": "^5.74.3",
+      "@tanstack/react-router-devtools": "^1.114.25",
+      "@types/node": "^22.14.1",
+      "@types/react": "^19",
+      "@types/react-dom": "^19",
+      "@wagmi/core": "^2.17.2",
+      "cva": "npm:class-variance-authority@^0.7.1",
+      "globals": "^16.0.0",
+      "ox": "^0.1.1",
+      "prool": "^0.0.23",
+      "react": "^19",
+      "react-dom": "^19",
+      "sonner": "^2.0.5",
+      "tailwindcss": "^4.1.8",
+      "@tailwindcss/vite": "^4.1.8",
+      "tw-animate-css": "^1.3.4",
+      "typescript": "^5.8.3",
+      "unplugin-icons": "^22.1.0",
+      "viem": "^2.30.6",
+      "vite": "^6.0.7",
+      "vitest": "^3.1.1",
+      "vite-plugin-mkcert": "^1.17.8",
+      "wagmi": "^2.15.4",
+      "zustand": "^5.0.3",
+      "@vitejs/plugin-react": "^4.3.4"
+    }
+  },
   "engines": {
+    "bun": ">=1.2.15",
     "node": ">=22.5"
   },
   "simple-git-hooks": {
@@ -162,5 +163,11 @@
       "@wagmi/core": "patches/@wagmi__core.patch",
       "@vitest/browser": "patches/@vitest__browser.patch"
     }
-  }
+  },
+  "trustedDependencies": [
+    "esbuild",
+    "sharp",
+    "@sentry/cli",
+    "@tailwindcss/oxide"
+  ]
 }

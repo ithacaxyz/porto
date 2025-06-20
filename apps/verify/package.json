@@ -4,7 +4,6 @@
   "type": "module",
   "scripts": {
     "dev": "bunx wrangler@latest --config='wrangler.json' dev",
-    "build": "bunx wrangler@latest --config='wrangler.json' deploy --dry-run",
     "deploy": "bunx wrangler@latest --config='wrangler.json' deploy --keep-vars"
   },
   "devDependencies": {

@@ -374,6 +374,12 @@
       ],
     },
   },
+  "trustedDependencies": [
+    "@tailwindcss/oxide",
+    "esbuild",
+    "sharp",
+    "@sentry/cli",
+  ],
   "catalog": {
     "@ariakit/react": "^0.4.17",
     "@ariakit/tailwind": "^0.1.7",
@@ -1260,7 +1266,7 @@
 
     "@types/babel__traverse": ["@types/babel__traverse@7.20.7", "", { "dependencies": { "@babel/types": "^7.20.7" } }, "sha512-dkO5fhS7+/oos4ciWxyEyjWe48zmG6wbCheo/G2ZnHx4fs3EU6YC6UM8rk56gAjNJ9P3MTH2jo5jb92/K6wbng=="],
 
-    "@types/bun": ["@types/bun@1.2.15", "", { "dependencies": { "bun-types": "1.2.15" } }, "sha512-U1ljPdBEphF0nw1MIk0hI7kPg7dFdPyM7EenHsp6W5loNHl7zqy6JQf/RKCgnUn2KDzUpkBwHPnEJEjII594bA=="],
+    "@types/bun": ["@types/bun@1.2.16", "", { "dependencies": { "bun-types": "1.2.16" } }, "sha512-1aCZJ/6nSiViw339RsaNhkNoEloLaPzZhxMOYEa7OzRzO41IGg5n/7I43/ZIAW/c+Q6cT12Vf7fOZOoVIzb5BQ=="],
 
     "@types/chai": ["@types/chai@5.2.2", "", { "dependencies": { "@types/deep-eql": "*" } }, "sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg=="],
 
@@ -1646,7 +1652,7 @@
 
     "bufferutil": ["bufferutil@4.0.9", "", { "dependencies": { "node-gyp-build": "^4.3.0" } }, "sha512-WDtdLmJvAuNNPzByAYpRo2rF1Mmradw6gvWsQKf63476DDXmomT9zUiGypLcG4ibIM67vhAj8jJRdbmEws2Aqw=="],
 
-    "bun-types": ["bun-types@1.2.15", "", { "dependencies": { "@types/node": "*" } }, "sha512-NarRIaS+iOaQU1JPfyKhZm4AsUOrwUOqRNHY0XxI8GI8jYxiLXLcdjYMG9UKS+fwWasc1uw1htV9AX24dD+p4w=="],
+    "bun-types": ["bun-types@1.2.16", "", { "dependencies": { "@types/node": "*" } }, "sha512-ciXLrHV4PXax9vHvUrkvun9VPVGOVwbbbBF/Ev1cXz12lyEZMoJpIJABOfPcN9gDJRaiKF9MVbSygLg4NXu3/A=="],
 
     "bundle-name": ["bundle-name@4.1.0", "", { "dependencies": { "run-applescript": "^7.0.0" } }, "sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q=="],
 
@@ -3992,7 +3998,7 @@
 
     "next/postcss": ["postcss@8.4.31", "", { "dependencies": { "nanoid": "^3.3.6", "picocolors": "^1.0.0", "source-map-js": "^1.0.2" } }, "sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ=="],
 
-    "next-example/porto": ["porto@0.0.29", "", { "dependencies": { "@sinclair/typebox": "~0.34", "idb-keyval": "^6.2.1", "mipd": "^0.0.7", "ox": "^0.6.12", "zustand": "^5.0.1" }, "peerDependencies": { "@tanstack/react-query": ">=5.59.0", "@wagmi/core": ">=2.16.3", "react": ">=18", "typescript": ">=5.4.0", "viem": ">=2.28.0", "wagmi": ">=2.0.0" }, "optionalPeers": ["@tanstack/react-query", "react", "typescript", "wagmi"] }, "sha512-RDhiZ4MIBJIR/8z1ml+rf6qx0EOSIIV0kZDdPuYQWsgmSfr3lrku4jVY8ovrRDHIwlO1+n9Ff+GEoOFI1yw+mg=="],
+    "next-example/porto": ["porto@0.0.32", "", { "dependencies": { "@sinclair/typebox": "~0.34", "idb-keyval": "^6.2.1", "mipd": "^0.0.7", "open": "^10.1.0", "ox": "^0.6.12", "zustand": "^5.0.1" }, "peerDependencies": { "@tanstack/react-query": ">=5.59.0", "@wagmi/core": ">=2.16.3", "react": ">=18", "typescript": ">=5.4.0", "viem": ">=2.28.0", "wagmi": ">=2.0.0" }, "optionalPeers": ["@tanstack/react-query", "react", "typescript", "wagmi"], "bin": { "porto": "_dist/cli/bin/index.js" } }, "sha512-PCbCNvAWvL4CFjoclUXTjyUzEwJOY91MGzn2fQMMoij7cUscIQG334oi+g53FU7ptOiq9w0wgDGMfWIBIkA4GQ=="],
 
     "node-notifier/is-wsl": ["is-wsl@2.2.0", "", { "dependencies": { "is-docker": "^2.0.0" } }, "sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww=="],
 
@@ -4020,9 +4026,9 @@
 
     "parse5-htmlparser2-tree-adapter/parse5": ["parse5@6.0.1", "", {}, "sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw=="],
 
-    "payments/porto": ["porto@0.0.29", "", { "dependencies": { "@sinclair/typebox": "~0.34", "idb-keyval": "^6.2.1", "mipd": "^0.0.7", "ox": "^0.6.12", "zustand": "^5.0.1" }, "peerDependencies": { "@tanstack/react-query": ">=5.59.0", "@wagmi/core": ">=2.16.3", "react": ">=18", "typescript": ">=5.4.0", "viem": ">=2.28.0", "wagmi": ">=2.0.0" }, "optionalPeers": ["@tanstack/react-query", "react", "typescript", "wagmi"] }, "sha512-RDhiZ4MIBJIR/8z1ml+rf6qx0EOSIIV0kZDdPuYQWsgmSfr3lrku4jVY8ovrRDHIwlO1+n9Ff+GEoOFI1yw+mg=="],
+    "payments/porto": ["porto@0.0.32", "", { "dependencies": { "@sinclair/typebox": "~0.34", "idb-keyval": "^6.2.1", "mipd": "^0.0.7", "open": "^10.1.0", "ox": "^0.6.12", "zustand": "^5.0.1" }, "peerDependencies": { "@tanstack/react-query": ">=5.59.0", "@wagmi/core": ">=2.16.3", "react": ">=18", "typescript": ">=5.4.0", "viem": ">=2.28.0", "wagmi": ">=2.0.0" }, "optionalPeers": ["@tanstack/react-query", "react", "typescript", "wagmi"], "bin": { "porto": "_dist/cli/bin/index.js" } }, "sha512-PCbCNvAWvL4CFjoclUXTjyUzEwJOY91MGzn2fQMMoij7cUscIQG334oi+g53FU7ptOiq9w0wgDGMfWIBIkA4GQ=="],
 
-    "permissions/porto": ["porto@0.0.29", "", { "dependencies": { "@sinclair/typebox": "~0.34", "idb-keyval": "^6.2.1", "mipd": "^0.0.7", "ox": "^0.6.12", "zustand": "^5.0.1" }, "peerDependencies": { "@tanstack/react-query": ">=5.59.0", "@wagmi/core": ">=2.16.3", "react": ">=18", "typescript": ">=5.4.0", "viem": ">=2.28.0", "wagmi": ">=2.0.0" }, "optionalPeers": ["@tanstack/react-query", "react", "typescript", "wagmi"] }, "sha512-RDhiZ4MIBJIR/8z1ml+rf6qx0EOSIIV0kZDdPuYQWsgmSfr3lrku4jVY8ovrRDHIwlO1+n9Ff+GEoOFI1yw+mg=="],
+    "permissions/porto": ["porto@0.0.32", "", { "dependencies": { "@sinclair/typebox": "~0.34", "idb-keyval": "^6.2.1", "mipd": "^0.0.7", "open": "^10.1.0", "ox": "^0.6.12", "zustand": "^5.0.1" }, "peerDependencies": { "@tanstack/react-query": ">=5.59.0", "@wagmi/core": ">=2.16.3", "react": ">=18", "typescript": ">=5.4.0", "viem": ">=2.28.0", "wagmi": ">=2.0.0" }, "optionalPeers": ["@tanstack/react-query", "react", "typescript", "wagmi"], "bin": { "porto": "_dist/cli/bin/index.js" } }, "sha512-PCbCNvAWvL4CFjoclUXTjyUzEwJOY91MGzn2fQMMoij7cUscIQG334oi+g53FU7ptOiq9w0wgDGMfWIBIkA4GQ=="],
 
     "pkg-types/pathe": ["pathe@2.0.3", "", {}, "sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w=="],
 
@@ -4144,7 +4150,7 @@
 
     "vite-node/pathe": ["pathe@2.0.3", "", {}, "sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w=="],
 
-    "vite-react/porto": ["porto@0.0.29", "", { "dependencies": { "@sinclair/typebox": "~0.34", "idb-keyval": "^6.2.1", "mipd": "^0.0.7", "ox": "^0.6.12", "zustand": "^5.0.1" }, "peerDependencies": { "@tanstack/react-query": ">=5.59.0", "@wagmi/core": ">=2.16.3", "react": ">=18", "typescript": ">=5.4.0", "viem": ">=2.28.0", "wagmi": ">=2.0.0" }, "optionalPeers": ["@tanstack/react-query", "react", "typescript", "wagmi"] }, "sha512-RDhiZ4MIBJIR/8z1ml+rf6qx0EOSIIV0kZDdPuYQWsgmSfr3lrku4jVY8ovrRDHIwlO1+n9Ff+GEoOFI1yw+mg=="],
+    "vite-react/porto": ["porto@0.0.32", "", { "dependencies": { "@sinclair/typebox": "~0.34", "idb-keyval": "^6.2.1", "mipd": "^0.0.7", "open": "^10.1.0", "ox": "^0.6.12", "zustand": "^5.0.1" }, "peerDependencies": { "@tanstack/react-query": ">=5.59.0", "@wagmi/core": ">=2.16.3", "react": ">=18", "typescript": ">=5.4.0", "viem": ">=2.28.0", "wagmi": ">=2.0.0" }, "optionalPeers": ["@tanstack/react-query", "react", "typescript", "wagmi"], "bin": { "porto": "_dist/cli/bin/index.js" } }, "sha512-PCbCNvAWvL4CFjoclUXTjyUzEwJOY91MGzn2fQMMoij7cUscIQG334oi+g53FU7ptOiq9w0wgDGMfWIBIkA4GQ=="],
 
     "vitest/pathe": ["pathe@2.0.3", "", {}, "sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w=="],
 
