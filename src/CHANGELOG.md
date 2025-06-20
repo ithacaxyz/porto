@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.32
+
+### Patch Changes
+
+- [`43eb41d`](https://github.com/ithacaxyz/porto/commit/43eb41d0c464360188665a15f9067504368cdb1c) Thanks [@jxom](https://github.com/jxom)! - **CLI:** Fixed id.porto.sh CTA on account creation.
+
 ## 0.0.31
 
 ### Patch Changes
