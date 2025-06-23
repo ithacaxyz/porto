@@ -1,8 +1,11 @@
 import { Button, Input } from '@porto/apps/components'
+import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
+import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { Permissions } from '~/routes/-components/Permissions'
+import { StringFormatter } from '~/utils'
 import LucideLogIn from '~icons/lucide/log-in'
 import IconScanFace from '~icons/porto/scan-face'
 
@@ -16,6 +19,18 @@ export function Email(props: Email.Props) {
   } = props
 
   const [loadingTitle, setLoadingTitle] = React.useState('Signing up...')
+
+  const account = Hooks.useAccount(porto)
+  const email = Dialog.useStore((state) =>
+    account?.address
+      ? state.accountMetadata[account.address]?.email
+      : undefined,
+  )
+  const displayName = (() => {
+    if (!account) return undefined
+    if (email) return email
+    return StringFormatter.truncate(account.address)
+  })()
 
   const cli = Dialog.useStore((state) =>
     state.referrer?.url?.toString().startsWith('cli'),
@@ -33,17 +48,30 @@ export function Email(props: Email.Props) {
     [onApprove],
   )
 
-  const content = cli ? undefined : (
-    <>
-      Authenticate with your Porto account to start using{' '}
-      {hostname ? (
-        <span className="font-medium">{hostname}</span>
-      ) : (
-        'this website'
-      )}
-      .
-    </>
-  )
+  const content = React.useMemo(() => {
+    if (cli) return undefined
+    if (actions.includes('sign-in'))
+      return (
+        <>
+          By continuing, you will be signed in as{' '}
+          <span className="font-medium">{displayName}</span>
+        </>
+      )
+    return (
+      <>
+        Create a <span className="font-medium text-accent">Porto</span> account
+        to sign in to{' '}
+        {hostname ? (
+          <>
+            <span className="font-medium">{hostname}</span> and more
+          </>
+        ) : (
+          'this website'
+        )}
+        .
+      </>
+    )
+  }, [actions, cli, displayName, hostname])
 
   return (
     <Layout loading={loading} loadingTitle={loadingTitle}>
@@ -70,7 +98,7 @@ export function Email(props: Email.Props) {
             variant="accent"
           >
             <IconScanFace className="size-5.25" />
-            Sign in
+            {actions.includes('sign-up') ? 'Sign in' : 'Continue'}
           </Button>
         )}
 
@@ -110,7 +138,10 @@ export function Email(props: Email.Props) {
               <span className="hidden group-has-[:user-invalid]:block">
                 Invalid email
               </span>
-              <span className="block group-has-[:user-invalid]:hidden">
+              <span className="flex gap-2 group-has-[:user-invalid]:hidden">
+                {!actions.includes('sign-in') && (
+                  <IconScanFace className="size-5.25" />
+                )}
                 Create account
               </span>
             </Button>
@@ -127,7 +158,7 @@ export function Email(props: Email.Props) {
             type="button"
             variant="default"
           >
-            Sign in using a different passkey
+            Change account
           </Button>
         )}
       </div>

@@ -78,7 +78,7 @@ function RouteComponent() {
           }).catch(() => {})
       }
 
-      return Actions.respond(
+      const response = await Actions.respond(
         porto,
         {
           ...request,
@@ -129,6 +129,20 @@ function RouteComponent() {
           },
         },
       )
+
+      const { accounts } = response as { accounts: { address: string }[] }
+      const address = accounts[0]?.address
+
+      if (address && email)
+        Dialog.store.setState((state) => ({
+          ...state,
+          accountMetadata: {
+            ...state.accountMetadata,
+            [address]: { email },
+          },
+        }))
+
+      return response
     },
   })
 
