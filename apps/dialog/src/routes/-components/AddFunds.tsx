@@ -8,6 +8,7 @@ import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { PayButton } from '~/components/PayButton'
 import * as FeeToken from '~/lib/FeeToken'
+import { onrampOptions, stripeOnrampUrl } from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -19,28 +20,6 @@ import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250'] as const
-
-const onrampOptions = import.meta.env.VITE_ONRAMP_OPTIONS?.split(',') ?? []
-
-function stripeOnrampUrl(amount: number) {
-  if (amount < 1 || amount > 30_000) {
-    console.warn(
-      `Invalid amount for Stripe onramp: ${amount}. Must be between 1 and 30,000.`,
-    )
-    return
-  }
-
-  const searchParams = new URLSearchParams({
-    destination_currency: 'usdc',
-    destination_network: 'base',
-    ref: 'porto',
-    source_amount: amount.toString(),
-    source_currency: 'usd',
-  })
-  const url = new URL('https://crypto.link.com')
-  url.search = searchParams.toString()
-  return url.toString()
-}
 
 export function AddFunds(props: AddFunds.Props) {
   const {
