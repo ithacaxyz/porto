@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Json } from 'ox'
 import type { Porto } from 'porto'
 import { codeToHtml } from 'shiki'
-import { Client, createClient, custom } from 'viem'
+import { type Client, createClient, custom } from 'viem'
 import { useAccount, useConnectors } from 'wagmi'
 
 import { Button } from './Button'
@@ -80,7 +80,7 @@ export function TryItOut(props: TryItOut.Props) {
       {mutation.data?.html ? (
         <div className="vocs_CodeBlock">
           <div className="vocs_Pre_wrapper">
-            {/* biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> */}
+            {/* biome-ignore lint/security/noDangerouslySetInnerHtml: _ */}
             <div dangerouslySetInnerHTML={{ __html: mutation.data.html }} />
           </div>
         </div>

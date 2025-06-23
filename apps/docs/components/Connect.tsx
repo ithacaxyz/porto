@@ -34,7 +34,7 @@ export function Connect(props: Connect.Props) {
         <Button
           className="gap-2"
           render={
-            // biome-ignore lint/a11y/useAnchorContent:
+            // biome-ignore lint/a11y/useAnchorContent: _
             <a href={idOrigin} rel="noreferrer" target="_blank" />
           }
           size={size}

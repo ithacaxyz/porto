@@ -1,4 +1,4 @@
-import * as Typebox from './typebox.js'
+import type * as Typebox from './typebox.js'
 import { Type } from './typebox.js'
 
 export const Kind = Type.Union([

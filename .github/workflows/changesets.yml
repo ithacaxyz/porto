@@ -45,10 +45,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish Prerelease
-        run: |
-          git reset --hard origin/main
-          pnpm clean
-          pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'

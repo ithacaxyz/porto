@@ -97,6 +97,7 @@ export async function respond<result>(
         _request: request,
       }),
     )
+    return result
   } catch (e) {
     const error = e as RpcResponse.BaseError
     if (options?.onError?.(error)?.cancelResponse === true)

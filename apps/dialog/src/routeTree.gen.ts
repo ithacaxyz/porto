@@ -22,6 +22,7 @@ import { Route as DialogWalletgrantPermissionsImport } from './routes/dialog/wal
 import { Route as DialogWalletgrantAdminImport } from './routes/dialog/wallet_grantAdmin'
 import { Route as DialogWalletconnectImport } from './routes/dialog/wallet_connect'
 import { Route as DialogWalletaddFundsImport } from './routes/dialog/wallet_addFunds'
+import { Route as DialogSuccessImport } from './routes/dialog/success'
 import { Route as DialogPlaygroundImport } from './routes/dialog/playground'
 import { Route as DialogPersonalsignImport } from './routes/dialog/personal_sign'
 import { Route as DialogEthsendTransactionImport } from './routes/dialog/eth_sendTransaction'
@@ -97,6 +98,12 @@ const DialogWalletconnectRoute = DialogWalletconnectImport.update({
 const DialogWalletaddFundsRoute = DialogWalletaddFundsImport.update({
   id: '/dialog/wallet_addFunds',
   path: '/dialog/wallet_addFunds',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DialogSuccessRoute = DialogSuccessImport.update({
+  id: '/dialog/success',
+  path: '/dialog/success',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -189,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DialogPlaygroundImport
       parentRoute: typeof rootRoute
     }
+    '/dialog/success': {
+      id: '/dialog/success'
+      path: '/dialog/success'
+      fullPath: '/dialog/success'
+      preLoaderRoute: typeof DialogSuccessImport
+      parentRoute: typeof rootRoute
+    }
     '/dialog/wallet_addFunds': {
       id: '/dialog/wallet_addFunds'
       path: '/dialog/wallet_addFunds'
@@ -272,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
+  '/dialog/success': typeof DialogSuccessRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
@@ -292,6 +307,7 @@ export interface FileRoutesByTo {
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
+  '/dialog/success': typeof DialogSuccessRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
@@ -313,6 +329,7 @@ export interface FileRoutesById {
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
+  '/dialog/success': typeof DialogSuccessRoute
   '/dialog/wallet_addFunds': typeof DialogWalletaddFundsRoute
   '/dialog/wallet_connect': typeof DialogWalletconnectRoute
   '/dialog/wallet_grantAdmin': typeof DialogWalletgrantAdminRoute
@@ -335,6 +352,7 @@ export interface FileRouteTypes {
     | '/dialog/eth_sendTransaction'
     | '/dialog/personal_sign'
     | '/dialog/playground'
+    | '/dialog/success'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_grantAdmin'
@@ -354,6 +372,7 @@ export interface FileRouteTypes {
     | '/dialog/eth_sendTransaction'
     | '/dialog/personal_sign'
     | '/dialog/playground'
+    | '/dialog/success'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_grantAdmin'
@@ -373,6 +392,7 @@ export interface FileRouteTypes {
     | '/dialog/eth_sendTransaction'
     | '/dialog/personal_sign'
     | '/dialog/playground'
+    | '/dialog/success'
     | '/dialog/wallet_addFunds'
     | '/dialog/wallet_connect'
     | '/dialog/wallet_grantAdmin'
@@ -394,6 +414,7 @@ export interface RootRouteChildren {
   DialogEthsendTransactionRoute: typeof DialogEthsendTransactionRoute
   DialogPersonalsignRoute: typeof DialogPersonalsignRoute
   DialogPlaygroundRoute: typeof DialogPlaygroundRoute
+  DialogSuccessRoute: typeof DialogSuccessRoute
   DialogWalletaddFundsRoute: typeof DialogWalletaddFundsRoute
   DialogWalletconnectRoute: typeof DialogWalletconnectRoute
   DialogWalletgrantAdminRoute: typeof DialogWalletgrantAdminRoute
@@ -414,6 +435,7 @@ const rootRouteChildren: RootRouteChildren = {
   DialogEthsendTransactionRoute: DialogEthsendTransactionRoute,
   DialogPersonalsignRoute: DialogPersonalsignRoute,
   DialogPlaygroundRoute: DialogPlaygroundRoute,
+  DialogSuccessRoute: DialogSuccessRoute,
   DialogWalletaddFundsRoute: DialogWalletaddFundsRoute,
   DialogWalletconnectRoute: DialogWalletconnectRoute,
   DialogWalletgrantAdminRoute: DialogWalletgrantAdminRoute,
@@ -444,6 +466,7 @@ export const routeTree = rootRoute
         "/dialog/eth_sendTransaction",
         "/dialog/personal_sign",
         "/dialog/playground",
+        "/dialog/success",
         "/dialog/wallet_addFunds",
         "/dialog/wallet_connect",
         "/dialog/wallet_grantAdmin",
@@ -476,6 +499,9 @@ export const routeTree = rootRoute
     },
     "/dialog/playground": {
       "filePath": "dialog/playground.tsx"
+    },
+    "/dialog/success": {
+      "filePath": "dialog/success.tsx"
     },
     "/dialog/wallet_addFunds": {
       "filePath": "dialog/wallet_addFunds.tsx"

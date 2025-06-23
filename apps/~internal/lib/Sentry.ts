@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/react'
-import { HttpTransportConfig } from 'viem'
+import type { HttpTransportConfig } from 'viem'
 
 export function httpTransportOptions(): HttpTransportConfig {
   return {

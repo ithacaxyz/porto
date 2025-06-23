@@ -970,7 +970,7 @@ export function toRpcServer(
   const { expiry = 0, prehash = false, publicKey, role = 'admin', type } = key
   const { orchestrator } = options
 
-  // biome-ignore lint/complexity/useFlatMap:
+  // biome-ignore lint/complexity/useFlatMap: i know
   const permissions = Object.entries(key.permissions ?? {})
     .map(([key, v]) => {
       if (key === 'calls') {

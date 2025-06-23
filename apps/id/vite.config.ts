@@ -17,6 +17,7 @@ const commitSha =
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const skipMkcert = env.SKIP_MKCERT === 'true'
 
   // don't index id.porto.sh except in production
   if (env.NODE_ENV === 'production' && env.VITE_VERCEL_ENV === 'production') {
@@ -35,15 +36,17 @@ export default defineConfig(({ mode }) => {
       'process.env': {},
     },
     plugins: [
-      Mkcert({
-        hosts: [
-          'localhost',
-          'prod.localhost',
-          'stg.localhost',
-          'dev.localhost',
-          'anvil.localhost',
-        ],
-      }),
+      skipMkcert
+        ? null
+        : Mkcert({
+            hosts: [
+              'localhost',
+              'prod.localhost',
+              'stg.localhost',
+              'dev.localhost',
+              'anvil.localhost',
+            ],
+          }),
       Tailwindcss(),
       React(),
       Icons({

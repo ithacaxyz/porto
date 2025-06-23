@@ -1,4 +1,4 @@
-import * as Address from 'ox/Address'
+import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
@@ -22,6 +22,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
     renderer = Dialog.iframe(),
   } = parameters
 
+  const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
   const requestStore = RpcRequest.createStore()
 
   // Function to instantiate a provider for the dialog. This
@@ -59,41 +60,45 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
           // We need to wait for the request to be resolved.
           return new Promise((resolve, reject) => {
-            const unsubscribe = store.subscribe(
-              (x) => x.requestQueue,
-              (requestQueue) => {
-                // If the queue is empty, reject the request as it will
-                // never be resolved.
-                if (requestQueue.length === 0) {
-                  unsubscribe()
-                  reject(new Provider.UserRejectedRequestError())
-                }
+            const listener = (requestQueue: readonly QueuedRequest[]) => {
+              // Find the request in the queue based off its JSON-RPC identifier.
+              const queued = requestQueue.find(
+                (x) => x.request.id === request.id,
+              )
 
-                // Find the request in the queue based off its JSON-RPC identifier.
-                const queued = requestQueue.find(
-                  (x) => x.request.id === request.id,
-                )
-                if (!queued) return
-                if (queued.status !== 'success' && queued.status !== 'error')
-                  return
+              // If the request is not found and the queue is empty, reject the request
+              // as it will never be resolved (likely cancelled or dialog closed).
+              if (!queued && requestQueue.length === 0) {
+                listeners.delete(listener)
+                reject(new Provider.UserRejectedRequestError())
+                return
+              }
 
-                // We have a response, we can unsubscribe from the store.
-                unsubscribe()
+              // If request not found but queue has other requests, wait for next update.
+              if (!queued) return
 
-                // If the request was successful, resolve with the result.
-                if (queued.status === 'success') resolve(queued.result as any)
-                // Otherwise, reject with EIP-1193 Provider error.
-                else reject(Provider.parseError(queued.error))
+              // If request found but not yet resolved, wait for next update.
+              if (queued.status !== 'success' && queued.status !== 'error')
+                return
 
-                // Remove the request from the queue.
-                store.setState((x) => ({
-                  ...x,
-                  requestQueue: x.requestQueue.filter(
-                    (x) => x.request.id !== request.id,
-                  ),
-                }))
-              },
-            )
+              // We have a response, we can unsubscribe from the listener.
+              listeners.delete(listener)
+
+              // If the request was successful, resolve with the result.
+              if (queued.status === 'success') resolve(queued.result as any)
+              // Otherwise, reject with EIP-1193 Provider error.
+              else reject(Provider.parseError(queued.error))
+
+              // Remove the request from the queue.
+              store.setState((x) => ({
+                ...x,
+                requestQueue: x.requestQueue.filter(
+                  (x) => x.request.id !== request.id,
+                ),
+              }))
+            }
+
+            listeners.add(listener)
           })
         },
       },
@@ -170,7 +175,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   return Permissions.toKey(
                     Typebox.Decode(Permissions.Schema, permission),
                   )
-                } catch (err) {
+                } catch {
                   return undefined
                 }
               })
@@ -411,7 +416,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     )
                     if (key_.id === key?.id) return key
                     return key_
-                  } catch (err) {
+                  } catch {
                     return undefined
                   }
                 })
@@ -586,7 +591,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, sponsorUrl } = parameters
+        const { account, calls, internal, merchantRpcUrl } = parameters
         const {
           config: { storage },
           client,
@@ -627,8 +632,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
                         ? request._decoded.params?.[0]?.capabilities
                         : undefined),
                       feeToken,
+                      merchantRpcUrl,
                       preCalls,
-                      sponsorUrl,
                     },
                     chainId: client.chain.id,
                     from: account.address,
@@ -700,8 +705,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
                   feeToken,
+                  merchantRpcUrl,
                   preCalls,
-                  sponsorUrl,
                 },
               },
             ],
@@ -822,6 +827,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       const unsubscribe = store.subscribe(
         (x) => x.requestQueue,
         (requestQueue) => {
+          for (const listener of listeners) listener(requestQueue)
+
           const requests = requestQueue
             .map((x) => (x.status === 'pending' ? x : undefined))
             .filter(Boolean) as readonly QueuedRequest[]

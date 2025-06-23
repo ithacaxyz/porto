@@ -30,6 +30,5 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:"
-  },
-  "packageManager": "pnpm@10.10.0"
+  }
 }

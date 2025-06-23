@@ -10,8 +10,8 @@ Porto supports the following capabilities:
 | Capability                    | Description                                            | Standard                                                              |
 | ----------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
 | [`feeToken`](#feetoken)       | Indicates if custom fee tokens are supported.          | Experimental |
+| [`merchant`](#merchant)       | Indicates if merchant functionality is supported.              | Experimental                                                          |
 | [`permissions`](#permissions) | Indicates if permissions can be requested by the app.  | Experimental                                                          |
-| [`sponsor`](#sponsor)         | Indicates if app sponsoring is supported.              | Experimental                                                          |
 
 ## Fee Tokens
 
@@ -290,6 +290,43 @@ const capabilities = await provider.request({
 // @log: }]
 ```
 
+## `merchant`
+
+A merchant server can be set up by the Application to sponsor actions on
+behalf of their users.
+
+### Request Capabilities
+
+#### `merchantRpcUrl`
+
+URL of the endpoint that will be used to front (and sponsor) call bundles for users.
+
+The following JSON-RPC methods support the `merchantRpcUrl` request capability:
+
+- [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)
+- [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)
+
+```ts
+type Capability = {
+  merchantRpcUrl: string
+}
+```
+
+#### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_sendCalls',
+  params: [{
+    capabilities: {
+      merchantRpcUrl: 'https://myapp.com/rpc'
+    },
+    /* ... */
+  }]
+})
+```
+
 ## `signInWithEthereum`
 
 ### Methods
@@ -306,39 +343,3 @@ const capabilities = await provider.request({
 
 ##### Example
 
-## `sponsor`
-
-A sponsor server can be set up by the Application to sponsor actions on
-behalf of their users.
-
-### Request Capabilities
-
-#### `sponsorUrl`
-
-URL of the endpoint that will be used to front and sponsor call bundles for users.
-
-The following JSON-RPC methods support the `sponsorUrl` request capability:
-
-- [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)
-- [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)
-
-```ts
-type Capability = {
-  sponsorUrl: string
-}
-```
-
-#### Example
-
-```ts twoslash
-// @noErrors
-const capabilities = await provider.request({
-  method: 'wallet_sendCalls',
-  params: [{
-    capabilities: {
-      sponsorUrl: 'https://myapp.com/sponsor'
-    },
-    /* ... */
-  }]
-})
-```

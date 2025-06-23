@@ -1,6 +1,6 @@
-import * as Type from '@sinclair/typebox/type'
+import type * as Type from '@sinclair/typebox/type'
 import type { ValueOf } from 'viem'
-import * as Rpc from '../core/internal/typebox/rpc.js'
+import type * as Rpc from '../core/internal/typebox/rpc.js'
 
 export type CapabilitiesSchema = {
   connect: {
@@ -21,7 +21,7 @@ export type CapabilitiesSchema = {
   sendCalls: {
     Request: Pick<
       Type.StaticDecode<typeof Rpc.wallet_prepareCalls.Capabilities>,
-      'feeToken' | 'permissions' | 'sponsorUrl'
+      'feeToken' | 'permissions' | 'merchantRpcUrl'
     >
   }
 }

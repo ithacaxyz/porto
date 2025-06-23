@@ -3,7 +3,7 @@ import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { Address, Hex, Value } from 'ox'
+import { type Address, type Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { PayButton } from '~/components/PayButton'
@@ -11,7 +11,6 @@ import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
-import CheckIcon from '~icons/lucide/check'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
 import PencilIcon from '~icons/lucide/pencil'
@@ -19,13 +18,34 @@ import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import XIcon from '~icons/lucide/x'
 
-const presetAmounts = ['25', '50', '100', '250']
+const presetAmounts = ['25', '50', '100', '250'] as const
+
+const onrampOptions = import.meta.env.VITE_ONRAMP_OPTIONS?.split(',') ?? []
+
+function stripeOnrampUrl(amount: number) {
+  if (amount < 1 || amount > 30_000) {
+    console.warn(
+      `Invalid amount for Stripe onramp: ${amount}. Must be between 1 and 30,000.`,
+    )
+    return
+  }
+
+  const searchParams = new URLSearchParams({
+    destination_currency: 'usdc',
+    destination_network: 'base',
+    ref: 'porto',
+    source_amount: amount.toString(),
+    source_currency: 'usd',
+  })
+  const url = new URL('https://crypto.link.com')
+  url.search = searchParams.toString()
+  return url.toString()
+}
 
 export function AddFunds(props: AddFunds.Props) {
   const {
     onApprove,
     onReject,
-    onSuccess,
     tokenAddress,
     value = BigInt(presetAmounts[0]!),
   } = props
@@ -41,7 +61,7 @@ export function AddFunds(props: AddFunds.Props) {
   const [amount, setAmount] = React.useState<string>(value.toString())
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   const [view, setView] = React.useState<
-    'default' | 'deposit-crypto' | 'success' | 'error'
+    'default' | 'deposit-crypto' | 'error'
   >('default')
 
   const deposit = useMutation({
@@ -66,9 +86,8 @@ export function AddFunds(props: AddFunds.Props) {
       const data = (await response.json()) as { id: Hex.Hex }
       return data
     },
-    onSuccess: () => {
-      setView('success')
-      onSuccess?.()
+    onSuccess: (data) => {
+      onApprove(data)
     },
   })
 
@@ -77,6 +96,8 @@ export function AddFunds(props: AddFunds.Props) {
   const [editView, setEditView] = React.useState<'default' | 'editing'>(
     'default',
   )
+
+  if (deposit.isSuccess) return
 
   if (view === 'default')
     return (
@@ -104,7 +125,7 @@ export function AddFunds(props: AddFunds.Props) {
                       autoCapitalize="off"
                       autoComplete="off"
                       autoCorrect="off"
-                      // biome-ignore lint/a11y/noAutofocus:
+                      // biome-ignore lint/a11y/noAutofocus: _
                       autoFocus
                       className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
                       inputMode="decimal"
@@ -131,7 +152,7 @@ export function AddFunds(props: AddFunds.Props) {
                   >
                     <Ariakit.RadioGroup className="flex w-full gap-3 *:h-10.5">
                       {presetAmounts.map((predefinedAmount) => (
-                        // biome-ignore lint/a11y/noLabelWithoutControl:
+                        // biome-ignore lint/a11y/noLabelWithoutControl: _
                         <label
                           className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
                           key={predefinedAmount}
@@ -168,11 +189,11 @@ export function AddFunds(props: AddFunds.Props) {
               >
                 Buy & deposit
               </Button>
-              {import.meta.env.VITE_FLAGS?.includes('onramp') && (
-                <>
-                  <PayButton variant="apple" />
-                  <PayButton variant="google" />
-                </>
+              {onrampOptions.includes('stripe-hosted') && (
+                <PayButton
+                  url={stripeOnrampUrl(Number(amount))}
+                  variant="stripe"
+                />
               )}
             </div>
             <div className="col-span-1 row-span-1">
@@ -201,7 +222,7 @@ export function AddFunds(props: AddFunds.Props) {
                   </div>
                 </div>
               </Button>
-              {import.meta.env.VITE_FLAGS?.includes('onramp') && (
+              {onrampOptions.includes('card') && (
                 <Button className="w-full px-3!" type="button">
                   <div className="flex w-full flex-row items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -280,33 +301,6 @@ export function AddFunds(props: AddFunds.Props) {
       </Layout>
     )
 
-  if (view === 'success')
-    return (
-      <Layout>
-        <Layout.Header>
-          <Layout.Header.Default
-            content="Your funds have been deposited to your Porto account."
-            icon={CheckIcon}
-            title={`Deposited $${amount}`}
-            variant="success"
-          />
-        </Layout.Header>
-
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button
-              className="flex-grow"
-              data-testid="done"
-              onClick={() => onApprove({ id: deposit.data!.id })}
-              variant="default"
-            >
-              Done
-            </Button>
-          </Layout.Footer.Actions>
-        </Layout.Footer>
-      </Layout>
-    )
-
   if (view === 'error')
     return (
       <Layout>
@@ -352,8 +346,7 @@ export declare namespace AddFunds {
     address?: Address.Address | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
-    onSuccess?: () => void
-    tokenAddress: Address.Address
+    tokenAddress?: Address.Address | undefined
     value?: bigint | undefined
   }
 }

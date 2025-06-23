@@ -1,6 +1,6 @@
 import { exp1Config } from '@porto/apps/contracts'
 import { Value } from 'ox'
-import { config } from '../wagmi.config'
+import type { config } from '../wagmi.config'
 
 export type ChainId = (typeof config)['state']['chainId']
 

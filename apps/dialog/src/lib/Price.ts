@@ -1,4 +1,4 @@
-import { Address, Value } from 'ox'
+import { type Address, Value } from 'ox'
 import { ValueFormatter } from '../utils'
 
 export type Price = {

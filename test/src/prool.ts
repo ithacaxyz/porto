@@ -1,10 +1,10 @@
 import { spawnSync } from 'node:child_process'
-import { createServer, Server } from 'node:http'
+import { createServer, type Server } from 'node:http'
 import { resolve } from 'node:path'
 import { Readable } from 'node:stream'
 import { setTimeout } from 'node:timers/promises'
 import httpProxy from 'http-proxy'
-import { RpcRequest } from 'ox'
+import type { RpcRequest } from 'ox'
 import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
 

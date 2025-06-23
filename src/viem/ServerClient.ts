@@ -1,6 +1,12 @@
 import * as Json from 'ox/Json'
-import { type ClientConfig, fallback, http, type Transport } from 'viem'
-import { createClient, type Client as viem_Client } from 'viem'
+import {
+  type ClientConfig,
+  createClient,
+  fallback,
+  http,
+  type Transport,
+  type Client as viem_Client,
+} from 'viem'
 import type * as Chains from '../core/Chains.js'
 import type { Internal } from '../core/internal/porto.js'
 import type * as Account from './Account.js'

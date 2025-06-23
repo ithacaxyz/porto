@@ -1,5 +1,5 @@
 import { Button } from '@porto/apps/components'
-import { Address } from 'ox'
+import type { Address } from 'ox'
 import { Hooks } from 'porto/remote'
 
 import { porto } from '~/lib/Porto'

@@ -188,6 +188,7 @@ function Events() {
 }
 
 function Connect() {
+  const [email, setEmail] = React.useState<boolean>(true)
   const [grantPermissions, setGrantPermissions] = React.useState<boolean>(false)
   const [siwe, setSiwe] = React.useState<boolean>(false)
   const [result, setResult] = React.useState<unknown | null>(null)
@@ -196,12 +197,29 @@ function Connect() {
   return (
     <div>
       <h3>wallet_connect</h3>
+      <label>
+        <input
+          checked={email}
+          onChange={() => setEmail((x) => !x)}
+          type="checkbox"
+        />
+        Email
+      </label>
+      <label>
+        <input
+          checked={grantPermissions}
+          onChange={() => setGrantPermissions((x) => !x)}
+          type="checkbox"
+        />
+        Grant Permissions
+      </label>
       <div>
         <button
           onClick={async () => {
             const payload = {
               capabilities: {
                 createAccount: false,
+                email,
                 grantPermissions: grantPermissions ? permissions() : undefined,
                 signInWithEthereum: await siwePayload(siwe),
               },
@@ -229,6 +247,7 @@ function Connect() {
             const payload = {
               capabilities: {
                 createAccount: true,
+                email,
                 grantPermissions: grantPermissions ? permissions() : undefined,
                 signInWithEthereum: await siwePayload(siwe),
               },

@@ -22,7 +22,7 @@ import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
-import * as FeeToken from '../typebox/feeToken.js'
+import type * as FeeToken from '../typebox/feeToken.js'
 import * as U from '../utils.js'
 
 export const defaultPermissionsFeeLimit = {
@@ -67,8 +67,14 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async createAccount(parameters) {
-        const { email, label, permissions, internal, signInWithEthereum } =
-          parameters
+        const {
+          admins,
+          email,
+          label,
+          permissions,
+          internal,
+          signInWithEthereum,
+        } = parameters
         const { client } = internal
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
@@ -84,13 +90,19 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions)
 
+        const adminKeys = admins?.map((admin) => Key.from(admin))
+
         const feeToken = await resolveFeeToken(internal, {
           permissionsFeeLimit,
         })
 
         const account = await ServerActions.upgradeAccount(client, {
           account: eoa,
-          authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
+          authorizeKeys: [
+            adminKey,
+            ...(adminKeys ?? []),
+            ...(sessionKey ? [sessionKey] : []),
+          ],
           feeToken: feeToken.address,
           permissionsFeeLimit: feeToken.permissionsFeeLimit,
         })
@@ -186,10 +198,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             supported: true,
             tokens: [],
           },
-          permissions: {
+          merchant: {
             supported: true,
           },
-          sponsor: {
+          permissions: {
             supported: true,
           },
         } as const
@@ -201,7 +213,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                 return await ServerActions.getCapabilities(getClient(chainId), {
                   raw: true,
                 })
-              } catch (e) {
+              } catch {
                 return null
               }
             })()
@@ -216,7 +228,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
               },
             } as const
           }),
-          // biome-ignore lint/performance/noAccumulatingSpread:
+          // biome-ignore lint/performance/noAccumulatingSpread: _
         ).then((x) => x.reduce((acc, curr) => ({ ...acc, ...curr }), {}))
 
         return capabilities
@@ -429,7 +441,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, key, sponsorUrl } = parameters
+        const { account, calls, internal, key, merchantRpcUrl } = parameters
         const {
           client,
           config: { storage },
@@ -451,8 +463,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             calls,
             feeToken: feeToken.address,
             key,
+            merchantRpcUrl,
             preCalls,
-            sponsorUrl,
           })
 
         return {
@@ -576,7 +588,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, sponsorUrl } = parameters
+        const { account, calls, internal, merchantRpcUrl } = parameters
         const {
           client,
           config: { storage },
@@ -607,8 +619,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           calls,
           feeToken: feeToken.address,
           key,
+          merchantRpcUrl,
           preCalls,
-          sponsorUrl,
         })
 
         await PreCalls.clear({

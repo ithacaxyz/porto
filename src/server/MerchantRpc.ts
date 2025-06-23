@@ -1,6 +1,6 @@
-// TODO: add node:http adapter.
+// TODO: add `requestListener`.
 
-import { Address, Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
+import { Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
 import type * as RpcSchema from '../core/internal/rpcServer/rpcSchema.js'
 import * as Rpc from '../core/internal/rpcServer/typebox/rpc.js'
@@ -9,7 +9,7 @@ import type { OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
 import * as Key from '../viem/Key.js'
 
-export function rpcHandler(options: rpcHandler.Options) {
+export function requestHandler(options: requestHandler.Options) {
   const {
     address,
     key: k,
@@ -38,6 +38,11 @@ export function rpcHandler(options: rpcHandler.Options) {
       })
 
     const transport = transports[chainId as keyof typeof transports]
+    if (!transport)
+      throw new RpcResponse.InvalidParamsError({
+        message: `chain (id: ${chainId}) not supported.`,
+      })
+
     const client = createClient({
       rpcSchema: rpcSchema<RpcSchema.Viem>(),
       transport,
@@ -98,7 +103,7 @@ export function rpcHandler(options: rpcHandler.Options) {
   }
 }
 
-export declare namespace rpcHandler {
+export declare namespace requestHandler {
   export type Options = {
     address: Address.Address
     key: Pick<OneOf<Key.Secp256k1Key | Key.P256Key>, 'type'> & {

@@ -61,6 +61,12 @@ Token to use to cover fees.
 
 Key to sign the bundle with. If not provided, will attempt to find an appropriate key from the account.
 
+### merchantRpcUrl
+
+- **Type:** `string`
+
+URL of the merchant to front the request (and sponsor calls if needed).
+
 ### preCalls
 
 - **Type:** `readonly PreCall[]`
@@ -72,12 +78,6 @@ Calls to execute before the main bundle.
 - **Type:** `readonly Key.Key[]`
 
 Keys to revoke from the account.
-
-### sponsorUrl
-
-- **Type:** `string`
-
-URL of a sponsor to handle fees.
 
 ## Return Value
 

@@ -1,7 +1,7 @@
 import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import * as Siwe from 'ox/Siwe'
+import type * as Siwe from 'ox/Siwe'
 
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
@@ -10,10 +10,10 @@ import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
-import * as PreCalls from './preCalls.js'
-import * as FeeToken from './typebox/feeToken.js'
+import type * as PreCalls from './preCalls.js'
+import type * as FeeToken from './typebox/feeToken.js'
 import type * as RpcRequest from './typebox/request.js'
-import * as Typebox from './typebox/typebox.js'
+import type * as Typebox from './typebox/typebox.js'
 import type { Compute, PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
@@ -39,12 +39,14 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
       /** Token to add funds to. */
-      token: Address.Address
+      token?: Address.Address | undefined
       /** Amount to add. */
       value?: bigint | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     createAccount: (parameters: {
+      /** Admins to grant. */
+      admins?: readonly Pick<Key.Key, 'publicKey' | 'type'>[] | undefined
       /** Whether to link `label` to account address as email. */
       email?: boolean | undefined
       /** Internal properties. */
@@ -172,8 +174,8 @@ export type Mode = {
       internal: ActionsInternal
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
@@ -245,8 +247,8 @@ export type Mode = {
       permissionsId?: Hex.Hex | undefined
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     sendPreparedCalls: (parameters: {
@@ -332,7 +334,7 @@ export type Mode = {
  * @param mode - Mode.
  * @returns Mode.
  */
-export function from<const mode extends from.Parameters>(
+export function from<const _mode extends from.Parameters>(
   mode: from.Parameters,
 ): Mode {
   return {

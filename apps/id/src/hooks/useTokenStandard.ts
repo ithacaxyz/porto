@@ -31,7 +31,6 @@ export function useTokenStandard(address?: Address.Address) {
 
   if (response.data?.standard === 'ERC20') {
     return { standard: 'ERC20' } as TokenStandard
-  } else {
-    return { standard: 'ERC721' } as TokenStandard
   }
+  return { standard: 'ERC721' } as TokenStandard
 }

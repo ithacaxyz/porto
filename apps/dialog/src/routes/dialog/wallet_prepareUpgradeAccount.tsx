@@ -51,10 +51,10 @@ function RouteComponent() {
   if (capabilities?.email ?? true)
     return (
       <Email
+        actions={['sign-up']}
         loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
         permissions={capabilities?.grantPermissions?.permissions}
-        variant="upgrade"
       />
     )
 

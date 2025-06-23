@@ -182,7 +182,7 @@ describe('getPermissions', () => {
 
     {
       const response = await WalletActions.getPermissions(client)
-      expect(response).toMatchInlineSnapshot(`[]`)
+      expect(response).toMatchInlineSnapshot('[]')
     }
 
     await WalletActions.grantPermissions(client, {

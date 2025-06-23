@@ -12,7 +12,7 @@ import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Permissions from './permissions.js'
-import * as Porto_internal from './porto.js'
+import type * as Porto_internal from './porto.js'
 import * as RpcRequest from './typebox/request.js'
 import * as Rpc from './typebox/rpc.js'
 import * as Typebox from './typebox/typebox.js'
@@ -752,6 +752,7 @@ export function from<
           const {
             createAccount,
             email,
+            grantAdmins: admins,
             grantPermissions: permissions,
             selectAccount,
           } = capabilities ?? {}
@@ -778,6 +779,7 @@ export function from<
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await getMode().actions.createAccount({
+                admins,
                 email,
                 internal,
                 label,
@@ -919,8 +921,9 @@ export function from<
               store,
             },
             key,
+            merchantRpcUrl:
+              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
             preCalls: capabilities?.preCalls as any,
-            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
           })
 
           return Typebox.Encode(Rpc.wallet_prepareCalls.Response, {
@@ -996,9 +999,10 @@ export function from<
               request,
               store,
             },
+            merchantRpcUrl:
+              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,
-            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
           })
 
           return { id } satisfies Typebox.Static<

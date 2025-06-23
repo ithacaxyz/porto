@@ -64,12 +64,26 @@ const offDialogRequest = Events.onDialogRequest(
       })
 
     Router.router.navigate({
-      search: (search) =>
-        ({ ...search, ...request, account, requireUpdatedAccount }) as never,
+      search: (search) => {
+        return {
+          ...search,
+          _decoded: undefined,
+          ...request,
+          account,
+          requireUpdatedAccount,
+        } as never
+      },
       to: '/dialog/' + (request?.method ?? ''),
     })
   },
 )
+
+porto.messenger.on('success', (payload) => {
+  Router.router.navigate({
+    search: (search) => ({ ...search, ...payload }) as never,
+    to: '/dialog/success',
+  })
+})
 
 porto.ready()
 

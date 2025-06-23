@@ -36,10 +36,15 @@ jobs:
             // Check if PR is not a draft (for opened/ready_for_review events)
             const isNotDraft = !context.payload.pull_request?.draft;
             
+            // Check if PR body contains the skip marker
+            const prBody = context.payload.pull_request?.body || '';
+            const hasSkipMarker = prBody.includes('<!-- claude_skip -->');
+            
             // Should review if:
             // 1. Claude review label was added, OR
             // 2. PR was opened/ready_for_review and is not a draft
-            const shouldReview = isNotClaude && (isClaudeReviewLabel || 
+            // AND PR body doesn't contain the skip marker
+            const shouldReview = isNotClaude && !hasSkipMarker && (isClaudeReviewLabel || 
                                 (context.payload.action !== 'labeled' && isNotDraft));
             
             console.log(`Event: ${context.eventName}, Action: ${context.payload.action}`);
@@ -49,6 +54,7 @@ jobs:
             console.log(`  action === 'labeled': ${context.payload.action === 'labeled'}`);
             console.log(`  label name === 'claude-review': ${context.payload.label?.name === 'claude-review'}`);
             console.log(`Is not Claude: ${isNotClaude}, Is claude-review label: ${isClaudeReviewLabel}, Is not draft: ${isNotDraft}`);
+            console.log(`Has skip marker: ${hasSkipMarker}`);
             console.log(`Should review: ${shouldReview}`);
             
             core.setOutput('should_review', shouldReview);

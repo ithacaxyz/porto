@@ -48,7 +48,7 @@ export namespace account_verifyEmail {
 export namespace wallet_addFunds {
   export const Parameters = Type.Object({
     address: Typebox.Optional(Primitive.Address),
-    token: Primitive.Address,
+    token: Typebox.Optional(Primitive.Address),
     value: Typebox.Optional(Primitive.BigInt),
   })
 
@@ -380,6 +380,9 @@ export namespace wallet_connect {
     createAccount: Typebox.Optional(C.createAccount.Request),
     credentialId: Typebox.Optional(Type.String()),
     email: Typebox.Optional(Type.Boolean()),
+    grantAdmins: Typebox.Optional(
+      Type.Array(wallet_grantAdmin.Parameters.properties.key),
+    ),
     grantPermissions: Typebox.Optional(C.grantPermissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
     selectAccount: Typebox.Optional(Type.Boolean()),
@@ -485,8 +488,8 @@ export namespace wallet_getCapabilities {
     Type.Object({
       atomic: C.atomic.GetCapabilitiesResponse,
       feeToken: C.feeToken.GetCapabilitiesResponse,
+      merchant: C.merchant.GetCapabilitiesResponse,
       permissions: C.permissions.GetCapabilitiesResponse,
-      sponsor: C.sponsor.GetCapabilitiesResponse,
     }),
   )
   export type Response = Typebox.StaticDecode<typeof Response>
@@ -513,9 +516,9 @@ export namespace wallet_getKeys {
 export namespace wallet_prepareCalls {
   export const Capabilities = Type.Object({
     feeToken: Typebox.Optional(C.feeToken.Request),
+    merchantRpcUrl: Typebox.Optional(C.merchantRpcUrl.Request),
     permissions: Typebox.Optional(C.permissions.Request),
     preCalls: Typebox.Optional(C.preCalls.Request),
-    sponsorUrl: Typebox.Optional(C.sponsorUrl.Request),
   })
   export type Capabilities = Typebox.StaticDecode<typeof Capabilities>
 

@@ -1,8 +1,8 @@
 import { Button } from '@porto/apps/components'
-import { Hex } from 'ox'
+import type { Hex } from 'ox'
 import type * as Address from 'ox/Address'
 import { Key } from 'porto'
-import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
+import type * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
 import { Hooks } from 'porto/remote'
 
 import { CheckBalance } from '~/components/CheckBalance'

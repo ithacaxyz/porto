@@ -8,7 +8,7 @@ import type * as Account from '../viem/Account.js'
 import * as Chains from './Chains.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
-import * as FeeToken from './internal/typebox/feeToken.js'
+import type * as FeeToken from './internal/typebox/feeToken.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 import * as Utils from './internal/utils.js'
 import * as Mode from './Mode.js'
@@ -59,8 +59,8 @@ export function create(
       parameters.announceProvider ?? defaultConfig.announceProvider,
     chains,
     feeToken: parameters.feeToken ?? defaultConfig.feeToken,
+    merchantRpcUrl: parameters.merchantRpcUrl,
     mode: parameters.mode ?? defaultConfig.mode,
-    sponsorUrl: parameters.sponsorUrl,
     storage: parameters.storage ?? defaultConfig.storage,
     storageKey: parameters.storageKey ?? defaultConfig.storageKey,
     transports,
@@ -159,9 +159,9 @@ export type Config<
    */
   mode: Mode.Mode | null
   /**
-   * URL to use for app-based sponsorship.
+   * URL to use for merchant functionality.
    */
-  sponsorUrl?: string | undefined
+  merchantRpcUrl?: string | undefined
   /**
    * Storage to use.
    * @default Storage.idb()
@@ -221,7 +221,7 @@ export type QueuedRequest<result = unknown> = {
         credentialId?: string | undefined
       }
     | undefined
-  request: RpcRequest.RpcRequest
+  request: RpcRequest.RpcRequest & { _internal?: unknown }
 } & OneOf<
   | {
       status: 'pending'
