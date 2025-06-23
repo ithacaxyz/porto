@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
-    "@biomejs/biome": "^2.0.0",
+    "@biomejs/biome": "^2.0.4",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.7",
     "@clack/prompts": "~0.11.0",
@@ -61,7 +61,7 @@
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
     "tsdown": "^0.12.8",
-    "tsx": "^4.19.4",
+    "tsx": "^4.20.3",
     "typed-query-selector": "^2.12.0",
     "typescript": "catalog:",
     "viem": "catalog:",
@@ -69,7 +69,7 @@
     "vitest": "catalog:",
     "wagmi": "catalog:"
   },
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.12.2",
   "engines": {
     "node": ">=22.5"
   },
