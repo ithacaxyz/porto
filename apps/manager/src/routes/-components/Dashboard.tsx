@@ -178,13 +178,13 @@ export function Dashboard() {
           </div>
         </div>
         <Ariakit.Button
-          tabIndex={-1}
           className="flex w-[150px] items-center justify-center gap-3 hover:cursor-pointer!"
           onClick={() =>
             copyToClipboard(account.address ?? '')
               .then(() => toast.success('Copied address to clipboard'))
               .catch(() => toast.error('Failed to copy address to clipboard'))
           }
+          tabIndex={-1}
         >
           <Cuer.Root
             className="rounded-lg border border-surface bg-white p-2.5 dark:bg-secondary"
