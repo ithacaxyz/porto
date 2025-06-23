@@ -1,0 +1,16 @@
+{
+  "lsp": {
+    "biome": {
+      "settings": {
+        "config_path": "biome.json"
+      }
+    }
+  },
+  "terminal": {
+    "button": true,
+    "dock": "bottom",
+    "toolbar": {
+      "breadcrumbs": false
+    }
+  }
+}
