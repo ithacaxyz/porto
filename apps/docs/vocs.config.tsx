@@ -185,9 +185,8 @@ export default defineConfig({
             text: 'Subscriptions',
           },
           {
-            disabled: true,
             link: '/sdk/guides/authentication',
-            text: 'Authentication (SIWE) 🚧',
+            text: 'Authentication (SIWE)',
           },
           {
             disabled: true,

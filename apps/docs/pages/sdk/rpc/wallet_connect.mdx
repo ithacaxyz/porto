@@ -56,6 +56,8 @@ type Response = {
     capabilities: {
       /** Permissions that were granted. */
       permissions: PermissionsResponseCapabilities['permissions']
+      /** ERC-4361 message and signature. */
+      signInWithEthereum: PermissionsResponseCapabilities['signInWithEthereum']
     }
   }[]
 }
