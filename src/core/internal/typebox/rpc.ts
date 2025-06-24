@@ -567,6 +567,7 @@ export namespace wallet_prepareCalls {
       }),
       calls: Parameters.properties.calls,
       nonce: Primitive.BigInt,
+      quote: Typebox.Optional(Type.Partial(Quote.Quote)),
     }),
     digest: Primitive.Hex,
     key: Parameters.properties.key,

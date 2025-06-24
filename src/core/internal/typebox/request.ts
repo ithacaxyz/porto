@@ -38,7 +38,8 @@ export const Request = Type.Union([
   RpcRequest.wallet_verifySignature.Request,
 ])
 
-export function parseRequest(request: unknown): parseRequest.ReturnType {
+export function parseRequest(r: unknown): parseRequest.ReturnType {
+  const { _decoded: _, ...request } = r as any
   const raw = Value.Convert(Request, U.normalizeValue(request))
 
   // biome-ignore lint/performance/noDynamicNamespaceImportAccess: _

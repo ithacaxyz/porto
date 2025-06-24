@@ -914,7 +914,7 @@ export function from<
 
           return Typebox.Encode(Rpc.wallet_prepareCalls.Response, {
             capabilities: rest.capabilities,
-            chainId: Hex.fromNumber(client.chain.id),
+            chainId: Hex.fromNumber(rest.chainId ?? client.chain.id),
             context: {
               ...rest.context,
               account: {

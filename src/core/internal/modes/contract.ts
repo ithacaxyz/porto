@@ -391,6 +391,7 @@ export function contract(parameters: contract.Parameters = {}) {
 
         return {
           account: request.account,
+          chainId: client.chain.id,
           context: { calls: request.calls, nonce: request.nonce },
           digest: digests.exec,
           key,

@@ -2,6 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import * as prompts from '@clack/prompts'
+import * as Actions from 'viem/actions'
 import * as Key from '../../viem/Key.js'
 import * as WalletActions from '../../viem/WalletActions.js'
 import * as Dialog from '../Dialog.js'
@@ -46,6 +47,35 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
     ],
   })
   s.stop('Onramped.')
+
+  // Execute a noop call to deploy the account.
+  if (adminKey) {
+    const { digest, ...request } = await client.request({
+      method: 'wallet_prepareCalls',
+      params: [
+        {
+          calls: [],
+          key: adminKey,
+        },
+      ],
+    })
+
+    const signature = await Key.sign(adminKey, { payload: digest, wrap: false })
+
+    const result = await client.request({
+      method: 'wallet_sendPreparedCalls',
+      params: [
+        {
+          ...request,
+          signature,
+        },
+      ],
+    })
+
+    s.start('Initializing account...')
+    await Actions.waitForCallsStatus(client, { id: result[0]!.id })
+    s.stop('Account initialized.')
+  }
 
   // Send success message to the dialog.
   Dialog.messenger.send('success', {

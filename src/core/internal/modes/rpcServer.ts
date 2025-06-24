@@ -421,6 +421,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             ...capabilities,
             quote: context.quote as any,
           },
+          chainId: client.chain.id,
           context: {
             ...context,
             account,

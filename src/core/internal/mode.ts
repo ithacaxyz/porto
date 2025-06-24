@@ -160,6 +160,8 @@ export type Mode = {
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
+      /** Chain ID. */
+      chainId?: number | undefined
       /** Capabilities. */
       capabilities?:
         | RpcSchema.wallet_prepareCalls.Response['capabilities']
