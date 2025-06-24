@@ -6,7 +6,7 @@ import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
-import { Porto } from 'porto'
+import type { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -32,10 +32,15 @@ import {
   StringFormatter,
   ValueFormatter,
 } from '~/utils'
+import LucideBadgeCheck from '~icons/lucide/badge-check'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
 import ExternalLinkIcon from '~icons/lucide/external-link'
+import LucidePencil from '~icons/lucide/pencil'
+import LucideRefreshCw from '~icons/lucide/refresh-cw'
 import SendIcon from '~icons/lucide/send-horizontal'
+import LucideShieldCheck from '~icons/lucide/shield-check'
+import LucideTriangleAlert from '~icons/lucide/triangle-alert'
 import WalletIcon from '~icons/lucide/wallet-cards'
 import XIcon from '~icons/lucide/x'
 import AccountIcon from '~icons/material-symbols/account-circle-full'
@@ -73,6 +78,7 @@ export function Dashboard() {
 
   const addressTransfers = useAddressTransfers({ chainId })
   const swapAssets = useSwapAssets({ chainId })
+  console.info(swapAssets.data)
 
   useWatchBlockNumber({
     enabled: account.status === 'connected',
@@ -101,9 +107,12 @@ export function Dashboard() {
 
   const admins = Hooks.useAdmins({
     query: {
-      select: ({ address, keys }) => ({
-        address,
-        keys: keys.filter((key) => key.type === 'address'),
+      enabled: account.status === 'connected',
+      select: (data) => ({
+        address: data.address,
+        keys: data.keys.filter((key) =>
+          ['address', 'secp256k1'].includes(key.type),
+        ),
       }),
     },
   })
@@ -111,6 +120,7 @@ export function Dashboard() {
   const revokeAdmin = Hooks.useRevokeAdmin({
     mutation: {
       onError: (error) => {
+        if (error.name === 'UserRejectedRequestError') return
         toast.custom((t) => (
           <Toast
             className={t}
@@ -134,14 +144,176 @@ export function Dashboard() {
     },
   })
 
+  // TODO: `useQuery` + `account_email`
+  const showManageEmail = false
+  const [emailData, setEmailData] = React.useState<
+    | {
+        email: string
+        verified: boolean
+      }
+    | undefined
+  >()
+  const [email, setEmail] = React.useState('')
+
   return (
     <>
       <DevOnly />
       <div className="h-3" />
       <Layout.Header
-        left={undefined}
+        left={
+          showManageEmail && (
+            <div>
+              {emailData ? (
+                <div className="flex items-center gap-2">
+                  {/* TODO: Sparkle spotlight effect `bg-repeat` https://tailwindcss.com/docs/background-repeat */}
+                  <div className="-tracking-[2.8%] min-w-10 px-2 font-medium text-[15px] text-gray12 blur-sm">
+                    {emailData.email}
+                  </div>
+                  {emailData.verified ? (
+                    <Ariakit.PopoverProvider>
+                      <Ariakit.PopoverDisclosure className="flex size-8 items-center justify-center rounded-full bg-green3">
+                        <LucideBadgeCheck className="size-4 text-green9" />
+                      </Ariakit.PopoverDisclosure>
+                      <Ariakit.Popover
+                        className="flex w-[230px] flex-col gap-1 rounded-[11px] border border-gray3 bg-gray1 p-4"
+                        gutter={4}
+                      >
+                        <Ariakit.PopoverHeading className="-tracking-[0.25px] font-medium text-[14px] text-gray12">
+                          Your email is verified.
+                        </Ariakit.PopoverHeading>
+                        <Ariakit.PopoverDescription className="-tracking-[0.25px] text-[13px] text-gray9 leading-[18px]">
+                          It can be used to restore your account to new devices.
+                        </Ariakit.PopoverDescription>
+                        <Button
+                          className="mt-1 flex w-fit gap-1"
+                          onClick={() => setEmailData(undefined)}
+                          size="small"
+                          type="button"
+                        >
+                          <LucidePencil className="size-3.25 " />
+                          Change email
+                        </Button>
+                      </Ariakit.Popover>
+                    </Ariakit.PopoverProvider>
+                  ) : (
+                    <Ariakit.PopoverProvider>
+                      <Ariakit.PopoverDisclosure className="flex size-8 items-center justify-center rounded-full bg-amber2">
+                        <LucideTriangleAlert className="size-4 text-amber8" />
+                      </Ariakit.PopoverDisclosure>
+                      <Ariakit.Popover
+                        className="flex w-[240px] flex-col gap-1 rounded-[11px] border border-gray3 bg-gray1 p-4"
+                        gutter={4}
+                      >
+                        <Ariakit.PopoverHeading className="-tracking-[0.25px] font-medium text-[14px] text-gray12">
+                          Email not verified
+                        </Ariakit.PopoverHeading>
+                        <Ariakit.PopoverDescription className="-tracking-[0.25px] text-[13px] text-gray9 leading-[18px]">
+                          Please click the verification link to fully enable
+                          Balance.
+                        </Ariakit.PopoverDescription>
+                        <div className="flex gap-1">
+                          <Button
+                            className="mt-1 flex w-fit gap-1"
+                            onClick={() =>
+                              // TODO: `account_resendVerifyEmail`
+                              setEmailData((x) =>
+                                x && 'email' in x
+                                  ? { email: x.email, verified: true }
+                                  : x,
+                              )
+                            }
+                            size="small"
+                            type="button"
+                            variant="accent"
+                          >
+                            <LucideRefreshCw className="size-3.25 " />
+                            Resend
+                          </Button>
+                          <Button
+                            className="mt-1 flex w-fit gap-1"
+                            onClick={() => setEmailData(undefined)}
+                            size="small"
+                            type="button"
+                          >
+                            <LucidePencil className="size-3.25 " />
+                            Change email
+                          </Button>
+                        </div>
+                      </Ariakit.Popover>
+                    </Ariakit.PopoverProvider>
+                  )}
+                </div>
+              ) : (
+                <form
+                  className="group flex items-center"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    // TODO: `account_setEmail`
+                    const formData = new FormData(
+                      event.target as HTMLFormElement,
+                    )
+                    const email = formData.get('email')?.toString()!
+                    setEmailData({ email, verified: false })
+                    setEmail('')
+                  }}
+                >
+                  <div className="flex size-8 items-center justify-center rounded-full bg-blue3">
+                    <LucideShieldCheck className="size-4 text-blue9" />
+                  </div>
+                  <label className="sr-only" htmlFor="email">
+                    Email
+                  </label>
+                  <input
+                    className="-tracking-[2.8%] min-w-10 px-2 font-medium text-[15px] text-gray12 outline-none placeholder:text-gray9"
+                    name="email"
+                    onChange={(event) => setEmail(event.target.value)}
+                    pattern=".*@.*\..+"
+                    placeholder="Link your email..."
+                    required
+                    style={{
+                      width: email.length ? `${email.length + 2}ch` : 'auto',
+                    }}
+                    type="email"
+                    value={email}
+                  />
+                  <Button
+                    className="hidden! group-has-[input:valid]:block!"
+                    size="small"
+                    type="submit"
+                  >
+                    Save
+                  </Button>
+                </form>
+              )}
+            </div>
+          )
+        }
         right={
           <div className="flex gap-2">
+            <Button
+              onClick={async (event) => {
+                event.preventDefault()
+                if (!account.address)
+                  return toast.error('No account address found')
+
+                const provider =
+                  (await account.connector?.getProvider()) as Porto.Porto['provider']
+                await provider.request({
+                  method: 'wallet_addFunds',
+                  params: [
+                    {
+                      address: account.address,
+                      token: exp1Address[chainId as keyof typeof exp1Address],
+                      value: Hex.fromNumber(25n),
+                    },
+                  ],
+                })
+              }}
+              size="small"
+              variant="accent"
+            >
+              Add funds
+            </Button>
             <Button
               render={
                 <a
@@ -154,7 +326,6 @@ export function Dashboard() {
               }
               size="small"
             />
-
             <Button
               onClick={() => disconnect.disconnect({})}
               size="small"
@@ -213,33 +384,6 @@ export function Dashboard() {
       >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
           <span>Assets</span>
-
-          <Button
-            className="ml-2"
-            onClick={async (event) => {
-              event.preventDefault()
-              if (!account.address)
-                return toast.error('No account address found')
-
-              const provider =
-                (await account.connector?.getProvider()) as Porto.Porto['provider']
-              await provider.request({
-                method: 'wallet_addFunds',
-                params: [
-                  {
-                    address: account.address,
-                    token: exp1Address[chainId as keyof typeof exp1Address],
-                    value: Hex.fromNumber(25n),
-                  },
-                ],
-              })
-            }}
-            size="small"
-            type="button"
-            variant="default"
-          >
-            Add funds
-          </Button>
         </summary>
 
         <PaginatedTable
@@ -297,12 +441,15 @@ export function Dashboard() {
               data={addressTransfers.data?.items}
               emptyMessage="No transactions yet"
               renderRow={(transfer) => {
-                const amount = Number.parseFloat(
-                  ValueFormatter.format(
-                    BigInt(transfer?.total.value ?? 0),
-                    Number(transfer?.total.decimals ?? 0),
-                  ),
-                ).toFixed(2)
+                const isErc721Transfer = transfer?.token.type === 'ERC-721'
+                const amount = isErc721Transfer
+                  ? BigInt(1)
+                  : Number.parseFloat(
+                      ValueFormatter.format(
+                        BigInt(transfer?.total.value ?? 0),
+                        Number(transfer?.total.decimals ?? 0),
+                      ),
+                    ).toFixed(2)
 
                 return (
                   <tr
@@ -387,7 +534,7 @@ export function Dashboard() {
               align: 'left',
               header: 'Amount',
               key: 'amount',
-              width: 'w-[120px]',
+              width: 'w-[85px]',
             },
             { align: 'left', header: '', key: 'period', width: 'w-[60px]' },
             { align: 'right', header: '', key: 'action' },
@@ -415,21 +562,21 @@ export function Dashboard() {
                 className="*:text-xs! *:sm:text-sm!"
                 key={`${permission.id}-${permission.expiry}`}
               >
-                <td className="max-w-[50px] py-3 text-left">
+                <td className="py-1 text-left">
                   <a
                     className="flex flex-row items-center"
                     href={`${blockExplorer}/address/${permission.address}`}
                     rel="noreferrer"
                     target="_blank"
                   >
-                    <span className="min-w-[37px] text-gray11">{time}</span>
-                    <ExternalLinkIcon className="mr-2 size-4 text-gray10" />
+                    <span className="min-w-[35px] text-gray11">{time}</span>
+                    <ExternalLinkIcon className="mr-1 size-3.75 text-gray10" />
                   </a>
                 </td>
                 <td className="text-right">
                   <div className="flex flex-row items-center gap-x-0 sm:gap-x-2">
-                    <div className="flex size-7 items-center justify-center rounded-full bg-blue-100">
-                      <WorldIcon className="m-auto size-5 text-blue-400" />
+                    <div className="hidden size-6.25 items-center justify-center rounded-full bg-blue-100 sm:flex">
+                      <WorldIcon className="size-4 text-blue-400" />
                     </div>
 
                     <TruncatedAddress
@@ -444,7 +591,7 @@ export function Dashboard() {
                   </span>
                 </td>
                 <td className="w-[50px] text-right">
-                  <div className="flex w-fit min-w-fit max-w-[105px] flex-row items-end justify-end gap-x-2 overflow-hidden whitespace-nowrap rounded-2xl bg-gray3 px-1.5 py-1 text-right font-[500] text-gray10">
+                  <div className="flex w-fit min-w-fit max-w-[105px] flex-row items-end justify-end gap-x-2 overflow-hidden whitespace-nowrap rounded-2xl bg-gray3 px-1.5 py-1 text-right font-[500] text-gray10 text-xs">
                     <span className="truncate">
                       {formatEther(
                         Hex.toBigInt(spend?.limit as unknown as Hex.Hex),
@@ -470,7 +617,10 @@ export function Dashboard() {
                     )}
                     disabled={time === 'expired'}
                     onClick={() => {
-                      revokePermissions.mutate({ id: permission.id })
+                      revokePermissions.mutate({
+                        address: account.address,
+                        id: permission.id,
+                      })
                     }}
                   >
                     {time === 'expired' ? (
@@ -511,8 +661,7 @@ export function Dashboard() {
         <table className="my-3 w-full">
           <thead>
             <tr className="text-gray10 *:font-normal *:text-sm">
-              <th className="text-left">ID</th>
-              <th className="text-left">Public Key</th>
+              <th className="text-left">Key ID</th>
               <th className="invisible text-right">Action</th>
             </tr>
           </thead>
@@ -528,24 +677,17 @@ export function Dashboard() {
                   >
                     <td className="text-left">
                       <div className="flex flex-row items-center gap-x-2">
-                        <div className="hidden size-6.25 items-center justify-center rounded-full bg-emerald-100 sm:flex">
+                        <div className="flex size-6.75 items-center justify-center rounded-full bg-emerald-100">
                           <WalletIcon className="size-4 text-teal-600" />
                         </div>
-                        <span className="font-medium text-gray12">
+                        <div className="w-full pl-1 font-medium text-gray12">
                           <TruncatedAddress
                             address={key.id ?? key.publicKey}
-                            className="text-sm sm:text-md"
+                            className="justify-start text-left text-sm sm:text-md"
+                            end={10}
+                            start={10}
                           />
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="text-left">
-                      <div className="flex flex-row items-center gap-x-2 font-medium">
-                        <TruncatedAddress
-                          address={key.publicKey}
-                          className="text-sm sm:text-md"
-                        />
+                        </div>
                       </div>
                     </td>
 
@@ -564,18 +706,19 @@ export function Dashboard() {
                             )
                         }
                       >
-                        <CopyIcon className="m-auto size-4 text-gray10 sm:size-5" />
+                        <CopyIcon className="m-auto size-4 text-gray10" />
                       </Ariakit.Button>
                       <Ariakit.Button
-                        className="size-8 rounded-full p-1 hover:bg-red-100"
+                        className="size-8 rounded-full p-1 text-gray11 hover:bg-red-100 hover:text-red-500"
                         onClick={() => {
                           if (!id || !address) return
                           revokeAdmin.mutate({
-                            id: key?.id,
+                            address: account.address,
+                            id: key.id,
                           })
                         }}
                       >
-                        <XIcon className={cx('m-auto size-5 text-red-500')} />
+                        <XIcon className={cx('m-auto size-5')} />
                       </Ariakit.Button>
                     </td>
                   </tr>
@@ -649,7 +792,7 @@ function PaginatedTable<T>({
         <tbody className="border-transparent border-t-10">
           {itemsToShow && itemsToShow?.length > 0 ? (
             itemsToShow?.map((item, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              // biome-ignore lint/suspicious/noArrayIndexKey: _
               <React.Fragment key={index}>{renderRow(item)}</React.Fragment>
             ))
           ) : (
@@ -715,6 +858,7 @@ function AssetRow({
   const sendCalls = useSendCalls({
     mutation: {
       onError: (error) => {
+        console.error(error)
         const userRejected = error.message
           .toLowerCase()
           .includes('user rejected')
