@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.33
+
+### Patch Changes
+
+- [#497](https://github.com/ithacaxyz/porto/pull/497) [`91627bf`](https://github.com/ithacaxyz/porto/commit/91627bf240fc5ef48567c8dfa4d99081d5542f25) Thanks [@jxom](https://github.com/jxom)! - Added `config` property to `Porto.create` return value.
+
+- [#497](https://github.com/ithacaxyz/porto/pull/497) [`91627bf`](https://github.com/ithacaxyz/porto/commit/91627bf240fc5ef48567c8dfa4d99081d5542f25) Thanks [@jxom](https://github.com/jxom)! - Tweaked `MerchantRpc.requestHandler` parameters
+
 ## 0.0.32
 
 ### Patch Changes
