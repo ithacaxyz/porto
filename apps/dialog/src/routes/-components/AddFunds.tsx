@@ -8,7 +8,7 @@ import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { PayButton } from '~/components/PayButton'
 import * as FeeToken from '~/lib/FeeToken'
-import { onrampOptions, stripeOnrampUrl } from '~/lib/Onramp'
+import { stripeOnrampUrl } from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -168,12 +168,11 @@ export function AddFunds(props: AddFunds.Props) {
               >
                 Buy & deposit
               </Button>
-              {onrampOptions.includes('stripe-hosted') && (
-                <PayButton
-                  url={stripeOnrampUrl(Number(amount))}
-                  variant="stripe"
-                />
-              )}
+
+              <PayButton
+                url={stripeOnrampUrl(Number(amount))}
+                variant="stripe"
+              />
             </div>
             <div className="col-span-1 row-span-1">
               <div className="my-auto flex w-full flex-row items-center gap-2 *:border-gray7">
@@ -201,22 +200,20 @@ export function AddFunds(props: AddFunds.Props) {
                   </div>
                 </div>
               </Button>
-              {onrampOptions.includes('card') && (
-                <Button className="w-full px-3!" type="button">
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <CardIcon className="size-5" />
-                      <span>Debit or Credit</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="ml-auto font-normal text-gray10 text-sm">
-                        ~5 mins
-                        <ArrowRightIcon className="ml-1 inline size-4" />
-                      </span>
-                    </div>
+              <Button className="w-full px-3!" type="button">
+                <div className="flex w-full flex-row items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CardIcon className="size-5" />
+                    <span>Debit or Credit</span>
                   </div>
-                </Button>
-              )}
+                  <div className="flex items-center gap-1">
+                    <span className="ml-auto font-normal text-gray10 text-sm">
+                      ~5 mins
+                      <ArrowRightIcon className="ml-1 inline size-4" />
+                    </span>
+                  </div>
+                </div>
+              </Button>
             </div>
           </form>
         </Layout.Content>
