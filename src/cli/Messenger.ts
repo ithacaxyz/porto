@@ -1,5 +1,6 @@
 import type { ServerResponse } from 'node:http'
 import * as Url from 'node:url'
+import { Json } from 'ox'
 import type * as Messenger from '../core/Messenger.js'
 import * as Http from './internal/http.js'
 
@@ -117,7 +118,7 @@ export async function cliRelay(): Promise<CliRelay> {
       const id = crypto.randomUUID()
       const data = { id, payload, topic }
 
-      const eventData = `data: ${JSON.stringify(data)}\n\n`
+      const eventData = `data: ${Json.stringify(data)}\n\n`
       for (const stream of streams) {
         try {
           stream.write(eventData)

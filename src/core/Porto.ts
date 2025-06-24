@@ -125,6 +125,7 @@ export function create(
 
   return {
     _internal: internal,
+    config,
     destroy() {
       destroy()
       provider._internal.destroy()
@@ -183,6 +184,7 @@ export type Porto<
     ...Chains.Chain[],
   ],
 > = {
+  config: Config<chains>
   destroy: () => void
   provider: Provider.Provider
   /**

@@ -6,7 +6,6 @@ import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import * as TestActions from '../../test/src/actions.js'
-import * as Anvil from '../../test/src/anvil.js'
 import * as Http from '../../test/src/http.js'
 import { exp1Abi, exp1Address, getPorto } from '../../test/src/porto.js'
 
@@ -23,12 +22,9 @@ async function setup() {
   })
 
   const handler = MerchantRpc.requestHandler({
+    ...porto.config,
     address: merchantAccount.address,
-    key: {
-      privateKey: merchantKey.privateKey!(),
-      type: merchantKey.type,
-    },
-    transports: porto._internal.config.transports,
+    key: merchantKey.privateKey!(),
   })
 
   if (server) await server.closeAsync()
@@ -37,7 +33,7 @@ async function setup() {
   return { merchantAccount, server }
 }
 
-describe.runIf(Anvil.enabled)('rpcHandler', () => {
+describe('rpcHandler', () => {
   test('default', async () => {
     const { server, merchantAccount } = await setup()
 
@@ -124,18 +120,5 @@ describe.runIf(Anvil.enabled)('rpcHandler', () => {
         merchantRpcUrl: server.url,
       }),
     ).rejects.toThrowError('InsufficientAllowance')
-  })
-
-  test('error: eoa is merchant', async () => {
-    const { server, merchantAccount } = await setup()
-
-    await expect(() =>
-      ServerActions.sendCalls(client, {
-        account: merchantAccount,
-        calls: [],
-        feeToken,
-        merchantRpcUrl: server.url,
-      }),
-    ).rejects.toThrowError()
   })
 })

@@ -67,7 +67,7 @@ const merchant = new URLSearchParams(window.location.search).get('merchant')
 
 export const porto = Porto.create({
   ...config,
-  merchantRpcUrl: merchant ? `${window.location.origin}/merchant` : undefined,
+  merchantRpcUrl: merchant ? '/merchant' : undefined,
   // We will be deferring mode setup until after hydration.
   mode: null,
 })

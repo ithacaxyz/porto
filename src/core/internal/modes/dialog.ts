@@ -475,6 +475,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           account,
+          chainId: Number(result.chainId),
           context: result.context as any,
           digest: result.digest,
           key: result.key,

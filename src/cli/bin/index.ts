@@ -22,7 +22,7 @@ cli
     },
   )
   .option('-d, --dialog <hostname>', 'Dialog hostname', {
-    default: 'id.porto.sh',
+    default: 'stg.id.porto.sh',
   })
   .action(Commands.createAccount)
 

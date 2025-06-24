@@ -1,0 +1,24 @@
+{
+  "name": "next-subscriptions-example",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --experimental-https",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5",
+    "next": "^15",
+    "porto": "workspace:*",
+    "react": "^19",
+    "react-dom": "^19",
+    "viem": "^2",
+    "wagmi": "^2"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}

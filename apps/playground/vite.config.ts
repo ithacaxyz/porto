@@ -208,10 +208,7 @@ export default defineConfig(({ mode }) => {
 
             const handler = MerchantRpc.requestHandler({
               address: merchantAccount.address,
-              key: {
-                privateKey: merchantKey.privateKey!(),
-                type: 'secp256k1',
-              },
+              key: merchantKey.privateKey!(),
               transports: {
                 [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
               },

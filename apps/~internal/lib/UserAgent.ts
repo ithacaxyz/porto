@@ -8,8 +8,8 @@ declare global {
   }
 }
 
-export function isUnsupportedBrowser() {
-  return typeof window?.PublicKeyCredential === 'undefined'
+export function isBrave() {
+  return 'brave' in navigator
 }
 
 export function isFirefox() {
@@ -44,6 +44,15 @@ export function isInAppBrowser() {
   if (isTelegram()) return true
   return false
 }
+
+export function isUnsupportedBrowser() {
+  return typeof window?.PublicKeyCredential === 'undefined'
+}
+
+export function isUnsupportedCliBrowser() {
+  return isBrave() || isSafari()
+}
+
 // based on https://github.com/shalanah/inapp-spy/blob/main/src/regexInApp.ts
 const inAppRegExps = [
   'WebView',
