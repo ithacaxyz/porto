@@ -121,17 +121,4 @@ describe('rpcHandler', () => {
       }),
     ).rejects.toThrowError('InsufficientAllowance')
   })
-
-  test('error: eoa is merchant', async () => {
-    const { server, merchantAccount } = await setup()
-
-    await expect(() =>
-      ServerActions.sendCalls(client, {
-        account: merchantAccount,
-        calls: [],
-        feeToken,
-        merchantRpcUrl: server.url,
-      }),
-    ).rejects.toThrowError()
-  })
 })

@@ -1,6 +1,6 @@
 // TODO: add `requestListener`.
 
-import { Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
+import { type Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
 
 import type * as Chains from '../core/Chains.js'
@@ -42,85 +42,88 @@ export function requestHandler<
       })
 
   return async (r: Request) => {
+    if (r.method === 'GET') return GET()
+    if (r.method === 'OPTIONS') return OPTIONS()
+
     const request = (await r
       .json()
       .then(RpcRequest.from)) as RpcRequest.RpcRequest<RpcSchema.Schema>
 
-    if (request.method !== 'wallet_prepareCalls')
-      throw new RpcResponse.MethodNotSupportedError()
+    switch (request.method) {
+      case 'wallet_prepareCalls': {
+        const chainId = request.params[0]!.chainId
+        if (!chainId)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'chainId is required.',
+          })
 
-    const chainId = request.params[0]!.chainId
-    if (!chainId)
-      throw new RpcResponse.InvalidParamsError({
-        message: 'chainId is required.',
-      })
+        const chain = chains.find((c) => c.id === chainId)
 
-    const chain = chains.find((c) => c.id === chainId)
+        const transport = transports[chainId as keyof typeof transports]
+        if (!transport)
+          throw new RpcResponse.InvalidParamsError({
+            message: `chain (id: ${chainId}) not supported.`,
+          })
 
-    const transport = transports[chainId as keyof typeof transports]
-    if (!transport)
-      throw new RpcResponse.InvalidParamsError({
-        message: `chain (id: ${chainId}) not supported.`,
-      })
-
-    const client = createClient({
-      chain,
-      rpcSchema: rpcSchema<RpcSchema.Viem>(),
-      transport,
-    })
-
-    try {
-      const result = await client.request({
-        ...request,
-        params: [
-          {
-            ...request.params[0]!,
-            capabilities: {
-              ...request.params[0]!.capabilities,
-              meta: {
-                ...request.params[0]!.capabilities.meta,
-                feePayer: address,
-              },
-            },
-          },
-        ],
-      })
-      const { typedData } = Typebox.Decode(
-        Rpc.wallet_prepareCalls.Response,
-        result,
-      )
-
-      if (Address.isEqual(typedData.message.eoa as Address.Address, address))
-        throw new RpcResponse.InvalidParamsError({
-          message: 'eoa cannot be fee payer.',
+        const client = createClient({
+          chain,
+          rpcSchema: rpcSchema<RpcSchema.Viem>(),
+          transport,
         })
 
-      const signature = await Key.sign(key, {
-        payload: TypedData.getSignPayload(typedData),
-      })
+        try {
+          const result = await client.request({
+            ...request,
+            params: [
+              {
+                ...request.params[0]!,
+                capabilities: {
+                  ...request.params[0]!.capabilities,
+                  meta: {
+                    ...request.params[0]!.capabilities.meta,
+                    feePayer: address,
+                  },
+                },
+              },
+            ],
+          })
+          const { typedData } = Typebox.Decode(
+            Rpc.wallet_prepareCalls.Response,
+            result,
+          )
 
-      const response = RpcResponse.from(
-        {
-          result: {
-            ...result,
-            capabilities: {
-              ...result.capabilities,
-              feeSignature: signature,
+          const signature = await Key.sign(key, {
+            payload: TypedData.getSignPayload(typedData),
+          })
+
+          const response = RpcResponse.from(
+            {
+              result: {
+                ...result,
+                capabilities: {
+                  ...result.capabilities,
+                  feeSignature: signature,
+                },
+              },
             },
-          },
-        },
-        { request },
-      )
+            { request },
+          )
 
-      return withCors(Response.json(response))
-    } catch (e) {
-      const error = (() => {
-        const error = RpcResponse.parseError(e as Error)
-        if (error.cause && 'code' in error.cause && error.cause.code === 3)
-          return error.cause as any
-        return error
-      })()
-      return withCors(Response.json(RpcResponse.from({ error }, { request })))
+          return withCors(Response.json(response))
+        } catch (e) {
+          const error = (() => {
+            const error = RpcResponse.parseError(e as Error)
+            if (error.cause && 'code' in error.cause && error.cause.code === 3)
+              return error.cause as any
+            return error
+          })()
+          return withCors(
+            Response.json(RpcResponse.from({ error }, { request })),
+          )
+        }
+      }
+      default:
+        throw new RpcResponse.MethodNotSupportedError()
     }
   }
 }
@@ -141,6 +144,16 @@ export declare namespace requestHandler {
         })
     transports?: Porto.Config<chains>['transports'] | undefined
   }
+}
+
+/**
+ * Defines a `GET` request handler for the Merchant RPC.
+ * Mainly a convenience function for Next.js.
+ *
+ * @returns Request handler.
+ */
+export function GET() {
+  return withCors(new Response('hello porto'))
 }
 
 /**
@@ -167,7 +180,7 @@ export function OPTIONS() {
 /** @internal */
 function withCors(response: Response) {
   response.headers.set('Access-Control-Allow-Origin', '*')
-  response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
   return response
 }

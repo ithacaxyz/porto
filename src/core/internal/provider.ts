@@ -906,8 +906,9 @@ export function from<
               store,
             },
             key,
-            merchantRpcUrl: normalizeMerchantRpcUrl(
+            merchantRpcUrl: await getMerchantRpcUrl(
               config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+              config,
             ),
             preCalls: capabilities?.preCalls as any,
           })
@@ -985,8 +986,9 @@ export function from<
               request,
               store,
             },
-            merchantRpcUrl: normalizeMerchantRpcUrl(
+            merchantRpcUrl: await getMerchantRpcUrl(
               config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+              config,
             ),
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,
@@ -1144,9 +1146,39 @@ function getActivePermissions(
     .filter(Boolean) as never
 }
 
-function normalizeMerchantRpcUrl(merchantRpcUrl: string | undefined) {
-  if (!merchantRpcUrl) return undefined
+async function getMerchantRpcUrl(
+  merchantRpcUrl: string | undefined,
+  { storage }: { storage: Porto.Config['storage'] },
+) {
+  const defaultMerchantRpcUrl =
+    typeof window !== 'undefined' ? `${window.location.origin}/rpc` : undefined
+
+  // If a Merchant RPC URL is not provided, we will check if there is one set
+  // up on the host.
+  if (!merchantRpcUrl) {
+    // If there is no default Merchant RPC URL, we will return undefined.
+    if (!defaultMerchantRpcUrl) return undefined
+
+    // If there is a cached flag, we will return the URL if it is set up.
+    const merchantRpcUrl_storage = await storage.getItem('porto.merchant-rpc')
+    if (typeof merchantRpcUrl_storage === 'boolean')
+      return defaultMerchantRpcUrl
+
+    // Fetch on the default Merchant RPC URL to see if it is set up.
+    const response = await fetch(defaultMerchantRpcUrl)
+      .then((x) => x.text())
+      .catch(() => undefined)
+    if (response !== 'hello porto') return undefined
+
+    // If set up, we will cache the flag.
+    await storage.setItem('porto.merchant-rpc', true)
+    return defaultMerchantRpcUrl
+  }
+
+  // If the Merchant RPC URL is a relative URL, we will convert it to an
+  // absolute URL.
   if (merchantRpcUrl.startsWith('/'))
     return `${window.location.origin}${merchantRpcUrl}`
+
   return merchantRpcUrl
 }
