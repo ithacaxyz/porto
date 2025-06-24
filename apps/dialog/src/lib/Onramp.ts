@@ -6,9 +6,6 @@
  * SSN: 0000
  */
 
-export const onrampOptions =
-  import.meta.env.VITE_ONRAMP_OPTIONS?.split(',') ?? []
-
 export function stripeOnrampUrl(amount: number) {
   if (amount < 1 || amount > 30_000) {
     console.warn(
