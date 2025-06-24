@@ -6,7 +6,6 @@ import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import * as TestActions from '../../test/src/actions.js'
-import * as Anvil from '../../test/src/anvil.js'
 import * as Http from '../../test/src/http.js'
 import { exp1Abi, exp1Address, getPorto } from '../../test/src/porto.js'
 
@@ -34,7 +33,7 @@ async function setup() {
   return { merchantAccount, server }
 }
 
-describe.runIf(Anvil.enabled)('rpcHandler', () => {
+describe('rpcHandler', () => {
   test('default', async () => {
     const { server, merchantAccount } = await setup()
 

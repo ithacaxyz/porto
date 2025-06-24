@@ -1460,7 +1460,7 @@ describe.each([
       },
     )
 
-    test.runIf(type === 'rpcServer' && Anvil.enabled)(
+    test.runIf(type === 'rpcServer')(
       'behavior: merchant fee sponsor',
       async () => {
         const { client, porto } = getPorto()
@@ -1561,7 +1561,7 @@ describe.each([
       },
     )
 
-    test.runIf(type === 'rpcServer' && Anvil.enabled)(
+    test.runIf(type === 'rpcServer')(
       'behavior: merchant fee sponsor (porto config)',
       async () => {
         const {

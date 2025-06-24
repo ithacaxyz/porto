@@ -11,6 +11,15 @@ import type { OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
 import * as Key from '../viem/Key.js'
 
+/**
+ * Defines a Merchant RPC request handler. This will return a function that
+ * accepts a [Fetch API `Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request)
+ * instance and returns a [Fetch API `Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+ * instance.
+ *
+ * @param options - Options.
+ * @returns Request handler.
+ */
 export function requestHandler<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(options: requestHandler.Options<chains>) {
@@ -102,13 +111,8 @@ export function requestHandler<
         },
         { request },
       )
-      return Response.json(response, {
-        headers: {
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Origin': '*',
-        },
-      })
+
+      return withCors(Response.json(response))
     } catch (e) {
       const error = (() => {
         const error = RpcResponse.parseError(e as Error)
@@ -116,7 +120,7 @@ export function requestHandler<
           return error.cause as any
         return error
       })()
-      return Response.json(RpcResponse.from({ error }, { request }))
+      return withCors(Response.json(RpcResponse.from({ error }, { request })))
     }
   }
 }
@@ -137,4 +141,33 @@ export declare namespace requestHandler {
         })
     transports?: Porto.Config<chains>['transports'] | undefined
   }
+}
+
+/**
+ * Defines a `POST` request handler for the Merchant RPC.
+ * Mainly a convenience function for Next.js.
+ *
+ * @param options - Options.
+ * @returns Request handler.
+ */
+export function POST(options: requestHandler.Options) {
+  return requestHandler(options)
+}
+
+/**
+ * Defines an `OPTIONS` request handler for the Merchant RPC.
+ * Mainly a convenience function for Next.js.
+ *
+ * @returns Request handler.
+ */
+export function OPTIONS() {
+  return withCors(new Response())
+}
+
+/** @internal */
+function withCors(response: Response) {
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
+  return response
 }

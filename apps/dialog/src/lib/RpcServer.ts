@@ -29,7 +29,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
   })
 
   return useQuery({
-    enabled: enabled && !!account,
+    enabled: enabled && feeToken.isFetched && !!account,
     async queryFn() {
       if (!account) throw new Error('account is required.')
 
