@@ -78,7 +78,6 @@ export function Dashboard() {
 
   const addressTransfers = useAddressTransfers({ chainId })
   const swapAssets = useSwapAssets({ chainId })
-  console.info(swapAssets.data)
 
   useWatchBlockNumber({
     enabled: account.status === 'connected',
