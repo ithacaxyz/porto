@@ -97,7 +97,7 @@ function RouteComponent() {
 
   const styleMode = React.useMemo(() => {
     if (mode === 'inline-iframe') return 'iframe' // condense to "iframe" for style simplicity
-    if (mode === 'popup' && UserAgent.isMobile()) return 'popup-standalone' // popups on mobile look "standalone"
+    if (mode === 'popup' && UserAgent.isMobile()) return 'popup-mobile'
     return mode
   }, [mode])
 
@@ -105,43 +105,45 @@ function RouteComponent() {
     <>
       <HeadContent />
 
-      <div
-        data-dialog
-        {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
-        className="border-primary contain-content data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-standalone:max-w-[360px] data-iframe:rounded-[14px] data-popup-standalone:rounded-[14px] data-iframe:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
-      >
-        <TitleBar
-          mode={mode}
-          ref={titlebarRef}
-          referrer={referrer}
-          verifyStatus={verifyStatus.data?.status}
-        />
-
+      <div>
         <div
-          className="flex h-fit flex-col overflow-hidden bg-primary pt-titlebar"
-          ref={contentRef}
+          data-dialog
+          {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
+          className="border-primary contain-content data-popup-mobile:absolute data-popup-mobile:bottom-0 data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-mobile:w-full data-popup-standalone:max-w-[360px] data-popup-standalone:rounded-[14px] data-iframe:rounded-t-[14px] data-popup-mobile:rounded-t-[14px] data-iframe:border data-popup-mobile:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
         >
+          <TitleBar
+            mode={mode}
+            ref={titlebarRef}
+            referrer={referrer}
+            verifyStatus={verifyStatus.data?.status}
+          />
+
           <div
-            className="flex flex-grow *:w-full"
-            key={request?.id ? request.id.toString() : '-1'} // rehydrate on id changes
+            className="flex h-fit flex-col overflow-hidden bg-primary pt-titlebar"
+            ref={contentRef}
           >
-            <CheckError>
-              <CheckUnsupportedBrowser>
-                <CheckReferrer>
-                  {status === 'connecting' || status === 'reconnecting' ? (
-                    <Layout loading loadingTitle="Loading…">
-                      <div />
-                    </Layout>
-                  ) : search.requireUpdatedAccount ? (
-                    <UpdateAccount.CheckUpdate>
+            <div
+              className="flex flex-grow *:w-full"
+              key={request?.id ? request.id.toString() : '-1'} // rehydrate on id changes
+            >
+              <CheckError>
+                <CheckUnsupportedBrowser>
+                  <CheckReferrer>
+                    {status === 'connecting' || status === 'reconnecting' ? (
+                      <Layout loading loadingTitle="Loading…">
+                        <div />
+                      </Layout>
+                    ) : search.requireUpdatedAccount ? (
+                      <UpdateAccount.CheckUpdate>
+                        <Outlet />
+                      </UpdateAccount.CheckUpdate>
+                    ) : (
                       <Outlet />
-                    </UpdateAccount.CheckUpdate>
-                  ) : (
-                    <Outlet />
-                  )}
-                </CheckReferrer>
-              </CheckUnsupportedBrowser>
-            </CheckError>
+                    )}
+                  </CheckReferrer>
+                </CheckUnsupportedBrowser>
+              </CheckError>
+            </div>
           </div>
         </div>
       </div>
