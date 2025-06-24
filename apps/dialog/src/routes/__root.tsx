@@ -290,14 +290,31 @@ declare namespace CheckReferrer {
 
 const isInAppBrowser = UserAgent.isInAppBrowser()
 const isUnsupportedBrowser = UserAgent.isUnsupportedBrowser()
+const isUnsupportedCliBrowser = UserAgent.isUnsupportedCliBrowser()
 
 function CheckUnsupportedBrowser(props: CheckUnsupportedBrowser.Props) {
   const { children } = props
 
+  const cli = Dialog.useStore((state) =>
+    state.referrer?.url?.toString().startsWith('cli'),
+  )
+
   const [proceed, setProceed] = React.useState(false)
 
-  if (!isInAppBrowser && !isUnsupportedBrowser) return children
+  if (
+    (!cli || !isUnsupportedCliBrowser) &&
+    !isInAppBrowser &&
+    !isUnsupportedBrowser
+  )
+    return children
+
   if (proceed) return children
+
+  const type = React.useMemo(() => {
+    if (cli) return 'cli'
+    if (isInAppBrowser) return 'in-app'
+    return 'browser'
+  }, [cli])
 
   const browserName = UserAgent.getInAppBrowserName()
   const message = (
@@ -326,47 +343,79 @@ function CheckUnsupportedBrowser(props: CheckUnsupportedBrowser.Props) {
       .
     </p>
   )
+  const content = React.useMemo(() => {
+    if (type === 'cli')
+      return (
+        <>
+          Support for the Porto CLI in this browser is coming soon. <br />
+          For now, please open this page in{' '}
+          <span className="font-medium">Chrome</span>,{' '}
+          <span className="font-medium">Firefox</span>, or{' '}
+          <span className="font-medium">Edge</span> to continue.
+        </>
+      )
+    if (type === 'in-app')
+      return (
+        <>
+          {message} browser does not support Porto. Please open this page in
+          your device's browser.
+          <br />
+          {action}
+        </>
+      )
+    if (type === 'browser')
+      return (
+        <>
+          This browser does not support Porto. Please switch to a supported
+          browser.
+          <br />
+          {action}
+        </>
+      )
+  }, [message, type])
+
   return (
     <Layout>
       <Layout.Header>
         <Layout.Header.Default
-          content={
-            isUnsupportedBrowser ? (
-              <>
-                This browser does not support Porto. Please switch to a
-                supported browser.
-                <br />
-                {action}
-              </>
-            ) : (
-              <>
-                {message} browser does not support Porto. Please open this page
-                in your device's browser.
-                <br />
-                {action}
-              </>
-            )
-          }
+          content={content}
           icon={LucideCircleAlert}
           title="Unsupported browser"
           variant="destructive"
         />
       </Layout.Header>
 
-      <Layout.Footer>
-        <Layout.Footer.Actions>
-          <Button
-            className="flex-1"
-            onClick={() => setProceed(true)}
-            variant="destructive"
-          >
-            Proceed anyway
-          </Button>
-          <Button className="flex-1" onClick={() => Actions.rejectAll(porto)}>
-            Close
-          </Button>
-        </Layout.Footer.Actions>
-      </Layout.Footer>
+      {type === 'cli' && (
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            <Button
+              className="flex-1"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href)
+              }}
+            >
+              Copy page link
+            </Button>
+          </Layout.Footer.Actions>
+        </Layout.Footer>
+      )}
+
+      {type !== 'cli' && (
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            <Button
+              className="flex-1"
+              onClick={() => setProceed(true)}
+              variant="destructive"
+            >
+              Proceed anyway
+            </Button>
+            <Button className="flex-1" onClick={() => Actions.rejectAll(porto)}>
+              Close
+            </Button>
+          </Layout.Footer.Actions>
+        </Layout.Footer>
+      )}
     </Layout>
   )
 }
