@@ -1,7 +1,7 @@
 // TODO: add `requestListener`.
 
 import { Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
-import { createClient, fallback, http, rpcSchema, type Transport } from 'viem'
+import { createClient, rpcSchema } from 'viem'
 
 import type * as Chains from '../core/Chains.js'
 import type * as RpcSchema from '../core/internal/rpcServer/rpcSchema.js'
