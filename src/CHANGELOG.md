@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.34
+
+### Patch Changes
+
+- [#499](https://github.com/ithacaxyz/porto/pull/499) [`689ba2f`](https://github.com/ithacaxyz/porto/commit/689ba2f13be58d5312eb89f46a08eeb7c9e17d6d) Thanks [@jxom](https://github.com/jxom)! - Exported `MerchantRpc.POST` and `MerchantRpc.OPTIONS` functions for Next.js.
+
+- [#501](https://github.com/ithacaxyz/porto/pull/501) [`8fca510`](https://github.com/ithacaxyz/porto/commit/8fca51007e014f5d48accedf6eabf53c5665e245) Thanks [@jxom](https://github.com/jxom)! - **CLI:** Added functionality to deploy account onchain on `porto onboard --admin-key` command.
+
 ## 0.0.33
 
 ### Patch Changes
