@@ -1,7 +1,9 @@
 // TODO: add `requestListener`.
 
 import { Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
-import { createClient, rpcSchema } from 'viem'
+import { createClient, fallback, http, rpcSchema, type Transport } from 'viem'
+
+import type * as Chains from '../core/Chains.js'
 import type * as RpcSchema from '../core/internal/rpcServer/rpcSchema.js'
 import * as Rpc from '../core/internal/rpcServer/typebox/rpc.js'
 import * as Typebox from '../core/internal/typebox/typebox.js'
@@ -9,19 +11,26 @@ import type { OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
 import * as Key from '../viem/Key.js'
 
-export function requestHandler(options: requestHandler.Options) {
+export function requestHandler<
+  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(options: requestHandler.Options<chains>) {
   const {
     address,
-    key: k,
+    chains = Porto.defaultConfig.chains,
     transports = Porto.defaultConfig.transports,
   } = options
 
   const from = (() => {
-    if (k.type === 'secp256k1') return Key.fromSecp256k1
-    if (k.type === 'p256') return Key.fromP256
+    if (typeof options.key === 'string') return undefined
+    if (options.key.type === 'secp256k1') return Key.fromSecp256k1
+    if (options.key.type === 'p256') return Key.fromP256
     throw new Error('unsupported key type')
   })()
-  const key = from(k)
+  const key = from
+    ? from(options.key as never)
+    : Key.fromSecp256k1({
+        privateKey: options.key as Hex.Hex,
+      })
 
   return async (r: Request) => {
     const request = (await r
@@ -37,6 +46,8 @@ export function requestHandler(options: requestHandler.Options) {
         message: 'chainId is required.',
       })
 
+    const chain = chains.find((c) => c.id === chainId)
+
     const transport = transports[chainId as keyof typeof transports]
     if (!transport)
       throw new RpcResponse.InvalidParamsError({
@@ -44,6 +55,7 @@ export function requestHandler(options: requestHandler.Options) {
       })
 
     const client = createClient({
+      chain,
       rpcSchema: rpcSchema<RpcSchema.Viem>(),
       transport,
     })
@@ -90,7 +102,13 @@ export function requestHandler(options: requestHandler.Options) {
         },
         { request },
       )
-      return Response.json(response)
+      return Response.json(response, {
+        headers: {
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Origin': '*',
+        },
+      })
     } catch (e) {
       const error = (() => {
         const error = RpcResponse.parseError(e as Error)
@@ -104,11 +122,19 @@ export function requestHandler(options: requestHandler.Options) {
 }
 
 export declare namespace requestHandler {
-  export type Options = {
+  export type Options<
+    chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+      Chains.Chain,
+      ...Chains.Chain[],
+    ],
+  > = {
     address: Address.Address
-    key: Pick<OneOf<Key.Secp256k1Key | Key.P256Key>, 'type'> & {
-      privateKey: Hex.Hex
-    }
-    transports?: Porto.Config['transports'] | undefined
+    chains?: Porto.Config<chains>['chains'] | undefined
+    key:
+      | Hex.Hex
+      | (Pick<OneOf<Key.Secp256k1Key | Key.P256Key>, 'type'> & {
+          privateKey: Hex.Hex
+        })
+    transports?: Porto.Config<chains>['transports'] | undefined
   }
 }

@@ -23,12 +23,9 @@ async function setup() {
   })
 
   const handler = MerchantRpc.requestHandler({
+    ...porto.config,
     address: merchantAccount.address,
-    key: {
-      privateKey: merchantKey.privateKey!(),
-      type: merchantKey.type,
-    },
-    transports: porto._internal.config.transports,
+    key: merchantKey.privateKey!(),
   })
 
   if (server) await server.closeAsync()

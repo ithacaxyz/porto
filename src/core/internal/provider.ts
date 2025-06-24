@@ -906,8 +906,9 @@ export function from<
               store,
             },
             key,
-            merchantRpcUrl:
+            merchantRpcUrl: normalizeMerchantRpcUrl(
               config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+            ),
             preCalls: capabilities?.preCalls as any,
           })
 
@@ -984,8 +985,9 @@ export function from<
               request,
               store,
             },
-            merchantRpcUrl:
+            merchantRpcUrl: normalizeMerchantRpcUrl(
               config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+            ),
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,
           })
@@ -1140,4 +1142,11 @@ function getActivePermissions(
       }
     })
     .filter(Boolean) as never
+}
+
+function normalizeMerchantRpcUrl(merchantRpcUrl: string | undefined) {
+  if (!merchantRpcUrl) return undefined
+  if (merchantRpcUrl.startsWith('/'))
+    return `${window.location.origin}${merchantRpcUrl}`
+  return merchantRpcUrl
 }

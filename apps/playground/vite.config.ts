@@ -21,6 +21,7 @@ import {
   simulatorAddress,
 } from '../../test/src/_generated/addresses.js'
 import { rpcServer } from '../../test/src/prool.js'
+import { porto } from './src/config.js'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
@@ -207,14 +208,9 @@ export default defineConfig(({ mode }) => {
             if (req.method !== 'POST') return next()
 
             const handler = MerchantRpc.requestHandler({
+              ...porto.config,
               address: merchantAccount.address,
-              key: {
-                privateKey: merchantKey.privateKey!(),
-                type: 'secp256k1',
-              },
-              transports: {
-                [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
-              },
+              key: merchantKey.privateKey!(),
             })
 
             return createRequestListener(handler)(req, res)

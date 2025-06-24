@@ -1472,12 +1472,12 @@ describe.each([
         })
 
         const handler = MerchantRpc.requestHandler({
+          ...porto.config,
           address: merchantAccount.address,
           key: {
             privateKey: merchantKey.privateKey!(),
             type: merchantKey.type,
           },
-          transports: porto._internal.config.transports,
         })
         const server = await Http.createServer(createRequestListener(handler))
 
@@ -1566,7 +1566,7 @@ describe.each([
       async () => {
         const {
           client,
-          porto: { _internal },
+          porto: { config },
         } = getPorto()
 
         const merchantKey = Key.createSecp256k1()
@@ -1576,12 +1576,12 @@ describe.each([
         })
 
         const handler = MerchantRpc.requestHandler({
+          ...config,
           address: merchantAccount.address,
           key: {
             privateKey: merchantKey.privateKey!(),
             type: merchantKey.type,
           },
-          transports: _internal.config.transports,
         })
         const server = await Http.createServer(createRequestListener(handler))
 
