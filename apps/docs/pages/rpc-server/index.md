@@ -56,7 +56,7 @@ Upgrading an existing EOA is split into two steps:
 - [`wallet_getKeys`]: Get all keys attached to an account.
 - [`wallet_getAccounts`]: Get all accounts a key is attached to.
 
-For more details on how accounts work, see the [Account documentation](#TODO).
+For more details on how accounts work, see the [Account documentation](../contracts/account.md).
 
 ## Intent execution
 
