@@ -6,7 +6,7 @@ import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import { Permissions } from '~/routes/-components/Permissions'
 import { StringFormatter } from '~/utils'
-import LucideLogIn from '~icons/lucide/log-in'
+import LucideHaze from '~icons/lucide/haze'
 import IconScanFace from '~icons/porto/scan-face'
 
 export function Email(props: Email.Props) {
@@ -50,20 +50,13 @@ export function Email(props: Email.Props) {
 
   const content = React.useMemo(() => {
     if (cli) return undefined
-    if (actions.includes('sign-in'))
-      return (
-        <>
-          By continuing, you will be signed in as{' '}
-          <span className="font-medium">{displayName}</span>
-        </>
-      )
     return (
       <>
-        Create a <span className="font-medium text-accent">Porto</span> account
-        to sign in to{' '}
+        Use <span className="font-medium">Porto</span> to sign in to{' '}
         {hostname ? (
           <>
-            <span className="font-medium">{hostname}</span> and more
+            <span className="font-medium">{hostname}</span>
+            {actions.includes('sign-up') ? ' and more' : ''}
           </>
         ) : (
           'this website'
@@ -71,14 +64,14 @@ export function Email(props: Email.Props) {
         .
       </>
     )
-  }, [actions, cli, displayName, hostname])
+  }, [actions, cli, hostname])
 
   return (
     <Layout loading={loading} loadingTitle={loadingTitle}>
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={content}
-          icon={LucideLogIn}
+          icon={LucideHaze}
           title={actions.includes('sign-up') ? 'Get started' : 'Sign in'}
         />
       </Layout.Header>
@@ -98,7 +91,9 @@ export function Email(props: Email.Props) {
             variant="accent"
           >
             <IconScanFace className="size-5.25" />
-            {actions.includes('sign-up') ? 'Sign in' : 'Continue'}
+            {actions.includes('sign-up')
+              ? 'Sign in with Porto'
+              : 'Continue with Porto'}
           </Button>
         )}
 
@@ -139,27 +134,35 @@ export function Email(props: Email.Props) {
                 Invalid email
               </span>
               <span className="flex gap-2 group-has-[:user-invalid]:hidden">
-                {!actions.includes('sign-in') && (
-                  <IconScanFace className="size-5.25" />
+                {actions.includes('sign-in') ? (
+                  'Create Porto account'
+                ) : (
+                  <>
+                    <IconScanFace className="size-5.25" />
+                    Sign up with Porto
+                  </>
                 )}
-                Create account
               </span>
             </Button>
           </form>
         ) : (
           // If no sign up button, this means the user is already logged in, however
           // the user may want to sign in with a different passkey.
-          <Button
-            className="flex w-full gap-2"
-            onClick={() => {
-              setLoadingTitle('Signing in...')
-              onApprove({ selectAccount: true, signIn: true })
-            }}
-            type="button"
-            variant="default"
-          >
-            Change account
-          </Button>
+          <div className="flex w-full justify-between gap-2">
+            <div className="text-gray9">
+              Using <span className="text-primary">{displayName}</span>
+            </div>
+            <button
+              className="text-accent"
+              onClick={() => {
+                setLoadingTitle('Signing in...')
+                onApprove({ selectAccount: true, signIn: true })
+              }}
+              type="button"
+            >
+              Switch
+            </button>
+          </div>
         )}
       </div>
     </Layout>
