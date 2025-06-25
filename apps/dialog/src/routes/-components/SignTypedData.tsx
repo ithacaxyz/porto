@@ -40,7 +40,12 @@ export function SignTypedData(props: SignTypedData.Props) {
       setProtocolLoading(true)
       try {
         // Dynamic import to use the enhanced detection system
-        const { decodeProtocolSignature } = await import('porto/core/detectors')
+        const { decodeProtocolSignature } = await import(
+          'porto/core/ProtocolDecoder'
+        )
+
+        // Initialize detectors
+        await import('porto/core/detectors')
 
         const signatureInput = {
           chainId: parsedData.domain.chainId || 1,
