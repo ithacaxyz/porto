@@ -73,7 +73,6 @@ export function ActionRequest(props: ActionRequest.Props) {
             error={prepareCallsQuery.error}
             errorMessage="An error occurred while simulating the action. Proceed with caution."
             loading={prepareCallsQuery.isPending}
-            merchantRpcUrl={merchantRpcUrl}
             quote={quote}
           >
             {assetDiff && address && (
@@ -294,12 +293,13 @@ export namespace ActionRequest {
     }
   }
   export function Details(props: Details.Props) {
-    const { merchantRpcUrl } = props
-
     const quote = useQuote(porto, props.quote)
     const chain = Hooks.useChain(porto, { chainId: props.quote.chainId })
     const fiatFee = quote?.fee.fiat
     const tokenFee = quote?.fee.token
+
+    const sponsored =
+      props.quote.intent?.payer !== '0x0000000000000000000000000000000000000000'
 
     const displayTokenFee =
       tokenFee &&
@@ -309,7 +309,7 @@ export namespace ActionRequest {
 
     return (
       <div className="space-y-1.5">
-        {!merchantRpcUrl && (
+        {!sponsored && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
             <span className="text-[14px] text-secondary leading-4">
               Fees (est.)
@@ -353,7 +353,6 @@ export namespace ActionRequest {
   export namespace Details {
     export type Props = {
       chain?: Chains.Chain | undefined
-      merchantRpcUrl?: string | undefined
       quote: Quote_typebox.Quote
     }
   }
@@ -365,7 +364,6 @@ export namespace ActionRequest {
       errorMessage = 'An error occurred. Proceed with caution.',
       loading,
       quote,
-      merchantRpcUrl,
     } = props
 
     // default to `true` if no children, otherwise false
@@ -413,10 +411,7 @@ export namespace ActionRequest {
                 <>
                   {children && <div className="h-[1px] w-full bg-gray6" />}
                   <div className={viewQuote ? undefined : 'hidden'}>
-                    <ActionRequest.Details
-                      merchantRpcUrl={merchantRpcUrl}
-                      quote={quote}
-                    />
+                    <ActionRequest.Details quote={quote} />
                   </div>
                   {!viewQuote && (
                     <button
@@ -444,7 +439,6 @@ export namespace ActionRequest {
       errorMessage?: string | undefined
       loading?: boolean | undefined
       quote?: Quote_typebox.Quote | undefined
-      merchantRpcUrl?: string | undefined
     }
   }
 

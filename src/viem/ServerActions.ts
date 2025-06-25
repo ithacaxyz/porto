@@ -161,16 +161,8 @@ export async function prepareCalls<
         }))
       : undefined
 
-  const client_ = merchantRpcUrl
-    ? createClient({
-        chain: client.chain,
-        transport: http(merchantRpcUrl),
-      })
-    : client
-
-  const { capabilities, context, digest } = await ServerActions.prepareCalls(
-    client_,
-    {
+  async function prepare(client: Client) {
+    return await ServerActions.prepareCalls(client, {
       address: account_?.address,
       calls: (calls ?? []) as any,
       capabilities: {
@@ -187,8 +179,26 @@ export async function prepareCalls<
       },
       chain,
       key: key ? Key.toRpcServer(key) : undefined,
-    },
-  )
+    })
+  }
+
+  const { capabilities, context, digest } = await (async () => {
+    if (merchantRpcUrl) {
+      const client_ = createClient({
+        chain: client.chain,
+        transport: http(merchantRpcUrl),
+      })
+      // Prepare with Merchant RPC.
+      return await prepare(client_).catch((e) => {
+        console.error(e)
+        // Fall back to default client.
+        return prepare(client)
+      })
+    }
+
+    return await prepare(client)
+  })()
+
   return {
     capabilities: { ...capabilities, quote: context.quote as any },
     context,
