@@ -760,7 +760,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async signTypedData(parameters) {
-        const { internal } = parameters
+        const { account, data, internal } = parameters
         const { store, request } = internal
 
         if (request.method !== 'eth_signTypedData_v4')
@@ -768,6 +768,52 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot sign typed data for method: ' + request.method,
           )
 
+        // Enhance the request with protocol decoding for rich previews
+        const { enhanceTypedDataRequest, extractRequestContext } = await import(
+          '../protocolIntegration.js'
+        )
+
+        // Initialize protocol detectors
+        await import('../../detectors/index.js')
+
+        try {
+          const context = extractRequestContext()
+          const enhancement = await enhanceTypedDataRequest(
+            account.address,
+            data,
+            store.getState().chainId,
+            context,
+          )
+
+          // If we have protocol support, add the decoded information to the request
+          if (enhancement.hasProtocolSupport && enhancement.protocolDecoding) {
+            const { createDialogMetadata } = await import(
+              '../protocolIntegration.js'
+            )
+            const protocolDecoding = enhancement.protocolDecoding
+            const dialogMetadata = createDialogMetadata(protocolDecoding)
+
+            // For now, we'll enhance the dialog display by storing metadata in the store
+            // In a real implementation, this would be passed to the dialog UI
+            store.setState((x) => ({
+              ...x,
+              protocolPreview: {
+                metadata: dialogMetadata,
+                protocol: protocolDecoding.protocol,
+                summary: protocolDecoding.summary,
+                supported: true,
+              },
+            }))
+
+            const provider = getProvider(store)
+            return await provider.request(request)
+          }
+        } catch (error) {
+          // If protocol enhancement fails, log but continue with original flow
+          console.warn('Protocol enhancement failed for signTypedData:', error)
+        }
+
+        // Fallback to original request flow
         const provider = getProvider(store)
         return await provider.request(request)
       },

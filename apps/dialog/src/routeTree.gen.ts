@@ -25,6 +25,7 @@ import { Route as DialogWalletaddFundsImport } from './routes/dialog/wallet_addF
 import { Route as DialogSuccessImport } from './routes/dialog/success'
 import { Route as DialogPlaygroundImport } from './routes/dialog/playground'
 import { Route as DialogPersonalsignImport } from './routes/dialog/personal_sign'
+import { Route as DialogEthsignTypedDatav4Import } from './routes/dialog/eth_signTypedData_v4'
 import { Route as DialogEthsendTransactionImport } from './routes/dialog/eth_sendTransaction'
 import { Route as DialogEthrequestAccountsImport } from './routes/dialog/eth_requestAccounts'
 import { Route as DialogAccountverifyEmailImport } from './routes/dialog/account_verifyEmail'
@@ -119,6 +120,12 @@ const DialogPersonalsignRoute = DialogPersonalsignImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DialogEthsignTypedDatav4Route = DialogEthsignTypedDatav4Import.update({
+  id: '/dialog/eth_signTypedData_v4',
+  path: '/dialog/eth_signTypedData_v4',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const DialogEthsendTransactionRoute = DialogEthsendTransactionImport.update({
   id: '/dialog/eth_sendTransaction',
   path: '/dialog/eth_sendTransaction',
@@ -180,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/dialog/eth_sendTransaction'
       fullPath: '/dialog/eth_sendTransaction'
       preLoaderRoute: typeof DialogEthsendTransactionImport
+      parentRoute: typeof rootRoute
+    }
+    '/dialog/eth_signTypedData_v4': {
+      id: '/dialog/eth_signTypedData_v4'
+      path: '/dialog/eth_signTypedData_v4'
+      fullPath: '/dialog/eth_signTypedData_v4'
+      preLoaderRoute: typeof DialogEthsignTypedDatav4Import
       parentRoute: typeof rootRoute
     }
     '/dialog/personal_sign': {
@@ -284,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
+  '/dialog/eth_signTypedData_v4': typeof DialogEthsignTypedDatav4Route
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/success': typeof DialogSuccessRoute
@@ -305,6 +320,7 @@ export interface FileRoutesByTo {
   '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
+  '/dialog/eth_signTypedData_v4': typeof DialogEthsignTypedDatav4Route
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/success': typeof DialogSuccessRoute
@@ -327,6 +343,7 @@ export interface FileRoutesById {
   '/dialog/account_verifyEmail': typeof DialogAccountverifyEmailRoute
   '/dialog/eth_requestAccounts': typeof DialogEthrequestAccountsRoute
   '/dialog/eth_sendTransaction': typeof DialogEthsendTransactionRoute
+  '/dialog/eth_signTypedData_v4': typeof DialogEthsignTypedDatav4Route
   '/dialog/personal_sign': typeof DialogPersonalsignRoute
   '/dialog/playground': typeof DialogPlaygroundRoute
   '/dialog/success': typeof DialogSuccessRoute
@@ -350,6 +367,7 @@ export interface FileRouteTypes {
     | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
+    | '/dialog/eth_signTypedData_v4'
     | '/dialog/personal_sign'
     | '/dialog/playground'
     | '/dialog/success'
@@ -370,6 +388,7 @@ export interface FileRouteTypes {
     | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
+    | '/dialog/eth_signTypedData_v4'
     | '/dialog/personal_sign'
     | '/dialog/playground'
     | '/dialog/success'
@@ -390,6 +409,7 @@ export interface FileRouteTypes {
     | '/dialog/account_verifyEmail'
     | '/dialog/eth_requestAccounts'
     | '/dialog/eth_sendTransaction'
+    | '/dialog/eth_signTypedData_v4'
     | '/dialog/personal_sign'
     | '/dialog/playground'
     | '/dialog/success'
@@ -412,6 +432,7 @@ export interface RootRouteChildren {
   DialogAccountverifyEmailRoute: typeof DialogAccountverifyEmailRoute
   DialogEthrequestAccountsRoute: typeof DialogEthrequestAccountsRoute
   DialogEthsendTransactionRoute: typeof DialogEthsendTransactionRoute
+  DialogEthsignTypedDatav4Route: typeof DialogEthsignTypedDatav4Route
   DialogPersonalsignRoute: typeof DialogPersonalsignRoute
   DialogPlaygroundRoute: typeof DialogPlaygroundRoute
   DialogSuccessRoute: typeof DialogSuccessRoute
@@ -433,6 +454,7 @@ const rootRouteChildren: RootRouteChildren = {
   DialogAccountverifyEmailRoute: DialogAccountverifyEmailRoute,
   DialogEthrequestAccountsRoute: DialogEthrequestAccountsRoute,
   DialogEthsendTransactionRoute: DialogEthsendTransactionRoute,
+  DialogEthsignTypedDatav4Route: DialogEthsignTypedDatav4Route,
   DialogPersonalsignRoute: DialogPersonalsignRoute,
   DialogPlaygroundRoute: DialogPlaygroundRoute,
   DialogSuccessRoute: DialogSuccessRoute,
@@ -464,6 +486,7 @@ export const routeTree = rootRoute
         "/dialog/account_verifyEmail",
         "/dialog/eth_requestAccounts",
         "/dialog/eth_sendTransaction",
+        "/dialog/eth_signTypedData_v4",
         "/dialog/personal_sign",
         "/dialog/playground",
         "/dialog/success",
@@ -493,6 +516,9 @@ export const routeTree = rootRoute
     },
     "/dialog/eth_sendTransaction": {
       "filePath": "dialog/eth_sendTransaction.tsx"
+    },
+    "/dialog/eth_signTypedData_v4": {
+      "filePath": "dialog/eth_signTypedData_v4.tsx"
     },
     "/dialog/personal_sign": {
       "filePath": "dialog/personal_sign.tsx"

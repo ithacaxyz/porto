@@ -16,6 +16,7 @@ import {
   useChainId,
   useDisconnect,
   useSendCalls,
+  useSignTypedData,
   useWaitForCallsStatus,
   useWatchBlockNumber,
 } from 'wagmi'
@@ -77,6 +78,248 @@ function TokenSymbol({
     return StringFormatter.truncate(address, { end: 4, start: 4 })
 
   return display === 'name' ? tokenInfo.name : tokenInfo.symbol
+}
+
+function DummySwap() {
+  const account = useAccount()
+  const chainId = useChainId()
+
+  // Base Sepolia test tokens
+  const tokens = {
+    USDC: {
+      address: '0x036cbd53842c5426634e7929541ec2318f3dcf7e',
+      decimals: 6,
+      symbol: 'USDC',
+    },
+    WETH: {
+      address: '0x4200000000000000000000000000000000000006',
+      decimals: 18,
+      symbol: 'WETH',
+    },
+  }
+
+  const dummySwapForm = Ariakit.useFormStore({
+    defaultValues: {
+      buyAmount: '0.42',
+      sellAmount: '1000',
+    },
+  })
+  const dummySwapFormState = Ariakit.useStoreState(dummySwapForm)
+
+  const {
+    signTypedData,
+    data: signature,
+    error,
+    isPending,
+  } = useSignTypedData()
+
+  const handleTestDummySwap = async () => {
+    if (!account.address) {
+      toast.error('No account address found')
+      return
+    }
+
+    const sellAmount = dummySwapFormState.values.sellAmount
+    const buyAmount = dummySwapFormState.values.buyAmount
+
+    if (!sellAmount || !buyAmount) {
+      toast.error('Please enter both sell and buy amounts')
+      return
+    }
+
+    const typedData = {
+      domain: {
+        chainId: 84532,
+        name: 'DummySwap Protocol',
+        verifyingContract:
+          '0x1234567890123456789012345678901234567890' as `0x${string}`, // Base Sepolia
+        version: '1.0',
+      },
+      message: {
+        appData:
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+        buyAmount: BigInt(
+          Number.parseFloat(buyAmount) * 10 ** tokens.WETH.decimals,
+        ),
+        buyToken: tokens.WETH.address as `0x${string}`,
+        feeAmount: BigInt(
+          Math.floor(
+            Number.parseFloat(sellAmount) * 0.001 * 10 ** tokens.USDC.decimals,
+          ),
+        ),
+        kind: 'sell', // 1 hour
+        partiallyFillable: false,
+        sellAmount: BigInt(
+          Number.parseFloat(sellAmount) * 10 ** tokens.USDC.decimals,
+        ),
+        sellToken: tokens.USDC.address as `0x${string}`,
+        user: account.address as `0x${string}`,
+        validTo: Math.floor(Date.now() / 1000) + 3600,
+      },
+      primaryType: 'Order',
+      types: {
+        Order: [
+          { name: 'sellToken', type: 'address' },
+          { name: 'buyToken', type: 'address' },
+          { name: 'sellAmount', type: 'uint256' },
+          { name: 'buyAmount', type: 'uint256' },
+          { name: 'validTo', type: 'uint32' },
+          { name: 'appData', type: 'bytes32' },
+          { name: 'feeAmount', type: 'uint256' },
+          { name: 'kind', type: 'string' },
+          { name: 'partiallyFillable', type: 'bool' },
+          { name: 'user', type: 'address' },
+        ],
+      },
+    } as const
+
+    signTypedData(typedData)
+  }
+
+  React.useEffect(() => {
+    if (signature) {
+      toast.custom((t) => (
+        <Toast
+          className={t}
+          description="DummySwap order signed successfully! Check console for signature details."
+          kind="success"
+          title="Protocol Decoder Test Complete"
+        />
+      ))
+      console.log('DummySwap signature:', signature)
+    }
+  }, [signature])
+
+  React.useEffect(() => {
+    if (error) {
+      toast.custom((t) => (
+        <Toast
+          className={t}
+          description={error.message}
+          kind="error"
+          title="DummySwap Test Failed"
+        />
+      ))
+    }
+  }, [error])
+
+  if (chainId !== 84532) {
+    return (
+      <details className="group pb-1">
+        <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+          <span>
+            DummySwap Order Protocol eth_signTypedData_v4 Decoder Test
+          </span>
+        </summary>
+        <div className="my-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <p className="text-amber-800 text-sm">
+            ⚠️ Please switch to Base Sepolia (Chain ID: 84532) to test DummySwap
+            protocol decoder
+          </p>
+        </div>
+      </details>
+    )
+  }
+
+  return (
+    <details className="group pb-1" open>
+      <summary className='relative my-auto cursor-default list-none space-x-1 pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
+        <span>DummySwap Order Protocol Decoder Test </span>
+      </summary>
+
+      <Ariakit.Form
+        className="my-3 rounded-lg border border-blue-200 bg-blue-50 p-4"
+        store={dummySwapForm}
+      >
+        <div className="space-y-3">
+          <div className="text-blue-900 text-sm">
+            <p className="mb-2 font-medium">
+              Test Protocol Decoder Enhancement
+            </p>
+            <p>
+              This will create a DummySwap limit order signature
+              (eth_signTypedData_v4) to test Porto's enhanced transaction
+              preview.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Ariakit.FormLabel
+                className="mb-1 block font-medium text-blue-800 text-xs"
+                name={dummySwapForm.names.sellAmount}
+              >
+                Sell Amount
+              </Ariakit.FormLabel>
+              <div className="flex items-center space-x-2">
+                <Ariakit.FormInput
+                  className="flex-1 rounded border border-blue-300 bg-white px-2 py-1 text-black text-sm"
+                  name={dummySwapForm.names.sellAmount}
+                  placeholder="1000"
+                  type="number"
+                />
+                <span className="font-medium text-blue-700 text-xs">USDC</span>
+              </div>
+            </div>
+
+            <div>
+              <Ariakit.FormLabel
+                className="mb-1 block font-medium text-blue-800 text-xs"
+                name={dummySwapForm.names.buyAmount}
+              >
+                Buy Amount (min)
+              </Ariakit.FormLabel>
+              <div className="flex items-center space-x-2">
+                <Ariakit.FormInput
+                  className="flex-1 rounded border border-blue-300 bg-white px-2 py-1 text-black text-sm"
+                  name={dummySwapForm.names.buyAmount}
+                  placeholder="0.42"
+                  type="number"
+                />
+                <span className="font-medium text-blue-700 text-xs">WETH</span>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            className="w-full"
+            disabled={
+              isPending ||
+              !account.address ||
+              !dummySwapFormState.values.sellAmount ||
+              !dummySwapFormState.values.buyAmount
+            }
+            onClick={handleTestDummySwap}
+            size="small"
+            variant="accent"
+          >
+            {isPending ? (
+              <>
+                <Spinner className="mr-2 size-4" />
+                Signing...
+              </>
+            ) : (
+              'Test Protocol Decoder (Sign DummySwap Order)'
+            )}
+          </Button>
+
+          <div className="text-blue-700 text-xs">
+            <p className="mb-1 font-medium">Expected Behavior:</p>
+            <ul className="ml-2 list-inside list-disc space-y-1">
+              <li>Porto should detect "DummySwap Protocol" signature</li>
+              <li>
+                Show rich preview: "Sell{' '}
+                {dummySwapFormState.values.sellAmount || '1000'} USDC for ≥{' '}
+                {dummySwapFormState.values.buyAmount || '0.42'} WETH"
+              </li>
+              <li>Display asset transfers, fees, and timing details</li>
+              <li>Include security warnings if applicable</li>
+            </ul>
+          </div>
+        </div>
+      </Ariakit.Form>
+    </details>
+  )
 }
 
 export function Dashboard() {
@@ -747,6 +990,12 @@ export function Dashboard() {
           </tbody>
         </table>
       </details>
+
+      <div className="h-4" />
+      <hr className="border-gray5" />
+      <div className="h-4" />
+
+      <DummySwap />
 
       <div className="h-8" />
     </>

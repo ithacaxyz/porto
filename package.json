@@ -31,7 +31,8 @@
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "test": "vitest -c ./test/vitest.config.ts --project default",
-    "test:browser": "vitest -c ./test/vitest.config.ts --project browser"
+    "test:browser": "vitest -c ./test/vitest.config.ts --project browser",
+    "example:protocol-decoder": "tsx src/core/ProtocolDecoder.example.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
