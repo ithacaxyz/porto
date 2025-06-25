@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.35
+
+### Patch Changes
+
+- [`6b65154`](https://github.com/ithacaxyz/porto/commit/6b65154a8979e7dd3c3894ac158e751b73804c89) Thanks [@jxom](https://github.com/jxom)! - **CLI:** Tweaked order of prompts.
+
 ## 0.0.34
 
 ### Patch Changes
