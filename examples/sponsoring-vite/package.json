@@ -1,0 +1,33 @@
+{
+  "name": "sponsoring-vite-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "build:types": "wrangler types",
+    "deploy": "pnpm run build && wrangler deploy",
+    "dev": "vite",
+    "postinstall": "pnpm build:types",
+    "preview": "pnpm run build && vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5",
+    "porto": "latest",
+    "react": "^19",
+    "react-dom": "^19",
+    "viem": "^2",
+    "wagmi": "^2"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.7.5",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5",
+    "wrangler": "^4.21.2"
+  }
+}

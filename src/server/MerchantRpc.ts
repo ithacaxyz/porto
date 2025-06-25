@@ -25,6 +25,7 @@ export function requestHandler<
 >(options: requestHandler.Options<chains>) {
   const {
     address,
+    base,
     chains = Porto.defaultConfig.chains,
     transports = Porto.defaultConfig.transports,
   } = options
@@ -42,6 +43,9 @@ export function requestHandler<
       })
 
   return async (r: Request) => {
+    if (base && !new URL(r.url).pathname.startsWith(base))
+      return new Response(null, { status: 404 })
+
     if (r.method === 'GET') return GET()
     if (r.method === 'OPTIONS') return OPTIONS()
 
@@ -122,8 +126,10 @@ export function requestHandler<
           )
         }
       }
-      default:
-        throw new RpcResponse.MethodNotSupportedError()
+      default: {
+        const error = new RpcResponse.MethodNotSupportedError()
+        return withCors(Response.json(RpcResponse.from({ error }, { request })))
+      }
     }
   }
 }
@@ -136,6 +142,7 @@ export declare namespace requestHandler {
     ],
   > = {
     address: Address.Address
+    base?: string | undefined
     chains?: Porto.Config<chains>['chains'] | undefined
     key:
       | Hex.Hex
