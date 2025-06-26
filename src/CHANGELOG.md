@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.36
+
+### Patch Changes
+
+- [#517](https://github.com/ithacaxyz/porto/pull/517) [`a9583db`](https://github.com/ithacaxyz/porto/commit/a9583dba28b769d6f27549f69e21bebd15860c8e) Thanks [@jxom](https://github.com/jxom)! - Added conditional sponsoring to `MerchantRpc` via a `sponsor` option.
+
 ## 0.0.35
 
 ### Patch Changes

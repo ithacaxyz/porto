@@ -1,7 +1,7 @@
 {
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "type": "module",
   "bin": {
     "porto": "./_dist/cli/bin/index.js"
