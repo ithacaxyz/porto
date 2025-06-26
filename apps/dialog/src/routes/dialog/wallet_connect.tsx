@@ -30,6 +30,7 @@ function RouteComponent() {
     porto,
     (state) => state.accounts[0]?.address,
   )
+  const referrerURL = Dialog.useStore((state) => state.referrer?.url)
 
   const actions = React.useMemo<readonly ('sign-in' | 'sign-up')[]>(() => {
     if (capabilities?.createAccount) return ['sign-up']
@@ -86,18 +87,27 @@ function RouteComponent() {
             {
               ...params[0],
               capabilities: {
-                ...params[0]?.capabilities,
+                ...capabilities,
                 createAccount: email
                   ? {
-                      ...(typeof params[0]?.capabilities?.createAccount ===
-                      'object'
-                        ? params[0]?.capabilities?.createAccount
+                      ...(typeof capabilities?.createAccount === 'object'
+                        ? capabilities?.createAccount
                         : {}),
                       label: email,
                     }
-                  : params[0]?.capabilities?.createAccount || !signIn,
+                  : capabilities?.createAccount || !signIn,
                 email: Boolean(email),
                 selectAccount,
+                ...(capabilities?.signInWithEthereum && {
+                  signInWithEthereum: {
+                    ...capabilities?.signInWithEthereum,
+                    domain:
+                      capabilities?.signInWithEthereum.domain ??
+                      referrerURL?.hostname,
+                    uri:
+                      capabilities?.signInWithEthereum.uri ?? referrerURL?.href,
+                  },
+                }),
               },
             },
           ],

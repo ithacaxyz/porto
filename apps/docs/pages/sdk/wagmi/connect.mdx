@@ -75,7 +75,10 @@ Chain ID to connect to.
 
 ### email
 
-TODO
+`boolean`
+
+- Show optional email input during account creation.
+- Defaults to `true`
 
 ### force
 
@@ -125,7 +128,27 @@ type GrantPermissions = {
 
 ### signInWithEthereum
 
-TODO
+[ERC-4361](https://eips.ethereum.org/EIPS/eip-4361) Sign-In with Ethereum options.
+
+```ts
+type SignInWithEthereum = {
+  /* Required fields */
+  chainId: number
+  nonce: string
+
+  /* Optional fields */
+  domain?: string | undefined // Defaults to window/iframe parent
+  expirationTime?: Date | undefined
+  issuedAt?: Date | undefined
+  notBefore?: Date | undefined
+  requestId?: string | undefined
+  resources?: string[] | undefined
+  scheme?: string | undefined
+  statement?: string | undefined
+  uri?: string | undefined // Defaults to window/iframe parent
+  version?: '1' | undefined
+}
+```
 
 ## Return Value
 

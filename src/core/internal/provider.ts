@@ -767,9 +767,11 @@ export function from<
           const siwePayload = capabilities?.signInWithEthereum
             ? ({
                 ...capabilities?.signInWithEthereum,
+                domain: capabilities?.signInWithEthereum.domain!,
                 resources: capabilities?.signInWithEthereum.resources as
                   | string[]
                   | undefined,
+                uri: capabilities?.signInWithEthereum.uri!,
                 version: capabilities?.signInWithEthereum?.version ?? '1',
               } as const)
             : undefined

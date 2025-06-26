@@ -12,6 +12,7 @@ Porto supports the following capabilities:
 | [`feeToken`](#feetoken)       | Indicates if custom fee tokens are supported.          | Experimental |
 | [`merchant`](#merchant)       | Indicates if merchant functionality is supported.              | Experimental                                                          |
 | [`permissions`](#permissions) | Indicates if permissions can be requested by the app.  | Experimental                                                          |
+| [`signInWithEthereum`](#signinwithethereum) | Adds support for ERC-4361 Sign in with Ethereum.  | Experimental                                                          |
 
 ## Fee Tokens
 
@@ -329,16 +330,86 @@ const capabilities = await provider.request({
 
 ## `signInWithEthereum`
 
-### Methods
+Adds support for [ERC-4361](https://eips.ethereum.org/EIPS/eip-4361) Sign-In with Ethereum.
 
 ### Request Capabilities
 
 #### `signInWithEthereum`
 
-##### Example
+[ERC-4361](https://eips.ethereum.org/EIPS/eip-4361) Sign-In with Ethereum options.
+
+The following JSON-RPC methods support the `signInWithEthereum` request capability:
+
+- [`wallet_connect`](/sdk/rpc/wallet_connect)
+
+```ts
+type Capability = {
+  signInWithEthereum: {
+    /* Required fields */
+    chainId: number
+    nonce: string
+    /* Optional fields */
+    domain?: string | undefined // Defaults to window/iframe parent
+    expirationTime?: Date | undefined
+    issuedAt?: Date | undefined
+    notBefore?: Date | undefined
+    requestId?: string | undefined
+    resources?: string[] | undefined
+    scheme?: string | undefined
+    statement?: string | undefined
+    uri?: string | undefined // Defaults to window/iframe parent
+    version?: '1' | undefined
+  }
+}
+```
+
+#### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_connect',
+  params: [{
+    capabilities: {
+      signInWithEthereum: {
+        chainId: 84532,
+        nonce: await fetch("/api/nonce"),
+      }
+    },
+    /* ... */
+  }]
+})
+```
 
 ### Response Capabilities
 
 #### `signInWithEthereum`
 
-##### Example
+The following JSON-RPC methods support the `signInWithEthereum` request capability:
+
+- [`wallet_connect`](/sdk/rpc/wallet_connect)
+
+```ts
+type Capability = {
+  message: string
+  signature: `0x${string}`
+}
+```
+
+#### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_connect',
+  params: [{
+    capabilities: {
+      signInWithEthereum: {
+        chainId: 84532,
+        nonce: await fetch("/api/nonce"),
+      }
+    },
+    /* ... */
+  }]
+})
+```

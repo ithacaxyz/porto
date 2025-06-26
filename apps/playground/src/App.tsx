@@ -197,22 +197,6 @@ function Connect() {
   return (
     <div>
       <h3>wallet_connect</h3>
-      <label>
-        <input
-          checked={email}
-          onChange={() => setEmail((x) => !x)}
-          type="checkbox"
-        />
-        Email
-      </label>
-      <label>
-        <input
-          checked={grantPermissions}
-          onChange={() => setGrantPermissions((x) => !x)}
-          type="checkbox"
-        />
-        Grant Permissions
-      </label>
       <div>
         <button
           onClick={async () => {
@@ -275,6 +259,14 @@ function Connect() {
       <div>
         <label>
           <input
+            checked={email}
+            onChange={() => setEmail((x) => !x)}
+            type="checkbox"
+          />
+          Email
+        </label>
+        <label>
+          <input
             checked={grantPermissions}
             onChange={() => setGrantPermissions((x) => !x)}
             type="checkbox"
@@ -303,9 +295,7 @@ async function siwePayload(enabled: boolean) {
   })
   return {
     chainId: Number(chainId),
-    domain: window.location.hostname,
     nonce: 'deadbeef',
-    uri: `${window.location.origin}/`,
   } as const
 }
 
