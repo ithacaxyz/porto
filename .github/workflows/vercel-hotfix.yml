@@ -1,0 +1,68 @@
+name: Vercel Hotfix
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+on:
+  push:
+    branches:
+      - hotfix-id
+      - hotfix-dialog
+      - hotfix-id-dialog
+
+jobs:
+  Deploy-Production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Install Vercel CLI
+        run: pnpm add --global vercel@latest
+
+      - name: Determine deployment target
+        id: target
+        run: |
+          if [[ "${{ github.ref }}" == *"hotfix-dialog"* ]] || [[ "${{ github.ref }}" == *"hotfix-id-dialog"* ]]; then
+            echo "deploy_dialog=true" >> $GITHUB_OUTPUT
+          fi
+          if [[ "${{ github.ref }}" == *"hotfix-id"* ]]; then
+            echo "deploy_id=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pull Vercel Environment Information for Dialog
+        if: steps.target.outputs.deploy_dialog == 'true'
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/dialog
+
+      - name: Build Dialog Project Artifacts
+        if: steps.target.outputs.deploy_dialog == 'true'
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/dialog
+
+      - name: Deploy Dialog Project Artifacts to Vercel
+        if: steps.target.outputs.deploy_dialog == 'true'
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/dialog
+
+      - name: Pull Vercel Environment Information for ID
+        if: steps.target.outputs.deploy_id == 'true'
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/id
+
+      - name: Build ID Project Artifacts
+        if: steps.target.outputs.deploy_id == 'true'
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/id
+
+      - name: Deploy ID Project Artifacts to Vercel
+        if: steps.target.outputs.deploy_id == 'true'
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./apps/id
+

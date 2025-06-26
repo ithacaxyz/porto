@@ -86,11 +86,11 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
   if (adminKey) {
     const reveal = await prompts.confirm({
       initialValue: false,
-      message: 'Reveal admin private key? (This will be visible in terminal)',
+      message: 'Reveal private key? (This will be visible in terminal)',
     })
 
-    if (reveal)
-      prompts.log.info('Admin private key: ' + adminKey?.privateKey!()!)
+    prompts.log.info('Address: ' + accounts[0]!.address)
+    if (reveal) prompts.log.info('Private key: ' + adminKey?.privateKey!()!)
     else {
       const keyFile = path.join(
         import.meta.dirname,
@@ -98,11 +98,9 @@ export async function createAccount(_: unknown, args: createAccount.Arguments) {
       )
       fs.writeFileSync(keyFile, adminKey?.privateKey!()!, { mode: 0o600 })
       fs.chmodSync(keyFile, 0o600)
-      prompts.log.info(`Admin key saved securely to: ${keyFile}`)
+      prompts.log.info(`Private key saved securely to: ${keyFile}`)
     }
   }
-
-  prompts.log.info('Address: ' + accounts[0]!.address)
   prompts.log.info('Manage your account at: https://id.porto.sh')
 
   await setTimeout(1_000)

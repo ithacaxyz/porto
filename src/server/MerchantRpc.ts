@@ -1,15 +1,15 @@
-// TODO: add `requestListener`.
-
 import { type Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
 
 import type * as Chains from '../core/Chains.js'
-import type * as RpcSchema from '../core/internal/rpcServer/rpcSchema.js'
+import type * as RpcSchema_internal from '../core/internal/rpcServer/rpcSchema.js'
 import * as Rpc from '../core/internal/rpcServer/typebox/rpc.js'
 import * as Typebox from '../core/internal/typebox/typebox.js'
-import type { OneOf } from '../core/internal/types.js'
+import type { MaybePromise, OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
+import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Key from '../viem/Key.js'
+import * as RequestListener from './internal/requestListener.js'
 
 /**
  * Defines a Merchant RPC request handler. This will return a function that
@@ -25,6 +25,7 @@ export function requestHandler<
 >(options: requestHandler.Options<chains>) {
   const {
     address,
+    base,
     chains = Porto.defaultConfig.chains,
     transports = Porto.defaultConfig.transports,
   } = options
@@ -42,12 +43,17 @@ export function requestHandler<
       })
 
   return async (r: Request) => {
+    if (base && !new URL(r.url).pathname.startsWith(base))
+      return new Response(null, { status: 404 })
+
     if (r.method === 'GET') return GET()
     if (r.method === 'OPTIONS') return OPTIONS()
 
     const request = (await r
       .json()
-      .then(RpcRequest.from)) as RpcRequest.RpcRequest<RpcSchema.Schema>
+      .then(
+        RpcRequest.from,
+      )) as RpcRequest.RpcRequest<RpcSchema_internal.Schema>
 
     switch (request.method) {
       case 'wallet_prepareCalls': {
@@ -67,9 +73,16 @@ export function requestHandler<
 
         const client = createClient({
           chain,
-          rpcSchema: rpcSchema<RpcSchema.Viem>(),
+          rpcSchema: rpcSchema<RpcSchema_internal.Viem>(),
           transport,
         })
+
+        const sponsor = (() => {
+          if (typeof options.sponsor === 'function')
+            return options.sponsor(request.params[0]! as never)
+          if (typeof options.sponsor === 'boolean') return options.sponsor
+          return true
+        })()
 
         try {
           const result = await client.request({
@@ -81,7 +94,11 @@ export function requestHandler<
                   ...request.params[0]!.capabilities,
                   meta: {
                     ...request.params[0]!.capabilities.meta,
-                    feePayer: address,
+                    ...(sponsor
+                      ? {
+                          feePayer: address,
+                        }
+                      : {}),
                   },
                 },
               },
@@ -92,9 +109,11 @@ export function requestHandler<
             result,
           )
 
-          const signature = await Key.sign(key, {
-            payload: TypedData.getSignPayload(typedData),
-          })
+          const signature = sponsor
+            ? await Key.sign(key, {
+                payload: TypedData.getSignPayload(typedData),
+              })
+            : undefined
 
           const response = RpcResponse.from(
             {
@@ -102,7 +121,11 @@ export function requestHandler<
                 ...result,
                 capabilities: {
                   ...result.capabilities,
-                  feeSignature: signature,
+                  ...(sponsor
+                    ? {
+                        feeSignature: signature,
+                      }
+                    : {}),
                 },
               },
             },
@@ -122,8 +145,10 @@ export function requestHandler<
           )
         }
       }
-      default:
-        throw new RpcResponse.MethodNotSupportedError()
+      default: {
+        const error = new RpcResponse.MethodNotSupportedError()
+        return withCors(Response.json(RpcResponse.from({ error }, { request })))
+      }
     }
   }
 }
@@ -135,15 +160,38 @@ export declare namespace requestHandler {
       ...Chains.Chain[],
     ],
   > = {
+    /** Address of the Merchant Account. */
     address: Address.Address
+    /** Base path of the request handler. */
+    base?: string | undefined
+    /** Supported chains. */
     chains?: Porto.Config<chains>['chains'] | undefined
+    /** An Admin Key of the Merchant Account to use for signing. */
     key:
       | Hex.Hex
       | (Pick<OneOf<Key.Secp256k1Key | Key.P256Key>, 'type'> & {
           privateKey: Hex.Hex
         })
+    /** Whether to sponsor calls or not, and the condition to do so. */
+    sponsor?:
+      | boolean
+      | ((
+          request: RpcSchema.wallet_prepareCalls.Parameters,
+        ) => MaybePromise<boolean>)
+      | undefined
+    /** Supported transports. */
     transports?: Porto.Config<chains>['transports'] | undefined
   }
+}
+
+/**
+ * Defines a request listener for the Merchant RPC.
+ *
+ * @param options - Options.
+ * @returns Request listener.
+ */
+export function requestListener(options: requestHandler.Options) {
+  return RequestListener.fromFetchHandler(requestHandler(options))
 }
 
 /**

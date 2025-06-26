@@ -1,7 +1,6 @@
 import ChildProcess from 'node:child_process'
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { createRequestListener } from '@mjackson/node-fetch-server'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
@@ -206,15 +205,13 @@ export default defineConfig(({ mode }) => {
             if (!req.url?.startsWith('/merchant')) return next()
             if (req.method !== 'POST') return next()
 
-            const handler = MerchantRpc.requestHandler({
+            return MerchantRpc.requestListener({
               address: merchantAccount.address,
               key: merchantKey.privateKey!(),
               transports: {
                 [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
               },
-            })
-
-            return createRequestListener(handler)(req, res)
+            })(req, res)
           })
         },
         name: 'anvil',
