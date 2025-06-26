@@ -11,6 +11,7 @@ import type { MaybePromise, OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Key from '../viem/Key.js'
+import * as RequestListener from './internal/requestListener.js'
 
 /**
  * Defines a Merchant RPC request handler. This will return a function that
@@ -183,6 +184,16 @@ export declare namespace requestHandler {
     /** Supported transports. */
     transports?: Porto.Config<chains>['transports'] | undefined
   }
+}
+
+/**
+ * Defines a request listener for the Merchant RPC.
+ *
+ * @param options - Options.
+ * @returns Request listener.
+ */
+export function requestListener(options: requestHandler.Options) {
+  return RequestListener.fromFetchHandler(requestHandler(options))
 }
 
 /**

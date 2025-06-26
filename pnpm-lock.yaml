@@ -151,9 +151,6 @@ importers:
       '@clack/prompts':
         specifier: ~0.11.0
         version: 0.11.0
-      '@mjackson/node-fetch-server':
-        specifier: ^0.6.1
-        version: 0.6.1
       '@size-limit/preset-big-lib':
         specifier: ^11.1.6
         version: 11.2.0(bufferutil@4.0.9)(size-limit@11.2.0)(utf-8-validate@5.0.10)
@@ -628,9 +625,6 @@ importers:
         specifier: 'catalog:'
         version: 2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28)
     devDependencies:
-      '@mjackson/node-fetch-server':
-        specifier: ^0.6.1
-        version: 0.6.1
       '@types/react':
         specifier: 'catalog:'
         version: 19.1.5

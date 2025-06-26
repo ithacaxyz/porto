@@ -1,4 +1,3 @@
-import { createRequestListener } from '@mjackson/node-fetch-server'
 import {
   Address,
   Hex,
@@ -1471,7 +1470,7 @@ describe.each([
           keys: [merchantKey],
         })
 
-        const handler = MerchantRpc.requestHandler({
+        const listener = MerchantRpc.requestListener({
           ...porto.config,
           address: merchantAccount.address,
           key: {
@@ -1479,7 +1478,7 @@ describe.each([
             type: merchantKey.type,
           },
         })
-        const server = await Http.createServer(createRequestListener(handler))
+        const server = await Http.createServer(listener)
 
         const {
           accounts: [account],
@@ -1575,7 +1574,7 @@ describe.each([
           keys: [merchantKey],
         })
 
-        const handler = MerchantRpc.requestHandler({
+        const listener = MerchantRpc.requestListener({
           ...config,
           address: merchantAccount.address,
           key: {
@@ -1583,7 +1582,7 @@ describe.each([
             type: merchantKey.type,
           },
         })
-        const server = await Http.createServer(createRequestListener(handler))
+        const server = await Http.createServer(listener)
 
         const { porto } = getPorto({ merchantRpcUrl: server.url })
 

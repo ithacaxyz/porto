@@ -1,4 +1,3 @@
-import { createRequestListener } from '@mjackson/node-fetch-server'
 import { Value } from 'ox'
 import { Key, ServerActions } from 'porto'
 import { MerchantRpc } from 'porto/server'
@@ -30,7 +29,7 @@ async function setup(
     keys: [merchantKey],
   })
 
-  const handler = MerchantRpc.requestHandler({
+  const listener = MerchantRpc.requestListener({
     ...porto.config,
     ...options,
     address: merchantAccount.address,
@@ -38,7 +37,7 @@ async function setup(
   })
 
   if (server) await server.closeAsync()
-  server = await Http.createServer(createRequestListener(handler))
+  server = await Http.createServer(listener)
 
   return { merchantAccount, server }
 }
