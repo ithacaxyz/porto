@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.37
+
+### Patch Changes
+
+- [#519](https://github.com/ithacaxyz/porto/pull/519) [`2fcca60`](https://github.com/ithacaxyz/porto/commit/2fcca6047f5b7b7b4aa69e8de64e50fae51ac15d) Thanks [@jxom](https://github.com/jxom)! - Exported `MerchantRpc.requestListener` for Node.js-based APIs
+
+- [`df9583e`](https://github.com/ithacaxyz/porto/commit/df9583e5caf05d34ccb6c2722160df1c8f4394f5) Thanks [@jxom](https://github.com/jxom)! - Added `signInWithEthereum` capability to `wallet_connect`.
+
 ## 0.0.36
 
 ### Patch Changes
