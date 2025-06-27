@@ -12,7 +12,7 @@
     "noFallthroughCasesInSwitch": true, // Not enabled by default in `strict` mode.
     "noImplicitReturns": true, // Not enabled by default in `strict` mode.
     "noUncheckedIndexedAccess": true,
-    "useUnknownInCatchVariables": true, // TODO: This would normally be enabled in `strict` mode but would require some adjustments to the codebase.
+    "useUnknownInCatchVariables": true, // This ensures type safety by treating catch variables as `unknown` instead of `any`.
     "noImplicitOverride": true, // Not enabled by default in `strict` mode.
     "noUnusedLocals": true, // Not enabled by default in `strict` mode.
     "noUnusedParameters": true, // Not enabled by default in `strict` mode.
