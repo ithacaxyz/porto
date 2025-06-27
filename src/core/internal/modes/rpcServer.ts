@@ -123,8 +123,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           })
           return {
             message,
-            signature: await Account.sign(account, {
-              key: adminKey,
+            signature: await Account.sign(eoa, {
               payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
             }),
           }
@@ -306,15 +305,33 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
         const authorizeKey = await PermissionsRequest.toKey(permissions)
 
-        // Prepare calls to sign over the session key to authorize.
-        const { context, digest } = authorizeKey
-          ? await ServerActions.prepareCalls(client, {
-              authorizeKeys: [authorizeKey],
-              feeToken: feeToken.address,
-              permissionsFeeLimit: feeToken.permissionsFeeLimit,
-              preCalls: true,
+        // Prepare calls to sign over the session key or SIWE message to authorize.
+        const { context, digest, digestType } = await (async () => {
+          if (authorizeKey) {
+            const { context, digest } = await ServerActions.prepareCalls(
+              client,
+              {
+                authorizeKeys: [authorizeKey],
+                feeToken: feeToken.address,
+                permissionsFeeLimit: feeToken.permissionsFeeLimit,
+                preCalls: true,
+              },
+            )
+            return { context, digest, digestType: 'precall' } as const
+          }
+          if (signInWithEthereum && parameters.address) {
+            const message = Siwe.createMessage({
+              ...signInWithEthereum,
+              address: parameters.address,
             })
-          : ({ context: undefined, digest: '0x' } as const)
+            return {
+              context: undefined,
+              digest: PersonalMessage.getSignPayload(Hex.fromString(message)),
+              digestType: 'siwe',
+            } as const
+          }
+          return { context: undefined, digest: '0x' } as const
+        })()
 
         const { address, credentialId, webAuthnSignature } =
           await (async () => {
@@ -402,7 +419,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           })
         })()
 
-        const preCalls = context && signature ? [{ context, signature }] : []
+        const preCalls =
+          context && signature && digestType === 'precall'
+            ? [{ context, signature }]
+            : []
 
         if (persistPreCalls)
           await PreCalls.add(preCalls, {
@@ -412,19 +432,20 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const siweResult = await (async () => {
           if (!signInWithEthereum) return {}
-          const key = account.keys?.find(
-            (key) => key.role === 'admin' && key.privateKey,
-          )
-          if (!key) throw new Error('cannot find admin key to sign with.')
+
           const message = Siwe.createMessage({
             ...signInWithEthereum,
             address: account.address,
           })
+
+          // If we have a signature, we already signed over the digest.
+          if (digestType === 'siwe' && signature) return { message, signature }
+
           return {
             message,
             signature: await Account.sign(account, {
-              key,
               payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+              role: 'admin',
             }),
           }
         })()

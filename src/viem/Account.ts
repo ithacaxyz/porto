@@ -222,6 +222,10 @@ export declare namespace sign {
      */
     payload: Hex.Hex
     /**
+     * Role to extract the key from the `account` for signing.
+     */
+    role?: Key.Key['role'] | undefined
+    /**
      * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
      */
     storage?: Storage.Storage | undefined

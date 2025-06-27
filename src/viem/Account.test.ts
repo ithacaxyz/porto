@@ -167,6 +167,60 @@ describe('sign', () => {
     }
   })
 
+  test('args: `role`', async () => {
+    const adminKey = Key.createHeadlessWebAuthnP256()
+    const sessionKey = Key.createP256({
+      role: 'session',
+    })
+    const account = Account.from({
+      address: '0x0000000000000000000000000000000000000000',
+      keys: [sessionKey, adminKey],
+    })
+
+    const payload = Hex.random(32)
+
+    {
+      // Expect the admin key to be used.
+      const signature = await Account.sign(account, {
+        payload,
+        role: 'admin',
+      })
+
+      expect(signature.includes(Key.hash(adminKey).slice(2))).toBe(true)
+    }
+
+    {
+      // Expect the session key to be used.
+      const signature = await Account.sign(account, {
+        payload,
+        role: 'session',
+      })
+
+      expect(signature.includes(Key.hash(sessionKey).slice(2))).toBe(true)
+    }
+  })
+
+  test('behavior: `role` not found', async () => {
+    const sessionKey = Key.createP256({
+      role: 'session',
+    })
+    const account = Account.from({
+      address: '0x0000000000000000000000000000000000000000',
+      keys: [sessionKey],
+    })
+
+    const payload = Hex.random(32)
+
+    await expect(
+      Account.sign(account, {
+        payload,
+        role: 'admin',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      '[Error: cannot find key to sign with.]',
+    )
+  })
+
   test('behavior: with key', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await createAccount(client, {
