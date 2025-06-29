@@ -1,5 +1,6 @@
 export * as Chains from './core/Chains.js'
 export * as Dialog from './core/Dialog.js'
+export * as ProtocolDecoder from './core/detectors/index.js'
 export * as Messenger from './core/Messenger.js'
 export * as Mode from './core/Mode.js'
 export * as Porto from './core/Porto.js'
