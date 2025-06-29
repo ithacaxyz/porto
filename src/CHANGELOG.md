@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.38
+
+### Patch Changes
+
+- [`57cc033`](https://github.com/ithacaxyz/porto/commit/57cc0335d3ee87cf77b28356ec70870e7a20edff) Thanks [@jxom](https://github.com/jxom)! - Fixed `@sinclair/typebox` imports.
+
 ## 0.0.37
 
 ### Patch Changes
