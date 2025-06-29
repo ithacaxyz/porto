@@ -28,7 +28,7 @@ import type { ChainIdParameter, ConnectorParameter } from './types.js'
 export async function connect<config extends Config>(
   config: config,
   parameters: connect.Parameters<config>,
-): Promise<connect.ReturnType<config>> {
+): Promise<connect.ReturnType> {
   // "Register" connector if not already created
   let connector: Connector
   if (typeof parameters.connector === 'function') {
@@ -63,14 +63,20 @@ export async function connect<config extends Config>(
       transport: (opts) => custom(provider)({ ...opts, retryCount: 0 }),
     })
 
-    await WalletActions.connect(client, parameters)
+    const { accounts, chainIds } = await WalletActions.connect(
+      client,
+      parameters,
+    )
+    const addresses = accounts.map((x) => x.address) as unknown as readonly [
+      Address,
+      ...Address[],
+    ]
 
     // we already connected, but call `connector.connect` so connector even listeners are set up
-    const data = await connector.connect({
+    await connector.connect({
       chainId: parameters.chainId,
       isReconnecting: true,
     })
-    const accounts = data.accounts as readonly [Address, ...Address[]]
 
     connector.emitter.off('connect', config._internal.events.connect)
     connector.emitter.on('change', config._internal.events.change)
@@ -80,15 +86,15 @@ export async function connect<config extends Config>(
     config.setState((x) => ({
       ...x,
       connections: new Map(x.connections).set(connector.uid, {
-        accounts,
-        chainId: data.chainId,
+        accounts: addresses,
+        chainId: chainIds[0]!,
         connector,
       }),
       current: connector.uid,
       status: 'connected',
     }))
 
-    return { accounts, chainId: data.chainId }
+    return { accounts, chainIds }
   } catch (error) {
     config.setState((x) => ({
       ...x,
@@ -106,7 +112,7 @@ export declare namespace connect {
       force?: boolean | undefined
     }
 
-  type ReturnType<config extends Config = Config> = ConnectReturnType<config>
+  type ReturnType = RpcSchema.wallet_connect.Response
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError

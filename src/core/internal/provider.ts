@@ -3,7 +3,6 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
-import { verifyHash } from 'viem/actions'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/serverActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -839,6 +838,18 @@ export function from<
             chainId: Hex.fromNumber(client.chain.id),
           })
 
+          const currentChainId = client.chain.id
+          const chainIds = [
+            Hex.fromNumber(currentChainId),
+            ...(config.chains
+              .map((chain) =>
+                chain.id === currentChainId
+                  ? undefined
+                  : Hex.fromNumber(chain.id),
+              )
+              .filter(Boolean) as `0x${string}`[]),
+          ]
+
           return {
             accounts: accounts.map((account) => ({
               address: account.address,
@@ -855,6 +866,7 @@ export function from<
                 }),
               },
             })),
+            chainIds,
           } satisfies Typebox.Static<typeof Rpc.wallet_connect.Response>
         }
 
@@ -1026,16 +1038,6 @@ export function from<
             address,
             digest,
             signature,
-          }).catch(async () => {
-            const valid = await verifyHash(client, {
-              address,
-              hash: digest,
-              signature,
-            })
-            return {
-              proof: null,
-              valid,
-            }
           })
 
           return {

@@ -419,6 +419,7 @@ export namespace wallet_connect {
         capabilities: Typebox.Optional(ResponseCapabilities),
       }),
     ),
+    chainIds: Type.Array(Primitive.Number),
   })
   export type Response = Typebox.StaticDecode<typeof Response>
 }
