@@ -25,6 +25,7 @@
       "!contracts/**",
       "!coverage/**",
       "!dist/**",
+      "!.zed/**",
       "!extension/.output/**",
       "!extension/.wxt/**",
       "!src/core/internal/_generated/**",
