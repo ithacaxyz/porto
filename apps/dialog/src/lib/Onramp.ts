@@ -21,7 +21,6 @@ export function stripeOnrampUrl(params: stripeOnrampUrl.Params) {
     console.warn(
       `Invalid amount for Stripe onramp: ${params.amount}. Must be between 1 and 30,000.`,
     )
-    return
   }
 
   const searchParams = new URLSearchParams({

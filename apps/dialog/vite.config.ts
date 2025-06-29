@@ -70,7 +70,7 @@ export default defineConfig(({ mode }) => {
       TanStackRouterVite(),
     ],
     server: {
-      allowedHosts,
+      allowedHosts: true,
     },
   }
 })

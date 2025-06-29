@@ -1,0 +1,25 @@
+#:schema https://esm.sh/wrangler/config-schema.json
+
+minify = true
+keep_vars = true
+workers_dev = true
+main = "./src/main.ts"
+name = "onramp"
+compatibility_date = "2025-06-24"
+compatibility_flags = [
+    "nodejs_als",
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env",
+]
+
+[dev]
+port = 6_900
+
+[placement]
+mode = "smart"
+
+[observability]
+enabled = true
+
+[vars]
+ENVIRONMENT = "development"
