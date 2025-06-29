@@ -6,6 +6,12 @@ import { AddFunds } from '../-components/AddFunds'
 
 export const Route = createFileRoute('/dialog/wallet_addFunds')({
   component: RouteComponent,
+  head: (_context) => ({
+    scripts: [
+      { src: 'https://widget.mercuryo.io/embed.2.0.js' },
+      { src: 'https://sandbox-widget.mrcr.io/embed.2.0.js' },
+    ],
+  }),
   validateSearch(search) {
     return Router.parseSearchRequest(search, {
       method: 'wallet_addFunds',

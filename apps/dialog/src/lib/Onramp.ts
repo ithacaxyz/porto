@@ -1,3 +1,7 @@
+export function mercuryoOnrampUrl(_params: {}) {
+  throw new Error('Not implemented')
+}
+
 /**
  * Test card:
  * 4242 4242 4242 4242
@@ -8,10 +12,9 @@
 
 export function stripeOnrampUrl(amount: number) {
   if (amount < 1 || amount > 30_000) {
-    console.warn(
+    throw new Error(
       `Invalid amount for Stripe onramp: ${amount}. Must be between 1 and 30,000.`,
     )
-    return
   }
 
   const searchParams = new URLSearchParams({

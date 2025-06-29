@@ -1,0 +1,24 @@
+{
+  "name": "onramp",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm dlx wrangler@latest --config='wrangler.toml' dev",
+    "build": "pnpm dlx wrangler@latest --config='wrangler.toml' deploy --dry-run",
+    "deploy": "pnpm dlx wrangler@latest --config='wrangler.toml' deploy --keep-vars"
+  },
+  "dependencies": {
+    "@porto/apps": "workspace:*",
+    "ox": "catalog:",
+    "porto": "workspace:*",
+    "redaxios": "^0.5.1",
+    "viem": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250628.0",
+    "@types/bun": "^1.2.17",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "^4.22.0"
+  }
+}
