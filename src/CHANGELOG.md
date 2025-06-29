@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.39
+
+### Patch Changes
+
+- [#524](https://github.com/ithacaxyz/porto/pull/524) [`b2b7edc`](https://github.com/ithacaxyz/porto/commit/b2b7edc3660d2944699d3250119954c9b14038a0) Thanks [@jxom](https://github.com/jxom)! - **Breaking(`porto/wagmi`):** Tweaked return type of `Hooks.useConnect` & `Actions.connect` to match the return type of `wallet_connect`.
+
 ## 0.0.38
 
 ### Patch Changes
