@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
-declare const __APP_VERSION__: string;
+declare const __APP_VERSION__: string
 
 interface EnvironmentVariables {
-  readonly NODE_ENV: "development" | "production";
-  readonly VERCEL_ENV: "development" | "production" | "preview";
+  readonly NODE_ENV: 'development' | 'production'
+  readonly VERCEL_ENV: 'development' | 'production' | 'preview'
 }
 
 declare namespace NodeJS {
@@ -12,9 +12,9 @@ declare namespace NodeJS {
 }
 
 interface ImportMetaEnv extends Environment {
-  readonly VITE_FLAGS: string;
+  readonly VITE_FLAGS: string
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv;
+  readonly env: ImportMetaEnv
 }
