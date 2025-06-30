@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.40
+
+### Patch Changes
+
+- [`331bd67`](https://github.com/ithacaxyz/porto/commit/331bd6795139370823bee85975adbb797794c29b) Thanks [@jxom](https://github.com/jxom)! - Made `chainId` on `signInWithEthereum` capability optional.
+
 ## 0.0.39
 
 ### Patch Changes
