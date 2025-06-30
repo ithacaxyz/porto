@@ -26,4 +26,3 @@ dist-ssr
 # wrangler files
 .wrangler
 .dev.vars
-worker-configuration.d.ts

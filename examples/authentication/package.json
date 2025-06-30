@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
-    "build:types": "wrangler types",
+    "build:types": "wrangler types --include-runtime=false",
     "deploy": "pnpm run build && wrangler deploy",
     "dev": "vite",
     "prepreview": "pnpm build:types",
