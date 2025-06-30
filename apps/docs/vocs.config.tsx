@@ -177,6 +177,10 @@ export default defineConfig({
             text: 'Authentication (SIWE)',
           },
           {
+            link: '/sdk/guides/sponsoring',
+            text: 'Fee Sponsoring',
+          },
+          {
             link: '/sdk/guides/payments',
             text: 'Payments',
           },
@@ -187,11 +191,6 @@ export default defineConfig({
           {
             link: '/sdk/guides/subscriptions',
             text: 'Subscriptions',
-          },
-          {
-            disabled: true,
-            link: '/sdk/guides/sponsoring',
-            text: 'Fee Sponsoring 🚧',
           },
         ],
         text: 'Guides',
