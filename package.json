@@ -23,6 +23,7 @@
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter id dev",
     "dev:cli": "tsx src/cli/bin/index.ts",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter wagmi-example --filter dialog --filter id dev",
+    "dev:play": "pnpm preconstruct && pnpm --filter playground --filter dialog dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter docs --filter dialog --filter id dev",
     "format": "biome format --write",

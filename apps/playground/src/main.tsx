@@ -8,3 +8,6 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>,
 )
+
+if (import.meta.env.VERCEL_ENV !== 'production')
+  import('eruda').then(({ default: eruda }) => eruda.init())

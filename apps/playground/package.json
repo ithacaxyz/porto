@@ -12,6 +12,7 @@
   "dependencies": {
     "@porto/apps": "workspace:*",
     "@tailwindcss/vite": "catalog:",
+    "eruda": "^3.4.3",
     "mipd": "^0.0.7",
     "ox": "catalog:",
     "porto": "workspace:*",
