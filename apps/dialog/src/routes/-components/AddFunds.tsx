@@ -1,4 +1,5 @@
 import * as Ariakit from '@ariakit/react'
+import { Env } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
@@ -20,6 +21,8 @@ import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250'] as const
+
+const dev = !['prod', 'stg'].includes(Env.get())
 
 export function AddFunds(props: AddFunds.Props) {
   const {
@@ -160,19 +163,21 @@ export function AddFunds(props: AddFunds.Props) {
               </div>
             </div>
             <div className="col-span-1 row-span-1 space-y-3.5">
-              <Button
-                className="w-full flex-1"
-                data-testid="buy"
-                type="submit"
-                variant="accent"
-              >
-                Buy & deposit
-              </Button>
-
-              <PayButton
-                url={stripeOnrampUrl(Number(amount))}
-                variant="stripe"
-              />
+              {dev ? (
+                <Button
+                  className="w-full flex-1"
+                  data-testid="buy"
+                  type="submit"
+                  variant="accent"
+                >
+                  Get started
+                </Button>
+              ) : (
+                <PayButton
+                  url={stripeOnrampUrl(Number(amount))}
+                  variant="stripe"
+                />
+              )}
             </div>
             <div className="col-span-1 row-span-1">
               <div className="my-auto flex w-full flex-row items-center gap-2 *:border-gray7">

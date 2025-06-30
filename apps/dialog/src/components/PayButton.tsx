@@ -33,7 +33,7 @@ export function PayButton(props: PayButton.Props) {
         render={<a href={url} rel="noreferrer" target="_blank" />}
       >
         <span>
-          Continue with <span className="sr-only">Stripe Link</span>
+          Deposit with <span className="sr-only">Stripe Link</span>
         </span>
         <img
           alt="Stripe Link"
