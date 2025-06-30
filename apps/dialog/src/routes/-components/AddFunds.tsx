@@ -80,22 +80,6 @@ export function AddFunds(props: AddFunds.Props) {
 
   if (deposit.isSuccess) return
 
-  if (IFRAME_TEST)
-    return (
-      <Layout>
-        <Layout.Content>
-          <iframe
-            allow="payment; camera; microphone; clipboard-read; clipboard-write;"
-            allowFullScreen
-            className="h-full w-full"
-            sandbox="allow-scripts allow-same-origin allow-popups"
-            src="https://exchange.mercuryo.io/?widget_id=ffbb1cbb-03e0-4c39-b8d5-9e645e42a7cf&address=33kASaULxMieHd6dw8KzpH1EJKTrB3K2fx&signature=415d23b09d0ad80a7f2e4a950ff5097930f1335cb2a6e802b640ea30a25273b761752f7dec5ffa1532a2fc4ff10a9563c2f56971b0556f22c3323bd6d9e2f838&payment_method=apple&widget_flow=applepay_minimal&fiat_amount=250"
-            title="Mercuryo onramp"
-          />
-        </Layout.Content>
-      </Layout>
-    )
-
   if (view === 'default')
     return (
       <Layout loading={loading} loadingTitle="Adding funds...">
