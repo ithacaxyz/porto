@@ -18,7 +18,7 @@ const serve = Bun.serve({
   },
   routes: {
     '/': {
-      GET: async (request) => {
+      GET: async (request: Request, _server) => {
         const url = new URL(request.url)
 
         const address = url.searchParams.get('address')
@@ -44,7 +44,7 @@ const serve = Bun.serve({
         })
 
         return Response.redirect(
-          new URL(`/widget?${searchParams.toString()}`, request.url),
+          new URL(`/widget?${searchParams.toString()}`, request.url).toString(),
         )
       },
     },
@@ -61,7 +61,7 @@ const serve = Bun.serve({
         if (!xSignature) return new Response('No signature', { status: 400 })
         console.info(`X-Signature: ${xSignature}`)
 
-        const body: MercuryoCallback = await request.json()
+        const body = (await request.json()) as MercuryoCallback
 
         const ip = server.requestIP(request as Request)
         const status = body.data.status
