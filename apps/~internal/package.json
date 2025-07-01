@@ -18,6 +18,7 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-persist-client": "catalog:",
     "cva": "catalog:",
+    "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",

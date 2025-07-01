@@ -29,8 +29,13 @@ export function PayButton(props: PayButton.Props) {
           'bg-gradient-to-r from-[#DCF1D9] via-[#BFFFE7] to-[#DCF1D9] text-black transition-all duration-300 hover:from-[#D0E5CD] hover:via-[#B3F3DB] hover:to-[#D0E5CD]',
         )}
         {...rest}
-        // biome-ignore lint/a11y/useAnchorContent: AriaKit composition
-        render={<a href={url} rel="noreferrer" target="_blank" />}
+        // If url is provided, render as link, otherwise as button
+        render={
+          url ? (
+            // biome-ignore lint/a11y/useAnchorContent: AriaKit composition
+            <a href={url} rel="noreferrer" target="_blank" />
+          ) : undefined
+        }
       >
         <span>
           Deposit with <span className="sr-only">Stripe Link</span>

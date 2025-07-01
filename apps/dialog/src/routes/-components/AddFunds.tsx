@@ -8,6 +8,8 @@ import { type Address, type Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { PayButton } from '~/components/PayButton'
+import { useBalancePolling } from '~/hooks/useBalancePolling'
+import { useWindowFocus } from '~/hooks/useWindowFocus'
 import * as FeeToken from '~/lib/FeeToken'
 import { stripeOnrampUrl } from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
@@ -15,6 +17,7 @@ import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
+import LoaderIcon from '~icons/lucide/loader-2'
 import PencilIcon from '~icons/lucide/pencil'
 import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
@@ -43,8 +46,9 @@ export function AddFunds(props: AddFunds.Props) {
   const [amount, setAmount] = React.useState<string>(value.toString())
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   const [view, setView] = React.useState<
-    'default' | 'deposit-crypto' | 'error'
+    'default' | 'deposit-crypto' | 'error' | 'checking-payment'
   >('default')
+  const [isWaitingForPayment, setIsWaitingForPayment] = React.useState(false)
 
   const deposit = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
@@ -75,9 +79,64 @@ export function AddFunds(props: AddFunds.Props) {
 
   const loading = deposit.isPending
 
+  // Handle balance updates
+  const handleBalanceUpdate = React.useCallback(
+    (newBalance: bigint, previousBalance: bigint) => {
+      if (isWaitingForPayment && newBalance > previousBalance) {
+        // Balance increased, payment successful
+        setIsWaitingForPayment(false)
+        onApprove({ id: '0x0' })
+      }
+    },
+    [isWaitingForPayment, onApprove],
+  )
+
+  // Use balance polling when waiting for payment
+  const { refetch: refetchBalance } = useBalancePolling({
+    chainId: chain?.id,
+    enabled: isWaitingForPayment,
+    onBalanceUpdate: handleBalanceUpdate,
+    tokenAddress: tokenAddress || feeToken?.address,
+  })
+
+  // Refetch balance when window regains focus
+  useWindowFocus(() => {
+    if (isWaitingForPayment) {
+      refetchBalance()
+    }
+  })
+
+  // Handle Stripe button click
+  const handleStripeClick = React.useCallback(() => {
+    setIsWaitingForPayment(true)
+    // Open Stripe in new tab
+    window.open(stripeOnrampUrl(Number(amount)), '_blank')
+    // Show checking payment view after a short delay
+    setTimeout(() => {
+      setView('checking-payment')
+    }, 2000)
+  }, [amount])
+
+  // Handle dev faucet form submission
+  const handleDevDeposit = React.useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      setIsWaitingForPayment(true)
+      await deposit.mutateAsync(e)
+      setIsWaitingForPayment(false)
+    },
+    [deposit],
+  )
+
   const [editView, setEditView] = React.useState<'default' | 'editing'>(
     'default',
   )
+
+  // Reset waiting state if we're back to default view
+  React.useEffect(() => {
+    if (view === 'default') {
+      setIsWaitingForPayment(false)
+    }
+  }, [view])
 
   if (deposit.isSuccess) return
 
@@ -94,7 +153,7 @@ export function AddFunds(props: AddFunds.Props) {
         <Layout.Content>
           <form
             className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-            onSubmit={(e) => deposit.mutate(e)}
+            onSubmit={dev ? handleDevDeposit : (e) => e.preventDefault()}
           >
             <div className="col-span-1 row-span-1">
               <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
@@ -173,10 +232,7 @@ export function AddFunds(props: AddFunds.Props) {
                   Get started
                 </Button>
               ) : (
-                <PayButton
-                  url={stripeOnrampUrl(Number(amount))}
-                  variant="stripe"
-                />
+                <PayButton onClick={handleStripeClick} variant="stripe" />
               )}
             </div>
             <div className="col-span-1 row-span-1">
@@ -319,6 +375,41 @@ export function AddFunds(props: AddFunds.Props) {
               variant="accent"
             >
               Try again
+            </Button>
+          </Layout.Footer.Actions>
+        </Layout.Footer>
+      </Layout>
+    )
+
+  if (view === 'checking-payment')
+    return (
+      <Layout>
+        <Layout.Header>
+          <Layout.Header.Default
+            content="Please complete your payment in the Stripe window."
+            title="Checking for payment"
+          />
+        </Layout.Header>
+
+        <Layout.Content className="flex flex-col items-center justify-center py-8">
+          <LoaderIcon className="mb-4 size-8 animate-spin text-blue9" />
+          <p className="mb-2 text-primary">Waiting for your payment...</p>
+          <p className="text-center text-secondary text-sm">
+            We're checking for your deposit. This usually takes a few moments.
+          </p>
+        </Layout.Content>
+
+        <Layout.Footer>
+          <Layout.Footer.Actions>
+            <Button
+              className="w-full"
+              onClick={() => {
+                setIsWaitingForPayment(false)
+                setView('default')
+              }}
+              variant="default"
+            >
+              Cancel
             </Button>
           </Layout.Footer.Actions>
         </Layout.Footer>

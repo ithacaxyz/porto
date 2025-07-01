@@ -73,7 +73,7 @@ catalogs:
       specifier: ^16.2.0
       version: 16.2.0
     ox:
-      specifier: ^0.6.12
+      specifier: 0.6.12
       version: 0.6.12
     prool:
       specifier: ^0.0.23
@@ -731,6 +731,9 @@ importers:
       cva:
         specifier: 'catalog:'
         version: class-variance-authority@0.7.1
+      ox:
+        specifier: 'catalog:'
+        version: 0.6.12(typescript@5.8.3)(zod@3.25.28)
       porto:
         specifier: workspace:*
         version: link:../../src
