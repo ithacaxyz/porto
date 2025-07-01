@@ -22,7 +22,7 @@ import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250'] as const
 
-const dev = !['prod', 'stg'].includes(Env.get())
+const dev = !['prod'].includes(Env.get())
 
 export function AddFunds(props: AddFunds.Props) {
   const {
