@@ -19,7 +19,7 @@ app.get('/siwe/nonce', async (c) => {
   // Store nonce for this session (10 minutes).
   await c.env.NONCE_STORE.put(nonce, 'valid', { expirationTtl: 600 })
 
-  return c.json({ nonce })
+  return c.text(nonce)
 })
 
 app.post('/siwe', async (c) => {

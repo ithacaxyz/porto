@@ -45,14 +45,19 @@ function SignIn() {
     <div>
       <h2>Connect</h2>
       <button
-        onClick={() =>
-          connect.mutateAsync({
+        onClick={async () => {
+          const nonce = await fetch('/api/siwe/nonce').then((response) =>
+            response.text(),
+          )
+
+          await connect.mutateAsync({
             connector,
             signInWithEthereum: {
               authUrl: '/api/siwe',
+              nonce,
             },
           })
-        }
+        }}
         type="button"
       >
         Sign in
