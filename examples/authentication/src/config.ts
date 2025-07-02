@@ -5,13 +5,7 @@ import { baseSepolia } from 'wagmi/chains'
 
 export const config = createConfig({
   chains: [baseSepolia],
-  connectors: [
-    porto({
-      mode: Mode.dialog({
-        host: 'https://stg.localhost:5174/dialog/',
-      }),
-    }),
-  ],
+  connectors: [porto()],
   multiInjectedProviderDiscovery: false,
   transports: {
     [baseSepolia.id]: http(),
