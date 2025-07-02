@@ -77,7 +77,6 @@ export type Schema = [
           referrer: {
             icon?: string | { light: string; dark: string } | undefined
             title: string
-            searchParams?: string | undefined
           }
         }
       | {

@@ -80,7 +80,14 @@ export function iframe(options: iframe.Options = {}) {
         'sandbox',
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
-      iframe.setAttribute('src', host)
+
+      const dialogUrl = new URL(host)
+      const parentParams = new URLSearchParams(window.location.search)
+
+      if (parentParams.get('debug') === 'onramp')
+        dialogUrl.searchParams.set('debug', 'onramp')
+
+      iframe.setAttribute('src', dialogUrl.toString())
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
         ...styles.iframe,
@@ -159,10 +166,7 @@ export function iframe(options: iframe.Options = {}) {
 
         messenger.send('__internal', {
           mode: 'iframe',
-          referrer: {
-            ...getReferrer(),
-            searchParams: window.location.search,
-          },
+          referrer: getReferrer(),
           type: 'init',
         })
       })
@@ -241,10 +245,7 @@ export function iframe(options: iframe.Options = {}) {
 
           messenger.send('__internal', {
             mode: 'iframe',
-            referrer: {
-              ...getReferrer(),
-              searchParams: window.location.search,
-            },
+            referrer: getReferrer(),
             type: 'init',
           })
 
@@ -352,8 +353,14 @@ export function popup() {
           const left = (window.innerWidth - width) / 2 + window.screenX
           const top = window.screenY + 100
 
+          const dialogUrl = new URL(host)
+          const parentParams = new URLSearchParams(window.location.search)
+
+          if (parentParams.get('debug') === 'onramp')
+            dialogUrl.searchParams.set('debug', 'onramp')
+
           popup = window.open(
-            host,
+            dialogUrl.toString(),
             '_blank',
             `width=${width},height=${height},left=${left},top=${top}`,
           )
@@ -371,10 +378,7 @@ export function popup() {
 
           messenger.send('__internal', {
             mode: 'popup',
-            referrer: {
-              ...getReferrer(),
-              searchParams: window.location.search,
-            },
+            referrer: getReferrer(),
             type: 'init',
           })
 
@@ -454,7 +458,14 @@ export function experimental_inline(options: inline.Options) {
         'sandbox',
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
-      iframe.setAttribute('src', host)
+
+      const inlineDialogUrl = new URL(host)
+      const parentParams = new URLSearchParams(window.location.search)
+
+      if (parentParams.get('debug') === 'onramp')
+        inlineDialogUrl.searchParams.set('debug', 'onramp')
+
+      iframe.setAttribute('src', inlineDialogUrl.toString())
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
 
@@ -478,10 +489,7 @@ export function experimental_inline(options: inline.Options) {
       messenger.on('ready', () => {
         messenger.send('__internal', {
           mode: 'inline-iframe',
-          referrer: {
-            ...getReferrer(),
-            searchParams: window.location.search,
-          },
+          referrer: getReferrer(),
           type: 'init',
         })
       })
@@ -506,10 +514,7 @@ export function experimental_inline(options: inline.Options) {
 
           messenger.send('__internal', {
             mode: 'iframe',
-            referrer: {
-              ...getReferrer(),
-              searchParams: window.location.search,
-            },
+            referrer: getReferrer(),
             type: 'init',
           })
         },
