@@ -15,9 +15,7 @@ export function enableOnramp() {
       parentDebugOnramp = parentSearchParams.get('debug') === 'onramp'
     }
   } catch {
-    console.warn(
-      "Can't access parent due to cross-origin restrictions, that's okay",
-    )
+    console.warn("Can't access parent due to cross-origin restrictions")
   }
   return Env.get() === 'prod' || dialogDebugOnramp || parentDebugOnramp
 }
