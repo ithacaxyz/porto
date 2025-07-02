@@ -107,15 +107,15 @@ app.get('/me', async (c) => { /* ... */ })
 export default app
 ```
 
-### Done!
+### Done
 
-Now that you have set up your `/siwe` endpoints and have your server up and running, 
+Now that you have set up your `/siwe` endpoints and have your server up and running,
 Porto will automatically detect the endpoints and authenticate your users when they connect
 to your app.
 
 :::tip
 
-If you wish to have control over the authentication URL (e.g. your server is at a different location to your app), 
+If you wish to have control over the authentication URL (e.g. your server is at a different location to your app),
 you can set `signInWithEthereum.authUrl` capability on the `wallet_connect` call. For example:
 
 ```tsx
