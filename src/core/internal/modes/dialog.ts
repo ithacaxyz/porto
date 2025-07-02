@@ -955,10 +955,10 @@ async function getAuthUrl(
     if (typeof authUrl_storage === 'boolean') return defaultAuthUrl
 
     // Fetch on the default Auth URL to see if it is set up.
-    const response = await fetch(defaultAuthUrl + '/nonce').catch(
-      () => undefined,
-    )
-    if (!response?.ok) return undefined
+    const response = await fetch(defaultAuthUrl + '/nonce')
+      .then((x) => x.json())
+      .catch(() => undefined)
+    if (!response?.nonce) return undefined
 
     // If set up, we will cache the flag.
     await storage.setItem('porto.auth-url', true)
