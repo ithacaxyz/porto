@@ -134,7 +134,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             const authUrl = await getAuthUrl(
               capabilities?.signInWithEthereum?.authUrl || config.authUrl,
-              { storage },
             )
 
             const signInWithEthereum =
@@ -234,9 +233,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       async disconnect(parameters) {
         const { internal } = parameters
         const { config } = internal
-        const { storage } = config
 
-        const authUrl = await getAuthUrl(config.authUrl, { storage })
+        const authUrl = await getAuthUrl(config.authUrl)
         if (authUrl) {
           const response = await fetch(authUrl + '/logout', {
             credentials: 'include',
@@ -404,7 +402,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
           const authUrl = await getAuthUrl(
             capabilities?.signInWithEthereum?.authUrl || config.authUrl,
-            { storage },
           )
 
           const signInWithEthereum =
@@ -935,30 +932,15 @@ export async function resolveFeeToken(
   return overrideFeeToken ?? feeToken
 }
 
-async function getAuthUrl(
-  authUrl: string | undefined,
-  { storage }: { storage: any },
-) {
+async function getAuthUrl(authUrl: string | undefined) {
   const defaultAuthUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}/api/siwe`
       : undefined
 
-  // If no auth URL is provided, check if we have a stored one
-  if (!authUrl) {
-    const storedAuthUrl = await storage.getItem('porto.siwe.authUrl')
-    if (typeof storedAuthUrl === 'string') return storedAuthUrl
-    return defaultAuthUrl
-  }
+  if (!authUrl) return defaultAuthUrl
 
-  // Resolve relative URLs
-  const resolvedUrl =
-    authUrl.startsWith('/') && typeof window !== 'undefined'
-      ? `${window.location.origin}${authUrl}`
-      : authUrl
+  if (authUrl?.startsWith('/')) return `${window.location.origin}${authUrl}`
 
-  // Store the resolved auth URL for future use (e.g., disconnect)
-  await storage.setItem('porto.siwe.authUrl', resolvedUrl)
-
-  return resolvedUrl
+  return authUrl
 }
