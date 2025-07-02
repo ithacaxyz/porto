@@ -8,9 +8,8 @@ import type * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
 import type * as Rpc from 'porto/core/internal/typebox/request'
 import { Hooks, type Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
-import type { Call } from 'viem'
+import { type Call, zeroAddress } from 'viem'
 import { useCapabilities } from 'wagmi'
-import { CheckBalance } from '~/components/CheckBalance'
 import * as FeeToken from '~/lib/FeeToken'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
@@ -50,6 +49,8 @@ export function ActionRequest(props: ActionRequest.Props) {
     feeToken,
     merchantRpcUrl,
   })
+  const hasInsufficientBalance =
+    prepareCallsQuery.error?.message?.includes('PaymentError')
 
   // However, to prevent a malicious RPC server from providing a mutated asset
   // diff to display to the end-user, we also simulate the prepare calls query
@@ -61,92 +62,94 @@ export function ActionRequest(props: ActionRequest.Props) {
     enabled: !!merchantRpcUrl,
     feeToken,
   })
-  const query_assetDiff = merchantRpcUrl
-    ? prepareCallsQuery_assetDiff
+
+  // Perform the query without a fee token when the user has insufficient balance,
+  // so that we can perform a simulation to extract the asset diff.
+  const prepareCallsQuery_noFeeToken = RpcServer.usePrepareCalls({
+    address,
+    calls,
+    chainId,
+    enabled: hasInsufficientBalance,
+    feeToken: zeroAddress,
+  })
+
+  const query = hasInsufficientBalance
+    ? prepareCallsQuery_noFeeToken
     : prepareCallsQuery
+  const query_assetDiff = merchantRpcUrl ? prepareCallsQuery_assetDiff : query
 
   const assetDiff = query_assetDiff.data?.capabilities.assetDiff
-  const quote = prepareCallsQuery.data?.capabilities.quote
+  const quote = query.data?.capabilities.quote
 
   return (
-    <CheckBalance
-      address={address}
-      feeToken={feeToken}
-      onReject={onReject}
-      query={prepareCallsQuery}
-    >
-      <Layout loading={loading} loadingTitle="Sending...">
-        <Layout.Header>
-          <Layout.Header.Default
-            icon={prepareCallsQuery.isError ? TriangleAlert : Star}
-            title="Review action"
-            variant={prepareCallsQuery.isError ? 'warning' : 'default'}
-          />
-        </Layout.Header>
+    <Layout loading={loading} loadingTitle="Sending...">
+      <Layout.Header>
+        <Layout.Header.Default
+          icon={query.isError ? TriangleAlert : Star}
+          title="Review action"
+          variant={query.isError ? 'warning' : 'default'}
+        />
+      </Layout.Header>
 
-        <Layout.Content>
-          <ActionRequest.PaneWithDetails
-            error={prepareCallsQuery.error}
-            errorMessage="An error occurred while simulating the action. Proceed with caution."
-            loading={prepareCallsQuery.isPending}
-            quote={quote}
-          >
-            {assetDiff && address && (
-              <ActionRequest.AssetDiff
-                address={address}
-                assetDiff={assetDiff}
-              />
-            )}
-          </ActionRequest.PaneWithDetails>
-        </Layout.Content>
-
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            {prepareCallsQuery.isError ? (
-              <>
-                <Button onClick={onReject} type="button" variant="default">
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-grow"
-                  onClick={onApprove}
-                  type="button"
-                  variant="accent"
-                >
-                  Confirm anyway
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  disabled={!prepareCallsQuery.isSuccess}
-                  onClick={onReject}
-                  type="button"
-                  variant="default"
-                >
-                  Cancel
-                </Button>
-
-                <Button
-                  className="flex-grow"
-                  data-testid="confirm"
-                  disabled={!prepareCallsQuery.isSuccess}
-                  onClick={onApprove}
-                  type="button"
-                  variant="accent"
-                >
-                  Confirm
-                </Button>
-              </>
-            )}
-          </Layout.Footer.Actions>
-
-          {account?.address && (
-            <Layout.Footer.Account address={account.address} />
+      <Layout.Content>
+        <ActionRequest.PaneWithDetails
+          error={query.error}
+          errorMessage="An error occurred while simulating the action. Proceed with caution."
+          loading={query.isPending}
+          quote={quote}
+        >
+          {assetDiff && address && (
+            <ActionRequest.AssetDiff address={address} assetDiff={assetDiff} />
           )}
-        </Layout.Footer>
-      </Layout>
-    </CheckBalance>
+        </ActionRequest.PaneWithDetails>
+      </Layout.Content>
+
+      <Layout.Footer>
+        <Layout.Footer.Actions>
+          {query.isError ? (
+            <>
+              <Button onClick={onReject} type="button" variant="default">
+                Cancel
+              </Button>
+              <Button
+                className="flex-grow"
+                onClick={onApprove}
+                type="button"
+                variant="accent"
+              >
+                Confirm anyway
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                disabled={!query.isSuccess}
+                onClick={onReject}
+                type="button"
+                variant="default"
+              >
+                Cancel
+              </Button>
+
+              <Button
+                className="flex-grow"
+                data-testid="confirm"
+                disabled={!query.isSuccess}
+                onClick={onApprove}
+                type="button"
+                variant="accent"
+              >
+                Confirm
+              </Button>
+            </>
+          )}
+        </Layout.Footer.Actions>
+
+        {account?.address && (
+          <Layout.Footer.Account address={account.address} />
+        )}
+      </Layout.Footer>
+    </Layout>
   )
 }
 
