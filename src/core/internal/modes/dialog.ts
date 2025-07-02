@@ -478,7 +478,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 account.capabilities?.signInWithEthereum
               if (authUrl && signInWithEthereum_response) {
                 const { message, signature } = signInWithEthereum_response
-                const token = await Siwe.authenticate({
+                await Siwe.authenticate({
                   authUrl,
                   message,
                   signature,
