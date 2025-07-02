@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.41
+
+### Patch Changes
+
+- [#536](https://github.com/ithacaxyz/porto/pull/536) [`b0c33c0`](https://github.com/ithacaxyz/porto/commit/b0c33c0cc6fa30a40805dfdcf5ab36a2954b093f) Thanks [@jxom](https://github.com/jxom)! - Added `authUrl` property to `signInWithEthereum` capability.
+
+- [`cdba3ca`](https://github.com/ithacaxyz/porto/commit/cdba3cae0ae45c0efdc4ef394750e11879e8031b) Thanks [@jxom](https://github.com/jxom)! - Added better error message.
+
 ## 0.0.40
 
 ### Patch Changes
