@@ -1,3 +1,27 @@
+import { Env } from '@porto/apps'
+
+export function enableOnramp() {
+  if (typeof window === 'undefined' || typeof window.parent === 'undefined')
+    return false
+
+  const dialogSearchParams = new URLSearchParams(window.location.search)
+  const dialogDebugOnramp = dialogSearchParams.get('debug') === 'onramp'
+  let parentDebugOnramp = false
+  try {
+    if (window.parent !== window && window.parent.location) {
+      const parentSearchParams = new URLSearchParams(
+        window.parent.location.search,
+      )
+      parentDebugOnramp = parentSearchParams.get('debug') === 'onramp'
+    }
+  } catch {
+    console.warn(
+      "Can't access parent due to cross-origin restrictions, that's okay",
+    )
+  }
+  return Env.get() === 'prod' || dialogDebugOnramp || parentDebugOnramp
+}
+
 /**
  * Test card:
  * 4242 4242 4242 4242

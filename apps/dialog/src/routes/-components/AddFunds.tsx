@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { Env } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
@@ -9,7 +8,7 @@ import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { PayButton } from '~/components/PayButton'
 import * as FeeToken from '~/lib/FeeToken'
-import { stripeOnrampUrl } from '~/lib/Onramp'
+import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -21,8 +20,6 @@ import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250'] as const
-
-const dev = !['prod'].includes(Env.get())
 
 export function AddFunds(props: AddFunds.Props) {
   const {
@@ -45,6 +42,8 @@ export function AddFunds(props: AddFunds.Props) {
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'error'
   >('default')
+
+  const showOnramp = enableOnramp()
 
   const deposit = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
@@ -163,7 +162,12 @@ export function AddFunds(props: AddFunds.Props) {
               </div>
             </div>
             <div className="col-span-1 row-span-1 space-y-3.5">
-              {dev ? (
+              {showOnramp ? (
+                <PayButton
+                  url={stripeOnrampUrl(Number(amount))}
+                  variant="stripe"
+                />
+              ) : (
                 <Button
                   className="w-full flex-1"
                   data-testid="buy"

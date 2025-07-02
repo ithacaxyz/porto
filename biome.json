@@ -31,6 +31,7 @@
       "!test/**/_generated/**",
       "!apps/**/routeTree.gen.ts",
       "!apps/**/dist/**",
+      "!**/_/**",
       "!**/_dist/**",
       "!**/dist/**",
       "!**/node_modules/**",
