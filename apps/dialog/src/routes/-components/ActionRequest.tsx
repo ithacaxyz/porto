@@ -41,6 +41,8 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const account = Hooks.useAccount(porto, { address })
 
+  // This "prepare calls" query is used as the "source of truth" query that will
+  // ultimately be used to execute the calls.
   const prepareCallsQuery = RpcServer.usePrepareCalls({
     address,
     calls,
@@ -49,7 +51,21 @@ export function ActionRequest(props: ActionRequest.Props) {
     merchantRpcUrl,
   })
 
-  const assetDiff = prepareCallsQuery.data?.capabilities.assetDiff
+  // However, to prevent a malicious RPC server from providing a mutated asset
+  // diff to display to the end-user, we also simulate the prepare calls query
+  // without the merchant RPC URL.
+  const prepareCallsQuery_assetDiff = RpcServer.usePrepareCalls({
+    address,
+    calls,
+    chainId,
+    enabled: !!merchantRpcUrl,
+    feeToken,
+  })
+  const query_assetDiff = merchantRpcUrl
+    ? prepareCallsQuery_assetDiff
+    : prepareCallsQuery
+
+  const assetDiff = query_assetDiff.data?.capabilities.assetDiff
   const quote = prepareCallsQuery.data?.capabilities.quote
 
   return (
