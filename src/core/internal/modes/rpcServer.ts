@@ -7,7 +7,6 @@ import * as PersonalMessage from 'ox/PersonalMessage'
 import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import * as Siwe from 'ox/Siwe'
 import * as TypedData from 'ox/TypedData'
 import * as Value from 'ox/Value'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
@@ -22,6 +21,7 @@ import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
+import * as Siwe from '../siwe.js'
 import type * as FeeToken from '../typebox/feeToken.js'
 import * as U from '../utils.js'
 
@@ -115,24 +115,23 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             walletAddress: account.address,
           })
 
-        const { message, signature } = await (async () => {
-          if (!signInWithEthereum) return {}
-          const message = Siwe.createMessage({
-            ...signInWithEthereum,
+        const signInWithEthereum_response = await (async () => {
+          if (!signInWithEthereum) return undefined
+
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
             address: account.address,
           })
-          return {
-            message,
-            signature: await Account.sign(eoa, {
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
-            }),
-          }
+          const signature = await Account.sign(eoa, {
+            payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+          })
+
+          return { message, signature }
         })()
 
         return {
           account: {
             ...account,
-            signInWithEthereum: signature ? { message, signature } : undefined,
+            signInWithEthereum: signInWithEthereum_response,
           },
         }
       },
@@ -306,7 +305,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const authorizeKey = await PermissionsRequest.toKey(permissions)
 
         // Prepare calls to sign over the session key or SIWE message to authorize.
-        const { context, digest, digestType } = await (async () => {
+        const { context, digest, digestType, message } = await (async () => {
           if (authorizeKey) {
             const { context, digest } = await ServerActions.prepareCalls(
               client,
@@ -317,20 +316,33 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                 preCalls: true,
               },
             )
-            return { context, digest, digestType: 'precall' } as const
+            return {
+              context,
+              digest,
+              digestType: 'precall',
+              message: undefined,
+            } as const
           }
           if (signInWithEthereum && parameters.address) {
-            const message = Siwe.createMessage({
-              ...signInWithEthereum,
-              address: parameters.address,
-            })
+            const message = await Siwe.buildMessage(
+              client,
+              signInWithEthereum,
+              {
+                address: parameters.address,
+              },
+            )
             return {
               context: undefined,
               digest: PersonalMessage.getSignPayload(Hex.fromString(message)),
               digestType: 'siwe',
+              message,
             } as const
           }
-          return { context: undefined, digest: '0x' } as const
+          return {
+            context: undefined,
+            digest: '0x',
+            message: undefined,
+          } as const
         })()
 
         const { address, credentialId, webAuthnSignature } =
@@ -430,21 +442,20 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             storage,
           })
 
-        const siweResult = await (async () => {
-          if (!signInWithEthereum) return {}
+        const signInWithEthereum_response = await (async () => {
+          if (!signInWithEthereum) return undefined
 
-          const message = Siwe.createMessage({
-            ...signInWithEthereum,
+          if (digestType === 'siwe' && message && signature)
+            return { message, signature }
+
+          const message_ = await Siwe.buildMessage(client, signInWithEthereum, {
             address: account.address,
           })
 
-          // If we have a signature, we already signed over the digest.
-          if (digestType === 'siwe' && signature) return { message, signature }
-
           return {
-            message,
+            message: message_,
             signature: await Account.sign(account, {
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+              payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
               role: 'admin',
             }),
           }
@@ -454,7 +465,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           accounts: [
             {
               ...account,
-              signInWithEthereum: siweResult.signature ? siweResult : undefined,
+              signInWithEthereum: signInWithEthereum_response,
             },
           ],
           preCalls,

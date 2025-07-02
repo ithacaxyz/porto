@@ -57,6 +57,7 @@ export function create(
   const config = {
     announceProvider:
       parameters.announceProvider ?? defaultConfig.announceProvider,
+    authUrl: parameters.authUrl,
     chains,
     feeToken: parameters.feeToken ?? defaultConfig.feeToken,
     merchantRpcUrl: parameters.merchantRpcUrl,
@@ -145,6 +146,10 @@ export type Config<
    * @default true
    */
   announceProvider: boolean
+  /**
+   * API URL to use for offchain SIWE authentication.
+   */
+  authUrl?: string | undefined
   /**
    * List of supported chains.
    */

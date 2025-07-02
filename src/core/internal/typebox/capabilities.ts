@@ -28,20 +28,38 @@ export namespace createAccount {
 }
 
 export namespace signInWithEthereum {
-  export const Request = Type.Object({
-    chainId: Typebox.Optional(Type.Number()),
-    domain: Typebox.Optional(Type.String()),
-    expirationTime: Typebox.Optional(Type.Date()),
-    issuedAt: Typebox.Optional(Type.Date()),
-    nonce: Type.String(),
-    notBefore: Typebox.Optional(Type.Date()),
-    requestId: Typebox.Optional(Type.String()),
-    resources: Typebox.Optional(Type.Array(Type.String())),
-    scheme: Typebox.Optional(Type.String()),
-    statement: Typebox.Optional(Type.String()),
-    uri: Typebox.Optional(Type.String()),
-    version: Typebox.Optional(Type.Literal('1')),
-  })
+  export const Request = Type.Union([
+    Type.Object({
+      authUrl: Typebox.Optional(Type.Undefined()),
+      chainId: Typebox.Optional(Type.Number()),
+      domain: Typebox.Optional(Type.String()),
+      expirationTime: Typebox.Optional(Type.Date()),
+      issuedAt: Typebox.Optional(Type.Date()),
+      nonce: Type.String(),
+      notBefore: Typebox.Optional(Type.Date()),
+      requestId: Typebox.Optional(Type.String()),
+      resources: Typebox.Optional(Type.Array(Type.String())),
+      scheme: Typebox.Optional(Type.String()),
+      statement: Typebox.Optional(Type.String()),
+      uri: Typebox.Optional(Type.String()),
+      version: Typebox.Optional(Type.Literal('1')),
+    }),
+    Type.Object({
+      authUrl: Type.String(),
+      chainId: Typebox.Optional(Type.Number()),
+      domain: Typebox.Optional(Type.String()),
+      expirationTime: Typebox.Optional(Type.Date()),
+      issuedAt: Typebox.Optional(Type.Date()),
+      nonce: Typebox.Optional(Type.String()),
+      notBefore: Typebox.Optional(Type.Date()),
+      requestId: Typebox.Optional(Type.String()),
+      resources: Typebox.Optional(Type.Array(Type.String())),
+      scheme: Typebox.Optional(Type.String()),
+      statement: Typebox.Optional(Type.String()),
+      uri: Typebox.Optional(Type.String()),
+      version: Typebox.Optional(Type.Literal('1')),
+    }),
+  ])
   export type Request = Typebox.StaticDecode<typeof Request>
 
   export const Response = Type.Object({

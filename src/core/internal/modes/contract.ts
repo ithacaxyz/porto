@@ -6,7 +6,6 @@ import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import * as Siwe from 'ox/Siwe'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { encodeFunctionData, parseAbi } from 'viem'
@@ -18,6 +17,7 @@ import type { ServerClient } from '../../../viem/ServerClient.js'
 import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
+import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
 
 /**
@@ -152,8 +152,7 @@ export function contract(parameters: contract.Parameters = {}) {
 
         const { message, signature } = await (async () => {
           if (!signInWithEthereum) return {}
-          const message = Siwe.createMessage({
-            ...signInWithEthereum,
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
             address: account.address,
           })
           return {
@@ -403,8 +402,7 @@ export function contract(parameters: contract.Parameters = {}) {
             (key) => key.role === 'admin' && key.privateKey,
           )
           if (!key) throw new Error('cannot find admin key to sign with.')
-          const message = Siwe.createMessage({
-            ...signInWithEthereum,
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
             address: account.address,
           })
           return {

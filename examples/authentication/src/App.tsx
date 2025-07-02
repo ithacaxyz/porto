@@ -29,13 +29,7 @@ function Account() {
       </div>
 
       {account.status !== 'disconnected' && (
-        <button
-          onClick={() => {
-            fetch('/api/logout', { credentials: 'include', method: 'POST' })
-            disconnect.disconnect()
-          }}
-          type="button"
-        >
+        <button onClick={() => disconnect.disconnect()} type="button">
           Sign out
         </button>
       )}
@@ -51,28 +45,11 @@ function SignIn() {
     <div>
       <h2>Connect</h2>
       <button
-        onClick={async () => {
-          // Fetch SIWE nonce.
-          const nonce = await fetch('/api/nonce').then((res) => res.text())
-
-          // Connect + sign SIWE message.
-          const result = await connect.mutateAsync({
+        onClick={() =>
+          connect.mutateAsync({
             connector,
-            signInWithEthereum: {
-              nonce,
-            },
           })
-
-          // Authenticate with server.
-          const siwe = result.accounts.at(0)?.capabilities?.signInWithEthereum!
-          await fetch('/api/auth', {
-            body: JSON.stringify({
-              message: siwe.message,
-              signature: siwe.signature,
-            }),
-            method: 'POST',
-          })
-        }}
+        }
         type="button"
       >
         Sign in

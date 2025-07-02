@@ -101,6 +101,13 @@ function RouteComponent() {
                 ...(capabilities?.signInWithEthereum && {
                   signInWithEthereum: {
                     ...capabilities?.signInWithEthereum,
+                    authUrl:
+                      capabilities?.signInWithEthereum?.authUrl?.startsWith('/')
+                        ? new URL(
+                            capabilities?.signInWithEthereum?.authUrl,
+                            referrerURL?.origin,
+                          ).toString()
+                        : capabilities?.signInWithEthereum?.authUrl,
                     domain:
                       capabilities?.signInWithEthereum.domain ??
                       referrerURL?.hostname,

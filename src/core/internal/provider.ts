@@ -754,6 +754,7 @@ export function from<
             grantAdmins: admins,
             grantPermissions: permissions,
             selectAccount,
+            signInWithEthereum,
           } = capabilities ?? {}
 
           const internal = {
@@ -762,20 +763,6 @@ export function from<
             request,
             store,
           }
-
-          const siwePayload = capabilities?.signInWithEthereum
-            ? ({
-                ...capabilities?.signInWithEthereum,
-                chainId:
-                  capabilities?.signInWithEthereum.chainId ?? client.chain.id,
-                domain: capabilities?.signInWithEthereum.domain!,
-                resources: capabilities?.signInWithEthereum.resources as
-                  | string[]
-                  | undefined,
-                uri: capabilities?.signInWithEthereum.uri!,
-                version: capabilities?.signInWithEthereum?.version ?? '1',
-              } as const)
-            : undefined
 
           const { accounts, preCalls } = await (async () => {
             if (email || createAccount) {
@@ -787,7 +774,7 @@ export function from<
                 internal,
                 label,
                 permissions,
-                signInWithEthereum: siwePayload,
+                signInWithEthereum,
               })
               return { accounts: [account] }
             }
@@ -814,7 +801,7 @@ export function from<
             const loadAccountsParams = {
               internal,
               permissions,
-              signInWithEthereum: siwePayload,
+              signInWithEthereum,
             }
             try {
               // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
@@ -873,6 +860,17 @@ export function from<
         }
 
         case 'wallet_disconnect': {
+          const client = getClient()
+
+          await getMode().actions.disconnect?.({
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
           store.setState((x) => ({ ...x, accounts: [] }))
           emitter.emit('disconnect', new ox_Provider.DisconnectedError())
           return

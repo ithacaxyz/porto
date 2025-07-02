@@ -12,6 +12,7 @@ import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
 import * as PreCalls from '../preCalls.js'
+import * as Siwe from '../siwe.js'
 import type * as FeeToken from '../typebox/feeToken.js'
 import * as Typebox from '../typebox/typebox.js'
 import * as U from '../utils.js'
@@ -121,11 +122,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async createAccount(parameters) {
         const { internal } = parameters
-        const {
-          config: { storage },
-          request,
-          store,
-        } = internal
+        const { config, request, store } = internal
+        const { storage } = config
 
         const provider = getProvider(store)
 
@@ -133,6 +131,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
           if (request.method === 'wallet_connect') {
             // Extract the capabilities from the request.
             const [{ capabilities }] = request._decoded.params ?? [{}]
+
+            const authUrl = await getAuthUrl(
+              capabilities?.signInWithEthereum?.authUrl,
+              { storage },
+            )
+
+            const signInWithEthereum =
+              request.params?.[0]?.capabilities?.signInWithEthereum
 
             // Parse the authorize key into a structured key.
             const key = await PermissionsRequest.toKey(
@@ -155,6 +161,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   capabilities: {
                     ...request.params?.[0]?.capabilities,
                     grantPermissions: permissionsRequest,
+                    signInWithEthereum:
+                      authUrl || signInWithEthereum
+                        ? {
+                            ...signInWithEthereum,
+                            authUrl: authUrl!,
+                          }
+                        : undefined,
                   },
                 },
               ],
@@ -188,12 +201,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 storage,
               })
 
+            const signInWithEthereum_response =
+              account.capabilities?.signInWithEthereum
+            if (authUrl && signInWithEthereum_response) {
+              const { message, signature } = signInWithEthereum_response
+              await Siwe.authenticate({
+                authUrl,
+                message,
+                signature,
+              })
+            }
+
             return {
               ...Account.from({
                 address: account.address,
                 keys: [...adminKeys, ...sessionKeys],
               }),
-              signInWithEthereum: account.capabilities?.signInWithEthereum,
+              signInWithEthereum: signInWithEthereum_response,
             }
           }
 
@@ -204,6 +228,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           account,
+        }
+      },
+
+      async disconnect(parameters) {
+        const { internal } = parameters
+        const { config } = internal
+        const { storage } = config
+
+        const authUrl = await getAuthUrl(config.authUrl, { storage })
+        if (authUrl) {
+          const response = await fetch(authUrl + '/logout', {
+            credentials: 'include',
+            method: 'POST',
+          })
+          if (!response.ok) throw new Error('failed to logout.')
         }
       },
 
@@ -349,62 +388,75 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async loadAccounts(parameters) {
         const { internal } = parameters
-        const {
-          config: { storage },
-          store,
-          request,
-        } = internal
+        const { config, store, request } = internal
+        const { storage } = config
 
         const provider = getProvider(store)
 
+        if (
+          request.method !== 'wallet_connect' &&
+          request.method !== 'eth_requestAccounts'
+        )
+          throw new Error('Cannot load accounts for method: ' + request.method)
+
         const accounts = await (async () => {
-          if (request.method === 'eth_requestAccounts') {
-            const addresses = await provider.request(request)
-            return addresses.map((address) => Account.from({ address }))
-          }
+          const [{ capabilities }] = request._decoded.params ?? [{}]
 
-          if (request.method === 'wallet_connect') {
-            const [{ capabilities }] = request._decoded.params ?? [{}]
+          const authUrl = await getAuthUrl(
+            capabilities?.signInWithEthereum?.authUrl,
+            { storage },
+          )
 
-            // Parse provided (RPC) key into a structured key.
-            const key = await PermissionsRequest.toKey(
-              capabilities?.grantPermissions,
-            )
+          const signInWithEthereum =
+            request.params?.[0]?.capabilities?.signInWithEthereum
 
-            // Convert the key into a permissions request.
-            const permissionsRequest = key
-              ? Typebox.Encode(
-                  PermissionsRequest.Schema,
-                  PermissionsRequest.fromKey(key),
-                )
-              : undefined
+          // Parse provided (RPC) key into a structured key.
+          const key = await PermissionsRequest.toKey(
+            capabilities?.grantPermissions,
+          )
 
-            // Send a request to the dialog.
-            const { accounts } = await provider.request({
-              ...request,
-              params: [
-                {
-                  ...request.params?.[0],
-                  capabilities: {
-                    ...request.params?.[0]?.capabilities,
-                    grantPermissions: permissionsRequest,
-                  },
+          // Convert the key into a permissions request.
+          const permissionsRequest = key
+            ? Typebox.Encode(
+                PermissionsRequest.Schema,
+                PermissionsRequest.fromKey(key),
+              )
+            : undefined
+
+          // Send a request to the dialog.
+          const { accounts } = await provider.request({
+            method: 'wallet_connect',
+            params: [
+              {
+                ...request.params?.[0],
+                capabilities: {
+                  ...request.params?.[0]?.capabilities,
+                  grantPermissions: permissionsRequest,
+                  signInWithEthereum:
+                    authUrl || signInWithEthereum
+                      ? {
+                          ...signInWithEthereum,
+                          authUrl: authUrl!,
+                        }
+                      : undefined,
                 },
-              ],
-            })
+              },
+            ],
+          })
 
-            await Promise.all(
-              accounts.map(async (account) => {
-                const { preCalls } = account.capabilities ?? {}
-                if (!preCalls) return
-                await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                  address: account.address,
-                  storage,
-                })
-              }),
-            )
+          await Promise.all(
+            accounts.map(async (account) => {
+              const { preCalls } = account.capabilities ?? {}
+              if (!preCalls) return
+              await PreCalls.add(preCalls as PreCalls.PreCalls, {
+                address: account.address,
+                storage,
+              })
+            }),
+          )
 
-            return accounts.map((account) => {
+          return Promise.all(
+            accounts.map(async (account) => {
               const adminKeys = account.capabilities?.admins
                 ?.map((key) => Key.from(key))
                 .filter(Boolean) as readonly Key.Key[]
@@ -422,17 +474,26 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 })
                 .filter(Boolean) as readonly Key.Key[]
 
+              const signInWithEthereum_response =
+                account.capabilities?.signInWithEthereum
+              if (authUrl && signInWithEthereum_response) {
+                const { message, signature } = signInWithEthereum_response
+                const token = await Siwe.authenticate({
+                  authUrl,
+                  message,
+                  signature,
+                })
+              }
+
               return {
                 ...Account.from({
                   address: account.address,
                   keys: [...adminKeys, ...sessionKeys],
                 }),
-                signInWithEthereum: account.capabilities?.signInWithEthereum,
+                signInWithEthereum: signInWithEthereum_response,
               } as const
-            })
-          }
-
-          throw new Error('Cannot load accounts for method: ' + request.method)
+            }),
+          )
         })()
 
         return {
@@ -872,4 +933,41 @@ export async function resolveFeeToken(
   } = internal
   const { feeToken: overrideFeeToken } = parameters ?? {}
   return overrideFeeToken ?? feeToken
+}
+
+async function getAuthUrl(
+  authUrl: string | undefined,
+  { storage }: { storage: any },
+) {
+  const defaultAuthUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/api/siwe`
+      : undefined
+
+  // If a Auth URL is not provided, we will check if there is one set
+  // up on the host.
+  if (!authUrl) {
+    // If there is no default Auth URL, we will return undefined.
+    if (!defaultAuthUrl) return undefined
+
+    // If there is a cached flag, we will return the URL if it is set up.
+    const authUrl_storage = await storage.getItem('porto.auth-url')
+    if (typeof authUrl_storage === 'boolean') return defaultAuthUrl
+
+    // Fetch on the default Auth URL to see if it is set up.
+    const response = await fetch(defaultAuthUrl + '/nonce').catch(
+      () => undefined,
+    )
+    if (!response?.ok) return undefined
+
+    // If set up, we will cache the flag.
+    await storage.setItem('porto.auth-url', true)
+    return defaultAuthUrl
+  }
+
+  // If the Merchant RPC URL is a relative URL, we will convert it to an
+  // absolute URL.
+  if (authUrl.startsWith('/')) return `${window.location.origin}${authUrl}`
+
+  return authUrl
 }

@@ -1,7 +1,6 @@
 import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import type * as Siwe from 'ox/Siwe'
 
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
@@ -11,10 +10,11 @@ import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
 import type * as PreCalls from './preCalls.js'
+import type * as Capabilities from './typebox/capabilities.js'
 import type * as FeeToken from './typebox/feeToken.js'
 import type * as RpcRequest from './typebox/request.js'
 import type * as Typebox from './typebox/typebox.js'
-import type { Compute, PartialBy } from './types.js'
+import type { PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
 
@@ -56,7 +56,7 @@ export type Mode = {
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
       /** Adds support for offchain authentication using ERC-4361. */
-      signInWithEthereum?: Compute<Omit<Siwe.Message, 'address'>> | undefined
+      signInWithEthereum?: Capabilities.signInWithEthereum.Request | undefined
     }) => Promise<{
       /** Account. */
       account: Account.Account & {
@@ -68,6 +68,13 @@ export type Mode = {
           | undefined
       }
     }>
+
+    disconnect?:
+      | ((parameters: {
+          /** Internal properties. */
+          internal: ActionsInternal
+        }) => Promise<void>)
+      | undefined
 
     getAccountVersion: (parameters: {
       /** Address of the account to get the version of. */
@@ -146,7 +153,7 @@ export type Mode = {
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
       /** Adds support for offchain authentication using ERC-4361. */
-      signInWithEthereum?: Compute<Omit<Siwe.Message, 'address'>> | undefined
+      signInWithEthereum?: Capabilities.signInWithEthereum.Request | undefined
     }) => Promise<{
       /** Accounts. */
       accounts: readonly (Account.Account & {
