@@ -1,22 +1,19 @@
 import { Env } from '@porto/apps'
+import * as Dialog from '~/lib/Dialog.ts'
 
 export function enableOnramp() {
-  if (typeof window === 'undefined' || typeof window.parent === 'undefined')
-    return false
-
+  // Check dialog's own params
   const dialogSearchParams = new URLSearchParams(window.location.search)
   const dialogDebugOnramp = dialogSearchParams.get('debug') === 'onramp'
+
+  // Check parent's params from Dialog store
+  const parentSearchParams = Dialog.store?.getState().referrer?.searchParams
   let parentDebugOnramp = false
-  try {
-    if (window.parent !== window && window.parent.location) {
-      const parentSearchParams = new URLSearchParams(
-        window.parent.location.search,
-      )
-      parentDebugOnramp = parentSearchParams.get('debug') === 'onramp'
-    }
-  } catch {
-    console.warn("Can't access parent due to cross-origin restrictions")
+  if (parentSearchParams) {
+    const params = new URLSearchParams(parentSearchParams)
+    parentDebugOnramp = params.get('debug') === 'onramp'
   }
+
   return Env.get() === 'prod' || dialogDebugOnramp || parentDebugOnramp
 }
 

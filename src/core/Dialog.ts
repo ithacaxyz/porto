@@ -159,7 +159,10 @@ export function iframe(options: iframe.Options = {}) {
 
         messenger.send('__internal', {
           mode: 'iframe',
-          referrer: getReferrer(),
+          referrer: {
+            ...getReferrer(),
+            searchParams: window.location.search,
+          },
           type: 'init',
         })
       })
@@ -238,7 +241,10 @@ export function iframe(options: iframe.Options = {}) {
 
           messenger.send('__internal', {
             mode: 'iframe',
-            referrer: getReferrer(),
+            referrer: {
+              ...getReferrer(),
+              searchParams: window.location.search,
+            },
             type: 'init',
           })
 
@@ -365,7 +371,10 @@ export function popup() {
 
           messenger.send('__internal', {
             mode: 'popup',
-            referrer: getReferrer(),
+            referrer: {
+              ...getReferrer(),
+              searchParams: window.location.search,
+            },
             type: 'init',
           })
 
@@ -469,7 +478,10 @@ export function experimental_inline(options: inline.Options) {
       messenger.on('ready', () => {
         messenger.send('__internal', {
           mode: 'inline-iframe',
-          referrer: getReferrer(),
+          referrer: {
+            ...getReferrer(),
+            searchParams: window.location.search,
+          },
           type: 'init',
         })
       })
@@ -494,7 +506,10 @@ export function experimental_inline(options: inline.Options) {
 
           messenger.send('__internal', {
             mode: 'iframe',
-            referrer: getReferrer(),
+            referrer: {
+              ...getReferrer(),
+              searchParams: window.location.search,
+            },
             type: 'init',
           })
         },

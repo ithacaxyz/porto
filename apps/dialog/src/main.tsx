@@ -33,6 +33,7 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
     mode,
     referrer: {
       ...referrer,
+      searchParams: referrer.searchParams,
 
       // If there is no referrer, it is likely the user is using Porto in
       // an incognito window.
