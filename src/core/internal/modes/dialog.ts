@@ -133,8 +133,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             const [{ capabilities }] = request._decoded.params ?? [{}]
 
             const authUrl = await getAuthUrl(
-              capabilities?.signInWithEthereum?.authUrl,
-              { storage },
+              capabilities?.signInWithEthereum?.authUrl || config.authUrl,
             )
 
             const signInWithEthereum =
@@ -234,9 +233,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       async disconnect(parameters) {
         const { internal } = parameters
         const { config } = internal
-        const { storage } = config
 
-        const authUrl = await getAuthUrl(config.authUrl, { storage })
+        const authUrl = await getAuthUrl(config.authUrl)
         if (authUrl) {
           const response = await fetch(authUrl + '/logout', {
             credentials: 'include',
@@ -403,8 +401,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const [{ capabilities }] = request._decoded.params ?? [{}]
 
           const authUrl = await getAuthUrl(
-            capabilities?.signInWithEthereum?.authUrl,
-            { storage },
+            capabilities?.signInWithEthereum?.authUrl || config.authUrl,
           )
 
           const signInWithEthereum =
@@ -935,46 +932,15 @@ export async function resolveFeeToken(
   return overrideFeeToken ?? feeToken
 }
 
-async function getAuthUrl(
-  authUrl: string | undefined,
-  { storage }: { storage: any },
-) {
+async function getAuthUrl(authUrl: string | undefined) {
   const defaultAuthUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}/api/siwe`
       : undefined
 
-  // If a Auth URL is not provided, we will check if there is one set
-  // up on the host.
-  if (!authUrl) {
-    // If there is no default Auth URL, we will return undefined.
-    if (!defaultAuthUrl) return undefined
+  if (!authUrl) return defaultAuthUrl
 
-    // If there is a cached flag, we will return the URL if it is set up.
-    const authUrl_storage = await storage.getItem('porto.auth-url')
-    if (typeof authUrl_storage === 'boolean') return defaultAuthUrl
-
-    // Check if auth endpoint exists
-    const exists = await fetch(defaultAuthUrl + '/nonce', { method: 'HEAD' })
-      .then((res) => res.ok)
-      .catch(() => false)
-
-    if (!exists) return undefined
-
-    // If it exists, fetch the actual nonce
-    const response = await fetch(defaultAuthUrl + '/nonce')
-      .then((x) => x.json())
-      .catch(() => undefined)
-    if (!response?.nonce) return undefined
-
-    // If set up, we will cache the flag.
-    await storage.setItem('porto.auth-url', true)
-    return defaultAuthUrl
-  }
-
-  // If the Merchant RPC URL is a relative URL, we will convert it to an
-  // absolute URL.
-  if (authUrl.startsWith('/')) return `${window.location.origin}${authUrl}`
+  if (authUrl?.startsWith('/')) return `${window.location.origin}${authUrl}`
 
   return authUrl
 }

@@ -7,7 +7,7 @@
   "assets": {
     "not_found_handling": "single-page-application"
   },
-  "compatibility_date": "2025-06-20",
+  "compatibility_date": "2025-06-17",
   "kv_namespaces": [
     {
       "binding": "NONCE_STORE",
