@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "account_id": "ba6ee3674b03f08481e57ff9992c601e",
+  "compatibility_date": "2025-07-03",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env"
+  ],
+  "dev": {
+    "port": 6969
+  },
+  "keep_vars": true,
+  "main": "./src/index.ts",
+  "minify": true,
+  "name": "octopus",
+  "observability": {
+    "enabled": true
+  },
+  "placement": {
+    "mode": "smart"
+  },
+  "unsafe": {
+    "bindings": [
+      {
+        "name": "RATE_LIMITER",
+        "namespace_id": "1001",
+        "simple": {
+          "limit": 10,
+          "period": 60
+        },
+        "type": "ratelimit"
+      }
+    ]
+  },
+  "workers_dev": true
+}

@@ -595,6 +595,31 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.8.3)(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))
 
+  apps/octopus:
+    dependencies:
+      '@porto/apps':
+        specifier: workspace:*
+        version: link:../~internal
+      porto:
+        specifier: workspace:*
+        version: link:../../src
+      viem:
+        specifier: 'catalog:'
+        version: 2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28)
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20250703.0
+        version: 4.20250703.0
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.32
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      wrangler:
+        specifier: ^4.23.0
+        version: 4.23.0(@cloudflare/workers-types@4.20250703.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+
   apps/playground:
     dependencies:
       '@porto/apps':
@@ -1530,6 +1555,9 @@ packages:
 
   '@cloudflare/workers-types@4.20250628.0':
     resolution: {integrity: sha512-V4HthfhtQU2vTpwLeUic8FTLgGSjglsGZMJc9jKBNYEU/k0A1rE55UgQoTb5blKQdGtpQKfVKs3FROeY/lXmbw==}
+
+  '@cloudflare/workers-types@4.20250703.0':
+    resolution: {integrity: sha512-6ITY5VL2eDkwFVWtF4OSsLIalyuwAE8/eH76fFn1KNGsH5V8JdjYriFTa/3YaJ+mzt4n4X6Hv06zrg00IKBTIA==}
 
   '@coinbase/wallet-sdk@3.9.3':
     resolution: {integrity: sha512-N/A2DRIf0Y3PHc1XAMvbBUu4zisna6qAdqABMZwBMNEfWrXpAwx16pZGkYCLGE+Rvv1edbcB2LYDRnACNcmCiw==}
@@ -7054,6 +7082,11 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
+  miniflare@4.20250617.5:
+    resolution: {integrity: sha512-Qqn30jR6dCjXaKVizT6vH4KOb+GyLccoxLNOJEfu63yBPn8eoXa7PrdiSGTmjs2RY8/tr7eTO8Wu/Yr14k0xVA==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
   minimatch@10.0.1:
     resolution: {integrity: sha512-ethXTt3SGGR+95gudmqJ1eNhRO7eGEGIgYA9vnPatK4/etz2MEVDno5GMCibdMTuBMyElzIlgxMna3K94XDIDQ==}
     engines: {node: 20 || >=22}
@@ -9278,6 +9311,16 @@ packages:
       '@cloudflare/workers-types':
         optional: true
 
+  wrangler@4.23.0:
+    resolution: {integrity: sha512-JSeDt3IwA4TEmg/V3tRblImPjdxynBt9PUVO/acQJ83XGlMMSwswDKL1FuwvbFzgX6+JXc3GMHeu7r8AQIxw9w==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+    peerDependencies:
+      '@cloudflare/workers-types': ^4.20250617.0
+    peerDependenciesMeta:
+      '@cloudflare/workers-types':
+        optional: true
+
   wrap-ansi@6.2.0:
     resolution: {integrity: sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==}
     engines: {node: '>=8'}
@@ -10090,6 +10133,8 @@ snapshots:
     optional: true
 
   '@cloudflare/workers-types@4.20250628.0': {}
+
+  '@cloudflare/workers-types@4.20250703.0': {}
 
   '@coinbase/wallet-sdk@3.9.3':
     dependencies:
@@ -16978,6 +17023,24 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  miniflare@4.20250617.5(bufferutil@4.0.9)(utf-8-validate@5.0.10):
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      acorn: 8.14.0
+      acorn-walk: 8.3.2
+      exit-hook: 2.2.1
+      glob-to-regexp: 0.4.1
+      sharp: 0.33.5
+      stoppable: 1.1.0
+      undici: 5.29.0
+      workerd: 1.20250617.0
+      ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      youch: 3.3.4
+      zod: 3.22.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   minimatch@10.0.1:
     dependencies:
       brace-expansion: 2.0.1
@@ -19703,6 +19766,23 @@ snapshots:
       workerd: 1.20250617.0
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250628.0
+      fsevents: 2.3.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  wrangler@4.23.0(@cloudflare/workers-types@4.20250703.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10):
+    dependencies:
+      '@cloudflare/kv-asset-handler': 0.4.0
+      '@cloudflare/unenv-preset': 2.3.3(unenv@2.0.0-rc.17)(workerd@1.20250617.0)
+      blake3-wasm: 2.1.5
+      esbuild: 0.25.4
+      miniflare: 4.20250617.5(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      path-to-regexp: 6.3.0
+      unenv: 2.0.0-rc.17
+      workerd: 1.20250617.0
+    optionalDependencies:
+      '@cloudflare/workers-types': 4.20250703.0
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
