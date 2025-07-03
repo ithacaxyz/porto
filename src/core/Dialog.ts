@@ -83,9 +83,8 @@ export function iframe(options: iframe.Options = {}) {
 
       const dialogUrl = new URL(host)
       const parentParams = new URLSearchParams(window.location.search)
-
-      if (parentParams.get('debug') === 'onramp')
-        dialogUrl.searchParams.set('debug', 'onramp')
+      const portoParams = extractPortoParams(parentParams)
+      applyPortoParams(dialogUrl, portoParams)
 
       iframe.setAttribute('src', dialogUrl.toString())
       iframe.setAttribute('title', 'Porto')
@@ -355,9 +354,8 @@ export function popup() {
 
           const dialogUrl = new URL(host)
           const parentParams = new URLSearchParams(window.location.search)
-
-          if (parentParams.get('debug') === 'onramp')
-            dialogUrl.searchParams.set('debug', 'onramp')
+          const portoParams = extractPortoParams(parentParams)
+          applyPortoParams(dialogUrl, portoParams)
 
           popup = window.open(
             dialogUrl.toString(),
@@ -461,9 +459,8 @@ export function experimental_inline(options: inline.Options) {
 
       const inlineDialogUrl = new URL(host)
       const parentParams = new URLSearchParams(window.location.search)
-
-      if (parentParams.get('debug') === 'onramp')
-        inlineDialogUrl.searchParams.set('debug', 'onramp')
+      const portoParams = extractPortoParams(parentParams)
+      applyPortoParams(inlineDialogUrl, portoParams)
 
       iframe.setAttribute('src', inlineDialogUrl.toString())
       iframe.setAttribute('title', 'Porto')
@@ -637,4 +634,29 @@ export function isMobile() {
       navigator.userAgent.slice(0, 4),
     )
   )
+}
+
+export function extractPortoParams(
+  searchParams: URLSearchParams,
+): Map<string, string> {
+  const portoParams = new Map<string, string>()
+  const prefix = 'porto.'
+
+  for (const [key, value] of searchParams.entries()) {
+    if (key.startsWith(prefix)) {
+      const paramName = key.slice(prefix.length)
+      portoParams.set(paramName, value)
+    }
+  }
+
+  return portoParams
+}
+
+export function applyPortoParams(
+  targetUrl: URL,
+  portoParams: Map<string, string>,
+): void {
+  for (const [key, value] of portoParams.entries()) {
+    targetUrl.searchParams.set(key, value)
+  }
 }

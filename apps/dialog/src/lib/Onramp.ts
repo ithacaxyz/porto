@@ -2,9 +2,9 @@ import { Env } from '@porto/apps'
 
 export function enableOnramp() {
   const dialogSearchParams = new URLSearchParams(window.location.search)
-  const dialogDebugOnramp = dialogSearchParams.get('debug') === 'onramp'
+  const onrampEnabled = dialogSearchParams.get('onramp') === 'true'
 
-  return Env.get() === 'prod' || dialogDebugOnramp
+  return Env.get() === 'prod' || onrampEnabled
 }
 
 /**
