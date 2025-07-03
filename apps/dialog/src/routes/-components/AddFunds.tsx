@@ -164,7 +164,11 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1 space-y-3.5">
               {showOnramp ? (
                 <PayButton
-                  url={stripeOnrampUrl(Number(amount))}
+                  disabled={!address}
+                  url={stripeOnrampUrl({
+                    address: address!,
+                    amount: Number(amount),
+                  })}
                   variant="stripe"
                 />
               ) : (
@@ -176,15 +180,6 @@ export function AddFunds(props: AddFunds.Props) {
                 >
                   Get started
                 </Button>
-              ) : (
-                <PayButton
-                  disabled={!address}
-                  url={stripeOnrampUrl({
-                    address: address!,
-                    amount: Number(amount),
-                  })}
-                  variant="stripe"
-                />
               )}
             </div>
             <div className="col-span-1 row-span-1">
