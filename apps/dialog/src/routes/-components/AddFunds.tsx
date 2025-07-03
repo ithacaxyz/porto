@@ -3,7 +3,7 @@ import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { type Address, type Hex, Value } from 'ox'
+import { Address, type Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { PayButton } from '~/components/PayButton'
@@ -36,6 +36,7 @@ export function AddFunds(props: AddFunds.Props) {
   })
 
   const address = props.address ?? account?.address
+  console.info('address', address)
 
   const [amount, setAmount] = React.useState<string>(value.toString())
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
@@ -72,6 +73,33 @@ export function AddFunds(props: AddFunds.Props) {
     },
   })
 
+  const generateOnrampUrl = useMutation({
+    async mutationFn(event: React.FormEvent<HTMLFormElement>) {
+      event.preventDefault()
+      event.stopPropagation()
+
+      if (!address) throw new Error('address is required')
+      const checksummedAddress = Address.checksum(address)
+
+      const onrampUrl = new URL(import.meta.env.VITE_ONRAMP_URL)
+      if (!onrampUrl) throw new Error('onrampUrl is required')
+
+      const searchParams = new URLSearchParams({
+        address: checksummedAddress,
+        email: `test+${Date.now()}@test.com`,
+      })
+
+      const response = await fetch(
+        `${onrampUrl.toString()}/sign-up?${searchParams.toString()}`,
+      )
+      if (!response.ok && !response.redirected)
+        throw new Error('Failed to generate onramp URL')
+
+      const data = (await response.json()) as { url: string }
+      return data.url
+    },
+  })
+
   const loading = deposit.isPending
 
   const [editView, setEditView] = React.useState<'default' | 'editing'>(
@@ -93,7 +121,7 @@ export function AddFunds(props: AddFunds.Props) {
         <Layout.Content>
           <form
             className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-            onSubmit={(e) => deposit.mutate(e)}
+            onSubmit={(e) => generateOnrampUrl.mutate(e)}
           >
             <div className="col-span-1 row-span-1">
               <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
@@ -122,7 +150,6 @@ export function AddFunds(props: AddFunds.Props) {
                       spellCheck={false}
                       type="number"
                       value={amount}
-                      // should add disabled` if testnet?
                     />
                     <span className="text-gray9 text-sm">Max. $500</span>
                   </div>

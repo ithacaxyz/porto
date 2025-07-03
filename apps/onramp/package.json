@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "pnpm dlx wrangler@latest --config='wrangler.toml' dev",
     "build": "pnpm dlx wrangler@latest --config='wrangler.toml' deploy --dry-run",
-    "deploy": "pnpm dlx wrangler@latest --config='wrangler.toml' deploy --keep-vars"
+    "deploy": "pnpm dlx wrangler@latest --config='wrangler.toml' deploy --keep-vars",
+    "tail": "pnpm dlx wrangler@latest --config='wrangler.toml' tail"
   },
   "dependencies": {
     "@porto/apps": "workspace:*",

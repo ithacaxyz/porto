@@ -13,7 +13,7 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "moduleResolution": "Bundler",
-    "types": ["bun", "node", "@cloudflare/workers-types"]
+    "types": ["node", "@cloudflare/workers-types"]
   },
   "include": ["./scripts/*", "./src/**/*"],
   "files": ["env.d.ts"],
