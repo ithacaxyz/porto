@@ -20,7 +20,6 @@ export default {
             { headers, status: 400 },
           )
 
-        const region = url.searchParams.get('region') ?? 'us'
         const destination_currency =
           url.searchParams.get('destination_currency') ?? 'usdc'
         const destination_network =

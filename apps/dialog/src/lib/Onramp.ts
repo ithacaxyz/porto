@@ -6,22 +6,30 @@
  * SSN: 0000
  */
 
-export function stripeOnrampUrl(amount: number) {
-  if (amount < 1 || amount > 30_000) {
+export function stripeOnrampUrl(params: stripeOnrampUrl.Params) {
+  if (params.amount < 1 || params.amount > 30_000) {
     console.warn(
-      `Invalid amount for Stripe onramp: ${amount}. Must be between 1 and 30,000.`,
+      `Invalid amount for Stripe onramp: ${params.amount}. Must be between 1 and 30,000.`,
     )
     return
   }
 
   const searchParams = new URLSearchParams({
+    address: params.address,
     destination_currency: 'usdc',
     destination_network: 'base',
     ref: 'porto',
-    source_amount: amount.toString(),
+    source_amount: params.amount.toString(),
     source_currency: 'usd',
   })
-  const url = new URL('https://crypto.link.com')
+  const url = new URL('http://octopus.porto.workers.dev/onramp')
   url.search = searchParams.toString()
   return url.toString()
+}
+
+export declare namespace stripeOnrampUrl {
+  type Params = {
+    amount: number
+    address: string
+  }
 }
