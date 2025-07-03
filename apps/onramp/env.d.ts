@@ -1,13 +1,18 @@
 interface EnvironmentVariables {
+  ENVIRONMENT: 'sandbox' | 'production'
   readonly SDK_PARTNER_TOKEN: string
-
-  readonly MERCURYO_API_KEY: string
+  readonly WIDGET_ID: string
   readonly AUTH_SECRET_KEY: string
   readonly AUTH_SIGN_KEY: string
-  readonly MERCURYO_BASE_URL: string
-  readonly SDK_PARTNER_TOKEN: string
-  readonly MERCURYO_SANDBOX_BASE_URL: string
-  readonly WIDGET_ID: string
+  readonly API_BASE_URL: string
+  readonly WIDGET_URL: string
+
+  readonly SANDBOX_SDK_PARTNER_TOKEN: string
+  readonly SANDBOX_WIDGET_ID: string
+  readonly SANDBOX_AUTH_SECRET_KEY: string
+  readonly SANDBOX_AUTH_SIGN_KEY: string
+  readonly SANDBOX_API_BASE_URL: string
+  readonly SANDBOX_WIDGET_URL: string
 }
 
 namespace Cloudflare {

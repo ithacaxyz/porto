@@ -2,10 +2,10 @@ import redaxios from 'redaxios'
 import { env } from './constants'
 
 const client = redaxios.create({
-  baseURL: 'https://sandbox-api.mrcr.io/v1.6',
+  baseURL: env().API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Sdk-Partner-Token': env.SDK_PARTNER_TOKEN,
+    'Sdk-Partner-Token': env().SDK_PARTNER_TOKEN,
   },
 })
 
@@ -17,6 +17,11 @@ type ForbiddenError = { status: 403 } & (
 
 type ErrorResponse =
   | ForbiddenError
+  | {
+      status: 400
+      code: 400037
+      message: 'Validation failed'
+    }
   | {
       status: 401
       code: 401000
@@ -43,7 +48,7 @@ export type SilentSignUpResponse =
       data: {
         uuid: string
         init_token: string
-        init_token_type: string
+        init_type_token: string
       }
       status: 200
     }
@@ -70,7 +75,6 @@ export async function silentSignUp(
       ...parameters,
     },
   )
-
   return response.data
 }
 
@@ -79,7 +83,7 @@ type SilentSignInResponse =
       data: {
         uuid: string
         init_token: string
-        init_token_type: string
+        init_type_token: string
       }
       status: 200
     }

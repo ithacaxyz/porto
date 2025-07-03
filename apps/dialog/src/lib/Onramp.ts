@@ -1,7 +1,3 @@
-export function mercuryoOnrampUrl(_params: {}) {
-  throw new Error('Not implemented')
-}
-
 /**
  * Test card:
  * 4242 4242 4242 4242

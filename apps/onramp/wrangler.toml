@@ -3,7 +3,7 @@
 minify = true
 keep_vars = true
 workers_dev = true
-main = "./src/main.ts"
+main = "./src/index.ts"
 name = "onramp"
 compatibility_date = "2025-06-24"
 compatibility_flags = [
