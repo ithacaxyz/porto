@@ -223,7 +223,7 @@ export default defineConfig(({ mode }) => {
       },
     ],
     server: {
-      allowedHosts,
+      allowedHosts: true,
     },
   }
 })
