@@ -6,7 +6,6 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react(), cloudflare()],
   server: {
-    allowedHosts: true,
     cors: {
       origin: '*',
     },
