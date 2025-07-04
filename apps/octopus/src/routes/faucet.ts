@@ -1,0 +1,83 @@
+import { env } from 'cloudflare:workers'
+import { exp1Abi, exp1Address } from '@porto/apps/contracts'
+import { Hono } from 'hono'
+import { validator } from 'hono/validator'
+import { Chains } from 'porto'
+import { rateLimitMiddleware } from 'src/middleware'
+import { createWalletClient, http, isAddress, publicActions } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { waitForTransactionReceipt } from 'viem/actions'
+
+const faucetApp = new Hono<{ Bindings: Cloudflare.Env }>()
+
+const DRIP_PRIVATE_KEY = env.DRIP_PRIVATE_KEY
+const account = privateKeyToAccount(DRIP_PRIVATE_KEY)
+
+if (!account?.address) throw new Error('Invalid DRIP_PRIVATE_KEY')
+
+const chains = {
+  [Chains.baseSepolia.id]: Chains.baseSepolia,
+  [Chains.portoDev.id]: Chains.portoDev,
+} as const
+
+faucetApp.use('*', async (context, next) => {
+  await next()
+  context.header('Access-Control-Allow-Origin', '*')
+  context.header('X-Faucet-Address', account.address)
+  context.header('route-rate-limit-identifier', account.address)
+})
+
+faucetApp.get(
+  '/',
+  rateLimitMiddleware,
+  validator('query', (values, context) => {
+    const { address, chainId, value = '25' } = <Record<string, string>>values
+
+    if (!address || !isAddress(address))
+      return context.json({ error: 'Valid EVM address required' }, 400)
+
+    if (
+      !chainId ||
+      !exp1Address[chainId as unknown as keyof typeof exp1Address]
+    )
+      return context.json({ error: 'Valid chainId required' }, 400)
+
+    return { address, chainId, value: BigInt(value) }
+  }),
+  async (context) => {
+    const { address, chainId, value } = context.req.valid('query')
+
+    const client = createWalletClient({
+      account,
+      chain: chains[chainId as unknown as keyof typeof chains],
+      transport: http(),
+    }).extend(publicActions)
+
+    const { maxFeePerGas, maxPriorityFeePerGas } =
+      await client.estimateFeesPerGas()
+
+    const hash = await client.writeContract({
+      abi: exp1Abi,
+      address: exp1Address[chainId as unknown as keyof typeof exp1Address],
+      args: [address, value],
+      functionName: 'mint',
+      maxFeePerGas: maxFeePerGas * 2n,
+      maxPriorityFeePerGas: maxPriorityFeePerGas * 2n,
+    })
+
+    const receipt = await waitForTransactionReceipt(client, {
+      hash,
+      pollingInterval: 1_000,
+    })
+
+    if (receipt.status === 'success')
+      return context.json({ id: receipt.transactionHash }, 200)
+
+    return context.json(
+      { error: receipt.status, id: receipt.transactionHash },
+      500,
+    )
+  },
+)
+
+export { faucetApp }
