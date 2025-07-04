@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.42
+
+### Patch Changes
+
+- [#539](https://github.com/ithacaxyz/porto/pull/539) [`fa0dfb9`](https://github.com/ithacaxyz/porto/commit/fa0dfb98c00540930a298dac175cfbaeebea3ac1) Thanks [@o-az](https://github.com/o-az)! - Fixed SIWE auth url resolution.
+
 ## 0.0.41
 
 ### Patch Changes
