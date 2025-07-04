@@ -490,7 +490,7 @@ export function Dashboard() {
                           <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
                         </div>
                         <TruncatedAddress
-                          address={transfer?.to.hash ?? ''}
+                          address={transfer?.from.hash ?? ''}
                           className="ml-2"
                         />
                       </div>
@@ -606,9 +606,11 @@ export function Dashboard() {
                 <td className="w-[50px] text-right">
                   <div className="flex w-fit min-w-fit max-w-[105px] flex-row items-end justify-end gap-x-2 overflow-hidden whitespace-nowrap rounded-2xl bg-gray3 px-1.5 py-1 text-right font-[500] text-gray10 text-xs">
                     <span className="truncate">
-                      {formatEther(
-                        Hex.toBigInt(spend?.limit as unknown as Hex.Hex),
-                      )}
+                      {spend?.limit
+                        ? formatEther(
+                            Hex.toBigInt(spend.limit as unknown as Hex.Hex),
+                          )
+                        : '0'}
                     </span>
                     <span className="truncate">
                       <TokenSymbol address={spend?.token} display="symbol" />
@@ -682,7 +684,6 @@ export function Dashboard() {
             {admins.data?.keys.length ? (
               admins.data.keys.map((key, index) => {
                 const id = key.id
-                const address = key.publicKey
                 return (
                   <tr
                     className="text-xs sm:text-sm"
@@ -724,7 +725,7 @@ export function Dashboard() {
                       <Ariakit.Button
                         className="size-8 rounded-full p-1 text-gray11 hover:bg-red-100 hover:text-red-500"
                         onClick={() => {
-                          if (!id || !address) return
+                          if (!id || !key.publicKey) return
                           revokeAdmin.mutate({
                             address: account.address,
                             id: key.id,
@@ -853,7 +854,7 @@ function AssetRow({
 
   const chainId = useChainId()
 
-  const { data: _swapAssets, refetch: refetchSwapAssets } = useSwapAssets({
+  const { refetch: refetchSwapAssets } = useSwapAssets({
     chainId,
   })
 
@@ -1106,7 +1107,15 @@ function AssetRow({
                   navigator.clipboard
                     .readText()
                     .then((text) => {
-                      sendForm.setValue(sendForm.names.sendRecipient, text)
+                      const trimmedText = text.trim()
+                      if (Address.validate(trimmedText)) {
+                        sendForm.setValue(
+                          sendForm.names.sendRecipient,
+                          trimmedText,
+                        )
+                      } else {
+                        toast.error('Invalid address in clipboard')
+                      }
                     })
                     .catch(() => toast.error('Failed to paste from clipboard'))
                 }
@@ -1153,10 +1162,7 @@ function AssetRow({
               className="mx-0.5 my-auto text-gray11! text-xs! sm:mx-1"
               onClick={(event) => {
                 event.preventDefault()
-                sendForm.setValue(
-                  sendForm.names.sendAmount,
-                  Number(formattedBalance),
-                )
+                sendForm.setValue(sendForm.names.sendAmount, formattedBalance)
               }}
               size="small"
               variant="default"
