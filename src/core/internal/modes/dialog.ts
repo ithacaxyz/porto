@@ -7,6 +7,7 @@ import * as Key from '../../../viem/Key.js'
 import * as Dialog from '../../Dialog.js'
 import type { QueuedRequest } from '../../Porto.js'
 import * as RpcSchema_porto from '../../RpcSchema.js'
+import type { Storage } from '../../Storage.js'
 import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -133,7 +134,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             const [{ capabilities }] = request._decoded.params ?? [{}]
 
             const authUrl = await getAuthUrl(
-              capabilities?.signInWithEthereum?.authUrl || config.authUrl,
+              capabilities?.signInWithEthereum?.authUrl ?? config.authUrl,
               { storage },
             )
 
@@ -403,7 +404,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           const [{ capabilities }] = request._decoded.params ?? [{}]
 
           const authUrl = await getAuthUrl(
-            capabilities?.signInWithEthereum?.authUrl || config.authUrl,
+            capabilities?.signInWithEthereum?.authUrl ?? config.authUrl,
             { storage },
           )
 
@@ -937,7 +938,7 @@ export async function resolveFeeToken(
 
 async function getAuthUrl(
   authUrl: string | undefined,
-  { storage }: { storage: any },
+  { storage }: { storage: Storage },
 ) {
   const defaultAuthUrl =
     typeof window !== 'undefined'
