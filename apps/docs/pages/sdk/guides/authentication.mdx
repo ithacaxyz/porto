@@ -109,14 +109,9 @@ export default app
 
 ### Done
 
-Now that you have set up your `/siwe` endpoints and have your server up and running,
-Porto will automatically detect the endpoints and authenticate your users when they connect
-to your app.
-
-:::tip
-
-If you wish to have control over the authentication URL (e.g. your server is at a different location to your app),
-you can set `signInWithEthereum.authUrl` capability on the `wallet_connect` call. For example:
+Now that you have set up your `/api/siwe` endpoints and have your server up and running,
+you can pass the `signInWithEthereum.authUrl` capability to the `connect` call to have
+control over the authentication URL.
 
 ```tsx
 import { useConnectors } from 'wagmi'
@@ -132,7 +127,7 @@ export function Example() {
         connect({
           connector, 
           signInWithEthereum: { // [!code ++]
-            authUrl: 'https://your-server.com/api/siwe', // [!code ++]
+            authUrl: '/api/siwe', // [!code ++]
           }, // [!code ++]
         })
       }
@@ -142,8 +137,6 @@ export function Example() {
   )
 }
 ```
-
-:::
 
 ### Bonus: Add `/me` (authenticated route)
 
