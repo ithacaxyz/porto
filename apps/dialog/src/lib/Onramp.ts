@@ -6,6 +6,8 @@
  * SSN: 0000
  */
 
+import { Env } from '@porto/apps'
+
 export function stripeOnrampUrl(params: stripeOnrampUrl.Params) {
   if (params.amount < 1 || params.amount > 30_000) {
     console.warn(
@@ -18,11 +20,15 @@ export function stripeOnrampUrl(params: stripeOnrampUrl.Params) {
     address: params.address,
     destination_currency: 'usdc',
     destination_network: 'base',
-    ref: 'porto',
+    environment: Env.get(),
     source_amount: params.amount.toString(),
     source_currency: 'usd',
   })
-  const url = new URL('http://octopus.porto.workers.dev/onramp')
+  const url = new URL(
+    '/onramp',
+    import.meta.env.VITE_PORTO_WORKERS_URL ||
+      'https://octopus.porto.workers.dev',
+  )
   url.search = searchParams.toString()
   return url.toString()
 }

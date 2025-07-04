@@ -16,9 +16,15 @@ export default {
         const address = url.searchParams.get('address')
         if (!address)
           return Response.json(
-            { error: 'Address is required' },
+            { error: '`address` is required' },
             { headers, status: 400 },
           )
+
+        const environment = url.searchParams.get('environment')
+        const apiKey =
+          environment === 'prod' || environment === 'production'
+            ? env.STRIPE_API_KEY
+            : env.SANDBOX_STRIPE_API_KEY
 
         const destination_currency =
           url.searchParams.get('destination_currency') ?? 'usdc'
@@ -28,7 +34,7 @@ export default {
         const source_amount = url.searchParams.get('source_amount')
         if (!source_amount)
           return Response.json(
-            { error: 'Source amount is required' },
+            { error: '`source_amount` is required' },
             { headers, status: 400 },
           )
 
@@ -48,20 +54,20 @@ export default {
           {
             body,
             headers: {
-              Authorization: `Bearer ${env.STRIPE_API_KEY}`,
+              Authorization: `Bearer ${apiKey}`,
               'Content-Type': 'application/x-www-form-urlencoded',
             },
             method: 'POST',
           },
         )
+
         const data = (await response.json()) as { redirect_url: string }
+
         if (!Object.hasOwn(data, 'redirect_url')) {
-          console.info(data)
-          return new Response('failed. Better err msg coming soon', {
-            headers,
-            status: 500,
-          })
+          console.error(data)
+          throw new Error('Could not create Stripe Onramp session')
         }
+
         return Response.redirect(data.redirect_url)
       }
 

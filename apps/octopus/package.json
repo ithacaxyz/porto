@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "pnpm dlx wrangler@latest --config='wrangler.json' dev",
     "build": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --dry-run",
+    "tail": "pnpm dlx wrangler@latest --config='wrangler.json' tail",
     "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars --var 'ENVIRONMENT:production'"
   },
   "dependencies": {
