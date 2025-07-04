@@ -2,6 +2,7 @@ import { Env } from '@porto/apps'
 
 export function enableOnramp() {
   const dialogSearchParams = new URLSearchParams(window.location.search)
+  console.info(dialogSearchParams.toString())
   const onrampEnabled = dialogSearchParams.get('onramp') === 'true'
 
   return Env.get() === 'prod' || onrampEnabled
@@ -14,8 +15,6 @@ export function enableOnramp() {
  * any future expiration date
  * SSN: 0000
  */
-
-import { Env } from '@porto/apps'
 
 export function stripeOnrampUrl(params: stripeOnrampUrl.Params) {
   if (params.amount < 1 || params.amount > 30_000) {

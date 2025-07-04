@@ -81,12 +81,7 @@ export function iframe(options: iframe.Options = {}) {
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
 
-      const dialogUrl = new URL(host)
-      const parentParams = new URLSearchParams(window.location.search)
-      const portoParams = extractPortoParams(parentParams)
-      applyPortoParams(dialogUrl, portoParams)
-
-      iframe.setAttribute('src', dialogUrl.toString())
+      iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
         ...styles.iframe,
@@ -352,13 +347,8 @@ export function popup() {
           const left = (window.innerWidth - width) / 2 + window.screenX
           const top = window.screenY + 100
 
-          const dialogUrl = new URL(host)
-          const parentParams = new URLSearchParams(window.location.search)
-          const portoParams = extractPortoParams(parentParams)
-          applyPortoParams(dialogUrl, portoParams)
-
           popup = window.open(
-            dialogUrl.toString(),
+            getDialogUrl(host),
             '_blank',
             `width=${width},height=${height},left=${left},top=${top}`,
           )
@@ -457,12 +447,7 @@ export function experimental_inline(options: inline.Options) {
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
 
-      const inlineDialogUrl = new URL(host)
-      const parentParams = new URLSearchParams(window.location.search)
-      const portoParams = extractPortoParams(parentParams)
-      applyPortoParams(inlineDialogUrl, portoParams)
-
-      iframe.setAttribute('src', inlineDialogUrl.toString())
+      iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
 
@@ -636,27 +621,14 @@ export function isMobile() {
   )
 }
 
-export function extractPortoParams(
-  searchParams: URLSearchParams,
-): Map<string, string> {
-  const portoParams = new Map<string, string>()
+export function getDialogUrl(host: string) {
+  const url = new URL(host)
+  const parentParams = new URLSearchParams(window.location.search)
   const prefix = 'porto.'
-
-  for (const [key, value] of searchParams.entries()) {
-    if (key.startsWith(prefix)) {
-      const paramName = key.slice(prefix.length)
-      portoParams.set(paramName, value)
-    }
+  for (const [key, value] of parentParams.entries()) {
+    if (key.startsWith(prefix))
+      url.searchParams.set(key.slice(prefix.length), value)
   }
 
-  return portoParams
-}
-
-export function applyPortoParams(
-  targetUrl: URL,
-  portoParams: Map<string, string>,
-): void {
-  for (const [key, value] of portoParams.entries()) {
-    targetUrl.searchParams.set(key, value)
-  }
+  return url.toString()
 }
