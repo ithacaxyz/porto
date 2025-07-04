@@ -10,9 +10,9 @@ We're opening up a live bug bounty program to encourage responsible security res
 - Regular operations include: upgrades, signing, execution
 - **Open challenge:** Anyone may attempt to drain the account. If successful, **you keep the funds**
 
-**Account Address:** `0xb4B87c22950eD0f3D83aabd3dE20009bA9b16DF1`  
+**Account Address:** `0x2697B651E999b9EcaB80928b5493C361f7752835`  
 **Chain ID:** `8453`  
-**Deployed Commit:** [`v0.2.0`](https://github.com/ithacaxyz/account/releases/tag/v0.2.0)  
+**Deployed Commit:** [`v0.3.2`](https://github.com/ithacaxyz/account/releases/tag/v0.3.2)  
 For a complete list of the deployment addresses, refer to the [Address Book section](/contracts/address-book)
 
 ---
