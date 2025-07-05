@@ -280,6 +280,10 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
+                link: '/sdk/wagmi/useAddFunds',
+                text: 'useAddFunds',
+              },
+              {
                 link: '/sdk/wagmi/useGrantPermissions',
                 text: 'useGrantPermissions',
               },
@@ -310,6 +314,10 @@ export default defineConfig({
           {
             collapsed: true,
             items: [
+              {
+                link: '/sdk/viem/WalletActions/addFunds',
+                text: 'addFunds',
+              },
               {
                 link: '/sdk/viem/WalletActions',
                 text: 'Overview',

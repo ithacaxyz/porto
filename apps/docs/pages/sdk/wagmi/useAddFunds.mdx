@@ -1,0 +1,280 @@
+import { TryItOut } from '../../../components/TryItOut'
+import { parseEther } from 'viem'
+
+# `Hooks.useAddFunds`
+
+Hook for adding funds to an account.
+
+Internally uses [`wallet_addFunds`](/sdk/rpc/wallet_addFunds).
+
+```tsx twoslash
+import * as React from 'react'
+// ---cut---
+import { Hooks } from 'porto/wagmi'
+import { parseEther } from 'viem'
+
+export function App() {
+  const addFunds = Hooks.useAddFunds()
+
+  return (
+    <button onClick={() => addFunds.mutate({
+      value: parseEther('1') // 1 ETH
+    })}>Add 1 ETH</button>
+  )
+}
+```
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const response = await provider.request({
+      method: 'wallet_addFunds',
+      params: [{
+        value: `0x${parseEther('0.1').toString(16)}` // 0.1 ETH
+      }]
+    })
+
+    return response
+  }}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>
+
+## Add ERC20 Tokens
+
+You can add ERC20 tokens by providing the `token` parameter:
+
+```tsx twoslash
+import * as React from 'react'
+// ---cut---
+import { Hooks } from 'porto/wagmi'
+import { parseUnits } from 'viem'
+
+const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+export function App() {
+  const addFunds = Hooks.useAddFunds()
+
+  return (
+    <button onClick={() => addFunds.mutate({
+      token: USDC_ADDRESS, // [!code focus]
+      value: parseUnits('100', 6) // 100 USDC (6 decimals) // [!code focus]
+    })}>Add 100 USDC</button>
+  )
+}
+```
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to add funds to. If not provided, will use the connected account.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+
+function Example() {
+  const addFunds = Hooks.useAddFunds()
+  
+  addFunds.mutate({
+    address: '0x...', // [!code focus]
+    value: parseEther('1')
+  })
+}
+```
+
+### chainId
+
+`number | undefined`
+
+Chain ID to add funds on. If not provided, will use the current chain.
+
+### connector
+
+`Connector | CreateConnectorFn | undefined`
+
+The connector to use. If not provided, will use the current connector.
+
+### token
+
+`Address | undefined`
+
+ERC20 token address to add funds in. If not provided, native token (ETH) will be used.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+import { parseUnits } from 'viem'
+
+function Example() {
+  const addFunds = Hooks.useAddFunds()
+  
+  addFunds.mutate({
+    token: '0x...', // ERC20 token address // [!code focus]
+    value: parseUnits('50', 18) // Amount with token decimals
+  })
+}
+```
+
+### value
+
+`bigint | undefined`
+
+Amount to add. The value should be in the smallest unit of the token (wei for ETH, or the token's smallest unit).
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+import { parseEther } from 'viem'
+
+function Example() {
+  const addFunds = Hooks.useAddFunds()
+  
+  addFunds.mutate({
+    value: parseEther('0.5') // 0.5 ETH // [!code focus]
+  })
+}
+```
+
+### onError
+
+`((error: Error, variables: AddFundsParameters, context: unknown) => void) | undefined`
+
+Function to invoke if the mutation encounters an error.
+
+### onMutate
+
+`((variables: AddFundsParameters) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke before the mutation function and before `onSuccess` or `onError` are invoked.
+
+### onSettled
+
+`((data: unknown, error: Error | null, variables: AddFundsParameters, context: unknown) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke when the mutation is settled (either succeeded or failed).
+
+### onSuccess
+
+`((data: unknown, variables: AddFundsParameters, context: unknown) => Promise<unknown> | unknown) | undefined`
+
+Function to invoke if the mutation is successful.
+
+## Return Type
+
+```tsx
+UseMutationResult<AddFundsReturnType, Error, AddFundsParameters>
+```
+
+Returns a [`TanStack Query` mutation result](https://tanstack.com/query/latest/docs/react/reference/useMutation) with the following properties:
+
+### data
+
+`AddFundsReturnType | undefined`
+
+Data returned from the mutation.
+
+```ts
+type AddFundsReturnType = {
+  /** Transaction ID */
+  id: `0x${string}`
+}
+```
+
+### error
+
+`Error | null`
+
+Error encountered during mutation execution, if any.
+
+### isError
+
+`boolean`
+
+True if the mutation encountered an error.
+
+### isIdle
+
+`boolean`
+
+True if the mutation has not been called yet.
+
+### isLoading
+
+`boolean`
+
+True if the mutation is in a loading state.
+
+### isPending
+
+`boolean`
+
+True if the mutation is in a pending state.
+
+### isSuccess
+
+`boolean`
+
+True if the mutation was successful.
+
+### mutate
+
+`(variables: AddFundsParameters) => void`
+
+Function to trigger the mutation.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+import { parseEther } from 'viem'
+
+function Example() {
+  const addFunds = Hooks.useAddFunds()
+  
+  return (
+    <button onClick={() => addFunds.mutate({ // [!code focus]
+      value: parseEther('1') // [!code focus]
+    })}>Add Funds</button> // [!code focus]
+  )
+}
+```
+
+### mutateAsync
+
+`(variables: AddFundsParameters) => Promise<AddFundsReturnType>`
+
+Async function to trigger the mutation and get a promise that resolves when the mutation is complete.
+
+```tsx
+import { Hooks } from 'porto/wagmi'
+import { parseEther } from 'viem'
+
+function Example() {
+  const addFunds = Hooks.useAddFunds()
+  
+  const handleAddFunds = async () => {
+    try {
+      const result = await addFunds.mutateAsync({ // [!code focus]
+        value: parseEther('1') // [!code focus]
+      }) // [!code focus]
+      console.log('Transaction ID:', result.id)
+    } catch (error) {
+      console.error('Failed to add funds:', error)
+    }
+  }
+  
+  return <button onClick={handleAddFunds}>Add Funds</button>
+}
+```
+
+### reset
+
+`() => void`
+
+Function to reset the mutation state.
+
+### status
+
+`'error' | 'idle' | 'loading' | 'success'`
+
+Current status of the mutation.
