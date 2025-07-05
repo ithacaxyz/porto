@@ -13,9 +13,10 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
     "types": ["node", "@cloudflare/workers-types"]
   },
-  "include": ["./scripts/*", "./src/**/*"],
+  "include": ["./src/**/*"],
   "files": ["env.d.ts"],
-  "exclude": ["_", "dist", "node_modules"]
+  "exclude": ["**/_/**", "dist", "node_modules"]
 }
