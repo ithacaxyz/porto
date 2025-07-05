@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.43
+
+### Patch Changes
+
+- [#545](https://github.com/ithacaxyz/porto/pull/545) [`cc70616`](https://github.com/ithacaxyz/porto/commit/cc706167b33f7590ff113394e6e76ca232a87d57) Thanks [@jxom](https://github.com/jxom)! - Added `typedData` to `wallet_prepareCalls` return type.
+
+- [`fdb6a58`](https://github.com/ithacaxyz/porto/commit/fdb6a583fda53c672311bbea3cba655aa112808a) Thanks [@jxom](https://github.com/jxom)! - Added `prepareCalls` and `sendPreparedCalls` to `WalletActions`.
+
 ## 0.0.42
 
 ### Patch Changes
