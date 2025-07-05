@@ -1,4 +1,5 @@
 export {
+  addFunds,
   connect,
   disconnect,
   getAdmins,
