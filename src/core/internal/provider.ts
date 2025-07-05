@@ -954,7 +954,8 @@ export function from<
               nonce: rest.context.nonce,
             },
             digest,
-            key,
+            key: rest.key,
+            typedData: rest.typedData,
           }) satisfies Typebox.Static<typeof Rpc.wallet_prepareCalls.Response>
         }
 

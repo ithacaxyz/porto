@@ -183,7 +183,7 @@ export async function prepareCalls<
     })
   }
 
-  const { capabilities, context, digest } = await (async () => {
+  const { capabilities, context, digest, typedData } = await (async () => {
     if (merchantRpcUrl) {
       const client_ = createClient({
         chain: client.chain,
@@ -205,6 +205,7 @@ export async function prepareCalls<
     context,
     digest,
     key,
+    typedData,
   } as const
 }
 
@@ -251,6 +252,7 @@ export namespace prepareCalls {
     context: ServerActions.prepareCalls.ReturnType['context']
     digest: ServerActions.prepareCalls.ReturnType['digest']
     key: Parameters['key']
+    typedData: ServerActions.prepareCalls.ReturnType['typedData']
   }
 
   export type ErrorType =

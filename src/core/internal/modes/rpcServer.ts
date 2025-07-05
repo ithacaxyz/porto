@@ -473,11 +473,20 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, key, merchantRpcUrl } = parameters
+        const { account, calls, internal, merchantRpcUrl } = parameters
         const {
           client,
           config: { storage },
         } = internal
+
+        // Try and extract an authorized key to sign the calls with.
+        const key =
+          parameters.key ??
+          (await Mode.getAuthorizedExecuteKey({
+            account,
+            calls,
+          }))
+        if (!key) throw new Error('cannot find authorized key to sign with.')
 
         // Get pre-authorized keys to assign to the call bundle.
         const preCalls =
@@ -489,7 +498,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
-        const { capabilities, context, digest } =
+        const { capabilities, context, digest, typedData } =
           await ServerActions.prepareCalls(client, {
             account,
             calls,
@@ -514,6 +523,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           },
           digest,
           key,
+          typedData: typedData as TypedData.Definition,
         }
       },
 

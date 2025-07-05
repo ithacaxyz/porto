@@ -1,6 +1,7 @@
 import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
+import type * as TypedData from 'ox/TypedData'
 
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
@@ -174,7 +175,7 @@ export type Mode = {
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Key that will be used to sign over the digest. */
-      key: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'>
+      key?: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'> | undefined
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
       feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Internal properties. */
@@ -198,6 +199,8 @@ export type Mode = {
       digest: Hex.Hex
       /** Key that will sign over the digest. */
       key: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'>
+      /** EIP-712 typed data. */
+      typedData: TypedData.Definition
     }>
 
     prepareUpgradeAccount: (parameters: {

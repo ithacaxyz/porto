@@ -425,13 +425,20 @@ export function contract(parameters: contract.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { internal, key } = parameters
+        const { account, calls, internal } = parameters
         const { client } = internal
 
-        const { request, digests } = await ContractActions.prepareExecute(
-          client,
-          parameters,
-        )
+        // Try and extract an authorized key to sign the calls with.
+        const key =
+          parameters.key ??
+          (await Mode.getAuthorizedExecuteKey({
+            account,
+            calls,
+          }))
+        if (!key) throw new Error('cannot find authorized key to sign with.')
+
+        const { request, digests, typedData } =
+          await ContractActions.prepareExecute(client, parameters)
 
         return {
           account: request.account,
@@ -439,6 +446,7 @@ export function contract(parameters: contract.Parameters = {}) {
           context: { calls: request.calls, nonce: request.nonce },
           digest: digests.exec,
           key,
+          typedData,
         }
       },
 

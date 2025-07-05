@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
+import type * as TypedData from 'ox/TypedData'
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
 import * as Dialog from '../../Dialog.js'
@@ -544,6 +545,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           context: result.context as any,
           digest: result.digest,
           key: result.key,
+          typedData: result.typedData as unknown as TypedData.Definition,
         }
       },
 

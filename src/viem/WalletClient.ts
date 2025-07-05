@@ -1,7 +1,9 @@
 import {
+  type Address,
   type ClientConfig,
   createClient,
   custom,
+  type JsonRpcAccount,
   type Transport,
   type Client as viem_Client,
 } from 'viem'
@@ -14,8 +16,16 @@ import type * as RpcSchema from './RpcSchema.js'
 export type WalletClient<
   transport extends Transport = Transport,
   chain extends Chains.Chain | undefined = Chains.Chain | undefined,
-  account extends Account.Account | undefined = Account.Account | undefined,
-> = viem_Client<transport, chain, account, RpcSchema.Wallet>
+  account extends Account.Account | Address | undefined =
+    | Account.Account
+    | Address
+    | undefined,
+> = viem_Client<
+  transport,
+  chain,
+  account extends Address ? JsonRpcAccount<account> : account,
+  RpcSchema.Wallet
+>
 
 const clientCache = new Map<string, any>()
 
@@ -28,7 +38,7 @@ const clientCache = new Map<string, any>()
 export function fromPorto<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]],
   chain extends Chains.Chain | undefined = undefined,
-  account extends Account.Account | undefined = undefined,
+  account extends Account.Account | Address | undefined = undefined,
 >(
   porto: {
     _internal: Internal<chains>
@@ -53,7 +63,10 @@ export function fromPorto<
 export declare namespace fromPorto {
   type Config<
     chain extends Chains.Chain | undefined = Chains.Chain | undefined,
-    account extends Account.Account | undefined = Account.Account | undefined,
+    account extends Account.Account | Address | undefined =
+      | Account.Account
+      | Address
+      | undefined,
   > = Pick<
     ClientConfig<Transport, chain, account>,
     'account' | 'cacheTime' | 'chain' | 'key' | 'name' | 'pollingInterval'

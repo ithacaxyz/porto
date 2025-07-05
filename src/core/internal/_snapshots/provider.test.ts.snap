@@ -9,6 +9,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -27,6 +28,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
         },
       ],
     },
+    "prehash": false,
     "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
     "role": "session",
     "type": "p256",
@@ -41,6 +43,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -87,6 +90,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` capability >
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -117,6 +121,7 @@ exports[`contract > wallet_connect > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": null,
     "publicKey": null,
     "role": "admin",
@@ -359,6 +364,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -377,6 +383,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
         },
       ],
     },
+    "prehash": false,
     "publicKey": null,
     "role": "session",
     "type": "p256",
@@ -398,6 +405,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
         },
       ],
     },
+    "prehash": false,
     "publicKey": null,
     "role": "session",
     "type": "address",
@@ -418,6 +426,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -452,6 +461,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -463,6 +473,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
+    "prehash": false,
     "publicKey": null,
     "role": "admin",
     "type": "address",
@@ -477,6 +488,7 @@ exports[`contract > wallet_revokeAdmin > default 2`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -496,6 +508,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -530,6 +543,7 @@ exports[`contract > wallet_revokePermissions > default 2`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -559,6 +573,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -577,6 +592,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
         },
       ],
     },
+    "prehash": false,
     "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
     "role": "session",
     "type": "p256",
@@ -591,6 +607,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -637,6 +654,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability >
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -667,6 +685,7 @@ exports[`rpcServer > wallet_connect > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": {},
+    "prehash": false,
     "privateKey": null,
     "publicKey": null,
     "role": "admin",
@@ -992,6 +1011,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1010,6 +1030,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
         },
       ],
     },
+    "prehash": false,
     "publicKey": null,
     "role": "session",
     "type": "p256",
@@ -1031,6 +1052,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
         },
       ],
     },
+    "prehash": false,
     "publicKey": null,
     "role": "session",
     "type": "address",
@@ -1051,6 +1073,7 @@ exports[`rpcServer > wallet_grantPermissions > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1085,6 +1108,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1096,6 +1120,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
+    "prehash": false,
     "publicKey": null,
     "role": "admin",
     "type": "address",
@@ -1110,6 +1135,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 2`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1129,6 +1155,7 @@ exports[`rpcServer > wallet_revokePermissions > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1163,6 +1190,7 @@ exports[`rpcServer > wallet_revokePermissions > default 2`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },

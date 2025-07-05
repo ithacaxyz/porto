@@ -427,7 +427,7 @@ export function deserialize(serialized: Serialized): Key {
 export function from<type extends Key['type']>(
   key: from.Value<type>,
 ): Extract<Key, { type: type }> {
-  const { expiry = 0, id, role = 'admin', type } = key
+  const { expiry = 0, id, prehash = false, role = 'admin', type } = key
 
   const publicKey = (() => {
     const publicKey = key.publicKey
@@ -452,6 +452,7 @@ export function from<type extends Key['type']>(
       type,
     }),
     id: (id ?? publicKey).toLowerCase() as Hex.Hex,
+    prehash,
     publicKey: publicKey.toLowerCase() as Hex.Hex,
     role,
     type,

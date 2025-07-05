@@ -534,16 +534,18 @@ export namespace wallet_prepareCalls {
     capabilities: Typebox.Optional(Capabilities),
     chainId: Typebox.Optional(Primitive.Number),
     from: Typebox.Optional(Primitive.Address),
-    key: Type.Object({
-      prehash: Typebox.Optional(Type.Boolean()),
-      publicKey: Primitive.Hex,
-      type: Type.Union([
-        Type.Literal('p256'),
-        Type.Literal('secp256k1'),
-        Type.Literal('webauthn-p256'),
-        Type.Literal('address'),
-      ]),
-    }),
+    key: Type.Optional(
+      Type.Object({
+        prehash: Typebox.Optional(Type.Boolean()),
+        publicKey: Primitive.Hex,
+        type: Type.Union([
+          Type.Literal('p256'),
+          Type.Literal('secp256k1'),
+          Type.Literal('webauthn-p256'),
+          Type.Literal('address'),
+        ]),
+      }),
+    ),
     version: Typebox.Optional(Type.String()),
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>
@@ -573,7 +575,18 @@ export namespace wallet_prepareCalls {
       quote: Typebox.Optional(Type.Partial(Quote.Quote)),
     }),
     digest: Primitive.Hex,
-    key: Parameters.properties.key,
+    key: Type.Object(Parameters.properties.key.properties),
+    typedData: Type.Object({
+      domain: Type.Object({
+        chainId: Type.Number(),
+        name: Type.String(),
+        verifyingContract: Primitive.Address,
+        version: Type.String(),
+      }),
+      message: Type.Record(Type.String(), Type.Unknown()),
+      primaryType: Type.String(),
+      types: Type.Record(Type.String(), Type.Unknown()),
+    }),
   })
   export type Response = Typebox.StaticDecode<typeof Response>
 }
@@ -628,7 +641,7 @@ export namespace wallet_sendPreparedCalls {
     capabilities: wallet_prepareCalls.Response.properties.capabilities,
     chainId: Primitive.Hex,
     context: wallet_prepareCalls.Response.properties.context,
-    key: wallet_prepareCalls.Response.properties.key,
+    key: Type.Object(wallet_prepareCalls.Response.properties.key.properties),
     signature: Primitive.Hex,
   })
   export type Parameters = Typebox.StaticDecode<typeof Parameters>

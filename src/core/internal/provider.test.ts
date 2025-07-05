@@ -12,7 +12,12 @@ import {
 import { Key, Mode } from 'porto'
 import { MerchantRpc } from 'porto/server'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
-import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
+import {
+  readContract,
+  setCode,
+  signTypedData,
+  waitForCallsStatus,
+} from 'viem/actions'
 import { verifySiweMessage } from 'viem/siwe'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -2431,7 +2436,6 @@ describe.each([
           params: [
             {
               ...request,
-              key,
               signature: Signature.toHex(signature),
             },
           ],
@@ -2628,7 +2632,6 @@ describe.each([
           params: [
             {
               ...request,
-              key,
               signature: Signature.toHex(signature),
             },
           ],
@@ -2718,7 +2721,6 @@ describe.each([
           params: [
             {
               ...request,
-              key,
               signature: Signature.toHex(signature),
             },
           ],
@@ -2737,6 +2739,90 @@ describe.each([
           }),
         ).toBe(40_000n)
       })
+    })
+
+    test.runIf(type === 'rpcServer')('behavior: sign typed data', async () => {
+      const { porto } = getPorto()
+      const client = ServerClient.fromPorto(porto).extend(() => ({
+        mode: 'anvil',
+      }))
+
+      const { accounts } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+
+      const walletClient = WalletClient.fromPorto(porto, {
+        account: accounts[0]!.address,
+      })
+
+      await setBalance(client, {
+        address: accounts[0]?.address!,
+        value: Value.fromEther('10000'),
+      })
+
+      const alice = Hex.random(20)
+
+      const { typedData, ...request } = await porto.provider.request({
+        method: 'wallet_prepareCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 40_000n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
+              },
+            ],
+          },
+        ],
+      })
+
+      const signature = await signTypedData(walletClient, typedData)
+
+      const { valid } = await porto.provider.request({
+        method: 'wallet_verifySignature',
+        params: [
+          {
+            address: walletClient.account.address,
+            digest: hashTypedData(typedData),
+            signature,
+          },
+        ],
+      })
+      expect(valid).toBe(true)
+
+      const result = await porto.provider.request({
+        method: 'wallet_sendPreparedCalls',
+        params: [
+          {
+            ...request,
+            signature,
+          },
+        ],
+      })
+
+      await waitForCallsStatus(walletClient, {
+        id: result[0]!.id,
+      })
+
+      expect(
+        await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [alice],
+          functionName: 'balanceOf',
+        }),
+      ).toBe(40_000n)
     })
   })
 
