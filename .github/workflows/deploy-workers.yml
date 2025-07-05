@@ -6,7 +6,7 @@ on:
     paths:
       - 'apps/faucet/**'
       - 'apps/verify/**'
-      # - 'apps/octopus/**'
+      - 'apps/service/**'
   workflow_dispatch:
 
 concurrency:
@@ -29,6 +29,7 @@ jobs:
         worker:
           - faucet
           - verify
+          - service
           # until consolidation is done
           # - octopus
     steps:
