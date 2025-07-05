@@ -100,6 +100,37 @@ export async function disconnect(client: Client) {
   })
 }
 
+export async function addFunds(
+  client: Client,
+  parameters: addFunds.Parameters,
+): Promise<addFunds.ReturnType> {
+  const method = 'wallet_addFunds' as const
+  type Method = typeof method
+  const response = await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [Typebox.Encode(RpcSchema.wallet_addFunds.Parameters, parameters)],
+  })
+
+  return Typebox.Decode(
+    RpcSchema.wallet_addFunds.Response,
+    response satisfies Typebox.Static<
+      typeof RpcSchema.wallet_addFunds.Response
+    >,
+  )
+}
+
+export declare namespace addFunds {
+  type Parameters = Typebox.StaticDecode<
+    typeof RpcSchema.wallet_addFunds.Parameters
+  >
+
+  type ReturnType = Typebox.StaticDecode<
+    typeof RpcSchema.wallet_addFunds.Response
+  >
+}
+
 export async function getAdmins(
   client: Client,
   parameters: getAdmins.Parameters = {},

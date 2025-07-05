@@ -153,6 +153,32 @@ export declare namespace disconnect {
   type ErrorType = BaseError
 }
 
+export async function addFunds<config extends Config>(
+  config: config,
+  parameters: addFunds.Parameters<config>,
+): Promise<addFunds.ReturnType> {
+  const { address, chainId, connector } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: address,
+    chainId,
+    connector,
+  })
+
+  return WalletActions.addFunds(client, parameters)
+}
+
+export declare namespace addFunds {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    WalletActions.addFunds.Parameters
+
+  type ReturnType = WalletActions.addFunds.ReturnType
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
 export async function getAdmins<config extends Config>(
   config: config,
   parameters: getAdmins.Parameters<config>,

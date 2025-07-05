@@ -25,6 +25,7 @@ import type {
 import * as Typebox from '../../core/internal/typebox/typebox.js'
 import * as RpcSchema from '../../core/RpcSchema.js'
 import {
+  addFunds,
   connect,
   disconnect,
   getAdmins,
@@ -38,6 +39,51 @@ import {
 } from './core.js'
 import { getAdminsQueryKey, getPermissionsQueryKey } from './query.js'
 import type { ConfigParameter } from './types.js'
+
+export function useAddFunds<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useAddFunds.Parameters<config, context> = {},
+): useAddFunds.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return addFunds(config, variables)
+    },
+    mutationKey: ['addFunds'],
+  })
+}
+
+export declare namespace useAddFunds {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> &
+    addFunds.Parameters<config> &
+    ConfigParameter<config> & {
+      mutation?:
+        | UseMutationParameters<
+            addFunds.ReturnType,
+            addFunds.ErrorType,
+            addFunds.Parameters<config>,
+            context
+          >
+        | undefined
+    }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    addFunds.ReturnType,
+    addFunds.ErrorType,
+    addFunds.Parameters<config>,
+    context
+  >
+}
 
 export function useAdmins<
   config extends Config = ResolvedRegister['config'],

@@ -57,6 +57,7 @@ export function App() {
           <GrantPermissions />
           <GrantAdmin />
           <Mint />
+          <AddFunds />
         </>
       )}
     </>
@@ -344,6 +345,36 @@ function Mint() {
       {error && (
         <div>Error: {(error as BaseError).shortMessage || error.message}</div>
       )}
+    </div>
+  )
+}
+
+function AddFunds() {
+  const chainId = useChainId()
+  const { address } = useAccount()
+
+  const { data, status, error, ...addFunds } = Hooks.useAddFunds()
+
+  return (
+    <div>
+      <h2>Add Funds</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (!address) return
+          addFunds.mutate({ address, chainId })
+        }}
+      >
+        <button disabled={addFunds.isPending} type="submit">
+          {addFunds.isPending ? 'Pending…' : 'Add Funds'}
+        </button>
+      </form>
+      <br />
+      {data?.id && <div>Transaction Hash: {data.id}</div>}
+      {addFunds.isError && (
+        <div>Error: {(error as BaseError).shortMessage || error?.message}</div>
+      )}
+      <br />
     </div>
   )
 }
