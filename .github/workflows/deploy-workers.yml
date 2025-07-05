@@ -3,6 +3,10 @@ name: Deploy Workers
 on:
   push:
     branches: [main]
+    paths:
+      - 'apps/faucet/**'
+      - 'apps/verify/**'
+      # - 'apps/octopus/**'
   workflow_dispatch:
 
 concurrency:
@@ -22,7 +26,10 @@ jobs:
     runs-on: ['ubuntu-latest']
     strategy:
       matrix:
-        worker: [faucet, verify, octopus]
+        worker:
+          - faucet
+          - verify
+          # - octopus
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
