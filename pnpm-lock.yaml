@@ -595,34 +595,6 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.8.3)(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))
 
-  apps/octopus:
-    dependencies:
-      '@porto/apps':
-        specifier: workspace:*
-        version: link:../~internal
-      hono:
-        specifier: ^4.7.10
-        version: 4.7.10
-      porto:
-        specifier: workspace:*
-        version: link:../../src
-      viem:
-        specifier: 'catalog:'
-        version: 2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28)
-    devDependencies:
-      '@cloudflare/workers-types':
-        specifier: ^4.20250703.0
-        version: 4.20250703.0
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.15.32
-      typescript:
-        specifier: 'catalog:'
-        version: 5.8.3
-      wrangler:
-        specifier: ^4.23.0
-        version: 4.23.0(@cloudflare/workers-types@4.20250703.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-
   apps/playground:
     dependencies:
       '@porto/apps':
@@ -680,6 +652,34 @@ importers:
       vite-plugin-mkcert:
         specifier: 'catalog:'
         version: 1.17.8(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))
+
+  apps/service:
+    dependencies:
+      '@porto/apps':
+        specifier: workspace:*
+        version: link:../~internal
+      hono:
+        specifier: ^4.8.4
+        version: 4.8.4
+      porto:
+        specifier: workspace:*
+        version: link:../../src
+      viem:
+        specifier: 'catalog:'
+        version: 2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28)
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20250705.0
+        version: 4.20250705.0
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.15.32
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      wrangler:
+        specifier: ^4.23.0
+        version: 4.23.0(@cloudflare/workers-types@4.20250705.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
   apps/verify:
     devDependencies:
@@ -1621,8 +1621,8 @@ packages:
   '@cloudflare/workers-types@4.20250628.0':
     resolution: {integrity: sha512-V4HthfhtQU2vTpwLeUic8FTLgGSjglsGZMJc9jKBNYEU/k0A1rE55UgQoTb5blKQdGtpQKfVKs3FROeY/lXmbw==}
 
-  '@cloudflare/workers-types@4.20250703.0':
-    resolution: {integrity: sha512-6ITY5VL2eDkwFVWtF4OSsLIalyuwAE8/eH76fFn1KNGsH5V8JdjYriFTa/3YaJ+mzt4n4X6Hv06zrg00IKBTIA==}
+  '@cloudflare/workers-types@4.20250705.0':
+    resolution: {integrity: sha512-+eKIUEW0loB+CCgkfpa6UCTacnn3YOCllLpLbKfwR0qdoIfzmeOpadqY/W6ZSi/9v0tpQqTPB80tkhu7a7Cyug==}
 
   '@coinbase/wallet-sdk@3.9.3':
     resolution: {integrity: sha512-N/A2DRIf0Y3PHc1XAMvbBUu4zisna6qAdqABMZwBMNEfWrXpAwx16pZGkYCLGE+Rvv1edbcB2LYDRnACNcmCiw==}
@@ -6297,6 +6297,10 @@ packages:
     resolution: {integrity: sha512-QkACju9MiN59CKSY5JsGZCYmPZkA6sIW6OFCUp7qDjZu6S6KHtJHhAc9Uy9mV9F8PJ1/HQ3ybZF2yjCa/73fvQ==}
     engines: {node: '>=16.9.0'}
 
+  hono@4.8.4:
+    resolution: {integrity: sha512-KOIBp1+iUs0HrKztM4EHiB2UtzZDTBihDtOF5K6+WaJjCPeaW4Q92R8j63jOhvJI5+tZSMuKD9REVEXXY9illg==}
+    engines: {node: '>=16.9.0'}
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -10377,7 +10381,7 @@ snapshots:
 
   '@cloudflare/workers-types@4.20250628.0': {}
 
-  '@cloudflare/workers-types@4.20250703.0': {}
+  '@cloudflare/workers-types@4.20250705.0': {}
 
   '@coinbase/wallet-sdk@3.9.3':
     dependencies:
@@ -16150,6 +16154,8 @@ snapshots:
 
   hono@4.7.10: {}
 
+  hono@4.8.4: {}
+
   hookable@5.5.3: {}
 
   html-escaper@2.0.2: {}
@@ -20262,7 +20268,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  wrangler@4.23.0(@cloudflare/workers-types@4.20250703.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10):
+  wrangler@4.23.0(@cloudflare/workers-types@4.20250705.0)(bufferutil@4.0.9)(utf-8-validate@5.0.10):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@cloudflare/unenv-preset': 2.3.3(unenv@2.0.0-rc.17)(workerd@1.20250617.0)
@@ -20273,7 +20279,7 @@ snapshots:
       unenv: 2.0.0-rc.17
       workerd: 1.20250617.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20250703.0
+      '@cloudflare/workers-types': 4.20250705.0
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
