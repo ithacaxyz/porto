@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.44
+
+### Patch Changes
+
+- [`f5a66e7`](https://github.com/ithacaxyz/porto/commit/f5a66e7e2d6ba47c4006120c571cb4a129f25e90) Thanks [@jxom](https://github.com/jxom)! - Fixed incompatible structured clone values.
+
 ## 0.0.43
 
 ### Patch Changes
