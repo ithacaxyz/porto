@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.45
+
+### Patch Changes
+
+- [`4b93cc8`](https://github.com/ithacaxyz/porto/commit/4b93cc81c5b2c4b21fa4ab836e2f332d2a808c49) Thanks [@jxom](https://github.com/jxom)! - Fixed `wallet_verifySignature` return type.
+
 ## 0.0.44
 
 ### Patch Changes
