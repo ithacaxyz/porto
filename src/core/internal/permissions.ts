@@ -3,6 +3,7 @@ import type * as Address from 'ox/Address'
 import * as Key from '../../viem/Key.js'
 import * as Permissions_ from './schema/permissions.js'
 
+// TODO(schema): refactor?
 export const Schema = Permissions_.Permissions
 
 export type Permissions = typeof Schema.Type
