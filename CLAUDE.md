@@ -177,7 +177,7 @@ forge test --config-path ./contracts/demo/foundry.toml
 ### Tests
 
 - You must run tests with `pnpm test:ci`.
-- Test file structure must have `describe` blocks that are 1:1 with module exports. 
+- Test file structure must have `describe` blocks that are 1:1 with module exports.
 - Favor `test` over `it`.
 - Lowercase `test` descriptions (e.g. `test('behavior: with foo')`)
 - `test` descriptions should be prefixed with category
@@ -193,6 +193,7 @@ forge test --config-path ./contracts/demo/foundry.toml
   - `test('misc: ...')`
 - Tests must prefer inline snapshots (`expect(foo).toMatchInlineSnapshot()`) over direct assertions.
 - For testing multiple similar cases, use `test.each()` instead of loops or repeated test blocks:
+
   ```typescript
   test.each([
     { input: 'case1', expected: 'result1' },
@@ -202,7 +203,9 @@ forge test --config-path ./contracts/demo/foundry.toml
     expect(result).toBe(expected)
   })
   ```
+
 - For encoding tests, use `Schema.encodeSync()` directly instead of `decodeUnknownSync -> encodeSync`:
+
   ```typescript
   // ✅ Good: Test encoding directly
   test('behavior: encodes BigInt to hex', () => {
@@ -217,7 +220,6 @@ forge test --config-path ./contracts/demo/foundry.toml
     expect(encoded).toEqual({ value: '0xff' })
   })
   ```
-
 
 ### PR Requirements
 
