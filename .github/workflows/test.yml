@@ -78,6 +78,7 @@ jobs:
       - name: Checkout contracts submodule at specific ref
         if: inputs.contracts-ref != ''
         run: |
+          git submodule update --init --recursive contracts/account
           cd contracts/account
           git fetch origin ${{ inputs.contracts-ref }}
           git checkout ${{ inputs.contracts-ref }}
