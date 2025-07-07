@@ -13,8 +13,8 @@ import {
   zeroAddress,
 } from 'viem'
 import type { Chain } from '../core/Chains.js'
-import type * as Capabilities from '../core/internal/rpcServer/typebox/capabilities.js'
-import type * as Quote from '../core/internal/rpcServer/typebox/quote.js'
+import type * as Capabilities from '../core/internal/rpcServer/schema/capabilities.js'
+import type * as Quote from '../core/internal/rpcServer/schema/quote.js'
 import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
 import * as Account from './Account.js'
 import * as ServerActions from './internal/serverActions.js'

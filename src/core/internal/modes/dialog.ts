@@ -2,7 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
-import type * as TypedData from 'ox/TypedData'
+
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
 import * as Dialog from '../../Dialog.js'
@@ -14,9 +14,9 @@ import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
 import * as PreCalls from '../preCalls.js'
+import type * as FeeToken from '../schema/feeToken.js'
+import * as Schema from '../schema/schema.js'
 import * as Siwe from '../siwe.js'
-import type * as FeeToken from '../typebox/feeToken.js'
-import * as Typebox from '../typebox/typebox.js'
 import * as U from '../utils.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
@@ -149,8 +149,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             // Convert the key into a permission.
             const permissionsRequest = key
-              ? Typebox.Encode(
-                  PermissionsRequest.Schema,
+              ? Schema.encodeSync(PermissionsRequest.Schema)(
                   PermissionsRequest.fromKey(key),
                 )
               : undefined
@@ -188,7 +187,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 if (permission.id === key?.id) return key
                 try {
                   return Permissions.toKey(
-                    Typebox.Decode(Permissions.Schema, permission),
+                    Schema.decodeSync(Permissions.Schema)(permission),
                   )
                 } catch {
                   return undefined
@@ -303,11 +302,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
           ],
         })
 
-        const keys = Typebox.Decode(
-          RpcSchema_porto.wallet_getKeys.Response,
-          result satisfies Typebox.Static<
-            typeof RpcSchema_porto.wallet_getKeys.Response
-          >,
+        const keys = Schema.decodeSync(RpcSchema_porto.wallet_getKeys.Response)(
+          result,
         )
 
         return U.uniqBy(
@@ -369,8 +365,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const key = await PermissionsRequest.toKey(permissions)
         if (!key) throw new Error('no key found.')
 
-        const permissionsRequest = Typebox.Encode(
-          PermissionsRequest.Schema,
+        const permissionsRequest = Schema.encodeSync(PermissionsRequest.Schema)(
           PermissionsRequest.fromKey(key),
         )
 
@@ -422,8 +417,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
           // Convert the key into a permissions request.
           const permissionsRequest = key
-            ? Typebox.Encode(
-                PermissionsRequest.Schema,
+            ? Schema.encodeSync(PermissionsRequest.Schema)(
                 PermissionsRequest.fromKey(key),
               )
             : undefined
@@ -469,7 +463,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ?.map((permission) => {
                   try {
                     const key_ = Permissions.toKey(
-                      Typebox.Decode(Permissions.Schema, permission),
+                      Schema.decodeSync(Permissions.Schema)(permission),
                     )
                     if (key_.id === key?.id) return key
                     return key_
@@ -545,7 +539,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           context: result.context as any,
           digest: result.digest,
           key: result.key,
-          typedData: result.typedData as unknown as TypedData.Definition,
+          typedData: result.typedData,
         }
       },
 
@@ -568,8 +562,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // Convert the key into a permission.
         const permissionsRequest = key
-          ? Typebox.Encode(
-              PermissionsRequest.Schema,
+          ? Schema.encodeSync(PermissionsRequest.Schema)(
               PermissionsRequest.fromKey(key),
             )
           : undefined
@@ -690,7 +683,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           try {
             // TODO: use eventual Viem Action.
             const req = await provider.request(
-              Typebox.Encode(RpcSchema_porto.wallet_prepareCalls.Request, {
+              Schema.encodeSync(RpcSchema_porto.wallet_prepareCalls.Request)({
                 method: 'wallet_prepareCalls',
                 params: [
                   {
@@ -708,7 +701,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     key,
                   },
                 ],
-              } satisfies RpcSchema_porto.wallet_prepareCalls.Request),
+              }),
             )
 
             const signature = await Key.sign(key, {

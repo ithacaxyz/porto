@@ -1,7 +1,7 @@
 import { Button, Spinner } from '@porto/apps/components'
 import type { UseQueryResult } from '@tanstack/react-query'
 import type { Address } from 'ox'
-import type * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
+import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import * as React from 'react'
 import * as FeeToken from '~/lib/FeeToken'
 import { AddFunds } from '~/routes/-components/AddFunds'
@@ -89,7 +89,7 @@ export namespace CheckBalance {
     address?: Address.Address | undefined
     chainId?: number | undefined
     children: React.ReactNode
-    feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
+    feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     onReject: () => void
     query: UseQueryResult
   }

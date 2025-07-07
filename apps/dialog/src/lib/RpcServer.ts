@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { type Address, Json } from 'ox'
 import { Account, ServerActions } from 'porto'
-import type * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken'
+import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
 
 import * as FeeToken from './FeeToken'
@@ -71,7 +71,7 @@ export declare namespace usePrepareCalls {
       address?: Address.Address | undefined
       chainId?: number | undefined
       enabled?: boolean | undefined
-      feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
+      feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
       merchantRpcUrl?: string | undefined
     }
 }

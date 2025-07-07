@@ -4,11 +4,10 @@
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/intent.rs
  */
 
-import * as Primitive from '../../typebox/primitive.js'
-import type * as Typebox from '../../typebox/typebox.js'
-import { Type } from '../../typebox/typebox.js'
+import * as Schema from 'effect/Schema'
+import * as Primitive from '../../schema/primitive.js'
 
-export const Intent = Type.Object({
+export const Intent = Schema.Struct({
   /** The combined gas limit for payment, verification, and calling the EOA. */
   combinedGas: Primitive.BigInt,
   /**
@@ -25,7 +24,7 @@ export const Intent = Type.Object({
    * The `encodedPreCalls` are included in the EIP712 signature, which enables execution order
    * to be enforced on-the-fly even if the nonces are from different sequences.
    */
-  encodedPreCalls: Type.Array(Primitive.Hex),
+  encodedPreCalls: Schema.Array(Primitive.Hex),
   /** Users address. */
   eoa: Primitive.Address,
   /**
@@ -120,11 +119,11 @@ export const Intent = Type.Object({
    */
   totalPaymentMaxAmount: Primitive.BigInt,
 })
-export type Intent = Typebox.StaticDecode<typeof Intent>
+export type Intent = typeof Intent.Type
 
-export const Partial = Type.Object({
+export const Partial = Schema.Struct({
   eoa: Primitive.Address,
   executionData: Primitive.Hex,
   nonce: Primitive.BigInt,
 })
-export type Partial = Typebox.StaticDecode<typeof Partial>
+export type Partial = typeof Partial.Type

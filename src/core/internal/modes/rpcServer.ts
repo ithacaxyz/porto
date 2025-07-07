@@ -21,8 +21,8 @@ import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
+import type * as FeeToken from '../schema/feeToken.js'
 import * as Siwe from '../siwe.js'
-import type * as FeeToken from '../typebox/feeToken.js'
 import * as U from '../utils.js'
 
 export const defaultPermissionsFeeLimit = {
@@ -523,7 +523,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           },
           digest,
           key,
-          typedData: typedData as TypedData.Definition,
+          typedData,
         }
       },
 

@@ -12,9 +12,9 @@ import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as Call from '../core/internal/call.js'
-import type * as ServerKey_typebox from '../core/internal/rpcServer/typebox/key.js'
-import type * as ServerPermission_typebox from '../core/internal/rpcServer/typebox/permission.js'
-import type * as Key_typebox from '../core/internal/typebox/key.js'
+import type * as ServerKey_schema from '../core/internal/rpcServer/schema/key.js'
+import type * as ServerPermission_schema from '../core/internal/rpcServer/schema/permission.js'
+import type * as Key_schema from '../core/internal/schema/key.js'
 import type {
   Compute,
   ExactPartial,
@@ -33,7 +33,7 @@ export type BaseKey<
   type extends string = string,
   privateKey = unknown,
 > = Compute<
-  Key_typebox.WithPermissions & {
+  Key_schema.WithPermissions & {
     /** Whether the key will need its digest (SHA256) prehashed when signing. */
     prehash?: boolean | undefined
     /** Private key. */
@@ -63,10 +63,10 @@ export type WebAuthnKey = BaseKey<
   >
 >
 
-export type Permissions = Key_typebox.Permissions
+export type Permissions = Key_schema.Permissions
 
 /** RPC (server-compatible) format of a key. */
-export type Server = ServerKey_typebox.WithPermissions
+export type Server = ServerKey_schema.WithPermissions
 
 /** Serialized (contract-compatible) format of a key. */
 export type Serialized = {
@@ -76,7 +76,7 @@ export type Serialized = {
   publicKey: Hex.Hex
 }
 
-export type SpendPermissions = Key_typebox.SpendPermissions
+export type SpendPermissions = Key_schema.SpendPermissions
 export type SpendPermission = SpendPermissions[number]
 
 /** RPC Server key type to key type mapping. */
@@ -526,8 +526,8 @@ export declare namespace fromP256 {
  */
 export function fromRpcServer(serverKey: Server): Key {
   const permissions: {
-    calls?: Mutable<Key_typebox.CallPermissions> | undefined
-    spend?: Mutable<Key_typebox.SpendPermissions> | undefined
+    calls?: Mutable<Key_schema.CallPermissions> | undefined
+    spend?: Mutable<Key_schema.SpendPermissions> | undefined
   } = {}
 
   for (const permission of serverKey.permissions) {
@@ -975,7 +975,7 @@ export function toRpcServer(
   const permissions = Object.entries(key.permissions ?? {})
     .map(([key, v]) => {
       if (key === 'calls') {
-        const calls = v as Key_typebox.CallPermissions
+        const calls = v as Key_schema.CallPermissions
         return calls.map(({ signature, to }) => {
           const selector = (() => {
             if (!signature) return Call.anySelector
@@ -986,19 +986,19 @@ export function toRpcServer(
             selector,
             to: to ?? Call.anyTarget,
             type: 'call',
-          } as const satisfies ServerPermission_typebox.CallPermission
+          } as const satisfies ServerPermission_schema.CallPermission
         })
       }
 
       if (key === 'spend') {
-        const value = v as Key_typebox.SpendPermissions
+        const value = v as Key_schema.SpendPermissions
         return value.map(({ limit, period, token }) => {
           return {
             limit,
             period,
             token,
             type: 'spend',
-          } as const satisfies ServerPermission_typebox.SpendPermission
+          } as const satisfies ServerPermission_schema.SpendPermission
         })
       }
 

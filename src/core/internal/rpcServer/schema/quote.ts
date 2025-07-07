@@ -4,24 +4,22 @@
  * @see https://github.com/ithacaxyz/relay/blob/main/src/types/quote.rs
  */
 
-import * as Primitive from '../../typebox/primitive.js'
-import * as Typebox from '../../typebox/typebox.js'
-import { Type } from '../../typebox/typebox.js'
+import * as Schema from 'effect/Schema'
+import * as Primitive from '../../schema/primitive.js'
 import * as Intent from './intent.js'
 
 /** A quote from the RPC for a given `Intent`. */
-export const Quote = Type.Object({
+export const Quote = Schema.Struct({
   /**
    * An optional unsigned authorization item.
    * The account in `eoa` will be delegated to this address.
    */
-  authorizationAddress: Typebox.OneOf([
-    Typebox.Optional(Primitive.Address),
-    Type.Null(),
-  ]),
+  authorizationAddress: Schema.optional(
+    Schema.Union(Primitive.Address, Schema.Null),
+  ),
   /** Chain ID the quote is for. */
   // TODO: `Primitive.Number`
-  chainId: Type.Number(),
+  chainId: Schema.Number,
   /** The price (in wei) of ETH in the payment token. */
   ethPrice: Primitive.BigInt,
   /** Extra payment for e.g L1 DA fee that is paid on top of the execution gas. */
@@ -29,7 +27,7 @@ export const Quote = Type.Object({
   /** The fee estimate for the bundle in the destination chains native token. */
   intent: Intent.Intent,
   /** The `Intent` the quote is for. */
-  nativeFeeEstimate: Type.Object({
+  nativeFeeEstimate: Schema.Struct({
     /** The maximum fee per gas for the bundle. */
     maxFeePerGas: Primitive.BigInt,
     /** The maximum priority fee per gas for the bundle. */
@@ -38,22 +36,22 @@ export const Quote = Type.Object({
   /** The orchestrator for the quote. */
   orchestrator: Primitive.Address,
   /** The decimals of the payment token. */
-  paymentTokenDecimals: Type.Number(),
+  paymentTokenDecimals: Schema.Number,
   /** The time-to-live of the quote. */
-  ttl: Type.Number(),
+  ttl: Schema.Number,
   /** The recommended gas limit for the bundle. */
   txGas: Primitive.BigInt,
 })
-export type Quote = Typebox.StaticDecode<typeof Quote>
+export type Quote = typeof Quote.Type
 
-export const Signed = Type.Intersect([
+export const Signed = Schema.extend(
   Quote,
-  Type.Object({
+  Schema.Struct({
     hash: Primitive.Hex,
     r: Primitive.Hex,
     s: Primitive.Hex,
-    v: Typebox.Optional(Primitive.Hex),
-    yParity: Typebox.Optional(Primitive.Hex),
+    v: Schema.optional(Primitive.Hex),
+    yParity: Schema.optional(Primitive.Hex),
   }),
-])
-export type Signed = Typebox.StaticDecode<typeof Signed>
+)
+export type Signed = typeof Signed.Type

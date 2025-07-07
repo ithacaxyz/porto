@@ -1,13 +1,14 @@
-import type { Union } from '@sinclair/typebox'
-import * as Json from 'ox/Json'
+import * as Either from 'effect/Either'
+import type { ParseIssue } from 'effect/ParseResult'
+import * as Schema from 'effect/Schema'
+import type * as Errors from 'ox/Errors'
 import * as RpcResponse from 'ox/RpcResponse'
-import * as U from '../utils.js'
 import * as RpcRequest from './rpc.js'
-import { type StaticDecode, type StaticEncode, Type, Value } from './typebox.js'
+import { CoderError } from './schema.js'
 
 export * from './rpc.js'
 
-export const Request = Type.Union([
+export const Request = Schema.Union(
   RpcRequest.account_verifyEmail.Request,
   RpcRequest.wallet_addFunds.Request,
   RpcRequest.eth_accounts.Request,
@@ -36,42 +37,42 @@ export const Request = Type.Union([
   RpcRequest.wallet_sendCalls.Request,
   RpcRequest.wallet_sendPreparedCalls.Request,
   RpcRequest.wallet_verifySignature.Request,
-])
+).annotations({
+  identifier: 'Request.Request',
+  parseOptions: {},
+})
 
-export function parseRequest(r: unknown): parseRequest.ReturnType {
-  const { _decoded: _, ...request } = r as any
-  const raw = Value.Convert(Request, U.normalizeValue(request))
+export function parseRequest(value: unknown): parseRequest.ReturnType {
+  Schema.validateEither(Schema.encodedSchema(Request))(value)
 
-  // biome-ignore lint/performance/noDynamicNamespaceImportAccess: _
-  const method = RpcRequest[(raw as any).method as keyof typeof RpcRequest]
-  if (method) {
-    const error = Value.Errors(method.Request, raw).First()
-    const message = [
-      error?.message,
-      '',
-      'Path: ' + error?.path.slice(1).replaceAll('/', '.'),
-      error?.value && 'Value: ' + Json.stringify(error.value),
-    ]
-      .filter((x) => typeof x === 'string')
-      .join('\n')
-    if (error) throw new RpcResponse.InvalidParamsError({ message })
-  }
-
-  Value.Assert(Request, raw)
-  const _decoded = Value.Decode(Request, raw)
+  const _decoded = Schema.decodeUnknownEither(Request)(value).pipe(
+    Either.getOrThrowWith((left) => {
+      if (left.issue._tag === 'Composite') {
+        const [parent] = left.issue.issues as readonly [ParseIssue]
+        if (parent._tag === 'Composite' && !Array.isArray(parent.issues)) {
+          const issue = parent.issues as ParseIssue
+          if (issue._tag === 'Pointer' && issue.path === 'method')
+            return new RpcResponse.MethodNotSupportedError()
+        }
+      }
+      return new RpcResponse.InvalidParamsError(new CoderError(left))
+    }),
+  )
 
   return {
-    ...raw,
+    ...(value as typeof Request.Encoded),
     _decoded,
   } as never
 }
 
 export declare namespace parseRequest {
-  export type ReturnType = typeof Request extends Union<infer U>
+  export type ReturnType = typeof Request extends Schema.Union<infer U>
     ? {
-        [K in keyof U]: StaticEncode<U[K]> & {
-          _decoded: StaticDecode<U[K]>
+        [K in keyof U]: U[K]['Encoded'] & {
+          _decoded: U[K]['Type']
         }
       }[number]
     : never
+
+  export type Error = RpcResponse.InvalidParamsError | Errors.GlobalErrorType
 }

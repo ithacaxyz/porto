@@ -14,7 +14,7 @@ import {
   withRetry,
 } from 'viem'
 import type { Chain } from '../core/Chains.js'
-import * as Typebox from '../core/internal/typebox/typebox.js'
+import * as Schema from '../core/internal/schema/schema.js'
 import type { ExactPartial } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
 import * as RpcSchema from '../core/RpcSchema.js'
@@ -28,9 +28,7 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
       chainId?: number | undefined
       isReconnecting?: boolean | undefined
       capabilities?:
-        | (Typebox.StaticDecode<
-            typeof RpcSchema.wallet_connect.Capabilities
-          > & {
+        | (RpcSchema.wallet_connect.Capabilities & {
             force?: boolean | undefined
           })
         | undefined
@@ -74,10 +72,9 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
               if (!('capabilities' in rest)) return undefined
               return [
                 {
-                  capabilities: Typebox.Encode(
+                  capabilities: Schema.encodeSync(
                     RpcSchema.wallet_connect.Capabilities,
-                    rest.capabilities,
-                  ),
+                  )(rest.capabilities ?? {}),
                 },
               ] as const
             })()

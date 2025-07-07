@@ -446,7 +446,7 @@ export function contract(parameters: contract.Parameters = {}) {
           context: { calls: request.calls, nonce: request.nonce },
           digest: digests.exec,
           key,
-          typedData,
+          typedData: typedData as never,
         }
       },
 

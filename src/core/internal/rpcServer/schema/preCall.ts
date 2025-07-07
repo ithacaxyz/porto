@@ -1,8 +1,7 @@
-import * as Primitive from '../../typebox/primitive.js'
-import type * as Typebox from '../../typebox/typebox.js'
-import { Type } from '../../typebox/typebox.js'
+import * as Schema from 'effect/Schema'
+import * as Primitive from '../../schema/primitive.js'
 
-export const PreCall = Type.Object({
+export const PreCall = Schema.Struct({
   /**
    * The user's address.
    *
@@ -31,4 +30,4 @@ export const PreCall = Type.Object({
    */
   signature: Primitive.Hex,
 })
-export type PreCall = Typebox.StaticDecode<typeof PreCall>
+export type PreCall = typeof PreCall.Type

@@ -1,7 +1,6 @@
 import * as AbiItem from 'ox/AbiItem'
 import type * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import type * as TypedData from 'ox/TypedData'
 
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
@@ -11,10 +10,9 @@ import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
 import type * as PreCalls from './preCalls.js'
-import type * as Capabilities from './typebox/capabilities.js'
-import type * as FeeToken from './typebox/feeToken.js'
-import type * as RpcRequest from './typebox/request.js'
-import type * as Typebox from './typebox/typebox.js'
+import type * as Capabilities from './schema/capabilities.js'
+import type * as FeeToken from './schema/feeToken.js'
+import type * as RpcRequest from './schema/request.js'
 import type { PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
@@ -94,9 +92,7 @@ export type Mode = {
       id: Hex.Hex
       /** Internal properties. */
       internal: ActionsInternal
-    }) => Promise<
-      Typebox.Static<typeof RpcSchema.wallet_getCallsStatus.Response>
-    >
+    }) => Promise<typeof RpcSchema.wallet_getCallsStatus.Response.Encoded>
 
     getCapabilities: (parameters: {
       /** Chain IDs to get the capabilities for. */
@@ -105,9 +101,7 @@ export type Mode = {
       internal: Omit<ActionsInternal, 'client'> & {
         getClient: (chainId: Hex.Hex | number) => ServerClient
       }
-    }) => Promise<
-      Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
-    >
+    }) => Promise<typeof RpcSchema.wallet_getCapabilities.Response.Encoded>
 
     getKeys: (parameters: {
       /** Account to get the keys for. */
@@ -200,7 +194,7 @@ export type Mode = {
       /** Key that will sign over the digest. */
       key: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'>
       /** EIP-712 typed data. */
-      typedData: TypedData.Definition
+      typedData: RpcSchema.wallet_prepareCalls.Response['typedData']
     }>
 
     prepareUpgradeAccount: (parameters: {

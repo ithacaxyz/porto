@@ -2,7 +2,7 @@ import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import * as Siwe from 'ox/Siwe'
 import type { Chain, Client, Transport } from 'viem'
-import type * as Capabilities from './typebox/capabilities.js'
+import type * as Capabilities from './schema/capabilities.js'
 
 export async function authenticate(parameters: authenticate.Parameters) {
   const { authUrl, message, signature } = parameters

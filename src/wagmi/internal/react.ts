@@ -21,8 +21,8 @@ import type {
   UseQueryParameters,
   UseQueryReturnType,
 } from 'wagmi/query'
+import * as Schema from '../../core/internal/schema/schema.js'
 
-import * as Typebox from '../../core/internal/typebox/typebox.js'
 import * as RpcSchema from '../../core/RpcSchema.js'
 import {
   addFunds,
@@ -125,10 +125,9 @@ export function useAdmins<
         if (event.type !== 'adminsChanged') return
         queryClient.setQueryData(queryKey, (data: any) => ({
           ...data,
-          keys: Typebox.Decode(
-            RpcSchema.wallet_getAdmins.Response.properties.keys,
-            event.data,
-          ),
+          keys: Schema.decodeUnknownSync(
+            RpcSchema.wallet_getAdmins.Response.fields.keys,
+          )(event.data),
         }))
       })
     })()
@@ -387,7 +386,9 @@ export function usePermissions<
         if (event.type !== 'permissionsChanged') return
         queryClient.setQueryData(
           queryKey,
-          Typebox.Decode(RpcSchema.wallet_getPermissions.Response, event.data),
+          Schema.decodeUnknownSync(RpcSchema.wallet_getPermissions.Response)(
+            event.data,
+          ),
         )
       })
     })()

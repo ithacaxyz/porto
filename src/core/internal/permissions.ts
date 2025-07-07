@@ -1,12 +1,12 @@
 import type * as Address from 'ox/Address'
 
 import * as Key from '../../viem/Key.js'
-import * as Permissions_ from './typebox/permissions.js'
-import type { StaticDecode } from './typebox/typebox.js'
+import * as Permissions_ from './schema/permissions.js'
 
+// TODO(schema): refactor?
 export const Schema = Permissions_.Permissions
 
-export type Permissions = StaticDecode<typeof Schema>
+export type Permissions = typeof Schema.Type
 
 export function fromKey(key: Key.Key, options: fromKey.Options): Permissions {
   const { expiry, permissions, id, publicKey, type } = key

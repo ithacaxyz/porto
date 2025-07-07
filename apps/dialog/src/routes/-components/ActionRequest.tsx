@@ -3,9 +3,9 @@ import { Button, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type { Chains } from 'porto'
-import type * as Quote_typebox from 'porto/core/internal/rpcServer/typebox/quote'
-import type * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
-import type * as Rpc from 'porto/core/internal/typebox/request'
+import type * as Quote_schema from 'porto/core/internal/rpcServer/schema/quote'
+import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
+import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks, type Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
 import type { Call } from 'viem'
@@ -156,7 +156,7 @@ export namespace ActionRequest {
     calls: readonly Call[]
     chainId?: number | undefined
     checkBalance?: boolean | undefined
-    feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
+    feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading?: boolean | undefined
     merchantRpcUrl?: string | undefined
     onApprove: () => void
@@ -369,7 +369,7 @@ export namespace ActionRequest {
   export namespace Details {
     export type Props = {
       chain?: Chains.Chain | undefined
-      quote: Quote_typebox.Quote
+      quote: Quote_schema.Quote
     }
   }
 
@@ -454,7 +454,7 @@ export namespace ActionRequest {
       error?: Error | null | undefined
       errorMessage?: string | undefined
       loading?: boolean | undefined
-      quote?: Quote_typebox.Quote | undefined
+      quote?: Quote_schema.Quote | undefined
     }
   }
 
@@ -478,7 +478,7 @@ export namespace ActionRequest {
     chains extends readonly [PortoConfig.Chain, ...PortoConfig.Chain[]],
   >(
     porto: Pick<Porto_.Porto<chains>, '_internal'>,
-    quote: Quote_typebox.Quote,
+    quote: Quote_schema.Quote,
   ): Quote | undefined {
     const { chainId, intent, nativeFeeEstimate, txGas, ttl } = quote ?? {}
     const { paymentToken, totalPaymentMaxAmount } = intent ?? {}

@@ -2,12 +2,11 @@ import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 
 import * as Key from '../../viem/Key.js'
-import * as Permissions from './typebox/permissions.js'
-import type { StaticDecode } from './typebox/typebox.js'
+import * as Permissions from './schema/permissions.js'
 
 export const Schema = Permissions.Request
 
-export type PermissionsRequest = StaticDecode<typeof Schema>
+export type PermissionsRequest = typeof Schema.Type
 
 export function fromKey(key: Key.Key): PermissionsRequest {
   const { expiry, permissions, publicKey, type } = key
