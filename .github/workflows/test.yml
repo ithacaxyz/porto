@@ -15,6 +15,10 @@ on:
         type: boolean
         description: 'Perform relay image build and push'
         default: true
+      rpc-url:
+        type: string
+        description: 'RPC URL to use for tests (porto-dev, base-sepolia, or base-mainnet)'
+        default: 'https://porto-dev.rpc.ithaca.xyz'
   repository_dispatch:
     types: ['relay-release', 'relay-deployment']
 
@@ -68,6 +72,7 @@ jobs:
       VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
       VITE_DISPATCH_TYPE: ${{ github.event_name == 'repository_dispatch' && github.event.action || '' }}
       VITE_RELAY_VERSION: ${{ needs.relay-release.outputs.relay_version || inputs.relay-ref }}
+      VITE_RPC_URL: ${{ inputs.rpc-url || 'https://porto-dev.rpc.ithaca.xyz' }}
 
     steps:
       - name: Clone repository
