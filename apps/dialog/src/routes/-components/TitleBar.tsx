@@ -39,9 +39,8 @@ export function TitleBar(props: TitleBar.Props) {
     if (!selfClose) return
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape') 
         Actions.rejectAll(porto)
-      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => {
