@@ -796,7 +796,6 @@ importers:
       '@types/bun':
         specifier: latest
         version: 1.2.18(@types/react@19.1.5)
-        version: 1.2.18(@types/react@19.1.5)
 
   examples/authentication:
     dependencies:
@@ -3951,6 +3950,9 @@ packages:
   '@types/babel__traverse@7.20.7':
     resolution: {integrity: sha512-dkO5fhS7+/oos4ciWxyEyjWe48zmG6wbCheo/G2ZnHx4fs3EU6YC6UM8rk56gAjNJ9P3MTH2jo5jb92/K6wbng==}
 
+  '@types/body-parser@1.19.6':
+    resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
+
   '@types/bun@1.2.18':
     resolution: {integrity: sha512-Xf6RaWVheyemaThV0kUfaAUvCNokFr+bH8Jxp+tTZfx7dAPA8z9ePnP9S9+Vspzuxxx9JRAXhnyccRj3GyCMdQ==}
 
@@ -4777,10 +4779,6 @@ packages:
     resolution: {integrity: sha512-WDtdLmJvAuNNPzByAYpRo2rF1Mmradw6gvWsQKf63476DDXmomT9zUiGypLcG4ibIM67vhAj8jJRdbmEws2Aqw==}
     engines: {node: '>=6.14.2'}
 
-  bun-types@1.2.18:
-    resolution: {integrity: sha512-04+Eha5NP7Z0A9YgDAzMk5PHR16ZuLVa83b26kH5+cp1qZW4F6FmAURngE7INf4tKOvCE69vYvDEwoNl1tGiWw==}
-    peerDependencies:
-      '@types/react': ^19
   bun-types@1.2.18:
     resolution: {integrity: sha512-04+Eha5NP7Z0A9YgDAzMk5PHR16ZuLVa83b26kH5+cp1qZW4F6FmAURngE7INf4tKOvCE69vYvDEwoNl1tGiWw==}
     peerDependencies:
@@ -7867,6 +7865,26 @@ packages:
       wagmi:
         optional: true
 
+  porto@0.0.45:
+    resolution: {integrity: sha512-YlmG02j4NyxoKK08vc5FKS11O3ir/6HutyQ4J2knfONHpNwK1X4ehUqA4ojjzbw6YXxEd/ZClWrgUCZKtv8KDA==}
+    hasBin: true
+    peerDependencies:
+      '@tanstack/react-query': '>=5.59.0'
+      '@wagmi/core': '>=2.16.3'
+      react: '>=18'
+      typescript: '>=5.4.0'
+      viem: '>=2.28.0'
+      wagmi: '>=2.0.0'
+    peerDependenciesMeta:
+      '@tanstack/react-query':
+        optional: true
+      react:
+        optional: true
+      typescript:
+        optional: true
+      wagmi:
+        optional: true
+
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
@@ -9947,8 +9965,8 @@ snapshots:
 
   '@babel/helper-module-imports@7.27.1':
     dependencies:
-      '@babel/traverse': 7.27.4
-      '@babel/types': 7.27.6
+      '@babel/traverse': 7.27.1
+      '@babel/types': 7.27.1
     transitivePeerDependencies:
       - supports-color
 
@@ -10004,11 +10022,6 @@ snapshots:
   '@babel/plugin-syntax-typescript@7.27.1(@babel/core@7.27.1)':
     dependencies:
       '@babel/core': 7.27.1
-      '@babel/helper-plugin-utils': 7.27.1
-
-  '@babel/plugin-syntax-typescript@7.27.1(@babel/core@7.27.4)':
-    dependencies:
-      '@babel/core': 7.27.4
       '@babel/helper-plugin-utils': 7.27.1
 
   '@babel/plugin-transform-react-jsx-self@7.27.1(@babel/core@7.27.1)':
@@ -12923,15 +12936,15 @@ snapshots:
 
   '@types/babel__core@7.20.5':
     dependencies:
-      '@babel/parser': 7.27.5
-      '@babel/types': 7.27.6
+      '@babel/parser': 7.27.2
+      '@babel/types': 7.27.1
       '@types/babel__generator': 7.27.0
       '@types/babel__template': 7.4.4
       '@types/babel__traverse': 7.20.7
 
   '@types/babel__generator@7.27.0':
     dependencies:
-      '@babel/types': 7.27.6
+      '@babel/types': 7.27.1
 
   '@types/babel__template@7.4.4':
     dependencies:
@@ -12941,6 +12954,11 @@ snapshots:
   '@types/babel__traverse@7.20.7':
     dependencies:
       '@babel/types': 7.27.1
+
+  '@types/body-parser@1.19.6':
+    dependencies:
+      '@types/connect': 3.4.38
+      '@types/node': 22.15.32
 
   '@types/bun@1.2.18(@types/react@19.1.5)':
     dependencies:
@@ -13204,7 +13222,7 @@ snapshots:
 
   '@vanilla-extract/babel-plugin-debug-ids@1.2.0':
     dependencies:
-      '@babel/core': 7.27.4
+      '@babel/core': 7.27.1
     transitivePeerDependencies:
       - supports-color
 
@@ -13252,8 +13270,8 @@ snapshots:
 
   '@vanilla-extract/integration@8.0.2':
     dependencies:
-      '@babel/core': 7.27.4
-      '@babel/plugin-syntax-typescript': 7.27.1(@babel/core@7.27.4)
+      '@babel/core': 7.27.1
+      '@babel/plugin-syntax-typescript': 7.27.1(@babel/core@7.27.1)
       '@vanilla-extract/babel-plugin-debug-ids': 1.2.0
       '@vanilla-extract/css': 1.17.2
       dedent: 1.6.0
@@ -13297,6 +13315,18 @@ snapshots:
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
       vite: 6.3.5(@types/node@22.15.21)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitejs/plugin-react@4.5.1(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))':
+    dependencies:
+      '@babel/core': 7.27.1
+      '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.27.1)
+      '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.27.1)
+      '@rolldown/pluginutils': 1.0.0-beta.9
+      '@types/babel__core': 7.20.5
+      react-refresh: 0.17.0
+      vite: 6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -14099,7 +14129,7 @@ snapshots:
 
   '@wxt-dev/module-react@1.1.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))(wxt@0.19.29(@types/node@22.15.32)(bufferutil@4.0.9)(lightningcss@1.30.1)(rollup@4.41.1)(terser@5.39.2)(tsx@4.20.3)(utf-8-validate@5.0.10)(yaml@2.8.0))':
     dependencies:
-      '@vitejs/plugin-react': 4.6.0(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))
+      '@vitejs/plugin-react': 4.5.1(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))
       wxt: 0.19.29(@types/node@22.15.32)(bufferutil@4.0.9)(lightningcss@1.30.1)(rollup@4.41.1)(terser@5.39.2)(tsx@4.20.3)(utf-8-validate@5.0.10)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
@@ -14443,10 +14473,8 @@ snapshots:
       node-gyp-build: 4.8.4
 
   bun-types@1.2.18(@types/react@19.1.5):
-  bun-types@1.2.18(@types/react@19.1.5):
     dependencies:
       '@types/node': 22.15.32
-      '@types/react': 19.1.5
       '@types/react': 19.1.5
 
   bundle-name@3.0.0:
@@ -15624,7 +15652,7 @@ snapshots:
   extension-port-stream@3.0.0:
     dependencies:
       readable-stream: 3.6.2
-      webextension-polyfill: 0.12.0
+      webextension-polyfill: 0.10.0
 
   external-editor@3.1.0:
     dependencies:
@@ -18094,6 +18122,27 @@ snapshots:
       - use-sync-external-store
       - zod
 
+  porto@0.0.45(@tanstack/react-query@5.77.1(react@19.1.0))(@types/react@19.1.5)(@wagmi/core@2.17.2(patch_hash=049ef0ca2574b9586b51482584b89fb1376b94c1a64fe84d4c0ed4a1e795d9f3)(@tanstack/query-core@5.77.1)(@types/react@19.1.5)(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(viem@2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28)))(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(viem@2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28))(wagmi@2.15.4(@tanstack/query-core@5.77.1)(@tanstack/react-query@5.77.1(react@19.1.0))(@types/react@19.1.5)(bufferutil@4.0.9)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28))(zod@3.25.28))(zod@3.25.28):
+    dependencies:
+      '@sinclair/typebox': 0.34.33
+      '@wagmi/core': 2.17.2(patch_hash=049ef0ca2574b9586b51482584b89fb1376b94c1a64fe84d4c0ed4a1e795d9f3)(@tanstack/query-core@5.77.1)(@types/react@19.1.5)(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(viem@2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28))
+      idb-keyval: 6.2.2
+      mipd: 0.0.7(typescript@5.8.3)
+      open: 10.1.2
+      ox: 0.6.12(typescript@5.8.3)(zod@3.25.28)
+      viem: 2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28)
+      zustand: 5.0.5(@types/react@19.1.5)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
+    optionalDependencies:
+      '@tanstack/react-query': 5.77.1(react@19.1.0)
+      react: 19.1.0
+      typescript: 5.8.3
+      wagmi: 2.15.4(@tanstack/query-core@5.77.1)(@tanstack/react-query@5.77.1(react@19.1.0))(@types/react@19.1.5)(bufferutil@4.0.9)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.30.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.28))(zod@3.25.28)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - use-sync-external-store
+      - zod
+
   possible-typed-array-names@1.1.0: {}
 
   postcss-value-parser@4.2.0: {}
@@ -19962,7 +20011,7 @@ snapshots:
       '@vanilla-extract/css': 1.17.2
       '@vanilla-extract/dynamic': 2.1.3
       '@vanilla-extract/vite-plugin': 5.0.3(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))(yaml@2.8.0)
-      '@vitejs/plugin-react': 4.6.0(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))
+      '@vitejs/plugin-react': 4.5.1(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.2)(tsx@4.20.3)(yaml@2.8.0))
       autoprefixer: 10.4.21(postcss@8.5.3)
       cac: 6.7.14
       chroma-js: 3.1.2
