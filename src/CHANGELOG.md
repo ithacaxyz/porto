@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.46
+
+### Patch Changes
+
+- [#552](https://github.com/ithacaxyz/porto/pull/552) [`c3a56a2`](https://github.com/ithacaxyz/porto/commit/c3a56a2b79dd819f6218fd331927825eec3b5036) Thanks [@jxom](https://github.com/jxom)! - Migrated from TypeBox to `effect/schema` for schema validation.
+
+- [#547](https://github.com/ithacaxyz/porto/pull/547) [`585be54`](https://github.com/ithacaxyz/porto/commit/585be5473e39e7110b965427ece28d218e1c8050) Thanks [@o-az](https://github.com/o-az)! - added `useAddFunds` porto/wagmi hook
+
 ## 0.0.45
 
 ### Patch Changes
