@@ -72,13 +72,17 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
+
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive
+          # Configure submodules to fetch all refs
+          git submodule foreach 'git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'
+          git submodule foreach 'git fetch --tags'
 
       - name: Checkout contracts submodule at specific ref
         if: inputs.contracts-ref != ''
         run: |
-          git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
           cd contracts/account
           git fetch origin ${{ inputs.contracts-ref }}
           git checkout ${{ inputs.contracts-ref }}
