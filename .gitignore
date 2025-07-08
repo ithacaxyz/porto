@@ -60,3 +60,4 @@ CLAUDE.local.md
 
 .env.*
 !.env.example
+.zed
