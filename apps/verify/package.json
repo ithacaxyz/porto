@@ -8,9 +8,9 @@
     "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250628.0",
+    "@cloudflare/workers-types": "^4.20250703.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
-    "wrangler": "^4.10.0"
+    "wrangler": "^4.23.0"
   }
 }

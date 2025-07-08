@@ -20,13 +20,13 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.7.5",
-    "@cloudflare/workers-types": "^4.20250628.0",
+    "@cloudflare/workers-types": "^4.20250703.0",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.4.1",
-    "globals": "^16.0.0",
+    "@vitejs/plugin-react": "^4.5.1",
+    "globals": "^16.2.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
-    "wrangler": "^4.21.2"
+    "wrangler": "^4.23.0"
   }
 }
