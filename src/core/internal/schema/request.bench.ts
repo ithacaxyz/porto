@@ -1,4 +1,4 @@
-import { bench, describe } from 'vitest'
+import { describe, bench } from 'vitest'
 import { parseRequest } from './request.js'
 
 describe('Request', () => {
