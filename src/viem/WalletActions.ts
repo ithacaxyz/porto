@@ -59,25 +59,18 @@ export async function addFunds(
     Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
   >({
     method,
-    params: [Typebox.Encode(RpcSchema.wallet_addFunds.Parameters, parameters)],
+    params: [
+      Schema.encodeSync(RpcSchema.wallet_addFunds.Parameters)(parameters),
+    ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.wallet_addFunds.Response,
-    response satisfies Typebox.Static<
-      typeof RpcSchema.wallet_addFunds.Response
-    >,
-  )
+  return Schema.decodeSync(RpcSchema.wallet_addFunds.Response)(response)
 }
 
 export declare namespace addFunds {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_addFunds.Parameters
-  >
+  type Parameters = RpcSchema.wallet_addFunds.Parameters
 
-  type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_addFunds.Response
-  >
+  type ReturnType = RpcSchema.wallet_addFunds.Response
 }
 
 export async function connect(
