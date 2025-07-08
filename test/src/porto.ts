@@ -12,8 +12,8 @@ export const chain = Anvil.enabled
   : rpcUrl === 'https://base-sepolia.rpc.ithaca.xyz'
     ? Chains.baseSepolia
     : rpcUrl === 'https://base-mainnet.rpc.ithaca.xyz'
-    ? Chains.base
-    : Chains.portoDev
+      ? Chains.base
+      : Chains.portoDev
 
 export const exp1Address = Contracts.exp1Address[chain.id]
 export const exp1Abi = Contracts.exp1Abi
