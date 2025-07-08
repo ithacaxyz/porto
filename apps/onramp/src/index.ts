@@ -37,13 +37,16 @@ export default {
       const AUTH_SIGN_KEY = env(environment).AUTH_SIGN_KEY
 
       const address = url.searchParams.get('address') as Address.Address
-      const fiatAmount = (url.searchParams.get('amount') as string) || '25'
+      const fiatAmount = (url.searchParams.get('amount') as string) || '36'
 
       if (!Address.checksum(address)) throw new Error('address is required')
 
       const searchParams = new URLSearchParams({
         address,
+        currency: 'USDC',
         fiat_amount: fiatAmount,
+        fiat_currency: 'USD',
+        network: 'BASE',
         payment_method: 'apple',
         widget_flow: 'applepay_minimal',
         widget_id: WIDGET_ID,
