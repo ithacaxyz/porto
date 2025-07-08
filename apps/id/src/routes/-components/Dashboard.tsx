@@ -6,7 +6,6 @@ import { Link } from '@tanstack/react-router'
 import { Cuer } from 'cuer'
 import { cx } from 'cva'
 import { Address, Hex, Value } from 'ox'
-import type { Porto } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -168,6 +167,33 @@ export function Dashboard() {
   >()
   const [email, setEmail] = React.useState('')
 
+  const addFunds = Hooks.useAddFunds({
+    mutation: {
+      onError: (error) => {
+        if (error.name === 'UserRejectedRequestError') return
+        toast.custom((t) => (
+          <Toast
+            className={t}
+            description={error.message}
+            kind="error"
+            title="Failed to add funds"
+          />
+        ))
+      },
+      onSuccess: () => {
+        // TODO: make success message part of the dialog
+        toast.custom((t) => (
+          <Toast
+            className={t}
+            description="Funds added successfully"
+            kind="success"
+            title="Funds Added"
+          />
+        ))
+      },
+    },
+  })
+
   return (
     <>
       <DevOnly />
@@ -304,24 +330,13 @@ export function Dashboard() {
         right={
           <div className="flex gap-2">
             <Button
-              onClick={async (event) => {
-                event.preventDefault()
-                if (!account.address)
-                  return toast.error('No account address found')
-
-                const provider =
-                  (await account.connector?.getProvider()) as Porto.Porto['provider']
-                await provider.request({
-                  method: 'wallet_addFunds',
-                  params: [
-                    {
-                      address: account.address,
-                      token: exp1Address[chainId as keyof typeof exp1Address],
-                      value: Hex.fromNumber(25n),
-                    },
-                  ],
+              onClick={() =>
+                addFunds.mutate({
+                  address: account.address,
+                  token: exp1Address[chainId as keyof typeof exp1Address],
+                  // value gets passed from the dialog in this app
                 })
-              }}
+              }
               size="small"
               variant="accent"
             >
