@@ -429,13 +429,21 @@ export function iframe(options: iframe.Options = {}) {
       let openingAt: number | null = null
 
       const dialogState = {
-        status: 'initial' as DialogStatus,
         initial() {
           this.status = 'initial'
           dialogHeight = null
 
           setIframeVisibility(true)
           loader.style.display = 'block'
+          root.style.setProperty(
+            '--porto-dialog-height',
+            `${animations.loaderHeight}px`,
+          )
+          delete root.dataset.portoReveal
+        },
+        opened() {
+          this.status = 'opened'
+
           root.style.setProperty(
             '--porto-dialog-height',
             `${animations.loaderHeight}px`,
@@ -454,14 +462,8 @@ export function iframe(options: iframe.Options = {}) {
           )
           delete root.dataset.portoReveal
         },
-        opened() {
-          this.status = 'opened'
-
-          root.style.setProperty(
-            '--porto-dialog-height',
-            `${animations.loaderHeight}px`,
-          )
-          delete root.dataset.portoReveal
+        revealed() {
+          this.status = 'revealed'
         },
         revealing(dialogHeight: number) {
           const elapsed = openingAt ? Date.now() - openingAt : 0
@@ -475,9 +477,7 @@ export function iframe(options: iframe.Options = {}) {
             root.dataset.portoReveal = ''
           }, delay)
         },
-        revealed() {
-          this.status = 'revealed'
-        },
+        status: 'initial' as DialogStatus,
       }
 
       dialogState.initial()
@@ -918,10 +918,10 @@ export const animations = {
   loaderHeight: 80, // height of the window when showing "loading…"
   minRevealDelay: 120, // minimum delay to wait before revealing
   openDuration: 120,
-  revealDuration1: 300, // part 1 of the reveal anim: height + scale
-  revealDuration2: 120, // part 2 of the reveal anim: opacity
-  revealDrawerDuration: 300, // reveal anim in drawer mode
-  resizeDuration: 200, // iframe height resize transition
+  resizeDuration: 200, // part 1 of the reveal anim: height + scale
+  revealDrawerDuration: 300, // part 2 of the reveal anim: opacity
+  revealDuration1: 300, // reveal anim in drawer mode
+  revealDuration2: 120, // iframe height resize transition
   scaleLoaderFrom: 0.8, // starting scale of the loader
 } as const
 
