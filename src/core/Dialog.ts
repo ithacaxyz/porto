@@ -465,7 +465,10 @@ export function iframe(options: iframe.Options = {}) {
         },
         revealing(dialogHeight: number) {
           const elapsed = openingAt ? Date.now() - openingAt : 0
+
+          // the minimum delay prevents to interrupt the opening animation
           const delay = Math.max(0, animations.minRevealDelay - elapsed)
+
           setTimeout(() => {
             this.status = 'revealing'
 
@@ -489,11 +492,8 @@ export function iframe(options: iframe.Options = {}) {
         iframe.style.height = `${height}px`
         root.style.setProperty('--porto-dialog-height', `${height}px`)
 
-        if (
-          dialogState.status === 'opened' &&
-          hasReceivedReady &&
-          dialogHeight !== null
-        ) {
+        // loader opened + ready received: reveal the iframe
+        if (dialogState.status === 'opened' && hasReceivedReady) {
           dialogState.revealing(dialogHeight)
         }
       }
@@ -506,6 +506,7 @@ export function iframe(options: iframe.Options = {}) {
         ) {
           dialogState.opened()
 
+          // non null dialog height + ready received: reveal the iframe
           if (hasReceivedReady && dialogHeight !== null) {
             dialogState.revealing(dialogHeight)
           }
@@ -918,10 +919,10 @@ export const animations = {
   loaderHeight: 80, // height of the window when showing "loading…"
   minRevealDelay: 120, // minimum delay to wait before revealing
   openDuration: 120,
-  revealDuration1: 300, // part 1 of the reveal anim: height + scale
-  revealDuration2: 120, // part 2 of the reveal anim: opacity
-  revealDrawerDuration: 300, // reveal anim in drawer mode
-  resizeDuration: 200, // iframe height resize transition
+  resizeDuration: 200, // part 1 of the reveal anim: height + scale
+  revealDrawerDuration: 300, // part 2 of the reveal anim: opacity
+  revealDuration1: 300, // reveal anim in drawer mode
+  revealDuration2: 120, // iframe height resize transition
   scaleLoaderFrom: 0.8, // starting scale of the loader
 } as const
 
