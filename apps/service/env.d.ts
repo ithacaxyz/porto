@@ -12,6 +12,12 @@ interface EnvironmentVariables {
   readonly AUTH_SIGN_KEY: string
   readonly AUTH_SECRET_KEY: string
   readonly SDK_PARTNER_TOKEN: string
+  /** `/onramp/external` route */
+  readonly COINBASE_API_BASE_URL: string
+  readonly COINBASE_CLIENT_API_KEY: string
+  readonly COINBASE_PROJECT_ID: string
+  readonly COINBASE_SECRET_KEY_ID: string
+  readonly COINBASE_SECRET_KEY: string
 
   /** `/faucet` route */
   readonly DRIP_PRIVATE_KEY: `0x${string}`

@@ -2,12 +2,18 @@ import { env } from 'cloudflare:workers'
 import * as crypto from 'node:crypto'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
+import type * as jwt from 'hono/jwt'
 import { validator } from 'hono/validator'
+import type { Address } from 'ox'
 import { isAddress } from 'viem'
+import { generateJsonWebToken } from '#utilities/jwt.ts'
 
-const onrampApp = new Hono<{ Bindings: Cloudflare.Env }>()
-
+const onrampApp = new Hono<{
+  Bindings: Cloudflare.Env
+  Variables: jwt.JwtVariables
+}>()
   .onError((error, context) => {
+    console.error(error)
     return context.json(
       {
         error:
@@ -17,9 +23,129 @@ const onrampApp = new Hono<{ Bindings: Cloudflare.Env }>()
       500,
     )
   })
+  .post(
+    '/us',
+    validator('json', (value, _context) => {
+      const {
+        amount,
+        payment_currency,
+        purchase_currency,
+        address,
+        email,
+        phone,
+        ...rest
+      } = <
+        {
+          amount: string
+          payment_currency?: 'USD'
+          purchase_currency?: 'USDC' | 'ETH'
+          address: Address.Address
+          email: string
+          environment?: 'production' | 'sandbox'
+          phone: string
+          destination_network?: 'base'
+        }
+      >value
 
+      return {
+        address,
+        amount,
+        email,
+        payment_currency,
+        phone,
+        purchase_currency,
+        ...rest,
+      }
+    }),
+    async (context) => {
+      const {
+        address,
+        amount,
+        email,
+        environment = 'production',
+        phone,
+        payment_currency,
+        purchase_currency,
+      } = context.req.valid('json')
+
+      const coinbaseApiURL = new URL(
+        '/onramp/v2/onramp/order',
+        env.COINBASE_API_BASE_URL,
+      )
+
+      const jwt = await generateJsonWebToken({
+        host: coinbaseApiURL.host,
+        method: 'POST',
+        path: coinbaseApiURL.pathname,
+      })
+
+      const response = await fetch(coinbaseApiURL.toString(), {
+        body: JSON.stringify({
+          agreementAcceptedAt: new Date().toISOString(),
+          destinationAddress: address,
+          destinationNetwork: 'base',
+          email,
+          partnerUserRef: `sandbox-porto-${address}`,
+          paymentAmount: amount,
+          paymentCurrency: 'USD',
+          paymentMethod: 'GUEST_CHECKOUT_APPLE_PAY',
+          phoneNumber: phone,
+          purchaseCurrency: 'USDC',
+        }),
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${jwt}`,
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+      })
+
+      const data = (await response.json()) as {
+        order: {
+          orderId: string
+          paymentTotal: string
+          paymentSubtotal: string
+          paymentCurrency: string
+          paymentMethod: string
+          purchaseAmount: string
+          purchaseCurrency: string
+          fees: Array<{
+            feeType: string
+            feeAmount: string
+            feeCurrency: string
+          }>
+          exchangeRate: string
+          destinationAddress: string
+          destinationNetwork: string
+          status: string
+          txHash: string
+          createdAt: string
+          updatedAt: string
+        }
+        authSteps: Array<unknown>
+        paymentLink: {
+          url: string
+          paymentLinkType: string
+        }
+      }
+
+      if (
+        data?.order?.status !== 'ONRAMP_ORDER_STATUS_PENDING_PAYMENT' ||
+        !Object.hasOwn(data, 'paymentLink')
+      )
+        throw new HTTPException(500, {
+          cause: data,
+          message: 'Failed to create Coinbase Onramp order',
+        })
+
+      return context.json({
+        link: data.paymentLink.url,
+        ...data,
+      })
+    },
+  )
   .get(
-    '/',
+    '/global',
     validator('query', (values, context) => {
       const {
         email,
@@ -94,6 +220,105 @@ const onrampApp = new Hono<{ Bindings: Cloudflare.Env }>()
       return redirect
         ? context.redirect(url.toString())
         : context.json({ url: url.toString() })
+    },
+  )
+  .get(
+    '/external',
+    validator('query', (values, context) => {
+      const {
+        wallet_address,
+        environment,
+        source_amount,
+        source_currency = 'usd',
+        destination_currencies,
+        destination_network = 'base',
+        destination_networks,
+        destination_currency = 'usdc',
+        lock_wallet_address = 'false',
+      } = <Record<string, string>>values
+
+      if (!wallet_address || !isAddress(wallet_address))
+        return context.json({ error: 'Valid EVM address required' }, 400)
+
+      if (!source_amount)
+        return context.json({ error: '`source_amount` is required' }, 400)
+
+      const apiKey =
+        environment === 'prod' || environment === 'production'
+          ? context.env.STRIPE_API_KEY
+          : context.env.SANDBOX_STRIPE_API_KEY
+
+      if (!apiKey) return context.json({ error: 'Valid API key required' }, 400)
+
+      const destinationNetworks = (() =>
+        destination_networks?.split(',') ?? [destination_network])()
+
+      const destinationCurrencies = (() =>
+        destination_currencies?.split(',') ?? [destination_currency])()
+
+      return {
+        apiKey,
+        destination_currencies: destinationCurrencies,
+        destination_currency,
+        destination_network,
+        destination_networks: destinationNetworks,
+        lock_wallet_address,
+        source_amount,
+        source_currency,
+        wallet_address,
+      }
+    }),
+    async (context) => {
+      const {
+        apiKey,
+        destination_networks,
+        destination_currencies,
+        lock_wallet_address,
+        wallet_address,
+        destination_currency,
+        destination_network,
+        source_amount,
+        source_currency,
+      } = context.req.valid('query')
+
+      const body = new URLSearchParams({
+        destination_currency,
+        destination_network,
+        lock_wallet_address,
+        source_amount,
+        source_currency,
+        wallet_address,
+      })
+
+      for (const currency of destination_currencies)
+        body.append('destination_currencies[]', currency)
+
+      for (const network of destination_networks)
+        body.append('destination_networks[]', network)
+
+      const response = await fetch(
+        'https://api.stripe.com/v1/crypto/onramp_sessions',
+        {
+          body,
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          method: 'POST',
+        },
+      )
+
+      const data = (await response.json()) as { redirect_url: string }
+
+      if (!Object.hasOwn(data, 'redirect_url')) {
+        console.error(data)
+        return context.json(
+          { error: 'Could not create Stripe Onramp session. No redirect_url' },
+          500,
+        )
+      }
+
+      return context.redirect(data.redirect_url)
     },
   )
 
@@ -177,105 +402,5 @@ export async function silentSignIn(
     method: 'POST',
   })
 }
-
-onrampApp.get(
-  '/external',
-  validator('query', (values, context) => {
-    const {
-      wallet_address,
-      environment,
-      source_amount,
-      source_currency = 'usd',
-      destination_currencies,
-      destination_network = 'base',
-      destination_networks,
-      destination_currency = 'usdc',
-      lock_wallet_address = 'false',
-    } = <Record<string, string>>values
-
-    if (!wallet_address || !isAddress(wallet_address))
-      return context.json({ error: 'Valid EVM address required' }, 400)
-
-    if (!source_amount)
-      return context.json({ error: '`source_amount` is required' }, 400)
-
-    const apiKey =
-      environment === 'prod' || environment === 'production'
-        ? context.env.STRIPE_API_KEY
-        : context.env.SANDBOX_STRIPE_API_KEY
-
-    if (!apiKey) return context.json({ error: 'Valid API key required' }, 400)
-
-    const destinationNetworks = (() =>
-      destination_networks?.split(',') ?? [destination_network])()
-
-    const destinationCurrencies = (() =>
-      destination_currencies?.split(',') ?? [destination_currency])()
-
-    return {
-      apiKey,
-      destination_currencies: destinationCurrencies,
-      destination_currency,
-      destination_network,
-      destination_networks: destinationNetworks,
-      lock_wallet_address,
-      source_amount,
-      source_currency,
-      wallet_address,
-    }
-  }),
-  async (context) => {
-    const {
-      apiKey,
-      destination_networks,
-      destination_currencies,
-      lock_wallet_address,
-      wallet_address,
-      destination_currency,
-      destination_network,
-      source_amount,
-      source_currency,
-    } = context.req.valid('query')
-
-    const body = new URLSearchParams({
-      destination_currency,
-      destination_network,
-      lock_wallet_address,
-      source_amount,
-      source_currency,
-      wallet_address,
-    })
-
-    for (const currency of destination_currencies)
-      body.append('destination_currencies[]', currency)
-
-    for (const network of destination_networks)
-      body.append('destination_networks[]', network)
-
-    const response = await fetch(
-      'https://api.stripe.com/v1/crypto/onramp_sessions',
-      {
-        body,
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        method: 'POST',
-      },
-    )
-
-    const data = (await response.json()) as { redirect_url: string }
-
-    if (!Object.hasOwn(data, 'redirect_url')) {
-      console.error(data)
-      return context.json(
-        { error: 'Could not create Stripe Onramp session. No redirect_url' },
-        500,
-      )
-    }
-
-    return context.redirect(data.redirect_url)
-  },
-)
 
 export { onrampApp }

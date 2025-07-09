@@ -1,5 +1,6 @@
 import type { ExportedHandler } from '@cloudflare/workers-types'
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { prettyJSON } from 'hono/pretty-json'
 import { requestId } from 'hono/request-id'
@@ -10,6 +11,10 @@ import { onrampApp } from './routes/onramp.ts'
 import { verifyApp } from './routes/verify.ts'
 
 const app = new Hono<{ Bindings: Cloudflare.Env }>()
+app.use(
+  '*',
+  cors({ allowMethods: (_) => ['GET', 'POST', 'OPTIONS'], origin: (_) => '*' }),
+)
 app.use(logger())
 app.use(prettyJSON())
 app.use('*', requestId())
