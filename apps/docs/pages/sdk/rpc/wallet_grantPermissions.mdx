@@ -57,6 +57,21 @@ type Request = {
     /** Expiry of the permissions. */
     expiry: number
 
+    /** 
+     * Limit that the key can spend on fees. When provided,
+     * Porto will assign a spend permission on the user's
+     * selected fee token that is equal to the limit provided.
+     * 
+     * - Defaults to 1 USD.
+     * - Provide `null` to have the fee inclusive with `permissions.spend`.
+     */
+    feeLimit?: {
+      /** Currency of the limit. */
+      currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
+      /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
+      value: string
+    } | null,
+
     /** Key to grant permissions to. Defaults to a wallet-managed key. */
     key?: {
       /** 
@@ -77,6 +92,14 @@ type Request = {
         /** Authorized target address. */
         to?: `0x${string}`
       }[],
+
+      /** Fee limit permission. */
+      feeLimit?: {
+        /** Currency of the fee limit. */
+        currency: 'ETH' | 'USDC' | 'USDT'
+        /** Value of the fee limit. */
+        value: string
+      } | null,
 
       /** Spend permissions. */
       spend: {

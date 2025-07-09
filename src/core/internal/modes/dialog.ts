@@ -2,13 +2,14 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
-
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
+import * as ServerClient from '../../../viem/ServerClient.js'
 import * as Dialog from '../../Dialog.js'
 import type { QueuedRequest } from '../../Porto.js'
 import * as RpcSchema_porto from '../../RpcSchema.js'
 import type { Storage } from '../../Storage.js'
+import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -27,6 +28,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
   const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
   const requestStore = RpcRequest.createStore()
+
+  let feeTokens: FeeTokens.FeeTokens | undefined
 
   // Function to instantiate a provider for the dialog. This
   // will be used to queue up requests for the dialog and
@@ -145,6 +148,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             // Parse the authorize key into a structured key.
             const key = await PermissionsRequest.toKey(
               capabilities?.grantPermissions,
+              { feeTokens },
             )
 
             // Convert the key into a permission.
@@ -362,7 +366,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const [{ address, ...permissions }] = request._decoded.params
 
         // Parse permissions request into a structured key.
-        const key = await PermissionsRequest.toKey(permissions)
+        const key = await PermissionsRequest.toKey(permissions, { feeTokens })
         if (!key) throw new Error('no key found.')
 
         const permissionsRequest = Schema.encodeSync(PermissionsRequest.Schema)(
@@ -413,6 +417,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           // Parse provided (RPC) key into a structured key.
           const key = await PermissionsRequest.toKey(
             capabilities?.grantPermissions,
+            { feeTokens },
           )
 
           // Convert the key into a permissions request.
@@ -558,6 +563,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // Parse the authorize key into a structured key.
         const key = await PermissionsRequest.toKey(
           capabilities?.grantPermissions,
+          { feeTokens },
         )
 
         // Convert the key into a permission.
@@ -885,7 +891,31 @@ export function dialog(parameters: dialog.Parameters = {}) {
         internal,
       })
 
-      const unsubscribe = store.subscribe(
+      const unsubscribe_1 = store.subscribe(
+        ({ chainId, feeToken }) => ({
+          chainId,
+          feeToken,
+        }),
+        async ({ chainId, feeToken }) => {
+          if (!feeToken) return
+
+          const client = ServerClient.fromPorto(
+            { _internal: internal },
+            { chainId },
+          )
+          feeTokens = await FeeTokens.resolve(client, {
+            feeToken,
+            store: internal.store,
+          })
+        },
+        {
+          equalityFn: (a, b) =>
+            a.chainId === b.chainId && a.feeToken === b.feeToken,
+          fireImmediately: true,
+        },
+      )
+
+      const unsubscribe_2 = store.subscribe(
         (x) => x.requestQueue,
         (requestQueue) => {
           for (const listener of listeners) listener(requestQueue)
@@ -899,7 +929,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       )
 
       return () => {
-        unsubscribe()
+        unsubscribe_1()
+        unsubscribe_2()
         dialog.destroy()
       }
     },

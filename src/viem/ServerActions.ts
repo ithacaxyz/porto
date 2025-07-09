@@ -1,4 +1,4 @@
-import * as Address from 'ox/Address'
+import type * as Address from 'ox/Address'
 import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
@@ -10,7 +10,6 @@ import {
   http,
   type Narrow,
   type Transport,
-  zeroAddress,
 } from 'viem'
 import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/rpcServer/schema/capabilities.js'
@@ -121,7 +120,6 @@ export async function prepareCalls<
     key,
     feeToken,
     nonce,
-    permissionsFeeLimit,
     preCalls,
     revokeKeys,
     merchantRpcUrl,
@@ -140,17 +138,7 @@ export async function prepareCalls<
   const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) => {
     if (key.role === 'admin') return Key.toRpcServer(key, { orchestrator })
 
-    const permissions = resolvePermissions(key, {
-      feeToken,
-      permissionsFeeLimit,
-    })
-    return Key.toRpcServer(
-      {
-        ...key,
-        permissions,
-      },
-      { orchestrator },
-    )
+    return Key.toRpcServer(key, { orchestrator })
   })
 
   const preCall = typeof preCalls === 'boolean' ? preCalls : false
@@ -222,8 +210,6 @@ export namespace prepareCalls {
       calls?: Calls<Narrow<calls>> | undefined
       /** Key that will be used to sign the calls. */
       key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
-      /** Permissions fee limit. */
-      permissionsFeeLimit?: bigint | undefined
       /**
        * Indicates if the bundle is "pre-calls", and should be executed before
        * the main bundle.
@@ -274,13 +260,7 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: prepareUpgradeAccount.Parameters<chain>,
 ): Promise<prepareUpgradeAccount.ReturnType> {
-  const {
-    address,
-    authorizeKeys: keys,
-    chain,
-    feeToken,
-    permissionsFeeLimit,
-  } = parameters
+  const { address, authorizeKeys: keys, chain } = parameters
 
   const { contracts } = await ServerActions.getCapabilities(client)
 
@@ -291,13 +271,7 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
     : undefined
 
   const authorizeKeys = keys.map((key) => {
-    const permissions =
-      key.role === 'session'
-        ? resolvePermissions(key, {
-            feeToken,
-            permissionsFeeLimit,
-          })
-        : {}
+    const permissions = key.role === 'session' ? key.permissions : {}
     return Key.toRpcServer({ ...key, permissions }, { orchestrator })
   })
 
@@ -337,8 +311,6 @@ export declare namespace prepareUpgradeAccount {
       delegation?: Address.Address | undefined
       /** Fee token. */
       feeToken?: Address.Address | undefined
-      /** Permissions fee limit. */
-      permissionsFeeLimit?: bigint | undefined
     }
 
   export type ReturnType = Omit<
@@ -828,52 +800,4 @@ export function decorator<
     verifySignature: (parameters) =>
       ServerActions.verifySignature(client, parameters),
   }
-}
-
-function resolvePermissions(
-  key: Key.Key,
-  options: {
-    feeToken?: Address.Address | undefined
-    permissionsFeeLimit?: bigint | undefined
-  },
-) {
-  const { feeToken = zeroAddress, permissionsFeeLimit } = options
-
-  const spend = key.permissions?.spend ? [...key.permissions.spend] : []
-
-  if (spend && permissionsFeeLimit) {
-    let index = -1
-    let minPeriod: number = Key.toSerializedSpendPeriod.year
-
-    for (let i = 0; i < spend.length; i++) {
-      const s = spend[i]!
-      if (s.token && Address.isEqual(feeToken, s.token)) {
-        index = i
-        break
-      }
-
-      const period = Key.toSerializedSpendPeriod[s.period]
-      if (period < minPeriod) minPeriod = period
-    }
-
-    // If there is a token assigned to a spend permission and the fee token
-    // is the same, update the limit to account for the fee.
-    if (index !== -1)
-      spend[index] = {
-        ...spend[index]!,
-        limit: spend[index]!.limit + permissionsFeeLimit,
-      }
-    // Update the spend permissions to account for the fee token.
-    else if (typeof minPeriod === 'number')
-      spend.push({
-        limit: permissionsFeeLimit,
-        period:
-          Key.fromSerializedSpendPeriod[
-            minPeriod as keyof typeof Key.fromSerializedSpendPeriod
-          ],
-        token: feeToken,
-      })
-  }
-
-  return { ...key.permissions, spend }
 }

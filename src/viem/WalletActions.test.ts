@@ -136,6 +136,13 @@ describe('grantPermissions', () => {
               "to": "0x0000000000000000000000000000000000000000",
             },
           ],
+          "spend": [
+            {
+              "limit": 1000000000000000000n,
+              "period": "year",
+              "token": "0x8ce361602b935680e8dec218b820ff5056beb7af",
+            },
+          ],
         },
       }
     `)
@@ -228,6 +235,13 @@ describe('getPermissions', () => {
             "calls": [
               {
                 "to": "0x0000000000000000000000000000000000000000",
+              },
+            ],
+            "spend": [
+              {
+                "limit": 1000000000000000000n,
+                "period": "year",
+                "token": "0x8ce361602b935680e8dec218b820ff5056beb7af",
               },
             ],
           },

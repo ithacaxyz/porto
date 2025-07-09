@@ -5,6 +5,7 @@ import * as Hex from 'ox/Hex'
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
 import type { ServerClient } from '../../viem/ServerClient.js'
+import type * as Chains from '../Chains.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
@@ -17,7 +18,12 @@ import type { PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
 
-export type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
+export type ActionsInternal<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = Pick<Porto.Internal<chains>, 'config' | 'store'> & {
   /** Viem Client. */
   client: ServerClient
   /** RPC Request. */

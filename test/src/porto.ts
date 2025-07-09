@@ -23,10 +23,7 @@ export const exp2Config = {
 
 export function getPorto(
   parameters: {
-    mode?: (parameters: {
-      permissionsFeeLimit: Record<string, string>
-      mock: boolean
-    }) => Mode.Mode | undefined
+    mode?: (parameters: { mock: boolean }) => Mode.Mode | undefined
     merchantRpcUrl?: string | undefined
     rpcUrl?: string | undefined
   } = {},
@@ -40,14 +37,10 @@ export function getPorto(
   } = parameters
   const porto = Porto.create({
     chains: [chain],
+    feeToken: 'EXP',
     merchantRpcUrl,
     mode: mode({
       mock: true,
-      permissionsFeeLimit: {
-        ETH: '0.1',
-        USDC: '100',
-        USDT: '100',
-      },
     }),
     storage: Storage.memory(),
     transports: {

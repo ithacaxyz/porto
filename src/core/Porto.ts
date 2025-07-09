@@ -19,7 +19,6 @@ const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia],
-  feeToken: 'EXP',
   mode: browser ? Mode.dialog() : Mode.rpcServer(),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
@@ -59,7 +58,7 @@ export function create(
       parameters.announceProvider ?? defaultConfig.announceProvider,
     authUrl: parameters.authUrl,
     chains,
-    feeToken: parameters.feeToken ?? defaultConfig.feeToken,
+    feeToken: parameters.feeToken,
     merchantRpcUrl: parameters.merchantRpcUrl,
     mode: parameters.mode ?? defaultConfig.mode,
     storage: parameters.storage ?? defaultConfig.storage,

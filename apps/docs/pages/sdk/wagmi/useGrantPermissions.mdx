@@ -132,6 +132,16 @@ function Example() {
 }
 ```
 
+### feeLimit
+
+`{ currency: 'ETH' | 'USD' | 'USDC' | 'USDT', value: string } | null`
+
+Limit that the key can spend on fees. When provided, Porto will assign a spend permission on the user's
+selected fee token that is equal to the limit provided.
+
+- Defaults to **1 USD**.
+- Provide `null` to have the fee inclusive with `permissions.spend`.
+
 ### key
 
 Optional key to use for signing. If provided, the application can use this key to sign transactions.

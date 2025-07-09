@@ -36,6 +36,7 @@ const config = {
   },
   dev: {
     chains: [defaultChain.dev],
+    feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
@@ -58,6 +59,7 @@ const config = {
   },
   stg: {
     chains: [defaultChain.stg],
+    feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,

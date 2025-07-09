@@ -27,6 +27,7 @@ export type Messenger = {
 
 export type ReadyOptions = {
   chainId: Porto.State['chainId']
+  feeToken: Porto.State['feeToken']
   methodPolicies?: Porto_remote.MethodPolicies | undefined
 }
 

@@ -151,11 +151,12 @@ export function iframe(options: iframe.Options = {}) {
       })
 
       messenger.on('ready', (options) => {
-        const { chainId } = options
+        const { chainId, feeToken } = options
 
         store.setState((x) => ({
           ...x,
           chainId,
+          feeToken,
         }))
 
         messenger.send('__internal', {

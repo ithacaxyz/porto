@@ -989,7 +989,7 @@ export function toRpcServer(
           } as const satisfies ServerPermission_schema.CallPermission
         })
       }
-
+      if (key === 'feeLimit') return
       if (key === 'spend') {
         const value = v as Key_schema.SpendPermissions
         return value.map(({ limit, period, token }) => {
@@ -1005,6 +1005,7 @@ export function toRpcServer(
       throw new Error(`Invalid permission type "${key}".`)
     })
     .flat()
+    .filter(Boolean) as ServerPermission_schema.Permission[]
 
   if (key.role === 'session' && orchestrator)
     permissions.push({

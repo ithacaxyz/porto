@@ -119,27 +119,6 @@ const porto = Porto.create({
 })
 ```
 
-#### permissionsFeeLimit
-
-- **Type**: `boolean`
-- **Default**: `Record<FeeToken.Kind, string>`
-
-Fee limit to use for permissions.
-
-```ts twoslash
-import { Porto, Mode } from 'porto'
-
-const porto = Porto.create({
-  mode: Mode.rpcServer({
-    permissionsFeeLimit: { // [!code focus]
-      ETH: '0.0001', // [!code focus]
-      USDC: '1', // [!code focus]
-      USDT: '1', // [!code focus]
-    }, // [!code focus]
-  }),
-})
-```
-
 #### persistPreCalls
 
 - **Type**: `boolean`

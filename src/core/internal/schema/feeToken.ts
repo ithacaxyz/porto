@@ -1,4 +1,14 @@
 import * as Schema from 'effect/Schema'
+import * as Primitive from './primitive.js'
+
+export const FeeToken = Schema.Struct({
+  address: Primitive.Address,
+  decimals: Schema.Number,
+  kind: Schema.String,
+  nativeRate: Schema.optional(Primitive.BigInt),
+  symbol: Schema.String,
+})
+export type FeeToken = typeof FeeToken.Type
 
 export const Kind = Schema.Union(
   Schema.Literal('ETH'),
