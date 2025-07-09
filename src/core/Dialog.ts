@@ -17,6 +17,18 @@ export type Dialog = {
   }
 }
 
+/** Dialog UI states.
+ *
+ * @remarks
+ * - Host app opens the dialog:
+ *   => initial = no dialog
+ *   => opening = initiates opening animation
+ *   => opened = opening animation finished ("loading…" window)
+ *   => revealing = opened state + ready message received + first resize received => revealing animation
+ *   => revealed = revealing animation finished
+ */
+type DialogStatus = 'initial' | 'opened' | 'opening' | 'revealed' | 'revealing'
+
 /**
  * Instantiates a dialog.
  *
@@ -55,6 +67,7 @@ export function iframe(options: iframe.Options = {}) {
       const { store } = internal
 
       const fallback = popup().setup(parameters)
+      const referrer = getReferrer()
 
       let open = false
 
@@ -62,8 +75,41 @@ export function iframe(options: iframe.Options = {}) {
 
       const root = document.createElement('dialog')
       root.dataset.porto = ''
-      root.style.top = '-10000px'
+      root.style.top = '-100vh'
+      root.style.margin = '0'
+      root.style.padding = '100vh 0 0 0'
       document.body.appendChild(root)
+
+      const loader = document.createElement('div')
+      loader.dataset.portoLoader = ''
+
+      const icon =
+        referrer.icon === undefined
+          ? ''
+          : typeof referrer.icon === 'string'
+            ? { dark: referrer.icon, light: referrer.icon }
+            : referrer.icon
+
+      const iconHtml =
+        icon &&
+        `<picture>
+           <source
+             srcset="${icon.dark}"
+             media="(prefers-color-scheme: dark)">
+           <img alt="" src="${icon.light}">
+         </picture>`
+
+      loader.innerHTML = `
+        <div data-porto-loader-window>
+          <div data-porto-loader-bar>
+            <div data-porto-loader-logo>
+              ${iconHtml}
+            </div>
+            <div data-porto-loader-text>loading…</div>
+            <div data-porto-loader-border></div>
+          </div>
+        </div>
+      `
 
       const iframe = document.createElement('iframe')
       iframe.setAttribute('data-testid', 'porto')
@@ -71,9 +117,7 @@ export function iframe(options: iframe.Options = {}) {
         'allow',
         `publickey-credentials-get ${hostUrl.origin}; publickey-credentials-create ${hostUrl.origin}; clipboard-write`,
       )
-      iframe.setAttribute('aria-closed', 'true')
       iframe.setAttribute('aria-label', 'Porto Wallet')
-      iframe.setAttribute('hidden', 'until-found')
       iframe.setAttribute('role', 'dialog')
       iframe.setAttribute('tabindex', '0')
       iframe.setAttribute(
@@ -83,34 +127,190 @@ export function iframe(options: iframe.Options = {}) {
 
       iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
+
+      const setIframeVisibility = (visible: boolean) => {
+        if (visible) {
+          iframe.style.display = 'block'
+          iframe.removeAttribute('hidden')
+          iframe.removeAttribute('aria-closed')
+        } else {
+          iframe.style.display = 'none'
+          iframe.setAttribute('hidden', 'until-found')
+          iframe.setAttribute('aria-closed', 'true')
+        }
+      }
+
+      setIframeVisibility(false)
+
       Object.assign(iframe.style, {
         ...styles.iframe,
-        display: 'none',
         position: 'fixed',
       })
 
       root.appendChild(document.createElement('style')).textContent = `
-        dialog[data-porto]::backdrop {
+        [data-porto] {
+          --porto-dialog-height: ${animations.loaderHeight}px;
+        }
+        [data-porto]::backdrop {
           background-color: rgba(0, 0, 0, 0.5);
         }
-
-        dialog iframe {
+        [data-porto] iframe {
           background-color: transparent;
           border-radius: 14px;
         }
-
+        [data-porto-loader] {
+          pointer-events: none;
+          user-select: none;
+        }
+        [data-porto-loader-window] {
+          width: calc(100% - 2px);
+          overflow: hidden;
+          color: #8d8d8d;
+          background: #f9f9f9;
+          border: 1px solid #e8e8e8;
+          border-radius: 14px;
+        }
+        [data-porto-loader-bar] {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          height: 37px;
+          padding-left: 12px;
+          font-size: 14px;
+          font-family: -system-ui, sans-serif;
+          background: #f0f0f0;
+        }
+        [data-porto-loader-border] {
+          position: absolute;
+          inset: auto 0 0;
+          height: 1px;
+          background: #e8e8e8;
+        }
+        [data-porto-loader-logo] {
+          display: grid;
+          place-items: center;
+          width: 20px;
+          height: 20px;
+          background: #d9d9d9;
+          border-radius: 5px;
+        }
+        [data-porto-loader-logo] picture {
+          display: flex;
+        }
+        [data-porto-loader-logo] img {
+          width: 14px;
+          height: 14px;
+        }
+        @media (prefers-color-scheme: dark) {
+          [data-porto-loader-window] {
+            color: rgb(110, 110, 110);
+            background: #191919;
+            border-color: #2a2a2a;
+          }
+          [data-porto-loader-bar] {
+            background: #222222;
+          }
+          [data-porto-loader-border] {
+            background: #2a2a2a;
+          }
+          [data-porto-loader-logo] {
+            background: #3a3a3a;
+          }
+        }
         @media (min-width: 460px) {
-          dialog iframe {
-            animation: porto_fadeFromTop 0.1s cubic-bezier(0.32, 0.72, 0, 1);
+          [data-porto] {
+            background: none;
+            border: 0;
+          }
+          [data-porto-loader] {
+            opacity: 0;
+            position: fixed;
+            top: 16px;
+            inset-inline-end: calc(50% - ${width}px / 2);
+            width: ${width}px;
+            height: ${animations.loaderHeight}px;
+            transform-origin: 50% 100%;
+            animation:
+              ${animations.openDuration}ms
+              ${animations.animFn}
+              forwards
+              porto_opening_loader;
+          }
+          [data-porto-loader-window] {
+            position: absolute;
+            inset: 0;
+            transform-origin: 50% 0%;
+            transform: scale3d(1, 1, 1);
+          }
+          [data-porto] iframe {
+            opacity: 0;
             top: 16px;
             inset-inline-end: calc(50% - ${width}px / 2);
             width: ${width}px;
           }
+          [data-porto-reveal] [data-porto-loader] {
+            opacity: 1;
+            animation:
+              ${animations.revealDuration1}ms
+              ${animations.animFn}
+              forwards
+              porto_reveal_loader_size;
+          }
+          [data-porto-reveal] [data-porto-loader-window] {
+            animation:
+              ${animations.revealDuration2}ms
+              ${animations.animFn}
+              ${animations.revealDuration1 - animations.revealDuration2}ms
+              forwards
+              porto_reveal_loader_window;
+          }
+          [data-porto-reveal] [data-porto-loader-text] {
+            animation:
+              ${animations.revealDuration2}ms
+              ${animations.animFn}
+              forwards
+              porto_reveal_loader_text;
+          }
+          [data-porto-reveal] iframe {
+            animation:
+              0ms /* instant */
+              ${animations.animFn}
+              ${animations.revealDuration1 - animations.revealDuration2}ms
+              forwards
+              porto_reveal_iframe;
+          }
         }
 
         @media (max-width: 460px) {
-          dialog iframe {
-            animation: porto_slideFromBottom 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+          [data-porto] {
+            background: none;
+            border: 0;
+          }
+          [data-porto-loader] {
+            opacity: 1;
+            position: fixed;
+            inset: auto 0 0;
+            width: 100%;
+            height: ${animations.loaderHeight}px;
+            transform-origin: 50% 100%;
+            animation:
+              ${animations.openDuration}ms
+              ${animations.animFn}
+              forwards
+              porto_opening_loader_small;
+          }
+          [data-porto-loader-window] {
+            position: absolute;
+            inset: 0;
+            transform-origin: 50% 100%;
+            transform: scale3d(1, 1, 1);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+          }
+          [data-porto] iframe {
+            opacity: 0;
             border-bottom-left-radius: 0;
             border-bottom-right-radius: 0;
             bottom: 0;
@@ -118,24 +318,209 @@ export function iframe(options: iframe.Options = {}) {
             right: 0;
             width: 100% !important;
           }
+          [data-porto-reveal] [data-porto-loader] {
+            animation:
+              ${animations.revealDrawerDuration}ms
+              ${animations.animFn}
+              forwards
+              porto_reveal_loader_small;
+          }
+          [data-porto-reveal] iframe {
+            opacity: 1;
+            animation:
+              ${animations.revealDrawerDuration}ms
+              ${animations.animFn}
+              forwards
+              porto_reveal_iframe_small;
+          }
         }
 
-        @keyframes porto_fadeFromTop {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes porto_slideFromBottom {
+        @keyframes porto_reveal_iframe {
           from {
-            transform: translate3d(0, 100%, 0);
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes porto_opening_loader {
+          from {
+            opacity: 0;
+            transform:
+              scale3d(
+                ${animations.scaleLoaderFrom},
+                ${animations.scaleLoaderFrom},
+                1
+              )
+              translate3d(0, 20px, 0);
+          }
+          to {
+            opacity: 1;
+            transform: scale3d(1, 1, 1) translate3d(0, 40px, 0);
+          }
+        }
+
+        @keyframes porto_reveal_loader_size {
+          from {
+            height: ${animations.loaderHeight}px;
+            transform: scale3d(1, 1, 1) translate3d(0, 40px, 0);
+          }
+          to {
+            height: var(--porto-dialog-height);
+            transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
+          }
+        }
+
+        @keyframes porto_reveal_loader_window {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+
+        @keyframes porto_reveal_loader_text {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+
+        /* on small viewports, slide drawer from the bottom */
+        @keyframes porto_reveal_iframe_small {
+          from {
+            transform: translate3d(0, calc(8px + var(--porto-dialog-height) - ${animations.loaderHeight}px), 0);
           }
           to {
             transform: translate3d(0, 0, 0);
           }
         }
+
+        @keyframes porto_opening_loader_small {
+          from {
+            transform: translate3d(0, 100%, 0);
+          }
+          to {
+            transform: translate3d(0, 8px, 0);
+          }
+        }
+
+        @keyframes porto_reveal_loader_small {
+          from {
+            opacity: 1;
+            transform: translate3d(0, 8px, 0);
+          }
+          to {
+            opacity: 0;
+            transform: translate3d(0, calc(8px - var(--porto-dialog-height) + ${animations.loaderHeight}px), 0);
+          }
+        }
       `
 
       root.appendChild(iframe)
+      root.appendChild(loader)
+
+      let dialogHeight: number | null = null
+      let hasReceivedReady = false
+      let openingAt: number | null = null
+
+      const dialogState = {
+        status: 'initial' as DialogStatus,
+        initial() {
+          this.status = 'initial'
+          dialogHeight = null
+
+          setIframeVisibility(true)
+          loader.style.display = 'block'
+          root.style.setProperty(
+            '--porto-dialog-height',
+            `${animations.loaderHeight}px`,
+          )
+          delete root.dataset.portoReveal
+        },
+        opening() {
+          this.status = 'opening'
+
+          dialogHeight = null
+          openingAt = Date.now()
+
+          root.style.setProperty(
+            '--porto-dialog-height',
+            `${animations.loaderHeight}px`,
+          )
+          delete root.dataset.portoReveal
+        },
+        opened() {
+          this.status = 'opened'
+
+          root.style.setProperty(
+            '--porto-dialog-height',
+            `${animations.loaderHeight}px`,
+          )
+          delete root.dataset.portoReveal
+        },
+        revealing(dialogHeight: number) {
+          const elapsed = openingAt ? Date.now() - openingAt : 0
+          const delay = Math.max(0, animations.minRevealDelay - elapsed)
+          setTimeout(() => {
+            this.status = 'revealing'
+
+            setIframeVisibility(true)
+            iframe.style.height = `${dialogHeight}px`
+            root.style.setProperty('--porto-dialog-height', `${dialogHeight}px`)
+            root.dataset.portoReveal = ''
+          }, delay)
+        },
+        revealed() {
+          this.status = 'revealed'
+        },
+      }
+
+      dialogState.initial()
+
+      const setDialogHeight = (height: number) => {
+        if (dialogHeight === height) return
+        dialogHeight = height
+
+        iframe.style.height = `${height}px`
+        root.style.setProperty('--porto-dialog-height', `${height}px`)
+
+        if (
+          dialogState.status === 'opened' &&
+          hasReceivedReady &&
+          dialogHeight !== null
+        ) {
+          dialogState.revealing(dialogHeight)
+        }
+      }
+
+      loader.addEventListener('animationend', (event) => {
+        if (
+          dialogState.status === 'opening' &&
+          (event.animationName === 'porto_opening_loader' ||
+            event.animationName === 'porto_opening_loader_small')
+        ) {
+          dialogState.opened()
+
+          if (hasReceivedReady && dialogHeight !== null) {
+            dialogState.revealing(dialogHeight)
+          }
+        }
+      })
+
+      iframe.addEventListener('animationend', (event) => {
+        if (
+          dialogState.status === 'revealing' &&
+          (event.animationName === 'porto_reveal_iframe' ||
+            event.animationName === 'porto_reveal_iframe_small')
+        ) {
+          dialogState.revealed()
+        }
+      })
 
       function onBlur() {
         handleBlur(store)
@@ -158,9 +543,15 @@ export function iframe(options: iframe.Options = {}) {
           chainId,
         }))
 
+        hasReceivedReady = true
+
+        if (dialogState.status === 'opened' && dialogHeight !== null) {
+          dialogState.revealing(dialogHeight)
+        }
+
         messenger.send('__internal', {
           mode: 'iframe',
-          referrer: getReferrer(),
+          referrer,
           type: 'init',
         })
       })
@@ -170,13 +561,16 @@ export function iframe(options: iframe.Options = {}) {
           // unsupported request routed via another renderer.
           const src = iframe.src
           iframe.src = src
+          hasReceivedReady = false
         }
         handleResponse(store, response)
       })
       messenger.on('__internal', (payload) => {
         if (payload.type === 'resize') {
           iframe.style.height = `${payload.height}px`
-          if (!isMobile()) iframe.style.width = `${payload.width}px`
+          if (payload.height !== undefined) setDialogHeight(payload.height)
+          if (!isMobile() && payload.width)
+            iframe.style.width = `${payload.width}px`
         }
 
         if (payload.type === 'switch' && payload.mode === 'popup') {
@@ -212,9 +606,10 @@ export function iframe(options: iframe.Options = {}) {
           Object.assign(document.body.style, bodyStyle ?? '')
           // firefox: explicitly restore/clear `overflow` directly
           document.body.style.overflow = bodyStyle.overflow ?? ''
-          iframe.style.display = 'none'
-          iframe.setAttribute('hidden', 'true')
-          iframe.setAttribute('aria-closed', 'true')
+          setIframeVisibility(false)
+
+          // reset dialog state
+          dialogState.initial()
 
           // 1password extension sometimes adds `inert` attribute to `dialog` siblings and does not clean up
           // remove when `dialog` closes (after `<com-1password-notification />` closes)
@@ -237,18 +632,19 @@ export function iframe(options: iframe.Options = {}) {
           if (open) return
           open = true
 
+          dialogState.opening()
+
           messenger.send('__internal', {
             mode: 'iframe',
-            referrer: getReferrer(),
+            referrer,
             type: 'init',
           })
 
           root.showModal()
           document.addEventListener('keydown', onEscape)
           document.body.style.overflow = 'hidden'
-          iframe.removeAttribute('hidden')
-          iframe.removeAttribute('aria-closed')
-          iframe.style.display = 'block'
+
+          setIframeVisibility(true)
         },
         async syncRequests(requests) {
           const { methodPolicies } = await messenger.waitForReady()
@@ -516,6 +912,18 @@ export namespace inline {
 
 export const width = 360
 export const height = 282
+
+export const animations = {
+  animFn: 'cubic-bezier(0.32, 0.72, 0, 1)',
+  loaderHeight: 80, // height of the window when showing "loading…"
+  minRevealDelay: 120, // minimum delay to wait before revealing
+  openDuration: 120,
+  revealDuration1: 300, // part 1 of the reveal anim: height + scale
+  revealDuration2: 120, // part 2 of the reveal anim: opacity
+  revealDrawerDuration: 300, // reveal anim in drawer mode
+  resizeDuration: 200, // iframe height resize transition
+  scaleLoaderFrom: 0.8, // starting scale of the loader
+} as const
 
 export const styles = {
   backdrop: {
