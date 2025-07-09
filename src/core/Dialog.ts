@@ -429,13 +429,21 @@ export function iframe(options: iframe.Options = {}) {
       let openingAt: number | null = null
 
       const dialogState = {
-        status: 'initial' as DialogStatus,
         initial() {
           this.status = 'initial'
           dialogHeight = null
 
           setIframeVisibility(true)
           loader.style.display = 'block'
+          root.style.setProperty(
+            '--porto-dialog-height',
+            `${animations.loaderHeight}px`,
+          )
+          delete root.dataset.portoReveal
+        },
+        opened() {
+          this.status = 'opened'
+
           root.style.setProperty(
             '--porto-dialog-height',
             `${animations.loaderHeight}px`,
@@ -454,14 +462,8 @@ export function iframe(options: iframe.Options = {}) {
           )
           delete root.dataset.portoReveal
         },
-        opened() {
-          this.status = 'opened'
-
-          root.style.setProperty(
-            '--porto-dialog-height',
-            `${animations.loaderHeight}px`,
-          )
-          delete root.dataset.portoReveal
+        revealed() {
+          this.status = 'revealed'
         },
         revealing(dialogHeight: number) {
           const elapsed = openingAt ? Date.now() - openingAt : 0
@@ -478,9 +480,7 @@ export function iframe(options: iframe.Options = {}) {
             root.dataset.portoReveal = ''
           }, delay)
         },
-        revealed() {
-          this.status = 'revealed'
-        },
+        status: 'initial' as DialogStatus,
       }
 
       dialogState.initial()
