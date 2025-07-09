@@ -1,10 +1,17 @@
 interface EnvironmentVariables {
   readonly ENVIRONMENT: 'development' | 'production'
-  /** `/onramp` route */
+  /** `/onramp/external` route */
   readonly STRIPE_API_KEY: string
   readonly STRIPE_PUBLISHABLE_KEY: string
   readonly SANDBOX_STRIPE_API_KEY: string
   readonly SANDBOX_STRIPE_PUBLISHABLE_KEY: string
+  /** `/onramp` route */
+  readonly WIDGET_ID: string
+  readonly WIDGET_URL: string
+  readonly API_BASE_URL: string
+  readonly AUTH_SIGN_KEY: string
+  readonly AUTH_SECRET_KEY: string
+  readonly SDK_PARTNER_TOKEN: string
 
   /** `/faucet` route */
   readonly DRIP_PRIVATE_KEY: `0x${string}`
@@ -24,5 +31,6 @@ namespace Cloudflare {
 namespace NodeJS {
   interface ProcessEnv extends EnvironmentVariables {
     readonly NODE_ENV: 'development' | 'production'
+    readonly PORT: string
   }
 }
