@@ -2,7 +2,7 @@
 "porto": patch
 ---
 
-Added an inclusive "fee limit" (defaults to **$1 USD**) to all permissions requests. 
+Added an inclusive "fee limit" (defaults to **$1 USD**) to all permissions requests.
 This is a spend permission that will be used to pay for fees used by permissions
 in the user's selected fee token (e.g. USDC).
 
