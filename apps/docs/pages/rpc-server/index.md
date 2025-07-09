@@ -18,6 +18,7 @@ The RPC server has multiple endpoints, one for each chain/environment.
 | ----------------------------- | -------- |
 | `porto-dev.rpc.ithaca.xyz`    | `28404`  |
 | `base-sepolia.rpc.ithaca.xyz` | `84532`  |
+| `base-mainnet.rpc.ithaca.xyz` | `8453`   |
 
 Each endpoint has passthrough to Ethereum RPCs for the corresponding network.
 
