@@ -3,6 +3,10 @@ on:
   workflow_call:
   workflow_dispatch:
     inputs:
+      porto-ref:
+        type: string
+        description: 'Porto ref'
+        default: ''
       contracts-ref:
         type: string
         description: 'Contracts ref'
@@ -72,6 +76,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.porto-ref }}
 
       - name: Initialize submodules
         run: |
