@@ -14,6 +14,7 @@ export function fromKey(key: Key.Key): PermissionsRequest {
   const { expiry, permissions, publicKey, type } = key
   return {
     expiry,
+    feeLimit: 'include',
     key: {
       publicKey,
       type,
@@ -130,7 +131,7 @@ export function resolvePermissions(
     }
   }
 
-  return { ...permissions, feeLimit: null, spend }
+  return { ...permissions, spend }
 }
 
 export declare namespace resolvePermissions {
@@ -155,8 +156,9 @@ export function getFeeLimit(
   const { defaultFeeLimit, feeTokens } = options
 
   const feeLimit = (() => {
+    if (request.feeLimit === 'include') return undefined
     if (request.feeLimit) return request.feeLimit
-    if (request.feeLimit === null) return undefined
+    if (defaultFeeLimit === 'include') return undefined
     return defaultFeeLimit
   })()
   const feeToken = feeTokens[0]!

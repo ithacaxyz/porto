@@ -772,7 +772,7 @@ describe('Request', () => {
       [Schema.CoderError: Expected a number greater than or equal to 1, actual 0
       Path: expiry
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
       └─ ["expiry"]
          └─ greaterThanOrEqualTo(1)
             └─ Predicate refinement failure
@@ -797,7 +797,7 @@ describe('Request', () => {
       [Schema.CoderError: Expected a number greater than or equal to 1, actual -1
       Path: expiry
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
       └─ ["expiry"]
          └─ greaterThanOrEqualTo(1)
             └─ Predicate refinement failure
@@ -815,7 +815,7 @@ describe('Request', () => {
       [Schema.CoderError: \`permissions\` is missing
       Path: permissions
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
       └─ ["permissions"]
          └─ is missing]
     `)
@@ -844,7 +844,7 @@ describe('Request', () => {
       [Schema.CoderError: Expected "minute", actual "invalid-period"
       Path: permissions.spend.0.period
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
       └─ ["permissions"]
          └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
             └─ ["spend"]
@@ -885,10 +885,10 @@ describe('Request', () => {
       [Schema.CoderError: Expected "ETH", actual "BTC"
       Path: feeLimit.currency
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
       └─ ["feeLimit"]
-         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined
-            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null
+         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined
+            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\`
             │  ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ }
             │  │  └─ ["currency"]
             │  │     └─ "ETH" | "USDC" | "USDT" | "USD"
@@ -897,7 +897,7 @@ describe('Request', () => {
             │  │        │  ├─ Expected "USDC", actual "BTC"
             │  │        │  └─ Expected "USDT", actual "BTC"
             │  │        └─ Expected "USD", actual "BTC"
-            │  └─ Expected null, actual {"currency":"BTC","value":"1"}
+            │  └─ Expected \`include\`, actual {"currency":"BTC","value":"1"}
             └─ Expected undefined, actual {"currency":"BTC","value":"1"}]
     `)
   })
@@ -923,10 +923,10 @@ describe('Request', () => {
       [Schema.CoderError: Expected \`\${number}.\${number}\`, actual "invalid-number"
       Path: feeLimit.value
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
       └─ ["feeLimit"]
-         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined
-            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null
+         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined
+            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\`
             │  ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ }
             │  │  └─ ["value"]
             │  │     └─ a string matching the pattern ^\\d+(\\.\\d+)?$
@@ -934,7 +934,7 @@ describe('Request', () => {
             │  │           └─ \`\${number}.\${number}\` | \`\${number}\`
             │  │              ├─ Expected \`\${number}.\${number}\`, actual "invalid-number"
             │  │              └─ Expected \`\${number}\`, actual "invalid-number"
-            │  └─ Expected null, actual {"currency":"ETH","value":"invalid-number"}
+            │  └─ Expected \`include\`, actual {"currency":"ETH","value":"invalid-number"}
             └─ Expected undefined, actual {"currency":"ETH","value":"invalid-number"}]
     `)
   })
@@ -960,16 +960,16 @@ describe('Request', () => {
       [Schema.CoderError: Expected a string matching the pattern ^\\d+(\\.\\d+)?$, actual "1.5.0"
       Path: feeLimit.value
 
-      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+      Details: { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
       └─ ["feeLimit"]
-         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null | undefined
-            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | null
+         └─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\` | undefined
+            ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | \`include\`
             │  ├─ { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ }
             │  │  └─ ["value"]
             │  │     └─ a string matching the pattern ^\\d+(\\.\\d+)?$
             │  │        └─ Predicate refinement failure
             │  │           └─ Expected a string matching the pattern ^\\d+(\\.\\d+)?$, actual "1.5.0"
-            │  └─ Expected null, actual {"currency":"USDC","value":"1.5.0"}
+            │  └─ Expected \`include\`, actual {"currency":"USDC","value":"1.5.0"}
             └─ Expected undefined, actual {"currency":"USDC","value":"1.5.0"}]
     `)
   })

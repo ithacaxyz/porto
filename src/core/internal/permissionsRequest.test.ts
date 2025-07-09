@@ -48,7 +48,6 @@ describe('resolvePermissions', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "calls": [],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 25000000n,
@@ -81,7 +80,6 @@ describe('resolvePermissions', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "calls": [],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 15000000n,
@@ -116,7 +114,6 @@ describe('resolvePermissions', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "calls": [],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 15000000n,
@@ -148,7 +145,6 @@ describe('resolvePermissions', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "calls": [],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 5000000n,
@@ -192,7 +188,6 @@ describe('resolvePermissions', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "calls": [],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 10000000000000000000n,
@@ -246,7 +241,6 @@ describe('resolvePermissions', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "calls": [],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 13000000n,
@@ -289,7 +283,6 @@ describe('resolvePermissions', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "calls": [],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 10000775500000000000n,
@@ -331,7 +324,6 @@ describe('resolvePermissions', () => {
             "to": "0x1234567890123456789012345678901234567890",
           },
         ],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 1000000n,
@@ -370,7 +362,6 @@ describe('resolvePermissions', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "calls": [],
-        "feeLimit": null,
         "spend": [
           {
             "limit": 5000000n,

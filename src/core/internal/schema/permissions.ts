@@ -11,7 +11,7 @@ export const FeeLimit = Schema.Union(
       Schema.TemplateLiteral(Schema.Number),
     ).pipe(Schema.pattern(/^\d+(\.\d+)?$/)),
   }),
-  Schema.Null,
+  Schema.TemplateLiteral('include'),
 )
 export type FeeLimit = typeof FeeLimit.Type
 

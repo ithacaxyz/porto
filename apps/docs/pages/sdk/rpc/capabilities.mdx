@@ -119,14 +119,14 @@ type Capability = {
      * selected fee token that is equal to the limit provided.
      * 
      * - Defaults to `porto.config.permissionsFeeLimit` (1 USD).
-     * - Provide `null` to have the fee inclusive with `permissions.spend`.
+     * - Provide `"include"` to have the fee inclusive with `permissions.spend`.
      */
     feeLimit?: {
       /** Currency of the limit. */
       currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
       /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
       value: string
-    } | null,
+    } | 'include',
 
     /**
      * Key to grant permissions to.
