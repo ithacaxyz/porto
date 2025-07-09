@@ -144,7 +144,7 @@ export function create(
 ): Porto {
   const {
     chains = defaultConfig.chains,
-    feeToken = defaultConfig.feeToken,
+    feeToken,
     mode = defaultConfig.mode,
     messenger = defaultConfig.messenger,
     methodPolicies = defaultConfig.methodPolicies,
