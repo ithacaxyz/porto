@@ -241,6 +241,9 @@ importers:
       '@ariakit/react':
         specifier: 'catalog:'
         version: 0.4.17(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@iframe-resizer/react':
+        specifier: ^5.4.7
+        version: 5.4.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@porto/apps':
         specifier: workspace:*
         version: link:../~internal
@@ -1362,6 +1365,10 @@ packages:
     resolution: {integrity: sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/runtime@7.27.6':
+    resolution: {integrity: sha512-vbavdySgbTTrmFE+EsiqUTzlOr5bzlnJtUv9PynGCAKvfQqjIXbvFdumPM/GxMDfyuGMJaJAU6TO4zc1Jf1i8Q==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/template@7.27.2':
     resolution: {integrity: sha512-LPDZ85aEJyYSd18/DkjNh4/y1ntkE5KwUHWTiqgRxruuZL2F1yuHligVHLvcHY2vMHXttKFpJn6LwfI7cw7ODw==}
     engines: {node: '>=6.9.0'}
@@ -1883,6 +1890,15 @@ packages:
 
   '@iconify/utils@2.3.0':
     resolution: {integrity: sha512-GmQ78prtwYW6EtzXRU1rY+KwOKfz32PD7iJh6Iyqw68GiKuoZ2A6pRtzWONz5VQJbp50mEjXh/7NkumtrAgRKA==}
+
+  '@iframe-resizer/core@5.4.7':
+    resolution: {integrity: sha512-fDHq6r1FYX9f3BduPqtJC/1ZqtEec6PFxEysqCI0UxM9D28iHll9UryiP6vXJuUBuF06aRh2b9bTXlYgZLqR+w==}
+
+  '@iframe-resizer/react@5.4.7':
+    resolution: {integrity: sha512-psFAAV98h2NJNOaD4kJSNUSu9jybEVKA/clvhZE39ek6jnOEWGO0ZowvalJs7yGozZEzFM71Zf/yUtLMBTh+bg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0  || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0  || ^19.0.0
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -4722,6 +4738,9 @@ packages:
 
   atomically@2.0.3:
     resolution: {integrity: sha512-kU6FmrwZ3Lx7/7y3hPS5QnbJfaohcIul5fGqf7ok+4KklIEk9tJ0C2IQPdacSbVUWv6zVHXEBWoWd6NrVMT7Cw==}
+
+  auto-console-group@1.2.9:
+    resolution: {integrity: sha512-YGJqZByv1SFIq8viTpKFmI0eNHIoa9hllKP3487VbIN4zjRcsKKoouu2TiQ189oscvwCSKTndfAe6wf6izbSMA==}
 
   autoprefixer@10.4.21:
     resolution: {integrity: sha512-O+A6LWV5LDHSJD3LjHYoNi4VLsj/Whi7k6zG12xTYaU4cQ8oxQGckXNX8cRHK5yOZ/ppVHe0ZBXGzSV9jXdVbQ==}
@@ -10184,6 +10203,8 @@ snapshots:
 
   '@babel/runtime@7.27.1': {}
 
+  '@babel/runtime@7.27.6': {}
+
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
@@ -10743,6 +10764,18 @@ snapshots:
       mlly: 1.7.4
     transitivePeerDependencies:
       - supports-color
+
+  '@iframe-resizer/core@5.4.7':
+    dependencies:
+      auto-console-group: 1.2.9
+
+  '@iframe-resizer/react@5.4.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@babel/runtime': 7.27.6
+      '@iframe-resizer/core': 5.4.7
+      auto-console-group: 1.2.9
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
@@ -14503,6 +14536,8 @@ snapshots:
     dependencies:
       stubborn-fs: 1.2.5
       when-exit: 2.1.4
+
+  auto-console-group@1.2.9: {}
 
   autoprefixer@10.4.21(postcss@8.5.3):
     dependencies:

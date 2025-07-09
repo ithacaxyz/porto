@@ -1,4 +1,5 @@
 import * as Ariakit from '@ariakit/react'
+import IframeResizer from '@iframe-resizer/react'
 import { Button } from '@porto/apps/components'
 import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation } from '@tanstack/react-query'
@@ -6,12 +7,22 @@ import { Cuer } from 'cuer'
 import { type Address, type Hex, Value } from 'ox'
 import { Hooks } from 'porto/remote'
 import * as React from 'react'
+import { PayButton } from '~/components/PayButton'
 import * as FeeToken from '~/lib/FeeToken'
-import { enableOnramp, integratedOnrampUrl } from '~/lib/Onramp'
+import {
+  enableOnramp,
+  externalOnrampUrl,
+  integratedOnrampUrl,
+} from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
+import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
+import CardIcon from '~icons/lucide/credit-card'
+import PencilIcon from '~icons/lucide/pencil'
+import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
+import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250'] as const
 
@@ -29,6 +40,14 @@ export function AddFunds(props: AddFunds.Props) {
     addressOrSymbol: tokenAddress,
   })
 
+  // const [isPending, startTransition] = React.useTransition()
+
+  // React.useEffect(() => {
+  //   startTransition(() => {
+  //     fetchOnrampUrl.mutate()
+  //   })
+  // }, [startTransition])
+
   const address = props.address ?? account?.address
 
   const [amount, setAmount] = React.useState<string>(value.toString())
@@ -39,18 +58,45 @@ export function AddFunds(props: AddFunds.Props) {
 
   const showOnramp = enableOnramp()
 
-  const onrampUrl = integratedOnrampUrl({
-    address: address!,
-    amount: Number(amount),
-    email: `${Date.now()}@porto.mail`,
-    redirect: 'false',
+  const iframeRef = React.useRef<HTMLIFrameElement | null>(null)
+  const [messageData, setMessageData] = React.useState()
+
+  const onResized = (data: any) => {
+    console.info('onResized', data)
+    setMessageData(data)
+  }
+
+  const onMessage = (data: any) => {
+    console.info('onMessage', data)
+    setMessageData(data)
+    // @ts-expect-error
+    iframeRef.current?.sendMessage('Hello back from the parent page')
+  }
+  const [iframeShow, setIframeShow] = React.useState(true)
+
+  const fetchOnrampUrl = useMutation({
+    async mutationFn() {
+      const url = integratedOnrampUrl({
+        address: address!,
+        amount: Number(amount),
+        email: `${Date.now()}@porto.mail`,
+        redirect: 'false',
+      })
+      const response = await fetch(url, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+        mode: 'cors',
+      })
+      if (!response.ok) throw new Error('Failed to fetch onramp url')
+      const data = (await response.json()) as { url: string }
+      return data
+    },
+    onSuccess: (data) => {
+      console.info('onSuccess', data)
+      setIframeShow(true)
+    },
   })
-  console.info(onrampUrl)
-  const iframeGenerator = React.useMemo(() => {
-    return (
-      <iframe className="h-full w-full" src={onrampUrl} title="Porto Onramp" />
-    )
-  }, [onrampUrl])
 
   const deposit = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
@@ -87,159 +133,178 @@ export function AddFunds(props: AddFunds.Props) {
 
   if (deposit.isSuccess) return
 
-  if (view === 'default') <div>{iframeGenerator}</div>
-  // return (
-  //   <Layout loading={loading} loadingTitle="Adding funds...">
-  //     <Layout.Header>
-  //       <Layout.Header.Default
-  //         content="Select how much you will deposit."
-  //         title="Deposit funds"
-  //       />
-  //     </Layout.Header>
+  if (view === 'default')
+    return (
+      <Layout loading={loading} loadingTitle="Adding funds...">
+        <Layout.Header>
+          <Layout.Header.Default
+            content="Select how much you will deposit."
+            title="Deposit funds"
+          />
+        </Layout.Header>
 
-  //     <Layout.Content>
-  //       <form
-  //         className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-  //         onSubmit={(e) => deposit.mutate(e)}
-  //       >
-  //         <div className="col-span-1 row-span-1">
-  //           <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
-  //             {editView === 'editing' ? (
-  //               <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-gray4/45 px-3 py-2.5 text-gray12 focus-within:border-blue9 focus-within:bg-gray4/75 has-invalid:border-red8 dark:bg-gray3">
-  //                 <span className="-translate-y-1/2 absolute top-1/2 left-3 text-gray11">
-  //                   $
-  //                 </span>
-  //                 <input
-  //                   autoCapitalize="off"
-  //                   autoComplete="off"
-  //                   autoCorrect="off"
-  //                   // biome-ignore lint/a11y/noAutofocus: _
-  //                   autoFocus
-  //                   className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
-  //                   inputMode="decimal"
-  //                   max={500}
-  //                   min={0}
-  //                   onChange={(event) =>
-  //                     event.target.value.length > 0
-  //                       ? setAmount(event.target.value)
-  //                       : setAmount('')
-  //                   }
-  //                   placeholder="Enter amount"
-  //                   required
-  //                   spellCheck={false}
-  //                   type="number"
-  //                   value={amount}
-  //                   // should add disabled` if testnet?
-  //                 />
-  //                 <span className="text-gray9 text-sm">Max. $500</span>
-  //               </div>
-  //             ) : (
-  //               <Ariakit.RadioProvider
-  //                 setValue={(value) => setAmount(value as string)}
-  //                 value={amount}
-  //               >
-  //                 <Ariakit.RadioGroup className="flex w-full gap-3 *:h-10.5">
-  //                   {presetAmounts.map((predefinedAmount) => (
-  //                     // biome-ignore lint/a11y/noLabelWithoutControl: _
-  //                     <label
-  //                       className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
-  //                       key={predefinedAmount}
-  //                     >
-  //                       <Ariakit.VisuallyHidden>
-  //                         <Ariakit.Radio value={predefinedAmount} />
-  //                       </Ariakit.VisuallyHidden>
-  //                       ${predefinedAmount}
-  //                     </label>
-  //                   ))}
-  //                 </Ariakit.RadioGroup>
-  //               </Ariakit.RadioProvider>
-  //             )}
-  //             <Ariakit.Button
-  //               className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
-  //               onClick={() =>
-  //                 setEditView(editView === 'default' ? 'editing' : 'default')
-  //               }
-  //             >
-  //               {editView === 'editing' ? (
-  //                 <XIcon className="size-6" />
-  //               ) : (
-  //                 <PencilIcon className="size-4" />
-  //               )}
-  //             </Ariakit.Button>
-  //           </div>
-  //         </div>
-  //         <div className="col-span-1 row-span-1 space-y-3.5">
-  //           {showOnramp ? (
-  //             <PayButton
-  //               disabled={!address}
-  //               url={externalOnrampUrl({
-  //                 address: address!,
-  //                 amount: Number(amount),
-  //               })}
-  //               variant="stripe"
-  //             />
-  //           ) : (
-  //             <Button
-  //               className="w-full flex-1"
-  //               data-testid="buy"
-  //               type="submit"
-  //               variant="accent"
-  //             >
-  //               Get started
-  //             </Button>
-  //           )}
-  //         </div>
-  //         <div className="col-span-1 row-span-1">
-  //           <div className="my-auto flex w-full flex-row items-center gap-2 *:border-gray7">
-  //             <hr className="flex-1" />
-  //             <span className="px-3 text-gray9">or</span>
-  //             <hr className="flex-1" />
-  //           </div>
-  //         </div>
-  //         <div className="col-span-1 row-span-1">
-  //           <Button
-  //             className="w-full px-3!"
-  //             onClick={() => setView('deposit-crypto')}
-  //             type="button"
-  //           >
-  //             <div className="flex w-full flex-row items-center justify-between">
-  //               <div className="flex items-center gap-2">
-  //                 <QrCodeIcon className="size-5" />
-  //                 <span>Deposit crypto</span>
-  //               </div>
-  //               <div className="flex items-center gap-1">
-  //                 <span className="ml-auto font-normal text-gray10 text-sm">
-  //                   Instant
-  //                 </span>
-  //                 <ArrowRightIcon className="size-4 text-gray10" />
-  //               </div>
-  //             </div>
-  //           </Button>
-  //           <Button
-  //             className="w-full px-3! disabled:opacity-50"
-  //             disabled
-  //             hidden
-  //             title="Coming soon"
-  //             type="button"
-  //           >
-  //             <div className="flex w-full flex-row items-center justify-between">
-  //               <div className="flex items-center gap-2">
-  //                 <CardIcon className="size-5" />
-  //                 <span>Debit or Credit</span>
-  //               </div>
-  //               <div className="flex items-center gap-1">
-  //                 <span className="ml-auto font-normal text-gray10 text-sm">
-  //                   ~5 mins
-  //                   <ArrowRightIcon className="ml-1 inline size-4" />
-  //                 </span>
-  //               </div>
-  //             </div>
-  //           </Button>
-  //         </div>
-  //       </form>
-  //     </Layout.Content>
-  //   </Layout>
-  // )
+        <Layout.Content>
+          <form
+            className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              fetchOnrampUrl.mutate()
+              // setView('onramp')
+              // deposit.mutate(e)
+            }}
+          >
+            <div className="col-span-1 row-span-1">
+              <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
+                {editView === 'editing' ? (
+                  <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-gray4/45 px-3 py-2.5 text-gray12 focus-within:border-blue9 focus-within:bg-gray4/75 has-invalid:border-red8 dark:bg-gray3">
+                    <span className="-translate-y-1/2 absolute top-1/2 left-3 text-gray11">
+                      $
+                    </span>
+                    <input
+                      autoCapitalize="off"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      // biome-ignore lint/a11y/noAutofocus: _
+                      autoFocus
+                      className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
+                      inputMode="decimal"
+                      max={500}
+                      min={0}
+                      onChange={(event) =>
+                        event.target.value.length > 0
+                          ? setAmount(event.target.value)
+                          : setAmount('')
+                      }
+                      placeholder="Enter amount"
+                      required
+                      spellCheck={false}
+                      type="number"
+                      value={amount}
+                      // should add disabled` if testnet?
+                    />
+                    <span className="text-gray9 text-sm">Max. $500</span>
+                  </div>
+                ) : (
+                  <Ariakit.RadioProvider
+                    setValue={(value) => setAmount(value as string)}
+                    value={amount}
+                  >
+                    <Ariakit.RadioGroup className="flex w-full gap-3 *:h-10.5">
+                      {presetAmounts.map((predefinedAmount) => (
+                        // biome-ignore lint/a11y/noLabelWithoutControl: _
+                        <label
+                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                          key={predefinedAmount}
+                        >
+                          <Ariakit.VisuallyHidden>
+                            <Ariakit.Radio value={predefinedAmount} />
+                          </Ariakit.VisuallyHidden>
+                          ${predefinedAmount}
+                        </label>
+                      ))}
+                    </Ariakit.RadioGroup>
+                  </Ariakit.RadioProvider>
+                )}
+                <Ariakit.Button
+                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                  onClick={() =>
+                    setEditView(editView === 'default' ? 'editing' : 'default')
+                  }
+                >
+                  {editView === 'editing' ? (
+                    <XIcon className="size-6" />
+                  ) : (
+                    <PencilIcon className="size-4" />
+                  )}
+                </Ariakit.Button>
+              </div>
+            </div>
+            <div className="col-span-1 row-span-1 space-y-3.5">
+              {iframeShow && fetchOnrampUrl.data?.url && (
+                <IframeResizer
+                  allow="*"
+                  className="size-full"
+                  license="GPLv3"
+                  log="expanded"
+                  onMessage={onMessage}
+                  onResized={onResized}
+                  ref={iframeRef}
+                  sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+                  src={fetchOnrampUrl.data?.url}
+                />
+              )}
+              {showOnramp ? (
+                <PayButton
+                  disabled={!address}
+                  url={externalOnrampUrl({
+                    address: address!,
+                    amount: Number(amount),
+                  })}
+                  variant="stripe"
+                />
+              ) : (
+                <Button
+                  className="w-full flex-1"
+                  data-testid="buy"
+                  type="submit"
+                  variant="accent"
+                >
+                  Get started
+                </Button>
+              )}
+            </div>
+            <div className="col-span-1 row-span-1">
+              <div className="my-auto flex w-full flex-row items-center gap-2 *:border-gray7">
+                <hr className="flex-1" />
+                <span className="px-3 text-gray9">or</span>
+                <hr className="flex-1" />
+              </div>
+            </div>
+            <div className="col-span-1 row-span-1">
+              <Button
+                className="w-full px-3!"
+                onClick={() => setView('deposit-crypto')}
+                type="button"
+              >
+                <div className="flex w-full flex-row items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <QrCodeIcon className="size-5" />
+                    <span>Deposit crypto</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="ml-auto font-normal text-gray10 text-sm">
+                      Instant
+                    </span>
+                    <ArrowRightIcon className="size-4 text-gray10" />
+                  </div>
+                </div>
+              </Button>
+              <Button
+                className="w-full px-3! disabled:opacity-50"
+                disabled
+                hidden
+                title="Coming soon"
+                type="button"
+              >
+                <div className="flex w-full flex-row items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CardIcon className="size-5" />
+                    <span>Debit or Credit</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="ml-auto font-normal text-gray10 text-sm">
+                      ~5 mins
+                      <ArrowRightIcon className="ml-1 inline size-4" />
+                    </span>
+                  </div>
+                </div>
+              </Button>
+            </div>
+          </form>
+        </Layout.Content>
+      </Layout>
+    )
 
   if (view === 'deposit-crypto')
     return (

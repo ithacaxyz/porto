@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => {
 
   const skipMkcert = env.SKIP_MKCERT === 'true' || mode === 'test'
   const allowedHosts = env.ALLOWED_HOSTS?.split(',') ?? []
+  const viteDevAllowAllCors =
+    process.env.NODE_ENV === 'development' &&
+    env.VITE_DEV_ALLOW_ALL_CORS === 'true'
 
   return {
     base: '/dialog/',
@@ -73,6 +76,7 @@ export default defineConfig(({ mode }) => {
     ],
     server: {
       allowedHosts,
+      cors: viteDevAllowAllCors,
     },
   }
 })
