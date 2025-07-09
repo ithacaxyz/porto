@@ -4,6 +4,7 @@ import Tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import React from '@vitejs/plugin-react'
 import Icons from 'unplugin-icons/vite'
+import TurboConsole from 'unplugin-turbo-console/vite'
 import { defineConfig, loadEnv } from 'vite'
 import Mkcert from 'vite-plugin-mkcert'
 import TsconfigPaths from 'vite-tsconfig-paths'
@@ -36,6 +37,7 @@ export default defineConfig(({ mode }) => {
           : process.env.VITE_FAUCET_URL,
     },
     plugins: [
+      TurboConsole({ passLogs: true }),
       skipMkcert
         ? null
         : Mkcert({

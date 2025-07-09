@@ -1,3 +1,4 @@
+import '~console/theme-detect'
 import { Env } from '@porto/apps'
 import * as Sentry from '@sentry/react'
 import { Events } from 'porto/remote'

@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="unplugin-turbo-console/client" />
 
 declare const __APP_VERSION__: string
 

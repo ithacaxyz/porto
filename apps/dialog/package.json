@@ -47,6 +47,7 @@
     "tw-animate-css": "catalog:",
     "typescript": "catalog:",
     "unplugin-icons": "catalog:",
+    "unplugin-turbo-console": "^2.2.0",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
