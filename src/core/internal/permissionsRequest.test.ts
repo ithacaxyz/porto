@@ -431,18 +431,7 @@ describe('getFeeLimit', () => {
     const result = PermissionsRequest.getFeeLimit(request, {
       feeTokens,
     })
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "token": {
-          "address": "0x97870b32890d3f1f089489a29007863a5678089d",
-          "decimals": 6,
-          "kind": "USDC",
-          "nativeRate": 387750000000000n,
-          "symbol": "EXP",
-        },
-        "value": 1000000n,
-      }
-    `)
+    expect(result).toMatchInlineSnapshot('undefined')
   })
 
   test('behavior: returns zero when null fee limit', () => {
@@ -456,18 +445,7 @@ describe('getFeeLimit', () => {
     const result = PermissionsRequest.getFeeLimit(request, {
       feeTokens,
     })
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "token": {
-          "address": "0x97870b32890d3f1f089489a29007863a5678089d",
-          "decimals": 6,
-          "kind": "USDC",
-          "nativeRate": 387750000000000n,
-          "symbol": "EXP",
-        },
-        "value": 1000000n,
-      }
-    `)
+    expect(result).toMatchInlineSnapshot('undefined')
   })
 
   test('behavior: returns zero value when limit token not found', () => {

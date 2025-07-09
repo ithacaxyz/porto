@@ -35,11 +35,12 @@ export async function toKey(
 ): Promise<Key.Key | undefined> {
   if (!request) return undefined
 
-  const { feeTokens = [] } = options
+  const { defaultFeeLimit, feeTokens = [] } = options
 
   const expiry = request.expiry ?? 0
   const type = request.key?.type ?? 'secp256k1'
   const permissions = resolvePermissions(request, {
+    defaultFeeLimit,
     feeTokens,
   })
   const publicKey = request?.key?.publicKey ?? '0x'
@@ -61,6 +62,7 @@ export async function toKey(
 
 export declare namespace toKey {
   export type Options = {
+    defaultFeeLimit?: Permissions.FeeLimit | undefined
     feeTokens?: FeeTokens.FeeTokens | undefined
   }
 }
@@ -78,12 +80,15 @@ export function resolvePermissions(
   options: resolvePermissions.Options,
 ) {
   const { permissions } = request
-  const { feeTokens } = options
+  const { defaultFeeLimit, feeTokens } = options
 
   const spend = permissions.spend ? [...permissions.spend] : []
 
   if (feeTokens && feeTokens.length > 0) {
-    const feeLimit = getFeeLimit(request, { feeTokens })
+    const feeLimit = getFeeLimit(request, {
+      defaultFeeLimit,
+      feeTokens,
+    })
 
     if (feeLimit) {
       let index = -1
@@ -130,14 +135,10 @@ export function resolvePermissions(
 
 export declare namespace resolvePermissions {
   export type Options = {
+    defaultFeeLimit?: Permissions.FeeLimit | undefined
     feeTokens?: FeeTokens.FeeTokens | undefined
   }
 }
-
-const defaultFeeLimit = {
-  currency: 'USD',
-  value: '1',
-} as const
 
 /**
  * Gets the fee limit (in units of the fee token) to be used for the
@@ -151,7 +152,7 @@ export function getFeeLimit(
   request: Permissions.Request,
   options: getFeeLimit.Options,
 ): getFeeLimit.ReturnType {
-  const { feeTokens } = options
+  const { defaultFeeLimit, feeTokens } = options
 
   const feeLimit = (() => {
     if (request.feeLimit) return request.feeLimit
@@ -193,6 +194,7 @@ export function getFeeLimit(
 
 export declare namespace getFeeLimit {
   export type Options = {
+    defaultFeeLimit?: Permissions.FeeLimit | undefined
     feeTokens: FeeTokens.FeeTokens
   }
 

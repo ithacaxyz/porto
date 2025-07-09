@@ -148,7 +148,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
             // Parse the authorize key into a structured key.
             const key = await PermissionsRequest.toKey(
               capabilities?.grantPermissions,
-              { feeTokens },
+              {
+                defaultFeeLimit: config.permissionsFeeLimit,
+                feeTokens,
+              },
             )
 
             // Convert the key into a permission.
@@ -353,7 +356,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       async grantPermissions(parameters) {
         const { account, internal } = parameters
         const {
-          config: { storage },
+          config: { permissionsFeeLimit, storage },
           request,
           store,
         } = internal
@@ -366,7 +369,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const [{ address, ...permissions }] = request._decoded.params
 
         // Parse permissions request into a structured key.
-        const key = await PermissionsRequest.toKey(permissions, { feeTokens })
+        const key = await PermissionsRequest.toKey(permissions, {
+          defaultFeeLimit: permissionsFeeLimit,
+          feeTokens,
+        })
         if (!key) throw new Error('no key found.')
 
         const permissionsRequest = Schema.encodeSync(PermissionsRequest.Schema)(
@@ -417,7 +423,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
           // Parse provided (RPC) key into a structured key.
           const key = await PermissionsRequest.toKey(
             capabilities?.grantPermissions,
-            { feeTokens },
+            {
+              defaultFeeLimit: config.permissionsFeeLimit,
+              feeTokens,
+            },
           )
 
           // Convert the key into a permissions request.
@@ -550,7 +559,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async prepareUpgradeAccount(parameters) {
         const { internal } = parameters
-        const { store, request } = internal
+        const { config, store, request } = internal
 
         if (request.method !== 'wallet_prepareUpgradeAccount')
           throw new Error(
@@ -563,7 +572,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // Parse the authorize key into a structured key.
         const key = await PermissionsRequest.toKey(
           capabilities?.grantPermissions,
-          { feeTokens },
+          {
+            defaultFeeLimit: config.permissionsFeeLimit,
+            feeTokens,
+          },
         )
 
         // Convert the key into a permission.

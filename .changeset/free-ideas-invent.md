@@ -2,4 +2,10 @@
 "porto": patch
 ---
 
-Added a `feeLimit` property to `wallet_grantPermissions` parameters and the `grantPermissions` capability.
+Added a `feeLimit` property to:
+- `wallet_grantPermissions` parameters 
+- `grantPermissions` capability.
+
+Added a `permissionsFeeLimit` property to:
+- `Porto.create` config
+- `porto` Wagmi connector config

@@ -122,6 +122,17 @@ Available:
 Using `Mode.contract()` or `Mode.rpcServer()` comes with some caveats. Please refer to the [`Mode.contract()`](#TODO) or [`Mode.rpcServer()`](#TODO) documentation for more information.
 :::
 
+### permissionsFeeLimit
+
+- **Type:** `{ currency: 'ETH' | 'USD' | 'USDC' | 'USDT', value: string } | null`
+- **Default:** `{ currency: 'USD', value: '1' }`
+
+Limit that permissions can spend on fees. When provided, Porto will assign an additional spend permission on the user's
+selected fee token that is equal to the limit provided.
+
+Provide `null` to have the fee inclusive with spend permissions
+(ie. `permissions.spend` on the `wallet_grantPermissions` request or `grantPermissions` capability).
+
 ### storage
 
 - **Type:** `Storage.Storage{:ts}`

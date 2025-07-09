@@ -118,7 +118,7 @@ type Capability = {
      * Porto will assign a spend permission on the user's
      * selected fee token that is equal to the limit provided.
      * 
-     * - Defaults to 1 USD.
+     * - Defaults to `porto.config.permissionsFeeLimit` (1 USD).
      * - Provide `null` to have the fee inclusive with `permissions.spend`.
      */
     feeLimit?: {

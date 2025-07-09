@@ -64,7 +64,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           internal,
           signInWithEthereum,
         } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
@@ -82,6 +82,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             })
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
+          defaultFeeLimit: config.permissionsFeeLimit,
           feeTokens,
         })
 
@@ -260,7 +261,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { account, internal, permissions } = parameters
         const {
           client,
-          config: { storage },
+          config: { permissionsFeeLimit, storage },
         } = internal
 
         const feeTokens = await FeeTokens.resolve(client, {
@@ -269,6 +270,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          defaultFeeLimit: permissionsFeeLimit,
           feeTokens,
         })
         if (!authorizeKey) throw new Error('key to authorize not found.')
@@ -291,13 +293,14 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { internal, permissions, signInWithEthereum } = parameters
         const {
           client,
-          config: { storage },
+          config: { permissionsFeeLimit, storage },
         } = internal
 
         const feeTokens = await FeeTokens.resolve(client, {
           store: internal.store,
         })
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          defaultFeeLimit: permissionsFeeLimit,
           feeTokens,
         })
 
@@ -528,7 +531,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
       async prepareUpgradeAccount(parameters) {
         const { address, email, label, internal, permissions } = parameters
-        const { client } = internal
+        const { client, config } = internal
 
         const feeTokens = await FeeTokens.resolve(client, {
           store: internal.store,
@@ -543,6 +546,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             })
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
+          defaultFeeLimit: config.permissionsFeeLimit,
           feeTokens,
         })
 
