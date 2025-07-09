@@ -1,11 +1,13 @@
 import { env } from 'cloudflare:workers'
 import * as crypto from 'node:crypto'
 import { Hono } from 'hono'
+import { getConnInfo } from 'hono/cloudflare-workers'
 import { HTTPException } from 'hono/http-exception'
 import type * as jwt from 'hono/jwt'
 import { validator } from 'hono/validator'
 import type { Address } from 'ox'
 import { isAddress } from 'viem'
+import { PORTO_MERCHANT_ID } from '#constants.ts'
 import { generateJsonWebToken } from '#utilities/jwt.ts'
 
 const onrampApp = new Hono<{
@@ -13,7 +15,7 @@ const onrampApp = new Hono<{
   Variables: jwt.JwtVariables
 }>()
   .onError((error, context) => {
-    console.error(error)
+    console.error(error.cause)
     return context.json(
       {
         error:
@@ -23,205 +25,159 @@ const onrampApp = new Hono<{
       500,
     )
   })
-  .post(
-    '/us',
-    validator('json', (value, _context) => {
-      const {
-        amount,
-        payment_currency,
-        purchase_currency,
-        address,
-        email,
-        phone,
-        ...rest
-      } = <
-        {
-          amount: string
-          payment_currency?: 'USD'
-          purchase_currency?: 'USDC' | 'ETH'
-          address: Address.Address
-          email: string
-          environment?: 'production' | 'sandbox'
-          phone: string
-          destination_network?: 'base'
-        }
-      >value
+  .on(['GET', 'POST'], '/us', async (context) => {
+    type requestFields = {
+      amount: string
+      payment_currency?: 'USD'
+      purchase_currency?: 'USDC' | 'ETH'
+      address: Address.Address
+      email: string
+      environment?: 'production' | 'sandbox'
+      phone: string
+      destination_network?: 'base'
+      redirect?: 'true' | 'false'
+    }
 
-      return {
-        address,
-        amount,
+    const {
+      address,
+      amount,
+      email,
+      environment = 'production',
+      phone,
+      payment_currency,
+      purchase_currency,
+      redirect = 'false',
+    } = (context.req.query() as requestFields) ||
+    (await context.req.json<requestFields>())
+
+    const coinbaseApiURL = new URL(
+      '/onramp/v2/onramp/order',
+      env.COINBASE_API_BASE_URL,
+    )
+
+    const jwt = await generateJsonWebToken({
+      host: coinbaseApiURL.host,
+      method: 'POST',
+      path: coinbaseApiURL.pathname,
+    })
+
+    const response = await fetch(coinbaseApiURL.toString(), {
+      body: JSON.stringify({
+        agreementAcceptedAt: new Date().toISOString(),
+        destinationAddress: address,
+        destinationNetwork: 'base',
         email,
-        payment_currency,
-        phone,
-        purchase_currency,
-        ...rest,
+        partnerUserRef: PORTO_MERCHANT_ID,
+        paymentAmount: amount,
+        paymentCurrency: 'USD',
+        paymentMethod: 'GUEST_CHECKOUT_APPLE_PAY',
+        phoneNumber: `(+1)${phone}`,
+        purchaseCurrency: 'USDC',
+      }),
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${jwt}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
+
+    const data = (await response.json()) as {
+      order: {
+        orderId: string
+        paymentTotal: string
+        paymentSubtotal: string
+        paymentCurrency: string
+        paymentMethod: string
+        purchaseAmount: string
+        purchaseCurrency: string
+        fees: Array<{
+          feeType: string
+          feeAmount: string
+          feeCurrency: string
+        }>
+        exchangeRate: string
+        destinationAddress: string
+        destinationNetwork: string
+        status: string
+        txHash: string
+        createdAt: string
+        updatedAt: string
       }
-    }),
-    async (context) => {
-      const {
-        address,
-        amount,
-        email,
-        environment = 'production',
-        phone,
-        payment_currency,
-        purchase_currency,
-      } = context.req.valid('json')
+      authSteps: Array<unknown>
+      paymentLink: {
+        url: string
+        paymentLinkType: string
+      }
+    }
 
-      const coinbaseApiURL = new URL(
-        '/onramp/v2/onramp/order',
-        env.COINBASE_API_BASE_URL,
+    if (
+      data?.order?.status !== 'ONRAMP_ORDER_STATUS_PENDING_PAYMENT' ||
+      !Object.hasOwn(data, 'paymentLink')
+    )
+      throw new HTTPException(500, {
+        cause: data,
+        message: 'Failed to create Coinbase Onramp order',
+      })
+
+    return redirect === 'true'
+      ? context.redirect(data.paymentLink.url)
+      : context.json({ link: data.paymentLink.url, ...data })
+  })
+  .on(['GET', 'POST'], '/global', async (context) => {
+    const { address, amount, email, environment } = context.req.query()
+    const redirect = context.req.query('redirect') === 'true'
+    const ipAddress =
+      context.req.header('cf-connecting-ip') ??
+      context.req.header('x-forwarded-for') ??
+      getConnInfo(context).remote.address
+
+    const url = new URL(context.env.WIDGET_URL)
+
+    const silentSignUpResponse = await silentSignUp({ email })
+
+    if (silentSignUpResponse.status !== 200) {
+      console.error(
+        silentSignUpResponse.code,
+        silentSignUpResponse.message,
+        silentSignUpResponse.status,
       )
-
-      const jwt = await generateJsonWebToken({
-        host: coinbaseApiURL.host,
-        method: 'POST',
-        path: coinbaseApiURL.pathname,
+      throw new HTTPException(500, {
+        cause: silentSignUpResponse,
+        message: 'Failed to sign up',
       })
+    }
 
-      const response = await fetch(coinbaseApiURL.toString(), {
-        body: JSON.stringify({
-          agreementAcceptedAt: new Date().toISOString(),
-          destinationAddress: address,
-          destinationNetwork: 'base',
-          email,
-          partnerUserRef: `sandbox-porto-${address}`,
-          paymentAmount: amount,
-          paymentCurrency: 'USD',
-          paymentMethod: 'GUEST_CHECKOUT_APPLE_PAY',
-          phoneNumber: phone,
-          purchaseCurrency: 'USDC',
-        }),
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${jwt}`,
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-      })
-
-      const data = (await response.json()) as {
-        order: {
-          orderId: string
-          paymentTotal: string
-          paymentSubtotal: string
-          paymentCurrency: string
-          paymentMethod: string
-          purchaseAmount: string
-          purchaseCurrency: string
-          fees: Array<{
-            feeType: string
-            feeAmount: string
-            feeCurrency: string
-          }>
-          exchangeRate: string
-          destinationAddress: string
-          destinationNetwork: string
-          status: string
-          txHash: string
-          createdAt: string
-          updatedAt: string
-        }
-        authSteps: Array<unknown>
-        paymentLink: {
-          url: string
-          paymentLinkType: string
-        }
-      }
-
-      if (
-        data?.order?.status !== 'ONRAMP_ORDER_STATUS_PENDING_PAYMENT' ||
-        !Object.hasOwn(data, 'paymentLink')
+    const signatureV2 = crypto
+      .createHash('sha512')
+      .update(
+        `${address}${context.env.AUTH_SECRET_KEY}${ipAddress}${PORTO_MERCHANT_ID}`,
       )
-        throw new HTTPException(500, {
-          cause: data,
-          message: 'Failed to create Coinbase Onramp order',
-        })
+      .digest('hex')
 
-      return context.json({
-        link: data.paymentLink.url,
-        ...data,
-      })
-    },
-  )
-  .get(
-    '/global',
-    validator('query', (values, context) => {
-      const {
-        email,
-        amount,
-        address,
-        redirect = 'false',
-        environment = 'production',
-      } = <Record<string, string>>values
-      const errorResponse = (message: string) =>
-        context.json(
-          {
-            error: `${message}. Required parameters: ${Object.keys(values).join(', ')}`,
-          },
-          400,
-        )
+    const searchParams = new URLSearchParams({
+      address,
+      birth_date: '06/09/1989',
+      currency: 'USDC',
+      fiat_amount: amount,
+      fiat_currency: 'USD',
+      first_name: 'John',
+      init_token: silentSignUpResponse.data.init_token,
+      init_token_type: silentSignUpResponse.data.init_type_token,
+      last_name: 'Doe',
+      network: 'BASE',
+      payment_method: 'apple',
+      signature: `v2:${signatureV2}`,
+      widget_flow: 'applepay_minimal',
+      widget_id: context.env.WIDGET_ID,
+    })
 
-      if (!address || !isAddress(address))
-        return errorResponse('Valid EVM address required')
-      if (!amount) return errorResponse('`amount` is required')
-      if (!email) return errorResponse('`email` is required')
-      if (!['production', 'sandbox'].includes(environment))
-        return errorResponse('`environment` must be "production" or "sandbox"')
+    url.search = searchParams.toString()
 
-      return {
-        address,
-        amount,
-        email,
-        environment,
-        redirect: redirect === 'true',
-      }
-    }),
-    async (context) => {
-      const { address, amount, email, environment, redirect } =
-        context.req.valid('query')
-
-      const url = new URL(context.env.WIDGET_URL)
-      const searchParams = new URLSearchParams({
-        address,
-        currency: 'USDC',
-        fiat_amount: amount,
-        fiat_currency: 'USD',
-        network: 'BASE',
-        payment_method: 'apple',
-        widget_flow: 'applepay_minimal',
-        widget_id: context.env.WIDGET_ID,
-      })
-
-      const signature = crypto
-        .createHash('sha512')
-        .update(`${address}${context.env.AUTH_SECRET_KEY}`)
-        .digest('hex')
-
-      searchParams.set('signature', signature)
-
-      const silentSignUpResponse = await silentSignUp({ email })
-
-      if (silentSignUpResponse.status !== 200) {
-        throw new HTTPException(500, {
-          cause: silentSignUpResponse,
-          message: 'Failed to sign up',
-        })
-      }
-
-      searchParams.set('init_token', silentSignUpResponse.data.init_token)
-      searchParams.set(
-        'init_token_type',
-        silentSignUpResponse.data.init_type_token,
-      )
-
-      url.search = searchParams.toString()
-
-      return redirect
-        ? context.redirect(url.toString())
-        : context.json({ url: url.toString() })
-    },
-  )
+    return redirect
+      ? context.redirect(url.toString())
+      : context.json({ link: url.toString() })
+  })
   .get(
     '/external',
     validator('query', (values, context) => {
@@ -311,7 +267,6 @@ const onrampApp = new Hono<{
       const data = (await response.json()) as { redirect_url: string }
 
       if (!Object.hasOwn(data, 'redirect_url')) {
-        console.error(data)
         return context.json(
           { error: 'Could not create Stripe Onramp session. No redirect_url' },
           500,

@@ -5,6 +5,8 @@ packages:
   - "src"
   - "test/e2e"
 
+shellEmulator: true
+
 catalog:
   "@ariakit/react": "^0.4.17"
   "@ariakit/tailwind": "^0.1.7"

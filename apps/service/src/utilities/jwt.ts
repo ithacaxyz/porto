@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import * as crypto from 'node:crypto'
 import type { JWTPayload } from 'hono/utils/jwt/types'
 
@@ -10,9 +11,8 @@ export async function generateJsonWebToken(params: {
   path: string
 }): Promise<string> {
   const { method, host, path } = params
-  const uri = `${method} ${host}${path}`
   const now = Math.floor(Date.now() / 1_000)
-  const exp = now + 2 * 60
+
   const header = {
     alg: 'EdDSA',
     kid: KEY_NAME,
@@ -20,29 +20,28 @@ export async function generateJsonWebToken(params: {
     typ: 'JWT',
   }
 
-  const payload = {
-    exp,
-    iss: 'cdp',
-    nbf: now,
-    sub: KEY_NAME,
-    uri,
-  } as const satisfies JWTPayload
-
   const headerBase64URL = Buffer.from(JSON.stringify(header)).toString(
     'base64url',
   )
+
+  const payload = {
+    exp: now + 2 * 60,
+    iss: 'cdp',
+    nbf: now,
+    sub: KEY_NAME,
+    uri: `${method} ${host}${path}`,
+  } as const satisfies JWTPayload
+
   const payloadBase64URL = Buffer.from(JSON.stringify(payload)).toString(
     'base64url',
   )
   const message = `${headerBase64URL}.${payloadBase64URL}`
 
   const privateKeyBuffer = Buffer.from(KEY_SECRET, 'base64')
+  const SN1_DER = Buffer.from('302e020100300506032b657004220420', 'hex')
   const privateKey = crypto.createPrivateKey({
     format: 'der',
-    key: Buffer.concat([
-      Buffer.from('302e020100300506032b657004220420', 'hex'),
-      privateKeyBuffer,
-    ]),
+    key: Buffer.concat([SN1_DER, privateKeyBuffer]),
     type: 'pkcs8',
   })
 
@@ -51,13 +50,3 @@ export async function generateJsonWebToken(params: {
 
   return `${message}.${signatureBase64url}`
 }
-
-const url = new URL(
-  '/onramp/v2/onramp/order',
-  'https://api.developer.coinbase.com',
-)
-const host = url.host
-const path = url.pathname
-const method = 'POST'
-console.info(host, path, method)
-generateJsonWebToken({ host, method, path }).then(console.info)
