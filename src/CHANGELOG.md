@@ -1,5 +1,42 @@
 # porto
 
+## 0.0.47
+
+### Patch Changes
+
+- [`a8daa28`](https://github.com/ithacaxyz/porto/commit/a8daa2826a3e467e710e0f8938de85756aa4c05b) Thanks [@jxom](https://github.com/jxom)! - Optimized call permissions introspection.
+
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed implicit fee limits (defaulting to 1 USD of the fee token) when granting permissions.
+
+  A new `feeLimit` property has been added on `wallet_grantPermissions` to assign fee limits. This converts to a spend permission that will be used to pay for fees (for permissioned calls) in the user's selected fee token (e.g. USDC).
+
+  ```ts
+  provider.request({
+    method: "wallet_grantPermissions",
+    params: [
+      {
+        expiry: 1715328000,
+        // Assign a spend permission of $5 USD of the fee token.
+        feeLimit: {
+          currency: "USD",
+          value: "5",
+        },
+        permissions: {
+          calls: [{ signature: "mint()" }],
+        },
+      },
+    ],
+  });
+  ```
+
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `permissionsFeeLimit` on `Mode.rpcServer` in favor of:
+
+  - `feeLimit` on the `wallet_grantPermissions` request
+  - `feeLimit` on the `grantPermissions` capability
+
+- [`4b65a65`](https://github.com/ithacaxyz/porto/commit/4b65a65d32790a0dd18e411d6a6df5c9274b1411) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where a cached `chainId`s could become stale if a consumer omitted the target
+  chain from the `chains` configuration.
+
 ## 0.0.46
 
 ### Patch Changes
