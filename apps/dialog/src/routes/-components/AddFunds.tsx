@@ -9,11 +9,7 @@ import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { PayButton } from '~/components/PayButton'
 import * as FeeToken from '~/lib/FeeToken'
-import {
-  enableOnramp,
-  externalOnrampUrl,
-  integratedOnrampUrl,
-} from '~/lib/Onramp'
+import { enableOnramp, externalOnrampUrl } from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
@@ -25,6 +21,8 @@ import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import XIcon from '~icons/lucide/x'
 
 const presetAmounts = ['25', '50', '100', '250'] as const
+
+const unixTimestamp = () => Date.now()
 
 export function AddFunds(props: AddFunds.Props) {
   const {
@@ -40,14 +38,6 @@ export function AddFunds(props: AddFunds.Props) {
     addressOrSymbol: tokenAddress,
   })
 
-  // const [isPending, startTransition] = React.useTransition()
-
-  // React.useEffect(() => {
-  //   startTransition(() => {
-  //     fetchOnrampUrl.mutate()
-  //   })
-  // }, [startTransition])
-
   const address = props.address ?? account?.address
 
   const [amount, setAmount] = React.useState<string>(value.toString())
@@ -61,13 +51,9 @@ export function AddFunds(props: AddFunds.Props) {
   const iframeRef = React.useRef<HTMLIFrameElement | null>(null)
   const [messageData, setMessageData] = React.useState()
 
-  const onResized = (data: any) => {
-    console.info('onResized', data)
-    setMessageData(data)
-  }
+  const onResized = (data: any) => setMessageData(data)
 
   const onMessage = (data: any) => {
-    console.info('onMessage', data)
     setMessageData(data)
     // @ts-expect-error
     iframeRef.current?.sendMessage('Hello back from the parent page')
@@ -76,20 +62,70 @@ export function AddFunds(props: AddFunds.Props) {
 
   const fetchOnrampUrl = useMutation({
     async mutationFn() {
-      const url = integratedOnrampUrl({
-        address: address!,
-        amount: Number(amount),
-        email: `${Date.now()}@porto.mail`,
-        redirect: 'false',
-      })
-      const response = await fetch(url, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
+      if (!address) throw new Error('address is required')
+      if (!amount) throw new Error('amount is required')
+
+      const response = await fetch(
+        import.meta.env.VITE_PORTO_WORKERS_URL +
+          '/onramp/global' +
+          '?' +
+          // '/onramp/global?' +
+          new URLSearchParams({
+            address,
+            amount,
+            email: `${Date.now()}@porto.mail`,
+            phone: '(+1)6083353903',
+          }).toString(),
+        {
+          body: JSON.stringify({
+            address,
+            amount,
+            email: `${Date.now()}@porto.mail`,
+            phone: '(+1)6083353903',
+            redirect: true,
+          }),
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+          },
+          // method: 'GET',
+          method: 'POST',
+          mode: 'cors',
         },
-        mode: 'cors',
-      })
+      )
       if (!response.ok) throw new Error('Failed to fetch onramp url')
-      const data = (await response.json()) as { url: string }
+
+      const data = (await response.json()) as {
+        order: {
+          orderId: string
+          paymentTotal: string
+          paymentSubtotal: string
+          paymentCurrency: string
+          paymentMethod: string
+          purchaseAmount: string
+          purchaseCurrency: string
+          fees: Array<{
+            feeType: string
+            feeAmount: string
+            feeCurrency: string
+          }>
+          exchangeRate: string
+          destinationAddress: string
+          destinationNetwork: string
+          status: string
+          txHash: string
+          createdAt: string
+          updatedAt: string
+        }
+        authSteps: Array<unknown>
+        paymentLink: {
+          url: string
+          paymentLinkType: string
+        }
+        link: string
+      }
+      console.info('data', data)
+      window.open(data.link, '_blank')
       return data
     },
     onSuccess: (data) => {
@@ -150,8 +186,6 @@ export function AddFunds(props: AddFunds.Props) {
               e.preventDefault()
               e.stopPropagation()
               fetchOnrampUrl.mutate()
-              // setView('onramp')
-              // deposit.mutate(e)
             }}
           >
             <div className="col-span-1 row-span-1">
@@ -221,17 +255,33 @@ export function AddFunds(props: AddFunds.Props) {
               </div>
             </div>
             <div className="col-span-1 row-span-1 space-y-3.5">
-              {iframeShow && fetchOnrampUrl.data?.url && (
+              {iframeShow && fetchOnrampUrl.data?.link && (
                 <IframeResizer
-                  allow="*"
+                  allow={[
+                    'payment *',
+                    'geolocation *',
+                    'clipboard-read *',
+                    'clipboard-write *',
+                    'publickey-credentials-get *',
+                    'publickey-credentials-create *',
+                  ].join(' ')}
                   className="size-full"
                   license="GPLv3"
-                  log="expanded"
+                  log={true}
+                  onLoad={() => {
+                    console.info('iframe loaded', fetchOnrampUrl.data.link)
+                  }}
                   onMessage={onMessage}
                   onResized={onResized}
                   ref={iframeRef}
-                  sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-                  src={fetchOnrampUrl.data?.url}
+                  sandbox={[
+                    'allow-forms',
+                    'allow-scripts',
+                    'allow-same-origin',
+                    'allow-popups',
+                    'allow-popups-to-escape-sandbox',
+                  ].join(' ')}
+                  src={fetchOnrampUrl.data?.link}
                 />
               )}
               {showOnramp ? (

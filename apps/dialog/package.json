@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ariakit/react": "catalog:",
+    "@iframe-resizer/child": "^5.4.7",
     "@iframe-resizer/react": "^5.4.7",
     "@porto/apps": "workspace:*",
     "@sentry/react": "catalog:",
