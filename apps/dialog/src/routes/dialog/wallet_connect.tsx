@@ -208,7 +208,9 @@ async function verifyKeys(
     // Check if all provided public keys are in the valid keys list
     return publicKeys.every((key) => validKeys.includes(key))
   } catch (error) {
-    console.error('Failed to verify CLI keys:', error)
+    if (import.meta.env.MODE === 'development') {
+      console.error('Failed to verify CLI keys:', error)
+    }
     return false
   }
 }
