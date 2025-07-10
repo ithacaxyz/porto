@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.49
+
+### Patch Changes
+
+- [`2202f8e`](https://github.com/ithacaxyz/porto/commit/2202f8e3f122f42d2be713280ffbe720f5394a4b) Thanks [@jxom](https://github.com/jxom)! - Added missing `credentials: 'include'` to SIWE.
+
 ## 0.0.48
 
 ### Patch Changes
