@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.48
+
+### Patch Changes
+
+- [`99f0857`](https://github.com/ithacaxyz/porto/commit/99f085712c574ffb5ba080b4c8d3d4017b9f5c2f) Thanks [@jxom](https://github.com/jxom)! - Added `Porto.unstable_create` and `unstable_porto` Wagmi connector.
+
 ## 0.0.47
 
 ### Patch Changes
