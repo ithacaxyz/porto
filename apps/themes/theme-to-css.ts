@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { parseArgs } from 'util'
+import { parseArgs } from 'node:util'
 import * as v from 'valibot'
 import { ThemeSchema } from './schema.js'
 import type { Theme } from './Theme.js'
