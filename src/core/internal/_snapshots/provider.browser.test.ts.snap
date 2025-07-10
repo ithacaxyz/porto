@@ -17,6 +17,7 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
           "signature": "mint()",
         },
       ],
+      "spend": [],
     },
   },
   {
@@ -32,6 +33,13 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
       "calls": [
         {
           "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0xde0b6b3a7640000",
+          "period": "year",
+          "token": null,
         },
       ],
     },
@@ -56,6 +64,7 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
           "signature": "mint()",
         },
       ],
+      "spend": [],
     },
   },
   {
@@ -71,6 +80,13 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
       "calls": [
         {
           "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0xde0b6b3a7640000",
+          "period": "year",
+          "token": null,
         },
       ],
     },

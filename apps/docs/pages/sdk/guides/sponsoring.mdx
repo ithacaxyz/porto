@@ -1,0 +1,92 @@
+import { Example } from '../../../components/guides/Siwe'
+import { GuideDemoContainer } from '../../../components/GuideDemoContainer'
+
+# Fee Sponsoring
+
+This guide will demonstrate how you can leverage Fee Sponsoring in your Application to cover
+fees for your users.
+
+## Template
+
+We will base this guide off the following template:
+
+```bash
+pnpx gitpick ithacaxyz/porto/tree/main/examples/sponsoring-vite
+```
+
+:::note
+We also have a [Next.js](https://nextjs.org) example at:
+
+```bash
+pnpx gitpick ithacaxyz/porto/tree/main/examples/sponsoring-next.js
+```
+
+:::
+
+## Steps
+
+::::steps
+
+### Connect Account
+
+Follow the [Onboard & Discover Accounts](/sdk/guides/discover-accounts) guide to get this set up.
+
+### Set up Merchant Account
+
+Run the following command to onboard a new Porto Merchant (Sponsor) Account.
+
+```sh
+pnpx porto onboard -a
+```
+
+Place the address and private key of the merchant account into the `.dev.vars` file.
+
+```sh
+MERCHANT_ADDRESS=0x...
+MERCHANT_PRIVATE_KEY=0x...
+```
+
+### Set up Merchant RPC Server
+
+Next, we will set up our Merchant RPC Server at the `/rpc` endpoint of our app.
+For this example, we will use a Cloudflare Worker, however, you could also use a
+server framework of your choice (Next.js, Deno, Express, etc).
+See the [`MerchantRpc` API reference](/sdk/api/merchantRpc/requestHandler).
+
+```ts
+import { env } from 'cloudflare:workers'
+import { MerchantRpc } from 'porto/server'
+
+export default {
+  fetch: MerchantRpc.requestHandler({
+    address: env.MERCHANT_ADDRESS,
+    base: '/rpc',
+    key: env.MERCHANT_PRIVATE_KEY,
+    // Optionally handle which requests should be sponsored.
+    // sponsor(request) {
+    //   return true
+    // },
+  }),
+} satisfies ExportedHandler<Env>
+```
+
+:::note
+If your server is at a different location to your app, you will need to pass the URL
+to it on `Porto.create(){:js}`.
+
+```ts twoslash  
+import { Porto } from 'porto'
+
+const porto = await Porto.create({
+  merchantRpcUrl: 'https://myapi.com/rpc'
+})
+```
+
+:::
+
+### Done
+
+That's it! Once you have a server set up at the `/rpc` path of your app (or another remote URL), Porto will automatically
+detect it and route through this endpoint for future calls to perform (and sponsor) a transaction.
+
+::::

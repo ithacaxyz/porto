@@ -1,0 +1,109 @@
+# `Key.createWebCryptoP256`
+
+Creates a random non-extractable WebCryptoP256 key using the [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API).
+
+## Usage
+
+### Admin Key (Default)
+
+```ts twoslash
+import { Key } from 'porto/viem'
+
+const key = await Key.createWebCryptoP256() // [!code focus]
+```
+
+### Session Key
+
+```ts twoslash
+import { Key } from 'porto/viem'
+import { parseEther } from 'viem'
+
+const key = await Key.createWebCryptoP256({ // [!code focus]
+  expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour // [!code focus]
+  permissions: { // [!code focus]
+    calls: [{ // [!code focus]
+      signature: 'transfer(address,uint256)', // [!code focus]
+      to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+    spend: [{ // [!code focus]
+      limit: parseEther('50'), // 50 EXP // [!code focus]
+      period: 'day', // [!code focus]
+      token: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+  }, // [!code focus]
+  role: 'session', // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### expiry
+
+- **Type:** `number | undefined`
+
+The expiry timestamp of the key.
+
+### permissions
+
+The permissions of the key.
+
+```ts
+type Permissions = {
+  /** Call permissions - which functions the key can call */
+  calls?: {
+    /** Function signature or 4-byte selector */
+    signature?: string | undefined
+    /** Target contract address */
+    to?: `0x${string}` | undefined
+  }[] | undefined
+  
+  /** Spend permissions - spending limits for tokens */
+  spend?: {
+    /** Spending limit per period (in wei) */
+    limit: `0x${string}`
+    /** Time period for the spending limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token address (defaults to native token if not provided) */
+    token?: `0x${string}` | undefined
+  }[] | undefined
+}
+```
+
+### role
+
+- **Type:** `"admin" | "session" | undefined`
+
+The role of the key.
+
+## Return Value
+
+```ts
+type WebCryptoKey = {
+  /** Key expiry timestamp */
+  expiry: number
+  
+  /** Key hash identifier */
+  hash: `0x${string}`
+  
+  /** Key ID (lowercase public key) */
+  id: `0x${string}`
+  
+  /** Optional permissions */
+  permissions?: Permissions | undefined
+  
+  /** Whether the key requires prehashing (always true for WebCrypto) */
+  prehash: true
+  
+  /** WebCrypto private key */
+  privateKey: CryptoKey
+  
+  /** Public key (64 bytes, uncompressed, without 0x04 prefix) */
+  publicKey: `0x${string}`
+  
+  /** Key role */
+  role: 'admin' | 'session'
+  
+  /** Key type - always 'p256' (reuses P256 type with WebCrypto backend) */
+  type: 'p256'
+}
+```

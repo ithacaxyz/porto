@@ -1,0 +1,211 @@
+# `WalletActions.grantPermissions`
+
+Viem Action for granting permissions to an application. Uses [`wallet_grantPermissions`](/sdk/rpc/wallet_grantPermissions) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseEther } from 'viem'
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+const permissions = await WalletActions.grantPermissions(client, { // [!code focus]
+  expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour // [!code focus]
+  feeLimit: { // [!code focus]
+    currency: 'USD', // [!code focus]
+    value: '1', // [!code focus] 
+  }, // [!code focus]
+  permissions: { // [!code focus]
+    calls: [{ // [!code focus]
+      signature: 'transfer(address,uint256)', // [!code focus]
+      to: token // [!code focus]
+    }], // [!code focus]
+    spend: [{ // [!code focus]
+      limit: parseEther('50'), // 50 EXP // [!code focus]
+      period: 'day', // [!code focus]
+      token: token, // [!code focus]
+    }] // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+### App-managed Keys
+
+Applications can also grant permissions to a specific signing key by providing the `key` parameter.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { privateKeyToAccount, parseEther } from 'viem'
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
+
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+const account = privateKeyToAccount('0x...') // [!code focus]
+
+// Grant permissions with custom key
+const permission = await WalletActions.grantPermissions(client, {
+  expiry: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 1 week
+  feeLimit: {
+    currency: 'USD',
+    value: '1', 
+  },
+  key: { // [!code focus]
+    publicKey: account.address, // [!code focus]
+    type: 'secp256k1', // [!code focus]
+  }, // [!code focus]
+  permissions: {
+    calls: [{
+      signature: 'transfer(address,uint256)',
+      to: token
+    }],
+    spend: [{
+      limit: parseEther('50'), // 50 EXP
+      period: 'day',
+      token: token,
+    }]
+  },
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to grant permissions on.
+
+### expiry
+
+`number`
+
+Expiry timestamp of the permissions.
+
+### feeLimit
+
+`{ currency: 'ETH' | 'USD' | 'USDC' | 'USDT', value: string } | undefined`
+
+Limit that the key can spend on fees. When provided,
+Porto will assign a spend permission on the user's
+selected fee token that is equal to the limit provided.
+
+### key
+
+Key to grant permissions to. Defaults to a wallet-managed key.
+
+```ts
+type Key = {
+  /** Public key */
+  publicKey: `0x${string}`
+  /** Key type */
+  type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+}
+```
+
+### permissions
+
+Permissions to grant.
+
+```ts
+type Permissions = {
+  /** Call permissions */
+  calls: {
+    /** Function signature or 4-byte signature */
+    signature?: string
+    /** Authorized target address */
+    to?: `0x${string}`
+  }[]
+
+  /** Spend permissions */
+  spend: {
+    /** Spending limit (in wei) per period */
+    limit: `0x${string}`
+    /** Period of the spend limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token to set the limit on (defaults to native token) */
+    token?: `0x${string}`
+  }[]
+}
+```
+
+## Return Value
+
+### address
+
+`Address`
+
+Address of the account.
+
+### chainId
+
+`number`
+
+Chain ID that the permissions are granted on.
+
+### expiry
+
+`number`
+
+Expiry timestamp of the permissions.
+
+### id
+
+`string`
+
+Permission ID.
+
+### key
+
+Key to grant permissions to.
+
+```ts
+type Key = {
+  /** Public key */
+  publicKey: `0x${string}`
+  /** Key type */
+  type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+}
+```
+
+### permissions
+
+Permissions to grant to the account.
+
+```ts
+type Permissions = {
+  /** Call permissions */
+  calls: {
+    /** Function signature or 4-byte signature */
+    signature?: string
+    /** Authorized target address */
+    to?: `0x${string}`
+  }[]
+
+  /** Spend permissions */
+  spend: {
+    /** Spending limit (in wei) per period */
+    limit: `0x${string}`
+    /** Period of the spend limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token to set the limit on (defaults to native token) */
+    token?: `0x${string}`
+  }[]
+}
+```

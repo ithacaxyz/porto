@@ -1,7 +1,6 @@
 import ChildProcess from 'node:child_process'
 import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { createRequestListener } from '@mjackson/node-fetch-server'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { anvil } from 'prool/instances'
@@ -12,7 +11,7 @@ import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 import { Key, ServerActions } from '../../src/index.js'
-import { Sponsor } from '../../src/server/index.js'
+import { MerchantRpc } from '../../src/server/index.js'
 import {
   accountNewProxyAddress,
   accountProxyAddress,
@@ -112,8 +111,10 @@ export default defineConfig(({ mode }) => {
 
           const startRpcServer = async ({
             accountProxy = accountProxyAddress,
+            legacyAccountProxy,
           }: {
             accountProxy?: string
+            legacyAccountProxy?: string
           } = {}) => {
             const containerName = 'playground'
             ChildProcess.spawnSync('docker', ['rm', '-f', containerName])
@@ -129,9 +130,11 @@ export default defineConfig(({ mode }) => {
                 port: rpcServerConfig.port,
               },
               intentGasBuffer: 100_000n,
+              legacyDelegationProxy: legacyAccountProxy,
               orchestrator: orchestratorAddress,
               simulator: simulatorAddress,
               txGasBuffer: 100_000n,
+              version: '7537e85',
             }).start()
             await fetch(rpcServerConfig.rpcUrl + '/start')
             return stop
@@ -153,6 +156,7 @@ export default defineConfig(({ mode }) => {
             stopRpcServer()
             stopRpcServer = await startRpcServer({
               accountProxy: accountNewProxyAddress,
+              legacyAccountProxy: accountProxyAddress,
             })
             res.statusCode = 302
             res.setHeader('Location', '/')
@@ -180,45 +184,39 @@ export default defineConfig(({ mode }) => {
             return res.end(JSON.stringify({ id: hash }))
           })
 
-          // Create app-sponsor account.
-          const sponsorKey = Key.createSecp256k1()
-          const sponsorAccount = await ServerActions.createAccount(
+          // Create merchant account.
+          const merchantKey = Key.createSecp256k1()
+          const merchantAccount = await ServerActions.createAccount(
             relayClient,
             {
-              authorizeKeys: [sponsorKey],
+              authorizeKeys: [merchantKey],
             },
           )
           await writeContract(anvilClient, {
             abi: exp1Abi,
             address: exp1Address,
-            args: [sponsorAccount.address, parseEther('10000')],
+            args: [merchantAccount.address, parseEther('10000')],
             chain: null,
             functionName: 'mint',
           })
           await ServerActions.sendCalls(relayClient, {
-            account: sponsorAccount,
+            account: merchantAccount,
             calls: [],
             feeToken: exp1Address,
           })
 
-          // Handle sponsor requests on `/sponsor`.
-          // TODO: move to CF worker for compatibility with non-anvil (prod/stg/dev) environments.
+          // Handle merchant requests on `/merchant`.
           server.middlewares.use(async (req, res, next) => {
-            if (!req.url?.startsWith('/sponsor')) return next()
+            if (!req.url?.startsWith('/merchant')) return next()
             if (req.method !== 'POST') return next()
 
-            const handler = Sponsor.rpcHandler({
-              address: sponsorAccount.address,
-              key: {
-                privateKey: sponsorKey.privateKey!(),
-                type: 'secp256k1',
-              },
+            return MerchantRpc.requestListener({
+              address: merchantAccount.address,
+              key: merchantKey.privateKey!(),
               transports: {
                 [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
               },
-            })
-
-            return createRequestListener(handler)(req, res)
+            })(req, res)
           })
         },
         name: 'anvil',

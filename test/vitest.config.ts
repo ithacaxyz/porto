@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
               instances: [
                 { browser: 'chromium' },
                 { browser: 'firefox' },
-                // { browser: 'webkit' },
+                { browser: 'webkit' },
               ],
               provider: 'playwright',
               screenshotFailures: false,

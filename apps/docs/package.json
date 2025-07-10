@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vocs build",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" vocs build --searchIndex false && vocs search-index",
     "check:types": "tsc --noEmit",
     "dev": "vocs dev",
     "preview": "vocs preview"
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@iconify/json": "catalog:",
+    "@tanstack/react-query-devtools": "catalog:",
     "@svgr/core": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -35,6 +36,5 @@
     "unplugin-icons": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:"
-  },
-  "packageManager": "pnpm@10.10.0"
+  }
 }

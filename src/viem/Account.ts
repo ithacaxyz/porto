@@ -145,7 +145,7 @@ export declare namespace fromPrivateKey {
 
 export function getKey(
   account: Account,
-  parameters: getKey.Parameters,
+  parameters: getKey.Parameters = {},
 ): Key.Key | undefined {
   const { key, role } = parameters
 
@@ -221,6 +221,10 @@ export declare namespace sign {
      * Payload to sign.
      */
     payload: Hex.Hex
+    /**
+     * Role to extract the key from the `account` for signing.
+     */
+    role?: Key.Key['role'] | undefined
     /**
      * Storage to use for keytype-specific caching (e.g. WebAuthn user verification).
      */

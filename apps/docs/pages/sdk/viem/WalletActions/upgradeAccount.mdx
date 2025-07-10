@@ -1,0 +1,41 @@
+import { WalletActions } from 'porto/viem'
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { TryItOut } from '../../../../components/TryItOut'
+
+# `WalletActions.upgradeAccount`
+
+Viem Action for upgrading an Externally-Owned Account (EOA) into a Porto Account. Uses [`wallet_upgradeAccount`](/sdk/rpc/wallet_upgradeAccount) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { privateKeyToAccount } from 'viem/accounts'
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
+
+const eoa = privateKeyToAccount('0x...')
+
+const result = await WalletActions.upgradeAccount(client, { // [!code focus]
+  account: eoa, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+<TryItOut
+  fn={async ({ client }) => {
+    return await WalletActions.upgradeAccount(client, {
+      account: privateKeyToAccount(generatePrivateKey()),
+    })
+  }}
+  requireConnection={false}
+  transformResultCode={(code) => {
+    return 'const response = ' + code
+  }}
+/>

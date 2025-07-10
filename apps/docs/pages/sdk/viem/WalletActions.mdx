@@ -1,0 +1,35 @@
+# Wallet Actions
+
+Porto provides a set of Wallet Actions for **Application Developers**. These Actions are designed to be used with
+a Viem Client that is connected to a Porto's EIP-1193 Provider.
+
+```ts twoslash
+import { createClient, custom } from 'viem' 
+import { Porto } from 'porto' 
+import { WalletActions } from 'porto/viem' 
+
+// Instantiate a Porto instance. 
+const porto = Porto.create() 
+
+// Instantiate a Viem Client with Porto's EIP-1193 provider. 
+const client = createClient({ 
+  transport: custom(porto.provider), 
+}) 
+
+const { accounts } = await WalletActions.connect(client) // [!code focus]
+```
+
+---
+
+:::info
+The end-goal is for these Actions to be upstreamed into Viem itself once
+more concepts become standardized (e.g. authorizing permissions, Porto Server JSON-RPC methods, etc).
+:::
+
+| Action | Description | Standard |
+| ------ | ------ | ------ |
+| [`connect`](/sdk/viem/WalletActions/connect) | Connect to a Porto Account. | [ERC-7846](https://github.com/ethereum/ERCs/pull/779) |
+| [`disconnect`](/sdk/viem/WalletActions/disconnect) | Disconnect an account. | [ERC-7846](https://github.com/ethereum/ERCs/pull/779) |
+| [`grantPermissions`](/sdk/viem/WalletActions/grantPermissions) | Grant permissions to an application. | Experimental |
+| [`getPermissions`](/sdk/viem/WalletActions/getPermissions) | Get permissions attached to an account. | Experimental |
+| [`revokePermissions`](/sdk/viem/WalletActions/revokePermissions) | Revoke a permission attached to an account. | Experimental |

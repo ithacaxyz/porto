@@ -12,6 +12,7 @@
   "dependencies": {
     "@porto/apps": "workspace:*",
     "@tailwindcss/vite": "catalog:",
+    "eruda": "^3.4.3",
     "mipd": "^0.0.7",
     "ox": "catalog:",
     "porto": "workspace:*",
@@ -21,7 +22,6 @@
     "viem": "catalog:"
   },
   "devDependencies": {
-    "@mjackson/node-fetch-server": "^0.6.1",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
@@ -30,6 +30,5 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-mkcert": "catalog:"
-  },
-  "packageManager": "pnpm@10.10.0"
+  }
 }

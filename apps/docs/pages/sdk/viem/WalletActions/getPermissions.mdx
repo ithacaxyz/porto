@@ -1,0 +1,93 @@
+# `WalletActions.getPermissions`
+
+Viem Action for retrieving active permissions for an account. Uses [`wallet_getPermissions`](/sdk/rpc/wallet_getPermissions) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
+
+const permissions = await WalletActions.getPermissions(client) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### address
+
+`Address | undefined`
+
+Address of the account to get permissions for. Defaults to the client's account.
+
+## Return Value
+
+### address
+
+`Address`
+
+Address of the account.
+
+### chainId
+
+`number`
+
+Chain ID of the account.
+
+### expiry
+
+`number`
+
+Expiry timestamp of the permissions.
+
+### id
+
+`string`
+
+Permission ID.
+
+### key
+
+Key assigned to the permission.
+
+```ts
+type Key = {
+  /** Public key */
+  publicKey: `0x${string}`
+  /** Key type */
+  type: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+}
+```
+
+### permissions
+
+Permissions granted to the account.
+
+```ts
+type Permissions = {
+  /** Call permissions */
+  calls: {
+    /** Function signature or 4-byte signature */
+    signature?: string
+    /** Authorized target address */
+    to: `0x${string}`
+  }[]
+
+  /** Spend permissions */
+  spend: {
+    /** Spending limit */
+    limit: `0x${string}`
+    /** Period of the spend limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token to set the limit on (defaults to native token) */
+    token?: `0x${string}`
+  }[]
+}
+```

@@ -1,4 +1,4 @@
-import { PortoConfig } from '@porto/apps'
+import type { PortoConfig } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import type { Address } from 'ox'
 import { Chains } from 'porto'

@@ -28,8 +28,12 @@ type Request = {
   params: [{
     /** Optional capabilities to request. */
     capabilities?: {
+      /** Hide/show email optional email input when creating accounts. */
+      email?: boolean
       /** Grant permissions. */
       grantPermissions?: PermissionsRequestCapabilities['grantPermissions']
+      /** ERC-4361: Sign-In with Ethereum support. */
+      signInWithEthereum?: PermissionsRequestCapabilities['signInWithEthereum']
     }
   }]
 }
@@ -52,6 +56,8 @@ type Response = {
     capabilities: {
       /** Permissions that were granted. */
       permissions: PermissionsResponseCapabilities['permissions']
+      /** ERC-4361 message and signature. */
+      signInWithEthereum: PermissionsResponseCapabilities['signInWithEthereum']
     }
   }[]
 }

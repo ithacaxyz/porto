@@ -3,7 +3,6 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
-import { verifyHash } from 'viem/actions'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/serverActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -12,10 +11,10 @@ import type * as Chains from '../Chains.js'
 import type * as Porto from '../Porto.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Permissions from './permissions.js'
-import * as Porto_internal from './porto.js'
-import * as RpcRequest from './typebox/request.js'
-import * as Rpc from './typebox/rpc.js'
-import * as Typebox from './typebox/typebox.js'
+import type * as Porto_internal from './porto.js'
+import * as RpcRequest from './schema/request.js'
+import * as Rpc from './schema/rpc.js'
+import * as Schema from './schema/schema.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -55,8 +54,8 @@ export function from<
       try {
         request = RpcRequest.parseRequest(request_)
       } catch (e) {
-        const unsupportedCode = 62
-        if ((e as any).error?.type !== unsupportedCode) throw e
+        const error = e as RpcRequest.parseRequest.Error
+        if (!(error instanceof RpcResponse.MethodNotSupportedError)) throw error
 
         // catch unsupported methods
         if ((request_ as { method: string }).method.startsWith('wallet_'))
@@ -67,6 +66,40 @@ export function from<
       const state = store.getState()
 
       switch (request.method) {
+        case 'account_verifyEmail': {
+          if (state.accounts.length === 0)
+            throw new ox_Provider.DisconnectedError()
+
+          const [parameters] = request._decoded.params
+          const { chainId, email, token, walletAddress } = parameters
+
+          const client = getClient(chainId)
+
+          if (chainId && chainId !== client.chain.id)
+            throw new ox_Provider.ChainDisconnectedError()
+
+          const account = walletAddress
+            ? state.accounts.find((account) =>
+                Address.isEqual(account.address, walletAddress),
+              )
+            : state.accounts[0]
+          if (!account) throw new ox_Provider.UnauthorizedError()
+
+          return await getMode().actions.verifyEmail({
+            account,
+            chainId,
+            email,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+            token,
+            walletAddress,
+          })
+        }
+
         case 'wallet_addFunds': {
           if (state.accounts.length === 0)
             throw new ox_Provider.DisconnectedError()
@@ -100,20 +133,20 @@ export function from<
             throw new ox_Provider.DisconnectedError()
           return state.accounts.map(
             (account) => account.address,
-          ) satisfies Typebox.Static<typeof Rpc.eth_accounts.Response>
+          ) satisfies typeof Rpc.eth_accounts.Response.Encoded
         }
 
         case 'eth_chainId': {
-          return Hex.fromNumber(state.chainId) satisfies Typebox.Static<
-            typeof Rpc.eth_chainId.Response
-          >
+          return Hex.fromNumber(
+            state.chainId,
+          ) satisfies typeof Rpc.eth_chainId.Response.Encoded
         }
 
         case 'eth_requestAccounts': {
           if (state.accounts.length > 0)
             return state.accounts.map(
               (account) => account.address,
-            ) satisfies Typebox.Static<typeof Rpc.eth_requestAccounts.Response>
+            ) satisfies typeof Rpc.eth_requestAccounts.Response.Encoded
 
           const client = getClient()
 
@@ -134,7 +167,7 @@ export function from<
 
           return accounts.map(
             (account) => account.address,
-          ) satisfies Typebox.Static<typeof Rpc.eth_requestAccounts.Response>
+          ) satisfies typeof Rpc.eth_requestAccounts.Response.Encoded
         }
 
         case 'eth_sendTransaction': {
@@ -174,9 +207,7 @@ export function from<
             preCalls: capabilities?.preCalls as any,
           })
 
-          return id satisfies Typebox.Static<
-            typeof Rpc.eth_sendTransaction.Response
-          >
+          return id satisfies typeof Rpc.eth_sendTransaction.Response.Encoded
         }
 
         case 'eth_signTypedData_v4': {
@@ -203,9 +234,7 @@ export function from<
             },
           })
 
-          return signature satisfies Typebox.Static<
-            typeof Rpc.eth_signTypedData_v4.Response
-          >
+          return signature satisfies typeof Rpc.eth_signTypedData_v4.Response.Encoded
         }
 
         case 'wallet_grantAdmin': {
@@ -268,13 +297,11 @@ export function from<
             type: 'adminsChanged',
           })
 
-          return Typebox.Encode(Rpc.wallet_grantAdmin.Response, {
+          return Schema.encodeSync(Rpc.wallet_grantAdmin.Response)({
             address: account.address,
             chainId: client.chain.id,
             key: admins.at(-1)!,
-          } satisfies Rpc.wallet_grantAdmin.Response) satisfies Typebox.Static<
-            typeof Rpc.wallet_grantAdmin.Response
-          >
+          })
         }
 
         case 'wallet_grantPermissions': {
@@ -326,7 +353,7 @@ export function from<
             type: 'permissionsChanged',
           })
 
-          return Typebox.Encode(Rpc.wallet_grantPermissions.Response, {
+          return Schema.encodeSync(Rpc.wallet_grantPermissions.Response)({
             ...Permissions.fromKey(key, {
               address: account.address,
             }),
@@ -338,9 +365,7 @@ export function from<
                   },
                 }
               : {}),
-          } satisfies Rpc.wallet_grantPermissions.Response) satisfies Typebox.Static<
-            typeof Rpc.wallet_grantPermissions.Response
-          >
+          })
         }
 
         case 'wallet_getAdmins': {
@@ -369,26 +394,29 @@ export function from<
           })
           const admins = getAdmins(keys)
 
-          return Typebox.Encode(Rpc.wallet_getAdmins.Response, {
+          return Schema.encodeSync(Rpc.wallet_getAdmins.Response)({
             address: account.address,
             chainId: client.chain.id,
             keys: admins,
-          } satisfies Rpc.wallet_getAdmins.Response) satisfies Typebox.Static<
-            typeof Rpc.wallet_getAdmins.Response
-          >
+          })
         }
 
         case 'wallet_prepareUpgradeAccount': {
-          const [{ address, capabilities, chainId, label }] = request._decoded
+          const [{ address, capabilities, chainId }] = request._decoded
             .params ?? [{}]
 
-          const { grantPermissions: permissions } = capabilities ?? {}
+          const {
+            email,
+            label,
+            grantPermissions: permissions,
+          } = capabilities ?? {}
 
           const client = getClient(chainId)
 
           const { context, digests } =
             await getMode().actions.prepareUpgradeAccount({
               address,
+              email,
               internal: {
                 client,
                 config,
@@ -404,9 +432,7 @@ export function from<
           return {
             context,
             digests,
-          } satisfies Typebox.Static<
-            typeof Rpc.wallet_prepareUpgradeAccount.Response
-          >
+          } satisfies typeof Rpc.wallet_prepareUpgradeAccount.Response.Encoded
         }
 
         case 'wallet_getAccountVersion': {
@@ -439,9 +465,7 @@ export function from<
           return {
             current,
             latest,
-          } satisfies Typebox.Static<
-            typeof Rpc.wallet_getAccountVersion.Response
-          >
+          } satisfies typeof Rpc.wallet_getAccountVersion.Response.Encoded
         }
 
         case 'wallet_getKeys': {
@@ -462,10 +486,7 @@ export function from<
             internal: { client, config, request, store },
           })
 
-          return Typebox.Encode(
-            Rpc.wallet_getKeys.Response,
-            keys satisfies Rpc.wallet_getKeys.Response,
-          ) satisfies Typebox.Static<typeof Rpc.wallet_getKeys.Response>
+          return Schema.encodeSync(Rpc.wallet_getKeys.Response)(keys)
         }
 
         case 'wallet_getPermissions': {
@@ -497,9 +518,7 @@ export function from<
             chainId: client.chain.id,
           })
 
-          return permissions satisfies Typebox.Static<
-            typeof Rpc.wallet_getPermissions.Response
-          >
+          return permissions satisfies typeof Rpc.wallet_getPermissions.Response.Encoded
         }
 
         case 'wallet_revokeAdmin': {
@@ -626,9 +645,9 @@ export function from<
             internal: { client, config, request, store },
           })
 
-          return { id } satisfies Typebox.Static<
-            typeof Rpc.wallet_updateAccount.Response
-          >
+          return {
+            id,
+          } satisfies typeof Rpc.wallet_updateAccount.Response.Encoded
         }
 
         case 'wallet_upgradeAccount': {
@@ -653,6 +672,7 @@ export function from<
             signatures,
           })
 
+          const admins = getAdmins(account.keys ?? [])
           const permissions = getActivePermissions(account.keys ?? [], {
             address: account.address,
           })
@@ -665,13 +685,14 @@ export function from<
           return {
             address: account.address,
             capabilities: {
+              admins,
               ...(permissions.length > 0 ? { permissions } : {}),
             },
-          } satisfies Typebox.Static<typeof Rpc.wallet_upgradeAccount.Response>
+          } satisfies typeof Rpc.wallet_upgradeAccount.Response.Encoded
         }
 
         case 'porto_ping': {
-          return 'pong' satisfies Typebox.Static<typeof Rpc.porto_ping.Response>
+          return 'pong' satisfies typeof Rpc.porto_ping.Response.Encoded
         }
 
         case 'personal_sign': {
@@ -698,9 +719,7 @@ export function from<
             },
           })
 
-          return signature satisfies Typebox.Static<
-            typeof Rpc.personal_sign.Response
-          >
+          return signature satisfies typeof Rpc.personal_sign.Response.Encoded
         }
 
         case 'wallet_connect': {
@@ -710,8 +729,11 @@ export function from<
 
           const {
             createAccount,
+            email,
+            grantAdmins: admins,
             grantPermissions: permissions,
             selectAccount,
+            signInWithEthereum,
           } = capabilities ?? {}
 
           const internal = {
@@ -722,13 +744,16 @@ export function from<
           }
 
           const { accounts, preCalls } = await (async () => {
-            if (createAccount) {
+            if (email || createAccount) {
               const { label = undefined } =
                 typeof createAccount === 'object' ? createAccount : {}
               const { account } = await getMode().actions.createAccount({
+                admins,
+                email,
                 internal,
                 label,
                 permissions,
+                signInWithEthereum,
               })
               return { accounts: [account] }
             }
@@ -755,6 +780,7 @@ export function from<
             const loadAccountsParams = {
               internal,
               permissions,
+              signInWithEthereum,
             }
             try {
               // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
@@ -780,6 +806,18 @@ export function from<
             chainId: Hex.fromNumber(client.chain.id),
           })
 
+          const currentChainId = client.chain.id
+          const chainIds = [
+            Hex.fromNumber(currentChainId),
+            ...(config.chains
+              .map((chain) =>
+                chain.id === currentChainId
+                  ? undefined
+                  : Hex.fromNumber(chain.id),
+              )
+              .filter(Boolean) as `0x${string}`[]),
+          ]
+
           return {
             accounts: accounts.map((account) => ({
               address: account.address,
@@ -791,12 +829,27 @@ export function from<
                     })
                   : [],
                 preCalls,
+                ...(account.signInWithEthereum && {
+                  signInWithEthereum: account.signInWithEthereum,
+                }),
               },
             })),
-          } satisfies Typebox.Static<typeof Rpc.wallet_connect.Response>
+            chainIds,
+          } satisfies typeof Rpc.wallet_connect.Response.Encoded
         }
 
         case 'wallet_disconnect': {
+          const client = getClient()
+
+          await getMode().actions.disconnect?.({
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
           store.setState((x) => ({ ...x, accounts: [] }))
           emitter.emit('disconnect', new ox_Provider.DisconnectedError())
           return
@@ -817,9 +870,7 @@ export function from<
             },
           })
 
-          return response satisfies Typebox.Static<
-            typeof Rpc.wallet_getCallsStatus.Response
-          >
+          return response satisfies typeof Rpc.wallet_getCallsStatus.Response.Encoded
         }
 
         case 'wallet_getCapabilities': {
@@ -861,24 +912,28 @@ export function from<
               store,
             },
             key,
+            merchantRpcUrl: await getMerchantRpcUrl(
+              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+              config,
+            ),
             preCalls: capabilities?.preCalls as any,
-            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
           })
 
-          return Typebox.Encode(Rpc.wallet_prepareCalls.Response, {
+          return Schema.encodeSync(Rpc.wallet_prepareCalls.Response)({
             capabilities: rest.capabilities,
-            chainId: Hex.fromNumber(client.chain.id),
+            chainId: Hex.fromNumber(rest.chainId ?? client.chain.id),
             context: {
               ...rest.context,
               account: {
                 address: rest.account.address,
               },
-              calls: rest.context.calls,
-              nonce: rest.context.nonce,
+              calls: rest.context.calls ?? [],
+              nonce: rest.context.nonce ?? 0n,
             },
             digest,
-            key,
-          }) satisfies Typebox.Static<typeof Rpc.wallet_prepareCalls.Response>
+            key: rest.key,
+            typedData: rest.typedData,
+          })
         }
 
         case 'wallet_sendPreparedCalls': {
@@ -904,9 +959,9 @@ export function from<
             signature,
           })
 
-          return [{ id: hash }] satisfies Typebox.Static<
-            typeof Rpc.wallet_sendPreparedCalls.Response
-          >
+          return [
+            { id: hash },
+          ] satisfies typeof Rpc.wallet_sendPreparedCalls.Response.Encoded
         }
 
         case 'wallet_sendCalls': {
@@ -938,14 +993,15 @@ export function from<
               request,
               store,
             },
+            merchantRpcUrl: await getMerchantRpcUrl(
+              config.merchantRpcUrl ?? capabilities?.merchantRpcUrl,
+              config,
+            ),
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,
-            sponsorUrl: config.sponsorUrl ?? capabilities?.sponsorUrl,
           })
 
-          return { id } satisfies Typebox.Static<
-            typeof Rpc.wallet_sendCalls.Response
-          >
+          return { id } satisfies typeof Rpc.wallet_sendCalls.Response.Encoded
         }
 
         case 'wallet_verifySignature': {
@@ -958,23 +1014,13 @@ export function from<
             address,
             digest,
             signature,
-          }).catch(async () => {
-            const valid = await verifyHash(client, {
-              address,
-              hash: digest,
-              signature,
-            })
-            return {
-              proof: null,
-              valid,
-            }
           })
 
           return {
             ...result,
             address,
             chainId: Hex.fromNumber(client.chain.id),
-          } satisfies Typebox.Static<typeof Rpc.wallet_verifySignature.Response>
+          } satisfies typeof Rpc.wallet_verifySignature.Response.Encoded
         }
       }
     },
@@ -1040,30 +1086,27 @@ function announce(provider: Provider) {
 
 function getAdmins(
   keys: readonly Key.Key[],
-): Typebox.Static<typeof Rpc.wallet_getAdmins.Response>['keys'] {
+): (typeof Rpc.wallet_getAdmins.Response.Encoded)['keys'] {
   return keys
     .map((key) => {
       if (key.role !== 'admin') return undefined
       try {
-        return Typebox.Encode(
-          Rpc.wallet_getAdmins.Response.properties.keys.items,
-          {
-            id: key.id ?? key.publicKey,
-            publicKey: key.publicKey,
-            type: key.type,
-            ...(key.type === 'webauthn-p256'
-              ? {
-                  credentialId: key.privateKey?.credential?.id,
-                  privateKey: {
-                    credential: {
-                      id: key.privateKey?.credential?.id,
-                    },
-                    rpId: key.privateKey?.rpId,
+        return Schema.encodeSync(Rpc.wallet_getAdmins.Key)({
+          id: key.id ?? key.publicKey,
+          publicKey: key.publicKey,
+          type: key.type,
+          ...(key.type === 'webauthn-p256'
+            ? {
+                credentialId: key.privateKey?.credential?.id,
+                privateKey: {
+                  credential: {
+                    id: key.privateKey?.credential?.id,
                   },
-                }
-              : {}),
-          } satisfies Rpc.wallet_getAdmins.Response['keys'][number],
-        )
+                  rpId: key.privateKey?.rpId,
+                },
+              }
+            : {}),
+        })
       } catch {
         return undefined
       }
@@ -1077,15 +1120,14 @@ function getActivePermissions(
     address,
     chainId,
   }: { address: Address.Address; chainId?: number | undefined },
-): Typebox.Static<typeof Rpc.wallet_getPermissions.Response> {
+): typeof Rpc.wallet_getPermissions.Response.Encoded {
   return keys
     .map((key) => {
       if (key.role !== 'session') return undefined
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
       try {
-        return Typebox.Encode(
-          Permissions.Schema,
+        return Schema.encodeSync(Permissions.Schema)(
           Permissions.fromKey(key, { address, chainId }),
         )
       } catch {
@@ -1093,4 +1135,44 @@ function getActivePermissions(
       }
     })
     .filter(Boolean) as never
+}
+
+async function getMerchantRpcUrl(
+  merchantRpcUrl: string | undefined,
+  { storage }: { storage: Porto.Config['storage'] },
+) {
+  const defaultMerchantRpcUrl =
+    typeof window !== 'undefined' ? `${window.location.origin}/rpc` : undefined
+
+  // If a Merchant RPC URL is not provided, we will check if there is one set
+  // up on the host.
+  if (!merchantRpcUrl) {
+    // If there is no default Merchant RPC URL, we will return undefined.
+    if (!defaultMerchantRpcUrl) return undefined
+
+    // If there is a cached flag, we will return the URL if it is set up.
+    const merchantRpcUrl_storage = await storage.getItem('porto.merchant-rpc')
+    if (typeof merchantRpcUrl_storage === 'boolean')
+      return merchantRpcUrl_storage ? defaultMerchantRpcUrl : undefined
+
+    // Fetch on the default Merchant RPC URL to see if it is set up.
+    const response = await fetch(defaultMerchantRpcUrl)
+      .then((x) => x.text())
+      .catch(() => undefined)
+    if (response !== 'hello porto') {
+      await storage.setItem('porto.merchant-rpc', false)
+      return undefined
+    }
+
+    // If set up, we will cache the flag.
+    await storage.setItem('porto.merchant-rpc', true)
+    return defaultMerchantRpcUrl
+  }
+
+  // If the Merchant RPC URL is a relative URL, we will convert it to an
+  // absolute URL.
+  if (merchantRpcUrl.startsWith('/'))
+    return `${window.location.origin}${merchantRpcUrl}`
+
+  return merchantRpcUrl
 }

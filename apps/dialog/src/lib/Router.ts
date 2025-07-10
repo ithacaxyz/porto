@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-router'
 import { Json, Provider, type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
-import * as RpcRequest from 'porto/core/internal/typebox/request'
+import * as RpcRequest from 'porto/core/internal/schema/request'
 import { Actions } from 'porto/remote'
 
 import { routeTree } from '~/routeTree.gen.ts'
@@ -19,6 +19,10 @@ export function parseSearchRequest<
 ): parseSearchRequest.ReturnType<method> {
   const { method } = parameters
   try {
+    // Avoid re-parsing already decoded requests to prevent double-processing
+    if ('_decoded' in search && search._decoded) return search as never
+    if (search._decoded) return search as never
+
     const request = RpcRequest.parseRequest(search)
     if (request.method === method)
       return {

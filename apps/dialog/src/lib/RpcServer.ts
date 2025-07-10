@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { Address, Json } from 'ox'
+import { type Address, Json } from 'ox'
 import { Account, ServerActions } from 'porto'
-import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken'
+import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
 
 import * as FeeToken from './FeeToken'
@@ -19,7 +19,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
     calls,
     chainId,
     revokeKeys,
-    sponsorUrl,
+    merchantRpcUrl,
   } = props
 
   const account = Hooks.useAccount(porto, { address })
@@ -29,7 +29,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
   })
 
   return useQuery({
-    enabled: enabled && !!account,
+    enabled: enabled && feeToken.isFetched && !!account,
     async queryFn() {
       if (!account) throw new Error('account is required.')
 
@@ -42,8 +42,8 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
         calls,
         feeToken: feeToken.data?.address,
         key,
+        merchantRpcUrl,
         revokeKeys,
-        sponsorUrl,
       })
     },
     queryKey: [
@@ -52,8 +52,8 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
       Json.stringify({
         authorizeKeys,
         calls,
+        merchantRpcUrl,
         revokeKeys,
-        sponsorUrl,
       }),
       client.uid,
       feeToken.data?.address,
@@ -71,7 +71,7 @@ export declare namespace usePrepareCalls {
       address?: Address.Address | undefined
       chainId?: number | undefined
       enabled?: boolean | undefined
-      feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
-      sponsorUrl?: string | undefined
+      feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
+      merchantRpcUrl?: string | undefined
     }
 }

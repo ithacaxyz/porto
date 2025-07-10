@@ -17,6 +17,7 @@ import type { ServerClient } from '../../../viem/ServerClient.js'
 import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
+import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
 
 /**
@@ -52,7 +53,7 @@ export function contract(parameters: contract.Parameters = {}) {
     const { address, client, keystoreHost, mock, permissions } = parameters
 
     const label =
-      parameters.label ?? `${address.slice(0, 8)}\u2026${address.slice(-6)}`
+      parameters.label || `${address.slice(0, 8)}\u2026${address.slice(-6)}`
 
     const key = !mock
       ? await Key.createWebAuthnP256({
@@ -97,9 +98,8 @@ export function contract(parameters: contract.Parameters = {}) {
       async addFunds() {
         throw new Provider.UnsupportedMethodError()
       },
-
       async createAccount(parameters) {
-        const { label, internal, permissions } = parameters
+        const { label, internal, permissions, signInWithEthereum } = parameters
         const { client } = internal
 
         // Generate a random private key and derive the address.
@@ -150,7 +150,25 @@ export function contract(parameters: contract.Parameters = {}) {
 
         address_internal = account.address
 
-        return { account }
+        const { message, signature } = await (async () => {
+          if (!signInWithEthereum) return {}
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
+            address: account.address,
+          })
+          return {
+            message,
+            signature: await Account.sign(account, {
+              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+            }),
+          }
+        })()
+
+        return {
+          account: {
+            ...account,
+            signInWithEthereum: signature ? { message, signature } : undefined,
+          },
+        }
       },
 
       async getAccountVersion(parameters) {
@@ -223,11 +241,11 @@ export function contract(parameters: contract.Parameters = {}) {
             supported: false,
             tokens: [],
           },
+          merchant: {
+            supported: false,
+          },
           permissions: {
             supported: true,
-          },
-          sponsor: {
-            supported: false,
           },
         } as const
 
@@ -301,7 +319,7 @@ export function contract(parameters: contract.Parameters = {}) {
       },
 
       async loadAccounts(parameters) {
-        const { internal, permissions } = parameters
+        const { internal, permissions, signInWithEthereum } = parameters
         const { client } = internal
 
         const { address, credentialId } = await (async () => {
@@ -378,23 +396,57 @@ export function contract(parameters: contract.Parameters = {}) {
             storage: internal.config.storage,
           })
 
-        return { accounts: [account] }
+        const siweResult = await (async () => {
+          if (!signInWithEthereum) return {}
+          const key = account.keys?.find(
+            (key) => key.role === 'admin' && key.privateKey,
+          )
+          if (!key) throw new Error('cannot find admin key to sign with.')
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
+            address: account.address,
+          })
+          return {
+            message,
+            signature: await Account.sign(account, {
+              key,
+              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+            }),
+          }
+        })()
+
+        return {
+          accounts: [
+            {
+              ...account,
+              signInWithEthereum: siweResult.signature ? siweResult : undefined,
+            },
+          ],
+        }
       },
 
       async prepareCalls(parameters) {
-        const { internal, key } = parameters
+        const { account, calls, internal } = parameters
         const { client } = internal
 
-        const { request, digests } = await ContractActions.prepareExecute(
-          client,
-          parameters,
-        )
+        // Try and extract an authorized key to sign the calls with.
+        const key =
+          parameters.key ??
+          (await Mode.getAuthorizedExecuteKey({
+            account,
+            calls,
+          }))
+        if (!key) throw new Error('cannot find authorized key to sign with.')
+
+        const { request, digests, typedData } =
+          await ContractActions.prepareExecute(client, parameters)
 
         return {
           account: request.account,
+          chainId: client.chain.id,
           context: { calls: request.calls, nonce: request.nonce },
           digest: digests.exec,
           key,
+          typedData: typedData as never,
         }
       },
 
@@ -417,6 +469,14 @@ export function contract(parameters: contract.Parameters = {}) {
 
         const key = account.keys?.find((key) => key.id === id)
         if (!key) return
+
+        // Cannot revoke the only WebAuthn key left
+        if (
+          key.type === 'webauthn-p256' &&
+          account.keys?.filter((key) => key.type === 'webauthn-p256').length ===
+            1
+        )
+          throw new Error('revoke the only WebAuthn key left.')
 
         await ContractActions.execute(client, {
           account,
@@ -548,6 +608,10 @@ export function contract(parameters: contract.Parameters = {}) {
         address_internal = account.address
 
         return { account }
+      },
+
+      async verifyEmail() {
+        throw new Provider.UnsupportedMethodError()
       },
     },
     name: 'contract',

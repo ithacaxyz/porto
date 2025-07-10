@@ -1,0 +1,20 @@
+# `WalletActions.disconnect`
+
+Viem Action for disconnecting an account using [ERC-7846](https://github.com/ethereum/ERCs/pull/779). Uses [`wallet_disconnect`](/sdk/rpc/wallet_disconnect) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
+
+const result = await WalletActions.disconnect(client) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::

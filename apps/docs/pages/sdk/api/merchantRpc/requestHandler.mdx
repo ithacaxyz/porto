@@ -1,0 +1,189 @@
+# `MerchantRpc.requestHandler`
+
+Creates a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request handler for merchant RPC operations. This allows merchants to sponsor transaction fees for users and handle Porto RPC requests in various server environments.
+
+## Imports
+
+:::code-group
+
+```ts [Named]
+import { MerchantRpc } from 'porto/server'
+```
+
+```ts [Entrypoint]
+import * as MerchantRpc from 'porto/server/MerchantRpc'
+```
+
+:::
+
+## Usage
+
+`MerchantRpc.requestHandler` is compatible with any server framework that supports the Fetch API, including:
+
+- [Next.js](#nextjs)
+- [Cloudflare Workers](#cloudflare-workers)
+- [Hono](#hono)
+- [Deno](https://deno.com)
+
+```ts twoslash
+// @noErrors
+import { MerchantRpc } from 'porto/server'
+
+const handler = MerchantRpc.requestHandler({
+  address: process.env.MERCHANT_ADDRESS,
+  key: process.env.MERCHANT_PRIVATE_KEY,
+})
+```
+
+### Next.js
+
+The `MerchantRpc` module exports `GET`, `OPTIONS`, and `POST` helpers over the `requestHandler` function for [Next.js](https://nextjs.org).
+
+```ts
+import { MerchantRpc } from 'porto/server'
+
+export const GET = MerchantRpc.GET
+
+export const OPTIONS = MerchantRpc.OPTIONS
+
+export const POST = MerchantRpc.POST({
+  address: process.env.NEXT_PUBLIC_MERCHANT_ADDRESS,
+  key: process.env.NEXT_PUBLIC_MERCHANT_PRIVATE_KEY,
+})
+
+```
+
+### Cloudflare Workers
+
+Use the `MerchantRpc.requestHandler` function directly in your Cloudflare Worker.
+
+```ts
+import { env } from 'cloudflare:workers'
+import { MerchantRpc } from 'porto/server'
+
+export default {
+  fetch: MerchantRpc.requestHandler({
+    address: env.MERCHANT_ADDRESS,
+    base: '/rpc',
+    key: env.MERCHANT_PRIVATE_KEY,
+  }),
+} satisfies ExportedHandler<Env>
+
+```
+
+### Hono
+
+Use the `MerchantRpc.requestHandler` function directly in your Hono server.
+
+```ts
+import { Hono } from 'hono'
+import { MerchantRpc } from 'porto/server'
+
+const app = new Hono()
+
+app.all('/rpc', (c) => MerchantRpc.requestHandler({
+  address: c.env.MERCHANT_ADDRESS,
+  key: c.env.MERCHANT_PRIVATE_KEY,
+})(c.req.raw))
+
+export default app
+```
+
+### Express
+
+If you are using a server framework that supports the Node.js `http` API (e.g. [Express](https://expressjs.com)) instead of the Fetch API, you can use the `MerchantRpc.requestListener` function instead:
+
+```ts
+import express from 'express'
+import { MerchantRpc } from 'porto/server'
+
+const app = express()
+
+app.all('/rpc', MerchantRpc.requestListener({
+  address: process.env.MERCHANT_ADDRESS,
+  key: process.env.MERCHANT_PRIVATE_KEY,
+}))
+
+app.listen(3000)
+```
+
+### Other Frameworks
+
+Using [`MerchantRpc.requestHandler`](#usage) (for [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) frameworks) or [`MerchantRpc.requestListener`](#express) (for [Node.js](https://nodejs.org) API frameworks) should get you far enough.
+
+If you would like to see an example of your framework here, please [open a discussion](https://github.com/ithacaxyz/porto/discussions/new) and we'll add it.
+
+### Conditional Sponsoring
+
+The `sponsor` option can be used to conditionally sponsor calls.
+When a function is provided to `sponsor`, the first parameter is a `request` object and the return value is a boolean indicating whether to sponsor the call.
+
+In the following example, the call will only be sponsored if the `to` address is the same as the `target` address.
+
+```ts
+import { MerchantRpc } from 'porto/server'
+
+const target = '0x...'
+
+const handler = MerchantRpc.requestHandler({
+  address: process.env.MERCHANT_ADDRESS,
+  key: process.env.MERCHANT_PRIVATE_KEY,
+  sponsor(request) {
+    return request.calls.every((call) => call.to === target)
+  },
+})
+```
+
+:::tip
+You can also pass an `async` function to `sponsor` if you wish to call out to an external service to determine whether to sponsor the call.
+
+```ts
+import { MerchantRpc } from 'porto/server'
+import { myAsyncFunction } from './myAsyncFunction'
+
+const handler = MerchantRpc.requestHandler({
+  address: process.env.MERCHANT_ADDRESS,
+  key: process.env.MERCHANT_PRIVATE_KEY,
+  async sponsor(request) { // [!code focus]
+    return await myAsyncFunction(request) // [!code focus]
+  }, // [!code focus]
+})
+```
+
+:::
+
+## Parameters
+
+```ts
+type Parameters = {
+  /** Address of the Merchant Account. */
+  address: Address.Address
+  /** Base path of the request handler. */
+  base?: string | undefined
+  /** Supported chains. */
+  chains?: Porto.Config<chains>['chains'] | undefined
+  /** An Admin Key of the Merchant Account to use for signing. */
+  key:
+    | Hex.Hex
+    | (Pick<OneOf<Key.Secp256k1Key | Key.P256Key>, 'type'> & {
+        privateKey: Hex.Hex
+      })
+  /** Whether to sponsor calls or not, and the condition to do so. */
+  sponsor?:
+    | boolean
+    | ((
+        request: RpcSchema.wallet_prepareCalls.Parameters,
+      ) => Promise<boolean>)
+      | undefined
+  /** Supported transports. */
+  transports?: Porto.Config<chains>['transports'] | undefined
+}
+```
+
+## Returns
+
+```ts
+type ReturnType = (request: Request) => Promise<Response>
+```
+
+A function that accepts a [Fetch API `Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) and returns a [Fetch API `Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response).

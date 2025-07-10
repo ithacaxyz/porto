@@ -68,7 +68,7 @@ export const portoDev = /*#__PURE__*/ define({
   },
   contracts: {
     portoAccount: {
-      address: '0xca03dc4665a8c3603cb4fd5ce71af9649dc00d44',
+      address: '0xc6e7df5e7b4f2a278906862b61205850344d4e7d',
     },
   },
   id: 28_404,

@@ -1,19 +1,23 @@
-import * as Address from 'ox/Address'
+import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
+import * as ServerClient from '../../../viem/ServerClient.js'
 import * as Dialog from '../../Dialog.js'
 import type { QueuedRequest } from '../../Porto.js'
 import * as RpcSchema_porto from '../../RpcSchema.js'
+import type { Storage } from '../../Storage.js'
+import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import type * as Porto from '../porto.js'
 import * as PreCalls from '../preCalls.js'
-import type * as FeeToken from '../typebox/feeToken.js'
-import * as Typebox from '../typebox/typebox.js'
+import type * as FeeToken from '../schema/feeToken.js'
+import * as Schema from '../schema/schema.js'
+import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
@@ -22,7 +26,10 @@ export function dialog(parameters: dialog.Parameters = {}) {
     renderer = Dialog.iframe(),
   } = parameters
 
+  const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
   const requestStore = RpcRequest.createStore()
+
+  let feeTokens: FeeTokens.FeeTokens | undefined
 
   // Function to instantiate a provider for the dialog. This
   // will be used to queue up requests for the dialog and
@@ -59,41 +66,45 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
           // We need to wait for the request to be resolved.
           return new Promise((resolve, reject) => {
-            const unsubscribe = store.subscribe(
-              (x) => x.requestQueue,
-              (requestQueue) => {
-                // If the queue is empty, reject the request as it will
-                // never be resolved.
-                if (requestQueue.length === 0) {
-                  unsubscribe()
-                  reject(new Provider.UserRejectedRequestError())
-                }
+            const listener = (requestQueue: readonly QueuedRequest[]) => {
+              // Find the request in the queue based off its JSON-RPC identifier.
+              const queued = requestQueue.find(
+                (x) => x.request.id === request.id,
+              )
 
-                // Find the request in the queue based off its JSON-RPC identifier.
-                const queued = requestQueue.find(
-                  (x) => x.request.id === request.id,
-                )
-                if (!queued) return
-                if (queued.status !== 'success' && queued.status !== 'error')
-                  return
+              // If the request is not found and the queue is empty, reject the request
+              // as it will never be resolved (likely cancelled or dialog closed).
+              if (!queued && requestQueue.length === 0) {
+                listeners.delete(listener)
+                reject(new Provider.UserRejectedRequestError())
+                return
+              }
 
-                // We have a response, we can unsubscribe from the store.
-                unsubscribe()
+              // If request not found but queue has other requests, wait for next update.
+              if (!queued) return
 
-                // If the request was successful, resolve with the result.
-                if (queued.status === 'success') resolve(queued.result as any)
-                // Otherwise, reject with EIP-1193 Provider error.
-                else reject(Provider.parseError(queued.error))
+              // If request found but not yet resolved, wait for next update.
+              if (queued.status !== 'success' && queued.status !== 'error')
+                return
 
-                // Remove the request from the queue.
-                store.setState((x) => ({
-                  ...x,
-                  requestQueue: x.requestQueue.filter(
-                    (x) => x.request.id !== request.id,
-                  ),
-                }))
-              },
-            )
+              // We have a response, we can unsubscribe from the listener.
+              listeners.delete(listener)
+
+              // If the request was successful, resolve with the result.
+              if (queued.status === 'success') resolve(queued.result as any)
+              // Otherwise, reject with EIP-1193 Provider error.
+              else reject(Provider.parseError(queued.error))
+
+              // Remove the request from the queue.
+              store.setState((x) => ({
+                ...x,
+                requestQueue: x.requestQueue.filter(
+                  (x) => x.request.id !== request.id,
+                ),
+              }))
+            }
+
+            listeners.add(listener)
           })
         },
       },
@@ -116,11 +127,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async createAccount(parameters) {
         const { internal } = parameters
-        const {
-          config: { storage },
-          request,
-          store,
-        } = internal
+        const { config, request, store } = internal
+        const { storage } = config
 
         const provider = getProvider(store)
 
@@ -129,15 +137,25 @@ export function dialog(parameters: dialog.Parameters = {}) {
             // Extract the capabilities from the request.
             const [{ capabilities }] = request._decoded.params ?? [{}]
 
+            const authUrl = getAuthUrl(
+              capabilities?.signInWithEthereum?.authUrl ?? config.authUrl,
+              { storage },
+            )
+
+            const signInWithEthereum =
+              request.params?.[0]?.capabilities?.signInWithEthereum
+
             // Parse the authorize key into a structured key.
             const key = await PermissionsRequest.toKey(
               capabilities?.grantPermissions,
+              {
+                feeTokens,
+              },
             )
 
             // Convert the key into a permission.
             const permissionsRequest = key
-              ? Typebox.Encode(
-                  PermissionsRequest.Schema,
+              ? Schema.encodeSync(PermissionsRequest.Schema)(
                   PermissionsRequest.fromKey(key),
                 )
               : undefined
@@ -150,6 +168,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   capabilities: {
                     ...request.params?.[0]?.capabilities,
                     grantPermissions: permissionsRequest,
+                    signInWithEthereum:
+                      authUrl || signInWithEthereum
+                        ? {
+                            ...signInWithEthereum,
+                            authUrl: authUrl!,
+                          }
+                        : undefined,
                   },
                 },
               ],
@@ -168,9 +193,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 if (permission.id === key?.id) return key
                 try {
                   return Permissions.toKey(
-                    Typebox.Decode(Permissions.Schema, permission),
+                    Schema.decodeSync(Permissions.Schema)(permission),
                   )
-                } catch (err) {
+                } catch {
                   return undefined
                 }
               })
@@ -183,10 +208,24 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 storage,
               })
 
-            return Account.from({
-              address: account.address,
-              keys: [...adminKeys, ...sessionKeys],
-            })
+            const signInWithEthereum_response =
+              account.capabilities?.signInWithEthereum
+            if (authUrl && signInWithEthereum_response) {
+              const { message, signature } = signInWithEthereum_response
+              await Siwe.authenticate({
+                authUrl,
+                message,
+                signature,
+              })
+            }
+
+            return {
+              ...Account.from({
+                address: account.address,
+                keys: [...adminKeys, ...sessionKeys],
+              }),
+              signInWithEthereum: signInWithEthereum_response,
+            }
           }
 
           throw new Error(
@@ -196,6 +235,24 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           account,
+        }
+      },
+
+      async disconnect(parameters) {
+        const { internal } = parameters
+        const { config } = internal
+        const { storage } = config
+
+        const authUrl =
+          getAuthUrl(config.authUrl, { storage }) ??
+          (await storage.getItem<string | undefined>('porto.siwe.authUrl'))
+
+        if (authUrl) {
+          const response = await fetch(authUrl + '/logout', {
+            credentials: 'include',
+            method: 'POST',
+          })
+          if (!response.ok) throw new Error('failed to logout.')
         }
       },
 
@@ -251,11 +308,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
           ],
         })
 
-        const keys = Typebox.Decode(
-          RpcSchema_porto.wallet_getKeys.Response,
-          result satisfies Typebox.Static<
-            typeof RpcSchema_porto.wallet_getKeys.Response
-          >,
+        const keys = Schema.decodeSync(RpcSchema_porto.wallet_getKeys.Response)(
+          result,
         )
 
         return U.uniqBy(
@@ -314,11 +368,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const [{ address, ...permissions }] = request._decoded.params
 
         // Parse permissions request into a structured key.
-        const key = await PermissionsRequest.toKey(permissions)
+        const key = await PermissionsRequest.toKey(permissions, {
+          feeTokens,
+        })
         if (!key) throw new Error('no key found.')
 
-        const permissionsRequest = Typebox.Encode(
-          PermissionsRequest.Schema,
+        const permissionsRequest = Schema.encodeSync(PermissionsRequest.Schema)(
           PermissionsRequest.fromKey(key),
         )
 
@@ -341,62 +396,77 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async loadAccounts(parameters) {
         const { internal } = parameters
-        const {
-          config: { storage },
-          store,
-          request,
-        } = internal
+        const { config, store, request } = internal
+        const { storage } = config
 
         const provider = getProvider(store)
 
+        if (
+          request.method !== 'wallet_connect' &&
+          request.method !== 'eth_requestAccounts'
+        )
+          throw new Error('Cannot load accounts for method: ' + request.method)
+
         const accounts = await (async () => {
-          if (request.method === 'eth_requestAccounts') {
-            const addresses = await provider.request(request)
-            return addresses.map((address) => Account.from({ address }))
-          }
+          const [{ capabilities }] = request._decoded.params ?? [{}]
 
-          if (request.method === 'wallet_connect') {
-            const [{ capabilities }] = request._decoded.params ?? [{}]
+          const authUrl = getAuthUrl(
+            capabilities?.signInWithEthereum?.authUrl ?? config.authUrl,
+            { storage },
+          )
 
-            // Parse provided (RPC) key into a structured key.
-            const key = await PermissionsRequest.toKey(
-              capabilities?.grantPermissions,
-            )
+          const signInWithEthereum =
+            request.params?.[0]?.capabilities?.signInWithEthereum
 
-            // Convert the key into a permissions request.
-            const permissionsRequest = key
-              ? Typebox.Encode(
-                  PermissionsRequest.Schema,
-                  PermissionsRequest.fromKey(key),
-                )
-              : undefined
+          // Parse provided (RPC) key into a structured key.
+          const key = await PermissionsRequest.toKey(
+            capabilities?.grantPermissions,
+            {
+              feeTokens,
+            },
+          )
 
-            // Send a request to the dialog.
-            const { accounts } = await provider.request({
-              ...request,
-              params: [
-                {
-                  ...request.params?.[0],
-                  capabilities: {
-                    ...request.params?.[0]?.capabilities,
-                    grantPermissions: permissionsRequest,
-                  },
+          // Convert the key into a permissions request.
+          const permissionsRequest = key
+            ? Schema.encodeSync(PermissionsRequest.Schema)(
+                PermissionsRequest.fromKey(key),
+              )
+            : undefined
+
+          // Send a request to the dialog.
+          const { accounts } = await provider.request({
+            method: 'wallet_connect',
+            params: [
+              {
+                ...request.params?.[0],
+                capabilities: {
+                  ...request.params?.[0]?.capabilities,
+                  grantPermissions: permissionsRequest,
+                  signInWithEthereum:
+                    authUrl || signInWithEthereum
+                      ? {
+                          ...signInWithEthereum,
+                          authUrl: authUrl!,
+                        }
+                      : undefined,
                 },
-              ],
-            })
+              },
+            ],
+          })
 
-            await Promise.all(
-              accounts.map(async (account) => {
-                const { preCalls } = account.capabilities ?? {}
-                if (!preCalls) return
-                await PreCalls.add(preCalls as PreCalls.PreCalls, {
-                  address: account.address,
-                  storage,
-                })
-              }),
-            )
+          await Promise.all(
+            accounts.map(async (account) => {
+              const { preCalls } = account.capabilities ?? {}
+              if (!preCalls) return
+              await PreCalls.add(preCalls as PreCalls.PreCalls, {
+                address: account.address,
+                storage,
+              })
+            }),
+          )
 
-            return accounts.map((account) => {
+          return Promise.all(
+            accounts.map(async (account) => {
               const adminKeys = account.capabilities?.admins
                 ?.map((key) => Key.from(key))
                 .filter(Boolean) as readonly Key.Key[]
@@ -404,24 +474,36 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ?.map((permission) => {
                   try {
                     const key_ = Permissions.toKey(
-                      Typebox.Decode(Permissions.Schema, permission),
+                      Schema.decodeSync(Permissions.Schema)(permission),
                     )
                     if (key_.id === key?.id) return key
                     return key_
-                  } catch (err) {
+                  } catch {
                     return undefined
                   }
                 })
                 .filter(Boolean) as readonly Key.Key[]
 
-              return Account.from({
-                address: account.address,
-                keys: [...adminKeys, ...sessionKeys],
-              })
-            })
-          }
+              const signInWithEthereum_response =
+                account.capabilities?.signInWithEthereum
+              if (authUrl && signInWithEthereum_response) {
+                const { message, signature } = signInWithEthereum_response
+                await Siwe.authenticate({
+                  authUrl,
+                  message,
+                  signature,
+                })
+              }
 
-          throw new Error('Cannot load accounts for method: ' + request.method)
+              return {
+                ...Account.from({
+                  address: account.address,
+                  keys: [...adminKeys, ...sessionKeys],
+                }),
+                signInWithEthereum: signInWithEthereum_response,
+              } as const
+            }),
+          )
         })()
 
         return {
@@ -464,9 +546,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return {
           account,
+          chainId: Number(result.chainId),
           context: result.context as any,
           digest: result.digest,
           key: result.key,
+          typedData: result.typedData,
         }
       },
 
@@ -476,24 +560,55 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method !== 'wallet_prepareUpgradeAccount')
           throw new Error(
-            'Cannot prepare create account for method: ' + request.method,
+            'Cannot prepare upgrade for method: ' + request.method,
           )
 
-        const feeToken = await resolveFeeToken(internal)
+        // Extract the capabilities from the request.
+        const [{ capabilities }] = request._decoded.params ?? [{}]
 
+        // Parse the authorize key into a structured key.
+        const key = await PermissionsRequest.toKey(
+          capabilities?.grantPermissions,
+          {
+            feeTokens,
+          },
+        )
+
+        // Convert the key into a permission.
+        const permissionsRequest = key
+          ? Schema.encodeSync(PermissionsRequest.Schema)(
+              PermissionsRequest.fromKey(key),
+            )
+          : undefined
+
+        // Send a request off to the dialog to prepare the upgrade.
         const provider = getProvider(store)
-        return await provider.request({
+        const { context, digests } = await provider.request({
           ...request,
           params: [
             {
               ...request.params?.[0],
               capabilities: {
                 ...request.params?.[0]?.capabilities,
-                feeToken,
+                grantPermissions: permissionsRequest,
               },
             },
           ],
         })
+
+        type Context = { account: Account.Account }
+        const keys = (context as Context).account.keys?.map((k) => {
+          if (k.id === key?.id) return key
+          return k
+        })
+
+        return {
+          context: {
+            ...(context as Context),
+            account: { ...(context as Context).account, keys },
+          },
+          digests,
+        }
       },
 
       async revokeAdmin(parameters) {
@@ -505,6 +620,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const key = account.keys?.find((key) => key.id === id)
         if (!key) return
+
+        // Cannot revoke the only WebAuthn key left
+        if (
+          key.type === 'webauthn-p256' &&
+          account.keys?.filter((key) => key.type === 'webauthn-p256').length ===
+            1
+        )
+          throw new Error('revoke the only WebAuthn key left.')
 
         const feeToken = await resolveFeeToken(internal, parameters)
 
@@ -543,7 +666,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, sponsorUrl } = parameters
+        const { account, calls, internal, merchantRpcUrl } = parameters
         const {
           config: { storage },
           client,
@@ -574,7 +697,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
           try {
             // TODO: use eventual Viem Action.
             const req = await provider.request(
-              Typebox.Encode(RpcSchema_porto.wallet_prepareCalls.Request, {
+              Schema.encodeSync(RpcSchema_porto.wallet_prepareCalls.Request)({
                 method: 'wallet_prepareCalls',
                 params: [
                   {
@@ -584,15 +707,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
                         ? request._decoded.params?.[0]?.capabilities
                         : undefined),
                       feeToken,
+                      merchantRpcUrl,
                       preCalls,
-                      sponsorUrl,
                     },
                     chainId: client.chain.id,
                     from: account.address,
                     key,
                   },
                 ],
-              } satisfies RpcSchema_porto.wallet_prepareCalls.Request),
+              }),
             )
 
             const signature = await Key.sign(key, {
@@ -657,8 +780,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 capabilities: {
                   ...request.params?.[0]?.capabilities,
                   feeToken,
+                  merchantRpcUrl,
                   preCalls,
-                  sponsorUrl,
                 },
               },
             ],
@@ -754,6 +877,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         return { account }
       },
+
+      async verifyEmail(parameters) {
+        const { internal } = parameters
+        const { request, store } = internal
+
+        if (request.method !== 'account_verifyEmail')
+          throw new Error('Cannot verify email for method: ' + request.method)
+
+        const provider = getProvider(store)
+        return await provider.request(request)
+      },
     },
     name: 'dialog',
     setup(parameters) {
@@ -765,9 +899,35 @@ export function dialog(parameters: dialog.Parameters = {}) {
         internal,
       })
 
-      const unsubscribe = store.subscribe(
+      const unsubscribe_1 = store.subscribe(
+        ({ chainId, feeToken }) => ({
+          chainId,
+          feeToken,
+        }),
+        async ({ chainId, feeToken }) => {
+          if (!feeToken) return
+
+          const client = ServerClient.fromPorto(
+            { _internal: internal },
+            { chainId },
+          )
+          feeTokens = await FeeTokens.resolve(client, {
+            feeToken,
+            store: internal.store,
+          })
+        },
+        {
+          equalityFn: (a, b) =>
+            a.chainId === b.chainId && a.feeToken === b.feeToken,
+          fireImmediately: true,
+        },
+      )
+
+      const unsubscribe_2 = store.subscribe(
         (x) => x.requestQueue,
         (requestQueue) => {
+          for (const listener of listeners) listener(requestQueue)
+
           const requests = requestQueue
             .map((x) => (x.status === 'pending' ? x : undefined))
             .filter(Boolean) as readonly QueuedRequest[]
@@ -777,7 +937,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       )
 
       return () => {
-        unsubscribe()
+        unsubscribe_1()
+        unsubscribe_2()
         dialog.destroy()
       }
     },
@@ -810,4 +971,20 @@ export async function resolveFeeToken(
   } = internal
   const { feeToken: overrideFeeToken } = parameters ?? {}
   return overrideFeeToken ?? feeToken
+}
+
+function getAuthUrl(
+  authUrl: string | undefined,
+  { storage }: { storage: Storage },
+) {
+  // Resolve relative URLs
+  const resolvedUrl =
+    authUrl?.startsWith('/') && typeof window !== 'undefined'
+      ? `${window.location.origin}${authUrl}`
+      : authUrl
+
+  // Store the resolved auth URL for future use (e.g., disconnect)
+  if (authUrl) storage.setItem('porto.siwe.authUrl', resolvedUrl)
+
+  return resolvedUrl
 }

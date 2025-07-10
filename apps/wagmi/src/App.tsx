@@ -1,4 +1,5 @@
 import { Hooks } from 'porto/wagmi'
+import { useConnect } from 'porto/wagmi/Hooks'
 import { useState } from 'react'
 import {
   type EIP1193Provider,
@@ -15,7 +16,7 @@ import {
 import {
   type BaseError,
   useAccount,
-  useConnect,
+  useChainId,
   useConnectors,
   useDisconnect,
   useReadContract,
@@ -48,17 +49,15 @@ export function App() {
   return (
     <>
       <Account />
-      {isConnected ? (
+      <Connect />
+      <UpgradeAccount />
+      {isConnected && (
         <>
           <Balance />
           <GrantPermissions />
           <GrantAdmin />
           <Mint />
-        </>
-      ) : (
-        <>
-          <Connect />
-          <UpgradeAccount />
+          <AddFunds />
         </>
       )}
     </>
@@ -95,7 +94,9 @@ function Account() {
 
 function Connect() {
   const [grantPermissions, setGrantPermissions] = useState<boolean>(true)
+  const [siwe, setSiwe] = useState<boolean>(true)
 
+  const chainId = useChainId()
   const connectors = useConnectors()
   const connect = useConnect()
 
@@ -110,18 +111,25 @@ function Connect() {
         />
         Grant Permissions
       </label>
+      <label>
+        <input
+          checked={siwe}
+          onChange={() => setSiwe((x) => !x)}
+          type="checkbox"
+        />
+        Sign In With Ethereum
+      </label>
       {connectors
         .filter((x) => x.id === 'xyz.ithaca.porto')
         ?.map((connector) => (
           <div key={connector.uid}>
             <button
               key={connector.uid}
-              onClick={() =>
-                connect.connect({
-                  capabilities: {
-                    grantPermissions: grantPermissions ? key() : undefined,
-                  },
+              onClick={async () =>
+                connect.mutate({
                   connector,
+                  grantPermissions: grantPermissions ? key() : undefined,
+                  signInWithEthereum: await siwePayload(siwe, chainId),
                 })
               }
               type="button"
@@ -129,13 +137,12 @@ function Connect() {
               Login
             </button>
             <button
-              onClick={() =>
-                connect.connect({
-                  capabilities: {
-                    createAccount: true,
-                    grantPermissions: grantPermissions ? key() : undefined,
-                  },
+              onClick={async () =>
+                connect.mutate({
                   connector,
+                  createAccount: true,
+                  grantPermissions: grantPermissions ? key() : undefined,
+                  signInWithEthereum: await siwePayload(siwe, chainId),
                 })
               }
               type="button"
@@ -144,6 +151,7 @@ function Connect() {
             </button>
           </div>
         ))}
+      <pre>{connect.data ? stringify(connect.data, null, 2) : ''}</pre>
       <div>{connect.status}</div>
       <div>{connect.error?.message}</div>
     </div>
@@ -339,4 +347,42 @@ function Mint() {
       )}
     </div>
   )
+}
+
+function AddFunds() {
+  const chainId = useChainId()
+  const { address } = useAccount()
+
+  const { data, status, error, ...addFunds } = Hooks.useAddFunds()
+
+  return (
+    <div>
+      <h2>Add Funds</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (!address) return
+          addFunds.mutate({ address, chainId })
+        }}
+      >
+        <button disabled={addFunds.isPending} type="submit">
+          {addFunds.isPending ? 'Pending…' : 'Add Funds'}
+        </button>
+      </form>
+      <br />
+      {data?.id && <div>Transaction Hash: {data.id}</div>}
+      {addFunds.isError && (
+        <div>Error: {(error as BaseError).shortMessage || error?.message}</div>
+      )}
+      <br />
+    </div>
+  )
+}
+
+async function siwePayload(enabled: boolean, chainId: number) {
+  if (!enabled) return undefined
+  return {
+    chainId,
+    nonce: 'deadbeef',
+  } as const
 }

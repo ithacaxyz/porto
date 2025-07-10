@@ -1,0 +1,94 @@
+# `Account.getKey`
+
+Extracts a signing key from a Porto Account based on the provided parameters.
+
+## Usage
+
+Providing no parameters will return the first "admin" key.
+
+```ts twoslash
+import { Account, Key } from 'porto/viem'
+
+const passkey = await Key.createWebAuthnP256({
+  label: 'My Passkey',
+})
+
+const account = Account.fromPrivateKey('0x...', {
+  keys: [passkey],
+})
+
+const key = Account.getKey(account) // [!code focus]
+```
+
+### By Index
+
+```ts twoslash
+import { Account, Key } from 'porto/viem'
+
+const passkey1 = await Key.createWebAuthnP256({
+  label: 'Passkey 1',
+})
+
+const passkey2 = await Key.createWebAuthnP256({
+  label: 'Passkey 2',
+})
+
+const account = Account.fromPrivateKey('0x...', {
+  keys: [passkey1, passkey2],
+})
+
+const firstKey = Account.getKey(account, { key: 0 }) // [!code focus]
+const secondKey = Account.getKey(account, { key: 1 }) // [!code focus]
+```
+
+### By Role
+
+Returns the first key of the specified role.
+
+```ts twoslash
+import { Account, Key } from 'porto/viem'
+
+const adminKey = await Key.createWebAuthnP256({
+  label: 'My passkey',
+  role: 'admin',
+})
+
+const sessionKey = await Key.createP256({
+  role: 'session',
+})
+
+const account = Account.fromPrivateKey('0x...', {
+  keys: [adminKey, sessionKey],
+})
+
+const key1 = Account.getKey(account, { role: 'admin' }) // [!code focus]
+const key2 = Account.getKey(account, { role: 'session' }) // [!code focus]
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Account`
+
+The Porto Account to extract the key from.
+
+### options
+
+#### options.key
+
+- **Type:** `number | undefined`
+
+The index of the key to extract.
+
+#### options.role
+
+- **Type:** `"admin" | "session" | undefined`
+
+The role of the key to extract.
+
+## Return Value
+
+```ts
+type ReturnValue = Key.Key | undefined
+```

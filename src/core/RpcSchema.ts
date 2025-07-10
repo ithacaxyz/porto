@@ -1,10 +1,9 @@
 import type * as RpcSchema from 'ox/RpcSchema'
 import type * as RpcSchema_viem from '../viem/RpcSchema.js'
-import type * as Rpc from './internal/typebox/request.js'
-import type { Static } from './internal/typebox/typebox.js'
+import type * as Rpc from './internal/schema/request.js'
 import type { DeepReadonly } from './internal/types.js'
 
-export * from './internal/typebox/rpc.js'
+export * from './internal/schema/rpc.js'
 
 export type Schema =
   | RpcSchema.Eth
@@ -26,88 +25,92 @@ export type Schema =
     >
   | RpcSchema.From<
       | {
-          Request: Static<typeof Rpc.wallet_addFunds.Request>
-          ReturnType: Static<typeof Rpc.wallet_addFunds.Response>
+          Request: typeof Rpc.account_verifyEmail.Request.Encoded
+          ReturnType: typeof Rpc.account_verifyEmail.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.porto_ping.Request>
-          ReturnType: Static<typeof Rpc.porto_ping.Response>
+          Request: typeof Rpc.wallet_addFunds.Request.Encoded
+          ReturnType: typeof Rpc.wallet_addFunds.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_grantAdmin.Request>
-          ReturnType: Static<typeof Rpc.wallet_grantAdmin.Response>
+          Request: typeof Rpc.porto_ping.Request.Encoded
+          ReturnType: typeof Rpc.porto_ping.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_grantPermissions.Request>
-          ReturnType: Static<typeof Rpc.wallet_grantPermissions.Response>
+          Request: typeof Rpc.wallet_grantAdmin.Request.Encoded
+          ReturnType: typeof Rpc.wallet_grantAdmin.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_prepareUpgradeAccount.Request>
-          ReturnType: Static<typeof Rpc.wallet_prepareUpgradeAccount.Response>
+          Request: typeof Rpc.wallet_grantPermissions.Request.Encoded
+          ReturnType: typeof Rpc.wallet_grantPermissions.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_upgradeAccount.Request>
-          ReturnType: Static<typeof Rpc.wallet_upgradeAccount.Response>
+          Request: typeof Rpc.wallet_prepareUpgradeAccount.Request.Encoded
+          ReturnType: typeof Rpc.wallet_prepareUpgradeAccount.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_getAdmins.Request>
-          ReturnType: Static<typeof Rpc.wallet_getAdmins.Response>
+          Request: typeof Rpc.wallet_upgradeAccount.Request.Encoded
+          ReturnType: typeof Rpc.wallet_upgradeAccount.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_getAccountVersion.Request>
-          ReturnType: Static<typeof Rpc.wallet_getAccountVersion.Response>
+          Request: typeof Rpc.wallet_getAdmins.Request.Encoded
+          ReturnType: typeof Rpc.wallet_getAdmins.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_getPermissions.Request>
-          ReturnType: Static<typeof Rpc.wallet_getPermissions.Response>
+          Request: typeof Rpc.wallet_getAccountVersion.Request.Encoded
+          ReturnType: typeof Rpc.wallet_getAccountVersion.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_revokeAdmin.Request>
+          Request: typeof Rpc.wallet_getPermissions.Request.Encoded
+          ReturnType: typeof Rpc.wallet_getPermissions.Response.Encoded
+        }
+      | {
+          Request: typeof Rpc.wallet_revokeAdmin.Request.Encoded
           ReturnType: undefined
         }
       | {
-          Request: Static<typeof Rpc.wallet_revokePermissions.Request>
+          Request: typeof Rpc.wallet_revokePermissions.Request.Encoded
           ReturnType: undefined
         }
       | {
-          Request: Static<typeof Rpc.wallet_updateAccount.Request>
-          ReturnType: Static<typeof Rpc.wallet_updateAccount.Response>
+          Request: typeof Rpc.wallet_updateAccount.Request.Encoded
+          ReturnType: typeof Rpc.wallet_updateAccount.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_connect.Request>
-          ReturnType: Static<typeof Rpc.wallet_connect.Response>
+          Request: typeof Rpc.wallet_connect.Request.Encoded
+          ReturnType: typeof Rpc.wallet_connect.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_disconnect.Request>
+          Request: typeof Rpc.wallet_disconnect.Request.Encoded
           ReturnType: undefined
         }
       | {
-          Request: Static<typeof Rpc.wallet_getCapabilities.Request>
-          ReturnType: Static<typeof Rpc.wallet_getCapabilities.Response>
+          Request: typeof Rpc.wallet_getCapabilities.Request.Encoded
+          ReturnType: typeof Rpc.wallet_getCapabilities.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_getKeys.Request>
-          ReturnType: Static<typeof Rpc.wallet_getKeys.Response>
+          Request: typeof Rpc.wallet_getKeys.Request.Encoded
+          ReturnType: typeof Rpc.wallet_getKeys.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_getCallsStatus.Request>
-          ReturnType: Static<typeof Rpc.wallet_getCallsStatus.Response>
+          Request: typeof Rpc.wallet_getCallsStatus.Request.Encoded
+          ReturnType: typeof Rpc.wallet_getCallsStatus.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_prepareCalls.Request>
-          ReturnType: Static<typeof Rpc.wallet_prepareCalls.Response>
+          Request: typeof Rpc.wallet_prepareCalls.Request.Encoded
+          ReturnType: typeof Rpc.wallet_prepareCalls.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_sendPreparedCalls.Request>
-          ReturnType: Static<typeof Rpc.wallet_sendPreparedCalls.Response>
+          Request: typeof Rpc.wallet_sendPreparedCalls.Request.Encoded
+          ReturnType: typeof Rpc.wallet_sendPreparedCalls.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_sendCalls.Request>
-          ReturnType: Static<typeof Rpc.wallet_sendCalls.Response>
+          Request: typeof Rpc.wallet_sendCalls.Request.Encoded
+          ReturnType: typeof Rpc.wallet_sendCalls.Response.Encoded
         }
       | {
-          Request: Static<typeof Rpc.wallet_verifySignature.Request>
-          ReturnType: Static<typeof Rpc.wallet_verifySignature.Response>
+          Request: typeof Rpc.wallet_verifySignature.Request.Encoded
+          ReturnType: typeof Rpc.wallet_verifySignature.Response.Encoded
         }
     >
 

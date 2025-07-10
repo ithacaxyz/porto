@@ -1,14 +1,14 @@
-import { PortoConfig } from '@porto/apps'
+import type { PortoConfig } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
-import { Address, Base64 } from 'ox'
-import { Chains } from 'porto'
-import * as Quote_typebox from 'porto/core/internal/rpcServer/typebox/quote'
-import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
-import * as Rpc from 'porto/core/internal/typebox/request'
-import { Hooks, Porto as Porto_ } from 'porto/remote'
+import { type Address, Base64 } from 'ox'
+import type { Chains } from 'porto'
+import type * as Quote_schema from 'porto/core/internal/rpcServer/schema/quote'
+import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
+import type * as Rpc from 'porto/core/internal/schema/request'
+import { Hooks, type Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
-import { Call } from 'viem'
+import type { Call } from 'viem'
 import { useCapabilities } from 'wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as FeeToken from '~/lib/FeeToken'
@@ -34,22 +34,38 @@ export function ActionRequest(props: ActionRequest.Props) {
     chainId,
     feeToken,
     loading,
+    merchantRpcUrl,
     onApprove,
     onReject,
-    sponsorUrl,
   } = props
 
   const account = Hooks.useAccount(porto, { address })
 
+  // This "prepare calls" query is used as the "source of truth" query that will
+  // ultimately be used to execute the calls.
   const prepareCallsQuery = RpcServer.usePrepareCalls({
     address,
     calls,
     chainId,
     feeToken,
-    sponsorUrl,
+    merchantRpcUrl,
   })
 
-  const assetDiff = prepareCallsQuery.data?.capabilities.assetDiff
+  // However, to prevent a malicious RPC server from providing a mutated asset
+  // diff to display to the end-user, we also simulate the prepare calls query
+  // without the merchant RPC URL.
+  const prepareCallsQuery_assetDiff = RpcServer.usePrepareCalls({
+    address,
+    calls,
+    chainId,
+    enabled: !!merchantRpcUrl,
+    feeToken,
+  })
+  const query_assetDiff = merchantRpcUrl
+    ? prepareCallsQuery_assetDiff
+    : prepareCallsQuery
+
+  const assetDiff = query_assetDiff.data?.capabilities.assetDiff
   const quote = prepareCallsQuery.data?.capabilities.quote
 
   return (
@@ -140,12 +156,12 @@ export namespace ActionRequest {
     calls: readonly Call[]
     chainId?: number | undefined
     checkBalance?: boolean | undefined
-    feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
+    feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading?: boolean | undefined
+    merchantRpcUrl?: string | undefined
     onApprove: () => void
     onReject: () => void
     quote?: Quote | undefined
-    sponsorUrl?: string | undefined
   }
 
   export function AssetDiff(props: AssetDiff.Props) {
@@ -171,116 +187,109 @@ export namespace ActionRequest {
     }, [props.assetDiff, account?.address])
 
     return (
-      <>
-        <div className="space-y-2">
-          {balances.map((balance) => {
-            const { address, direction, symbol, value } = balance
-            if (value === BigInt(0)) return null
+      <div className="space-y-2">
+        {balances.map((balance) => {
+          const { address, direction, symbol, value } = balance
+          if (value === BigInt(0)) return null
 
-            const receiving = direction === 'incoming'
-            const absoluteValue = value < 0n ? -value : value
-            const formatted = ValueFormatter.format(
-              absoluteValue,
-              'decimals' in balance ? (balance.decimals ?? 0) : 0,
-            )
+          const receiving = direction === 'incoming'
+          const absoluteValue = value < 0n ? -value : value
+          const formatted = ValueFormatter.format(
+            absoluteValue,
+            'decimals' in balance ? (balance.decimals ?? 0) : 0,
+          )
 
-            if (balance.type === 'erc721') {
-              const { name, uri } = balance
-              // Right now we only handle the ERC721 Metadata JSON Schema
-              // TODO: Parse other content types (audio, video, document)
-              const decoded = (() => {
-                try {
-                  const base64Data = uri.split(',')[1]
-                  if (!base64Data) return
-                  const json = JSON.parse(Base64.toString(base64Data))
-                  if ('image' in json && typeof json.image === 'string')
-                    return { type: 'image', url: json.image as string }
-                } catch {
-                  return
-                }
-              })()
-              return (
-                <div
-                  className="flex items-center gap-3 font-medium"
-                  key={address}
-                >
-                  <div className="relative flex size-6 items-center justify-center rounded-sm bg-gray6">
-                    {decoded?.type === 'image' ? (
-                      <img
-                        alt={name ?? symbol}
-                        className="size-full rounded-sm object-cover text-transparent"
-                        src={decoded.url}
-                      />
-                    ) : decoded?.type === 'audio' ? (
-                      <LucideMusic className="size-4 text-gray10" />
-                    ) : decoded?.type === 'video' ? (
-                      <LucideVideo className="size-4 text-gray10" />
-                    ) : decoded?.type === 'document' ? (
-                      <LucideFileText className="size-4 text-gray10" />
-                    ) : (
-                      <LucideSparkles className="size-4 text-gray10" />
-                    )}
-
-                    <div
-                      className={cx(
-                        '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-gray3',
-                        receiving
-                          ? 'bg-successTint text-success'
-                          : 'bg-gray5 text-current',
-                      )}
-                    >
-                      {/* TODO: Return erc721 count in API response */}
-                      {receiving ? 1 : -1}
-                    </div>
-                  </div>
-                  <div className="flex flex-1 justify-between">
-                    {name || symbol ? (
-                      <span className="text-gray12">{name || symbol}</span>
-                    ) : (
-                      <span className="text-gray9">No name provided</span>
-                    )}
-                    <span className="text-gray10">#{absoluteValue}</span>
-                  </div>
-                </div>
-              )
-            }
-
-            const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+          if (balance.type === 'erc721') {
+            const { name, uri } = balance
+            // Right now we only handle the ERC721 Metadata JSON Schema
+            // TODO: Parse other content types (audio, video, document)
+            const decoded = (() => {
+              try {
+                const base64Data = uri.split(',')[1]
+                if (!base64Data) return
+                const json = JSON.parse(Base64.toString(base64Data))
+                if ('image' in json && typeof json.image === 'string')
+                  return { type: 'image', url: json.image as string }
+              } catch {
+                return
+              }
+            })()
             return (
               <div
-                className="flex items-center gap-2 font-medium"
+                className="flex items-center gap-3 font-medium"
                 key={address}
               >
-                <div
-                  className={cx(
-                    'flex size-6 items-center justify-center rounded-full',
-                    {
-                      'bg-gray5': !receiving,
-                      'bg-successTint': receiving,
-                    },
+                <div className="relative flex size-6 items-center justify-center rounded-sm bg-gray6">
+                  {decoded?.type === 'image' ? (
+                    <img
+                      alt={name ?? symbol}
+                      className="size-full rounded-sm object-cover text-transparent"
+                      src={decoded.url}
+                    />
+                  ) : decoded?.type === 'audio' ? (
+                    <LucideMusic className="size-4 text-gray10" />
+                  ) : decoded?.type === 'video' ? (
+                    <LucideVideo className="size-4 text-gray10" />
+                  ) : decoded?.type === 'document' ? (
+                    <LucideFileText className="size-4 text-gray10" />
+                  ) : (
+                    <LucideSparkles className="size-4 text-gray10" />
                   )}
-                >
-                  <Icon
-                    className={cx('size-4 text-current', {
-                      'text-secondary': !receiving,
-                      'text-success': receiving,
-                    })}
-                  />
-                </div>
-                <div>
-                  {receiving ? 'Receive' : 'Send'}{' '}
-                  <span
-                    className={receiving ? 'text-success' : 'text-secondary'}
+
+                  <div
+                    className={cx(
+                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-gray3',
+                      receiving
+                        ? 'bg-successTint text-success'
+                        : 'bg-gray5 text-current',
+                    )}
                   >
-                    {formatted}
-                  </span>{' '}
-                  {symbol}
+                    {/* TODO: Return erc721 count in API response */}
+                    {receiving ? 1 : -1}
+                  </div>
+                </div>
+                <div className="flex flex-1 justify-between">
+                  {name || symbol ? (
+                    <span className="text-gray12">{name || symbol}</span>
+                  ) : (
+                    <span className="text-gray9">No name provided</span>
+                  )}
+                  <span className="text-gray10">#{absoluteValue}</span>
                 </div>
               </div>
             )
-          })}
-        </div>
-      </>
+          }
+
+          const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+          return (
+            <div className="flex items-center gap-2 font-medium" key={address}>
+              <div
+                className={cx(
+                  'flex size-6 items-center justify-center rounded-full',
+                  {
+                    'bg-gray5': !receiving,
+                    'bg-successTint': receiving,
+                  },
+                )}
+              >
+                <Icon
+                  className={cx('size-4 text-current', {
+                    'text-secondary': !receiving,
+                    'text-success': receiving,
+                  })}
+                />
+              </div>
+              <div>
+                {receiving ? 'Receive' : 'Send'}{' '}
+                <span className={receiving ? 'text-success' : 'text-secondary'}>
+                  {formatted}
+                </span>{' '}
+                {symbol}
+              </div>
+            </div>
+          )
+        })}
+      </div>
     )
   }
 
@@ -293,12 +302,13 @@ export namespace ActionRequest {
     }
   }
   export function Details(props: Details.Props) {
-    const { sponsorUrl } = props
-
     const quote = useQuote(porto, props.quote)
     const chain = Hooks.useChain(porto, { chainId: props.quote.chainId })
     const fiatFee = quote?.fee.fiat
     const tokenFee = quote?.fee.token
+
+    const sponsored =
+      props.quote.intent?.payer !== '0x0000000000000000000000000000000000000000'
 
     const displayTokenFee =
       tokenFee &&
@@ -308,7 +318,7 @@ export namespace ActionRequest {
 
     return (
       <div className="space-y-1.5">
-        {!sponsorUrl && (
+        {!sponsored && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
             <span className="text-[14px] text-secondary leading-4">
               Fees (est.)
@@ -352,8 +362,7 @@ export namespace ActionRequest {
   export namespace Details {
     export type Props = {
       chain?: Chains.Chain | undefined
-      sponsorUrl?: string | undefined
-      quote: Quote_typebox.Quote
+      quote: Quote_schema.Quote
     }
   }
 
@@ -364,7 +373,6 @@ export namespace ActionRequest {
       errorMessage = 'An error occurred. Proceed with caution.',
       loading,
       quote,
-      sponsorUrl,
     } = props
 
     // default to `true` if no children, otherwise false
@@ -412,10 +420,7 @@ export namespace ActionRequest {
                 <>
                   {children && <div className="h-[1px] w-full bg-gray6" />}
                   <div className={viewQuote ? undefined : 'hidden'}>
-                    <ActionRequest.Details
-                      quote={quote}
-                      sponsorUrl={sponsorUrl}
-                    />
+                    <ActionRequest.Details quote={quote} />
                   </div>
                   {!viewQuote && (
                     <button
@@ -442,8 +447,7 @@ export namespace ActionRequest {
       error?: Error | null | undefined
       errorMessage?: string | undefined
       loading?: boolean | undefined
-      quote?: Quote_typebox.Quote | undefined
-      sponsorUrl?: string | undefined
+      quote?: Quote_schema.Quote | undefined
     }
   }
 
@@ -467,7 +471,7 @@ export namespace ActionRequest {
     chains extends readonly [PortoConfig.Chain, ...PortoConfig.Chain[]],
   >(
     porto: Pick<Porto_.Porto<chains>, '_internal'>,
-    quote: Quote_typebox.Quote,
+    quote: Quote_schema.Quote,
   ): Quote | undefined {
     const { chainId, intent, nativeFeeEstimate, txGas, ttl } = quote ?? {}
     const { paymentToken, totalPaymentMaxAmount } = intent ?? {}

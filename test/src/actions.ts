@@ -8,7 +8,7 @@ import {
   writeContract,
 } from 'viem/actions'
 import * as Account from '../../src/viem/Account.js'
-import * as Key from '../../src/viem/Key.js'
+import type * as Key from '../../src/viem/Key.js'
 import * as ServerActions from '../../src/viem/ServerActions.js'
 import type { ServerClient } from '../../src/viem/ServerClient.js'
 import * as Anvil from './anvil.js'

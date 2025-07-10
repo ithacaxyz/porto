@@ -1,19 +1,15 @@
-import { Button, Spinner } from '@porto/apps/components'
-import { UseQueryResult } from '@tanstack/react-query'
-import { Address } from 'ox'
-import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
+import { Spinner } from '@porto/apps/components'
+import type { UseQueryResult } from '@tanstack/react-query'
+import type { Address } from 'ox'
+import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import * as React from 'react'
 import * as FeeToken from '~/lib/FeeToken'
 import { AddFunds } from '~/routes/-components/AddFunds'
-import { Layout } from '~/routes/-components/Layout'
-import TriangleAlert from '~icons/lucide/triangle-alert'
 
 export function CheckBalance(props: CheckBalance.Props) {
   const { address, children, onReject, query } = props
 
-  const [step, setStep] = React.useState<'add-funds' | 'default' | 'success'>(
-    'default',
-  )
+  const [step, setStep] = React.useState<'default' | 'success'>('default')
 
   const feeToken = FeeToken.useFetch({
     addressOrSymbol: props.feeToken,
@@ -22,16 +18,6 @@ export function CheckBalance(props: CheckBalance.Props) {
   const hasInsufficientBalance = query.error?.message?.includes('PaymentError')
 
   if (step === 'success') return children
-  if (step === 'add-funds')
-    return (
-      <AddFunds
-        address={address}
-        onApprove={() => setStep('success')}
-        onReject={onReject}
-        onSuccess={() => query.refetch()}
-        tokenAddress={feeToken.data?.address!}
-      />
-    )
   if (query.isPending)
     return (
       <div className="flex h-40 items-center justify-center">
@@ -42,43 +28,15 @@ export function CheckBalance(props: CheckBalance.Props) {
     )
   if (!hasInsufficientBalance) return children
   return (
-    <Layout>
-      <Layout.Header>
-        <Layout.Header.Default
-          content={
-            <>You will need more {feeToken?.data?.symbol} to continue.</>
-          }
-          icon={TriangleAlert}
-          title="Insufficient balance"
-          variant="warning"
-        />
-      </Layout.Header>
-
-      <Layout.Footer>
-        <Layout.Footer.Actions>
-          <Button
-            className="flex-grow"
-            onClick={onReject}
-            type="button"
-            variant="default"
-          >
-            Cancel
-          </Button>
-
-          <Button
-            className="flex-grow"
-            data-testid="add-funds"
-            onClick={() => setStep('add-funds')}
-            type="button"
-            variant="accent"
-          >
-            Add Funds
-          </Button>
-        </Layout.Footer.Actions>
-
-        {address && <Layout.Footer.Account address={address} />}
-      </Layout.Footer>
-    </Layout>
+    <AddFunds
+      address={address}
+      onApprove={() => {
+        query.refetch()
+        setStep('success')
+      }}
+      onReject={onReject}
+      tokenAddress={feeToken.data?.address!}
+    />
   )
 }
 
@@ -87,7 +45,7 @@ export namespace CheckBalance {
     address?: Address.Address | undefined
     chainId?: number | undefined
     children: React.ReactNode
-    feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
+    feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     onReject: () => void
     query: UseQueryResult
   }

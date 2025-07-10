@@ -1,4 +1,4 @@
-import * as Address from 'ox/Address'
+import type * as Address from 'ox/Address'
 import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
@@ -10,12 +10,11 @@ import {
   http,
   type Narrow,
   type Transport,
-  zeroAddress,
 } from 'viem'
 import type { Chain } from '../core/Chains.js'
-import type * as Capabilities from '../core/internal/rpcServer/typebox/capabilities.js'
-import type * as Quote from '../core/internal/rpcServer/typebox/quote.js'
-import type { OneOf, RequiredBy } from '../core/internal/types.js'
+import type * as Capabilities from '../core/internal/rpcServer/schema/capabilities.js'
+import type * as Quote from '../core/internal/rpcServer/schema/quote.js'
+import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
 import * as Account from './Account.js'
 import * as ServerActions from './internal/serverActions.js'
 import type { GetAccountParameter } from './internal/utils.js'
@@ -25,6 +24,7 @@ export {
   getCallsStatus,
   getCapabilities,
   health,
+  verifySignature,
 } from './internal/serverActions.js'
 
 /**
@@ -120,10 +120,9 @@ export async function prepareCalls<
     key,
     feeToken,
     nonce,
-    permissionsFeeLimit,
     preCalls,
     revokeKeys,
-    sponsorUrl,
+    merchantRpcUrl,
   } = parameters
 
   const account_ = account ? Account.from(account) : undefined
@@ -139,17 +138,7 @@ export async function prepareCalls<
   const authorizeKeys = (parameters.authorizeKeys ?? []).map((key) => {
     if (key.role === 'admin') return Key.toRpcServer(key, { orchestrator })
 
-    const permissions = resolvePermissions(key, {
-      feeToken,
-      permissionsFeeLimit,
-    })
-    return Key.toRpcServer(
-      {
-        ...key,
-        permissions,
-      },
-      { orchestrator },
-    )
+    return Key.toRpcServer(key, { orchestrator })
   })
 
   const preCall = typeof preCalls === 'boolean' ? preCalls : false
@@ -161,16 +150,8 @@ export async function prepareCalls<
         }))
       : undefined
 
-  const client_ = sponsorUrl
-    ? createClient({
-        chain: client.chain,
-        transport: http(sponsorUrl),
-      })
-    : client
-
-  const { capabilities, context, digest } = await ServerActions.prepareCalls(
-    client_,
-    {
+  async function prepare(client: Client) {
+    return await ServerActions.prepareCalls(client, {
       address: account_?.address,
       calls: (calls ?? []) as any,
       capabilities: {
@@ -187,13 +168,32 @@ export async function prepareCalls<
       },
       chain,
       key: key ? Key.toRpcServer(key) : undefined,
-    },
-  )
+    })
+  }
+
+  const { capabilities, context, digest, typedData } = await (async () => {
+    if (merchantRpcUrl) {
+      const client_ = createClient({
+        chain: client.chain,
+        transport: http(merchantRpcUrl),
+      })
+      // Prepare with Merchant RPC.
+      return await prepare(client_).catch((e) => {
+        console.error(e)
+        // Fall back to default client.
+        return prepare(client)
+      })
+    }
+
+    return await prepare(client)
+  })()
+
   return {
     capabilities: { ...capabilities, quote: context.quote as any },
     context,
     digest,
     key,
+    typedData,
   } as const
 }
 
@@ -210,8 +210,6 @@ export namespace prepareCalls {
       calls?: Calls<Narrow<calls>> | undefined
       /** Key that will be used to sign the calls. */
       key?: Pick<Key.Key, 'publicKey' | 'prehash' | 'type'> | undefined
-      /** Permissions fee limit. */
-      permissionsFeeLimit?: bigint | undefined
       /**
        * Indicates if the bundle is "pre-calls", and should be executed before
        * the main bundle.
@@ -229,17 +227,18 @@ export namespace prepareCalls {
         | undefined
       /** Additional keys to revoke from the account. */
       revokeKeys?: readonly Key.Key[] | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     } & Omit<Capabilities.meta.Request, 'keyHash'>
 
   export type ReturnType = {
     capabilities: ServerActions.prepareCalls.ReturnType['capabilities'] & {
-      quote: Quote.Quote
+      quote: Quote.Signed
     }
     context: ServerActions.prepareCalls.ReturnType['context']
     digest: ServerActions.prepareCalls.ReturnType['digest']
     key: Parameters['key']
+    typedData: ServerActions.prepareCalls.ReturnType['typedData']
   }
 
   export type ErrorType =
@@ -261,13 +260,7 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: prepareUpgradeAccount.Parameters<chain>,
 ): Promise<prepareUpgradeAccount.ReturnType> {
-  const {
-    address,
-    authorizeKeys: keys,
-    chain,
-    feeToken,
-    permissionsFeeLimit,
-  } = parameters
+  const { address, authorizeKeys: keys, chain } = parameters
 
   const { contracts } = await ServerActions.getCapabilities(client)
 
@@ -278,13 +271,7 @@ export async function prepareUpgradeAccount<chain extends Chain | undefined>(
     : undefined
 
   const authorizeKeys = keys.map((key) => {
-    const permissions =
-      key.role === 'session'
-        ? resolvePermissions(key, {
-            feeToken,
-            permissionsFeeLimit,
-          })
-        : {}
+    const permissions = key.role === 'session' ? key.permissions : {}
     return Key.toRpcServer({ ...key, permissions }, { orchestrator })
   })
 
@@ -324,8 +311,6 @@ export declare namespace prepareUpgradeAccount {
       delegation?: Address.Address | undefined
       /** Fee token. */
       feeToken?: Address.Address | undefined
-      /** Permissions fee limit. */
-      permissionsFeeLimit?: bigint | undefined
     }
 
   export type ReturnType = Omit<
@@ -450,8 +435,8 @@ export declare namespace sendCalls {
               })
           >[]
         | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     }
 
   export type ReturnType = ServerActions.sendPreparedCalls.ReturnType
@@ -494,6 +479,41 @@ export declare namespace sendPreparedCalls {
 }
 
 /**
+ * Sets email for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function setEmail<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: setEmail.Parameters,
+): Promise<setEmail.ReturnType>
+export async function setEmail(
+  client: Client,
+  parameters: setEmail.Parameters,
+) {
+  const { email, walletAddress } = parameters
+  return await ServerActions.setEmail(client, {
+    email,
+    walletAddress,
+  })
+}
+
+export declare namespace setEmail {
+  export type Parameters = ServerActions.setEmail.Parameters
+
+  export type ReturnType = ServerActions.setEmail.ReturnType
+
+  export type ErrorType =
+    | ServerActions.setEmail.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Broadcasts an account upgrade.
  *
  * @example
@@ -513,9 +533,16 @@ export async function upgradeAccount(
 ) {
   if (parameters.account) {
     const { account } = parameters
+    const authorizeKeys = [
+      ...(account.keys ?? []),
+      ...(parameters.authorizeKeys ?? []),
+    ].filter(
+      (key, index, array) => array.findIndex((k) => k.id === key.id) === index,
+    )
     const { digests, ...request } = await prepareUpgradeAccount(client, {
       ...parameters,
       address: account.address,
+      authorizeKeys,
     })
 
     const signatures = {
@@ -553,7 +580,10 @@ export declare namespace upgradeAccount {
 
   type UnpreparedParameters<
     chain extends Chain | undefined = Chain | undefined,
-  > = Omit<prepareUpgradeAccount.Parameters<chain>, 'address'> & {
+  > = PartialBy<
+    Omit<prepareUpgradeAccount.Parameters<chain>, 'address'>,
+    'authorizeKeys'
+  > & {
     account: Account.Account<'privateKey'>
   }
 
@@ -561,6 +591,44 @@ export declare namespace upgradeAccount {
 
   type ErrorType =
     | ServerActions.upgradeAccount.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
+ * Verifies email for address
+ *
+ * @example
+ * TODO
+ *
+ * @param client - Client to use.
+ * @param parameters - Parameters.
+ * @returns Result.
+ */
+export async function verifyEmail<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: verifyEmail.Parameters,
+): Promise<verifyEmail.ReturnType>
+export async function verifyEmail(
+  client: Client,
+  parameters: verifyEmail.Parameters,
+) {
+  const { chainId, email, signature, token, walletAddress } = parameters
+  return await ServerActions.verifyEmail(client, {
+    chainId,
+    email,
+    signature,
+    token,
+    walletAddress,
+  })
+}
+
+export declare namespace verifyEmail {
+  export type Parameters = ServerActions.verifyEmail.Parameters
+
+  export type ReturnType = ServerActions.verifyEmail.ReturnType
+
+  export type ErrorType =
+    | ServerActions.verifyEmail.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -732,52 +800,4 @@ export function decorator<
     verifySignature: (parameters) =>
       ServerActions.verifySignature(client, parameters),
   }
-}
-
-function resolvePermissions(
-  key: Key.Key,
-  options: {
-    feeToken?: Address.Address | undefined
-    permissionsFeeLimit?: bigint | undefined
-  },
-) {
-  const { feeToken = zeroAddress, permissionsFeeLimit } = options
-
-  const spend = key.permissions?.spend ? [...key.permissions.spend] : []
-
-  if (spend && permissionsFeeLimit) {
-    let index = -1
-    let minPeriod: number = Key.toSerializedSpendPeriod.year
-
-    for (let i = 0; i < spend.length; i++) {
-      const s = spend[i]!
-      if (s.token && Address.isEqual(feeToken, s.token)) {
-        index = i
-        break
-      }
-
-      const period = Key.toSerializedSpendPeriod[s.period]
-      if (period < minPeriod) minPeriod = period
-    }
-
-    // If there is a token assigned to a spend permission and the fee token
-    // is the same, update the limit to account for the fee.
-    if (index !== -1)
-      spend[index] = {
-        ...spend[index]!,
-        limit: spend[index]!.limit + permissionsFeeLimit,
-      }
-    // Update the spend permissions to account for the fee token.
-    else if (typeof minPeriod === 'number')
-      spend.push({
-        limit: permissionsFeeLimit,
-        period:
-          Key.fromSerializedSpendPeriod[
-            minPeriod as keyof typeof Key.fromSerializedSpendPeriod
-          ],
-        token: feeToken,
-      })
-  }
-
-  return { ...key.permissions, spend }
 }

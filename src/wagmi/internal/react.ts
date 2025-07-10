@@ -21,10 +21,11 @@ import type {
   UseQueryParameters,
   UseQueryReturnType,
 } from 'wagmi/query'
+import * as Schema from '../../core/internal/schema/schema.js'
 
-import * as Typebox from '../../core/internal/typebox/typebox.js'
 import * as RpcSchema from '../../core/RpcSchema.js'
 import {
+  addFunds,
   connect,
   disconnect,
   getAdmins,
@@ -34,9 +35,55 @@ import {
   revokeAdmin,
   revokePermissions,
   upgradeAccount,
+  verifyEmail,
 } from './core.js'
 import { getAdminsQueryKey, getPermissionsQueryKey } from './query.js'
 import type { ConfigParameter } from './types.js'
+
+export function useAddFunds<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useAddFunds.Parameters<config, context> = {},
+): useAddFunds.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return addFunds(config, variables)
+    },
+    mutationKey: ['addFunds'],
+  })
+}
+
+export declare namespace useAddFunds {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> &
+    addFunds.Parameters<config> &
+    ConfigParameter<config> & {
+      mutation?:
+        | UseMutationParameters<
+            addFunds.ReturnType,
+            addFunds.ErrorType,
+            addFunds.Parameters<config>,
+            context
+          >
+        | undefined
+    }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    addFunds.ReturnType,
+    addFunds.ErrorType,
+    addFunds.Parameters<config>,
+    context
+  >
+}
 
 export function useAdmins<
   config extends Config = ResolvedRegister['config'],
@@ -78,10 +125,9 @@ export function useAdmins<
         if (event.type !== 'adminsChanged') return
         queryClient.setQueryData(queryKey, (data: any) => ({
           ...data,
-          keys: Typebox.Decode(
-            RpcSchema.wallet_getAdmins.Response.properties.keys,
-            event.data,
-          ),
+          keys: Schema.decodeUnknownSync(
+            RpcSchema.wallet_getAdmins.Response.fields.keys,
+          )(event.data),
         }))
       })
     })()
@@ -340,7 +386,9 @@ export function usePermissions<
         if (event.type !== 'permissionsChanged') return
         queryClient.setQueryData(
           queryKey,
-          Typebox.Decode(RpcSchema.wallet_getPermissions.Response, event.data),
+          Schema.decodeUnknownSync(RpcSchema.wallet_getPermissions.Response)(
+            event.data,
+          ),
         )
       })
     })()
@@ -518,6 +566,49 @@ export declare namespace useUpgradeAccount {
     upgradeAccount.ReturnType,
     upgradeAccount.ErrorType,
     upgradeAccount.Parameters<config>,
+    context
+  >
+}
+
+export function useVerifyEmail<
+  config extends Config = ResolvedRegister['config'],
+  context = unknown,
+>(
+  parameters: useVerifyEmail.Parameters<config, context> = {},
+): useVerifyEmail.ReturnType<config, context> {
+  const { mutation } = parameters
+  const config = useConfig(parameters)
+  return useMutation({
+    ...mutation,
+    async mutationFn(variables) {
+      return verifyEmail(config as Config, variables)
+    },
+    mutationKey: ['verifyEmail'],
+  })
+}
+
+export declare namespace useVerifyEmail {
+  type Parameters<
+    config extends Config = Config,
+    context = unknown,
+  > = ConfigParameter<config> & {
+    mutation?:
+      | UseMutationParameters<
+          verifyEmail.ReturnType,
+          verifyEmail.ErrorType,
+          verifyEmail.Parameters<config>,
+          context
+        >
+      | undefined
+  }
+
+  type ReturnType<
+    config extends Config = Config,
+    context = unknown,
+  > = UseMutationResult<
+    verifyEmail.ReturnType,
+    verifyEmail.ErrorType,
+    verifyEmail.Parameters<config>,
     context
   >
 }

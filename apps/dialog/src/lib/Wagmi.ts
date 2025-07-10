@@ -1,5 +1,5 @@
-import { wallet_getCapabilities } from 'porto/core/RpcSchema'
-import { ValueOf } from 'viem'
+import type { wallet_getCapabilities } from 'porto/core/RpcSchema'
+import type { ValueOf } from 'viem'
 import { createConfig, createStorage, injected } from 'wagmi'
 
 import { porto } from './Porto'

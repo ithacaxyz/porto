@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address } from 'ox'
 import { ServerActions } from 'porto'
-import * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken.js'
+import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import { Hooks } from 'porto/remote'
 import { porto } from './Porto.js'
 
@@ -50,6 +50,6 @@ export function useFetch(parameters: useFetch.Parameters) {
 
 export declare namespace useFetch {
   export type Parameters = {
-    addressOrSymbol?: FeeToken_typebox.Symbol | Address.Address | undefined
+    addressOrSymbol?: FeeToken_schema.Symbol | Address.Address | undefined
   }
 }

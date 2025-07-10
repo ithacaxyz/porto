@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { UserAgent } from '@porto/apps'
 import { Button, Spinner, Toast } from '@porto/apps/components'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { baseSepolia } from 'porto/core/Chains'
@@ -7,7 +6,7 @@ import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
 import {
-  Connector,
+  type Connector,
   useConnect,
   useConnectors,
   useDisconnect,
@@ -120,29 +119,6 @@ function RouteComponent() {
       await disconnectAll()
     }
   }
-
-  if (UserAgent.isMobile())
-    return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-y-4 px-3">
-        <p className="rounded-lg border border-gray5/50 bg-surface px-2.5 py-1 text-center font-medium text-lg">
-          Coming soon
-        </p>
-        <p className="text-center">
-          Adding a recovery wallet is not supported on mobile yet.
-          <br />
-          Please use a desktop browser with a wallet extension to add a recovery
-          wallet.
-        </p>
-        <Button
-          className="w-full"
-          render={
-            <Link from="/recovery" to="/">
-              Go back
-            </Link>
-          }
-        />
-      </div>
-    )
 
   if (!connectors.length)
     return (
@@ -265,36 +241,34 @@ function ActionableFeedback({ feedback }: { feedback: 'success' | 'pending' }) {
       )}
 
       <div className="flex flex-col items-center gap-y-2 text-center">
-        <React.Fragment>
-          {feedback === 'pending' ? (
-            <React.Fragment>
-              <p className="text-center font-medium text-2xl">
-                Approve in wallet
-              </p>
-              <p className="text-lg">Please check your wallet for a request.</p>
-              <p className="font-normal text-base text-gray10">
-                This will verify ownership of the wallet,
-                <br />
-                and allow it to recover this passkey.
-              </p>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <p className="text-center font-medium text-2xl">
-                Added recovery method
-              </p>
-              <p className="text-lg">
-                You can now use this wallet to recover your passkey if you ever
-                lose access.
-              </p>
-              <Button
-                className="mt-2 h-11! w-full text-lg!"
-                render={<Link to="/">Done</Link>}
-                variant="accent"
-              />
-            </React.Fragment>
-          )}
-        </React.Fragment>
+        {feedback === 'pending' ? (
+          <React.Fragment>
+            <p className="text-center font-medium text-2xl">
+              Approve in wallet
+            </p>
+            <p className="text-lg">Please check your wallet for a request.</p>
+            <p className="font-normal text-base text-gray10">
+              This will verify ownership of the wallet,
+              <br />
+              and allow it to recover this passkey.
+            </p>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <p className="text-center font-medium text-2xl">
+              Added recovery method
+            </p>
+            <p className="text-lg">
+              You can now use this wallet to recover your passkey if you ever
+              lose access.
+            </p>
+            <Button
+              className="mt-2 h-11! w-full text-lg!"
+              render={<Link to="/">Done</Link>}
+              variant="accent"
+            />
+          </React.Fragment>
+        )}
       </div>
     </div>
   )

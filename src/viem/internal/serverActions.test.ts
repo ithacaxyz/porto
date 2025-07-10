@@ -4,8 +4,7 @@ import { getCode, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
-import { exp1Abi, exp1Address } from '../../../test/src/porto.js'
-import { getPorto } from '../../../test/src/porto.js'
+import { exp1Abi, exp1Address, getPorto } from '../../../test/src/porto.js'
 import * as Key from '../Key.js'
 import { sendCalls } from '../ServerActions.js'
 import {
@@ -274,10 +273,10 @@ describe('prepareCalls + sendPreparedCalls', () => {
       keys: [userKey],
     })
 
-    const sponsorKey = Key.createSecp256k1()
-    const sponsorAccount = await TestActions.createAccount(client, {
+    const merchantKey = Key.createSecp256k1()
+    const merchantAccount = await TestActions.createAccount(client, {
       deploy: true,
-      keys: [sponsorKey],
+      keys: [merchantKey],
     })
 
     const userBalance_pre = await readContract(client, {
@@ -286,10 +285,10 @@ describe('prepareCalls + sendPreparedCalls', () => {
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
-    const sponsorBalance_pre = await readContract(client, {
+    const merchantBalance_pre = await readContract(client, {
       abi: exp1Abi,
       address: exp1Address,
-      args: [sponsorAccount.address],
+      args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
 
@@ -305,7 +304,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       ],
       capabilities: {
         meta: {
-          feePayer: sponsorAccount.address,
+          feePayer: merchantAccount.address,
           feeToken,
         },
       },
@@ -320,13 +319,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
       payload: request.digest,
       wrap: false,
     })
-    const sponsorSignature = await Key.sign(sponsorKey, {
+    const merchantSignature = await Key.sign(merchantKey, {
       payload: request.digest,
     })
 
     const result = await sendPreparedCalls(client, {
       capabilities: {
-        feeSignature: sponsorSignature,
+        feeSignature: merchantSignature,
       },
       context: request.context,
       key: request.key!,
@@ -343,18 +342,18 @@ describe('prepareCalls + sendPreparedCalls', () => {
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
-    const sponsorBalance_post = await readContract(client, {
+    const merchantBalance_post = await readContract(client, {
       abi: exp1Abi,
       address: exp1Address,
-      args: [sponsorAccount.address],
+      args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
 
     // Check if user was credited with 1 EXP.
     expect(userBalance_post).toBe(userBalance_pre + Value.fromEther('1'))
 
-    // Check if sponsor was debited the fee payment.
-    expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+    // Check if merchant was debited the fee payment.
+    expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
   test('behavior: contract calls', async () => {
@@ -420,12 +419,16 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Rpc.SchemaCoderError: Expected string to match '^0x(.*)$'
-
+      [Schema.CoderError: Expected \`0x\${string}\`, actual "cheese"
       Path: key.publicKey
-      Value: "cheese"
 
-      Details: The encoded value does not match the expected schema]
+      Details: wallet_prepareCalls.Parameters
+      └─ ["key"]
+         └─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" } | undefined
+            ├─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" }
+            │  └─ ["publicKey"]
+            │     └─ Expected \`0x\${string}\`, actual "cheese"
+            └─ Expected undefined, actual {"prehash":false,"publicKey":"cheese","type":"webauthnp256"}]
     `)
   })
 
@@ -451,18 +454,26 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
         key: {
           prehash: false,
-          publicKey: key.publicKey,
+          publicKey:
+            '0x0000000000000000000000000000000000000000000000000000000000000000',
           // @ts-expect-error
           type: 'falcon',
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Rpc.SchemaCoderError: Expected 'p256'
-
+      [Schema.CoderError: Expected "p256", actual "falcon"
       Path: key.type
-      Value: "falcon"
 
-      Details: The encoded value does not match the expected schema]
+      Details: wallet_prepareCalls.Parameters
+      └─ ["key"]
+         └─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" } | undefined
+            ├─ { readonly prehash: boolean; readonly publicKey: \`0x\${string}\`; readonly type: "p256" | "secp256k1" | "webauthnp256" }
+            │  └─ ["type"]
+            │     └─ "p256" | "secp256k1" | "webauthnp256"
+            │        ├─ Expected "p256", actual "falcon"
+            │        ├─ Expected "secp256k1", actual "falcon"
+            │        └─ Expected "webauthnp256", actual "falcon"
+            └─ Expected undefined, actual {"prehash":false,"publicKey":"0x0000000000000000000000000000000000000000000000000000000000000000","type":"falcon"}]
     `)
   })
 })
@@ -754,12 +765,18 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
         delegation,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Rpc.SchemaCoderError: Expected string to match '^0x(.*)$'
-
+      [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
       Path: capabilities.authorizeKeys.0.publicKey
-      Value: "INVALID!"
 
-      Details: The encoded value does not match the expected schema]
+      Details: Rpc.wallet_prepareUpgradeAccount.Parameters
+      └─ ["capabilities"]
+         └─ Rpc.wallet_prepareUpgradeAccount.Capabilities
+            └─ ["authorizeKeys"]
+               └─ ReadonlyArray<{ readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }>
+                  └─ [0]
+                     └─ { readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }
+                        └─ ["publicKey"]
+                           └─ Expected \`0x\${string}\`, actual "INVALID!"]
     `)
 
     await expect(() =>
@@ -779,12 +796,18 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
         delegation,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Rpc.SchemaCoderError: Expected string to match '^0x(.*)$'
-
+      [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
       Path: capabilities.authorizeKeys.0.publicKey
-      Value: "INVALID!"
 
-      Details: The encoded value does not match the expected schema]
+      Details: Rpc.wallet_prepareUpgradeAccount.Parameters
+      └─ ["capabilities"]
+         └─ Rpc.wallet_prepareUpgradeAccount.Capabilities
+            └─ ["authorizeKeys"]
+               └─ ReadonlyArray<{ readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }>
+                  └─ [0]
+                     └─ { readonly expiry: (\`0x\${string}\` <-> number); readonly prehash?: boolean | undefined; readonly publicKey: \`0x\${string}\`; readonly role: "admin" | "normal"; readonly type: "p256" | "secp256k1" | "webauthnp256"; readonly permissions: ReadonlyArray<{ readonly selector: \`0x\${string}\`; readonly to: \`0x\${string}\`; readonly type: "call" } | { readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | null | undefined; readonly type: "spend" }> }
+                        └─ ["publicKey"]
+                           └─ Expected \`0x\${string}\`, actual "INVALID!"]
     `)
   })
 })
@@ -853,3 +876,6 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     expect(result.valid).toBe(false)
   })
 })
+
+// TODO: Figure out way to get `token` from server (e.g. email link from inbox)
+describe.todo('setEmail + verifyEmail')

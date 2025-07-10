@@ -52,6 +52,9 @@ const offDialogRequest = Events.onDialogRequest(
     const connectedAccount = porto._internal.store.getState().accounts[0]
     const needsSync = account && account.address !== connectedAccount?.address
 
+    // Clear errors when the request is null (i.e. when the dialog is closed).
+    if (!request) Dialog.store.setState({ error: null })
+
     if (needsSync)
       Actions.connect(Wagmi.config, {
         address: account.address,
@@ -61,12 +64,26 @@ const offDialogRequest = Events.onDialogRequest(
       })
 
     Router.router.navigate({
-      search: (search) =>
-        ({ ...search, ...request, account, requireUpdatedAccount }) as never,
+      search: (search) => {
+        return {
+          ...search,
+          _decoded: undefined,
+          ...request,
+          account,
+          requireUpdatedAccount,
+        } as never
+      },
       to: '/dialog/' + (request?.method ?? ''),
     })
   },
 )
+
+porto.messenger.on('success', (payload) => {
+  Router.router.navigate({
+    search: (search) => ({ ...search, ...payload }) as never,
+    to: '/dialog/success',
+  })
+})
 
 porto.ready()
 

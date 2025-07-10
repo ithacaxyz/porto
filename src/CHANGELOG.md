@@ -1,5 +1,210 @@
 # porto
 
+## 0.0.48
+
+### Patch Changes
+
+- [`99f0857`](https://github.com/ithacaxyz/porto/commit/99f085712c574ffb5ba080b4c8d3d4017b9f5c2f) Thanks [@jxom](https://github.com/jxom)! - Added `Porto.unstable_create` and `unstable_porto` Wagmi connector.
+
+## 0.0.47
+
+### Patch Changes
+
+- [`a8daa28`](https://github.com/ithacaxyz/porto/commit/a8daa2826a3e467e710e0f8938de85756aa4c05b) Thanks [@jxom](https://github.com/jxom)! - Optimized call permissions introspection.
+
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed implicit fee limits (defaulting to 1 USD of the fee token) when granting permissions.
+
+  A new `feeLimit` property has been added on `wallet_grantPermissions` to assign fee limits. This converts to a spend permission that will be used to pay for fees (for permissioned calls) in the user's selected fee token (e.g. USDC).
+
+  ```ts
+  provider.request({
+    method: "wallet_grantPermissions",
+    params: [
+      {
+        expiry: 1715328000,
+        // Assign a spend permission of $5 USD of the fee token.
+        feeLimit: {
+          currency: "USD",
+          value: "5",
+        },
+        permissions: {
+          calls: [{ signature: "mint()" }],
+        },
+      },
+    ],
+  });
+  ```
+
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `permissionsFeeLimit` on `Mode.rpcServer` in favor of:
+
+  - `feeLimit` on the `wallet_grantPermissions` request
+  - `feeLimit` on the `grantPermissions` capability
+
+- [`4b65a65`](https://github.com/ithacaxyz/porto/commit/4b65a65d32790a0dd18e411d6a6df5c9274b1411) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where a cached `chainId`s could become stale if a consumer omitted the target
+  chain from the `chains` configuration.
+
+## 0.0.46
+
+### Patch Changes
+
+- [#552](https://github.com/ithacaxyz/porto/pull/552) [`c3a56a2`](https://github.com/ithacaxyz/porto/commit/c3a56a2b79dd819f6218fd331927825eec3b5036) Thanks [@jxom](https://github.com/jxom)! - Migrated from TypeBox to `effect/schema` for schema validation.
+
+- [#547](https://github.com/ithacaxyz/porto/pull/547) [`585be54`](https://github.com/ithacaxyz/porto/commit/585be5473e39e7110b965427ece28d218e1c8050) Thanks [@o-az](https://github.com/o-az)! - added `useAddFunds` porto/wagmi hook
+
+## 0.0.45
+
+### Patch Changes
+
+- [`4b93cc8`](https://github.com/ithacaxyz/porto/commit/4b93cc81c5b2c4b21fa4ab836e2f332d2a808c49) Thanks [@jxom](https://github.com/jxom)! - Fixed `wallet_verifySignature` return type.
+
+## 0.0.44
+
+### Patch Changes
+
+- [`f5a66e7`](https://github.com/ithacaxyz/porto/commit/f5a66e7e2d6ba47c4006120c571cb4a129f25e90) Thanks [@jxom](https://github.com/jxom)! - Fixed incompatible structured clone values.
+
+## 0.0.43
+
+### Patch Changes
+
+- [#545](https://github.com/ithacaxyz/porto/pull/545) [`cc70616`](https://github.com/ithacaxyz/porto/commit/cc706167b33f7590ff113394e6e76ca232a87d57) Thanks [@jxom](https://github.com/jxom)! - Added `typedData` to `wallet_prepareCalls` return type.
+
+- [`fdb6a58`](https://github.com/ithacaxyz/porto/commit/fdb6a583fda53c672311bbea3cba655aa112808a) Thanks [@jxom](https://github.com/jxom)! - Added `prepareCalls` and `sendPreparedCalls` to `WalletActions`.
+
+## 0.0.42
+
+### Patch Changes
+
+- [#539](https://github.com/ithacaxyz/porto/pull/539) [`fa0dfb9`](https://github.com/ithacaxyz/porto/commit/fa0dfb98c00540930a298dac175cfbaeebea3ac1) Thanks [@o-az](https://github.com/o-az)! - Fixed SIWE auth url resolution.
+
+## 0.0.41
+
+### Patch Changes
+
+- [#536](https://github.com/ithacaxyz/porto/pull/536) [`b0c33c0`](https://github.com/ithacaxyz/porto/commit/b0c33c0cc6fa30a40805dfdcf5ab36a2954b093f) Thanks [@jxom](https://github.com/jxom)! - Added `authUrl` property to `signInWithEthereum` capability.
+
+- [`cdba3ca`](https://github.com/ithacaxyz/porto/commit/cdba3cae0ae45c0efdc4ef394750e11879e8031b) Thanks [@jxom](https://github.com/jxom)! - Added better error message.
+
+## 0.0.40
+
+### Patch Changes
+
+- [`331bd67`](https://github.com/ithacaxyz/porto/commit/331bd6795139370823bee85975adbb797794c29b) Thanks [@jxom](https://github.com/jxom)! - Made `chainId` on `signInWithEthereum` capability optional.
+
+## 0.0.39
+
+### Patch Changes
+
+- [#524](https://github.com/ithacaxyz/porto/pull/524) [`b2b7edc`](https://github.com/ithacaxyz/porto/commit/b2b7edc3660d2944699d3250119954c9b14038a0) Thanks [@jxom](https://github.com/jxom)! - **Breaking(`porto/wagmi`):** Tweaked return type of `Hooks.useConnect` & `Actions.connect` to match the return type of `wallet_connect`.
+
+## 0.0.38
+
+### Patch Changes
+
+- [`57cc033`](https://github.com/ithacaxyz/porto/commit/57cc0335d3ee87cf77b28356ec70870e7a20edff) Thanks [@jxom](https://github.com/jxom)! - Fixed `@sinclair/typebox` imports.
+
+## 0.0.37
+
+### Patch Changes
+
+- [#519](https://github.com/ithacaxyz/porto/pull/519) [`2fcca60`](https://github.com/ithacaxyz/porto/commit/2fcca6047f5b7b7b4aa69e8de64e50fae51ac15d) Thanks [@jxom](https://github.com/jxom)! - Exported `MerchantRpc.requestListener` for Node.js-based APIs
+
+- [`df9583e`](https://github.com/ithacaxyz/porto/commit/df9583e5caf05d34ccb6c2722160df1c8f4394f5) Thanks [@jxom](https://github.com/jxom)! - Added `signInWithEthereum` capability to `wallet_connect`.
+
+## 0.0.36
+
+### Patch Changes
+
+- [#517](https://github.com/ithacaxyz/porto/pull/517) [`a9583db`](https://github.com/ithacaxyz/porto/commit/a9583dba28b769d6f27549f69e21bebd15860c8e) Thanks [@jxom](https://github.com/jxom)! - Added conditional sponsoring to `MerchantRpc` via a `sponsor` option.
+
+## 0.0.35
+
+### Patch Changes
+
+- [`6b65154`](https://github.com/ithacaxyz/porto/commit/6b65154a8979e7dd3c3894ac158e751b73804c89) Thanks [@jxom](https://github.com/jxom)! - **CLI:** Tweaked order of prompts.
+
+## 0.0.34
+
+### Patch Changes
+
+- [#499](https://github.com/ithacaxyz/porto/pull/499) [`689ba2f`](https://github.com/ithacaxyz/porto/commit/689ba2f13be58d5312eb89f46a08eeb7c9e17d6d) Thanks [@jxom](https://github.com/jxom)! - Exported `MerchantRpc.POST` and `MerchantRpc.OPTIONS` functions for Next.js.
+
+- [#501](https://github.com/ithacaxyz/porto/pull/501) [`8fca510`](https://github.com/ithacaxyz/porto/commit/8fca51007e014f5d48accedf6eabf53c5665e245) Thanks [@jxom](https://github.com/jxom)! - **CLI:** Added functionality to deploy account onchain on `porto onboard --admin-key` command.
+
+## 0.0.33
+
+### Patch Changes
+
+- [#497](https://github.com/ithacaxyz/porto/pull/497) [`91627bf`](https://github.com/ithacaxyz/porto/commit/91627bf240fc5ef48567c8dfa4d99081d5542f25) Thanks [@jxom](https://github.com/jxom)! - Added `config` property to `Porto.create` return value.
+
+- [#497](https://github.com/ithacaxyz/porto/pull/497) [`91627bf`](https://github.com/ithacaxyz/porto/commit/91627bf240fc5ef48567c8dfa4d99081d5542f25) Thanks [@jxom](https://github.com/jxom)! - Tweaked `MerchantRpc.requestHandler` parameters
+
+## 0.0.32
+
+### Patch Changes
+
+- [`43eb41d`](https://github.com/ithacaxyz/porto/commit/43eb41d0c464360188665a15f9067504368cdb1c) Thanks [@jxom](https://github.com/jxom)! - **CLI:** Fixed id.porto.sh CTA on account creation.
+
+## 0.0.31
+
+### Patch Changes
+
+- [#479](https://github.com/ithacaxyz/porto/pull/479) [`186b700`](https://github.com/ithacaxyz/porto/commit/186b7006cc4ff1c0f1ca20db50ad5cd576c10504) Thanks [@jxom](https://github.com/jxom)! - **CLI:** Refactored account onboarding.
+
+## 0.0.30
+
+### Patch Changes
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Removed `ServerActions.prepareCreateAccount`. Use `ServerActions.createAccount` or `ServerActions.upgradeAccount` instead.
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Renamed `keys` to `authorizeKeys` on `ServerActions.prepareUpgradeAccount` and `ServerActions.upgradeAccount`.
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Removed `ServerActions.getAccounts`.
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `wallet_createAccount`. Use `wallet_connect` with the `createAccount` capability instead.
+
+  ```diff
+  provider.request({
+  - method: 'wallet_createAccount',
+  + method: 'wallet_connect',
+  + params: [
+  +   {
+  +     capabilities: {
+  +       createAccount: true,
+  +     },
+  +   },
+  + ],
+  })
+  ```
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Modified `ContractActions.execute#signatures` parameter to be an object instead of an array.
+
+  ```diff
+  ContractActions.execute({
+    ...
+  - signatures: ['0x...', '0x...']
+  + signatures: {
+  +   auth: '0x...',
+  +   exec: '0x...',
+  + },
+  })
+  ```
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/wagmi`):** Removed `useCreateAccount`/`createAccount` actions. Use `useConnect`/`connect` instead.
+
+- [#397](https://github.com/ithacaxyz/porto/pull/397) [`5c266d0`](https://github.com/ithacaxyz/porto/commit/5c266d0bde59f46e6e3bf97dc8b70c7c55a02aa8) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`porto/viem`):** Renamed `ContractActions.prepareExecute#signPayloads` to `ContractActions.prepareExecute#digests` parameter, and changed the type to be an object instead of an array.
+
+  ```diff
+  ContractActions.prepareExecute({
+    ...
+  - digests: ['0x...', '0x...']
+  + digests: {
+  +   auth: '0x...',
+  +   exec: '0x...',
+  + },
+  })
+  ```
+
 ## 0.0.29
 
 ### Patch Changes

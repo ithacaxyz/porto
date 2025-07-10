@@ -19,15 +19,15 @@ import {
   custom,
   type EIP1193Provider,
 } from 'viem'
-import * as Typebox from '../../core/internal/typebox/typebox.js'
-import * as RpcSchema from '../../core/RpcSchema.js'
+import type * as RpcSchema from '../../core/RpcSchema.js'
+import * as AccountActions from '../../viem/AccountActions.js'
 import * as WalletActions from '../../viem/WalletActions.js'
 import type { ChainIdParameter, ConnectorParameter } from './types.js'
 
 export async function connect<config extends Config>(
   config: config,
   parameters: connect.Parameters<config>,
-): Promise<connect.ReturnType<config>> {
+): Promise<connect.ReturnType> {
   // "Register" connector if not already created
   let connector: Connector
   if (typeof parameters.connector === 'function') {
@@ -62,14 +62,20 @@ export async function connect<config extends Config>(
       transport: (opts) => custom(provider)({ ...opts, retryCount: 0 }),
     })
 
-    await WalletActions.connect(client, parameters)
+    const { accounts, chainIds } = await WalletActions.connect(
+      client,
+      parameters,
+    )
+    const addresses = accounts.map((x) => x.address) as unknown as readonly [
+      Address,
+      ...Address[],
+    ]
 
     // we already connected, but call `connector.connect` so connector even listeners are set up
-    const data = await connector.connect({
+    await connector.connect({
       chainId: parameters.chainId,
       isReconnecting: true,
     })
-    const accounts = data.accounts as readonly [Address, ...Address[]]
 
     connector.emitter.off('connect', config._internal.events.connect)
     connector.emitter.on('change', config._internal.events.change)
@@ -79,15 +85,15 @@ export async function connect<config extends Config>(
     config.setState((x) => ({
       ...x,
       connections: new Map(x.connections).set(connector.uid, {
-        accounts,
-        chainId: data.chainId,
+        accounts: addresses,
+        chainId: chainIds[0]!,
         connector,
       }),
       current: connector.uid,
       status: 'connected',
     }))
 
-    return { accounts, chainId: data.chainId }
+    return { accounts, chainIds }
   } catch (error) {
     config.setState((x) => ({
       ...x,
@@ -100,12 +106,12 @@ export async function connect<config extends Config>(
 
 export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    Typebox.StaticDecode<typeof RpcSchema.wallet_connect.Capabilities> & {
+    RpcSchema.wallet_connect.Capabilities & {
       connector: Connector | CreateConnectorFn
       force?: boolean | undefined
     }
 
-  type ReturnType<config extends Config = Config> = ConnectReturnType<config>
+  type ReturnType = RpcSchema.wallet_connect.Response
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError
@@ -139,8 +145,34 @@ export async function disconnect(
 export declare namespace disconnect {
   type Parameters = ConnectorParameter
 
-  // biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
+  // biome-ignore lint/suspicious/noConfusingVoidType: _
   type ReturnType = void
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
+export async function addFunds<config extends Config>(
+  config: config,
+  parameters: addFunds.Parameters<config>,
+): Promise<addFunds.ReturnType> {
+  const { address, chainId, connector } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: address,
+    chainId,
+    connector,
+  })
+
+  return WalletActions.addFunds(client, parameters)
+}
+
+export declare namespace addFunds {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    WalletActions.addFunds.Parameters
+
+  type ReturnType = WalletActions.addFunds.ReturnType
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError
@@ -379,6 +411,32 @@ export declare namespace upgradeAccount {
     }
 
   type ReturnType<config extends Config = Config> = ConnectReturnType<config>
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
+export async function verifyEmail<config extends Config>(
+  config: config,
+  parameters: verifyEmail.Parameters<config>,
+): Promise<verifyEmail.ReturnType> {
+  const { chainId, connector, walletAddress } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: walletAddress,
+    chainId,
+    connector,
+  })
+
+  return AccountActions.verifyEmail(client, parameters)
+}
+
+export declare namespace verifyEmail {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    AccountActions.verifyEmail.Parameters
+
+  type ReturnType = AccountActions.verifyEmail.ReturnType
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError

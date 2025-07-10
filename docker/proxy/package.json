@@ -1,5 +1,6 @@
 {
   "name": "proxy",
+  "private": true,
   "module": "index.ts",
   "type": "module",
   "devDependencies": {

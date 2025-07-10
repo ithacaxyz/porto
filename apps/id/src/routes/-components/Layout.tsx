@@ -15,7 +15,7 @@ export namespace Layout {
   }
 
   export function Content(props: PropsWithChildren) {
-    const { children, ...rest } = props
+    const { ...rest } = props
     return (
       <div
         className="ml-[calc(var(--spacing-hero)+1rem)] flex w-full flex-1 flex-col py-6 max-md:py-4 max-lg:ml-0"
@@ -29,26 +29,34 @@ export namespace Layout {
   }
 
   export function Header(props: {
-    left?: boolean | string | undefined
+    left?: React.ReactNode | boolean | string | undefined
     leftClassName?: string | undefined
     right?: React.ReactNode | undefined
   }) {
     const { left, leftClassName, right } = props
     return (
       <div className="flex items-center justify-between">
-        <div className="min-lg:opacity-0">
-          {left ? (
-            <div className={cx(leftClassName, 'font-[500] text-[24px]')}>
-              {left}
-            </div>
-          ) : left === false ? null : (
-            <div className="h-[28px] w-[40px]">
-              <LogoMark />
-            </div>
-          )}
-        </div>
+        {typeof left === 'object' ? (
+          left
+        ) : (
+          <div className="min-lg:opacity-0">
+            {typeof left === 'string' ? (
+              <div className={cx(leftClassName, 'font-[500] text-[24px]')}>
+                {left}
+              </div>
+            ) : left === false ? null : (
+              <div className="h-[28px] w-[40px]">
+                <LogoMark />
+              </div>
+            )}
+          </div>
+        )}
         {right ?? (
-          <Button render={<Link to="/about" />} size="square" variant="outline">
+          <Button
+            render={<Link aria-label="About Porto" to="/about" />}
+            size="square"
+            variant="outline"
+          >
             <CircleHelp className="size-5 text-gray10" />
           </Button>
         )}
@@ -65,12 +73,16 @@ export namespace Layout {
         <Button
           className="h-min w-min! px-2! py-1"
           render={
-            // biome-ignore lint/a11y/useAnchorContent:
-            <a href="https://porto.sh" rel="noreferrer" target="_blank" />
+            <a
+              aria-label="Learn more about Porto"
+              href="https://porto.sh"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Learn more
+            </a>
           }
-        >
-          Learn more
-        </Button>
+        />
       </div>
     )
   }

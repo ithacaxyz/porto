@@ -21,36 +21,32 @@ export const exp2Config = {
   address: exp2Address,
 } as const
 
-const rpcUrl = Anvil.enabled
-  ? RpcServer.instances.odyssey.rpcUrl
-  : 'https://porto-dev.rpc.ithaca.xyz'
-
 export function getPorto(
   parameters: {
-    mode?: (parameters: {
-      permissionsFeeLimit: Record<string, string>
-      mock: boolean
-    }) => Mode.Mode | undefined
-    sponsorUrl?: string | undefined
+    mode?: (parameters: { mock: boolean }) => Mode.Mode | undefined
+    merchantRpcUrl?: string | undefined
+    rpcUrl?: string | undefined
   } = {},
 ) {
-  const { mode = Mode.rpcServer, sponsorUrl } = parameters
+  const {
+    mode = Mode.rpcServer,
+    merchantRpcUrl,
+    rpcUrl = Anvil.enabled
+      ? RpcServer.instances.portoDev.rpcUrl
+      : 'https://porto-dev.rpc.ithaca.xyz',
+  } = parameters
   const porto = Porto.create({
     chains: [chain],
+    feeToken: 'EXP',
+    merchantRpcUrl,
     mode: mode({
       mock: true,
-      permissionsFeeLimit: {
-        ETH: '0.1',
-        USDC: '100',
-        USDT: '100',
-      },
     }),
-    sponsorUrl,
     storage: Storage.memory(),
     transports: {
       [chain.id]: http(rpcUrl, {
         async onFetchRequest(_, init) {
-          if (process.env.VITE_RPC_LOGS !== 'true') return
+          if (process.env.VITE_RPC_DEBUG !== 'true') return
           console.log(`curl \\
 ${rpcUrl} \\
 -X POST \\
@@ -58,7 +54,7 @@ ${rpcUrl} \\
 -d '${JSON.stringify(JSON.parse(init.body as string))}'`)
         },
         async onFetchResponse(response) {
-          if (process.env.VITE_RPC_LOGS !== 'true') return
+          if (process.env.VITE_RPC_DEBUG !== 'true') return
           console.log('> ' + JSON.stringify(await response.clone().json()))
         },
       }),

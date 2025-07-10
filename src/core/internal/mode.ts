@@ -5,19 +5,25 @@ import * as Hex from 'ox/Hex'
 import type * as Account from '../../viem/Account.js'
 import type * as Key from '../../viem/Key.js'
 import type { ServerClient } from '../../viem/ServerClient.js'
+import type * as Chains from '../Chains.js'
 import type * as RpcSchema from '../RpcSchema.js'
 import * as Call from './call.js'
 import type * as PermissionsRequest from './permissionsRequest.js'
 import type * as Porto from './porto.js'
-import * as PreCalls from './preCalls.js'
-import * as FeeToken from './typebox/feeToken.js'
-import type * as RpcRequest from './typebox/request.js'
-import * as Typebox from './typebox/typebox.js'
+import type * as PreCalls from './preCalls.js'
+import type * as Capabilities from './schema/capabilities.js'
+import type * as FeeToken from './schema/feeToken.js'
+import type * as RpcRequest from './schema/request.js'
 import type { PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
 
-export type ActionsInternal = Pick<Porto.Internal, 'config' | 'store'> & {
+export type ActionsInternal<
+  chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
+    Chains.Chain,
+    ...Chains.Chain[],
+  ],
+> = Pick<Porto.Internal<chains>, 'config' | 'store'> & {
   /** Viem Client. */
   client: ServerClient
   /** RPC Request. */
@@ -38,22 +44,42 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
       /** Token to add funds to. */
-      token: Address.Address
+      token?: Address.Address | undefined
       /** Amount to add. */
       value?: bigint | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     createAccount: (parameters: {
+      /** Admins to grant. */
+      admins?: readonly Pick<Key.Key, 'publicKey' | 'type'>[] | undefined
+      /** Whether to link `label` to account address as email. */
+      email?: boolean | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Label to associate with the WebAuthn credential. */
       label?: string | undefined
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
+      /** Adds support for offchain authentication using ERC-4361. */
+      signInWithEthereum?: Capabilities.signInWithEthereum.Request | undefined
     }) => Promise<{
       /** Account. */
-      account: Account.Account
+      account: Account.Account & {
+        signInWithEthereum?:
+          | {
+              message: string
+              signature: Hex.Hex
+            }
+          | undefined
+      }
     }>
+
+    disconnect?:
+      | ((parameters: {
+          /** Internal properties. */
+          internal: ActionsInternal
+        }) => Promise<void>)
+      | undefined
 
     getAccountVersion: (parameters: {
       /** Address of the account to get the version of. */
@@ -72,9 +98,7 @@ export type Mode = {
       id: Hex.Hex
       /** Internal properties. */
       internal: ActionsInternal
-    }) => Promise<
-      Typebox.Static<typeof RpcSchema.wallet_getCallsStatus.Response>
-    >
+    }) => Promise<typeof RpcSchema.wallet_getCallsStatus.Response.Encoded>
 
     getCapabilities: (parameters: {
       /** Chain IDs to get the capabilities for. */
@@ -83,9 +107,7 @@ export type Mode = {
       internal: Omit<ActionsInternal, 'client'> & {
         getClient: (chainId: Hex.Hex | number) => ServerClient
       }
-    }) => Promise<
-      Typebox.Static<typeof RpcSchema.wallet_getCapabilities.Response>
-    >
+    }) => Promise<typeof RpcSchema.wallet_getCapabilities.Response.Encoded>
 
     getKeys: (parameters: {
       /** Account to get the keys for. */
@@ -131,9 +153,18 @@ export type Mode = {
       internal: ActionsInternal
       /** Permissions to grant. */
       permissions?: PermissionsRequest.PermissionsRequest | undefined
+      /** Adds support for offchain authentication using ERC-4361. */
+      signInWithEthereum?: Capabilities.signInWithEthereum.Request | undefined
     }) => Promise<{
       /** Accounts. */
-      accounts: readonly Account.Account[]
+      accounts: readonly (Account.Account & {
+        signInWithEthereum?:
+          | {
+              message: string
+              signature: Hex.Hex
+            }
+          | undefined
+      })[]
       /** Pre-calls to be executed (e.g. key authorization). */
       preCalls?: PreCalls.PreCalls | undefined
     }>
@@ -144,18 +175,20 @@ export type Mode = {
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Key that will be used to sign over the digest. */
-      key: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'>
+      key?: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'> | undefined
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
       feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
+      /** Chain ID. */
+      chainId?: number | undefined
       /** Capabilities. */
       capabilities?:
         | RpcSchema.wallet_prepareCalls.Response['capabilities']
@@ -166,11 +199,15 @@ export type Mode = {
       digest: Hex.Hex
       /** Key that will sign over the digest. */
       key: Pick<Key.Key, 'prehash' | 'publicKey' | 'type'>
+      /** EIP-712 typed data. */
+      typedData: RpcSchema.wallet_prepareCalls.Response['typedData']
     }>
 
     prepareUpgradeAccount: (parameters: {
       /** Address of the account to import. */
       address: Address.Address
+      /** Whether to link `label` to account address as email. */
+      email?: boolean | undefined
       /** Label to associate with the account. */
       label?: string | undefined
       /** Internal properties. */
@@ -222,8 +259,8 @@ export type Mode = {
       permissionsId?: Hex.Hex | undefined
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
-      /** Sponsor URL. */
-      sponsorUrl?: string | undefined
+      /** Merchant RPC URL. */
+      merchantRpcUrl?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     sendPreparedCalls: (parameters: {
@@ -280,6 +317,21 @@ export type Mode = {
       /** Account. */
       account: Account.Account
     }>
+
+    verifyEmail: (parameters: {
+      /** Account to sign the email + token with. */
+      account: Account.Account
+      /** Chain ID to verify against. */
+      chainId: number
+      /** Email to link to wallet address. */
+      email: string
+      /** Generated token value. */
+      token: string
+      /** Wallet address to link to email. */
+      walletAddress: Address.Address
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<null>
   }
   name: string
   setup: (parameters: {
@@ -294,7 +346,7 @@ export type Mode = {
  * @param mode - Mode.
  * @returns Mode.
  */
-export function from<const mode extends from.Parameters>(
+export function from<const _mode extends from.Parameters>(
   mode: from.Parameters,
 ): Mode {
   return {
@@ -401,8 +453,9 @@ export async function getAuthorizedExecuteKey(parameters: {
     if (key.role !== 'session') return false
     if (key.expiry < BigInt(Math.floor(Date.now() / 1000))) return false
 
-    const hasValidScope = key.permissions?.calls?.some((scope) =>
-      calls.some((call) => {
+    // Check if every call is covered by a call permission.
+    const hasValidScope = calls.every((call) =>
+      key.permissions?.calls?.some((scope) => {
         if (scope.to && scope.to !== call.to) return false
         if (scope.signature) {
           if (!call.data) return false

@@ -1,7 +1,7 @@
-import * as React from 'react'
-import { Address, formatUnits, parseEther } from 'viem'
+import type * as React from 'react'
+import { type Address, formatUnits, parseEther } from 'viem'
 import {
-  BaseError,
+  type BaseError,
   useAccount,
   useReadContract,
   useSendCalls,

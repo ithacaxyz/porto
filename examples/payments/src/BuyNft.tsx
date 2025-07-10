@@ -1,7 +1,7 @@
-import * as React from 'react'
+import type * as React from 'react'
 import { parseEther } from 'viem'
 import {
-  BaseError,
+  type BaseError,
   useAccount,
   useSendCalls,
   useWaitForCallsStatus,

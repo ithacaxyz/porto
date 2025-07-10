@@ -1,0 +1,66 @@
+# `Account.sign`
+
+Extracts a signing key from a delegated account and signs a payload. This function handles both private key accounts and Porto accounts with multiple keys.
+
+## Usage
+
+```ts twoslash
+import { Account, Key } from 'porto/viem'
+
+const passkey = await Key.createWebAuthnP256({
+  label: 'My Passkey',
+})
+
+const account = Account.from({
+  address: '0x742d35Cc6634C0532925a3b8D2c88F65b5c92B23',
+  keys: [passkey],
+})
+
+const signature = await Account.sign(account, { // [!code focus]
+  payload: '0x1234567890abcdef...', // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Account`
+
+The Porto Account to sign with.
+
+### parameters
+
+Signing parameters.
+
+#### parameters.key
+
+- **Type:** `number | Key.Key | null | undefined`
+
+The key to sign the payload with.
+
+#### parameters.payload
+
+- **Type:** `Hex.Hex`
+
+The payload to sign.
+
+#### parameters.role
+
+- **Type:** `"admin" | "session" | undefined`
+
+The role of the key to sign the payload with.
+
+#### parameters.storage
+
+- **Type:** `Storage.Storage | undefined`
+
+The storage to use for keytype-specific caching (e.g. WebAuthn user verification).
+
+## Return Value
+
+```ts
+type ReturnValue = Promise<`0x${string}`>
+```
+
+Returns a Promise that resolves to the signature as a hex string.

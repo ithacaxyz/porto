@@ -1,0 +1,147 @@
+# `Actions.upgradeAccount`
+
+VanillaJS Action to upgrade an Externally-Owned Account (EOA) into a Porto Account.
+
+Internally uses [`wallet_prepareUpgradeAccount`](/sdk/rpc/wallet_prepareUpgradeAccount) & [`wallet_upgradeAccount`](/sdk/rpc/wallet_upgradeAccount).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, porto } from 'porto/wagmi'
+import { privateKeyToAccount } from 'viem/accounts'
+import { config } from './config'
+
+const eoa = privateKeyToAccount('0x...')
+
+const response = await Actions.upgradeAccount(config, {
+  account: eoa,
+  connector: porto(),
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/wagmi/config.ts]
+```
+
+:::
+
+### Grant Permissions
+
+You can grant permissions for an application to perform actions on behalf of the account by providing the `grantPermissions` parameter.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, porto } from 'porto/wagmi'
+import { parseEther } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { config } from './config'
+
+const eoa = privateKeyToAccount('0x...')
+const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+
+const response = await Actions.upgradeAccount(config, {
+  account: eoa,
+  connector: porto(),
+  grantPermissions: { // [!code focus]
+    expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour // [!code focus]
+    feeLimit: { // [!code focus]
+      currency: 'USD', // [!code focus]
+      value: '1', // [!code focus] 
+    }, // [!code focus]
+    permissions: { // [!code focus]
+      calls: [{ // [!code focus]
+        signature: 'transfer(address,uint256)', // [!code focus]
+        to: token, // [!code focus]
+      }], // [!code focus]
+      spend: [{ // [!code focus]
+        limit: parseEther('50'), // 50 EXP // [!code focus]
+        period: 'day', // [!code focus]
+        token: token, // [!code focus]
+      }], // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/wagmi/config.ts]
+```
+
+:::
+
+## Parameters
+
+### account
+
+`Account`
+
+The EOA to upgrade.
+
+### connector
+
+`Connector | CreateConnectorFn`
+
+The connector to use for the connection.
+
+### grantPermissions
+
+Permissions to grant to the account.
+
+```ts
+type GrantPermissions = {
+  /** Expiry timestamp for the permissions */
+  expiry: number
+
+  /** 
+   * Limit that the key can spend on fees. When provided,
+   * Porto will assign a spend permission on the user's
+   * selected fee token that is equal to the limit provided.
+   */
+  feeLimit?: {
+    /** Currency of the limit. */
+    currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
+    /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
+    value: string
+  } | undefined,
+
+  /** Key to grant permissions to. Defaults to a wallet-managed key. */
+  key?: {
+    /** Public key. Accepts an address for `address` & `secp256k1` types. */
+    publicKey?: `0x${string}`
+    /** Key type. */
+    type?: 'address' | 'p256' | 'secp256k1' | 'webauthn-p256'
+  }
+
+  /** Permissions to grant */
+  permissions: {
+    /** Call permissions */
+    calls: {
+      /** Function signature or 4-byte signature */
+      signature?: string
+      /** Authorized target address */
+      to?: `0x${string}`
+    }[]
+
+    /** Spend permissions */
+    spend: {
+      /** Spending limit (in wei) per period */
+      limit: `0x${string}`
+      /** Period of the spend limit */
+      period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+      /** ERC20 token to set the limit on (defaults to native token) */
+      token?: `0x${string}`
+    }[]
+  }
+}
+```
+
+## Return Value
+
+### address
+
+`Address`
+
+Address of the upgraded account.

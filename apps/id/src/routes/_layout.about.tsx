@@ -76,7 +76,7 @@ function RouteComponent() {
         <div className="flex w-full flex-col gap-4 *:mx-auto *:h-12 *:w-full *:max-w-full *:font-medium *:text-lg sm:flex-row sm:*:max-w-[90%]">
           <Button
             className="flex-grow"
-            // biome-ignore lint/a11y/useAnchorContent: <explanation>
+            // biome-ignore lint/a11y/useAnchorContent: _
             render={<a href="https://github.com/ithacaxyz/porto/issues/new" />}
           >
             Share feedback
@@ -84,13 +84,12 @@ function RouteComponent() {
           <Button
             className="flex-grow"
             render={
-              // biome-ignore lint/a11y/useAnchorContent: <explanation>
-              <a href="https://porto.sh" rel="noreferrer" target="_blank" />
+              <a href="https://porto.sh" rel="noreferrer" target="_blank">
+                Integrate now
+              </a>
             }
             variant="invert"
-          >
-            Integrate now
-          </Button>
+          />
         </div>
       </div>
 

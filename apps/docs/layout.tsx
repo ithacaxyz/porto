@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'sonner'
 import { WagmiProvider } from 'wagmi'
 
@@ -13,6 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <WagmiProvider config={WagmiConfig.config}>
         <QueryClientProvider client={queryClient}>
           {children}
+          <ReactQueryDevtools buttonPosition="bottom-left" />
         </QueryClientProvider>
       </WagmiProvider>
 

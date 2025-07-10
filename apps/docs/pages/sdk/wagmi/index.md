@@ -29,6 +29,7 @@ export const config = createConfig({
 
 Import via named export or `Actions` namespace (better autocomplete DX and does not impact tree shaking).
 
+- `addFunds`
 - `createAccount`
 - `getPermissions`
 - `grantPermissions`
@@ -44,6 +45,7 @@ import { connect } from 'porto/wagmi/Actions'
 
 Import via named export or `Hooks` namespace (better autocomplete DX and does not impact tree shaking).
 
+- `useAddFunds`
 - `useCreateAccount`
 - `useGrantPermissions`
 - `usePermissions`

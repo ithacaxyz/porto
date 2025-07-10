@@ -1,15 +1,16 @@
 import { spawnSync } from 'node:child_process'
-import { createServer, Server } from 'node:http'
+import { createServer, type Server } from 'node:http'
 import { resolve } from 'node:path'
 import { Readable } from 'node:stream'
 import { setTimeout } from 'node:timers/promises'
 import httpProxy from 'http-proxy'
-import { RpcRequest } from 'ox'
+import type { RpcRequest } from 'ox'
 import { defineInstance, toArgs } from 'prool'
 import { execa } from 'prool/processes'
 
 type RpcServerParameters = {
   containerName?: string | undefined
+  constantRate?: number | undefined
   endpoint: string
   delegationProxy: string
   feeTokens: string[]
@@ -18,6 +19,7 @@ type RpcServerParameters = {
     metricsPort?: number | undefined
   }
   image?: string | undefined
+  legacyDelegationProxy?: string | undefined
   orchestrator: string
   quoteTtl?: number | undefined
   registry?: string | undefined
@@ -43,7 +45,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
     feeTokens,
     image = 'ghcr.io/ithacaxyz/relay',
     signersMnemonic = 'test test test test test test test test test test test junk',
-    version = 'latest',
+    version = process.env.VITE_RELAY_VERSION || 'latest',
     ...rest
   } = args
 
@@ -88,8 +90,6 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
       const port_relay = port + 1
 
       const args_ = [
-        '-e',
-        `GECKO_API=${process.env.VITE_GECKO_API}`,
         '--name',
         containerName,
         '--network',
@@ -107,6 +107,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
         `${image}:${version}`,
         ...toArgs({
           ...rest,
+          constantRate: 1.0,
           endpoint: endpoint?.replaceAll(
             /127\.0\.0\.1|0\.0\.0\.0/g,
             'host.docker.internal',
@@ -123,6 +124,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
       ]
 
       try {
+        const debug = process.env.VITE_RPC_DEBUG === 'true'
         await process_.start(($) => $`docker run ${args_}`, {
           ...options,
           resolver({ process, resolve, reject }) {
@@ -130,10 +132,12 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
             setTimeout(3_000).then(resolve)
             process.stdout.on('data', (data) => {
               const message = data.toString()
+              if (debug) console.log(message)
               if (message.includes('Started relay service')) resolve()
             })
             process.stderr.on('data', (data) => {
               const message = data.toString()
+              if (debug) console.log(message)
               if (message.includes('WARNING')) return
               reject(data)
             })

@@ -1,0 +1,106 @@
+# `Key.createSecp256k1`
+
+Creates a random Secp256k1 key. This generates a new elliptic curve key using the secp256k1 curve.
+
+## Usage
+
+### Admin Key (Default)
+
+```ts twoslash
+import { Key } from 'porto/viem'
+
+const key = Key.createSecp256k1() // [!code focus]
+```
+
+### Session Key
+
+```ts twoslash
+import { Key } from 'porto/viem'
+import { parseEther } from 'viem'
+
+const key = Key.createSecp256k1({ // [!code focus]
+  expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour // [!code focus]
+  permissions: { // [!code focus]
+    calls: [{ // [!code focus]
+      signature: 'transfer(address,uint256)', // [!code focus]
+      to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+    spend: [{ // [!code focus]
+      limit: parseEther('50'), // 50 EXP // [!code focus]
+      period: 'day', // [!code focus]
+      token: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2', // [!code focus]
+    }], // [!code focus]
+  }, // [!code focus]
+  role: 'session', // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### expiry
+
+- **Type:** `number | undefined`
+
+The expiry timestamp of the key.
+
+### permissions
+
+The permissions of the key.
+
+```ts
+type Permissions = {
+  /** Call permissions - which functions the key can call */
+  calls?: {
+    /** Function signature or 4-byte selector */
+    signature?: string | undefined
+    /** Target contract address */
+    to?: `0x${string}` | undefined
+  }[] | undefined
+  
+  /** Spend permissions - spending limits for tokens */
+  spend?: {
+    /** Spending limit per period (in wei) */
+    limit: `0x${string}`
+    /** Time period for the spending limit */
+    period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+    /** ERC20 token address (defaults to native token if not provided) */
+    token?: `0x${string}` | undefined
+  }[] | undefined
+}
+```
+
+### role
+
+- **Type:** `"admin" | "session" | undefined`
+
+The role of the key.
+
+## Return Value
+
+```ts
+type Secp256k1Key = {
+  /** Key expiry timestamp */
+  expiry: number
+  
+  /** Key hash identifier */
+  hash: `0x${string}`
+  
+  /** Key ID (lowercase public key, as Ethereum address) */
+  id: `0x${string}`
+  
+  /** Optional permissions */
+  permissions?: Permissions | undefined
+  
+  /** Private key function (returns the private key) */
+  privateKey: () => `0x${string}`
+  
+  /** Public key (Ethereum address derived from secp256k1 public key) */
+  publicKey: `0x${string}`
+  
+  /** Key role */
+  role: 'admin' | 'session'
+  
+  /** Key type - always 'secp256k1' */
+  type: 'secp256k1'
+}
+```

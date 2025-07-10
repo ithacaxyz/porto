@@ -1,6 +1,6 @@
-# `connect`
+# `Actions.connect`
 
-VanillaJS action for connecting an account. Uses [`wallet_connect`](/sdk/rpc/wallet_connect) under the hood.
+VanillaJS action for connecting an account. Uses Viem's [`connect`](/sdk/viem/WalletActions/connect) under the hood.
 
 ## Usage
 
@@ -73,6 +73,13 @@ The connector to use for the connection.
 
 Chain ID to connect to.
 
+### email
+
+`boolean`
+
+- Show optional email input during account creation.
+- Defaults to `true`
+
 ### force
 
 `boolean`
@@ -87,6 +94,19 @@ Permissions to grant to the account.
 type GrantPermissions = {
   /** Expiry timestamp for the permissions */
   expiry: number
+
+  /** 
+   * Limit that the key can spend on fees. When provided,
+   * Porto will assign a spend permission on the user's
+   * selected fee token that is equal to the limit provided.
+   * 
+   */
+  feeLimit?: {
+    /** Currency of the limit. */
+    currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
+    /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
+    value: string
+  } | undefined,
 
   /** Key to grant permissions to. Defaults to a wallet-managed key. */
   key?: {
@@ -116,6 +136,32 @@ type GrantPermissions = {
       token?: `0x${string}`
     }[]
   }
+}
+```
+
+### signInWithEthereum
+
+[ERC-4361](https://eips.ethereum.org/EIPS/eip-4361) Sign-In with Ethereum options.
+
+```ts
+type SignInWithEthereum = {
+  /* Required fields */
+  authUrl: string
+  // OR
+  nonce: string
+
+  /* Optional fields */
+  chainId?: number | undefined
+  domain?: string | undefined // Defaults to window/iframe parent
+  expirationTime?: Date | undefined
+  issuedAt?: Date | undefined
+  notBefore?: Date | undefined
+  requestId?: string | undefined
+  resources?: string[] | undefined
+  scheme?: string | undefined
+  statement?: string | undefined
+  uri?: string | undefined // Defaults to window/iframe parent
+  version?: '1' | undefined
 }
 ```
 

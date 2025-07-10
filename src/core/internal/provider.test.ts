@@ -1,4 +1,3 @@
-import { createRequestListener } from '@mjackson/node-fetch-server'
 import {
   Address,
   Hex,
@@ -11,10 +10,15 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { Key, Mode } from 'porto'
-import { Sponsor } from 'porto/server'
-import { ServerActions } from 'porto/viem'
+import { MerchantRpc } from 'porto/server'
 import { encodeFunctionData, hashMessage, hashTypedData } from 'viem'
-import { readContract, setCode, waitForCallsStatus } from 'viem/actions'
+import {
+  readContract,
+  setCode,
+  signTypedData,
+  waitForCallsStatus,
+} from 'viem/actions'
+import { verifySiweMessage } from 'viem/siwe'
 import { describe, expect, test, vi } from 'vitest'
 
 import { accountOldProxyAddress } from '../../../test/src/_generated/addresses.js'
@@ -26,6 +30,7 @@ import {
   exp1Address,
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
+import * as RpcServer from '../../../test/src/rpcServer.js'
 import * as ServerClient from '../../viem/ServerClient.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 
@@ -35,7 +40,12 @@ describe.each([
 ] as const)('%s', (type, mode) => {
   if (!mode) return
 
-  const getPorto = (config: { sponsorUrl?: string | undefined } = {}) =>
+  const getPorto = (
+    config: {
+      merchantRpcUrl?: string | undefined
+      rpcUrl?: string | undefined
+    } = {},
+  ) =>
     getPorto_({
       ...config,
       mode,
@@ -296,6 +306,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             permissions: {
               calls: [{ signature: 'mint()' }],
             },
@@ -312,6 +326,13 @@ describe.each([
           expiry: null,
           hash: null,
           id: null,
+          permissions: {
+            ...x.permissions,
+            spend: x.permissions?.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
           publicKey: null,
         })),
       ).matchSnapshot()
@@ -336,6 +357,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             key: {
               publicKey:
                 '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
@@ -354,6 +379,13 @@ describe.each([
         address: null,
         capabilities: null,
         chainId: null,
+        permissions: {
+          ...permissions.permissions,
+          spend: permissions.permissions?.spend?.map((x) => ({
+            ...x,
+            token: null,
+          })),
+        },
       }).matchSnapshot()
 
       {
@@ -362,6 +394,10 @@ describe.each([
           params: [
             {
               expiry: 9999999999,
+              feeLimit: {
+                currency: 'USD',
+                value: '1',
+              },
               key: {
                 publicKey: '0x0000000000000000000000000000000000000000',
                 type: 'address',
@@ -385,6 +421,13 @@ describe.each([
           address: null,
           capabilities: null,
           chainId: null,
+          permissions: {
+            ...permissions.permissions,
+            spend: permissions.permissions?.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
         }).matchSnapshot()
       }
 
@@ -397,6 +440,13 @@ describe.each([
           expiry: null,
           hash: null,
           id: null,
+          permissions: {
+            ...permissions.permissions,
+            spend: permissions.permissions?.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
           publicKey: null,
         })),
       ).matchSnapshot()
@@ -417,6 +467,10 @@ describe.each([
           params: [
             {
               expiry: 9999999999,
+              feeLimit: {
+                currency: 'USD',
+                value: '1',
+              },
               key: {
                 publicKey:
                   '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
@@ -443,6 +497,10 @@ describe.each([
           params: [
             {
               expiry: 0,
+              feeLimit: {
+                currency: 'USD',
+                value: '1',
+              },
               key: {
                 publicKey:
                   '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
@@ -470,6 +528,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             permissions: {
               calls: [{ signature: 'mint()' }],
             },
@@ -481,6 +543,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             permissions: {
               calls: [{ signature: 'mint()' }],
               spend: [
@@ -509,6 +575,10 @@ describe.each([
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
+                feeLimit: {
+                  currency: 'USD',
+                  value: '1',
+                },
                 key: {
                   publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
                   type: 'secp256k1',
@@ -526,6 +596,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             key: {
               publicKey:
                 '0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
@@ -734,6 +808,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             permissions: {
               calls: [{ signature: 'mint()' }],
             },
@@ -749,6 +827,13 @@ describe.each([
           expiry: null,
           hash: null,
           id: null,
+          permissions: {
+            ...x.permissions,
+            spend: x.permissions?.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
           publicKey: null,
         })),
       ).matchSnapshot()
@@ -814,8 +899,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.3.2",
-          "latest": "0.3.2",
+          "current": "0.3.3",
+          "latest": "0.3.3",
         }
       `)
     })
@@ -837,8 +922,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.3.2",
-          "latest": "0.3.2",
+          "current": "0.3.3",
+          "latest": "0.3.3",
         }
       `)
     })
@@ -851,7 +936,7 @@ describe.each([
           method: 'wallet_getAccountVersion',
         }),
       ).rejects.toMatchInlineSnapshot(
-        `[Provider.DisconnectedError: The provider is disconnected from all chains.]`,
+        '[Provider.DisconnectedError: The provider is disconnected from all chains.]',
       )
     })
 
@@ -869,7 +954,7 @@ describe.each([
           params: [{ address: '0x0000000000000000000000000000000000000000' }],
         }),
       ).rejects.toMatchInlineSnapshot(
-        `[Provider.UnauthorizedError: The requested method and/or account has not been authorized by the user.]`,
+        '[Provider.UnauthorizedError: The requested method and/or account has not been authorized by the user.]',
       )
     })
 
@@ -920,35 +1005,18 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.3.2",
+          "latest": "0.3.3",
         }
       `)
     })
   })
 
-  // TODO: fix (broken from https://github.com/ithacaxyz/relay/pull/622)
-  describe.skip('wallet_updateAccount', () => {
+  describe('wallet_updateAccount', () => {
     test.runIf(Anvil.enabled && type === 'rpcServer')('default', async () => {
       const { porto } = getPorto()
       const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
-
-      const capabilities = await ServerActions.getCapabilities(client)
-      vi.spyOn(ServerActions, 'getCapabilities').mockResolvedValue({
-        ...capabilities,
-        contracts: {
-          ...capabilities.contracts,
-          accountImplementation: {
-            address: accountOldProxyAddress,
-            version: '0.0.1',
-          },
-          accountProxy: {
-            address: accountOldProxyAddress,
-            version: '0.0.1',
-          },
-        },
-      })
 
       const {
         accounts: [account],
@@ -985,28 +1053,47 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.0.1",
-          "latest": "0.1.1",
+          "current": "0.3.3",
+          "latest": "0.3.3",
         }
       `)
 
-      const { id: id2 } = await porto.provider.request({
-        method: 'wallet_updateAccount',
+      const { porto: porto_newAccount } = getPorto({
+        rpcUrl: RpcServer.instances.portoDev_newAccount.rpcUrl,
       })
-
-      if (id2)
-        await waitForCallsStatus(WalletClient.fromPorto(porto), {
-          id: id2,
-        })
+      porto_newAccount._internal.store.setState(
+        porto._internal.store.getState(),
+      )
 
       {
-        const version = await porto.provider.request({
+        const version = await porto_newAccount.provider.request({
           method: 'wallet_getAccountVersion',
         })
         expect(version).toMatchInlineSnapshot(`
           {
-            "current": "0.1.1",
-            "latest": "0.1.1",
+            "current": "0.3.3",
+            "latest": "69.0.0",
+          }
+        `)
+      }
+
+      const { id: id2 } = await porto_newAccount.provider.request({
+        method: 'wallet_updateAccount',
+      })
+
+      if (id2)
+        await waitForCallsStatus(WalletClient.fromPorto(porto_newAccount), {
+          id: id2,
+        })
+
+      {
+        const version = await porto_newAccount.provider.request({
+          method: 'wallet_getAccountVersion',
+        })
+        expect(version).toMatchInlineSnapshot(`
+          {
+            "current": "69.0.0",
+            "latest": "69.0.0",
           }
         `)
       }
@@ -1137,6 +1224,10 @@ describe.each([
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
+                feeLimit: {
+                  currency: 'USD',
+                  value: '1',
+                },
                 permissions: {
                   calls: [{ signature: 'mint()' }],
                 },
@@ -1154,6 +1245,13 @@ describe.each([
           expiry: null,
           hash: null,
           id: null,
+          permissions: {
+            ...x.permissions,
+            spend: x.permissions?.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
           publicKey: null,
         })),
       ).matchSnapshot()
@@ -1181,6 +1279,10 @@ describe.each([
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
+                feeLimit: {
+                  currency: 'USD',
+                  value: '1',
+                },
                 key: {
                   publicKey,
                   type: 'p256',
@@ -1202,6 +1304,13 @@ describe.each([
           expiry: i === 0 ? null : x.expiry,
           hash: i === 0 ? null : x.hash,
           id: i === 0 ? null : x.id,
+          permissions: {
+            ...x.permissions,
+            spend: x.permissions?.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
           publicKey: i === 0 ? null : x.publicKey,
         })),
       ).matchSnapshot()
@@ -1220,6 +1329,10 @@ describe.each([
                 createAccount: true,
                 grantPermissions: {
                   expiry: 0,
+                  feeLimit: {
+                    currency: 'USD',
+                    value: '1',
+                  },
                   permissions: {
                     calls: [{ signature: 'mint()' }],
                   },
@@ -1242,6 +1355,10 @@ describe.each([
                 createAccount: true,
                 grantPermissions: {
                   expiry: 9999999,
+                  feeLimit: {
+                    currency: 'USD',
+                    value: '1',
+                  },
                   permissions: {
                     calls: [],
                   },
@@ -1251,6 +1368,52 @@ describe.each([
           ],
         }),
       ).rejects.matchSnapshot()
+    })
+
+    test('behavior: `signInWithEthereum` capability', async () => {
+      const { client, porto } = getPorto()
+
+      const res = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+              signInWithEthereum: {
+                domain: 'example.com',
+                nonce: 'deadbeef',
+                uri: 'http://example.com/',
+              },
+            },
+          },
+        ],
+      })
+      const { message, signature } =
+        res.accounts.at(0)?.capabilities?.signInWithEthereum ?? {}
+      if (message && signature) {
+        switch (type) {
+          case 'contract': {
+            await expect(
+              verifySiweMessage(client, { message, signature }),
+            ).resolves.toBeTruthy()
+            break
+          }
+          case 'rpcServer': {
+            const { valid } = await porto.provider.request({
+              method: 'wallet_verifySignature',
+              params: [
+                {
+                  address: res.accounts.at(0)?.address!,
+                  digest: hashMessage(message),
+                  signature,
+                },
+              ],
+            })
+            expect(valid).toBeTruthy()
+            break
+          }
+        }
+      }
     })
   })
 
@@ -1286,12 +1449,12 @@ describe.each([
       expect(keys).matchSnapshot()
 
       const values = Object.values(capabilities)
-      const { atomic, feeToken, permissions, sponsor } = values[0]!
+      const { atomic, feeToken, permissions, merchant } = values[0]!
       expect(atomic).matchSnapshot()
       expect(feeToken.supported).matchSnapshot()
       expect(feeToken.tokens.length).matchSnapshot()
       expect(permissions).matchSnapshot()
-      expect(sponsor).matchSnapshot()
+      expect(merchant).matchSnapshot()
     })
 
     test('behavior: chainId', async () => {
@@ -1305,7 +1468,7 @@ describe.each([
       expect(keys).matchSnapshot()
 
       const values = Object.values(capabilities)
-      const { atomic, feeToken, permissions, sponsor } = values[0]!
+      const { atomic, feeToken, permissions, merchant } = values[0]!
       expect(atomic).matchSnapshot()
       expect(feeToken.supported).matchSnapshot()
       expect(
@@ -1314,7 +1477,7 @@ describe.each([
           .toSorted((a, b) => a.address.localeCompare(b.address)),
       ).matchSnapshot()
       expect(permissions).matchSnapshot()
-      expect(sponsor).matchSnapshot()
+      expect(merchant).matchSnapshot()
     })
 
     test('behavior: unsupported chain', async () => {
@@ -1323,7 +1486,7 @@ describe.each([
         method: 'wallet_getCapabilities',
         params: [undefined, ['0x1']],
       })
-      expect(capabilities).toMatchInlineSnapshot(`{}`)
+      expect(capabilities).toMatchInlineSnapshot('{}')
     })
   })
 
@@ -1460,26 +1623,26 @@ describe.each([
       },
     )
 
-    test.runIf(type === 'rpcServer' && Anvil.enabled)(
-      'behavior: fee sponsor',
+    test.runIf(type === 'rpcServer')(
+      'behavior: merchant fee sponsor',
       async () => {
         const { client, porto } = getPorto()
 
-        const sponsorKey = Key.createSecp256k1()
-        const sponsorAccount = await createAccount(client, {
+        const merchantKey = Key.createSecp256k1()
+        const merchantAccount = await createAccount(client, {
           deploy: true,
-          keys: [sponsorKey],
+          keys: [merchantKey],
         })
 
-        const handler = Sponsor.rpcHandler({
-          address: sponsorAccount.address,
+        const listener = MerchantRpc.requestListener({
+          ...porto.config,
+          address: merchantAccount.address,
           key: {
-            privateKey: sponsorKey.privateKey!(),
-            type: sponsorKey.type,
+            privateKey: merchantKey.privateKey!(),
+            type: merchantKey.type,
           },
-          transports: porto._internal.config.transports,
         })
-        const server = await Http.createServer(createRequestListener(handler))
+        const server = await Http.createServer(listener)
 
         const {
           accounts: [account],
@@ -1504,10 +1667,10 @@ describe.each([
           args: [address],
           functionName: 'balanceOf',
         })
-        const sponsorBalance_pre = await readContract(client, {
+        const merchantBalance_pre = await readContract(client, {
           abi: exp1Abi,
           address: exp1Address,
-          args: [sponsorAccount.address],
+          args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
 
@@ -1526,7 +1689,7 @@ describe.each([
                 },
               ],
               capabilities: {
-                sponsorUrl: server.url,
+                merchantRpcUrl: server.url,
               },
               from: address,
               version: '1',
@@ -1546,46 +1709,46 @@ describe.each([
           args: [address],
           functionName: 'balanceOf',
         })
-        const sponsorBalance_post = await readContract(client, {
+        const merchantBalance_post = await readContract(client, {
           abi: exp1Abi,
           address: exp1Address,
-          args: [sponsorAccount.address],
+          args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
 
         // Check if user was debited 1 EXP.
         expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
 
-        // Check if sponsor was debited the fee payment.
-        expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+        // Check if merchant was debited the fee payment.
+        expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
       },
     )
 
-    test.runIf(type === 'rpcServer' && Anvil.enabled)(
-      'behavior: fee sponsor (porto config)',
+    test.runIf(type === 'rpcServer')(
+      'behavior: merchant fee sponsor (porto config)',
       async () => {
         const {
           client,
-          porto: { _internal },
+          porto: { config },
         } = getPorto()
 
-        const sponsorKey = Key.createSecp256k1()
-        const sponsorAccount = await createAccount(client, {
+        const merchantKey = Key.createSecp256k1()
+        const merchantAccount = await createAccount(client, {
           deploy: true,
-          keys: [sponsorKey],
+          keys: [merchantKey],
         })
 
-        const handler = Sponsor.rpcHandler({
-          address: sponsorAccount.address,
+        const listener = MerchantRpc.requestListener({
+          ...config,
+          address: merchantAccount.address,
           key: {
-            privateKey: sponsorKey.privateKey!(),
-            type: sponsorKey.type,
+            privateKey: merchantKey.privateKey!(),
+            type: merchantKey.type,
           },
-          transports: _internal.config.transports,
         })
-        const server = await Http.createServer(createRequestListener(handler))
+        const server = await Http.createServer(listener)
 
-        const { porto } = getPorto({ sponsorUrl: server.url })
+        const { porto } = getPorto({ merchantRpcUrl: server.url })
 
         const {
           accounts: [account],
@@ -1610,10 +1773,10 @@ describe.each([
           args: [address],
           functionName: 'balanceOf',
         })
-        const sponsorBalance_pre = await readContract(client, {
+        const merchantBalance_pre = await readContract(client, {
           abi: exp1Abi,
           address: exp1Address,
-          args: [sponsorAccount.address],
+          args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
 
@@ -1649,18 +1812,18 @@ describe.each([
           args: [address],
           functionName: 'balanceOf',
         })
-        const sponsorBalance_post = await readContract(client, {
+        const merchantBalance_post = await readContract(client, {
           abi: exp1Abi,
           address: exp1Address,
-          args: [sponsorAccount.address],
+          args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
 
         // Check if user was debited 1 EXP.
         expect(userBalance_post).toBe(userBalance_pre - Value.fromEther('1'))
 
-        // Check if sponsor was debited the fee payment.
-        expect(sponsorBalance_post).toBeLessThan(sponsorBalance_pre)
+        // Check if merchant was debited the fee payment.
+        expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
       },
     )
 
@@ -1690,6 +1853,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             permissions: {
               calls: [{ to: exp1Address }],
               spend: [
@@ -1766,6 +1933,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             permissions: {
               calls: [{ to: exp1Address }],
               spend: [
@@ -1851,6 +2022,10 @@ describe.each([
           params: [
             {
               expiry: 9999999999,
+              feeLimit: {
+                currency: 'USD',
+                value: '1',
+              },
               permissions: {
                 calls: [{ to: '0x0000000000000000000000000000000000000000' }],
                 spend: [
@@ -1924,6 +2099,10 @@ describe.each([
           params: [
             {
               expiry: 9999999999,
+              feeLimit: {
+                currency: 'USD',
+                value: '1',
+              },
               permissions: {
                 calls: [{ to: exp1Address }],
                 spend: [
@@ -2020,6 +2199,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             permissions: {
               calls: [{ to: exp1Address }],
               spend: [
@@ -2127,6 +2310,10 @@ describe.each([
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             key: {
               publicKey:
                 '0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e',
@@ -2322,6 +2509,10 @@ describe.each([
                 createAccount: true,
                 grantPermissions: {
                   expiry: 9999999999,
+                  feeLimit: {
+                    currency: 'USD',
+                    value: '1',
+                  },
                   key: {
                     publicKey: publicKey,
                     type: 'p256',
@@ -2378,7 +2569,6 @@ describe.each([
           params: [
             {
               ...request,
-              key,
               signature: Signature.toHex(signature),
             },
           ],
@@ -2419,6 +2609,10 @@ describe.each([
                 createAccount: true,
                 grantPermissions: {
                   expiry: 9999999999,
+                  feeLimit: {
+                    currency: 'USD',
+                    value: '1',
+                  },
                   key: {
                     publicKey: publicKey,
                     type: 'p256',
@@ -2519,6 +2713,10 @@ describe.each([
                 createAccount: true,
                 grantPermissions: {
                   expiry: 9999999999,
+                  feeLimit: {
+                    currency: 'USD',
+                    value: '1',
+                  },
                   key: {
                     publicKey: address,
                     type: 'address',
@@ -2575,7 +2773,6 @@ describe.each([
           params: [
             {
               ...request,
-              key,
               signature: Signature.toHex(signature),
             },
           ],
@@ -2665,7 +2862,6 @@ describe.each([
           params: [
             {
               ...request,
-              key,
               signature: Signature.toHex(signature),
             },
           ],
@@ -2684,6 +2880,90 @@ describe.each([
           }),
         ).toBe(40_000n)
       })
+    })
+
+    test.runIf(type === 'rpcServer')('behavior: sign typed data', async () => {
+      const { porto } = getPorto()
+      const client = ServerClient.fromPorto(porto).extend(() => ({
+        mode: 'anvil',
+      }))
+
+      const { accounts } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+
+      const walletClient = WalletClient.fromPorto(porto, {
+        account: accounts[0]!.address,
+      })
+
+      await setBalance(client, {
+        address: accounts[0]?.address!,
+        value: Value.fromEther('10000'),
+      })
+
+      const alice = Hex.random(20)
+
+      const { typedData, ...request } = await porto.provider.request({
+        method: 'wallet_prepareCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: exp1Abi,
+                  args: [alice, 40_000n],
+                  functionName: 'transfer',
+                }),
+                to: exp1Address,
+              },
+            ],
+          },
+        ],
+      })
+
+      const signature = await signTypedData(walletClient, typedData)
+
+      const { valid } = await porto.provider.request({
+        method: 'wallet_verifySignature',
+        params: [
+          {
+            address: walletClient.account.address,
+            digest: hashTypedData(typedData),
+            signature,
+          },
+        ],
+      })
+      expect(valid).toBe(true)
+
+      const result = await porto.provider.request({
+        method: 'wallet_sendPreparedCalls',
+        params: [
+          {
+            ...request,
+            signature,
+          },
+        ],
+      })
+
+      await waitForCallsStatus(walletClient, {
+        id: result[0]!.id,
+      })
+
+      expect(
+        await readContract(client, {
+          abi: exp1Abi,
+          address: exp1Address,
+          args: [alice],
+          functionName: 'balanceOf',
+        }),
+      ).toBe(40_000n)
     })
   })
 

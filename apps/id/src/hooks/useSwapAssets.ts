@@ -1,4 +1,4 @@
-import { PortoConfig } from '@porto/apps'
+import type { PortoConfig } from '@porto/apps'
 import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
@@ -54,7 +54,7 @@ export function useSwapAssets({ chainId }: { chainId: PortoConfig.ChainId }) {
           ...asset,
           ...balancesMap.get(asset.address),
         })) as ReadonlyArray<Prettify<AssetWithPrice>>
-      } catch (error) {
+      } catch {
         return [ethAsset, ...defaultAssets_].map((asset) => ({
           ...asset,
           balance: 0n,

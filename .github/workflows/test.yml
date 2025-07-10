@@ -1,0 +1,102 @@
+name: Test
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      contracts-ref:
+        type: string
+        description: 'Contracts ref'
+        default: ''
+      relay-ref:
+        type: string
+        description: 'Relay ref'
+        default: ''
+      relay-release:
+        type: boolean
+        description: 'Perform relay image build and push'
+        default: true
+  repository_dispatch:
+    types: ['relay-release', 'relay-deployment']
+
+env:
+   ACTIONS_RUNNER_DEBUG: true
+
+jobs:
+  relay-release:
+    name: Publish Relay Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      relay_version: ${{ steps.trigger-relay.outputs.short_sha }}
+    steps:
+      - name: Trigger release workflow and wait
+        id: trigger-relay
+        if: inputs.relay-ref != '' && inputs.relay-release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RELAY_GH_TOKEN }}
+        run: |
+          # Trigger the workflow
+          gh workflow run release.yml \
+            --repo ithacaxyz/relay \
+            --ref ${{ inputs.relay-ref }}
+          
+          sleep 5
+          
+          # Get the latest run ID and wait for it to complete
+          run_id=$(gh run list --repo ithacaxyz/relay --workflow=release.yml --limit=1 --json databaseId | jq -r '.[0].databaseId')
+          gh run watch $run_id --repo ithacaxyz/relay
+          
+          short_sha=$(gh run view $run_id --repo ithacaxyz/relay --json headSha | jq -r '.headSha' | cut -c 1-7)
+          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
+
+  test:
+    name: Tests (${{ matrix.local == 'true' && 'Local' || 'Deployment' }}, ${{ matrix.browser == 'true' && 'Browser' || 'Node' }})
+    needs: relay-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        # Only run deployment tests on main branch or when triggered by a repository dispatch, and also when a *-ref input is not provided.
+        local: ${{ fromJSON(((github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && (inputs.relay-ref == '' || inputs.contracts-ref == '')) && '["true", "false"]' || '["true"]') }}
+        browser: ['true', 'false']
+    env: 
+      CI: true
+      VITE_LOCAL: ${{ matrix.local }}
+      VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+      VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
+      VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
+      VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
+      VITE_DISPATCH_TYPE: ${{ github.event_name == 'repository_dispatch' && github.event.action || '' }}
+      VITE_RELAY_VERSION: ${{ needs.relay-release.outputs.relay_version || inputs.relay-ref }}
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Checkout contracts submodule at specific ref
+        if: inputs.contracts-ref != ''
+        run: |
+          git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+          cd contracts/account
+          git fetch origin ${{ inputs.contracts-ref }}
+          git checkout ${{ inputs.contracts-ref }}
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Set up Docker
+        if: matrix.local == 'true'
+        uses: docker/setup-docker-action@v4
+
+      - name: Install Playwright
+        if: matrix.browser == 'true'
+        run: pnpx playwright@1.53.0 install --with-deps
+
+      - name: Test
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 30
+          command: pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}

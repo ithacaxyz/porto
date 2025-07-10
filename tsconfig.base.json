@@ -38,6 +38,6 @@
     // Skip type checking for node modules
     "skipLibCheck": true,
 
-    "types": ["typed-query-selector/strict"]
+    "types": ["node", "typed-query-selector/strict"]
   }
 }

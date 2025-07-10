@@ -1,11 +1,25 @@
 import ChildProcess from 'node:child_process'
+import NodeFS from 'node:fs'
+import NodePath from 'node:path'
+import Process from 'node:process'
 import Icons from 'unplugin-icons/vite'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
-  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
+  Process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7)
+
+// don't index porto.sh except in production
+if (
+  Process.env.NODE_ENV === 'production' &&
+  Process.env.VITE_VERCEL_ENV === 'production'
+) {
+  NodeFS.writeFileSync(
+    NodePath.join(Process.cwd(), 'public', 'robots.txt'),
+    ['User-agent: *', 'Allow: /'].join('\n'),
+  )
+}
 
 export default defineConfig({
   description:
@@ -22,6 +36,14 @@ export default defineConfig({
         <meta content="1200" property="og:image:width" />
         <meta content="630" property="og:image:height" />
         <meta content={commitSha} name="x-app-version" />
+        <meta
+          content={
+            process.env.VITE_VERCEL_ENV !== 'production'
+              ? 'noindex, nofollow'
+              : 'index, follow'
+          }
+          name="robots"
+        />
       </>
     )
   },
@@ -151,6 +173,14 @@ export default defineConfig({
             text: 'Onboard & Discover Accounts',
           },
           {
+            link: '/sdk/guides/authentication',
+            text: 'Authentication (SIWE)',
+          },
+          {
+            link: '/sdk/guides/sponsoring',
+            text: 'Fee Sponsoring',
+          },
+          {
             link: '/sdk/guides/payments',
             text: 'Payments',
           },
@@ -161,16 +191,6 @@ export default defineConfig({
           {
             link: '/sdk/guides/subscriptions',
             text: 'Subscriptions',
-          },
-          {
-            disabled: true,
-            link: '/sdk/guides/authentication',
-            text: 'Authentication (SIWE) 🚧',
-          },
-          {
-            disabled: true,
-            link: '/sdk/guides/sponsoring',
-            text: 'Fee Sponsoring 🚧',
           },
         ],
         text: 'Guides',
@@ -200,7 +220,16 @@ export default defineConfig({
             text: 'Mode',
           },
           {
-            collapsed: true,
+            collapsed: false,
+            items: [
+              {
+                link: '/sdk/api/merchantRpc/requestHandler',
+                text: 'requestHandler',
+              },
+            ],
+            text: 'MerchantRpc',
+          },
+          {
             link: '/sdk/api/storage',
             text: 'Storage',
           },
@@ -241,7 +270,6 @@ export default defineConfig({
                 text: 'revokePermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/upgradeAccount',
                 text: 'upgradeAccount',
               },
@@ -264,7 +292,6 @@ export default defineConfig({
                 text: 'useRevokePermissions',
               },
               {
-                disabled: true,
                 link: '/sdk/wagmi/useUpgradeAccount',
                 text: 'useUpgradeAccount',
               },
@@ -274,125 +301,180 @@ export default defineConfig({
         ],
         text: 'Wagmi Reference',
       },
-      // {
-      //   items: [
-      //     {
-      //       link: '/sdk/viem',
-      //       text: 'Overview',
-      //     },
-      //     {
-      //       link: '/sdk/viem/client',
-      //       text: 'Client',
-      //     },
-      //     {
-      //       collapsed: true,
-      //       items: [
-      //         {
-      //           link: '/sdk/viem/connect',
-      //           text: 'connect',
-      //         },
-      //         {
-      //           link: '/sdk/viem/disconnect',
-      //           text: 'disconnect',
-      //         },
-      //         {
-      //           link: '/sdk/viem/grantPermissions',
-      //           text: 'grantPermissions',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getPermissions',
-      //           text: 'getPermissions',
-      //         },
-      //         {
-      //           link: '/sdk/viem/revokePermissions',
-      //           text: 'revokePermissions',
-      //         },
-      //         {
-      //           link: '/sdk/viem/upgradeAccount',
-      //           text: 'upgradeAccount',
-      //         },
-      //       ],
-      //       text: 'Wallet Actions',
-      //     },
-      //     {
-      //       collapsed: true,
-      //       items: [
-      //         {
-      //           link: '/sdk/viem/execute',
-      //           text: 'execute',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getEip712Domain',
-      //           text: 'getEip712Domain',
-      //         },
-      //         {
-      //           link: '/sdk/viem/keyAt',
-      //           text: 'keyAt',
-      //         },
-      //         {
-      //           link: '/sdk/viem/prepareExecute',
-      //           text: 'prepareExecute',
-      //         },
-      //       ],
-      //       text: 'Contract Actions',
-      //     },
-      //     {
-      //       collapsed: true,
-      //       items: [
-      //         {
-      //           link: '/sdk/viem/createAccount',
-      //           text: 'createAccount',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getAccounts',
-      //           text: 'getAccounts',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getCallsStatus',
-      //           text: 'getCallsStatus',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getCapabilities',
-      //           text: 'getCapabilities',
-      //         },
-      //         {
-      //           link: '/sdk/viem/getKeys',
-      //           text: 'getKeys',
-      //         },
-      //         {
-      //           link: '/sdk/viem/health',
-      //           text: 'health',
-      //         },
-      //         {
-      //           link: '/sdk/viem/prepareCalls',
-      //           text: 'prepareCalls',
-      //         },
-      //         {
-      //           link: '/sdk/viem/prepareCreateAccount',
-      //           text: 'prepareCreateAccount',
-      //         },
-      //         {
-      //           link: '/sdk/viem/prepareUpgradeAccount',
-      //           text: 'prepareUpgradeAccount',
-      //         },
-      //         {
-      //           link: '/sdk/viem/sendPreparedCalls',
-      //           text: 'sendPreparedCalls',
-      //         },
-      //         {
-      //           link: '/sdk/viem/upgradeAccount',
-      //           text: 'upgradeAccount',
-      //         },
-      //         {
-      //           link: '/sdk/viem/verifySignature',
-      //           text: 'verifySignature',
-      //         },
-      //       ],
-      //       text: 'Server Actions',
-      //     },
-      //   ],
-      //   text: 'Viem Reference',
-      // },
+      {
+        items: [
+          {
+            link: '/sdk/viem',
+            text: 'Overview',
+          },
+          {
+            collapsed: true,
+            items: [
+              {
+                link: '/sdk/viem/WalletActions',
+                text: 'Overview',
+              },
+              {
+                link: '/sdk/viem/WalletActions/connect',
+                text: 'connect',
+              },
+              {
+                link: '/sdk/viem/WalletActions/disconnect',
+                text: 'disconnect',
+              },
+              {
+                link: '/sdk/viem/WalletActions/grantPermissions',
+                text: 'grantPermissions',
+              },
+              {
+                link: '/sdk/viem/WalletActions/getPermissions',
+                text: 'getPermissions',
+              },
+              {
+                link: '/sdk/viem/WalletActions/revokePermissions',
+                text: 'revokePermissions',
+              },
+              {
+                link: '/sdk/viem/WalletActions/upgradeAccount',
+                text: 'upgradeAccount',
+              },
+            ],
+            text: 'WalletActions',
+          },
+          {
+            items: [
+              {
+                collapsed: true,
+                items: [
+                  {
+                    link: '/sdk/viem/Account',
+                    text: 'Overview',
+                  },
+                  {
+                    link: '/sdk/viem/Account/from',
+                    text: 'from',
+                  },
+                  {
+                    link: '/sdk/viem/Account/fromPrivateKey',
+                    text: 'fromPrivateKey',
+                  },
+                  {
+                    link: '/sdk/viem/Account/getKey',
+                    text: 'getKey',
+                  },
+                  {
+                    link: '/sdk/viem/Account/sign',
+                    text: 'sign',
+                  },
+                ],
+                text: 'Account',
+              },
+              {
+                collapsed: true,
+                items: [
+                  {
+                    link: '/sdk/viem/Key',
+                    text: 'Overview',
+                  },
+                  {
+                    link: '/sdk/viem/Key/createP256',
+                    text: 'createP256',
+                  },
+                  {
+                    link: '/sdk/viem/Key/createSecp256k1',
+                    text: 'createSecp256k1',
+                  },
+                  {
+                    link: '/sdk/viem/Key/createWebAuthnP256',
+                    text: 'createWebAuthnP256',
+                  },
+                  {
+                    link: '/sdk/viem/Key/createWebCryptoP256',
+                    text: 'createWebCryptoP256',
+                  },
+                  {
+                    link: '/sdk/viem/Key/fromP256',
+                    text: 'fromP256',
+                  },
+                  {
+                    link: '/sdk/viem/Key/fromSecp256k1',
+                    text: 'fromSecp256k1',
+                  },
+                  {
+                    link: '/sdk/viem/Key/fromWebAuthnP256',
+                    text: 'fromWebAuthnP256',
+                  },
+                  {
+                    link: '/sdk/viem/Key/fromWebCryptoP256',
+                    text: 'fromWebCryptoP256',
+                  },
+                  {
+                    link: '/sdk/viem/Key/sign',
+                    text: 'sign',
+                  },
+                ],
+                text: 'Key',
+              },
+              {
+                collapsed: true,
+                items: [
+                  {
+                    link: '/sdk/viem/ServerActions',
+                    text: 'Overview',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/createAccount',
+                    text: 'createAccount',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/getCallsStatus',
+                    text: 'getCallsStatus',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/getCapabilities',
+                    text: 'getCapabilities',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/getKeys',
+                    text: 'getKeys',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/health',
+                    text: 'health',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/prepareCalls',
+                    text: 'prepareCalls',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/prepareUpgradeAccount',
+                    text: 'prepareUpgradeAccount',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/sendCalls',
+                    text: 'sendCalls',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/sendPreparedCalls',
+                    text: 'sendPreparedCalls',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/upgradeAccount',
+                    text: 'upgradeAccount',
+                  },
+                  {
+                    link: '/sdk/viem/ServerActions/verifySignature',
+                    text: 'verifySignature',
+                  },
+                ],
+                text: 'ServerActions',
+              },
+            ],
+            text: 'RPC Server',
+          },
+        ],
+        text: 'Viem Reference',
+      },
       {
         items: [
           {
@@ -448,6 +530,10 @@ export default defineConfig({
             text: 'wallet_grantPermissions',
           },
           {
+            link: '/sdk/rpc/wallet_prepareUpgradeAccount',
+            text: 'wallet_prepareUpgradeAccount',
+          },
+          {
             link: '/sdk/rpc/wallet_revokePermissions',
             text: 'wallet_revokePermissions',
           },
@@ -462,6 +548,10 @@ export default defineConfig({
           {
             link: '/sdk/rpc/wallet_sendPreparedCalls',
             text: 'wallet_sendPreparedCalls',
+          },
+          {
+            link: '/sdk/rpc/wallet_upgradeAccount',
+            text: 'wallet_upgradeAccount',
           },
         ],
         text: 'RPC Reference',
@@ -491,6 +581,10 @@ export default defineConfig({
     {
       link: '/contracts',
       text: 'Contracts',
+    },
+    {
+      link: '/changelog',
+      text: 'Changelog',
     },
   ],
   vite: {

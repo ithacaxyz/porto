@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 
-// biome-ignore lint/suspicious/noEmptyInterface:
-interface ImportMetaEnv {}
+type ImportMetaEnv = {}
 
 interface ImportMeta {
   readonly env: ImportMetaEnv

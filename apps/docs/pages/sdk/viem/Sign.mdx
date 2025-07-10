@@ -1,0 +1,96 @@
+# `Key.sign`
+
+Signs a payload using a Porto key. This function handles different key types and their specific signing mechanisms, including WebAuthn user verification and storage caching.
+
+## Usage
+
+### Sign with P256 Key
+
+```ts twoslash
+import { Key } from 'porto/viem'
+
+const key = Key.createP256()
+
+const signature = await Key.sign(key, { // [!code focus]
+  payload: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
+}) // [!code focus]
+```
+
+### Sign with WebAuthn Key and Storage
+
+```ts twoslash
+import { Key } from 'porto/viem'
+
+const key = await Key.createWebAuthnP256({
+  label: 'My Signing Key',
+})
+
+const signature = await Key.sign(key, { // [!code focus]
+  payload: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
+}) // [!code focus]
+```
+
+### Unwrapped Signature
+
+By default, signatures are wrapped with key metadata. You can get the raw signature by setting `wrap: false`.
+
+```ts twoslash
+import { Key } from 'porto/viem'
+
+const key = Key.createP256()
+
+const rawSignature = await Key.sign(key, { // [!code focus]
+  payload: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
+  wrap: false, // Get raw signature // [!code focus]
+}) // [!code focus]
+```
+
+## Parameters
+
+### key
+
+- **Type:** `Key.Key`
+
+The Porto key to sign with. Must have a `privateKey` property.
+
+### parameters
+
+- **Type:** `Parameters`
+
+Signing parameters.
+
+```ts
+type Parameters = {
+  /** 
+   * Payload to sign (32-byte hash)
+   */
+  payload: `0x${string}`
+  
+  /** 
+   * Storage for keytype-specific caching (e.g. WebAuthn user verification)
+   */
+  storage?: Storage.Storage | undefined
+  
+  /** 
+   * Whether to wrap the signature with key metadata
+   * @default true
+   */
+  wrap?: boolean | undefined
+}
+```
+
+## Return Value
+
+```ts
+type ReturnValue = Promise<`0x${string}`>
+```
+
+Returns a Promise that resolves to the signature as a hex string.
+
+When `wrap: true` (default), the signature includes:
+
+- Raw signature bytes
+- Key hash for identification  
+- Prehash flag indicating digest requirements
+
+When `wrap: false`, returns only the raw signature bytes.

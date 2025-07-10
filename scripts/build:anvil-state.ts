@@ -32,7 +32,7 @@ const client = createTestClient({
   transport: http(rpcUrl),
 })
 
-let exports = []
+const exports = []
 
 let orchestratorAddress: Address.Address | null | undefined
 {

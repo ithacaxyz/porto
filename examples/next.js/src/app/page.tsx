@@ -5,7 +5,6 @@ import {
   type BaseError,
   useAccount,
   useConnect,
-  useConnectors,
   useDisconnect,
   useReadContract,
   useSendCalls,
