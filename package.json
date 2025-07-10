@@ -22,6 +22,7 @@
     "dev": "pnpm preconstruct && pnpm --filter playground --filter dialog --filter id dev",
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter id dev",
     "dev:cli": "tsx src/cli/bin/index.ts",
+    "dev:ext": "pnpm --filter extension dev",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter dialog --filter id --filter wagmi-example dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter dialog --filter id --filter docs dev",
