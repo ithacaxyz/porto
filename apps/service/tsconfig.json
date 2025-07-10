@@ -17,7 +17,7 @@
     "allowImportingTsExtensions": true,
     "types": ["node", "@cloudflare/workers-types"]
   },
-  "include": ["./src/**/*", "./scripts/**/*"],
+  "include": ["./src/**/*"],
   "files": ["env.d.ts"],
   "exclude": ["**/_/**", "dist", "node_modules"]
 }
