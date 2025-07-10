@@ -886,7 +886,9 @@ function AssetRow({
   const sendCalls = useSendCalls({
     mutation: {
       onError: (error) => {
-        console.error(error)
+        if (import.meta.env.MODE === 'development') {
+          console.error(error)
+        }
         const userRejected = error.message
           .toLowerCase()
           .includes('user rejected')
