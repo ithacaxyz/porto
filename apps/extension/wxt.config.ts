@@ -4,6 +4,7 @@ import { defineConfig } from 'wxt'
 export default defineConfig({
   manifest: {
     name: 'Porto',
+    permissions: ['contextMenus', 'tabs', 'storage'],
   },
   vite: () => ({
     build: {
