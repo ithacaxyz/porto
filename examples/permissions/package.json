@@ -19,9 +19,9 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5.8.3",
     "@vitejs/plugin-react": "^4.5.1",
     "globals": "^16.2.0",
+    "typescript": "^5.8.3",
     "vite": "^6.3.5"
   }
 }
