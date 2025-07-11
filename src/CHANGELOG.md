@@ -1,5 +1,14 @@
 # porto
 
+## 0.0.50
+
+### Patch Changes
+
+- [#575](https://github.com/ithacaxyz/porto/pull/575) [`e037d86`](https://github.com/ithacaxyz/porto/commit/e037d8653f093ce3d47b14bde3e7a47190fee791) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `eth_sendTransaction` response would be the bundle identifier, instead of the transaction hash.
+
+- [#574](https://github.com/ithacaxyz/porto/pull/574) [`8c988ea`](https://github.com/ithacaxyz/porto/commit/8c988ea5b0569dc220b2b72c8377e18c8c2d29ae) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where headless methods on the `Dialog.popup` renderer would invoke
+  a popup, instead of calling the method in the background.
+
 ## 0.0.49
 
 ### Patch Changes
