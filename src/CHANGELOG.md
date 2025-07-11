@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.51
+
+### Patch Changes
+
+- [`1e46693`](https://github.com/ithacaxyz/porto/commit/1e46693f43bde13769bb23d9db6ce6dca3419d1a) Thanks [@jxom](https://github.com/jxom)! - Tweaked extension to fall back to popup if host site blocks iframe due to CSP.
+
 ## 0.0.50
 
 ### Patch Changes
