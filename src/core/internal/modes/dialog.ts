@@ -983,7 +983,7 @@ export declare namespace dialog {
   type Parameters = {
     /**
      * Mode to fall back to if the renderer does not support background
-     * operations.
+     * operations (e.g. popups and web views).
      *
      * @default `Mode.rpcServer()`
      */
