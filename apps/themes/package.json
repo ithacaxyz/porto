@@ -3,10 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "export:config": "pnpm run export:config:light && pnpm run export:config:dark && pnpm run export:config:pink",
-    "export:config:light": "mkdir -p ../config/src/themes/light && cp ./light/theme.json ../config/src/themes/light/ &&./theme-to-css.ts --stylex ./light/theme.json > ../config/src/themes/light/theme.stylex.ts",
-    "export:config:dark": "mkdir -p ../config/src/themes/dark && cp ./dark/theme.json ../config/src/themes/dark/ && ./theme-to-css.ts --stylex ./dark/theme.json > ../config/src/themes/dark/theme.stylex.ts",
-    "export:config:pink": "mkdir -p ../config/src/themes/pink && cp ./pink/theme.json ../config/src/themes/pink/ && ./theme-to-css.ts --stylex ./pink/theme.json > ../config/src/themes/pink/theme.stylex.ts"
+    "export:to-styles": "./export-theme.ts --as tailwind > ../~internal/styles/porto-theme.css"
   },
   "devDependencies": {
     "@types/bun": "^1.2.15",
@@ -15,8 +12,5 @@
     "globals": "catalog:",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@10.10.0",
-  "dependencies": {
-    "valibot": "^1.1.0"
-  }
+  "packageManager": "pnpm@10.10.0"
 }
