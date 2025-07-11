@@ -86,7 +86,7 @@ function css(
     })
     .join(comments ? '\n\n' : '\n')
 
-  if (nestIn) cssContent += `\n}`
+  if (nestIn) cssContent += '\n}'
 
   return cssContent
 }
