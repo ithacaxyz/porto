@@ -17,6 +17,7 @@ import {
   setCode,
   signTypedData,
   waitForCallsStatus,
+  waitForTransactionReceipt,
 } from 'viem/actions'
 import { verifySiweMessage } from 'viem/siwe'
 import { describe, expect, test, vi } from 'vitest'
@@ -137,9 +138,8 @@ describe.each([
 
       expect(hash).toBeDefined()
 
-      await waitForCallsStatus(WalletClient.fromPorto(porto), {
-        id: hash,
-      })
+      const receipt = await waitForTransactionReceipt(client, { hash })
+      expect(receipt).toBeDefined()
 
       expect(
         await readContract(client, {

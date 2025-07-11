@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
+import { waitForCallsStatus } from 'viem/actions'
 import * as Porto_remote from '../../../remote/Porto.js'
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
@@ -694,7 +695,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl } = parameters
+        const { account, asTxHash, calls, internal, merchantRpcUrl } =
+          parameters
         const {
           config: { storage },
           client,
@@ -770,10 +772,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
               storage,
             })
 
-            const id = result[0]
-            if (!id) throw new Error('id not found')
+            const response = result[0]
+            if (!response) throw new Error('id not found')
 
-            return id
+            if (asTxHash) {
+              const { receipts } = await waitForCallsStatus(client, {
+                id: response.id,
+                pollingInterval: 500,
+              })
+              if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+              return {
+                id: receipts[0].transactionHash,
+              }
+            }
+
+            return response
           } catch {}
         }
 

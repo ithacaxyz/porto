@@ -249,6 +249,8 @@ export type Mode = {
     sendCalls: (parameters: {
       /** Account to execute the calls with. */
       account: Account.Account
+      /** Whether the returned bundle identifier is the transaction hash. */
+      asTxHash?: boolean | undefined
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
