@@ -205,14 +205,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                 return null
               }
             })()
-            if (!capabilities) return {}
             return {
               [chainId]: {
                 ...base,
-                feeToken: {
-                  supported: true,
-                  tokens: capabilities.fees.tokens,
-                },
+                ...(capabilities
+                  ? {
+                      feeToken: {
+                        supported: true,
+                        tokens: capabilities.fees.tokens,
+                      },
+                    }
+                  : {}),
               },
             } as const
           }),
@@ -829,6 +832,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
       },
     },
+    config: parameters,
     name: 'rpc',
   })
 }

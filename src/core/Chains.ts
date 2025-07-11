@@ -38,7 +38,10 @@ export const base = /*#__PURE__*/ define({
   },
   rpcUrls: {
     default: {
-      http: ['https://base-mainnet.rpc.ithaca.xyz'],
+      http: [
+        'https://base-mainnet.rpc.ithaca.xyz',
+        ...chains.base.rpcUrls.default.http,
+      ],
     },
   },
 })
@@ -53,7 +56,10 @@ export const baseSepolia = /*#__PURE__*/ define({
   },
   rpcUrls: {
     default: {
-      http: ['https://base-sepolia.rpc.ithaca.xyz'],
+      http: [
+        'https://base-sepolia.rpc.ithaca.xyz',
+        ...chains.baseSepolia.rpcUrls.default.http,
+      ],
     },
   },
 })

@@ -180,6 +180,7 @@ export function unstable_create(
           host: 'https://id.porto.sh/dialog',
         })
       : rpcServer(),
+    storageKey: 'prod.porto.store',
     transports: {
       [Chains.base.id]: http(),
     },

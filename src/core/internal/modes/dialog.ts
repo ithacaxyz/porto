@@ -930,6 +930,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return await provider.request(request)
       },
     },
+    config: parameters,
     name: 'dialog',
     setup(parameters) {
       const { internal } = parameters

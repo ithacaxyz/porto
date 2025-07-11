@@ -51,10 +51,12 @@ export function fromPorto<
       ].join('\n'),
     )
 
-  const transport =
-    (config_.transports as Record<number, Transport>)[chain.id] ??
-    fallback(chain.rpcUrls.default.http.map((url) => http(url)))
-  if (!transport) throw new Error('transport not found.')
+  const transport = fallback(
+    [
+      (config_.transports as Record<number, Transport>)[chain.id],
+      ...chain.rpcUrls.default.http.map((url) => http(url)),
+    ].filter(Boolean) as Transport[],
+  )
 
   const key = [id, Json.stringify(chain)].filter(Boolean).join(':')
   if (clientCache.has(key)) return clientCache.get(key)!
