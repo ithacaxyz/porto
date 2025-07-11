@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "export:to-styles": "./export-theme.ts --as tailwind > ../~internal/styles/porto-theme.css"
+    "export:to-styles": "./export-theme.ts --as tailwind --out ../~internal/styles/porto-theme.css --no-confirm",
+    "watch-export:to-styles": "./export-theme.ts --as tailwind --out ../~internal/styles/porto-theme.css --no-confirm --watch"
   },
   "devDependencies": {
     "@types/bun": "^1.2.15",
