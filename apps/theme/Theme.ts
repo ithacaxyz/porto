@@ -1,18 +1,4 @@
-export type Color = `#${string}` | 'transparent'
-export function isColor(value: unknown): value is Color {
-  return (
-    typeof value === 'string' &&
-    (value === 'transparent' ||
-      /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(value))
-  )
-}
-
-export type CombinedColor = [light: Color, dark: Color]
-export function isCombinedColor(value: unknown): value is CombinedColor {
-  return Array.isArray(value) && value.length === 2 && value.every(isColor)
-}
-
-type ThemeColorScheme = 'light' | 'dark' | 'light dark'
+export type ThemeColorScheme = 'light' | 'dark' | 'light dark'
 
 export type Theme<
   ColorScheme extends ThemeColorScheme,
@@ -42,13 +28,27 @@ export type Theme<
   negativeContent: SchemeColor
 }
 
+export type ThemeFragment =
+  | PartialTheme<Theme<'light'>>
+  | PartialTheme<Theme<'dark'>>
+  | PartialTheme<Theme<'light dark'>>
+
 type PartialTheme<Th extends Theme<ThemeColorScheme>> = Partial<
   Omit<Th, 'colorScheme'>
 > & {
   colorScheme: Th['colorScheme']
 }
 
-export type ThemeFragment =
-  | PartialTheme<Theme<'light'>>
-  | PartialTheme<Theme<'dark'>>
-  | PartialTheme<Theme<'light dark'>>
+export type Color = `#${string}` | 'transparent'
+export function isColor(value: unknown): value is Color {
+  return (
+    typeof value === 'string' &&
+    (value === 'transparent' ||
+      /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(value))
+  )
+}
+
+export type CombinedColor = [light: Color, dark: Color]
+export function isCombinedColor(value: unknown): value is CombinedColor {
+  return Array.isArray(value) && value.length === 2 && value.every(isColor)
+}

@@ -60,56 +60,71 @@ function camelCaseToKebabCase(str: string): string {
   return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 }
 
-function tailwind(theme: typeof portoTheme, descriptions: boolean) {
-  return `/* ${GENERATED_BY} */
-@theme {
-${Object.entries(cssVars(theme, '--color-th_'))
-  .map(([key, { value, description }]) => {
-    return (
-      (descriptions && description ? `  /* ${description} */\n` : '') +
-      `  ${key}: ${value};`
-    )
-  })
-  .join(descriptions ? '\n\n' : '\n')}
-}`
+function css(
+  theme: typeof portoTheme,
+  {
+    comments,
+    nestIn,
+    prefix = '',
+  }: {
+    comments?: boolean
+    nestIn?: string
+    prefix?: string
+  } = {},
+) {
+  const padding = nestIn ? '  ' : ''
+
+  let cssContent = `/* ${GENERATED_BY} */\n`
+
+  if (nestIn) cssContent += `\n${nestIn} {\n`
+  cssContent += Object.entries(cssVars(theme, prefix))
+    .map(([key, { value, description }]) => {
+      return (
+        (comments && description ? `${padding}/* ${description} */\n` : '') +
+        `${padding}${key}: ${value};`
+      )
+    })
+    .join(comments ? '\n\n' : '\n')
+
+  if (nestIn) cssContent += `\n}`
+
+  return cssContent
 }
 
 const formatExporters = {
-  css() {
-    return ''
+  css(theme) {
+    return css(theme, {
+      comments: false,
+      nestIn: ':root',
+      prefix: '--color-',
+    })
   },
-  css_in_json(theme) {
-    return JSON.stringify(cssVars(theme), null, 2)
+  css_commented(theme) {
+    return css(theme, {
+      comments: true,
+      nestIn: ':root',
+      prefix: '--color-',
+    })
   },
   json(theme) {
-    return JSON.stringify(cssVars(theme), null, 2)
-  },
-  stylex(theme) {
-    const vars: Record<`--${string}`, string | number> = {}
-    for (const [key, value] of Object.entries(theme)) {
-      if (
-        key === 'colorScheme' ||
-        key.endsWith('Description') ||
-        value === null
-      )
-        continue
-
-      vars[`--${camelCaseToKebabCase(key)}`] = isCombinedColor(value)
-        ? `light-dark(${pxValue(value[0])}, ${pxValue(value[1])})`
-        : pxValue(value)
-    }
-
-    return `// ${GENERATED_BY}
-
-import * as stylex from '@stylexjs/stylex'
-
-export const theme = stylex.create(${JSON.stringify({ vars }, null, 2)});`
+    const themeOnly = Object.fromEntries(
+      Object.entries(theme).filter(([key]) => !key.endsWith('Description')),
+    )
+    return JSON.stringify(themeOnly, null, 2)
   },
   tailwind(theme) {
-    return tailwind(theme, false)
+    return css(theme, {
+      comments: false,
+      nestIn: '@theme',
+      prefix: '--color-th_',
+    })
   },
-  tailwind_desc(theme) {
-    return tailwind(theme, true)
+  tailwind_commented(theme) {
+    return css(theme, {
+      comments: true,
+      nestIn: '@theme',
+      prefix: '--color-th_',
+    })
   },
 } satisfies Record<string, (theme: typeof portoTheme) => string>
 
