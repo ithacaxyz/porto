@@ -333,6 +333,12 @@ export function popup() {
         if (popup) handleBlur(store)
       }
 
+      setInterval(() => {
+        if (popup?.closed) {
+          handleBlur(store);
+        }
+      }, 100);
+      
       let messenger: Messenger.Bridge | undefined
 
       return {
