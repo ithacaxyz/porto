@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.52
+
+### Patch Changes
+
+- [#585](https://github.com/ithacaxyz/porto/pull/585) [`cd56a7b`](https://github.com/ithacaxyz/porto/commit/cd56a7b4c622ef421ebe2d26ac606867d9d85827) Thanks [@jxom](https://github.com/jxom)! - Fixed decoding of `wallet_prepareCalls` response in `Mode.dialog`.
+
+- [#583](https://github.com/ithacaxyz/porto/pull/583) [`fc4b9df`](https://github.com/ithacaxyz/porto/commit/fc4b9dfbcf7ec18808143095155a8fe1534f1b76) Thanks [@o-az](https://github.com/o-az)! - Made CLI terminate by dynamically importing commands.
+
 ## 0.0.51
 
 ### Patch Changes
