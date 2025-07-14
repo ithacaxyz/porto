@@ -1,6 +1,6 @@
 import * as Ariakit from '@ariakit/react'
 import { Button } from '@porto/apps/components'
-import { exp1Config } from '@porto/apps/contracts'
+import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
@@ -240,6 +240,7 @@ export function AddFunds(props: AddFunds.Props) {
       <DepositCryptoView
         address={address}
         loading={loading}
+        onApprove={onApprove}
         onBack={() => setView('default')}
       />
     )
@@ -295,7 +296,7 @@ export declare namespace AddFunds {
 }
 
 function DepositCryptoView(props: DepositCryptoView.Props) {
-  const { address, loading, onBack } = props
+  const { address, loading, onBack, onApprove } = props
 
   const chain = Hooks.useChain(porto)
 
@@ -316,7 +317,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
   })
 
   useWatchContractEvent({
-    abi: exp1Config.abi,
+    abi: erc20Abi,
     args: {
       to: address,
     },
@@ -324,7 +325,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
     onLogs: (events) => {
       for (const event of events) {
         if (tokens?.includes(event.address.toLowerCase()))
-          Actions.rejectAll(porto)
+          onApprove({ id: event.transactionHash })
       }
     },
   })
@@ -407,5 +408,6 @@ export declare namespace DepositCryptoView {
     address: Address.Address | undefined
     loading: boolean
     onBack: () => void
+    onApprove: (result: { id: Hex.Hex }) => void
   }
 }
