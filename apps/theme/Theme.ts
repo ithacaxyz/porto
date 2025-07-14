@@ -21,10 +21,11 @@ export type Theme<
   colorScheme: ColorScheme
 
   focus: SchemeColor
+  link: SchemeColor
 
   baseBackground: SchemeColor
-  baseContent: SchemeColor
   baseBorder: SchemeColor
+  baseContent: SchemeColor
   baseHoveredBackground: SchemeColor
 
   primaryBackground: SchemeColor

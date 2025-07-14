@@ -66,7 +66,7 @@ export function SignUp(props: SignUp.Props) {
         </Layout.Footer.Actions>
 
         <button
-          className="flex w-full cursor-pointer items-center justify-between border-primary border-t p-3 pb-0"
+          className="flex w-full cursor-pointer items-center justify-between border-th_base border-t p-3 pb-0"
           onClick={() => setShowLearn(true)}
           type="button"
         >

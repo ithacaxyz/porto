@@ -17,7 +17,7 @@ export function Permissions(props: Permissions.Props) {
       {title && (
         <div className="flex items-center gap-3 text-[13px] text-secondary">
           <span>{title}</span>
-          <div className="h-px flex-1 border-primary border-t" />
+          <div className="h-px flex-1 border-th_base border-t" />
         </div>
       )}
       <div className="divide-y divide-[color:var(--border-color-primary)]">
@@ -86,7 +86,7 @@ function SpendPermission(props: SpendPermission.Props) {
       </div>
       <div>
         Spend up to{' '}
-        <span className="font-medium text-primary">
+        <span className="font-medium text-th_base">
           {isLoading ? '' : displayAmount} {symbol.data ?? 'ETH'}
         </span>{' '}
         per {period}

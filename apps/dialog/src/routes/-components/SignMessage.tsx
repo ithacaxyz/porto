@@ -29,7 +29,7 @@ export function SignMessage(props: SignMessage.Props) {
             Message
           </div>
           <div className="max-h-[160px] overflow-auto px-3 pb-2">
-            <pre className="whitespace-pre-wrap font-sans text-[14px] text-primary">
+            <pre className="whitespace-pre-wrap font-sans text-[14px] text-th_base">
               {message}
             </pre>
           </div>

@@ -42,16 +42,17 @@ export namespace Button {
         },
         variant: {
           accent:
-            'border border-accent bg-accent text-white hover:not-active:border-accentHover hover:not-active:bg-accentHover',
+            'border border-th_primary bg-th_primary text-th_primary hover:not-active:border-th_primary-hovered hover:not-active:bg-th_primary-hovered',
           default:
-            'border border-surface bg-surface text-primary text-surface hover:not-active:bg-surfaceHover',
+            'border border-surface bg-surface text-th_base hover:not-active:bg-surfaceHover',
           destructive:
             'bg-destructive text-destructive hover:not-active:bg-destructiveHover',
           invert: 'bg-invert text-invert hover:not-active:bg-invertHover',
           outline:
-            'border border-gray6 bg-transparent text-primary hover:not-active:bg-primaryHover',
+            'border border-gray6 bg-transparent text-th_base hover:not-active:bg-th_base-hovered',
+          primary:
+            'border border-th_primary bg-th_primary text-th_primary hover:not-active:border-th_primary-hovered hover:not-active:bg-th_primary-hovered',
           success: 'bg-success text-white hover:not-active:bg-successHover',
-          violet: 'bg-violet text-white hover:not-active:bg-violetHover',
           warning: 'bg-warning text-white hover:not-active:bg-warningHover',
         },
       },

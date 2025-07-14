@@ -396,7 +396,7 @@ export namespace ActionRequest {
         {(() => {
           if (error)
             return (
-              <div className="space-y-2 text-[14px] text-primary">
+              <div className="space-y-2 text-[14px] text-th_base">
                 <p className="font-medium text-warning">Error</p>
                 <p>{errorMessage}</p>
                 <p>Details: {(error as any).shortMessage ?? error.message}</p>

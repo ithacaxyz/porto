@@ -136,7 +136,7 @@ export function AddFunds(props: AddFunds.Props) {
                       {presetAmounts.map((predefinedAmount) => (
                         // biome-ignore lint/a11y/noLabelWithoutControl: _
                         <label
-                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-th_base"
                           key={predefinedAmount}
                         >
                           <Ariakit.VisuallyHidden>
@@ -149,7 +149,7 @@ export function AddFunds(props: AddFunds.Props) {
                   </Ariakit.RadioProvider>
                 )}
                 <Ariakit.Button
-                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-th_base"
                   onClick={() =>
                     setEditView(editView === 'default' ? 'editing' : 'default')
                   }
@@ -257,7 +257,7 @@ export function AddFunds(props: AddFunds.Props) {
         </Layout.Header>
 
         <Layout.Content className="px-1">
-          <p className="text-primary">Your deposit was cancelled or failed.</p>
+          <p className="text-th_base">Your deposit was cancelled or failed.</p>
           <p className="text-secondary">No funds have been deposited.</p>
         </Layout.Content>
 

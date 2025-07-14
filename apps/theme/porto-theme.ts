@@ -12,6 +12,20 @@ export type PortoTheme = Pick<CombinedTheme, 'colorScheme'> & {
 }
 
 export const portoTheme: PortoTheme = {
+  colorScheme: 'light dark',
+
+  focus: [
+    'Focus ring color. Used for keyboard navigation and input fields.',
+    '#F0F',
+    '#eee',
+  ],
+
+  link: [
+    'Link color. Used for hyperlinks and interactive text elements.',
+    '#0588f0',
+    '#3b9eff',
+  ],
+
   baseBackground: [
     'Base background color. Used for the main dialog background and other large areas.',
     '#fcfcfc',
@@ -35,7 +49,6 @@ export const portoTheme: PortoTheme = {
     '#f0f0f0',
     '#222222',
   ],
-  colorScheme: 'light dark',
 
   fieldBackground: [
     'Field background color. Used for input fields, text areas, some edit buttons, and other form elements.',
@@ -73,12 +86,6 @@ export const portoTheme: PortoTheme = {
     '#F0F',
   ],
 
-  focus: [
-    'Focus ring color. Used for keyboard navigation and input fields.',
-    '#F0F',
-    '#eee',
-  ],
-
   negativeBackground: [
     'Negative background color. Generally red, used for elements indicating error or negative state, such as a destructive action or an error message.',
     '#F0F',
@@ -109,25 +116,25 @@ export const portoTheme: PortoTheme = {
 
   primaryBorder: [
     'Primary border color. Used for borders around primary surfaces.',
-    '#0090ff',
-    '#0090ff',
+    '#e0e0e0',
+    '#2a2a2a',
   ],
 
   primaryContent: [
     'Primary content color. Used over primaryBackground for text and icons.',
-    '#F0F',
-    '#F0F',
+    '#FFF',
+    '#FFF',
   ],
 
   primaryHoveredBackground: [
     'Primary background color when hovered. Used for primary buttons and important interactive elements when hovered.',
-    '#F0F',
-    '#F0F',
+    '#058bf0',
+    '#3b9eff',
   ],
 
   primaryHoveredBorder: [
     'Primary border color when hovered. Used for borders around primary surfaces when hovered.',
-    '#F0F',
-    '#F0F',
+    '#058bf0',
+    '#3b9eff',
   ],
 } as const

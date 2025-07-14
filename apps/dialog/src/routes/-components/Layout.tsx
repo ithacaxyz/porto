@@ -60,12 +60,12 @@ export namespace Layout {
                 <Icon className="size-[18px] text-current" />
               </div>
             )}
-            <div className="font-medium text-[18px] text-primary">{title}</div>
+            <div className="font-medium text-[18px] text-th_base">{title}</div>
           </div>
           {(content || subContent) && (
             <div className="flex flex-col gap-0.5">
               {content && (
-                <div className="text-[15px] text-primary leading-[22px]">
+                <div className="text-[15px] text-th_base leading-[22px]">
                   {content}
                 </div>
               )}
@@ -99,7 +99,6 @@ export namespace Layout {
             variant: {
               default: 'bg-accentTint text-accent',
               destructive: 'bg-destructive text-destructive',
-              primary: 'bg-accentTint text-accent',
               success: 'bg-successTint text-success',
               warning: 'bg-warningTint text-warning',
             },
@@ -163,7 +162,7 @@ export namespace Layout {
       const { onClick } = props
       const address = Address.checksum(props.address)
       return (
-        <div className="flex h-full w-full items-center justify-between border-primary border-t px-3 pt-3">
+        <div className="flex h-full w-full items-center justify-between border-th_base border-t px-3 pt-3">
           <div className="text-[13px] text-secondary">Account</div>
 
           <button
@@ -173,7 +172,7 @@ export namespace Layout {
             type="button"
           >
             <div
-              className="font-medium text-[14px] text-primary"
+              className="font-medium text-[14px] text-th_base"
               title={address}
             >
               {StringFormatter.truncate(address, { end: 6, start: 8 })}

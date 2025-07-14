@@ -108,7 +108,7 @@ function RouteComponent() {
       <div
         data-dialog
         {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
-        className="border-primary contain-content data-popup-mobile:absolute data-popup-mobile:bottom-0 data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-mobile:w-full data-popup-standalone:max-w-[360px] data-popup-standalone:rounded-[14px] data-iframe:rounded-t-[14px] data-popup-mobile:rounded-t-[14px] data-iframe:border data-popup-mobile:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
+        className="border-th_base contain-content data-popup-mobile:absolute data-popup-mobile:bottom-0 data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-mobile:w-full data-popup-standalone:max-w-[360px] data-popup-standalone:rounded-[14px] data-iframe:rounded-t-[14px] data-popup-mobile:rounded-t-[14px] data-iframe:border data-popup-mobile:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
       >
         <TitleBar
           mode={mode}
@@ -118,7 +118,7 @@ function RouteComponent() {
         />
 
         <div
-          className="flex h-fit flex-col overflow-hidden bg-primary pt-titlebar"
+          className="flex h-fit flex-col overflow-hidden bg-th_base text-th_base pt-titlebar"
           ref={contentRef}
         >
           <div
@@ -333,7 +333,7 @@ function CheckUnsupportedBrowser(props: CheckUnsupportedBrowser.Props) {
     <p>
       Please switch to a{' '}
       <a
-        className="text-primary underline"
+        className="text-th_base underline"
         href="https://porto.sh/sdk/faq#which-browsers-are-supported"
         rel="noreferrer"
         target="_blank"

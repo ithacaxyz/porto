@@ -47,12 +47,12 @@ export function TitleBar(props: TitleBar.Props) {
 
   return (
     <header
-      className="fixed flex h-navbar w-full items-center justify-between gap-2 border-primary border-b bg-secondary px-3 pt-2 pb-1.5"
+      className="fixed flex h-navbar w-full items-center justify-between gap-2 border-th_base border-b bg-secondary px-3 pt-2 pb-1.5"
       ref={ref}
     >
       <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-gray6">
         {url?.startsWith('cli') ? (
-          <LucideTerminal className="size-3.5 text-primary" />
+          <LucideTerminal className="size-3.5 text-th_base" />
         ) : icon && url?.startsWith('http') ? (
           <div className="p-[3px]">
             {typeof icon === 'string' ? (
@@ -80,7 +80,7 @@ export function TitleBar(props: TitleBar.Props) {
             )}
           </div>
         ) : (
-          <LucideGlobe className="size-3.5 text-primary" />
+          <LucideGlobe className="size-3.5 text-th_base" />
         )}
       </div>
 
