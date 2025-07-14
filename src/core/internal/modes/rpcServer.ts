@@ -205,14 +205,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                 return null
               }
             })()
-            if (!capabilities) return {}
             return {
               [chainId]: {
                 ...base,
-                feeToken: {
-                  supported: true,
-                  tokens: capabilities.fees.tokens,
-                },
+                ...(capabilities
+                  ? {
+                      feeToken: {
+                        supported: true,
+                        tokens: capabilities.fees.tokens,
+                      },
+                    }
+                  : {}),
               },
             } as const
           }),
@@ -251,6 +254,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
         await waitForCallsStatus(client, {
           id,
+          pollingInterval: 500,
         })
 
         return { key: authorizeKey }
@@ -637,7 +641,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl } = parameters
+        const { account, asTxHash, calls, internal, merchantRpcUrl } =
+          parameters
         const {
           client,
           config: { storage },
@@ -679,6 +684,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           address: account.address,
           storage,
         })
+
+        if (asTxHash) {
+          const { receipts } = await waitForCallsStatus(client, {
+            id: result.id,
+            pollingInterval: 500,
+          })
+          if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+          return {
+            id: receipts[0].transactionHash,
+          }
+        }
 
         return result
       },
@@ -816,6 +832,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
       },
     },
+    config: parameters,
     name: 'rpc',
   })
 }

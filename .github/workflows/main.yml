@@ -1,0 +1,103 @@
+name: Main
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify
+    uses: ./.github/workflows/verify.yml
+    secrets: inherit
+
+  changesets:
+    name: Changesets
+    needs: verify
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      - name: Set up pnpm
+        uses: wevm/actions/.github/actions/pnpm@main
+
+      - name: PR or publish
+        id: changesets
+        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
+        with:
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
+          createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
+          publish: pnpm changeset:publish
+          version: pnpm changeset:version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Zip extension
+        run: |
+          pnpm --filter extension zip
+          pnpm --filter extension zip:firefox
+
+      - name: Upload artifacts
+        id: artifact-upload-step
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension
+          path: ./apps/extension/.output/*.zip
+          include-hidden-files: true
+          
+      - name: Update latest release with extension artifacts
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get the latest release
+            const { data: latestRelease } = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            // Get artifact URL from upload step
+            const artifactUrl = '${{ steps.artifact-upload-step.outputs.artifact-url }}';
+            
+            // Create extension section for release notes
+            const extensionSection = [
+              '\n\n### Extension',
+              '\n',
+              `[Download](${artifactUrl})`,
+              '\n',
+              '#### Setup Instructions',
+              '\n',
+              '1. Download the `extension.zip` asset from the link below',
+              '2. Unzip the downloaded file',
+              '3. Open your browser and navigate to extensions',
+              '4. Enable `Developer Mode` in the top right corner',
+              '5. Click `Load Unpacked` in the top left corner',
+              '6. Select the unzipped folder',
+              '7. Done!'
+            ].join('\n');
+
+            // Update release body (append to existing content)
+            const body = (latestRelease.body || '') + extensionSection;
+
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: latestRelease.id,
+              body
+            });
+      

@@ -3,6 +3,10 @@ on:
   workflow_call:
   workflow_dispatch:
     inputs:
+      porto-ref:
+        type: string
+        description: 'Porto ref'
+        default: ''
       contracts-ref:
         type: string
         description: 'Contracts ref'
@@ -14,9 +18,36 @@ on:
       relay-release:
         type: boolean
         description: 'Perform relay image build and push'
+        default: false
+      rpc-url:
+        type: string
+        description: 'RPC URL to use for tests'
+        default: 'https://porto-dev.rpc.ithaca.xyz'
+      dispatch-type:
+        type: choice
+        description: 'Dispatch type'
+        options:
+          - ''
+          - 'release'
+          - 'deployment'
+        default: ''
+      # Test selection inputs
+      test-local-browser:
+        type: boolean
+        description: 'Run Local Browser tests'
         default: true
-  repository_dispatch:
-    types: ['relay-release', 'relay-deployment']
+      test-local-node:
+        type: boolean
+        description: 'Run Local Node tests'
+        default: true
+      test-deployment-browser:
+        type: boolean
+        description: 'Run Deployment Browser tests'
+        default: false
+      test-deployment-node:
+        type: boolean
+        description: 'Run Deployment Node tests'
+        default: false
 
 env:
    ACTIONS_RUNNER_DEBUG: true
@@ -56,9 +87,19 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        # Only run deployment tests on main branch or when triggered by a repository dispatch, and also when a *-ref input is not provided.
-        local: ${{ fromJSON(((github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && (inputs.relay-ref == '' || inputs.contracts-ref == '')) && '["true", "false"]' || '["true"]') }}
-        browser: ['true', 'false']
+        include:
+          - local: 'true'
+            browser: 'true'
+            enabled: ${{ inputs.test-local-browser }}
+          - local: 'true'
+            browser: 'false'
+            enabled: ${{ inputs.test-local-node }}
+          - local: 'false'
+            browser: 'true'
+            enabled: ${{ inputs.test-deployment-browser }}
+          - local: 'false'
+            browser: 'false'
+            enabled: ${{ inputs.test-deployment-node }}
     env: 
       CI: true
       VITE_LOCAL: ${{ matrix.local }}
@@ -66,35 +107,51 @@ jobs:
       VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
       VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
-      VITE_DISPATCH_TYPE: ${{ github.event_name == 'repository_dispatch' && github.event.action || '' }}
+      VITE_DISPATCH_TYPE: ${{ inputs.dispatch-type }}
       VITE_RELAY_VERSION: ${{ needs.relay-release.outputs.relay_version || inputs.relay-ref }}
+      VITE_RPC_URL: ${{ inputs.rpc-url }}
 
     steps:
+      - name: Skip if not enabled
+        if: matrix.enabled != true
+        run: |
+          echo "Skipping this test configuration"
+          exit 0
       - name: Clone repository
+        if: matrix.enabled == true
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          ref: ${{ inputs.porto-ref }}
+
+      - name: Initialize submodules
+        if: matrix.enabled == true
+        run: |
+          git submodule update --init --recursive
+          # Configure submodules to fetch all refs
+          git submodule foreach 'git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'
+          git submodule foreach 'git fetch --tags'
 
       - name: Checkout contracts submodule at specific ref
-        if: inputs.contracts-ref != ''
+        if: matrix.enabled == true && inputs.contracts-ref != ''
         run: |
-          git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
           cd contracts/account
           git fetch origin ${{ inputs.contracts-ref }}
           git checkout ${{ inputs.contracts-ref }}
 
       - name: Install dependencies
+        if: matrix.enabled == true
         uses: ./.github/actions/install-dependencies
 
       - name: Set up Docker
-        if: matrix.local == 'true'
+        if: matrix.enabled == true && matrix.local == 'true'
         uses: docker/setup-docker-action@v4
 
       - name: Install Playwright
-        if: matrix.browser == 'true'
+        if: matrix.enabled == true && matrix.browser == 'true'
         run: pnpx playwright@1.53.0 install --with-deps
 
       - name: Test
+        if: matrix.enabled == true
         uses: nick-fields/retry@v3
         with:
           max_attempts: 3

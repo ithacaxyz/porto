@@ -5,7 +5,15 @@ import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
 import * as RpcServer from './rpcServer.js'
 
-export const chain = Anvil.enabled ? Chains.anvil : Chains.portoDev
+// Determine which chain to use based on RPC URL
+const rpcUrl = process.env.VITE_RPC_URL || 'https://porto-dev.rpc.ithaca.xyz'
+export const chain = Anvil.enabled
+  ? Chains.anvil
+  : rpcUrl === 'https://base-sepolia.rpc.ithaca.xyz'
+    ? Chains.baseSepolia
+    : rpcUrl === 'https://base-mainnet.rpc.ithaca.xyz'
+      ? Chains.base
+      : Chains.portoDev
 
 export const exp1Address = Contracts.exp1Address[chain.id]
 export const exp1Abi = Contracts.exp1Abi
@@ -33,7 +41,7 @@ export function getPorto(
     merchantRpcUrl,
     rpcUrl = Anvil.enabled
       ? RpcServer.instances.portoDev.rpcUrl
-      : 'https://porto-dev.rpc.ithaca.xyz',
+      : process.env.VITE_RPC_URL || 'https://porto-dev.rpc.ithaca.xyz',
   } = parameters
   const porto = Porto.create({
     chains: [chain],

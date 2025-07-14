@@ -2,7 +2,6 @@ import { Env } from '@porto/apps'
 
 export function enableOnramp() {
   const dialogSearchParams = new URLSearchParams(window.location.search)
-  console.info(dialogSearchParams.toString())
   const onrampEnabled = dialogSearchParams.get('onramp') === 'true'
 
   return Env.get() === 'prod' || onrampEnabled

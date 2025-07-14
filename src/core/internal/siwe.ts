@@ -12,6 +12,7 @@ export async function authenticate(parameters: authenticate.Parameters) {
       message,
       signature,
     }),
+    credentials: 'include',
     method: 'POST',
   }).then((response) => response.headers.get('x-siwe-token') ?? undefined)
 }

@@ -99,6 +99,7 @@ describe('fromPorto', () => {
             "default": {
               "http": [
                 "https://base-sepolia.rpc.ithaca.xyz",
+                "https://sepolia.base.org",
               ],
             },
           },

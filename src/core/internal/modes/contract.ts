@@ -614,6 +614,7 @@ export function contract(parameters: contract.Parameters = {}) {
         throw new Provider.UnsupportedMethodError()
       },
     },
+    config: parameters,
     name: 'contract',
   })
 }

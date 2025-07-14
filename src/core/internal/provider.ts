@@ -191,6 +191,7 @@ export function from<
 
           const { id } = await getMode().actions.sendCalls({
             account,
+            asTxHash: true,
             calls: [
               {
                 data,

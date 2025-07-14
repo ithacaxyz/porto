@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
+import { waitForCallsStatus } from 'viem/actions'
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
 import * as ServerClient from '../../../viem/ServerClient.js'
@@ -19,9 +20,11 @@ import type * as FeeToken from '../schema/feeToken.js'
 import * as Schema from '../schema/schema.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
+import { rpcServer } from './rpcServer.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
+    fallback = rpcServer(),
     host = 'https://stg.id.porto.sh/dialog',
     renderer = Dialog.iframe(),
   } = parameters
@@ -263,6 +266,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_getAccountVersion')
           throw new Error('Cannot get version for method: ' + request.method)
 
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getAccountVersion(parameters)
+
         const provider = getProvider(store)
         const result = await provider.request(request)
         return result
@@ -274,6 +280,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method !== 'wallet_getCallsStatus')
           throw new Error('Cannot get status for method: ' + request.method)
+
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getCallsStatus(parameters)
 
         const provider = getProvider(store)
         const result = await provider.request(request)
@@ -289,6 +298,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot get capabilities for method: ' + request.method,
           )
 
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getCapabilities(parameters)
+
         const provider = getProvider(store)
         const result = await provider.request(request)
         return result
@@ -298,19 +310,24 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { account, internal } = parameters
         const { store } = internal
 
-        const provider = getProvider(store)
-        const result = await provider.request({
-          method: 'wallet_getKeys',
-          params: [
-            {
-              address: account.address,
-            },
-          ],
-        })
+        const keys = await (async () => {
+          if (!renderer.supportsHeadless)
+            return fallback.actions.getKeys(parameters)
 
-        const keys = Schema.decodeSync(RpcSchema_porto.wallet_getKeys.Response)(
-          result,
-        )
+          const provider = getProvider(store)
+          const result = await provider.request({
+            method: 'wallet_getKeys',
+            params: [
+              {
+                address: account.address,
+              },
+            ],
+          })
+
+          return Schema.decodeSync(RpcSchema_porto.wallet_getKeys.Response)(
+            result,
+          )
+        })()
 
         return U.uniqBy(
           [...(account.keys ?? []), ...keys],
@@ -522,6 +539,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_prepareCalls')
           throw new Error('Cannot prepare calls for method: ' + request.method)
 
+        if (!renderer.supportsHeadless)
+          return fallback.actions.prepareCalls(parameters)
+
         const feeToken = await resolveFeeToken(internal, parameters)
 
         const preCalls = await PreCalls.get({
@@ -562,6 +582,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
           throw new Error(
             'Cannot prepare upgrade for method: ' + request.method,
           )
+
+        if (!renderer.supportsHeadless)
+          return fallback.actions.prepareUpgradeAccount(parameters)
 
         // Extract the capabilities from the request.
         const [{ capabilities }] = request._decoded.params ?? [{}]
@@ -666,7 +689,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl } = parameters
+        const { account, asTxHash, calls, internal, merchantRpcUrl } =
+          parameters
         const {
           config: { storage },
           client,
@@ -694,6 +718,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // without sending a request to the dialog. If the key does not
         // have permission to execute the calls, fall back to the dialog.
         if (key && key.role === 'session') {
+          if (!renderer.supportsHeadless)
+            return fallback.actions.sendCalls(parameters)
+
           try {
             // TODO: use eventual Viem Action.
             const req = await provider.request(
@@ -739,10 +766,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
               storage,
             })
 
-            const id = result[0]
-            if (!id) throw new Error('id not found')
+            const response = result[0]
+            if (!response) throw new Error('id not found')
 
-            return id
+            if (asTxHash) {
+              const { receipts } = await waitForCallsStatus(client, {
+                id: response.id,
+                pollingInterval: 500,
+              })
+              if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+              return {
+                id: receipts[0].transactionHash,
+              }
+            }
+
+            return response
           } catch {}
         }
 
@@ -810,6 +848,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
           throw new Error(
             'Cannot send prepared calls for method: ' + request.method,
           )
+
+        if (!renderer.supportsHeadless)
+          return fallback.actions.sendPreparedCalls(parameters)
 
         const provider = getProvider(store)
         const result = await provider.request(request)
@@ -889,6 +930,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return await provider.request(request)
       },
     },
+    config: parameters,
     name: 'dialog',
     setup(parameters) {
       const { internal } = parameters
@@ -947,6 +989,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
 export declare namespace dialog {
   type Parameters = {
+    /**
+     * Mode to fall back to if the renderer does not support background
+     * operations (e.g. popups and web views).
+     *
+     * @default `Mode.rpcServer()`
+     */
+    fallback?: Mode.Mode | undefined
     /**
      * URL of the dialog embed.
      * @default 'http://stg.id.porto.sh/dialog'

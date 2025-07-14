@@ -14,7 +14,7 @@ import type * as PreCalls from './preCalls.js'
 import type * as Capabilities from './schema/capabilities.js'
 import type * as FeeToken from './schema/feeToken.js'
 import type * as RpcRequest from './schema/request.js'
-import type { PartialBy } from './types.js'
+import type { Assign, PartialBy } from './types.js'
 
 type Request = RpcRequest.parseRequest.ReturnType
 
@@ -249,6 +249,8 @@ export type Mode = {
     sendCalls: (parameters: {
       /** Account to execute the calls with. */
       account: Account.Account
+      /** Whether the returned bundle identifier is the transaction hash. */
+      asTxHash?: boolean | undefined
       /** Calls to execute. */
       calls: readonly Call.Call[]
       /** Fee token to use for execution. If not provided, the native token (e.g. ETH) will be used. */
@@ -333,6 +335,7 @@ export type Mode = {
       internal: ActionsInternal
     }) => Promise<null>
   }
+  config?: unknown | undefined
   name: string
   setup: (parameters: {
     /** Internal properties. */
@@ -346,13 +349,13 @@ export type Mode = {
  * @param mode - Mode.
  * @returns Mode.
  */
-export function from<const _mode extends from.Parameters>(
-  mode: from.Parameters,
-): Mode {
+export function from<const mode extends from.Parameters>(
+  mode: mode | from.Parameters,
+): Assign<Mode, mode> {
   return {
     ...mode,
     setup: mode.setup ?? (() => () => {}),
-  }
+  } as never
 }
 
 export declare namespace from {

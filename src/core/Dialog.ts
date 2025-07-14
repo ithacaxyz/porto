@@ -15,6 +15,7 @@ export type Dialog = {
     open: (parameters: any) => void
     syncRequests: (requests: readonly QueuedRequest[]) => Promise<void>
   }
+  supportsHeadless: boolean
 }
 
 /**
@@ -291,6 +292,7 @@ export function iframe(options: iframe.Options = {}) {
         },
       }
     },
+    supportsHeadless: true,
   })
 }
 
@@ -391,6 +393,7 @@ export function popup() {
         },
       }
     },
+    supportsHeadless: false,
   })
 }
 
@@ -410,6 +413,7 @@ export function noop() {
         async syncRequests() {},
       }
     },
+    supportsHeadless: true,
   })
 }
 
@@ -506,6 +510,7 @@ export function experimental_inline(options: inline.Options) {
         },
       }
     },
+    supportsHeadless: true,
   })
 }
 
