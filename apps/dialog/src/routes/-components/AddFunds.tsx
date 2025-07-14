@@ -5,10 +5,9 @@ import { useCopyToClipboard } from '@porto/apps/hooks'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { type Address, Hex, Value } from 'ox'
-import { Hooks } from 'porto/remote'
+import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
-import { zeroAddress } from 'viem'
-import { useBalance, useReadContracts, useWatchBlockNumber } from 'wagmi'
+import { useWatchContractEvent } from 'wagmi'
 import { PayButton } from '~/components/PayButton'
 import * as FeeToken from '~/lib/FeeToken'
 import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp'
@@ -301,32 +300,9 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
   const chain = Hooks.useChain(porto)
 
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
-  const [depositText, setDepositText] =
-    React.useState<string>('Awaiting deposit…')
-
-  const { data: balance, ...nativeBalance } = useBalance({
-    address: address!,
-    chainId: chain?.id!,
-    query: {
-      enabled: !!address && !!chain,
-    },
-  })
-
-  React.useEffect(() => {
-    if (typeof balance === 'undefined' || balance.value === 0n) return
-    if (balance) {
-      setDepositText(
-        `${ValueFormatter.format(balance.value)} ${balance.symbol} has been added to your account.`,
-      )
-    }
-  }, [balance])
 
   const serverClient = Hooks.useWalletClient(porto)
-  const {
-    data: tokens,
-    isLoading: isLoadingTokens,
-    error: errorTokens,
-  } = useQuery({
+  const { data: tokens } = useQuery({
     queryFn: async () => {
       const chainId = Hex.fromNumber(chain?.id!)
       const response = await serverClient.request({
@@ -336,76 +312,26 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
       return response[chainId]?.feeToken.tokens
     },
     queryKey: ['capabilities'],
-    select: (data) => data?.filter((token) => token.address !== zeroAddress),
+    select: (data) => data?.map((token) => token.address.toLowerCase()),
   })
 
-  /**
-   * we want to watch balance and show UI change when deposit has arrives
-   */
-
-  const balancesMap = new Map<
-    Address.Address,
-    { lastUpdated?: string | undefined; balance: bigint }
-  >()
-
-  const { data: balances, ...readBalances } = useReadContracts({
-    account: address!,
-    contracts: tokens?.map((token) => ({
-      abi: exp1Config.abi,
-      address: token.address,
-      args: [address!],
-      functionName: 'balanceOf',
-    })),
-    query: {
-      enabled: !!address && !Array.isArray(tokens),
-      select: (data) => {
-        for (let index = 0; index < data.length; index++) {
-          const datum = data[index]
-          if (datum?.status !== 'success') continue
-          const lastBalance = balancesMap.get(tokens![index]!.address!)?.balance
-          const currentBalance = datum.result ? BigInt(datum.result) : 0n
-          if (currentBalance === 0n) continue
-
-          balancesMap.set(tokens![index]!.address!, {
-            balance: currentBalance,
-            lastUpdated:
-              lastBalance !== currentBalance
-                ? new Date().toISOString()
-                : undefined,
-          })
-        }
-        return balancesMap
-      },
+  useWatchContractEvent({
+    abi: exp1Config.abi,
+    args: {
+      to: address,
+    },
+    eventName: 'Transfer',
+    onLogs: (events) => {
+      for (const event of events) {
+        if (tokens?.includes(event.address.toLowerCase()))
+          Actions.rejectAll(porto)
+      }
     },
   })
-
-  console.info(balances)
-
-  useWatchBlockNumber({
-    onBlockNumber: async () =>
-      await Promise.all([nativeBalance.refetch(), readBalances.refetch()]),
-  })
-
-  React.useEffect(() => {
-    if (typeof balances === 'undefined') return
-    if (balances.size === 0) return
-
-    for (const [tokenAddress, { lastUpdated, balance }] of balances.entries()) {
-      console.info(tokenAddress, lastUpdated, balance)
-      if (lastUpdated) {
-        setDepositText(
-          `${ValueFormatter.format(balance)} ${tokenAddress} has been added to your account.`,
-        )
-      }
-    }
-  }, [balances])
 
   return (
     <Layout loading={loading} loadingTitle="Adding funds...">
       <Layout.Content className="py-3 text-center">
-        <p className="mt-0.5 mb-2.5 text-pretty text-gray10 text-md">
-          {depositText}
-        </p>
         <Ariakit.Button
           className="mx-auto flex h-[148px] items-center justify-center gap-4 rounded-lg border border-surface bg-secondary p-4 hover:cursor-pointer!"
           onClick={() => copyToClipboard(address ?? '')}
@@ -447,28 +373,14 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
           </Button>
         </Layout.Footer.Actions>
 
-        {/* {chain && (
+        {chain && (
           <div className="px-3 text-center text-secondary text-sm">
-            Only send assets on {chain.name}. Support for more networks
-            soon.
+            Only send assets on {chain.name}. Support for more networks soon.
           </div>
-        )} */}
+        )}
       </Layout.Footer>
     </Layout>
   )
-}
-
-namespace ValueFormatter {
-  const numberIntl = new Intl.NumberFormat('en-US', {
-    maximumSignificantDigits: 4,
-  })
-
-  export function format(num: bigint | number | undefined, units = 18) {
-    if (!num) return '0'
-    return numberIntl.format(
-      typeof num === 'bigint' ? Number(Value.format(num, units)) : num,
-    )
-  }
 }
 
 export declare namespace DepositCryptoView {
