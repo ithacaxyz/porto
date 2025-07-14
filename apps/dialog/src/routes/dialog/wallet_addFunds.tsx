@@ -1,4 +1,4 @@
-import { CatchBoundary, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { Actions } from 'porto/remote'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
@@ -18,21 +18,12 @@ function RouteComponent() {
   const { address, token, value } = request._decoded.params[0]
 
   return (
-    <CatchBoundary
-      getResetKey={() => 'wallet_addFunds'}
-      onCatch={(error) => {
-        console.info('---------wallet_addFunds-----------')
-
-        console.error(error)
-      }}
-    >
-      <AddFunds
-        address={address}
-        onApprove={(result) => Actions.respond(porto, request!, { result })}
-        onReject={() => Actions.reject(porto, request)}
-        tokenAddress={token}
-        value={value}
-      />
-    </CatchBoundary>
+    <AddFunds
+      address={address}
+      onApprove={(result) => Actions.respond(porto, request!, { result })}
+      onReject={() => Actions.reject(porto, request)}
+      tokenAddress={token}
+      value={value}
+    />
   )
 }
