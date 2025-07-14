@@ -19,5 +19,8 @@
   "placement": {
     "mode": "smart"
   },
+  "vars": {
+    "VERIFY_CONFIG_URL": "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/refs/heads/main/src/config.json"
+  },
   "workers_dev": true
 }
