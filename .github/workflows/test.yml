@@ -25,7 +25,7 @@ on:
         default: 'https://porto-dev.rpc.ithaca.xyz'
       dispatch-type:
         type: choice
-        description: 'Dispatch type for VITE environment'
+        description: 'Dispatch type'
         options:
           - ''
           - 'release'
