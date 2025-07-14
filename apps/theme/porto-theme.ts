@@ -12,20 +12,6 @@ export type PortoTheme = Pick<CombinedTheme, 'colorScheme'> & {
 }
 
 export const portoTheme: PortoTheme = {
-  colorScheme: 'light dark',
-
-  focus: [
-    'Focus ring color. Used for keyboard navigation and input fields.',
-    '#F0F',
-    '#eee',
-  ],
-
-  link: [
-    'Link color. Used for hyperlinks and interactive text elements.',
-    '#0588f0',
-    '#3b9eff',
-  ],
-
   baseBackground: [
     'Base background color. Used for the main dialog background and other large areas.',
     '#fcfcfc',
@@ -49,6 +35,7 @@ export const portoTheme: PortoTheme = {
     '#f0f0f0',
     '#222222',
   ],
+  colorScheme: 'light dark',
 
   fieldBackground: [
     'Field background color. Used for input fields, text areas, some edit buttons, and other form elements.',
@@ -84,6 +71,18 @@ export const portoTheme: PortoTheme = {
     'Field content color when focused. Used over fieldFocusedBackground for text and icons in focused input fields.',
     '#F0F',
     '#F0F',
+  ],
+
+  focus: [
+    'Focus ring color. Used for keyboard navigation and input fields.',
+    '#F0F',
+    '#eee',
+  ],
+
+  link: [
+    'Link color. Used for hyperlinks and interactive text elements.',
+    '#0588f0',
+    '#3b9eff',
   ],
 
   negativeBackground: [
