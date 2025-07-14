@@ -21,17 +21,12 @@ import {
 import { DevOnly } from '~/components/DevOnly'
 import { ShowMore } from '~/components/ShowMore'
 import { TruncatedAddress } from '~/components/TruncatedAddress'
-import { useAddressTransfers } from '~/hooks/useBlockscoutApi'
 import { useClickOutside } from '~/hooks/useClickOutside'
+import { useReadBalances } from '~/hooks/useReadBalances'
 import { useSwapAssets } from '~/hooks/useSwapAssets'
 import { useErc20Info, useErc721Info } from '~/hooks/useTokenInfo'
 import { useTokenStandard } from '~/hooks/useTokenStandard'
-import {
-  ArrayUtils,
-  DateFormatter,
-  StringFormatter,
-  ValueFormatter,
-} from '~/utils'
+import { DateFormatter, StringFormatter, ValueFormatter } from '~/utils'
 import LucideBadgeCheck from '~icons/lucide/badge-check'
 import ClipboardCopyIcon from '~icons/lucide/clipboard-copy'
 import CopyIcon from '~icons/lucide/copy'
@@ -43,7 +38,6 @@ import LucideShieldCheck from '~icons/lucide/shield-check'
 import LucideTriangleAlert from '~icons/lucide/triangle-alert'
 import WalletIcon from '~icons/lucide/wallet-cards'
 import XIcon from '~icons/lucide/x'
-import AccountIcon from '~icons/material-symbols/account-circle-full'
 import NullIcon from '~icons/material-symbols/do-not-disturb-on-outline'
 import WorldIcon from '~icons/tabler/world'
 import { Layout } from './Layout'
@@ -89,16 +83,14 @@ export function Dashboard() {
   const disconnect = useDisconnect()
   const permissions = Hooks.usePermissions()
 
-  const addressTransfers = useAddressTransfers({ chainId })
-  const swapAssets = useSwapAssets({ chainId })
+  const balances = useReadBalances({ chainId })
 
   useWatchBlockNumber({
     enabled: account.status === 'connected',
     onBlockNumber: async (_blockNumber) => {
       await Promise.all([
-        swapAssets.refetch().catch((error) => console.error(error)),
         permissions.refetch().catch((error) => console.error(error)),
-        addressTransfers.refetch().catch((error) => console.error(error)),
+        balances.refetch().catch((error) => console.error(error)),
       ])
     },
     pollingInterval: 1_000,
@@ -106,16 +98,16 @@ export function Dashboard() {
 
   const revokePermissions = Hooks.useRevokePermissions()
 
-  const totalBalance = React.useMemo(() => {
-    if (!swapAssets.data) return 0n
-    return ArrayUtils.sum(
-      swapAssets.data.map(
-        (asset) =>
-          Number(Value.format(asset.balance, asset.decimals)) *
-          (asset.price ?? 0),
-      ),
-    )
-  }, [swapAssets.data])
+  // const totalBalance = React.useMemo(() => {
+  //   if (!swapAssets.data) return 0n
+  //   return ArrayUtils.sum(
+  //     swapAssets.data.map(
+  //       (asset) =>
+  //         Number(Value.format(asset.balance, asset.decimals)) *
+  //         (asset.price ?? 0),
+  //     ),
+  //   )
+  // }, [swapAssets.data])
 
   const admins = Hooks.useAdmins({
     query: {
@@ -372,7 +364,7 @@ export function Dashboard() {
           <div className="font-[500] text-[13px] text-gray10">Your account</div>
           <div>
             <div className="font-[500] text-[24px] tracking-[-2.8%]">
-              ${ValueFormatter.formatToPrice(totalBalance)}
+              {/* ${ValueFormatter.formatToPrice(totalBalance)} */}
             </div>
           </div>
         </div>
@@ -405,9 +397,9 @@ export function Dashboard() {
       <details
         className="group"
         open={
-          swapAssets.data &&
-          swapAssets.data?.length > 0 &&
-          swapAssets.data.some((asset) => asset.balance !== 0n)
+          balances.data &&
+          balances.data?.length > 0 &&
+          balances.data.some((asset) => asset.balance !== 0n)
         }
       >
         <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
@@ -427,17 +419,23 @@ export function Dashboard() {
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
             { align: 'right', header: '', key: 'action', width: 'w-[20%]' },
           ]}
-          data={swapAssets.data}
+          data={balances.data}
           emptyMessage="No balances available for this account"
           renderRow={(asset) => (
             <AssetRow
-              address={asset.address}
-              decimals={asset.decimals}
+              address={asset.address!}
+              decimals={asset.decimals!}
               key={asset.address}
-              logo={asset.logo}
-              name={asset.name}
-              price={asset.price}
-              symbol={asset.symbol}
+              logo={`/icons/${asset.symbol?.toLowerCase()}.svg`}
+              name={asset.symbol!}
+              price={
+                ['exp1', 'exp2', 'exp'].includes(
+                  asset.symbol?.toLowerCase() ?? '',
+                )
+                  ? 1
+                  : 0
+              }
+              symbol={asset.symbol ?? ''}
               value={asset.balance}
             />
           )}
@@ -448,102 +446,6 @@ export function Dashboard() {
       <div className="h-4" />
       <hr className="border-gray5" />
       <div className="h-4" />
-
-      {import.meta.env.DEV && (
-        <>
-          <details
-            className="group tabular-nums"
-            open={!!addressTransfers.data?.items?.length}
-          >
-            <summary className='relative cursor-default list-none pr-1 font-semibold text-lg after:absolute after:right-1 after:font-normal after:text-gray10 after:text-sm after:content-["[+]"] group-open:after:content-["[–]"]'>
-              History
-            </summary>
-
-            <PaginatedTable
-              columns={[
-                { header: 'Time', key: 'time' },
-                { header: 'From', key: 'sender' },
-                { header: 'To', key: 'recipient' },
-                { align: 'right', header: 'Amount', key: 'amount' },
-              ]}
-              data={addressTransfers.data?.items}
-              emptyMessage="No transactions yet"
-              renderRow={(transfer) => {
-                const isErc721Transfer = transfer?.token.type === 'ERC-721'
-                const amount = isErc721Transfer
-                  ? BigInt(1)
-                  : Number.parseFloat(
-                      ValueFormatter.format(
-                        BigInt(transfer?.total.value ?? 0),
-                        Number(transfer?.total.decimals ?? 0),
-                      ),
-                    ).toFixed(2)
-
-                return (
-                  <tr
-                    className="text-xs sm:text-sm"
-                    key={`${transfer?.transaction_hash}-${transfer?.block_number}`}
-                  >
-                    <td className="py-1 text-left">
-                      <a
-                        className="flex flex-row items-center"
-                        href={`${blockExplorer}/tx/${transfer?.transaction_hash}`}
-                        rel="noreferrer"
-                        target="_blank"
-                      >
-                        <ExternalLinkIcon className="mr-1 size-4 text-gray10" />
-                        <span className="min-w-[35px] text-gray11 sm:min-w-[65px]">
-                          {DateFormatter.ago(
-                            new Date(transfer?.timestamp ?? ''),
-                          )}
-                        </span>
-                      </a>
-                    </td>
-                    <td className="py-1 text-left font-medium">
-                      <div className="flex items-center">
-                        <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
-                          <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
-                        </div>
-                        <TruncatedAddress
-                          address={transfer?.from.hash ?? ''}
-                          className="ml-2"
-                        />
-                      </div>
-                    </td>
-                    <td className="py-1 text-left font-medium">
-                      <div className="flex items-center">
-                        <div className="my-0.5 flex flex-row items-center gap-x-2 rounded-full bg-gray3">
-                          <AccountIcon className="hidden size-4 rounded-full text-gray10 sm:block" />
-                        </div>
-                        <TruncatedAddress
-                          address={transfer?.to.hash ?? ''}
-                          className="ml-2"
-                        />
-                      </div>
-                    </td>
-                    <td className="py-1 text-right text-gray12">
-                      <span className="text-sm sm:text-md">{amount}</span>
-                      <div className="inline-block w-[45px]">
-                        <span className="rounded-2xl bg-gray3 px-2 py-1 font-[500] text-gray10 text-xs">
-                          <TokenSymbol
-                            address={transfer?.token.address as Address.Address}
-                            display="symbol"
-                          />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              }}
-              showMoreText="more transactions"
-            />
-          </details>
-
-          <div className="h-4" />
-          <hr className="border-gray5" />
-          <div className="h-4" />
-        </>
-      )}
 
       <details
         className="group pb-1 tabular-nums"
@@ -1123,14 +1025,12 @@ function AssetRow({
                     .readText()
                     .then((text) => {
                       const trimmedText = text.trim()
-                      if (Address.validate(trimmedText)) {
+                      if (Address.validate(trimmedText))
                         sendForm.setValue(
                           sendForm.names.sendRecipient,
                           trimmedText,
                         )
-                      } else {
-                        toast.error('Invalid address in clipboard')
-                      }
+                      else toast.error('Invalid address in clipboard')
                     })
                     .catch(() => toast.error('Failed to paste from clipboard'))
                 }

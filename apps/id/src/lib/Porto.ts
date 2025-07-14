@@ -1,5 +1,5 @@
 import { PortoConfig } from '@porto/apps'
-import { Mode, type Porto, Storage } from 'porto'
+import { Mode, Porto, Storage } from 'porto'
 
 const host = (() => {
   const url = new URL(PortoConfig.getDialogHost())
@@ -14,3 +14,5 @@ export const config = {
   }),
   storage: Storage.combine(Storage.cookie(), Storage.localStorage()),
 } as const satisfies Porto.Config
+
+export const porto = Porto.create(config)

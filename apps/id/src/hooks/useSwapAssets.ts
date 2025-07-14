@@ -23,8 +23,7 @@ export function useSwapAssets({ chainId }: { chainId: PortoConfig.ChainId }) {
       const balancesAssets = balances.map((balance) => ({
         address: balance.address,
         balance: balance.balance,
-        logo: balance.logo,
-        name: balance.name,
+        logo: `/assets/tokens/${balance.address}.svg`,
         symbol: balance.symbol,
       }))
 
@@ -107,7 +106,7 @@ async function getAssetsPrices({
     .map((asset) => `${chainName}:${asset.address}`)
     .join(',')
   const response = await fetch(
-    `https://coins.llama.fi/prices/current/coingecko:ethereum,coingecko:coinbase-wrapped-btc,coingecko:usd-coin,${searchParams}?searchWidth=1m`,
+    `https://coins.llama.fi/prices/current/coingecko:ethereum,coingecko:usd-coin,${searchParams}?searchWidth=1m`,
   )
 
   const data = (await response.json()) as LlamaFiPrices
