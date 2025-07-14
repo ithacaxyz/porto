@@ -550,19 +550,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
         })
 
         const provider = getProvider(store)
-        const result = await provider.request({
-          ...request,
-          params: [
-            {
-              ...request.params?.[0],
-              capabilities: {
-                ...request.params?.[0]?.capabilities,
-                feeToken,
-                preCalls,
+        const result = Schema.decodeSync(
+          RpcSchema_porto.wallet_prepareCalls.Response,
+        )(
+          await provider.request({
+            ...request,
+            params: [
+              {
+                ...request.params?.[0],
+                capabilities: {
+                  ...request.params?.[0]?.capabilities,
+                  feeToken,
+                  preCalls,
+                },
               },
-            },
-          ],
-        })
+            ],
+          }),
+        )
 
         return {
           account,
