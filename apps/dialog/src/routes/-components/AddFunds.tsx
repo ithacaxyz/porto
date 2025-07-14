@@ -302,7 +302,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
 
   const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
 
-  const serverClient = Hooks.useWalletClient(porto)
+  const walletClient = Hooks.useWalletClient(porto)
   const { data: tokens } = useQuery({
     queryFn: async () => {
       const chainId = Hex.fromNumber(chain?.id!)
