@@ -7,7 +7,7 @@ import { Cuer } from 'cuer'
 import { type Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
-import { useWatchContractEvent } from 'wagmi'
+import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import { PayButton } from '~/components/PayButton'
 import * as FeeToken from '~/lib/FeeToken'
 import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp'
@@ -294,6 +294,14 @@ export declare namespace AddFunds {
   }
 }
 
+function usePrevious<T>(value: T): T | undefined {
+  const ref = React.useRef<T | undefined>(undefined)
+  React.useEffect(() => {
+    ref.current = value
+  }, [value])
+  return ref.current
+}
+
 function DepositCryptoView(props: DepositCryptoView.Props) {
   const { address, loading, onBack } = props
 
@@ -327,6 +335,25 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
           Actions.rejectAll(porto)
       }
     },
+  })
+
+  const { data: balance, ...nativeBalance } = useBalance({
+    address: address!,
+    chainId: chain?.id!,
+    query: {
+      enabled: !!address && !!chain,
+      select: (data) => data?.value,
+    },
+  })
+  const previousBalance = usePrevious(balance)
+
+  React.useEffect(() => {
+    if (typeof previousBalance === 'undefined' || previousBalance === 0n) return
+    if (previousBalance !== balance) Actions.rejectAll(porto)
+  }, [previousBalance, balance])
+
+  useWatchBlockNumber({
+    onBlockNumber: () => nativeBalance.refetch(),
   })
 
   return (
