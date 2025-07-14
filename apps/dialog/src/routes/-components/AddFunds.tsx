@@ -306,7 +306,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
   const { data: tokens } = useQuery({
     queryFn: async () => {
       const chainId = Hex.fromNumber(chain?.id!)
-      const response = await serverClient.request({
+      const response = await walletClient.request({
         method: 'wallet_getCapabilities',
         params: [address!, [chainId]],
       })
