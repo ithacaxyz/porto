@@ -19,7 +19,7 @@ await Fs.mkdir(
 )
 
 async function buildContracts(outPath: string) {
-  for await (const file of await Fs.readdir(outPath)) {
+  for (const file of await Fs.readdir(outPath)) {
     const path = Path.resolve(outPath, file)
     const name = Path.basename(path, '.json')
 
