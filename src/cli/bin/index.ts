@@ -23,9 +23,9 @@ cli
   .option('-d, --dialog <hostname>', 'Dialog hostname', {
     default: 'stg.id.porto.sh',
   })
-  .action(async (...args) => {
+  .action(async (_, args) => {
     const Commands = await import('../internal/commands.js')
-    return Commands.createAccount(...args)
+    return Commands.createAccount(null, args)
   })
 
 cli.help()
