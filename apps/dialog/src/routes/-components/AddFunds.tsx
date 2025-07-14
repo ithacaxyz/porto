@@ -1,7 +1,7 @@
 import * as Ariakit from '@ariakit/react'
 import { Button } from '@porto/apps/components'
 import { exp1Config } from '@porto/apps/contracts'
-import { useCopyToClipboard } from '@porto/apps/hooks'
+import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
 import { type Address, Hex, Value } from 'ox'
@@ -294,14 +294,6 @@ export declare namespace AddFunds {
   }
 }
 
-function usePrevious<T>(value: T): T | undefined {
-  const ref = React.useRef<T | undefined>(undefined)
-  React.useEffect(() => {
-    ref.current = value
-  }, [value])
-  return ref.current
-}
-
 function DepositCryptoView(props: DepositCryptoView.Props) {
   const { address, loading, onBack } = props
 
@@ -345,7 +337,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
       select: (data) => data?.value,
     },
   })
-  const previousBalance = usePrevious(balance)
+  const previousBalance = usePrevious({ value: balance })
 
   React.useEffect(() => {
     if (typeof previousBalance === 'undefined' || previousBalance === 0n) return
