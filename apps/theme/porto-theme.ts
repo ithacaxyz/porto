@@ -1,71 +1,133 @@
 /* biome-ignore format: might change later, for now keeping theme values grouped logically makes it iterating easier */
-import type { Theme } from './Theme'
+import type { CombinedColor, Theme} from './Theme'
 
-type AddDescriptions<T> = Omit<
-  T & {
-    [K in keyof T as `${string & K}Description`]: string
-  },
-  'colorSchemeDescription'
->
+type CombinedTheme = Theme<'light dark'>
 
-export const portoTheme: AddDescriptions<Theme<'light dark'>> = {
+export type PortoTheme = Pick<CombinedTheme, 'colorScheme'> & {
+  [K in keyof Omit<CombinedTheme, 'colorScheme'> as K]: [
+    description: string,
+    light: CombinedColor[0],
+    dark: CombinedColor[1],
+  ]
+}
+
+export const portoTheme: PortoTheme = {
+  baseBackground: [
+    'Base background color. Used for the main dialog background and other large areas.',
+    '#fcfcfc',
+    '#191919',
+  ],
+
+  baseBorder: [
+    'Base border color. Used for borders around base surfaces.',
+    '#e0e0e0',
+    '#2a2a2a',
+  ],
+
+  baseContent: [
+    'Base content color. Used over baseBackground for text and icons.',
+    '#202020',
+    '#eeeeee',
+  ],
+
+  baseHoveredBackground: [
+    'Base background color when hovered.',
+    '#f0f0f0',
+    '#222222',
+  ],
   colorScheme: 'light dark',
 
-  focus: ['#F0F', '#F0F'],
-  focusDescription:
-    'Focus ring color, used for keyboard navigation and input fields.',
+  fieldBackground: [
+    'Field background color. Used for input fields, text areas, some edit buttons, and other form elements.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  baseSurface: ['#fcfcfc', '#F0F'],
-  baseSurfaceDescription:
-    'Base surface color, used for the main dialog background and other large areas.',
+  fieldBorder: [
+    'Field border color. Used for the border around field surfaces.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  baseContent: ['#202020', '#F0F'],
-  baseContentDescription:
-    'Base surface content color, used over baseSurface for text and icons.',
+  fieldContent: [
+    'Field content color. Used over fieldBackground for text and icons in input fields.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  primarySurface: ['#F0F', '#F0F'],
-  primarySurfaceDescription:
-    'Primary surface color, used for primary buttons and important interactive elements.',
+  fieldErrorBorder: [
+    'Field error border color. Used for the border around field surfaces when there is an error, such as invalid input.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  primaryContent: ['#F0F', '#F0F'],
-  primaryContentDescription:
-    'Primary content color, used over primarySurface for text and icons.',
+  fieldFocusedBackground: [
+    'Field background color when focused. Used for input fields and other form elements when they are focused or active.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  fieldSurface: ['#F0F', '#F0F'],
-  fieldSurfaceDescription:
-    'Field surface color, used for input fields, text areas, some edit buttons, and other form elements.',
+  fieldFocusedContent: [
+    'Field content color when focused. Used over fieldFocusedBackground for text and icons in focused input fields.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  fieldContent: ['#F0F', '#F0F'],
-  fieldContentDescription:
-    'Field content color, used over fieldSurface for text and icons in input fields.',
+  focus: [
+    'Focus ring color. Used for keyboard navigation and input fields.',
+    '#F0F',
+    '#eee',
+  ],
 
-  fieldBorder: ['#F0F', '#F0F'],
-  fieldBorderDescription:
-    'Field border color, used for the border around fieldSurface elements.',
+  negativeBackground: [
+    'Negative background color. Generally red, used for elements indicating error or negative state, such as a destructive action or an error message.',
+    '#F0F',
+    '#F0F',
+  ],
+  negativeContent: [
+    'Negative content color. Used over negativeBackground for text and icons in error elements.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  fieldBorderError: ['#F0F', '#F0F'],
-  fieldBorderErrorDescription:
-    'Field border error color, used for the borders of input fields and text areas when there is an error.',
+  positiveBackground: [
+    'Positive background color. Generally green, used for elements indicating success or positive state, such as a success message or a confirmation button.',
+    '#F0F',
+    '#F0F',
+  ],
+  positiveContent: [
+    'Positive content color. Used over positiveBackground for text and icons in success elements.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  fieldFocusedSurface: ['#F0F', '#F0F'],
-  fieldFocusedSurfaceDescription:
-    'Field focused surface color, used for the background of input fields when they are focused.',
+  primaryBackground: [
+    'Primary background color. Used for primary buttons and important interactive elements.',
+    '#0090ff',
+    '#0090ff',
+  ],
 
-  fieldFocusedContent: ['#F0F', '#F0F'],
-  fieldFocusedContentDescription:
-    'Field focused content color, used for the text and icons in input fields when they are focused.',
+  primaryBorder: [
+    'Primary border color. Used for borders around primary surfaces.',
+    '#0090ff',
+    '#0090ff',
+  ],
 
-  positiveSurface: ['#F0F', '#F0F'],
-  positiveSurfaceDescription:
-    'Positive surface color, generally green, used for elements indicating success or positive state, such as a confirmation button.',
-  positiveContent: ['#F0F', '#F0F'],
-  positiveContentDescription:
-    'Positive content color, used over positiveSurface for text and icons in success elements.',
+  primaryContent: [
+    'Primary content color. Used over primaryBackground for text and icons.',
+    '#F0F',
+    '#F0F',
+  ],
 
-  negativeSurface: ['#F0F', '#F0F'],
-  negativeSurfaceDescription:
-    'Negative surface color, generally red, used for elements indicating error or negative state, such as a destructive button or an error message.',
-  negativeContent: ['#F0F', '#F0F'],
-  negativeContentDescription:
-    'Negative content color, used over negativeSurface for text and icons in error elements.',
-}
+  primaryHoveredBackground: [
+    'Primary background color when hovered. Used for primary buttons and important interactive elements when hovered.',
+    '#F0F',
+    '#F0F',
+  ],
+
+  primaryHoveredBorder: [
+    'Primary border color when hovered. Used for borders around primary surfaces when hovered.',
+    '#F0F',
+    '#F0F',
+  ],
+} as const
