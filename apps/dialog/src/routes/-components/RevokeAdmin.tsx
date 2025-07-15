@@ -19,7 +19,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
     (admin) => admin.id === revokeKeyId,
   )
 
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
     enabled: !!revokeKey,
     feeToken,
     revokeKeys: revokeKey ? [Key.from(revokeKey)] : [],

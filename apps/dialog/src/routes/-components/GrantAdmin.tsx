@@ -19,7 +19,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
   const account = Hooks.useAccount(porto)
 
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
     authorizeKeys: [Key.from(authorizeKey)],
     feeToken,
   })

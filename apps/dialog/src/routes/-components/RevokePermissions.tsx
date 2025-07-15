@@ -15,7 +15,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
   const permissions = data?.find((x) => x.id === id)?.permissions
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
     enabled: !!permissions,
     feeToken: capabilities?.feeToken,
   })

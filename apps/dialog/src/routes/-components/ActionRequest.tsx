@@ -43,18 +43,22 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // This "prepare calls" query is used as the "source of truth" query that will
   // ultimately be used to execute the calls.
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
     address,
     calls,
     chainId,
     feeToken,
     merchantRpcUrl,
+    refetchInterval(query) {
+      if (query.state.error) return false
+      return 15_000
+    },
   })
 
   // However, to prevent a malicious RPC server from providing a mutated asset
   // diff to display to the end-user, we also simulate the prepare calls query
   // without the merchant RPC URL.
-  const prepareCallsQuery_assetDiff = RpcServer.usePrepareCalls({
+  const prepareCallsQuery_assetDiff = RpcServer.prepareCalls.useQuery({
     address,
     calls,
     chainId,
