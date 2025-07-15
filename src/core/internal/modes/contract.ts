@@ -205,6 +205,22 @@ export function contract(parameters: contract.Parameters = {}) {
         return { current, latest }
       },
 
+      async getAssets(parameters) {
+        const { account, internal } = parameters
+        const { client, config } = internal
+
+        const chainFilter =
+          parameters.chainFilter ??
+          config.chains.map((x) => Hex.fromNumber(x.id))
+
+        const assets = await client.request({
+          method: 'wallet_getAssets',
+          params: [{ account, chainFilter }],
+        })
+
+        return assets
+      },
+
       async getCallsStatus(parameters) {
         const { id, internal } = parameters
         const { client } = internal

@@ -9,7 +9,7 @@ import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
 import * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
 import {
   BaseError,
   type Calls,
@@ -105,6 +105,40 @@ export namespace getCapabilities {
   > = chainIds extends undefined ? ValueOf<value> : value
 
   export type ErrorType = parseSchemaError.ErrorType | Errors.GlobalErrorType
+}
+
+/**
+ * Get assets owned by user in given chain IDs.
+ */
+export async function getAssets(
+  client: Client,
+  parameters: getAssets.Parameters,
+): Promise<getAssets.ReturnType> {
+  const {
+    account,
+    assetFilter,
+    assetTypeFilter,
+    chainFilter = [Hex.fromNumber(client.chain!.id)],
+  } = parameters
+
+  // throw new Error('Not implemented')
+  try {
+    const method = 'wallet_getAssets' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
+      params: [{ account, assetFilter, assetTypeFilter, chainFilter }],
+    })
+    return Schema.decodeUnknownSync(RpcSchema.wallet_getAssets.Response)(result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getAssets {
+  export type Parameters = RpcSchema.wallet_getAssets.Parameters
+  export type ReturnType = RpcSchema.wallet_getAssets.Response
 }
 
 /**

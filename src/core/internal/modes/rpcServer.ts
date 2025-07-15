@@ -150,6 +150,18 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         return { current, latest }
       },
 
+      async getAssets(parameters) {
+        const { account, chainFilter, internal } = parameters
+        const { client } = internal
+
+        const result = await ServerActions.getAssets(client, {
+          account,
+          chainFilter,
+        })
+
+        return result
+      },
+
       async getCallsStatus(parameters) {
         const { id, internal } = parameters
         const { client } = internal

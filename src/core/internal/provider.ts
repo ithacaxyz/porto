@@ -864,6 +864,26 @@ export function from<
           return
         }
 
+        case 'wallet_getAssets': {
+          const [parameters] = request._decoded.params ?? []
+          const { account, chainFilter } = parameters
+
+          const client = getClient()
+
+          const response = await getMode().actions.getAssets({
+            account,
+            chainFilter,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          return response satisfies typeof Rpc.wallet_getAssets.Response.Encoded
+        }
+
         case 'wallet_getCallsStatus': {
           const [id] = request._decoded.params ?? []
 
