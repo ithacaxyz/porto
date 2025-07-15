@@ -118,7 +118,7 @@ function RouteComponent() {
         />
 
         <div
-          className="flex h-fit flex-col overflow-hidden bg-th_base text-th_base pt-titlebar"
+          className="flex h-fit flex-col overflow-hidden bg-th_base pt-titlebar text-th_base"
           ref={contentRef}
         >
           <div
