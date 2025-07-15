@@ -1,5 +1,4 @@
-// biome-ignore format: might change later, for now keeping theme values grouped logically makes it iterating easier
-import type { CombinedColor, Theme} from './Theme'
+import type { CombinedColor, Theme } from './Theme'
 
 type CombinedTheme = Theme<'light dark'>
 
@@ -14,9 +13,25 @@ export type PortoTheme = Pick<CombinedTheme, 'colorScheme'> & {
       : never
 }
 
+// Order used to name theme properties:
+//
+// 1. Surface name (e.g. base, primary, field)
+// 2. (optional) Variant (e.g. fieldError)
+// 3. (optional) Interaction state (e.g. baseHovered, fieldFocused)
+// 4. Surface part (e.g. fieldBackground, fieldContent, fieldBorder, fieldRadius)
+// 5. (optional) Surface part variant (e.g. baseContentDimmed)
+//
+// Examples:
+// - baseBackground: base object => background color
+// - baseContent: base object => text color
+// - baseHoveredBackground: base object => hovered => background color
+// - baseHoveredContent: base object => hovered => text color
+
+// biome-ignore assist/source/useSortedKeys: keeping theme values grouped logically makes iteration easier
 export const portoTheme: PortoTheme = {
   colorScheme: 'light dark',
 
+  // misc
   accent: [
     'Accent color. Used for highlighting text, icons or outline elements.',
     '#0588f0',

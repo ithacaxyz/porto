@@ -1,19 +1,5 @@
 export type ThemeColorScheme = 'light' | 'dark' | 'light dark'
 
-// Order used to name theme properties:
-//
-// 1. Surface name (e.g. base, primary, field)
-// 2. (optional) Variant (e.g. fieldError)
-// 3. (optional) Interaction state (e.g. baseHovered, fieldFocused)
-// 4. Surface part (e.g. fieldBackground, fieldContent, fieldBorder, fieldRadius)
-// 5. (optional) Surface part variant (e.g. baseContentDimmed)
-//
-// Examples:
-// - baseBackground: base object => background color
-// - baseContent: base object => text color
-// - baseHoveredBackground: base object => hovered => background color
-// - baseHoveredContent: base object => hovered => text color
-
 export type Theme<
   ColorScheme extends ThemeColorScheme,
   SchemeColor = ColorScheme extends 'light dark' ? CombinedColor : Color,
