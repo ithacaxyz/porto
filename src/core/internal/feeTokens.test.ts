@@ -7,7 +7,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
   test('default', async () => {
     const { client } = getPorto()
 
-    const feeTokens = await FeeTokens.resolve(client)
+    const feeTokens = await FeeTokens.fetch(client)
 
     expect(feeTokens).toMatchInlineSnapshot(`
       [
@@ -32,7 +32,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
   test('behavior: with store', async () => {
     const { porto, client } = getPorto()
 
-    const feeTokens = await FeeTokens.resolve(client, {
+    const feeTokens = await FeeTokens.fetch(client, {
       store: porto._internal.store,
     })
 
@@ -59,8 +59,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
   test('param: feeToken (as symbol)', async () => {
     const { porto, client } = getPorto()
 
-    const feeTokens = await FeeTokens.resolve(client, {
-      feeToken: 'ETH',
+    const feeTokens = await FeeTokens.fetch(client, {
+      addressOrSymbol: 'ETH',
       store: porto._internal.store,
     })
 
@@ -87,8 +87,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
   test('param: feeToken (as address)', async () => {
     const { porto, client } = getPorto()
 
-    const feeTokens = await FeeTokens.resolve(client, {
-      feeToken: '0x0000000000000000000000000000000000000000',
+    const feeTokens = await FeeTokens.fetch(client, {
+      addressOrSymbol: '0x0000000000000000000000000000000000000000',
       store: porto._internal.store,
     })
 
@@ -119,7 +119,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
       feeToken: 'ETH',
     })
 
-    const feeTokens = await FeeTokens.resolve(client, {
+    const feeTokens = await FeeTokens.fetch(client, {
       store: porto._internal.store,
     })
 

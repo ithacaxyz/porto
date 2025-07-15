@@ -4,7 +4,7 @@ import { Account, ServerActions } from 'porto'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
 
-import * as FeeToken from './FeeToken'
+import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
 
 // TODO: consider using EIP-1193 Provider + `wallet_prepareCalls` in the future
@@ -24,12 +24,14 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
 
   const account = Hooks.useAccount(porto, { address })
   const client = Hooks.useServerClient(porto, { chainId })
-  const feeToken = FeeToken.useFetch({
+  const feeTokens = FeeTokens.fetch.useQuery({
     addressOrSymbol: props.feeToken,
+    chainId,
   })
+  const feeToken = feeTokens.data?.[0]
 
   return useQuery({
-    enabled: enabled && feeToken.isFetched && !!account,
+    enabled: enabled && feeTokens.isFetched && !!account,
     async queryFn() {
       if (!account) throw new Error('account is required.')
 
@@ -40,7 +42,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
         account,
         authorizeKeys,
         calls,
-        feeToken: feeToken.data?.address,
+        feeToken: feeToken?.address,
         key,
         merchantRpcUrl,
         revokeKeys,
@@ -56,7 +58,7 @@ export function usePrepareCalls<const calls extends readonly unknown[]>(
         revokeKeys,
       }),
       client.uid,
-      feeToken.data?.address,
+      feeToken?.address,
     ],
     refetchInterval: 15_000,
   })

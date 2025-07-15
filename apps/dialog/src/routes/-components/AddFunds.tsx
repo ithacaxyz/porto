@@ -9,7 +9,7 @@ import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import { PayButton } from '~/components/PayButton'
-import * as FeeToken from '~/lib/FeeToken'
+import * as FeeTokens from '~/lib/FeeTokens'
 import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -33,9 +33,10 @@ export function AddFunds(props: AddFunds.Props) {
 
   const account = Hooks.useAccount(porto)
   const chain = Hooks.useChain(porto)
-  const { data: feeToken } = FeeToken.useFetch({
+  const feeTokens = FeeTokens.fetch.useQuery({
     addressOrSymbol: tokenAddress,
   })
+  const feeToken = feeTokens.data?.[0]
 
   const address = props.address ?? account?.address
 

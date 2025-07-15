@@ -8,13 +8,13 @@ import type * as FeeToken_schema from './schema/feeToken.js'
 export type FeeToken = FeeToken_schema.FeeToken
 export type FeeTokens = readonly FeeToken[]
 
-export async function resolve<
+export async function fetch<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
 >(
   client: ServerClient.ServerClient,
-  parameters?: resolve.Parameters<chains> | undefined,
-): Promise<resolve.ReturnType> {
-  const { feeToken: overrideFeeToken, store } = parameters ?? {}
+  parameters?: fetch.Parameters<chains> | undefined,
+): Promise<fetch.ReturnType> {
+  const { addressOrSymbol: overrideFeeToken, store } = parameters ?? {}
   const { feeToken: defaultFeeToken } = store?.getState() ?? {}
 
   const feeTokens = await ServerActions_internal.getCapabilities(client).then(
@@ -39,7 +39,7 @@ export async function resolve<
   return [feeToken, ...feeTokens.toSpliced(index, 1)]
 }
 
-export declare namespace resolve {
+export declare namespace fetch {
   export type Parameters<
     chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
       Chains.Chain,
@@ -50,7 +50,7 @@ export declare namespace resolve {
      * Fee token to use. If provided, and the token exists, it will take precedence over
      * the fee token stored in state, and will be returned as first fee token.
      */
-    feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
+    addressOrSymbol?: FeeToken_schema.Symbol | Address.Address | undefined
     /**
      * Porto store. If provided, the fee token stored in state will take precedence
      * and will be returned as first fee token.

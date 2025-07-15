@@ -3,7 +3,7 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import type { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import * as React from 'react'
-import * as FeeToken from '~/lib/FeeToken'
+import * as FeeTokens from '~/lib/FeeTokens'
 import { AddFunds } from '~/routes/-components/AddFunds'
 
 export function CheckBalance(props: CheckBalance.Props) {
@@ -11,9 +11,10 @@ export function CheckBalance(props: CheckBalance.Props) {
 
   const [step, setStep] = React.useState<'default' | 'success'>('default')
 
-  const feeToken = FeeToken.useFetch({
+  const feeTokens = FeeTokens.fetch.useQuery({
     addressOrSymbol: props.feeToken,
   })
+  const feeToken = feeTokens.data?.[0]
 
   const hasInsufficientBalance = query.error?.message?.includes('PaymentError')
 
@@ -35,7 +36,7 @@ export function CheckBalance(props: CheckBalance.Props) {
         setStep('success')
       }}
       onReject={onReject}
-      tokenAddress={feeToken.data?.address!}
+      tokenAddress={feeToken?.address}
     />
   )
 }

@@ -1,5 +1,4 @@
 import { Spinner } from '@porto/apps/components'
-import { Hex } from 'ox'
 import { useMemo } from 'react'
 import { erc20Abi } from 'viem'
 import { useReadContract } from 'wagmi'
@@ -68,7 +67,7 @@ function SpendPermission(props: SpendPermission.Props) {
 
   const displayAmount = useMemo(() => {
     if (!decimals.data && token) return null
-    return ValueFormatter.format(Hex.toBigInt(limit), decimals.data)
+    return ValueFormatter.format(limit, decimals.data)
   }, [limit, decimals.data, token])
 
   const isLoading = token && !displayAmount
@@ -97,7 +96,7 @@ function SpendPermission(props: SpendPermission.Props) {
 
 declare namespace SpendPermission {
   type Props = {
-    limit: `0x${string}`
+    limit: bigint
     period: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
     token?: `0x${string}`
   }

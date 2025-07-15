@@ -11,7 +11,7 @@ import * as React from 'react'
 import type { Call } from 'viem'
 import { useCapabilities } from 'wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
-import * as FeeToken from '~/lib/FeeToken'
+import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
 import * as RpcServer from '~/lib/RpcServer'
@@ -478,17 +478,13 @@ export namespace ActionRequest {
 
     const chain = Hooks.useChain(porto, { chainId })!
     const capabilities = useCapabilities({ chainId: chain.id })
-    const feeToken = FeeToken.useFetch({
+    const feeTokens = FeeTokens.fetch.useQuery({
       addressOrSymbol: paymentToken,
     })
+    const feeToken = feeTokens.data?.[0]
 
     const fee = React.useMemo(() => {
-      if (
-        !nativeFeeEstimate ||
-        !txGas ||
-        !totalPaymentMaxAmount ||
-        !feeToken.data
-      )
+      if (!nativeFeeEstimate || !txGas || !totalPaymentMaxAmount || !feeToken)
         return undefined
 
       const nativeConfig = {
@@ -503,7 +499,7 @@ export namespace ActionRequest {
       const tokenConfig = (() => {
         if (paymentToken && paymentToken !== nativeConfig.address) {
           return {
-            ...feeToken.data,
+            ...feeToken,
             value: totalPaymentMaxAmount,
           }
         }
@@ -535,7 +531,7 @@ export namespace ActionRequest {
       capabilities.data?.feeToken.tokens,
       chain.nativeCurrency.decimals,
       chain.nativeCurrency.symbol,
-      feeToken.data,
+      feeToken,
       nativeFeeEstimate,
       txGas,
       paymentToken,

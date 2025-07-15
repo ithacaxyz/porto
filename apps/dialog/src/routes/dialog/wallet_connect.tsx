@@ -5,6 +5,7 @@ import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 
 import * as Dialog from '~/lib/Dialog'
+import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
@@ -37,6 +38,11 @@ function RouteComponent() {
     if (address) return ['sign-in']
     return ['sign-in', 'sign-up']
   }, [capabilities?.createAccount, address])
+
+  const grantPermissionsQuery = PermissionsRequest.useResolve(
+    capabilities?.grantPermissions,
+  )
+  const grantPermissions = grantPermissionsQuery.data
 
   const respond = useMutation({
     async mutationFn({
@@ -97,6 +103,7 @@ function RouteComponent() {
                     }
                   : capabilities?.createAccount || !signIn,
                 email: Boolean(email),
+                grantPermissions: grantPermissions?._encoded,
                 selectAccount,
                 ...(capabilities?.signInWithEthereum && {
                   signInWithEthereum: {
@@ -169,7 +176,7 @@ function RouteComponent() {
         }
         loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
-        permissions={capabilities?.grantPermissions?.permissions}
+        permissions={grantPermissions?.permissions}
       />
     )
 
@@ -180,7 +187,7 @@ function RouteComponent() {
         loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
         onReject={() => Actions.reject(porto, request)}
-        permissions={capabilities?.grantPermissions?.permissions}
+        permissions={grantPermissions?.permissions}
       />
     )
 
@@ -188,7 +195,7 @@ function RouteComponent() {
     <SignIn
       loading={respond.isPending}
       onApprove={(options) => respond.mutate(options)}
-      permissions={capabilities?.grantPermissions?.permissions}
+      permissions={grantPermissions?.permissions}
     />
   )
 }

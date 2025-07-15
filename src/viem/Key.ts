@@ -492,12 +492,13 @@ export declare namespace from {
  * @returns P256 key.
  */
 export function fromP256(parameters: fromP256.Parameters) {
-  const { expiry, permissions, privateKey, role } = parameters
+  const { expiry, feeLimit, permissions, privateKey, role } = parameters
   const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
     includePrefix: false,
   })
   return from({
     expiry,
+    feeLimit,
     permissions,
     privateKey() {
       return privateKey
@@ -509,7 +510,10 @@ export function fromP256(parameters: fromP256.Parameters) {
 }
 
 export declare namespace fromP256 {
-  type Parameters = Pick<from.Value, 'expiry' | 'permissions' | 'role'> & {
+  type Parameters = Pick<
+    from.Value,
+    'expiry' | 'feeLimit' | 'permissions' | 'role'
+  > & {
     /** P256 private key. */
     privateKey: Hex.Hex
   }
@@ -591,6 +595,7 @@ export function fromSecp256k1(parameters: fromSecp256k1.Parameters) {
   })()
   return from({
     expiry: parameters.expiry ?? 0,
+    feeLimit: parameters.feeLimit,
     permissions: parameters.permissions,
     privateKey: privateKey ? () => privateKey : undefined,
     publicKey,
@@ -600,7 +605,10 @@ export function fromSecp256k1(parameters: fromSecp256k1.Parameters) {
 }
 
 export declare namespace fromSecp256k1 {
-  type Parameters = Pick<from.Value, 'expiry' | 'permissions' | 'role'> &
+  type Parameters = Pick<
+    from.Value,
+    'expiry' | 'feeLimit' | 'permissions' | 'role'
+  > &
     OneOf<
       | {
           /** Ethereum address. */
@@ -650,6 +658,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
   })
   return from({
     expiry: parameters.expiry ?? 0,
+    feeLimit: parameters.feeLimit,
     id,
     permissions: parameters.permissions,
     privateKey: {
@@ -665,7 +674,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
 export declare namespace fromWebAuthnP256 {
   type Parameters = Pick<
     from.Value,
-    'expiry' | 'id' | 'permissions' | 'role'
+    'expiry' | 'feeLimit' | 'id' | 'permissions' | 'role'
   > & {
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
@@ -709,6 +718,7 @@ export function fromHeadlessWebAuthnP256(
   })
   return from({
     expiry: parameters.expiry ?? 0,
+    feeLimit: parameters.feeLimit,
     permissions: parameters.permissions,
     privateKey: {
       privateKey() {
@@ -722,7 +732,10 @@ export function fromHeadlessWebAuthnP256(
 }
 
 export declare namespace fromHeadlessWebAuthnP256 {
-  type Parameters = Pick<from.Value, 'expiry' | 'permissions' | 'role'> & {
+  type Parameters = Pick<
+    from.Value,
+    'expiry' | 'feeLimit' | 'permissions' | 'role'
+  > & {
     /** P256 private key. */
     privateKey: Hex.Hex
   }
@@ -755,13 +768,14 @@ export declare namespace fromHeadlessWebAuthnP256 {
  * @returns WebCryptoP256 key.
  */
 export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
-  const { expiry, keyPair, permissions, role } = parameters
+  const { expiry, feeLimit, keyPair, permissions, role } = parameters
   const { privateKey } = keyPair
   const publicKey = PublicKey.toHex(keyPair.publicKey, {
     includePrefix: false,
   })
   return from({
     expiry,
+    feeLimit,
     permissions,
     prehash: true,
     privateKey,
@@ -772,7 +786,10 @@ export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
 }
 
 export declare namespace fromWebCryptoP256 {
-  type Parameters = Pick<from.Value, 'expiry' | 'permissions' | 'role'> & {
+  type Parameters = Pick<
+    from.Value,
+    'expiry' | 'feeLimit' | 'permissions' | 'role'
+  > & {
     /** P256 private key. */
     keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
   }

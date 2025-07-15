@@ -271,6 +271,9 @@ importers:
       cva:
         specifier: 'catalog:'
         version: class-variance-authority@0.7.1
+      effect:
+        specifier: ^3.16.3
+        version: 3.16.12
       ox:
         specifier: 'catalog:'
         version: 0.8.4(typescript@5.8.3)(zod@3.25.28)

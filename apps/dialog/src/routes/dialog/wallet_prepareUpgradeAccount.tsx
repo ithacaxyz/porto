@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Actions } from 'porto/remote'
-
+import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
@@ -22,6 +22,11 @@ function RouteComponent() {
   const { params = [] } = request
   const { capabilities } = params[0] ?? {}
 
+  const grantPermissionsQuery = PermissionsRequest.useResolve(
+    capabilities?.grantPermissions,
+  )
+  const grantPermissions = grantPermissionsQuery.data
+
   const respond = useMutation({
     async mutationFn({ email }: { email?: string | undefined } = {}) {
       if (!request) throw new Error('no request found.')
@@ -40,6 +45,7 @@ function RouteComponent() {
             capabilities: {
               ...params[0]?.capabilities,
               email: Boolean(email),
+              grantPermissions: grantPermissions?._encoded,
               label: email,
             },
           },
@@ -54,7 +60,7 @@ function RouteComponent() {
         actions={['sign-up']}
         loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
-        permissions={capabilities?.grantPermissions?.permissions}
+        permissions={grantPermissions?.permissions}
       />
     )
 
@@ -64,7 +70,7 @@ function RouteComponent() {
       loading={respond.isPending}
       onApprove={() => respond.mutate({})}
       onReject={() => Actions.reject(porto, request)}
-      permissions={capabilities?.grantPermissions?.permissions}
+      permissions={grantPermissions?.permissions}
     />
   )
 }

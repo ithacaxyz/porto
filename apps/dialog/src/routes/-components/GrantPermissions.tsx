@@ -1,6 +1,6 @@
 import { Button } from '@porto/apps/components'
-import type { RpcSchema } from 'ox'
-import type { RpcSchema as porto_RpcSchema } from 'porto'
+import type { Address } from 'ox'
+import type * as PermissionsRequest from 'porto/core/internal/permissionsRequest'
 import { Hooks } from 'porto/remote'
 
 import { porto } from '~/lib/Porto'
@@ -9,7 +9,7 @@ import LucideDiamondPlus from '~icons/lucide/diamond-plus'
 import { Permissions } from './Permissions'
 
 export function GrantPermissions(props: GrantPermissions.Props) {
-  const { address, permissions, loading, onApprove, onReject } = props
+  const { address, loading, onApprove, onReject, request } = props
 
   const account = Hooks.useAccount(porto, { address })
 
@@ -27,8 +27,8 @@ export function GrantPermissions(props: GrantPermissions.Props) {
       </Layout.Header>
       <Layout.Content className="pl-0">
         <Permissions
-          calls={permissions.calls ?? []}
-          spend={permissions.spend}
+          calls={request?.permissions.calls ?? []}
+          spend={request?.permissions.spend ?? []}
           title="Permissions requested"
         />
       </Layout.Content>
@@ -64,12 +64,11 @@ export function GrantPermissions(props: GrantPermissions.Props) {
 }
 
 export declare namespace GrantPermissions {
-  type Props = RpcSchema.ExtractParams<
-    porto_RpcSchema.Schema,
-    'wallet_grantPermissions'
-  >['0'] & {
+  type Props = {
+    address?: Address.Address | undefined
     loading: boolean
     onApprove: () => void
     onReject: () => void
+    request?: PermissionsRequest.PermissionsRequest | undefined
   }
 }
