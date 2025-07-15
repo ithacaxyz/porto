@@ -2424,6 +2424,10 @@ describe.each([
     })
   })
 
+  describe('wallet_getAssets', () => {
+    test.todo('default')
+  })
+
   describe('wallet_getCallsStatus', () => {
     test('default', async () => {
       const { porto } = getPorto()

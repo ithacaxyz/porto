@@ -93,6 +93,15 @@ export type Mode = {
       current: string
     }>
 
+    getAssets: (parameters: {
+      /** Address of the account to get the assets of. */
+      account: Address.Address
+      /** Chain IDs to get the assets for. */
+      chainFilter?: readonly Hex.Hex[] | undefined
+      /** Internal properties. */
+      internal: ActionsInternal
+    }) => Promise<typeof RpcSchema.wallet_getAssets.Response.Encoded>
+
     getCallsStatus: (parameters: {
       /** ID of the calls to get the status of. */
       id: Hex.Hex
