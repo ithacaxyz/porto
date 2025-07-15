@@ -1,9 +1,9 @@
 import { env } from 'cloudflare:workers'
 import { exp1Abi, exp1Address } from '@porto/apps/contracts'
 import { Hono } from 'hono'
+import { getConnInfo } from 'hono/cloudflare-workers'
 import { validator } from 'hono/validator'
 import { Chains } from 'porto'
-import { rateLimitMiddleware } from 'src/middleware'
 import { createWalletClient, http, isAddress, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { waitForTransactionReceipt } from 'viem/actions'
@@ -20,17 +20,26 @@ const chains = {
   [Chains.portoDev.id]: Chains.portoDev,
 } as const
 
-faucetApp.use('*', async (context, next) => {
+faucetApp.all('*', async (context, next) => {
+  const ip =
+    getConnInfo(context).remote.address ||
+    context.req.header('cf-connecting-ip')
+  const key = (context.req.query('address')?.toLowerCase() ?? '') + (ip ?? '')
+  if (!key || !key.length)
+    return context.json({ error: 'Unable to process request' }, 400)
+
+  const { success } = await context.env.RATE_LIMITER.limit({
+    key,
+  })
+  if (!success) return context.json({ error: 'Rate limit exceeded' }, 429)
+
   await next()
-  context.header('Access-Control-Allow-Origin', '*')
-  context.header('X-Faucet-Address', account.address)
-  context.header('route-rate-limit-identifier', account.address)
 })
 
-faucetApp.get(
+faucetApp.on(
+  ['GET', 'POST'],
   '/',
-  rateLimitMiddleware,
-  validator('query', (values, context) => {
+  validator('query', async (values, context) => {
     const { address, chainId, value = '25' } = <Record<string, string>>values
 
     if (!address || !isAddress(address))
