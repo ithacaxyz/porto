@@ -202,6 +202,32 @@ function formatTailwindVarName(colorName: string, prefix: string): string {
   return varName
 }
 
+function generateMdx(theme: PortoTheme): string {
+  const sections: string[] = []
+
+  sections.push('# Porto Theme Tokens')
+  sections.push('')
+
+  for (const [key, value] of Object.entries(theme) as Entries<PortoTheme>) {
+    if (key === 'colorScheme' || value === null) continue
+
+    const description = Array.isArray(value) ? value[0] : 'Theme token'
+    sections.push(`## ${key}`)
+    sections.push('')
+    sections.push(description)
+    sections.push('')
+
+    if (isThemeColor(value)) {
+      sections.push(`**Porto Theme value**: \`["${value[1]}", "${value[2]}"]\``)
+    } else if (isThemeNumber(value)) {
+      sections.push(`**Porto Theme value**: \`${value[1]}\``)
+    }
+    sections.push('')
+  }
+
+  return sections.join('\n')
+}
+
 function generateTailwindMappings(theme: PortoTheme): string {
   const mappings: string[] = []
 
@@ -320,6 +346,9 @@ const formatExporters = {
   },
   tailwind_mappings(theme) {
     return generateTailwindMappings(theme)
+  },
+  mdx(theme) {
+    return generateMdx(theme)
   },
 } satisfies Record<string, (theme: PortoTheme) => string>
 
