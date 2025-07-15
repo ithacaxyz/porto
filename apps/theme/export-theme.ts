@@ -338,6 +338,9 @@ const formatExporters = {
     )
     return JSON.stringify(themeOnly, null, 2)
   },
+  mdx(theme) {
+    return generateMdx(theme)
+  },
   tailwind(theme) {
     return tailwindCss(theme, { comments: false })
   },
@@ -346,9 +349,6 @@ const formatExporters = {
   },
   tailwind_mappings(theme) {
     return generateTailwindMappings(theme)
-  },
-  mdx(theme) {
-    return generateMdx(theme)
   },
 } satisfies Record<string, (theme: PortoTheme) => string>
 
