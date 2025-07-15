@@ -5,7 +5,7 @@ export type ThemeColorScheme = 'light' | 'dark' | 'light dark'
 // 1. Surface name (e.g. base, primary, field)
 // 2. (optional) Variant (e.g. fieldError)
 // 3. (optional) Interaction state (e.g. baseHovered, fieldFocused)
-// 4. Surface part (e.g. fieldBackground, fieldContent, fieldBorder)
+// 4. Surface part (e.g. fieldBackground, fieldContent, fieldBorder, fieldRadius)
 // 5. (optional) Surface part variant (e.g. baseContentDimmed)
 //
 // Examples:
@@ -20,13 +20,24 @@ export type Theme<
 > = {
   colorScheme: ColorScheme
 
+  accent: SchemeColor
   focus: SchemeColor
   link: SchemeColor
+  separator: SchemeColor
 
   baseBackground: SchemeColor
   baseBorder: SchemeColor
   baseContent: SchemeColor
+  baseContentDimmed: SchemeColor
   baseHoveredBackground: SchemeColor
+
+  frameBackground: SchemeColor
+  frameBorder: SchemeColor
+  frameContent: SchemeColor
+  frameRadius: number
+
+  iconInfoBackground: SchemeColor
+  iconInfoContent: SchemeColor
 
   primaryBackground: SchemeColor
   primaryContent: SchemeColor
@@ -64,7 +75,7 @@ export function isColor(value: unknown): value is Color {
   return (
     typeof value === 'string' &&
     (value === 'transparent' ||
-      /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(value))
+      /^#([0-9A-Fa-f]{8}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/.test(value))
   )
 }
 
