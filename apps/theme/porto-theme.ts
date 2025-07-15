@@ -1,4 +1,4 @@
-/* biome-ignore format: might change later, for now keeping theme values grouped logically makes it iterating easier */
+// biome-ignore format: might change later, for now keeping theme values grouped logically makes it iterating easier
 import type { CombinedColor, Theme} from './Theme'
 
 type CombinedTheme = Theme<'light dark'>
