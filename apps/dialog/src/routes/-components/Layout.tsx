@@ -89,6 +89,7 @@ export namespace Layout {
         title: string
       }
 
+      // header icon
       export const className = cva(
         'flex size-8 items-center justify-center rounded-full',
         {
@@ -97,7 +98,7 @@ export namespace Layout {
           },
           variants: {
             variant: {
-              default: 'bg-accentTint text-accent',
+              default: 'bg-th_icon-info text-th_icon-info',
               destructive: 'bg-destructive text-destructive',
               success: 'bg-successTint text-success',
               warning: 'bg-warningTint text-warning',

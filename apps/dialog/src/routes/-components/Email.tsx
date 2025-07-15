@@ -149,11 +149,11 @@ export function Email(props: Email.Props) {
           // If no sign up button, this means the user is already logged in, however
           // the user may want to sign in with a different passkey.
           <div className="flex w-full justify-between gap-2">
-            <div className="text-gray9">
-              Using <span className="text-th_base">{displayName}</span>
+            <div>
+              <span className="text-th_base-dimmed">Using</span> {displayName}
             </div>
             <button
-              className="text-accent"
+              className="text-th_link"
               onClick={() => {
                 setLoadingTitle('Signing in...')
                 onApprove({ selectAccount: true, signIn: true })

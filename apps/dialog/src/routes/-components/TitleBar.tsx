@@ -47,7 +47,7 @@ export function TitleBar(props: TitleBar.Props) {
 
   return (
     <header
-      className="fixed flex h-navbar w-full items-center justify-between gap-2 border-th_base border-b bg-secondary px-3 pt-2 pb-1.5"
+      className="fixed flex h-navbar w-full items-center justify-between gap-2 border-th_frame border-b bg-th_frame px-3 pt-2 pb-1.5"
       ref={ref}
     >
       <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-gray6">
@@ -84,7 +84,7 @@ export function TitleBar(props: TitleBar.Props) {
         )}
       </div>
 
-      <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-secondary leading-[22px]">
+      <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-th_frame leading-[22px]">
         {url?.startsWith('cli') ? (
           referrer?.title
         ) : url ? (
@@ -103,7 +103,7 @@ export function TitleBar(props: TitleBar.Props) {
 
         {verifyStatus === 'whitelisted' && (
           <div className="flex items-center justify-center">
-            <LucideBadgeCheck className="size-4 text-accent" />
+            <LucideBadgeCheck className="size-4 text-th_accent" />
           </div>
         )}
 
@@ -120,7 +120,7 @@ export function TitleBar(props: TitleBar.Props) {
           title="Close Dialog"
           type="button"
         >
-          <LucideX className="size-4.5 text-secondary" />
+          <LucideX className="size-4.5 text-th_frame" />
         </button>
       )}
     </header>

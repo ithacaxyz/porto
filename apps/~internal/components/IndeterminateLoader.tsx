@@ -20,7 +20,7 @@ export function IndeterminateLoader(props: IndeterminateLoader.Props) {
       >
         <div
           className={cx(
-            'flex size-8 items-center justify-center rounded-full bg-accentTint p-[6px] text-accent',
+            'flex size-8 items-center justify-center rounded-full bg-th_icon-info p-[6px] text-th_icon-info',
             align === 'vertical' && 'size-12',
           )}
         >
