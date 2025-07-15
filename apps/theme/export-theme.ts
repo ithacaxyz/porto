@@ -205,7 +205,7 @@ function formatTailwindVarName(colorName: string, prefix: string): string {
 function generateMdx(theme: PortoTheme): string {
   const sections: string[] = []
 
-  sections.push('# Porto Theme Tokens')
+  sections.push('# Porto Themes')
   sections.push('')
 
   for (const [key, value] of Object.entries(theme) as Entries<PortoTheme>) {
@@ -338,6 +338,9 @@ const formatExporters = {
     )
     return JSON.stringify(themeOnly, null, 2)
   },
+  mdx(theme) {
+    return generateMdx(theme)
+  },
   tailwind(theme) {
     return tailwindCss(theme, { comments: false })
   },
@@ -346,9 +349,6 @@ const formatExporters = {
   },
   tailwind_mappings(theme) {
     return generateTailwindMappings(theme)
-  },
-  mdx(theme) {
-    return generateMdx(theme)
   },
 } satisfies Record<string, (theme: PortoTheme) => string>
 
