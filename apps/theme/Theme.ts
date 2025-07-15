@@ -2,7 +2,7 @@ export type ThemeColorScheme = 'light' | 'dark' | 'light dark'
 
 export type Theme<
   ColorScheme extends ThemeColorScheme,
-  SchemeColor = ColorScheme extends 'light dark' ? CombinedColor : Color,
+  SchemeColor = ColorScheme extends 'light dark' ? LightDarkColor : Color,
 > = {
   colorScheme: ColorScheme
 
@@ -65,7 +65,7 @@ export function isColor(value: unknown): value is Color {
   )
 }
 
-export type CombinedColor = [light: Color, dark: Color]
-export function isCombinedColor(value: unknown): value is CombinedColor {
+export type LightDarkColor = [light: Color, dark: Color]
+export function isLightDarkColor(value: unknown): value is LightDarkColor {
   return Array.isArray(value) && value.length === 2 && value.every(isColor)
 }

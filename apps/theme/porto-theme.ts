@@ -1,14 +1,14 @@
-import type { CombinedColor, Theme } from './Theme'
+import type { LightDarkColor, Theme } from './Theme'
 
-type CombinedTheme = Theme<'light dark'>
+type LightDarkTheme = Theme<'light dark'>
 
-export type PortoTheme = Pick<CombinedTheme, 'colorScheme'> & {
+export type PortoTheme = Pick<LightDarkTheme, 'colorScheme'> & {
   [K in keyof Omit<
-    CombinedTheme,
+    LightDarkTheme,
     'colorScheme'
-  > as K]: CombinedTheme[K] extends CombinedColor
-    ? [description: string, light: CombinedColor[0], dark: CombinedColor[1]]
-    : CombinedTheme[K] extends number
+  > as K]: LightDarkTheme[K] extends LightDarkColor
+    ? [description: string, light: LightDarkColor[0], dark: LightDarkColor[1]]
+    : LightDarkTheme[K] extends number
       ? [description: string, radius: number]
       : never
 }
@@ -148,7 +148,6 @@ export const portoTheme: PortoTheme = {
     '#F0F',
     '#F0F',
   ],
-
   positiveBackground: [
     'Positive background color. Generally green, used for elements indicating success or positive state, such as a success message or a confirmation button.',
     '#F0F',
