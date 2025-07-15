@@ -10,8 +10,8 @@ Theming system for Porto with multiple export formats.
 
 Related files in `~internal/lib`:
 
-- `~internal/lib/TailwindThemeMappings.ts` - Generated mappings (`./export-theme.ts --as tailwind_mappings`)
-- `~internal/lib/TailwindTheme.ts` - Conversion utilities
+- `~internal/lib/theme-mappings.ts` - Generated mappings (`./export-theme.ts --as tailwind_mappings`)
+- `~internal/lib/Theme.ts` - Theme runtime utilities
 
 ## Export Formats
 
