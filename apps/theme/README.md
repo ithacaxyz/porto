@@ -46,4 +46,3 @@ pnpm dev
 ```
 
 This will start a watcher that re-export the theme to `~internal/styles/porto-theme.css` whenever `porto-theme.ts` is modified.
-
