@@ -221,7 +221,7 @@ function CheckError(props: CheckError.Props) {
             data-testid="primary-action"
             onClick={mainAction.onClick}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             {mainAction.label}
           </Button>

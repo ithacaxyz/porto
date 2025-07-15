@@ -88,7 +88,7 @@ export function Email(props: Email.Props) {
               onApprove({ signIn: true })
             }}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             <IconScanFace className="size-5.25" />
             {actions.includes('sign-up')
@@ -128,7 +128,7 @@ export function Email(props: Email.Props) {
               className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-gray10"
               data-testid="sign-up"
               type="submit"
-              variant={actions.includes('sign-in') ? 'default' : 'accent'}
+              variant={actions.includes('sign-in') ? 'default' : 'primary'}
             >
               <span className="hidden group-has-[:user-invalid]:block">
                 Invalid email

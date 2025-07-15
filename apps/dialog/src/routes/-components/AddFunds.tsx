@@ -177,7 +177,7 @@ export function AddFunds(props: AddFunds.Props) {
                   className="w-full flex-1"
                   data-testid="buy"
                   type="submit"
-                  variant="accent"
+                  variant="primary"
                 >
                   Get started
                 </Button>
@@ -273,7 +273,7 @@ export function AddFunds(props: AddFunds.Props) {
             <Button
               className="flex-grow"
               onClick={() => setView('default')}
-              variant="accent"
+              variant="primary"
             >
               Try again
             </Button>

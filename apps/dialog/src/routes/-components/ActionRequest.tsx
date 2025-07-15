@@ -111,7 +111,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                   className="flex-grow"
                   onClick={onApprove}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Confirm anyway
                 </Button>
@@ -133,7 +133,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                   disabled={!prepareCallsQuery.isSuccess}
                   onClick={onApprove}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Confirm
                 </Button>

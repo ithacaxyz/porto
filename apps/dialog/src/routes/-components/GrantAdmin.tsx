@@ -87,7 +87,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
                   className="flex-1"
                   onClick={onApprove}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Add
                 </Button>

@@ -49,7 +49,7 @@ export function GrantPermissions(props: GrantPermissions.Props) {
             data-testid="grant"
             onClick={onApprove}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             Grant
           </Button>

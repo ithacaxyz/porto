@@ -50,7 +50,7 @@ export function SignMessage(props: SignMessage.Props) {
             className="flex-grow"
             onClick={() => onApprove()}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             Sign message
           </Button>
@@ -109,7 +109,7 @@ export namespace SignMessage {
               className="flex-grow"
               onClick={() => onApprove()}
               type="button"
-              variant="accent"
+              variant="primary"
             >
               Approve
             </Button>

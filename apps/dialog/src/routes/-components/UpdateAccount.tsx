@@ -142,7 +142,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
                   className="flex-grow"
                   onClick={() => sendCallsMutation.mutate()}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Update now
                 </Button>

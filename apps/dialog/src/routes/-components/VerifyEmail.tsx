@@ -48,7 +48,7 @@ export function VerifyEmail(props: VerifyEmail.Props) {
             className="flex-grow"
             onClick={() => onApprove()}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             Verify email
           </Button>

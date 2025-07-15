@@ -59,7 +59,7 @@ export function SignUp(props: SignUp.Props) {
             data-testid="sign-up"
             onClick={() => onApprove({ signIn: false })}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             Sign up
           </Button>
