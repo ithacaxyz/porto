@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.53
+
+### Patch Changes
+
+- [#587](https://github.com/ithacaxyz/porto/pull/587) [`6785db3`](https://github.com/ithacaxyz/porto/commit/6785db3bac2a25f93f5b94d0fe517f8f40cc3a51) Thanks [@jxom](https://github.com/jxom)! - Removed extraneous background RPC requests that occurred outside of the dialog.
+
 ## 0.0.52
 
 ### Patch Changes
