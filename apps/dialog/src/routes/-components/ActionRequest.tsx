@@ -69,7 +69,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // Perform the query without a fee token when the user has insufficient balance,
   // so that we can perform a simulation to extract the asset diff.
-  const prepareCallsQuery_noFeeToken = RpcServer.prepareCalls.useQuery({
+  const prepareCallsQuery_ethFeeToken = RpcServer.prepareCalls.useQuery({
     address,
     calls,
     chainId,
@@ -78,7 +78,7 @@ export function ActionRequest(props: ActionRequest.Props) {
   })
 
   const query = hasInsufficientBalance
-    ? prepareCallsQuery_noFeeToken
+    ? prepareCallsQuery_ethFeeToken
     : prepareCallsQuery
   const query_assetDiff = merchantRpcUrl ? prepareCallsQuery_assetDiff : query
 
