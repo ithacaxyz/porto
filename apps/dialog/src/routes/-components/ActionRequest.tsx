@@ -67,8 +67,9 @@ export function ActionRequest(props: ActionRequest.Props) {
     feeToken,
   })
 
-  // Perform the query without a fee token when the user has insufficient balance,
-  // so that we can perform a simulation to extract the asset diff.
+  // Perform the query with an ETH fee token when the user has insufficient
+  // fee balance, so that we can perform a simulation to extract the asset diff.
+  // TODO: push relay to implement a dedicated simulation API?
   const prepareCallsQuery_ethFeeToken = RpcServer.prepareCalls.useQuery({
     address,
     calls,
