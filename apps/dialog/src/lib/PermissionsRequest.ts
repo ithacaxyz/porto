@@ -13,6 +13,12 @@ export function useResolve(
 
   return useQuery({
     enabled: !!request,
+    initialData: request
+      ? {
+          ...Schema.decodeSync(PermissionsRequest.Schema)(request),
+          _encoded: request,
+        }
+      : undefined,
     async queryFn() {
       if (!request) throw new Error('no request found.')
 
