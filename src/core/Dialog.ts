@@ -34,6 +34,7 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
  * @returns iframe dialog.
  */
 export function iframe(options: iframe.Options = {}) {
+  const { size = defaultSize } = options
   const { skipProtocolCheck, skipUnsupported } = options
 
   // Safari does not support WebAuthn credential creation in iframes.
@@ -104,8 +105,8 @@ export function iframe(options: iframe.Options = {}) {
           dialog iframe {
             animation: porto_fadeFromTop 0.1s cubic-bezier(0.32, 0.72, 0, 1);
             top: 16px;
-            inset-inline-end: calc(50% - ${width}px / 2);
-            width: ${width}px;
+            inset-inline-end: calc(50% - ${size.width}px / 2);
+            width: ${size.width}px;
           }
         }
 
@@ -298,6 +299,7 @@ export function iframe(options: iframe.Options = {}) {
 
 export declare namespace iframe {
   export type Options = {
+    size?: { width: number; height?: number | undefined } | undefined
     /**
      * Skips check for insecure protocol (HTTP).
      * @default false
@@ -317,8 +319,9 @@ export declare namespace iframe {
  *
  * @returns Popup dialog.
  */
-export function popup() {
+export function popup(options: popup.Options = {}) {
   if (typeof window === 'undefined') return noop()
+  const { size = defaultSize } = options
   return from({
     name: 'popup',
     setup(parameters) {
@@ -347,13 +350,13 @@ export function popup() {
           messenger?.destroy()
         },
         open() {
-          const left = (window.innerWidth - width) / 2 + window.screenX
+          const left = (window.innerWidth - size.width) / 2 + window.screenX
           const top = window.screenY + 100
 
           popup = window.open(
             getDialogUrl(host),
             '_blank',
-            `width=${width},height=${height},left=${left},top=${top}`,
+            `width=${size.width},height=${size.height},left=${left},top=${top}`,
           )
           if (!popup) throw new Error('Failed to open popup')
 
@@ -395,6 +398,12 @@ export function popup() {
     },
     supportsHeadless: false,
   })
+}
+
+export declare namespace popup {
+  export type Options = {
+    size?: { width: number; height: number } | undefined
+  }
 }
 
 /**
@@ -520,8 +529,7 @@ export namespace inline {
   }
 }
 
-export const width = 360
-export const height = 282
+export const defaultSize = { height: 282, width: 360 }
 
 export const styles = {
   backdrop: {

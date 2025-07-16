@@ -147,8 +147,15 @@ export type Mode = {
     loadAccounts: (parameters: {
       /** Address of the account to load. */
       address?: Hex.Hex | undefined
-      /** Credential ID to use to load an existing account. */
-      credentialId?: string | undefined
+      /** Key to use to load an existing account. */
+      key?:
+        | {
+            /** Credential ID. May be `undefined` when the key is not a WebAuthn credential. */
+            credentialId?: string | undefined
+            /** Public key. */
+            publicKey: Hex.Hex
+          }
+        | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Permissions to grant. */

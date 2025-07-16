@@ -242,6 +242,10 @@ describe('wallet_getPermissions', () => {
           chainId: null,
           permissions: {
             ...x.permissions,
+            calls: x.permissions.calls.map((x) => ({
+              ...x,
+              to: null,
+            })),
             spend: x.permissions.spend?.map((x) => ({
               ...x,
               token: null,
@@ -276,6 +280,10 @@ describe('wallet_getPermissions', () => {
           chainId: null,
           permissions: {
             ...x.permissions,
+            calls: x.permissions.calls.map((x) => ({
+              ...x,
+              to: null,
+            })),
             spend: x.permissions.spend?.map((x) => ({
               ...x,
               token: null,

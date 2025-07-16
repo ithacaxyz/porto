@@ -27,6 +27,7 @@ describe('createP256', () => {
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "permissions": undefined,
         "prehash": false,
         "privateKey": [Function],
@@ -49,6 +50,7 @@ describe('createSecp256k1', () => {
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "permissions": undefined,
         "prehash": false,
         "privateKey": [Function],
@@ -128,6 +130,7 @@ describe('createWebAuthnP256', () => {
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "permissions": undefined,
         "prehash": false,
         "privateKey": {
@@ -181,6 +184,7 @@ describe('createWebCryptoP256', () => {
     expect(rest).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "permissions": undefined,
         "prehash": true,
         "privateKey": CryptoKey {},
@@ -390,6 +394,7 @@ describe('fromP256', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
         "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "permissions": undefined,
@@ -412,6 +417,7 @@ describe('fromP256', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 69420,
+        "feeLimit": undefined,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
         "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
         "permissions": undefined,
@@ -496,6 +502,7 @@ describe('fromSecp256k1', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "hash": "0xd325ebfdb383f9fca8e4e1c443cdceddda39f1f860824156b75ec85f11b94a35",
         "id": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "permissions": undefined,
@@ -516,6 +523,7 @@ describe('fromSecp256k1', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "hash": "0x6ce15638cb31daec095a6f3834f344957f69c7dc09ff935917447b3d65976595",
         "id": "0x0000000000000000000000000000000000000000",
         "permissions": undefined,
@@ -537,6 +545,7 @@ describe('fromSecp256k1', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "hash": "0xd325ebfdb383f9fca8e4e1c443cdceddda39f1f860824156b75ec85f11b94a35",
         "id": "0x673ee8aabd3a62434cb9e3d7c6f9492e286bcb08",
         "permissions": undefined,
@@ -597,6 +606,7 @@ describe('fromWebAuthnP256', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "hash": "0x2a7a39929a819ed8472f7fe3aa65a758432cc8ab833e9999f50217d55c70c50f",
         "id": "0x0000000000000000000000000000000000000000",
         "permissions": undefined,
@@ -644,6 +654,7 @@ describe('fromWebCryptoP256', () => {
     expect(key).toMatchInlineSnapshot(`
       {
         "expiry": 0,
+        "feeLimit": undefined,
         "hash": "0xa2085f4d3a69fcf0182dbe60a3b7da9b5fd8b2b54d7ea39d345ba82d6edc8fe1",
         "id": "0x410e2eb4820de45c0dd6730c300c3c66b8bc5885c963067fe0ff29c5e480329009d8fbd71e76257a2d5577e2211a62114eca15c9218d488209fa789a45497124",
         "permissions": undefined,

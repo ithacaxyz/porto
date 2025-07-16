@@ -117,7 +117,7 @@ export function ActionRequest(props: ActionRequest.Props) {
               </Button>
               <Button
                 className="flex-grow"
-                onClick={onApprove}
+                onClick={() => onApprove(prepareCallsQuery.data!)}
                 type="button"
                 variant="accent"
               >
@@ -139,7 +139,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                 className="flex-grow"
                 data-testid="confirm"
                 disabled={!query.isSuccess}
-                onClick={onApprove}
+                onClick={() => onApprove(prepareCallsQuery.data!)}
                 type="button"
                 variant="accent"
               >
@@ -166,7 +166,7 @@ export namespace ActionRequest {
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading?: boolean | undefined
     merchantRpcUrl?: string | undefined
-    onApprove: () => void
+    onApprove: (data: RpcServer.prepareCalls.useQuery.Data) => void
     onReject: () => void
     quote?: Quote | undefined
   }

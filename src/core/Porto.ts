@@ -1,4 +1,5 @@
 import type * as Address from 'ox/Address'
+import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import { http, type Transport } from 'viem'
@@ -275,10 +276,20 @@ export type Store<
 >
 
 export type QueuedRequest<result = unknown> = {
+  /** Account to assert the request for, and sync if neccessary. */
   account:
     | {
+        /** Address of the account. */
         address: Address.Address
-        credentialId?: string | undefined
+        /** Active key of the account. */
+        key?:
+          | {
+              /** Credential ID. May be `undefined` when the key is not a WebAuthn credential. */
+              credentialId?: string | undefined
+              /** Public key */
+              publicKey: Hex.Hex
+            }
+          | undefined
       }
     | undefined
   request: RpcRequest.RpcRequest & { _internal?: unknown }

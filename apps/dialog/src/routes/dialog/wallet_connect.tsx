@@ -163,6 +163,17 @@ function RouteComponent() {
     },
   })
 
+  const isLoading = React.useMemo(() => {
+    if (capabilities?.grantPermissions && grantPermissionsQuery.isPending)
+      return true
+    if (respond.isPending) return true
+    return false
+  }, [
+    capabilities?.grantPermissions,
+    grantPermissionsQuery.isPending,
+    respond.isPending,
+  ])
+
   if (respond.isSuccess) return
 
   if (capabilities?.email ?? true)
@@ -174,7 +185,7 @@ function RouteComponent() {
             ? capabilities?.createAccount?.label || ''
             : undefined
         }
-        loading={respond.isPending}
+        loading={isLoading}
         onApprove={(options) => respond.mutate(options)}
         permissions={grantPermissions?.permissions}
       />
@@ -184,7 +195,7 @@ function RouteComponent() {
     return (
       <SignUp
         enableSignIn={actions.includes('sign-in')}
-        loading={respond.isPending}
+        loading={isLoading}
         onApprove={(options) => respond.mutate(options)}
         onReject={() => Actions.reject(porto, request)}
         permissions={grantPermissions?.permissions}
@@ -193,7 +204,7 @@ function RouteComponent() {
 
   return (
     <SignIn
-      loading={respond.isPending}
+      loading={isLoading}
       onApprove={(options) => respond.mutate(options)}
       permissions={grantPermissions?.permissions}
     />

@@ -53,7 +53,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   account: account
                     ? {
                         address: account.address,
-                        credentialId: (adminKey as any)?.credentialId,
+                        key: adminKey
+                          ? {
+                              credentialId: (adminKey as any)?.credentialId,
+                              publicKey: adminKey.publicKey,
+                            }
+                          : undefined,
                       }
                     : undefined,
                   request,
@@ -325,7 +330,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         })()
 
         return U.uniqBy(
-          [...(account.keys ?? []), ...keys],
+          [...keys, ...(account.keys ?? [])],
           (key) => key.publicKey,
         )
       },

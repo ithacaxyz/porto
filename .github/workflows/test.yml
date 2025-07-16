@@ -27,7 +27,6 @@ on:
         type: choice
         description: 'Dispatch type'
         options:
-          - ''
           - 'release'
           - 'deployment'
         default: ''
@@ -43,11 +42,11 @@ on:
       test-deployment-browser:
         type: boolean
         description: 'Run Deployment Browser tests'
-        default: false
+        default: true
       test-deployment-node:
         type: boolean
         description: 'Run Deployment Node tests'
-        default: false
+        default: true
 
 env:
    ACTIONS_RUNNER_DEBUG: true
@@ -90,16 +89,16 @@ jobs:
         include:
           - local: 'true'
             browser: 'true'
-            enabled: ${{ inputs.test-local-browser }}
+            enabled: ${{ inputs.test-local-browser == true || inputs.test-local-browser == null }}
           - local: 'true'
             browser: 'false'
-            enabled: ${{ inputs.test-local-node }}
+            enabled: ${{ inputs.test-local-node == true || inputs.test-local-node == null }}
           - local: 'false'
             browser: 'true'
-            enabled: ${{ inputs.test-deployment-browser }}
+            enabled: ${{ inputs.test-deployment-browser == true || inputs.test-deployment-browser == null }}
           - local: 'false'
             browser: 'false'
-            enabled: ${{ inputs.test-deployment-node }}
+            enabled: ${{ inputs.test-deployment-node == true || inputs.test-deployment-node == null }}
     env: 
       CI: true
       VITE_LOCAL: ${{ matrix.local }}
