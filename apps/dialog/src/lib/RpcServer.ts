@@ -80,9 +80,9 @@ export namespace prepareCalls {
       > &
         Pick<
           UseQueryOptions<
-            ServerActions.prepareCalls.ReturnType,
+            queryOptions.Data,
             Error,
-            ServerActions.prepareCalls.ReturnType,
+            queryOptions.Data,
             (string | undefined)[]
           >,
           'enabled' | 'refetchInterval'
@@ -91,6 +91,8 @@ export namespace prepareCalls {
           feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
           merchantRpcUrl?: string | undefined
         }
+
+    export type Data = ServerActions.prepareCalls.ReturnType
   }
 
   export function useQuery(props: useQuery.Props) {
@@ -107,5 +109,7 @@ export namespace prepareCalls {
       address?: Address.Address | undefined
       chainId?: number | undefined
     }
+
+    export type Data = queryOptions.Data
   }
 }
