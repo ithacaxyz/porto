@@ -8,13 +8,13 @@ import { Permissions } from '~/routes/-components/Permissions'
 import LucideLogIn from '~icons/lucide/log-in'
 
 export function SignIn(props: SignIn.Props) {
-  const { loading, onApprove, permissions } = props
+  const { onApprove, permissions, status } = props
 
   const account = Hooks.useAccount(porto)
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
   return (
-    <Layout loading={loading} loadingTitle="Signing in...">
+    <Layout loading={status === 'responding'} loadingTitle="Signing in...">
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={
@@ -40,6 +40,7 @@ export function SignIn(props: SignIn.Props) {
           <Button
             className="w-full"
             data-testid="sign-up"
+            disabled={status === 'loading'}
             onClick={() => onApprove({ signIn: false })}
             type="button"
           >
@@ -49,6 +50,7 @@ export function SignIn(props: SignIn.Props) {
           <Button
             className="w-full"
             data-testid="sign-in"
+            disabled={status === 'loading'}
             onClick={() => onApprove({ signIn: true })}
             type="button"
             variant="accent"
@@ -70,8 +72,8 @@ export function SignIn(props: SignIn.Props) {
 
 declare namespace SignIn {
   type Props = {
-    loading: boolean
     onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
     permissions?: Permissions.Props
+    status?: 'loading' | 'responding' | undefined
   }
 }

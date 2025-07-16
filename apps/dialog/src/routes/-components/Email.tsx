@@ -13,12 +13,12 @@ export function Email(props: Email.Props) {
   const {
     actions = ['sign-in', 'sign-up'],
     defaultValue = '',
-    loading,
     onApprove,
     permissions,
+    status,
   } = props
 
-  const [loadingTitle, setLoadingTitle] = React.useState('Signing up...')
+  const [respondingTitle, setRespondingTitle] = React.useState('Signing up...')
 
   const account = Hooks.useAccount(porto)
   const email = Dialog.useStore((state) =>
@@ -42,7 +42,7 @@ export function Email(props: Email.Props) {
       event.preventDefault()
       const formData = new FormData(event.target as HTMLFormElement)
       const email = formData.get('email')?.toString()
-      setLoadingTitle('Signing up...')
+      setRespondingTitle('Signing up...')
       onApprove({ email, signIn: false })
     },
     [onApprove],
@@ -67,7 +67,7 @@ export function Email(props: Email.Props) {
   }, [actions, cli, hostname])
 
   return (
-    <Layout loading={loading} loadingTitle={loadingTitle}>
+    <Layout loading={status === 'responding'} loadingTitle={respondingTitle}>
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={content}
@@ -83,8 +83,9 @@ export function Email(props: Email.Props) {
           <Button
             className="flex w-full gap-2"
             data-testid="sign-in"
+            disabled={status === 'loading'}
             onClick={() => {
-              setLoadingTitle('Signing in...')
+              setRespondingTitle('Signing in...')
               onApprove({ signIn: true })
             }}
             type="button"
@@ -116,6 +117,7 @@ export function Email(props: Email.Props) {
               <Input
                 className="w-full user-invalid:bg-gray3 user-invalid:ring-red9"
                 defaultValue={defaultValue}
+                disabled={status === 'loading'}
                 name="email"
                 placeholder="example@ithaca.xyz"
                 type="email"
@@ -127,6 +129,7 @@ export function Email(props: Email.Props) {
             <Button
               className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-gray10"
               data-testid="sign-up"
+              disabled={status === 'loading'}
               type="submit"
               variant={actions.includes('sign-in') ? 'default' : 'accent'}
             >
@@ -155,7 +158,7 @@ export function Email(props: Email.Props) {
             <button
               className="text-accent"
               onClick={() => {
-                setLoadingTitle('Signing in...')
+                setRespondingTitle('Signing in...')
                 onApprove({ selectAccount: true, signIn: true })
               }}
               type="button"
@@ -173,12 +176,12 @@ export namespace Email {
   export type Props = {
     actions?: readonly ('sign-in' | 'sign-up')[]
     defaultValue?: string | undefined
-    loading: boolean
     onApprove: (p: {
       email?: string
       selectAccount?: boolean
       signIn?: boolean
     }) => void
     permissions?: Permissions.Props
+    status?: 'loading' | 'responding' | undefined
   }
 }
