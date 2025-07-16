@@ -358,10 +358,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
             // If the address and credentialId are provided, we can skip the
             // WebAuthn discovery step.
-            if (parameters.address && parameters.credentialId)
+            if (parameters.address && parameters.key)
               return {
                 address: parameters.address,
-                credentialId: parameters.credentialId,
+                credentialId: parameters.key.credentialId,
               }
 
             // Discovery step. We need to do this to extract the key id

@@ -759,29 +759,29 @@ export function from<
               return { accounts: [account] }
             }
             const account = state.accounts[0]
-            const { address, credentialId, publicKey } = (() => {
+            const { address, key } = (() => {
               if (selectAccount) {
                 if (typeof selectAccount === 'object') return selectAccount
                 return {
                   address: undefined,
-                  credentialId: undefined,
-                  publicKey: undefined,
+                  key: undefined,
                 }
               }
               for (const key of account?.keys ?? []) {
                 if (key.type === 'webauthn-p256' && key.role === 'admin')
                   return {
                     address: account?.address,
-                    credentialId:
-                      (key as any).credentialId ??
-                      key.privateKey?.credential?.id,
-                    publicKey: key.publicKey,
+                    key: {
+                      credentialId:
+                        (key as any).credentialId ??
+                        key.privateKey?.credential?.id,
+                      publicKey: key.publicKey,
+                    },
                   }
               }
               return {
                 address: undefined,
-                credentialId: undefined,
-                publicKey: undefined,
+                key: undefined,
               }
             })()
             const loadAccountsParams = {
@@ -790,19 +790,18 @@ export function from<
               signInWithEthereum,
             }
             try {
-              // try to restore from stored account (`address`/`credentialId`) to avoid multiple prompts
+              // try to restore from stored account (`address`/`key`) to avoid multiple prompts
               return await getMode().actions.loadAccounts({
                 address,
-                credentialId,
-                publicKey,
+                key,
                 ...loadAccountsParams,
               })
             } catch (error) {
               if (error instanceof ox_Provider.UserRejectedRequestError)
                 throw error
 
-              // error with `address`/`credentialId` likely means one or both are stale, retry
-              if (address && credentialId)
+              // error with `address`/`key` likely means one or both are stale, retry
+              if (address && key)
                 return await getMode().actions.loadAccounts(loadAccountsParams)
               throw error
             }

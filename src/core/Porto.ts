@@ -279,8 +279,12 @@ export type QueuedRequest<result = unknown> = {
   account:
     | {
         address: Address.Address
-        credentialId?: string | undefined
-        publicKey?: Hex.Hex | undefined
+        key?:
+          | {
+              credentialId?: string | undefined
+              publicKey: Hex.Hex
+            }
+          | undefined
       }
     | undefined
   request: RpcRequest.RpcRequest & { _internal?: unknown }

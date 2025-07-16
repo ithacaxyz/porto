@@ -482,8 +482,12 @@ export namespace wallet_connect {
         Schema.Boolean,
         Schema.Struct({
           address: Primitive.Address,
-          credentialId: Schema.optional(Schema.String),
-          publicKey: Schema.optional(Primitive.Hex),
+          key: Schema.optional(
+            Schema.Struct({
+              credentialId: Schema.optional(Schema.String),
+              publicKey: Primitive.Hex,
+            }),
+          ),
         }),
       ),
     ),

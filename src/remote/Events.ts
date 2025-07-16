@@ -24,8 +24,12 @@ export function onDialogRequest(
     account?:
       | {
           address: Address.Address
-          credentialId?: string | undefined
-          publicKey?: Hex.Hex | undefined
+          key?:
+            | {
+                credentialId?: string | undefined
+                publicKey: Hex.Hex
+              }
+            | undefined
         }
       | undefined
     requireUpdatedAccount?: boolean | undefined
