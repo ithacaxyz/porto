@@ -150,7 +150,7 @@ export type Mode = {
       /** Key to use to load an existing account. */
       key?:
         | {
-            /** Credential ID. */
+            /** Credential ID. May be `undefined` when the key is not a WebAuthn credential. */
             credentialId?: string | undefined
             /** Public key. */
             publicKey: Hex.Hex
