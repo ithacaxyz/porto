@@ -9,7 +9,7 @@ export type PreCalls = readonly {
 }[]
 
 export const storageKey = (address: Address.Address) =>
-  `porto.preCalls.${address}`
+  `porto.preCalls.${address.toLowerCase()}`
 
 /**
  * Adds pre-calls to persistent storage.
