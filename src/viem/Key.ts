@@ -529,6 +529,12 @@ export declare namespace fromP256 {
  * @returns Key.
  */
 export function fromRpcServer(serverKey: Server): Key {
+  const { publicKey } = serverKey
+
+  const isAddress =
+    Hex.size(publicKey) === 20 ||
+    Hex.toBigInt(Hex.slice(publicKey, 0, 12)) === 0n
+
   const permissions: {
     calls?: Mutable<Key_schema.CallPermissions> | undefined
     spend?: Mutable<Key_schema.SpendPermissions> | undefined
@@ -557,7 +563,7 @@ export function fromRpcServer(serverKey: Server): Key {
     permissions: permissions as Permissions,
     publicKey: serverKey.publicKey,
     role: fromRpcServerKeyRole[serverKey.role],
-    type: fromRpcServerKeyType[serverKey.type],
+    type: isAddress ? 'address' : fromRpcServerKeyType[serverKey.type],
   })
 }
 
