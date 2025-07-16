@@ -21,12 +21,15 @@ const chains = {
 } as const
 
 faucetApp.all('*', async (context, next) => {
+  const address = context.req.query('address')?.toLowerCase()
+  if (!address || !isAddress(address))
+    return context.json({ error: 'Valid EVM address required' }, 400)
+
   const ip =
     getConnInfo(context).remote.address ||
     context.req.header('cf-connecting-ip')
-  const key = (context.req.query('address')?.toLowerCase() ?? '') + (ip ?? '')
-  if (!key || !key.length)
-    return context.json({ error: 'Unable to process request' }, 400)
+  const key = `${address}:${ip ?? ''}`
+  if (!key) return context.json({ error: 'Unable to process request' }, 400)
 
   const { success } = await context.env.RATE_LIMITER.limit({
     key,
@@ -39,7 +42,7 @@ faucetApp.all('*', async (context, next) => {
 faucetApp.on(
   ['GET', 'POST'],
   '/',
-  validator('query', async (values, context) => {
+  validator('query', (values, context) => {
     const { address, chainId, value = '25' } = <Record<string, string>>values
 
     if (!address || !isAddress(address))
