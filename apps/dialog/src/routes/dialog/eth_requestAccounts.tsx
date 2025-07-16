@@ -62,20 +62,20 @@ function RouteComponent() {
   if (address)
     return (
       <SignIn
-        loading={respond.isPending}
         onApprove={({ selectAccount }) =>
           respond.mutate({ selectAccount, signIn: true })
         }
+        status={respond.isPending ? 'responding' : undefined}
       />
     )
   return (
     <SignUp
       enableSignIn={true}
-      loading={respond.isPending}
       onApprove={({ signIn, selectAccount }) =>
         respond.mutate({ selectAccount, signIn })
       }
       onReject={() => Actions.reject(porto, request)}
+      status={respond.isPending ? 'responding' : undefined}
     />
   )
 }

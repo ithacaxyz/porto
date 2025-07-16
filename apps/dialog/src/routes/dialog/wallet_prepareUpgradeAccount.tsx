@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Actions } from 'porto/remote'
+import * as React from 'react'
 import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
@@ -54,23 +55,34 @@ function RouteComponent() {
     },
   })
 
+  const status = React.useMemo(() => {
+    if (capabilities?.grantPermissions && grantPermissionsQuery.isFetching)
+      return 'loading'
+    if (respond.isPending) return 'responding'
+    return undefined
+  }, [
+    capabilities?.grantPermissions,
+    grantPermissionsQuery.isFetching,
+    respond.isPending,
+  ])
+
   if (capabilities?.email ?? true)
     return (
       <Email
         actions={['sign-up']}
-        loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
         permissions={grantPermissions?.permissions}
+        status={status}
       />
     )
 
   return (
     <SignUp
       enableSignIn={false}
-      loading={respond.isPending}
       onApprove={() => respond.mutate({})}
       onReject={() => Actions.reject(porto, request)}
       permissions={grantPermissions?.permissions}
+      status={status}
     />
   )
 }
