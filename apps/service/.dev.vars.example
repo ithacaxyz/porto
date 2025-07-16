@@ -1,0 +1,14 @@
+ENVIRONMENT="development"
+
+# `/faucet` route
+DRIP_PRIVATE_KEY=""
+
+# `/verify` route
+VERIFY_CONFIG_URL=""
+
+# `/onramp` route
+STRIPE_API_KEY=""
+STRIPE_PUBLISHABLE_KEY=""
+
+SANDBOX_STRIPE_API_KEY=""
+SANDBOX_STRIPE_PUBLISHABLE_KEY=""

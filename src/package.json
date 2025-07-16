@@ -1,7 +1,7 @@
 {
   "name": "porto",
   "description": "Next-gen Account for Ethereum",
-  "version": "0.0.40",
+  "version": "0.0.53",
   "type": "module",
   "bin": {
     "porto": "./_dist/cli/bin/index.js"
@@ -18,11 +18,11 @@
     "!jsr.json"
   ],
   "dependencies": {
-    "@sinclair/typebox": "~0.34",
+    "effect": "^3.16.12",
     "idb-keyval": "^6.2.1",
     "mipd": "^0.0.7",
     "open": "^10.1.0",
-    "ox": "^0.6.12",
+    "ox": "^0.8.4",
     "zustand": "^5.0.1"
   },
   "peerDependencies": {

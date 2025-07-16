@@ -5,7 +5,15 @@ import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
 import * as RpcServer from './rpcServer.js'
 
-export const chain = Anvil.enabled ? Chains.anvil : Chains.portoDev
+// Determine which chain to use based on RPC URL
+const rpcUrl = process.env.VITE_RPC_URL || 'https://porto-dev.rpc.ithaca.xyz'
+export const chain = Anvil.enabled
+  ? Chains.anvil
+  : rpcUrl === 'https://base-sepolia.rpc.ithaca.xyz'
+    ? Chains.baseSepolia
+    : rpcUrl === 'https://base-mainnet.rpc.ithaca.xyz'
+      ? Chains.base
+      : Chains.portoDev
 
 export const exp1Address = Contracts.exp1Address[chain.id]
 export const exp1Abi = Contracts.exp1Abi
@@ -23,10 +31,7 @@ export const exp2Config = {
 
 export function getPorto(
   parameters: {
-    mode?: (parameters: {
-      permissionsFeeLimit: Record<string, string>
-      mock: boolean
-    }) => Mode.Mode | undefined
+    mode?: (parameters: { mock: boolean }) => Mode.Mode | undefined
     merchantRpcUrl?: string | undefined
     rpcUrl?: string | undefined
   } = {},
@@ -36,18 +41,14 @@ export function getPorto(
     merchantRpcUrl,
     rpcUrl = Anvil.enabled
       ? RpcServer.instances.portoDev.rpcUrl
-      : 'https://porto-dev.rpc.ithaca.xyz',
+      : process.env.VITE_RPC_URL || 'https://porto-dev.rpc.ithaca.xyz',
   } = parameters
   const porto = Porto.create({
     chains: [chain],
+    feeToken: 'EXP',
     merchantRpcUrl,
     mode: mode({
       mock: true,
-      permissionsFeeLimit: {
-        ETH: '0.1',
-        USDC: '100',
-        USDT: '100',
-      },
     }),
     storage: Storage.memory(),
     transports: {

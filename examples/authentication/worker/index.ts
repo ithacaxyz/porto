@@ -11,7 +11,7 @@ const porto = Porto.create()
 
 const app = new Hono<{ Bindings: Env }>().basePath('/api')
 
-app.get('/nonce', async (c) => {
+app.get('/siwe/nonce', async (c) => {
   // Generate a nonce to be used in the SIWE message.
   // This is used to prevent replay attacks.
   const nonce = generateSiweNonce()
@@ -19,10 +19,10 @@ app.get('/nonce', async (c) => {
   // Store nonce for this session (10 minutes).
   await c.env.NONCE_STORE.put(nonce, 'valid', { expirationTtl: 600 })
 
-  return c.text(nonce)
+  return c.json({ nonce })
 })
 
-app.post('/auth', async (c) => {
+app.post('/siwe', async (c) => {
   // Extract properties from the request body and SIWE message.
   const { message, signature } = await c.req.json()
   const { address, chainId, nonce } = parseSiweMessage(message)
@@ -63,20 +63,20 @@ app.post('/auth', async (c) => {
   return c.json({ success: true })
 })
 
+app.post(
+  '/siwe/logout',
+  jwt.jwt({ cookie: 'auth', secret: env.JWT_SECRET }),
+  async (c) => {
+    deleteCookie(c, 'auth')
+    return c.json({ success: true })
+  },
+)
+
 app.get(
   '/me',
   jwt.jwt({ cookie: 'auth', secret: env.JWT_SECRET }),
   async (c) => {
     return c.json(c.get('jwtPayload'))
-  },
-)
-
-app.post(
-  '/logout',
-  jwt.jwt({ cookie: 'auth', secret: env.JWT_SECRET }),
-  async (c) => {
-    deleteCookie(c, 'auth')
-    return c.json({ success: true })
   },
 )
 

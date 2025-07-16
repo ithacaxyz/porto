@@ -19,6 +19,10 @@ import { useSwapAssets } from '~/hooks/useSwapAssets'
 const key = (chainId: keyof typeof exp1Address) =>
   ({
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    feeLimit: {
+      currency: 'USD',
+      value: '1',
+    },
     permissions: {
       calls: [
         {

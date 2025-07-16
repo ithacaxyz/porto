@@ -1,0 +1,45 @@
+name: Promote Dialog to Production
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      ref:
+        type: string
+        description: 'Ref to promote'
+        default: ''
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Setup vercel.json
+        run: |
+          mkdir -p .vercel
+          echo '{
+            "projectId": "${{ secrets.VERCEL_PROJECT_ID }}",
+            "orgId": "${{ secrets.VERCEL_ORG_ID }}"
+          }' > .vercel/project.json
+
+      - name: Pull
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz
+
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz
+
+      - name: Deploy
+        continue-on-error: true
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz

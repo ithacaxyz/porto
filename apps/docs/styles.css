@@ -11,8 +11,8 @@
 
 [data-layout="landing"] .vocs_DesktopTopNav {
   max-width: var(--vocs-content_width);
-  margin: 0 auto;
   padding: 0 var(--vocs-content_horizontalPadding);
+  margin: 0 auto;
 }
 
 .vocs_Navigation,
@@ -30,17 +30,24 @@ input {
 }
 
 input[type="number"] {
-  appearance: textfield;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
   margin: 0;
+  -webkit-appearance: none;
 }
 
 @theme {
   --animate-fade-pulse: fade-pulse 2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+
+  --animate-spin-slow: spin 3s linear infinite;
+
+  --animate-rotation: rotation 1.2s linear infinite;
+
+  --font-rk-sans:
+    SFRounded, ui-rounded, "SF Pro Rounded", -apple-system, "system-ui", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
   @keyframes fade-pulse {
     0%,
@@ -51,8 +58,6 @@ input[type="number"]::-webkit-inner-spin-button {
       opacity: 0;
     }
   }
-
-  --animate-spin-slow: spin 3s linear infinite;
   @keyframes spin {
     0% {
       transform: rotate(0deg);
@@ -61,8 +66,6 @@ input[type="number"]::-webkit-inner-spin-button {
       transform: rotate(360deg);
     }
   }
-
-  --animate-rotation: rotation 1.2s linear infinite;
   @keyframes rotation {
     0% {
       transform: rotate(0deg);
@@ -71,7 +74,4 @@ input[type="number"]::-webkit-inner-spin-button {
       transform: rotate(360deg);
     }
   }
-
-  --font-rk-sans:
-    SFRounded, ui-rounded, "SF Pro Rounded", -apple-system, "system-ui", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }

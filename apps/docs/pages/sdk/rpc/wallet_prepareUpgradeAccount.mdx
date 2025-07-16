@@ -111,6 +111,10 @@ const { context, digests } = await provider.request({
     capabilities: {
       grantPermissions: {
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+        feeLimit: { 
+          currency: 'USD', 
+          value: '1',  
+        }, 
         permissions: {
           calls: [{ 
             signature: 'transfer(address,uint256)',

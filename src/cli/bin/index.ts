@@ -2,7 +2,6 @@
 import { cac } from 'cac'
 
 import pkgJson from '../../package.json' with { type: 'json' }
-import * as Commands from '../internal/commands.js'
 
 const cli = cac('porto')
 
@@ -24,7 +23,10 @@ cli
   .option('-d, --dialog <hostname>', 'Dialog hostname', {
     default: 'stg.id.porto.sh',
   })
-  .action(Commands.createAccount)
+  .action(async (_, args) => {
+    const Commands = await import('../internal/commands.js')
+    return Commands.createAccount(null, args)
+  })
 
 cli.help()
 cli.version(pkgJson.version)

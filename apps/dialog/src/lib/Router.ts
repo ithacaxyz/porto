@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-router'
 import { Json, Provider, type RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
-import * as RpcRequest from 'porto/core/internal/typebox/request'
+import * as RpcRequest from 'porto/core/internal/schema/request'
 import { Actions } from 'porto/remote'
 
 import { routeTree } from '~/routeTree.gen.ts'

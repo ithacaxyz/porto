@@ -6,7 +6,6 @@ import * as Json from 'ox/Json'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import * as Siwe from 'ox/Siwe'
 import * as TypedData from 'ox/TypedData'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { encodeFunctionData, parseAbi } from 'viem'
@@ -18,6 +17,7 @@ import type { ServerClient } from '../../../viem/ServerClient.js'
 import * as Call from '../call.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
+import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
 
 /**
@@ -152,8 +152,7 @@ export function contract(parameters: contract.Parameters = {}) {
 
         const { message, signature } = await (async () => {
           if (!signInWithEthereum) return {}
-          const message = Siwe.createMessage({
-            ...signInWithEthereum,
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
             address: account.address,
           })
           return {
@@ -403,8 +402,7 @@ export function contract(parameters: contract.Parameters = {}) {
             (key) => key.role === 'admin' && key.privateKey,
           )
           if (!key) throw new Error('cannot find admin key to sign with.')
-          const message = Siwe.createMessage({
-            ...signInWithEthereum,
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
             address: account.address,
           })
           return {
@@ -427,13 +425,20 @@ export function contract(parameters: contract.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { internal, key } = parameters
+        const { account, calls, internal } = parameters
         const { client } = internal
 
-        const { request, digests } = await ContractActions.prepareExecute(
-          client,
-          parameters,
-        )
+        // Try and extract an authorized key to sign the calls with.
+        const key =
+          parameters.key ??
+          (await Mode.getAuthorizedExecuteKey({
+            account,
+            calls,
+          }))
+        if (!key) throw new Error('cannot find authorized key to sign with.')
+
+        const { request, digests, typedData } =
+          await ContractActions.prepareExecute(client, parameters)
 
         return {
           account: request.account,
@@ -441,6 +446,7 @@ export function contract(parameters: contract.Parameters = {}) {
           context: { calls: request.calls, nonce: request.nonce },
           digest: digests.exec,
           key,
+          typedData: typedData as never,
         }
       },
 
@@ -608,6 +614,7 @@ export function contract(parameters: contract.Parameters = {}) {
         throw new Provider.UnsupportedMethodError()
       },
     },
+    config: parameters,
     name: 'contract',
   })
 }

@@ -2,15 +2,14 @@ import { defineConfig } from 'wxt'
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  extensionApi: 'chrome',
   manifest: {
     name: 'Porto',
+    permissions: ['contextMenus', 'tabs', 'storage'],
   },
-  modules: ['@wxt-dev/module-react'],
   vite: () => ({
     build: {
       rollupOptions: {
-        external: ['wxt/storage'],
+        external: ['wxt/utils/storage'],
       },
     },
   }),

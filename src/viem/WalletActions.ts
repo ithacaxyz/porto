@@ -5,12 +5,16 @@
  * API is solidified & stable.
  */
 
-import type {
-  Chain,
-  Client,
-  PrivateKeyAccount,
-  Transport,
-  WalletActions as viem_WalletActions,
+import {
+  type Call,
+  type Calls,
+  type Chain,
+  type Client,
+  encodeFunctionData,
+  type Narrow,
+  type PrivateKeyAccount,
+  type Transport,
+  type WalletActions as viem_WalletActions,
 } from 'viem'
 import {
   getAddresses,
@@ -25,7 +29,7 @@ import {
   waitForCallsStatus,
   writeContract,
 } from 'viem/actions'
-import * as Typebox from '../core/internal/typebox/typebox.js'
+import * as Schema from '../core/internal/schema/schema.js'
 import * as RpcSchema from '../core/RpcSchema.js'
 import type * as Account from './Account.js'
 import type * as RpcSchema_viem from './RpcSchema.js'
@@ -45,6 +49,30 @@ const supportedWalletActions = [
   'writeContract',
 ] as const satisfies (keyof viem_WalletActions)[]
 
+export async function addFunds(
+  client: Client,
+  parameters: addFunds.Parameters,
+): Promise<addFunds.ReturnType> {
+  const method = 'wallet_addFunds' as const
+  type Method = typeof method
+  const response = await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [
+      Schema.encodeSync(RpcSchema.wallet_addFunds.Parameters)(parameters),
+    ],
+  })
+
+  return Schema.decodeSync(RpcSchema.wallet_addFunds.Response)(response)
+}
+
+export declare namespace addFunds {
+  type Parameters = RpcSchema.wallet_addFunds.Parameters
+
+  type ReturnType = RpcSchema.wallet_addFunds.Response
+}
+
 export async function connect(
   client: Client,
   parameters: connect.Parameters = {},
@@ -57,31 +85,20 @@ export async function connect(
     method,
     params: [
       {
-        capabilities: Typebox.Encode(
-          RpcSchema.wallet_connect.Capabilities,
-          Typebox.Clean(
-            RpcSchema.wallet_connect.Capabilities,
-            parameters satisfies RpcSchema.wallet_connect.Capabilities,
-          ),
+        capabilities: Schema.encodeSync(RpcSchema.wallet_connect.Capabilities)(
+          parameters,
         ),
       },
     ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.wallet_connect.Response,
-    response satisfies Typebox.Static<typeof RpcSchema.wallet_connect.Response>,
-  )
+  return Schema.decodeSync(RpcSchema.wallet_connect.Response)(response)
 }
 
 export declare namespace connect {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_connect.Capabilities
-  >
+  type Parameters = RpcSchema.wallet_connect.Capabilities
 
-  type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_connect.Response
-  >
+  type ReturnType = RpcSchema.wallet_connect.Response
 }
 
 export async function disconnect(client: Client) {
@@ -105,32 +122,17 @@ export async function getAdmins(
   >({
     method,
     params: [
-      Typebox.Encode(
-        RpcSchema.wallet_getAdmins.Parameters,
-        Typebox.Clean(
-          RpcSchema.wallet_getAdmins.Parameters,
-          parameters satisfies RpcSchema.wallet_getAdmins.Parameters,
-        ),
-      ),
+      Schema.encodeSync(RpcSchema.wallet_getAdmins.Parameters)(parameters),
     ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.wallet_getAdmins.Response,
-    response satisfies Typebox.Static<
-      typeof RpcSchema.wallet_getAdmins.Response
-    >,
-  )
+  return Schema.decodeSync(RpcSchema.wallet_getAdmins.Response)(response)
 }
 
 export declare namespace getAdmins {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_getAdmins.Parameters
-  >
+  type Parameters = RpcSchema.wallet_getAdmins.Parameters
 
-  type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_getAdmins.Response
-  >
+  type ReturnType = RpcSchema.wallet_getAdmins.Response
 }
 
 export async function getPermissions(
@@ -144,32 +146,17 @@ export async function getPermissions(
   >({
     method,
     params: [
-      Typebox.Encode(
-        RpcSchema.wallet_getPermissions.Parameters,
-        Typebox.Clean(
-          RpcSchema.wallet_getPermissions.Parameters,
-          parameters satisfies RpcSchema.wallet_getPermissions.Parameters,
-        ),
-      ),
+      Schema.encodeSync(RpcSchema.wallet_getPermissions.Parameters)(parameters),
     ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.wallet_getPermissions.Response,
-    response satisfies Typebox.Static<
-      typeof RpcSchema.wallet_getPermissions.Response
-    >,
-  )
+  return Schema.decodeSync(RpcSchema.wallet_getPermissions.Response)(response)
 }
 
 export declare namespace getPermissions {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_getPermissions.Parameters
-  >
+  type Parameters = RpcSchema.wallet_getPermissions.Parameters
 
-  type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_getPermissions.Response
-  >
+  type ReturnType = RpcSchema.wallet_getPermissions.Response
 }
 
 export async function grantAdmin(
@@ -183,36 +170,18 @@ export async function grantAdmin(
   >({
     method,
     params: [
-      Typebox.Encode(
-        RpcSchema.wallet_grantAdmin.Parameters,
-        Typebox.Clean(
-          RpcSchema.wallet_grantAdmin.Parameters,
-          parameters satisfies RpcSchema.wallet_grantAdmin.Parameters,
-        ),
-      ),
+      Schema.encodeSync(RpcSchema.wallet_grantAdmin.Parameters)(parameters),
     ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.wallet_grantAdmin.Response,
-    response satisfies Typebox.Static<
-      typeof RpcSchema.wallet_grantAdmin.Response
-    >,
-  )
+  return Schema.decodeSync(RpcSchema.wallet_grantAdmin.Response)(response)
 }
 
 export declare namespace grantAdmin {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_grantAdmin.Parameters.properties.capabilities
-  > &
-    Omit<
-      Typebox.StaticDecode<typeof RpcSchema.wallet_grantAdmin.Parameters>,
-      'capabilities'
-    >
+  type Parameters = RpcSchema.wallet_grantAdmin.Capabilities &
+    Omit<RpcSchema.wallet_grantAdmin.Parameters, 'capabilities'>
 
-  type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_grantAdmin.Response
-  >
+  type ReturnType = RpcSchema.wallet_grantAdmin.Response
 }
 
 export async function grantPermissions(
@@ -226,32 +195,63 @@ export async function grantPermissions(
   >({
     method,
     params: [
-      Typebox.Encode(
-        RpcSchema.wallet_grantPermissions.Parameters,
-        Typebox.Clean(
-          RpcSchema.wallet_grantPermissions.Parameters,
-          parameters satisfies RpcSchema.wallet_grantPermissions.Parameters,
-        ),
+      Schema.encodeSync(RpcSchema.wallet_grantPermissions.Parameters)(
+        parameters,
       ),
     ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.wallet_grantPermissions.Response,
-    response satisfies Typebox.Static<
-      typeof RpcSchema.wallet_grantPermissions.Response
-    >,
-  )
+  return Schema.decodeSync(RpcSchema.wallet_grantPermissions.Response)(response)
 }
 
 export declare namespace grantPermissions {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_grantPermissions.Parameters
-  >
+  type Parameters = RpcSchema.wallet_grantPermissions.Parameters
 
-  type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_grantPermissions.Response
-  >
+  type ReturnType = RpcSchema.wallet_grantPermissions.Response
+}
+
+export async function prepareCalls<
+  const calls extends readonly unknown[] = readonly unknown[],
+>(
+  client: Client,
+  parameters: prepareCalls.Parameters<calls>,
+): Promise<prepareCalls.ReturnType> {
+  const method = 'wallet_prepareCalls' as const
+  type Method = typeof method
+  const response = await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [
+      Schema.encodeSync(RpcSchema.wallet_prepareCalls.Parameters)({
+        ...parameters,
+        calls: (parameters.calls ?? []).map((c) => {
+          const call = c as Call
+          const data = (() => {
+            if (!call.abi) return call.data
+            return encodeFunctionData(call)
+          })()
+          return {
+            ...call,
+            data,
+          }
+        }),
+      }),
+    ],
+  })
+
+  return Schema.decodeSync(RpcSchema.wallet_prepareCalls.Response)(response)
+}
+
+export declare namespace prepareCalls {
+  type Parameters<calls extends readonly unknown[] = readonly unknown[]> = Omit<
+    RpcSchema.wallet_prepareCalls.Parameters,
+    'calls'
+  > & {
+    calls?: Calls<Narrow<calls>> | undefined
+  }
+
+  type ReturnType = RpcSchema.wallet_prepareCalls.Response
 }
 
 export async function revokeAdmin(
@@ -265,22 +265,14 @@ export async function revokeAdmin(
   >({
     method,
     params: [
-      Typebox.Encode(
-        RpcSchema.wallet_revokeAdmin.Parameters,
-        Typebox.Clean(
-          RpcSchema.wallet_revokeAdmin.Parameters,
-          parameters satisfies RpcSchema.wallet_revokeAdmin.Parameters,
-        ),
-      ),
+      Schema.encodeSync(RpcSchema.wallet_revokeAdmin.Parameters)(parameters),
     ],
   })
   return undefined
 }
 
 export declare namespace revokeAdmin {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_revokeAdmin.Parameters
-  >
+  type Parameters = RpcSchema.wallet_revokeAdmin.Parameters
 }
 
 export async function revokePermissions(
@@ -295,26 +287,47 @@ export async function revokePermissions(
   >({
     method,
     params: [
-      Typebox.Encode(RpcSchema.wallet_revokePermissions.Parameters, {
+      Schema.encodeSync(RpcSchema.wallet_revokePermissions.Parameters)({
         address,
         capabilities,
         id,
-      } satisfies RpcSchema.wallet_revokePermissions.Parameters),
+      }),
     ],
   })
   return undefined
 }
 
 export declare namespace revokePermissions {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_revokePermissions.Parameters.properties.capabilities
-  > &
-    Omit<
-      Typebox.StaticDecode<
-        typeof RpcSchema.wallet_revokePermissions.Parameters
-      >,
-      'capabilities'
-    >
+  type Parameters = RpcSchema.wallet_revokePermissions.Capabilities &
+    Omit<RpcSchema.wallet_revokePermissions.Parameters, 'capabilities'>
+}
+
+export async function sendPreparedCalls(
+  client: Client,
+  parameters: sendPreparedCalls.Parameters,
+): Promise<sendPreparedCalls.ReturnType> {
+  const method = 'wallet_sendPreparedCalls' as const
+  type Method = typeof method
+  const response = await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [
+      Schema.encodeSync(RpcSchema.wallet_sendPreparedCalls.Parameters)(
+        parameters,
+      ),
+    ],
+  })
+
+  return Schema.decodeSync(RpcSchema.wallet_sendPreparedCalls.Response)(
+    response,
+  )
+}
+
+export declare namespace sendPreparedCalls {
+  type Parameters = RpcSchema.wallet_sendPreparedCalls.Parameters
+
+  type ReturnType = RpcSchema.wallet_sendPreparedCalls.Response
 }
 
 export async function upgradeAccount(
@@ -330,11 +343,11 @@ export async function upgradeAccount(
   >({
     method,
     params: [
-      Typebox.Encode(RpcSchema.wallet_prepareUpgradeAccount.Parameters, {
+      Schema.encodeSync(RpcSchema.wallet_prepareUpgradeAccount.Parameters)({
         address: account.address,
         capabilities,
         chainId,
-      } satisfies RpcSchema.wallet_prepareUpgradeAccount.Parameters),
+      }),
     ],
   })
 
@@ -350,37 +363,26 @@ export async function upgradeAccount(
   >({
     method: method_upgrade,
     params: [
-      Typebox.Encode(RpcSchema.wallet_upgradeAccount.Parameters, {
+      Schema.encodeSync(RpcSchema.wallet_upgradeAccount.Parameters)({
         context,
         signatures,
-      } satisfies RpcSchema.wallet_upgradeAccount.Parameters),
+      }),
     ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.wallet_upgradeAccount.Response,
-    response satisfies Typebox.Static<
-      typeof RpcSchema.wallet_upgradeAccount.Response
-    >,
-  )
+  return Schema.decodeSync(RpcSchema.wallet_upgradeAccount.Response)(response)
 }
 
 export declare namespace upgradeAccount {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_prepareUpgradeAccount.Parameters.properties.capabilities
-  > &
+  type Parameters = RpcSchema.wallet_prepareUpgradeAccount.Capabilities &
     Omit<
-      Typebox.StaticDecode<
-        typeof RpcSchema.wallet_prepareUpgradeAccount.Parameters
-      >,
+      RpcSchema.wallet_prepareUpgradeAccount.Parameters,
       'address' | 'capabilities'
     > & {
       account: PrivateKeyAccount | Account.Account
     }
 
-  type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.wallet_upgradeAccount.Response
-  >
+  type ReturnType = RpcSchema.wallet_upgradeAccount.Response
 }
 
 export type Decorator<
@@ -398,7 +400,13 @@ export type Decorator<
   grantPermissions: (
     parameters: grantPermissions.Parameters,
   ) => Promise<grantPermissions.ReturnType>
+  prepareCalls: (
+    parameters: prepareCalls.Parameters,
+  ) => Promise<prepareCalls.ReturnType>
   revokePermissions: (parameters: revokePermissions.Parameters) => Promise<void>
+  sendPreparedCalls: (
+    parameters: sendPreparedCalls.Parameters,
+  ) => Promise<sendPreparedCalls.ReturnType>
   upgradeAccount: (
     parameters: upgradeAccount.Parameters,
   ) => Promise<upgradeAccount.ReturnType>
@@ -417,9 +425,11 @@ export function decorator<
     getChainId: () => getChainId(client),
     getPermissions: (parameters) => getPermissions(client, parameters),
     grantPermissions: (parameters) => grantPermissions(client, parameters),
+    prepareCalls: (parameters) => prepareCalls(client, parameters),
     requestAddresses: () => requestAddresses(client),
     revokePermissions: (parameters) => revokePermissions(client, parameters),
     sendCalls: (parameters) => sendCalls(client, parameters),
+    sendPreparedCalls: (parameters) => sendPreparedCalls(client, parameters),
     showCallsStatus: (parameters) => showCallsStatus(client, parameters),
     signMessage: (parameters) => signMessage(client, parameters),
     signTypedData: (parameters) => signTypedData(client, parameters),

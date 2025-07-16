@@ -1,5 +1,125 @@
 # porto
 
+## 0.0.53
+
+### Patch Changes
+
+- [#587](https://github.com/ithacaxyz/porto/pull/587) [`6785db3`](https://github.com/ithacaxyz/porto/commit/6785db3bac2a25f93f5b94d0fe517f8f40cc3a51) Thanks [@jxom](https://github.com/jxom)! - Removed extraneous background RPC requests that occurred outside of the dialog.
+
+## 0.0.52
+
+### Patch Changes
+
+- [#585](https://github.com/ithacaxyz/porto/pull/585) [`cd56a7b`](https://github.com/ithacaxyz/porto/commit/cd56a7b4c622ef421ebe2d26ac606867d9d85827) Thanks [@jxom](https://github.com/jxom)! - Fixed decoding of `wallet_prepareCalls` response in `Mode.dialog`.
+
+- [#583](https://github.com/ithacaxyz/porto/pull/583) [`fc4b9df`](https://github.com/ithacaxyz/porto/commit/fc4b9dfbcf7ec18808143095155a8fe1534f1b76) Thanks [@o-az](https://github.com/o-az)! - Made CLI terminate by dynamically importing commands.
+
+## 0.0.51
+
+### Patch Changes
+
+- [`1e46693`](https://github.com/ithacaxyz/porto/commit/1e46693f43bde13769bb23d9db6ce6dca3419d1a) Thanks [@jxom](https://github.com/jxom)! - Tweaked extension to fall back to popup if host site blocks iframe due to CSP.
+
+## 0.0.50
+
+### Patch Changes
+
+- [#575](https://github.com/ithacaxyz/porto/pull/575) [`e037d86`](https://github.com/ithacaxyz/porto/commit/e037d8653f093ce3d47b14bde3e7a47190fee791) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `eth_sendTransaction` response would be the bundle identifier, instead of the transaction hash.
+
+- [#574](https://github.com/ithacaxyz/porto/pull/574) [`8c988ea`](https://github.com/ithacaxyz/porto/commit/8c988ea5b0569dc220b2b72c8377e18c8c2d29ae) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where headless methods on the `Dialog.popup` renderer would invoke
+  a popup, instead of calling the method in the background.
+
+## 0.0.49
+
+### Patch Changes
+
+- [`2202f8e`](https://github.com/ithacaxyz/porto/commit/2202f8e3f122f42d2be713280ffbe720f5394a4b) Thanks [@jxom](https://github.com/jxom)! - Added missing `credentials: 'include'` to SIWE.
+
+## 0.0.48
+
+### Patch Changes
+
+- [`99f0857`](https://github.com/ithacaxyz/porto/commit/99f085712c574ffb5ba080b4c8d3d4017b9f5c2f) Thanks [@jxom](https://github.com/jxom)! - Added `Porto.unstable_create` and `unstable_porto` Wagmi connector.
+
+## 0.0.47
+
+### Patch Changes
+
+- [`a8daa28`](https://github.com/ithacaxyz/porto/commit/a8daa2826a3e467e710e0f8938de85756aa4c05b) Thanks [@jxom](https://github.com/jxom)! - Optimized call permissions introspection.
+
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed implicit fee limits (defaulting to 1 USD of the fee token) when granting permissions.
+
+  A new `feeLimit` property has been added on `wallet_grantPermissions` to assign fee limits. This converts to a spend permission that will be used to pay for fees (for permissioned calls) in the user's selected fee token (e.g. USDC).
+
+  ```ts
+  provider.request({
+    method: "wallet_grantPermissions",
+    params: [
+      {
+        expiry: 1715328000,
+        // Assign a spend permission of $5 USD of the fee token.
+        feeLimit: {
+          currency: "USD",
+          value: "5",
+        },
+        permissions: {
+          calls: [{ signature: "mint()" }],
+        },
+      },
+    ],
+  });
+  ```
+
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `permissionsFeeLimit` on `Mode.rpcServer` in favor of:
+
+  - `feeLimit` on the `wallet_grantPermissions` request
+  - `feeLimit` on the `grantPermissions` capability
+
+- [`4b65a65`](https://github.com/ithacaxyz/porto/commit/4b65a65d32790a0dd18e411d6a6df5c9274b1411) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where a cached `chainId`s could become stale if a consumer omitted the target
+  chain from the `chains` configuration.
+
+## 0.0.46
+
+### Patch Changes
+
+- [#552](https://github.com/ithacaxyz/porto/pull/552) [`c3a56a2`](https://github.com/ithacaxyz/porto/commit/c3a56a2b79dd819f6218fd331927825eec3b5036) Thanks [@jxom](https://github.com/jxom)! - Migrated from TypeBox to `effect/schema` for schema validation.
+
+- [#547](https://github.com/ithacaxyz/porto/pull/547) [`585be54`](https://github.com/ithacaxyz/porto/commit/585be5473e39e7110b965427ece28d218e1c8050) Thanks [@o-az](https://github.com/o-az)! - added `useAddFunds` porto/wagmi hook
+
+## 0.0.45
+
+### Patch Changes
+
+- [`4b93cc8`](https://github.com/ithacaxyz/porto/commit/4b93cc81c5b2c4b21fa4ab836e2f332d2a808c49) Thanks [@jxom](https://github.com/jxom)! - Fixed `wallet_verifySignature` return type.
+
+## 0.0.44
+
+### Patch Changes
+
+- [`f5a66e7`](https://github.com/ithacaxyz/porto/commit/f5a66e7e2d6ba47c4006120c571cb4a129f25e90) Thanks [@jxom](https://github.com/jxom)! - Fixed incompatible structured clone values.
+
+## 0.0.43
+
+### Patch Changes
+
+- [#545](https://github.com/ithacaxyz/porto/pull/545) [`cc70616`](https://github.com/ithacaxyz/porto/commit/cc706167b33f7590ff113394e6e76ca232a87d57) Thanks [@jxom](https://github.com/jxom)! - Added `typedData` to `wallet_prepareCalls` return type.
+
+- [`fdb6a58`](https://github.com/ithacaxyz/porto/commit/fdb6a583fda53c672311bbea3cba655aa112808a) Thanks [@jxom](https://github.com/jxom)! - Added `prepareCalls` and `sendPreparedCalls` to `WalletActions`.
+
+## 0.0.42
+
+### Patch Changes
+
+- [#539](https://github.com/ithacaxyz/porto/pull/539) [`fa0dfb9`](https://github.com/ithacaxyz/porto/commit/fa0dfb98c00540930a298dac175cfbaeebea3ac1) Thanks [@o-az](https://github.com/o-az)! - Fixed SIWE auth url resolution.
+
+## 0.0.41
+
+### Patch Changes
+
+- [#536](https://github.com/ithacaxyz/porto/pull/536) [`b0c33c0`](https://github.com/ithacaxyz/porto/commit/b0c33c0cc6fa30a40805dfdcf5ab36a2954b093f) Thanks [@jxom](https://github.com/jxom)! - Added `authUrl` property to `signInWithEthereum` capability.
+
+- [`cdba3ca`](https://github.com/ithacaxyz/porto/commit/cdba3cae0ae45c0efdc4ef394750e11879e8031b) Thanks [@jxom](https://github.com/jxom)! - Added better error message.
+
 ## 0.0.40
 
 ### Patch Changes

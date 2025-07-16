@@ -30,7 +30,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const { accountImplementation } = contracts ?? {}
 
   const account = Hooks.useAccount(porto)
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
     calls:
       account?.address && accountImplementation
         ? [

@@ -1,4 +1,4 @@
-import * as Address from 'ox/Address'
+import type * as Address from 'ox/Address'
 import * as Bytes from 'ox/Bytes'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
@@ -7,9 +7,7 @@ import * as PersonalMessage from 'ox/PersonalMessage'
 import * as Provider from 'ox/Provider'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import * as Siwe from 'ox/Siwe'
 import * as TypedData from 'ox/TypedData'
-import * as Value from 'ox/Value'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import { waitForCallsStatus } from 'viem/actions'
 import * as Account from '../../../viem/Account.js'
@@ -19,17 +17,12 @@ import * as Key from '../../../viem/Key.js'
 import * as ServerActions from '../../../viem/ServerActions.js'
 import type { ServerClient } from '../../../viem/ServerClient.js'
 import * as Call from '../call.js'
+import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
-import type * as FeeToken from '../typebox/feeToken.js'
+import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
-
-export const defaultPermissionsFeeLimit = {
-  ETH: '0.0001',
-  USDC: '1',
-  USDT: '1',
-}
 
 /**
  * Mode for a WebAuthn-based environment that interacts with the Porto
@@ -41,11 +34,7 @@ export const defaultPermissionsFeeLimit = {
  */
 export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = parameters
-  const {
-    mock,
-    permissionsFeeLimit = defaultPermissionsFeeLimit,
-    persistPreCalls = true,
-  } = config
+  const { mock, persistPreCalls = true } = config
 
   let address_internal: Hex.Hex | undefined
   let email_internal: string | undefined
@@ -79,6 +68,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
+        const feeTokens = await FeeTokens.fetch(client, {
+          store: internal.store,
+        })
+
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
               label:
@@ -88,13 +81,11 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
               userId: Bytes.from(eoa.address),
             })
           : Key.createHeadlessWebAuthnP256()
-        const sessionKey = await PermissionsRequest.toKey(permissions)
+        const sessionKey = await PermissionsRequest.toKey(permissions, {
+          feeTokens,
+        })
 
         const adminKeys = admins?.map((admin) => Key.from(admin))
-
-        const feeToken = await resolveFeeToken(internal, {
-          permissionsFeeLimit,
-        })
 
         const account = await ServerActions.upgradeAccount(client, {
           account: eoa,
@@ -103,8 +94,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             ...(adminKeys ?? []),
             ...(sessionKey ? [sessionKey] : []),
           ],
-          feeToken: feeToken.address,
-          permissionsFeeLimit: feeToken.permissionsFeeLimit,
+          feeToken: feeTokens[0].address,
         })
 
         address_internal = eoa.address
@@ -115,24 +105,23 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             walletAddress: account.address,
           })
 
-        const { message, signature } = await (async () => {
-          if (!signInWithEthereum) return {}
-          const message = Siwe.createMessage({
-            ...signInWithEthereum,
+        const signInWithEthereum_response = await (async () => {
+          if (!signInWithEthereum) return undefined
+
+          const message = await Siwe.buildMessage(client, signInWithEthereum, {
             address: account.address,
           })
-          return {
-            message,
-            signature: await Account.sign(eoa, {
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
-            }),
-          }
+          const signature = await Account.sign(eoa, {
+            payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+          })
+
+          return { message, signature }
         })()
 
         return {
           account: {
             ...account,
-            signInWithEthereum: signature ? { message, signature } : undefined,
+            signInWithEthereum: signInWithEthereum_response,
           },
         }
       },
@@ -216,14 +205,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                 return null
               }
             })()
-            if (!capabilities) return {}
             return {
               [chainId]: {
                 ...base,
-                feeToken: {
-                  supported: true,
-                  tokens: capabilities.fees.tokens,
-                },
+                ...(capabilities
+                  ? {
+                      feeToken: {
+                        supported: true,
+                        tokens: capabilities.fees.tokens,
+                      },
+                    }
+                  : {}),
               },
             } as const
           }),
@@ -251,7 +243,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const authorizeKey = Key.from(parameters.key)
 
-        const feeToken = await resolveFeeToken(internal, parameters)
+        const [feeToken] = await FeeTokens.fetch(client, {
+          addressOrSymbol: parameters.feeToken,
+          store: internal.store,
+        })
         const { id } = await ServerActions.sendCalls(client, {
           account,
           authorizeKeys: [authorizeKey],
@@ -259,6 +254,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
         await waitForCallsStatus(client, {
           id,
+          pollingInterval: 500,
         })
 
         return { key: authorizeKey }
@@ -271,18 +267,20 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeToken = await resolveFeeToken(internal, {
-          permissionsFeeLimit,
+        const feeTokens = await FeeTokens.fetch(client, {
+          store: internal.store,
         })
 
         // Parse permissions request into a structured key.
-        const authorizeKey = await PermissionsRequest.toKey(permissions)
+        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          feeTokens,
+        })
         if (!authorizeKey) throw new Error('key to authorize not found.')
 
         const preCalls = await getAuthorizeKeyPreCalls(client, {
           account,
           authorizeKey,
-          feeToken,
+          feeToken: feeTokens[0].address,
         })
         if (persistPreCalls)
           await PreCalls.add(preCalls, {
@@ -300,37 +298,51 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeToken = await resolveFeeToken(internal, {
-          permissionsFeeLimit,
+        const feeTokens = await FeeTokens.fetch(client, {
+          store: internal.store,
         })
-        const authorizeKey = await PermissionsRequest.toKey(permissions)
+        const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          feeTokens,
+        })
 
         // Prepare calls to sign over the session key or SIWE message to authorize.
-        const { context, digest, digestType } = await (async () => {
+        const { context, digest, digestType, message } = await (async () => {
           if (authorizeKey) {
             const { context, digest } = await ServerActions.prepareCalls(
               client,
               {
                 authorizeKeys: [authorizeKey],
-                feeToken: feeToken.address,
-                permissionsFeeLimit: feeToken.permissionsFeeLimit,
+                feeToken: feeTokens[0].address,
                 preCalls: true,
               },
             )
-            return { context, digest, digestType: 'precall' } as const
+            return {
+              context,
+              digest,
+              digestType: 'precall',
+              message: undefined,
+            } as const
           }
           if (signInWithEthereum && parameters.address) {
-            const message = Siwe.createMessage({
-              ...signInWithEthereum,
-              address: parameters.address,
-            })
+            const message = await Siwe.buildMessage(
+              client,
+              signInWithEthereum,
+              {
+                address: parameters.address,
+              },
+            )
             return {
               context: undefined,
               digest: PersonalMessage.getSignPayload(Hex.fromString(message)),
               digestType: 'siwe',
+              message,
             } as const
           }
-          return { context: undefined, digest: '0x' } as const
+          return {
+            context: undefined,
+            digest: '0x',
+            message: undefined,
+          } as const
         })()
 
         const { address, credentialId, webAuthnSignature } =
@@ -430,21 +442,20 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             storage,
           })
 
-        const siweResult = await (async () => {
-          if (!signInWithEthereum) return {}
+        const signInWithEthereum_response = await (async () => {
+          if (!signInWithEthereum) return undefined
 
-          const message = Siwe.createMessage({
-            ...signInWithEthereum,
+          if (digestType === 'siwe' && message && signature)
+            return { message, signature }
+
+          const message_ = await Siwe.buildMessage(client, signInWithEthereum, {
             address: account.address,
           })
 
-          // If we have a signature, we already signed over the digest.
-          if (digestType === 'siwe' && signature) return { message, signature }
-
           return {
-            message,
+            message: message_,
             signature: await Account.sign(account, {
-              payload: PersonalMessage.getSignPayload(Hex.fromString(message)),
+              payload: PersonalMessage.getSignPayload(Hex.fromString(message_)),
               role: 'admin',
             }),
           }
@@ -454,7 +465,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           accounts: [
             {
               ...account,
-              signInWithEthereum: siweResult.signature ? siweResult : undefined,
+              signInWithEthereum: signInWithEthereum_response,
             },
           ],
           preCalls,
@@ -462,11 +473,20 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, key, merchantRpcUrl } = parameters
+        const { account, calls, internal, merchantRpcUrl } = parameters
         const {
           client,
           config: { storage },
         } = internal
+
+        // Try and extract an authorized key to sign the calls with.
+        const key =
+          parameters.key ??
+          (await Mode.getAuthorizedExecuteKey({
+            account,
+            calls,
+          }))
+        if (!key) throw new Error('cannot find authorized key to sign with.')
 
         // Get pre-authorized keys to assign to the call bundle.
         const preCalls =
@@ -476,9 +496,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             storage,
           }))
 
-        const feeToken = await resolveFeeToken(internal, parameters)
+        const [feeToken] = await FeeTokens.fetch(client, {
+          addressOrSymbol: parameters.feeToken,
+          store: internal.store,
+        })
 
-        const { capabilities, context, digest } =
+        const { capabilities, context, digest, typedData } =
           await ServerActions.prepareCalls(client, {
             account,
             calls,
@@ -503,12 +526,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           },
           digest,
           key,
+          typedData,
         }
       },
 
       async prepareUpgradeAccount(parameters) {
         const { address, email, label, internal, permissions } = parameters
         const { client } = internal
+
+        const feeTokens = await FeeTokens.fetch(client, {
+          store: internal.store,
+        })
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
@@ -518,10 +546,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
               userId: Bytes.from(address),
             })
           : Key.createHeadlessWebAuthnP256()
-        const sessionKey = await PermissionsRequest.toKey(permissions)
-
-        const feeToken = await resolveFeeToken(internal, {
-          permissionsFeeLimit,
+        const sessionKey = await PermissionsRequest.toKey(permissions, {
+          feeTokens,
         })
 
         const { context, digests } = await ServerActions.prepareUpgradeAccount(
@@ -529,8 +555,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           {
             address,
             authorizeKeys: [adminKey, ...(sessionKey ? [sessionKey] : [])],
-            feeToken: feeToken.address,
-            permissionsFeeLimit: feeToken.permissionsFeeLimit,
+            feeToken: feeTokens[0].address,
           },
         )
 
@@ -558,7 +583,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           throw new Error('revoke the only WebAuthn key left.')
 
         try {
-          const feeToken = await resolveFeeToken(internal, parameters)
+          const [feeToken] = await FeeTokens.fetch(client, {
+            addressOrSymbol: parameters.feeToken,
+            store: internal.store,
+          })
           const { id } = await ServerActions.sendCalls(client, {
             account,
             feeToken: feeToken.address,
@@ -589,7 +617,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         if (key.role === 'admin') throw new Error('cannot revoke admins.')
 
         try {
-          const feeToken = await resolveFeeToken(internal, parameters)
+          const [feeToken] = await FeeTokens.fetch(client, {
+            addressOrSymbol: parameters.feeToken,
+            store: internal.store,
+          })
           const { id } = await ServerActions.sendCalls(client, {
             account,
             feeToken: feeToken.address,
@@ -610,7 +641,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl } = parameters
+        const { account, asTxHash, calls, internal, merchantRpcUrl } =
+          parameters
         const {
           client,
           config: { storage },
@@ -632,7 +664,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }))
 
         // Resolve fee token to use.
-        const feeToken = await resolveFeeToken(internal, parameters)
+        const [feeToken] = await FeeTokens.fetch(client, {
+          addressOrSymbol: parameters.feeToken,
+          store: internal.store,
+        })
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
@@ -649,6 +684,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           address: account.address,
           storage,
         })
+
+        if (asTxHash) {
+          const { receipts } = await waitForCallsStatus(client, {
+            id: result.id,
+            pollingInterval: 500,
+          })
+          if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+          return {
+            id: receipts[0].transactionHash,
+          }
+        }
 
         return result
       },
@@ -726,7 +772,9 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         if (!accountImplementation)
           throw new Error('accountImplementation not found.')
 
-        const feeToken = await resolveFeeToken(internal)
+        const [feeToken] = await FeeTokens.fetch(client, {
+          store: internal.store,
+        })
 
         return await ServerActions.sendCalls(client, {
           account,
@@ -784,6 +832,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
       },
     },
+    config: parameters,
     name: 'rpc',
   })
 }
@@ -801,10 +850,6 @@ export declare namespace rpcServer {
      * @internal @deprecated
      */
     mock?: boolean | undefined
-    /**
-     * Fee limit to use for permissions.
-     */
-    permissionsFeeLimit?: Record<FeeToken.Kind, string> | undefined
     /**
      * Whether to store pre-calls in a persistent storage.
      *
@@ -832,9 +877,8 @@ async function getAuthorizeKeyPreCalls(
   const { context, digest } = await ServerActions.prepareCalls(client, {
     account,
     authorizeKeys: [authorizeKey],
-    feeToken: feeToken.address,
+    feeToken,
     key: adminKey,
-    permissionsFeeLimit: feeToken.permissionsFeeLimit,
     preCalls: true,
   })
   const signature = await Key.sign(adminKey, {
@@ -848,56 +892,6 @@ namespace getAuthorizeKeyPreCalls {
   export type Parameters = {
     account: Account.Account
     authorizeKey: Key.Key
-    feeToken: {
-      address: Address.Address
-      permissionsFeeLimit?: bigint | undefined
-    }
-  }
-}
-
-export async function resolveFeeToken(
-  internal: Mode.ActionsInternal,
-  parameters?:
-    | {
-        feeToken?: FeeToken.Symbol | Address.Address | undefined
-        permissionsFeeLimit?: Record<string, string> | undefined
-      }
-    | undefined,
-) {
-  const { client, store } = internal
-  const { feeToken: defaultFeeToken } = store.getState()
-  const { feeToken: overrideFeeToken } = parameters ?? {}
-
-  const feeTokens = await ServerActions_internal.getCapabilities(client).then(
-    (capabilities) => capabilities.fees.tokens,
-  )
-  let feeToken = feeTokens?.find((feeToken) => {
-    if (overrideFeeToken) {
-      if (Address.validate(overrideFeeToken))
-        return Address.isEqual(feeToken.address, overrideFeeToken)
-      return overrideFeeToken === feeToken.symbol
-    }
-    if (defaultFeeToken) return defaultFeeToken === feeToken.symbol
-    return feeToken.symbol === 'ETH'
-  })
-
-  const permissionsFeeLimit = feeToken?.kind
-    ? Value.from(
-        parameters?.permissionsFeeLimit?.[feeToken.kind] ?? '0',
-        feeToken.decimals,
-      )
-    : undefined
-
-  if (!feeToken) {
-    feeToken = feeTokens?.[0]!
-    console.warn(
-      `Fee token ${overrideFeeToken ?? defaultFeeToken} not found. Falling back to ${feeToken?.symbol} (${feeToken?.address}).`,
-    )
-  }
-  return {
-    address: feeToken!.address,
-    decimals: feeToken!.decimals,
-    permissionsFeeLimit,
-    symbol: feeToken!.symbol,
+    feeToken: Address.Address
   }
 }

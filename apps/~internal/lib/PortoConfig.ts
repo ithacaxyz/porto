@@ -7,64 +7,47 @@ import * as Sentry from './Sentry'
 
 const mock = import.meta.env.MODE === 'test'
 
-const defaultChain = {
-  anvil: Chains.anvil,
-  dev: import.meta.env.VITE_DEV_CHAIN_ID
-    ? Chains.define({
-        ...Chains.portoDev,
-        id: Number(
-          import.meta.env.VITE_DEV_CHAIN_ID,
-        ) as (typeof Chains.portoDev)['id'],
-        rpcUrls: {
-          default: {
-            http: [import.meta.env.VITE_DEV_RPC_URL],
-          },
-        },
-      })
-    : Chains.portoDev,
-  prod: Chains.base,
-  stg: Chains.baseSepolia,
-} as const satisfies Record<Env.Env, Chains.Chain>
-
 const config = {
   anvil: {
-    chains: [defaultChain.anvil],
+    chains: [Chains.anvil],
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
   },
   dev: {
-    chains: [defaultChain.dev],
+    chains: [Chains.portoDev],
+    feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
     storageKey: 'porto.store.dev',
     transports: {
-      [defaultChain.dev.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.portoDev.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   prod: {
-    chains: [defaultChain.prod],
+    chains: [Chains.base],
     feeToken: 'USDC',
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
     transports: {
-      [defaultChain.prod.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.base.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   stg: {
-    chains: [defaultChain.stg],
+    chains: [Chains.baseSepolia],
+    feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
     storageKey: 'porto.store.stg',
     transports: {
-      [defaultChain.stg.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>

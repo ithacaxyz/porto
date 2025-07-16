@@ -12,9 +12,9 @@ import * as Signature from 'ox/Signature'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import * as Call from '../core/internal/call.js'
-import type * as ServerKey_typebox from '../core/internal/rpcServer/typebox/key.js'
-import type * as ServerPermission_typebox from '../core/internal/rpcServer/typebox/permission.js'
-import type * as Key_typebox from '../core/internal/typebox/key.js'
+import type * as ServerKey_schema from '../core/internal/rpcServer/schema/key.js'
+import type * as ServerPermission_schema from '../core/internal/rpcServer/schema/permission.js'
+import type * as Key_schema from '../core/internal/schema/key.js'
 import type {
   Compute,
   ExactPartial,
@@ -33,7 +33,7 @@ export type BaseKey<
   type extends string = string,
   privateKey = unknown,
 > = Compute<
-  Key_typebox.WithPermissions & {
+  Key_schema.WithPermissions & {
     /** Whether the key will need its digest (SHA256) prehashed when signing. */
     prehash?: boolean | undefined
     /** Private key. */
@@ -63,10 +63,10 @@ export type WebAuthnKey = BaseKey<
   >
 >
 
-export type Permissions = Key_typebox.Permissions
+export type Permissions = Key_schema.Permissions
 
 /** RPC (server-compatible) format of a key. */
-export type Server = ServerKey_typebox.WithPermissions
+export type Server = ServerKey_schema.WithPermissions
 
 /** Serialized (contract-compatible) format of a key. */
 export type Serialized = {
@@ -76,7 +76,7 @@ export type Serialized = {
   publicKey: Hex.Hex
 }
 
-export type SpendPermissions = Key_typebox.SpendPermissions
+export type SpendPermissions = Key_schema.SpendPermissions
 export type SpendPermission = SpendPermissions[number]
 
 /** RPC Server key type to key type mapping. */
@@ -427,7 +427,7 @@ export function deserialize(serialized: Serialized): Key {
 export function from<type extends Key['type']>(
   key: from.Value<type>,
 ): Extract<Key, { type: type }> {
-  const { expiry = 0, id, role = 'admin', type } = key
+  const { expiry = 0, id, prehash = false, role = 'admin', type } = key
 
   const publicKey = (() => {
     const publicKey = key.publicKey
@@ -452,6 +452,7 @@ export function from<type extends Key['type']>(
       type,
     }),
     id: (id ?? publicKey).toLowerCase() as Hex.Hex,
+    prehash,
     publicKey: publicKey.toLowerCase() as Hex.Hex,
     role,
     type,
@@ -491,12 +492,13 @@ export declare namespace from {
  * @returns P256 key.
  */
 export function fromP256(parameters: fromP256.Parameters) {
-  const { expiry, permissions, privateKey, role } = parameters
+  const { expiry, feeLimit, permissions, privateKey, role } = parameters
   const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
     includePrefix: false,
   })
   return from({
     expiry,
+    feeLimit,
     permissions,
     privateKey() {
       return privateKey
@@ -508,7 +510,10 @@ export function fromP256(parameters: fromP256.Parameters) {
 }
 
 export declare namespace fromP256 {
-  type Parameters = Pick<from.Value, 'expiry' | 'permissions' | 'role'> & {
+  type Parameters = Pick<
+    from.Value,
+    'expiry' | 'feeLimit' | 'permissions' | 'role'
+  > & {
     /** P256 private key. */
     privateKey: Hex.Hex
   }
@@ -525,8 +530,8 @@ export declare namespace fromP256 {
  */
 export function fromRpcServer(serverKey: Server): Key {
   const permissions: {
-    calls?: Mutable<Key_typebox.CallPermissions> | undefined
-    spend?: Mutable<Key_typebox.SpendPermissions> | undefined
+    calls?: Mutable<Key_schema.CallPermissions> | undefined
+    spend?: Mutable<Key_schema.SpendPermissions> | undefined
   } = {}
 
   for (const permission of serverKey.permissions) {
@@ -590,6 +595,7 @@ export function fromSecp256k1(parameters: fromSecp256k1.Parameters) {
   })()
   return from({
     expiry: parameters.expiry ?? 0,
+    feeLimit: parameters.feeLimit,
     permissions: parameters.permissions,
     privateKey: privateKey ? () => privateKey : undefined,
     publicKey,
@@ -599,7 +605,10 @@ export function fromSecp256k1(parameters: fromSecp256k1.Parameters) {
 }
 
 export declare namespace fromSecp256k1 {
-  type Parameters = Pick<from.Value, 'expiry' | 'permissions' | 'role'> &
+  type Parameters = Pick<
+    from.Value,
+    'expiry' | 'feeLimit' | 'permissions' | 'role'
+  > &
     OneOf<
       | {
           /** Ethereum address. */
@@ -649,6 +658,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
   })
   return from({
     expiry: parameters.expiry ?? 0,
+    feeLimit: parameters.feeLimit,
     id,
     permissions: parameters.permissions,
     privateKey: {
@@ -664,7 +674,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
 export declare namespace fromWebAuthnP256 {
   type Parameters = Pick<
     from.Value,
-    'expiry' | 'id' | 'permissions' | 'role'
+    'expiry' | 'feeLimit' | 'id' | 'permissions' | 'role'
   > & {
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
@@ -708,6 +718,7 @@ export function fromHeadlessWebAuthnP256(
   })
   return from({
     expiry: parameters.expiry ?? 0,
+    feeLimit: parameters.feeLimit,
     permissions: parameters.permissions,
     privateKey: {
       privateKey() {
@@ -721,7 +732,10 @@ export function fromHeadlessWebAuthnP256(
 }
 
 export declare namespace fromHeadlessWebAuthnP256 {
-  type Parameters = Pick<from.Value, 'expiry' | 'permissions' | 'role'> & {
+  type Parameters = Pick<
+    from.Value,
+    'expiry' | 'feeLimit' | 'permissions' | 'role'
+  > & {
     /** P256 private key. */
     privateKey: Hex.Hex
   }
@@ -754,13 +768,14 @@ export declare namespace fromHeadlessWebAuthnP256 {
  * @returns WebCryptoP256 key.
  */
 export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
-  const { expiry, keyPair, permissions, role } = parameters
+  const { expiry, feeLimit, keyPair, permissions, role } = parameters
   const { privateKey } = keyPair
   const publicKey = PublicKey.toHex(keyPair.publicKey, {
     includePrefix: false,
   })
   return from({
     expiry,
+    feeLimit,
     permissions,
     prehash: true,
     privateKey,
@@ -771,7 +786,10 @@ export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
 }
 
 export declare namespace fromWebCryptoP256 {
-  type Parameters = Pick<from.Value, 'expiry' | 'permissions' | 'role'> & {
+  type Parameters = Pick<
+    from.Value,
+    'expiry' | 'feeLimit' | 'permissions' | 'role'
+  > & {
     /** P256 private key. */
     keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
   }
@@ -974,7 +992,7 @@ export function toRpcServer(
   const permissions = Object.entries(key.permissions ?? {})
     .map(([key, v]) => {
       if (key === 'calls') {
-        const calls = v as Key_typebox.CallPermissions
+        const calls = v as Key_schema.CallPermissions
         return calls.map(({ signature, to }) => {
           const selector = (() => {
             if (!signature) return Call.anySelector
@@ -985,25 +1003,26 @@ export function toRpcServer(
             selector,
             to: to ?? Call.anyTarget,
             type: 'call',
-          } as const satisfies ServerPermission_typebox.CallPermission
+          } as const satisfies ServerPermission_schema.CallPermission
         })
       }
-
+      if (key === 'feeLimit') return
       if (key === 'spend') {
-        const value = v as Key_typebox.SpendPermissions
+        const value = v as Key_schema.SpendPermissions
         return value.map(({ limit, period, token }) => {
           return {
             limit,
             period,
             token,
             type: 'spend',
-          } as const satisfies ServerPermission_typebox.SpendPermission
+          } as const satisfies ServerPermission_schema.SpendPermission
         })
       }
 
       throw new Error(`Invalid permission type "${key}".`)
     })
     .flat()
+    .filter(Boolean) as ServerPermission_schema.Permission[]
 
   if (key.role === 'session' && orchestrator)
     permissions.push({

@@ -345,7 +345,7 @@ export async function prepareExecute<
   return {
     digests: {
       auth: authorizationPayload,
-      exec: executePayload,
+      exec: executePayload.digest,
     },
     request: {
       ...rest,
@@ -355,6 +355,7 @@ export async function prepareExecute<
       executor,
       nonce,
     },
+    typedData: executePayload.typedData,
   } as never
 }
 
@@ -389,6 +390,7 @@ export declare namespace prepareExecute {
       authorization?: Authorization_viem | undefined
       nonce: bigint
     }
+    typedData: TypedData.Definition
   }
 }
 
@@ -528,7 +530,7 @@ async function getExecuteDigest<
 >(
   client: Client<Transport, chain, account>,
   parameters: getExecuteDigest.Parameters<calls>,
-): Promise<Hex.Hex> {
+): Promise<{ digest: Hex.Hex; typedData: TypedData.Definition }> {
   const { account = client.account, delegation, nonce } = parameters
 
   const account_ = account ? Account.from(account) : undefined
@@ -559,7 +561,8 @@ async function getExecuteDigest<
   const multichain = nonce & 1n
 
   if (!client.chain) throw new Error('chain is required.')
-  return TypedData.getSignPayload({
+
+  const typedData = {
     domain: {
       chainId: client.chain.id,
       name: domain.name,
@@ -584,7 +587,12 @@ async function getExecuteDigest<
         { name: 'nonce', type: 'uint256' },
       ],
     },
-  })
+  } as const
+
+  return {
+    digest: TypedData.getSignPayload(typedData),
+    typedData,
+  }
 }
 
 export declare namespace getExecuteDigest {

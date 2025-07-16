@@ -41,12 +41,20 @@ export function fromPorto<
   const state = store.getState()
   const chainId = config.chainId ?? state.chainId
   const chain = chains.find((chain) => chain.id === chainId)
-  if (!chain) throw new Error('chain not found')
+  if (!chain)
+    throw new Error(
+      [
+        `Could not find required Porto chain (id: ${chainId}) on the given chain configuration.`,
+        '',
+        `Provided chains: [${chains.map((chain) => `${chain.name} (id: ${chain.id})`).join(', ')}]`,
+        `Please add chain (id: ${chainId}) to your chain configuration.`,
+      ].join('\n'),
+    )
 
   const transport =
     (config_.transports as Record<number, Transport>)[chain.id] ??
     fallback(chain.rpcUrls.default.http.map((url) => http(url)))
-  if (!transport) throw new Error('transport not found')
+  if (!transport) throw new Error('transport not found.')
 
   const key = [id, Json.stringify(chain)].filter(Boolean).join(':')
   if (clientCache.has(key)) return clientCache.get(key)!

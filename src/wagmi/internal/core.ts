@@ -19,7 +19,6 @@ import {
   custom,
   type EIP1193Provider,
 } from 'viem'
-import type * as Typebox from '../../core/internal/typebox/typebox.js'
 import type * as RpcSchema from '../../core/RpcSchema.js'
 import * as AccountActions from '../../viem/AccountActions.js'
 import * as WalletActions from '../../viem/WalletActions.js'
@@ -107,7 +106,7 @@ export async function connect<config extends Config>(
 
 export declare namespace connect {
   type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    Typebox.StaticDecode<typeof RpcSchema.wallet_connect.Capabilities> & {
+    RpcSchema.wallet_connect.Capabilities & {
       connector: Connector | CreateConnectorFn
       force?: boolean | undefined
     }
@@ -148,6 +147,32 @@ export declare namespace disconnect {
 
   // biome-ignore lint/suspicious/noConfusingVoidType: _
   type ReturnType = void
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
+export async function addFunds<config extends Config>(
+  config: config,
+  parameters: addFunds.Parameters<config>,
+): Promise<addFunds.ReturnType> {
+  const { address, chainId, connector } = parameters
+
+  const client = await getConnectorClient(config, {
+    account: address,
+    chainId,
+    connector,
+  })
+
+  return WalletActions.addFunds(client, parameters)
+}
+
+export declare namespace addFunds {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    WalletActions.addFunds.Parameters
+
+  type ReturnType = WalletActions.addFunds.ReturnType
 
   // TODO: Exhaustive ErrorType
   type ErrorType = BaseError

@@ -1,77 +1,111 @@
-import { useQuery } from '@tanstack/react-query'
+import { Query } from '@porto/apps'
+import {
+  queryOptions as queryOptions_query,
+  type UseQueryOptions,
+  useQuery as useQuery_query,
+} from '@tanstack/react-query'
 import { type Address, Json } from 'ox'
 import { Account, ServerActions } from 'porto'
-import type * as FeeToken_typebox from 'porto/core/internal/typebox/feeToken'
+import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
+import type { ServerClient } from 'porto/viem'
 
-import * as FeeToken from './FeeToken'
+import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
 
-// TODO: consider using EIP-1193 Provider + `wallet_prepareCalls` in the future
-// (for case where the account wants to self-relay).
-export function usePrepareCalls<const calls extends readonly unknown[]>(
-  props: usePrepareCalls.Props<calls>,
-) {
-  const {
-    authorizeKeys,
-    address,
-    enabled = true,
-    calls,
-    chainId,
-    revokeKeys,
-    merchantRpcUrl,
-  } = props
+export namespace prepareCalls {
+  export function queryOptions(
+    client: ServerClient.ServerClient,
+    props: queryOptions.Props,
+  ) {
+    const {
+      account,
+      authorizeKeys,
+      enabled = true,
+      calls,
+      feeToken,
+      merchantRpcUrl,
+      refetchInterval,
+      revokeKeys,
+    } = props
 
-  const account = Hooks.useAccount(porto, { address })
-  const client = Hooks.useServerClient(porto, { chainId })
-  const feeToken = FeeToken.useFetch({
-    addressOrSymbol: props.feeToken,
-  })
+    return queryOptions_query({
+      enabled: enabled && !!account,
+      async queryFn() {
+        if (!account) throw new Error('account is required.')
 
-  return useQuery({
-    enabled: enabled && feeToken.isFetched && !!account,
-    async queryFn() {
-      if (!account) throw new Error('account is required.')
+        const key = Account.getKey(account, { role: 'admin' })
+        if (!key) throw new Error('no admin key found.')
 
-      const key = Account.getKey(account, { role: 'admin' })
-      if (!key) throw new Error('no admin key found.')
+        const [{ address: feeTokenAddress }] =
+          await Query.client.ensureQueryData(
+            FeeTokens.fetch.queryOptions(client, {
+              addressOrSymbol: feeToken,
+            }),
+          )
 
-      return await ServerActions.prepareCalls(client, {
-        account,
-        authorizeKeys,
-        calls,
-        feeToken: feeToken.data?.address,
-        key,
-        merchantRpcUrl,
-        revokeKeys,
-      })
-    },
-    queryKey: [
-      'prepareCalls',
-      account?.address,
-      Json.stringify({
-        authorizeKeys,
-        calls,
-        merchantRpcUrl,
-        revokeKeys,
-      }),
-      client.uid,
-      feeToken.data?.address,
-    ],
-    refetchInterval: 15_000,
-  })
-}
+        // TODO: consider using EIP-1193 Provider + `wallet_prepareCalls` in the future
+        // (for case where the account wants to self-relay).
+        return await ServerActions.prepareCalls(client, {
+          account,
+          authorizeKeys,
+          calls,
+          feeToken: feeTokenAddress,
+          key,
+          merchantRpcUrl,
+          revokeKeys,
+        })
+      },
+      queryKey: [
+        'prepareCalls',
+        account?.address,
+        client.uid,
+        Json.stringify({
+          authorizeKeys,
+          calls,
+          feeToken,
+          merchantRpcUrl,
+          revokeKeys,
+        }),
+      ],
+      refetchInterval,
+    })
+  }
 
-export declare namespace usePrepareCalls {
-  export type Props<calls extends readonly unknown[] = readonly unknown[]> =
-    Pick<
-      ServerActions.prepareCalls.Parameters<calls>,
-      'authorizeKeys' | 'calls' | 'revokeKeys'
-    > & {
+  export namespace queryOptions {
+    export type Props<calls extends readonly unknown[] = readonly unknown[]> =
+      Pick<
+        ServerActions.prepareCalls.Parameters<calls>,
+        'authorizeKeys' | 'calls' | 'revokeKeys'
+      > &
+        Pick<
+          UseQueryOptions<
+            ServerActions.prepareCalls.ReturnType,
+            Error,
+            ServerActions.prepareCalls.ReturnType,
+            (string | undefined)[]
+          >,
+          'enabled' | 'refetchInterval'
+        > & {
+          account?: Account.Account | undefined
+          feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
+          merchantRpcUrl?: string | undefined
+        }
+  }
+
+  export function useQuery(props: useQuery.Props) {
+    const { address, chainId } = props
+
+    const account = Hooks.useAccount(porto, { address })
+    const client = Hooks.useServerClient(porto, { chainId })
+
+    return useQuery_query(queryOptions(client, { ...props, account }))
+  }
+
+  export namespace useQuery {
+    export type Props = queryOptions.Props & {
       address?: Address.Address | undefined
       chainId?: number | undefined
-      enabled?: boolean | undefined
-      feeToken?: FeeToken_typebox.Symbol | Address.Address | undefined
-      merchantRpcUrl?: string | undefined
     }
+  }
 }

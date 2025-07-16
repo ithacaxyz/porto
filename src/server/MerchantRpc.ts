@@ -1,10 +1,9 @@
 import { type Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
 import { createClient, rpcSchema } from 'viem'
-
 import type * as Chains from '../core/Chains.js'
 import type * as RpcSchema_internal from '../core/internal/rpcServer/rpcSchema.js'
-import * as Rpc from '../core/internal/rpcServer/typebox/rpc.js'
-import * as Typebox from '../core/internal/typebox/typebox.js'
+import * as Rpc from '../core/internal/rpcServer/schema/rpc.js'
+import * as Schema from '../core/internal/schema/schema.js'
 import type { MaybePromise, OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
@@ -104,10 +103,9 @@ export function requestHandler<
               },
             ],
           })
-          const { typedData } = Typebox.Decode(
+          const { typedData } = Schema.decodeSync(
             Rpc.wallet_prepareCalls.Response,
-            result,
-          )
+          )(result)
 
           const signature = sponsor
             ? await Key.sign(key, {

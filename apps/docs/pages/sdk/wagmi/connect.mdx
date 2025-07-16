@@ -95,6 +95,19 @@ type GrantPermissions = {
   /** Expiry timestamp for the permissions */
   expiry: number
 
+  /** 
+   * Limit that the key can spend on fees. When provided,
+   * Porto will assign a spend permission on the user's
+   * selected fee token that is equal to the limit provided.
+   * 
+   */
+  feeLimit?: {
+    /** Currency of the limit. */
+    currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
+    /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
+    value: string
+  } | undefined,
+
   /** Key to grant permissions to. Defaults to a wallet-managed key. */
   key?: {
     /** Public key. Accepts an address for `address` & `secp256k1` types. */
@@ -133,6 +146,8 @@ type GrantPermissions = {
 ```ts
 type SignInWithEthereum = {
   /* Required fields */
+  authUrl: string
+  // OR
   nonce: string
 
   /* Optional fields */

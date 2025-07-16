@@ -241,36 +241,34 @@ function ActionableFeedback({ feedback }: { feedback: 'success' | 'pending' }) {
       )}
 
       <div className="flex flex-col items-center gap-y-2 text-center">
-        <React.Fragment>
-          {feedback === 'pending' ? (
-            <React.Fragment>
-              <p className="text-center font-medium text-2xl">
-                Approve in wallet
-              </p>
-              <p className="text-lg">Please check your wallet for a request.</p>
-              <p className="font-normal text-base text-gray10">
-                This will verify ownership of the wallet,
-                <br />
-                and allow it to recover this passkey.
-              </p>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <p className="text-center font-medium text-2xl">
-                Added recovery method
-              </p>
-              <p className="text-lg">
-                You can now use this wallet to recover your passkey if you ever
-                lose access.
-              </p>
-              <Button
-                className="mt-2 h-11! w-full text-lg!"
-                render={<Link to="/">Done</Link>}
-                variant="accent"
-              />
-            </React.Fragment>
-          )}
-        </React.Fragment>
+        {feedback === 'pending' ? (
+          <React.Fragment>
+            <p className="text-center font-medium text-2xl">
+              Approve in wallet
+            </p>
+            <p className="text-lg">Please check your wallet for a request.</p>
+            <p className="font-normal text-base text-gray10">
+              This will verify ownership of the wallet,
+              <br />
+              and allow it to recover this passkey.
+            </p>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <p className="text-center font-medium text-2xl">
+              Added recovery method
+            </p>
+            <p className="text-lg">
+              You can now use this wallet to recover your passkey if you ever
+              lose access.
+            </p>
+            <Button
+              className="mt-2 h-11! w-full text-lg!"
+              render={<Link to="/">Done</Link>}
+              variant="accent"
+            />
+          </React.Fragment>
+        )}
       </div>
     </div>
   )

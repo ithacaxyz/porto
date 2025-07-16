@@ -2,18 +2,16 @@
 
 | Contract Name         | Address                                      |
 |-----------------------|----------------------------------------------|
-| Orchestrator          | [0xF337a809Da07083ba19874318cAa968a4345D8be](https://basescan.org/address/0xF337a809Da07083ba19874318cAa968a4345D8be)   |
-| Account Implementation | [0x8c0466A6C046395c8999227b288883cf7dC9f5de](https://basescan.org/address/0x8c0466A6C046395c8999227b288883cf7dC9f5de)   |
-| Account Proxy          | [0x664ab8c20b629422f5398e58ff8989e68b26a4e6](https://basescan.org/address/0x664ab8c20b629422f5398e58ff8989e68b26a4e6)   |
-| Account Registry       | [0x6003faEdfeA84A2fdEb8Fc70B0774666733b4880](https://basescan.org/address/0x6003faEdfeA84A2fdEb8Fc70B0774666733b4880)   |
-| Simulator             | [0x78830C9a0618c1755Ae7C5647a603e0f6CCbE6d1](https://basescan.org/address/0x78830C9a0618c1755Ae7C5647a603e0f6CCbE6d1)   |
+| Orchestrator          | [0x883ac1afd6bf920755ccee253669515683634930](https://basescan.org/address/0x883ac1afd6bf920755ccee253669515683634930)   |
+| Account Implementation | [0xb292da8879c26ecd558bbea87f581cdd608ffc3c](https://basescan.org/address/0xb292da8879c26ecd558bbea87f581cdd608ffc3c)   |
+| Account Proxy          | [0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f](https://basescan.org/address/0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f)   |
+| Simulator             | [0x21d83f97fff3e35ab42d02e4bec8d61a9b645852](https://basescan.org/address/0x21d83f97fff3e35ab42d02e4bec8d61a9b645852)   |
 
 **Base Sepolia Testnet**
 
 | Contract Name         | Address                                      |
 |-----------------------|----------------------------------------------|
-| Orchestrator          | [0x1692bc8d0c73a7540ecb572e85c0775e68c55d25](https://sepolia.basescan.org/address/0x1692bc8d0c73a7540ecb572e85c0775e68c55d25)   |
-| Account Implementation | [0xd5e721649e9D6357eb7533Ce4dB135928F4025DB](https://sepolia.basescan.org/address/0xd5e721649e9D6357eb7533Ce4dB135928F4025DB)   |
-| Account Proxy          | [0x623b5b44647871268d481d2930f60d5d7f37a1fe](https://sepolia.basescan.org/address/0x623b5b44647871268d481d2930f60d5d7f37a1fe)   |
-| Account Registry       | [0xb0ade72d82538e2a6b1bc114a083b81cb6d5517f](https://sepolia.basescan.org/address/0xb0ade72d82538e2a6b1bc114a083b81cb6d5517f)   |
-| Simulator             | [0x16a74f9a8856582ed90da3d11e8febf23b22c821](https://sepolia.basescan.org/address/0x16a74f9a8856582ed90da3d11e8febf23b22c821)   |
+| Orchestrator          | [0x8a88d758c7cef9251e2473b4957272b43dbbb5f2](https://sepolia.basescan.org/address/0x8a88d758c7cef9251e2473b4957272b43dbbb5f2)   |
+| Account Implementation | [0x7bb047b07a560002aeb6b35bed09a342fe3dfd26](https://sepolia.basescan.org/address/0x7bb047b07a560002aeb6b35bed09a342fe3dfd26)   |
+| Account Proxy          | [0x6d0f5e01df440cb03d67c076d220b412d5d011ca](https://sepolia.basescan.org/address/0x6d0f5e01df440cb03d67c076d220b412d5d011ca)   |
+| Simulator             | [0xb4397f11ea3c36fd4f0ccf95e999c6a5993e434b](https://sepolia.basescan.org/address/0xb4397f11ea3c36fd4f0ccf95e999c6a5993e434b)   |

@@ -117,7 +117,7 @@ forge test --config-path ./contracts/demo/foundry.toml
 - **`viem`** - TypeScript Interface for Ethereum
 - **`wagmi`** - React Hooks for Ethereum
 - **`ox`** - Standard Library for Ethereum
-- **`@sinclair/typebox`** - Runtime schema validation
+- **`effect/schema`** - Runtime schema validation
 
 #### Core Modules (`src/core/`)
 
@@ -174,10 +174,52 @@ forge test --config-path ./contracts/demo/foundry.toml
 6. **Add changeset**: If any public API or behavioral changes were made to the library (`src/`), add a changeset with `pnpm changeset`. Changesets should use past tense verbs (e.g. `Added new feature`). Any breaking changes should be noted with a `**Breaking:**` prefix with a description of how to migrate.
 7. **Submit a PR**: Ensure PR title is in conventional commit format (e.g. `feat: add new feature`) and PR description is detailed
 
-### Testing Strategy
+### Tests
 
-- **Unit/Integration Tests**: Vitest with coverage reporting
-- **Browser/E2E Tests**: Vitest Browser mode (Playwright with Chromium, Firefox and WebKit).
+- You must run tests with `pnpm test:ci`.
+- Test file structure must have `describe` blocks that are 1:1 with module exports.
+- Favor `test` over `it`.
+- Lowercase `test` descriptions (e.g. `test('behavior: with foo')`)
+- `test` descriptions should be prefixed with category
+  - `test('behavior: ...')`: Behavioral tests
+  - `test('error: ...')`: Error tests
+  - `test('param: ...')`: Parameter validation tests
+  - `test('misc: ...')`: Miscellaneous tests (doesn't fit into above categories)
+- Don't use "should" in test descriptions, just use the verb.
+- Tests must be sorted as such:
+  - `test('param: ...')`
+  - `test('behavior: ...')`
+  - `test('error: ...')`
+  - `test('misc: ...')`
+- Tests must prefer inline snapshots (`expect(foo).toMatchInlineSnapshot()`) over direct assertions.
+- For testing multiple similar cases, use `test.each()` instead of loops or repeated test blocks:
+
+  ```typescript
+  test.each([
+    { input: 'case1', expected: 'result1' },
+    { input: 'case2', expected: 'result2' },
+  ])('behavior: handles $input', ({ input, expected }) => {
+    const result = myFunction(input)
+    expect(result).toBe(expected)
+  })
+  ```
+
+- For encoding tests, use `Schema.encodeSync()` directly instead of `decodeUnknownSync -> encodeSync`:
+
+  ```typescript
+  // ✅ Good: Test encoding directly
+  test('behavior: encodes BigInt to hex', () => {
+    const encoded = Schema.encodeSync(MySchema)({ value: 255n })
+    expect(encoded).toEqual({ value: '0xff' })
+  })
+  
+  // ❌ Bad: Unnecessary decode step
+  test('behavior: encodes BigInt to hex', () => {
+    const decoded = Schema.decodeUnknownSync(MySchema)({ value: '0xff' })
+    const encoded = Schema.encodeSync(MySchema)(decoded)
+    expect(encoded).toEqual({ value: '0xff' })
+  })
+  ```
 
 ### PR Requirements
 

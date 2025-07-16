@@ -33,6 +33,18 @@ export function TitleBar(props: TitleBar.Props) {
     }
   }, [referrer])
 
+  const selfClose = mode !== 'inline-iframe' && mode !== 'popup-standalone'
+
+  React.useEffect(() => {
+    if (!selfClose) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') Actions.rejectAll(porto)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [selfClose])
+
   return (
     <header
       className="fixed flex h-navbar w-full items-center justify-between gap-2 border-primary border-b bg-secondary px-3 pt-2 pb-1.5"
@@ -102,7 +114,7 @@ export function TitleBar(props: TitleBar.Props) {
         )}
       </div>
 
-      {mode !== 'inline-iframe' && mode !== 'popup-standalone' && (
+      {selfClose && (
         <button
           onClick={() => Actions.rejectAll(porto)}
           title="Close Dialog"

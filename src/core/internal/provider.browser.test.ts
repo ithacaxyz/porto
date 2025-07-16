@@ -213,6 +213,10 @@ describe('wallet_getPermissions', () => {
         params: [
           {
             expiry: 9999999999,
+            feeLimit: {
+              currency: 'USD',
+              value: '1',
+            },
             key: {
               publicKey:
                 '0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
@@ -232,7 +236,18 @@ describe('wallet_getPermissions', () => {
         method: 'wallet_getPermissions',
       })
       expect(
-        permissions.map((x) => ({ ...x, address: null, chainId: null })),
+        permissions.map((x) => ({
+          ...x,
+          address: null,
+          chainId: null,
+          permissions: {
+            ...x.permissions,
+            spend: x.permissions.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
+        })),
       ).matchSnapshot()
     }
 
@@ -242,7 +257,6 @@ describe('wallet_getPermissions', () => {
         params: [{ calls: [] }],
       }),
       async (iframe) => {
-        await iframe.getByTestId('add-funds').click()
         await iframe.getByTestId('buy').click()
         await iframe.getByTestId('confirm').click()
       },
@@ -256,7 +270,18 @@ describe('wallet_getPermissions', () => {
         method: 'wallet_getPermissions',
       })
       expect(
-        permissions.map((x) => ({ ...x, address: null, chainId: null })),
+        permissions.map((x) => ({
+          ...x,
+          address: null,
+          chainId: null,
+          permissions: {
+            ...x.permissions,
+            spend: x.permissions.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
+        })),
       ).matchSnapshot()
     }
   })

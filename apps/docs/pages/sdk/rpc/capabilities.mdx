@@ -113,6 +113,18 @@ type Capability = {
     /** Expiry of the permissions. */
     expiry: number
 
+    /** 
+     * Limit that the key can spend on fees. When provided,
+     * Porto will assign a spend permission on the user's
+     * selected fee token that is equal to the limit provided.
+     */
+    feeLimit?: {
+      /** Currency of the limit. */
+      currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
+      /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
+      value: string
+    } | undefined,
+
     /**
      * Key to grant permissions to.
      * Defaults to a wallet-managed key.
@@ -165,6 +177,10 @@ const capabilities = await provider.request({
     capabilities: { // [!code focus]
       grantPermissions: { // [!code focus]
         expiry: 1727078400, // [!code focus]
+        feeLimit: { // [!code focus]
+          currency: 'USD', // [!code focus]
+          value: '1', // [!code focus] 
+        }, // [!code focus]
         permissions: { // [!code focus]
           calls: [{ signature: 'subscribe()' }], // [!code focus]
           spend: [{ // [!code focus]
@@ -346,7 +362,10 @@ The following JSON-RPC methods support the `signInWithEthereum` request capabili
 type Capability = {
   signInWithEthereum: {
     /* Required fields */
+    authUrl: string
+    // OR
     nonce: string
+    
     /* Optional fields */
     chainId?: number | undefined
     domain?: string | undefined // Defaults to window/iframe parent

@@ -8,7 +8,10 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "spend": undefined,
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -26,7 +29,9 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
           "signature": "mint()",
         },
       ],
+      "spend": [],
     },
+    "prehash": false,
     "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
     "role": "session",
     "type": "p256",
@@ -40,7 +45,10 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "spend": undefined,
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -58,6 +66,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
           "signature": "mint()",
         },
       ],
+      "spend": [],
     },
     "prehash": true,
     "privateKey": CryptoKey {},
@@ -87,6 +96,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` capability >
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -98,16 +108,57 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` capability >
 `;
 
 exports[`contract > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
-[RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
-
+[RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
 Path: params.0.capabilities.grantPermissions.permissions.calls
-Value: []]
+
+Details: Request.Request
+└─ Rpc.wallet_connect.Request
+   └─ ["params"]
+      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }] | undefined
+         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }]
+         │  └─ [0]
+         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }
+         │        └─ ["capabilities"]
+         │           └─ Rpc.wallet_connect.Capabilities | undefined
+         │              ├─ Rpc.wallet_connect.Capabilities
+         │              │  └─ ["grantPermissions"]
+         │              │     └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } } | undefined
+         │              │        ├─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+         │              │        │  └─ ["permissions"]
+         │              │        │     └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
+         │              │        │        └─ ["calls"]
+         │              │        │           └─ minItems(1)
+         │              │        │              └─ Predicate refinement failure
+         │              │        │                 └─ Expected an array of at least 1 item(s), actual []
+         │              │        └─ Expected undefined, actual {"expiry":9999999,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[]}}
+         │              └─ Expected undefined, actual {"createAccount":true,"grantPermissions":{"expiry":9999999,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[]}}}
+         └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":9999999,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[]}}}}]]
 `;
 
 exports[`contract > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
-[RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
+[RpcResponse.InvalidParamsError: Expected a number greater than or equal to 1, actual 0
+Path: params.0.capabilities.grantPermissions.expiry
 
-Path: params.0.capabilities.grantPermissions.expiry]
+Details: Request.Request
+└─ Rpc.wallet_connect.Request
+   └─ ["params"]
+      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }] | undefined
+         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }]
+         │  └─ [0]
+         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }
+         │        └─ ["capabilities"]
+         │           └─ Rpc.wallet_connect.Capabilities | undefined
+         │              ├─ Rpc.wallet_connect.Capabilities
+         │              │  └─ ["grantPermissions"]
+         │              │     └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } } | undefined
+         │              │        ├─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+         │              │        │  └─ ["expiry"]
+         │              │        │     └─ greaterThanOrEqualTo(1)
+         │              │        │        └─ Predicate refinement failure
+         │              │        │           └─ Expected a number greater than or equal to 1, actual 0
+         │              │        └─ Expected undefined, actual {"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}
+         │              └─ Expected undefined, actual {"createAccount":true,"grantPermissions":{"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}}
+         └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}}}]]
 `;
 
 exports[`contract > wallet_connect > default 1`] = `
@@ -117,6 +168,7 @@ exports[`contract > wallet_connect > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": null,
     "publicKey": null,
     "role": "admin",
@@ -207,7 +259,7 @@ exports[`contract > wallet_getPermissions > behavior: grant on connect > grant a
           "to": null,
         },
       ],
-      "spend": undefined,
+      "spend": [],
     },
   },
   {
@@ -256,7 +308,7 @@ exports[`contract > wallet_getPermissions > behavior: grant on connect > grant a
           "to": null,
         },
       ],
-      "spend": undefined,
+      "spend": [],
     },
   },
   {
@@ -298,10 +350,21 @@ exports[`contract > wallet_grantAdmin > default 1`] = `
 `;
 
 exports[`contract > wallet_grantPermissions > behavior: no permissions 1`] = `
-[RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
-
+[RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
 Path: params.0.permissions.calls
-Value: []]
+
+Details: Request.Request
+└─ Rpc.wallet_grantPermissions.Request
+   └─ ["params"]
+      └─ readonly [{ readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }]
+         └─ [0]
+            └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+               └─ ["permissions"]
+                  └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
+                     └─ ["calls"]
+                        └─ minItems(1)
+                           └─ Predicate refinement failure
+                              └─ Expected an array of at least 1 item(s), actual []]
 `;
 
 exports[`contract > wallet_grantPermissions > behavior: provided key 1`] = `
@@ -321,6 +384,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 1`] = `
         "signature": "mint()",
       },
     ],
+    "spend": [],
   },
 }
 `;
@@ -346,6 +410,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 2`] = `
       {
         "limit": "0x14d1120d7b160000",
         "period": "day",
+        "token": null,
       },
     ],
   },
@@ -358,7 +423,15 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [],
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -376,7 +449,9 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
           "signature": "mint()",
         },
       ],
+      "spend": [],
     },
+    "prehash": false,
     "publicKey": null,
     "role": "session",
     "type": "p256",
@@ -391,13 +466,9 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
           "signature": "mint()",
         },
       ],
-      "spend": [
-        {
-          "limit": 1500000000000000000n,
-          "period": "day",
-        },
-      ],
+      "spend": [],
     },
+    "prehash": false,
     "publicKey": null,
     "role": "session",
     "type": "address",
@@ -406,9 +477,19 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
 `;
 
 exports[`contract > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
-[RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
+[RpcResponse.InvalidParamsError: Expected a number greater than or equal to 1, actual 0
+Path: params.0.expiry
 
-Path: params.0.expiry]
+Details: Request.Request
+└─ Rpc.wallet_grantPermissions.Request
+   └─ ["params"]
+      └─ readonly [{ readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }]
+         └─ [0]
+            └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+               └─ ["expiry"]
+                  └─ greaterThanOrEqualTo(1)
+                     └─ Predicate refinement failure
+                        └─ Expected a number greater than or equal to 1, actual 0]
 `;
 
 exports[`contract > wallet_grantPermissions > default 1`] = `
@@ -417,7 +498,10 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "spend": undefined,
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -435,6 +519,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
           "signature": "mint()",
         },
       ],
+      "spend": [],
     },
     "prehash": true,
     "privateKey": CryptoKey {},
@@ -452,6 +537,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -463,6 +549,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
+    "prehash": false,
     "publicKey": null,
     "role": "admin",
     "type": "address",
@@ -477,6 +564,7 @@ exports[`contract > wallet_revokeAdmin > default 2`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -495,7 +583,10 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "spend": undefined,
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -513,6 +604,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
           "signature": "mint()",
         },
       ],
+      "spend": [],
     },
     "prehash": true,
     "privateKey": CryptoKey {},
@@ -530,6 +622,7 @@ exports[`contract > wallet_revokePermissions > default 2`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": undefined,
     },
@@ -541,9 +634,21 @@ exports[`contract > wallet_revokePermissions > default 2`] = `
 `;
 
 exports[`contract > wallet_sendCalls > behavior: no calls.to 1`] = `
-[RpcResponse.InvalidParamsError: Expected required property
+[RpcResponse.InvalidParamsError: \`to\` is missing
+Path: params.0.calls.0.to
 
-Path: params.0.calls.0.to]
+Details: Request.Request
+└─ Rpc.wallet_sendCalls.Request
+   └─ ["params"]
+      └─ readonly [{ readonly calls: ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>; readonly capabilities?: Rpc.wallet_prepareCalls.Capabilities | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly from?: \`0x\${string}\` | undefined; readonly version?: string | undefined }]
+         └─ [0]
+            └─ { readonly calls: ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>; readonly capabilities?: Rpc.wallet_prepareCalls.Capabilities | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly from?: \`0x\${string}\` | undefined; readonly version?: string | undefined }
+               └─ ["calls"]
+                  └─ ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>
+                     └─ [0]
+                        └─ { readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }
+                           └─ ["to"]
+                              └─ is missing]
 `;
 
 exports[`contract > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;
@@ -558,7 +663,10 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "spend": undefined,
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -576,7 +684,15 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
           "signature": "mint()",
         },
       ],
+      "spend": [
+        {
+          "limit": 1000000000000000000n,
+          "period": "year",
+          "token": null,
+        },
+      ],
     },
+    "prehash": false,
     "publicKey": "0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e",
     "role": "session",
     "type": "p256",
@@ -590,7 +706,10 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "spend": undefined,
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -606,6 +725,13 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
       "calls": [
         {
           "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": 1000000000000000000n,
+          "period": "year",
+          "token": null,
         },
       ],
     },
@@ -637,6 +763,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability >
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -648,16 +775,57 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability >
 `;
 
 exports[`rpcServer > wallet_connect > behavior: \`grantPermissions\` capability (no permissions) 1`] = `
-[RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
-
+[RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
 Path: params.0.capabilities.grantPermissions.permissions.calls
-Value: []]
+
+Details: Request.Request
+└─ Rpc.wallet_connect.Request
+   └─ ["params"]
+      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }] | undefined
+         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }]
+         │  └─ [0]
+         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }
+         │        └─ ["capabilities"]
+         │           └─ Rpc.wallet_connect.Capabilities | undefined
+         │              ├─ Rpc.wallet_connect.Capabilities
+         │              │  └─ ["grantPermissions"]
+         │              │     └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } } | undefined
+         │              │        ├─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+         │              │        │  └─ ["permissions"]
+         │              │        │     └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
+         │              │        │        └─ ["calls"]
+         │              │        │           └─ minItems(1)
+         │              │        │              └─ Predicate refinement failure
+         │              │        │                 └─ Expected an array of at least 1 item(s), actual []
+         │              │        └─ Expected undefined, actual {"expiry":9999999,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[]}}
+         │              └─ Expected undefined, actual {"createAccount":true,"grantPermissions":{"expiry":9999999,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[]}}}
+         └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":9999999,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[]}}}}]]
 `;
 
 exports[`rpcServer > wallet_connect > behavior: \`grantPermissions\` capability (unlimited expiry) 1`] = `
-[RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
+[RpcResponse.InvalidParamsError: Expected a number greater than or equal to 1, actual 0
+Path: params.0.capabilities.grantPermissions.expiry
 
-Path: params.0.capabilities.grantPermissions.expiry]
+Details: Request.Request
+└─ Rpc.wallet_connect.Request
+   └─ ["params"]
+      └─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }] | undefined
+         ├─ readonly [{ readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }]
+         │  └─ [0]
+         │     └─ { readonly capabilities?: Rpc.wallet_connect.Capabilities | undefined }
+         │        └─ ["capabilities"]
+         │           └─ Rpc.wallet_connect.Capabilities | undefined
+         │              ├─ Rpc.wallet_connect.Capabilities
+         │              │  └─ ["grantPermissions"]
+         │              │     └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } } | undefined
+         │              │        ├─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+         │              │        │  └─ ["expiry"]
+         │              │        │     └─ greaterThanOrEqualTo(1)
+         │              │        │        └─ Predicate refinement failure
+         │              │        │           └─ Expected a number greater than or equal to 1, actual 0
+         │              │        └─ Expected undefined, actual {"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}
+         │              └─ Expected undefined, actual {"createAccount":true,"grantPermissions":{"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}}
+         └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}}}]]
 `;
 
 exports[`rpcServer > wallet_connect > default 1`] = `
@@ -667,6 +835,7 @@ exports[`rpcServer > wallet_connect > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": {},
+    "prehash": false,
     "privateKey": null,
     "publicKey": null,
     "role": "admin",
@@ -774,7 +943,13 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
           "to": null,
         },
       ],
-      "spend": undefined,
+      "spend": [
+        {
+          "limit": "0xde0b6b3a7640000",
+          "period": "year",
+          "token": null,
+        },
+      ],
     },
   },
   {
@@ -796,6 +971,11 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
       "spend": [
         {
           "limit": "0x14d1120d7b160000",
+          "period": "day",
+          "token": null,
+        },
+        {
+          "limit": "0xde0b6b3a7640000",
           "period": "day",
           "token": null,
         },
@@ -823,7 +1003,13 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
           "to": null,
         },
       ],
-      "spend": undefined,
+      "spend": [
+        {
+          "limit": "0xde0b6b3a7640000",
+          "period": "year",
+          "token": null,
+        },
+      ],
     },
   },
   {
@@ -845,6 +1031,11 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
       "spend": [
         {
           "limit": "0x14d1120d7b160000",
+          "period": "day",
+          "token": null,
+        },
+        {
+          "limit": "0xde0b6b3a7640000",
           "period": "day",
           "token": null,
         },
@@ -878,7 +1069,7 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
       ],
       "spend": [
         {
-          "limit": "0x56bc75e2d63100000",
+          "limit": "0xde0b6b3a7640000",
           "period": "year",
           "token": null,
         },
@@ -912,7 +1103,7 @@ exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant 
           "token": null,
         },
         {
-          "limit": "0x56bc75e2d63100000",
+          "limit": "0xde0b6b3a7640000",
           "period": "day",
           "token": null,
         },
@@ -931,10 +1122,21 @@ exports[`rpcServer > wallet_grantAdmin > default 1`] = `
 `;
 
 exports[`rpcServer > wallet_grantPermissions > behavior: no permissions 1`] = `
-[RpcResponse.InvalidParamsError: Expected array length to be greater or equal to 1
-
+[RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
 Path: params.0.permissions.calls
-Value: []]
+
+Details: Request.Request
+└─ Rpc.wallet_grantPermissions.Request
+   └─ ["params"]
+      └─ readonly [{ readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }]
+         └─ [0]
+            └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+               └─ ["permissions"]
+                  └─ { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined }
+                     └─ ["calls"]
+                        └─ minItems(1)
+                           └─ Predicate refinement failure
+                              └─ Expected an array of at least 1 item(s), actual []]
 `;
 
 exports[`rpcServer > wallet_grantPermissions > behavior: provided key 1`] = `
@@ -952,6 +1154,13 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 1`] = `
     "calls": [
       {
         "signature": "mint()",
+      },
+    ],
+    "spend": [
+      {
+        "limit": "0xde0b6b3a7640000",
+        "period": "year",
+        "token": null,
       },
     ],
   },
@@ -979,6 +1188,12 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 2`] = `
       {
         "limit": "0x14d1120d7b160000",
         "period": "day",
+        "token": null,
+      },
+      {
+        "limit": "0xde0b6b3a7640000",
+        "period": "day",
+        "token": null,
       },
     ],
   },
@@ -991,7 +1206,21 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "calls": [
+        {
+          "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": "0xde0b6b3a7640000",
+          "period": "year",
+          "token": null,
+        },
+      ],
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1009,7 +1238,15 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
           "signature": "mint()",
         },
       ],
+      "spend": [
+        {
+          "limit": "0xde0b6b3a7640000",
+          "period": "year",
+          "token": null,
+        },
+      ],
     },
+    "prehash": false,
     "publicKey": null,
     "role": "session",
     "type": "p256",
@@ -1026,11 +1263,13 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
       ],
       "spend": [
         {
-          "limit": 1500000000000000000n,
-          "period": "day",
+          "limit": "0xde0b6b3a7640000",
+          "period": "year",
+          "token": null,
         },
       ],
     },
+    "prehash": false,
     "publicKey": null,
     "role": "session",
     "type": "address",
@@ -1039,9 +1278,19 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
 `;
 
 exports[`rpcServer > wallet_grantPermissions > behavior: unlimited expiry 1`] = `
-[RpcResponse.InvalidParamsError: Expected number to be greater or equal to 1
+[RpcResponse.InvalidParamsError: Expected a number greater than or equal to 1, actual 0
+Path: params.0.expiry
 
-Path: params.0.expiry]
+Details: Request.Request
+└─ Rpc.wallet_grantPermissions.Request
+   └─ ["params"]
+      └─ readonly [{ readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }]
+         └─ [0]
+            └─ { readonly address?: \`0x\${string}\` | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly expiry: greaterThanOrEqualTo(1); readonly feeLimit?: { readonly currency: "ETH" | "USDC" | "USDT" | "USD"; readonly value: a string matching the pattern ^\\d+(\\.\\d+)?$ } | undefined; readonly key?: { readonly publicKey: \`0x\${string}\`; readonly type: "address" | "p256" | "secp256k1" | "webauthn-p256" } | undefined; readonly permissions: { readonly calls: minItems(1); readonly signatureVerification?: { readonly addresses: ReadonlyArray<\`0x\${string}\`> } | undefined; readonly spend?: ReadonlyArray<{ readonly limit: (\`0x\${string}\` <-> bigint); readonly period: "minute" | "hour" | "day" | "week" | "month" | "year"; readonly token?: \`0x\${string}\` | undefined }> | undefined } }
+               └─ ["expiry"]
+                  └─ greaterThanOrEqualTo(1)
+                     └─ Predicate refinement failure
+                        └─ Expected a number greater than or equal to 1, actual 0]
 `;
 
 exports[`rpcServer > wallet_grantPermissions > default 1`] = `
@@ -1050,7 +1299,10 @@ exports[`rpcServer > wallet_grantPermissions > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "spend": undefined,
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1066,6 +1318,13 @@ exports[`rpcServer > wallet_grantPermissions > default 1`] = `
       "calls": [
         {
           "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": 1000000000000000000n,
+          "period": "year",
+          "token": null,
         },
       ],
     },
@@ -1085,6 +1344,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1096,6 +1356,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
+    "prehash": false,
     "publicKey": null,
     "role": "admin",
     "type": "address",
@@ -1110,6 +1371,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 2`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1128,7 +1390,10 @@ exports[`rpcServer > wallet_revokePermissions > default 1`] = `
     "expiry": null,
     "hash": null,
     "id": null,
-    "permissions": undefined,
+    "permissions": {
+      "spend": undefined,
+    },
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1144,6 +1409,13 @@ exports[`rpcServer > wallet_revokePermissions > default 1`] = `
       "calls": [
         {
           "signature": "mint()",
+        },
+      ],
+      "spend": [
+        {
+          "limit": 1000000000000000000n,
+          "period": "year",
+          "token": null,
         },
       ],
     },
@@ -1163,6 +1435,7 @@ exports[`rpcServer > wallet_revokePermissions > default 2`] = `
     "hash": null,
     "id": null,
     "permissions": undefined,
+    "prehash": false,
     "privateKey": {
       "privateKey": [Function],
     },
@@ -1174,9 +1447,21 @@ exports[`rpcServer > wallet_revokePermissions > default 2`] = `
 `;
 
 exports[`rpcServer > wallet_sendCalls > behavior: no calls.to 1`] = `
-[RpcResponse.InvalidParamsError: Expected required property
+[RpcResponse.InvalidParamsError: \`to\` is missing
+Path: params.0.calls.0.to
 
-Path: params.0.calls.0.to]
+Details: Request.Request
+└─ Rpc.wallet_sendCalls.Request
+   └─ ["params"]
+      └─ readonly [{ readonly calls: ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>; readonly capabilities?: Rpc.wallet_prepareCalls.Capabilities | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly from?: \`0x\${string}\` | undefined; readonly version?: string | undefined }]
+         └─ [0]
+            └─ { readonly calls: ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>; readonly capabilities?: Rpc.wallet_prepareCalls.Capabilities | undefined; readonly chainId?: (\`0x\${string}\` <-> number) | undefined; readonly from?: \`0x\${string}\` | undefined; readonly version?: string | undefined }
+               └─ ["calls"]
+                  └─ ReadonlyArray<{ readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }>
+                     └─ [0]
+                        └─ { readonly data?: \`0x\${string}\` | undefined; readonly to: \`0x\${string}\`; readonly value?: (\`0x\${string}\` <-> bigint) | undefined }
+                           └─ ["to"]
+                              └─ is missing]
 `;
 
 exports[`rpcServer > wallet_sendCalls > behavior: not provider-managed permission 1`] = `[RpcResponse.InternalError: permission (id: 0x86a0d77beccf47a0a78cccfc19fdfe7317816740c9f9e6d7f696a02b0c66e0e21744d93c5699e9ce658a64ce60df2f32a17954cd577c713922bf62a1153cf68e) does not exist.]`;

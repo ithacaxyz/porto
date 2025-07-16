@@ -75,6 +75,12 @@ const accounts = await porto.provider.request({
 
 Whether to announce the provider via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963).
 
+### authUrl
+
+- **Type:** `string | undefined`
+
+URL to use for [SIWE authentication](/sdk/guides/authentication).
+
 ### chains
 
 - **Type:** `readonly [Chains.Chain, ...Chains.Chain[]]{:ts}`
@@ -92,6 +98,12 @@ See [`Chains`](/sdk/api/chains) for a list of Porto-supported chains.
 - **Default:** `EXP` (note: will change to `USDC` on Porto launch)
 
 Token to use to pay for fees.
+
+### merchantRpcUrl
+
+- **Type:** `string | undefined`
+
+URL to use for merchant functionality (e.g. [fee sponsorship](/sdk/guides/sponsoring), subsidizing, etc).
 
 ### mode
 

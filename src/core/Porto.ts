@@ -6,12 +6,14 @@ import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 import type * as Account from '../viem/Account.js'
 import * as Chains from './Chains.js'
+import type * as Mode from './internal/mode.js'
+import { dialog } from './internal/modes/dialog.js'
+import { rpcServer } from './internal/modes/rpcServer.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
-import type * as FeeToken from './internal/typebox/feeToken.js'
+import type * as FeeToken from './internal/schema/feeToken.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 import * as Utils from './internal/utils.js'
-import * as Mode from './Mode.js'
 import * as Storage from './Storage.js'
 
 const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
@@ -19,8 +21,7 @@ const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia],
-  feeToken: 'EXP',
-  mode: browser ? Mode.dialog() : Mode.rpcServer(),
+  mode: browser ? dialog() : rpcServer(),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {
@@ -57,8 +58,9 @@ export function create(
   const config = {
     announceProvider:
       parameters.announceProvider ?? defaultConfig.announceProvider,
+    authUrl: parameters.authUrl,
     chains,
-    feeToken: parameters.feeToken ?? defaultConfig.feeToken,
+    feeToken: parameters.feeToken,
     merchantRpcUrl: parameters.merchantRpcUrl,
     mode: parameters.mode ?? defaultConfig.mode,
     storage: parameters.storage ?? defaultConfig.storage,
@@ -76,6 +78,22 @@ export function create(
           requestQueue: [],
         }),
         {
+          merge(p, currentState) {
+            const persistedState = p as State
+
+            // Ensure that the persisted chain id is still exists in the current
+            // configuration.
+            const persistedChain = config.chains.find(
+              (chain) => chain.id === persistedState.chainId,
+            )
+            const chainId = persistedChain?.id ?? currentState.chainId
+
+            return {
+              ...currentState,
+              ...persistedState,
+              chainId,
+            }
+          },
           name: config.storageKey,
           partialize(state) {
             return {
@@ -134,6 +152,42 @@ export function create(
   }
 }
 
+/**
+ * Instantiates an Porto instance with future defaults (mainnet configuration).
+ *
+ * WARNING: This is not recommended for production use yet, and will become
+ * stable in a future release.
+ *
+ * @example
+ * ```ts twoslash
+ * import { Porto } from 'porto'
+ *
+ * const porto = Porto.unstable_create()
+ *
+ * const blockNumber = await porto.provider.request({ method: 'eth_blockNumber' })
+ * ```
+ */
+export function unstable_create<
+  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(parameters?: ExactPartial<Config<chains>> | undefined): Porto<chains>
+export function unstable_create(
+  parameters: ExactPartial<Config> | undefined = {},
+): Porto {
+  return create({
+    chains: [Chains.base],
+    mode: browser
+      ? dialog({
+          host: 'https://id.porto.sh/dialog',
+        })
+      : rpcServer(),
+    storageKey: 'prod.porto.store',
+    transports: {
+      [Chains.base.id]: http(),
+    },
+    ...parameters,
+  })
+}
+
 export type Config<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
     Chains.Chain,
@@ -146,12 +200,16 @@ export type Config<
    */
   announceProvider: boolean
   /**
+   * API URL to use for offchain SIWE authentication.
+   */
+  authUrl?: string | undefined
+  /**
    * List of supported chains.
    */
   chains: chains
   /**
    * Token to use to pay for fees.
-   * @default 'ETH'
+   * @default 'USDC'
    */
   feeToken?: State['feeToken'] | undefined
   /**

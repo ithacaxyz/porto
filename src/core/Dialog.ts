@@ -15,6 +15,7 @@ export type Dialog = {
     open: (parameters: any) => void
     syncRequests: (requests: readonly QueuedRequest[]) => Promise<void>
   }
+  supportsHeadless: boolean
 }
 
 /**
@@ -80,7 +81,8 @@ export function iframe(options: iframe.Options = {}) {
         'sandbox',
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
-      iframe.setAttribute('src', host)
+
+      iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
         ...styles.iframe,
@@ -150,11 +152,12 @@ export function iframe(options: iframe.Options = {}) {
       })
 
       messenger.on('ready', (options) => {
-        const { chainId } = options
+        const { chainId, feeToken } = options
 
         store.setState((x) => ({
           ...x,
           chainId,
+          feeToken,
         }))
 
         messenger.send('__internal', {
@@ -289,6 +292,7 @@ export function iframe(options: iframe.Options = {}) {
         },
       }
     },
+    supportsHeadless: true,
   })
 }
 
@@ -347,7 +351,7 @@ export function popup() {
           const top = window.screenY + 100
 
           popup = window.open(
-            host,
+            getDialogUrl(host),
             '_blank',
             `width=${width},height=${height},left=${left},top=${top}`,
           )
@@ -389,6 +393,7 @@ export function popup() {
         },
       }
     },
+    supportsHeadless: false,
   })
 }
 
@@ -408,6 +413,7 @@ export function noop() {
         async syncRequests() {},
       }
     },
+    supportsHeadless: true,
   })
 }
 
@@ -445,7 +451,8 @@ export function experimental_inline(options: inline.Options) {
         'sandbox',
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
-      iframe.setAttribute('src', host)
+
+      iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
 
@@ -503,6 +510,7 @@ export function experimental_inline(options: inline.Options) {
         },
       }
     },
+    supportsHeadless: true,
   })
 }
 
@@ -617,4 +625,16 @@ export function isMobile() {
       navigator.userAgent.slice(0, 4),
     )
   )
+}
+
+export function getDialogUrl(host: string) {
+  const url = new URL(host)
+  const parentParams = new URLSearchParams(window.location.search)
+  const prefix = 'porto.'
+  for (const [key, value] of parentParams.entries()) {
+    if (key.startsWith(prefix))
+      url.searchParams.set(key.slice(prefix.length), value)
+  }
+
+  return url.toString()
 }

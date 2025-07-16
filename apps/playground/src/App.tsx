@@ -31,7 +31,11 @@ import {
 } from './config'
 
 export function App() {
-  const [mode, setMode] = React.useState<ModeType>('iframe-dialog')
+  const [mode, setMode] = React.useState<ModeType>(() => {
+    const url = new URL(window.location.href)
+    const mode = url.searchParams.get('mode') as ModeType | null
+    return mode ?? 'iframe-dialog'
+  })
   React.useEffect(() => porto._internal.setMode(modes[mode]), [mode])
 
   return (

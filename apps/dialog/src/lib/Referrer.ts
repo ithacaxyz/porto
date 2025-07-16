@@ -11,7 +11,7 @@ export function useVerify() {
 
       return (await fetch(
         (import.meta.env.VITE_VERIFY_URL ||
-          'https://verify.porto.workers.dev') + `?hostname=${hostname}`,
+          'https://service.porto.workers.dev/verify') + `?hostname=${hostname}`,
       )
         .then((x) => x.json())
         .catch(() => ({}))) as useVerify.Data

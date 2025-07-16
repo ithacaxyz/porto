@@ -1,4 +1,5 @@
 export {
+  useAddFunds,
   useAdmins,
   useConnect,
   useDisconnect,

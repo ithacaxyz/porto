@@ -3,7 +3,7 @@
  */
 
 import type { Client } from 'viem'
-import * as Typebox from '../core/internal/typebox/typebox.js'
+import * as Schema from '../core/internal/schema/schema.js'
 import * as RpcSchema from '../core/RpcSchema.js'
 import type * as RpcSchema_viem from './RpcSchema.js'
 
@@ -18,30 +18,15 @@ export async function verifyEmail(
   >({
     method,
     params: [
-      Typebox.Encode(
-        RpcSchema.account_verifyEmail.Parameters,
-        Typebox.Clean(
-          RpcSchema.account_verifyEmail.Parameters,
-          parameters satisfies RpcSchema.account_verifyEmail.Parameters,
-        ),
-      ),
+      Schema.encodeSync(RpcSchema.account_verifyEmail.Parameters)(parameters),
     ],
   })
 
-  return Typebox.Decode(
-    RpcSchema.account_verifyEmail.Response,
-    response satisfies Typebox.Static<
-      typeof RpcSchema.account_verifyEmail.Response
-    >,
-  )
+  return Schema.decodeSync(RpcSchema.account_verifyEmail.Response)(response)
 }
 
 export declare namespace verifyEmail {
-  type Parameters = Typebox.StaticDecode<
-    typeof RpcSchema.account_verifyEmail.Parameters
-  >
+  type Parameters = RpcSchema.account_verifyEmail.Parameters
 
-  type ReturnType = Typebox.StaticDecode<
-    typeof RpcSchema.account_verifyEmail.Response
-  >
+  type ReturnType = RpcSchema.account_verifyEmail.Response
 }

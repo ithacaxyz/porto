@@ -40,6 +40,10 @@ export const mipd = createStore()
 export const permissions = () =>
   ({
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    feeLimit: {
+      currency: 'USD',
+      value: '1',
+    },
     permissions: {
       calls: [
         {
