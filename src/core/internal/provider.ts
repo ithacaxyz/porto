@@ -759,14 +759,15 @@ export function from<
               return { accounts: [account] }
             }
             const account = state.accounts[0]
-            const { address, credentialId } = (() => {
-              if (capabilities?.address && capabilities.credentialId)
+            const { address, credentialId, publicKey } = (() => {
+              if (selectAccount) {
+                if (typeof selectAccount === 'object') return selectAccount
                 return {
-                  address: capabilities.address,
-                  credentialId: capabilities.credentialId,
+                  address: undefined,
+                  credentialId: undefined,
+                  publicKey: undefined,
                 }
-              if (selectAccount)
-                return { address: undefined, credentialId: undefined }
+              }
               for (const key of account?.keys ?? []) {
                 if (key.type === 'webauthn-p256' && key.role === 'admin')
                   return {
@@ -774,9 +775,14 @@ export function from<
                     credentialId:
                       (key as any).credentialId ??
                       key.privateKey?.credential?.id,
+                    publicKey: key.publicKey,
                   }
               }
-              return { address: undefined, credentialId: undefined }
+              return {
+                address: undefined,
+                credentialId: undefined,
+                publicKey: undefined,
+              }
             })()
             const loadAccountsParams = {
               internal,
@@ -788,6 +794,7 @@ export function from<
               return await getMode().actions.loadAccounts({
                 address,
                 credentialId,
+                publicKey,
                 ...loadAccountsParams,
               })
             } catch (error) {

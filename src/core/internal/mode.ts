@@ -149,6 +149,8 @@ export type Mode = {
       address?: Hex.Hex | undefined
       /** Credential ID to use to load an existing account. */
       credentialId?: string | undefined
+      /** Public key to use to load an existing account. */
+      publicKey?: Hex.Hex | undefined
       /** Internal properties. */
       internal: ActionsInternal
       /** Permissions to grant. */

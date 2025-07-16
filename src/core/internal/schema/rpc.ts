@@ -470,16 +470,23 @@ export namespace porto_ping {
 
 export namespace wallet_connect {
   export const Capabilities = Schema.Struct({
-    address: Schema.optional(Primitive.Address),
     createAccount: Schema.optional(C.createAccount.Request),
-    credentialId: Schema.optional(Schema.String),
     email: Schema.optional(Schema.Boolean),
     grantAdmins: Schema.optional(
       Schema.Array(Key.Base.pick('publicKey', 'type')),
     ),
     grantPermissions: Schema.optional(C.grantPermissions.Request),
     preCalls: Schema.optional(C.preCalls.Request),
-    selectAccount: Schema.optional(Schema.Boolean),
+    selectAccount: Schema.optional(
+      Schema.Union(
+        Schema.Boolean,
+        Schema.Struct({
+          address: Primitive.Address,
+          credentialId: Schema.optional(Schema.String),
+          publicKey: Schema.optional(Primitive.Hex),
+        }),
+      ),
+    ),
     signInWithEthereum: Schema.optional(C.signInWithEthereum.Request),
   }).annotations({
     identifier: 'Rpc.wallet_connect.Capabilities',
