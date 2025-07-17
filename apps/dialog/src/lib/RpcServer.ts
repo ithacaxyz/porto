@@ -21,6 +21,7 @@ export namespace prepareCalls {
     const {
       account,
       authorizeKeys,
+      balanceOverrides,
       enabled = true,
       calls,
       feeToken,
@@ -49,6 +50,7 @@ export namespace prepareCalls {
         return await ServerActions.prepareCalls(client, {
           account,
           authorizeKeys,
+          balanceOverrides,
           calls,
           feeToken: feeTokenAddress,
           key,
@@ -62,6 +64,7 @@ export namespace prepareCalls {
         client.uid,
         Json.stringify({
           authorizeKeys,
+          balanceOverrides,
           calls,
           feeToken,
           merchantRpcUrl,
@@ -76,7 +79,7 @@ export namespace prepareCalls {
     export type Props<calls extends readonly unknown[] = readonly unknown[]> =
       Pick<
         ServerActions.prepareCalls.Parameters<calls>,
-        'authorizeKeys' | 'calls' | 'revokeKeys'
+        'authorizeKeys' | 'balanceOverrides' | 'calls' | 'revokeKeys'
       > &
         Pick<
           UseQueryOptions<
@@ -86,6 +89,122 @@ export namespace prepareCalls {
             (string | undefined)[]
           >,
           'enabled' | 'refetchInterval'
+        > & {
+          account?: Account.Account | undefined
+          feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
+          merchantRpcUrl?: string | undefined
+        }
+
+    export type Data = ServerActions.prepareCalls.ReturnType
+  }
+
+  export function useQuery(props: useQuery.Props) {
+    const { address, chainId } = props
+
+    const account = Hooks.useAccount(porto, { address })
+    const client = Hooks.useServerClient(porto, { chainId })
+
+    return useQuery_query(queryOptions(client, { ...props, account }))
+  }
+
+  export namespace useQuery {
+    export type Props = queryOptions.Props & {
+      address?: Address.Address | undefined
+      chainId?: number | undefined
+    }
+
+    export type Data = queryOptions.Data
+  }
+}
+
+export namespace simulateCalls {
+  export function queryOptions(
+    client: ServerClient.ServerClient,
+    props: queryOptions.Props,
+  ) {
+    const {
+      account,
+      authorizeKeys,
+      enabled = true,
+      calls,
+      feeToken,
+      merchantRpcUrl,
+      revokeKeys,
+    } = props
+
+    return queryOptions_query({
+      enabled: enabled && !!account,
+      async queryFn() {
+        if (!account) throw new Error('account is required.')
+
+        const [{ address: feeTokenAddress }] =
+          await Query.client.ensureQueryData(
+            FeeTokens.fetch.queryOptions(client, {
+              addressOrSymbol: feeToken,
+            }),
+          )
+
+        const feeOverrideValue_tmp = 1_000_000_000_000_000_000n
+        const balanceOverrides = (() => {
+          if (!feeTokenAddress || !account) return props.balanceOverrides
+          return {
+            ...props.balanceOverrides,
+            [feeTokenAddress]: {
+              ...props.balanceOverrides?.[feeTokenAddress],
+              balances: {
+                ...props.balanceOverrides?.[feeTokenAddress]?.balances,
+                [account.address]:
+                  (props.balanceOverrides?.[feeTokenAddress]?.balances?.[
+                    account.address
+                  ] ?? 0n) + feeOverrideValue_tmp,
+              },
+              kind: 'erc20',
+            },
+          } as const
+        })()
+
+        return Query.client.fetchQuery(
+          prepareCalls.queryOptions(client, {
+            account,
+            authorizeKeys,
+            balanceOverrides,
+            calls,
+            feeToken: feeTokenAddress,
+            merchantRpcUrl,
+            revokeKeys,
+          }),
+        )
+      },
+      queryKey: [
+        'simulateCalls',
+        account?.address,
+        client.uid,
+        Json.stringify({
+          authorizeKeys,
+          balanceOverrides: props.balanceOverrides,
+          calls,
+          feeToken,
+          merchantRpcUrl,
+          revokeKeys,
+        }),
+      ],
+    })
+  }
+
+  export namespace queryOptions {
+    export type Props<calls extends readonly unknown[] = readonly unknown[]> =
+      Pick<
+        ServerActions.prepareCalls.Parameters<calls>,
+        'authorizeKeys' | 'balanceOverrides' | 'calls' | 'revokeKeys'
+      > &
+        Pick<
+          UseQueryOptions<
+            queryOptions.Data,
+            Error,
+            queryOptions.Data,
+            (string | undefined)[]
+          >,
+          'enabled'
         > & {
           account?: Account.Account | undefined
           feeToken?: FeeToken_schema.Symbol | Address.Address | undefined

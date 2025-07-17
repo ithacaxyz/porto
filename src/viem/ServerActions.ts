@@ -115,6 +115,7 @@ export async function prepareCalls<
 ): Promise<prepareCalls.ReturnType> {
   const {
     account = client.account,
+    balanceOverrides,
     calls,
     chain,
     key,
@@ -153,6 +154,7 @@ export async function prepareCalls<
   async function prepare(client: Client) {
     return await ServerActions.prepareCalls(client, {
       address: account_?.address,
+      balanceOverrides,
       calls: (calls ?? []) as any,
       capabilities: {
         authorizeKeys,
@@ -206,6 +208,10 @@ export namespace prepareCalls {
     GetAccountParameter<account, false> & {
       /** Additional keys to authorize on the account. */
       authorizeKeys?: readonly Key.Key[] | undefined
+      /** Balance overrides for simulating the call bundle. */
+      balanceOverrides?:
+        | ServerActions.prepareCalls.Parameters['balanceOverrides']
+        | undefined
       /** Calls to prepare. */
       calls?: Calls<Narrow<calls>> | undefined
       /** Key that will be used to sign the calls. */

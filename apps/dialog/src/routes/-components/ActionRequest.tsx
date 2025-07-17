@@ -8,7 +8,7 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks, type Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
-import { type Call, zeroAddress } from 'viem'
+import type { Call } from 'viem'
 import { useCapabilities } from 'wagmi'
 import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
@@ -53,37 +53,30 @@ export function ActionRequest(props: ActionRequest.Props) {
       return 15_000
     },
   })
+
   const hasInsufficientBalance =
     prepareCallsQuery.error?.message?.includes('PaymentError')
 
-  // However, to prevent a malicious RPC server from providing a mutated asset
-  // diff to display to the end-user, we also simulate the prepare calls query
-  // without the merchant RPC URL.
-  const prepareCallsQuery_assetDiff = RpcServer.prepareCalls.useQuery({
+  // Enable the simulation query if:
+  // - A merchant RPC URL is provided, to prevent a malicious RPC server from
+  //   providing a mutated asset diff to display to the end-user.
+  // - The user has insufficient balance, so that we can perform a simulation
+  //   to extract the asset diff, fee, etc.
+  const enableSimulate = !!merchantRpcUrl || hasInsufficientBalance
+
+  // This "simulate calls" query is used to provide an "estimated" asset diff, fee, etc.
+  // when the user has insufficient fee balance, or if a merchant RPC is being used.
+  const simulateCallsQuery = RpcServer.simulateCalls.useQuery({
     address,
     calls,
     chainId,
-    enabled: !!merchantRpcUrl,
+    enabled: enableSimulate,
     feeToken,
   })
 
-  // Perform the query with an ETH fee token when the user has insufficient
-  // fee balance, so that we can perform a simulation to extract the asset diff.
-  // TODO: push relay to implement a dedicated simulation API?
-  const prepareCallsQuery_ethFeeToken = RpcServer.prepareCalls.useQuery({
-    address,
-    calls,
-    chainId,
-    enabled: hasInsufficientBalance,
-    feeToken: zeroAddress,
-  })
+  const query = enableSimulate ? simulateCallsQuery : prepareCallsQuery
 
-  const query = hasInsufficientBalance
-    ? prepareCallsQuery_ethFeeToken
-    : prepareCallsQuery
-  const query_assetDiff = merchantRpcUrl ? prepareCallsQuery_assetDiff : query
-
-  const assetDiff = query_assetDiff.data?.capabilities.assetDiff
+  const assetDiff = query.data?.capabilities.assetDiff
   const quote = query.data?.capabilities.quote
 
   return (

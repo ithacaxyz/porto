@@ -396,6 +396,55 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
   })
 
+  test('behavior: balance overrides', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+      setBalance: false,
+    })
+
+    const request = await prepareCalls(client, {
+      address: account.address,
+      balanceOverrides: {
+        [exp1Address]: {
+          balances: {
+            [account.address]: Value.fromEther('1'),
+          },
+          kind: 'erc20',
+        },
+      },
+      calls: [
+        {
+          abi: exp1Abi,
+          args: [account.address, Value.fromEther('1')],
+          functionName: 'mint',
+          to: exp1Address,
+        },
+      ],
+      capabilities: {
+        meta: {
+          feeToken,
+        },
+      },
+      key: {
+        prehash: false,
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+      },
+    })
+
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+      wrap: false,
+    })
+
+    await sendPreparedCalls(client, {
+      context: request.context,
+      key: request.key!,
+      signature,
+    })
+  })
+
   test('error: schema encoding', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {

@@ -427,6 +427,37 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
+  test('behavior: balance overrides', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const request = await Rpc.prepareCalls(client, {
+      account,
+      balanceOverrides: {
+        [exp1Address]: {
+          balances: {
+            [account.address]: Value.fromEther('1'),
+          },
+          kind: 'erc20',
+        },
+      },
+      calls: [
+        {
+          abi: exp2Abi,
+          args: [account.address, 100n],
+          functionName: 'mint',
+          to: exp2Address,
+        },
+      ],
+      feeToken: exp1Address,
+      key,
+    })
+
+    expect(request).toBeDefined()
+  })
+
   test('behavior: pre calls', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {

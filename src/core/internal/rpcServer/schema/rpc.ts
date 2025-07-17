@@ -361,6 +361,31 @@ export namespace wallet_prepareCalls {
 
   /** Parameters for `wallet_prepareCalls` request. */
   export const Parameters = Schema.Struct({
+    /**
+     * Balance overrides for simulating the call bundle.
+     *
+     * This will only be applied to the intent on the output chain in multichain intents.
+     *
+     * This uses heuristics to determine the balance slot, so it might be inaccurate in some
+     * cases.
+     */
+    balanceOverrides: Schema.optional(
+      Schema.Record({
+        /** Token address. */
+        key: Primitive.Address,
+        value: Schema.Struct({
+          /** Account balances to override. */
+          balances: Schema.Record({
+            /** Account address. */
+            key: Primitive.Address,
+            /** Balance. */
+            value: Primitive.BigInt,
+          }),
+          /** Kind of the balance. */
+          kind: Schema.Literal('erc20'),
+        }),
+      }),
+    ),
     /** Capabilities for the account. */
     calls: Schema.Array(Call),
     /** The calls to prepare. */

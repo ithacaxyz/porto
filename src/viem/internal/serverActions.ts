@@ -237,7 +237,13 @@ export async function prepareCalls<
   client: Client<Transport, chain>,
   parameters: prepareCalls.Parameters<calls, chain>,
 ): Promise<prepareCalls.ReturnType> {
-  const { address, capabilities, chain = client.chain, key } = parameters
+  const {
+    address,
+    balanceOverrides,
+    capabilities,
+    chain = client.chain,
+    key,
+  } = parameters
 
   const calls = parameters.calls.map((call: any) => {
     return {
@@ -260,6 +266,7 @@ export async function prepareCalls<
         method,
         params: [
           Schema.encodeSync(RpcSchema.wallet_prepareCalls.Parameters)({
+            balanceOverrides,
             calls,
             capabilities,
             chainId: chain?.id!,
@@ -292,6 +299,9 @@ export namespace prepareCalls {
     chain extends Chain | undefined = Chain | undefined,
   > = {
     address?: Address.Address | undefined
+    balanceOverrides?:
+      | RpcSchema.wallet_prepareCalls.Parameters['balanceOverrides']
+      | undefined
     calls: Calls<Narrow<calls>>
     capabilities: RpcSchema.wallet_prepareCalls.Capabilities
     key: RpcSchema.wallet_prepareCalls.Parameters['key']
