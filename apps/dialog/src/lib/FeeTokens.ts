@@ -7,30 +7,39 @@ import { porto } from './Porto.js'
 export namespace fetch {
   export function queryOptions(
     client: ServerClient.ServerClient,
-    parameters: queryOptions.Parameters = {},
+    parameters: queryOptions.Options = {},
   ) {
     const { addressOrSymbol, enabled } = parameters
 
     return Query.queryOptions({
       enabled,
-      async queryFn() {
-        return await FeeTokens.fetch(client, {
-          addressOrSymbol,
-          store: porto._internal.store,
-        })
+      async queryFn({ queryKey }) {
+        const [, parameters] = queryKey
+        return await FeeTokens.fetch(client, parameters)
       },
-      queryKey: [
-        'feeTokens',
-        client.uid,
+      queryKey: queryOptions.queryKey(client, {
         addressOrSymbol,
-        porto._internal.store,
-      ],
+        store: porto._internal.store as any,
+      }),
     })
   }
 
-  export declare namespace queryOptions {
-    export type Parameters = FeeTokens.fetch.Parameters & {
-      enabled?: boolean | undefined
+  export namespace queryOptions {
+    export type Data = FeeTokens.fetch.ReturnType
+    export type QueryKey = ReturnType<typeof queryKey>
+
+    export type Options = queryKey.Options &
+      Pick<Query.UseQueryOptions<Data, Error, Data, QueryKey>, 'enabled'>
+
+    export function queryKey<const calls extends readonly unknown[]>(
+      client: ServerClient.ServerClient,
+      options: queryKey.Options,
+    ) {
+      return ['feeTokens', options, client.uid] as const
+    }
+
+    export namespace queryKey {
+      export type Options = FeeTokens.fetch.Parameters
     }
   }
 
@@ -41,7 +50,7 @@ export namespace fetch {
   }
 
   export namespace useQuery {
-    export type Parameters = queryOptions.Parameters & {
+    export type Parameters = queryOptions.Options & {
       chainId?: number | undefined
     }
   }

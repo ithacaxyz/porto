@@ -10,10 +10,10 @@ import { Hooks, type Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
 import type { Call } from 'viem'
 import { useCapabilities } from 'wagmi'
+import * as Calls from '~/lib/Calls'
 import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
-import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -42,7 +42,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // This "prepare calls" query is used as the "source of truth" query that will
   // ultimately be used to execute the calls.
-  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
@@ -66,7 +66,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // This "simulate calls" query is used to provide an "estimated" asset diff, fee, etc.
   // when the user has insufficient fee balance, or if a merchant RPC is being used.
-  const simulateCallsQuery = RpcServer.simulateCalls.useQuery({
+  const simulateCallsQuery = Calls.simulateCalls.useQuery({
     address,
     calls,
     chainId,
@@ -79,6 +79,7 @@ export function ActionRequest(props: ActionRequest.Props) {
   const assetDiff = query.data?.capabilities.assetDiff
   const quote = query.data?.capabilities.quote
 
+  // TODO: confirm we no longer need `<CheckBalance />`
   return (
     <Layout loading={loading} loadingTitle="Sending...">
       <Layout.Header>
@@ -160,7 +161,7 @@ export namespace ActionRequest {
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading?: boolean | undefined
     merchantRpcUrl?: string | undefined
-    onApprove: (data: RpcServer.prepareCalls.useQuery.Data) => void
+    onApprove: (data: Calls.prepareCalls.useQuery.Data) => void
     onReject: () => void
     quote?: Quote | undefined
   }

@@ -5,9 +5,9 @@ import { Account, Key } from 'porto'
 import { Actions, Hooks } from 'porto/remote'
 import { ServerActions } from 'porto/viem'
 import { waitForCallsStatus } from 'viem/actions'
+import type * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
-import type * as RpcServer from '~/lib/RpcServer'
 import { ActionRequest } from '../-components/ActionRequest'
 
 export const Route = createFileRoute('/dialog/eth_sendTransaction')({
@@ -29,7 +29,7 @@ function RouteComponent() {
   const client = Hooks.useServerClient(porto, { chainId })
 
   const respond = useMutation({
-    async mutationFn(data: RpcServer.prepareCalls.useQuery.Data) {
+    async mutationFn(data: Calls.prepareCalls.useQuery.Data) {
       if (!account) throw new Error('account not found.')
 
       const key = Account.getKey(account, { role: 'admin' })

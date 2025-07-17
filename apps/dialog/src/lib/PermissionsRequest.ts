@@ -51,7 +51,5 @@ export function useResolve(
 }
 
 export declare namespace useFetch {
-  export type Parameters = FeeTokens.fetch.queryOptions.Parameters & {
-    enabled?: boolean | undefined
-  }
+  export type Parameters = FeeTokens.fetch.queryOptions.Options
 }

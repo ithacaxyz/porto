@@ -6,8 +6,8 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import { Hooks } from 'porto/remote'
 
 import { CheckBalance } from '~/components/CheckBalance'
+import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
-import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import TriangleAlert from '~icons/lucide/triangle-alert'
@@ -19,7 +19,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
   const account = Hooks.useAccount(porto)
 
-  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     authorizeKeys: [Key.from(authorizeKey)],
     feeToken,
   })

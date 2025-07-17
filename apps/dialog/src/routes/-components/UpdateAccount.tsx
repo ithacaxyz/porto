@@ -9,8 +9,8 @@ import { waitForCallsStatus } from 'viem/actions'
 import { useAccount } from 'wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'
+import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
-import * as RpcServer from '~/lib/RpcServer'
 import { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
@@ -30,7 +30,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const { accountImplementation } = contracts ?? {}
 
   const account = Hooks.useAccount(porto)
-  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     calls:
       account?.address && accountImplementation
         ? [

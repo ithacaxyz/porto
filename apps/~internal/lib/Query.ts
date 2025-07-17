@@ -1,10 +1,12 @@
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
+import { Json } from 'ox'
 
 export const client: QueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       gcTime: 1000 * 60 * 60 * 24, // 24 hours
+      queryKeyHashFn: Json.stringify,
       refetchOnReconnect: () => !client.isMutating(),
       retry: 0,
     },
