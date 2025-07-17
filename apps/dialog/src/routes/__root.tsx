@@ -1,11 +1,6 @@
 import { Theme, UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
-import {
-  createRootRoute,
-  HeadContent,
-  Outlet,
-  useRouter,
-} from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useAccount } from 'wagmi'
