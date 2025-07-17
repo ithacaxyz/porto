@@ -5,11 +5,16 @@ import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
 import * as Messenger from './Messenger.js'
 import type { QueuedRequest, Store } from './Porto.js'
+import type { ThemeFragment } from '../theme/Theme.js'
 
 /** Dialog interface. */
 export type Dialog = {
   name: string
-  setup: (parameters: { host: string; internal: Internal }) => {
+  setup: (parameters: {
+    host: string
+    internal: Internal
+    theme?: ThemeFragment | undefined
+  }) => {
     close: () => void
     destroy: () => void
     open: (parameters: any) => void
@@ -52,7 +57,7 @@ export function iframe(options: iframe.Options = {}) {
   return from({
     name: 'iframe',
     setup(parameters) {
-      const { host, internal } = parameters
+      const { host, internal, theme } = parameters
       const { store } = internal
 
       const fallback = popup().setup(parameters)
@@ -82,7 +87,7 @@ export function iframe(options: iframe.Options = {}) {
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
 
-      iframe.setAttribute('src', getDialogUrl(host))
+      iframe.setAttribute('src', getDialogUrl(host, theme))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
         ...styles.iframe,
@@ -429,7 +434,7 @@ export function experimental_inline(options: inline.Options) {
   return from({
     name: 'inline',
     setup(parameters) {
-      const { host, internal } = parameters
+      const { host, internal, theme } = parameters
       const { store } = internal
 
       let open = false
@@ -627,7 +632,7 @@ export function isMobile() {
   )
 }
 
-export function getDialogUrl(host: string) {
+export function getDialogUrl(host: string, theme?: ThemeFragment) {
   const url = new URL(host)
   const parentParams = new URLSearchParams(window.location.search)
   const prefix = 'porto.'
@@ -635,6 +640,8 @@ export function getDialogUrl(host: string) {
     if (key.startsWith(prefix))
       url.searchParams.set(key.slice(prefix.length), value)
   }
+
+  if (theme) url.searchParams.set('theme', JSON.stringify(theme))
 
   return url.toString()
 }

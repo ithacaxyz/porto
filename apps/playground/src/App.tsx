@@ -23,11 +23,13 @@ import {
   exp1Address,
   exp2Address,
   expNftAddress,
-  type ModeType,
   mipd,
   modes,
   permissions,
   porto,
+  themes,
+  type ModeType,
+  type ThemeType,
 } from './config'
 
 export function App() {
@@ -36,7 +38,20 @@ export function App() {
     const mode = url.searchParams.get('mode') as ModeType | null
     return mode ?? 'iframe-dialog'
   })
-  React.useEffect(() => porto._internal.setMode(modes[mode]), [mode])
+
+  const [options, setOptions] = React.useState<{
+    theme: ThemeType
+  }>({
+    theme: 'default',
+  })
+
+  React.useEffect(() => {
+    porto._internal.setMode(
+      mode === 'rpc' || mode === 'contract'
+        ? modes[mode]()
+        : modes[mode](options.theme),
+    )
+  }, [mode, options.theme])
 
   return (
     <main>
@@ -64,6 +79,18 @@ export function App() {
           <hr />
           <br />
         </div>
+
+        <h2>Options</h2>
+        <Theme
+          onChange={(theme) => setOptions((o) => ({ ...o, theme }))}
+          theme={options.theme}
+        />
+        <div>
+          <br />
+          <hr />
+          <br />
+        </div>
+
         <h2>Account Management</h2>
         <Connect />
         <Login />
@@ -78,6 +105,7 @@ export function App() {
           <hr />
           <br />
         </div>
+
         <h2>Permissions</h2>
         <GrantPermissions />
         <GetPermissions />
@@ -1323,6 +1351,34 @@ function ShowClientCapabilities() {
       <summary>User Client Capabilities</summary>
       <pre>{JSON.stringify(userClientCapabilities, null, 2)}</pre>
     </details>
+  )
+}
+
+function Theme({
+  onChange,
+  theme,
+}: {
+  onChange: (theme: ThemeType) => void
+  theme: ThemeType
+}) {
+  const radioName = React.useId()
+  return (
+    <div>
+      <h3>Theme</h3>
+      <div className="flex flex-row gap-2">
+        {Object.keys(themes).map((key) => (
+          <label key={key} className="flex gap-1">
+            <input
+              checked={theme === key}
+              name={radioName}
+              onChange={() => onChange(key as ThemeType)}
+              type="radio"
+            />
+            {key}
+          </label>
+        ))}
+      </div>
+    </div>
   )
 }
 

@@ -1,31 +1,17 @@
-import type { LightDarkColor, Theme } from './Theme'
+import type { LightDarkColor, Theme } from 'porto/theme'
 
-type LightDarkTheme = Theme<'light dark'>
+type FullTheme = Theme<'light dark'>
 
-export type PortoTheme = Pick<LightDarkTheme, 'colorScheme'> & {
+export type PortoTheme = Pick<FullTheme, 'colorScheme'> & {
   [K in keyof Omit<
-    LightDarkTheme,
+    FullTheme,
     'colorScheme'
-  > as K]: LightDarkTheme[K] extends LightDarkColor
+  > as K]: FullTheme[K] extends LightDarkColor
     ? [description: string, light: LightDarkColor[0], dark: LightDarkColor[1]]
-    : LightDarkTheme[K] extends number
+    : FullTheme[K] extends number
       ? [description: string, radius: number]
       : never
 }
-
-// Order used to name theme properties:
-//
-// 1. Surface name (e.g. base, primary, field)
-// 2. (optional) Variant (e.g. fieldError)
-// 3. (optional) Interaction state (e.g. baseHovered, fieldFocused)
-// 4. Surface part (e.g. fieldBackground, fieldContent, fieldBorder, fieldRadius)
-// 5. (optional) Surface part variant (e.g. baseContentDimmed)
-//
-// Examples:
-// - baseBackground: base object => background color
-// - baseContent: base object => text color
-// - baseHoveredBackground: base object => hovered => background color
-// - baseHoveredContent: base object => hovered => text color
 
 // biome-ignore assist/source/useSortedKeys: keeping theme values grouped logically makes iteration easier
 export const portoTheme: PortoTheme = {
@@ -83,8 +69,8 @@ export const portoTheme: PortoTheme = {
   // frame
   frameBackground: [
     'Frame background color. Used for the dialog title bar and other frame elements.',
-    '#f9f9f9',
-    '#222222',
+    '#fcfcfc',
+    '#191919',
   ],
   frameContent: [
     'Frame content color. Used over frameBackground for text and icons in the dialog title bar.',

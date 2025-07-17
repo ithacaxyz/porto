@@ -1,31 +1,44 @@
-import { isColor, isLightDarkColor } from '../../theme/Theme'
-import { tailwindThemeMappings } from '../_generated/theme-mappings'
+import * as PortoTheme from 'porto/theme'
+import {
+  type TailwindThemeMapping,
+  tailwindThemeMappings,
+} from '../_generated/theme-mappings'
 
-export function jsonToTailwind(jsonString: string): string {
-  const theme = JSON.parse(jsonString)
+/** Formats a JSON theme string into a Tailwind theme declaration.
+ *
+ * @param jsonTheme - A JSON string representing the theme.
+ * @param mappings - Mappings of theme properties to Tailwind CSS variables.
+ * @returns Tailwind theme variables, ready to be used in a CSS file.
+ */
+export function formatTailwindTheme(
+  jsonTheme: string,
+  mappings: TailwindThemeMapping[] = tailwindThemeMappings,
+): string {
+  const theme = JSON.parse(jsonTheme)
 
-  const lines: string[] = ['@theme {']
+  let css = ''
+  for (const [name, tailwindVar, type] of mappings)
+    if (theme[name] !== undefined)
+      css += `\n    ${tailwindVar}: ${formatCssValue(theme[name], type)};`
 
-  for (const [property, tailwindVar, type] of tailwindThemeMappings) {
-    const value = theme[property]
-    if (value === undefined || value === null) continue
-
-    const varValue = formatValue(value, type)
-    lines.push(`  ${tailwindVar}: ${varValue};`)
-  }
-
-  lines.push('}')
-
-  return lines.join('\n')
+  return `@layer theme {\n  :root, :host {${css}\n}\n}`
 }
 
-function formatValue(value: unknown, type: 'color' | 'px'): string {
-  if (type === 'color' && isLightDarkColor(value))
+/** Formats a value according to its type, for use in CSS.
+ *
+ * @param value - The value to format.
+ * @param type - The type of the value, either 'color' or 'px'.
+ * @returns The formatted CSS value.
+ */
+export function formatCssValue(value: unknown, type: 'color' | 'px'): string {
+  if (type === 'color' && PortoTheme.isLightDarkColor(value))
     return `light-dark(
-      ${formatValue(value[0], 'color')},
-      ${formatValue(value[1], 'color')}
+      ${formatCssValue(value[0], 'color')},
+      ${formatCssValue(value[1], 'color')}
     )`
-  if (type === 'color' && isColor(value)) return value.toLowerCase()
+  if (type === 'color' && PortoTheme.isColor(value)) return value.toLowerCase()
   if (type === 'px' && typeof value === 'number') return `${value}px`
-  return String(value)
+  throw new Error(
+    `Unsupported theme value type: ${typeof value} for type ${type}`,
+  )
 }

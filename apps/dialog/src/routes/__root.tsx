@@ -1,6 +1,11 @@
-import { UserAgent } from '@porto/apps'
+import { Theme, UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
-import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
+import {
+  createRootRoute,
+  HeadContent,
+  Outlet,
+  useRouter,
+} from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useAccount } from 'wagmi'
@@ -37,6 +42,7 @@ function RouteComponent() {
   const { status } = useAccount()
   const mode = Dialog.useStore((state) => state.mode)
   const referrer = Dialog.useStore((state) => state.referrer)
+  const theme = Dialog.useStore((state) => state.theme)
   const request = Hooks.useRequest(porto)
   const search = Route.useSearch() as {
     requireUpdatedAccount?: boolean | undefined
@@ -101,10 +107,14 @@ function RouteComponent() {
     return mode
   }, [mode])
 
+  const customThemeCss = React.useMemo(() => {
+    return theme === null ? '' : Theme.formatTailwindTheme(theme)
+  }, [theme])
+
   return (
     <>
       <HeadContent />
-
+      <style>{customThemeCss}</style>
       <div
         data-dialog
         {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")

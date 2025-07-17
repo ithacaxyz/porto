@@ -28,6 +28,7 @@ export const store = createStore(
         error: null,
         mode: 'popup-standalone',
         referrer,
+        theme: new URLSearchParams(window.location.search).get('theme'),
       }
     },
     {
@@ -62,6 +63,7 @@ export declare namespace store {
           url?: URL | undefined
         })
       | undefined
+    theme: string | null
   }
 }
 type Payload = Extract<Messenger.Payload<'__internal'>, { type: 'init' }>

@@ -43,6 +43,7 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
       // the dialog).
       url: document.referrer ? new URL(document.referrer) : undefined,
     },
+    theme: new URLSearchParams(window.location.search).get('theme'),
   })
 })
 
