@@ -1,2 +1,6 @@
 "11155931":
+  - address: "0x28Cd50d58f80Da33B16542cdF8ce59717F66b957"
+    kind: USDT
+  - address: "0x8421D6445915b251bE303475dfCdD083e4aCBA0f"
+    kind: USDT
   - kind: ETH

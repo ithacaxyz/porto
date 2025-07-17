@@ -26,7 +26,7 @@ services:
 
   proxy:
     build:
-      context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
+      context: "."
       dockerfile: ./docker/proxy/Dockerfile
     labels:
       - dev.orbstack.domains=rpc.local

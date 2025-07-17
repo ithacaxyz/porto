@@ -6,22 +6,22 @@
 @custom-variant hocus (&:hover, &:focus);
 
 @font-face {
-  font-family: 'FK Display';
-  src: url('/fk-display.woff') format('woff');
+  font-family: "FK Display";
+  src: url("/fk-display.woff") format("woff");
   font-weight: 400;
   font-style: swap;
 }
 
 @font-face {
-  font-family: 'FK Display';
-  src: url('/fk-display.woff') format('woff');
+  font-family: "FK Display";
+  src: url("/fk-display.woff") format("woff");
   font-weight: 500;
   font-style: swap;
 }
 
 @theme {
   --spacing-hero: 45vw;
-  --default-font-family: 'FK Display'
+  --default-font-family: "FK Display";
 }
 
 html,

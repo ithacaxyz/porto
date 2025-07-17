@@ -5,10 +5,12 @@ server:
   max_connections: 5000
 chain:
   endpoints:
-    - https://testnet.riselabs.xyz
+    - http://proxy:9200
   sequencer_endpoints: {}
   fee_tokens:
     - "0x0000000000000000000000000000000000000000"
+    - "0x28Cd50d58f80Da33B16542cdF8ce59717F66b957"
+    - "0x8421D6445915b251bE303475dfCdD083e4aCBA0f"
   fee_recipient: "0x0000000000000000000000000000000000000000"
 quote:
   constantRate: 1.0

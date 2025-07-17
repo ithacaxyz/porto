@@ -33,7 +33,13 @@ Bun.serve({
 
     if (
       body.method &&
-      !['eth_getBlockByNumber', 'eth_getBalance', 'eth_feeHistory', 'eth_blockNumber', 'web3_clientVersion'].includes(body.method)
+      ![
+        'eth_getBlockByNumber',
+        'eth_getBalance',
+        'eth_feeHistory',
+        'eth_blockNumber',
+        'web3_clientVersion',
+      ].includes(body.method)
     ) {
       const resClone = res.clone()
       console.log('request: ', body, 'response: ', await resClone.json())

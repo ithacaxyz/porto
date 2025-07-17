@@ -2,7 +2,7 @@
 
 export function Intro() {
   return (
-    <div className="relative flex min-h-full flex-col items-start justify-between rounded-2xl bg-gradient-to-t from-[#3a1344] to-[#99eafc] via-[#7967e5] px-14 py-10 text-white shadow-[0px_4px_34px_0px_rgba(0,0,0,0.10)] max-xl:w-full max-xl:flex-1">
+    <div className="relative flex min-h-full flex-col items-start justify-between rounded-2xl bg-gradient-to-t from-[#3a1344] via-[#7967e5] to-[#99eafc] px-14 py-10 text-white shadow-[0px_4px_34px_0px_rgba(0,0,0,0.10)] max-xl:w-full max-xl:flex-1">
       <div className="pointer-events-none absolute inset-0 my-auto ml-auto hidden max-h-[80%] w-[400px] bg-[url(/porto.svg)] bg-contain bg-right-bottom bg-no-repeat max-xl:my-20 max-xl:max-h-[70%] md:block" />
       <p className="flex items-center gap-2 pt-5 font-medium text-sm leading-[22px]">
         {/* <span className="text-white/50">Built by</span>
@@ -49,5 +49,5 @@ export function Intro() {
         </ul>
       </div>
     </div>
-  );
+  )
 }
