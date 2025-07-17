@@ -1,9 +1,5 @@
-import { Query } from '@porto/apps'
-import {
-  queryOptions as queryOptions_query,
-  type UseQueryOptions,
-  useQuery as useQuery_query,
-} from '@tanstack/react-query'
+import { Query as Query_porto } from '@porto/apps'
+import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
 import { Account, ServerActions } from 'porto'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
@@ -29,7 +25,7 @@ export namespace prepareCalls {
       revokeKeys,
     } = options
 
-    return queryOptions_query({
+    return Query.queryOptions({
       enabled: enabled && !!account,
       async queryFn({ queryKey }) {
         const [, { account, feeToken, ...parameters }] = queryKey
@@ -40,7 +36,7 @@ export namespace prepareCalls {
         if (!key) throw new Error('no admin key found.')
 
         const [{ address: feeTokenAddress }] =
-          await Query.client.ensureQueryData(
+          await Query_porto.client.ensureQueryData(
             FeeTokens.fetch.queryOptions(client, {
               addressOrSymbol: feeToken,
             }),
@@ -75,7 +71,7 @@ export namespace prepareCalls {
     export type Options<calls extends readonly unknown[] = readonly unknown[]> =
       queryKey.Options<calls> &
         Pick<
-          UseQueryOptions<Data, Error, Data, QueryKey>,
+          Query.UseQueryOptions<Data, Error, Data, QueryKey>,
           'enabled' | 'refetchInterval'
         >
 
@@ -108,7 +104,7 @@ export namespace prepareCalls {
     const account = Hooks.useAccount(porto, { address })
     const client = Hooks.useServerClient(porto, { chainId })
 
-    return useQuery_query(queryOptions(client, { ...props, account }))
+    return Query.useQuery(queryOptions(client, { ...props, account }))
   }
 
   export namespace useQuery {
