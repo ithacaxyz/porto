@@ -150,7 +150,6 @@ export namespace simulateCalls {
             }),
           )
 
-        const feeOverrideValue_tmp = 1_000_000_000_000_000_000n
         const balanceOverrides = (() => {
           const balanceOverrides = parameters.balanceOverrides
           if (!feeTokenAddress) return balanceOverrides
@@ -189,6 +188,8 @@ export namespace simulateCalls {
       }),
     })
   }
+
+  export const feeOverrideValue_tmp = 1_000_000_000_000_000_000n
 
   export namespace queryOptions {
     export type Data = ServerActions.prepareCalls.ReturnType
