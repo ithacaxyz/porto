@@ -7,7 +7,7 @@ import {
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
 import { Dialog, Mode, Porto } from 'porto'
-import { ThemeFragment } from 'porto/theme'
+import type { ThemeFragment } from 'porto/theme'
 
 const config = PortoConfig.getConfig()
 const host = PortoConfig.getDialogHost()
@@ -46,13 +46,13 @@ export type ModeType = keyof typeof modes
 export const themes = {
   default: undefined,
   pink: {
-    colorScheme: 'light',
     accent: '#FF007A',
     baseBackground: '#FCFCFC',
     baseBorder: '#F0F0F0',
     baseContent: '#202020',
     baseContentDimmed: '#8D8D8D',
     baseHoveredBackground: '#F0F0F0',
+    colorScheme: 'light',
     fieldBackground: '#F0F0F0',
     fieldBorder: '#F0F0F0',
     fieldContent: '#202020',

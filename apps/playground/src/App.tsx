@@ -23,13 +23,13 @@ import {
   exp1Address,
   exp2Address,
   expNftAddress,
+  type ModeType,
   mipd,
   modes,
   permissions,
   porto,
-  themes,
-  type ModeType,
   type ThemeType,
+  themes,
 } from './config'
 
 export function App() {
@@ -1367,7 +1367,7 @@ function Theme({
       <h3>Theme</h3>
       <div className="flex flex-row gap-2">
         {Object.keys(themes).map((key) => (
-          <label key={key} className="flex gap-1">
+          <label className="flex gap-1" key={key}>
             <input
               checked={theme === key}
               name={radioName}
