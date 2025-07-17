@@ -4,8 +4,7 @@ Theming system for Porto with multiple export formats.
 
 ## Files
 
-- `Theme.ts` - Type definitions
-- `porto-theme.ts` - Base Porto theme
+- `porto-theme.ts` - The default Porto theme
 - `export-theme.ts` - CLI tool to export the theme in various formats
 
 Related files in `~internal/lib`:
