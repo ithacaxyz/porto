@@ -1,5 +1,20 @@
 Bun.serve({
   async fetch(request) {
+    // Handle CORS preflight requests
+    if (request.method === 'OPTIONS') {
+      const headers = new Headers({
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Max-Age': '86400',
+      })
+
+      return new Response(null, {
+        headers,
+        status: 204,
+      })
+    }
+
     if (request.method === 'GET') return new Response('Nada')
 
     const body = await request.json()
@@ -8,13 +23,23 @@ Bun.serve({
       (body.method.startsWith('wallet_') || body.method === 'health')
         ? Bun.env.RELAY_URL!
         : Bun.env.ANVIL_URL!
-    return fetch(target, {
+    const res = await fetch(target, {
       body: JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
       method: 'POST',
     })
+
+    if (
+      body.method &&
+      !['eth_getBlockByNumber', 'eth_getBalance', 'eth_feeHistory', 'eth_blockNumber', 'web3_clientVersion'].includes(body.method)
+    ) {
+      const resClone = res.clone()
+      console.log('request: ', body, 'response: ', await resClone.json())
+    }
+
+    return res
   },
   port: Number(Bun.env.PORT!),
 })

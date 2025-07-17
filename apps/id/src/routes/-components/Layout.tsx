@@ -68,7 +68,7 @@ export namespace Layout {
     return (
       <div className="mt-auto mb-4 flex h-min min-w-[500px] items-center justify-center gap-x-3 max-lg:hidden">
         <p className="font-[500] text-gray10 text-sm">
-          Want to integrate Porto with your application?
+          Want to integrate RISE Wallet with your application?
         </p>
         <Button
           className="h-min w-min! px-2! py-1"

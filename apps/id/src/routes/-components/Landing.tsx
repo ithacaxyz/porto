@@ -58,7 +58,7 @@ export function Landing() {
                 </p>
                 <div className="h-2" />
                 <p className="max-w-[24ch] text-center text-[18px] text-base text-gray11 tracking-[-2.8%]">
-                  Porto is a seamless, friendly way to use digital assets
+                  RISE Wallet is a seamless, friendly way to use digital assets
                   on-the-go.
                 </p>
               </div>
@@ -87,7 +87,7 @@ export function Landing() {
                       name="label"
                       onChange={(e) => setEmail(e.target.value)}
                       pattern=".*@.*\..+"
-                      placeholder="example@ithaca.xyz"
+                      placeholder="example@riselabs.xyz"
                       required
                       spellCheck={false}
                       type="email"

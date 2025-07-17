@@ -1,0 +1,38 @@
+name: porto-rise
+
+services:
+  relay:
+    build:
+      context: "."
+      dockerfile_inline: |
+        FROM ghcr.io/ithacaxyz/relay:latest
+        COPY --from=ghcr.io/foundry-rs/foundry:latest /usr/local/bin/cast /usr/local/bin/cast
+        COPY ./docker/porto-rise/relay.yaml /app/relay.yaml
+        COPY ./docker/porto-rise/registry.yaml /app/registry.yaml
+    platform: linux/x86_64
+    labels:
+      - dev.orbstack.domains=relay.local
+    ports:
+      - "9119:9119"
+    environment:
+      RELAY_MNEMONIC: ${RELAY_MNEMONIC}
+      RUST_LOG: "info"
+    command: --config-only --registry /app/registry.yaml
+    healthcheck:
+      test:
+        ["CMD", "cast", "rpc", "--rpc-url", "http://localhost:9119", "health"]
+      interval: 2s
+      retries: 5
+
+  proxy:
+    build:
+      context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
+      dockerfile: ./docker/proxy/Dockerfile
+    labels:
+      - dev.orbstack.domains=rpc.local
+    environment:
+      ANVIL_URL: https://testnet.riselabs.xyz
+      RELAY_URL: http://relay:9119
+      PORT: 9200
+    ports:
+      - "9200:9200"
