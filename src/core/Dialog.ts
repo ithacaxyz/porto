@@ -457,7 +457,7 @@ export function experimental_inline(options: inline.Options) {
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
 
-      iframe.setAttribute('src', getDialogUrl(host))
+      iframe.setAttribute('src', getDialogUrl(host, theme))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
 
