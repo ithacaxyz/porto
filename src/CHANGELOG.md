@@ -1,5 +1,34 @@
 # porto
 
+## 0.0.54
+
+### Patch Changes
+
+- [#592](https://github.com/ithacaxyz/porto/pull/592) [`3525888`](https://github.com/ithacaxyz/porto/commit/35258885c0412a47cb714edc0b67c70fc88c0142) Thanks [@jxom](https://github.com/jxom)! - Added `key` as a parameter to `Mode#loadAccounts`.
+
+- [#592](https://github.com/ithacaxyz/porto/pull/592) [`3525888`](https://github.com/ithacaxyz/porto/commit/35258885c0412a47cb714edc0b67c70fc88c0142) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `credentialId` from `Mode#loadAccounts`. Use `key` instead.
+
+  ```diff
+  const mode = Mode.from({
+    actions: {
+      loadAccounts(parameters) {
+        const {
+          address,
+  -       credentialId
+  +       key: { credentialId }
+        } = parameters
+
+        // ...
+      }
+    },
+    ...
+  })
+  ```
+
+- [#594](https://github.com/ithacaxyz/porto/pull/594) [`73f4ed7`](https://github.com/ithacaxyz/porto/commit/73f4ed7bceeb7f7a95a0df46cc52d6fec330767b) Thanks [@jxom](https://github.com/jxom)! - Fixed parsing of server key of an \`address\` type.
+
+- [#565](https://github.com/ithacaxyz/porto/pull/565) [`9ea4d43`](https://github.com/ithacaxyz/porto/commit/9ea4d43cb6de16073d1f8c177575b830fc935992) Thanks [@frolic](https://github.com/frolic)! - Added `size` property to `Dialog` renderer instances.
+
 ## 0.0.53
 
 ### Patch Changes
