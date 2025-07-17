@@ -4,7 +4,7 @@ import {
   type UseQueryOptions,
   useQuery as useQuery_query,
 } from '@tanstack/react-query'
-import { type Address, Json } from 'ox'
+import type { Address } from 'ox'
 import { Account, ServerActions } from 'porto'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
@@ -14,9 +14,9 @@ import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
 
 export namespace prepareCalls {
-  export function queryOptions(
+  export function queryOptions<const calls extends readonly unknown[]>(
     client: ServerClient.ServerClient,
-    props: queryOptions.Props,
+    options: queryOptions.Options<calls>,
   ) {
     const {
       account,
@@ -27,11 +27,13 @@ export namespace prepareCalls {
       merchantRpcUrl,
       refetchInterval,
       revokeKeys,
-    } = props
+    } = options
 
     return queryOptions_query({
       enabled: enabled && !!account,
-      async queryFn() {
+      async queryFn({ queryKey }) {
+        const [, { account, feeToken, ...parameters }] = queryKey
+
         if (!account) throw new Error('account is required.')
 
         const key = Account.getKey(account, { role: 'admin' })
@@ -47,55 +49,60 @@ export namespace prepareCalls {
         // TODO: consider using EIP-1193 Provider + `wallet_prepareCalls` in the future
         // (for case where the account wants to self-relay).
         return await ServerActions.prepareCalls(client, {
+          ...parameters,
           account,
-          authorizeKeys,
-          calls,
           feeToken: feeTokenAddress,
           key,
-          merchantRpcUrl,
-          revokeKeys,
         })
       },
-      queryKey: [
-        'prepareCalls',
-        account?.address,
-        client.uid,
-        Json.stringify({
-          authorizeKeys,
-          calls,
-          feeToken,
-          merchantRpcUrl,
-          revokeKeys,
-        }),
-      ],
+      queryKey: queryOptions.queryKey(client, {
+        account,
+        authorizeKeys,
+        calls,
+        feeToken,
+        merchantRpcUrl,
+        revokeKeys,
+      }),
       refetchInterval,
     })
   }
 
   export namespace queryOptions {
-    export type Props<calls extends readonly unknown[] = readonly unknown[]> =
-      Pick<
+    export type Data = ServerActions.prepareCalls.ReturnType
+    export type Error = ServerActions.prepareCalls.ErrorType
+    export type QueryKey = ReturnType<typeof queryKey>
+
+    export type Options<calls extends readonly unknown[] = readonly unknown[]> =
+      queryKey.Options<calls> &
+        Pick<
+          UseQueryOptions<Data, Error, Data, QueryKey>,
+          'enabled' | 'refetchInterval'
+        >
+
+    export function queryKey<const calls extends readonly unknown[]>(
+      client: ServerClient.ServerClient,
+      options: queryKey.Options<calls>,
+    ) {
+      return ['prepareCalls', options, client.uid] as const
+    }
+
+    export namespace queryKey {
+      export type Options<
+        calls extends readonly unknown[] = readonly unknown[],
+      > = Pick<
         ServerActions.prepareCalls.Parameters<calls>,
         'authorizeKeys' | 'calls' | 'revokeKeys'
-      > &
-        Pick<
-          UseQueryOptions<
-            queryOptions.Data,
-            Error,
-            queryOptions.Data,
-            (string | undefined)[]
-          >,
-          'enabled' | 'refetchInterval'
-        > & {
-          account?: Account.Account | undefined
-          feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
-          merchantRpcUrl?: string | undefined
-        }
-
-    export type Data = ServerActions.prepareCalls.ReturnType
+      > & {
+        account?: Account.Account | undefined
+        feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
+        merchantRpcUrl?: string | undefined
+      }
+    }
   }
 
-  export function useQuery(props: useQuery.Props) {
+  export function useQuery<const calls extends readonly unknown[]>(
+    props: useQuery.Props<calls>,
+  ) {
     const { address, chainId } = props
 
     const account = Hooks.useAccount(porto, { address })
@@ -105,10 +112,11 @@ export namespace prepareCalls {
   }
 
   export namespace useQuery {
-    export type Props = queryOptions.Props & {
-      address?: Address.Address | undefined
-      chainId?: number | undefined
-    }
+    export type Props<calls extends readonly unknown[] = readonly unknown[]> =
+      queryOptions.Options<calls> & {
+        address?: Address.Address | undefined
+        chainId?: number | undefined
+      }
 
     export type Data = queryOptions.Data
   }

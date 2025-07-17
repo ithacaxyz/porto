@@ -11,10 +11,10 @@ import * as React from 'react'
 import type { Call } from 'viem'
 import { useCapabilities } from 'wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
+import * as Calls from '~/lib/Calls'
 import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
-import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -43,7 +43,7 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // This "prepare calls" query is used as the "source of truth" query that will
   // ultimately be used to execute the calls.
-  const prepareCallsQuery = RpcServer.prepareCalls.useQuery({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
@@ -58,7 +58,7 @@ export function ActionRequest(props: ActionRequest.Props) {
   // However, to prevent a malicious RPC server from providing a mutated asset
   // diff to display to the end-user, we also simulate the prepare calls query
   // without the merchant RPC URL.
-  const prepareCallsQuery_assetDiff = RpcServer.prepareCalls.useQuery({
+  const prepareCallsQuery_assetDiff = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
@@ -163,7 +163,7 @@ export namespace ActionRequest {
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading?: boolean | undefined
     merchantRpcUrl?: string | undefined
-    onApprove: (data: RpcServer.prepareCalls.useQuery.Data) => void
+    onApprove: (data: Calls.prepareCalls.useQuery.Data) => void
     onReject: () => void
     quote?: Quote | undefined
   }
