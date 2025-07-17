@@ -9,7 +9,7 @@ import LucideLogIn from '~icons/lucide/log-in'
 import Question from '~icons/mingcute/question-line'
 
 export function SignUp(props: SignUp.Props) {
-  const { enableSignIn, loading, onApprove, onReject, permissions } = props
+  const { enableSignIn, onApprove, onReject, permissions, status } = props
 
   const [showLearn, setShowLearn] = useState(false)
 
@@ -17,7 +17,7 @@ export function SignUp(props: SignUp.Props) {
 
   if (showLearn) return <SignUp.Learn onDone={() => setShowLearn(false)} />
   return (
-    <Layout loading={loading} loadingTitle="Signing up...">
+    <Layout loading={status === 'responding'} loadingTitle="Signing up...">
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={
@@ -43,6 +43,7 @@ export function SignUp(props: SignUp.Props) {
           {enableSignIn ? (
             <Button
               data-testid="sign-in"
+              disabled={status === 'loading'}
               onClick={() => onApprove({ selectAccount: true, signIn: true })}
               type="button"
             >
@@ -57,6 +58,7 @@ export function SignUp(props: SignUp.Props) {
           <Button
             className="flex-grow"
             data-testid="sign-up"
+            disabled={status === 'loading'}
             onClick={() => onApprove({ signIn: false })}
             type="button"
             variant="primary"
@@ -86,10 +88,10 @@ export function SignUp(props: SignUp.Props) {
 export namespace SignUp {
   export type Props = {
     enableSignIn?: boolean
-    loading?: boolean
     onApprove: (p: { signIn?: boolean; selectAccount?: boolean }) => void
     onReject: () => void
     permissions?: Permissions.Props
+    status?: 'loading' | 'responding' | undefined
   }
 
   export function Learn({ onDone }: { onDone: () => void }) {

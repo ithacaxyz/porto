@@ -1,10 +1,10 @@
 import { Button } from '@porto/apps/components'
-import { Hex, type RpcSchema } from 'ox'
+import type { RpcSchema } from 'ox'
 import type { RpcSchema as porto_RpcSchema } from 'porto'
 import { Hooks } from 'porto/wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
+import * as Calls from '~/lib/Calls'
 import * as Dialog from '~/lib/Dialog'
-import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
 import { Permissions } from './Permissions'
 
@@ -15,7 +15,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
   const permissions = data?.find((x) => x.id === id)?.permissions
   const hostname = Dialog.useStore((state) => state.referrer?.url?.hostname)
 
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     enabled: !!permissions,
     feeToken: capabilities?.feeToken,
   })
@@ -47,7 +47,7 @@ export function RevokePermissions(props: RevokePermissions.Props) {
               calls={permissions.calls ?? []}
               spend={permissions.spend?.map((x) => ({
                 ...x,
-                limit: Hex.fromNumber(x.limit),
+                limit: x.limit,
               }))}
             />
           </Layout.Content>

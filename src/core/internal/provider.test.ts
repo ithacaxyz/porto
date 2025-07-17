@@ -581,7 +581,7 @@ describe.each([
                 },
                 key: {
                   publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
-                  type: 'secp256k1',
+                  type: 'address',
                 },
                 permissions: {
                   calls: [{ signature: 'mint()' }],

@@ -9,15 +9,20 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
     "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
     "key": {
       "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-      "type": "secp256k1",
+      "type": "address",
     },
     "permissions": {
       "calls": [
         {
-          "signature": "mint()",
+          "signature": "0x1249c58b",
+          "to": null,
+        },
+        {
+          "signature": "0x32323232",
+          "to": null,
         },
       ],
-      "spend": [],
+      "spend": undefined,
     },
   },
   {
@@ -33,6 +38,7 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
       "calls": [
         {
           "signature": "mint()",
+          "to": null,
         },
       ],
       "spend": [
@@ -56,15 +62,20 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
     "id": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
     "key": {
       "publicKey": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-      "type": "secp256k1",
+      "type": "address",
     },
     "permissions": {
       "calls": [
         {
-          "signature": "mint()",
+          "signature": "0x1249c58b",
+          "to": null,
+        },
+        {
+          "signature": "0x32323232",
+          "to": null,
         },
       ],
-      "spend": [],
+      "spend": undefined,
     },
   },
   {
@@ -80,6 +91,7 @@ exports[`wallet_getPermissions > behavior: grant on connect; grant another; get 
       "calls": [
         {
           "signature": "mint()",
+          "to": null,
         },
       ],
       "spend": [

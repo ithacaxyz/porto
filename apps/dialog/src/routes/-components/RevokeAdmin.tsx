@@ -5,7 +5,7 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'
-import * as RpcServer from '~/lib/RpcServer'
+import * as Calls from '~/lib/Calls'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
@@ -19,7 +19,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
     (admin) => admin.id === revokeKeyId,
   )
 
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     enabled: !!revokeKey,
     feeToken,
     revokeKeys: revokeKey ? [Key.from(revokeKey)] : [],

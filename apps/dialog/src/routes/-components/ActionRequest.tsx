@@ -11,10 +11,10 @@ import * as React from 'react'
 import type { Call } from 'viem'
 import { useCapabilities } from 'wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
-import * as FeeToken from '~/lib/FeeToken'
+import * as Calls from '~/lib/Calls'
+import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
-import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -43,18 +43,22 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // This "prepare calls" query is used as the "source of truth" query that will
   // ultimately be used to execute the calls.
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
     feeToken,
     merchantRpcUrl,
+    refetchInterval(query) {
+      if (query.state.error) return false
+      return 15_000
+    },
   })
 
   // However, to prevent a malicious RPC server from providing a mutated asset
   // diff to display to the end-user, we also simulate the prepare calls query
   // without the merchant RPC URL.
-  const prepareCallsQuery_assetDiff = RpcServer.usePrepareCalls({
+  const prepareCallsQuery_assetDiff = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
@@ -109,7 +113,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                 </Button>
                 <Button
                   className="flex-grow"
-                  onClick={onApprove}
+                  onClick={() => onApprove(prepareCallsQuery.data!)}
                   type="button"
                   variant="primary"
                 >
@@ -131,7 +135,7 @@ export function ActionRequest(props: ActionRequest.Props) {
                   className="flex-grow"
                   data-testid="confirm"
                   disabled={!prepareCallsQuery.isSuccess}
-                  onClick={onApprove}
+                  onClick={() => onApprove(prepareCallsQuery.data!)}
                   type="button"
                   variant="primary"
                 >
@@ -159,7 +163,7 @@ export namespace ActionRequest {
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading?: boolean | undefined
     merchantRpcUrl?: string | undefined
-    onApprove: () => void
+    onApprove: (data: Calls.prepareCalls.useQuery.Data) => void
     onReject: () => void
     quote?: Quote | undefined
   }
@@ -478,17 +482,13 @@ export namespace ActionRequest {
 
     const chain = Hooks.useChain(porto, { chainId })!
     const capabilities = useCapabilities({ chainId: chain.id })
-    const feeToken = FeeToken.useFetch({
+    const feeTokens = FeeTokens.fetch.useQuery({
       addressOrSymbol: paymentToken,
     })
+    const feeToken = feeTokens.data?.[0]
 
     const fee = React.useMemo(() => {
-      if (
-        !nativeFeeEstimate ||
-        !txGas ||
-        !totalPaymentMaxAmount ||
-        !feeToken.data
-      )
+      if (!nativeFeeEstimate || !txGas || !totalPaymentMaxAmount || !feeToken)
         return undefined
 
       const nativeConfig = {
@@ -503,7 +503,7 @@ export namespace ActionRequest {
       const tokenConfig = (() => {
         if (paymentToken && paymentToken !== nativeConfig.address) {
           return {
-            ...feeToken.data,
+            ...feeToken,
             value: totalPaymentMaxAmount,
           }
         }
@@ -535,7 +535,7 @@ export namespace ActionRequest {
       capabilities.data?.feeToken.tokens,
       chain.nativeCurrency.decimals,
       chain.nativeCurrency.symbol,
-      feeToken.data,
+      feeToken,
       nativeFeeEstimate,
       txGas,
       paymentToken,

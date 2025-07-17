@@ -1,6 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Actions } from 'porto/remote'
+import { Provider } from 'ox'
+import { Account, Key } from 'porto'
+import { Actions, Hooks } from 'porto/remote'
+import { ServerActions } from 'porto/viem'
+import { waitForCallsStatus } from 'viem/actions'
+import type * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { ActionRequest } from '../-components/ActionRequest'
@@ -20,10 +25,46 @@ function RouteComponent() {
 
   const calls = [{ data, to: to!, value }] as const
 
+  const account = Hooks.useAccount(porto, { address: from })
+  const client = Hooks.useServerClient(porto, { chainId })
+
   const respond = useMutation({
-    mutationFn() {
-      // TODO: sign quote.
-      return Actions.respond(porto, request)
+    async mutationFn(data: Calls.prepareCalls.useQuery.Data) {
+      if (!account) throw new Error('account not found.')
+
+      const key = Account.getKey(account, { role: 'admin' })
+      if (!key) throw new Error('admin key not found.')
+
+      const { capabilities, context, digest } = data
+
+      const signature = await Key.sign(key, {
+        payload: digest,
+        wrap: false,
+      })
+
+      const { id } = await ServerActions.sendPreparedCalls(client, {
+        capabilities: capabilities.feeSignature
+          ? {
+              feeSignature: capabilities.feeSignature,
+            }
+          : undefined,
+        context,
+        key,
+        signature,
+      })
+
+      const { receipts } = await waitForCallsStatus(client, {
+        id,
+      })
+      const hash = receipts?.[0]?.transactionHash
+
+      if (!hash)
+        return Actions.respond(porto, request, {
+          error: new Provider.UnknownBundleIdError(),
+        })
+      return Actions.respond(porto, request!, {
+        result: hash,
+      })
     },
   })
 
@@ -33,7 +74,7 @@ function RouteComponent() {
       calls={calls}
       chainId={chainId}
       loading={respond.isPending}
-      onApprove={() => respond.mutate()}
+      onApprove={(data) => respond.mutate(data)}
       onReject={() => Actions.reject(porto, request)}
     />
   )

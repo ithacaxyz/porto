@@ -1,5 +1,48 @@
 # porto
 
+## 0.0.54
+
+### Patch Changes
+
+- [#592](https://github.com/ithacaxyz/porto/pull/592) [`3525888`](https://github.com/ithacaxyz/porto/commit/35258885c0412a47cb714edc0b67c70fc88c0142) Thanks [@jxom](https://github.com/jxom)! - Added `key` as a parameter to `Mode#loadAccounts`.
+
+- [#592](https://github.com/ithacaxyz/porto/pull/592) [`3525888`](https://github.com/ithacaxyz/porto/commit/35258885c0412a47cb714edc0b67c70fc88c0142) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `credentialId` from `Mode#loadAccounts`. Use `key` instead.
+
+  ```diff
+  const mode = Mode.from({
+    actions: {
+      loadAccounts(parameters) {
+        const {
+          address,
+  -       credentialId
+  +       key: { credentialId }
+        } = parameters
+
+        // ...
+      }
+    },
+    ...
+  })
+  ```
+
+- [#594](https://github.com/ithacaxyz/porto/pull/594) [`73f4ed7`](https://github.com/ithacaxyz/porto/commit/73f4ed7bceeb7f7a95a0df46cc52d6fec330767b) Thanks [@jxom](https://github.com/jxom)! - Fixed parsing of server key of an \`address\` type.
+
+- [#565](https://github.com/ithacaxyz/porto/pull/565) [`9ea4d43`](https://github.com/ithacaxyz/porto/commit/9ea4d43cb6de16073d1f8c177575b830fc935992) Thanks [@frolic](https://github.com/frolic)! - Added `size` property to `Dialog` renderer instances.
+
+## 0.0.53
+
+### Patch Changes
+
+- [#587](https://github.com/ithacaxyz/porto/pull/587) [`6785db3`](https://github.com/ithacaxyz/porto/commit/6785db3bac2a25f93f5b94d0fe517f8f40cc3a51) Thanks [@jxom](https://github.com/jxom)! - Removed extraneous background RPC requests that occurred outside of the dialog.
+
+## 0.0.52
+
+### Patch Changes
+
+- [#585](https://github.com/ithacaxyz/porto/pull/585) [`cd56a7b`](https://github.com/ithacaxyz/porto/commit/cd56a7b4c622ef421ebe2d26ac606867d9d85827) Thanks [@jxom](https://github.com/jxom)! - Fixed decoding of `wallet_prepareCalls` response in `Mode.dialog`.
+
+- [#583](https://github.com/ithacaxyz/porto/pull/583) [`fc4b9df`](https://github.com/ithacaxyz/porto/commit/fc4b9dfbcf7ec18808143095155a8fe1534f1b76) Thanks [@o-az](https://github.com/o-az)! - Made CLI terminate by dynamically importing commands.
+
 ## 0.0.51
 
 ### Patch Changes
