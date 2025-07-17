@@ -208,10 +208,6 @@ export default defineConfig({
                 link: '/sdk/api/porto/create',
                 text: '.create',
               },
-              {
-                link: '/sdk/api/porto/theming',
-                text: 'theming',
-              },
             ],
             text: 'Porto',
           },
@@ -236,6 +232,10 @@ export default defineConfig({
               },
             ],
             text: 'MerchantRpc',
+          },
+          {
+            link: '/sdk/api/porto/theming',
+            text: 'Themes',
           },
           {
             link: '/sdk/api/storage',
