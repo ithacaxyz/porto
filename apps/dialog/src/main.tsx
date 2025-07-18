@@ -153,10 +153,7 @@ document.addEventListener('keydown', (event) => {
         }),
       )
 
-      document.documentElement.classList.remove(
-        'scheme-light',
-        'scheme-light-dark',
-      )
+      document.documentElement.classList.remove('scheme-light-dark')
       document.documentElement.classList.add('scheme-light')
     }
   }
