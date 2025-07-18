@@ -39,7 +39,7 @@ export function parseJsonTheme(
 
   return {
     colorScheme: theme.colorScheme,
-    tailwindCss: `@layer theme {\n  :root, :host {${css}\n}\n}`,
+    tailwindCss: `@layer theme {\n  :root, :host {${css}\n  }\n}`,
   }
 }
 

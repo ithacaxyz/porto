@@ -16,9 +16,9 @@ const testMappings: Mapping[] = [
 describe('parseJsonTheme', () => {
   test('converts porto theme to tailwind css', () => {
     const theme = {
-      colorScheme: 'light',
       accent: '#FF007A',
       baseBackground: '#FCFCFC',
+      colorScheme: 'light',
       primaryBackground: '#0090ff',
     }
     const { colorScheme, tailwindCss } = parseJsonTheme(
@@ -32,7 +32,7 @@ describe('parseJsonTheme', () => {
           --color-th_accent: light-dark(#ff007a, #ff007a);
           --background-color-th_base: light-dark(#fcfcfc, #fcfcfc);
           --background-color-th_primary: light-dark(#0090ff, #0090ff);
-      }
+        }
       }"
     `)
   })
@@ -42,29 +42,29 @@ describe('parseJsonTheme', () => {
     expect(() =>
       parseJsonTheme(JSON.stringify(theme), testMappings),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Invalid theme JSON: missing or invalid colorScheme]`,
+      '[Error: Invalid theme JSON: missing or invalid colorScheme]',
     )
   })
 
   test('accepts single color values for the "light dark" color scheme', () => {
     const theme = {
-      colorScheme: 'light dark',
       accent: '#FF007A',
+      colorScheme: 'light dark',
     }
     const { tailwindCss } = parseJsonTheme(JSON.stringify(theme), testMappings)
     expect(tailwindCss).toMatchInlineSnapshot(`
       "@layer theme {
         :root, :host {
           --color-th_accent: light-dark(#ff007a, #ff007a);
-      }
+        }
       }"
     `)
   })
 
   test('rejects LightDarkColor values for non "light dark" color schemes', () => {
     const theme = {
-      colorScheme: 'light',
       accent: ['#FF007A', '#FF007A'],
+      colorScheme: 'light',
     }
     expect(() =>
       parseJsonTheme(JSON.stringify(theme), testMappings),
@@ -75,9 +75,9 @@ describe('parseJsonTheme', () => {
 
   test('converts light-dark color values', () => {
     const theme = {
-      colorScheme: 'light dark',
       baseBackground: ['#fcfcfc', '#191919'],
       baseContent: ['#202020', '#eeeeee'],
+      colorScheme: 'light dark',
     }
     const { tailwindCss } = parseJsonTheme(JSON.stringify(theme), testMappings)
     expect(tailwindCss).toMatchInlineSnapshot(`
@@ -85,7 +85,7 @@ describe('parseJsonTheme', () => {
         :root, :host {
           --background-color-th_base: light-dark(#fcfcfc, #191919);
           --text-color-th_base: light-dark(#202020, #eeeeee);
-      }
+        }
       }"
     `)
   })
@@ -100,7 +100,7 @@ describe('parseJsonTheme', () => {
       "@layer theme {
         :root, :host {
           --radius-th_frame: 14px;
-      }
+        }
       }"
     `)
   })
@@ -110,36 +110,36 @@ describe('parseJsonTheme', () => {
     expect(() =>
       parseJsonTheme(JSON.stringify(theme), testMappings),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Invalid theme JSON: missing or invalid colorScheme]`,
+      '[Error: Invalid theme JSON: missing or invalid colorScheme]',
     )
   })
 
   test('lowercases hex color values', () => {
     const theme = {
-      colorScheme: 'light',
       accent: '#FFFFFF',
+      colorScheme: 'light',
     }
     const { tailwindCss } = parseJsonTheme(JSON.stringify(theme), testMappings)
     expect(tailwindCss).toMatchInlineSnapshot(`
       "@layer theme {
         :root, :host {
           --color-th_accent: light-dark(#ffffff, #ffffff);
-      }
+        }
       }"
     `)
   })
 
   test('handles transparent color value', () => {
     const theme = {
-      colorScheme: 'light',
       accent: 'transparent',
+      colorScheme: 'light',
     }
     const { tailwindCss } = parseJsonTheme(JSON.stringify(theme), testMappings)
     expect(tailwindCss).toMatchInlineSnapshot(`
       "@layer theme {
         :root, :host {
           --color-th_accent: light-dark(transparent, transparent);
-      }
+        }
       }"
     `)
   })
