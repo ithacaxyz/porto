@@ -1,4 +1,4 @@
-# Porto Theme Tokens
+# Porto Theme Properties
 
 ## accent
 
@@ -10,7 +10,7 @@ Accent color. Used for highlighting text, icons or outline elements.
 
 Focus ring color. Used for keyboard navigation and input fields.
 
-**Porto Theme value**: `["#F0F", "#eee"]`
+**Porto Theme value**: `["#0090ff", "#0090ff"]`
 
 ## link
 
@@ -22,7 +22,7 @@ Link color. Used for hyperlinks and interactive text elements.
 
 Separator color. Used for dividing elements, such as lines between sections or items.
 
-**Porto Theme value**: `["#e0e0e0", "#2a2a2a"]`
+**Porto Theme value**: `["#cecece", "#484848"]`
 
 ## baseBackground
 
@@ -48,6 +48,24 @@ Base content color when dimmed. Used for text and icons that are less prominent.
 
 **Porto Theme value**: `["#8d8d8d", "#6e6e6e"]`
 
+## baseContentMuted
+
+Base content color when muted. Used for text and icons that are even less prominent than dimmed.
+
+**Porto Theme value**: `["#838383", "#7b7b7b"]`
+
+## baseContentPositive
+
+Positive base content color. Used for positive text and icons over base backgrounds, such as success messages or positive values.
+
+**Porto Theme value**: `["#30a46c", "#30a46c"]`
+
+## baseContentNegative
+
+Negative base content color. Used for negative text and icons over base backgrounds, such as error messages or negative values.
+
+**Porto Theme value**: `["#e5484d", "#e5484d"]`
+
 ## baseHoveredBackground
 
 Base background color when hovered.
@@ -58,7 +76,7 @@ Base background color when hovered.
 
 Frame background color. Used for the dialog title bar and other frame elements.
 
-**Porto Theme value**: `["#f9f9f9", "#222222"]`
+**Porto Theme value**: `["#fcfcfc", "#222222"]`
 
 ## frameContent
 
@@ -78,17 +96,65 @@ Frame radius. Used for the radius of the dialog.
 
 **Porto Theme value**: `14`
 
-## iconInfoBackground
+## badgeBackground
 
-Icon info background color. Used for the background of icons that provide additional information or context.
+Default badge background color. Used for small labels, indicators or icons, e.g. for the environment name in the title bar.
+
+**Porto Theme value**: `["#e8e8e8", "#2a2a2a"]`
+
+## badgeContent
+
+Badge content color. Used over badgeBackground for text and icons.
+
+**Porto Theme value**: `["#838383", "#7b7b7b"]`
+
+## badgeInfoBackground
+
+Background color for info badges. Used for the background of icons that provide additional information or context, e.g. the icons used for screen titles.
 
 **Porto Theme value**: `["#008ff519", "#0077ff3a"]`
 
-## iconInfoContent
+## badgeInfoContent
 
-Icon info color. Used for the color of icons that provide additional information or context.
+Content color for info badges. Used over badgeInfoBackground for text and icons.
 
 **Porto Theme value**: `["#0588f0", "#3b9eff"]`
+
+## badgeNegativeBackground
+
+Background color for negative badges. Used for badges indicating negative states or values, such as errors or warnings.
+
+**Porto Theme value**: `["#FCD8DA", "#500F1C"]`
+
+## badgeNegativeContent
+
+Content color for negative badges. Used over badgeNegativeBackground for text and icons.
+
+**Porto Theme value**: `["#DC3E42", "#EC5D5E"]`
+
+## badgePositiveBackground
+
+Background color for positive badges. Used for badges indicating positive states or values.
+
+**Porto Theme value**: `["#E3F3E8", "#1A3428"]`
+
+## badgePositiveContent
+
+Content color for positive badges. Used over badgePositiveBackground for text and icons.
+
+**Porto Theme value**: `["#30A46C", "#30A46C"]`
+
+## badgeWarningBackground
+
+Background color for warning badges. Used for badges indicating warnings or important notices.
+
+**Porto Theme value**: `["#FBF8E6", "#252018"]`
+
+## badgeWarningContent
+
+Content color for warning badges. Used over badgeWarningBackground for text and icons.
+
+**Porto Theme value**: `["#E2A336", "#8F6424"]`
 
 ## primaryBackground
 
@@ -120,62 +186,98 @@ Primary border color when hovered. Used for borders around primary surfaces when
 
 **Porto Theme value**: `["#058bf0", "#3b9eff"]`
 
+## secondaryBackground
+
+Secondary background color. Used for secondary buttons and interactive elements.
+
+**Porto Theme value**: `["#f0f0f0", "#222222"]`
+
+## secondaryBorder
+
+Secondary border color. Used for borders around secondary surfaces.
+
+**Porto Theme value**: `["#f0f0f0", "#222222"]`
+
+## secondaryContent
+
+Secondary content color. Used over secondaryBackground for text and icons.
+
+**Porto Theme value**: `["#202020", "#eeeeee"]`
+
+## secondaryHoveredBackground
+
+Secondary background color when hovered. Used for secondary buttons and interactive elements when hovered.
+
+**Porto Theme value**: `["#e8e8e8", "#2a2a2a"]`
+
+## secondaryHoveredBorder
+
+Secondary border color when hovered. Used for borders around secondary surfaces when hovered.
+
+**Porto Theme value**: `["#e8e8e8", "#2a2a2a"]`
+
 ## negativeBackground
 
 Negative background color. Generally red, used for elements indicating error or negative state, such as a destructive action or an error message.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#feebec", "#3b1219"]`
 
 ## negativeContent
 
 Negative content color. Used over negativeBackground for text and icons in error elements.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#e5484d", "#e5484d"]`
 
 ## positiveBackground
 
 Positive background color. Generally green, used for elements indicating success or positive state, such as a success message or a confirmation button.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#e6f7ed", "#0d2a1f"]`
 
 ## positiveContent
 
 Positive content color. Used over positiveBackground for text and icons in success elements.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#30a46c", "#30a46c"]`
 
 ## fieldBackground
 
 Field background color. Used for input fields, text areas, some edit buttons, and other form elements.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#e8e8e8", "#222222"]`
 
 ## fieldBorder
 
 Field border color. Used for the border around field surfaces.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#e0e0e0", "#313131"]`
 
 ## fieldContent
 
 Field content color. Used over fieldBackground for text and icons in input fields.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#646464", "#b4b4b4"]`
+
+## fieldContentDimmed
+
+Field content color when dimmed. Used for labels and less prominent text in field areas.
+
+**Porto Theme value**: `["#838383", "#7b7b7b"]`
 
 ## fieldErrorBorder
 
 Field error border color. Used for the border around field surfaces when there is an error, such as invalid input.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#eb8e90", "#b54548"]`
 
 ## fieldFocusedBackground
 
 Field background color when focused. Used for input fields and other form elements when they are focused or active.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#e0e0e0", "#313131"]`
 
 ## fieldFocusedContent
 
 Field content color when focused. Used over fieldFocusedBackground for text and icons in focused input fields.
 
-**Porto Theme value**: `["#F0F", "#F0F"]`
+**Porto Theme value**: `["#202020", "#eeeeee"]`
