@@ -130,6 +130,7 @@ function RouteComponent() {
         }}
       >
         <TitleBar
+          colorScheme={customTheme?.colorScheme ?? 'light dark'}
           mode={mode}
           ref={titlebarRef}
           referrer={referrer}
