@@ -1,6 +1,12 @@
 import * as Schema from 'effect/Schema'
 
-export type ThemeColorScheme = 'light' | 'dark' | 'light dark'
+export const ThemeColorScheme = Schema.Union(
+  Schema.Literal('light'),
+  Schema.Literal('dark'),
+  Schema.Literal('light dark'),
+)
+export type ThemeColorScheme = Schema.Schema.Type<typeof ThemeColorScheme>
+export const isThemeColorScheme = Schema.is(ThemeColorScheme)
 
 /**
  * Porto theme definition.
