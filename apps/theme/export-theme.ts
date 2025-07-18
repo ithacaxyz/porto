@@ -227,7 +227,7 @@ function formatTailwindVarName(colorName: string, prefix: string): string {
 function generateMdx(theme: PortoTheme): string {
   const sections: string[] = []
 
-  sections.push('# Porto Themes')
+  sections.push('# Porto Theme Properties')
   sections.push('')
 
   for (const [key, value] of Object.entries(theme) as Entries<PortoTheme>) {
