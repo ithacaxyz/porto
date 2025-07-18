@@ -45,3 +45,9 @@ pnpm dev
 ```
 
 This will start a watcher that re-export the theme to `~internal/styles/porto-theme.css` whenever `porto-theme.ts` is modified.
+
+To add a new theme property:
+
+1. Add the property to the `Theme` type in Porto (`../../src/theme/Theme.ts`).
+2. Add it to `porto-theme.ts`.
+3. Generate the mappings: `pnpm export:mappings`
