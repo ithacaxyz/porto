@@ -85,3 +85,69 @@ export const portoDev = /*#__PURE__*/ define({
   },
   testnet: true,
 })
+
+export const portoDevLeros = /*#__PURE__*/ define({
+  blockExplorers: {
+    default: {
+      apiUrl: '',
+      name: '',
+      url: '',
+    },
+  },
+  contracts: {
+    portoAccount: {
+      address: '0xdfd207d90463215cba68fee18e8aeabd2fd3782d',
+    },
+  },
+  id: 28_407,
+  name: 'Porto Dev (Leros)',
+  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+  rpcUrls: {
+    default: { http: ['https://porto-dev-leros.rpc.ithaca.xyz'] },
+  },
+  testnet: true,
+})
+
+export const portoDevParos = /*#__PURE__*/ define({
+  blockExplorers: {
+    default: {
+      apiUrl: '',
+      name: '',
+      url: '',
+    },
+  },
+  contracts: {
+    portoAccount: {
+      address: '0xdfd207d90463215cba68fee18e8aeabd2fd3782d',
+    },
+  },
+  id: 28_405,
+  name: 'Porto Dev (Paros)',
+  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+  rpcUrls: {
+    default: { http: ['https://porto-dev-paros.rpc.ithaca.xyz'] },
+  },
+  testnet: true,
+})
+
+export const portoDevTinos = /*#__PURE__*/ define({
+  blockExplorers: {
+    default: {
+      apiUrl: '',
+      name: '',
+      url: '',
+    },
+  },
+  contracts: {
+    portoAccount: {
+      address: '0xdfd207d90463215cba68fee18e8aeabd2fd3782d',
+    },
+  },
+  id: 28_406,
+  name: 'Porto Dev (Tinos)',
+  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+  rpcUrls: {
+    default: { http: ['https://porto-dev-tinos.rpc.ithaca.xyz'] },
+  },
+  testnet: true,
+})
