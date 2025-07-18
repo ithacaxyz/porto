@@ -14,12 +14,12 @@ export function Permissions(props: Permissions.Props) {
   return (
     <div className="px-3 pb-1">
       {title && (
-        <div className="flex items-center gap-3 text-[13px] text-secondary">
+        <div className="flex items-center gap-3 text-[13px] text-th_base-dimmed">
           <span>{title}</span>
           <div className="h-px flex-1 border-th_base border-t" />
         </div>
       )}
-      <div className="divide-y divide-[color:var(--border-color-primary)]">
+      <div className="divide-y divide-th_separator">
         {spend.map((spend) => (
           <SpendPermission
             key={`spend-${spend.token}-${spend.limit}-${spend.period}`}
@@ -73,8 +73,8 @@ function SpendPermission(props: SpendPermission.Props) {
   const isLoading = token && !displayAmount
 
   return (
-    <div className="flex items-center gap-2 py-3 text-[15px] text-secondary">
-      <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
+    <div className="flex items-center gap-2 py-3 text-[15px] text-th_base-dimmed">
+      <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-th_badge">
         {isLoading ? (
           <div className="size-[16px]">
             <Spinner />
@@ -104,8 +104,8 @@ declare namespace SpendPermission {
 
 function ContractAccessPermission() {
   return (
-    <div className="flex items-center gap-2 py-3 text-[15px] text-secondary">
-      <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-surface">
+    <div className="flex items-center gap-2 py-3 text-[15px] text-th_base-dimmed">
+      <div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-th_badge">
         <LucideShieldCheck className="size-[14px]" />
       </div>
       <div>Perform actions on your behalf</div>

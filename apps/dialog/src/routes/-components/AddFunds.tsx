@@ -100,8 +100,8 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1">
               <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
                 {editView === 'editing' ? (
-                  <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-gray4/45 px-3 py-2.5 text-gray12 focus-within:border-blue9 focus-within:bg-gray4/75 has-invalid:border-red8 dark:bg-gray3">
-                    <span className="-translate-y-1/2 absolute top-1/2 left-3 text-gray11">
+                  <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-th_field px-3 py-2.5 text-th_field focus-within:border-th_focus focus-within:bg-th_field-focused focus-within:text-th_field-focused has-invalid:border-th_field-error">
+                    <span className="-translate-y-1/2 absolute top-1/2 left-3 text-th_field">
                       $
                     </span>
                     <input
@@ -110,7 +110,7 @@ export function AddFunds(props: AddFunds.Props) {
                       autoCorrect="off"
                       // biome-ignore lint/a11y/noAutofocus: _
                       autoFocus
-                      className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
+                      className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-th_field focus:outline-none"
                       inputMode="decimal"
                       max={500}
                       min={0}
@@ -126,7 +126,7 @@ export function AddFunds(props: AddFunds.Props) {
                       value={amount}
                       // should add disabled` if testnet?
                     />
-                    <span className="text-gray9 text-sm">Max. $500</span>
+                    <span className="text-sm text-th_field">Max. $500</span>
                   </div>
                 ) : (
                   <Ariakit.RadioProvider
@@ -137,7 +137,7 @@ export function AddFunds(props: AddFunds.Props) {
                       {presetAmounts.map((predefinedAmount) => (
                         // biome-ignore lint/a11y/noLabelWithoutControl: _
                         <label
-                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-th_base"
+                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-th_field bg-th_base py-2 text-center align-center text-th_field leading-normal hover:bg-th_field has-checked:border-[1.5px] has-checked:border-th_focus has-checked:bg-th_field has-checked:text-th_base"
                           key={predefinedAmount}
                         >
                           <Ariakit.VisuallyHidden>
@@ -150,7 +150,7 @@ export function AddFunds(props: AddFunds.Props) {
                   </Ariakit.RadioProvider>
                 )}
                 <Ariakit.Button
-                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-th_base"
+                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-th_field py-2 text-center text-th_field hover:bg-th_field has-checked:border-[1.5px] has-checked:border-th_focus has-checked:bg-th_field has-checked:text-th_base"
                   onClick={() =>
                     setEditView(editView === 'default' ? 'editing' : 'default')
                   }
@@ -185,10 +185,10 @@ export function AddFunds(props: AddFunds.Props) {
               )}
             </div>
             <div className="col-span-1 row-span-1">
-              <div className="my-auto flex w-full flex-row items-center gap-2 *:border-gray7">
-                <hr className="flex-1" />
-                <span className="px-3 text-gray9">or</span>
-                <hr className="flex-1" />
+              <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
+                <hr className="flex-1 border-th_separator" />
+                <span className="px-3 text-th_base-dimmed">or</span>
+                <hr className="flex-1 border-th_separator" />
               </div>
             </div>
             <div className="col-span-1 row-span-1">
@@ -203,10 +203,10 @@ export function AddFunds(props: AddFunds.Props) {
                     <span>Deposit crypto</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="ml-auto font-normal text-gray10 text-sm">
+                    <span className="ml-auto font-normal text-sm text-th_base-dimmed">
                       Instant
                     </span>
-                    <ArrowRightIcon className="size-4 text-gray10" />
+                    <ArrowRightIcon className="size-4 text-th_base-dimmed" />
                   </div>
                 </div>
               </Button>
@@ -223,7 +223,7 @@ export function AddFunds(props: AddFunds.Props) {
                     <span>Debit or Credit</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="ml-auto font-normal text-gray10 text-sm">
+                    <span className="ml-auto font-normal text-sm text-th_base-dimmed">
                       ~5 mins
                       <ArrowRightIcon className="ml-1 inline size-4" />
                     </span>
@@ -259,7 +259,7 @@ export function AddFunds(props: AddFunds.Props) {
 
         <Layout.Content className="px-1">
           <p className="text-th_base">Your deposit was cancelled or failed.</p>
-          <p className="text-secondary">No funds have been deposited.</p>
+          <p className="text-th_base-dimmed">No funds have been deposited.</p>
         </Layout.Content>
 
         <Layout.Footer>
@@ -354,14 +354,14 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
     <Layout loading={loading} loadingTitle="Adding funds...">
       <Layout.Content className="py-3 text-center">
         <Ariakit.Button
-          className="mx-auto flex h-[148px] items-center justify-center gap-4 rounded-lg border border-surface bg-secondary p-4 hover:cursor-pointer!"
+          className="mx-auto flex h-[148px] items-center justify-center gap-4 rounded-lg border border-th_secondary bg-th_secondary p-4 hover:cursor-pointer!"
           onClick={() => copyToClipboard(address ?? '')}
         >
           <Cuer.Root errorCorrection="low" value={address ?? ''}>
             <Cuer.Cells />
             <Cuer.Finder radius={1} />
           </Cuer.Root>
-          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-gray10 text-xs">
+          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-th_base-dimmed text-xs">
             {address}
           </p>
         </Ariakit.Button>
@@ -370,7 +370,9 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
 
         <div className="font-medium text-[18px]">Deposit funds</div>
         <div className="h-1" />
-        <div className="text-secondary">Send crypto to fund your account.</div>
+        <div className="text-th_base-dimmed">
+          Send crypto to fund your account.
+        </div>
       </Layout.Content>
 
       <Layout.Footer>
@@ -395,7 +397,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
         </Layout.Footer.Actions>
 
         {chain && (
-          <div className="px-3 text-center text-secondary text-sm">
+          <div className="px-3 text-center text-sm text-th_base-dimmed">
             Only send assets on {chain.name}. Support for more networks soon.
           </div>
         )}

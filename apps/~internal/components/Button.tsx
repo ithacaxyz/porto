@@ -44,7 +44,7 @@ export namespace Button {
           accent:
             'border border-th_primary bg-th_primary text-th_primary hover:not-active:border-th_primary-hovered hover:not-active:bg-th_primary-hovered',
           default:
-            'border border-surface bg-surface text-th_base hover:not-active:bg-surfaceHover',
+            'border border-th_secondary bg-th_secondary text-th_secondary hover:not-active:border-th_secondary-hovered hover:not-active:bg-th_secondary-hovered',
           destructive:
             'bg-destructive text-destructive hover:not-active:bg-destructiveHover',
           invert: 'bg-invert text-invert hover:not-active:bg-invertHover',

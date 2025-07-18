@@ -223,7 +223,7 @@ export namespace ActionRequest {
                 className="flex items-center gap-3 font-medium"
                 key={address}
               >
-                <div className="relative flex size-6 items-center justify-center rounded-sm bg-gray6">
+                <div className="relative flex size-6 items-center justify-center rounded-sm bg-th_badge">
                   {decoded?.type === 'image' ? (
                     <img
                       alt={name ?? symbol}
@@ -231,21 +231,21 @@ export namespace ActionRequest {
                       src={decoded.url}
                     />
                   ) : decoded?.type === 'audio' ? (
-                    <LucideMusic className="size-4 text-gray10" />
+                    <LucideMusic className="size-4 text-th_badge" />
                   ) : decoded?.type === 'video' ? (
-                    <LucideVideo className="size-4 text-gray10" />
+                    <LucideVideo className="size-4 text-th_badge" />
                   ) : decoded?.type === 'document' ? (
-                    <LucideFileText className="size-4 text-gray10" />
+                    <LucideFileText className="size-4 text-th_badge" />
                   ) : (
-                    <LucideSparkles className="size-4 text-gray10" />
+                    <LucideSparkles className="size-4 text-th_badge" />
                   )}
 
                   <div
                     className={cx(
-                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-gray3',
+                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-th_base',
                       receiving
-                        ? 'bg-successTint text-success'
-                        : 'bg-gray5 text-current',
+                        ? 'bg-th_positive text-th_positive'
+                        : 'bg-th_badge text-th_badge',
                     )}
                   >
                     {/* TODO: Return erc721 count in API response */}
@@ -254,11 +254,13 @@ export namespace ActionRequest {
                 </div>
                 <div className="flex flex-1 justify-between">
                   {name || symbol ? (
-                    <span className="text-gray12">{name || symbol}</span>
+                    <span className="text-th_base">{name || symbol}</span>
                   ) : (
-                    <span className="text-gray9">No name provided</span>
+                    <span className="text-th_base-dimmed">
+                      No name provided
+                    </span>
                   )}
-                  <span className="text-gray10">#{absoluteValue}</span>
+                  <span className="text-th_base-muted">#{absoluteValue}</span>
                 </div>
               </div>
             )
@@ -271,21 +273,25 @@ export namespace ActionRequest {
                 className={cx(
                   'flex size-6 items-center justify-center rounded-full',
                   {
-                    'bg-gray5': !receiving,
-                    'bg-successTint': receiving,
+                    'bg-th_badge': !receiving,
+                    'bg-th_badge-positive': receiving,
                   },
                 )}
               >
                 <Icon
                   className={cx('size-4 text-current', {
-                    'text-secondary': !receiving,
-                    'text-success': receiving,
+                    'text-th_badge': !receiving,
+                    'text-th_badge-positive': receiving,
                   })}
                 />
               </div>
               <div>
                 {receiving ? 'Receive' : 'Send'}{' '}
-                <span className={receiving ? 'text-success' : 'text-secondary'}>
+                <span
+                  className={
+                    receiving ? 'text-th_base-positive' : 'text-th_base-dimmed'
+                  }
+                >
                   {formatted}
                 </span>{' '}
                 {symbol}
@@ -324,15 +330,15 @@ export namespace ActionRequest {
       <div className="space-y-1.5">
         {!sponsored && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-secondary leading-4">
+            <span className="text-[14px] text-th_base-dimmed leading-4">
               Fees (est.)
             </span>
             <div className="text-right">
               {fiatFee || !quote ? (
                 <div className="flex items-center gap-2">
                   {displayTokenFee && (
-                    <div className="flex h-5.5 items-center rounded-full border border-gray6 px-1.75">
-                      <span className="text-[11.5px] text-secondary">
+                    <div className="flex h-5.5 items-center rounded-full border border-th_separator px-1.75">
+                      <span className="text-[11.5px] text-th_base-dimmed">
                         {tokenFee.display}
                       </span>
                     </div>
@@ -342,20 +348,24 @@ export namespace ActionRequest {
                   </div>
                 </div>
               ) : (
-                <span className="font-medium text-secondary">Loading...</span>
+                <span className="font-medium text-th_base-dimmed">
+                  Loading…
+                </span>
               )}
             </div>
           </div>
         )}
 
         <div className="flex h-5.5 items-center justify-between text-[14px]">
-          <span className="text-[14px] text-secondary">Duration (est.)</span>
+          <span className="text-[14px] text-th_base-dimmed">
+            Duration (est.)
+          </span>
           <span className="font-medium">2 seconds</span>
         </div>
 
         {chain?.name && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-secondary">Network</span>
+            <span className="text-[14px] text-th_base-dimmed">Network</span>
             <span className="font-medium">{chain?.name}</span>
           </div>
         )}
@@ -390,8 +400,8 @@ export namespace ActionRequest {
         className={cx(
           'space-y-3 overflow-hidden rounded-lg px-3 transition-all duration-300 ease-in-out',
           {
-            'bg-surface py-3': !error,
-            'bg-warningTint py-2 text-warning': error,
+            'bg-th_badge-warning py-2 text-th_badge-warning': error,
+            'bg-th_secondary py-3': !error,
             'h-[90px] max-h-[90px]': loading,
             'max-h-[500px]': !loading,
           },
@@ -401,7 +411,7 @@ export namespace ActionRequest {
           if (error)
             return (
               <div className="space-y-2 text-[14px] text-th_base">
-                <p className="font-medium text-warning">Error</p>
+                <p className="font-medium text-th_badge-warning">Error</p>
                 <p>{errorMessage}</p>
                 <p>Details: {(error as any).shortMessage ?? error.message}</p>
               </div>
@@ -411,7 +421,7 @@ export namespace ActionRequest {
             return (
               <div className="flex h-full w-full items-center justify-center">
                 <div className="flex size-[24px] w-full items-center justify-center">
-                  <Spinner className="text-secondary" />
+                  <Spinner className="text-th_base-dimmed" />
                 </div>
               </div>
             )
@@ -422,18 +432,20 @@ export namespace ActionRequest {
 
               {quote && (
                 <>
-                  {children && <div className="h-[1px] w-full bg-gray6" />}
+                  {children && (
+                    <div className="h-[1px] w-full bg-th_separator" />
+                  )}
                   <div className={viewQuote ? undefined : 'hidden'}>
                     <ActionRequest.Details quote={quote} />
                   </div>
                   {!viewQuote && (
                     <button
-                      className="flex w-full justify-between text-[13px] text-secondary"
+                      className="flex w-full justify-between text-[13px] text-th_base-dimmed"
                       onClick={() => setViewQuote(true)}
                       type="button"
                     >
                       <span>More details</span>
-                      <ChevronDown className="size-4 text-secondary" />
+                      <ChevronDown className="size-4 text-th_base-dimmed" />
                     </button>
                   )}
                 </>

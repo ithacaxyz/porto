@@ -216,7 +216,9 @@ function CheckError(props: CheckError.Props) {
             <div className="space-y-2">
               <div>{error.message}</div>
               {error.secondaryMessage && (
-                <div className="text-secondary">{error.secondaryMessage}</div>
+                <div className="text-th_base-dimmed">
+                  {error.secondaryMessage}
+                </div>
               )}
             </div>
           }

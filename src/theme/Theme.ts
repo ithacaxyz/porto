@@ -26,6 +26,9 @@ export type Theme<
   baseBorder: SchemeColor
   baseContent: SchemeColor
   baseContentDimmed: SchemeColor
+  baseContentMuted: SchemeColor
+  baseContentPositive: SchemeColor
+  baseContentNegative: SchemeColor
   baseHoveredBackground: SchemeColor
 
   frameBackground: SchemeColor
@@ -33,8 +36,16 @@ export type Theme<
   frameContent: SchemeColor
   frameRadius: number
 
-  iconInfoBackground: SchemeColor
-  iconInfoContent: SchemeColor
+  badgeBackground: SchemeColor
+  badgeContent: SchemeColor
+  badgeInfoBackground: SchemeColor
+  badgeInfoContent: SchemeColor
+  badgeNegativeBackground: SchemeColor
+  badgeNegativeContent: SchemeColor
+  badgePositiveBackground: SchemeColor
+  badgePositiveContent: SchemeColor
+  badgeWarningBackground: SchemeColor
+  badgeWarningContent: SchemeColor
 
   primaryBackground: SchemeColor
   primaryContent: SchemeColor
@@ -42,8 +53,15 @@ export type Theme<
   primaryHoveredBackground: SchemeColor
   primaryHoveredBorder: SchemeColor
 
+  secondaryBackground: SchemeColor
+  secondaryBorder: SchemeColor
+  secondaryContent: SchemeColor
+  secondaryHoveredBackground: SchemeColor
+  secondaryHoveredBorder: SchemeColor
+
   fieldBackground: SchemeColor
   fieldContent: SchemeColor
+  fieldContentDimmed: SchemeColor
   fieldBorder: SchemeColor
   fieldErrorBorder: SchemeColor
   fieldFocusedBackground: SchemeColor

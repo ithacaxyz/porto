@@ -70,7 +70,7 @@ export namespace Layout {
                 </div>
               )}
               {subContent && (
-                <div className="text-[15px] text-secondary leading-[20px]">
+                <div className="text-[15px] text-th_base-dimmed leading-[20px]">
                   {subContent}
                 </div>
               )}
@@ -98,10 +98,10 @@ export namespace Layout {
           },
           variants: {
             variant: {
-              default: 'bg-th_icon-info text-th_icon-info',
-              destructive: 'bg-destructive text-destructive',
-              success: 'bg-successTint text-success',
-              warning: 'bg-warningTint text-warning',
+              default: 'bg-th_badge-info text-th_badge-info',
+              destructive: 'bg-th_negative text-th_negative',
+              success: 'bg-th_positive text-th_positive',
+              warning: 'bg-th_badge-warning text-th_badge-warning',
             },
           },
         },
@@ -164,10 +164,10 @@ export namespace Layout {
       const address = Address.checksum(props.address)
       return (
         <div className="flex h-full w-full items-center justify-between border-th_base border-t px-3 pt-3">
-          <div className="text-[13px] text-secondary">Account</div>
+          <div className="text-[13px] text-th_base-dimmed">Account</div>
 
           <button
-            className="-my-1 -mx-2 flex items-center gap-1.5 rounded-lg px-2 py-1 hover:not-disabled:bg-surface"
+            className="-my-1 -mx-2 flex items-center gap-1.5 rounded-lg px-2 py-1 hover:not-disabled:bg-th_base-hovered"
             disabled={!onClick}
             onClick={onClick}
             type="button"
@@ -178,7 +178,7 @@ export namespace Layout {
             >
               {StringFormatter.truncate(address, { end: 6, start: 8 })}
             </div>
-            {onClick && <ChevronDown className="size-4 text-secondary" />}
+            {onClick && <ChevronDown className="size-4 text-th_base-dimmed" />}
           </button>
         </div>
       )

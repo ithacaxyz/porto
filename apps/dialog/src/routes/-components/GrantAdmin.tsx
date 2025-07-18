@@ -51,8 +51,8 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           >
             {account?.address && (
               <div className="flex items-center justify-center gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
-                  <WalletIcon className="h-4 w-4 text-jade9" />
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-th_badge-positive">
+                  <WalletIcon className="h-4 w-4 text-th_badge-positive" />
                 </div>
                 <span className="font-medium font-mono text-base">
                   {StringFormatter.truncate(authorizeKey.publicKey)}
