@@ -102,18 +102,32 @@ function RouteComponent() {
     return mode
   }, [mode])
 
-  const customThemeCss = React.useMemo(() => {
-    return theme === null ? '' : Theme.formatTailwindTheme(theme)
+  const customTheme = React.useMemo(() => {
+    try {
+      return theme === null ? null : Theme.parseJsonTheme(theme)
+    } catch (error) {
+      console.warn('Failed to format theme:', error)
+      return null
+    }
   }, [theme])
 
   return (
     <>
       <HeadContent />
-      <style>{customThemeCss}</style>
+      <style>{customTheme?.tailwindCss}</style>
       <div
         data-dialog
         {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
         className="border-th_frame contain-content data-popup-mobile:absolute data-popup-mobile:bottom-0 data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-mobile:w-full data-popup-standalone:max-w-[360px] data-iframe:rounded-th_frame data-popup-mobile:rounded-th_frame data-popup-standalone:rounded-th_frame data-iframe:border data-popup-mobile:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
+        style={{
+          // It is important to set the color scheme here and not at the :root level,
+          // because a mismatch between the color scheme of an iframe and its parent
+          // forces the iframe to be opaque [1][2]. This is why this is separated from
+          // the custom theme styles above, which are applied at the :root level.
+          // [1] https://fvsch.com/transparent-iframes#toc-3
+          // [2] https://github.com/w3c/csswg-drafts/issues/4772
+          colorScheme: customTheme?.colorScheme ?? 'light dark',
+        }}
       >
         <TitleBar
           mode={mode}
