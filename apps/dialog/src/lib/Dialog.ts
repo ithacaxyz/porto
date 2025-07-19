@@ -25,8 +25,8 @@ export const store = createStore(
 
       return {
         accountMetadata: {},
-        error: null,
         display: 'full',
+        error: null,
         mode: 'popup-standalone',
         referrer,
         theme: new URLSearchParams(window.location.search).get('theme'),
