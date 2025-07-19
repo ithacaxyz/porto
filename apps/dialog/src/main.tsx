@@ -43,6 +43,7 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
       // the dialog).
       url: document.referrer ? new URL(document.referrer) : undefined,
     },
+    theme: new URLSearchParams(window.location.search).get('theme'),
   })
 })
 
@@ -82,6 +83,22 @@ porto.messenger.on('success', (payload) => {
     search: (search) => ({ ...search, ...payload }) as never,
     to: '/dialog/success',
   })
+})
+
+porto.messenger.on('__internal', (payload) => {
+  if (
+    payload.type === 'resize' &&
+    payload.width !== undefined &&
+    Dialog.store.getState().mode === 'iframe'
+  )
+    Dialog.store.setState((state) =>
+      payload.width === undefined
+        ? state
+        : {
+            ...state,
+            display: payload.width > 460 ? 'floating' : 'drawer',
+          },
+    )
 })
 
 porto.ready()
@@ -152,10 +169,7 @@ document.addEventListener('keydown', (event) => {
         }),
       )
 
-      document.documentElement.classList.remove(
-        'scheme-light',
-        'scheme-light-dark',
-      )
+      document.documentElement.classList.remove('scheme-light-dark')
       document.documentElement.classList.add('scheme-light')
     }
   }

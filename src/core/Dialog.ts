@@ -1,5 +1,6 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
+import type { ThemeFragment } from '../theme/Theme.js'
 import { logger } from './internal/logger.js'
 import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
@@ -9,7 +10,11 @@ import type { QueuedRequest, Store } from './Porto.js'
 /** Dialog interface. */
 export type Dialog = {
   name: string
-  setup: (parameters: { host: string; internal: Internal }) => {
+  setup: (parameters: {
+    host: string
+    internal: Internal
+    theme?: ThemeFragment | undefined
+  }) => {
     close: () => void
     destroy: () => void
     open: (parameters: any) => void
@@ -53,7 +58,7 @@ export function iframe(options: iframe.Options = {}) {
   return from({
     name: 'iframe',
     setup(parameters) {
-      const { host, internal } = parameters
+      const { host, internal, theme } = parameters
       const { store } = internal
 
       const fallback = popup().setup(parameters)
@@ -83,7 +88,7 @@ export function iframe(options: iframe.Options = {}) {
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
 
-      iframe.setAttribute('src', getDialogUrl(host))
+      iframe.setAttribute('src', getDialogUrl(host, theme))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
         ...styles.iframe,
@@ -98,7 +103,6 @@ export function iframe(options: iframe.Options = {}) {
 
         dialog iframe {
           background-color: transparent;
-          border-radius: 14px;
         }
 
         @media (min-width: 460px) {
@@ -113,8 +117,6 @@ export function iframe(options: iframe.Options = {}) {
         @media (max-width: 460px) {
           dialog iframe {
             animation: porto_slideFromBottom 0.25s cubic-bezier(0.32, 0.72, 0, 1);
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
             bottom: 0;
             left: 0;
             right: 0;
@@ -152,6 +154,16 @@ export function iframe(options: iframe.Options = {}) {
         waitForReady: true,
       })
 
+      const drawerModeQuery = window.matchMedia('(max-width: 460px)')
+      const onDrawerModeChange = () => {
+        messenger.send('__internal', {
+          type: 'resize',
+          // 460 = drawer mode, 461 = floating mode
+          width: drawerModeQuery.matches ? 460 : 461,
+        })
+      }
+      drawerModeQuery.addEventListener('change', onDrawerModeChange)
+
       messenger.on('ready', (options) => {
         const { chainId, feeToken } = options
 
@@ -166,6 +178,8 @@ export function iframe(options: iframe.Options = {}) {
           referrer: getReferrer(),
           type: 'init',
         })
+
+        onDrawerModeChange()
       })
       messenger.on('rpc-response', (response) => {
         if (includesUnsupported([response._request])) {
@@ -233,6 +247,7 @@ export function iframe(options: iframe.Options = {}) {
           fallback.destroy()
           this.close()
           document.removeEventListener('keydown', onEscape)
+          drawerModeQuery.removeEventListener('change', onDrawerModeChange)
           messenger.destroy()
           root.remove()
         },
@@ -438,7 +453,7 @@ export function experimental_inline(options: inline.Options) {
   return from({
     name: 'inline',
     setup(parameters) {
-      const { host, internal } = parameters
+      const { host, internal, theme } = parameters
       const { store } = internal
 
       let open = false
@@ -461,16 +476,9 @@ export function experimental_inline(options: inline.Options) {
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
 
-      iframe.setAttribute('src', getDialogUrl(host))
+      iframe.setAttribute('src', getDialogUrl(host, theme))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
-
-      root.appendChild(document.createElement('style')).textContent = `
-        div iframe {
-          background-color: transparent;
-          border-radius: 14px;
-        }
-      `
 
       root.appendChild(iframe)
 
@@ -635,7 +643,7 @@ export function isMobile() {
   )
 }
 
-export function getDialogUrl(host: string) {
+export function getDialogUrl(host: string, theme?: ThemeFragment) {
   const url = new URL(host)
   const parentParams = new URLSearchParams(window.location.search)
   const prefix = 'porto.'
@@ -643,6 +651,8 @@ export function getDialogUrl(host: string) {
     if (key.startsWith(prefix))
       url.searchParams.set(key.slice(prefix.length), value)
   }
+
+  if (theme) url.searchParams.set('theme', JSON.stringify(theme))
 
   return url.toString()
 }

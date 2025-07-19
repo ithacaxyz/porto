@@ -7,6 +7,7 @@ import {
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
 import { Dialog, Mode, Porto } from 'porto'
+import type { ThemeFragment } from 'porto/theme'
 
 const config = PortoConfig.getConfig()
 const host = PortoConfig.getDialogHost()
@@ -17,23 +18,70 @@ export const exp2Address = exp2Address_[chainId]
 export const expNftAddress = expNftAddress_[chainId]
 
 export const modes = {
-  contract: Mode.contract(),
-  'iframe-dialog': Mode.dialog({
-    host,
-  }),
-  'inline-dialog': Mode.dialog({
-    host,
-    renderer: Dialog.experimental_inline({
-      element: () => document.getElementById('porto')!,
+  contract: () => Mode.contract(),
+  'iframe-dialog': (theme: ThemeType) =>
+    Mode.dialog({
+      host,
+      theme: themes[theme],
     }),
-  }),
-  'popup-dialog': Mode.dialog({
-    host,
-    renderer: Dialog.popup(),
-  }),
-  rpc: Mode.rpcServer(),
-}
+  'inline-dialog': (theme: ThemeType) =>
+    Mode.dialog({
+      host,
+      renderer: Dialog.experimental_inline({
+        element: () => document.getElementById('porto')!,
+      }),
+      theme: themes[theme],
+    }),
+  'popup-dialog': (theme: ThemeType) =>
+    Mode.dialog({
+      host,
+      renderer: Dialog.popup(),
+      theme: themes[theme],
+    }),
+  rpc: () => Mode.rpcServer(),
+} as const
+
 export type ModeType = keyof typeof modes
+
+export const themes = {
+  default: undefined,
+  pink: {
+    accent: '#ff007a',
+    badgeBackground: '#ffffff',
+    badgeContent: '#ff007a',
+    badgeInfoBackground: '#fce3ef',
+    badgeInfoContent: '#ff007a',
+    baseBackground: '#fcfcfc',
+    baseBorder: '#f0f0f0',
+    baseContent: '#202020',
+    baseContentDimmed: '#8d8d8d',
+    baseHoveredBackground: '#f0f0f0',
+    colorScheme: 'light',
+    fieldBackground: '#f0f0f0',
+    fieldBorder: '#f0f0f0',
+    fieldContent: '#202020',
+    fieldErrorBorder: '#f0f',
+    fieldFocusedBackground: '#f0f0f0',
+    fieldFocusedContent: '#202020',
+    focus: '#ff007a',
+    frameBackground: '#ff007a',
+    frameBorder: 'transparent',
+    frameContent: '#ffffff',
+    frameRadius: 14,
+    link: '#ff007a',
+    negativeBackground: '#f0f',
+    negativeContent: '#f0f',
+    positiveBackground: '#f0f',
+    positiveContent: '#f0f',
+    primaryBackground: '#ff007a',
+    primaryBorder: '#ff007a',
+    primaryContent: '#ffffff',
+    primaryHoveredBackground: '#ff2994',
+    primaryHoveredBorder: '#ff2994',
+    separator: '#f0f0f0',
+  },
+} as const satisfies Record<string, ThemeFragment | undefined>
+export type ThemeType = keyof typeof themes
 
 export const mipd = createStore()
 

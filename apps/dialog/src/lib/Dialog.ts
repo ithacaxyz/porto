@@ -25,9 +25,11 @@ export const store = createStore(
 
       return {
         accountMetadata: {},
+        display: 'full',
         error: null,
         mode: 'popup-standalone',
         referrer,
+        theme: new URLSearchParams(window.location.search).get('theme'),
       }
     },
     {
@@ -49,6 +51,11 @@ export declare namespace store {
         email?: string | undefined
       }
     >
+    // reflects how the dialog window gets displayed:
+    // - 'full': uses the full space available (popup, popup-standalone) (default)
+    // - 'floating': as a floating window, with space around it (iframe)
+    // - 'drawer': as a drawer (iframe with small viewports)
+    display: 'floating' | 'drawer' | 'full'
     error: {
       action: 'close' | 'retry-in-popup'
       message: string
@@ -62,6 +69,7 @@ export declare namespace store {
           url?: URL | undefined
         })
       | undefined
+    theme: string | null
   }
 }
 type Payload = Extract<Messenger.Payload<'__internal'>, { type: 'init' }>

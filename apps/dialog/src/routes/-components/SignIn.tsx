@@ -53,7 +53,7 @@ export function SignIn(props: SignIn.Props) {
             disabled={status === 'loading'}
             onClick={() => onApprove({ signIn: true })}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             Sign in
           </Button>

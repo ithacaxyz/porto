@@ -1,5 +1,6 @@
 import { Env } from '@porto/apps'
 import { Actions } from 'porto/remote'
+import type { ThemeColorScheme } from 'porto/theme'
 import * as React from 'react'
 import type { store } from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
@@ -19,7 +20,7 @@ const env = (
 )[Env.get()]
 
 export function TitleBar(props: TitleBar.Props) {
-  const { mode, ref, referrer, verifyStatus } = props
+  const { mode, ref, referrer, verifyStatus, colorScheme } = props
 
   const { domain, subdomain, icon, url } = React.useMemo(() => {
     const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)
@@ -47,21 +48,20 @@ export function TitleBar(props: TitleBar.Props) {
 
   return (
     <header
-      className="fixed flex h-navbar w-full items-center justify-between gap-2 border-primary border-b bg-secondary px-3 pt-2 pb-1.5"
+      className="fixed flex h-navbar w-full items-center justify-between gap-2 border-th_frame border-b bg-th_frame px-3 pt-2 pb-1.5"
       ref={ref}
     >
-      <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-gray6">
+      <div className="flex size-5 min-w-5 items-center justify-center rounded-[5px] bg-[#d9d9d9] dark:bg-[#3a3a3a]">
         {url?.startsWith('cli') ? (
-          <LucideTerminal className="size-3.5 text-primary" />
+          <LucideTerminal className="size-3.5 text-th_base" />
         ) : icon && url?.startsWith('http') ? (
-          <div className="p-[3px]">
+          <div className="size-full p-[3px]">
             {typeof icon === 'string' ? (
-              <img
-                alt={url}
-                className="size-full text-transparent"
-                src={icon}
-              />
-            ) : (
+              <img alt="" className="size-full text-transparent" src={icon} />
+            ) : colorScheme === 'light dark' ? (
+              // if the theme supports light & dark color schemes,
+              // we can rely on `prefers-color-scheme` media queries
+              // which depends on the browser's color scheme preference
               <picture>
                 <source
                   media="(prefers-color-scheme: dark)"
@@ -72,19 +72,29 @@ export function TitleBar(props: TitleBar.Props) {
                   srcSet={icon.light}
                 />
                 <img
-                  alt={url}
+                  alt=""
                   className="size-full text-transparent"
                   src={icon.light}
                 />
               </picture>
+            ) : (
+              // for single color scheme themes (light or dark),
+              // we ignore the browser's color scheme preference,
+              // since users might have a given color scheme preference,
+              // while the dialog theme only supports the other one
+              <img
+                alt=""
+                className="size-full text-transparent"
+                src={colorScheme === 'light' ? icon.light : icon.dark}
+              />
             )}
           </div>
         ) : (
-          <LucideGlobe className="size-3.5 text-primary" />
+          <LucideGlobe className="size-3.5 text-th_base" />
         )}
       </div>
 
-      <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-secondary leading-[22px]">
+      <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-th_frame leading-[22px]">
         {url?.startsWith('cli') ? (
           referrer?.title
         ) : url ? (
@@ -103,12 +113,12 @@ export function TitleBar(props: TitleBar.Props) {
 
         {verifyStatus === 'whitelisted' && (
           <div className="flex items-center justify-center">
-            <LucideBadgeCheck className="size-4 text-accent" />
+            <LucideBadgeCheck className="size-4 text-th_accent" />
           </div>
         )}
 
         {env && (
-          <div className="flex h-5 items-center rounded-full bg-surfaceHover px-1.25 text-[11.5px] capitalize">
+          <div className="flex h-5 items-center rounded-full bg-th_badge px-1.25 text-[11.5px] text-th_badge capitalize">
             {env}
           </div>
         )}
@@ -120,7 +130,7 @@ export function TitleBar(props: TitleBar.Props) {
           title="Close Dialog"
           type="button"
         >
-          <LucideX className="size-4.5 text-secondary" />
+          <LucideX className="size-4.5 text-th_frame" />
         </button>
       )}
     </header>
@@ -129,6 +139,7 @@ export function TitleBar(props: TitleBar.Props) {
 
 export declare namespace TitleBar {
   type Props = {
+    colorScheme: ThemeColorScheme
     mode: store.State['mode']
     ref: React.RefObject<HTMLDivElement | null>
     referrer: store.State['referrer']

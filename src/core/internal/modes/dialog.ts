@@ -3,6 +3,7 @@ import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
 import { waitForCallsStatus } from 'viem/actions'
+import type { ThemeFragment } from '../../../theme/Theme.js'
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
 import * as Dialog from '../../Dialog.js'
@@ -25,6 +26,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
     fallback = rpcServer(),
     host = 'https://stg.id.porto.sh/dialog',
     renderer = Dialog.iframe(),
+    theme,
   } = parameters
 
   const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
@@ -942,6 +944,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       const dialog = renderer.setup({
         host,
         internal,
+        theme,
       })
 
       const unsubscribe = store.subscribe(
@@ -984,6 +987,11 @@ export declare namespace dialog {
      * @default Dialog.iframe()
      */
     renderer?: Dialog.Dialog | undefined
+    /**
+     * Theme to apply to the dialog.
+     * @default undefined
+     */
+    theme?: ThemeFragment | undefined
   }
 }
 

@@ -1,0 +1,266 @@
+import type { LightDarkColor, Theme } from 'porto/theme'
+
+type FullTheme = Theme<'light dark'>
+
+export type PortoTheme = Pick<FullTheme, 'colorScheme'> & {
+  [K in keyof Omit<
+    FullTheme,
+    'colorScheme'
+  > as K]: FullTheme[K] extends LightDarkColor
+    ? [description: string, light: LightDarkColor[0], dark: LightDarkColor[1]]
+    : FullTheme[K] extends number
+      ? [description: string, radius: number]
+      : never
+}
+
+// biome-ignore assist/source/useSortedKeys: keeping theme values grouped logically makes iteration easier
+export const portoTheme: PortoTheme = {
+  colorScheme: 'light dark',
+
+  // general
+  accent: [
+    'Accent color. Used for highlighting text, icons or outline elements.',
+    '#0588f0',
+    '#3b9eff',
+  ],
+  focus: [
+    'Focus ring color. Used for keyboard navigation and input fields.',
+    '#0090ff',
+    '#0090ff',
+  ],
+  link: [
+    'Link color. Used for hyperlinks and interactive text elements.',
+    '#0588f0',
+    '#3b9eff',
+  ],
+  separator: [
+    'Separator color. Used for dividing elements, such as lines between sections or items.',
+    '#cecece',
+    '#484848',
+  ],
+
+  // base
+  baseBackground: [
+    'Base background color. Used for the main dialog background and other large areas.',
+    '#fcfcfc',
+    '#191919',
+  ],
+  baseBorder: [
+    'Base border color. Used for borders around base surfaces.',
+    '#e0e0e0',
+    '#2a2a2a',
+  ],
+  baseContent: [
+    'Base content color. Used over baseBackground for text and icons.',
+    '#202020',
+    '#eeeeee',
+  ],
+  baseContentDimmed: [
+    'Base content color when dimmed. Used for text and icons that are less prominent.',
+    '#8d8d8d',
+    '#6e6e6e',
+  ],
+  baseContentMuted: [
+    'Base content color when muted. Used for text and icons that are even less prominent than dimmed.',
+    '#838383',
+    '#7b7b7b',
+  ],
+  baseContentPositive: [
+    'Positive base content color. Used for positive text and icons over base backgrounds, such as success messages or positive values.',
+    '#30a46c',
+    '#30a46c',
+  ],
+  baseContentNegative: [
+    'Negative base content color. Used for negative text and icons over base backgrounds, such as error messages or negative values.',
+    '#e5484d',
+    '#e5484d',
+  ],
+  baseHoveredBackground: [
+    'Base background color when hovered.',
+    '#f0f0f0',
+    '#222222',
+  ],
+
+  // frame
+  frameBackground: [
+    'Frame background color. Used for the dialog title bar and other frame elements.',
+    '#fcfcfc',
+    '#222222',
+  ],
+  frameContent: [
+    'Frame content color. Used over frameBackground for text and icons in the dialog title bar.',
+    '#838383',
+    '#7b7b7b',
+  ],
+  frameBorder: [
+    'Frame border color. Used for the dialog border.',
+    '#e0e0e0',
+    '#2a2a2a',
+  ],
+  frameRadius: ['Frame radius. Used for the radius of the dialog.', 14],
+
+  // badges
+  badgeBackground: [
+    'Default badge background color. Used for small labels, indicators or icons, e.g. for the environment name in the title bar.',
+    '#e8e8e8',
+    '#2a2a2a',
+  ],
+  badgeContent: [
+    'Badge content color. Used over badgeBackground for text and icons.',
+    '#838383',
+    '#7b7b7b',
+  ],
+  badgeInfoBackground: [
+    'Background color for info badges. Used for the background of icons that provide additional information or context, e.g. the icons used for screen titles.',
+    '#008ff519',
+    '#0077ff3a',
+  ],
+  badgeInfoContent: [
+    'Content color for info badges. Used over badgeInfoBackground for text and icons.',
+    '#0588f0',
+    '#3b9eff',
+  ],
+  badgeNegativeBackground: [
+    'Background color for negative badges. Used for badges indicating negative states or values, such as errors or warnings.',
+    '#FCD8DA',
+    '#500F1C',
+  ],
+  badgeNegativeContent: [
+    'Content color for negative badges. Used over badgeNegativeBackground for text and icons.',
+    '#DC3E42',
+    '#EC5D5E',
+  ],
+  badgePositiveBackground: [
+    'Background color for positive badges. Used for badges indicating positive states or values.',
+    '#E3F3E8',
+    '#1A3428',
+  ],
+  badgePositiveContent: [
+    'Content color for positive badges. Used over badgePositiveBackground for text and icons.',
+    '#30A46C',
+    '#30A46C',
+  ],
+  badgeWarningBackground: [
+    'Background color for warning badges. Used for badges indicating warnings or important notices.',
+    '#FBF8E6',
+    '#252018',
+  ],
+  badgeWarningContent: [
+    'Content color for warning badges. Used over badgeWarningBackground for text and icons.',
+    '#E2A336',
+    '#8F6424',
+  ],
+
+  // primary
+  primaryBackground: [
+    'Primary background color. Used for primary buttons and important interactive elements.',
+    '#0090ff',
+    '#0090ff',
+  ],
+  primaryBorder: [
+    'Primary border color. Used for borders around primary surfaces.',
+    '#e0e0e0',
+    '#2a2a2a',
+  ],
+  primaryContent: [
+    'Primary content color. Used over primaryBackground for text and icons.',
+    '#FFF',
+    '#FFF',
+  ],
+  primaryHoveredBackground: [
+    'Primary background color when hovered. Used for primary buttons and important interactive elements when hovered.',
+    '#058bf0',
+    '#3b9eff',
+  ],
+  primaryHoveredBorder: [
+    'Primary border color when hovered. Used for borders around primary surfaces when hovered.',
+    '#058bf0',
+    '#3b9eff',
+  ],
+
+  // secondary
+  secondaryBackground: [
+    'Secondary background color. Used for secondary buttons and interactive elements.',
+    '#f0f0f0',
+    '#222222',
+  ],
+  secondaryBorder: [
+    'Secondary border color. Used for borders around secondary surfaces.',
+    '#f0f0f0',
+    '#222222',
+  ],
+  secondaryContent: [
+    'Secondary content color. Used over secondaryBackground for text and icons.',
+    '#202020',
+    '#eeeeee',
+  ],
+  secondaryHoveredBackground: [
+    'Secondary background color when hovered. Used for secondary buttons and interactive elements when hovered.',
+    '#e8e8e8',
+    '#2a2a2a',
+  ],
+  secondaryHoveredBorder: [
+    'Secondary border color when hovered. Used for borders around secondary surfaces when hovered.',
+    '#e8e8e8',
+    '#2a2a2a',
+  ],
+
+  // positive / negative
+  negativeBackground: [
+    'Negative background color. Generally red, used for elements indicating error or negative state, such as a destructive action or an error message.',
+    '#feebec',
+    '#3b1219',
+  ],
+  negativeContent: [
+    'Negative content color. Used over negativeBackground for text and icons in error elements.',
+    '#e5484d',
+    '#e5484d',
+  ],
+  positiveBackground: [
+    'Positive background color. Generally green, used for elements indicating success or positive state, such as a success message or a confirmation button.',
+    '#e6f7ed',
+    '#0d2a1f',
+  ],
+  positiveContent: [
+    'Positive content color. Used over positiveBackground for text and icons in success elements.',
+    '#30a46c',
+    '#30a46c',
+  ],
+
+  // field
+  fieldBackground: [
+    'Field background color. Used for input fields, text areas, some edit buttons, and other form elements.',
+    '#e8e8e8',
+    '#222222',
+  ],
+  fieldBorder: [
+    'Field border color. Used for the border around field surfaces.',
+    '#e0e0e0',
+    '#313131',
+  ],
+  fieldContent: [
+    'Field content color. Used over fieldBackground for text and icons in input fields.',
+    '#646464',
+    '#b4b4b4',
+  ],
+  fieldContentDimmed: [
+    'Field content color when dimmed. Used for labels and less prominent text in field areas.',
+    '#838383',
+    '#7b7b7b',
+  ],
+  fieldErrorBorder: [
+    'Field error border color. Used for the border around field surfaces when there is an error, such as invalid input.',
+    '#eb8e90',
+    '#b54548',
+  ],
+  fieldFocusedBackground: [
+    'Field background color when focused. Used for input fields and other form elements when they are focused or active.',
+    '#e0e0e0',
+    '#313131',
+  ],
+  fieldFocusedContent: [
+    'Field content color when focused. Used over fieldFocusedBackground for text and icons in focused input fields.',
+    '#202020',
+    '#eeeeee',
+  ],
+}

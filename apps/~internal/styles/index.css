@@ -4,6 +4,7 @@
 @source "../";
 
 @import "./theme.css";
+@import "./porto-theme.css";
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

@@ -89,7 +89,7 @@ export function Email(props: Email.Props) {
               onApprove({ signIn: true })
             }}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             <IconScanFace className="size-5.25" />
             {actions.includes('sign-up')
@@ -105,9 +105,9 @@ export function Email(props: Email.Props) {
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
             {actions.includes('sign-in') && (
-              <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-gray9 leading-[17px]">
+              <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-dimmed leading-[17px]">
                 First time?
-                <div className="ms-2 h-px w-full bg-gray4" />
+                <div className="ms-2 h-px w-full bg-th_separator" />
               </div>
             )}
             <div className="relative flex items-center">
@@ -115,23 +115,23 @@ export function Email(props: Email.Props) {
                 Email
               </label>
               <Input
-                className="w-full user-invalid:bg-gray3 user-invalid:ring-red9"
+                className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
                 defaultValue={defaultValue}
                 disabled={status === 'loading'}
                 name="email"
                 placeholder="example@ithaca.xyz"
                 type="email"
               />
-              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-gray9 leading-normal">
+              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-dimmed leading-normal">
                 Optional
               </div>
             </div>
             <Button
-              className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-gray10"
+              className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-th_base-muted"
               data-testid="sign-up"
               disabled={status === 'loading'}
               type="submit"
-              variant={actions.includes('sign-in') ? 'default' : 'accent'}
+              variant={actions.includes('sign-in') ? 'default' : 'primary'}
             >
               <span className="hidden group-has-[:user-invalid]:block">
                 Invalid email
@@ -152,11 +152,11 @@ export function Email(props: Email.Props) {
           // If no sign up button, this means the user is already logged in, however
           // the user may want to sign in with a different passkey.
           <div className="flex w-full justify-between gap-2">
-            <div className="text-gray9">
-              Using <span className="text-primary">{displayName}</span>
+            <div>
+              <span className="text-th_base-dimmed">Using</span> {displayName}
             </div>
             <button
-              className="text-accent"
+              className="text-th_link"
               onClick={() => {
                 setRespondingTitle('Signing in...')
                 onApprove({ selectAccount: true, signIn: true })
