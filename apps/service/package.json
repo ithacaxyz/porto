@@ -15,7 +15,7 @@
     "viem": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250712.0",
+    "@cloudflare/workers-types": "^4.20250715.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "wrangler": "^4.24.3"
