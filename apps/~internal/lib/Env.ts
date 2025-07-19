@@ -9,8 +9,8 @@ export const defaultEnv = (() => {
   return 'stg'
 })()
 
-export const envs = ['anvil', 'dev', 'prod', 'stg'] as const
-export type Env = 'anvil' | 'dev' | 'prod' | 'stg'
+export const envs = ['prod', 'stg', 'dev', 'anvil'] as const
+export type Env = (typeof envs)[number]
 
 export function get(): Env {
   if (typeof window === 'undefined') return defaultEnv

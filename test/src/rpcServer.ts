@@ -23,7 +23,7 @@ const defaultConfig = {
   orchestrator: orchestratorAddress,
   simulator: simulatorAddress,
   txGasBuffer: 100_000n,
-  version: '7537e85',
+  version: 'v14.2.1',
 } satisfies Parameters<typeof defineRpcServer>[0]
 
 export const instances = {
