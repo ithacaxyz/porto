@@ -121,7 +121,6 @@ export async function getAssets(
     chainFilter = [Hex.fromNumber(client.chain!.id)],
   } = parameters
 
-  // throw new Error('Not implemented')
   try {
     const method = 'wallet_getAssets' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
