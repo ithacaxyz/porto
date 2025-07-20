@@ -10,6 +10,8 @@ import * as Primitive from '../../schema/primitive.js'
 export const Intent = Schema.Struct({
   /** The combined gas limit for payment, verification, and calling the EOA. */
   combinedGas: Primitive.BigInt,
+  /** Only relevant for multi chain intents. */
+  encodedFundTransfers: Schema.Array(Primitive.Hex),
   /**
    * Optional array of encoded Intents that will be verified and executed
    * before the validation of the overall Intent.
@@ -34,6 +36,10 @@ export const Intent = Schema.Struct({
    * This allows for more efficient safe forwarding to the EOA.
    */
   executionData: Primitive.Hex,
+  /** The funder address. */
+  funder: Primitive.Address,
+  /** The funder's signature. */
+  funderSignature: Primitive.Hex,
   /** Per delegated EOA.
    *
    * # Memory layout
