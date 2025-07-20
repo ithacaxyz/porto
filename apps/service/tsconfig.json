@@ -11,6 +11,8 @@
     "skipLibCheck": true,
     "alwaysStrict": true,
     "strictNullChecks": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
     "resolveJsonModule": true,
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
