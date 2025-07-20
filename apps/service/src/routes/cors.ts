@@ -3,7 +3,6 @@ import { cors } from 'hono/cors'
 
 const corsApp = new Hono<{ Bindings: Cloudflare.Env }>()
 
-
 corsApp.use('*', async (context, next) => {
   const corsMiddlewareHandler = cors({
     allowMethods: ['GET', 'POST', 'OPTIONS'],
