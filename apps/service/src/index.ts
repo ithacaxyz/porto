@@ -1,6 +1,5 @@
 import type { ExportedHandler } from '@cloudflare/workers-types'
 import { Hono } from 'hono'
-
 import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
 import { prettyJSON } from 'hono/pretty-json'
@@ -21,6 +20,13 @@ app.use(prettyJSON())
 app.use(secureHeaders())
 app.use('*', requestId())
 app.use(trimTrailingSlash())
+
+app.get('/', (context) =>
+  context.json({
+    routes: ['/cors', '/faucet', '/onramp', '/verify', '/snapshot'],
+    version: context.env.WORKERS_CI_COMMIT_SHA ?? 'running locally',
+  }),
+)
 
 app.get('/health', (context) => context.text('ok'))
 

@@ -105,6 +105,13 @@ body:
 
   - type: textarea
     attributes:
+      label: Reproduction Device & Environment
+      description: |-
+        Are you using the same device and browser you experienced this issue on?
+        If yes, visit the https://bugz-service.porto.workers.dev/snapshot and copy the output here.
+
+  - type: textarea
+    attributes:
       label: Anything else?
       description: Anything that will give us more context about the issue you are encountering. If you selected "Other" above for OS/Browser/Password Manager, please let us know more details.
     validations:

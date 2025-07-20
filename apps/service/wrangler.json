@@ -1,14 +1,13 @@
 {
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
   "account_id": "ba6ee3674b03f08481e57ff9992c601e",
-  "compatibility_date": "2025-07-03",
+  "compatibility_date": "2025-06-17",
   "compatibility_flags": ["nodejs_compat"],
   "dev": {
     "port": 6969
   },
   "keep_vars": true,
   "main": "./src/index.ts",
-  "minify": true,
   "name": "service",
   "observability": {
     "enabled": true
@@ -16,6 +15,7 @@
   "placement": {
     "mode": "smart"
   },
+  "preview_urls": true,
   "unsafe": {
     "bindings": [
       {

@@ -7,11 +7,10 @@ snapshotApp.get('/', async (context) => {
   return context.html(
     <html lang="en" style="font-family:monospace;">
       <head>
-        {html /* js */`
-          <script type="module">
+        {html /* js */`<script type="module">
             import { UAParser } from "https://esm.sh/ua-parser-js"
 
-            const ua = UAParser(navigator.userAgent)
+            const { ua: _, ...ua } = UAParser(navigator.userAgent)
             const fieldElement = document.querySelector('pre[data-name="field"]')
             fieldElement.textContent = JSON.stringify(ua, undefined, 2)
 
@@ -23,8 +22,7 @@ snapshotApp.get('/', async (context) => {
                 setTimeout(() => copyElement.textContent = 'COPY', 2_000)
               })
             })
-          </script>
-        `}
+          </script>`}
       </head>
       <body>
         <button data-name="copy" type="button">
