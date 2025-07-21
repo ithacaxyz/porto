@@ -39,6 +39,9 @@
   --text-color-th_secondary: light-dark(#202020, #eeeeee);
   --background-color-th_secondary-hovered: light-dark(#e8e8e8, #2a2a2a);
   --border-color-th_secondary-hovered: light-dark(#e8e8e8, #2a2a2a);
+  --background-color-th_disabled: light-dark(#f0f0f0, #222222);
+  --border-color-th_disabled: light-dark(#f0f0f0, #222222);
+  --text-color-th_disabled: light-dark(#bbbbbb, #606060);
   --background-color-th_negative: light-dark(#feebec, #3b1219);
   --text-color-th_negative: light-dark(#e5484d, #e5484d);
   --background-color-th_positive: light-dark(#e6f7ed, #0d2a1f);

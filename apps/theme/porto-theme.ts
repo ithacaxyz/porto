@@ -205,12 +205,12 @@ export const portoTheme: PortoTheme = {
     '#eeeeee',
   ],
   secondaryHoveredBackground: [
-    'Secondary background color when hovered. Used for secondary buttons and interactive elements when hovered.',
+    'Secondary buttons background color when hovered.',
     '#e8e8e8',
     '#2a2a2a',
   ],
   secondaryHoveredBorder: [
-    'Secondary border color when hovered. Used for borders around secondary surfaces when hovered.',
+    'Secondary buttons border color when hovered. Used around secondary surfaces.',
     '#e8e8e8',
     '#2a2a2a',
   ],
