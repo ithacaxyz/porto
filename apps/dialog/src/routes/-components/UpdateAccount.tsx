@@ -117,7 +117,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
             quote={quote}
           >
             <div className="flex items-center justify-center gap-2">
-              <div className="font-mono text-th_base-dimmed tabular-nums">
+              <div className="font-mono text-th_base-secondary tabular-nums">
                 {current}
               </div>
               <div className="text-th_base-positive">→</div>

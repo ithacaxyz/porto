@@ -105,7 +105,7 @@ export function Email(props: Email.Props) {
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
             {actions.includes('sign-in') && (
-              <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-dimmed leading-[17px]">
+              <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
                 First time?
                 <div className="ms-2 h-px w-full bg-th_separator" />
               </div>
@@ -122,12 +122,12 @@ export function Email(props: Email.Props) {
                 placeholder="example@ithaca.xyz"
                 type="email"
               />
-              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-dimmed leading-normal">
+              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
                 Optional
               </div>
             </div>
             <Button
-              className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-th_base-muted"
+              className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-th_base-tertiary"
               data-testid="sign-up"
               disabled={status === 'loading'}
               type="submit"
@@ -153,7 +153,7 @@ export function Email(props: Email.Props) {
           // the user may want to sign in with a different passkey.
           <div className="flex w-full justify-between gap-2">
             <div>
-              <span className="text-th_base-dimmed">Using</span> {displayName}
+              <span className="text-th_base-secondary">Using</span> {displayName}
             </div>
             <button
               className="text-th_link"

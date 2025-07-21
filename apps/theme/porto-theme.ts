@@ -13,7 +13,7 @@ export type PortoTheme = Pick<FullTheme, 'colorScheme'> & {
       : never
 }
 
-// biome-ignore assist/source/useSortedKeys: keeping theme values grouped logically makes iteration easier
+// biome-ignore assist/source/useSortedKeys: keeping theme values grouped logically makes it easier to iterate on the theme
 export const portoTheme: PortoTheme = {
   colorScheme: 'light dark',
 
@@ -39,14 +39,14 @@ export const portoTheme: PortoTheme = {
     '#484848',
   ],
 
-  // base
+  // base surface
   baseBackground: [
     'Base background color. Used for the main dialog background and other large areas.',
     '#fcfcfc',
     '#191919',
   ],
   baseBorder: [
-    'Base border color. Used for borders around base surfaces.',
+    'Base border color. Used around base surfaces.',
     '#e0e0e0',
     '#2a2a2a',
   ],
@@ -55,45 +55,45 @@ export const portoTheme: PortoTheme = {
     '#202020',
     '#eeeeee',
   ],
-  baseContentDimmed: [
-    'Base content color when dimmed. Used for text and icons that are less prominent.',
+  baseContentSecondary: [
+    'Secondary base content color. Used over baseBackground for secondary text and icons.',
     '#8d8d8d',
     '#6e6e6e',
   ],
-  baseContentMuted: [
-    'Base content color when muted. Used for text and icons that are even less prominent than dimmed.',
+  baseContentTertiary: [
+    'Tertiary base content color. Used over baseBackground for text and icons.',
     '#838383',
     '#7b7b7b',
   ],
   baseContentPositive: [
-    'Positive base content color. Used for positive text and icons over base backgrounds, such as success messages or positive values.',
+    'Positive base content color, such as success messages or positive values. Used over baseBackground for text and icons.',
     '#30a46c',
     '#30a46c',
   ],
   baseContentNegative: [
-    'Negative base content color. Used for negative text and icons over base backgrounds, such as error messages or negative values.',
+    'Negative base content color, such as error messages or negative values. Used over baseBackground for text and icons.',
     '#e5484d',
     '#e5484d',
   ],
   baseHoveredBackground: [
-    'Base background color when hovered.',
+    'Base background color when hovered, e.g. for links showing a background color when hovered.',
     '#f0f0f0',
     '#222222',
   ],
 
-  // frame
+  // frame (i.e. dialog window)
   frameBackground: [
     'Frame background color. Used for the dialog title bar and other frame elements.',
     '#fcfcfc',
     '#222222',
   ],
   frameContent: [
-    'Frame content color. Used over frameBackground for text and icons in the dialog title bar.',
+    'Frame content color. Used over frameBackground for text and icons.',
     '#838383',
     '#7b7b7b',
   ],
   frameBorder: [
-    'Frame border color. Used for the dialog border.',
+    'Frame border color. Used around frame surfaces.',
     '#e0e0e0',
     '#2a2a2a',
   ],
@@ -158,7 +158,7 @@ export const portoTheme: PortoTheme = {
     '#0090ff',
   ],
   primaryBorder: [
-    'Primary border color. Used for borders around primary surfaces.',
+    'Primary border color. Used around primary surfaces.',
     '#e0e0e0',
     '#2a2a2a',
   ],
@@ -168,12 +168,12 @@ export const portoTheme: PortoTheme = {
     '#FFF',
   ],
   primaryHoveredBackground: [
-    'Primary background color when hovered. Used for primary buttons and important interactive elements when hovered.',
+    'Primary buttons background color when hovered.',
     '#058bf0',
     '#3b9eff',
   ],
   primaryHoveredBorder: [
-    'Primary border color when hovered. Used for borders around primary surfaces when hovered.',
+    'Primary border color when hovered. Used around primary surfaces.',
     '#058bf0',
     '#3b9eff',
   ],
@@ -185,7 +185,7 @@ export const portoTheme: PortoTheme = {
     '#222222',
   ],
   secondaryBorder: [
-    'Secondary border color. Used for borders around secondary surfaces.',
+    'Secondary border color. Used around secondary surfaces.',
     '#f0f0f0',
     '#222222',
   ],
@@ -234,22 +234,22 @@ export const portoTheme: PortoTheme = {
     '#222222',
   ],
   fieldBorder: [
-    'Field border color. Used for the border around field surfaces.',
+    'Field border color. Used around field surfaces.',
     '#e0e0e0',
     '#313131',
   ],
   fieldContent: [
-    'Field content color. Used over fieldBackground for text and icons in input fields.',
+    'Field content color. Used over fieldBackground for text and icons.',
     '#646464',
     '#b4b4b4',
   ],
-  fieldContentDimmed: [
-    'Field content color when dimmed. Used for labels and less prominent text in field areas.',
+  fieldContentSecondary: [
+    'Field secondary content color. Used over fieldBackground for text and icons.',
     '#838383',
     '#7b7b7b',
   ],
   fieldErrorBorder: [
-    'Field error border color. Used for the border around field surfaces when there is an error, such as invalid input.',
+    'Field error border color. Used around field surfaces.',
     '#eb8e90',
     '#b54548',
   ],

@@ -256,11 +256,11 @@ export namespace ActionRequest {
                   {name || symbol ? (
                     <span className="text-th_base">{name || symbol}</span>
                   ) : (
-                    <span className="text-th_base-dimmed">
+                    <span className="text-th_base-secondary">
                       No name provided
                     </span>
                   )}
-                  <span className="text-th_base-muted">#{absoluteValue}</span>
+                  <span className="text-th_base-tertiary">#{absoluteValue}</span>
                 </div>
               </div>
             )
@@ -289,7 +289,7 @@ export namespace ActionRequest {
                 {receiving ? 'Receive' : 'Send'}{' '}
                 <span
                   className={
-                    receiving ? 'text-th_base-positive' : 'text-th_base-dimmed'
+                    receiving ? 'text-th_base-positive' : 'text-th_base-secondary'
                   }
                 >
                   {formatted}
@@ -330,7 +330,7 @@ export namespace ActionRequest {
       <div className="space-y-1.5">
         {!sponsored && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-th_base-dimmed leading-4">
+            <span className="text-[14px] text-th_base-secondary leading-4">
               Fees (est.)
             </span>
             <div className="text-right">
@@ -338,7 +338,7 @@ export namespace ActionRequest {
                 <div className="flex items-center gap-2">
                   {displayTokenFee && (
                     <div className="flex h-5.5 items-center rounded-full border border-th_separator px-1.75">
-                      <span className="text-[11.5px] text-th_base-dimmed">
+                      <span className="text-[11.5px] text-th_base-secondary">
                         {tokenFee.display}
                       </span>
                     </div>
@@ -348,7 +348,7 @@ export namespace ActionRequest {
                   </div>
                 </div>
               ) : (
-                <span className="font-medium text-th_base-dimmed">
+                <span className="font-medium text-th_base-secondary">
                   Loading…
                 </span>
               )}
@@ -357,7 +357,7 @@ export namespace ActionRequest {
         )}
 
         <div className="flex h-5.5 items-center justify-between text-[14px]">
-          <span className="text-[14px] text-th_base-dimmed">
+          <span className="text-[14px] text-th_base-secondary">
             Duration (est.)
           </span>
           <span className="font-medium">2 seconds</span>
@@ -365,7 +365,7 @@ export namespace ActionRequest {
 
         {chain?.name && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-th_base-dimmed">Network</span>
+            <span className="text-[14px] text-th_base-secondary">Network</span>
             <span className="font-medium">{chain?.name}</span>
           </div>
         )}
@@ -421,7 +421,7 @@ export namespace ActionRequest {
             return (
               <div className="flex h-full w-full items-center justify-center">
                 <div className="flex size-[24px] w-full items-center justify-center">
-                  <Spinner className="text-th_base-dimmed" />
+                  <Spinner className="text-th_base-secondary" />
                 </div>
               </div>
             )
@@ -440,12 +440,12 @@ export namespace ActionRequest {
                   </div>
                   {!viewQuote && (
                     <button
-                      className="flex w-full justify-between text-[13px] text-th_base-dimmed"
+                      className="flex w-full justify-between text-[13px] text-th_base-secondary"
                       onClick={() => setViewQuote(true)}
                       type="button"
                     >
                       <span>More details</span>
-                      <ChevronDown className="size-4 text-th_base-dimmed" />
+                      <ChevronDown className="size-4 text-th_base-secondary" />
                     </button>
                   )}
                 </>

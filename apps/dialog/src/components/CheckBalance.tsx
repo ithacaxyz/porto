@@ -23,7 +23,7 @@ export function CheckBalance(props: CheckBalance.Props) {
     return (
       <div className="flex h-40 items-center justify-center">
         <div className="size-[24px]">
-          <Spinner className="text-th_base-dimmed" />
+          <Spinner className="text-th_base-secondary" />
         </div>
       </div>
     )

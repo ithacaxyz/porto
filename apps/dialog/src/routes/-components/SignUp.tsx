@@ -73,7 +73,7 @@ export function SignUp(props: SignUp.Props) {
           type="button"
         >
           <div className="flex items-center gap-1.5">
-            <Question className="mt-px size-5 text-th_base-dimmed" />
+            <Question className="mt-px size-5 text-th_base-secondary" />
             <span className="font-medium text-[14px]">
               Learn about passkeys
             </span>
@@ -107,7 +107,7 @@ export namespace SignUp {
                   Passkeys let you sign in to your wallet in seconds. Passkeys
                   are the safest way to authenticate on the internet.
                 </div>
-                <div className="text-th_base-dimmed">
+                <div className="text-th_base-secondary">
                   Your passkeys are protected by your device, browser, or
                   password manager like 1Password.
                 </div>

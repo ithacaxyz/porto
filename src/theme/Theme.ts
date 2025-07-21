@@ -25,8 +25,8 @@ export type Theme<
   baseBackground: SchemeColor
   baseBorder: SchemeColor
   baseContent: SchemeColor
-  baseContentDimmed: SchemeColor
-  baseContentMuted: SchemeColor
+  baseContentSecondary: SchemeColor
+  baseContentTertiary: SchemeColor
   baseContentPositive: SchemeColor
   baseContentNegative: SchemeColor
   baseHoveredBackground: SchemeColor
@@ -61,7 +61,7 @@ export type Theme<
 
   fieldBackground: SchemeColor
   fieldContent: SchemeColor
-  fieldContentDimmed: SchemeColor
+  fieldContentSecondary: SchemeColor
   fieldBorder: SchemeColor
   fieldErrorBorder: SchemeColor
   fieldFocusedBackground: SchemeColor

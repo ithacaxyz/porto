@@ -25,7 +25,7 @@ export function SignMessage(props: SignMessage.Props) {
 
       <Layout.Content>
         <div className="rounded-lg bg-th_field">
-          <div className="px-3 pt-2 font-medium text-[14px] text-th_field-dimmed">
+          <div className="px-3 pt-2 font-medium text-[14px] text-th_field-secondary">
             Message
           </div>
           <div className="max-h-[160px] overflow-auto px-3 pb-2">

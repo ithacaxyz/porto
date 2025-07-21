@@ -70,7 +70,7 @@ export namespace Layout {
                 </div>
               )}
               {subContent && (
-                <div className="text-[15px] text-th_base-dimmed leading-[20px]">
+                <div className="text-[15px] text-th_base-secondary leading-[20px]">
                   {subContent}
                 </div>
               )}
@@ -164,7 +164,7 @@ export namespace Layout {
       const address = Address.checksum(props.address)
       return (
         <div className="flex h-full w-full items-center justify-between border-th_base border-t px-3 pt-3">
-          <div className="text-[13px] text-th_base-dimmed">Account</div>
+          <div className="text-[13px] text-th_base-secondary">Account</div>
 
           <button
             className="-my-1 -mx-2 flex items-center gap-1.5 rounded-lg px-2 py-1 hover:not-disabled:bg-th_base-hovered"
@@ -178,7 +178,7 @@ export namespace Layout {
             >
               {StringFormatter.truncate(address, { end: 6, start: 8 })}
             </div>
-            {onClick && <ChevronDown className="size-4 text-th_base-dimmed" />}
+            {onClick && <ChevronDown className="size-4 text-th_base-secondary" />}
           </button>
         </div>
       )

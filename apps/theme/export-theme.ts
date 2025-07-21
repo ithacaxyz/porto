@@ -129,7 +129,7 @@ function camelCaseToKebabCase(str: string): string {
 // - variant: optional variant (e.g. "error", "info")
 // - state: optional state (e.g. "hovered", "focused")
 // - part: the part of the theme (e.g. "background", "content", "border", "radius", "other")
-// - partVariant: optional additional variant for the part (e.g "dimmed")
+// - partVariant: optional additional variant for the part (e.g "secondary", "tertiary")
 function parseColorName(colorName: string): {
   surface: string
   variant?: string

@@ -54,7 +54,7 @@ export const themes = {
     baseBackground: '#fcfcfc',
     baseBorder: '#f0f0f0',
     baseContent: '#202020',
-    baseContentDimmed: '#8d8d8d',
+    baseContentSecondary: '#8d8d8d',
     baseHoveredBackground: '#f0f0f0',
     colorScheme: 'light',
     fieldBackground: '#f0f0f0',

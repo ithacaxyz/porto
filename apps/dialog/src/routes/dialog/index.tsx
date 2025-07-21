@@ -12,7 +12,7 @@ function RouteComponent() {
       <Layout.Header>
         <Layout.Header.Default
           content={
-            <p className="text-th_base-dimmed">No active requests yet.</p>
+            <p className="text-th_base-secondary">No active requests yet.</p>
           }
           icon={Ear}
           title="Listening..."

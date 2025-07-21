@@ -187,7 +187,7 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1">
               <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
                 <hr className="flex-1 border-th_separator" />
-                <span className="px-3 text-th_base-dimmed">or</span>
+                <span className="px-3 text-th_base-secondary">or</span>
                 <hr className="flex-1 border-th_separator" />
               </div>
             </div>
@@ -203,10 +203,10 @@ export function AddFunds(props: AddFunds.Props) {
                     <span>Deposit crypto</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="ml-auto font-normal text-sm text-th_base-dimmed">
+                    <span className="ml-auto font-normal text-sm text-th_base-secondary">
                       Instant
                     </span>
-                    <ArrowRightIcon className="size-4 text-th_base-dimmed" />
+                    <ArrowRightIcon className="size-4 text-th_base-secondary" />
                   </div>
                 </div>
               </Button>
@@ -223,7 +223,7 @@ export function AddFunds(props: AddFunds.Props) {
                     <span>Debit or Credit</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="ml-auto font-normal text-sm text-th_base-dimmed">
+                    <span className="ml-auto font-normal text-sm text-th_base-secondary">
                       ~5 mins
                       <ArrowRightIcon className="ml-1 inline size-4" />
                     </span>
@@ -259,7 +259,7 @@ export function AddFunds(props: AddFunds.Props) {
 
         <Layout.Content className="px-1">
           <p className="text-th_base">Your deposit was cancelled or failed.</p>
-          <p className="text-th_base-dimmed">No funds have been deposited.</p>
+          <p className="text-th_base-secondary">No funds have been deposited.</p>
         </Layout.Content>
 
         <Layout.Footer>
@@ -361,7 +361,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
             <Cuer.Cells />
             <Cuer.Finder radius={1} />
           </Cuer.Root>
-          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-th_base-dimmed text-xs">
+          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-th_base-secondary text-xs">
             {address}
           </p>
         </Ariakit.Button>
@@ -370,7 +370,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
 
         <div className="font-medium text-[18px]">Deposit funds</div>
         <div className="h-1" />
-        <div className="text-th_base-dimmed">
+        <div className="text-th_base-secondary">
           Send crypto to fund your account.
         </div>
       </Layout.Content>
@@ -397,7 +397,7 @@ function DepositCryptoView(props: DepositCryptoView.Props) {
         </Layout.Footer.Actions>
 
         {chain && (
-          <div className="px-3 text-center text-sm text-th_base-dimmed">
+          <div className="px-3 text-center text-sm text-th_base-secondary">
             Only send assets on {chain.name}. Support for more networks soon.
           </div>
         )}
