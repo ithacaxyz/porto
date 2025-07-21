@@ -178,7 +178,9 @@ export namespace Layout {
             >
               {StringFormatter.truncate(address, { end: 6, start: 8 })}
             </div>
-            {onClick && <ChevronDown className="size-4 text-th_base-secondary" />}
+            {onClick && (
+              <ChevronDown className="size-4 text-th_base-secondary" />
+            )}
           </button>
         </div>
       )

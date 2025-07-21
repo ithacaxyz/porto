@@ -153,7 +153,8 @@ export function Email(props: Email.Props) {
           // the user may want to sign in with a different passkey.
           <div className="flex w-full justify-between gap-2">
             <div>
-              <span className="text-th_base-secondary">Using</span> {displayName}
+              <span className="text-th_base-secondary">Using</span>{' '}
+              {displayName}
             </div>
             <button
               className="text-th_link"

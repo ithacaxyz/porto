@@ -260,7 +260,9 @@ export namespace ActionRequest {
                       No name provided
                     </span>
                   )}
-                  <span className="text-th_base-tertiary">#{absoluteValue}</span>
+                  <span className="text-th_base-tertiary">
+                    #{absoluteValue}
+                  </span>
                 </div>
               </div>
             )
@@ -289,7 +291,9 @@ export namespace ActionRequest {
                 {receiving ? 'Receive' : 'Send'}{' '}
                 <span
                   className={
-                    receiving ? 'text-th_base-positive' : 'text-th_base-secondary'
+                    receiving
+                      ? 'text-th_base-positive'
+                      : 'text-th_base-secondary'
                   }
                 >
                   {formatted}

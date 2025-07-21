@@ -259,7 +259,9 @@ export function AddFunds(props: AddFunds.Props) {
 
         <Layout.Content className="px-1">
           <p className="text-th_base">Your deposit was cancelled or failed.</p>
-          <p className="text-th_base-secondary">No funds have been deposited.</p>
+          <p className="text-th_base-secondary">
+            No funds have been deposited.
+          </p>
         </Layout.Content>
 
         <Layout.Footer>
