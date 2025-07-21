@@ -61,6 +61,15 @@ export type Theme<
   secondaryHoveredBackground: SchemeColor
   secondaryHoveredBorder: SchemeColor
 
+  disabledBackground: SchemeColor
+  disabledBorder: SchemeColor
+  disabledContent: SchemeColor
+
+  negativeBackground: SchemeColor
+  negativeContent: SchemeColor
+  positiveBackground: SchemeColor
+  positiveContent: SchemeColor
+
   fieldBackground: SchemeColor
   fieldContent: SchemeColor
   fieldContentSecondary: SchemeColor
@@ -68,12 +77,6 @@ export type Theme<
   fieldErrorBorder: SchemeColor
   fieldFocusedBackground: SchemeColor
   fieldFocusedContent: SchemeColor
-
-  positiveBackground: SchemeColor
-  positiveContent: SchemeColor
-
-  negativeBackground: SchemeColor
-  negativeContent: SchemeColor
 }
 
 type PartialTheme<Th extends Theme<ThemeColorScheme>> = Partial<

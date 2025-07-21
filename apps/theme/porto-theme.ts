@@ -215,6 +215,23 @@ export const portoTheme: PortoTheme = {
     '#2a2a2a',
   ],
 
+  // disabled
+  disabledBackground: [
+    'Disabled buttons background color. Used for disabled buttons and interactive elements.',
+    '#F0F0F0',
+    '#222222',
+  ],
+  disabledBorder: [
+    'Disabled buttons border color. Used for borders around disabled surfaces.',
+    '#F0F0F0',
+    '#222222',
+  ],
+  disabledContent: [
+    'Disabled content color. Used over disabledBackground for text and icons.',
+    '#BBBBBB',
+    '#606060',
+  ],
+
   // positive / negative
   negativeBackground: [
     'Negative background color. Generally red, used for elements indicating error or negative state, such as a destructive action or an error message.',
