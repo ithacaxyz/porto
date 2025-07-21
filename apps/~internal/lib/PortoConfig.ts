@@ -16,7 +16,7 @@ const config = {
     }),
   },
   dev: {
-    chains: [Chains.portoDev],
+    chains: [Chains.portoDevParos],
     feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
@@ -24,7 +24,7 @@ const config = {
     }),
     storageKey: 'porto.store.dev',
     transports: {
-      [Chains.portoDev.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.portoDevParos.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   prod: {

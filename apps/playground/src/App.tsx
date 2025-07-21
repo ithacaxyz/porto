@@ -1253,7 +1253,7 @@ function PrepareCalls() {
           params: [
             {
               calls,
-              chainId: Hex.fromNumber(Chains.portoDev.id),
+              chainId: Hex.fromNumber(Chains.portoDevParos.id),
               key: {
                 publicKey: keyPair.publicKey,
                 type: 'p256',

@@ -5,6 +5,8 @@ import * as Chains from '../../src/core/Chains.js'
 import {
   accountNewProxyAddress,
   accountProxyAddress,
+  escrowAddress,
+  funderAddress,
   orchestratorAddress,
   simulatorAddress,
 } from './_generated/addresses.js'
@@ -14,21 +16,26 @@ import { poolId, rpcServer } from './prool.js'
 
 const defaultConfig = {
   delegationProxy: accountProxyAddress,
-  endpoint: (key) => `http://127.0.0.1:${Anvil.instances.portoDev.port}/${key}`,
+  endpoint: (key) =>
+    `http://127.0.0.1:${Anvil.instances.portoDevParos.port}/${key}`,
+  escrow: escrowAddress,
   feeTokens: [
     '0x0000000000000000000000000000000000000000',
     exp1Address[Chains.anvil.id],
   ],
+  funder: funderAddress,
+  funderOwnerKey: Anvil.accounts[9].privateKey,
+  funderSigningKey: Anvil.accounts[9].privateKey,
   intentGasBuffer: 100_000n,
+  interopToken: exp1Address[Chains.anvil.id],
   orchestrator: orchestratorAddress,
   simulator: simulatorAddress,
   txGasBuffer: 100_000n,
-  version: 'v14.2.1',
 } satisfies Parameters<typeof defineRpcServer>[0]
 
 export const instances = {
-  portoDev: defineRpcServer(defaultConfig),
-  portoDev_newAccount: defineRpcServer({
+  portoDevParos: defineRpcServer(defaultConfig),
+  portoDevParos_newAccount: defineRpcServer({
     ...defaultConfig,
     delegationProxy: accountNewProxyAddress,
     legacyDelegationProxy: accountProxyAddress,
@@ -43,7 +50,12 @@ export const instances = {
 function defineRpcServer(parameters: {
   endpoint: (key: number) => string
   delegationProxy: string
+  escrow: string
   feeTokens: string[]
+  funderSigningKey: string
+  funderOwnerKey: string
+  funder: string
+  interopToken: string
   image?: string | undefined
   intentGasBuffer?: bigint | undefined
   legacyDelegationProxy?: string

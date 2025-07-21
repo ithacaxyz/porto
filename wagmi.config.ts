@@ -1,15 +1,7 @@
 import * as fs from 'node:fs'
 import { defineConfig } from '@wagmi/cli'
 import { foundry } from '@wagmi/cli/plugins'
-import {
-  anvil,
-  base,
-  baseSepolia,
-  portoDev,
-  portoDevLeros,
-  portoDevParos,
-  portoDevTinos,
-} from './src/core/Chains.js'
+import { anvil, base, baseSepolia, portoDevParos } from './src/core/Chains.js'
 import * as anvilAddresses from './test/src/_generated/addresses.js'
 
 const address = {
@@ -17,28 +9,19 @@ const address = {
     [anvil.id]: anvilAddresses.exp1Address,
     [base.id]: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
     [baseSepolia.id]: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
-    [portoDev.id]: '0x97870b32890d3f1f089489a29007863a5678089d',
     [portoDevParos.id]: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
-    [portoDevLeros.id]: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
-    [portoDevTinos.id]: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
   },
   exp2: {
     [anvil.id]: anvilAddresses.exp2Address,
     [base.id]: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
     [baseSepolia.id]: '0x62a9d6de963a5590f6fba5119e937f167677bfe7',
-    [portoDev.id]: '0x3a16de445711b203e472d1a04ac93ef7875cdf18',
     [portoDevParos.id]: '0x88238d346cfb2391203f4f33b90f5ecce22b4165',
-    [portoDevLeros.id]: '0x88238d346cfb2391203f4f33b90f5ecce22b4165',
-    [portoDevTinos.id]: '0x88238d346cfb2391203f4f33b90f5ecce22b4165',
   },
   expNft: {
     [anvil.id]: anvilAddresses.expNftAddress,
     [base.id]: '0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9',
     [baseSepolia.id]: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
-    [portoDev.id]: '0x1bFf4BFA9b6bE201CEa697aa71c70522cD439d6D',
-    [portoDevParos.id]: '0xf7Cd8fa9b94DB2Aa972023b379c7f72c65E4De9D',
-    [portoDevLeros.id]: '0xb19b36b1456E65E3A6D514D3F715f204BD59f431',
-    [portoDevTinos.id]: '0xA15BB66138824a1c7167f5E85b957d04Dd34E468',
+    [portoDevParos.id]: '0xb19b36b1456E65E3A6D514D3F715f204BD59f431',
   },
 } as const
 

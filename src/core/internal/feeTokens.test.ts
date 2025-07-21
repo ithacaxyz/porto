@@ -14,6 +14,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -21,6 +22,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
@@ -41,6 +43,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
@@ -48,6 +51,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -69,6 +73,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -76,6 +81,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
@@ -97,6 +103,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -104,6 +111,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
@@ -128,6 +136,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -135,6 +144,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",

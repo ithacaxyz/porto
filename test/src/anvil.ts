@@ -8,7 +8,7 @@ import { poolId } from './prool.js'
 export const enabled = process.env.VITE_LOCAL !== 'false'
 
 export const instances = {
-  portoDev: defineAnvil({
+  portoDevParos: defineAnvil({
     loadState: resolve(import.meta.dirname, '_generated/anvil.json'),
     port: 8545,
   }),

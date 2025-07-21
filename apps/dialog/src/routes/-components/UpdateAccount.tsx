@@ -45,7 +45,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   })
   const request = prepareCallsQuery.data
   const digest = request?.digest
-  const quote = request?.capabilities.quote
+  const quote = request?.capabilities.quote?.quotes[0]
 
   // TODO: consider using EIP-1193 Provider + `wallet_sendPreparedCalls` in
   // the future (for case where the account wants to self-relay).

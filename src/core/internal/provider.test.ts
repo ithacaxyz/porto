@@ -899,8 +899,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.3.3",
-          "latest": "0.3.3",
+          "current": "0.4.6",
+          "latest": "0.4.6",
         }
       `)
     })
@@ -922,8 +922,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.3.3",
-          "latest": "0.3.3",
+          "current": "0.4.6",
+          "latest": "0.4.6",
         }
       `)
     })
@@ -1005,7 +1005,7 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.3.3",
+          "latest": "0.4.5",
         }
       `)
     })
@@ -1053,8 +1053,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.3.3",
-          "latest": "0.3.3",
+          "current": "0.4.5",
+          "latest": "0.4.5",
         }
       `)
 
@@ -1071,7 +1071,7 @@ describe.each([
         })
         expect(version).toMatchInlineSnapshot(`
           {
-            "current": "0.3.3",
+            "current": "0.4.5",
             "latest": "69.0.0",
           }
         `)

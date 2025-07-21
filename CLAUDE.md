@@ -176,7 +176,7 @@ forge test --config-path ./contracts/demo/foundry.toml
 
 ### Tests
 
-- You must run tests with `pnpm test:ci`.
+- You MUST run tests with `CI=true`.
 - Test file structure must have `describe` blocks that are 1:1 with module exports.
 - Favor `test` over `it`.
 - Lowercase `test` descriptions (e.g. `test('behavior: with foo')`)
@@ -338,3 +338,7 @@ Example format:
 ```
 
 This file should be updated when major architectural changes are made to the codebase.
+
+## Other Instructions
+
+- You MUST use `pnpm`, and you MUST NOT use any other package manager (`npm`, etc).
