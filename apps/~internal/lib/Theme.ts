@@ -4,6 +4,11 @@ import {
   tailwindThemeMappings,
 } from '../_generated/theme-mappings'
 
+export type TailwindCustomTheme = {
+  colorScheme: PortoTheme.ThemeColorScheme
+  tailwindCss: string
+}
+
 /** Formats a JSON theme string into a Tailwind theme declaration.
  *
  * @param jsonTheme - A JSON string representing the theme.
@@ -13,10 +18,7 @@ import {
 export function parseJsonTheme(
   jsonTheme: string,
   mappings: TailwindThemeMapping[] = tailwindThemeMappings,
-): {
-  colorScheme: PortoTheme.ThemeColorScheme
-  tailwindCss: string
-} {
+): TailwindCustomTheme {
   const theme: unknown = JSON.parse(jsonTheme)
 
   if (typeof theme !== 'object' || theme === null) {

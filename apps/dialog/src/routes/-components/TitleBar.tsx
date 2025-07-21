@@ -1,7 +1,7 @@
 import { Env } from '@porto/apps'
 import { Actions } from 'porto/remote'
-import type { ThemeColorScheme } from 'porto/theme'
 import * as React from 'react'
+import { LightDarkImage } from '~/components/LightDarkImage'
 import type { store } from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import type { useVerify } from '~/lib/Referrer'
@@ -20,7 +20,7 @@ const env = (
 )[Env.get()]
 
 export function TitleBar(props: TitleBar.Props) {
-  const { mode, ref, referrer, verifyStatus, colorScheme } = props
+  const { mode, ref, referrer, verifyStatus } = props
 
   const { domain, subdomain, icon, url } = React.useMemo(() => {
     const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)
@@ -58,34 +58,12 @@ export function TitleBar(props: TitleBar.Props) {
           <div className="size-full p-[3px]">
             {typeof icon === 'string' ? (
               <img alt="" className="size-full text-transparent" src={icon} />
-            ) : colorScheme === 'light dark' ? (
-              // if the theme supports light & dark color schemes,
-              // we can rely on `prefers-color-scheme` media queries
-              // which depends on the browser's color scheme preference
-              <picture>
-                <source
-                  media="(prefers-color-scheme: dark)"
-                  srcSet={icon.dark}
-                />
-                <source
-                  media="(prefers-color-scheme: light)"
-                  srcSet={icon.light}
-                />
-                <img
-                  alt=""
-                  className="size-full text-transparent"
-                  src={icon.light}
-                />
-              </picture>
             ) : (
-              // for single color scheme themes (light or dark),
-              // we ignore the browser's color scheme preference,
-              // since it could be set to a given color scheme
-              // while the dialog theme only supports the other one
-              <img
+              <LightDarkImage
                 alt=""
                 className="size-full text-transparent"
-                src={colorScheme === 'light' ? icon.light : icon.dark}
+                dark={icon.dark}
+                light={icon.light}
               />
             )}
           </div>
@@ -139,7 +117,6 @@ export function TitleBar(props: TitleBar.Props) {
 
 export declare namespace TitleBar {
   type Props = {
-    colorScheme: ThemeColorScheme
     mode: store.State['mode']
     ref: React.RefObject<HTMLDivElement | null>
     referrer: store.State['referrer']

@@ -1,4 +1,4 @@
-import { Theme, UserAgent } from '@porto/apps'
+import { UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
 import { cx } from 'cva'
@@ -39,7 +39,7 @@ function RouteComponent() {
   const mode = Dialog.useStore((state) => state.mode)
   const display = Dialog.useStore((state) => state.display)
   const referrer = Dialog.useStore((state) => state.referrer)
-  const theme = Dialog.useStore((state) => state.theme)
+  const customTheme = Dialog.useStore((state) => state.customTheme)
   const request = Hooks.useRequest(porto)
   const search = Route.useSearch() as {
     requireUpdatedAccount?: boolean | undefined
@@ -104,15 +104,6 @@ function RouteComponent() {
     return mode
   }, [mode])
 
-  const customTheme = React.useMemo(() => {
-    try {
-      return theme === null ? null : Theme.parseJsonTheme(theme)
-    } catch (error) {
-      console.warn('Failed to format theme:', error)
-      return null
-    }
-  }, [theme])
-
   return (
     <>
       <HeadContent />
@@ -136,7 +127,6 @@ function RouteComponent() {
         }}
       >
         <TitleBar
-          colorScheme={customTheme?.colorScheme ?? 'light dark'}
           mode={mode}
           ref={titlebarRef}
           referrer={referrer}

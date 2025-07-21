@@ -1,4 +1,5 @@
 import type { Address } from 'ox'
+import { Theme } from '@porto/apps'
 import type { Messenger } from 'porto'
 import * as Zustand from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -23,13 +24,27 @@ export const store = createStore(
         return undefined
       })()
 
+      const customTheme = (() => {
+        const themeJson = new URLSearchParams(window.location.search).get(
+          'theme',
+        )
+        try {
+          return themeJson === null
+            ? undefined
+            : Theme.parseJsonTheme(themeJson)
+        } catch (error) {
+          console.warn('Failed to parse theme:', error)
+          return undefined
+        }
+      })()
+
       return {
         accountMetadata: {},
+        customTheme,
         display: 'full',
         error: null,
         mode: 'popup-standalone',
         referrer,
-        theme: new URLSearchParams(window.location.search).get('theme'),
       }
     },
     {
@@ -51,6 +66,7 @@ export declare namespace store {
         email?: string | undefined
       }
     >
+    customTheme: Theme.TailwindCustomTheme | undefined
     // reflects how the dialog window gets displayed:
     // - 'full': uses the full space available (popup, popup-standalone) (default)
     // - 'floating': as a floating window, with space around it (iframe)
@@ -69,7 +85,6 @@ export declare namespace store {
           url?: URL | undefined
         })
       | undefined
-    theme: string | null
   }
 }
 type Payload = Extract<Messenger.Payload<'__internal'>, { type: 'init' }>
