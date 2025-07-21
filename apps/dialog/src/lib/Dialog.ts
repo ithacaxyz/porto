@@ -1,5 +1,5 @@
-import type { Address } from 'ox'
 import { Theme } from '@porto/apps'
+import type { Address } from 'ox'
 import type { Messenger } from 'porto'
 import * as Zustand from 'zustand'
 import { persist } from 'zustand/middleware'

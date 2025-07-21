@@ -35,7 +35,7 @@ export function LightDarkImage(props: LightDarkImage.Props) {
 
 export namespace LightDarkImage {
   export interface Props extends ImgHTMLAttributes<HTMLImageElement> {
-    dark?: string
-    light?: string
+    dark: string
+    light: string
   }
 }
