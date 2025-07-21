@@ -19,6 +19,8 @@
   --radius-th_frame: 14px;
   --background-color-th_badge: light-dark(#e8e8e8, #2a2a2a);
   --text-color-th_badge: light-dark(#838383, #7b7b7b);
+  --background-color-th_badge-strong: light-dark(#d9d9d9, #3a3a3a);
+  --text-color-th_badge-strong: light-dark(#000000, #ffffff);
   --background-color-th_badge-info: light-dark(#008ff519, #0077ff3a);
   --text-color-th_badge-info: light-dark(#0588f0, #3b9eff);
   --background-color-th_badge-negative: light-dark(#fcd8da, #500f1c);

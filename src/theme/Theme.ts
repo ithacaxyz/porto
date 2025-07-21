@@ -38,6 +38,8 @@ export type Theme<
 
   badgeBackground: SchemeColor
   badgeContent: SchemeColor
+  badgeStrongBackground: SchemeColor
+  badgeStrongContent: SchemeColor
   badgeInfoBackground: SchemeColor
   badgeInfoContent: SchemeColor
   badgeNegativeBackground: SchemeColor

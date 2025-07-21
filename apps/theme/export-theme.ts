@@ -12,6 +12,7 @@ const VARIANT_NAMES = [
   'info',
   'negative',
   'positive',
+  'strong',
   'warning',
 ] as const
 const STATE_NAMES = ['hovered', 'focused', 'pressed'] as const

@@ -110,6 +110,16 @@ export const portoTheme: PortoTheme = {
     '#838383',
     '#7b7b7b',
   ],
+  badgeStrongBackground: [
+    'More prominent badge background color. Used for badges that need to stand out more than the default badge, such as the default icon in the title bar.',
+    '#D9D9D9',
+    '#3A3A3A',
+  ],
+  badgeStrongContent: [
+    'Content color for strong badges. Used over badgeStrongBackground for text and icons.',
+    '#000000',
+    '#FFFFFF',
+  ],
   badgeInfoBackground: [
     'Background color for info badges. Used for the background of icons that provide additional information or context, e.g. the icons used for screen titles.',
     '#008ff519',

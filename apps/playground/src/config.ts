@@ -51,6 +51,8 @@ export const themes = {
     badgeContent: '#ff007a',
     badgeInfoBackground: '#fce3ef',
     badgeInfoContent: '#ff007a',
+    badgeStrongBackground: '#ffffff',
+    badgeStrongContent: '#ff007a',
     baseBackground: '#fcfcfc',
     baseBorder: '#f0f0f0',
     baseContent: '#202020',
