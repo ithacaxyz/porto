@@ -10,6 +10,8 @@ import * as Primitive from '../../schema/primitive.js'
 export const Intent = Schema.Struct({
   /** The combined gas limit for payment, verification, and calling the EOA. */
   combinedGas: Primitive.BigInt,
+  /** Only relevant for multi chain intents. */
+  encodedFundTransfers: Schema.Array(Primitive.Hex),
   /**
    * Optional array of encoded Intents that will be verified and executed
    * before the validation of the overall Intent.
@@ -34,6 +36,14 @@ export const Intent = Schema.Struct({
    * This allows for more efficient safe forwarding to the EOA.
    */
   executionData: Primitive.Hex,
+  /** The expiration time of the intent. */
+  expiry: Primitive.BigInt,
+  /** The funder address. */
+  funder: Primitive.Address,
+  /** The funder's signature. */
+  funderSignature: Primitive.Hex,
+  /** Whether the intent is a multi-chain intent. */
+  isMultichain: Schema.Boolean,
   /** Per delegated EOA.
    *
    * # Memory layout
@@ -96,6 +106,17 @@ export const Intent = Schema.Struct({
    * This will be required to be less than `totalPaymentMaxAmount`.
    */
   prePaymentMaxAmount: Primitive.BigInt,
+  /**
+   * The address of the settler.
+   */
+  settler: Primitive.Address,
+  /**
+   * Context data passed to the settler for processing attestations.
+   *
+   * This data is ABI-encoded and contains information needed by the settler
+   * to process the multichain intent (e.g., list of chain IDs).
+   */
+  settlerContext: Primitive.Hex,
   /**
    * The actual total payment amount, requested by the filler.
    * MUST be less than or equal to `totalPaymentMaxAmount`
