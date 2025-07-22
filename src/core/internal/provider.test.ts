@@ -1376,7 +1376,7 @@ describe.each([
               capabilities: {
                 createAccount: true,
                 grantPermissions: {
-                  expiry: 99999,
+                  expiry: 9999999,
                   feeLimit: {
                     currency: 'USD',
                     value: '1',
