@@ -655,7 +655,7 @@ importers:
     devDependencies:
       '@types/bun':
         specifier: ^1.2.15
-        version: 1.2.18(@types/react@19.1.5)
+        version: 1.2.19(@types/react@19.1.5)
       '@types/react':
         specifier: 'catalog:'
         version: 19.1.5
