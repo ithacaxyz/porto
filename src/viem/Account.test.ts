@@ -28,6 +28,7 @@ describe('from', () => {
         "address": "0x0000000000000000000000000000000000000001",
         "keys": [
           {
+            "chainId": undefined,
             "expiry": 42069,
             "feeLimit": undefined,
             "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
