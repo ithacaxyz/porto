@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { type Chains, Mode, Porto, Storage } from 'porto'
 import { http } from 'viem'
 import * as ServerClient from '../../src/viem/ServerClient.js'
@@ -36,6 +37,57 @@ export function getPorto(
         const rpcUrl =
           overrideRpcUrl ||
           `${chain.rpcUrls.default.http[0]}${env === 'anvil' ? `/${poolId}` : ''}`
+||||||| parent of 39b82d78 (feat: relay v15 (#604))
+=======
+import { Chains, Mode, Porto, Storage } from 'porto'
+import { http } from 'viem'
+import * as ServerClient from '../../src/viem/ServerClient.js'
+import * as WalletClient from '../../src/viem/WalletClient.js'
+import * as Contracts from './_generated/contracts.js'
+import * as Anvil from './anvil.js'
+import { poolId } from './prool.js'
+
+const envRpcUrl = process.env.VITE_RPC_URL
+
+export const chains = (() => {
+  if (Anvil.enabled)
+    return [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros] as const
+  if (envRpcUrl?.includes('base-mainnet')) return [Chains.base] as const
+  if (envRpcUrl?.includes('base-sepolia')) return [Chains.baseSepolia] as const
+  return [
+    Chains.portoDevParos,
+    Chains.portoDevTinos,
+    Chains.portoDevLeros,
+  ] as const
+})()
+export type ChainId = (typeof chains)[number]['id']
+
+export function getPorto(
+  parameters: {
+    mode?: (parameters: { mock: boolean }) => Mode.Mode | undefined
+    merchantRpcUrl?: string | undefined
+    rpcUrl?: string | undefined
+  } = {},
+) {
+  const {
+    mode = Mode.rpcServer,
+    merchantRpcUrl,
+    rpcUrl: overrideRpcUrl = envRpcUrl,
+  } = parameters
+
+  return Porto.create({
+    chains,
+    feeToken: 'EXP',
+    merchantRpcUrl,
+    mode: mode({
+      mock: true,
+    }),
+    storage: Storage.memory(),
+    transports: chains.reduce(
+      (transports, chain) => {
+        const rpcUrl =
+          overrideRpcUrl || `${chain.rpcUrls.default.http[0]}/${poolId}`
+>>>>>>> 39b82d78 (feat: relay v15 (#604))
 
         return {
           // biome-ignore lint/performance/noAccumulatingSpread: _
