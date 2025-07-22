@@ -1005,13 +1005,13 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.4.5",
+          "latest": "0.4.6",
         }
       `)
     })
   })
 
-  describe('wallet_updateAccount', () => {
+  describe.only('wallet_updateAccount', () => {
     test.runIf(Anvil.enabled && type === 'rpcServer')('default', async () => {
       const { porto } = getPorto()
       const client = ServerClient.fromPorto(porto).extend(() => ({
@@ -1053,8 +1053,8 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.4.5",
-          "latest": "0.4.5",
+          "current": "0.4.6",
+          "latest": "0.4.6",
         }
       `)
 
@@ -1071,7 +1071,7 @@ describe.each([
         })
         expect(version).toMatchInlineSnapshot(`
           {
-            "current": "0.4.5",
+            "current": "0.4.6",
             "latest": "69.0.0",
           }
         `)

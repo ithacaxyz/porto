@@ -13,7 +13,12 @@ export async function getWalletClient(options: getWalletClient.Options = {}) {
   const { dialog: host } = options
   const porto = Porto.create({
     announceProvider: false,
-    chains: [Chains.baseSepolia, Chains.portoDevParos],
+    chains: [
+      Chains.baseSepolia,
+      Chains.portoDevParos,
+      Chains.portoDevLeros,
+      Chains.portoDevTinos,
+    ],
     mode: Mode.dialog({
       host: host ? new URL('/dialog', 'https://' + host).toString() : undefined,
       renderer: await Dialog.cli(),
