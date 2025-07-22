@@ -413,7 +413,7 @@ export default defineConfig({
                     text: 'fromWebCryptoP256',
                   },
                   {
-                    link: '/sdk/viem/sign',
+                    link: '/sdk/viem/Key/sign',
                     text: 'sign',
                   },
                 ],
