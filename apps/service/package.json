@@ -6,7 +6,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "prepreview": "pnpm build",
-    "preview": " && vite preview",
+    "preview": "vite preview",
     "predeploy": "pnpm build",
     "tail": "pnpm dlx wrangler@latest --config='wrangler.json' tail",
     "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars --var 'ENVIRONMENT:production'"
