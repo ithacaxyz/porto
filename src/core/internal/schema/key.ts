@@ -4,6 +4,8 @@ import * as Primitive from './primitive.js'
 import { OneOf } from './schema.js'
 
 export const Base = Schema.Struct({
+  /** Chain ID the key belongs to. If not provided, the key is valid on all chains. */
+  chainId: Schema.optional(Primitive.Number),
   /** The expiry of the key. */
   expiry: Primitive.Number,
   /** The hash of the key. */
