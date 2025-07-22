@@ -379,6 +379,20 @@ export namespace wallet_revokePermissions {
   export const Response = undefined
 }
 
+export namespace wallet_switchEthereumChain {
+  export const Request = Schema.Struct({
+    method: Schema.Literal('wallet_switchEthereumChain'),
+    params: Schema.Tuple(
+      Schema.Struct({
+        chainId: Primitive.Hex,
+      }),
+    ),
+  }).annotations({
+    identifier: 'Rpc.wallet_switchEthereumChain.Request',
+  })
+  export type Request = typeof Request.Type
+}
+
 export namespace wallet_updateAccount {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),

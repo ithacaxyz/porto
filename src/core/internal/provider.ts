@@ -15,6 +15,7 @@ import type * as Porto_internal from './porto.js'
 import * as RpcRequest from './schema/request.js'
 import * as Rpc from './schema/rpc.js'
 import * as Schema from './schema/schema.js'
+import * as Store from './store.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -50,6 +51,8 @@ export function from<
   const provider = ox_Provider.from({
     ...emitter,
     async request(request_) {
+      await Store.waitForHydration(store)
+
       let request: RpcRequest.parseRequest.ReturnType
       try {
         request = RpcRequest.parseRequest(request_)
@@ -1011,6 +1014,34 @@ export function from<
           return { id } satisfies typeof Rpc.wallet_sendCalls.Response.Encoded
         }
 
+        case 'wallet_switchEthereumChain': {
+          const [parameters] = request._decoded.params
+          const { chainId } = parameters
+
+          const chain = config.chains.find(
+            (chain) => chain.id === Hex.toNumber(chainId),
+          )
+          if (!chain) throw new ox_Provider.UnsupportedChainIdError()
+
+          const client = getClient(chainId)
+          await getMode().actions.switchChain?.({
+            chainId: client.chain.id,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          store.setState((state) => ({
+            ...state,
+            chainId: Hex.toNumber(chainId),
+          }))
+
+          return undefined
+        }
+
         case 'wallet_verifySignature': {
           const [parameters] = request._decoded.params
           const { address, chainId, digest, signature } = parameters
@@ -1034,23 +1065,35 @@ export function from<
   })
 
   function setup() {
-    const unsubscribe_accounts = store.subscribe(
-      (state) => state.accounts,
-      (accounts) => {
-        emitter.emit(
-          'accountsChanged',
-          accounts.map((account) => account.address),
-        )
-      },
-    )
+    let unsubscribe_accounts: () => void = () => {}
+    let unsubscribe_chain: () => void = () => {}
 
-    const unsubscribe_chain = store.subscribe(
-      (state) => state.chainId,
-      (chainId, previousChainId) => {
-        if (chainId === previousChainId) return
-        emitter.emit('chainChanged', Hex.fromNumber(chainId))
-      },
-    )
+    Store.waitForHydration(store).then(() => {
+      unsubscribe_accounts()
+      unsubscribe_accounts = store.subscribe(
+        (state) => state.accounts,
+        (accounts) => {
+          emitter.emit(
+            'accountsChanged',
+            accounts.map((account) => account.address),
+          )
+        },
+        {
+          equalityFn: (a, b) =>
+            a.every((a, index) => a.address === b[index]?.address),
+        },
+      )
+
+      unsubscribe_chain()
+      unsubscribe_chain = store.subscribe(
+        (state) => state.chainId,
+        (chainId, previousChainId) => {
+          console.log('chainChanged', chainId, previousChainId)
+          if (chainId === previousChainId) return
+          emitter.emit('chainChanged', Hex.fromNumber(chainId))
+        },
+      )
+    })
 
     const unwatch = announceProvider ? announce(provider as Provider) : () => {}
 
