@@ -29,7 +29,7 @@ export const defaultAssets: Record<
     coingeckoId?: string
   }>
 > = {
-  [Chains.anvil.id]: [
+  [Chains.anvilParos.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
       decimals: 18,
@@ -38,7 +38,7 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
     {
-      address: exp1Address[Chains.anvil.id],
+      address: exp1Address[Chains.anvilParos.id],
       decimals: 18,
       logo: '/icons/exp.svg',
       name: 'Experiment',
@@ -46,7 +46,57 @@ export const defaultAssets: Record<
       symbol: 'EXP',
     },
     {
-      address: exp2Address[Chains.anvil.id],
+      address: exp2Address[Chains.anvilParos.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+  ],
+  [Chains.anvilTinos.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.anvilTinos.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.anvilTinos.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+  ],
+  [Chains.anvilLeros.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.anvilLeros.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.anvilLeros.id],
       decimals: 18,
       logo: '/icons/exp2.svg',
       name: 'Experiment 2',

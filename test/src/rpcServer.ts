@@ -16,28 +16,35 @@ import { poolId, rpcServer } from './prool.js'
 
 const defaultConfig = {
   delegationProxy: accountProxyAddress,
-  endpoint: (key) =>
-    `http://127.0.0.1:${Anvil.instances.portoDevParos.port}/${key}`,
   escrow: escrowAddress,
-  feeTokens: [
-    '0x0000000000000000000000000000000000000000',
-    exp1Address[Chains.anvil.id],
-  ],
   funder: funderAddress,
   funderOwnerKey: Anvil.accounts[9].privateKey,
   funderSigningKey: Anvil.accounts[9].privateKey,
   intentGasBuffer: 100_000n,
-  interopToken: exp1Address[Chains.anvil.id],
   orchestrator: orchestratorAddress,
   simulator: simulatorAddress,
   txGasBuffer: 100_000n,
-} satisfies Parameters<typeof defineRpcServer>[0]
+} satisfies Partial<Parameters<typeof defineRpcServer>[0]>
 
 export const instances = {
-  portoDevParos: defineRpcServer(defaultConfig),
-  portoDevParos_newAccount: defineRpcServer({
+  paros: defineRpcServer({
+    ...defaultConfig,
+    endpoint: (key) => `http://127.0.0.1:${Anvil.instances.paros.port}/${key}`,
+    feeTokens: [
+      '0x0000000000000000000000000000000000000000',
+      exp1Address[Chains.anvilParos.id],
+    ],
+    interopToken: exp1Address[Chains.anvilParos.id],
+  }),
+  paros_newAccount: defineRpcServer({
     ...defaultConfig,
     delegationProxy: accountNewProxyAddress,
+    endpoint: (key) => `http://127.0.0.1:${Anvil.instances.paros.port}/${key}`,
+    feeTokens: [
+      '0x0000000000000000000000000000000000000000',
+      exp1Address[Chains.anvilParos.id],
+    ],
+    interopToken: exp1Address[Chains.anvilParos.id],
     legacyDelegationProxy: accountProxyAddress,
     port: 9120,
   }),

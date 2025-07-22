@@ -1,7 +1,9 @@
 import { Chains, Dialog, Mode, Porto } from 'porto'
 
 const chain =
-  import.meta.env.VITE_LOCAL !== 'false' ? Chains.anvil : Chains.portoDevParos
+  import.meta.env.VITE_LOCAL !== 'false'
+    ? Chains.anvilParos
+    : Chains.portoDevParos
 
 export const getPorto = () =>
   Porto.create({

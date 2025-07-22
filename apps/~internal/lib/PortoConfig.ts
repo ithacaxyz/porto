@@ -9,7 +9,7 @@ const mock = import.meta.env.MODE === 'test'
 
 const config = {
   anvil: {
-    chains: [Chains.anvil],
+    chains: [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros],
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
