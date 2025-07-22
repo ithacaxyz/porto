@@ -37,6 +37,7 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: key.expiry,
         hash: key.hash,
         id: key.id,
@@ -77,6 +78,7 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: key.expiry,
         hash: key.hash,
         id: key.id,
@@ -113,6 +115,7 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: key.expiry,
         hash: key.hash,
         id: key.id,
@@ -154,6 +157,7 @@ describe('execute', () => {
           index: 0,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: key.expiry,
         hash: key.hash,
         id: key.id,
@@ -201,6 +205,7 @@ describe('execute', () => {
           index: 1,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: nextKey.expiry,
         hash: nextKey.hash,
         id: nextKey.id,
@@ -259,6 +264,7 @@ describe('execute', () => {
           index: 1,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: nextKey.expiry,
         hash: nextKey.hash,
         id: nextKey.id,
@@ -758,6 +764,7 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
         id: keyToAuthorize.id,
@@ -813,6 +820,7 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
         id: keyToAuthorize.id,
@@ -864,6 +872,7 @@ describe('prepareExecute', () => {
           index: 0,
         }),
       ).toEqual({
+        chainId: client.chain.id,
         expiry: keyToAuthorize.expiry,
         hash: keyToAuthorize.hash,
         id: keyToAuthorize.id,
