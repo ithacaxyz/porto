@@ -7,6 +7,7 @@ import * as WalletClient from '../../viem/WalletClient.js'
 
 let porto: Porto.Porto | undefined
 afterEach(() => {
+  porto?._internal.store.setState(porto._internal.store.getInitialState())
   porto?.destroy()
   window.localStorage.clear()
   window.sessionStorage.clear()
