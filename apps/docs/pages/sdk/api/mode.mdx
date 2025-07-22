@@ -75,6 +75,12 @@ const porto = Porto.create({
 })
 ```
 
+#### theme
+
+- **Type**: `ThemeFragment | undefined`
+
+A custom theme to apply to the dialog, where only `colorScheme` is required. See the [Theme](/sdk/api/theme) API for the list of styling properties that can be defined.
+
 ## Mode.rpcServer
 
 Interacts with the **Porto RPC Server** directly. Signing is performed via the SDK. Account management, chain interop, and transaction management is orchestrated on the RPC Server.

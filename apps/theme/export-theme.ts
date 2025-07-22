@@ -226,30 +226,49 @@ function formatTailwindVarName(colorName: string, prefix: string): string {
 }
 
 function generateMdx(theme: PortoTheme): string {
-  const sections: string[] = []
+  const lines: string[] = [
+    `{/* ${GENERATED_BY} */}
 
-  sections.push('# Porto Theme Properties')
-  sections.push('')
+# Theme
+
+See the \`theme\` option of [Mode.dialog](/sdk/api/mode#modedialog) to learn how to use custom themes with Porto. When using a custom theme with \`Mode.dialog\`, all properties but \`colorScheme\` are optional and will fall back to the default theme values.
+
+Theme related types exported by \`porto/theme\`:
+
+| Theme value type | Description |
+|-|-|
+| \`Theme.Color\` | A color value, either a hex color (with or without alpha) or \`"transparent"{:ts}\`. e.g. \`"#ff00ff"{:ts}\` |
+| \`Theme.LightDarkColor\` | A color pair for light and dark modes. Individual values are \`Theme.Color\`. e.g. \`["#ff00ff", "#00ff00"]{:ts}\` |
+| \`ThemeFragment\` | A partial \`Theme\` definition, used to extend themes with partial definitions. This is what gets passed to \`Mode.dialog\` as the \`theme\` option. |
+
+## colorScheme
+
+- **Type:** \`"light" | "dark" | "light dark"{:ts}\`
+
+The color scheme for the theme. With \`"light dark"\`, theme colors must be provided as \`Theme.LightDarkColor\` (light and dark color pairs). Otherwise, colors must be provided as \`Theme.Color\`.
+`,
+  ]
 
   for (const [key, value] of Object.entries(theme) as Entries<PortoTheme>) {
     if (key === 'colorScheme' || value === null) continue
 
     const description = Array.isArray(value) ? value[0] : 'Theme token'
-    sections.push(`## ${key}`)
-    sections.push('')
+    lines.push(`## ${key}`)
+    lines.push('')
 
     if (isThemeColor(value)) {
-      sections.push(`**Default:** \`["${value[1]}", "${value[2]}"]\``)
+      lines.push(`- **Type:** \`Theme.LightDarkColor | Theme.Color{:ts}\``)
+      lines.push(`- **Default:** \`["${value[1]}", "${value[2]}"]{:ts}\``)
     } else if (isThemeNumber(value)) {
-      sections.push(`**Default:** \`${value[1]}\``)
+      lines.push(`- **Default:** \`${value[1]}{:ts}\``)
     }
 
-    sections.push('')
-    sections.push(description)
-    sections.push('')
+    lines.push('')
+    lines.push(description)
+    lines.push('')
   }
 
-  return sections.join('\n')
+  return lines.join('\n')
 }
 
 function generateTailwindMappings(theme: PortoTheme): string {
