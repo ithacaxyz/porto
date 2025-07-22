@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { CatchBoundary, createFileRoute, Outlet } from '@tanstack/react-router'
 
 import { Intro } from './-components/Intro'
 import { Layout } from './-components/Layout'
@@ -15,7 +15,9 @@ function RouteComponent() {
       </Layout.Hero>
 
       <Layout.Content>
-        <Outlet />
+        <CatchBoundary getResetKey={() => "layout-catch"} onCatch={console.error}>
+          <Outlet />
+        </CatchBoundary>
       </Layout.Content>
     </Layout>
   )
