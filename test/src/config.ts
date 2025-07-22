@@ -45,7 +45,7 @@ export function getPorto(
     transports: chains.reduce(
       (transports, chain) => {
         const rpcUrl =
-          overrideRpcUrl ?? `${chain.rpcUrls.default.http[0]}/${poolId}`
+          overrideRpcUrl || `${chain.rpcUrls.default.http[0]}/${poolId}`
 
         return {
           // biome-ignore lint/performance/noAccumulatingSpread: _
