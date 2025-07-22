@@ -18,6 +18,9 @@ if (!account?.address) throw new Error('Invalid DRIP_PRIVATE_KEY')
 const chains = {
   [Chains.baseSepolia.id]: Chains.baseSepolia,
   [Chains.portoDev.id]: Chains.portoDev,
+  [Chains.portoDevParos.id]: Chains.portoDevParos,
+  [Chains.portoDevLeros.id]: Chains.portoDevLeros,
+  [Chains.portoDevTinos.id]: Chains.portoDevTinos,
 } as const
 
 faucetApp.use('*', async (context, next) => {
