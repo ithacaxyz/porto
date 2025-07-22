@@ -237,14 +237,15 @@ function generateMdx(theme: PortoTheme): string {
     const description = Array.isArray(value) ? value[0] : 'Theme token'
     sections.push(`## ${key}`)
     sections.push('')
-    sections.push(description)
-    sections.push('')
 
     if (isThemeColor(value)) {
-      sections.push(`**Porto Theme value**: \`["${value[1]}", "${value[2]}"]\``)
+      sections.push(`**Default:** \`["${value[1]}", "${value[2]}"]\``)
     } else if (isThemeNumber(value)) {
-      sections.push(`**Porto Theme value**: \`${value[1]}\``)
+      sections.push(`**Default:** \`${value[1]}\``)
     }
+
+    sections.push('')
+    sections.push(description)
     sections.push('')
   }
 
