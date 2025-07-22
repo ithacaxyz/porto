@@ -15,7 +15,10 @@ function RouteComponent() {
       </Layout.Hero>
 
       <Layout.Content>
-        <CatchBoundary getResetKey={() => "layout-catch"} onCatch={console.error}>
+        <CatchBoundary
+          getResetKey={() => 'layout-catch'}
+          onCatch={console.error}
+        >
           <Outlet />
         </CatchBoundary>
       </Layout.Content>
