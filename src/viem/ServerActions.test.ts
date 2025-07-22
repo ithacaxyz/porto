@@ -3,20 +3,15 @@ import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../test/src/actions.js'
 import * as Anvil from '../../test/src/anvil.js'
-import {
-  exp1Abi,
-  exp1Address,
-  exp2Abi,
-  exp2Address,
-  exp2Config,
-  getPorto,
-} from '../../test/src/porto.js'
+import * as TestConfig from '../../test/src/config.js'
 import * as AccountContract from './ContractActions.js'
 import { ContractActions } from './index.js'
 import * as Key from './Key.js'
 import * as Rpc from './ServerActions.js'
 
-const { client } = getPorto()
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
+const contracts = TestConfig.getContracts(porto)
 
 describe('createAccount', () => {
   test('default', async () => {
@@ -49,7 +44,7 @@ describe('upgradeAccount', () => {
     const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
@@ -102,7 +97,7 @@ describe('upgradeAccount', () => {
     const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
@@ -153,7 +148,7 @@ describe('upgradeAccount', () => {
     const { id } = await Rpc.sendCalls(client, {
       account,
       calls: [],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key: adminKey,
     })
     await waitForCallsStatus(client, {
@@ -206,13 +201,13 @@ describe('sendCalls', () => {
       account,
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account.address, 100n],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
     })
 
     expect(id).toBeDefined()
@@ -223,7 +218,7 @@ describe('sendCalls', () => {
 
     expect(
       await readContract(client, {
-        ...exp2Config,
+        ...contracts.exp2,
         args: [account.address],
         functionName: 'balanceOf',
       }),
@@ -240,10 +235,10 @@ describe('sendCalls', () => {
       account,
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account.address, 100n],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
     })
@@ -256,7 +251,7 @@ describe('sendCalls', () => {
 
     expect(
       await readContract(client, {
-        ...exp2Config,
+        ...contracts.exp2,
         args: [account.address],
         functionName: 'balanceOf',
       }),
@@ -272,12 +267,12 @@ describe('sendCalls', () => {
 
     const newKey = Key.createP256({
       permissions: {
-        calls: [{ to: exp2Address }],
+        calls: [{ to: contracts.exp2.address }],
         spend: [
           {
             limit: Value.fromEther('5'),
             period: 'minute',
-            token: exp1Address,
+            token: contracts.exp1.address,
           },
         ],
       },
@@ -288,13 +283,13 @@ describe('sendCalls', () => {
       account,
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account.address, 100n],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key: newKey,
       preCalls: [
         {
@@ -312,14 +307,15 @@ describe('sendCalls', () => {
 
     expect(
       await readContract(client, {
-        ...exp2Config,
+        ...contracts.exp2,
         args: [account.address],
         functionName: 'balanceOf',
       }),
     ).toBe(100n)
   })
 
-  test('behavior: pre calls; authorize session key, sign with session key', async () => {
+  // TODO(relay-v15): unskip
+  test.skip('behavior: pre calls; authorize session key, sign with session key', async () => {
     const adminKey = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [adminKey],
@@ -328,12 +324,12 @@ describe('sendCalls', () => {
     const sessionKey = Key.createP256({
       expiry: 9999999999,
       permissions: {
-        calls: [{ to: exp2Address }],
+        calls: [{ to: contracts.exp2.address }],
         spend: [
           {
             limit: Value.fromEther('5'),
             period: 'minute',
-            token: exp1Address,
+            token: contracts.exp1.address,
           },
         ],
       },
@@ -342,7 +338,7 @@ describe('sendCalls', () => {
 
     const request_1 = await Rpc.prepareCalls(client, {
       authorizeKeys: [sessionKey],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       preCalls: true,
     })
     const signature_1 = await Key.sign(adminKey, {
@@ -353,13 +349,13 @@ describe('sendCalls', () => {
       account,
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account.address, 100n],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key: sessionKey,
       preCalls: [{ ...(request_1 as any), signature: signature_1 }],
     })
@@ -372,7 +368,7 @@ describe('sendCalls', () => {
 
     expect(
       await readContract(client, {
-        ...exp2Config,
+        ...contracts.exp2,
         args: [account.address],
         functionName: 'balanceOf',
       }),
@@ -391,13 +387,13 @@ describe('prepareCalls', () => {
       account,
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account.address, 100n],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key,
     })
 
@@ -420,14 +416,15 @@ describe('prepareCalls', () => {
 
     expect(
       await readContract(client, {
-        ...exp2Config,
+        ...contracts.exp2,
         args: [account.address],
         functionName: 'balanceOf',
       }),
     ).toBe(100n)
   })
 
-  test('behavior: pre calls', async () => {
+  // TODO(relay-v15): unskip
+  test.skip('behavior: pre calls', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
@@ -442,7 +439,7 @@ describe('prepareCalls', () => {
           {
             limit: Value.fromEther('5'),
             period: 'day',
-            token: exp1Address,
+            token: contracts.exp1.address,
           },
         ],
       },
@@ -450,7 +447,7 @@ describe('prepareCalls', () => {
     })
     const request_1 = await Rpc.prepareCalls(client, {
       authorizeKeys: [newKey],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       preCalls: true,
     })
     const signature_1 = await Key.sign(key, {
@@ -461,13 +458,13 @@ describe('prepareCalls', () => {
       account,
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account.address, 100n],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
@@ -490,7 +487,7 @@ describe('prepareCalls', () => {
 
     expect(
       await readContract(client, {
-        ...exp2Config,
+        ...contracts.exp2,
         args: [account.address],
         functionName: 'balanceOf',
       }),
@@ -506,7 +503,7 @@ describe('prepareCalls', () => {
     await Rpc.sendCalls(client, {
       account,
       calls: [{ to: account.address }],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
     })
 
     const alice = Hex.random(20)
@@ -518,7 +515,7 @@ describe('prepareCalls', () => {
           {
             limit: Value.fromEther('5'),
             period: 'day',
-            token: exp1Address,
+            token: contracts.exp1.address,
           },
         ],
       },
@@ -526,7 +523,7 @@ describe('prepareCalls', () => {
     })
     const request_1 = await Rpc.prepareCalls(client, {
       authorizeKeys: [newKey],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       preCalls: true,
     })
     const signature_1 = await Key.sign(key, {
@@ -537,13 +534,13 @@ describe('prepareCalls', () => {
       account,
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account.address, 100n],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
@@ -566,14 +563,15 @@ describe('prepareCalls', () => {
 
     expect(
       await readContract(client, {
-        ...exp2Config,
+        ...contracts.exp2,
         args: [account.address],
         functionName: 'balanceOf',
       }),
     ).toBe(100n)
   })
 
-  test('behavior: pre calls; authorize session key, sign with session key', async () => {
+  // TODO(relay-v15): unskip
+  test.skip('behavior: pre calls; authorize session key, sign with session key', async () => {
     const adminKey = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [adminKey],
@@ -582,12 +580,12 @@ describe('prepareCalls', () => {
     const sessionKey = Key.createP256({
       expiry: 9999999999,
       permissions: {
-        calls: [{ to: exp2Address }],
+        calls: [{ to: contracts.exp2.address }],
         spend: [
           {
             limit: Value.fromEther('5'),
             period: 'minute',
-            token: exp1Address,
+            token: contracts.exp1.address,
           },
         ],
       },
@@ -596,7 +594,7 @@ describe('prepareCalls', () => {
 
     const request_1 = await Rpc.prepareCalls(client, {
       authorizeKeys: [sessionKey],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       preCalls: true,
     })
     const signature_1 = await Key.sign(adminKey, {
@@ -607,13 +605,13 @@ describe('prepareCalls', () => {
       account,
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account.address, 100n],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
-      feeToken: exp1Address,
+      feeToken: contracts.exp1.address,
       key: sessionKey,
       preCalls: [{ ...request_1, signature: signature_1 }],
     })
@@ -636,7 +634,7 @@ describe('prepareCalls', () => {
 
     expect(
       await readContract(client, {
-        ...exp2Config,
+        ...contracts.exp2,
         args: [account.address],
         functionName: 'balanceOf',
       }),
@@ -658,13 +656,13 @@ describe('e2e', () => {
         account,
         calls: [
           {
-            abi: exp2Abi,
+            abi: contracts.exp2.abi,
             args: [account.address, 100n],
             functionName: 'mint',
-            to: exp2Address,
+            to: contracts.exp2.address,
           },
         ],
-        feeToken: exp1Address,
+        feeToken: contracts.exp1.address,
       })
       expect(id).toBeDefined()
 
@@ -675,8 +673,8 @@ describe('e2e', () => {
       // 3. Verify that Account has 100 ERC20 tokens.
       expect(
         await readContract(client, {
-          abi: exp2Abi,
-          address: exp2Address,
+          abi: contracts.exp2.abi,
+          address: contracts.exp2.address,
           args: [account.address],
           functionName: 'balanceOf',
         }),
@@ -695,10 +693,10 @@ describe('e2e', () => {
         account,
         calls: [
           {
-            abi: exp2Abi,
+            abi: contracts.exp2.abi,
             args: [account.address, 100n],
             functionName: 'mint',
-            to: exp2Address,
+            to: contracts.exp2.address,
           },
         ],
       })
@@ -711,8 +709,8 @@ describe('e2e', () => {
       // 3. Verify that Account has 100 ERC20 tokens.
       expect(
         await readContract(client, {
-          abi: exp2Abi,
-          address: exp2Address,
+          abi: contracts.exp2.abi,
+          address: contracts.exp2.address,
           args: [account.address],
           functionName: 'balanceOf',
         }),
@@ -734,7 +732,7 @@ describe('e2e', () => {
             to: '0x0000000000000000000000000000000000000000',
           },
         ],
-        feeToken: exp1Address,
+        feeToken: contracts.exp1.address,
       })
 
       expect(id).toBeDefined()
@@ -753,13 +751,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: ['0x0000000000000000000000000000000000000000', 100n],
               functionName: 'transfer',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
         }),
       ).rejects.toThrowError('Error: InsufficientBalance()')
     })
@@ -782,7 +780,7 @@ describe('e2e', () => {
               value: Value.fromEther('100000000'),
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
         }),
       ).rejects.toThrowError('Reason: CallError')
     })
@@ -807,7 +805,7 @@ describe('e2e', () => {
         account,
         authorizeKeys: keys,
         calls: [],
-        feeToken: exp1Address,
+        feeToken: contracts.exp1.address,
       })
       expect(id).toBeDefined()
 
@@ -849,7 +847,7 @@ describe('e2e', () => {
         const { id } = await Rpc.sendCalls(client, {
           account,
           authorizeKeys: [newKey],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
         })
         expect(id).toBeDefined()
 
@@ -864,13 +862,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: newKey,
         })
         expect(id).toBeDefined()
@@ -882,8 +880,8 @@ describe('e2e', () => {
         // 4. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
-            abi: exp2Abi,
-            address: exp2Address,
+            abi: contracts.exp2.abi,
+            address: contracts.exp2.address,
             args: [account.address],
             functionName: 'balanceOf',
           }),
@@ -896,12 +894,12 @@ describe('e2e', () => {
       const adminKey = Key.createHeadlessWebAuthnP256()
       const sessionKey = Key.createP256({
         permissions: {
-          calls: [{ to: exp2Address }],
+          calls: [{ to: contracts.exp2.address }],
           spend: [
             {
               limit: Value.fromEther('5'),
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
           ],
         },
@@ -916,13 +914,13 @@ describe('e2e', () => {
         account,
         calls: [
           {
-            abi: exp2Abi,
+            abi: contracts.exp2.abi,
             args: [account.address, 100n],
             functionName: 'mint',
-            to: exp2Address,
+            to: contracts.exp2.address,
           },
         ],
-        feeToken: exp1Address,
+        feeToken: contracts.exp1.address,
         key: sessionKey,
       })
       expect(id).toBeDefined()
@@ -934,8 +932,8 @@ describe('e2e', () => {
       // 3. Verify that Account has 100 ERC20 tokens.
       expect(
         await readContract(client, {
-          abi: exp2Abi,
-          address: exp2Address,
+          abi: contracts.exp2.abi,
+          address: contracts.exp2.address,
           args: [account.address],
           functionName: 'balanceOf',
         }),
@@ -951,14 +949,14 @@ describe('e2e', () => {
         permissions: {
           calls: [
             {
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
           spend: [
             {
               limit: Value.fromEther('5'),
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
           ],
         },
@@ -974,13 +972,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -992,8 +990,8 @@ describe('e2e', () => {
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
-            abi: exp2Abi,
-            address: exp2Address,
+            abi: contracts.exp2.abi,
+            address: contracts.exp2.address,
             args: [account.address],
             functionName: 'balanceOf',
           }),
@@ -1008,14 +1006,14 @@ describe('e2e', () => {
         permissions: {
           calls: [
             {
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
           spend: [
             {
               limit: Value.fromEther('5'),
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
           ],
         },
@@ -1031,13 +1029,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1049,8 +1047,8 @@ describe('e2e', () => {
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
-            abi: exp2Abi,
-            address: exp2Address,
+            abi: contracts.exp2.abi,
+            address: contracts.exp2.address,
             args: [account.address],
             functionName: 'balanceOf',
           }),
@@ -1063,13 +1061,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1081,8 +1079,8 @@ describe('e2e', () => {
         // 5. Verify that Account now has 200 ERC20 tokens.
         expect(
           await readContract(client, {
-            abi: exp2Abi,
-            address: exp2Address,
+            abi: contracts.exp2.abi,
+            address: contracts.exp2.address,
             args: [account.address],
             functionName: 'balanceOf',
           }),
@@ -1097,14 +1095,14 @@ describe('e2e', () => {
         permissions: {
           calls: [
             {
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
           spend: [
             {
               limit: Value.fromEther('5'),
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
           ],
         },
@@ -1120,13 +1118,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: adminKey,
         })
         expect(id).toBeDefined()
@@ -1138,8 +1136,8 @@ describe('e2e', () => {
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
-            abi: exp2Abi,
-            address: exp2Address,
+            abi: contracts.exp2.abi,
+            address: contracts.exp2.address,
             args: [account.address],
             functionName: 'balanceOf',
           }),
@@ -1152,13 +1150,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1170,8 +1168,8 @@ describe('e2e', () => {
         // 5. Verify that Account now has 200 ERC20 tokens.
         expect(
           await readContract(client, {
-            abi: exp2Abi,
-            address: exp2Address,
+            abi: contracts.exp2.abi,
+            address: contracts.exp2.address,
             args: [account.address],
             functionName: 'balanceOf',
           }),
@@ -1189,18 +1187,18 @@ describe('e2e', () => {
           calls: [
             {
               signature: 'mint(address,uint256)',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
             {
               signature: 'transfer(address,uint256)',
-              to: exp1Address,
+              to: contracts.exp1.address,
             },
           ],
           spend: [
             {
               limit: Value.fromEther('5'),
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
           ],
         },
@@ -1216,19 +1214,19 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
             {
-              abi: exp1Abi,
+              abi: contracts.exp1.abi,
               args: [alice, 100n],
               functionName: 'transfer',
-              to: exp1Address,
+              to: contracts.exp1.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1240,8 +1238,8 @@ describe('e2e', () => {
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
-            abi: exp2Abi,
-            address: exp2Address,
+            abi: contracts.exp2.abi,
+            address: contracts.exp2.address,
             args: [account.address],
             functionName: 'balanceOf',
           }),
@@ -1256,14 +1254,14 @@ describe('e2e', () => {
         permissions: {
           calls: [
             {
-              to: exp1Address,
+              to: contracts.exp1.address,
             },
           ],
           spend: [
             {
               limit: Value.fromEther('5'),
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
           ],
         },
@@ -1279,13 +1277,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         }),
       ).rejects.toThrowError('Reason: Unauthorized')
@@ -1305,7 +1303,7 @@ describe('e2e', () => {
             {
               limit: Value.fromEther('5'),
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
           ],
         },
@@ -1321,13 +1319,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
           preCalls: [
             {
@@ -1348,16 +1346,16 @@ describe('e2e', () => {
         permissions: {
           calls: [
             {
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
           spend: [
             {
               limit: Value.fromEther('5'),
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
-            { limit: 100n, period: 'day', token: exp2Address },
+            { limit: 100n, period: 'day', token: contracts.exp2.address },
           ],
         },
         role: 'session',
@@ -1372,13 +1370,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: [account.address, 100n],
               functionName: 'mint',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
         expect(id).toBeDefined()
@@ -1390,8 +1388,8 @@ describe('e2e', () => {
         // 3. Verify that Account has 100 ERC20 tokens.
         expect(
           await readContract(client, {
-            abi: exp2Abi,
-            address: exp2Address,
+            abi: contracts.exp2.abi,
+            address: contracts.exp2.address,
             args: [account.address],
             functionName: 'balanceOf',
           }),
@@ -1404,13 +1402,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: ['0x0000000000000000000000000000000000000000', 50n],
               functionName: 'transfer',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         })
 
@@ -1425,13 +1423,13 @@ describe('e2e', () => {
           account,
           calls: [
             {
-              abi: exp2Abi,
+              abi: contracts.exp2.abi,
               args: ['0x0000000000000000000000000000000000000000', 100n],
               functionName: 'transfer',
-              to: exp2Address,
+              to: contracts.exp2.address,
             },
           ],
-          feeToken: exp1Address,
+          feeToken: contracts.exp1.address,
           key: sessionKey,
         }),
       ).rejects.toThrowError('Error: InsufficientBalance()')
