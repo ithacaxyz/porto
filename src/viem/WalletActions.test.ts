@@ -1,25 +1,19 @@
 import { Value } from 'ox'
-import { Key, ServerActions, WalletClient } from 'porto/viem'
+import { Key, ServerActions } from 'porto/viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import * as Actions from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { setBalance } from '../../test/src/actions.js'
-import {
-  exp1Abi,
-  exp1Address,
-  exp2Abi,
-  exp2Address,
-  getPorto,
-} from '../../test/src/porto.js'
+import * as TestConfig from '../../test/src/config.js'
 import * as WalletActions from './WalletActions.js'
 
 describe('connect', () => {
   test('default', async () => {
-    const { porto } = getPorto()
+    const porto = TestConfig.getPorto()
     expect(porto._internal.store.getState().accounts.length).toBe(0)
 
-    const client = WalletClient.fromPorto(porto)
-    const response = await WalletActions.connect(client, {
+    const walletClient = TestConfig.getWalletClient(porto)
+    const response = await WalletActions.connect(walletClient, {
       createAccount: true,
     })
 
@@ -31,26 +25,27 @@ describe('connect', () => {
 
 describe('disconnect', () => {
   test('default', async () => {
-    const { porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
-    await WalletActions.connect(client, {
+    const porto = TestConfig.getPorto()
+    const walletClient = TestConfig.getWalletClient(porto)
+    await WalletActions.connect(walletClient, {
       createAccount: true,
     })
 
     expect(porto._internal.store.getState().accounts.length).toBe(1)
-    await WalletActions.disconnect(client)
+    await WalletActions.disconnect(walletClient)
     expect(porto._internal.store.getState().accounts.length).toBe(0)
   })
 })
 
 describe('grantAdmin', () => {
   test('default', async () => {
-    const { client: serverClient, porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
 
     const {
       accounts: [account],
-    } = await WalletActions.connect(client, {
+    } = await WalletActions.connect(walletClient, {
       createAccount: true,
     })
 
@@ -60,7 +55,7 @@ describe('grantAdmin', () => {
 
     expect(porto._internal.store.getState().accounts[0]!.keys?.length).toBe(1)
 
-    const response = await WalletActions.grantAdmin(client, {
+    const response = await WalletActions.grantAdmin(walletClient, {
       key: {
         publicKey: '0x0000000000000000000000000000000000000000',
         type: 'address',
@@ -89,15 +84,16 @@ describe('grantAdmin', () => {
 
 describe('grantPermissions', () => {
   test('default', async () => {
-    const { porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
-    await WalletActions.connect(client, {
+    const porto = TestConfig.getPorto()
+
+    const walletClient = TestConfig.getWalletClient(porto)
+    await WalletActions.connect(walletClient, {
       createAccount: true,
     })
 
     expect(porto._internal.store.getState().accounts[0]!.keys?.length).toBe(1)
 
-    const response = await WalletActions.grantPermissions(client, {
+    const response = await WalletActions.grantPermissions(walletClient, {
       expiry: 99999999999,
       feeLimit: {
         currency: 'USD',
@@ -162,12 +158,13 @@ describe('grantPermissions', () => {
 
 describe('getAdmins', () => {
   test('default', async () => {
-    const { client: serverClient, porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
 
     const {
       accounts: [account],
-    } = await WalletActions.connect(client, {
+    } = await WalletActions.connect(walletClient, {
       createAccount: true,
     })
 
@@ -175,7 +172,7 @@ describe('getAdmins', () => {
       address: account!.address,
     })
 
-    await WalletActions.grantAdmin(client, {
+    await WalletActions.grantAdmin(walletClient, {
       key: {
         publicKey: '0x0000000000000000000000000000000000000000',
         type: 'address',
@@ -183,7 +180,7 @@ describe('getAdmins', () => {
     })
 
     {
-      const response = await WalletActions.getAdmins(client)
+      const response = await WalletActions.getAdmins(walletClient)
       const [, key] = response.keys
       expect(key).toMatchInlineSnapshot(`
         {
@@ -198,20 +195,20 @@ describe('getAdmins', () => {
 
 describe('getPermissions', () => {
   test('default', async () => {
-    const { porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
-    await WalletActions.connect(client, {
+    const porto = TestConfig.getPorto()
+    const walletClient = TestConfig.getWalletClient(porto)
+    await WalletActions.connect(walletClient, {
       createAccount: true,
     })
 
     expect(porto._internal.store.getState().accounts[0]!.keys?.length).toBe(1)
 
     {
-      const response = await WalletActions.getPermissions(client)
+      const response = await WalletActions.getPermissions(walletClient)
       expect(response).toMatchInlineSnapshot('[]')
     }
 
-    await WalletActions.grantPermissions(client, {
+    await WalletActions.grantPermissions(walletClient, {
       expiry: 99999999999,
       feeLimit: {
         currency: 'USD',
@@ -231,7 +228,7 @@ describe('getPermissions', () => {
     })
 
     {
-      const [response] = await WalletActions.getPermissions(client)
+      const [response] = await WalletActions.getPermissions(walletClient)
       expect({
         ...response,
         address: null,
@@ -275,19 +272,20 @@ describe('getPermissions', () => {
 
 describe('revokeAdmin', () => {
   test('default', async () => {
-    const { client: serverClient, porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
 
     const {
       accounts: [account],
-    } = await WalletActions.connect(client, {
+    } = await WalletActions.connect(walletClient, {
       createAccount: true,
     })
     await setBalance(serverClient, {
       address: account!.address,
     })
 
-    const { key } = await WalletActions.grantAdmin(client, {
+    const { key } = await WalletActions.grantAdmin(walletClient, {
       key: {
         publicKey: '0x0000000000000000000000000000000000000000',
         type: 'address',
@@ -296,7 +294,7 @@ describe('revokeAdmin', () => {
 
     expect(porto._internal.store.getState().accounts[0]!.keys?.length).toBe(2)
 
-    await WalletActions.revokeAdmin(client, {
+    await WalletActions.revokeAdmin(walletClient, {
       id: key.publicKey,
     })
 
@@ -306,19 +304,20 @@ describe('revokeAdmin', () => {
 
 describe('revokePermissions', () => {
   test('default', async () => {
-    const { client: serverClient, porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
 
     const {
       accounts: [account],
-    } = await WalletActions.connect(client, {
+    } = await WalletActions.connect(walletClient, {
       createAccount: true,
     })
     await setBalance(serverClient, {
       address: account!.address,
     })
 
-    const { id } = await WalletActions.grantPermissions(client, {
+    const { id } = await WalletActions.grantPermissions(walletClient, {
       expiry: 99999999999,
       feeLimit: {
         currency: 'USD',
@@ -335,7 +334,7 @@ describe('revokePermissions', () => {
 
     expect(porto._internal.store.getState().accounts[0]!.keys?.length).toBe(2)
 
-    await WalletActions.revokePermissions(client, {
+    await WalletActions.revokePermissions(walletClient, {
       id,
     })
 
@@ -345,8 +344,9 @@ describe('revokePermissions', () => {
 
 describe('upgradeAccount', () => {
   test('default', async () => {
-    const { client: serverClient, porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
 
     const account = privateKeyToAccount(generatePrivateKey())
 
@@ -354,7 +354,7 @@ describe('upgradeAccount', () => {
       address: account!.address,
     })
 
-    await WalletActions.upgradeAccount(client, {
+    await WalletActions.upgradeAccount(walletClient, {
       account,
     })
   })
@@ -362,14 +362,16 @@ describe('upgradeAccount', () => {
 
 describe('prepareCalls + sendPreparedCalls', () => {
   test('default', async () => {
-    const { client: serverClient, porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const contracts = TestConfig.getContracts(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
 
     const sessionKey = Key.createSecp256k1()
 
     const {
       accounts: [account],
-    } = await WalletActions.connect(client, {
+    } = await WalletActions.connect(walletClient, {
       createAccount: true,
       grantPermissions: {
         expiry: 9999999999,
@@ -379,12 +381,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
         },
         key: sessionKey,
         permissions: {
-          calls: [{ to: exp1Address }],
+          calls: [{ to: contracts.exp1.address }],
           spend: [
             {
               limit: 1000000000000n,
               period: 'day',
-              token: exp1Address,
+              token: contracts.exp1.address,
             },
           ],
         },
@@ -396,13 +398,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
       value: Value.fromEther('10000'),
     })
 
-    const request = await WalletActions.prepareCalls(client, {
+    const request = await WalletActions.prepareCalls(walletClient, {
       calls: [
         {
-          abi: exp1Abi,
+          abi: contracts.exp1.abi,
           args: [account!.address, Value.fromEther('1')],
           functionName: 'mint',
-          to: exp1Address,
+          to: contracts.exp1.address,
         },
       ],
       key: sessionKey,
@@ -413,14 +415,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
       wrap: false,
     })
 
-    const response = await WalletActions.sendPreparedCalls(client, {
+    const response = await WalletActions.sendPreparedCalls(walletClient, {
       ...request,
       signature,
     })
 
     expect(response[0]!.id).toBeDefined()
 
-    const { status } = await Actions.waitForCallsStatus(client, {
+    const { status } = await Actions.waitForCallsStatus(walletClient, {
       id: response[0]!.id,
     })
 
@@ -428,14 +430,16 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 
   test('behavior: admin key', async () => {
-    const { client: serverClient, porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const contracts = TestConfig.getContracts(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
 
     const adminKey = Key.createSecp256k1()
 
     const {
       accounts: [account],
-    } = await WalletActions.connect(client, {
+    } = await WalletActions.connect(walletClient, {
       createAccount: true,
       grantAdmins: [adminKey],
     })
@@ -445,13 +449,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
       value: Value.fromEther('10000'),
     })
 
-    const request = await WalletActions.prepareCalls(client, {
+    const request = await WalletActions.prepareCalls(walletClient, {
       calls: [
         {
-          abi: exp1Abi,
+          abi: contracts.exp1.abi,
           args: [account!.address, Value.fromEther('1')],
           functionName: 'mint',
-          to: exp1Address,
+          to: contracts.exp1.address,
         },
       ],
       key: adminKey,
@@ -462,14 +466,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
       wrap: false,
     })
 
-    const response = await WalletActions.sendPreparedCalls(client, {
+    const response = await WalletActions.sendPreparedCalls(walletClient, {
       ...request,
       signature,
     })
 
     expect(response[0]!.id).toBeDefined()
 
-    const { status } = await Actions.waitForCallsStatus(client, {
+    const { status } = await Actions.waitForCallsStatus(walletClient, {
       id: response[0]!.id,
     })
 
@@ -477,12 +481,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 
   test('behavior: sign typed data', async () => {
-    const { client: serverClient, porto } = getPorto()
-    const client = WalletClient.fromPorto(porto)
+    const porto = TestConfig.getPorto()
+    const contracts = TestConfig.getContracts(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
+    const serverClient = TestConfig.getServerClient(porto)
 
     const {
       accounts: [account],
-    } = await WalletActions.connect(client, {
+    } = await WalletActions.connect(walletClient, {
       createAccount: true,
     })
 
@@ -490,18 +496,18 @@ describe('prepareCalls + sendPreparedCalls', () => {
       address: account!.address,
     })
 
-    const request = await WalletActions.prepareCalls(client, {
+    const request = await WalletActions.prepareCalls(walletClient, {
       calls: [
         {
-          abi: exp2Abi,
+          abi: contracts.exp2.abi,
           args: [account!.address, Value.fromEther('1')],
           functionName: 'mint',
-          to: exp2Address,
+          to: contracts.exp2.address,
         },
       ],
     })
 
-    const signature = await Actions.signTypedData(client, {
+    const signature = await Actions.signTypedData(walletClient, {
       account: account!.address,
       ...request.typedData,
     })
@@ -513,14 +519,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
     expect(valid).toBe(true)
 
-    const response = await WalletActions.sendPreparedCalls(client, {
+    const response = await WalletActions.sendPreparedCalls(walletClient, {
       ...request,
       signature,
     })
 
     expect(response[0]!.id).toBeDefined()
 
-    const { status } = await Actions.waitForCallsStatus(client, {
+    const { status } = await Actions.waitForCallsStatus(walletClient, {
       id: response[0]!.id,
     })
 
