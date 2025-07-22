@@ -25,7 +25,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
     revokeKeys: revokeKey ? [Key.from(revokeKey)] : [],
   })
 
-  const quote = prepareCallsQuery.data?.capabilities.quote
+  const quote = prepareCallsQuery.data?.capabilities.quote?.quotes[0]
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>

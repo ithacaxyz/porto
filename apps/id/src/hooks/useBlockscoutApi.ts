@@ -1,7 +1,14 @@
 import { type PortoConfig, Query } from '@porto/apps'
 import { useQuery } from '@tanstack/react-query'
 import type { Address } from 'ox'
-import { anvil, portoDev } from 'porto/core/Chains'
+import {
+  anvilLeros,
+  anvilParos,
+  anvilTinos,
+  portoDevLeros,
+  portoDevParos,
+  portoDevTinos,
+} from 'porto/core/Chains'
 import * as React from 'react'
 import { useAccount, useChainId, useWatchBlockNumber } from 'wagmi'
 import { base, baseSepolia } from 'wagmi/chains'
@@ -9,7 +16,14 @@ import { urlWithCorsBypass } from '~/lib/Constants'
 import { useReadBalances } from './useReadBalances'
 
 export function addressApiEndpoint(chainId: PortoConfig.ChainId) {
-  if (chainId === anvil.id || chainId === portoDev.id)
+  if (
+    chainId === anvilLeros.id ||
+    chainId === anvilParos.id ||
+    chainId === anvilTinos.id ||
+    chainId === portoDevLeros.id ||
+    chainId === portoDevParos.id ||
+    chainId === portoDevTinos.id
+  )
     return 'https://explorer.ithaca.xyz/api/v2'
   if (chainId === baseSepolia.id)
     return 'https://base-sepolia.blockscout.com/api/v2'
