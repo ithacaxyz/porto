@@ -317,7 +317,6 @@ describe('sendCalls', () => {
     ).toBe(100n)
   })
 
-  // TODO(relay-v15): unskip
   test.skip('behavior: pre calls; authorize session key, sign with session key', async () => {
     const adminKey = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
@@ -491,7 +490,6 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
-  // TODO(relay-v15): unskip
   test.skip('behavior: pre calls', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
@@ -638,7 +636,6 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
-  // TODO(relay-v15): unskip
   test.skip('behavior: pre calls; authorize session key, sign with session key', async () => {
     const adminKey = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
