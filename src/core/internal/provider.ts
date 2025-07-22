@@ -361,7 +361,6 @@ export function from<
             ...Permissions.fromKey(key, {
               address: account.address,
             }),
-            chainId: client.chain.id,
             ...(preCalls
               ? {
                   capabilities: {
@@ -1175,9 +1174,10 @@ function getActivePermissions(
       if (key.role !== 'session') return undefined
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
+      if (chainId && key.chainId !== chainId) return undefined
       try {
         return Schema.encodeSync(Permissions.Schema)(
-          Permissions.fromKey(key, { address, chainId }),
+          Permissions.fromKey(key, { address }),
         )
       } catch {
         return undefined

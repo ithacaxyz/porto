@@ -74,14 +74,14 @@ export async function getKeys<
   client: Client<Transport, chain, account>,
   parameters: getKeys.Parameters<chain, account>,
 ): Promise<getKeys.ReturnType> {
-  const { account = client.account, chain } = parameters
+  const { account = client.account, chain = client.chain } = parameters
   const account_ = account ? Account.from(account) : undefined
   if (!account_) throw new Error('account is required.')
   const keys = await ServerActions.getKeys(client, {
     address: account_.address,
     chain,
   })
-  return keys.map(Key.fromRpcServer)
+  return keys.map((key) => Key.fromRpcServer(key, { chainId: chain?.id ?? 0 }))
 }
 
 export namespace getKeys {
