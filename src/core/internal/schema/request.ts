@@ -36,6 +36,7 @@ export const Request = Schema.Union(
   RpcRequest.wallet_prepareCalls.Request,
   RpcRequest.wallet_sendCalls.Request,
   RpcRequest.wallet_sendPreparedCalls.Request,
+  RpcRequest.wallet_switchEthereumChain.Request,
   RpcRequest.wallet_verifySignature.Request,
 ).annotations({
   identifier: 'Request.Request',

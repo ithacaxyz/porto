@@ -303,6 +303,15 @@ export type Mode = {
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
 
+    switchChain?:
+      | ((parameters: {
+          /** Chain ID to switch to. */
+          chainId: number
+          /** Internal properties. */
+          internal: ActionsInternal
+        }) => Promise<void>)
+      | undefined
+
     updateAccount: (parameters: {
       /** Account to update. */
       account: Account.Account

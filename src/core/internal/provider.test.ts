@@ -1359,7 +1359,7 @@ describe.each([
               capabilities: {
                 createAccount: true,
                 grantPermissions: {
-                  expiry: 9999999,
+                  expiry: 99999,
                   feeLimit: {
                     currency: 'USD',
                     value: '1',
@@ -1441,6 +1441,63 @@ describe.each([
       const accounts = porto._internal.store.getState().accounts
       expect(accounts.length).toBe(0)
       expect(messages).matchSnapshot()
+    })
+  })
+
+  describe('wallet_switchEthereumChain', () => {
+    test('default', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      {
+        const chainId = await porto.provider.request({
+          method: 'eth_chainId',
+        })
+        expect(chainId).toBe(Hex.fromNumber(client.chain.id))
+      }
+
+      const targetChain = porto._internal.config.chains.find(
+        (chain) => chain.id !== client.chain.id,
+      )
+      if (!targetChain) throw new Error('No target chain found')
+
+      await porto.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: Hex.fromNumber(targetChain.id) }],
+      })
+
+      const state = porto._internal.store.getState()
+      expect(state.chainId).toBe(targetChain.id)
+
+      {
+        const chainId = await porto.provider.request({
+          method: 'eth_chainId',
+        })
+        expect(chainId).toBe(Hex.fromNumber(targetChain.id))
+      }
+    })
+
+    test('behavior: unsupported chain', async () => {
+      const porto = getPorto()
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      await expect(
+        porto.provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x999' }],
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[Provider.UnsupportedChainIdError: This Wallet does not support the requested chain ID.]',
+      )
     })
   })
 
