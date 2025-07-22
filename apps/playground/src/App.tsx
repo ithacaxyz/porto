@@ -661,24 +661,14 @@ function UpdateAccount() {
 }
 
 function SwitchChain() {
-  const [chainId, setChainId] = React.useState<`0x${string}` | undefined>(
-    undefined,
-  )
+  const [chainId, setChainId] = React.useState<number | undefined>(undefined)
 
   React.useEffect(() => {
     porto.provider
       .request({
         method: 'eth_chainId',
       })
-      .then(setChainId)
-
-    const handleChainChanged = (chainId: string) =>
-      setChainId(chainId as `0x${string}`)
-
-    porto.provider.on('chainChanged', handleChainChanged)
-    return () => {
-      porto.provider.removeListener('chainChanged', handleChainChanged)
-    }
+      .then((chainId) => setChainId(Hex.toNumber(chainId)))
   }, [])
 
   return (
@@ -687,14 +677,15 @@ function SwitchChain() {
       <div>
         {porto.config.chains.map((chain) => (
           <button
-            disabled={chainId === Hex.fromNumber(chain.id)}
+            disabled={chainId === chain.id}
             key={chain.id}
-            onClick={() =>
-              porto.provider.request({
+            onClick={async () => {
+              setChainId(chain.id)
+              await porto.provider.request({
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId: Hex.fromNumber(chain.id) }],
               })
-            }
+            }}
             type="button"
           >
             {chain.name}
