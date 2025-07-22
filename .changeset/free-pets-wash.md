@@ -2,4 +2,4 @@
 "porto": patch
 ---
 
-Added \`wallet_switchEthereumChain\`.
+Added `wallet_switchEthereumChain`.
