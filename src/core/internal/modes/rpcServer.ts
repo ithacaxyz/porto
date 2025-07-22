@@ -83,10 +83,13 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             })
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
+          chainId: client.chain.id,
           feeTokens,
         })
 
-        const adminKeys = admins?.map((admin) => Key.from(admin))
+        const adminKeys = admins?.map((admin) =>
+          Key.from(admin, { chainId: client.chain.id }),
+        )
 
         const account = await ServerActions.upgradeAccount(client, {
           account: eoa,
@@ -242,7 +245,9 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { account, internal } = parameters
         const { client } = internal
 
-        const authorizeKey = Key.from(parameters.key)
+        const authorizeKey = Key.from(parameters.key, {
+          chainId: client.chain.id,
+        })
 
         const [feeToken] = await FeeTokens.fetch(client, {
           addressOrSymbol: parameters.feeToken,
@@ -274,6 +279,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         // Parse permissions request into a structured key.
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          chainId: client.chain.id,
           feeTokens,
         })
         if (!authorizeKey) throw new Error('key to authorize not found.')
@@ -303,6 +309,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           store: internal.store,
         })
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
+          chainId: client.chain.id,
           feeTokens,
         })
 
@@ -551,6 +558,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             })
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
+          chainId: client.chain.id,
           feeTokens,
         })
 
