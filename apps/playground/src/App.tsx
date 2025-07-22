@@ -104,7 +104,13 @@ export function App() {
           <hr />
           <br />
         </div>
-
+        <h2>Chain Management</h2>
+        <SwitchChain />
+        <div>
+          <br />
+          <hr />
+          <br />
+        </div>
         <h2>Permissions</h2>
         <GrantPermissions />
         <GetPermissions />
@@ -182,12 +188,14 @@ function State() {
 }
 
 function Events() {
-  const [responses, setResponses] = React.useState<Record<string, unknown>>({})
+  const [responses, setResponses] = React.useState<Record<string, unknown[]>>(
+    {},
+  )
   React.useEffect(() => {
     const handleResponse = (event: string) => (response: unknown) =>
       setResponses((responses) => ({
         ...responses,
-        [event]: response,
+        [event]: [...(responses[event] ?? []), response],
       }))
 
     const handleAccountsChanged = handleResponse('accountsChanged')
@@ -624,6 +632,51 @@ function UpdateAccount() {
         Update Account
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+    </div>
+  )
+}
+
+function SwitchChain() {
+  const [chainId, setChainId] = React.useState<`0x${string}` | undefined>(
+    undefined,
+  )
+
+  React.useEffect(() => {
+    porto.provider
+      .request({
+        method: 'eth_chainId',
+      })
+      .then(setChainId)
+
+    const handleChainChanged = (chainId: string) =>
+      setChainId(chainId as `0x${string}`)
+
+    porto.provider.on('chainChanged', handleChainChanged)
+    return () => {
+      porto.provider.removeListener('chainChanged', handleChainChanged)
+    }
+  }, [])
+
+  return (
+    <div>
+      <h3>wallet_switchEthereumChain</h3>
+      <div>
+        {porto.config.chains.map((chain) => (
+          <button
+            disabled={chainId === Hex.fromNumber(chain.id)}
+            key={chain.id}
+            onClick={() =>
+              porto.provider.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: Hex.fromNumber(chain.id) }],
+              })
+            }
+            type="button"
+          >
+            {chain.name}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
