@@ -82,13 +82,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             })
           : Key.createHeadlessWebAuthnP256()
         const sessionKey = await PermissionsRequest.toKey(permissions, {
-          chainId: client.chain.id,
           feeTokens,
         })
 
-        const adminKeys = admins?.map((admin) =>
-          Key.from(admin, { chainId: client.chain.id }),
-        )
+        const adminKeys = admins?.map((admin) => Key.from(admin))
 
         const account = await ServerActions.upgradeAccount(client, {
           account: eoa,

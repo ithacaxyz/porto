@@ -66,7 +66,7 @@ export async function toKey(
 
 export declare namespace toKey {
   export type Options = {
-    chainId: number
+    chainId?: number | undefined
     feeTokens?: FeeTokens.FeeTokens | undefined
   }
 }

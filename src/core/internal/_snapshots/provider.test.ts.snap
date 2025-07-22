@@ -5,6 +5,7 @@ exports[`contract > eth_accounts > behavior: disconnected 1`] = `[Provider.Disco
 exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -21,6 +22,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": 9999999999,
     "feeLimit": {
       "currency": "USD",
@@ -47,6 +49,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
 exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -63,6 +66,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -102,6 +106,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` capability >
        1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -175,6 +180,7 @@ Details: Request.Request
 exports[`contract > wallet_connect > default 1`] = `
 [
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -432,6 +438,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 2`] = `
 exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -453,6 +460,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -474,6 +482,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -516,6 +525,7 @@ Details: Request.Request
 exports[`contract > wallet_grantPermissions > default 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -532,6 +542,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -559,6 +570,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
 exports[`contract > wallet_revokeAdmin > default 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -573,6 +585,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": undefined,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -587,6 +600,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
 exports[`contract > wallet_revokeAdmin > default 2`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -608,6 +622,7 @@ exports[`contract > wallet_revokePermissions > behavior: revoke last admin key 1
 exports[`contract > wallet_revokePermissions > default 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -624,6 +639,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -651,6 +667,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
 exports[`contract > wallet_revokePermissions > default 2`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -694,6 +711,7 @@ exports[`rpcServer > eth_accounts > behavior: disconnected 1`] = `[Provider.Disc
 exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -710,6 +728,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
     "type": "webauthn-p256",
   },
   {
+    "chainId": undefined,
     "expiry": 9999999999,
     "feeLimit": {
       "currency": "USD",
@@ -742,6 +761,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
 exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -758,6 +778,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
     "type": "webauthn-p256",
   },
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -803,6 +824,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability >
        1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -876,6 +898,7 @@ Details: Request.Request
 exports[`rpcServer > wallet_connect > default 1`] = `
 [
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1263,6 +1286,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 2`] = `
 exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1290,6 +1314,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -1317,6 +1342,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -1365,6 +1391,7 @@ Details: Request.Request
 exports[`rpcServer > wallet_grantPermissions > default 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1381,6 +1408,7 @@ exports[`rpcServer > wallet_grantPermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -1414,6 +1442,7 @@ exports[`rpcServer > wallet_grantPermissions > default 1`] = `
 exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1428,6 +1457,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -1442,6 +1472,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
 exports[`rpcServer > wallet_revokeAdmin > default 2`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1463,6 +1494,7 @@ exports[`rpcServer > wallet_revokePermissions > behavior: revoke last admin key 
 exports[`rpcServer > wallet_revokePermissions > default 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1479,6 +1511,7 @@ exports[`rpcServer > wallet_revokePermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -1512,6 +1545,7 @@ exports[`rpcServer > wallet_revokePermissions > default 1`] = `
 exports[`rpcServer > wallet_revokePermissions > default 2`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
