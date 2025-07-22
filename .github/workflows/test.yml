@@ -101,6 +101,7 @@ jobs:
             enabled: ${{ inputs.test-deployment-node == true || inputs.test-deployment-node == null }}
     env: 
       CI: true
+      VITE_RPC_DEBUG: true
       VITE_LOCAL: ${{ matrix.local }}
       VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}

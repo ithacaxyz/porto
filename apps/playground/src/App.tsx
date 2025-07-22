@@ -10,7 +10,6 @@ import {
   TypedData,
   Value,
 } from 'ox'
-import { Chains } from 'porto'
 import * as React from 'react'
 import { hashMessage, hashTypedData } from 'viem'
 import {
@@ -1248,12 +1247,16 @@ function PrepareCalls() {
 
         if (!keyPair) throw new Error('create key first.')
 
+        const chainId = await porto.provider.request({
+          method: 'eth_chainId',
+        })
+
         const { digest, ...request } = await porto.provider.request({
           method: 'wallet_prepareCalls',
           params: [
             {
               calls,
-              chainId: Hex.fromNumber(Chains.portoDev.id),
+              chainId,
               key: {
                 publicKey: keyPair.publicKey,
                 type: 'p256',
