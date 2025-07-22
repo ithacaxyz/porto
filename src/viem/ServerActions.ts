@@ -13,7 +13,7 @@ import {
 } from 'viem'
 import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/rpcServer/schema/capabilities.js'
-import type * as Quote from '../core/internal/rpcServer/schema/quote.js'
+import type * as Quotes from '../core/internal/rpcServer/schema/quotes.js'
 import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
 import * as Account from './Account.js'
 import * as ServerActions from './internal/serverActions.js'
@@ -233,7 +233,7 @@ export namespace prepareCalls {
 
   export type ReturnType = {
     capabilities: ServerActions.prepareCalls.ReturnType['capabilities'] & {
-      quote: Quote.Signed
+      quote: Quotes.Signed
     }
     context: ServerActions.prepareCalls.ReturnType['context']
     digest: ServerActions.prepareCalls.ReturnType['digest']

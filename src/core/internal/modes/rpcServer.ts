@@ -524,7 +524,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             ...context,
             account,
             calls,
-            nonce: context.quote?.intent!.nonce,
+            // TODO(relay-v15): still need for rpc server?
+            nonce: context.quote?.quotes?.[0]?.intent.nonce,
           },
           digest,
           key,
