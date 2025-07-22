@@ -314,6 +314,12 @@ describe('sendCalls', () => {
     ).toBe(100n)
   })
 
+<<<<<<< HEAD
+||||||| parent of 39b82d78 (feat: relay v15 (#604))
+  test('behavior: pre calls; authorize session key, sign with session key', async () => {
+=======
+  // TODO(relay-v15): unskip
+>>>>>>> 39b82d78 (feat: relay v15 (#604))
   test.skip('behavior: pre calls; authorize session key, sign with session key', async () => {
     const adminKey = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
@@ -422,6 +428,12 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
+<<<<<<< HEAD
+||||||| parent of 39b82d78 (feat: relay v15 (#604))
+  test('behavior: pre calls', async () => {
+=======
+  // TODO(relay-v15): unskip
+>>>>>>> 39b82d78 (feat: relay v15 (#604))
   test.skip('behavior: pre calls', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
@@ -568,6 +580,12 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
+<<<<<<< HEAD
+||||||| parent of 39b82d78 (feat: relay v15 (#604))
+  test('behavior: pre calls; authorize session key, sign with session key', async () => {
+=======
+  // TODO(relay-v15): unskip
+>>>>>>> 39b82d78 (feat: relay v15 (#604))
   test.skip('behavior: pre calls; authorize session key, sign with session key', async () => {
     const adminKey = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
