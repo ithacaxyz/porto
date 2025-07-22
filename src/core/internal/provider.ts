@@ -1088,7 +1088,6 @@ export function from<
       unsubscribe_chain = store.subscribe(
         (state) => state.chainId,
         (chainId, previousChainId) => {
-          console.log('chainChanged', chainId, previousChainId)
           if (chainId === previousChainId) return
           emitter.emit('chainChanged', Hex.fromNumber(chainId))
         },
