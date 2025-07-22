@@ -37,15 +37,28 @@ export const Quote = Schema.Struct({
   orchestrator: Primitive.Address,
   /** The decimals of the payment token. */
   paymentTokenDecimals: Schema.Number,
-  /** The time-to-live of the quote. */
-  ttl: Schema.Number,
   /** The recommended gas limit for the bundle. */
   txGas: Primitive.BigInt,
 })
 export type Quote = typeof Quote.Type
 
+export const Quotes = Schema.Struct({
+  /** Merkle root if it's a multichain workflow. */
+  multiChainRoute: Schema.optional(Primitive.Hex),
+  /**
+   * A quote for each intent.
+   *
+   * - For a single-chain workflow, this will have exactly one item, the output intent.
+   * - For a multi-chain workflow, this will have multiple items, where the last one is the output
+   *   intent.
+   */
+  quotes: Schema.Array(Quote).pipe(Schema.minItems(1)),
+  /** The time-to-live (UNIX timestamp) of the quotes. */
+  ttl: Schema.Number,
+})
+
 export const Signed = Schema.extend(
-  Quote,
+  Quotes,
   Schema.Struct({
     hash: Primitive.Hex,
     r: Primitive.Hex,

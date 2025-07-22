@@ -7,13 +7,16 @@ import { deployContract, waitForTransactionReceipt } from 'viem/actions'
 import { type Address, Value } from 'ox'
 
 import * as Anvil from '../test/src/anvil.js'
+import * as EIP7702Proxy from '../src/core/internal/_generated/contracts/EIP7702Proxy.js'
+import * as Escrow from '../src/core/internal/_generated/contracts/Escrow.js'
 import * as IthacaAccount from '../src/core/internal/_generated/contracts/IthacaAccount.js'
 import * as IthacaAccountOld from '../src/core/internal/_generated/contracts/IthacaAccountOld.js'
 import * as IthacaAccountNew from '../src/core/internal/_generated/contracts/IthacaAccountNew.js'
-import * as EIP7702Proxy from '../src/core/internal/_generated/contracts/EIP7702Proxy.js'
 import * as Orchestrator from '../src/core/internal/_generated/contracts/Orchestrator.js'
 import * as ExperimentERC20 from '../src/core/internal/_generated/contracts/ExperimentERC20.js'
 import * as ExperimentERC721 from '../src/core/internal/_generated/contracts/ExperimentERC721.js'
+import * as SimpleSettler from '../src/core/internal/_generated/contracts/SimpleSettler.js'
+import * as SimpleFunder from '../src/core/internal/_generated/contracts/SimpleFunder.js'
 import * as Simulator from '../src/core/internal/_generated/contracts/Simulator.js'
 
 const port = 8595
@@ -181,6 +184,48 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     hash,
   })
   exports.push(`export const simulatorAddress = '${contractAddress}'`)
+}
+
+{
+  // Deploy SimpleFunder contract.
+  const hash = await deployContract(client, {
+    abi: SimpleFunder.abi,
+    args: [account.address, orchestratorAddress!, account.address],
+    bytecode: SimpleFunder.code,
+    chain: null,
+  })
+  const { contractAddress } = await waitForTransactionReceipt(client, {
+    hash,
+  })
+  exports.push(`export const funderAddress = '${contractAddress}'`)
+}
+
+{
+  // Deploy Escrow contract.
+  const hash = await deployContract(client, {
+    abi: Escrow.abi,
+    args: [],
+    bytecode: Escrow.code,
+    chain: null,
+  })
+  const { contractAddress } = await waitForTransactionReceipt(client, {
+    hash,
+  })
+  exports.push(`export const escrowAddress = '${contractAddress}'`)
+}
+
+{
+  // Deploy SimpleSettler contract.
+  const hash = await deployContract(client, {
+    abi: SimpleSettler.abi,
+    args: [account.address],
+    bytecode: SimpleSettler.code,
+    chain: null,
+  })
+  const { contractAddress } = await waitForTransactionReceipt(client, {
+    hash,
+  })
+  exports.push(`export const settlerAddress = '${contractAddress}'`)
 }
 
 writeFileSync(

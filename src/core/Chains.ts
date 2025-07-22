@@ -13,7 +13,23 @@ export function define<const chain extends Chain>(chain: chain): chain {
   return chain
 }
 
-export const anvil = /*#__PURE__*/ define({
+export const anvilLeros = /*#__PURE__*/ define({
+  ...chains.anvil,
+  contracts: {
+    ...chains.anvil.contracts,
+    portoAccount: {
+      address: '0xb19b36b1456e65e3a6d514d3f715f204bd59f431',
+    },
+  },
+  id: 31_339,
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:9120'],
+    },
+  },
+})
+
+export const anvilParos = /*#__PURE__*/ define({
   ...chains.anvil,
   contracts: {
     ...chains.anvil.contracts,
@@ -24,6 +40,22 @@ export const anvil = /*#__PURE__*/ define({
   rpcUrls: {
     default: {
       http: ['http://localhost:9119'],
+    },
+  },
+})
+
+export const anvilTinos = /*#__PURE__*/ define({
+  ...chains.anvil,
+  contracts: {
+    ...chains.anvil.contracts,
+    portoAccount: {
+      address: '0xb19b36b1456e65e3a6d514d3f715f204bd59f431',
+    },
+  },
+  id: 31_338,
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:9120'],
     },
   },
 })
@@ -62,28 +94,6 @@ export const baseSepolia = /*#__PURE__*/ define({
       ],
     },
   },
-})
-
-export const portoDev = /*#__PURE__*/ define({
-  blockExplorers: {
-    default: {
-      apiUrl: '',
-      name: '',
-      url: '',
-    },
-  },
-  contracts: {
-    portoAccount: {
-      address: '0xc6e7df5e7b4f2a278906862b61205850344d4e7d',
-    },
-  },
-  id: 28_404,
-  name: 'Porto Dev',
-  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-  rpcUrls: {
-    default: { http: ['https://porto-dev.rpc.ithaca.xyz'] },
-  },
-  testnet: true,
 })
 
 export const portoDevLeros = /*#__PURE__*/ define({

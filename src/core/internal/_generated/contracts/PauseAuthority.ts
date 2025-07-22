@@ -61,7 +61,7 @@ export const abi = [
     "name": "setPauseAuthority",
     "inputs": [
       {
-        "name": "newPauseAuthority",
+        "name": "newPauseAdmin",
         "type": "address",
         "internalType": "address"
       }
@@ -71,10 +71,10 @@ export const abi = [
   },
   {
     "type": "event",
-    "name": "PauseAuthoritySet",
+    "name": "PauseAdminSet",
     "inputs": [
       {
-        "name": "pauseAuthority",
+        "name": "pauseAdmin",
         "type": "address",
         "indexed": true,
         "internalType": "address"

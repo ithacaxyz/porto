@@ -3,11 +3,12 @@ import { verifyHash, verifyMessage } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { createAccount } from '../../test/src/actions.js'
-import { getPorto } from '../../test/src/porto.js'
+import * as TestConfig from '../../test/src/config.js'
 import * as Key from '../viem/Key.js'
 import * as Account from './Account.js'
 
-const { client } = getPorto()
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
 
 describe('from', () => {
   test('default', () => {

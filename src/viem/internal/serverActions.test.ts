@@ -4,7 +4,7 @@ import { getCode, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
-import { exp1Abi, exp1Address, getPorto } from '../../../test/src/porto.js'
+import * as TestConfig from '../../../test/src/config.js'
 import * as Key from '../Key.js'
 import { sendCalls } from '../ServerActions.js'
 import {
@@ -19,9 +19,9 @@ import {
   verifySignature,
 } from './serverActions.js'
 
-const { client, delegation } = getPorto()
-
-const feeToken = exp1Address
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
+const contracts = TestConfig.getContracts(porto)
 
 describe('health', () => {
   test('default', async () => {
@@ -44,7 +44,7 @@ describe('getCapabilities', () => {
 
   test('behavior: chainIds', async () => {
     const result = await getCapabilities(client, {
-      chainIds: [client.chain!.id],
+      chainIds: [client.chain.id],
     })
 
     const keys = Object.keys(result)
@@ -80,7 +80,7 @@ describe('getCallsStatus', () => {
       ],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -119,7 +119,7 @@ describe('getKeys', () => {
     await sendCalls(client, {
       account,
       calls: [],
-      feeToken,
+      feeToken: contracts.exp1.address,
     })
 
     const result = await getKeys(client, {
@@ -162,7 +162,7 @@ describe('getKeys', () => {
     await sendCalls(client, {
       account,
       calls: [],
-      feeToken,
+      feeToken: contracts.exp1.address,
     })
 
     const result = await getKeys(client, {
@@ -182,14 +182,14 @@ describe('getKeys', () => {
       permissions: {
         calls: [
           {
-            to: exp1Address,
+            to: contracts.exp1.address,
           },
         ],
         spend: [
           {
             limit: Value.fromEther('100'),
             period: 'minute',
-            token: exp1Address,
+            token: contracts.exp1.address,
           },
         ],
       },
@@ -203,7 +203,7 @@ describe('getKeys', () => {
       account,
       authorizeKeys: [key_3],
       calls: [],
-      feeToken,
+      feeToken: contracts.exp1.address,
     })
     await waitForCallsStatus(client, {
       id,
@@ -245,7 +245,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       ],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -280,14 +280,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const userBalance_pre = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
     const merchantBalance_pre = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
       args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
@@ -296,16 +296,16 @@ describe('prepareCalls + sendPreparedCalls', () => {
       address: userAccount.address,
       calls: [
         {
-          abi: exp1Abi,
+          abi: contracts.exp1.abi,
           args: [userAccount.address, Value.fromEther('1')],
           functionName: 'mint',
-          to: exp1Address,
+          to: contracts.exp1.address,
         },
       ],
       capabilities: {
         meta: {
           feePayer: merchantAccount.address,
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -337,14 +337,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const userBalance_post = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
     const merchantBalance_post = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
       args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
@@ -366,15 +366,15 @@ describe('prepareCalls + sendPreparedCalls', () => {
       address: account.address,
       calls: [
         {
-          abi: exp1Abi,
+          abi: contracts.exp1.abi,
           args: [account.address, Value.fromEther('1')],
           functionName: 'mint',
-          to: exp1Address,
+          to: contracts.exp1.address,
         },
       ],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -408,7 +408,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         calls: [],
         capabilities: {
           meta: {
-            feeToken,
+            feeToken: contracts.exp1.address,
           },
         },
         key: {
@@ -449,7 +449,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         ],
         capabilities: {
           meta: {
-            feeToken,
+            feeToken: contracts.exp1.address,
           },
         },
         key: {
@@ -497,7 +497,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey],
-      delegation,
+      delegation: contracts.delegation.address,
     })
 
     const { digests } = request
@@ -531,7 +531,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       calls: [],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: adminKey,
@@ -582,7 +582,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey, adminKey_2],
-      delegation,
+      delegation: contracts.delegation.address,
     })
 
     const { digests } = request
@@ -616,7 +616,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       calls: [],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: adminKey,
@@ -656,22 +656,22 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       permissions: [
         {
           selector: AbiFunction.getSelector(
-            AbiFunction.fromAbi(exp1Abi, 'mint'),
+            AbiFunction.fromAbi(contracts.exp1.abi, 'mint'),
           ),
-          to: exp1Address,
+          to: contracts.exp1.address,
           type: 'call',
         },
         {
           selector: AbiFunction.getSelector(
-            AbiFunction.fromAbi(exp1Abi, 'transfer'),
+            AbiFunction.fromAbi(contracts.exp1.abi, 'transfer'),
           ),
-          to: exp1Address,
+          to: contracts.exp1.address,
           type: 'call',
         },
         {
           limit: Value.fromEther('100'),
           period: 'minute',
-          token: exp1Address,
+          token: contracts.exp1.address,
           type: 'spend',
         },
       ],
@@ -688,7 +688,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey, sessionKey],
-      delegation,
+      delegation: contracts.delegation.address,
     })
 
     const { digests } = request
@@ -722,7 +722,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       calls: [],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: adminKey,
@@ -762,7 +762,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
             type: 'secp256k1',
           },
         ],
-        delegation,
+        delegation: contracts.delegation.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
@@ -793,7 +793,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
             type: 'secp256k1',
           },
         ],
-        delegation,
+        delegation: contracts.delegation.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"

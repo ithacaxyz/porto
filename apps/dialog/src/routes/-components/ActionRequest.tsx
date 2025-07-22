@@ -3,7 +3,7 @@ import { Button, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type { Chains } from 'porto'
-import type * as Quote_schema from 'porto/core/internal/rpcServer/schema/quote'
+import type * as Quote_schema from 'porto/core/internal/rpcServer/schema/quotes'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks, type Porto as Porto_ } from 'porto/remote'
@@ -70,7 +70,8 @@ export function ActionRequest(props: ActionRequest.Props) {
     : prepareCallsQuery
 
   const assetDiff = query_assetDiff.data?.capabilities.assetDiff
-  const quote = prepareCallsQuery.data?.capabilities.quote
+  // TODO(interop): support interop
+  const quote = prepareCallsQuery.data?.capabilities.quote?.quotes[0]
 
   return (
     <CheckBalance
@@ -477,7 +478,6 @@ export namespace ActionRequest {
       native: Price.Price
       token: Price.Price
     }
-    ttl: number
   }
 
   /**
@@ -493,7 +493,7 @@ export namespace ActionRequest {
     porto: Pick<Porto_.Porto<chains>, '_internal'>,
     quote: Quote_schema.Quote,
   ): Quote | undefined {
-    const { chainId, intent, nativeFeeEstimate, txGas, ttl } = quote ?? {}
+    const { chainId, intent, nativeFeeEstimate, txGas } = quote ?? {}
     const { paymentToken, totalPaymentMaxAmount } = intent ?? {}
 
     const chain = Hooks.useChain(porto, { chainId })!
@@ -559,10 +559,8 @@ export namespace ActionRequest {
     ])
 
     if (!fee) return undefined
-    if (!ttl) return undefined
     return {
       fee,
-      ttl,
     }
   }
 }

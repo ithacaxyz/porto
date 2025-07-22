@@ -10,10 +10,11 @@ import { verifyHash } from 'viem/actions'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { createAccount } from '../../test/src/actions.js'
-import { getPorto } from '../../test/src/porto.js'
+import * as TestConfig from '../../test/src/config.js'
 import * as Key from './Key.js'
 
-const { client } = getPorto()
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
 
 describe('createP256', () => {
   test('default', () => {

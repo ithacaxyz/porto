@@ -11,8 +11,8 @@ import * as Account from '../../src/viem/Account.js'
 import type * as Key from '../../src/viem/Key.js'
 import * as ServerActions from '../../src/viem/ServerActions.js'
 import type { ServerClient } from '../../src/viem/ServerClient.js'
+import * as Contracts from './_generated/contracts.js'
 import * as Anvil from './anvil.js'
-import { exp1Abi, exp1Address } from './porto.js'
 
 export async function createAccount(
   client: ServerClient,
@@ -35,7 +35,7 @@ export async function createAccount(
     const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [],
-      feeToken: exp1Address,
+      feeToken: Contracts.exp1Address[client.chain.id as never],
     })
     await waitForCallsStatus(client, {
       id,
@@ -84,9 +84,9 @@ export async function setBalance(
       value,
     })
     await writeContract(client, {
-      abi: exp1Abi,
+      abi: Contracts.exp1Abi,
       account: privateKeyToAccount(Anvil.accounts[0]!.privateKey),
-      address: exp1Address,
+      address: Contracts.exp1Address[client.chain.id as never],
       args: [address, value],
       chain: null,
       functionName: 'mint',
@@ -101,9 +101,9 @@ export async function setBalance(
       return process.env.VITE_FAUCET_PRIVATE_KEY
     })() as `0x${string}`
     const hash = await writeContract(client, {
-      abi: exp1Abi,
+      abi: Contracts.exp1Abi,
       account: privateKeyToAccount(privateKey),
-      address: exp1Address,
+      address: Contracts.exp1Address[client.chain.id as never],
       args: [address, value],
       functionName: 'mint',
     })

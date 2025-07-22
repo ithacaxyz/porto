@@ -9,7 +9,7 @@ import * as Primitive from '../../schema/primitive.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
 import * as PreCall from './preCall.js'
-import * as Quote from './quote.js'
+import * as Quotes from './quotes.js'
 
 const Authorization = Schema.Struct({
   address: Primitive.Address,
@@ -190,6 +190,7 @@ export namespace wallet_getCapabilities {
           Schema.Struct({
             address: Primitive.Address,
             decimals: Schema.Number,
+            interop: Schema.Boolean,
             kind: Schema.String,
             nativeRate: Schema.optional(Primitive.BigInt),
             symbol: Schema.String,
@@ -401,7 +402,7 @@ export namespace wallet_prepareCalls {
       /** Quote for the call bundle. */
       preCall: Schema.optional(Schema.partial(PreCall.PreCall)),
       /** The call bundle. */
-      quote: Schema.optional(Schema.partial(Quote.Signed)),
+      quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),
     /** Digest to sign over. */
     digest: Primitive.Hex,
@@ -553,7 +554,7 @@ export namespace wallet_sendPreparedCalls {
       /** The call bundle. */
       preCall: Schema.optional(Schema.partial(PreCall.PreCall)),
       /** Quote for the call bundle. */
-      quote: Schema.optional(Schema.partial(Quote.Signed)),
+      quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),
     /** Key that was used to sign the call bundle. */
     key: Schema.Struct({
