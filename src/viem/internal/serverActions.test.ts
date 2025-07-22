@@ -356,6 +356,54 @@ describe('prepareCalls + sendPreparedCalls', () => {
     expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
+  test('behavior: required funds', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const destinationChain = TestConfig.chains[1]
+    const request = await prepareCalls(client, {
+      address: account.address,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [Hex.random(20), Value.fromEther('50')],
+          functionName: 'transfer',
+          to: contracts.exp1.address,
+        },
+      ],
+      capabilities: {
+        meta: {
+          feeToken: contracts.exp1.address,
+        },
+        requiredFunds: [
+          {
+            address: contracts.exp1.address,
+            value: Value.fromEther('50.5'), // 50 + fee buffer
+          },
+        ],
+      },
+      chain: destinationChain,
+      key: {
+        prehash: false,
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+      },
+    })
+
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+      wrap: false,
+    })
+
+    await sendPreparedCalls(client, {
+      context: request.context,
+      key: request.key!,
+      signature,
+    })
+  })
+
   test('behavior: contract calls', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
