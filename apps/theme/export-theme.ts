@@ -257,7 +257,7 @@ The color scheme for the theme. With \`"light dark"\`, theme colors must be prov
     lines.push('')
 
     if (isThemeColor(value)) {
-      lines.push(`- **Type:** \`Theme.LightDarkColor | Theme.Color{:ts}\``)
+      lines.push('- **Type:** \`Theme.LightDarkColor | Theme.Color{:ts}\`')
       lines.push(`- **Default:** \`["${value[1]}", "${value[2]}"]{:ts}\``)
     } else if (isThemeNumber(value)) {
       lines.push(`- **Default:** \`${value[1]}{:ts}\``)
