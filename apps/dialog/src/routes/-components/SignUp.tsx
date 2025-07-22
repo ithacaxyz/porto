@@ -99,9 +99,12 @@ export namespace SignUp {
       <Layout>
         <Layout.Header className="flex-grow space-y-2">
           <LightDarkImage
+            className="block w-full text-transparent"
             alt="Diagram illustrating how passkeys work"
             dark="/dialog/passkey-diagram-dark.svg"
+            height={75}
             light="/dialog/passkey-diagram.svg"
+            width={258}
           />
 
           <Layout.Header.Default
