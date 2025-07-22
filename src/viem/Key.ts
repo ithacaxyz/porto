@@ -437,7 +437,7 @@ export declare namespace deserialize {
  */
 export function from<type extends Key['type']>(
   key: from.Value<type>,
-  options: { chainId?: number | undefined } = {},
+  options: from.Options = {},
 ): Extract<Key, { type: type }> {
   const { chainId = key.chainId } = options
   const { expiry = 0, id, prehash = false, role = 'admin', type } = key
@@ -479,6 +479,10 @@ export declare namespace from {
       type: type | Key['type']
     }
   >
+
+  type Options = {
+    chainId?: number | undefined
+  }
 }
 
 /**
