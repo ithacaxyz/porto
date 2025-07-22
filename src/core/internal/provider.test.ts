@@ -1059,7 +1059,7 @@ describe.each([
       `)
 
       const { porto: porto_newAccount } = getPorto({
-        rpcUrl: RpcServer.instances.portoDev_newAccount.rpcUrl,
+        rpcUrl: RpcServer.instances.portoDevParos_newAccount.rpcUrl,
       })
       porto_newAccount._internal.store.setState(
         porto._internal.store.getState(),
