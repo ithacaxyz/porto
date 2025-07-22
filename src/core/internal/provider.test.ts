@@ -1359,7 +1359,7 @@ describe.each([
               capabilities: {
                 createAccount: true,
                 grantPermissions: {
-                  expiry: 99999,
+                  expiry: 9999999,
                   feeLimit: {
                     currency: 'USD',
                     value: '1',
@@ -1454,12 +1454,10 @@ describe.each([
         params: [{ capabilities: { createAccount: true } }],
       })
 
-      {
-        const chainId = await porto.provider.request({
-          method: 'eth_chainId',
-        })
-        expect(chainId).toBe(Hex.fromNumber(client.chain.id))
-      }
+      const initialChainId = await porto.provider.request({
+        method: 'eth_chainId',
+      })
+      expect(initialChainId).toBe(Hex.fromNumber(client.chain.id))
 
       const targetChain = porto._internal.config.chains.find(
         (chain) => chain.id !== client.chain.id,
@@ -1474,12 +1472,16 @@ describe.each([
       const state = porto._internal.store.getState()
       expect(state.chainId).toBe(targetChain.id)
 
-      {
-        const chainId = await porto.provider.request({
-          method: 'eth_chainId',
-        })
-        expect(chainId).toBe(Hex.fromNumber(targetChain.id))
-      }
+      const nextChainId = await porto.provider.request({
+        method: 'eth_chainId',
+      })
+      expect(nextChainId).toBe(Hex.fromNumber(targetChain.id))
+      expect(nextChainId).not.toBe(initialChainId)
+
+      await porto.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: initialChainId }],
+      })
     })
 
     test('behavior: unsupported chain', async () => {
