@@ -108,7 +108,7 @@ body:
       label: Reproduction Device & Environment
       description: |-
         Are you using the same device and browser you experienced this issue on?
-        If yes, visit the https://bugz-service.porto.workers.dev/snapshot and copy the output here.
+        If yes, visit the https://service.porto.workers.dev/snapshot and copy the output here.
 
   - type: textarea
     attributes:
