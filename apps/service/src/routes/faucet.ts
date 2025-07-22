@@ -29,7 +29,7 @@ faucetApp.all('*', async (context, next) => {
     getConnInfo(context).remote.address ||
     context.req.header('cf-connecting-ip')
   const key = `${address}:${ip ?? ''}`
-  if (!key) return context.json({ error: 'Unable to process request' }, 400)
+  if (!ip) return context.json({ error: 'Unable to process request' }, 400)
 
   const { success } = await context.env.RATE_LIMITER.limit({
     key,
