@@ -70,7 +70,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     : prepareCallsQuery
 
   const assetDiff = query_assetDiff.data?.capabilities.assetDiff
-  // TODO: support interop
+  // TODO(interop): support interop
   const quote = prepareCallsQuery.data?.capabilities.quote?.quotes[0]
 
   return (
