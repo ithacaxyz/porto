@@ -707,11 +707,6 @@ export const ownableAbi = [
 // exp1
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
- */
 export const exp1Abi = [
   {
     inputs: [
@@ -1009,37 +1004,14 @@ export const exp1Abi = [
   { inputs: [], name: 'Unauthorized', type: 'error' },
 ] as const
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
- */
-export const exp1Address = {
-  8453: '0x074C9c3273F31651a9dae896C1A1d68E868b6998',
-  28404: '0x97870b32890d3F1f089489A29007863A5678089D',
-  28405: '0xaF3B0A5b4BeCc4fA1dfAfE74580eFa19a2ea49fa',
-  28406: '0xaF3B0A5b4BeCc4fA1dfAfE74580eFa19a2ea49fa',
-  28407: '0xaF3B0A5b4BeCc4fA1dfAfE74580eFa19a2ea49fa',
-  31337: '0x8ce361602B935680E8DeC218b820ff5056BeB7af',
-  84532: '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2',
-} as const
+export const exp1Address = '0x29F45fc3eD1d0ffaFb5e2af9Cc6C3AB1555cd5a2' as const
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0x074C9c3273F31651a9dae896C1A1d68E868b6998)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2)
- */
 export const exp1Config = { abi: exp1Abi, address: exp1Address } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // exp2
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
- */
 export const exp2Abi = [
   {
     inputs: [
@@ -1337,37 +1309,14 @@ export const exp2Abi = [
   { inputs: [], name: 'Unauthorized', type: 'error' },
 ] as const
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
- */
-export const exp2Address = {
-  8453: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
-  28404: '0x3A16de445711B203E472d1A04aC93Ef7875cdF18',
-  28405: '0x88238D346Cfb2391203f4F33B90f5ECcE22b4165',
-  28406: '0x88238D346Cfb2391203f4F33B90f5ECcE22b4165',
-  28407: '0x88238D346Cfb2391203f4F33B90f5ECcE22b4165',
-  31337: '0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629',
-  84532: '0x62a9d6DE963a5590f6fbA5119e937F167677bfE7',
-} as const
+export const exp2Address = '0x62a9d6DE963a5590f6fbA5119e937F167677bfE7' as const
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x62a9d6de963a5590f6fba5119e937f167677bfe7)
- */
 export const exp2Config = { abi: exp2Abi, address: exp2Address } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // expNft
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
- */
 export const expNftAbi = [
   {
     inputs: [
@@ -1682,24 +1631,7 @@ export const expNftAbi = [
   { inputs: [], name: 'Unauthorized', type: 'error' },
 ] as const
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
- */
-export const expNftAddress = {
-  8453: '0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9',
-  28404: '0x1bFf4BFA9b6bE201CEa697aa71c70522cD439d6D',
-  28405: '0xf7Cd8fa9b94DB2Aa972023b379c7f72c65E4De9D',
-  28406: '0xA15BB66138824a1c7167f5E85b957d04Dd34E468',
-  28407: '0xb19b36b1456E65E3A6D514D3F715f204BD59f431',
-  31337: '0x12975173B87F7595EE45dFFb2Ab812ECE596Bf84',
-  84532: '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29',
-} as const
+export const expNftAddress =
+  '0xFcc74F42621D03Fd234d5f40931D8B82923E4D29' as const
 
-/**
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0xB37377508CbEd17a2B3694Fa0A68dc7CEE63DaF9)
- * -
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0xFcc74F42621D03Fd234d5f40931D8B82923E4D29)
- */
 export const expNftConfig = { abi: expNftAbi, address: expNftAddress } as const

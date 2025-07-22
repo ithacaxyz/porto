@@ -22,7 +22,7 @@ on:
       rpc-url:
         type: string
         description: 'RPC URL to use for tests'
-        default: 'https://porto-dev.rpc.ithaca.xyz'
+        default: ''
       dispatch-type:
         type: choice
         description: 'Dispatch type'
@@ -102,7 +102,6 @@ jobs:
     env: 
       CI: true
       VITE_LOCAL: ${{ matrix.local }}
-      VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
       VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
       VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}

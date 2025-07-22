@@ -31,11 +31,7 @@ export function stripeOnrampUrl(params: stripeOnrampUrl.Params) {
     source_amount: params.amount.toString(),
     source_currency: 'usd',
   })
-  const url = new URL(
-    '/onramp',
-    import.meta.env.VITE_PORTO_WORKERS_URL ||
-      'https://octopus.porto.workers.dev',
-  )
+  const url = new URL('/onramp', import.meta.env.VITE_WORKERS_URL)
   url.search = searchParams.toString()
   return url.toString()
 }

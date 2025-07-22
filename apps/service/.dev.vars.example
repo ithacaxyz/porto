@@ -1,4 +1,4 @@
-ENVIRONMENT="development"
+ENVIRONMENT="local"
 
 # `/faucet` route
 DRIP_PRIVATE_KEY=""

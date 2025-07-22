@@ -1,9 +1,9 @@
 import { env } from 'cloudflare:workers'
 import { exp1Abi, exp1Address } from '@porto/apps/contracts'
 import { Hono } from 'hono'
+import { getConnInfo } from 'hono/cloudflare-workers'
 import { validator } from 'hono/validator'
 import { Chains } from 'porto'
-import { rateLimitMiddleware } from 'src/middleware'
 import { createWalletClient, http, isAddress, publicActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { waitForTransactionReceipt } from 'viem/actions'
@@ -18,18 +18,33 @@ if (!account?.address) throw new Error('Invalid DRIP_PRIVATE_KEY')
 const chains = {
   [Chains.baseSepolia.id]: Chains.baseSepolia,
   [Chains.portoDev.id]: Chains.portoDev,
+  [Chains.portoDevParos.id]: Chains.portoDevParos,
+  [Chains.portoDevLeros.id]: Chains.portoDevLeros,
+  [Chains.portoDevTinos.id]: Chains.portoDevTinos,
 } as const
 
-faucetApp.use('*', async (context, next) => {
+faucetApp.all('*', async (context, next) => {
+  const address = context.req.query('address')?.toLowerCase()
+  if (!address || !isAddress(address))
+    return context.json({ error: 'Valid EVM address required' }, 400)
+
+  const ip =
+    getConnInfo(context).remote.address ||
+    context.req.header('cf-connecting-ip')
+  const key = `${address}:${ip ?? ''}`
+  if (!ip) return context.json({ error: 'Unable to process request' }, 400)
+
+  const { success } = await context.env.RATE_LIMITER.limit({
+    key,
+  })
+  if (!success) return context.json({ error: 'Rate limit exceeded' }, 429)
+
   await next()
-  context.header('Access-Control-Allow-Origin', '*')
-  context.header('X-Faucet-Address', account.address)
-  context.header('route-rate-limit-identifier', account.address)
 })
 
-faucetApp.get(
+faucetApp.on(
+  ['GET', 'POST'],
   '/',
-  rateLimitMiddleware,
   validator('query', (values, context) => {
     const { address, chainId, value = '25' } = <Record<string, string>>values
 

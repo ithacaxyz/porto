@@ -11,12 +11,14 @@
     "skipLibCheck": true,
     "alwaysStrict": true,
     "strictNullChecks": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
     "resolveJsonModule": true,
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "types": ["node", "@cloudflare/workers-types"]
   },
   "include": ["./src/**/*"],
-  "files": ["env.d.ts"],
+  "files": ["env.d.ts", "vite.config.ts", "wrangler.json", "package.json"],
   "exclude": ["**/_/**", "dist", "node_modules"]
 }

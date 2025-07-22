@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/faucet/**'
       - 'apps/service/**'
   workflow_dispatch:
 
@@ -26,10 +25,7 @@ jobs:
     strategy:
       matrix:
         worker:
-          - faucet
           - service
-          # until consolidation is done
-          # - octopus
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
