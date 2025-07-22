@@ -113,7 +113,6 @@ export function create(
       ),
     ),
   )
-  store.persist.rehydrate()
 
   let mode = config.mode
 

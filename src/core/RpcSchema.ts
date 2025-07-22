@@ -20,6 +20,7 @@ export type Schema =
             | 'wallet_sendCalls'
             | 'wallet_prepareCalls'
             | 'wallet_sendPreparedCalls'
+            | 'wallet_switchEthereumChain'
         }
       }
     >
@@ -107,6 +108,10 @@ export type Schema =
       | {
           Request: typeof Rpc.wallet_sendCalls.Request.Encoded
           ReturnType: typeof Rpc.wallet_sendCalls.Response.Encoded
+        }
+      | {
+          Request: typeof Rpc.wallet_switchEthereumChain.Request.Encoded
+          ReturnType: undefined
         }
       | {
           Request: typeof Rpc.wallet_verifySignature.Request.Encoded

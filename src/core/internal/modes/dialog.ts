@@ -926,6 +926,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return await provider.request(request)
       },
 
+      async switchChain(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'wallet_switchEthereumChain')
+          throw new Error('Cannot switch chain for method: ' + request.method)
+
+        const provider = getProvider(store)
+        return await provider.request(request)
+      },
+
       async updateAccount(parameters) {
         const { internal } = parameters
         const { store, request } = internal
