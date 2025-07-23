@@ -1,3 +1,35 @@
 {
+  "rewrites": [
+    {
+      "destination": "/.well-known/m/apple-dev.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev.id.porto.sh"
+        }
+      ],
+      "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
+    },
+    {
+      "destination": "/.well-known/m/apple-staging.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "stg.id.porto.sh"
+        }
+      ],
+      "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
+    },
+    {
+      "destination": "/.well-known/m/apple-prod.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "id.porto.sh"
+        }
+      ],
+      "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
+    }
+  ],
   "routes": [{ "dest": "/", "src": "/[^.]+", "status": 200 }]
 }
