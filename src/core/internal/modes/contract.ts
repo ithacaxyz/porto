@@ -206,7 +206,7 @@ export function contract(parameters: contract.Parameters = {}) {
       },
 
       async getAssets(parameters) {
-        const { account, internal } = parameters
+        const { account, assetFilter, assetTypeFilter, internal } = parameters
         const { client, config } = internal
 
         const chainFilter =
@@ -215,7 +215,7 @@ export function contract(parameters: contract.Parameters = {}) {
 
         const assets = await client.request({
           method: 'wallet_getAssets',
-          params: [{ account, chainFilter }],
+          params: [{ account, assetFilter, assetTypeFilter, chainFilter }],
         })
 
         return assets
