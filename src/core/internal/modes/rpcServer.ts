@@ -151,11 +151,14 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async getAssets(parameters) {
-        const { account, chainFilter, internal } = parameters
+        const { account, chainFilter, assetFilter, assetTypeFilter, internal } =
+          parameters
         const { client } = internal
 
         const result = await ServerActions.getAssets(client, {
           account,
+          assetFilter,
+          assetTypeFilter,
           chainFilter,
         })
 

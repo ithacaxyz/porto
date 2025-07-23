@@ -866,12 +866,15 @@ export function from<
 
         case 'wallet_getAssets': {
           const [parameters] = request._decoded.params ?? []
-          const { account, chainFilter } = parameters
+          const { account, chainFilter, assetFilter, assetTypeFilter } =
+            parameters
 
           const client = getClient()
 
           const response = await getMode().actions.getAssets({
             account,
+            assetFilter,
+            assetTypeFilter,
             chainFilter,
             internal: {
               client,
