@@ -98,17 +98,6 @@ export function Dashboard() {
 
   const revokePermissions = Hooks.useRevokePermissions()
 
-  // const totalBalance = React.useMemo(() => {
-  //   if (!swapAssets.data) return 0n
-  //   return ArrayUtils.sum(
-  //     swapAssets.data.map(
-  //       (asset) =>
-  //         Number(Value.format(asset.balance, asset.decimals)) *
-  //         (asset.price ?? 0),
-  //     ),
-  //   )
-  // }, [swapAssets.data])
-
   const admins = Hooks.useAdmins({
     query: {
       enabled: account.status === 'connected',
