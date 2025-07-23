@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "destination": "/.well-known/m/apple-dev.txt",
@@ -29,7 +30,7 @@
         }
       ],
       "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
-    }
-  ],
-  "routes": [{ "dest": "/", "src": "/[^.]+", "status": 200 }]
+    },
+    { "destination": "/", "source": "/(.*)", "statusCode": 200 }
+  ]
 }
