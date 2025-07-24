@@ -345,7 +345,7 @@ export function popup(options: popup.Options = {}) {
   return from({
     name: 'popup',
     setup(parameters) {
-      const { host, internal, theme, themeController } = parameters
+      const { host, internal, themeController } = parameters
       const { store } = internal
 
       const hostUrl = new URL(host)

@@ -1381,7 +1381,7 @@ namespace Install {
     const { value } = props
     return (
       // biome-ignore lint/a11y/noLabelWithoutControl: _
-      <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] transition-all has-checked:border-blue9 has-checked:text-gray12 has-focus-visible:outline-1 has-focus-visible:outline-1 has-focus-visible:outline-blue9 has-focus-visible:transition-none">
+      <label className="flex items-center rounded-full border border-gray5 px-2 font-[400] text-[13px] text-gray9 leading-[unset] transition-all has-checked:border-blue9 has-checked:text-gray12">
         <Ariakit.VisuallyHidden>
           <Ariakit.Radio value={value} />
         </Ariakit.VisuallyHidden>
