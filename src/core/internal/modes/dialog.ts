@@ -10,6 +10,7 @@ import * as Dialog from '../../Dialog.js'
 import type { QueuedRequest } from '../../Porto.js'
 import * as RpcSchema_porto from '../../RpcSchema.js'
 import type { Storage } from '../../Storage.js'
+import * as Messenger from '../../Messenger.js'
 import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -27,6 +28,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
     host = 'https://stg.id.porto.sh/dialog',
     renderer = Dialog.iframe(),
     theme,
+    themeController,
   } = parameters
 
   const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
@@ -945,6 +947,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         host,
         internal,
         theme,
+        themeController,
       })
 
       const unsubscribe = store.subscribe(
@@ -992,6 +995,11 @@ export declare namespace dialog {
      * @default undefined
      */
     theme?: ThemeFragment | undefined
+    /**
+     * Theme controller.
+     * @default undefined
+     */
+    themeController?: Dialog.ThemeController | undefined
   }
 }
 

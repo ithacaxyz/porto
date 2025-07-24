@@ -24,23 +24,9 @@ export const store = createStore(
         return undefined
       })()
 
-      const customTheme = (() => {
-        const themeJson = new URLSearchParams(window.location.search).get(
-          'theme',
-        )
-        try {
-          return themeJson === null
-            ? undefined
-            : Theme.parseJsonTheme(themeJson)
-        } catch (error) {
-          console.warn('Failed to parse theme:', error)
-          return undefined
-        }
-      })()
-
       return {
         accountMetadata: {},
-        customTheme,
+        customTheme: undefined,
         display: 'full',
         error: null,
         mode: 'popup-standalone',

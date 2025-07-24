@@ -14,6 +14,7 @@ export type Dialog = {
     host: string
     internal: Internal
     theme?: ThemeFragment | undefined
+    themeController?: ThemeController | undefined
   }) => {
     close: () => void
     destroy: () => void
@@ -58,7 +59,7 @@ export function iframe(options: iframe.Options = {}) {
   return from({
     name: 'iframe',
     setup(parameters) {
-      const { host, internal, theme } = parameters
+      const { host, internal, theme, themeController } = parameters
       const { store } = internal
 
       const fallback = popup().setup(parameters)
@@ -88,7 +89,7 @@ export function iframe(options: iframe.Options = {}) {
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
 
-      iframe.setAttribute('src', getDialogUrl(host, theme))
+      iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, {
         ...styles.iframe,
@@ -154,6 +155,8 @@ export function iframe(options: iframe.Options = {}) {
         waitForReady: true,
       })
 
+      if (themeController) themeController._messenger = messenger
+
       const drawerModeQuery = window.matchMedia('(max-width: 460px)')
       const onDrawerModeChange = () => {
         messenger.send('__internal', {
@@ -176,11 +179,13 @@ export function iframe(options: iframe.Options = {}) {
         messenger.send('__internal', {
           mode: 'iframe',
           referrer: getReferrer(),
+          theme,
           type: 'init',
         })
 
         onDrawerModeChange()
       })
+
       messenger.on('rpc-response', (response) => {
         if (includesUnsupported([response._request])) {
           // reload iframe to rehydrate storage state if an
@@ -340,7 +345,7 @@ export function popup(options: popup.Options = {}) {
   return from({
     name: 'popup',
     setup(parameters) {
-      const { host, internal } = parameters
+      const { host, internal, theme, themeController } = parameters
       const { store } = internal
 
       const hostUrl = new URL(host)
@@ -384,6 +389,8 @@ export function popup(options: popup.Options = {}) {
             }),
             waitForReady: true,
           })
+
+          if (themeController) themeController._messenger = messenger
 
           messenger.send('__internal', {
             mode: 'popup',
@@ -453,7 +460,7 @@ export function experimental_inline(options: inline.Options) {
   return from({
     name: 'inline',
     setup(parameters) {
-      const { host, internal, theme } = parameters
+      const { host, internal, theme, themeController } = parameters
       const { store } = internal
 
       let open = false
@@ -476,7 +483,7 @@ export function experimental_inline(options: inline.Options) {
         'allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
       )
 
-      iframe.setAttribute('src', getDialogUrl(host, theme))
+      iframe.setAttribute('src', getDialogUrl(host))
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
 
@@ -490,13 +497,17 @@ export function experimental_inline(options: inline.Options) {
         waitForReady: true,
       })
 
+      if (themeController) themeController._messenger = messenger
+
       messenger.on('ready', () => {
         messenger.send('__internal', {
           mode: 'inline-iframe',
           referrer: getReferrer(),
+          theme,
           type: 'init',
         })
       })
+
       messenger.on('rpc-response', (response) =>
         handleResponse(store, response),
       )
@@ -535,6 +546,35 @@ export namespace inline {
   export type Options = {
     element: () => HTMLElement
   }
+}
+
+export type ThemeController = {
+  /**
+   * Used internally to communicate with the dialog.
+   * @deprecated
+   */
+  _messenger: Messenger.Messenger | null
+  /**
+   * Update the dialog theme.
+   * @param theme - The theme to set.
+   */
+  setTheme: (theme: ThemeFragment) => void
+}
+
+/**
+ * A controller to update the dialog theme.
+ */
+export function createThemeController(): ThemeController {
+  const controller: ThemeController = {
+    _messenger: null,
+    setTheme(theme) {
+      controller._messenger?.send('__internal', {
+        type: 'set-theme',
+        theme,
+      })
+    },
+  }
+  return controller
 }
 
 export const defaultSize = { height: 282, width: 360 }
@@ -643,7 +683,7 @@ export function isMobile() {
   )
 }
 
-export function getDialogUrl(host: string, theme?: ThemeFragment) {
+export function getDialogUrl(host: string) {
   const url = new URL(host)
   const parentParams = new URLSearchParams(window.location.search)
   const prefix = 'porto.'
@@ -651,8 +691,5 @@ export function getDialogUrl(host: string, theme?: ThemeFragment) {
     if (key.startsWith(prefix))
       url.searchParams.set(key.slice(prefix.length), value)
   }
-
-  if (theme) url.searchParams.set('theme', JSON.stringify(theme))
-
   return url.toString()
 }

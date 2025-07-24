@@ -10,7 +10,7 @@ import {
   TypedData,
   Value,
 } from 'ox'
-import { Chains } from 'porto'
+import { Chains, Dialog } from 'porto'
 import * as React from 'react'
 import { hashMessage, hashTypedData } from 'viem'
 import {
@@ -23,13 +23,14 @@ import {
   exp1Address,
   exp2Address,
   expNftAddress,
-  type ModeType,
+  isDialogModeType,
   mipd,
   modes,
   permissions,
   porto,
-  type ThemeType,
   themes,
+  type ModeType,
+  type ThemeType,
 } from './config'
 
 export function App() {
@@ -45,13 +46,35 @@ export function App() {
     theme: 'default',
   })
 
+  const themeRef = React.useRef<{
+    controller: ReturnType<typeof Dialog.createThemeController> | null
+    theme: ThemeType
+  }>({ controller: null, theme: options.theme })
+
+  // update mode
   React.useEffect(() => {
+    if (!isDialogModeType(mode)) {
+      porto._internal.setMode(modes[mode]())
+      themeRef.current.controller = null
+      return
+    }
+
+    themeRef.current.controller = Dialog.createThemeController()
     porto._internal.setMode(
-      mode === 'rpc' || mode === 'contract'
-        ? modes[mode]()
-        : modes[mode](options.theme),
+      modes[mode]({
+        theme: themes[themeRef.current.theme],
+        themeController: themeRef.current.controller,
+      }),
     )
-  }, [mode, options.theme])
+  }, [mode])
+
+  // update theme
+  React.useEffect(() => {
+    const theme = themes[options.theme]
+    if (!theme) return
+    themeRef.current.theme = options.theme
+    themeRef.current.controller?.setTheme(theme)
+  }, [options.theme])
 
   return (
     <main>

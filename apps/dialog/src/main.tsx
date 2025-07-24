@@ -1,4 +1,4 @@
-import { Env } from '@porto/apps'
+import { Env, Theme } from '@porto/apps'
 import * as Sentry from '@sentry/react'
 import { Events } from 'porto/remote'
 import { Actions } from 'porto/wagmi'
@@ -27,7 +27,7 @@ if (import.meta.env.PROD) {
 }
 
 const offInitialized = Events.onInitialized(porto, (payload) => {
-  const { mode, referrer } = payload
+  const { mode, referrer, theme } = payload
 
   Dialog.store.setState({
     mode,
@@ -43,6 +43,13 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
       // the dialog).
       url: document.referrer ? new URL(document.referrer) : undefined,
     },
+
+    // Only update `customTheme` if a theme is passed. This prevents overwriting
+    // the current theme with initialization messages happening after the
+    // initial load (e.g. in the open() method of dialog variants).
+    ...(theme
+      ? { customTheme: Theme.parseJsonTheme(JSON.stringify(theme)) }
+      : {}),
   })
 })
 
@@ -98,6 +105,11 @@ porto.messenger.on('__internal', (payload) => {
             display: payload.width > 460 ? 'floating' : 'drawer',
           },
     )
+
+  if (payload.type === 'set-theme' && payload.theme)
+    Dialog.store.setState({
+      customTheme: Theme.parseJsonTheme(JSON.stringify(payload.theme)),
+    })
 })
 
 porto.ready()

@@ -17,36 +17,47 @@ export const exp1Address = exp1Address_[chainId]
 export const exp2Address = exp2Address_[chainId]
 export const expNftAddress = expNftAddress_[chainId]
 
-export const modes = {
-  contract: () => Mode.contract(),
-  'iframe-dialog': (theme: ThemeType) =>
+const dialogModes = {
+  'iframe-dialog': (parameters: Mode.dialog.Parameters) =>
     Mode.dialog({
       host,
-      theme: themes[theme],
+      ...parameters,
     }),
-  'inline-dialog': (theme: ThemeType) =>
+  'inline-dialog': (parameters: Mode.dialog.Parameters) =>
     Mode.dialog({
       host,
       renderer: Dialog.experimental_inline({
         element: () => document.getElementById('porto')!,
       }),
-      theme: themes[theme],
+      ...parameters,
     }),
-  'popup-dialog': (theme: ThemeType) =>
+  'popup-dialog': (parameters: Mode.dialog.Parameters) =>
     Mode.dialog({
       host,
       renderer: Dialog.popup(),
-      theme: themes[theme],
+      ...parameters,
     }),
+} as const
+
+export const modes = {
+  contract: () => Mode.contract(),
   rpc: () => Mode.rpcServer(),
+  ...dialogModes,
 } as const
 
 export type ModeType = keyof typeof modes
+export type DialogModeType = keyof typeof dialogModes
+export type DialogMode = ReturnType<(typeof modes)[DialogModeType]>
+
+export function isDialogModeType(mode: ModeType): mode is DialogModeType {
+  return mode in dialogModes
+}
 
 export const themes = {
-  default: undefined,
+  default: { colorScheme: 'light dark' },
+  light: { colorScheme: 'light' },
+  dark: { colorScheme: 'dark' },
   pink: {
-    accent: '#ff007a',
     badgeBackground: '#ffffff',
     badgeContent: '#ff007a',
     badgeInfoBackground: '#fce3ef',
@@ -82,7 +93,7 @@ export const themes = {
     primaryHoveredBorder: '#ff2994',
     separator: '#f0f0f0',
   },
-} as const satisfies Record<string, ThemeFragment | undefined>
+} as const satisfies Record<string, ThemeFragment>
 export type ThemeType = keyof typeof themes
 
 export const mipd = createStore()
