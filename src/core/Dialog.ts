@@ -569,8 +569,8 @@ export function createThemeController(): ThemeController {
     _messenger: null,
     setTheme(theme) {
       controller._messenger?.send('__internal', {
-        type: 'set-theme',
         theme,
+        type: 'set-theme',
       })
     },
   }

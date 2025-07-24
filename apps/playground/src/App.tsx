@@ -24,13 +24,13 @@ import {
   exp2Address,
   expNftAddress,
   isDialogModeType,
+  type ModeType,
   mipd,
   modes,
   permissions,
   porto,
-  themes,
-  type ModeType,
   type ThemeType,
+  themes,
 } from './config'
 
 export function App() {

@@ -54,9 +54,9 @@ export function isDialogModeType(mode: ModeType): mode is DialogModeType {
 }
 
 export const themes = {
+  dark: { colorScheme: 'dark' },
   default: { colorScheme: 'light dark' },
   light: { colorScheme: 'light' },
-  dark: { colorScheme: 'dark' },
   pink: {
     badgeBackground: '#ffffff',
     badgeContent: '#ff007a',
