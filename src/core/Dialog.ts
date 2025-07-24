@@ -404,7 +404,32 @@ export function popup(options: popup.Options = {}) {
             requiresConfirmation(x.request),
           )
           if (requiresConfirm) {
-            if (!popup || popup.closed) this.open()
+            if (!popup || popup.closed) {
+              try {
+                this.open()
+              } catch (error) {
+                // Handle popup open errors (e.g. blocked by browser)
+                // Set requests to error state similar to handleBlur
+                store.setState((x) => ({
+                  ...x,
+                  requestQueue: x.requestQueue.map((queued) => {
+                    const isRequestInError = requests.some(
+                      (req) => req.request.id === queued.request.id,
+                    )
+                    if (isRequestInError) {
+                      return {
+                        account: queued.account,
+                        error: new Provider.UserRejectedRequestError(),
+                        request: queued.request,
+                        status: 'error',
+                      } as QueuedRequest
+                    }
+                    return queued
+                  }),
+                }))
+                return
+              }
+            }
             popup?.focus()
           }
           messenger?.send('rpc-requests', requests)
