@@ -49,7 +49,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
 exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
-    "chainId": undefined,
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -66,7 +66,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "type": "webauthn-p256",
   },
   {
-    "chainId": 31337,
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -106,7 +106,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` capability >
        1`] = `
 [
   {
-    "chainId": undefined,
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -175,6 +175,30 @@ Details: Request.Request
          │              │        └─ Expected undefined, actual {"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}
          │              └─ Expected undefined, actual {"createAccount":true,"grantPermissions":{"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}}
          └─ Expected undefined, actual [{"capabilities":{"createAccount":true,"grantPermissions":{"expiry":0,"feeLimit":{"currency":"USD","value":"1"},"permissions":{"calls":[{"signature":"mint()"}]}}}}]]
+`;
+
+exports[`contract > wallet_connect > default 1`] = `
+[
+  {
+    "chainId": null,
+    "expiry": null,
+    "feeLimit": undefined,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "prehash": false,
+    "privateKey": null,
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+]
+`;
+
+exports[`contract > wallet_disconnect > default 1`] = `
+[
+  [Provider.DisconnectedError: The provider is disconnected from all chains.],
+]
 `;
 
 exports[`contract > wallet_getAdmins > behavior: disconnected 1`] = `[Provider.DisconnectedError: The provider is disconnected from all chains.]`;
@@ -335,6 +359,14 @@ exports[`contract > wallet_getPermissions > behavior: grant on connect > grant a
 
 exports[`contract > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 3`] = `[]`;
 
+exports[`contract > wallet_grantAdmin > default 1`] = `
+{
+  "id": "0x0000000000000000000000000000000000069420",
+  "publicKey": "0x0000000000000000000000000000000000069420",
+  "type": "address",
+}
+`;
+
 exports[`contract > wallet_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
 Path: params.0.permissions.calls
@@ -406,7 +438,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 2`] = `
 exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
-    "chainId": undefined,
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -428,7 +460,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "webauthn-p256",
   },
   {
-    "chainId": 31337,
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -450,7 +482,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "p256",
   },
   {
-    "chainId": 31337,
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -493,7 +525,7 @@ Details: Request.Request
 exports[`contract > wallet_grantPermissions > default 1`] = `
 [
   {
-    "chainId": undefined,
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -510,7 +542,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
-    "chainId": 31337,
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -535,12 +567,62 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
 ]
 `;
 
+exports[`contract > wallet_revokeAdmin > default 1`] = `
+[
+  {
+    "chainId": null,
+    "expiry": null,
+    "feeLimit": undefined,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "prehash": false,
+    "privateKey": {
+      "privateKey": undefined,
+    },
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+  {
+    "chainId": null,
+    "expiry": null,
+    "hash": null,
+    "id": null,
+    "prehash": false,
+    "publicKey": null,
+    "role": "admin",
+    "type": "address",
+  },
+]
+`;
+
+exports[`contract > wallet_revokeAdmin > default 2`] = `
+[
+  {
+    "chainId": null,
+    "expiry": null,
+    "feeLimit": undefined,
+    "hash": null,
+    "id": null,
+    "permissions": undefined,
+    "prehash": false,
+    "privateKey": {
+      "privateKey": undefined,
+    },
+    "publicKey": null,
+    "role": "admin",
+    "type": "webauthn-p256",
+  },
+]
+`;
+
 exports[`contract > wallet_revokePermissions > behavior: revoke last admin key 1`] = `[RpcResponse.InternalError: cannot revoke permissions.]`;
 
 exports[`contract > wallet_revokePermissions > default 1`] = `
 [
   {
-    "chainId": undefined,
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -557,7 +639,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
-    "chainId": 31337,
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -585,7 +667,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
 exports[`contract > wallet_revokePermissions > default 2`] = `
 [
   {
-    "chainId": undefined,
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
