@@ -42,28 +42,19 @@ Pass your theme to the Porto dialog mode when creating the Porto instance. This 
 :::code-group
 
 ```ts [theming.ts]
-import { Dialog, Mode, Porto } from 'porto'
-import { porto as portoConnector } from 'porto/wagmi'
+import { Mode } from 'porto'
+import { porto  } from 'porto/wagmi'
 import { createConfig } from 'wagmi'
-import { theme } from './theme.js'
+import { theme } from './custom-theme.js'
 
-// Option 1: Using Porto directly with viem
-const porto = Porto.create({
-  mode: Mode.dialog({
-    theme,
-  }),
-})
-
-// Option 2: Using Porto with wagmi
-const connector = portoConnector({
-  mode: Mode.dialog({
-    theme,
-  }),
+const connector = porto({
+  mode: Mode.dialog({ // [!code focus]
+    theme, // [!code focus] pass your theme to Mode.dialog()
+  }), // [!code focus]
 })
 
 const wagmiConfig = createConfig({
   connectors: [connector],
-  // ... rest of your config
 })
 ```
 
@@ -77,6 +68,10 @@ export const theme: ThemeFragment = {
 }
 ```
 
+:::
+
+:::tip
+See [Getting Started](/sdk) for more details on how to initialize Porto.
 :::
 
 ::::
