@@ -2,8 +2,12 @@ import { anvil } from 'prool/instances'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { createTestClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { deployContract, waitForTransactionReceipt } from 'viem/actions'
+import {
+  deployContract,
+  setBalance,
+  waitForTransactionReceipt,
+  writeContract,
+} from 'viem/actions'
 import { type Address, Value } from 'ox'
 
 import * as Anvil from '../test/src/anvil.js'
@@ -23,11 +27,12 @@ const port = 8595
 const rpcUrl = `http://127.0.0.1:${port}`
 
 const stop = await anvil({
+  accounts: Anvil.accounts.length,
   port,
   dumpState: resolve(import.meta.dirname, '../test/src/_generated/anvil.json'),
 }).start()
 
-const account = privateKeyToAccount(Anvil.accounts[9]!.privateKey)
+const account = Anvil.account.relay
 const client = createTestClient({
   account,
   mode: 'anvil',
@@ -198,6 +203,24 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     hash,
   })
   exports.push(`export const funderAddress = '${contractAddress}'`)
+
+  // Fund contract.
+  await setBalance(client, {
+    address: contractAddress!,
+    value: Value.fromEther('10000'),
+  })
+
+  // Set gas wallets.
+  const hash_2 = await writeContract(client, {
+    abi: SimpleFunder.abi,
+    address: contractAddress!,
+    args: [Anvil.accounts.map((x) => x.address), true],
+    chain: null,
+    functionName: 'setGasWallet',
+  })
+  await waitForTransactionReceipt(client, {
+    hash: hash_2,
+  })
 }
 
 {
