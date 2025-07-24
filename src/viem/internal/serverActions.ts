@@ -171,7 +171,7 @@ export async function getKeys<chain extends Chain | undefined>(
       params: [
         Schema.encodeSync(RpcSchema.wallet_getKeys.Parameters)({
           address,
-          chain_id: chain?.id!,
+          chainId: chain?.id!,
         }),
       ],
     })
@@ -184,7 +184,7 @@ export async function getKeys<chain extends Chain | undefined>(
 
 export namespace getKeys {
   export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<RpcSchema.wallet_getKeys.Parameters, 'chain_id'> &
+    Omit<RpcSchema.wallet_getKeys.Parameters, 'chainId'> &
       GetChainParameter<chain>
 
   export type ReturnType = RpcSchema.wallet_getKeys.Response
