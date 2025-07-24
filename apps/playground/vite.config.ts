@@ -132,8 +132,8 @@ export default defineConfig(({ mode }) => {
                 exp1Address,
               ],
               funder: funderAddress,
-              funderOwnerKey: Anvil.accounts[9].privateKey,
-              funderSigningKey: Anvil.accounts[9].privateKey,
+              funderOwnerKey: Anvil.account.relay.privateKey,
+              funderSigningKey: Anvil.account.relay.privateKey,
               http: {
                 port: rpcServerConfig.port,
               },
