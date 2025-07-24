@@ -318,6 +318,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -432,6 +433,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -745,6 +747,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -765,6 +768,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -821,6 +825,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -848,6 +853,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -1154,6 +1160,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -1189,6 +1196,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -1245,6 +1253,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,

@@ -247,8 +247,7 @@ export namespace wallet_getKeys {
     /** The address to get the keys for. */
     address: Primitive.Address,
     /** Target chain ID. */
-    // TODO: `Primitive.Number`
-    chain_id: Schema.Number,
+    chainId: Primitive.Number,
   }).annotations({
     identifier: 'Rpc.wallet_getKeys.Parameters',
   })
