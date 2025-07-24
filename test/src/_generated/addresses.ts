@@ -8,5 +8,5 @@ export const accountNewProxyAddress = '0xf7cd8fa9b94db2aa972023b379c7f72c65e4de9
 export const expNftAddress = '0x12975173b87f7595ee45dffb2ab812ece596bf84'
 export const simulatorAddress = '0x82dc47734901ee7d4f4232f398752cb9dd5daccc'
 export const funderAddress = '0x196dbcbb54b8ec4958c959d8949ebfe87ac2aaaf'
-export const escrowAddress = '0x82c6d3ed4cd33d8ec1e51d0b5cc1d822eaa0c3dc'
-export const settlerAddress = '0x05b4cb126885fb10464fdd12666feb25e2563b76'
+export const escrowAddress = '0x05b4cb126885fb10464fdd12666feb25e2563b76'
+export const settlerAddress = '0x2a264f26859166c5bf3868a54593ee716aebc848'
