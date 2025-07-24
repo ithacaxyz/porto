@@ -5,12 +5,17 @@ import { createConfig, createStorage } from 'wagmi'
 
 const portoConfig = PortoConfig.getConfig()
 
+export const portoDialogThemeController = Dialog.createThemeController()
+
+export const portoDialog = Mode.dialog({
+  host: PortoConfig.getDialogHost(),
+  renderer: Dialog.iframe(),
+  themeController: portoDialogThemeController,
+})
+
 export const connector = porto({
   ...portoConfig,
-  mode: Mode.dialog({
-    host: PortoConfig.getDialogHost(),
-    renderer: Dialog.iframe(),
-  }),
+  mode: portoDialog,
 })
 
 export const config = createConfig({

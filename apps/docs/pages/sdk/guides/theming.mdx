@@ -1,0 +1,126 @@
+import { GuideDemoContainer } from '../../../components/GuideDemoContainer'
+import { Example } from '../../../components/guides/Theming'
+
+# Theming
+
+<GuideDemoContainer src="ithacaxyz/porto/tree/main/examples/permissions">
+  <Example />
+</GuideDemoContainer>
+
+## Porto Themes
+
+Porto allows customize the appearance of the dialog through its theming system. Themes contain various color properties targeting different parts of the dialog, such as the color of the various surfaces, text, buttons and more. See the [Theme API](/sdk/api/Theme) to learn more about the available properties and in which context they are used.
+
+![Illustration of the theme color names](/theme-preview.png)
+
+## Steps
+
+::::steps
+
+### Create the theme definition
+
+A theme definition defines the colors and other styles you want to use in the Porto dialog. The only required property is `colorScheme`, to let Porto know if you intend to extend the full theme (`light dark`) or if your theme will only support one color scheme (`light` or `dark`).
+
+```ts [custom-theme.ts]
+import type { ThemeFragment } from 'porto/theme'
+
+export const theme: ThemeFragment = {
+  colorScheme: 'light dark',
+  primaryBackground: ['#ff007a', '#ffffff'],
+  primaryContent: ['#ffffff', '#ff007a'],
+}
+```
+
+:::tip
+When defining a single `colorScheme` theme (using `light` or `dark`), colors must be passed as single values instead of color pairs. See the [Theme API](/sdk/api/Theme) for more details.
+:::
+
+### Initialize Porto with a theme
+
+Pass your theme to the Porto dialog mode when creating the Porto instance. This applies the theme to all dialog interactions.
+
+:::code-group
+
+```ts [theming.ts]
+import { Dialog, Mode, Porto } from 'porto'
+import { porto as portoConnector } from 'porto/wagmi'
+import { createConfig } from 'wagmi'
+import { theme } from './theme.js'
+
+// Option 1: Using Porto directly with viem
+const porto = Porto.create({
+  mode: Mode.dialog({
+    theme,
+  }),
+})
+
+// Option 2: Using Porto with wagmi
+const connector = portoConnector({
+  mode: Mode.dialog({
+    theme,
+  }),
+})
+
+const wagmiConfig = createConfig({
+  connectors: [connector],
+  // ... rest of your config
+})
+```
+
+```ts [custom-theme.ts]
+import type { ThemeFragment } from 'porto/theme'
+
+export const theme: ThemeFragment = {
+  colorScheme: 'light dark',
+  primaryBackground: ['#ff007a', '#ffffff'],
+  primaryContent: ['#ffffff', '#ff007a'],
+}
+```
+
+:::
+
+
+::::
+
+## Dynamic theme switching
+
+You also have the possibility to switch themes dynamically without reinitializing Porto. This can be useful for implementing a theme switcher or similar functionality in your application.
+
+:::code-group
+
+```ts [theme-switching.ts]
+import { Dialog, Mode, Porto } from 'porto'
+import { theme1, theme2 } from './themes.js'
+
+// create a theme controller
+const themeController = Dialog.createThemeController()
+
+// initialize Porto with the theme controller
+const porto = Porto.create({
+  mode: Mode.dialog({
+    themeController,
+  }),
+})
+
+// switch to the first theme
+themeController.setTheme(theme1)
+
+// switch to the second theme
+themeController.setTheme(theme2)
+```
+
+```ts [themes.ts]
+export const theme1 = {
+  colorScheme: 'light',
+  primaryBackground: '#ff007a',
+  primaryContent: '#ffffff',
+}
+
+export const theme2 = {
+  colorScheme: 'light',
+  primaryBackground: '#337c99',
+  primaryContent: '#ffffff',
+}
+```
+
+:::

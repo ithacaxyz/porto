@@ -192,6 +192,10 @@ export default defineConfig({
             link: '/sdk/guides/subscriptions',
             text: 'Subscriptions',
           },
+          {
+            link: '/sdk/guides/theming',
+            text: 'Theming',
+          },
         ],
         text: 'Guides',
       },
