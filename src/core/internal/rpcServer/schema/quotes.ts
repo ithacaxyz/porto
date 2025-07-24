@@ -18,12 +18,13 @@ export const Quote = Schema.Struct({
     Schema.Union(Primitive.Address, Schema.Null),
   ),
   /** Chain ID the quote is for. */
-  // TODO: `Primitive.Number`
-  chainId: Schema.Number,
+  chainId: Primitive.Number,
   /** The price (in wei) of ETH in the payment token. */
   ethPrice: Primitive.BigInt,
   /** Extra payment for e.g L1 DA fee that is paid on top of the execution gas. */
   extraPayment: Primitive.BigInt,
+  /** The deficit of the fee token. */
+  feeTokenDeficit: Primitive.BigInt,
   /** The fee estimate for the bundle in the destination chains native token. */
   intent: Intent.Intent,
   /** The `Intent` the quote is for. */
