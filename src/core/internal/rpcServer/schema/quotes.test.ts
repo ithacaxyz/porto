@@ -5,9 +5,10 @@ import * as Quotes from './quotes.js'
 describe('Quote', () => {
   const validQuoteData = {
     authorizationAddress: '0x1234567890123456789012345678901234567890',
-    chainId: 1,
+    chainId: '0x1',
     ethPrice: '0x1bc16d674ec80000',
     extraPayment: '0x0',
+    feeTokenDeficit: '0x32',
     intent: {
       combinedGas: '0x5208',
       encodedFundTransfers: [],
@@ -50,6 +51,7 @@ describe('Quote', () => {
         "chainId": 1,
         "ethPrice": 2000000000000000000n,
         "extraPayment": 0n,
+        "feeTokenDeficit": 50n,
         "intent": {
           "combinedGas": 21000n,
           "encodedFundTransfers": [],
@@ -91,9 +93,10 @@ describe('Quote', () => {
     expect(encodedData).toMatchInlineSnapshot(`
       {
         "authorizationAddress": "0x1234567890123456789012345678901234567890",
-        "chainId": 1,
+        "chainId": "0x1",
         "ethPrice": "0x1bc16d674ec80000",
         "extraPayment": "0x0",
+        "feeTokenDeficit": "0x32",
         "intent": {
           "combinedGas": "0x5208",
           "encodedFundTransfers": [],
@@ -162,12 +165,16 @@ describe('Quote', () => {
       ...validQuoteData,
       ethPrice: '0xffffffffffffffffffffffffffffffffff',
       extraPayment: '0xffffffffffffffffffffffffffffffffffff',
+      feeTokenDeficit: '0xffffffffffffffffffffffffffffff',
       txGas: '0xffffffffffffffffffffffffffffffff',
     }
     const result = Schema.decodeUnknownSync(Quotes.Quote)(dataWithLargeBigInts)
     expect(result.ethPrice).toBe(BigInt('0xffffffffffffffffffffffffffffffffff'))
     expect(result.extraPayment).toBe(
       BigInt('0xffffffffffffffffffffffffffffffffffff'),
+    )
+    expect(result.feeTokenDeficit).toBe(
+      BigInt('0xffffffffffffffffffffffffffffff'),
     )
     expect(result.txGas).toBe(BigInt('0xffffffffffffffffffffffffffffffff'))
   })
@@ -177,20 +184,22 @@ describe('Quote', () => {
       ...validQuoteData,
       ethPrice: '0xff',
       extraPayment: '0xffff',
+      feeTokenDeficit: '0xfffff',
       txGas: '0xffffff',
     }
     const decoded = Schema.decodeUnknownSync(Quotes.Quote)(dataWithLargeBigInts)
     const encoded = Schema.encodeSync(Quotes.Quote)(decoded)
     expect(encoded.ethPrice).toBe('0xff')
     expect(encoded.extraPayment).toBe('0xffff')
+    expect(encoded.feeTokenDeficit).toBe('0xfffff')
     expect(encoded.txGas).toBe('0xffffff')
   })
 
   test.each([
-    { chainId: 1, expected: 1 },
-    { chainId: 5, expected: 5 },
-    { chainId: 137, expected: 137 },
-    { chainId: 42161, expected: 42161 },
+    { chainId: '0x1', expected: 1 },
+    { chainId: '0x5', expected: 5 },
+    { chainId: '0x89', expected: 137 },
+    { chainId: '0x10435', expected: 66613 },
   ])(
     'behavior: decodes quote with chainId $chainId',
     ({ chainId, expected }) => {
@@ -227,7 +236,7 @@ describe('Quote', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
       Path: authorizationAddress
 
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: number; readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
       └─ ["authorizationAddress"]
          └─ \`0x\${string}\` | null | undefined
             ├─ \`0x\${string}\` | null
@@ -247,7 +256,7 @@ describe('Quote', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
       Path: orchestrator
 
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: number; readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
       └─ ["orchestrator"]
          └─ Expected \`0x\${string}\`, actual "invalid-address"]
     `)
@@ -263,7 +272,7 @@ describe('Quote', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
       Path: ethPrice
 
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: number; readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
       └─ ["ethPrice"]
          └─ (\`0x\${string}\` <-> bigint)
             └─ Encoded side transformation failure
@@ -278,12 +287,14 @@ describe('Quote', () => {
         chainId: 'not-a-number',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: Expected number, actual "not-a-number"
+      [Schema.CoderError: Expected \`0x\${string}\`, actual "not-a-number"
       Path: chainId
 
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: number; readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
       └─ ["chainId"]
-         └─ Expected number, actual "not-a-number"]
+         └─ (\`0x\${string}\` <-> number)
+            └─ Encoded side transformation failure
+               └─ Expected \`0x\${string}\`, actual "not-a-number"]
     `)
   })
 
@@ -294,12 +305,14 @@ describe('Quote', () => {
         // Missing other required fields
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [Schema.CoderError: \`ethPrice\` is missing
-      Path: ethPrice
+      [Schema.CoderError: Expected \`0x\${string}\`, actual 1
+      Path: chainId
 
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: number; readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
-      └─ ["ethPrice"]
-         └─ is missing]
+      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
+      └─ ["chainId"]
+         └─ (\`0x\${string}\` <-> number)
+            └─ Encoded side transformation failure
+               └─ Expected \`0x\${string}\`, actual 1]
     `)
   })
 
@@ -316,7 +329,7 @@ describe('Quote', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
       Path: nativeFeeEstimate.maxFeePerGas
 
-      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: number; readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly authorizationAddress?: \`0x\${string}\` | null | undefined; readonly chainId: (\`0x\${string}\` <-> number); readonly ethPrice: (\`0x\${string}\` <-> bigint); readonly extraPayment: (\`0x\${string}\` <-> bigint); readonly feeTokenDeficit: (\`0x\${string}\` <-> bigint); readonly intent: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }; readonly nativeFeeEstimate: { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }; readonly orchestrator: \`0x\${string}\`; readonly paymentTokenDecimals: number; readonly txGas: (\`0x\${string}\` <-> bigint) }
       └─ ["nativeFeeEstimate"]
          └─ { readonly maxFeePerGas: (\`0x\${string}\` <-> bigint); readonly maxPriorityFeePerGas: (\`0x\${string}\` <-> bigint) }
             └─ ["maxFeePerGas"]
@@ -333,9 +346,10 @@ describe('Quotes', () => {
     quotes: [
       {
         authorizationAddress: '0x1234567890123456789012345678901234567890',
-        chainId: 1,
+        chainId: '0x1',
         ethPrice: '0x1bc16d674ec80000',
         extraPayment: '0x0',
+        feeTokenDeficit: '0x32',
         intent: {
           combinedGas: '0x5208',
           encodedFundTransfers: [],
@@ -443,9 +457,10 @@ describe('Signed', () => {
     quotes: [
       {
         authorizationAddress: '0x1234567890123456789012345678901234567890',
-        chainId: 1,
+        chainId: '0x1',
         ethPrice: '0x1bc16d674ec80000',
         extraPayment: '0x0',
+        feeTokenDeficit: '0x32',
         intent: {
           combinedGas: '0x5208',
           encodedFundTransfers: [],
