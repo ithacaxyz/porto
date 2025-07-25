@@ -1,7 +1,7 @@
 import type { Porto } from 'porto'
 import { waitForCallsStatus } from 'viem/actions'
 import { afterEach, describe, expect, test } from 'vitest'
-import { getPorto } from '../../../test/src/browser/porto.js'
+import { getPorto } from '../../../test/src/browser/config.js'
 import { interact } from '../../../test/src/browser/utils.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 
