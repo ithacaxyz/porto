@@ -18,19 +18,8 @@ const defaultConfig = {
   delegationProxy: accountProxyAddress,
   escrow: escrowAddress,
   funder: funderAddress,
-<<<<<<< HEAD
   funderOwnerKey: Anvil.account.relay.privateKey,
   funderSigningKey: Anvil.account.relay.privateKey,
-||||||| parent of 39b82d78 (feat: relay v15 (#604))
-  endpoint: (key) => `http://127.0.0.1:${Anvil.instances.portoDev.port}/${key}`,
-  feeTokens: [
-    '0x0000000000000000000000000000000000000000',
-    exp1Address[Chains.anvil.id],
-  ],
-=======
-  funderOwnerKey: Anvil.accounts[9].privateKey,
-  funderSigningKey: Anvil.accounts[9].privateKey,
->>>>>>> 39b82d78 (feat: relay v15 (#604))
   intentGasBuffer: 100_000n,
   orchestrator: orchestratorAddress,
   simulator: simulatorAddress,
