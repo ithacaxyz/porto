@@ -249,9 +249,20 @@ export namespace wallet_getAssets {
     key: Primitive.Hex,
     value: Schema.Array(
       Schema.Struct({
-        address: Schema.Union(Primitive.Address, Schema.Literal('native')),
+        address: Schema.Union(
+          Primitive.Address,
+          Schema.Literal('native'),
+          Schema.Null,
+        ),
         balance: Primitive.Hex,
-        metadata: Schema.Any,
+        metadata: Schema.NullOr(
+          Schema.Struct({
+            decimals: Schema.Number,
+            name: Schema.String,
+            symbol: Schema.String,
+            uri: Schema.NullOr(Schema.String),
+          }),
+        ),
         type: Schema.String,
       }),
     ),
