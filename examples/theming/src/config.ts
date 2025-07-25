@@ -9,7 +9,6 @@ export const config = createConfig({
     porto({
       mode: Mode.dialog({
         theme: {
-          colorScheme: 'light',
           badgeBackground: '#ffffff',
           badgeContent: '#ff007a',
           badgeInfoBackground: '#fce3ef',
@@ -21,6 +20,7 @@ export const config = createConfig({
           baseContent: '#202020',
           baseContentSecondary: '#8d8d8d',
           baseHoveredBackground: '#f0f0f0',
+          colorScheme: 'light',
           fieldBackground: '#f0f0f0',
           fieldBorder: '#f0f0f0',
           fieldContent: '#202020',

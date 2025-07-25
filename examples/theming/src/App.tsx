@@ -26,18 +26,16 @@ export function App() {
             Sign out
           </button>
         ) : (
-          <>
-            <button
-              onClick={() =>
-                connect.connect({
-                  connector: connect.connectors[0],
-                })
-              }
-              type="button"
-            >
-              Sign in
-            </button>
-          </>
+          <button
+            onClick={() =>
+              connect.connect({
+                connector: connect.connectors[0],
+              })
+            }
+            type="button"
+          >
+            Sign in
+          </button>
         )}
       </div>
       {connect.error && <div>Error: {connect.error?.message}</div>}

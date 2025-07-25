@@ -25,10 +25,10 @@ button {
   font-family: inherit;
   font-size: inherit;
   color: #fff;
+  cursor: pointer;
   background: #ff007a;
   border: 0;
   border-radius: 4px;
-  cursor: pointer;
 }
 button:active {
   background: #ff2994;
