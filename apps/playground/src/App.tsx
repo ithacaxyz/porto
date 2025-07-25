@@ -10,7 +10,7 @@ import {
   TypedData,
   Value,
 } from 'ox'
-import { Chains, Dialog } from 'porto'
+import { Dialog } from 'porto'
 import * as React from 'react'
 import { hashMessage, hashTypedData } from 'viem'
 import {
