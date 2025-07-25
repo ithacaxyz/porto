@@ -10,12 +10,7 @@ import {
   TypedData,
   Value,
 } from 'ox'
-<<<<<<< HEAD
 import { Dialog } from 'porto'
-||||||| parent of 39b82d78 (feat: relay v15 (#604))
-import { Chains } from 'porto'
-=======
->>>>>>> 39b82d78 (feat: relay v15 (#604))
 import * as React from 'react'
 import { hashMessage, hashTypedData } from 'viem'
 import {
