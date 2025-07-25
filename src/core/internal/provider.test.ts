@@ -2811,7 +2811,6 @@ describe.each([
 
       const alice = Hex.random(20)
 
-      // Send transaction
       const { id } = await porto.provider.request({
         method: 'wallet_sendCalls',
         params: [
@@ -2871,11 +2870,12 @@ describe.each([
         value: Value.fromEther('100'),
       })
 
-      // Get assets on initial chain
       const assetsInitial = await porto.provider.request({
         method: 'wallet_getAssets',
         params: [{ account: address }],
       })
+      expect(assetsInitial).toBeDefined()
+      expect(Object.keys(assetsInitial).length).toBeGreaterThanOrEqual(1)
 
       // Switch to a different chain if available
       const targetChain = porto._internal.config.chains.find(
@@ -2888,7 +2888,6 @@ describe.each([
           params: [{ chainId: Hex.fromNumber(targetChain.id) }],
         })
 
-        // Get assets on new chain
         const assetsNewChain = await porto.provider.request({
           method: 'wallet_getAssets',
           params: [{ account: address }],
@@ -2937,7 +2936,6 @@ describe.each([
       })
       expect(assetsConnected).toBeDefined()
 
-      // Disconnect
       await porto.provider.request({
         method: 'wallet_disconnect',
       })
