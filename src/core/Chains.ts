@@ -51,7 +51,7 @@ export const baseSepolia = /*#__PURE__*/ define({
   contracts: {
     ...chains.baseSepolia.contracts,
     portoAccount: {
-      address: '0x623b5b44647871268d481d2930f60d5d7f37a1fe',
+      address: '0x6d0f5e01df440cb03d67c076d220b412d5d011ca',
     },
   },
   rpcUrls: {

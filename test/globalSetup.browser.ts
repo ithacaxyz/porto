@@ -11,7 +11,7 @@ export default async function () {
           env: {
             ...(process as any).env,
             ...import.meta.env,
-            ANVIL: (import.meta.env.VITE_LOCAL !== 'false').toString(),
+            ANVIL: (import.meta.env.VITE_DEFAULT_ENV === 'anvil').toString(),
           },
         },
       )
@@ -23,7 +23,7 @@ export default async function () {
 
   // TODO: use prool rpc server instance directly.
   let process_playground: process.ChildProcess | undefined
-  if (import.meta.env.VITE_LOCAL !== 'false')
+  if (import.meta.env.VITE_DEFAULT_ENV === 'anvil')
     await fetch('http://localhost:5173').catch(() => {
       return new Promise<void>((resolve) => {
         process_playground = process.spawn(

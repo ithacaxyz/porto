@@ -19,6 +19,10 @@ on:
         type: boolean
         description: 'Perform relay image build and push'
         default: false
+      env:
+        type: string
+        description: 'Environment to use for tests'
+        default: 'dev'
       rpc-url:
         type: string
         description: 'RPC URL to use for tests'
@@ -80,28 +84,28 @@ jobs:
           echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
 
   test:
-    name: Tests (${{ matrix.local == 'true' && 'Local' || 'Deployment' }}, ${{ matrix.browser == 'true' && 'Browser' || 'Node' }})
+    name: "Tests (Env: ${{ matrix.env }}, Runtime: ${{ matrix.browser == 'true' && 'Browser' || 'Node' }})"
     needs: relay-release
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       matrix:
         include:
-          - local: 'true'
+          - env: 'anvil'
             browser: 'true'
             enabled: ${{ inputs.test-local-browser == true || inputs.test-local-browser == null }}
-          - local: 'true'
+          - env: 'anvil'
             browser: 'false'
             enabled: ${{ inputs.test-local-node == true || inputs.test-local-node == null }}
-          # - local: 'false'
-          #   browser: 'true'
-          #   enabled: ${{ inputs.test-deployment-browser == true || inputs.test-deployment-browser == null }}
-          # - local: 'false'
-          #   browser: 'false'
-          #   enabled: ${{ inputs.test-deployment-node == true || inputs.test-deployment-node == null }}
+          - env: ${{ inputs.env }}
+            browser: 'true'
+            enabled: ${{ inputs.test-deployment-browser == true || inputs.test-deployment-browser == null }}
+          - env: ${{ inputs.env }}
+            browser: 'false'
+            enabled: ${{ inputs.test-deployment-node == true || inputs.test-deployment-node == null }}
     env: 
       CI: true
-      VITE_LOCAL: ${{ matrix.local }}
+      VITE_DEFAULT_ENV: ${{ matrix.env }}
       VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
       VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
@@ -141,7 +145,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Set up Docker
-        if: matrix.enabled == true && matrix.local == 'true'
+        if: matrix.enabled == true && matrix.env == 'anvil'
         uses: docker/setup-docker-action@v4
 
       - name: Install Playwright
@@ -154,4 +158,4 @@ jobs:
         with:
           max_attempts: 3
           timeout_minutes: 30
-          command: pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
+          command: pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.env == 'anvil' && '--bail=1 --retry=3' || '' }}

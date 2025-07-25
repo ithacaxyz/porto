@@ -1,19 +1,12 @@
-import { Chains, Mode, Porto, Storage } from 'porto'
+import { Mode, Porto, Storage } from 'porto'
 import { http } from 'viem'
 import * as ServerClient from '../../src/viem/ServerClient.js'
 import * as Contracts from './_generated/contracts.js'
-import * as Anvil from './anvil.js'
-import * as RpcServer from './rpcServer.js'
+import { getChain } from './chains.js'
+import { poolId } from './prool.js'
 
-// Determine which chain to use based on RPC URL
-const rpcUrl = process.env.VITE_RPC_URL || 'https://porto-dev.rpc.ithaca.xyz'
-export const chain = Anvil.enabled
-  ? Chains.anvil
-  : rpcUrl === 'https://base-sepolia.rpc.ithaca.xyz'
-    ? Chains.baseSepolia
-    : rpcUrl === 'https://base-mainnet.rpc.ithaca.xyz'
-      ? Chains.base
-      : Chains.portoDev
+const env = import.meta.env.VITE_DEFAULT_ENV
+const chain = getChain(env)
 
 export const exp1Address = Contracts.exp1Address[chain.id]
 export const exp1Abi = Contracts.exp1Abi
@@ -39,10 +32,11 @@ export function getPorto(
   const {
     mode = Mode.rpcServer,
     merchantRpcUrl,
-    rpcUrl = Anvil.enabled
-      ? RpcServer.instances.portoDev.rpcUrl
-      : process.env.VITE_RPC_URL || 'https://porto-dev.rpc.ithaca.xyz',
+    rpcUrl: overrideRpcUrl = import.meta.env.VITE_RPC_URL,
   } = parameters
+  const rpcUrl =
+    overrideRpcUrl ||
+    `${chain.rpcUrls.default.http[0]}${env === 'anvil' ? `/${poolId}` : ''}`
   const porto = Porto.create({
     chains: [chain],
     feeToken: 'EXP',

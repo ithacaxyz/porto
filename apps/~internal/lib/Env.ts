@@ -1,8 +1,4 @@
 export const defaultEnv = (() => {
-  if (import.meta.env.MODE === 'test') {
-    if (import.meta.env.VITE_LOCAL === 'true') return 'anvil'
-    return 'dev'
-  }
   if (import.meta.env.VITE_VERCEL_ENV === 'preview') return 'dev'
   if (import.meta.env.VITE_DEFAULT_ENV)
     return import.meta.env.VITE_DEFAULT_ENV as Env
