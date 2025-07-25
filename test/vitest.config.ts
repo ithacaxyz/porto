@@ -5,6 +5,11 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
+    define: {
+      'import.meta.env.VITE_DEFAULT_ENV': JSON.stringify(
+        env.VITE_DEFAULT_ENV ?? 'anvil',
+      ),
+    },
     test: {
       alias: {
         porto: join(__dirname, '../src'),
@@ -27,13 +32,13 @@ export default defineConfig(({ mode }) => {
             include: [
               '!src/**/*.browser.test.ts',
               'src/**/*.test.ts',
-              ...(env.VITE_LOCAL === 'false'
+              ...(env.VITE_DEFAULT_ENV !== 'anvil'
                 ? ['!src/**/*ContractActions.test.ts']
                 : []),
             ],
             name: 'default',
             poolOptions:
-              env.VITE_LOCAL === 'false'
+              env.VITE_DEFAULT_ENV !== 'anvil'
                 ? {
                     forks: {
                       maxForks: 1,

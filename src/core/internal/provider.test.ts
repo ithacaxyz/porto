@@ -32,7 +32,7 @@ import * as ServerClient from '../../viem/ServerClient.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 
 describe.each([
-  ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
+  ['contract', Anvil.enabled ? Mode.contract : undefined],
   ['rpcServer', Mode.rpcServer],
 ] as const)('%s', (type, mode) => {
   if (!mode) return
