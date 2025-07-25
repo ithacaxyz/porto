@@ -98,14 +98,7 @@ jobs:
             enabled: ${{ inputs.test-deployment-node == true || inputs.test-deployment-node == null }}
     env: 
       CI: true
-<<<<<<< HEAD
       VITE_DEFAULT_ENV: ${{ matrix.env }}
-||||||| parent of 39b82d78 (feat: relay v15 (#604))
-      VITE_LOCAL: ${{ matrix.local }}
-=======
-      VITE_RPC_DEBUG: true
-      VITE_LOCAL: ${{ matrix.local }}
->>>>>>> 39b82d78 (feat: relay v15 (#604))
       VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
       VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
