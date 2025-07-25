@@ -6,7 +6,7 @@ import { type PrivateKeyAccount, privateKeyToAccount } from 'viem/accounts'
 import type { FixedArray } from '../../src/core/internal/types.js'
 import { poolId } from './prool.js'
 
-export const enabled = process.env.VITE_LOCAL !== 'false'
+export const enabled = process.env.VITE_DEFAULT_ENV === 'anvil'
 
 export const accounts = Array.from({ length: 20 }, (_, i) => i).map((i) => {
   const privateKey = Mnemonic.toPrivateKey(
