@@ -571,6 +571,7 @@ export namespace wallet_disconnect {
 }
 
 export namespace wallet_getAssets {
+  /** Parameters  */
   const AssetType = Schema.Union(
     Schema.Literal('native'),
     Schema.Literal('erc20'),
@@ -597,6 +598,7 @@ export namespace wallet_getAssets {
   })
   export type Parameters = typeof Parameters.Type
 
+  /** Request for `wallet_getAssets`. */
   export const Request = Schema.Struct({
     method: Schema.Literal('wallet_getAssets'),
     params: Schema.Tuple(Parameters),
@@ -605,16 +607,30 @@ export namespace wallet_getAssets {
   })
   export type Request = typeof Request.Type
 
+  /** Response for `wallet_getAssets`. */
   export const Response = Schema.Record({
     key: Primitive.Hex,
     value: Schema.Array(
       Schema.Struct({
-        address: Schema.Union(Primitive.Address, Schema.Literal('native')),
+        address: Schema.Union(
+          Primitive.Address,
+          Schema.Literal('native'),
+          Schema.Null,
+        ),
         balance: Primitive.Hex,
-        metadata: Schema.Any,
+        metadata: Schema.NullOr(
+          Schema.Struct({
+            decimals: Schema.Number,
+            name: Schema.String,
+            symbol: Schema.String,
+            uri: Schema.NullOr(Schema.String),
+          }),
+        ),
         type: Schema.String,
       }),
     ),
+  }).annotations({
+    identifier: 'Rpc.wallet_getAssets.Response',
   })
   export type Response = typeof Response.Type
 }
