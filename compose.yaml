@@ -21,6 +21,8 @@ services:
     build:
       context: "${DOCKER_BUILD_CONTEXT:-https://github.com/ithacaxyz/porto.git}"
       dockerfile: ./docker/config/Dockerfile
+    environment:
+      FOUNDRY_DISABLE_NIGHTLY_WARNING: "true"
     user: root
     volumes:
       - relay:/app/shared
