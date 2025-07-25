@@ -89,8 +89,26 @@ export const baseSepolia = /*#__PURE__*/ define({
   rpcUrls: {
     default: {
       http: [
-        'https://base-sepolia.rpc.ithaca.xyz',
+        'https://base-sepolia-int.rpc.ithaca.xyz',
         ...chains.baseSepolia.rpcUrls.default.http,
+      ],
+    },
+  },
+})
+
+export const optimismSepolia = /*#__PURE__*/ define({
+  ...chains.optimismSepolia,
+  contracts: {
+    ...chains.optimismSepolia.contracts,
+    portoAccount: {
+      address: '0x76334de3a35b0e824b8cfe36bb8b735f1a4a338e',
+    },
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        'https://optimism-sepolia-int.rpc.ithaca.xyz',
+        ...chains.optimismSepolia.rpcUrls.default.http,
       ],
     },
   },

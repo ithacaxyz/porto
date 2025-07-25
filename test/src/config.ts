@@ -1,25 +1,13 @@
-import { Chains, Mode, Porto, Storage } from 'porto'
+import { type Chains, Mode, Porto, Storage } from 'porto'
 import { http } from 'viem'
 import * as ServerClient from '../../src/viem/ServerClient.js'
 import * as WalletClient from '../../src/viem/WalletClient.js'
 import * as Contracts from './_generated/contracts.js'
-import * as Anvil from './anvil.js'
+import { getChains } from './chains.js'
 import { poolId } from './prool.js'
 
-const envRpcUrl = process.env.VITE_RPC_URL
-
-export const chains = (() => {
-  if (Anvil.enabled)
-    return [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros] as const
-  if (envRpcUrl?.includes('base-mainnet')) return [Chains.base] as const
-  if (envRpcUrl?.includes('base-sepolia')) return [Chains.baseSepolia] as const
-  return [
-    Chains.portoDevParos,
-    Chains.portoDevTinos,
-    Chains.portoDevLeros,
-  ] as const
-})()
-export type ChainId = (typeof chains)[number]['id']
+const env = process.env.VITE_DEFAULT_ENV!
+const chains = getChains(env)
 
 export function getPorto(
   parameters: {
@@ -31,7 +19,7 @@ export function getPorto(
   const {
     mode = Mode.rpcServer,
     merchantRpcUrl,
-    rpcUrl: overrideRpcUrl = envRpcUrl,
+    rpcUrl: overrideRpcUrl = process.env.VITE_RPC_URL,
   } = parameters
 
   return Porto.create({
@@ -45,7 +33,8 @@ export function getPorto(
     transports: chains.reduce(
       (transports, chain) => {
         const rpcUrl =
-          overrideRpcUrl || `${chain.rpcUrls.default.http[0]}/${poolId}`
+          overrideRpcUrl ||
+          `${chain.rpcUrls.default.http[0]}${env === 'anvil' ? `/${poolId}` : ''}`
 
         return {
           // biome-ignore lint/performance/noAccumulatingSpread: _
