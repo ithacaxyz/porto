@@ -5,11 +5,12 @@ server:
   max_connections: 5000
 chain:
   endpoints:
-    - http://anvil:8545
+  - http://anvil:8545
   sequencer_endpoints: {}
   fee_tokens:
-    - "0x0000000000000000000000000000000000000000"
-  fee_recipient: "0x0000000000000000000000000000000000000000"
+  - '0x0000000000000000000000000000000000000000'
+  interop_tokens:
+  fee_recipient: '0x0000000000000000000000000000000000000000'
 quote:
   constantRate: 1.0
   gas:
@@ -17,12 +18,6 @@ quote:
     txBuffer: 100000
   ttl: 30
   rateTtl: 300
-onramp:
-  banxa:
-    apiUrl: https://api.banxa-sandbox.com/
-    blockchain: base
-    secrets:
-      api_key: ""
 transactions:
   num_signers: 16
   max_pending_transactions: 100
@@ -32,10 +27,12 @@ transactions:
   nonce_check_interval: 60
   transaction_timeout: 60
   public_node_endpoints: {}
-  priority_fee_percentile: 20
-orchestrator: 
+  priority_fee_percentile: 20.0
+orchestrator:
 legacy_orchestrators: []
 legacy_delegation_proxies: []
-delegation_proxy: 
-simulator: 
+delegation_proxy:
+simulator:
+funder:
+escrow:
 database_url: null
