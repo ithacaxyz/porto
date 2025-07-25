@@ -271,6 +271,7 @@ export async function prepareCalls<
                   type: key.type,
                 }
               : undefined,
+            requiredFunds: capabilities.requiredFunds,
           }),
         ],
       },
@@ -293,7 +294,11 @@ export namespace prepareCalls {
   > = {
     address?: Address.Address | undefined
     calls: Calls<Narrow<calls>>
-    capabilities: RpcSchema.wallet_prepareCalls.Capabilities
+    capabilities: RpcSchema.wallet_prepareCalls.Capabilities & {
+      requiredFunds?:
+        | RpcSchema.wallet_prepareCalls.Parameters['requiredFunds']
+        | undefined
+    }
     key: RpcSchema.wallet_prepareCalls.Parameters['key']
   } & GetChainParameter<chain>
 
