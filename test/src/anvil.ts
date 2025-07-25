@@ -26,24 +26,6 @@ export const account = {
   relay: accounts[9],
 } as const
 
-export const accounts = Array.from({ length: 20 }, (_, i) => i).map((i) => {
-  const privateKey = Mnemonic.toPrivateKey(
-    'test test test test test test test test test test test junk',
-    {
-      as: 'Hex',
-      path: Mnemonic.path({ index: i }),
-    },
-  )
-  return {
-    ...privateKeyToAccount(privateKey),
-    privateKey,
-  }
-}) as unknown as FixedArray<PrivateKeyAccount & { privateKey: Hex.Hex }, 20>
-
-export const account = {
-  relay: accounts[9],
-} as const
-
 export const instances = {
   paros: defineAnvil({
     loadState: resolve(import.meta.dirname, '_generated/anvil.json'),
