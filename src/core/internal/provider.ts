@@ -118,7 +118,7 @@ export function from<
 
           const client = getClient()
 
-          return await getMode().actions.addFunds({
+          const result = await getMode().actions.addFunds({
             address: account.address,
             internal: {
               client,
@@ -129,6 +129,13 @@ export function from<
             token,
             value: value ? Hex.toBigInt(value) : undefined,
           })
+
+          emitter.emit('message', {
+            data: null,
+            type: 'assetsChanged',
+          })
+
+          return result
         }
 
         case 'eth_accounts': {
