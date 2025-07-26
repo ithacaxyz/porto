@@ -13,7 +13,7 @@ import {
 } from 'viem'
 import type { Chain } from '../core/Chains.js'
 import type * as Capabilities from '../core/internal/rpcServer/schema/capabilities.js'
-import type * as Quote from '../core/internal/rpcServer/schema/quote.js'
+import type * as Quotes from '../core/internal/rpcServer/schema/quotes.js'
 import type { OneOf, PartialBy, RequiredBy } from '../core/internal/types.js'
 import * as Account from './Account.js'
 import * as ServerActions from './internal/serverActions.js'
@@ -74,14 +74,14 @@ export async function getKeys<
   client: Client<Transport, chain, account>,
   parameters: getKeys.Parameters<chain, account>,
 ): Promise<getKeys.ReturnType> {
-  const { account = client.account, chain } = parameters
+  const { account = client.account, chain = client.chain } = parameters
   const account_ = account ? Account.from(account) : undefined
   if (!account_) throw new Error('account is required.')
   const keys = await ServerActions.getKeys(client, {
     address: account_.address,
     chain,
   })
-  return keys.map(Key.fromRpcServer)
+  return keys.map((key) => Key.fromRpcServer(key, { chainId: chain?.id ?? 0 }))
 }
 
 export namespace getKeys {
@@ -233,7 +233,7 @@ export namespace prepareCalls {
 
   export type ReturnType = {
     capabilities: ServerActions.prepareCalls.ReturnType['capabilities'] & {
-      quote: Quote.Signed
+      quote: Quotes.Signed
     }
     context: ServerActions.prepareCalls.ReturnType['context']
     digest: ServerActions.prepareCalls.ReturnType['digest']

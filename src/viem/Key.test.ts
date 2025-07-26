@@ -10,10 +10,11 @@ import { verifyHash } from 'viem/actions'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { createAccount } from '../../test/src/actions.js'
-import { getPorto } from '../../test/src/porto.js'
+import * as TestConfig from '../../test/src/config.js'
 import * as Key from './Key.js'
 
-const { client } = getPorto()
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
 
 describe('createP256', () => {
   test('default', () => {
@@ -26,6 +27,7 @@ describe('createP256', () => {
     expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "permissions": undefined,
@@ -49,6 +51,7 @@ describe('createSecp256k1', () => {
     expect(id).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "permissions": undefined,
@@ -129,6 +132,7 @@ describe('createWebAuthnP256', () => {
     expect(id).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "permissions": undefined,
@@ -183,6 +187,7 @@ describe('createWebCryptoP256', () => {
     expect(publicKey).toBeDefined()
     expect(rest).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "permissions": undefined,
@@ -206,6 +211,7 @@ describe('deserialize', () => {
 
     expect(deserialized).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
         "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
@@ -227,6 +233,7 @@ describe('deserialize', () => {
 
     expect(deserialized).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "hash": "0x6364f61156f50881a6e5b27442a97c2f218cba981f5bcd1a398750515212b1ab",
         "id": "0xe9cf8e14602e9f081668f2839e63ceb23c6e0e5a",
@@ -247,6 +254,7 @@ describe('deserialize', () => {
 
     expect(deserialized).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "hash": "0xf3d20b7404e4008e6a4df9ffbce26e5f275296eda26b4e82e6c6ea05ad85b650",
         "id": "0xed7ac7c7b35b77e97be67b84f5889e0ab3412222",
@@ -283,6 +291,7 @@ describe('from', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 69420,
         "hash": "0x8708c3265105bf57dd6be9e79d384bde46f64e9cf75ddeb72bca10de17986b33",
         "id": "0x144f4bf8bda60e5bf0e9f11a509e55a14987a6c5a63aed81bcb6939f9f5abc7c3598cce19015350ce8d30f11e57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
@@ -303,6 +312,7 @@ describe('from', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "hash": "0x8f76ad68e08f96d89aecd0d57e451be5152675b77ae73134389656e0bc3d695a",
         "id": "0xe57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
@@ -321,6 +331,7 @@ describe('from', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "hash": "0x8f76ad68e08f96d89aecd0d57e451be5152675b77ae73134389656e0bc3d695a",
         "id": "0xe57cbdd55ccfbc5f30d9ccf59ffd080967229fe9",
@@ -339,6 +350,7 @@ describe('from', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "hash": "0xc17311fbf840057e649cef2df2acac84d1fc35a37d754f5f1aa5c00f0d887b21",
         "id": "0x03febc0a78f3e15613be7be0bd84abcd1652d3f0",
@@ -393,6 +405,7 @@ describe('fromP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
@@ -416,6 +429,7 @@ describe('fromP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 69420,
         "feeLimit": undefined,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
@@ -433,34 +447,40 @@ describe('fromP256', () => {
 
 describe('fromRpcServer', () => {
   test('default', () => {
-    const key = Key.fromRpcServer({
-      expiry: 0,
-      permissions: [
-        {
-          selector: '0x1249c58b',
-          to: '0x3232323232323232323232323232323232323232',
-          type: 'call',
-        },
-        {
-          selector: '0xdeadbeef',
-          to: '0x0000000000000000000000000000000000000000',
-          type: 'call',
-        },
-        {
-          limit: 1000000000000000000n,
-          period: 'minute',
-          token: '0x0000000000000000000000000000000000000000',
-          type: 'spend',
-        },
-      ],
-      publicKey:
-        '0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008',
-      role: 'admin',
-      type: 'p256',
-    })
+    const key = Key.fromRpcServer(
+      {
+        expiry: 0,
+        permissions: [
+          {
+            selector: '0x1249c58b',
+            to: '0x3232323232323232323232323232323232323232',
+            type: 'call',
+          },
+          {
+            selector: '0xdeadbeef',
+            to: '0x0000000000000000000000000000000000000000',
+            type: 'call',
+          },
+          {
+            limit: 1000000000000000000n,
+            period: 'minute',
+            token: '0x0000000000000000000000000000000000000000',
+            type: 'spend',
+          },
+        ],
+        publicKey:
+          '0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008',
+        role: 'admin',
+        type: 'p256',
+      },
+      {
+        chainId: 1,
+      },
+    )
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": 1,
         "expiry": 0,
         "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
         "id": "0xec0effa5f2f378cbf7fd2fa7ca1e8dc51cf777c129fa1c00a0e9a9205f2e511ff3f20b34a4e0b50587d055c0e0fad33d32cf1147d3bb2538fbab0d15d8e65008",
@@ -501,6 +521,7 @@ describe('fromSecp256k1', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "hash": "0xd325ebfdb383f9fca8e4e1c443cdceddda39f1f860824156b75ec85f11b94a35",
@@ -522,6 +543,7 @@ describe('fromSecp256k1', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "hash": "0x6ce15638cb31daec095a6f3834f344957f69c7dc09ff935917447b3d65976595",
@@ -544,6 +566,7 @@ describe('fromSecp256k1', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "hash": "0xd325ebfdb383f9fca8e4e1c443cdceddda39f1f860824156b75ec85f11b94a35",
@@ -605,6 +628,7 @@ describe('fromWebAuthnP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "hash": "0x2a7a39929a819ed8472f7fe3aa65a758432cc8ab833e9999f50217d55c70c50f",
@@ -653,6 +677,7 @@ describe('fromWebCryptoP256', () => {
 
     expect(key).toMatchInlineSnapshot(`
       {
+        "chainId": undefined,
         "expiry": 0,
         "feeLimit": undefined,
         "hash": "0xa2085f4d3a69fcf0182dbe60a3b7da9b5fd8b2b54d7ea39d345ba82d6edc8fe1",

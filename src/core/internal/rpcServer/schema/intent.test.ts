@@ -5,9 +5,14 @@ import * as Intent from './intent.js'
 describe('Intent', () => {
   const validIntentData = {
     combinedGas: '0x5208',
+    encodedFundTransfers: [],
     encodedPreCalls: ['0xdeadbeef', '0xcafebabe'],
     eoa: '0x1234567890123456789012345678901234567890',
     executionData: '0xabcdef',
+    expiry: '0x1234567890',
+    funder: '0x1234567890123456789012345678901234567890',
+    funderSignature: '0xfundersig123',
+    isMultichain: false,
     nonce: '0x1',
     payer: '0x1234567890123456789012345678901234567890',
     paymentRecipient: '0x9876543210987654321098765432109876543210',
@@ -15,6 +20,8 @@ describe('Intent', () => {
     paymentToken: '0xa0b86991c31cc0c7b6f931c7d751c635d989dc1bb',
     prePaymentAmount: '0x64',
     prePaymentMaxAmount: '0xc8',
+    settler: '0x9876543210987654321098765432109876543210',
+    settlerContext: '0xsettlercontext123',
     signature: '0xsignature123',
     supportedAccountImplementation:
       '0x0000000000000000000000000000000000000000',
@@ -27,12 +34,17 @@ describe('Intent', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "combinedGas": 21000n,
+        "encodedFundTransfers": [],
         "encodedPreCalls": [
           "0xdeadbeef",
           "0xcafebabe",
         ],
         "eoa": "0x1234567890123456789012345678901234567890",
         "executionData": "0xabcdef",
+        "expiry": 78187493520n,
+        "funder": "0x1234567890123456789012345678901234567890",
+        "funderSignature": "0xfundersig123",
+        "isMultichain": false,
         "nonce": 1n,
         "payer": "0x1234567890123456789012345678901234567890",
         "paymentRecipient": "0x9876543210987654321098765432109876543210",
@@ -40,6 +52,8 @@ describe('Intent', () => {
         "paymentToken": "0xa0b86991c31cc0c7b6f931c7d751c635d989dc1bb",
         "prePaymentAmount": 100n,
         "prePaymentMaxAmount": 200n,
+        "settler": "0x9876543210987654321098765432109876543210",
+        "settlerContext": "0xsettlercontext123",
         "signature": "0xsignature123",
         "supportedAccountImplementation": "0x0000000000000000000000000000000000000000",
         "totalPaymentAmount": 300n,
@@ -54,12 +68,17 @@ describe('Intent', () => {
     expect(encodedData).toMatchInlineSnapshot(`
       {
         "combinedGas": "0x5208",
+        "encodedFundTransfers": [],
         "encodedPreCalls": [
           "0xdeadbeef",
           "0xcafebabe",
         ],
         "eoa": "0x1234567890123456789012345678901234567890",
         "executionData": "0xabcdef",
+        "expiry": "0x1234567890",
+        "funder": "0x1234567890123456789012345678901234567890",
+        "funderSignature": "0xfundersig123",
+        "isMultichain": false,
         "nonce": "0x1",
         "payer": "0x1234567890123456789012345678901234567890",
         "paymentRecipient": "0x9876543210987654321098765432109876543210",
@@ -67,6 +86,8 @@ describe('Intent', () => {
         "paymentToken": "0xa0b86991c31cc0c7b6f931c7d751c635d989dc1bb",
         "prePaymentAmount": "0x64",
         "prePaymentMaxAmount": "0xc8",
+        "settler": "0x9876543210987654321098765432109876543210",
+        "settlerContext": "0xsettlercontext123",
         "signature": "0xsignature123",
         "supportedAccountImplementation": "0x0000000000000000000000000000000000000000",
         "totalPaymentAmount": "0x12c",
@@ -137,7 +158,7 @@ describe('Intent', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-address"
       Path: eoa
 
-      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
       └─ ["eoa"]
          └─ Expected \`0x\${string}\`, actual "invalid-address"]
     `)
@@ -153,7 +174,7 @@ describe('Intent', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
       Path: combinedGas
 
-      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
       └─ ["combinedGas"]
          └─ (\`0x\${string}\` <-> bigint)
             └─ Encoded side transformation failure
@@ -171,7 +192,7 @@ describe('Intent', () => {
       [Schema.CoderError: \`combinedGas\` is missing
       Path: combinedGas
 
-      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
       └─ ["combinedGas"]
          └─ is missing]
     `)
@@ -187,7 +208,7 @@ describe('Intent', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-hex"
       Path: encodedPreCalls.1
 
-      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
+      Details: { readonly combinedGas: (\`0x\${string}\` <-> bigint); readonly encodedFundTransfers: ReadonlyArray<\`0x\${string}\`>; readonly encodedPreCalls: ReadonlyArray<\`0x\${string}\`>; readonly eoa: \`0x\${string}\`; readonly executionData: \`0x\${string}\`; readonly expiry: (\`0x\${string}\` <-> bigint); readonly funder: \`0x\${string}\`; readonly funderSignature: \`0x\${string}\`; readonly isMultichain: boolean; readonly nonce: (\`0x\${string}\` <-> bigint); readonly payer: \`0x\${string}\`; readonly paymentRecipient: \`0x\${string}\`; readonly paymentSignature: \`0x\${string}\`; readonly paymentToken: \`0x\${string}\`; readonly prePaymentAmount: (\`0x\${string}\` <-> bigint); readonly prePaymentMaxAmount: (\`0x\${string}\` <-> bigint); readonly settler: \`0x\${string}\`; readonly settlerContext: \`0x\${string}\`; readonly signature: \`0x\${string}\`; readonly supportedAccountImplementation: \`0x\${string}\`; readonly totalPaymentAmount: (\`0x\${string}\` <-> bigint); readonly totalPaymentMaxAmount: (\`0x\${string}\` <-> bigint) }
       └─ ["encodedPreCalls"]
          └─ ReadonlyArray<\`0x\${string}\`>
             └─ [1]
@@ -345,14 +366,21 @@ describe('Partial', () => {
     )
     const fullDecoded = Schema.decodeUnknownSync(Intent.Intent)({
       combinedGas: '0x5208',
+      encodedFundTransfers: [],
       encodedPreCalls: [],
       ...validPartialData,
+      expiry: '0x1234567890',
+      funder: '0x1234567890123456789012345678901234567890',
+      funderSignature: '0xfundersig123',
+      isMultichain: false,
       payer: '0x1234567890123456789012345678901234567890',
       paymentRecipient: '0x9876543210987654321098765432109876543210',
       paymentSignature: '0x123456',
       paymentToken: '0xa0b86991c31cc0c7b6f931c7d751c635d989dc1bb',
       prePaymentAmount: '0x64',
       prePaymentMaxAmount: '0xc8',
+      settler: '0x9876543210987654321098765432109876543210',
+      settlerContext: '0xsettlercontext123',
       signature: '0xsignature123',
       supportedAccountImplementation:
         '0x0000000000000000000000000000000000000000',

@@ -116,4 +116,10 @@ export const methodPolicies = [
       headless: true,
     },
   },
+  {
+    method: 'wallet_switchEthereumChain',
+    modes: {
+      headless: true,
+    },
+  },
 ] as const satisfies MethodPolicies

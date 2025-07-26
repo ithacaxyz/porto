@@ -1,5 +1,5 @@
 import * as Schema from 'effect/Schema'
-import * as Quote from '../rpcServer/schema/quote.js'
+import * as Quotes from '../rpcServer/schema/quotes.js'
 import * as Rpc_server from '../rpcServer/schema/rpc.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
@@ -379,6 +379,20 @@ export namespace wallet_revokePermissions {
   export const Response = undefined
 }
 
+export namespace wallet_switchEthereumChain {
+  export const Request = Schema.Struct({
+    method: Schema.Literal('wallet_switchEthereumChain'),
+    params: Schema.Tuple(
+      Schema.Struct({
+        chainId: Primitive.Hex,
+      }),
+    ),
+  }).annotations({
+    identifier: 'Rpc.wallet_switchEthereumChain.Request',
+  })
+  export type Request = typeof Request.Type
+}
+
 export namespace wallet_updateAccount {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),
@@ -692,7 +706,7 @@ export namespace wallet_prepareCalls {
       Schema.extend(
         Rpc_server.wallet_prepareCalls.ResponseCapabilities,
         Schema.Struct({
-          quote: Schema.optional(Quote.Signed),
+          quote: Schema.optional(Quotes.Signed),
         }),
       ),
     ),
@@ -703,7 +717,7 @@ export namespace wallet_prepareCalls {
       }),
       calls: Parameters.fields.calls,
       nonce: Primitive.BigInt,
-      quote: Schema.optional(Schema.partial(Quote.Signed)),
+      quote: Schema.optional(Schema.partial(Quotes.Signed)),
     }),
     digest: Primitive.Hex,
     key: Key.Base.pick('prehash', 'publicKey', 'type'),

@@ -37,6 +37,23 @@ export type Filter<
   : readonly [...Acc]
 
 /**
+ * Creates a fixed array of `count` elements of type `type`.
+ *
+ * @example
+ * ```ts
+ * type Result = FixedArray<string, 3>
+ * //   ^? type Result = readonly [string, string, string]
+ * ```
+ */
+export type FixedArray<
+  type,
+  count extends number,
+  result extends readonly type[] = [],
+> = result['length'] extends count
+  ? result
+  : FixedArray<type, count, readonly [...result, type]>
+
+/**
  * Checks if `T` can be narrowed further than `U`
  *
  * @example

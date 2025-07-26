@@ -9,14 +9,14 @@ const mock = import.meta.env.MODE === 'test'
 
 const config = {
   anvil: {
-    chains: [Chains.anvil],
+    chains: [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros],
     mode: Mode.rpcServer({
       mock,
       persistPreCalls: false,
     }),
   },
   dev: {
-    chains: [Chains.portoDev],
+    chains: [Chains.portoDevParos, Chains.portoDevLeros, Chains.portoDevTinos],
     feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
@@ -24,7 +24,9 @@ const config = {
     }),
     storageKey: 'porto.store.dev',
     transports: {
-      [Chains.portoDev.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.portoDevParos.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.portoDevLeros.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.portoDevTinos.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   prod: {

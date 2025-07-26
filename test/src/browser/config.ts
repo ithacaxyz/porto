@@ -1,11 +1,11 @@
-import { Chains, Dialog, Mode, Porto } from 'porto'
+import { type Chains, Dialog, Mode, Porto } from 'porto'
+import { getChains } from '../chains.js'
 
-const chain =
-  import.meta.env.VITE_LOCAL !== 'false' ? Chains.anvil : Chains.portoDev
+const chains = getChains(import.meta.env.VITE_DEFAULT_ENV)
 
 export const getPorto = () =>
   Porto.create({
-    chains: [chain] as readonly [Chains.Chain, ...Chains.Chain[]],
+    chains: chains as readonly [Chains.Chain, ...Chains.Chain[]],
     feeToken: 'EXP',
     mode: Mode.dialog({
       host: 'http://localhost:5175/dialog/',

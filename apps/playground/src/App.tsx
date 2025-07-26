@@ -10,7 +10,7 @@ import {
   TypedData,
   Value,
 } from 'ox'
-import { Chains, Dialog } from 'porto'
+import { Dialog } from 'porto'
 import * as React from 'react'
 import { hashMessage, hashTypedData } from 'viem'
 import {
@@ -128,7 +128,13 @@ export function App() {
           <hr />
           <br />
         </div>
-
+        <h2>Chain Management</h2>
+        <SwitchChain />
+        <div>
+          <br />
+          <hr />
+          <br />
+        </div>
         <h2>Permissions</h2>
         <GrantPermissions />
         <GetPermissions />
@@ -206,12 +212,14 @@ function State() {
 }
 
 function Events() {
-  const [responses, setResponses] = React.useState<Record<string, unknown>>({})
+  const [responses, setResponses] = React.useState<Record<string, unknown[]>>(
+    {},
+  )
   React.useEffect(() => {
     const handleResponse = (event: string) => (response: unknown) =>
       setResponses((responses) => ({
         ...responses,
-        [event]: response,
+        [event]: [...(responses[event] ?? []), response],
       }))
 
     const handleAccountsChanged = handleResponse('accountsChanged')
@@ -648,6 +656,42 @@ function UpdateAccount() {
         Update Account
       </button>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+    </div>
+  )
+}
+
+function SwitchChain() {
+  const [chainId, setChainId] = React.useState<number | undefined>(undefined)
+
+  React.useEffect(() => {
+    porto.provider
+      .request({
+        method: 'eth_chainId',
+      })
+      .then((chainId) => setChainId(Hex.toNumber(chainId)))
+  }, [])
+
+  return (
+    <div>
+      <h3>wallet_switchEthereumChain</h3>
+      <div>
+        {porto.config.chains.map((chain) => (
+          <button
+            disabled={chainId === chain.id}
+            key={chain.id}
+            onClick={async () => {
+              setChainId(chain.id)
+              await porto.provider.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: Hex.fromNumber(chain.id) }],
+              })
+            }}
+            type="button"
+          >
+            {chain.name}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -1299,12 +1343,16 @@ function PrepareCalls() {
 
         if (!keyPair) throw new Error('create key first.')
 
+        const chainId = await porto.provider.request({
+          method: 'eth_chainId',
+        })
+
         const { digest, ...request } = await porto.provider.request({
           method: 'wallet_prepareCalls',
           params: [
             {
               calls,
-              chainId: Hex.fromNumber(Chains.portoDev.id),
+              chainId,
               key: {
                 publicKey: keyPair.publicKey,
                 type: 'p256',

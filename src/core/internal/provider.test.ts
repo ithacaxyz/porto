@@ -25,18 +25,14 @@ import { describe, expect, test, vi } from 'vitest'
 import { accountOldProxyAddress } from '../../../test/src/_generated/addresses.js'
 import { createAccount, setBalance } from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
+import * as TestConfig from '../../../test/src/config.js'
 import * as Http from '../../../test/src/http.js'
-import {
-  exp1Abi,
-  exp1Address,
-  getPorto as getPorto_,
-} from '../../../test/src/porto.js'
 import * as RpcServer from '../../../test/src/rpcServer.js'
 import * as ServerClient from '../../viem/ServerClient.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 
 describe.each([
-  ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
+  ['contract', Anvil.enabled ? Mode.contract : undefined],
   ['rpcServer', Mode.rpcServer],
 ] as const)('%s', (type, mode) => {
   if (!mode) return
@@ -47,14 +43,14 @@ describe.each([
       rpcUrl?: string | undefined
     } = {},
   ) =>
-    getPorto_({
+    TestConfig.getPorto({
       ...config,
       mode,
     })
 
   describe('eth_accounts', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await porto.provider.request({
         method: 'wallet_connect',
         params: [
@@ -73,7 +69,7 @@ describe.each([
     })
 
     test('behavior: disconnected', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await expect(
         porto.provider.request({
           method: 'eth_accounts',
@@ -84,7 +80,7 @@ describe.each([
 
   describe('eth_requestAccounts', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await porto.provider.request({
         method: 'wallet_connect',
         params: [{ capabilities: { createAccount: true } }],
@@ -101,10 +97,9 @@ describe.each([
 
   describe('eth_sendTransaction', () => {
     test('default', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -126,12 +121,12 @@ describe.each([
         params: [
           {
             data: encodeFunctionData({
-              abi: exp1Abi,
+              abi: contracts.exp1.abi,
               args: [alice, 69420n],
               functionName: 'transfer',
             }),
             from: address,
-            to: exp1Address,
+            to: contracts.exp1.address,
           },
         ],
       })
@@ -143,8 +138,8 @@ describe.each([
 
       expect(
         await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [alice],
           functionName: 'balanceOf',
         }),
@@ -154,7 +149,7 @@ describe.each([
 
   describe('eth_signTypedData_v4', () => {
     test.runIf(!Anvil.enabled)('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
 
       const {
         accounts: [account],
@@ -188,7 +183,7 @@ describe.each([
     test('default', async () => {
       const messages: any[] = []
 
-      const { porto } = getPorto()
+      const porto = getPorto()
       const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
@@ -233,7 +228,7 @@ describe.each([
 
   describe('wallet_getAdmins', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await porto.provider.request({
         method: 'wallet_connect',
         params: [
@@ -253,7 +248,7 @@ describe.each([
     })
 
     test('behavior: disconnected', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await expect(
         porto.provider.request({
           method: 'wallet_getAdmins',
@@ -262,7 +257,7 @@ describe.each([
     })
 
     test('behavior: disconnect > connect > getAdmins', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await porto.provider.request({
         method: 'wallet_connect',
         params: [
@@ -294,7 +289,7 @@ describe.each([
     test('default', async () => {
       const messages: any[] = []
 
-      const { porto } = getPorto()
+      const porto = getPorto()
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
@@ -323,6 +318,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -344,7 +340,7 @@ describe.each([
     test('behavior: provided key', async () => {
       const messages: any[] = []
 
-      const { porto } = getPorto()
+      const porto = getPorto()
       porto.provider.on('message', (message) => messages.push(message))
 
       await porto.provider.request({
@@ -437,6 +433,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -456,7 +453,7 @@ describe.each([
     })
 
     test('behavior: no permissions', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await porto.provider.request({
         method: 'wallet_connect',
         params: [{ capabilities: { createAccount: true } }],
@@ -486,7 +483,7 @@ describe.each([
     })
 
     test('behavior: unlimited expiry', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await porto.provider.request({
         method: 'wallet_connect',
         params: [{ capabilities: { createAccount: true } }],
@@ -518,7 +515,7 @@ describe.each([
 
   describe('wallet_getPermissions', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await porto.provider.request({
         method: 'wallet_connect',
         params: [{ capabilities: { createAccount: true } }],
@@ -566,7 +563,9 @@ describe.each([
     })
 
     test('behavior: grant on connect > grant another > get after connect', async () => {
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
       const { accounts } = await porto.provider.request({
         method: 'wallet_connect',
         params: [
@@ -710,7 +709,7 @@ describe.each([
 
   describe('wallet_revokeAdmin', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
@@ -748,6 +747,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -768,6 +768,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -782,7 +783,7 @@ describe.each([
 
   describe('wallet_revokePermissions', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
@@ -824,6 +825,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -851,6 +853,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -863,7 +866,7 @@ describe.each([
     })
 
     test('behavior: revoke last admin key', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
 
       const messages: any[] = []
       porto.provider.on('message', (message) => messages.push(message))
@@ -887,7 +890,7 @@ describe.each([
 
   describe('wallet_getAccountVersion', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
 
       await porto.provider.request({
         method: 'wallet_connect',
@@ -899,14 +902,14 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.3.3",
-          "latest": "0.3.3",
+          "current": "0.4.6",
+          "latest": "0.4.6",
         }
       `)
     })
 
     test('behavior: provided address', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
 
       const {
         accounts: [account],
@@ -922,14 +925,14 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.3.3",
-          "latest": "0.3.3",
+          "current": "0.4.6",
+          "latest": "0.4.6",
         }
       `)
     })
 
     test('behavior: not connected', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
 
       await expect(
         porto.provider.request({
@@ -941,7 +944,7 @@ describe.each([
     })
 
     test('behavior: account not found', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
 
       await porto.provider.request({
         method: 'wallet_connect',
@@ -959,7 +962,7 @@ describe.each([
     })
 
     test.runIf(Anvil.enabled)('behavior: outdated account', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
@@ -1005,7 +1008,7 @@ describe.each([
       expect(version).toMatchInlineSnapshot(`
         {
           "current": "0.0.1",
-          "latest": "0.3.3",
+          "latest": "0.4.6",
         }
       `)
     })
@@ -1013,7 +1016,7 @@ describe.each([
 
   describe('wallet_updateAccount', () => {
     test.runIf(Anvil.enabled && type === 'rpcServer')('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
@@ -1053,13 +1056,13 @@ describe.each([
       })
       expect(version).toMatchInlineSnapshot(`
         {
-          "current": "0.3.3",
-          "latest": "0.3.3",
+          "current": "0.4.6",
+          "latest": "0.4.6",
         }
       `)
 
-      const { porto: porto_newAccount } = getPorto({
-        rpcUrl: RpcServer.instances.portoDev_newAccount.rpcUrl,
+      const porto_newAccount = getPorto({
+        rpcUrl: RpcServer.instances.paros_newAccount.rpcUrl,
       })
       porto_newAccount._internal.store.setState(
         porto._internal.store.getState(),
@@ -1071,7 +1074,7 @@ describe.each([
         })
         expect(version).toMatchInlineSnapshot(`
           {
-            "current": "0.3.3",
+            "current": "0.4.6",
             "latest": "69.0.0",
           }
         `)
@@ -1102,7 +1105,7 @@ describe.each([
 
   describe('personal_sign', () => {
     test.runIf(!Anvil.enabled)('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
 
       const {
         accounts: [account],
@@ -1136,7 +1139,9 @@ describe.each([
     test('default', async () => {
       const messages: any[] = []
 
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
       porto.provider.on('connect', (message) => messages.push(message))
 
       await porto.provider.request({
@@ -1155,6 +1160,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -1169,7 +1175,9 @@ describe.each([
     test('behavior: `createAccount` capability', async () => {
       const messages: any[] = []
 
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
       porto.provider.on('connect', (message) => messages.push(message))
 
       await porto.provider.request({
@@ -1188,6 +1196,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -1213,7 +1222,9 @@ describe.each([
     test('behavior: `createAccount` + `grantPermissions` capability', async () => {
       const messages: any[] = []
 
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
       porto.provider.on('connect', (message) => messages.push(message))
 
       await porto.provider.request({
@@ -1242,6 +1253,7 @@ describe.each([
       expect(
         accounts![0]!.keys?.map((x) => ({
           ...x,
+          chainId: null,
           expiry: null,
           hash: null,
           id: null,
@@ -1262,7 +1274,9 @@ describe.each([
     test('behavior: `createAccount` + `grantPermissions` capability (provided key)', async () => {
       const messages: any[] = []
 
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
       porto.provider.on('connect', (message) => messages.push(message))
 
       const privateKey =
@@ -1319,7 +1333,7 @@ describe.each([
     })
 
     test('behavior: `grantPermissions` capability (unlimited expiry)', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await expect(() =>
         porto.provider.request({
           method: 'wallet_connect',
@@ -1345,7 +1359,7 @@ describe.each([
     })
 
     test('behavior: `grantPermissions` capability (no permissions)', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       await expect(() =>
         porto.provider.request({
           method: 'wallet_connect',
@@ -1371,7 +1385,8 @@ describe.each([
     })
 
     test('behavior: `signInWithEthereum` capability', async () => {
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
 
       const res = await porto.provider.request({
         method: 'wallet_connect',
@@ -1421,7 +1436,7 @@ describe.each([
     test('default', async () => {
       const messages: any[] = []
 
-      const { porto } = getPorto()
+      const porto = getPorto()
       porto.provider.on('disconnect', (message) => messages.push(message))
 
       await porto.provider.request({
@@ -1438,9 +1453,68 @@ describe.each([
     })
   })
 
+  describe('wallet_switchEthereumChain', () => {
+    test('default', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      const initialChainId = await porto.provider.request({
+        method: 'eth_chainId',
+      })
+      expect(initialChainId).toBe(Hex.fromNumber(client.chain.id))
+
+      const targetChain = porto._internal.config.chains.find(
+        (chain) => chain.id !== client.chain.id,
+      )
+      if (!targetChain) throw new Error('No target chain found')
+
+      await porto.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: Hex.fromNumber(targetChain.id) }],
+      })
+
+      const state = porto._internal.store.getState()
+      expect(state.chainId).toBe(targetChain.id)
+
+      const nextChainId = await porto.provider.request({
+        method: 'eth_chainId',
+      })
+      expect(nextChainId).toBe(Hex.fromNumber(targetChain.id))
+      expect(nextChainId).not.toBe(initialChainId)
+
+      await porto.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: initialChainId }],
+      })
+    })
+
+    test('behavior: unsupported chain', async () => {
+      const porto = getPorto()
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      await expect(
+        porto.provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x999' }],
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[Provider.UnsupportedChainIdError: This Wallet does not support the requested chain ID.]',
+      )
+    })
+  })
+
   describe.runIf(Anvil.enabled)('wallet_getCapabilities', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
       const capabilities = await porto.provider.request({
         method: 'wallet_getCapabilities',
       })
@@ -1458,7 +1532,9 @@ describe.each([
     })
 
     test('behavior: chainId', async () => {
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
       const capabilities = await porto.provider.request({
         method: 'wallet_getCapabilities',
         params: [undefined, [Hex.fromNumber(client.chain.id)]],
@@ -1483,10 +1559,9 @@ describe.each([
 
   describe('wallet_sendCalls', () => {
     test('default', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -1510,11 +1585,11 @@ describe.each([
             calls: [
               {
                 data: encodeFunctionData({
-                  abi: exp1Abi,
+                  abi: contracts.exp1.abi,
                   args: [alice, 69420n],
                   functionName: 'transfer',
                 }),
-                to: exp1Address,
+                to: contracts.exp1.address,
               },
             ],
             from: address,
@@ -1531,8 +1606,8 @@ describe.each([
 
       expect(
         await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [alice],
           functionName: 'balanceOf',
         }),
@@ -1542,10 +1617,9 @@ describe.each([
     test.runIf(type === 'rpcServer' && Anvil.enabled)(
       'behavior: `feeToken` capability',
       async () => {
-        const { porto } = getPorto()
-        const client = ServerClient.fromPorto(porto).extend(() => ({
-          mode: 'anvil',
-        }))
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -1573,11 +1647,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, 100n],
                     functionName: 'mint',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               capabilities: {
@@ -1597,16 +1671,16 @@ describe.each([
 
         expect(
           await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
+            abi: contracts.exp1.abi,
+            address: contracts.exp1.address,
             args: [address],
             functionName: 'balanceOf',
           }),
         ).toBe(Value.fromEther('10000'))
         expect(
           await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
+            abi: contracts.exp1.abi,
+            address: contracts.exp1.address,
             args: [alice],
             functionName: 'balanceOf',
           }),
@@ -1617,7 +1691,9 @@ describe.each([
     test.runIf(type === 'rpcServer')(
       'behavior: merchant fee sponsor',
       async () => {
-        const { client, porto } = getPorto()
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
 
         const merchantKey = Key.createSecp256k1()
         const merchantAccount = await createAccount(client, {
@@ -1653,14 +1729,14 @@ describe.each([
         })
 
         const userBalance_pre = await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [address],
           functionName: 'balanceOf',
         })
         const merchantBalance_pre = await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
@@ -1672,11 +1748,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [Hex.random(20), Value.fromEther('1')],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               capabilities: {
@@ -1695,14 +1771,14 @@ describe.each([
         })
 
         const userBalance_post = await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [address],
           functionName: 'balanceOf',
         })
         const merchantBalance_post = await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
@@ -1718,10 +1794,9 @@ describe.each([
     test.runIf(type === 'rpcServer')(
       'behavior: merchant fee sponsor (porto config)',
       async () => {
-        const {
-          client,
-          porto: { config },
-        } = getPorto()
+        const p = getPorto()
+        const client = TestConfig.getServerClient(p)
+        const contracts = TestConfig.getContracts(p)
 
         const merchantKey = Key.createSecp256k1()
         const merchantAccount = await createAccount(client, {
@@ -1730,7 +1805,7 @@ describe.each([
         })
 
         const listener = MerchantRpc.requestListener({
-          ...config,
+          ...p.config,
           address: merchantAccount.address,
           key: {
             privateKey: merchantKey.privateKey!(),
@@ -1739,7 +1814,7 @@ describe.each([
         })
         const server = await Http.createServer(listener)
 
-        const { porto } = getPorto({ merchantRpcUrl: server.url })
+        const porto = getPorto({ merchantRpcUrl: server.url })
 
         const {
           accounts: [account],
@@ -1759,14 +1834,14 @@ describe.each([
         })
 
         const userBalance_pre = await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [address],
           functionName: 'balanceOf',
         })
         const merchantBalance_pre = await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
@@ -1778,11 +1853,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [Hex.random(20), Value.fromEther('1')],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               from: address,
@@ -1798,14 +1873,14 @@ describe.each([
         })
 
         const userBalance_post = await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [address],
           functionName: 'balanceOf',
         })
         const merchantBalance_post = await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [merchantAccount.address],
           functionName: 'balanceOf',
         })
@@ -1819,10 +1894,9 @@ describe.each([
     )
 
     test('behavior: use inferred permissions', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -1849,12 +1923,12 @@ describe.each([
               value: '1',
             },
             permissions: {
-              calls: [{ to: exp1Address }],
+              calls: [{ to: contracts.exp1.address }],
               spend: [
                 {
                   limit: Hex.fromNumber(Value.fromEther('50')),
                   period: 'day',
-                  token: exp1Address,
+                  token: contracts.exp1.address,
                 },
               ],
             },
@@ -1869,11 +1943,11 @@ describe.each([
             calls: [
               {
                 data: encodeFunctionData({
-                  abi: exp1Abi,
+                  abi: contracts.exp1.abi,
                   args: [alice, Value.fromEther('50')],
                   functionName: 'transfer',
                 }),
-                to: exp1Address,
+                to: contracts.exp1.address,
               },
             ],
             from: address,
@@ -1890,8 +1964,8 @@ describe.each([
 
       expect(
         await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [alice],
           functionName: 'balanceOf',
         }),
@@ -1899,10 +1973,9 @@ describe.each([
     })
 
     test('behavior: `permissions` capability', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -1929,12 +2002,12 @@ describe.each([
               value: '1',
             },
             permissions: {
-              calls: [{ to: exp1Address }],
+              calls: [{ to: contracts.exp1.address }],
               spend: [
                 {
                   limit: Hex.fromNumber(69420),
                   period: 'day',
-                  token: exp1Address,
+                  token: contracts.exp1.address,
                 },
               ],
             },
@@ -1948,11 +2021,11 @@ describe.each([
             calls: [
               {
                 data: encodeFunctionData({
-                  abi: exp1Abi,
+                  abi: contracts.exp1.abi,
                   args: [alice, 40_000n],
                   functionName: 'transfer',
                 }),
-                to: exp1Address,
+                to: contracts.exp1.address,
               },
             ],
             capabilities: {
@@ -1972,8 +2045,8 @@ describe.each([
 
       expect(
         await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [alice],
           functionName: 'balanceOf',
         }),
@@ -1984,10 +2057,9 @@ describe.each([
     test.runIf(type === 'rpcServer')(
       'behavior: `permissions.calls` unauthorized',
       async () => {
-        const { porto } = getPorto()
-        const client = ServerClient.fromPorto(porto).extend(() => ({
-          mode: 'anvil',
-        }))
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -2023,7 +2095,7 @@ describe.each([
                   {
                     limit: Hex.fromNumber(69420),
                     period: 'day',
-                    token: exp1Address,
+                    token: contracts.exp1.address,
                   },
                 ],
               },
@@ -2038,11 +2110,11 @@ describe.each([
                 calls: [
                   {
                     data: encodeFunctionData({
-                      abi: exp1Abi,
+                      abi: contracts.exp1.abi,
                       args: [alice, 69420n],
                       functionName: 'mint',
                     }),
-                    to: exp1Address,
+                    to: contracts.exp1.address,
                   },
                 ],
                 capabilities: {
@@ -2061,10 +2133,9 @@ describe.each([
     test.runIf(type === 'rpcServer')(
       'behavior: `permissions.spend` exceeded',
       async () => {
-        const { porto } = getPorto()
-        const client = ServerClient.fromPorto(porto).extend(() => ({
-          mode: 'anvil',
-        }))
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
 
         const {
           accounts: [account],
@@ -2095,12 +2166,12 @@ describe.each([
                 value: '1',
               },
               permissions: {
-                calls: [{ to: exp1Address }],
+                calls: [{ to: contracts.exp1.address }],
                 spend: [
                   {
                     limit: Hex.fromNumber(Value.fromEther('50')),
                     period: 'day',
-                    token: exp1Address,
+                    token: contracts.exp1.address,
                   },
                 ],
               },
@@ -2115,11 +2186,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, Value.fromEther('50')],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               capabilities: {
@@ -2145,11 +2216,11 @@ describe.each([
                 calls: [
                   {
                     data: encodeFunctionData({
-                      abi: exp1Abi,
+                      abi: contracts.exp1.abi,
                       args: [alice, Value.fromEther('200')],
                       functionName: 'transfer',
                     }),
-                    to: exp1Address,
+                    to: contracts.exp1.address,
                   },
                 ],
                 capabilities: {
@@ -2165,10 +2236,9 @@ describe.each([
     )
 
     test('behavior: revoked permission', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2195,12 +2265,12 @@ describe.each([
               value: '1',
             },
             permissions: {
-              calls: [{ to: exp1Address }],
+              calls: [{ to: contracts.exp1.address }],
               spend: [
                 {
                   limit: Hex.fromNumber(69420 * 3),
                   period: 'day',
-                  token: exp1Address,
+                  token: contracts.exp1.address,
                 },
               ],
             },
@@ -2214,11 +2284,11 @@ describe.each([
             calls: [
               {
                 data: encodeFunctionData({
-                  abi: exp1Abi,
+                  abi: contracts.exp1.abi,
                   args: [alice, 69420n],
                   functionName: 'transfer',
                 }),
-                to: exp1Address,
+                to: contracts.exp1.address,
               },
             ],
             capabilities: {
@@ -2238,8 +2308,8 @@ describe.each([
 
       expect(
         await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [alice],
           functionName: 'balanceOf',
         }),
@@ -2257,11 +2327,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, 69420n],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               capabilities: {
@@ -2276,10 +2346,9 @@ describe.each([
     })
 
     test('behavior: not provider-managed permission', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2311,7 +2380,7 @@ describe.each([
               type: 'p256',
             },
             permissions: {
-              calls: [{ to: exp1Address }],
+              calls: [{ to: contracts.exp1.address }],
             },
           },
         ],
@@ -2324,11 +2393,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, 69420n],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               capabilities: {
@@ -2345,10 +2414,9 @@ describe.each([
     })
 
     test('behavior: permission does not exist', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2373,11 +2441,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, 69420n],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               capabilities: {
@@ -2394,7 +2462,7 @@ describe.each([
     })
 
     test('behavior: no calls.to', async () => {
-      const { porto } = getPorto()
+      const porto = getPorto()
 
       const {
         accounts: [account],
@@ -2426,10 +2494,9 @@ describe.each([
 
   describe('wallet_getCallsStatus', () => {
     test('default', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const {
         accounts: [account],
@@ -2453,11 +2520,11 @@ describe.each([
             calls: [
               {
                 data: encodeFunctionData({
-                  abi: exp1Abi,
+                  abi: contracts.exp1.abi,
                   args: [alice, 69420n],
                   functionName: 'transfer',
                 }),
-                to: exp1Address,
+                to: contracts.exp1.address,
               },
             ],
             from: address,
@@ -2480,10 +2547,9 @@ describe.each([
   describe('wallet_prepareCalls → wallet_sendPreparedCalls', () => {
     describe('behavior: permissions', () => {
       test('default', async () => {
-        const { porto } = getPorto()
-        const client = ServerClient.fromPorto(porto).extend(() => ({
-          mode: 'anvil',
-        }))
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -2509,12 +2575,12 @@ describe.each([
                     type: 'p256',
                   },
                   permissions: {
-                    calls: [{ to: exp1Address }],
+                    calls: [{ to: contracts.exp1.address }],
                     spend: [
                       {
                         limit: Hex.fromNumber(42069n),
                         period: 'day',
-                        token: exp1Address,
+                        token: contracts.exp1.address,
                       },
                     ],
                   },
@@ -2541,11 +2607,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, 40_000n],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               key,
@@ -2571,8 +2637,8 @@ describe.each([
 
         expect(
           await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
+            abi: contracts.exp1.abi,
+            address: contracts.exp1.address,
             args: [alice],
             functionName: 'balanceOf',
           }),
@@ -2580,10 +2646,9 @@ describe.each([
       })
 
       test('WebCryptoP256', async () => {
-        const { porto } = getPorto()
-        const client = ServerClient.fromPorto(porto).extend(() => ({
-          mode: 'anvil',
-        }))
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -2609,12 +2674,12 @@ describe.each([
                     type: 'p256',
                   },
                   permissions: {
-                    calls: [{ to: exp1Address }],
+                    calls: [{ to: contracts.exp1.address }],
                     spend: [
                       {
                         limit: Hex.fromNumber(42069n),
                         period: 'day',
-                        token: exp1Address,
+                        token: contracts.exp1.address,
                       },
                     ],
                   },
@@ -2642,11 +2707,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, 40_000n],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               key,
@@ -2676,8 +2741,8 @@ describe.each([
 
         expect(
           await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
+            abi: contracts.exp1.abi,
+            address: contracts.exp1.address,
             args: [alice],
             functionName: 'balanceOf',
           }),
@@ -2685,10 +2750,9 @@ describe.each([
       })
 
       test('Secp256k1', async () => {
-        const { porto } = getPorto()
-        const client = ServerClient.fromPorto(porto).extend(() => ({
-          mode: 'anvil',
-        }))
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -2713,12 +2777,12 @@ describe.each([
                     type: 'address',
                   },
                   permissions: {
-                    calls: [{ to: exp1Address }],
+                    calls: [{ to: contracts.exp1.address }],
                     spend: [
                       {
                         limit: Hex.fromNumber(42069n),
                         period: 'day',
-                        token: exp1Address,
+                        token: contracts.exp1.address,
                       },
                     ],
                   },
@@ -2745,11 +2809,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, 40_000n],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               key,
@@ -2775,8 +2839,8 @@ describe.each([
 
         expect(
           await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
+            abi: contracts.exp1.abi,
+            address: contracts.exp1.address,
             args: [alice],
             functionName: 'balanceOf',
           }),
@@ -2786,10 +2850,9 @@ describe.each([
 
     describe('behavior: admin', () => {
       test('Secp256k1', async () => {
-        const { porto } = getPorto()
-        const client = ServerClient.fromPorto(porto).extend(() => ({
-          mode: 'anvil',
-        }))
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
 
         const alice = Hex.random(20)
 
@@ -2834,11 +2897,11 @@ describe.each([
               calls: [
                 {
                   data: encodeFunctionData({
-                    abi: exp1Abi,
+                    abi: contracts.exp1.abi,
                     args: [alice, 40_000n],
                     functionName: 'transfer',
                   }),
-                  to: exp1Address,
+                  to: contracts.exp1.address,
                 },
               ],
               key,
@@ -2864,8 +2927,8 @@ describe.each([
 
         expect(
           await readContract(client, {
-            abi: exp1Abi,
-            address: exp1Address,
+            abi: contracts.exp1.abi,
+            address: contracts.exp1.address,
             args: [alice],
             functionName: 'balanceOf',
           }),
@@ -2874,10 +2937,9 @@ describe.each([
     })
 
     test.runIf(type === 'rpcServer')('behavior: sign typed data', async () => {
-      const { porto } = getPorto()
-      const client = ServerClient.fromPorto(porto).extend(() => ({
-        mode: 'anvil',
-      }))
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
 
       const { accounts } = await porto.provider.request({
         method: 'wallet_connect',
@@ -2908,11 +2970,11 @@ describe.each([
             calls: [
               {
                 data: encodeFunctionData({
-                  abi: exp1Abi,
+                  abi: contracts.exp1.abi,
                   args: [alice, 40_000n],
                   functionName: 'transfer',
                 }),
-                to: exp1Address,
+                to: contracts.exp1.address,
               },
             ],
           },
@@ -2949,8 +3011,8 @@ describe.each([
 
       expect(
         await readContract(client, {
-          abi: exp1Abi,
-          address: exp1Address,
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
           args: [alice],
           functionName: 'balanceOf',
         }),
@@ -2959,7 +3021,7 @@ describe.each([
   })
 
   test('behavior: fall through', async () => {
-    const { porto } = getPorto()
+    const porto = getPorto()
     expect(
       await porto.provider.request({
         method: 'eth_blockNumber',
@@ -2968,7 +3030,7 @@ describe.each([
   })
 
   test('behavior: unsupported wallet_ method', async () => {
-    const { porto } = getPorto()
+    const porto = getPorto()
     await expect(() =>
       porto.provider.request({
         method: 'wallet_lol',

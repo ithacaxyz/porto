@@ -24,7 +24,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
     feeToken,
   })
 
-  const quote = prepareCallsQuery.data?.capabilities.quote
+  const quote = prepareCallsQuery.data?.capabilities.quote?.quotes[0]
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>
