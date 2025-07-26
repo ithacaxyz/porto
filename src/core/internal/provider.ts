@@ -118,7 +118,7 @@ export function from<
 
           const client = getClient()
 
-          return await getMode().actions.addFunds({
+          const result = await getMode().actions.addFunds({
             address: account.address,
             internal: {
               client,
@@ -129,6 +129,13 @@ export function from<
             token,
             value: value ? Hex.toBigInt(value) : undefined,
           })
+
+          emitter.emit('message', {
+            data: null,
+            type: 'assetsChanged',
+          })
+
+          return result
         }
 
         case 'eth_accounts': {
@@ -862,6 +869,29 @@ export function from<
           store.setState((x) => ({ ...x, accounts: [] }))
           emitter.emit('disconnect', new ox_Provider.DisconnectedError())
           return
+        }
+
+        case 'wallet_getAssets': {
+          const [parameters] = request._decoded.params ?? []
+          const { account, chainFilter, assetFilter, assetTypeFilter } =
+            parameters
+
+          const client = getClient()
+
+          const response = await getMode().actions.getAssets({
+            account,
+            assetFilter,
+            assetTypeFilter,
+            chainFilter,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          return response satisfies typeof Rpc.wallet_getAssets.Response.Encoded
         }
 
         case 'wallet_getCallsStatus': {

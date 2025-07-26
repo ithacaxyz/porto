@@ -118,6 +118,7 @@ export function App() {
         <Connect />
         <Login />
         <AddFunds />
+        <GetAssets />
         <Accounts />
         <Disconnect />
         <UpgradeAccount />
@@ -479,6 +480,39 @@ function GetCapabilities() {
       >
         Get Capabilities
       </button>
+      {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
+    </div>
+  )
+}
+
+function GetAssets() {
+  const [result, setResult] = React.useState<unknown | null>(null)
+  return (
+    <div>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          const formData = new FormData(e.target as HTMLFormElement)
+          const account = await (async () => {
+            if (formData.get('account'))
+              return formData.get('account') as `0x${string}`
+            const [address] = await porto.provider.request({
+              method: 'eth_accounts',
+            })
+            return address
+          })()
+          porto.provider
+            .request({
+              method: 'wallet_getAssets',
+              params: [{ account }],
+            })
+            .then(setResult)
+        }}
+      >
+        <h3>wallet_getAssets</h3>
+        <input name="account" placeholder="Account" type="text" />
+        <button type="submit">Get Assets</button>
+      </form>
       {result ? <pre>{JSON.stringify(result, null, 2)}</pre> : null}
     </div>
   )

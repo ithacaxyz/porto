@@ -30,6 +30,7 @@ export const Request = Schema.Union(
   RpcRequest.porto_ping.Request,
   RpcRequest.wallet_connect.Request,
   RpcRequest.wallet_disconnect.Request,
+  RpcRequest.wallet_getAssets.Request,
   RpcRequest.wallet_getCallsStatus.Request,
   RpcRequest.wallet_getCapabilities.Request,
   RpcRequest.wallet_getKeys.Request,

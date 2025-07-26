@@ -60,6 +60,7 @@ export function App() {
           <GrantAdmin />
           <Mint />
           <AddFunds />
+          <Assets />
         </>
       )}
     </>
@@ -399,6 +400,33 @@ function AddFunds() {
       {data?.id && <div>Transaction Hash: {data.id}</div>}
       {addFunds.isError && (
         <div>Error: {(error as BaseError).shortMessage || error?.message}</div>
+      )}
+      <br />
+    </div>
+  )
+}
+
+function Assets() {
+  const { address } = useAccount()
+  const { data, ...assets } = Hooks.useAssets({
+    account: address!,
+    query: {
+      enabled: !!address,
+    },
+  })
+
+  return (
+    <div>
+      <h2>Assets</h2>
+      <button onClick={() => assets.refetch()} type="button">
+        Refetch
+      </button>
+      {data && <pre>{stringify(data, null, 2)}</pre>}
+      {assets.isError && (
+        <div>
+          Error:{' '}
+          {(assets.error as BaseError).shortMessage || assets.error?.message}
+        </div>
       )}
       <br />
     </div>

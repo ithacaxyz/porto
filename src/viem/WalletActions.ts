@@ -73,6 +73,30 @@ export declare namespace addFunds {
   type ReturnType = RpcSchema.wallet_addFunds.Response
 }
 
+export async function getAssets(
+  client: Client,
+  parameters: getAssets.Parameters,
+): Promise<getAssets.ReturnType> {
+  const method = 'wallet_getAssets' as const
+  type Method = typeof method
+  const response = await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [
+      Schema.encodeSync(RpcSchema.wallet_getAssets.Parameters)(parameters),
+    ],
+  })
+
+  return Schema.decodeSync(RpcSchema.wallet_getAssets.Response)(response)
+}
+
+export declare namespace getAssets {
+  type Parameters = RpcSchema.wallet_getAssets.Parameters
+
+  type ReturnType = RpcSchema.wallet_getAssets.Response
+}
+
 export async function connect(
   client: Client,
   parameters: connect.Parameters = {},

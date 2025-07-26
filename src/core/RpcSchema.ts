@@ -13,6 +13,7 @@ export type Schema =
         Request: {
           method:
             | 'wallet_getCapabilities'
+            | 'wallet_getAssets'
             | 'wallet_getCallsStatus'
             | 'wallet_getPermissions'
             | 'wallet_grantPermissions'
@@ -92,6 +93,10 @@ export type Schema =
       | {
           Request: typeof Rpc.wallet_getKeys.Request.Encoded
           ReturnType: typeof Rpc.wallet_getKeys.Response.Encoded
+        }
+      | {
+          Request: typeof Rpc.wallet_getAssets.Request.Encoded
+          ReturnType: typeof Rpc.wallet_getAssets.Response.Encoded
         }
       | {
           Request: typeof Rpc.wallet_getCallsStatus.Request.Encoded
