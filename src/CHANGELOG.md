@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.55
+
+### Patch Changes
+
+- [`c513774`](https://github.com/ithacaxyz/porto/commit/c5137746a319e791efe073b54f164698b6e8ac2f) Thanks [@jxom](https://github.com/jxom)! - Added [Theming](https://porto.sh/sdk/guides/theming) via a `theme` option on `Mode.dialog`.
+
 ## 0.0.54
 
 ### Patch Changes
