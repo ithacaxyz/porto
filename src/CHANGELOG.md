@@ -1,5 +1,32 @@
 # porto
 
+## 0.0.56
+
+### Patch Changes
+
+- [#620](https://github.com/ithacaxyz/porto/pull/620) [`b061c6b`](https://github.com/ithacaxyz/porto/commit/b061c6b89bf8700f71c3983a43bcb5497bcac733) Thanks [@jxom](https://github.com/jxom)! - Added ability to individually pass authentication endpoints to `signInWithEthereum.authUrl`, instead
+  of defining the group path (e.g. `/auth/*`).
+
+  ```diff
+  connect({
+    signInWithEthereum: {
+  -   authUrl: '/auth'
+  +   authUrl: {
+  +     logout: '/logout',
+  +     nonce: '/auth/nonce',
+  +     verify: '/auth',
+  +   },
+    },
+  })
+  ```
+
+- [#620](https://github.com/ithacaxyz/porto/pull/620) [`b061c6b`](https://github.com/ithacaxyz/porto/commit/b061c6b89bf8700f71c3983a43bcb5497bcac733) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Modified SIWE `authUrl` to verify & authenticate against `${path}/verify` instead of `${path}`.
+
+  ```diff
+  - server.post('/siwe', ...
+  + server.post('/siwe/verify', ...
+  ```
+
 ## 0.0.55
 
 ### Patch Changes
