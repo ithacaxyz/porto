@@ -891,7 +891,8 @@ describe.each([
 
   describe('wallet_getAccountVersion', () => {
     test('default', async () => {
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
 
       const capabilities = await ServerActions.getCapabilities(client)
 
@@ -912,7 +913,8 @@ describe.each([
     })
 
     test('behavior: provided address', async () => {
-      const { client, porto } = getPorto()
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
 
       const capabilities = await ServerActions.getCapabilities(client)
 
