@@ -4,22 +4,32 @@ import * as Siwe from 'ox/Siwe'
 import type { Chain, Client, Transport } from 'viem'
 import type * as Capabilities from './schema/capabilities.js'
 
+/** Set of authentication endpoints. */
+export type AuthUrl = {
+  /** Endpoint to logout the user. (e.g. `/logout`) */
+  logout: string
+  /** Endpoint to generate a nonce. (e.g. `/nonce`) */
+  nonce: string
+  /** Endpoint to verify the signature, and authenticate the user. (e.g. `/verify`) */
+  verify: string
+}
+
 export async function authenticate(parameters: authenticate.Parameters) {
   const { authUrl, message, signature } = parameters
 
-  return await fetch(authUrl, {
+  return await fetch(authUrl.verify, {
     body: JSON.stringify({
       message,
       signature,
     }),
     credentials: 'include',
     method: 'POST',
-  }).then((response) => response.headers.get('x-siwe-token') ?? undefined)
+  })
 }
 
 export declare namespace authenticate {
   type Parameters = {
-    authUrl: string
+    authUrl: AuthUrl
     message: string
     signature: Hex.Hex
   }
@@ -31,7 +41,6 @@ export async function buildMessage<chain extends Chain | undefined>(
   options: buildMessage.Options,
 ) {
   const {
-    authUrl,
     chainId = client.chain?.id,
     domain,
     uri,
@@ -39,16 +48,21 @@ export async function buildMessage<chain extends Chain | undefined>(
     version = '1',
   } = siwe
 
-  if (!chainId) throw new Error('chainId is required.')
-  if (!domain) throw new Error('domain is required.')
-  if (!siwe.nonce && !authUrl) throw new Error('nonce is required.')
-  if (!uri) throw new Error('uri is required.')
+  const authUrl = siwe.authUrl ? resolveAuthUrl(siwe.authUrl) : undefined
+
+  if (!chainId) throw new Error('`chainId` is required.')
+  if (!domain) throw new Error('`domain` is required.')
+  if (!siwe.nonce && !authUrl?.nonce)
+    throw new Error('`nonce` or `authUrl.nonce` is required.')
+  if (!uri) throw new Error('`uri` is required.')
 
   const nonce = await (async () => {
     if (siwe.nonce) return siwe.nonce
-    const response = await fetch(authUrl?.replace(/\/$/, '') + '/nonce')
+    if (!authUrl?.nonce)
+      throw new Error('`nonce` or `authUrl.nonce` is required.')
+    const response = await fetch(authUrl.nonce)
     const res = await response.json().catch(() => undefined)
-    if (!res?.nonce) throw new Error('nonce is required.')
+    if (!res?.nonce) throw new Error('`nonce` or `authUrl.nonce` is required.')
     return res.nonce
   })()
 
@@ -70,4 +84,35 @@ export declare namespace buildMessage {
   type Options = {
     address: Address.Address
   }
+}
+
+export function resolveAuthUrl(
+  authUrl: string | AuthUrl,
+  origin = '',
+): AuthUrl | undefined {
+  if (!authUrl) return undefined
+
+  const urls = (() => {
+    if (typeof authUrl === 'string') {
+      const url = authUrl.replace(/\/$/, '')
+      return {
+        logout: url + '/logout',
+        nonce: url + '/nonce',
+        verify: url + '/verify',
+      }
+    }
+    return authUrl
+  })()
+
+  return {
+    logout: resolveUrl(urls.logout, origin),
+    nonce: resolveUrl(urls.nonce, origin),
+    verify: resolveUrl(urls.verify, origin),
+  }
+}
+
+function resolveUrl(url: string, origin: string) {
+  if (!origin) return url
+  if (!url.startsWith('/')) return url
+  return origin + url
 }

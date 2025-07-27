@@ -298,11 +298,11 @@ describe('signInWithEthereum', () => {
         nonce: 'xyz789',
       })
       expect(result).toMatchInlineSnapshot(`
-          {
-            "authUrl": "https://example.com/auth",
-            "nonce": "xyz789",
-          }
-        `)
+        {
+          "authUrl": "https://example.com/auth",
+          "nonce": "xyz789",
+        }
+      `)
     })
 
     test('behavior: should parse struct with all optional fields', () => {
@@ -324,24 +324,24 @@ describe('signInWithEthereum', () => {
         version: '1',
       })
       expect(result).toMatchInlineSnapshot(`
-          {
-            "authUrl": undefined,
-            "chainId": 1,
-            "domain": "example.com",
-            "expirationTime": 2024-12-31T00:00:00.000Z,
-            "issuedAt": 2024-01-01T00:00:00.000Z,
-            "nonce": "test123",
-            "notBefore": 2024-06-01T00:00:00.000Z,
-            "requestId": "req123",
-            "resources": [
-              "https://example.com/resource1",
-            ],
-            "scheme": "https",
-            "statement": "Sign in to example.com",
-            "uri": "https://example.com",
-            "version": "1",
-          }
-        `)
+        {
+          "authUrl": undefined,
+          "chainId": 1,
+          "domain": "example.com",
+          "expirationTime": 2024-12-31T00:00:00.000Z,
+          "issuedAt": 2024-01-01T00:00:00.000Z,
+          "nonce": "test123",
+          "notBefore": 2024-06-01T00:00:00.000Z,
+          "requestId": "req123",
+          "resources": [
+            "https://example.com/resource1",
+          ],
+          "scheme": "https",
+          "statement": "Sign in to example.com",
+          "uri": "https://example.com",
+          "version": "1",
+        }
+      `)
     })
 
     test('error: should reject struct without nonce', () => {
@@ -353,11 +353,11 @@ describe('signInWithEthereum', () => {
         [Schema.CoderError: \`nonce\` is missing
         Path: nonce
 
-        Details: { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        Details: { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
         ├─ { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
         │  └─ ["nonce"]
         │     └─ is missing
-        └─ { readonly authUrl: string; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        └─ { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
            └─ ["authUrl"]
               └─ is missing]
       `)
@@ -447,21 +447,36 @@ describe('signInWithEthereum', () => {
         input: { nonce: 'test1' },
       },
       {
-        case: 'authUrl and nonce',
-        expected: { authUrl: 'https://test.com', nonce: 'test2' },
-        input: { authUrl: 'https://test.com', nonce: 'test2' },
+        case: 'authUrl only',
+        expected: { authUrl: 'https://test.com' },
+        input: { authUrl: 'https://test.com' },
+      },
+      {
+        case: 'authUrl with properties',
+        expected: {
+          authUrl: {
+            logout: 'https://test.com/logout',
+            nonce: 'https://test.com/nonce',
+            verify: 'https://test.com/verify',
+          },
+        },
+        input: {
+          authUrl: {
+            logout: 'https://test.com/logout',
+            nonce: 'https://test.com/nonce',
+            verify: 'https://test.com/verify',
+          },
+        },
       },
       {
         case: 'multiple fields with undefined authUrl',
         expected: {
-          authUrl: undefined,
           chainId: 5,
           domain: 'test.com',
           nonce: 'test3',
           version: '1',
         },
         input: {
-          authUrl: undefined,
           chainId: 5,
           domain: 'test.com',
           nonce: 'test3',
@@ -485,13 +500,13 @@ describe('signInWithEthereum', () => {
         [Schema.CoderError: Expected "1", actual "2"
         Path: version
 
-        Details: { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        Details: { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
         ├─ { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
         │  └─ ["version"]
         │     └─ "1" | undefined
         │        ├─ Expected "1", actual "2"
         │        └─ Expected undefined, actual "2"
-        └─ { readonly authUrl: string; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        └─ { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
            └─ ["authUrl"]
               └─ is missing]
       `)

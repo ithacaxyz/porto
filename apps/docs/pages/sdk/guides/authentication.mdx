@@ -37,7 +37,7 @@ const porto = Porto.create()
 
 app.get('/siwe/nonce', (c) => c.json({ nonce: generateSiweNonce() }))
 
-app.post('/siwe', async (c) => { /* ... */ })
+app.post('/siwe/verify', async (c) => { /* ... */ })
 
 app.post('/siwe/logout', async (c) => { /* ... */ })
 
@@ -46,7 +46,7 @@ app.get('/me', async (c) => { /* ... */ })
 export default app
 ```
 
-### Add `/siwe`
+### Add `/siwe/verify`
 
 We will now implement the `/api/siwe` endpoint so that we can authenticate our user provided
 the `siwe` response from the previous step is valid.
@@ -74,7 +74,7 @@ const porto = Porto.create()
 
 app.get('/siwe/nonce', (c) => c.text(generateSiweNonce()))
 
-app.post('/siwe', async (c) => { 
+app.post('/siwe/verify', async (c) => { 
   const { message, signature } = await c.req.json() // [!code ++]
   const { address, chainId, nonce } = parseSiweMessage(message) // [!code ++]
 
@@ -137,6 +137,26 @@ export function Example() {
   )
 }
 ```
+
+:::tip
+If you wish to not group the authentication endpoints together (e.g. `/api/siwe/*`), 
+you can define them individually. This is useful if you are using a pre-existing server
+with a different authentication routing structure.
+
+```tsx
+connect({
+  connector,
+  signInWithEthereum: {
+    authUrl: '/api/siwe', // [!code --]
+    authUrl: { // [!code ++]
+      logout: '/api/logout', // [!code ++]
+      nonce: '/api/auth/nonce', // [!code ++]
+      verify: '/api/auth', // [!code ++]
+    }, // [!code ++]
+  },
+})
+```
+:::
 
 ### Bonus: Add `/me` (authenticated route)
 

@@ -362,7 +362,11 @@ The following JSON-RPC methods support the `signInWithEthereum` request capabili
 type Capability = {
   signInWithEthereum: {
     /* Required fields */
-    authUrl: string
+    authUrl: string | {
+      logout: string
+      nonce: string
+      verify: string
+    }
     // OR
     nonce: string
     

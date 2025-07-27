@@ -169,7 +169,11 @@ type GrantPermissions = {
 ```ts
 type SignInWithEthereum = {
   /* Required fields */
-  authUrl: string
+  authUrl: string | {
+    logout: string
+    nonce: string
+    verify: string
+  }
   // OR
   nonce: string
 

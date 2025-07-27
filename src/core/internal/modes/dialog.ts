@@ -249,12 +249,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { config } = internal
         const { storage } = config
 
-        const authUrl =
-          getAuthUrl(config.authUrl, { storage }) ??
-          (await storage.getItem<string | undefined>('porto.siwe.authUrl'))
+        const authUrl_storage =
+          (await storage.getItem<Siwe.AuthUrl | undefined>('porto.authUrl')) ||
+          undefined
+        const authUrl = getAuthUrl(config.authUrl ?? authUrl_storage, {
+          storage,
+        })
 
         if (authUrl) {
-          const response = await fetch(authUrl + '/logout', {
+          const response = await fetch(authUrl.logout, {
             credentials: 'include',
             method: 'POST',
           })
@@ -1016,17 +1019,18 @@ export async function resolveFeeToken(
 }
 
 function getAuthUrl(
-  authUrl: string | undefined,
+  apiUrl: string | Siwe.AuthUrl | undefined,
   { storage }: { storage: Storage },
 ) {
-  // Resolve relative URLs
-  const resolvedUrl =
-    authUrl?.startsWith('/') && typeof window !== 'undefined'
-      ? `${window.location.origin}${authUrl}`
-      : authUrl
+  if (!apiUrl) return undefined
+
+  const authUrl = Siwe.resolveAuthUrl(
+    apiUrl,
+    typeof window !== 'undefined' ? window.location.origin : undefined,
+  )
 
   // Store the resolved auth URL for future use (e.g., disconnect)
-  if (authUrl) storage.setItem('porto.siwe.authUrl', resolvedUrl)
+  if (authUrl) storage.setItem('porto.authUrl', authUrl)
 
-  return resolvedUrl
+  return authUrl
 }

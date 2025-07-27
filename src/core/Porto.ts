@@ -13,6 +13,7 @@ import { rpcServer } from './internal/modes/rpcServer.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import type * as FeeToken from './internal/schema/feeToken.js'
+import type * as Siwe from './internal/siwe.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 import * as Utils from './internal/utils.js'
 import * as Storage from './Storage.js'
@@ -201,9 +202,9 @@ export type Config<
    */
   announceProvider: boolean
   /**
-   * API URL to use for offchain SIWE authentication.
+   * API URL(s) to use for offchain SIWE authentication.
    */
-  authUrl?: string | undefined
+  authUrl?: string | Siwe.AuthUrl | undefined
   /**
    * List of supported chains.
    */

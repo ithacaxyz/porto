@@ -22,9 +22,9 @@ export const config = createConfig({
 
 ### authUrl
 
-`string | undefined`
+`string | { logout: string; nonce: string; verify: string } | undefined`
 
-URL to use for [SIWE authentication](/sdk/guides/authentication)
+URL(s) to use for [SIWE authentication](/sdk/guides/authentication).
 
 ### feeToken
 
