@@ -8,6 +8,7 @@ of defining the group path (e.g. `/auth/*`).
 ```diff
 connect({
   signInWithEthereum: {
+-   authUrl: '/auth'
 +   authUrl: {
 +     logout: '/logout',
 +     nonce: '/auth/nonce',
