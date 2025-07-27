@@ -1,10 +1,11 @@
 import type * as Hex from 'ox/Hex'
 import { afterEach, describe, expect, test } from 'vitest'
+import * as TestConfig from '../../../test/src/config.js'
 import * as Http from '../../../test/src/http.js'
-import { getPorto } from '../../../test/src/porto.js'
 import * as SiweModule from './siwe.js'
 
-const { client } = getPorto()
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
 
 let server: Http.Server | undefined
 afterEach(async () => {
