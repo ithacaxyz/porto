@@ -98,7 +98,7 @@ describe('fromPorto', () => {
           "rpcUrls": {
             "default": {
               "http": [
-                "https://base-sepolia.rpc.ithaca.xyz",
+                "https://base-sepolia-int.rpc.ithaca.xyz",
                 "https://sepolia.base.org",
               ],
             },
@@ -124,7 +124,7 @@ describe('fromPorto', () => {
           "retryDelay": 150,
           "timeout": 10000,
           "type": "http",
-          "url": "https://base-sepolia.rpc.ithaca.xyz",
+          "url": "https://base-sepolia-int.rpc.ithaca.xyz",
         },
         "type": "base",
         "uid": null,
