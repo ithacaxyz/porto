@@ -65,7 +65,7 @@ export const base = /*#__PURE__*/ define({
   contracts: {
     ...chains.base.contracts,
     portoAccount: {
-      address: '0x664ab8c20b629422f5398e58ff8989e68b26a4e6',
+      address: '0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f',
     },
   },
   rpcUrls: {
@@ -83,7 +83,7 @@ export const baseSepolia = /*#__PURE__*/ define({
   contracts: {
     ...chains.baseSepolia.contracts,
     portoAccount: {
-      address: '0x6d0f5e01df440cb03d67c076d220b412d5d011ca',
+      address: '0x76334de3a35b0e824b8cfe36bb8b735f1a4a338e',
     },
   },
   rpcUrls: {
