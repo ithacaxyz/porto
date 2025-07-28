@@ -45,7 +45,7 @@ export type Quote = typeof Quote.Type
 
 export const Quotes = Schema.Struct({
   /** Merkle root if it's a multichain workflow. */
-  multiChainRoute: Schema.optional(Primitive.Hex),
+  multiChainRoot: Schema.optional(Schema.Union(Primitive.Hex, Schema.Null)),
   /**
    * A quote for each intent.
    *

@@ -314,7 +314,7 @@ describe('sendCalls', () => {
     ).toBe(100n)
   })
 
-  test.skip('behavior: pre calls; authorize session key, sign with session key', async () => {
+  test('behavior: pre calls; authorize session key, sign with session key', async () => {
     const adminKey = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [adminKey],
@@ -422,7 +422,7 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
-  test.skip('behavior: pre calls', async () => {
+  test('behavior: pre calls', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
@@ -492,7 +492,7 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
-  test.skip('behavior: pre calls; account has executed calls previously', async () => {
+  test('behavior: pre calls; account has executed calls previously', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
@@ -568,7 +568,7 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
-  test.skip('behavior: pre calls; authorize session key, sign with session key', async () => {
+  test('behavior: pre calls; authorize session key, sign with session key', async () => {
     const adminKey = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [adminKey],

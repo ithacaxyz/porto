@@ -4,7 +4,8 @@ export function getChains(env: string) {
   if (env === 'anvil')
     return [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros] as const
   if (env === 'prod') return [Chains.base] as const
-  if (env === 'stg') return [Chains.baseSepolia] as const
+  if (env === 'stg')
+    return [Chains.baseSepolia, Chains.optimismSepolia] as const
   return [
     Chains.portoDevParos,
     Chains.portoDevTinos,
