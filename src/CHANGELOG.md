@@ -1,5 +1,16 @@
 # porto
 
+## 0.0.57
+
+### Patch Changes
+
+- [`5e38e1c`](https://github.com/ithacaxyz/porto/commit/5e38e1c9c38948755df41370b589e8aa59aa74e6) Thanks [@jxom](https://github.com/jxom)! - **Breaking**: Modified SIWE `/nonce` endpoint to use a `POST` method instead of `GET`.
+
+  ```diff
+  - app.get('/siwe/nonce', ...)
+  + app.post('/siwe/nonce', ...)
+  ```
+
 ## 0.0.56
 
 ### Patch Changes
