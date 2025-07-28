@@ -86,7 +86,10 @@ export namespace health {
   })
   export type Request = typeof Request.Type
 
-  export const Response = Schema.String.annotations({
+  export const Response = Schema.Struct({
+    status: Schema.String,
+    version: Schema.String,
+  }).annotations({
     identifier: 'Rpc.health.Response',
   })
   export type Response = typeof Response.Type
@@ -268,6 +271,52 @@ export namespace wallet_getKeys {
 }
 
 export namespace wallet_prepareCalls {
+  export const AssetDiffAsset = Schema.Union(
+    Schema.Struct({
+      address: Schema.optional(Schema.Union(Primitive.Address, Schema.Null)),
+      decimals: Schema.optional(Schema.Union(Schema.Number, Schema.Null)),
+      direction: Schema.Union(
+        Schema.Literal('incoming'),
+        Schema.Literal('outgoing'),
+      ),
+      fiat: Schema.optional(
+        Schema.Struct({
+          currency: Schema.String,
+          value: Schema.transform(Schema.String, Schema.Number, {
+            decode: (value) => Number(value),
+            encode: (value) => String(value),
+          }),
+        }),
+      ),
+      name: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      symbol: Schema.String,
+      type: Schema.Literal('erc20'),
+      value: Primitive.BigInt,
+    }),
+    Schema.Struct({
+      address: Schema.optional(Schema.Union(Primitive.Address, Schema.Null)),
+      direction: Schema.Union(
+        Schema.Literal('incoming'),
+        Schema.Literal('outgoing'),
+      ),
+      fiat: Schema.optional(
+        Schema.Struct({
+          currency: Schema.String,
+          value: Schema.transform(Schema.String, Schema.Number, {
+            decode: (value) => Number(value),
+            encode: (value) => String(value),
+          }),
+        }),
+      ),
+      name: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
+      symbol: Schema.String,
+      type: Schema.Literal('erc721'),
+      uri: Schema.String,
+      value: Primitive.BigInt,
+    }),
+  )
+  export type AssetDiffAsset = typeof AssetDiffAsset.Type
+
   /** Capabilities for `wallet_prepareCalls` request. */
   export const Capabilities = Schema.Struct({
     /** Keys to authorize on the account. */
@@ -288,61 +337,13 @@ export namespace wallet_prepareCalls {
   /** Capabilities for `wallet_prepareCalls` response. */
   export const ResponseCapabilities = Schema.Struct({
     /** Asset diff. */
-    assetDiff: Schema.optional(
-      Schema.Array(
-        Schema.Tuple(
-          Primitive.Address,
-          Schema.Array(
-            Schema.Union(
-              Schema.Struct({
-                address: Schema.optional(
-                  Schema.Union(Primitive.Address, Schema.Null),
-                ),
-                decimals: Schema.optional(
-                  Schema.Union(Schema.Number, Schema.Null),
-                ),
-                direction: Schema.Union(
-                  Schema.Literal('incoming'),
-                  Schema.Literal('outgoing'),
-                ),
-                name: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-                symbol: Schema.String,
-                type: Schema.Literal('erc20'),
-                value: Primitive.BigInt,
-              }),
-              Schema.Struct({
-                address: Schema.optional(
-                  Schema.Union(Primitive.Address, Schema.Null),
-                ),
-                direction: Schema.Union(
-                  Schema.Literal('incoming'),
-                  Schema.Literal('outgoing'),
-                ),
-                name: Schema.optional(Schema.Union(Schema.String, Schema.Null)),
-                symbol: Schema.String,
-                type: Schema.Literal('erc721'),
-                uri: Schema.String,
-                value: Primitive.BigInt,
-              }),
-              Schema.Struct({
-                address: Schema.Null,
-                decimals: Schema.optional(
-                  Schema.Union(Schema.Number, Schema.Null),
-                ),
-                direction: Schema.Union(
-                  Schema.Literal('incoming'),
-                  Schema.Literal('outgoing'),
-                ),
-                name: Schema.Null,
-                symbol: Schema.String,
-                type: Schema.Null,
-                uri: Schema.Null,
-                value: Primitive.BigInt,
-              }),
-            ),
-          ),
+    assetDiffs: Schema.optional(
+      Schema.Record({
+        key: Primitive.Hex,
+        value: Schema.Array(
+          Schema.Tuple(Primitive.Address, Schema.Array(AssetDiffAsset)),
         ),
-      ),
+      }),
     ),
     /** Keys authorized on the account. */
     authorizeKeys: Schema.optional(
