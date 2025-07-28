@@ -363,13 +363,13 @@ describe('prepareCalls + sendPreparedCalls', () => {
       keys: [key],
     })
 
-    const destinationChain = TestConfig.chains[1]
+    const chain_dest = TestConfig.chains[1]
 
     // fund account on destination chain
-    const client_destination = TestConfig.getServerClient(porto, {
-      chainId: destinationChain!.id,
+    const client_dest = TestConfig.getServerClient(porto, {
+      chainId: chain_dest!.id,
     })
-    await TestActions.setBalance(client_destination, {
+    await TestActions.setBalance(client_dest, {
       address: account.address,
       value: Value.fromEther('1'),
     })
@@ -380,7 +380,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       args: [account.address],
       functionName: 'balanceOf',
     })
-    const balance_pre_destination = await readContract(client_destination, {
+    const balance_pre_destination = await readContract(client_dest, {
       abi: contracts.exp1.abi,
       address: contracts.exp1.address,
       args: [account.address],
@@ -408,7 +408,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
           },
         ],
       },
-      chain: destinationChain,
+      chain: chain_dest,
       key: {
         prehash: false,
         publicKey: key.publicKey,
@@ -440,9 +440,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
     expect(balance_post_source).toBeLessThan(balance_pre_source)
 
-    const balance_post_destination = await readContract(client_destination, {
-      abi: contracts.exp1.abi,
-      address: contracts.exp1.address,
+    const contracts_dest = TestConfig.getContracts(porto, {
+      chainId: chain_dest!.id,
+    })
+    const balance_post_destination = await readContract(client_dest, {
+      abi: contracts_dest.exp1.abi,
+      address: contracts_dest.exp1.address,
       args: [account.address],
       functionName: 'balanceOf',
     })
@@ -466,7 +469,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const alice = Hex.random(20)
-    const destinationChain = TestConfig.chains[1]
+    const chain_dest = TestConfig.chains[1]
     const request = await prepareCalls(client, {
       address: account.address,
       calls: [
@@ -488,7 +491,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
           },
         ],
       },
-      chain: destinationChain,
+      chain: chain_dest,
       key: {
         prehash: false,
         publicKey: key.publicKey,
@@ -512,8 +515,8 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
     expect(status).toBe('success')
 
-    const client_destination = TestConfig.getServerClient(porto, {
-      chainId: destinationChain!.id,
+    const client_dest = TestConfig.getServerClient(porto, {
+      chainId: chain_dest!.id,
     })
 
     const balance_post = await readContract(client, {
@@ -524,7 +527,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
     expect(balance_post).toBeLessThan(balance_pre)
 
-    const balance_dest = await readContract(client_destination, {
+    const balance_dest = await readContract(client_dest, {
       abi: contracts.exp1.abi,
       address: contracts.exp1.address,
       args: [alice],
@@ -541,7 +544,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const alice = Hex.random(20)
-    const destinationChain = TestConfig.chains[1]
+    const chain_dest = TestConfig.chains[1]
     const request = await prepareCalls(client, {
       address: account.address,
       calls: [
@@ -573,7 +576,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
           },
         ],
       },
-      chain: destinationChain,
+      chain: chain_dest,
       key: {
         prehash: false,
         publicKey: key.publicKey,
@@ -597,11 +600,11 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
     expect(status).toBe('success')
 
-    const client_destination = TestConfig.getServerClient(porto, {
-      chainId: destinationChain!.id,
+    const client_dest = TestConfig.getServerClient(porto, {
+      chainId: chain_dest!.id,
     })
 
-    const balance = await readContract(client_destination, {
+    const balance = await readContract(client_dest, {
       abi: contracts.exp2.abi,
       address: contracts.exp2.address,
       args: [account.address],
