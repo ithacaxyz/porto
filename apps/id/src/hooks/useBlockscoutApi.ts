@@ -5,13 +5,15 @@ import {
   anvilLeros,
   anvilParos,
   anvilTinos,
+  base,
+  baseSepolia,
+  optimismSepolia,
   portoDevLeros,
   portoDevParos,
   portoDevTinos,
 } from 'porto/core/Chains'
 import * as React from 'react'
 import { useAccount, useChainId, useWatchBlockNumber } from 'wagmi'
-import { base, baseSepolia, optimismSepolia } from 'wagmi/chains'
 import { urlWithCorsBypass } from '~/lib/Constants'
 import { useReadBalances } from './useReadBalances'
 
