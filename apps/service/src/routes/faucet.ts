@@ -17,6 +17,7 @@ if (!account?.address) throw new Error('Invalid DRIP_PRIVATE_KEY')
 
 const chains = {
   [Chains.baseSepolia.id]: Chains.baseSepolia,
+  [Chains.optimismSepolia.id]: Chains.optimismSepolia,
   [Chains.portoDevParos.id]: Chains.portoDevParos,
   [Chains.portoDevLeros.id]: Chains.portoDevLeros,
   [Chains.portoDevTinos.id]: Chains.portoDevTinos,
