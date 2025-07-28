@@ -342,7 +342,7 @@ describe('Quote', () => {
 
 describe('Quotes', () => {
   const validQuotesData = {
-    multiChainRoute: '0xabcdef1234567890',
+    multiChainRoot: '0xabcdef1234567890',
     quotes: [
       {
         authorizationAddress: '0x1234567890123456789012345678901234567890',
@@ -390,19 +390,19 @@ describe('Quotes', () => {
   test('behavior: decodes valid quotes with all fields', () => {
     const result = Schema.decodeUnknownSync(Quotes.Quotes)(validQuotesData)
     expect(result.quotes).toHaveLength(1)
-    expect(result.multiChainRoute).toBe('0xabcdef1234567890')
+    expect(result.multiChainRoot).toBe('0xabcdef1234567890')
     expect(result.ttl).toBe(300)
   })
 
-  test('behavior: decodes quotes without optional multiChainRoute', () => {
+  test('behavior: decodes quotes without optional multiChainRoot', () => {
     const dataWithoutMultiChain = {
       ...validQuotesData,
-      multiChainRoute: undefined,
+      multiChainRoot: undefined,
     }
     const result = Schema.decodeUnknownSync(Quotes.Quotes)(
       dataWithoutMultiChain,
     )
-    expect(result.multiChainRoute).toBeUndefined()
+    expect(result.multiChainRoot).toBeUndefined()
     expect(result.quotes).toHaveLength(1)
     expect(result.ttl).toBe(300)
   })
@@ -411,7 +411,7 @@ describe('Quotes', () => {
     const decodedData = Schema.decodeUnknownSync(Quotes.Quotes)(validQuotesData)
     const encodedData = Schema.encodeSync(Quotes.Quotes)(decodedData)
     expect(encodedData.quotes).toHaveLength(1)
-    expect(encodedData.multiChainRoute).toBe('0xabcdef1234567890')
+    expect(encodedData.multiChainRoot).toBe('0xabcdef1234567890')
     expect(encodedData.ttl).toBe(300)
   })
 
@@ -425,7 +425,7 @@ describe('Quotes', () => {
       [Schema.CoderError: Expected an array of at least 1 item(s), actual []
       Path: quotes
 
-      Details: { readonly multiChainRoute?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number }
       └─ ["quotes"]
          └─ minItems(1)
             └─ Predicate refinement failure
@@ -436,14 +436,14 @@ describe('Quotes', () => {
   test('error: rejects missing required fields', () => {
     expect(() =>
       Schema.decodeUnknownSync(Quotes.Quotes)({
-        multiChainRoute: '0xabcdef1234567890',
+        multiChainRoot: '0xabcdef1234567890',
         // Missing quotes and ttl
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [Schema.CoderError: \`quotes\` is missing
       Path: quotes
 
-      Details: { readonly multiChainRoute?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number }
       └─ ["quotes"]
          └─ is missing]
     `)
@@ -453,7 +453,7 @@ describe('Quotes', () => {
 describe('Signed', () => {
   const validSignedData = {
     hash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
-    multiChainRoute: '0xabcdef1234567890',
+    multiChainRoot: '0xabcdef1234567890',
     quotes: [
       {
         authorizationAddress: '0x1234567890123456789012345678901234567890',
@@ -505,7 +505,7 @@ describe('Signed', () => {
   test('behavior: decodes valid signed quotes with all fields', () => {
     const result = Schema.decodeUnknownSync(Quotes.Signed)(validSignedData)
     expect(result.quotes).toHaveLength(1)
-    expect(result.multiChainRoute).toBe('0xabcdef1234567890')
+    expect(result.multiChainRoot).toBe('0xabcdef1234567890')
     expect(result.ttl).toBe(300)
     expect(result.hash).toBe(
       '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
@@ -524,7 +524,7 @@ describe('Signed', () => {
     const decodedData = Schema.decodeUnknownSync(Quotes.Signed)(validSignedData)
     const encodedData = Schema.encodeSync(Quotes.Signed)(decodedData)
     expect(encodedData.quotes).toHaveLength(1)
-    expect(encodedData.multiChainRoute).toBe('0xabcdef1234567890')
+    expect(encodedData.multiChainRoot).toBe('0xabcdef1234567890')
     expect(encodedData.ttl).toBe(300)
     expect(encodedData.hash).toBe(
       '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
@@ -617,7 +617,7 @@ describe('Signed', () => {
 
     // Verify all Quotes fields are present
     expect(result.quotes).toHaveLength(1)
-    expect(result.multiChainRoute).toBe(validSignedData.multiChainRoute)
+    expect(result.multiChainRoot).toBe(validSignedData.multiChainRoot)
     expect(result.ttl).toBe(validSignedData.ttl)
 
     // Verify signature fields are present
@@ -638,7 +638,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-hash"
       Path: hash
 
-      Details: { readonly multiChainRoute?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["hash"]
          └─ Expected \`0x\${string}\`, actual "invalid-hash"]
     `)
@@ -654,7 +654,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-r"
       Path: r
 
-      Details: { readonly multiChainRoute?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["r"]
          └─ Expected \`0x\${string}\`, actual "invalid-r"]
     `)
@@ -670,7 +670,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-s"
       Path: s
 
-      Details: { readonly multiChainRoute?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["s"]
          └─ Expected \`0x\${string}\`, actual "invalid-s"]
     `)
@@ -686,7 +686,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-v"
       Path: v
 
-      Details: { readonly multiChainRoute?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["v"]
          └─ \`0x\${string}\` | undefined
             ├─ Expected \`0x\${string}\`, actual "invalid-v"
@@ -704,7 +704,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-yParity"
       Path: yParity
 
-      Details: { readonly multiChainRoute?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["yParity"]
          └─ \`0x\${string}\` | undefined
             ├─ Expected \`0x\${string}\`, actual "invalid-yParity"
@@ -724,7 +724,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual undefined
       Path: hash
 
-      Details: { readonly multiChainRoute?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["hash"]
          └─ Expected \`0x\${string}\`, actual undefined]
     `)
@@ -741,7 +741,7 @@ describe('Signed', () => {
 
     // Verify all Quotes fields match
     expect(signedDecoded.quotes).toEqual(quotesDecoded.quotes)
-    expect(signedDecoded.multiChainRoute).toBe(quotesDecoded.multiChainRoute)
+    expect(signedDecoded.multiChainRoot).toBe(quotesDecoded.multiChainRoot)
     expect(signedDecoded.ttl).toBe(quotesDecoded.ttl)
 
     // Verify signature fields are only present in signed quotes
