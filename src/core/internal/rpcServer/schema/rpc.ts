@@ -467,10 +467,10 @@ export namespace wallet_prepareCalls {
     /** EIP-712 typed data digest. */
     typedData: Schema.Struct({
       domain: Schema.Struct({
-        chainId: Primitive.Number,
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
+        chainId: Schema.optional(Primitive.Number),
+        name: Schema.optional(Schema.String),
+        verifyingContract: Schema.optional(Primitive.Address),
+        version: Schema.optional(Schema.String),
       }),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
