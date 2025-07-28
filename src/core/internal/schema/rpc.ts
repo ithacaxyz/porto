@@ -665,6 +665,9 @@ export namespace wallet_getKeys {
 }
 
 export namespace wallet_prepareCalls {
+  export const AssetDiffAsset = Rpc_server.wallet_prepareCalls.AssetDiffAsset
+  export type AssetDiffAsset = typeof AssetDiffAsset.Type
+
   export const Capabilities = Schema.Struct({
     feeToken: Schema.optional(C.feeToken.Request),
     merchantRpcUrl: Schema.optional(C.merchantRpcUrl.Request),
