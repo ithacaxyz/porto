@@ -314,6 +314,26 @@ export namespace wallet_prepareCalls {
       uri: Schema.String,
       value: Primitive.BigInt,
     }),
+    Schema.Struct({
+      address: Schema.Null,
+      decimals: Schema.optional(Schema.Union(Schema.Number, Schema.Null)),
+      direction: Schema.Union(
+        Schema.Literal('incoming'),
+        Schema.Literal('outgoing'),
+      ),
+      fiat: Schema.optional(
+        Schema.Struct({
+          currency: Schema.String,
+          value: Schema.transform(Schema.String, Schema.Number, {
+            decode: (value) => Number(value),
+            encode: (value) => String(value),
+          }),
+        }),
+      ),
+      symbol: Schema.String,
+      type: Schema.Null,
+      value: Primitive.BigInt,
+    }),
   )
   export type AssetDiffAsset = typeof AssetDiffAsset.Type
 
