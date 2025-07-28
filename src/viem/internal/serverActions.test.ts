@@ -356,19 +356,43 @@ describe('prepareCalls + sendPreparedCalls', () => {
     expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
-  test('behavior: required funds', async () => {
+  // TODO: enable interop on anvil
+  test('behavior: required funds (prefunded on all chains)', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
     })
 
     const destinationChain = TestConfig.chains[1]
+
+    // fund account on destination chain
+    const client_destination = TestConfig.getServerClient(porto, {
+      chainId: destinationChain!.id,
+    })
+    await TestActions.setBalance(client_destination, {
+      address: account.address,
+      value: Value.fromEther('1'),
+    })
+
+    const balance_pre_source = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+    const balance_pre_destination = await readContract(client_destination, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+
     const request = await prepareCalls(client, {
       address: account.address,
       calls: [
         {
           abi: contracts.exp1.abi,
-          args: [Hex.random(20), Value.fromEther('50')],
+          args: [account.address, Value.fromEther('5')],
           functionName: 'transfer',
           to: contracts.exp1.address,
         },
@@ -380,7 +404,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         requiredFunds: [
           {
             address: contracts.exp1.address,
-            value: Value.fromEther('50.5'), // 50 + fee buffer
+            value: Value.fromEther('5.5'),
           },
         ],
       },
@@ -397,11 +421,193 @@ describe('prepareCalls + sendPreparedCalls', () => {
       wrap: false,
     })
 
-    await sendPreparedCalls(client, {
+    const { id } = await sendPreparedCalls(client, {
       context: request.context,
       key: request.key!,
       signature,
     })
+
+    const { status } = await waitForCallsStatus(client, {
+      id,
+    })
+    expect(status).toBe('success')
+
+    const balance_post_source = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+    expect(balance_post_source).toBeLessThan(balance_pre_source)
+
+    const balance_post_destination = await readContract(client_destination, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+    expect(balance_post_destination).toBe(
+      balance_pre_destination + Value.fromEther('5'),
+    )
+  })
+
+  // TODO: enable interop on anvil
+  test('behavior: required funds (not prefunded on destination chain)', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const balance_pre = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+
+    const alice = Hex.random(20)
+    const destinationChain = TestConfig.chains[1]
+    const request = await prepareCalls(client, {
+      address: account.address,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [alice, Value.fromEther('50')],
+          functionName: 'transfer',
+          to: contracts.exp1.address,
+        },
+      ],
+      capabilities: {
+        meta: {
+          feeToken: contracts.exp1.address,
+        },
+        requiredFunds: [
+          {
+            address: contracts.exp1.address,
+            value: Value.fromEther('50'),
+          },
+        ],
+      },
+      chain: destinationChain,
+      key: {
+        prehash: false,
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+      },
+    })
+
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+      wrap: false,
+    })
+
+    const { id } = await sendPreparedCalls(client, {
+      context: request.context,
+      key: request.key!,
+      signature,
+    })
+
+    const { status, statusCode } = await waitForCallsStatus(client, {
+      id,
+    })
+    expect(status).toBe('success')
+
+    const client_destination = TestConfig.getServerClient(porto, {
+      chainId: destinationChain!.id,
+    })
+
+    const balance_post = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+    expect(balance_post).toBeLessThan(balance_pre)
+
+    const balance_dest = await readContract(client_destination, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [alice],
+      functionName: 'balanceOf',
+    })
+    expect(balance_dest).toBe(Value.fromEther('50'))
+  })
+
+  // TODO: enable interop on anvil
+  test('behavior: required funds (multiple required funds)', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const alice = Hex.random(20)
+    const destinationChain = TestConfig.chains[1]
+    const request = await prepareCalls(client, {
+      address: account.address,
+      calls: [
+        {
+          abi: contracts.exp2.abi,
+          args: [account.address, Value.fromEther('50')],
+          functionName: 'mint',
+          to: contracts.exp2.address,
+        },
+        {
+          abi: contracts.exp2.abi,
+          args: [alice, Value.fromEther('50')],
+          functionName: 'transfer',
+          to: contracts.exp2.address,
+        },
+      ],
+      capabilities: {
+        meta: {
+          feeToken: contracts.exp1.address,
+        },
+        requiredFunds: [
+          {
+            address: contracts.exp1.address,
+            value: Value.fromEther('0.5'), // fee: 0.5 EXP1
+          },
+          {
+            address: contracts.exp2.address,
+            value: Value.fromEther('50'), // 50 EXP2
+          },
+        ],
+      },
+      chain: destinationChain,
+      key: {
+        prehash: false,
+        publicKey: key.publicKey,
+        type: 'webauthnp256',
+      },
+    })
+
+    const signature = await Key.sign(key, {
+      payload: request.digest,
+      wrap: false,
+    })
+
+    const { id } = await sendPreparedCalls(client, {
+      context: request.context,
+      key: request.key!,
+      signature,
+    })
+
+    const { status } = await waitForCallsStatus(client, {
+      id,
+    })
+    expect(status).toBe('success')
+
+    const client_destination = TestConfig.getServerClient(porto, {
+      chainId: destinationChain!.id,
+    })
+
+    const balance = await readContract(client_destination, {
+      abi: contracts.exp2.abi,
+      address: contracts.exp2.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+    expect(balance).toBe(Value.fromEther('50'))
   })
 
   test('behavior: contract calls', async () => {

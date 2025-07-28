@@ -413,9 +413,9 @@ export namespace wallet_prepareCalls {
             value: Schema.BigInt,
           }),
           {
-            decode: ([address, valueHex]) => ({
+            decode: ([address, value]) => ({
               address,
-              value: Hex.toBigInt(valueHex),
+              value: Hex.toBigInt(value),
             }),
             encode: ({ address, value }) => [
               address,

@@ -7,7 +7,7 @@ import { getChains } from './chains.js'
 import { poolId } from './prool.js'
 
 const env = process.env.VITE_DEFAULT_ENV!
-const chains = getChains(env)
+export const chains = getChains(env)
 
 export function getPorto(
   parameters: {
@@ -62,8 +62,9 @@ export function getPorto(
 
 export function getServerClient<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(porto: Porto.Porto<chains>) {
-  return ServerClient.fromPorto(porto).extend(() => ({
+>(porto: Porto.Porto<chains>, options: { chainId?: number | undefined } = {}) {
+  const { chainId } = options
+  return ServerClient.fromPorto(porto, { chainId }).extend(() => ({
     mode: 'anvil',
   }))
 }
@@ -76,8 +77,8 @@ export function getWalletClient<
 
 export function getContracts<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(porto: Porto.Porto<chains>) {
-  const { chainId } = porto._internal.store.getState()
+>(porto: Porto.Porto<chains>, options: { chainId?: number | undefined } = {}) {
+  const { chainId = porto._internal.store.getState().chainId } = options
 
   const chain = chains.find((chain) => chain.id === chainId)
   if (!chain) throw new Error(`Chain not found: ${chainId}`)

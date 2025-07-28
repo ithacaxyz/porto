@@ -359,6 +359,14 @@ exports[`contract > wallet_getPermissions > behavior: grant on connect > grant a
 
 exports[`contract > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 3`] = `[]`;
 
+exports[`contract > wallet_grantAdmin > default 1`] = `
+{
+  "id": "0x0000000000000000000000000000000000069420",
+  "publicKey": "0x0000000000000000000000000000000000069420",
+  "type": "address",
+}
+`;
+
 exports[`contract > wallet_grantPermissions > behavior: no permissions 1`] = `
 [RpcResponse.InvalidParamsError: Expected an array of at least 1 item(s), actual []
 Path: params.0.permissions.calls
