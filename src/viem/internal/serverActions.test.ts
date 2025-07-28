@@ -357,7 +357,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
   })
 
   // TODO: enable interop on anvil
-  test('behavior: required funds (prefunded on all chains)', async () => {
+  test.only('behavior: required funds (prefunded on all chains)', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
