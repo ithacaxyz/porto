@@ -425,7 +425,7 @@ describe('Quotes', () => {
       [Schema.CoderError: Expected an array of at least 1 item(s), actual []
       Path: quotes
 
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number }
       └─ ["quotes"]
          └─ minItems(1)
             └─ Predicate refinement failure
@@ -443,7 +443,7 @@ describe('Quotes', () => {
       [Schema.CoderError: \`quotes\` is missing
       Path: quotes
 
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number }
       └─ ["quotes"]
          └─ is missing]
     `)
@@ -638,7 +638,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-hash"
       Path: hash
 
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["hash"]
          └─ Expected \`0x\${string}\`, actual "invalid-hash"]
     `)
@@ -654,7 +654,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-r"
       Path: r
 
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["r"]
          └─ Expected \`0x\${string}\`, actual "invalid-r"]
     `)
@@ -670,7 +670,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-s"
       Path: s
 
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["s"]
          └─ Expected \`0x\${string}\`, actual "invalid-s"]
     `)
@@ -686,7 +686,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-v"
       Path: v
 
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["v"]
          └─ \`0x\${string}\` | undefined
             ├─ Expected \`0x\${string}\`, actual "invalid-v"
@@ -704,7 +704,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid-yParity"
       Path: yParity
 
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["yParity"]
          └─ \`0x\${string}\` | undefined
             ├─ Expected \`0x\${string}\`, actual "invalid-yParity"
@@ -724,7 +724,7 @@ describe('Signed', () => {
       [Schema.CoderError: Expected \`0x\${string}\`, actual undefined
       Path: hash
 
-      Details: { readonly multiChainRoot?: \`0x\${string}\` | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
+      Details: { readonly multiChainRoot?: \`0x\${string}\` | null | undefined; readonly quotes: minItems(1); readonly ttl: number; readonly hash: \`0x\${string}\`; readonly r: \`0x\${string}\`; readonly s: \`0x\${string}\`; readonly v?: \`0x\${string}\` | undefined; readonly yParity?: \`0x\${string}\` | undefined }
       └─ ["hash"]
          └─ Expected \`0x\${string}\`, actual undefined]
     `)
