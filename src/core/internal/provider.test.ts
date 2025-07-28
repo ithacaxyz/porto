@@ -566,6 +566,7 @@ describe.each([
     test('behavior: grant on connect > grant another > get after connect', async () => {
       const porto = getPorto()
       const client = TestConfig.getServerClient(porto)
+      const walletClient = TestConfig.getWalletClient(porto)
 
       const { accounts } = await porto.provider.request({
         method: 'wallet_connect',
@@ -649,7 +650,7 @@ describe.each([
         method: 'wallet_sendCalls',
         params: [{ calls: [] }],
       })
-      await waitForCallsStatus(client, {
+      await waitForCallsStatus(walletClient, {
         id,
       })
 
