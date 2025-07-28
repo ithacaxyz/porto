@@ -69,7 +69,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     ? prepareCallsQuery_assetDiff
     : prepareCallsQuery
 
-  const assetDiff = query_assetDiff.data?.capabilities.assetDiff
+  const assetDiff = query_assetDiff.data?.capabilities.assetDiffs
   // TODO(interop): support interop
   const quote = prepareCallsQuery.data?.capabilities.quote?.quotes[0]
 
@@ -177,14 +177,27 @@ export namespace ActionRequest {
     const balances = React.useMemo(() => {
       if (!props.assetDiff) return []
 
-      let balances = []
-      for (const [account_, values] of props.assetDiff) {
-        if (account_ !== account?.address) continue
-        for (const value of values) {
-          balances.push({
-            ...value,
-            account: account_,
-          })
+      let balances: Rpc.wallet_prepareCalls.AssetDiffAsset[] = []
+      for (const chainDiff of Object.values(props.assetDiff)) {
+        for (const [account_, assetDiff] of chainDiff) {
+          if (account_ !== account?.address) continue
+          for (const asset of assetDiff) {
+            const existing = asset.address
+              ? balances.find((balance) => balance.address === asset.address)
+              : undefined
+            balances.push({
+              ...asset,
+              fiat: asset.fiat
+                ? {
+                    ...asset.fiat,
+                    value: existing?.fiat?.value
+                      ? existing.fiat.value + asset.fiat.value
+                      : asset.fiat.value,
+                  }
+                : undefined,
+              value: existing ? existing.value + asset.value : asset.value,
+            })
+          }
         }
       }
       balances = balances.toSorted((a, b) => (a.value > b.value ? 1 : -1))
@@ -313,7 +326,7 @@ export namespace ActionRequest {
       address: Address.Address
       assetDiff: NonNullable<
         Rpc.wallet_prepareCalls.Response['capabilities']
-      >['assetDiff']
+      >['assetDiffs']
     }
   }
   export function Details(props: Details.Props) {
