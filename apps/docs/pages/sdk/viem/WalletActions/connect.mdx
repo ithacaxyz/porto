@@ -43,7 +43,7 @@ import { WalletActions } from 'porto/viem'
 import { parseEther, toHex } from 'viem'
 import { client } from './config'
 
-const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 
 const result = await WalletActions.connect(client, {
   grantPermissions: { // [!code focus]
@@ -85,12 +85,12 @@ const result = await WalletActions.connect(client, {
         permissions: {
           calls: [{
             signature: 'transfer(address,uint256)',
-            to: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
+            to: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
           }],
           spend: [{
             limit: parseEther('50'), // 50 EXP
             period: 'day',
-            token: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
+            token: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
           }],
         },
       },

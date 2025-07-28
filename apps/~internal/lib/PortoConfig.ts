@@ -41,7 +41,7 @@ const config = {
     },
   },
   stg: {
-    chains: [Chains.baseSepolia],
+    chains: [Chains.baseSepolia, Chains.optimismSepolia],
     feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
@@ -50,6 +50,10 @@ const config = {
     storageKey: 'porto.store.stg',
     transports: {
       [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.optimismSepolia.id]: http(
+        undefined,
+        Sentry.httpTransportOptions(),
+      ),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
