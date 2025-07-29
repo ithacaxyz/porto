@@ -25,6 +25,16 @@ export namespace createAccount {
   export type Request = typeof Request.Type
 }
 
+export namespace requiredFunds {
+  export const Request = Schema.Array(
+    Schema.Struct({
+      address: Primitive.Address,
+      value: Primitive.BigInt,
+    }),
+  )
+  export type Request = typeof Request.Type
+}
+
 export namespace signInWithEthereum {
   export const Request = OneOf(
     /** Standard EIP-4361 request object. */

@@ -2509,10 +2509,10 @@ describe.each([
               ],
               capabilities: {
                 requiredFunds: [
-                  [
-                    contracts.exp1.address,
-                    Hex.fromNumber(Value.fromEther('50')),
-                  ],
+                  {
+                    address: contracts.exp1.address,
+                    value: Hex.fromNumber(Value.fromEther('50')),
+                  },
                 ],
               },
               chainId: Hex.fromNumber(chainId_dest),

@@ -347,6 +347,8 @@ export namespace wallet_prepareCalls {
     preCall: Schema.optional(Schema.Boolean),
     /** Optional preCalls to execute before signature verification. */
     preCalls: Schema.optional(Schema.Array(PreCall.PreCall)),
+    /** Required funds on the target chain. */
+    requiredFunds: Schema.optional(C.requiredFunds.Request),
     /** Keys to revoke on the account. */
     revokeKeys: Schema.optional(C.revokeKeys.Request),
   }).annotations({
@@ -398,11 +400,6 @@ export namespace wallet_prepareCalls {
         publicKey: Primitive.Hex,
         type: Key.Key.fields.type,
       }),
-    ),
-    /** Required funds on the target chain. */
-    // TODO: should be in `capabilities`.
-    requiredFunds: Schema.optional(
-      Schema.Array(Schema.Tuple(Primitive.Address, Primitive.BigInt)),
     ),
   }).annotations({
     identifier: 'wallet_prepareCalls.Parameters',

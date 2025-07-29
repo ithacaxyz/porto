@@ -819,7 +819,10 @@ function SendCalls() {
               ],
               capabilities: {
                 requiredFunds: [
-                  [exp1Address, Hex.fromNumber(Value.fromEther('1'))],
+                  {
+                    address: exp1Address,
+                    value: Hex.fromNumber(Value.fromEther('1')),
+                  },
                 ],
               },
             } as const
@@ -848,7 +851,10 @@ function SendCalls() {
               ],
               capabilities: {
                 requiredFunds: [
-                  [exp1Address, Hex.fromNumber(Value.fromEther('50'))],
+                  {
+                    address: exp1Address,
+                    value: Hex.fromNumber(Value.fromEther('50')),
+                  },
                 ],
               },
             } as const
@@ -890,7 +896,10 @@ function SendCalls() {
               ],
               capabilities: {
                 requiredFunds: [
-                  [exp1Address, Hex.fromNumber(Value.fromEther('50'))],
+                  {
+                    address: exp1Address,
+                    value: Hex.fromNumber(Value.fromEther('50')),
+                  },
                 ],
               },
             } as const

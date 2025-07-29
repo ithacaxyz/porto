@@ -673,8 +673,7 @@ export namespace wallet_prepareCalls {
     merchantRpcUrl: Schema.optional(C.merchantRpcUrl.Request),
     permissions: Schema.optional(C.permissions.Request),
     preCalls: Schema.optional(C.preCalls.Request),
-    requiredFunds:
-      Rpc_server.wallet_prepareCalls.Parameters.fields.requiredFunds,
+    requiredFunds: Schema.optional(C.requiredFunds.Request),
   }).annotations({
     identifier: 'Rpc.wallet_prepareCalls.Capabilities',
   })

@@ -402,7 +402,12 @@ describe('sendCalls', () => {
       ],
       chain: chain_dest,
       feeToken: contracts.exp1.address,
-      requiredFunds: [[contracts.exp1.address, Value.fromEther('50')]],
+      requiredFunds: [
+        {
+          address: contracts.exp1.address,
+          value: Value.fromEther('50'),
+        },
+      ],
     })
 
     expect(id).toBeDefined()

@@ -397,7 +397,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
           meta: {
             feeToken: contracts.exp1.address,
           },
-          requiredFunds: [[contracts.exp1.address, Value.fromEther('5')]],
+          requiredFunds: [
+            {
+              address: contracts.exp1.address,
+              value: Value.fromEther('5'),
+            },
+          ],
         },
         chain: chain_dest,
         key: {
@@ -478,7 +483,12 @@ describe('prepareCalls + sendPreparedCalls', () => {
           meta: {
             feeToken: contracts.exp1.address,
           },
-          requiredFunds: [[contracts.exp1.address, Value.fromEther('50')]],
+          requiredFunds: [
+            {
+              address: contracts.exp1.address,
+              value: Value.fromEther('50'),
+            },
+          ],
         },
         chain: chain_dest,
         key: {
