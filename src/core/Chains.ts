@@ -68,7 +68,7 @@ export const base = /*#__PURE__*/ define({
       address: '0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f',
     },
   },
-  preconfirmationTime: 200,
+  experimental_preconfirmationTime: 200,
   rpcUrls: {
     default: {
       http: [
@@ -87,7 +87,7 @@ export const baseSepolia = /*#__PURE__*/ define({
       address: '0x76334de3a35b0e824b8cfe36bb8b735f1a4a338e',
     },
   },
-  preconfirmationTime: 200,
+  experimental_preconfirmationTime: 200,
   rpcUrls: {
     default: {
       http: [
@@ -106,7 +106,7 @@ export const optimismSepolia = /*#__PURE__*/ define({
       address: '0x76334de3a35b0e824b8cfe36bb8b735f1a4a338e',
     },
   },
-  preconfirmationTime: 200,
+  experimental_preconfirmationTime: 200,
   rpcUrls: {
     default: {
       http: [

@@ -70,6 +70,7 @@ describe('fromPorto', () => {
               "address": "0x76334de3a35b0e824b8cfe36bb8b735f1a4a338e",
             },
           },
+          "experimental_preconfirmationTime": 200,
           "fees": undefined,
           "formatters": {
             "block": {
@@ -96,7 +97,6 @@ describe('fromPorto', () => {
             "symbol": "ETH",
           },
           "network": "base-sepolia",
-          "preconfirmationTime": 200,
           "rpcUrls": {
             "default": {
               "http": [
@@ -111,6 +111,7 @@ describe('fromPorto', () => {
           "sourceId": 11155111,
           "testnet": true,
         },
+        "experimental_blockTag": "pending",
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
