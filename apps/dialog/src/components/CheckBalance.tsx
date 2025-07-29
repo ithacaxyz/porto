@@ -17,9 +17,13 @@ export function CheckBalance(props: CheckBalance.Props) {
   })
   const feeToken = feeTokens.data?.[0]
 
-  const feeTokenDeficit =
-    // TODO(interop): support interop
-    query.data?.capabilities.quote.quotes?.[0]?.feeTokenDeficit ?? 0n
+  const hasFeeDeficit = query.data?.capabilities.quote.quotes.some(
+    (quote) => quote.feeTokenDeficit > 0n,
+  )
+
+  const insufficientFunds =
+    hasFeeDeficit ||
+    (query.error?.cause as Error)?.message.includes('insufficient funds')
 
   if (step === 'success') return children
   if (query.isPending)
@@ -30,7 +34,7 @@ export function CheckBalance(props: CheckBalance.Props) {
         </div>
       </div>
     )
-  if (feeTokenDeficit === 0n) return children
+  if (!insufficientFunds) return children
   return (
     <AddFunds
       address={address}

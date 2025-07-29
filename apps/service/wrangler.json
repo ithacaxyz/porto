@@ -16,7 +16,7 @@
   },
   "keep_vars": true,
   "main": "./src/index.ts",
-  "name": "service",
+  "name": "service-next",
   "observability": {
     "enabled": true
   },

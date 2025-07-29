@@ -8,7 +8,7 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
 import { Hooks, type Porto as Porto_ } from 'porto/remote'
 import * as React from 'react'
-import type { Call } from 'viem'
+import { type Call, ethAddress } from 'viem'
 import { useCapabilities } from 'wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
@@ -37,6 +37,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     merchantRpcUrl,
     onApprove,
     onReject,
+    requiredFunds,
   } = props
 
   const account = Hooks.useAccount(porto, { address })
@@ -53,6 +54,7 @@ export function ActionRequest(props: ActionRequest.Props) {
       if (query.state.error) return false
       return 15_000
     },
+    requiredFunds,
   })
 
   // However, to prevent a malicious RPC server from providing a mutated asset
@@ -64,6 +66,7 @@ export function ActionRequest(props: ActionRequest.Props) {
     chainId,
     enabled: !!merchantRpcUrl,
     feeToken,
+    requiredFunds,
   })
   const query_assetDiff = merchantRpcUrl
     ? prepareCallsQuery_assetDiff
@@ -164,6 +167,9 @@ export namespace ActionRequest {
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading?: boolean | undefined
     merchantRpcUrl?: string | undefined
+    requiredFunds?:
+      | Calls.prepareCalls.queryOptions.Options['requiredFunds']
+      | undefined
     onApprove: (data: Calls.prepareCalls.useQuery.Data) => void
     onReject: () => void
     quote?: Quote | undefined
@@ -177,31 +183,41 @@ export namespace ActionRequest {
     const balances = React.useMemo(() => {
       if (!props.assetDiff) return []
 
-      let balances: Rpc.wallet_prepareCalls.AssetDiffAsset[] = []
+      const balances: Map<
+        Address.Address,
+        Rpc.wallet_prepareCalls.AssetDiffAsset
+      > = new Map()
+
       for (const chainDiff of Object.values(props.assetDiff)) {
         for (const [account_, assetDiff] of chainDiff) {
           if (account_ !== account?.address) continue
           for (const asset of assetDiff) {
-            const existing = asset.address
-              ? balances.find((balance) => balance.address === asset.address)
+            const address = asset.address ?? ethAddress
+            const current = balances.get(address)
+
+            const direction = asset.direction === 'incoming' ? 1n : -1n
+            const fiat = asset.fiat
+              ? {
+                  ...asset.fiat,
+                  value:
+                    (current?.fiat?.value ?? 0) +
+                    Number(direction) * asset.fiat.value,
+                }
               : undefined
-            balances.push({
+            const value = (current?.value ?? 0n) + direction * asset.value
+
+            balances.set(address, {
               ...asset,
-              fiat: asset.fiat
-                ? {
-                    ...asset.fiat,
-                    value: existing?.fiat?.value
-                      ? existing.fiat.value + asset.fiat.value
-                      : asset.fiat.value,
-                  }
-                : undefined,
-              value: existing ? existing.value + asset.value : asset.value,
+              direction: value > 0 ? 'incoming' : 'outgoing',
+              fiat,
+              value,
             })
           }
         }
       }
-      balances = balances.toSorted((a, b) => (a.value > b.value ? 1 : -1))
-      return balances
+      return Array.from(balances.values()).sort((a, b) =>
+        a.value > b.value ? 1 : -1,
+      )
     }, [props.assetDiff, account?.address])
 
     return (

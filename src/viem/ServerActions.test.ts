@@ -412,8 +412,6 @@ describe('sendCalls', () => {
     })
     expect(status).toBe('success')
 
-    console.log('ok')
-
     const client_dest = TestConfig.getServerClient(porto, {
       chainId: chain_dest!.id,
     })

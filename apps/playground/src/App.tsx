@@ -817,6 +817,11 @@ function SendCalls() {
                   to: exp1Address,
                 },
               ],
+              capabilities: {
+                requiredFunds: [
+                  [exp1Address, Hex.fromNumber(Value.fromEther('1'))],
+                ],
+              },
             } as const
 
           if (action === 'transfer')

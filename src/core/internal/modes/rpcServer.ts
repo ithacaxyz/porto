@@ -517,6 +517,9 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             requiredFunds,
           })
 
+        const quotes = context.quote?.quotes ?? []
+        const outputQuote = quotes[quotes.length - 1]
+
         return {
           account,
           capabilities: {
@@ -528,8 +531,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             ...context,
             account,
             calls,
-            // TODO(relay-v15): still need for rpc server?
-            nonce: context.quote?.quotes?.[0]?.intent.nonce,
+            nonce: outputQuote?.intent.nonce,
           },
           digest,
           key,

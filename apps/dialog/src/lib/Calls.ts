@@ -22,6 +22,7 @@ export namespace prepareCalls {
       calls,
       feeToken,
       merchantRpcUrl,
+      requiredFunds,
       refetchInterval,
       revokeKeys,
     } = options
@@ -57,6 +58,7 @@ export namespace prepareCalls {
           feeToken: feeTokenAddress,
           key,
           preCalls,
+          requiredFunds,
         })
       },
       queryKey: queryOptions.queryKey(client, {
@@ -65,6 +67,7 @@ export namespace prepareCalls {
         calls,
         feeToken,
         merchantRpcUrl,
+        requiredFunds,
         revokeKeys,
       }),
       refetchInterval,
@@ -95,7 +98,7 @@ export namespace prepareCalls {
         calls extends readonly unknown[] = readonly unknown[],
       > = Pick<
         ServerActions.prepareCalls.Parameters<calls>,
-        'authorizeKeys' | 'calls' | 'revokeKeys'
+        'authorizeKeys' | 'calls' | 'requiredFunds' | 'revokeKeys'
       > & {
         account?: Account.Account | undefined
         feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
