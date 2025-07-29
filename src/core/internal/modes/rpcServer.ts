@@ -192,6 +192,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           permissions: {
             supported: true,
           },
+          requiredFunds: {
+            supported: true,
+            tokens: [],
+          },
         } as const
 
         const capabilities = await Promise.all(
@@ -213,6 +217,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                       feeToken: {
                         supported: true,
                         tokens: capabilities.fees.tokens,
+                      },
+                      requiredFunds: {
+                        supported: true,
+                        tokens: capabilities.fees.tokens.filter(
+                          (token) => token.interop,
+                        ),
                       },
                     }
                   : {}),

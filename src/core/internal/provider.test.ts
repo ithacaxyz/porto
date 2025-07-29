@@ -1531,12 +1531,15 @@ describe.each([
       expect(keys).matchSnapshot()
 
       const values = Object.values(capabilities)
-      const { atomic, feeToken, permissions, merchant } = values[0]!
+      const { atomic, feeToken, permissions, merchant, requiredFunds } =
+        values[0]!
       expect(atomic).matchSnapshot()
       expect(feeToken.supported).matchSnapshot()
       expect(feeToken.tokens.length).matchSnapshot()
       expect(permissions).matchSnapshot()
       expect(merchant).matchSnapshot()
+      expect(requiredFunds.supported).matchSnapshot()
+      expect(requiredFunds.tokens.length).matchSnapshot()
     })
 
     test('behavior: chainId', async () => {

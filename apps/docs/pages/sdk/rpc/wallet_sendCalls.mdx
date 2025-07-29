@@ -68,6 +68,11 @@ type Request = {
         /** ID of the permission to use. */
         id: `0x${string}`;
       };
+      /** Required funds on the target chain. */
+      requiredFunds?: {
+        address: `0x${string}`;
+        value: `0x${string}`;
+      }[]
     };
     /** 
      * Chain ID to send the calls to.

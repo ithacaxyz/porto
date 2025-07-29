@@ -633,6 +633,7 @@ export namespace wallet_getCapabilities {
       feeToken: C.feeToken.GetCapabilitiesResponse,
       merchant: C.merchant.GetCapabilitiesResponse,
       permissions: C.permissions.GetCapabilitiesResponse,
+      requiredFunds: C.requiredFunds.GetCapabilitiesResponse,
     }),
   }).annotations({
     identifier: 'Rpc.wallet_getCapabilities.Response',

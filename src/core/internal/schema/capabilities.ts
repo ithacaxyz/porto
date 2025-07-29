@@ -25,16 +25,6 @@ export namespace createAccount {
   export type Request = typeof Request.Type
 }
 
-export namespace requiredFunds {
-  export const Request = Schema.Array(
-    Schema.Struct({
-      address: Primitive.Address,
-      value: Primitive.BigInt,
-    }),
-  )
-  export type Request = typeof Request.Type
-}
-
 export namespace signInWithEthereum {
   export const Request = OneOf(
     /** Standard EIP-4361 request object. */
@@ -149,5 +139,30 @@ export namespace preCalls {
 
 export namespace merchantRpcUrl {
   export const Request = Schema.String
+  export type Request = typeof Request.Type
+}
+
+export namespace requiredFunds {
+  export const GetCapabilitiesResponse = Schema.Struct({
+    supported: Schema.Boolean,
+    tokens: Schema.Array(
+      Schema.Struct({
+        address: Primitive.Address,
+        decimals: Schema.Number,
+        interop: Schema.Boolean,
+        kind: Schema.String,
+        nativeRate: Schema.optional(Primitive.BigInt),
+        symbol: Schema.String,
+      }),
+    ),
+  })
+  export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
+
+  export const Request = Schema.Array(
+    Schema.Struct({
+      address: Primitive.Address,
+      value: Primitive.BigInt,
+    }),
+  )
   export type Request = typeof Request.Type
 }

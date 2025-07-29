@@ -344,6 +344,46 @@ const capabilities = await provider.request({
 })
 ```
 
+## `requiredFunds`
+
+### Request Capabilities
+
+#### `requiredFunds`
+
+Funds required on the target chain.
+
+The following JSON-RPC methods support the `requiredFunds` request capability:
+
+- [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)
+- [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)
+
+```ts
+type Capability = {
+  requiredFunds?: {
+    address: `0x${string}`;
+    value: `0x${string}`;
+  }[]
+}
+```
+
+#### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_sendCalls',
+  params: [{
+    capabilities: {
+      requiredFunds: [{
+        address: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa',
+        value: '0x5f5e100', // 100 USDC
+      }]
+    },
+    /* ... */
+  }]
+})
+```
+
 ## `signInWithEthereum`
 
 Adds support for [ERC-4361](https://eips.ethereum.org/EIPS/eip-4361) Sign-In with Ethereum.
