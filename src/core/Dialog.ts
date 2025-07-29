@@ -155,7 +155,7 @@ export function iframe(options: iframe.Options = {}) {
         waitForReady: true,
       })
 
-      if (themeController) themeController._messenger = messenger
+      if (themeController) themeController._setup(messenger, true)
 
       const drawerModeQuery = window.matchMedia('(max-width: 460px)')
       const onDrawerModeChange = () => {
@@ -358,6 +358,8 @@ export function popup(options: popup.Options = {}) {
 
       let messenger: Messenger.Bridge | undefined
 
+      themeController?._setup(null, true)
+
       return {
         close() {
           if (!popup) return
@@ -390,11 +392,12 @@ export function popup(options: popup.Options = {}) {
             waitForReady: true,
           })
 
-          if (themeController) themeController._messenger = messenger
+          themeController?._setup(messenger, false)
 
           messenger.send('__internal', {
             mode: 'popup',
             referrer: getReferrer(),
+            theme: themeController?.getTheme() ?? parameters.theme,
             type: 'init',
           })
 
@@ -497,7 +500,7 @@ export function experimental_inline(options: inline.Options) {
         waitForReady: true,
       })
 
-      if (themeController) themeController._messenger = messenger
+      themeController?._setup(messenger, true)
 
       messenger.on('ready', () => {
         messenger.send('__internal', {
@@ -550,25 +553,39 @@ export namespace inline {
 
 export type ThemeController = {
   /**
-   * Used internally to communicate with the dialog.
+   * Used internally to setup the controller.
    * @deprecated
    */
-  _messenger: Messenger.Messenger | null
+  _setup: (messenger: Messenger.Messenger | null, resetTheme?: boolean) => void
   /**
    * Update the dialog theme.
    * @param theme - The theme to set.
    */
   setTheme: (theme: ThemeFragment) => void
+  /**
+   * Get the latest theme set since the controller was initialized.
+   * @returns The latest theme or `null` if no theme was set.
+   */
+  getTheme: () => ThemeFragment | null
 }
 
 /**
  * A controller to update the dialog theme.
  */
 export function createThemeController(): ThemeController {
+  let lastTheme: ThemeFragment | null = null
+  let messenger: Messenger.Messenger | null = null
   const controller: ThemeController = {
-    _messenger: null,
+    _setup(messenger_: Messenger.Messenger | null, resetTheme = false) {
+      if (resetTheme) lastTheme = null
+      messenger = messenger_
+    },
+    getTheme() {
+      return lastTheme
+    },
     setTheme(theme) {
-      controller._messenger?.send('__internal', {
+      lastTheme = theme
+      messenger?.send('__internal', {
         theme,
         type: 'set-theme',
       })
