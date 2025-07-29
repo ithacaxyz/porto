@@ -155,7 +155,7 @@ export function iframe(options: iframe.Options = {}) {
         waitForReady: true,
       })
 
-      if (themeController) themeController._setup(messenger, true)
+      themeController?._setup(messenger, true)
 
       const drawerModeQuery = window.matchMedia('(max-width: 460px)')
       const onDrawerModeChange = () => {
