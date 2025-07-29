@@ -5,7 +5,6 @@
  */
 
 import * as Schema from 'effect/Schema'
-import * as Hex from 'ox/Hex'
 import * as Primitive from '../../schema/primitive.js'
 import * as C from './capabilities.js'
 import * as Key from './key.js'
@@ -403,28 +402,7 @@ export namespace wallet_prepareCalls {
     /** Required funds on the target chain. */
     // TODO: should be in `capabilities`.
     requiredFunds: Schema.optional(
-      Schema.Array(
-        Schema.transform(
-          Schema.Tuple(Primitive.Address, Primitive.Hex),
-          Schema.Struct({
-            /** Token address. */
-            address: Primitive.Address,
-            /** Amount of tokens required. */
-            value: Schema.BigInt,
-          }),
-          {
-            decode: ([address, value]) => ({
-              address,
-              value: Hex.toBigInt(value),
-            }),
-            encode: ({ address, value }) => [
-              address,
-              Hex.fromNumber(BigInt(value)),
-            ],
-            strict: false,
-          },
-        ),
-      ),
+      Schema.Array(Schema.Tuple(Primitive.Address, Primitive.BigInt)),
     ),
   }).annotations({
     identifier: 'wallet_prepareCalls.Parameters',
@@ -466,12 +444,15 @@ export namespace wallet_prepareCalls {
     ),
     /** EIP-712 typed data digest. */
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Schema.optional(Primitive.Number),
-        name: Schema.optional(Schema.String),
-        verifyingContract: Schema.optional(Primitive.Address),
-        version: Schema.optional(Schema.String),
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
@@ -543,12 +524,15 @@ export namespace wallet_prepareUpgradeAccount {
     }),
     /** EIP-712 typed data digest. */
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Schema.optional(Primitive.Number),
-        name: Schema.optional(Schema.String),
-        verifyingContract: Schema.optional(Primitive.Address),
-        version: Schema.optional(Schema.String),
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),

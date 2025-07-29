@@ -119,10 +119,11 @@ export async function prepareCalls<
     chain,
     key,
     feeToken,
+    merchantRpcUrl,
     nonce,
     preCalls,
+    requiredFunds,
     revokeKeys,
-    merchantRpcUrl,
   } = parameters
 
   const account_ = account ? Account.from(account) : undefined
@@ -162,6 +163,7 @@ export async function prepareCalls<
         },
         preCall,
         preCalls: signedPreCalls,
+        requiredFunds,
         revokeKeys: revokeKeys?.map((key) => ({
           hash: key.hash,
         })),
@@ -224,6 +226,10 @@ export namespace prepareCalls {
             context: prepareCalls.ReturnType['context']
             signature: Hex.Hex
           }[]
+        | undefined
+      /** Required funds to execute the calls. */
+      requiredFunds?:
+        | ServerActions.prepareCalls.Parameters['capabilities']['requiredFunds']
         | undefined
       /** Additional keys to revoke from the account. */
       revokeKeys?: readonly Key.Key[] | undefined

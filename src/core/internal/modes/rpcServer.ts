@@ -477,7 +477,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl } = parameters
+        const { account, calls, internal, merchantRpcUrl, requiredFunds } =
+          parameters
         const {
           client,
           config: { storage },
@@ -513,6 +514,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             key,
             merchantRpcUrl,
             preCalls,
+            requiredFunds,
           })
 
         return {
@@ -647,8 +649,14 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, asTxHash, calls, internal, merchantRpcUrl } =
-          parameters
+        const {
+          account,
+          asTxHash,
+          calls,
+          internal,
+          merchantRpcUrl,
+          requiredFunds,
+        } = parameters
         const {
           client,
           config: { storage },
@@ -684,6 +692,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           key,
           merchantRpcUrl,
           preCalls,
+          requiredFunds,
         })
 
         await PreCalls.clear({

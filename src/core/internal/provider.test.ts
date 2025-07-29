@@ -2469,6 +2469,88 @@ describe.each([
       ).rejects.matchSnapshot()
     })
 
+    test.runIf(!Anvil.enabled && type === 'rpcServer')(
+      'behavior: required funds',
+      async () => {
+        const porto = getPorto()
+        const client = TestConfig.getServerClient(porto)
+        const contracts = TestConfig.getContracts(porto)
+
+        const {
+          accounts: [account],
+        } = await porto.provider.request({
+          method: 'wallet_connect',
+          params: [{ capabilities: { createAccount: true } }],
+        })
+        const address = account!.address
+
+        const initialBalance = Value.fromEther('10000')
+        await setBalance(client, {
+          address,
+          value: initialBalance,
+        })
+
+        const alice = Hex.random(20)
+        const chainId_dest = TestConfig.chains[1]!.id
+
+        const { id } = await porto.provider.request({
+          method: 'wallet_sendCalls',
+          params: [
+            {
+              calls: [
+                {
+                  data: encodeFunctionData({
+                    abi: contracts.exp1.abi,
+                    args: [alice, Value.fromEther('50')],
+                    functionName: 'transfer',
+                  }),
+                  to: contracts.exp1.address,
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  [
+                    contracts.exp1.address,
+                    Hex.fromNumber(Value.fromEther('50')),
+                  ],
+                ],
+              },
+              chainId: Hex.fromNumber(chainId_dest),
+              from: address,
+              version: '1',
+            },
+          ],
+        })
+
+        expect(id).toBeDefined()
+
+        await waitForCallsStatus(WalletClient.fromPorto(porto), {
+          id,
+        })
+
+        const balance = await readContract(client, {
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
+          args: [address],
+          functionName: 'balanceOf',
+        })
+        expect(balance).toBeLessThan(initialBalance)
+
+        const client_dest = TestConfig.getServerClient(porto, {
+          chainId: chainId_dest,
+        })
+
+        const balance_dest = await readContract(client_dest, {
+          abi: contracts.exp1.abi,
+          address: contracts.exp1.address,
+          args: [alice],
+          functionName: 'balanceOf',
+        })
+        expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
+        expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
+      },
+    )
+
     test('behavior: no calls.to', async () => {
       const porto = getPorto()
 

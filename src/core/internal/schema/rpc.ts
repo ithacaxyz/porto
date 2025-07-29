@@ -673,6 +673,8 @@ export namespace wallet_prepareCalls {
     merchantRpcUrl: Schema.optional(C.merchantRpcUrl.Request),
     permissions: Schema.optional(C.permissions.Request),
     preCalls: Schema.optional(C.preCalls.Request),
+    requiredFunds:
+      Rpc_server.wallet_prepareCalls.Parameters.fields.requiredFunds,
   }).annotations({
     identifier: 'Rpc.wallet_prepareCalls.Capabilities',
   })
@@ -725,12 +727,15 @@ export namespace wallet_prepareCalls {
     digest: Primitive.Hex,
     key: Key.Base.pick('prehash', 'publicKey', 'type'),
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Schema.optional(Primitive.Number),
-        name: Schema.optional(Schema.String),
-        verifyingContract: Schema.optional(Primitive.Address),
-        version: Schema.optional(Schema.String),
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),

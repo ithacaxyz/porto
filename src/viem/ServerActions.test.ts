@@ -373,6 +373,68 @@ describe('sendCalls', () => {
       }),
     ).toBe(100n)
   })
+
+  test.runIf(!Anvil.enabled)('behavior: required funds', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const balance_pre = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+
+    const alice = Hex.random(20)
+    const chain_dest = TestConfig.chains[1]
+
+    const { id } = await Rpc.sendCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [alice, Value.fromEther('50')],
+          functionName: 'transfer',
+          to: contracts.exp1.address,
+        },
+      ],
+      chain: chain_dest,
+      feeToken: contracts.exp1.address,
+      requiredFunds: [[contracts.exp1.address, Value.fromEther('50')]],
+    })
+
+    expect(id).toBeDefined()
+
+    const { status } = await waitForCallsStatus(client, {
+      id,
+    })
+    expect(status).toBe('success')
+
+    console.log('ok')
+
+    const client_dest = TestConfig.getServerClient(porto, {
+      chainId: chain_dest!.id,
+    })
+
+    const balance_post = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+    expect(balance_post).toBeLessThan(balance_pre)
+
+    const balance_dest = await readContract(client_dest, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [alice],
+      functionName: 'balanceOf',
+    })
+    expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
+    expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
+  })
 })
 
 describe('prepareCalls', () => {

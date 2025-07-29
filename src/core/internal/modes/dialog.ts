@@ -715,8 +715,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, asTxHash, calls, internal, merchantRpcUrl } =
-          parameters
+        const {
+          account,
+          asTxHash,
+          calls,
+          internal,
+          merchantRpcUrl,
+          requiredFunds,
+        } = parameters
         const {
           config: { storage },
           client,
@@ -762,6 +768,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       feeToken,
                       merchantRpcUrl,
                       preCalls,
+                      requiredFunds,
                     },
                     chainId: client.chain.id,
                     from: account.address,
