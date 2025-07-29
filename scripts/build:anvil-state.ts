@@ -210,6 +210,13 @@ for (const i of Array.from({ length: 2 }, (_, i) => i + 1)) {
     address: contractAddress!,
     value: Value.fromEther('10000'),
   })
+  await writeContract(client, {
+    abi: ExperimentERC20.abi,
+    address: exp1Address!,
+    args: [contractAddress!, Value.fromEther('10000')],
+    functionName: 'mint',
+    chain: null,
+  })
 
   // Set gas wallets.
   const hash_2 = await writeContract(client, {
