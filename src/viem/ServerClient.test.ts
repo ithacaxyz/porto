@@ -97,7 +97,6 @@ describe('fromPorto', () => {
             "symbol": "ETH",
           },
           "network": "base-sepolia",
-          "preconfirmationTime": 200,
           "rpcUrls": {
             "default": {
               "http": [
