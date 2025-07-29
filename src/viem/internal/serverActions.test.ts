@@ -8,6 +8,7 @@ import * as TestConfig from '../../../test/src/config.js'
 import * as Key from '../Key.js'
 import { sendCalls } from '../ServerActions.js'
 import {
+  getAssets,
   getCallsStatus,
   getCapabilities,
   getKeys,
@@ -1055,6 +1056,197 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
     })
 
     expect(result.valid).toBe(false)
+  })
+})
+
+describe.only('getAssets', () => {
+  test('default', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+    })
+
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
+
+    const chainId = Hex.fromNumber(client.chain.id)
+    expect(result[chainId]).toBeDefined()
+    expect(Array.isArray(result[chainId])).toBe(true)
+  })
+
+  test('behavior: with native balance', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await TestActions.setBalance(client, {
+      address: account.address,
+      value: Value.fromEther('10'),
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+    })
+
+    const chainId = Hex.fromNumber(client.chain.id)
+    const chainAssets = result[chainId]!
+
+    const nativeAsset = chainAssets.find((asset) => asset.type === 'native')
+    expect(nativeAsset).toBeDefined()
+    expect(nativeAsset!.type).toBe('native')
+    expect(BigInt(nativeAsset!.balance)).toBeGreaterThan(0n)
+  })
+
+  test('behavior: with ERC20 tokens', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await sendCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [account.address, Value.fromEther('1000')],
+          functionName: 'mint',
+          to: contracts.exp1.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+    })
+
+    const chainId = Hex.fromNumber(client.chain.id)
+    const chainAssets = result[chainId]!
+
+    // Find ERC20 asset
+    const erc20Asset = chainAssets.find(
+      (asset) => asset.address === contracts.exp1.address,
+    )
+    expect(erc20Asset).toBeDefined()
+    expect(erc20Asset!.type).toBe('erc20')
+    expect(BigInt(erc20Asset!.balance)).toBeGreaterThan(0n)
+    expect(erc20Asset!.metadata).toBeDefined()
+    expect(erc20Asset!.metadata!.symbol).toBe('EXP')
+  })
+
+  test('behavior: with assetFilter', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const chainId = Hex.fromNumber(client.chain.id)
+
+    const result = await getAssets(client, {
+      account: account.address,
+      assetFilter: {
+        [chainId]: [
+          {
+            address: 'native',
+            type: 'native',
+          },
+        ],
+      },
+    })
+
+    expect(result[chainId]).toBeDefined()
+    expect(Array.isArray(result[chainId])).toBe(true)
+
+    // Should only return native asset
+    const chainAssets = result[chainId]!
+    expect(chainAssets.every((asset) => asset.type === 'native')).toBe(true)
+  })
+
+  test('behavior: with assetTypeFilter', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    // Set native balance and mint tokens
+    await TestActions.setBalance(client, {
+      address: account.address,
+      value: Value.fromEther('10'),
+    })
+
+    await sendCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [account.address, Value.fromEther('1000')],
+          functionName: 'mint',
+          to: contracts.exp1.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+      assetTypeFilter: ['erc20'],
+    })
+
+    const chainId = Hex.fromNumber(client.chain.id)
+    const chainAssets = result[chainId]!
+
+    expect(chainAssets.every((asset) => asset.type === 'erc20')).toBe(true)
+    expect(chainAssets.find((asset) => asset.type === 'native')).toBeUndefined()
+  })
+
+  test('behavior: with chainFilter', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const chainId = Hex.fromNumber(client.chain.id)
+
+    const result = await getAssets(client, {
+      account: account.address,
+      chainFilter: [chainId],
+    })
+
+    expect(Object.keys(result)).toEqual([chainId])
+    expect(result[chainId]).toBeDefined()
+  })
+
+  test('behavior: multiple chains', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const chainId = Hex.fromNumber(client.chain.id)
+    const otherChainId = Hex.fromNumber(999999) // Non-existent chain
+
+    const result = await getAssets(client, {
+      account: account.address,
+      chainFilter: [chainId, otherChainId],
+    })
+
+    expect(result[chainId]).toBeDefined()
+    expect(result[otherChainId]).toBeDefined()
+    expect(Array.isArray(result[chainId])).toBe(true)
+    expect(Array.isArray(result[otherChainId])).toBe(true)
+  })
+
+  test('error: invalid account address', async () => {
+    await expect(
+      getAssets(client, {
+        account: '0xinvalid',
+      }),
+    ).rejects.toThrow()
   })
 })
 
