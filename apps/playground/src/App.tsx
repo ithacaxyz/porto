@@ -805,121 +805,144 @@ function SendCalls() {
         const account = result[0]!
         const recipient = address || account
 
-        const calls = (() => {
+        const params = (() => {
           if (action === 'mint')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'mint'),
-                  [recipient, Value.fromEther('100')],
-                ),
-                to: exp1Address,
-              },
-            ]
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'mint'),
+                    [recipient, Value.fromEther('100')],
+                  ),
+                  to: exp1Address,
+                },
+              ],
+            } as const
 
           if (action === 'transfer')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'approve'),
-                  [recipient, Value.fromEther('50')],
-                ),
-                to: exp1Address,
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'approve'),
+                    [recipient, Value.fromEther('50')],
+                  ),
+                  to: exp1Address,
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
+                    [
+                      recipient,
+                      '0x0000000000000000000000000000000000000000',
+                      Value.fromEther('50'),
+                    ],
+                  ),
+                  to: exp1Address,
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  [exp1Address, Hex.fromNumber(Value.fromEther('50'))],
+                ],
               },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
-                  [
-                    recipient,
-                    '0x0000000000000000000000000000000000000000',
-                    Value.fromEther('50'),
-                  ],
-                ),
-                to: exp1Address,
-              },
-            ] as const
+            } as const
 
           if (action === 'mint-transfer')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'mint'),
-                  [recipient, Value.fromEther('100')],
-                ),
-                to: exp2Address,
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'mint'),
+                    [recipient, Value.fromEther('100')],
+                  ),
+                  to: exp2Address,
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'approve'),
+                    [recipient, Value.fromEther('50')],
+                  ),
+                  to: exp1Address,
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
+                    [
+                      recipient,
+                      '0x0000000000000000000000000000000000000000',
+                      Value.fromEther('50'),
+                    ],
+                  ),
+                  to: exp1Address,
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(expNftAbi, 'mint'),
+                  ),
+                  to: expNftAddress,
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  [exp1Address, Hex.fromNumber(Value.fromEther('50'))],
+                ],
               },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'approve'),
-                  [recipient, Value.fromEther('50')],
-                ),
-                to: exp1Address,
-              },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
-                  [
-                    recipient,
-                    '0x0000000000000000000000000000000000000000',
-                    Value.fromEther('50'),
-                  ],
-                ),
-                to: exp1Address,
-              },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(expNftAbi, 'mint'),
-                ),
-                to: expNftAddress,
-              },
-            ] as const
+            } as const
 
           if (action === 'revert')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
-                  [
-                    '0x0000000000000000000000000000000000000000',
-                    recipient,
-                    Value.fromEther('100'),
-                  ],
-                ),
-                to: exp2Address,
-              },
-            ] as const
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
+                    [
+                      '0x0000000000000000000000000000000000000000',
+                      recipient,
+                      Value.fromEther('100'),
+                    ],
+                  ),
+                  to: exp2Address,
+                },
+              ],
+            } as const
 
           if (action === 'mint-nft')
-            return [
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(exp1Abi, 'approve'),
-                  [expNftAddress, Value.fromEther('10')],
-                ),
-                to: exp1Address,
-              },
-              {
-                data: AbiFunction.encodeData(
-                  AbiFunction.fromAbi(expNftAbi, 'mint'),
-                ),
-                to: expNftAddress,
-              },
-            ] as const
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'approve'),
+                    [expNftAddress, Value.fromEther('10')],
+                  ),
+                  to: exp1Address,
+                },
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(expNftAbi, 'mint'),
+                  ),
+                  to: expNftAddress,
+                },
+              ],
+            } as const
 
-          return [
-            {
-              to: recipient,
-              value: '0x0',
-            },
-          ] as const
+          return {
+            calls: [
+              {
+                to: recipient,
+                value: '0x0',
+              },
+            ],
+          } as const
         })()
 
         const { id } = await porto.provider.request({
           method: 'wallet_sendCalls',
           params: [
             {
-              calls,
+              ...params,
               capabilities: {
+                ...params.capabilities,
                 feeToken: (feeToken === 'ETH'
                   ? '0x0000000000000000000000000000000000000000'
                   : undefined) as any,
