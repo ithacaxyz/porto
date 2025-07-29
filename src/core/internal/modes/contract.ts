@@ -205,20 +205,8 @@ export function contract(parameters: contract.Parameters = {}) {
         return { current, latest }
       },
 
-      async getAssets(parameters) {
-        const { account, assetFilter, assetTypeFilter, internal } = parameters
-        const { client, config } = internal
-
-        const chainFilter =
-          parameters.chainFilter ??
-          config.chains.map((x) => Hex.fromNumber(x.id))
-
-        const assets = await client.request({
-          method: 'wallet_getAssets',
-          params: [{ account, assetFilter, assetTypeFilter, chainFilter }],
-        })
-
-        return assets
+      async getAssets(_parameters) {
+        throw new Provider.UnsupportedMethodError()
       },
 
       async getCallsStatus(parameters) {
