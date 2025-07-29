@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.58
+
+### Patch Changes
+
+- [#625](https://github.com/ithacaxyz/porto/pull/625) [`ea729bd`](https://github.com/ithacaxyz/porto/commit/ea729bd4126c5685b0291c48b28b2f66052fd641) Thanks [@jxom](https://github.com/jxom)! - Modified SIWE handlers to be compatible with `better-auth`.
+
 ## 0.0.57
 
 ### Patch Changes
