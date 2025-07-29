@@ -125,7 +125,6 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
           quoteTtl: 30,
           registry: '/app/registry.yaml',
           signersMnemonic,
-          skipDiagnostics: true,
         } satisfies Partial<RpcServerParameters>),
         ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),
       ]
