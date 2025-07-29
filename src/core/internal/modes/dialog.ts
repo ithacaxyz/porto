@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
+import * as Value from 'ox/Value'
 import { waitForCallsStatus } from 'viem/actions'
 import type { ThemeFragment } from '../../../theme/Theme.js'
 import * as Account from '../../../viem/Account.js'
@@ -777,6 +778,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ],
               }),
             )
+
+            const hasFeeDeficit = req.capabilities?.quote?.quotes.some(
+              (quote) => Value.fromEther(quote.feeTokenDeficit) > 0n,
+            )
+            if (hasFeeDeficit) throw new Error('insufficient funds')
 
             const signature = await Key.sign(key, {
               payload: req.digest,
