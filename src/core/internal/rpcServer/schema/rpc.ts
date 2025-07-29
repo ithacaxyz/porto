@@ -545,9 +545,9 @@ export namespace wallet_prepareUpgradeAccount {
     typedData: Schema.Struct({
       domain: Schema.Struct({
         chainId: Schema.optional(Primitive.Number),
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
+        name: Schema.optional(Schema.String),
+        verifyingContract: Schema.optional(Primitive.Address),
+        version: Schema.optional(Schema.String),
       }),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,

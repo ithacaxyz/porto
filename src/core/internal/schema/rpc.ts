@@ -726,10 +726,10 @@ export namespace wallet_prepareCalls {
     key: Key.Base.pick('prehash', 'publicKey', 'type'),
     typedData: Schema.Struct({
       domain: Schema.Struct({
-        chainId: Schema.Number,
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
+        chainId: Schema.optional(Primitive.Number),
+        name: Schema.optional(Schema.String),
+        verifyingContract: Schema.optional(Primitive.Address),
+        version: Schema.optional(Schema.String),
       }),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
