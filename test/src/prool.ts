@@ -28,6 +28,7 @@ type RpcServerParameters = {
   orchestrator: string
   quoteTtl?: number | undefined
   registry?: string | undefined
+  skipDiagnostics?: boolean | undefined
   signersMnemonic?: string | undefined
   simulator?: string | undefined
   txGasBuffer?: bigint | undefined
@@ -124,6 +125,7 @@ export const rpcServer = defineInstance((parameters?: RpcServerParameters) => {
           quoteTtl: 30,
           registry: '/app/registry.yaml',
           signersMnemonic,
+          skipDiagnostics: true,
         } satisfies Partial<RpcServerParameters>),
         ...feeTokens.flatMap((feeToken) => ['--fee-token', feeToken]),
       ]
