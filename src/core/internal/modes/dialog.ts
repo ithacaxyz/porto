@@ -219,6 +219,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (authUrl && signInWithEthereum_response) {
               const { message, signature } = signInWithEthereum_response
               await Siwe.authenticate({
+                address: account.address,
                 authUrl,
                 message,
                 signature,
@@ -514,6 +515,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               if (authUrl && signInWithEthereum_response) {
                 const { message, signature } = signInWithEthereum_response
                 await Siwe.authenticate({
+                  address: account.address,
                   authUrl,
                   message,
                   signature,
