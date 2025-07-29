@@ -779,9 +779,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
               }),
             )
 
-            const hasFeeDeficit = req.capabilities?.quote?.quotes.some(
-              (quote) => Value.fromEther(quote.feeTokenDeficit) > 0n,
-            )
+            const quotes = req.capabilities?.quote?.quotes ?? []
+            const hasFeeDeficit = quotes.some((quote, index) => {
+              const isDestination = index === quotes.length - 1
+              if (isDestination) return false
+              return Value.fromEther(quote.feeTokenDeficit) > 0n
+            })
             if (hasFeeDeficit) throw new Error('insufficient funds')
 
             const signature = await Key.sign(key, {

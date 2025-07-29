@@ -17,9 +17,12 @@ export function CheckBalance(props: CheckBalance.Props) {
   })
   const feeToken = feeTokens.data?.[0]
 
-  const hasFeeDeficit = query.data?.capabilities.quote.quotes.some(
-    (quote) => quote.feeTokenDeficit > 0n,
-  )
+  const quotes = query.data?.capabilities.quote.quotes ?? []
+  const hasFeeDeficit = quotes.some((quote, index) => {
+    const isDestination = index === quotes.length - 1
+    if (isDestination) return false
+    return quote.feeTokenDeficit > 0n
+  })
 
   const insufficientFunds =
     hasFeeDeficit ||
