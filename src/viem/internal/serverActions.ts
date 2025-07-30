@@ -15,11 +15,13 @@ import {
   type Calls,
   type Chain,
   type Client,
+  ethAddress,
   type GetChainParameter,
   type Narrow,
   type Transport,
   type ValueOf,
   withCache,
+  zeroAddress,
 } from 'viem'
 import { verifyHash } from 'viem/actions'
 import {
@@ -252,6 +254,31 @@ export async function prepareCalls<
     }
   })
 
+  const feeToken = capabilities.meta.feeToken
+
+  // In order to avoid a fee token deficit on the destination chain when a fee
+  // balance exists on the source chains, we must include the fee token in
+  // the required funds.
+  const feeRequiredFunds = (() => {
+    if (!capabilities.requiredFunds) return undefined
+    if (!feeToken) return undefined
+    if (feeToken === zeroAddress || feeToken === ethAddress) return undefined
+    const requiredFunds = capabilities.requiredFunds.find(
+      (fund) => fund.address === feeToken,
+    )
+    return {
+      address: feeToken,
+      value: requiredFunds?.value ?? 0n,
+    }
+  })()
+
+  const requiredFunds = [
+    ...(feeRequiredFunds ? [feeRequiredFunds] : []),
+    ...(capabilities.requiredFunds ?? []).filter(
+      (fund) => fund.address !== feeRequiredFunds?.address,
+    ),
+  ]
+
   try {
     const method = 'wallet_prepareCalls' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -261,7 +288,10 @@ export async function prepareCalls<
         params: [
           Schema.encodeSync(RpcSchema.wallet_prepareCalls.Parameters)({
             calls,
-            capabilities,
+            capabilities: {
+              ...capabilities,
+              requiredFunds,
+            },
             chainId: chain?.id!,
             from: address,
             key: key

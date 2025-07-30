@@ -633,12 +633,13 @@ export namespace wallet_getCapabilities {
       feeToken: C.feeToken.GetCapabilitiesResponse,
       merchant: C.merchant.GetCapabilitiesResponse,
       permissions: C.permissions.GetCapabilitiesResponse,
+      requiredFunds: C.requiredFunds.GetCapabilitiesResponse,
     }),
   }).annotations({
     identifier: 'Rpc.wallet_getCapabilities.Response',
   })
   export type Response = typeof Response.Type
-  export type Response_raw = typeof Response.Type
+  export type Response_encoded = typeof Response.Encoded
 }
 
 export namespace wallet_getKeys {
@@ -673,6 +674,7 @@ export namespace wallet_prepareCalls {
     merchantRpcUrl: Schema.optional(C.merchantRpcUrl.Request),
     permissions: Schema.optional(C.permissions.Request),
     preCalls: Schema.optional(C.preCalls.Request),
+    requiredFunds: Schema.optional(C.requiredFunds.Request),
   }).annotations({
     identifier: 'Rpc.wallet_prepareCalls.Capabilities',
   })
@@ -725,12 +727,15 @@ export namespace wallet_prepareCalls {
     digest: Primitive.Hex,
     key: Key.Base.pick('prehash', 'publicKey', 'type'),
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Schema.Number,
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
@@ -784,6 +789,10 @@ export namespace wallet_prepareUpgradeAccount {
 }
 
 export namespace wallet_sendCalls {
+  export const Capabilities = wallet_prepareCalls.Capabilities
+  export type Capabilities = typeof Capabilities.Type
+  export type Capabilities_encoded = typeof Capabilities.Encoded
+
   export const Request = Schema.Struct({
     method: Schema.Literal('wallet_sendCalls'),
     params: Schema.Tuple(wallet_prepareCalls.Parameters.omit('key')),
