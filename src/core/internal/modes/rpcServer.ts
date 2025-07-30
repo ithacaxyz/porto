@@ -21,6 +21,7 @@ import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
+import * as RequiredFunds from '../requiredFunds.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
 
@@ -34,7 +35,7 @@ import * as U from '../utils.js'
  */
 export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = parameters
-  const { mock, persistPreCalls = true, webAuthn } = config
+  const { mock, multichain = true, persistPreCalls = true, webAuthn } = config
 
   let address_internal: Hex.Hex | undefined
   let email_internal: string | undefined
@@ -193,6 +194,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           permissions: {
             supported: true,
           },
+          requiredFunds: {
+            supported: Boolean(multichain),
+            tokens: [],
+          },
         } as const
 
         const capabilities = await Promise.all(
@@ -214,6 +219,14 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                       feeToken: {
                         supported: true,
                         tokens: capabilities.fees.tokens,
+                      },
+                      requiredFunds: {
+                        supported: Boolean(multichain),
+                        tokens: multichain
+                          ? capabilities.fees.tokens.filter(
+                              (token) => token.interop,
+                            )
+                          : [],
                       },
                     }
                   : {}),
@@ -502,10 +515,18 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             storage,
           }))
 
-        const [feeToken] = await FeeTokens.fetch(client, {
+        const feeTokens = await FeeTokens.fetch(client, {
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
+        const [feeToken] = feeTokens
+
+        const requiredFunds = RequiredFunds.toRpcServer(
+          parameters.requiredFunds ?? [],
+          {
+            feeTokens,
+          },
+        )
 
         const { capabilities, context, digest, typedData } =
           await ServerActions.prepareCalls(client, {
@@ -515,7 +536,11 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             key,
             merchantRpcUrl,
             preCalls,
+            requiredFunds: multichain ? requiredFunds : undefined,
           })
+
+        const quotes = context.quote?.quotes ?? []
+        const outputQuote = quotes[quotes.length - 1]
 
         return {
           account,
@@ -528,8 +553,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             ...context,
             account,
             calls,
-            // TODO(relay-v15): still need for rpc server?
-            nonce: context.quote?.quotes?.[0]?.intent.nonce,
+            nonce: outputQuote?.intent.nonce,
           },
           digest,
           key,
@@ -673,10 +697,18 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }))
 
         // Resolve fee token to use.
-        const [feeToken] = await FeeTokens.fetch(client, {
+        const feeTokens = await FeeTokens.fetch(client, {
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
+        const [feeToken] = feeTokens
+
+        const requiredFunds = RequiredFunds.toRpcServer(
+          parameters.requiredFunds ?? [],
+          {
+            feeTokens,
+          },
+        )
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
@@ -687,6 +719,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           key,
           merchantRpcUrl,
           preCalls,
+          requiredFunds: multichain ? requiredFunds : undefined,
         })
 
         await PreCalls.clear({
@@ -859,6 +892,11 @@ export declare namespace rpcServer {
      * @internal @deprecated
      */
     mock?: boolean | undefined
+    /**
+     * Whether to support multichain.
+     * @default true
+     */
+    multichain?: boolean | undefined
     /**
      * Whether to store pre-calls in a persistent storage.
      *

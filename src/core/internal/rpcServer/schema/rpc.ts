@@ -193,7 +193,7 @@ export namespace wallet_getCapabilities {
           Schema.Struct({
             address: Primitive.Address,
             decimals: Schema.Number,
-            interop: Schema.Boolean,
+            interop: Schema.optional(Schema.Boolean),
             kind: Schema.String,
             nativeRate: Schema.optional(Primitive.BigInt),
             symbol: Schema.String,
@@ -347,6 +347,8 @@ export namespace wallet_prepareCalls {
     preCall: Schema.optional(Schema.Boolean),
     /** Optional preCalls to execute before signature verification. */
     preCalls: Schema.optional(Schema.Array(PreCall.PreCall)),
+    /** Required funds on the target chain. */
+    requiredFunds: Schema.optional(C.requiredFunds.Request),
     /** Keys to revoke on the account. */
     revokeKeys: Schema.optional(C.revokeKeys.Request),
   }).annotations({
@@ -439,12 +441,15 @@ export namespace wallet_prepareCalls {
     ),
     /** EIP-712 typed data digest. */
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Primitive.Number,
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
@@ -516,12 +521,15 @@ export namespace wallet_prepareUpgradeAccount {
     }),
     /** EIP-712 typed data digest. */
     typedData: Schema.Struct({
-      domain: Schema.Struct({
-        chainId: Schema.optional(Primitive.Number),
-        name: Schema.String,
-        verifyingContract: Primitive.Address,
-        version: Schema.String,
-      }),
+      domain: Schema.Union(
+        Schema.Struct({
+          chainId: Schema.Number,
+          name: Schema.String,
+          verifyingContract: Primitive.Address,
+          version: Schema.String,
+        }),
+        Schema.Struct({}),
+      ),
       message: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
       primaryType: Schema.String,
       types: Schema.Record({ key: Schema.String, value: Schema.Unknown }),

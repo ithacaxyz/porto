@@ -259,6 +259,10 @@ exports[`contract > wallet_getCapabilities > default 6`] = `
 }
 `;
 
+exports[`contract > wallet_getCapabilities > default 7`] = `false`;
+
+exports[`contract > wallet_getCapabilities > default 8`] = `0`;
+
 exports[`contract > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 1`] = `
 [
   {
@@ -995,6 +999,10 @@ exports[`rpcServer > wallet_getCapabilities > default 6`] = `
   "supported": true,
 }
 `;
+
+exports[`rpcServer > wallet_getCapabilities > default 7`] = `false`;
+
+exports[`rpcServer > wallet_getCapabilities > default 8`] = `0`;
 
 exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 1`] = `
 [
