@@ -817,14 +817,6 @@ function SendCalls() {
                   to: exp1Address,
                 },
               ],
-              capabilities: {
-                requiredFunds: [
-                  {
-                    address: exp1Address,
-                    value: Hex.fromNumber(Value.fromEther('1')),
-                  },
-                ],
-              },
             } as const
 
           if (action === 'transfer')
@@ -852,8 +844,8 @@ function SendCalls() {
               capabilities: {
                 requiredFunds: [
                   {
-                    address: exp1Address,
-                    value: Hex.fromNumber(Value.fromEther('50')),
+                    symbol: 'EXP',
+                    value: '50',
                   },
                 ],
               },
@@ -897,8 +889,8 @@ function SendCalls() {
               capabilities: {
                 requiredFunds: [
                   {
-                    address: exp1Address,
-                    value: Hex.fromNumber(Value.fromEther('50')),
+                    symbol: 'EXP',
+                    value: '50',
                   },
                 ],
               },

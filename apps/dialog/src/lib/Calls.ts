@@ -3,6 +3,7 @@ import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
 import { Account, ServerActions } from 'porto'
 import * as PreCalls from 'porto/core/internal/preCalls'
+import * as RequiredFunds from 'porto/core/internal/requiredFunds'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
 import type { ServerClient } from 'porto/viem'
@@ -39,18 +40,25 @@ export namespace prepareCalls {
         const key = Account.getKey(account, { role: 'admin' })
         if (!key) throw new Error('no admin key found.')
 
-        const [{ address: feeTokenAddress }] =
-          await Query_porto.client.ensureQueryData(
-            FeeTokens.fetch.queryOptions(client, {
-              addressOrSymbol: feeToken,
-            }),
-          )
+        const feeTokens = await Query_porto.client.ensureQueryData(
+          FeeTokens.fetch.queryOptions(client, {
+            addressOrSymbol: feeToken,
+          }),
+        )
+        const [{ address: feeTokenAddress }] = feeTokens
 
         // Get pre-authorized keys to assign to the call bundle.
         const preCalls = await PreCalls.get({
           address: account.address,
           storage: porto.config.storage,
         })
+
+        const requiredFunds = RequiredFunds.toRpcServer(
+          parameters.requiredFunds ?? [],
+          {
+            feeTokens,
+          },
+        )
 
         return await ServerActions.prepareCalls(client, {
           ...parameters,

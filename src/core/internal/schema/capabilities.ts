@@ -159,10 +159,19 @@ export namespace requiredFunds {
   export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
 
   export const Request = Schema.Array(
-    Schema.Struct({
-      address: Primitive.Address,
-      value: Primitive.BigInt,
-    }),
+    OneOf(
+      Schema.Struct({
+        address: Primitive.Address,
+        value: Primitive.BigInt,
+      }),
+      Schema.Struct({
+        symbol: FeeToken.Symbol,
+        value: Schema.Union(
+          Schema.TemplateLiteral(Schema.Number, '.', Schema.Number),
+          Schema.TemplateLiteral(Schema.Number),
+        ).pipe(Schema.pattern(/^\d+(\.\d+)?$/)),
+      }),
+    ),
   )
   export type Request = typeof Request.Type
 }

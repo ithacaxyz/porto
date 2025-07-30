@@ -21,6 +21,7 @@ import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
 import * as PreCalls from '../preCalls.js'
+import * as RequiredFunds from '../requiredFunds.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
 
@@ -487,8 +488,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async prepareCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl, requiredFunds } =
-          parameters
+        const { account, calls, internal, merchantRpcUrl } = parameters
         const {
           client,
           config: { storage },
@@ -511,10 +511,18 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             storage,
           }))
 
-        const [feeToken] = await FeeTokens.fetch(client, {
+        const feeTokens = await FeeTokens.fetch(client, {
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
+        const [feeToken] = feeTokens
+
+        const requiredFunds = RequiredFunds.toRpcServer(
+          parameters.requiredFunds ?? [],
+          {
+            feeTokens,
+          },
+        )
 
         const { capabilities, context, digest, typedData } =
           await ServerActions.prepareCalls(client, {
@@ -661,14 +669,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const {
-          account,
-          asTxHash,
-          calls,
-          internal,
-          merchantRpcUrl,
-          requiredFunds,
-        } = parameters
+        const { account, asTxHash, calls, internal, merchantRpcUrl } =
+          parameters
         const {
           client,
           config: { storage },
@@ -690,10 +692,18 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }))
 
         // Resolve fee token to use.
-        const [feeToken] = await FeeTokens.fetch(client, {
+        const feeTokens = await FeeTokens.fetch(client, {
           addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
+        const [feeToken] = feeTokens
+
+        const requiredFunds = RequiredFunds.toRpcServer(
+          parameters.requiredFunds ?? [],
+          {
+            feeTokens,
+          },
+        )
 
         // Execute the calls (with the key if provided, otherwise it will
         // fall back to an admin key).
