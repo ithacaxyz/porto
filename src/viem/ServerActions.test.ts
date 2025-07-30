@@ -7,7 +7,7 @@ import * as TestConfig from '../../test/src/config.js'
 import * as AccountContract from './ContractActions.js'
 import { ContractActions } from './index.js'
 import * as Key from './Key.js'
-import * as Rpc from './ServerActions.js'
+import * as ServerActions from './ServerActions.js'
 
 const porto = TestConfig.getPorto()
 const client = TestConfig.getServerClient(porto)
@@ -15,7 +15,7 @@ const contracts = TestConfig.getContracts(porto)
 
 describe('createAccount', () => {
   test('default', async () => {
-    const account = await Rpc.createAccount(client, {
+    const account = await ServerActions.createAccount(client, {
       authorizeKeys: [Key.createHeadlessWebAuthnP256()],
     })
 
@@ -28,20 +28,20 @@ describe('upgradeAccount', () => {
     const { account } = await TestActions.getAccount(client)
     const adminKey = Key.createHeadlessWebAuthnP256()
 
-    await Rpc.upgradeAccount(client, {
+    await ServerActions.upgradeAccount(client, {
       account,
       authorizeKeys: [adminKey],
     })
 
     // Verify that RPC Server has registered the admin key.
-    const keys = await Rpc.getKeys(client, {
+    const keys = await ServerActions.getKeys(client, {
       account,
     })
     expect(keys.length).toBe(1)
     expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
 
     // Upgrade account onchain
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [],
       feeToken: contracts.exp1.address,
@@ -80,13 +80,13 @@ describe('upgradeAccount', () => {
       role: 'session',
     })
 
-    await Rpc.upgradeAccount(client, {
+    await ServerActions.upgradeAccount(client, {
       account,
       authorizeKeys: [adminKey, sessionKey],
     })
 
     // Verify that RPC Server has registered the admin key.
-    const keys = await Rpc.getKeys(client, {
+    const keys = await ServerActions.getKeys(client, {
       account,
     })
     expect(keys.length).toBe(2)
@@ -94,7 +94,7 @@ describe('upgradeAccount', () => {
     expect(keys[1]!.publicKey).toBe(sessionKey.publicKey)
 
     // Upgrade account onchain
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [],
       feeToken: contracts.exp1.address,
@@ -122,30 +122,33 @@ describe('upgradeAccount', () => {
     const { account } = await TestActions.getAccount(client)
     const adminKey = Key.createHeadlessWebAuthnP256()
 
-    const { digests, ...request } = await Rpc.prepareUpgradeAccount(client, {
-      address: account.address,
-      authorizeKeys: [adminKey],
-    })
+    const { digests, ...request } = await ServerActions.prepareUpgradeAccount(
+      client,
+      {
+        address: account.address,
+        authorizeKeys: [adminKey],
+      },
+    )
 
     const signatures = {
       auth: await account.sign({ hash: digests.auth }),
       exec: await account.sign({ hash: digests.exec }),
     }
 
-    await Rpc.upgradeAccount(client, {
+    await ServerActions.upgradeAccount(client, {
       ...request,
       signatures,
     })
 
     // Verify that RPC Server has registered the admin key.
-    const keys = await Rpc.getKeys(client, {
+    const keys = await ServerActions.getKeys(client, {
       account,
     })
     expect(keys.length).toBe(1)
     expect(keys[0]!.publicKey).toBe(adminKey.publicKey)
 
     // Upgrade account onchain
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [],
       feeToken: contracts.exp1.address,
@@ -169,7 +172,7 @@ describe('getKeys', () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, { keys: [key] })
 
-    const keys = await Rpc.getKeys(client, {
+    const keys = await ServerActions.getKeys(client, {
       account,
     })
 
@@ -181,7 +184,7 @@ describe('getKeys', () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, { keys: [key] })
 
-    const keys = await Rpc.getKeys(client, {
+    const keys = await ServerActions.getKeys(client, {
       account: account.address,
     })
 
@@ -197,7 +200,7 @@ describe('sendCalls', () => {
       keys: [key],
     })
 
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [
         {
@@ -231,7 +234,7 @@ describe('sendCalls', () => {
       keys: [key],
     })
 
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [
         {
@@ -279,7 +282,7 @@ describe('sendCalls', () => {
       role: 'session',
     })
 
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [
         {
@@ -335,7 +338,7 @@ describe('sendCalls', () => {
       role: 'session',
     })
 
-    const request_1 = await Rpc.prepareCalls(client, {
+    const request_1 = await ServerActions.prepareCalls(client, {
       authorizeKeys: [sessionKey],
       feeToken: contracts.exp1.address,
       preCalls: true,
@@ -344,7 +347,7 @@ describe('sendCalls', () => {
       payload: request_1.digest,
     })
 
-    const { id } = await Rpc.sendCalls(client, {
+    const { id } = await ServerActions.sendCalls(client, {
       account,
       calls: [
         {
@@ -373,6 +376,71 @@ describe('sendCalls', () => {
       }),
     ).toBe(100n)
   })
+
+  test.runIf(!Anvil.enabled)('behavior: required funds', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const balance_pre = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+
+    const alice = Hex.random(20)
+    const chain_dest = TestConfig.chains[1]
+
+    const { id } = await ServerActions.sendCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [alice, Value.fromEther('50')],
+          functionName: 'transfer',
+          to: contracts.exp1.address,
+        },
+      ],
+      chain: chain_dest,
+      feeToken: contracts.exp1.address,
+      requiredFunds: [
+        {
+          address: contracts.exp1.address,
+          value: Value.fromEther('50'),
+        },
+      ],
+    })
+
+    expect(id).toBeDefined()
+
+    const { status } = await waitForCallsStatus(client, {
+      id,
+    })
+    expect(status).toBe('success')
+
+    const client_dest = TestConfig.getServerClient(porto, {
+      chainId: chain_dest!.id,
+    })
+
+    const balance_post = await readContract(client, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [account.address],
+      functionName: 'balanceOf',
+    })
+    expect(balance_post).toBeLessThan(balance_pre)
+
+    const balance_dest = await readContract(client_dest, {
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
+      args: [alice],
+      functionName: 'balanceOf',
+    })
+    expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
+    expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
+  })
 })
 
 describe('prepareCalls', () => {
@@ -382,7 +450,7 @@ describe('prepareCalls', () => {
       keys: [key],
     })
 
-    const request = await Rpc.prepareCalls(client, {
+    const request = await ServerActions.prepareCalls(client, {
       account,
       calls: [
         {
@@ -401,7 +469,7 @@ describe('prepareCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Rpc.sendPreparedCalls(client, {
+    const { id } = await ServerActions.sendPreparedCalls(client, {
       ...request,
       key: request.key!,
       signature,
@@ -443,7 +511,7 @@ describe('prepareCalls', () => {
       },
       role: 'session',
     })
-    const request_1 = await Rpc.prepareCalls(client, {
+    const request_1 = await ServerActions.prepareCalls(client, {
       authorizeKeys: [newKey],
       feeToken: contracts.exp1.address,
       preCalls: true,
@@ -452,7 +520,7 @@ describe('prepareCalls', () => {
       payload: request_1.digest,
     })
 
-    const request_2 = await Rpc.prepareCalls(client, {
+    const request_2 = await ServerActions.prepareCalls(client, {
       account,
       calls: [
         {
@@ -471,7 +539,7 @@ describe('prepareCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Rpc.sendPreparedCalls(client, {
+    const { id } = await ServerActions.sendPreparedCalls(client, {
       ...request_2,
       key: request_2.key!,
       signature: signature_2,
@@ -498,7 +566,7 @@ describe('prepareCalls', () => {
       keys: [key],
     })
 
-    await Rpc.sendCalls(client, {
+    await ServerActions.sendCalls(client, {
       account,
       calls: [{ to: account.address }],
       feeToken: contracts.exp1.address,
@@ -519,7 +587,7 @@ describe('prepareCalls', () => {
       },
       role: 'session',
     })
-    const request_1 = await Rpc.prepareCalls(client, {
+    const request_1 = await ServerActions.prepareCalls(client, {
       authorizeKeys: [newKey],
       feeToken: contracts.exp1.address,
       preCalls: true,
@@ -528,7 +596,7 @@ describe('prepareCalls', () => {
       payload: request_1.digest,
     })
 
-    const request_2 = await Rpc.prepareCalls(client, {
+    const request_2 = await ServerActions.prepareCalls(client, {
       account,
       calls: [
         {
@@ -547,7 +615,7 @@ describe('prepareCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Rpc.sendPreparedCalls(client, {
+    const { id } = await ServerActions.sendPreparedCalls(client, {
       ...request_2,
       key: request_2.key!,
       signature: signature_2,
@@ -589,7 +657,7 @@ describe('prepareCalls', () => {
       role: 'session',
     })
 
-    const request_1 = await Rpc.prepareCalls(client, {
+    const request_1 = await ServerActions.prepareCalls(client, {
       authorizeKeys: [sessionKey],
       feeToken: contracts.exp1.address,
       preCalls: true,
@@ -598,7 +666,7 @@ describe('prepareCalls', () => {
       payload: request_1.digest,
     })
 
-    const request_2 = await Rpc.prepareCalls(client, {
+    const request_2 = await ServerActions.prepareCalls(client, {
       account,
       calls: [
         {
@@ -617,7 +685,7 @@ describe('prepareCalls', () => {
       wrap: false,
     })
 
-    const { id } = await Rpc.sendPreparedCalls(client, {
+    const { id } = await ServerActions.sendPreparedCalls(client, {
       ...request_2,
       key: request_2.key!,
       signature: signature_2,
@@ -649,7 +717,7 @@ describe('e2e', () => {
       })
 
       // 2. Mint 100 ERC20 tokens to Account.
-      const { id } = await Rpc.sendCalls(client, {
+      const { id } = await ServerActions.sendCalls(client, {
         account,
         calls: [
           {
@@ -686,7 +754,7 @@ describe('e2e', () => {
       })
 
       // 2. Mint 100 ERC20 tokens to Account – no `feeToken` specified.
-      const { id } = await Rpc.sendCalls(client, {
+      const { id } = await ServerActions.sendCalls(client, {
         account,
         calls: [
           {
@@ -722,7 +790,7 @@ describe('e2e', () => {
       })
 
       // 2. Perform a no-op call.
-      const { id } = await Rpc.sendCalls(client, {
+      const { id } = await ServerActions.sendCalls(client, {
         account,
         calls: [
           {
@@ -744,7 +812,7 @@ describe('e2e', () => {
 
       // 2. Try to transfer 100 ERC20 tokens to the zero address.
       await expect(() =>
-        Rpc.sendCalls(client, {
+        ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -769,7 +837,7 @@ describe('e2e', () => {
 
       // 2. Try to transfer 100000000 ETH tokens to the zero address.
       await expect(() =>
-        Rpc.sendCalls(client, {
+        ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -798,7 +866,7 @@ describe('e2e', () => {
       ] as const
 
       // 3. Authorize additional Admin Keys.
-      const { id } = await Rpc.sendCalls(client, {
+      const { id } = await ServerActions.sendCalls(client, {
         account,
         authorizeKeys: keys,
         calls: [],
@@ -841,7 +909,7 @@ describe('e2e', () => {
       // 2. Authorize a new Admin Key.
       const newKey = Key.createHeadlessWebAuthnP256()
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           authorizeKeys: [newKey],
           feeToken: contracts.exp1.address,
@@ -855,7 +923,7 @@ describe('e2e', () => {
 
       // 3. Mint 100 ERC20 tokens to Account with new Admin Key.
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -907,7 +975,7 @@ describe('e2e', () => {
       })
 
       // 3. Mint 100 ERC20 tokens to Account with new Session Key.
-      const { id } = await Rpc.sendCalls(client, {
+      const { id } = await ServerActions.sendCalls(client, {
         account,
         calls: [
           {
@@ -965,7 +1033,7 @@ describe('e2e', () => {
 
       // 2. Mint 100 ERC20 tokens to Account.
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1022,7 +1090,7 @@ describe('e2e', () => {
 
       // 2. Mint 100 ERC20 tokens to Account (and initialize scoped Session Key).
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1054,7 +1122,7 @@ describe('e2e', () => {
 
       // 4. Mint another 100 ERC20 tokens to Account.
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1111,7 +1179,7 @@ describe('e2e', () => {
 
       // 2. Mint 100 ERC20 tokens to Account with Admin Key.
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1143,7 +1211,7 @@ describe('e2e', () => {
 
       // 4. Mint another 100 ERC20 tokens to Account with Session Key.
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1207,7 +1275,7 @@ describe('e2e', () => {
 
       // 2. Mint 100 ERC20 tokens to Account (and initialize scoped Session Key).
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1270,7 +1338,7 @@ describe('e2e', () => {
 
       // 2. Try to mint ERC20 tokens to Account with Session Key.
       await expect(() =>
-        Rpc.sendCalls(client, {
+        ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1312,7 +1380,7 @@ describe('e2e', () => {
 
       // 2. Try to mint ERC20 tokens to Account with Session Key.
       await expect(() =>
-        Rpc.sendCalls(client, {
+        ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1363,7 +1431,7 @@ describe('e2e', () => {
 
       // 2. Mint 100 ERC20 tokens to Account with Session Key.
       {
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1395,7 +1463,7 @@ describe('e2e', () => {
 
       {
         // 4. Transfer 50 ERC20 token from Account.
-        const { id } = await Rpc.sendCalls(client, {
+        const { id } = await ServerActions.sendCalls(client, {
           account,
           calls: [
             {
@@ -1416,7 +1484,7 @@ describe('e2e', () => {
 
       // 5. Try to transfer another 50 ERC20 tokens from Account.
       await expect(() =>
-        Rpc.sendCalls(client, {
+        ServerActions.sendCalls(client, {
           account,
           calls: [
             {

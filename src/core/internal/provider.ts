@@ -926,6 +926,7 @@ export function from<
               config,
             ),
             preCalls: capabilities?.preCalls as any,
+            requiredFunds: capabilities?.requiredFunds,
           })
 
           return Schema.encodeSync(Rpc.wallet_prepareCalls.Response)({
@@ -1008,6 +1009,7 @@ export function from<
             ),
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,
+            requiredFunds: capabilities?.requiredFunds,
           })
 
           return { id } satisfies typeof Rpc.wallet_sendCalls.Response.Encoded

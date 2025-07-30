@@ -34,8 +34,8 @@ export default defineConfig(({ mode }) => {
             ? '"http://localhost:5173"'
             : '"https://anvil.localhost:5173"'
           : JSON.stringify(
-              process.env.VITE_WORKERS_URL ??
-                'https://service.porto.workers.dev',
+              // TODO(next): update to service.porto.workers.dev
+              env.VITE_WORKERS_URL ?? 'https://service-next.porto.workers.dev',
             ),
     },
     plugins: [
