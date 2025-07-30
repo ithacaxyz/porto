@@ -7,7 +7,7 @@
 import { ParseError } from 'effect/ParseResult'
 import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
-import type * as Address from 'ox/Address'
+import * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import {
@@ -262,9 +262,13 @@ export async function prepareCalls<
   const feeRequiredFunds = (() => {
     if (!capabilities.requiredFunds) return undefined
     if (!feeToken) return undefined
-    if (feeToken === zeroAddress || feeToken === ethAddress) return undefined
-    const requiredFunds = capabilities.requiredFunds.find(
-      (fund) => fund.address === feeToken,
+    if (
+      Address.isEqual(feeToken, zeroAddress) ||
+      Address.isEqual(feeToken, ethAddress)
+    )
+      return undefined
+    const requiredFunds = capabilities.requiredFunds.find((fund) =>
+      Address.isEqual(fund.address, feeToken),
     )
     return {
       address: feeToken,
@@ -275,7 +279,9 @@ export async function prepareCalls<
   const requiredFunds = [
     ...(feeRequiredFunds ? [feeRequiredFunds] : []),
     ...(capabilities.requiredFunds ?? []).filter(
-      (fund) => fund.address !== feeRequiredFunds?.address,
+      (fund) =>
+        !feeRequiredFunds ||
+        !Address.isEqual(fund.address, feeRequiredFunds.address),
     ),
   ]
 
