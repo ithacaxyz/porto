@@ -39,6 +39,16 @@ export namespace meta {
   export type Request = typeof Request.Type
 }
 
+export namespace requiredFunds {
+  export const Request = Schema.Array(
+    Schema.Struct({
+      address: Primitive.Address,
+      value: Primitive.BigInt,
+    }),
+  )
+  export type Request = typeof Request.Type
+}
+
 export namespace revokeKeys {
   /** Represents a key revocation request. */
   export const Request = Schema.Array(

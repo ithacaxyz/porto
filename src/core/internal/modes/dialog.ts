@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
+import * as Value from 'ox/Value'
 import { waitForCallsStatus } from 'viem/actions'
 import type { ThemeFragment } from '../../../theme/Theme.js'
 import * as Account from '../../../viem/Account.js'
@@ -715,8 +716,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, asTxHash, calls, internal, merchantRpcUrl } =
-          parameters
+        const {
+          account,
+          asTxHash,
+          calls,
+          internal,
+          merchantRpcUrl,
+          requiredFunds,
+        } = parameters
         const {
           config: { storage },
           client,
@@ -762,6 +769,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       feeToken,
                       merchantRpcUrl,
                       preCalls,
+                      requiredFunds,
                     },
                     chainId: client.chain.id,
                     from: account.address,
@@ -770,6 +778,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ],
               }),
             )
+
+            const quotes = req.capabilities?.quote?.quotes ?? []
+            const hasFeeDeficit = quotes.some((quote, index) => {
+              const isDestination =
+                index === quotes.length - 1 || quotes.length === 1
+              if (isDestination) return false
+              return Value.fromEther(quote.feeTokenDeficit) > 0n
+            })
+            if (hasFeeDeficit) throw new Error('insufficient funds')
 
             const signature = await Key.sign(key, {
               payload: req.digest,

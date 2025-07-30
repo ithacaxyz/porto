@@ -12,6 +12,7 @@ Porto supports the following capabilities:
 | [`feeToken`](#feetoken)       | Indicates if custom fee tokens are supported.          | Experimental |
 | [`merchant`](#merchant)       | Indicates if merchant functionality is supported.              | Experimental                                                          |
 | [`permissions`](#permissions) | Indicates if permissions can be requested by the app.  | Experimental                                                          |
+| [`requiredFunds`](#requiredfunds) | Indicates if required funds (sourcing funds from supported chains) are supported.  | Experimental                                                          |
 | [`signInWithEthereum`](#signinwithethereum) | Adds support for ERC-4361 Sign in with Ethereum.  | Experimental                                                          |
 
 ## Fee Tokens
@@ -63,12 +64,25 @@ The following JSON-RPC methods support the `feeToken` request capability:
 
 ```ts
 type Capability = {
-  /** Custom fee token address. */
-  feeToken: `0x${string}`
+  /** Custom fee token address or symbol. */
+  feeToken: `0x${string}` | string
 }
 ```
 
 ##### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_sendCalls',
+  params: [{
+    capabilities: { // [!code focus]
+      feeToken: 'USDC', // [!code focus]
+    }, // [!code focus]
+    /* ... */
+  }]
+})
+```
 
 ```ts twoslash
 // @noErrors
@@ -338,6 +352,100 @@ const capabilities = await provider.request({
   params: [{
     capabilities: {
       merchantRpcUrl: 'https://myapp.com/rpc'
+    },
+    /* ... */
+  }]
+})
+```
+
+## `requiredFunds`
+
+The `requiredFunds` capability allows an application to specify the funds required on the target chain.
+Porto will automatically source funds from its supported chains to cover the required funds.
+
+### Discovery
+
+Tokens can be discovered by the application via `requiredFunds.tokens` on the [`wallet_getCapabilities`](/sdk/rpc/wallet_getCapabilities) method.
+
+```ts twoslash
+import { Porto } from 'porto'
+
+const { provider } = Porto.create()
+
+const capabilities = await provider.request({ // [!code focus]
+  method: 'wallet_getCapabilities', // [!code focus]
+}) // [!code focus]
+
+const tokens = Object.values(capabilities)[0].requiredFunds.tokens // [!code focus]
+```
+
+<TryItOut
+  fn={async ({ provider }) => {
+    const capabilities = await provider.request({ method: 'wallet_getCapabilities' })
+    const tokens = Object.values(capabilities)[0].requiredFunds.tokens
+    return tokens
+  }}
+  requireConnection={false}
+  transformResultCode={(code) => {
+    return 'const tokens = ' + code
+  }}
+/>
+
+### Request Capabilities
+
+#### `requiredFunds`
+
+Funds required on the target chain.
+
+The following JSON-RPC methods support the `requiredFunds` request capability:
+
+- [`wallet_prepareCalls`](/sdk/rpc/wallet_prepareCalls)
+- [`wallet_sendCalls`](/sdk/rpc/wallet_sendCalls)
+
+```ts
+type Capability = {
+  requiredFunds?: ({
+    /** Address of the token. */
+    address: `0x${string}`;
+    /** Value of the token. */
+    value: `0x${string}`;
+  } | {
+    /** Symbol of the token. */
+    symbol: string;
+    /** Value of the token. */
+    value: string;
+  })[]
+}
+```
+
+#### Example
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_sendCalls',
+  params: [{
+    capabilities: {
+      requiredFunds: [{ // [!code focus]
+        symbol: 'USDC', // [!code focus]
+        value: '100', // [!code focus]
+      }] // [!code focus]
+    },
+    /* ... */
+  }]
+})
+```
+
+```ts twoslash
+// @noErrors
+const capabilities = await provider.request({
+  method: 'wallet_sendCalls',
+  params: [{
+    capabilities: {
+      requiredFunds: [{ // [!code focus]
+        address: '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa', // USDC // [!code focus]
+        value: '0x5f5e100', // 100 USDC // [!code focus]
+      }] // [!code focus]
     },
     /* ... */
   }]
