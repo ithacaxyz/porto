@@ -919,10 +919,6 @@ export function Subscribe(props: {
       })
       const res = await grantPermissions.mutateAsync({
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-        feeLimit: {
-          currency: 'USD',
-          value: '1',
-        },
         key: { publicKey, type: 'p256' },
         permissions: {
           calls: [{ to: subscriptionAddress }],
