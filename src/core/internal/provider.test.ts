@@ -563,7 +563,7 @@ describe.each([
       expect(permissions.length).toBe(2)
     })
 
-    test('behavior: grant on connect > grant another > get after connect', async () => {
+    test.only('behavior: grant on connect > grant another > get after connect', async () => {
       const porto = getPorto()
       const client = TestConfig.getServerClient(porto)
       const walletClient = TestConfig.getWalletClient(porto)

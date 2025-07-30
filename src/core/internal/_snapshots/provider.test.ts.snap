@@ -1000,9 +1000,9 @@ exports[`rpcServer > wallet_getCapabilities > default 6`] = `
 }
 `;
 
-exports[`rpcServer > wallet_getCapabilities > default 7`] = `true`;
+exports[`rpcServer > wallet_getCapabilities > default 7`] = `false`;
 
-exports[`rpcServer > wallet_getCapabilities > default 8`] = `1`;
+exports[`rpcServer > wallet_getCapabilities > default 8`] = `0`;
 
 exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 1`] = `
 [

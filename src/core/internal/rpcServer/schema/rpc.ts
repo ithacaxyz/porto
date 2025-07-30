@@ -193,7 +193,7 @@ export namespace wallet_getCapabilities {
           Schema.Struct({
             address: Primitive.Address,
             decimals: Schema.Number,
-            interop: Schema.Boolean,
+            interop: Schema.optional(Schema.Boolean),
             kind: Schema.String,
             nativeRate: Schema.optional(Primitive.BigInt),
             symbol: Schema.String,

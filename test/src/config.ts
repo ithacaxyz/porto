@@ -28,6 +28,7 @@ export function getPorto(
     merchantRpcUrl,
     mode: mode({
       mock: true,
+      multichain: false,
     }),
     storage: Storage.memory(),
     transports: chains.reduce(

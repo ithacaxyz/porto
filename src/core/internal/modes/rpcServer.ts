@@ -35,7 +35,7 @@ import * as U from '../utils.js'
  */
 export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = parameters
-  const { mock, persistPreCalls = true } = config
+  const { mock, multichain = true, persistPreCalls = true } = config
 
   let address_internal: Hex.Hex | undefined
   let email_internal: string | undefined
@@ -194,7 +194,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             supported: true,
           },
           requiredFunds: {
-            supported: true,
+            supported: Boolean(multichain),
             tokens: [],
           },
         } as const
@@ -220,10 +220,12 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                         tokens: capabilities.fees.tokens,
                       },
                       requiredFunds: {
-                        supported: true,
-                        tokens: capabilities.fees.tokens.filter(
-                          (token) => token.interop,
-                        ),
+                        supported: Boolean(multichain),
+                        tokens: multichain
+                          ? capabilities.fees.tokens.filter(
+                              (token) => token.interop,
+                            )
+                          : [],
                       },
                     }
                   : {}),
@@ -532,7 +534,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             key,
             merchantRpcUrl,
             preCalls,
-            requiredFunds,
+            requiredFunds: multichain ? requiredFunds : undefined,
           })
 
         const quotes = context.quote?.quotes ?? []
@@ -714,7 +716,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           key,
           merchantRpcUrl,
           preCalls,
-          requiredFunds,
+          requiredFunds: multichain ? requiredFunds : undefined,
         })
 
         await PreCalls.clear({
@@ -887,6 +889,11 @@ export declare namespace rpcServer {
      * @internal @deprecated
      */
     mock?: boolean | undefined
+    /**
+     * Whether to support multichain.
+     * @default true
+     */
+    multichain?: boolean | undefined
     /**
      * Whether to store pre-calls in a persistent storage.
      *

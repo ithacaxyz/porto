@@ -4,6 +4,7 @@ import type { Address } from 'ox'
 import { Account, ServerActions } from 'porto'
 import * as PreCalls from 'porto/core/internal/preCalls'
 import * as RequiredFunds from 'porto/core/internal/requiredFunds'
+import type * as Capabilities_schema from 'porto/core/internal/schema/capabilities'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
 import type { ServerClient } from 'porto/viem'
@@ -106,11 +107,12 @@ export namespace prepareCalls {
         calls extends readonly unknown[] = readonly unknown[],
       > = Pick<
         ServerActions.prepareCalls.Parameters<calls>,
-        'authorizeKeys' | 'calls' | 'requiredFunds' | 'revokeKeys'
+        'authorizeKeys' | 'calls' | 'revokeKeys'
       > & {
         account?: Account.Account | undefined
         feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
         merchantRpcUrl?: string | undefined
+        requiredFunds?: Capabilities_schema.requiredFunds.Request | undefined
       }
     }
   }

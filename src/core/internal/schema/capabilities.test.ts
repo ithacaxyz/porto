@@ -681,7 +681,7 @@ describe('feeToken', () => {
         [Schema.CoderError: \`supported\` is missing
         Path: supported
 
-        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop: boolean; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }> }
+        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }> }
         └─ ["supported"]
            └─ is missing]
       `)
@@ -816,11 +816,11 @@ describe('feeToken', () => {
         [Schema.CoderError: \`address\` is missing
         Path: tokens.0.address
 
-        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop: boolean; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }> }
+        Details: { readonly supported: boolean; readonly tokens: ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }> }
         └─ ["tokens"]
-           └─ ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop: boolean; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }>
+           └─ ReadonlyArray<{ readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }>
               └─ [0]
-                 └─ { readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop: boolean; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }
+                 └─ { readonly address: \`0x\${string}\`; readonly decimals: number; readonly interop?: boolean | undefined; readonly kind: string; readonly nativeRate?: (\`0x\${string}\` <-> bigint) | undefined; readonly symbol: string }
                     └─ ["address"]
                        └─ is missing]
       `)
