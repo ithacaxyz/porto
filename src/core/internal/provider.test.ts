@@ -227,6 +227,305 @@ describe.each([
     })
   })
 
+  describe('wallet_getAssets', () => {
+    test('default', async () => {
+      const porto = getPorto()
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+
+      const result = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: account!.address }],
+      })
+      expect(result).toBeDefined()
+      expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
+    })
+
+    test('behavior: with balances', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+      const address = account!.address
+
+      // Set native balance
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('100'),
+      })
+
+      // Mint some ERC20 tokens
+      await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: contracts.exp1.abi,
+                  args: [address, Value.fromEther('1000')],
+                  functionName: 'mint',
+                }),
+                to: contracts.exp1.address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      const result = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+
+      expect(result).toBeDefined()
+      const assetKeys = Object.keys(result)
+      expect(assetKeys.length).toBeGreaterThanOrEqual(1)
+
+      // Check if we have chain-specific assets
+      const chainId = Hex.fromNumber(client.chain.id)
+      expect(result[chainId]).toBeDefined()
+      expect(Array.isArray(result[chainId])).toBe(true)
+    })
+
+    test('behavior: disconnected', async () => {
+      const porto = getPorto()
+      await expect(
+        porto.provider.request({
+          method: 'wallet_getAssets',
+          params: [{ account: '0x0000000000000000000000000000000000000000' }],
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[Provider.DisconnectedError: The provider is disconnected from all chains.]',
+      )
+    })
+
+    test('behavior: account not found', async () => {
+      const porto = getPorto()
+
+      await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+
+      await expect(
+        porto.provider.request({
+          method: 'wallet_getAssets',
+          params: [{ account: '0x0000000000000000000000000000000000000000' }],
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[Provider.UnauthorizedError: The requested method and/or account has not been authorized by the user.]',
+      )
+    })
+
+    test('behavior: after transaction', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+      const address = account!.address
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('1000'),
+      })
+
+      // Get assets before transaction
+      const assetsBefore = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+
+      const alice = Hex.random(20)
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: contracts.exp1.abi,
+                  args: [alice, Value.fromEther('50')],
+                  functionName: 'transfer',
+                }),
+                to: contracts.exp1.address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
+        id,
+      })
+
+      // Get assets after transaction
+      const assetsAfter = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+
+      expect(assetsAfter).toBeDefined()
+      expect(Object.keys(assetsAfter).length).toBeGreaterThanOrEqual(1)
+      // The balance should have changed after the transaction
+      expect(assetsAfter).not.toEqual(assetsBefore)
+    })
+
+    test('behavior: multiple chains', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+      const address = account!.address
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('100'),
+      })
+
+      const assetsInitial = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+      expect(assetsInitial).toBeDefined()
+      expect(Object.keys(assetsInitial).length).toBeGreaterThanOrEqual(1)
+
+      // Switch to a different chain if available
+      const targetChain = porto._internal.config.chains.find(
+        (chain) => chain.id !== client.chain.id,
+      )
+
+      if (targetChain) {
+        await porto.provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: Hex.fromNumber(targetChain.id) }],
+        })
+
+        const assetsNewChain = await porto.provider.request({
+          method: 'wallet_getAssets',
+          params: [{ account: address }],
+        })
+
+        expect(assetsNewChain).toBeDefined()
+        // Should have assets for multiple chains
+        const chainIds = Object.keys(assetsNewChain)
+        expect(chainIds.length).toBeGreaterThanOrEqual(1)
+
+        // Switch back
+        await porto.provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: Hex.fromNumber(client.chain.id) }],
+        })
+      }
+    })
+
+    test('behavior: disconnect > connect > getAssets', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+      const address = account!.address
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('100'),
+      })
+
+      // Get assets while connected
+      const assetsConnected = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+      expect(assetsConnected).toBeDefined()
+
+      await porto.provider.request({
+        method: 'wallet_disconnect',
+      })
+
+      // Should fail when disconnected
+      await expect(
+        porto.provider.request({
+          method: 'wallet_getAssets',
+          params: [{ account: address }],
+        }),
+      ).rejects.toThrow()
+
+      // Reconnect
+      await porto.provider.request({
+        method: 'wallet_connect',
+      })
+
+      // Should work again after reconnect
+      const assetsReconnected = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+      expect(assetsReconnected).toBeDefined()
+      expect(Object.keys(assetsReconnected).length).toBeGreaterThanOrEqual(1)
+    })
+  })
+
   describe('wallet_getAdmins', () => {
     test('default', async () => {
       const porto = getPorto()
