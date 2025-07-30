@@ -2,7 +2,7 @@ import * as Ariakit from '@ariakit/react'
 import { LogoLockup, Toast } from '@porto/apps/components'
 import { exp1Config, exp2Config, expNftConfig } from '@porto/apps/contracts'
 import { cx } from 'cva'
-import { type Address, P256, Provider, PublicKey, Value } from 'ox'
+import { type Address, Hex, P256, Provider, PublicKey, Value } from 'ox'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { Link } from 'react-router'
@@ -664,6 +664,14 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
                 to: expNftConfig.address[chainId],
               },
             ],
+            capabilities: {
+              requiredFunds: [
+                {
+                  address: exp1Config.address[chainId],
+                  value: Hex.fromNumber(Value.fromEther('10')),
+                },
+              ],
+            },
           })
         }
       >
@@ -810,6 +818,14 @@ export function SendTip(props: {
                 functionName: 'transferFrom',
               },
             ],
+            capabilities: {
+              requiredFunds: [
+                {
+                  address: shared.to,
+                  value: Hex.fromNumber(amount),
+                },
+              ],
+            },
           })
         }}
       >
@@ -1156,6 +1172,14 @@ function Swap(props: {
             to: expFromConfig.address[chainId],
           },
         ],
+        capabilities: {
+          requiredFunds: [
+            {
+              address: expFromConfig.address[chainId],
+              value: Hex.fromNumber(Value.fromEther(fromValue)),
+            },
+          ],
+        },
       })
     } catch (err) {
       const error = (() => {

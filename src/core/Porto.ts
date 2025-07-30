@@ -312,10 +312,10 @@ declare module 'viem' {
   interface Register {
     CapabilitiesSchema: {
       getCapabilities: {
-        ReturnType: ValueOf<Rpc.wallet_getCapabilities.Response>
+        ReturnType: ValueOf<Rpc.wallet_getCapabilities.Response_encoded>
       }
       sendCalls: {
-        Request: Rpc.wallet_sendCalls.Capabilities
+        Request: Rpc.wallet_sendCalls.Capabilities_encoded
       }
     }
   }

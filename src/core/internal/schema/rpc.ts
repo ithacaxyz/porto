@@ -639,6 +639,7 @@ export namespace wallet_getCapabilities {
     identifier: 'Rpc.wallet_getCapabilities.Response',
   })
   export type Response = typeof Response.Type
+  export type Response_encoded = typeof Response.Encoded
 }
 
 export namespace wallet_getKeys {
@@ -790,6 +791,7 @@ export namespace wallet_prepareUpgradeAccount {
 export namespace wallet_sendCalls {
   export const Capabilities = wallet_prepareCalls.Capabilities
   export type Capabilities = typeof Capabilities.Type
+  export type Capabilities_encoded = typeof Capabilities.Encoded
 
   export const Request = Schema.Struct({
     method: Schema.Literal('wallet_sendCalls'),

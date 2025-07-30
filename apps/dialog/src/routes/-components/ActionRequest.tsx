@@ -272,7 +272,7 @@ export namespace ActionRequest {
 
                   <div
                     className={cx(
-                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-th_base',
+                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-[var(--background-color-th_secondary)]',
                       receiving
                         ? 'bg-th_positive text-th_positive'
                         : 'bg-th_badge text-th_badge',
