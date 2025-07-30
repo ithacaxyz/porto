@@ -260,7 +260,6 @@ export namespace wallet_getAssets {
             decimals: Schema.Number,
             name: Schema.String,
             symbol: Schema.String,
-            uri: Schema.NullOr(Schema.String),
           }),
         ),
         type: Schema.String,

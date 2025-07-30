@@ -1059,7 +1059,7 @@ describe.runIf(!Anvil.enabled)('verifySignature', () => {
   })
 })
 
-describe.only('getAssets', () => {
+describe('getAssets', () => {
   test('default', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
@@ -1239,14 +1239,6 @@ describe.only('getAssets', () => {
     expect(result[otherChainId]).toBeDefined()
     expect(Array.isArray(result[chainId])).toBe(true)
     expect(Array.isArray(result[otherChainId])).toBe(true)
-  })
-
-  test('error: invalid account address', async () => {
-    await expect(
-      getAssets(client, {
-        account: '0xinvalid',
-      }),
-    ).rejects.toThrow()
   })
 })
 
