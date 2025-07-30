@@ -187,10 +187,14 @@ export type Mode = {
       feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
-      /** Pre-calls to be executed. */
-      preCalls?: PreCalls.PreCalls | undefined
       /** Merchant RPC URL. */
       merchantRpcUrl?: string | undefined
+      /** Pre-calls to be executed. */
+      preCalls?: PreCalls.PreCalls | undefined
+      /** Required funds to execute the calls. */
+      requiredFunds?:
+        | RpcSchema.wallet_prepareCalls.Capabilities['requiredFunds']
+        | undefined
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
@@ -264,6 +268,10 @@ export type Mode = {
       feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Required funds to execute the calls. */
+      requiredFunds?:
+        | RpcSchema.wallet_prepareCalls.Capabilities['requiredFunds']
+        | undefined
       /** Permissions ID to use to execute the calls. */
       permissionsId?: Hex.Hex | undefined
       /** Pre-calls to be executed. */

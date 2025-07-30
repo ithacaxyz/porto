@@ -249,6 +249,10 @@ export function contract(parameters: contract.Parameters = {}) {
           permissions: {
             supported: true,
           },
+          requiredFunds: {
+            supported: false,
+            tokens: [],
+          },
         } as const
 
         const chainIds =
