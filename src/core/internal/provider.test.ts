@@ -2664,6 +2664,58 @@ describe.each([
     })
   })
 
+  describe('wallet_getCallsStatus', () => {
+    test('default', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+      const address = account!.address
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const alice = Hex.random(20)
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: contracts.exp1.abi,
+                  args: [alice, 69420n],
+                  functionName: 'transfer',
+                }),
+                to: contracts.exp1.address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      expect(id).toBeDefined()
+
+      const response = await porto.provider.request({
+        method: 'wallet_getCallsStatus',
+        params: [id],
+      })
+
+      expect(response.id).toBe(id)
+    })
+  })
+
   describe('wallet_getAssets', () => {
     test('default', async () => {
       const porto = getPorto()
@@ -2960,58 +3012,6 @@ describe.each([
       })
       expect(assetsReconnected).toBeDefined()
       expect(Object.keys(assetsReconnected).length).toBeGreaterThanOrEqual(1)
-    })
-  })
-
-  describe('wallet_getCallsStatus', () => {
-    test('default', async () => {
-      const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-      const contracts = TestConfig.getContracts(porto)
-
-      const {
-        accounts: [account],
-      } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [{ capabilities: { createAccount: true } }],
-      })
-      const address = account!.address
-
-      await setBalance(client, {
-        address,
-        value: Value.fromEther('10000'),
-      })
-
-      const alice = Hex.random(20)
-
-      const { id } = await porto.provider.request({
-        method: 'wallet_sendCalls',
-        params: [
-          {
-            calls: [
-              {
-                data: encodeFunctionData({
-                  abi: contracts.exp1.abi,
-                  args: [alice, 69420n],
-                  functionName: 'transfer',
-                }),
-                to: contracts.exp1.address,
-              },
-            ],
-            from: address,
-            version: '1',
-          },
-        ],
-      })
-
-      expect(id).toBeDefined()
-
-      const response = await porto.provider.request({
-        method: 'wallet_getCallsStatus',
-        params: [id],
-      })
-
-      expect(response.id).toBe(id)
     })
   })
 
