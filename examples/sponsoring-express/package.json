@@ -8,7 +8,7 @@
     "build": "vite build"
   },
   "engines": {
-    "node": ">=23"
+    "node": ">=22"
   },
   "dependencies": {
     "@tanstack/react-query": "^5",
