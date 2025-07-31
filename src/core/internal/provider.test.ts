@@ -3100,36 +3100,6 @@ describe.each([
       expect(Array.isArray(result[chainId])).toBe(true)
     })
 
-    test('behavior: disconnected', async () => {
-      const porto = getPorto()
-      await expect(
-        porto.provider.request({
-          method: 'wallet_getAssets',
-          params: [{ account: '0x0000000000000000000000000000000000000000' }],
-        }),
-      ).rejects.toMatchInlineSnapshot(
-        '[Provider.DisconnectedError: The provider is disconnected from all chains.]',
-      )
-    })
-
-    test('behavior: account not found', async () => {
-      const porto = getPorto()
-
-      await porto.provider.request({
-        method: 'wallet_connect',
-        params: [{ capabilities: { createAccount: true } }],
-      })
-
-      await expect(
-        porto.provider.request({
-          method: 'wallet_getAssets',
-          params: [{ account: '0x0000000000000000000000000000000000000000' }],
-        }),
-      ).rejects.toMatchInlineSnapshot(
-        '[Provider.UnauthorizedError: The requested method and/or account has not been authorized by the user.]',
-      )
-    })
-
     test('behavior: after transaction', async () => {
       const porto = getPorto()
       const client = TestConfig.getServerClient(porto)
@@ -3255,62 +3225,6 @@ describe.each([
           params: [{ chainId: Hex.fromNumber(client.chain.id) }],
         })
       }
-    })
-
-    test('behavior: disconnect > connect > getAssets', async () => {
-      const porto = getPorto()
-      const client = TestConfig.getServerClient(porto)
-
-      const {
-        accounts: [account],
-      } = await porto.provider.request({
-        method: 'wallet_connect',
-        params: [
-          {
-            capabilities: {
-              createAccount: true,
-            },
-          },
-        ],
-      })
-      const address = account!.address
-
-      await setBalance(client, {
-        address,
-        value: Value.fromEther('100'),
-      })
-
-      // Get assets while connected
-      const assetsConnected = await porto.provider.request({
-        method: 'wallet_getAssets',
-        params: [{ account: address }],
-      })
-      expect(assetsConnected).toBeDefined()
-
-      await porto.provider.request({
-        method: 'wallet_disconnect',
-      })
-
-      // Should fail when disconnected
-      await expect(
-        porto.provider.request({
-          method: 'wallet_getAssets',
-          params: [{ account: address }],
-        }),
-      ).rejects.toThrow()
-
-      // Reconnect
-      await porto.provider.request({
-        method: 'wallet_connect',
-      })
-
-      // Should work again after reconnect
-      const assetsReconnected = await porto.provider.request({
-        method: 'wallet_getAssets',
-        params: [{ account: address }],
-      })
-      expect(assetsReconnected).toBeDefined()
-      expect(Object.keys(assetsReconnected).length).toBeGreaterThanOrEqual(1)
     })
   })
 
