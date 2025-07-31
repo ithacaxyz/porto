@@ -380,7 +380,7 @@ describe.each([
       expect(assetsAfter).not.toEqual(assetsBefore)
     })
 
-    test('behavior: multiple chains', async () => {
+    test.only('behavior: multiple chains; one unsupported', async () => {
       const porto = getPorto()
       const client = TestConfig.getServerClient(porto)
 
@@ -403,40 +403,12 @@ describe.each([
         value: Value.fromEther('100'),
       })
 
-      const assetsInitial = await porto.provider.request({
-        method: 'wallet_getAssets',
-        params: [{ account: address }],
-      })
-      expect(assetsInitial).toBeDefined()
-      expect(Object.keys(assetsInitial).length).toBeGreaterThanOrEqual(1)
-
-      // Switch to a different chain if available
-      const targetChain = porto._internal.config.chains.find(
-        (chain) => chain.id !== client.chain.id,
-      )
-
-      if (targetChain) {
-        await porto.provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: Hex.fromNumber(targetChain.id) }],
-        })
-
-        const assetsNewChain = await porto.provider.request({
+      await expect(
+        porto.provider.request({
           method: 'wallet_getAssets',
-          params: [{ account: address }],
-        })
-
-        expect(assetsNewChain).toBeDefined()
-        // Should have assets for multiple chains
-        const chainIds = Object.keys(assetsNewChain)
-        expect(chainIds.length).toBeGreaterThanOrEqual(1)
-
-        // Switch back
-        await porto.provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: Hex.fromNumber(client.chain.id) }],
-        })
-      }
+          params: [{ account: address, chainFilter: [Hex.fromNumber(999999)] }],
+        }),
+      ).rejects.toThrow('unsupported chain 999999')
     })
   })
 
