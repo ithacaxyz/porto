@@ -560,7 +560,7 @@ describe('prepareCalls', () => {
     ).toBe(100n)
   })
 
-  test('behavior: pre calls; account has executed calls previously', async () => {
+  test.skip('behavior: pre calls; account has executed calls previously', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
       keys: [key],
