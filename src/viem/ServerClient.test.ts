@@ -67,7 +67,7 @@ describe('fromPorto', () => {
               },
             },
             "portoAccount": {
-              "address": "0x76334de3a35b0e824b8cfe36bb8b735f1a4a338e",
+              "address": "0xf6c6ac93076be50f087cdfcee0002d34a6f672c0",
             },
           },
           "experimental_preconfirmationTime": 200,
