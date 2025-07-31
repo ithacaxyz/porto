@@ -43,6 +43,7 @@
   },
 
   "files.exclude": {
+    "**/.tanstack/**": true,
     "**/.vercel/**": true,
     "**/.wrangler/**": true,
     "**/*.tsbuildinfo": true
