@@ -380,7 +380,7 @@ describe.each([
       expect(assetsAfter).not.toEqual(assetsBefore)
     })
 
-    test.only('behavior: multiple chains; one unsupported', async () => {
+    test('behavior: multiple chains; one unsupported', async () => {
       const porto = getPorto()
       const client = TestConfig.getServerClient(porto)
 
