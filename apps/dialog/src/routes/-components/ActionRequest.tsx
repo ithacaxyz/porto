@@ -3,6 +3,7 @@ import { Button, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type { Chains } from 'porto'
+import type * as Capabilities from 'porto/core/internal/rpcServer/schema/capabilities'
 import type * as Quote_schema from 'porto/core/internal/rpcServer/schema/quotes'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
@@ -185,7 +186,7 @@ export namespace ActionRequest {
 
       const balances: Map<
         Address.Address,
-        Rpc.wallet_prepareCalls.AssetDiffAsset
+        Capabilities.assetDiffs.AssetDiffAsset
       > = new Map()
 
       for (const chainDiff of Object.values(props.assetDiff)) {
