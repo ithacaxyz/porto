@@ -65,7 +65,7 @@ export const base = /*#__PURE__*/ define({
   contracts: {
     ...chains.base.contracts,
     portoAccount: {
-      address: '0x96e9ded822ffd4c65d8e09340ee95d2dc8fa209f',
+      address: '0xf6c6ac93076be50f087cdfcee0002d34a6f672c0',
     },
   },
   experimental_preconfirmationTime: 200,
@@ -84,7 +84,7 @@ export const baseSepolia = /*#__PURE__*/ define({
   contracts: {
     ...chains.baseSepolia.contracts,
     portoAccount: {
-      address: '0x76334de3a35b0e824b8cfe36bb8b735f1a4a338e',
+      address: '0xf6c6ac93076be50f087cdfcee0002d34a6f672c0',
     },
   },
   experimental_preconfirmationTime: 200,
@@ -103,7 +103,7 @@ export const optimismSepolia = /*#__PURE__*/ define({
   contracts: {
     ...chains.optimismSepolia.contracts,
     portoAccount: {
-      address: '0x76334de3a35b0e824b8cfe36bb8b735f1a4a338e',
+      address: '0xf6c6ac93076be50f087cdfcee0002d34a6f672c0',
     },
   },
   experimental_preconfirmationTime: 200,
