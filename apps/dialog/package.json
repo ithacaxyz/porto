@@ -23,7 +23,7 @@
     "@wagmi/core": "catalog:",
     "cuer": "^0.0.2",
     "cva": "catalog:",
-    "effect": "^3.16.3",
+    "effect": "^3.16.12",
     "ox": "catalog:",
     "porto": "workspace:*",
     "react": "catalog:",

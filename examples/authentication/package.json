@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5",
-    "hono": "^4.8.4",
+    "hono": "^4.8.5",
     "porto": "latest",
     "react": "^19",
     "react-dom": "^19",
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.7.5",
-    "@cloudflare/workers-types": "^4.20250705.0",
+    "@cloudflare/workers-types": "^4.20250719.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.5.1",
@@ -29,6 +29,6 @@
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-mkcert": "^1",
-    "wrangler": "^4.23.0"
+    "wrangler": "^4.25.0"
   }
 }

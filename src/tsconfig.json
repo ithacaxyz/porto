@@ -4,6 +4,7 @@
   "exclude": [
     "**/*.test.ts",
     "**/*.test.tsx",
+    "**/_/**",
     "**/bin/**",
     "**/tsdown.config.ts"
   ],
