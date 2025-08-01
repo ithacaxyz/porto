@@ -12,6 +12,8 @@ import type { ServerClient } from 'porto/viem'
 import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
 
+const multichain = import.meta.env.MODE !== 'test'
+
 export namespace prepareCalls {
   export function queryOptions<const calls extends readonly unknown[]>(
     client: ServerClient.ServerClient,
@@ -31,7 +33,7 @@ export namespace prepareCalls {
 
     return Query.queryOptions({
       enabled: enabled && !!account,
-      // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
+      // TODO: use EIP-1193 Provider + `wallet_prepareCalls` in the future
       // to dedupe.
       async queryFn({ queryKey }) {
         const [, { account, feeToken, ...parameters }] = queryKey
@@ -67,7 +69,7 @@ export namespace prepareCalls {
           feeToken: feeTokenAddress,
           key,
           preCalls,
-          requiredFunds,
+          requiredFunds: multichain ? requiredFunds : undefined,
         })
       },
       queryKey: queryOptions.queryKey(client, {

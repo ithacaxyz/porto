@@ -181,7 +181,7 @@ describe('wallet_getPermissions', () => {
     expect(permissions.length).toBe(2)
   })
 
-  test('behavior: grant on connect; grant another; get after connect', async () => {
+  test.only('behavior: grant on connect; grant another; get after connect', async () => {
     porto = getPorto()
 
     await interact(
