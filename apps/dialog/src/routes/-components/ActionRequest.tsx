@@ -1,4 +1,4 @@
-import { Button, Spinner } from '@porto/apps/components'
+import { Button, ChainIcon, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type { Chains } from 'porto'
@@ -23,6 +23,7 @@ import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
 import LucideVideo from '~icons/lucide/video'
 import Star from '~icons/ph/star-four-bold'
+import IconArrowRightCircle from '~icons/porto/arrow-right-circle'
 
 export function ActionRequest(props: ActionRequest.Props) {
   const {
@@ -363,7 +364,13 @@ export namespace ActionRequest {
       return PriceFormatter.format(Number(feeTotal))
     }, [feeTotals])
 
-    const chain = Hooks.useChain(porto, { chainId: quote_destination?.chainId })
+    const [destinationChain, ...sourceChains] = React.useMemo(() => {
+      return quotes
+        .map((quote) =>
+          porto.config.chains.find((chain) => chain.id === quote.chainId),
+        )
+        .toReversed()
+    }, [quotes])
 
     return (
       <div className="space-y-1.5">
@@ -393,10 +400,33 @@ export namespace ActionRequest {
           <span className="font-medium">2 seconds</span>
         </div>
 
-        {chain?.name && (
+        {destinationChain && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-th_base-secondary">Network</span>
-            <span className="font-medium">{chain?.name}</span>
+            <span className="text-[14px] text-th_base-secondary">
+              Network{sourceChains.length > 0 ? 's' : ''}
+            </span>
+            {sourceChains.length === 0 ? (
+              <div className="flex items-center gap-1.5">
+                <ChainIcon chainId={destinationChain.id} />
+                <span className="font-medium">{destinationChain.name}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                {sourceChains.map((chain) => (
+                  <div key={chain!.id}>
+                    <ChainIcon chainId={chain!.id} className="size-4.5" />
+                  </div>
+                ))}
+                <IconArrowRightCircle className="size-4" />
+                <div>
+                  <ChainIcon
+                    chainId={destinationChain.id}
+                    className="size-4.5"
+                  />
+                  {/* <span className="font-medium">{destinationChain.name}</span> */}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

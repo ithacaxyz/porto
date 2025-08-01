@@ -203,7 +203,6 @@ describe('rpcHandler', () => {
     }
   })
 
-<<<<<<< HEAD
   // TODO: unskip when merchant account works with interop
   test('behavior: required funds', async () => {
     const { server, merchantAccount } = await setup()
@@ -290,95 +289,6 @@ describe('rpcHandler', () => {
     expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
-||||||| parent of 1a2a1233 (chore: tweaks)
-=======
-  // TODO: unskip when merchant account works with interop
-  test.only('behavior: required funds', async () => {
-    const { server, merchantAccount } = await setup()
-
-    const chain_dest = TestConfig.chains[1]
-    const client_dest = TestConfig.getServerClient(porto, {
-      chainId: chain_dest!.id,
-    })
-
-    // Deploy merchant account on destination chain.
-    const { id } = await ServerActions.sendCalls(client_dest, {
-      account: merchantAccount,
-      calls: [],
-      feeToken: contracts.exp1.address,
-    })
-    await waitForCallsStatus(client_dest, {
-      id,
-    })
-
-    await TestActions.setBalance(client_dest, {
-      address: merchantAccount.address,
-    })
-
-    const userKey = Key.createHeadlessWebAuthnP256()
-    const userAccount = await TestActions.createAccount(client, {
-      keys: [userKey],
-    })
-
-    const userBalance_pre = await readContract(client, {
-      ...contracts.exp1,
-      args: [userAccount.address],
-      functionName: 'balanceOf',
-    })
-    const merchantBalance_pre = await readContract(client, {
-      ...contracts.exp1,
-      args: [merchantAccount.address],
-      functionName: 'balanceOf',
-    })
-
-    const alice = Hex.random(20)
-
-    const result = await ServerActions.sendCalls(client, {
-      account: userAccount,
-      calls: [
-        {
-          abi: contracts.exp1.abi,
-          args: [alice, Value.fromEther('50')],
-          functionName: 'transfer',
-          to: contracts.exp1.address,
-        },
-      ],
-      chain: chain_dest,
-      feeToken: contracts.exp1.address,
-      merchantRpcUrl: server.url,
-      requiredFunds: [
-        {
-          address: contracts.exp1.address,
-          value: Value.fromEther('50'),
-        },
-      ],
-    })
-
-    await waitForCallsStatus(client, {
-      id: result.id,
-    })
-
-    const userBalance_post = await readContract(client, {
-      ...contracts.exp1,
-      args: [userAccount.address],
-      functionName: 'balanceOf',
-    })
-    const merchantBalance_post = await readContract(client, {
-      ...contracts.exp1,
-      args: [merchantAccount.address],
-      functionName: 'balanceOf',
-    })
-
-    // Check if user was credited with 1 EXP.
-    expect(userBalance_post).toBeLessThanOrEqual(
-      userBalance_pre - Value.fromEther('50'),
-    )
-
-    // Check if merchant was debited the fee payment.
-    expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
-  })
-
->>>>>>> 1a2a1233 (chore: tweaks)
   test('error: contract error', async () => {
     const { server } = await setup()
 

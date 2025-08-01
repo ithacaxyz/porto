@@ -10,3 +10,10 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+declare module 'virtual:chain-icons' {
+  import type { ComponentType } from 'react'
+
+  export const icons: Record<number, ComponentType>
+  export type Icons = typeof icons
+}
