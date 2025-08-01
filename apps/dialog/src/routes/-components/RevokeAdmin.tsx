@@ -24,8 +24,8 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
     feeToken,
     revokeKeys: revokeKey ? [Key.from(revokeKey)] : [],
   })
-
-  const quote = prepareCallsQuery.data?.capabilities.quote?.quotes[0]
+  const { feeTotals, quote } = prepareCallsQuery.data?.capabilities ?? {}
+  const quotes = quote?.quotes ?? []
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>
@@ -45,8 +45,9 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
           <ActionRequest.PaneWithDetails
             error={prepareCallsQuery.error}
             errorMessage="An error occurred while calculating fees. This may be due to network issues or insufficient funds."
+            feeTotals={feeTotals}
             loading={prepareCallsQuery.isPending}
-            quote={quote}
+            quotes={quotes}
           >
             {revokeKey && (
               <div className="flex items-center justify-center gap-2">
