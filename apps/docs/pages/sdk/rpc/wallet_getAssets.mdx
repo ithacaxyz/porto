@@ -6,8 +6,8 @@ Returns the assets for an account.
 
 <TryItOut
   exampleSlug="#example"
-  fn={({ provider }) => {
-    const account = provider.request({ method: 'eth_requestAccounts' })
+  fn={async ({ provider }) => {
+    const [account] = await provider.request({ method: 'eth_requestAccounts' })
     return provider.request({
       method: 'wallet_getAssets',
       params: [{ account }],
@@ -53,3 +53,29 @@ type Response = {
   }[]
 }
 ```
+
+## Example
+
+```ts twoslash
+import { Porto } from 'porto'
+
+const { provider } = Porto.create()
+
+const [account] = await provider.request({ method: 'eth_requestAccounts' })
+
+const assets = await provider.request({ // [!code focus]
+  method: 'wallet_getAssets', // [!code focus]
+  params: [{ account }], // [!code focus]
+}) // [!code focus]
+```
+
+<TryItOut
+  exampleSlug="#example"
+  fn={async ({ provider }) => {
+    const [account] = await provider.request({ method: 'eth_requestAccounts' })
+    return provider.request({
+      method: 'wallet_getAssets',
+      params: [{ account }],
+    })
+  }}
+/>
