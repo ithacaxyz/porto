@@ -2,6 +2,7 @@ import * as Schema from 'effect/Schema'
 import * as FeeToken from './feeToken.js'
 import * as Permissions from './permissions.js'
 import * as Primitive from './primitive.js'
+import { OneOf } from './schema.js'
 
 export namespace atomic {
   export const GetCapabilitiesResponse = Schema.Struct({
@@ -25,9 +26,9 @@ export namespace createAccount {
 }
 
 export namespace signInWithEthereum {
-  export const Request = Schema.Union(
+  export const Request = OneOf(
+    /** Standard EIP-4361 request object. */
     Schema.Struct({
-      authUrl: Schema.optional(Schema.Undefined),
       chainId: Schema.optional(Schema.Number),
       domain: Schema.optional(Schema.String),
       expirationTime: Schema.optional(Schema.DateFromSelf),
@@ -41,13 +42,23 @@ export namespace signInWithEthereum {
       uri: Schema.optional(Schema.String),
       version: Schema.optional(Schema.Literal('1')),
     }),
+    /**
+     * EIP-4361 request object with an additional `authUrl` field, used
+     * to fetch and infer the `nonce`.
+     */
     Schema.Struct({
-      authUrl: Schema.String,
+      authUrl: Schema.Union(
+        Schema.String,
+        Schema.Struct({
+          logout: Schema.String,
+          nonce: Schema.String,
+          verify: Schema.String,
+        }),
+      ),
       chainId: Schema.optional(Schema.Number),
       domain: Schema.optional(Schema.String),
       expirationTime: Schema.optional(Schema.DateFromSelf),
       issuedAt: Schema.optional(Schema.DateFromSelf),
-      nonce: Schema.optional(Schema.String),
       notBefore: Schema.optional(Schema.DateFromSelf),
       requestId: Schema.optional(Schema.String),
       resources: Schema.optional(Schema.Array(Schema.String)),

@@ -41,5 +41,11 @@ jobs:
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz
 
       - name: Deploy
-        continue-on-error: true
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz)
+          echo "deployment-url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOYMENT_URL"
+
+      - name: Promote
+        run: vercel promote ${{ steps.deploy.outputs.deployment-url }} --token=${{ secrets.VERCEL_TOKEN }} --scope=ithacaxyz

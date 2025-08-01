@@ -2,14 +2,14 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
+import { waitForCallsStatus } from 'viem/actions'
+import type { ThemeFragment } from '../../../theme/Theme.js'
 import * as Account from '../../../viem/Account.js'
 import * as Key from '../../../viem/Key.js'
-import * as ServerClient from '../../../viem/ServerClient.js'
 import * as Dialog from '../../Dialog.js'
 import type { QueuedRequest } from '../../Porto.js'
 import * as RpcSchema_porto from '../../RpcSchema.js'
 import type { Storage } from '../../Storage.js'
-import * as FeeTokens from '../feeTokens.js'
 import * as Mode from '../mode.js'
 import * as Permissions from '../permissions.js'
 import * as PermissionsRequest from '../permissionsRequest.js'
@@ -19,17 +19,19 @@ import type * as FeeToken from '../schema/feeToken.js'
 import * as Schema from '../schema/schema.js'
 import * as Siwe from '../siwe.js'
 import * as U from '../utils.js'
+import { rpcServer } from './rpcServer.js'
 
 export function dialog(parameters: dialog.Parameters = {}) {
   const {
+    fallback = rpcServer(),
     host = 'https://stg.id.porto.sh/dialog',
     renderer = Dialog.iframe(),
+    theme,
+    themeController,
   } = parameters
 
   const listeners = new Set<(requestQueue: readonly QueuedRequest[]) => void>()
   const requestStore = RpcRequest.createStore()
-
-  let feeTokens: FeeTokens.FeeTokens | undefined
 
   // Function to instantiate a provider for the dialog. This
   // will be used to queue up requests for the dialog and
@@ -54,7 +56,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   account: account
                     ? {
                         address: account.address,
-                        credentialId: (adminKey as any)?.credentialId,
+                        key: adminKey
+                          ? {
+                              credentialId: (adminKey as any)?.credentialId,
+                              publicKey: adminKey.publicKey,
+                            }
+                          : undefined,
                       }
                     : undefined,
                   request,
@@ -148,9 +155,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
             // Parse the authorize key into a structured key.
             const key = await PermissionsRequest.toKey(
               capabilities?.grantPermissions,
-              {
-                feeTokens,
-              },
             )
 
             // Convert the key into a permission.
@@ -190,11 +194,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             const sessionKeys = account.capabilities?.permissions
               ?.map((permission) => {
-                if (permission.id === key?.id) return key
                 try {
-                  return Permissions.toKey(
+                  const key_permission = Permissions.toKey(
                     Schema.decodeSync(Permissions.Schema)(permission),
                   )
+                  if (key_permission.id === key?.id)
+                    return { ...key_permission, ...key }
+                  return key_permission
                 } catch {
                   return undefined
                 }
@@ -213,6 +219,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             if (authUrl && signInWithEthereum_response) {
               const { message, signature } = signInWithEthereum_response
               await Siwe.authenticate({
+                address: account.address,
                 authUrl,
                 message,
                 signature,
@@ -243,12 +250,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { config } = internal
         const { storage } = config
 
-        const authUrl =
-          getAuthUrl(config.authUrl, { storage }) ??
-          (await storage.getItem<string | undefined>('porto.siwe.authUrl'))
+        const authUrl_storage =
+          (await storage.getItem<Siwe.AuthUrl | undefined>('porto.authUrl')) ||
+          undefined
+        const authUrl = getAuthUrl(config.authUrl ?? authUrl_storage, {
+          storage,
+        })
 
         if (authUrl) {
-          const response = await fetch(authUrl + '/logout', {
+          const response = await fetch(authUrl.logout, {
             credentials: 'include',
             method: 'POST',
           })
@@ -263,6 +273,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_getAccountVersion')
           throw new Error('Cannot get version for method: ' + request.method)
 
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getAccountVersion(parameters)
+
         const provider = getProvider(store)
         const result = await provider.request(request)
         return result
@@ -274,6 +287,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (request.method !== 'wallet_getCallsStatus')
           throw new Error('Cannot get status for method: ' + request.method)
+
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getCallsStatus(parameters)
 
         const provider = getProvider(store)
         const result = await provider.request(request)
@@ -289,6 +305,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot get capabilities for method: ' + request.method,
           )
 
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getCapabilities(parameters)
+
         const provider = getProvider(store)
         const result = await provider.request(request)
         return result
@@ -298,22 +317,27 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const { account, internal } = parameters
         const { store } = internal
 
-        const provider = getProvider(store)
-        const result = await provider.request({
-          method: 'wallet_getKeys',
-          params: [
-            {
-              address: account.address,
-            },
-          ],
-        })
+        const keys = await (async () => {
+          if (!renderer.supportsHeadless)
+            return fallback.actions.getKeys(parameters)
 
-        const keys = Schema.decodeSync(RpcSchema_porto.wallet_getKeys.Response)(
-          result,
-        )
+          const provider = getProvider(store)
+          const result = await provider.request({
+            method: 'wallet_getKeys',
+            params: [
+              {
+                address: account.address,
+              },
+            ],
+          })
+
+          return Schema.decodeSync(RpcSchema_porto.wallet_getKeys.Response)(
+            result,
+          )
+        })()
 
         return U.uniqBy(
-          [...(account.keys ?? []), ...keys],
+          [...keys, ...(account.keys ?? [])],
           (key) => key.publicKey,
         )
       },
@@ -368,9 +392,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const [{ address, ...permissions }] = request._decoded.params
 
         // Parse permissions request into a structured key.
-        const key = await PermissionsRequest.toKey(permissions, {
-          feeTokens,
-        })
+        const key = await PermissionsRequest.toKey(permissions)
         if (!key) throw new Error('no key found.')
 
         const permissionsRequest = Schema.encodeSync(PermissionsRequest.Schema)(
@@ -379,19 +401,25 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         // Send a request off to the dialog to grant the permissions.
         const provider = getProvider(store)
-        const { capabilities } = await provider.request({
+        const response = await provider.request({
           method: 'wallet_grantPermissions',
           params: [permissionsRequest],
         })
 
-        const { preCalls } = capabilities ?? {}
+        const { preCalls } = response.capabilities ?? {}
         if (preCalls)
           await PreCalls.add(preCalls as PreCalls.PreCalls, {
             address: account.address,
             storage,
           })
 
-        return { key }
+        const key_response = await PermissionsRequest.toKey(
+          Schema.decodeSync(PermissionsRequest.Schema)(response),
+        )
+
+        return {
+          key: { ...key_response, ...key } as Key.Key,
+        }
       },
 
       async loadAccounts(parameters) {
@@ -421,9 +449,6 @@ export function dialog(parameters: dialog.Parameters = {}) {
           // Parse provided (RPC) key into a structured key.
           const key = await PermissionsRequest.toKey(
             capabilities?.grantPermissions,
-            {
-              feeTokens,
-            },
           )
 
           // Convert the key into a permissions request.
@@ -473,11 +498,12 @@ export function dialog(parameters: dialog.Parameters = {}) {
               const sessionKeys = account.capabilities?.permissions
                 ?.map((permission) => {
                   try {
-                    const key_ = Permissions.toKey(
+                    const key_permission = Permissions.toKey(
                       Schema.decodeSync(Permissions.Schema)(permission),
                     )
-                    if (key_.id === key?.id) return key
-                    return key_
+                    if (key_permission.id === key?.id)
+                      return { ...key_permission, ...key }
+                    return key_permission
                   } catch {
                     return undefined
                   }
@@ -489,6 +515,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               if (authUrl && signInWithEthereum_response) {
                 const { message, signature } = signInWithEthereum_response
                 await Siwe.authenticate({
+                  address: account.address,
                   authUrl,
                   message,
                   signature,
@@ -522,6 +549,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (request.method !== 'wallet_prepareCalls')
           throw new Error('Cannot prepare calls for method: ' + request.method)
 
+        if (!renderer.supportsHeadless)
+          return fallback.actions.prepareCalls(parameters)
+
         const feeToken = await resolveFeeToken(internal, parameters)
 
         const preCalls = await PreCalls.get({
@@ -530,19 +560,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
         })
 
         const provider = getProvider(store)
-        const result = await provider.request({
-          ...request,
-          params: [
-            {
-              ...request.params?.[0],
-              capabilities: {
-                ...request.params?.[0]?.capabilities,
-                feeToken,
-                preCalls,
+        const result = Schema.decodeSync(
+          RpcSchema_porto.wallet_prepareCalls.Response,
+        )(
+          await provider.request({
+            ...request,
+            params: [
+              {
+                ...request.params?.[0],
+                capabilities: {
+                  ...request.params?.[0]?.capabilities,
+                  feeToken,
+                  preCalls,
+                },
               },
-            },
-          ],
-        })
+            ],
+          }),
+        )
 
         return {
           account,
@@ -563,15 +597,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
             'Cannot prepare upgrade for method: ' + request.method,
           )
 
+        if (!renderer.supportsHeadless)
+          return fallback.actions.prepareUpgradeAccount(parameters)
+
         // Extract the capabilities from the request.
         const [{ capabilities }] = request._decoded.params ?? [{}]
 
         // Parse the authorize key into a structured key.
         const key = await PermissionsRequest.toKey(
           capabilities?.grantPermissions,
-          {
-            feeTokens,
-          },
         )
 
         // Convert the key into a permission.
@@ -598,7 +632,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         type Context = { account: Account.Account }
         const keys = (context as Context).account.keys?.map((k) => {
-          if (k.id === key?.id) return key
+          if (k.id === key?.id) return { ...k, ...key }
           return k
         })
 
@@ -666,7 +700,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl } = parameters
+        const { account, asTxHash, calls, internal, merchantRpcUrl } =
+          parameters
         const {
           config: { storage },
           client,
@@ -694,6 +729,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // without sending a request to the dialog. If the key does not
         // have permission to execute the calls, fall back to the dialog.
         if (key && key.role === 'session') {
+          if (!renderer.supportsHeadless)
+            return fallback.actions.sendCalls(parameters)
+
           try {
             // TODO: use eventual Viem Action.
             const req = await provider.request(
@@ -739,10 +777,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
               storage,
             })
 
-            const id = result[0]
-            if (!id) throw new Error('id not found')
+            const response = result[0]
+            if (!response) throw new Error('id not found')
 
-            return id
+            if (asTxHash) {
+              const { receipts } = await waitForCallsStatus(client, {
+                id: response.id,
+                pollingInterval: 500,
+              })
+              if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+              return {
+                id: receipts[0].transactionHash,
+              }
+            }
+
+            return response
           } catch {}
         }
 
@@ -810,6 +859,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
           throw new Error(
             'Cannot send prepared calls for method: ' + request.method,
           )
+
+        if (!renderer.supportsHeadless)
+          return fallback.actions.sendPreparedCalls(parameters)
 
         const provider = getProvider(store)
         const result = await provider.request(request)
@@ -889,6 +941,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return await provider.request(request)
       },
     },
+    config: parameters,
     name: 'dialog',
     setup(parameters) {
       const { internal } = parameters
@@ -897,33 +950,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
       const dialog = renderer.setup({
         host,
         internal,
+        theme,
+        themeController,
       })
 
-      const unsubscribe_1 = store.subscribe(
-        ({ chainId, feeToken }) => ({
-          chainId,
-          feeToken,
-        }),
-        async ({ chainId, feeToken }) => {
-          if (!feeToken) return
-
-          const client = ServerClient.fromPorto(
-            { _internal: internal },
-            { chainId },
-          )
-          feeTokens = await FeeTokens.resolve(client, {
-            feeToken,
-            store: internal.store,
-          })
-        },
-        {
-          equalityFn: (a, b) =>
-            a.chainId === b.chainId && a.feeToken === b.feeToken,
-          fireImmediately: true,
-        },
-      )
-
-      const unsubscribe_2 = store.subscribe(
+      const unsubscribe = store.subscribe(
         (x) => x.requestQueue,
         (requestQueue) => {
           for (const listener of listeners) listener(requestQueue)
@@ -937,8 +968,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       )
 
       return () => {
-        unsubscribe_1()
-        unsubscribe_2()
+        unsubscribe()
         dialog.destroy()
       }
     },
@@ -947,6 +977,13 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
 export declare namespace dialog {
   type Parameters = {
+    /**
+     * Mode to fall back to if the renderer does not support background
+     * operations (e.g. popups and web views).
+     *
+     * @default `Mode.rpcServer()`
+     */
+    fallback?: Mode.Mode | undefined
     /**
      * URL of the dialog embed.
      * @default 'http://stg.id.porto.sh/dialog'
@@ -957,6 +994,16 @@ export declare namespace dialog {
      * @default Dialog.iframe()
      */
     renderer?: Dialog.Dialog | undefined
+    /**
+     * Theme to apply to the dialog.
+     * @default undefined
+     */
+    theme?: ThemeFragment | undefined
+    /**
+     * Theme controller.
+     * @default undefined
+     */
+    themeController?: Dialog.ThemeController | undefined
   }
 }
 
@@ -974,17 +1021,18 @@ export async function resolveFeeToken(
 }
 
 function getAuthUrl(
-  authUrl: string | undefined,
+  apiUrl: string | Siwe.AuthUrl | undefined,
   { storage }: { storage: Storage },
 ) {
-  // Resolve relative URLs
-  const resolvedUrl =
-    authUrl?.startsWith('/') && typeof window !== 'undefined'
-      ? `${window.location.origin}${authUrl}`
-      : authUrl
+  if (!apiUrl) return undefined
+
+  const authUrl = Siwe.resolveAuthUrl(
+    apiUrl,
+    typeof window !== 'undefined' ? window.location.origin : undefined,
+  )
 
   // Store the resolved auth URL for future use (e.g., disconnect)
-  if (authUrl) storage.setItem('porto.siwe.authUrl', resolvedUrl)
+  if (authUrl) storage.setItem('porto.authUrl', authUrl)
 
-  return resolvedUrl
+  return authUrl
 }

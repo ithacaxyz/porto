@@ -68,7 +68,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const eoa = Account.fromPrivateKey(Secp256k1.randomPrivateKey())
 
-        const feeTokens = await FeeTokens.resolve(client, {
+        const feeTokens = await FeeTokens.fetch(client, {
           store: internal.store,
         })
 
@@ -205,14 +205,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
                 return null
               }
             })()
-            if (!capabilities) return {}
             return {
               [chainId]: {
                 ...base,
-                feeToken: {
-                  supported: true,
-                  tokens: capabilities.fees.tokens,
-                },
+                ...(capabilities
+                  ? {
+                      feeToken: {
+                        supported: true,
+                        tokens: capabilities.fees.tokens,
+                      },
+                    }
+                  : {}),
               },
             } as const
           }),
@@ -229,7 +232,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const keys = await ServerActions.getKeys(client, { account })
 
         return U.uniqBy(
-          [...(account.keys ?? []), ...keys],
+          [...keys, ...(account.keys ?? [])],
           (key) => key.publicKey,
         )
       },
@@ -240,8 +243,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const authorizeKey = Key.from(parameters.key)
 
-        const [feeToken] = await FeeTokens.resolve(client, {
-          feeToken: parameters.feeToken,
+        const [feeToken] = await FeeTokens.fetch(client, {
+          addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
         const { id } = await ServerActions.sendCalls(client, {
@@ -251,6 +254,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
         await waitForCallsStatus(client, {
           id,
+          pollingInterval: 500,
         })
 
         return { key: authorizeKey }
@@ -263,7 +267,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeTokens = await FeeTokens.resolve(client, {
+        const feeTokens = await FeeTokens.fetch(client, {
           store: internal.store,
         })
 
@@ -294,7 +298,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           config: { storage },
         } = internal
 
-        const feeTokens = await FeeTokens.resolve(client, {
+        const feeTokens = await FeeTokens.fetch(client, {
           store: internal.store,
         })
         const authorizeKey = await PermissionsRequest.toKey(permissions, {
@@ -354,10 +358,10 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
             // If the address and credentialId are provided, we can skip the
             // WebAuthn discovery step.
-            if (parameters.address && parameters.credentialId)
+            if (parameters.address && parameters.key)
               return {
                 address: parameters.address,
-                credentialId: parameters.credentialId,
+                credentialId: parameters.key.credentialId,
               }
 
             // Discovery step. We need to do this to extract the key id
@@ -492,8 +496,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             storage,
           }))
 
-        const [feeToken] = await FeeTokens.resolve(client, {
-          feeToken: parameters.feeToken,
+        const [feeToken] = await FeeTokens.fetch(client, {
+          addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
 
@@ -530,7 +534,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         const { address, email, label, internal, permissions } = parameters
         const { client } = internal
 
-        const feeTokens = await FeeTokens.resolve(client, {
+        const feeTokens = await FeeTokens.fetch(client, {
           store: internal.store,
         })
 
@@ -579,8 +583,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           throw new Error('revoke the only WebAuthn key left.')
 
         try {
-          const [feeToken] = await FeeTokens.resolve(client, {
-            feeToken: parameters.feeToken,
+          const [feeToken] = await FeeTokens.fetch(client, {
+            addressOrSymbol: parameters.feeToken,
             store: internal.store,
           })
           const { id } = await ServerActions.sendCalls(client, {
@@ -613,8 +617,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         if (key.role === 'admin') throw new Error('cannot revoke admins.')
 
         try {
-          const [feeToken] = await FeeTokens.resolve(client, {
-            feeToken: parameters.feeToken,
+          const [feeToken] = await FeeTokens.fetch(client, {
+            addressOrSymbol: parameters.feeToken,
             store: internal.store,
           })
           const { id } = await ServerActions.sendCalls(client, {
@@ -637,7 +641,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, calls, internal, merchantRpcUrl } = parameters
+        const { account, asTxHash, calls, internal, merchantRpcUrl } =
+          parameters
         const {
           client,
           config: { storage },
@@ -659,8 +664,8 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           }))
 
         // Resolve fee token to use.
-        const [feeToken] = await FeeTokens.resolve(client, {
-          feeToken: parameters.feeToken,
+        const [feeToken] = await FeeTokens.fetch(client, {
+          addressOrSymbol: parameters.feeToken,
           store: internal.store,
         })
 
@@ -679,6 +684,17 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
           address: account.address,
           storage,
         })
+
+        if (asTxHash) {
+          const { receipts } = await waitForCallsStatus(client, {
+            id: result.id,
+            pollingInterval: 500,
+          })
+          if (!receipts?.[0]) throw new Provider.UnknownBundleIdError()
+          return {
+            id: receipts[0].transactionHash,
+          }
+        }
 
         return result
       },
@@ -756,7 +772,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         if (!accountImplementation)
           throw new Error('accountImplementation not found.')
 
-        const [feeToken] = await FeeTokens.resolve(client, {
+        const [feeToken] = await FeeTokens.fetch(client, {
           store: internal.store,
         })
 
@@ -816,6 +832,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
         })
       },
     },
+    config: parameters,
     name: 'rpc',
   })
 }

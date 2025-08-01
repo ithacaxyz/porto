@@ -150,7 +150,6 @@ describe('wallet_getPermissions', () => {
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
-                feeLimit: 'include',
                 permissions: {
                   calls: [{ signature: 'mint()' }],
                 },
@@ -168,7 +167,6 @@ describe('wallet_getPermissions', () => {
         params: [
           {
             expiry: 9999999999,
-            feeLimit: 'include',
             permissions: { calls: [{ signature: 'mint()' }] },
           },
         ],
@@ -194,7 +192,6 @@ describe('wallet_getPermissions', () => {
               createAccount: true,
               grantPermissions: {
                 expiry: 9999999999,
-                feeLimit: 'include',
                 key: {
                   publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
                   type: 'secp256k1',
@@ -245,6 +242,10 @@ describe('wallet_getPermissions', () => {
           chainId: null,
           permissions: {
             ...x.permissions,
+            calls: x.permissions.calls.map((x) => ({
+              ...x,
+              to: null,
+            })),
             spend: x.permissions.spend?.map((x) => ({
               ...x,
               token: null,
@@ -279,6 +280,10 @@ describe('wallet_getPermissions', () => {
           chainId: null,
           permissions: {
             ...x.permissions,
+            calls: x.permissions.calls.map((x) => ({
+              ...x,
+              to: null,
+            })),
             spend: x.permissions.spend?.map((x) => ({
               ...x,
               token: null,

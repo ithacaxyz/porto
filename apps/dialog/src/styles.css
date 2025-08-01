@@ -1,7 +1,5 @@
 @import "@porto/apps/styles.css";
 
-@custom-variant dark (&:is(.scheme-light-dark *));
-
 @theme {
   --text-base: 15px;
   --text-base--line-height: calc(1.325 / 1);

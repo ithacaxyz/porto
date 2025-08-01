@@ -9,8 +9,8 @@ import { waitForCallsStatus } from 'viem/actions'
 import { useAccount } from 'wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'
+import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
-import * as RpcServer from '~/lib/RpcServer'
 import { ActionRequest } from './ActionRequest'
 import { Layout } from './Layout'
 
@@ -30,7 +30,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
   const { accountImplementation } = contracts ?? {}
 
   const account = Hooks.useAccount(porto)
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     calls:
       account?.address && accountImplementation
         ? [
@@ -117,10 +117,10 @@ export function UpdateAccount(props: UpdateAccount.Props) {
             quote={quote}
           >
             <div className="flex items-center justify-center gap-2">
-              <div className="font-mono text-secondary tabular-nums">
+              <div className="font-mono text-th_base-secondary tabular-nums">
                 {current}
               </div>
-              <div className="text-success">→</div>
+              <div className="text-th_base-positive">→</div>
               <div className="font-mono tabular-nums">{latest}</div>
             </div>
           </ActionRequest.PaneWithDetails>
@@ -142,7 +142,7 @@ export function UpdateAccount(props: UpdateAccount.Props) {
                   className="flex-grow"
                   onClick={() => sendCallsMutation.mutate()}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Update now
                 </Button>

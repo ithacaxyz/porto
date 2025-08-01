@@ -3,21 +3,26 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm dlx wrangler@latest --config='wrangler.json' dev",
-    "build": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars --dry-run",
+    "dev": "vite dev",
+    "build": "vite build",
+    "prepreview": "pnpm build",
+    "preview": "vite preview",
+    "predeploy": "pnpm build",
     "tail": "pnpm dlx wrangler@latest --config='wrangler.json' tail",
-    "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars --var 'ENVIRONMENT:production'"
+    "deploy": "pnpm dlx wrangler@latest --config='wrangler.json' deploy --keep-vars"
   },
   "dependencies": {
     "@porto/apps": "workspace:*",
-    "hono": "^4.8.4",
+    "hono": "^4.8.5",
     "porto": "workspace:*",
     "viem": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250705.0",
+    "@cloudflare/vite-plugin": "^1.7.5",
+    "@cloudflare/workers-types": "^4.20250719.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
-    "wrangler": "^4.23.0"
+    "vite": "catalog:",
+    "wrangler": "^4.25.0"
   }
 }

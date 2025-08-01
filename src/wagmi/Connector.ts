@@ -6,6 +6,7 @@ import {
 import {
   type Address,
   getAddress,
+  http,
   numberToHex,
   type ProviderConnectInfo,
   type RpcError,
@@ -13,15 +14,16 @@ import {
   UserRejectedRequestError,
   withRetry,
 } from 'viem'
-import type { Chain } from '../core/Chains.js'
+import * as Chains from '../core/Chains.js'
 import * as Schema from '../core/internal/schema/schema.js'
 import type { ExactPartial } from '../core/internal/types.js'
+import * as Mode from '../core/Mode.js'
 import * as Porto from '../core/Porto.js'
 import * as RpcSchema from '../core/RpcSchema.js'
 
-export function porto<const chains extends readonly [Chain, ...Chain[]]>(
-  config: ExactPartial<Porto.Config<chains>> = {},
-) {
+export function porto<
+  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(config: ExactPartial<Porto.Config<chains>> = {}) {
   type Provider = ReturnType<typeof Porto.create>['provider']
   type Properties = {
     connect(parameters?: {
@@ -255,5 +257,23 @@ export function porto<const chains extends readonly [Chain, ...Chain[]]>(
       },
       type: 'injected',
     }
+  })
+}
+
+export function unstable_porto<
+  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(
+  config?: ExactPartial<Porto.Config<chains>> | undefined,
+): ReturnType<typeof porto>
+export function unstable_porto(config: ExactPartial<Porto.Config> = {}) {
+  return porto({
+    chains: [Chains.base],
+    mode: Mode.dialog({
+      host: 'https://id.porto.sh/dialog',
+    }),
+    transports: {
+      [Chains.base.id]: http(),
+    },
+    ...config,
   })
 }

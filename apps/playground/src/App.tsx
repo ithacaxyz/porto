@@ -10,7 +10,7 @@ import {
   TypedData,
   Value,
 } from 'ox'
-import { Chains } from 'porto'
+import { Chains, Dialog } from 'porto'
 import * as React from 'react'
 import { hashMessage, hashTypedData } from 'viem'
 import {
@@ -23,16 +23,58 @@ import {
   exp1Address,
   exp2Address,
   expNftAddress,
+  isDialogModeType,
   type ModeType,
   mipd,
   modes,
   permissions,
   porto,
+  type ThemeType,
+  themes,
 } from './config'
 
 export function App() {
-  const [mode, setMode] = React.useState<ModeType>('iframe-dialog')
-  React.useEffect(() => porto._internal.setMode(modes[mode]), [mode])
+  const [mode, setMode] = React.useState<ModeType>(() => {
+    const url = new URL(window.location.href)
+    const mode = url.searchParams.get('mode') as ModeType | null
+    return mode ?? 'iframe-dialog'
+  })
+
+  const [options, setOptions] = React.useState<{
+    theme: ThemeType
+  }>({
+    theme: 'default',
+  })
+
+  const themeRef = React.useRef<{
+    controller: ReturnType<typeof Dialog.createThemeController> | null
+    theme: ThemeType
+  }>({ controller: null, theme: options.theme })
+
+  // update mode
+  React.useEffect(() => {
+    if (!isDialogModeType(mode)) {
+      porto._internal.setMode(modes[mode]())
+      themeRef.current.controller = null
+      return
+    }
+
+    themeRef.current.controller = Dialog.createThemeController()
+    porto._internal.setMode(
+      modes[mode]({
+        theme: themes[themeRef.current.theme],
+        themeController: themeRef.current.controller,
+      }),
+    )
+  }, [mode])
+
+  // update theme
+  React.useEffect(() => {
+    const theme = themes[options.theme]
+    if (!theme) return
+    themeRef.current.theme = options.theme
+    themeRef.current.controller?.setTheme(theme)
+  }, [options.theme])
 
   return (
     <main>
@@ -60,6 +102,18 @@ export function App() {
           <hr />
           <br />
         </div>
+
+        <h2>Options</h2>
+        <Theme
+          onChange={(theme) => setOptions((o) => ({ ...o, theme }))}
+          theme={options.theme}
+        />
+        <div>
+          <br />
+          <hr />
+          <br />
+        </div>
+
         <h2>Account Management</h2>
         <Connect />
         <Login />
@@ -74,6 +128,7 @@ export function App() {
           <hr />
           <br />
         </div>
+
         <h2>Permissions</h2>
         <GrantPermissions />
         <GetPermissions />
@@ -1319,6 +1374,34 @@ function ShowClientCapabilities() {
       <summary>User Client Capabilities</summary>
       <pre>{JSON.stringify(userClientCapabilities, null, 2)}</pre>
     </details>
+  )
+}
+
+function Theme({
+  onChange,
+  theme,
+}: {
+  onChange: (theme: ThemeType) => void
+  theme: ThemeType
+}) {
+  const radioName = React.useId()
+  return (
+    <div>
+      <h3>Theme</h3>
+      <div className="flex flex-row gap-2">
+        {Object.keys(themes).map((key) => (
+          <label className="flex gap-1" key={key}>
+            <input
+              checked={theme === key}
+              name={radioName}
+              onChange={() => onChange(key as ThemeType)}
+              type="radio"
+            />
+            {key}
+          </label>
+        ))}
+      </div>
+    </div>
   )
 }
 

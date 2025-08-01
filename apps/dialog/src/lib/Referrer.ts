@@ -10,8 +10,7 @@ export function useVerify() {
       if (!hostname) return { status: 'unknown' }
 
       return (await fetch(
-        (import.meta.env.VITE_VERIFY_URL ||
-          'https://verify.porto.workers.dev') + `?hostname=${hostname}`,
+        import.meta.env.VITE_WORKERS_URL + `/verify?hostname=${hostname}`,
       )
         .then((x) => x.json())
         .catch(() => ({}))) as useVerify.Data

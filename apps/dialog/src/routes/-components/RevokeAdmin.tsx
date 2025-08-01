@@ -5,7 +5,7 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/wagmi'
 
 import { CheckBalance } from '~/components/CheckBalance'
-import * as RpcServer from '~/lib/RpcServer'
+import * as Calls from '~/lib/Calls'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import WalletIcon from '~icons/lucide/wallet-cards'
@@ -19,7 +19,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
     (admin) => admin.id === revokeKeyId,
   )
 
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     enabled: !!revokeKey,
     feeToken,
     revokeKeys: revokeKey ? [Key.from(revokeKey)] : [],
@@ -50,8 +50,8 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
           >
             {revokeKey && (
               <div className="flex items-center justify-center gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
-                  <WalletIcon className="h-4 w-4 text-jade9" />
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-th_badge-positive">
+                  <WalletIcon className="h-4 w-4 text-th_badge-positive" />
                 </div>
                 <span className="font-medium font-mono text-base">
                   {StringFormatter.truncate(revokeKey.publicKey)}
@@ -86,7 +86,7 @@ export function RevokeAdmin(props: RevokeAdmin.Props) {
                   className="flex-1"
                   onClick={onApprove}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Remove
                 </Button>

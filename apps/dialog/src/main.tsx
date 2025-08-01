@@ -1,4 +1,4 @@
-import { Env } from '@porto/apps'
+import { Env, Theme } from '@porto/apps'
 import * as Sentry from '@sentry/react'
 import { Events } from 'porto/remote'
 import { Actions } from 'porto/wagmi'
@@ -27,7 +27,7 @@ if (import.meta.env.PROD) {
 }
 
 const offInitialized = Events.onInitialized(porto, (payload) => {
-  const { mode, referrer } = payload
+  const { mode, referrer, theme } = payload
 
   Dialog.store.setState({
     mode,
@@ -43,6 +43,13 @@ const offInitialized = Events.onInitialized(porto, (payload) => {
       // the dialog).
       url: document.referrer ? new URL(document.referrer) : undefined,
     },
+
+    // Only update `customTheme` if a theme is passed. This prevents overwriting
+    // the current theme with initialization messages happening after the
+    // initial load (e.g. in the open() method of dialog variants).
+    ...(theme
+      ? { customTheme: Theme.parseJsonTheme(JSON.stringify(theme)) }
+      : {}),
   })
 })
 
@@ -57,10 +64,9 @@ const offDialogRequest = Events.onDialogRequest(
 
     if (needsSync)
       Actions.connect(Wagmi.config, {
-        address: account.address,
         connector: getConnectors(Wagmi.config)[0]!,
-        credentialId: account.credentialId,
         force: true,
+        selectAccount: account,
       })
 
     Router.router.navigate({
@@ -83,6 +89,27 @@ porto.messenger.on('success', (payload) => {
     search: (search) => ({ ...search, ...payload }) as never,
     to: '/dialog/success',
   })
+})
+
+porto.messenger.on('__internal', (payload) => {
+  if (
+    payload.type === 'resize' &&
+    payload.width !== undefined &&
+    Dialog.store.getState().mode === 'iframe'
+  )
+    Dialog.store.setState((state) =>
+      payload.width === undefined
+        ? state
+        : {
+            ...state,
+            display: payload.width > 460 ? 'floating' : 'drawer',
+          },
+    )
+
+  if (payload.type === 'set-theme' && payload.theme)
+    Dialog.store.setState({
+      customTheme: Theme.parseJsonTheme(JSON.stringify(payload.theme)),
+    })
 })
 
 porto.ready()
@@ -153,10 +180,7 @@ document.addEventListener('keydown', (event) => {
         }),
       )
 
-      document.documentElement.classList.remove(
-        'scheme-light',
-        'scheme-light-dark',
-      )
+      document.documentElement.classList.remove('scheme-light-dark')
       document.documentElement.classList.add('scheme-light')
     }
   }

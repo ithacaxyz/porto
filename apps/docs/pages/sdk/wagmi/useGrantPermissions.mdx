@@ -146,12 +146,10 @@ function Example() {
 
 ### feeLimit
 
-`{ currency: 'ETH' | 'USD' | 'USDC' | 'USDT', value: string } | 'include'`
+`{ currency: 'ETH' | 'USD' | 'USDC' | 'USDT', value: string } | undefined`
 
 Limit that the key can spend on fees. When provided, Porto will assign a spend permission on the user's
 selected fee token that is equal to the limit provided.
-
-Provide `"include"` to have the fee inclusive with `permissions.spend`.
 
 ### key
 

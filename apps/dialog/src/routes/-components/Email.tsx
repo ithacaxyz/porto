@@ -13,12 +13,12 @@ export function Email(props: Email.Props) {
   const {
     actions = ['sign-in', 'sign-up'],
     defaultValue = '',
-    loading,
     onApprove,
     permissions,
+    status,
   } = props
 
-  const [loadingTitle, setLoadingTitle] = React.useState('Signing up...')
+  const [respondingTitle, setRespondingTitle] = React.useState('Signing up...')
 
   const account = Hooks.useAccount(porto)
   const email = Dialog.useStore((state) =>
@@ -42,7 +42,7 @@ export function Email(props: Email.Props) {
       event.preventDefault()
       const formData = new FormData(event.target as HTMLFormElement)
       const email = formData.get('email')?.toString()
-      setLoadingTitle('Signing up...')
+      setRespondingTitle('Signing up...')
       onApprove({ email, signIn: false })
     },
     [onApprove],
@@ -67,7 +67,7 @@ export function Email(props: Email.Props) {
   }, [actions, cli, hostname])
 
   return (
-    <Layout loading={loading} loadingTitle={loadingTitle}>
+    <Layout loading={status === 'responding'} loadingTitle={respondingTitle}>
       <Layout.Header className="flex-grow">
         <Layout.Header.Default
           content={content}
@@ -83,12 +83,13 @@ export function Email(props: Email.Props) {
           <Button
             className="flex w-full gap-2"
             data-testid="sign-in"
+            disabled={status === 'loading'}
             onClick={() => {
-              setLoadingTitle('Signing in...')
+              setRespondingTitle('Signing in...')
               onApprove({ signIn: true })
             }}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             <IconScanFace className="size-5.25" />
             {actions.includes('sign-up')
@@ -104,9 +105,9 @@ export function Email(props: Email.Props) {
           >
             {/* If "Sign in" button is present, show the "First time?" text for sign up. */}
             {actions.includes('sign-in') && (
-              <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-gray9 leading-[17px]">
+              <div className="-tracking-[2.8%] flex items-center whitespace-nowrap text-[12px] text-th_base-secondary leading-[17px]">
                 First time?
-                <div className="ms-2 h-px w-full bg-gray4" />
+                <div className="ms-2 h-px w-full bg-th_separator" />
               </div>
             )}
             <div className="relative flex items-center">
@@ -114,21 +115,23 @@ export function Email(props: Email.Props) {
                 Email
               </label>
               <Input
-                className="w-full user-invalid:bg-gray3 user-invalid:ring-red9"
+                className="w-full user-invalid:bg-th_field user-invalid:ring-th_base-negative"
                 defaultValue={defaultValue}
+                disabled={status === 'loading'}
                 name="email"
                 placeholder="example@ithaca.xyz"
                 type="email"
               />
-              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-gray9 leading-normal">
+              <div className="-tracking-[2.8%] absolute end-3 text-[12px] text-th_base-secondary leading-normal">
                 Optional
               </div>
             </div>
             <Button
-              className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-gray10"
+              className="w-full gap-2 group-has-[:user-invalid]:cursor-not-allowed group-has-[:user-invalid]:text-th_base-tertiary"
               data-testid="sign-up"
+              disabled={status === 'loading'}
               type="submit"
-              variant={actions.includes('sign-in') ? 'default' : 'accent'}
+              variant={actions.includes('sign-in') ? 'default' : 'primary'}
             >
               <span className="hidden group-has-[:user-invalid]:block">
                 Invalid email
@@ -149,13 +152,14 @@ export function Email(props: Email.Props) {
           // If no sign up button, this means the user is already logged in, however
           // the user may want to sign in with a different passkey.
           <div className="flex w-full justify-between gap-2">
-            <div className="text-gray9">
-              Using <span className="text-primary">{displayName}</span>
+            <div>
+              <span className="text-th_base-secondary">Using</span>{' '}
+              {displayName}
             </div>
             <button
-              className="text-accent"
+              className="text-th_link"
               onClick={() => {
-                setLoadingTitle('Signing in...')
+                setRespondingTitle('Signing in...')
                 onApprove({ selectAccount: true, signIn: true })
               }}
               type="button"
@@ -173,12 +177,12 @@ export namespace Email {
   export type Props = {
     actions?: readonly ('sign-in' | 'sign-up')[]
     defaultValue?: string | undefined
-    loading: boolean
     onApprove: (p: {
       email?: string
       selectAccount?: boolean
       signIn?: boolean
     }) => void
     permissions?: Permissions.Props
+    status?: 'loading' | 'responding' | undefined
   }
 }

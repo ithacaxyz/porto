@@ -17,6 +17,7 @@ import {
   setCode,
   signTypedData,
   waitForCallsStatus,
+  waitForTransactionReceipt,
 } from 'viem/actions'
 import { verifySiweMessage } from 'viem/siwe'
 import { describe, expect, test, vi } from 'vitest'
@@ -31,11 +32,12 @@ import {
   getPorto as getPorto_,
 } from '../../../test/src/porto.js'
 import * as RpcServer from '../../../test/src/rpcServer.js'
+import * as ServerActions from '../../viem/ServerActions.js'
 import * as ServerClient from '../../viem/ServerClient.js'
 import * as WalletClient from '../../viem/WalletClient.js'
 
 describe.each([
-  ['contract', process.env.VITE_LOCAL !== 'false' ? Mode.contract : undefined],
+  ['contract', Anvil.enabled ? Mode.contract : undefined],
   ['rpcServer', Mode.rpcServer],
 ] as const)('%s', (type, mode) => {
   if (!mode) return
@@ -137,9 +139,8 @@ describe.each([
 
       expect(hash).toBeDefined()
 
-      await waitForCallsStatus(WalletClient.fromPorto(porto), {
-        id: hash,
-      })
+      const receipt = await waitForTransactionReceipt(client, { hash })
+      expect(receipt).toBeDefined()
 
       expect(
         await readContract(client, {
@@ -440,6 +441,13 @@ describe.each([
           expiry: null,
           hash: null,
           id: null,
+          permissions: {
+            ...permissions.permissions,
+            spend: permissions.permissions?.spend?.map((x) => ({
+              ...x,
+              token: null,
+            })),
+          },
           publicKey: null,
         })),
       ).matchSnapshot()
@@ -574,7 +582,7 @@ describe.each([
                 },
                 key: {
                   publicKey: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
-                  type: 'secp256k1',
+                  type: 'address',
                 },
                 permissions: {
                   calls: [{ signature: 'mint()' }],
@@ -880,7 +888,9 @@ describe.each([
 
   describe('wallet_getAccountVersion', () => {
     test('default', async () => {
-      const { porto } = getPorto()
+      const { client, porto } = getPorto()
+
+      const capabilities = await ServerActions.getCapabilities(client)
 
       await porto.provider.request({
         method: 'wallet_connect',
@@ -890,16 +900,18 @@ describe.each([
       const version = await porto.provider.request({
         method: 'wallet_getAccountVersion',
       })
-      expect(version).toMatchInlineSnapshot(`
-        {
-          "current": "0.3.3",
-          "latest": "0.3.3",
-        }
-      `)
+      expect(version.current).toMatch(
+        capabilities.contracts.accountImplementation.version!,
+      )
+      expect(version.latest).toMatch(
+        capabilities.contracts.accountImplementation.version!,
+      )
     })
 
     test('behavior: provided address', async () => {
-      const { porto } = getPorto()
+      const { client, porto } = getPorto()
+
+      const capabilities = await ServerActions.getCapabilities(client)
 
       const {
         accounts: [account],
@@ -913,12 +925,12 @@ describe.each([
         method: 'wallet_getAccountVersion',
         params: [{ address }],
       })
-      expect(version).toMatchInlineSnapshot(`
-        {
-          "current": "0.3.3",
-          "latest": "0.3.3",
-        }
-      `)
+      expect(version.current).toMatch(
+        capabilities.contracts.accountImplementation.version!,
+      )
+      expect(version.latest).toMatch(
+        capabilities.contracts.accountImplementation.version!,
+      )
     })
 
     test('behavior: not connected', async () => {
@@ -956,6 +968,8 @@ describe.each([
       const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
+
+      const capabilities = await ServerActions.getCapabilities(client)
 
       const {
         accounts: [account],
@@ -995,12 +1009,10 @@ describe.each([
       const version = await porto.provider.request({
         method: 'wallet_getAccountVersion',
       })
-      expect(version).toMatchInlineSnapshot(`
-        {
-          "current": "0.0.1",
-          "latest": "0.3.3",
-        }
-      `)
+      expect(version.current).toMatch('0.0.1')
+      expect(version.latest).toMatch(
+        capabilities.contracts.accountImplementation.version!,
+      )
     })
   })
 
@@ -1010,6 +1022,8 @@ describe.each([
       const client = ServerClient.fromPorto(porto).extend(() => ({
         mode: 'anvil',
       }))
+
+      const capabilities = await ServerActions.getCapabilities(client)
 
       const {
         accounts: [account],
@@ -1044,12 +1058,12 @@ describe.each([
       const version = await porto.provider.request({
         method: 'wallet_getAccountVersion',
       })
-      expect(version).toMatchInlineSnapshot(`
-        {
-          "current": "0.3.3",
-          "latest": "0.3.3",
-        }
-      `)
+      expect(version.current).toMatch(
+        capabilities.contracts.accountImplementation.version!,
+      )
+      expect(version.latest).toMatch(
+        capabilities.contracts.accountImplementation.version!,
+      )
 
       const { porto: porto_newAccount } = getPorto({
         rpcUrl: RpcServer.instances.portoDev_newAccount.rpcUrl,
@@ -1062,12 +1076,10 @@ describe.each([
         const version = await porto_newAccount.provider.request({
           method: 'wallet_getAccountVersion',
         })
-        expect(version).toMatchInlineSnapshot(`
-          {
-            "current": "0.3.3",
-            "latest": "69.0.0",
-          }
-        `)
+        expect(version.current).toMatch(
+          capabilities.contracts.accountImplementation.version!,
+        )
+        expect(version.latest).toMatch('69.0.0')
       }
 
       const { id: id2 } = await porto_newAccount.provider.request({
@@ -1471,15 +1483,6 @@ describe.each([
       ).matchSnapshot()
       expect(permissions).matchSnapshot()
       expect(merchant).matchSnapshot()
-    })
-
-    test('behavior: unsupported chain', async () => {
-      const { porto } = getPorto()
-      const capabilities = await porto.provider.request({
-        method: 'wallet_getCapabilities',
-        params: [undefined, ['0x1']],
-      })
-      expect(capabilities).toMatchInlineSnapshot('{}')
     })
   })
 

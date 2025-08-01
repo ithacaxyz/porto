@@ -6,8 +6,8 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import { Hooks } from 'porto/remote'
 
 import { CheckBalance } from '~/components/CheckBalance'
+import * as Calls from '~/lib/Calls'
 import { porto } from '~/lib/Porto'
-import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
 import { StringFormatter } from '~/utils'
 import TriangleAlert from '~icons/lucide/triangle-alert'
@@ -19,7 +19,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
 
   const account = Hooks.useAccount(porto)
 
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     authorizeKeys: [Key.from(authorizeKey)],
     feeToken,
   })
@@ -51,8 +51,8 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           >
             {account?.address && (
               <div className="flex items-center justify-center gap-2">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-jade4">
-                  <WalletIcon className="h-4 w-4 text-jade9" />
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-th_badge-positive">
+                  <WalletIcon className="h-4 w-4 text-th_badge-positive" />
                 </div>
                 <span className="font-medium font-mono text-base">
                   {StringFormatter.truncate(authorizeKey.publicKey)}
@@ -87,7 +87,7 @@ export function GrantAdmin(props: GrantAdmin.Props) {
                   className="flex-1"
                   onClick={onApprove}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Add
                 </Button>

@@ -1,4 +1,5 @@
 import type * as Address from 'ox/Address'
+import type * as Hex from 'ox/Hex'
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import { http, type Transport } from 'viem'
@@ -6,12 +7,15 @@ import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { createStore, type Mutate, type StoreApi } from 'zustand/vanilla'
 import type * as Account from '../viem/Account.js'
 import * as Chains from './Chains.js'
+import type * as Mode from './internal/mode.js'
+import { dialog } from './internal/modes/dialog.js'
+import { rpcServer } from './internal/modes/rpcServer.js'
 import type * as internal from './internal/porto.js'
 import * as Provider from './internal/provider.js'
 import type * as FeeToken from './internal/schema/feeToken.js'
+import type * as Siwe from './internal/siwe.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 import * as Utils from './internal/utils.js'
-import * as Mode from './Mode.js'
 import * as Storage from './Storage.js'
 
 const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
@@ -19,7 +23,7 @@ const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia],
-  mode: browser ? Mode.dialog() : Mode.rpcServer(),
+  mode: browser ? dialog() : rpcServer(),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {
@@ -150,6 +154,42 @@ export function create(
   }
 }
 
+/**
+ * Instantiates an Porto instance with future defaults (mainnet configuration).
+ *
+ * WARNING: This is not recommended for production use yet, and will become
+ * stable in a future release.
+ *
+ * @example
+ * ```ts twoslash
+ * import { Porto } from 'porto'
+ *
+ * const porto = Porto.unstable_create()
+ *
+ * const blockNumber = await porto.provider.request({ method: 'eth_blockNumber' })
+ * ```
+ */
+export function unstable_create<
+  const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
+>(parameters?: ExactPartial<Config<chains>> | undefined): Porto<chains>
+export function unstable_create(
+  parameters: ExactPartial<Config> | undefined = {},
+): Porto {
+  return create({
+    chains: [Chains.base],
+    mode: browser
+      ? dialog({
+          host: 'https://id.porto.sh/dialog',
+        })
+      : rpcServer(),
+    storageKey: 'prod.porto.store',
+    transports: {
+      [Chains.base.id]: http(),
+    },
+    ...parameters,
+  })
+}
+
 export type Config<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
     Chains.Chain,
@@ -162,9 +202,9 @@ export type Config<
    */
   announceProvider: boolean
   /**
-   * API URL to use for offchain SIWE authentication.
+   * API URL(s) to use for offchain SIWE authentication.
    */
-  authUrl?: string | undefined
+  authUrl?: string | Siwe.AuthUrl | undefined
   /**
    * List of supported chains.
    */
@@ -237,10 +277,20 @@ export type Store<
 >
 
 export type QueuedRequest<result = unknown> = {
+  /** Account to assert the request for, and sync if neccessary. */
   account:
     | {
+        /** Address of the account. */
         address: Address.Address
-        credentialId?: string | undefined
+        /** Active key of the account. */
+        key?:
+          | {
+              /** Credential ID. May be `undefined` when the key is not a WebAuthn credential. */
+              credentialId?: string | undefined
+              /** Public key */
+              publicKey: Hex.Hex
+            }
+          | undefined
       }
     | undefined
   request: RpcRequest.RpcRequest & { _internal?: unknown }

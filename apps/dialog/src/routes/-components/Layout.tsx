@@ -60,17 +60,17 @@ export namespace Layout {
                 <Icon className="size-[18px] text-current" />
               </div>
             )}
-            <div className="font-medium text-[18px] text-primary">{title}</div>
+            <div className="font-medium text-[18px] text-th_base">{title}</div>
           </div>
           {(content || subContent) && (
             <div className="flex flex-col gap-0.5">
               {content && (
-                <div className="text-[15px] text-primary leading-[22px]">
+                <div className="text-[15px] text-th_base leading-[22px]">
                   {content}
                 </div>
               )}
               {subContent && (
-                <div className="text-[15px] text-secondary leading-[20px]">
+                <div className="text-[15px] text-th_base-secondary leading-[20px]">
                   {subContent}
                 </div>
               )}
@@ -89,6 +89,7 @@ export namespace Layout {
         title: string
       }
 
+      // header icon
       export const className = cva(
         'flex size-8 items-center justify-center rounded-full',
         {
@@ -97,11 +98,10 @@ export namespace Layout {
           },
           variants: {
             variant: {
-              default: 'bg-accentTint text-accent',
-              destructive: 'bg-destructive text-destructive',
-              primary: 'bg-accentTint text-accent',
-              success: 'bg-successTint text-success',
-              warning: 'bg-warningTint text-warning',
+              default: 'bg-th_badge-info text-th_badge-info',
+              destructive: 'bg-th_negative text-th_negative',
+              success: 'bg-th_positive text-th_positive',
+              warning: 'bg-th_badge-warning text-th_badge-warning',
             },
           },
         },
@@ -163,22 +163,24 @@ export namespace Layout {
       const { onClick } = props
       const address = Address.checksum(props.address)
       return (
-        <div className="flex h-full w-full items-center justify-between border-primary border-t px-3 pt-3">
-          <div className="text-[13px] text-secondary">Account</div>
+        <div className="flex h-full w-full items-center justify-between border-th_base border-t px-3 pt-3">
+          <div className="text-[13px] text-th_base-secondary">Account</div>
 
           <button
-            className="-my-1 -mx-2 flex items-center gap-1.5 rounded-lg px-2 py-1 hover:not-disabled:bg-surface"
+            className="-my-1 -mx-2 flex items-center gap-1.5 rounded-lg px-2 py-1 hover:not-disabled:bg-th_base-hovered"
             disabled={!onClick}
             onClick={onClick}
             type="button"
           >
             <div
-              className="font-medium text-[14px] text-primary"
+              className="font-medium text-[14px] text-th_base"
               title={address}
             >
               {StringFormatter.truncate(address, { end: 6, start: 8 })}
             </div>
-            {onClick && <ChevronDown className="size-4 text-secondary" />}
+            {onClick && (
+              <ChevronDown className="size-4 text-th_base-secondary" />
+            )}
           </button>
         </div>
       )

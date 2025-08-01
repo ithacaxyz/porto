@@ -1,5 +1,162 @@
 # porto
 
+## 0.0.58
+
+### Patch Changes
+
+- [#625](https://github.com/ithacaxyz/porto/pull/625) [`ea729bd`](https://github.com/ithacaxyz/porto/commit/ea729bd4126c5685b0291c48b28b2f66052fd641) Thanks [@jxom](https://github.com/jxom)! - Modified SIWE handlers to be compatible with `better-auth`.
+
+## 0.0.57
+
+### Patch Changes
+
+- [`5e38e1c`](https://github.com/ithacaxyz/porto/commit/5e38e1c9c38948755df41370b589e8aa59aa74e6) Thanks [@jxom](https://github.com/jxom)! - **Breaking**: Modified SIWE `/nonce` endpoint to use a `POST` method instead of `GET`.
+
+  ```diff
+  - app.get('/siwe/nonce', ...)
+  + app.post('/siwe/nonce', ...)
+  ```
+
+## 0.0.56
+
+### Patch Changes
+
+- [#620](https://github.com/ithacaxyz/porto/pull/620) [`b061c6b`](https://github.com/ithacaxyz/porto/commit/b061c6b89bf8700f71c3983a43bcb5497bcac733) Thanks [@jxom](https://github.com/jxom)! - Added ability to individually pass authentication endpoints to `signInWithEthereum.authUrl`, instead
+  of defining the group path (e.g. `/auth/*`).
+
+  ```diff
+  connect({
+    signInWithEthereum: {
+  -   authUrl: '/auth'
+  +   authUrl: {
+  +     logout: '/logout',
+  +     nonce: '/auth/nonce',
+  +     verify: '/auth',
+  +   },
+    },
+  })
+  ```
+
+- [#620](https://github.com/ithacaxyz/porto/pull/620) [`b061c6b`](https://github.com/ithacaxyz/porto/commit/b061c6b89bf8700f71c3983a43bcb5497bcac733) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Modified SIWE `authUrl` to verify & authenticate against `${path}/verify` instead of `${path}`.
+
+  ```diff
+  - server.post('/siwe', ...
+  + server.post('/siwe/verify', ...
+  ```
+
+## 0.0.55
+
+### Patch Changes
+
+- [`c513774`](https://github.com/ithacaxyz/porto/commit/c5137746a319e791efe073b54f164698b6e8ac2f) Thanks [@jxom](https://github.com/jxom)! - Added [Theming](https://porto.sh/sdk/guides/theming) via a `theme` option on `Mode.dialog`.
+
+## 0.0.54
+
+### Patch Changes
+
+- [#592](https://github.com/ithacaxyz/porto/pull/592) [`3525888`](https://github.com/ithacaxyz/porto/commit/35258885c0412a47cb714edc0b67c70fc88c0142) Thanks [@jxom](https://github.com/jxom)! - Added `key` as a parameter to `Mode#loadAccounts`.
+
+- [#592](https://github.com/ithacaxyz/porto/pull/592) [`3525888`](https://github.com/ithacaxyz/porto/commit/35258885c0412a47cb714edc0b67c70fc88c0142) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `credentialId` from `Mode#loadAccounts`. Use `key` instead.
+
+  ```diff
+  const mode = Mode.from({
+    actions: {
+      loadAccounts(parameters) {
+        const {
+          address,
+  -       credentialId
+  +       key: { credentialId }
+        } = parameters
+
+        // ...
+      }
+    },
+    ...
+  })
+  ```
+
+- [#594](https://github.com/ithacaxyz/porto/pull/594) [`73f4ed7`](https://github.com/ithacaxyz/porto/commit/73f4ed7bceeb7f7a95a0df46cc52d6fec330767b) Thanks [@jxom](https://github.com/jxom)! - Fixed parsing of server key of an \`address\` type.
+
+- [#565](https://github.com/ithacaxyz/porto/pull/565) [`9ea4d43`](https://github.com/ithacaxyz/porto/commit/9ea4d43cb6de16073d1f8c177575b830fc935992) Thanks [@frolic](https://github.com/frolic)! - Added `size` property to `Dialog` renderer instances.
+
+## 0.0.53
+
+### Patch Changes
+
+- [#587](https://github.com/ithacaxyz/porto/pull/587) [`6785db3`](https://github.com/ithacaxyz/porto/commit/6785db3bac2a25f93f5b94d0fe517f8f40cc3a51) Thanks [@jxom](https://github.com/jxom)! - Removed extraneous background RPC requests that occurred outside of the dialog.
+
+## 0.0.52
+
+### Patch Changes
+
+- [#585](https://github.com/ithacaxyz/porto/pull/585) [`cd56a7b`](https://github.com/ithacaxyz/porto/commit/cd56a7b4c622ef421ebe2d26ac606867d9d85827) Thanks [@jxom](https://github.com/jxom)! - Fixed decoding of `wallet_prepareCalls` response in `Mode.dialog`.
+
+- [#583](https://github.com/ithacaxyz/porto/pull/583) [`fc4b9df`](https://github.com/ithacaxyz/porto/commit/fc4b9dfbcf7ec18808143095155a8fe1534f1b76) Thanks [@o-az](https://github.com/o-az)! - Made CLI terminate by dynamically importing commands.
+
+## 0.0.51
+
+### Patch Changes
+
+- [`1e46693`](https://github.com/ithacaxyz/porto/commit/1e46693f43bde13769bb23d9db6ce6dca3419d1a) Thanks [@jxom](https://github.com/jxom)! - Tweaked extension to fall back to popup if host site blocks iframe due to CSP.
+
+## 0.0.50
+
+### Patch Changes
+
+- [#575](https://github.com/ithacaxyz/porto/pull/575) [`e037d86`](https://github.com/ithacaxyz/porto/commit/e037d8653f093ce3d47b14bde3e7a47190fee791) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `eth_sendTransaction` response would be the bundle identifier, instead of the transaction hash.
+
+- [#574](https://github.com/ithacaxyz/porto/pull/574) [`8c988ea`](https://github.com/ithacaxyz/porto/commit/8c988ea5b0569dc220b2b72c8377e18c8c2d29ae) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where headless methods on the `Dialog.popup` renderer would invoke
+  a popup, instead of calling the method in the background.
+
+## 0.0.49
+
+### Patch Changes
+
+- [`2202f8e`](https://github.com/ithacaxyz/porto/commit/2202f8e3f122f42d2be713280ffbe720f5394a4b) Thanks [@jxom](https://github.com/jxom)! - Added missing `credentials: 'include'` to SIWE.
+
+## 0.0.48
+
+### Patch Changes
+
+- [`99f0857`](https://github.com/ithacaxyz/porto/commit/99f085712c574ffb5ba080b4c8d3d4017b9f5c2f) Thanks [@jxom](https://github.com/jxom)! - Added `Porto.unstable_create` and `unstable_porto` Wagmi connector.
+
+## 0.0.47
+
+### Patch Changes
+
+- [`a8daa28`](https://github.com/ithacaxyz/porto/commit/a8daa2826a3e467e710e0f8938de85756aa4c05b) Thanks [@jxom](https://github.com/jxom)! - Optimized call permissions introspection.
+
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed implicit fee limits (defaulting to 1 USD of the fee token) when granting permissions.
+
+  A new `feeLimit` property has been added on `wallet_grantPermissions` to assign fee limits. This converts to a spend permission that will be used to pay for fees (for permissioned calls) in the user's selected fee token (e.g. USDC).
+
+  ```ts
+  provider.request({
+    method: "wallet_grantPermissions",
+    params: [
+      {
+        expiry: 1715328000,
+        // Assign a spend permission of $5 USD of the fee token.
+        feeLimit: {
+          currency: "USD",
+          value: "5",
+        },
+        permissions: {
+          calls: [{ signature: "mint()" }],
+        },
+      },
+    ],
+  });
+  ```
+
+- [#563](https://github.com/ithacaxyz/porto/pull/563) [`3cf0a7e`](https://github.com/ithacaxyz/porto/commit/3cf0a7e27a46206569524ba2f73d637d53e81f6c) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed `permissionsFeeLimit` on `Mode.rpcServer` in favor of:
+
+  - `feeLimit` on the `wallet_grantPermissions` request
+  - `feeLimit` on the `grantPermissions` capability
+
+- [`4b65a65`](https://github.com/ithacaxyz/porto/commit/4b65a65d32790a0dd18e411d6a6df5c9274b1411) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where a cached `chainId`s could become stale if a consumer omitted the target
+  chain from the `chains` configuration.
+
 ## 0.0.46
 
 ### Patch Changes

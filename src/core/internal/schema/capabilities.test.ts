@@ -4,7 +4,7 @@ import * as Schema from './schema.js'
 
 describe('atomic', () => {
   describe('GetCapabilitiesResponse', () => {
-    test('behavior: should parse supported status', () => {
+    test('behavior: parse supported status', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.atomic.GetCapabilitiesResponse,
       )({ status: 'supported' })
@@ -15,7 +15,7 @@ describe('atomic', () => {
         `)
     })
 
-    test('behavior: should parse unsupported status', () => {
+    test('behavior: parse unsupported status', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.atomic.GetCapabilitiesResponse,
       )({ status: 'unsupported' })
@@ -26,7 +26,7 @@ describe('atomic', () => {
         `)
     })
 
-    test('error: should reject invalid status', () => {
+    test('error: reject invalid status', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.atomic.GetCapabilitiesResponse)({
           status: 'invalid',
@@ -43,7 +43,7 @@ describe('atomic', () => {
       `)
     })
 
-    test('behavior: should encode supported status', () => {
+    test('behavior: encode supported status', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.atomic.GetCapabilitiesResponse,
       )({ status: 'supported' })
@@ -57,7 +57,7 @@ describe('atomic', () => {
       `)
     })
 
-    test('behavior: should encode unsupported status', () => {
+    test('behavior: encode unsupported status', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.atomic.GetCapabilitiesResponse,
       )({ status: 'unsupported' })
@@ -85,7 +85,7 @@ describe('atomic', () => {
       expect(reDecoded).toEqual(decoded)
     })
 
-    test('error: should reject missing status', () => {
+    test('error: reject missing status', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.atomic.GetCapabilitiesResponse)(
           {},
@@ -104,21 +104,21 @@ describe('atomic', () => {
 
 describe('createAccount', () => {
   describe('Request', () => {
-    test('behavior: should parse boolean true', () => {
+    test('behavior: parse boolean true', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )(true)
       expect(result).toBe(true)
     })
 
-    test('behavior: should parse boolean false', () => {
+    test('behavior: parse boolean false', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )(false)
       expect(result).toBe(false)
     })
 
-    test('behavior: should parse object with chainId', () => {
+    test('behavior: parse object with chainId', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )({ chainId: '0x1' })
@@ -129,7 +129,7 @@ describe('createAccount', () => {
         `)
     })
 
-    test('behavior: should parse object with label', () => {
+    test('behavior: parse object with label', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )({ label: 'My Account' })
@@ -140,7 +140,7 @@ describe('createAccount', () => {
         `)
     })
 
-    test('behavior: should parse object with both chainId and label', () => {
+    test('behavior: parse object with both chainId and label', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )({ chainId: '0xa', label: 'Test Account' })
@@ -152,14 +152,14 @@ describe('createAccount', () => {
         `)
     })
 
-    test('behavior: should parse empty object', () => {
+    test('behavior: parse empty object', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )({})
       expect(result).toMatchInlineSnapshot('{}')
     })
 
-    test('behavior: should encode boolean true', () => {
+    test('behavior: encode boolean true', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )(true)
@@ -169,7 +169,7 @@ describe('createAccount', () => {
       expect(encoded).toBe(true)
     })
 
-    test('behavior: should encode boolean false', () => {
+    test('behavior: encode boolean false', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )(false)
@@ -179,7 +179,7 @@ describe('createAccount', () => {
       expect(encoded).toBe(false)
     })
 
-    test('behavior: should encode object with chainId back to hex', () => {
+    test('behavior: encode object with chainId back to hex', () => {
       const originalData = { chainId: '0xa' }
       const decoded = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
@@ -194,7 +194,7 @@ describe('createAccount', () => {
       `)
     })
 
-    test('behavior: should encode object with label', () => {
+    test('behavior: encode object with label', () => {
       const originalData = { label: 'My Account' }
       const decoded = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
@@ -209,7 +209,7 @@ describe('createAccount', () => {
       `)
     })
 
-    test('behavior: should encode object with both chainId and label', () => {
+    test('behavior: encode object with both chainId and label', () => {
       const originalData = { chainId: '0x1', label: 'Test Account' }
       const decoded = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
@@ -225,7 +225,7 @@ describe('createAccount', () => {
       `)
     })
 
-    test('behavior: should encode empty object', () => {
+    test('behavior: encode empty object', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.createAccount.Request,
       )({})
@@ -261,7 +261,7 @@ describe('createAccount', () => {
       expect(encoded).toEqual(expected)
     })
 
-    test('error: should reject invalid type', () => {
+    test('error: reject invalid type', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.createAccount.Request)('string'),
       ).toThrowErrorMatchingInlineSnapshot(`
@@ -277,7 +277,7 @@ describe('createAccount', () => {
 
 describe('signInWithEthereum', () => {
   describe('Request', () => {
-    test('behavior: should parse struct with nonce and no authUrl', () => {
+    test('behavior: parse struct with nonce and no authUrl', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.signInWithEthereum.Request,
       )({
@@ -290,7 +290,7 @@ describe('signInWithEthereum', () => {
         `)
     })
 
-    test('behavior: should parse struct with authUrl string', () => {
+    test('behavior: parse struct with authUrl string', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.signInWithEthereum.Request,
       )({
@@ -298,14 +298,13 @@ describe('signInWithEthereum', () => {
         nonce: 'xyz789',
       })
       expect(result).toMatchInlineSnapshot(`
-          {
-            "authUrl": "https://example.com/auth",
-            "nonce": "xyz789",
-          }
-        `)
+        {
+          "nonce": "xyz789",
+        }
+      `)
     })
 
-    test('behavior: should parse struct with all optional fields', () => {
+    test('behavior: parse struct with all optional fields', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.signInWithEthereum.Request,
       )({
@@ -324,27 +323,26 @@ describe('signInWithEthereum', () => {
         version: '1',
       })
       expect(result).toMatchInlineSnapshot(`
-          {
-            "authUrl": undefined,
-            "chainId": 1,
-            "domain": "example.com",
-            "expirationTime": 2024-12-31T00:00:00.000Z,
-            "issuedAt": 2024-01-01T00:00:00.000Z,
-            "nonce": "test123",
-            "notBefore": 2024-06-01T00:00:00.000Z,
-            "requestId": "req123",
-            "resources": [
-              "https://example.com/resource1",
-            ],
-            "scheme": "https",
-            "statement": "Sign in to example.com",
-            "uri": "https://example.com",
-            "version": "1",
-          }
-        `)
+        {
+          "chainId": 1,
+          "domain": "example.com",
+          "expirationTime": 2024-12-31T00:00:00.000Z,
+          "issuedAt": 2024-01-01T00:00:00.000Z,
+          "nonce": "test123",
+          "notBefore": 2024-06-01T00:00:00.000Z,
+          "requestId": "req123",
+          "resources": [
+            "https://example.com/resource1",
+          ],
+          "scheme": "https",
+          "statement": "Sign in to example.com",
+          "uri": "https://example.com",
+          "version": "1",
+        }
+      `)
     })
 
-    test('error: should reject struct without nonce', () => {
+    test('error: reject struct without nonce', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Request)({
           domain: 'example.com',
@@ -353,17 +351,17 @@ describe('signInWithEthereum', () => {
         [Schema.CoderError: \`nonce\` is missing
         Path: nonce
 
-        Details: { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
-        ├─ { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        Details: { readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        ├─ { readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
         │  └─ ["nonce"]
         │     └─ is missing
-        └─ { readonly authUrl: string; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        └─ { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
            └─ ["authUrl"]
               └─ is missing]
       `)
     })
 
-    test('behavior: should encode struct with nonce', () => {
+    test('behavior: encode struct with nonce', () => {
       const originalData = { nonce: 'abc123' }
       const decoded = Schema.decodeUnknownSync(
         Capabilities.signInWithEthereum.Request,
@@ -378,7 +376,7 @@ describe('signInWithEthereum', () => {
       `)
     })
 
-    test('behavior: should encode struct with authUrl', () => {
+    test('behavior: encode struct with authUrl', () => {
       const originalData = {
         authUrl: 'https://example.com/auth',
         nonce: 'xyz789',
@@ -391,13 +389,12 @@ describe('signInWithEthereum', () => {
       )(decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
-          "authUrl": "https://example.com/auth",
           "nonce": "xyz789",
         }
       `)
     })
 
-    test('behavior: should encode struct with all fields including dates', () => {
+    test('behavior: encode struct with all fields including dates', () => {
       const originalData = {
         authUrl: undefined,
         chainId: 1,
@@ -421,7 +418,6 @@ describe('signInWithEthereum', () => {
       )(decoded)
       expect(encoded).toMatchInlineSnapshot(`
         {
-          "authUrl": undefined,
           "chainId": 1,
           "domain": "example.com",
           "expirationTime": 2024-12-31T00:00:00.000Z,
@@ -447,21 +443,36 @@ describe('signInWithEthereum', () => {
         input: { nonce: 'test1' },
       },
       {
-        case: 'authUrl and nonce',
-        expected: { authUrl: 'https://test.com', nonce: 'test2' },
-        input: { authUrl: 'https://test.com', nonce: 'test2' },
+        case: 'authUrl only',
+        expected: { authUrl: 'https://test.com' },
+        input: { authUrl: 'https://test.com' },
+      },
+      {
+        case: 'authUrl with properties',
+        expected: {
+          authUrl: {
+            logout: 'https://test.com/logout',
+            nonce: 'https://test.com/nonce',
+            verify: 'https://test.com/verify',
+          },
+        },
+        input: {
+          authUrl: {
+            logout: 'https://test.com/logout',
+            nonce: 'https://test.com/nonce',
+            verify: 'https://test.com/verify',
+          },
+        },
       },
       {
         case: 'multiple fields with undefined authUrl',
         expected: {
-          authUrl: undefined,
           chainId: 5,
           domain: 'test.com',
           nonce: 'test3',
           version: '1',
         },
         input: {
-          authUrl: undefined,
           chainId: 5,
           domain: 'test.com',
           nonce: 'test3',
@@ -475,7 +486,7 @@ describe('signInWithEthereum', () => {
       expect(encoded).toEqual(expected)
     })
 
-    test('error: should reject invalid version', () => {
+    test('error: reject invalid version', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Request)({
           nonce: 'test',
@@ -485,13 +496,13 @@ describe('signInWithEthereum', () => {
         [Schema.CoderError: Expected "1", actual "2"
         Path: version
 
-        Details: { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
-        ├─ { readonly authUrl?: undefined; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        Details: { readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined } | { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        ├─ { readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce: string; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
         │  └─ ["version"]
         │     └─ "1" | undefined
         │        ├─ Expected "1", actual "2"
         │        └─ Expected undefined, actual "2"
-        └─ { readonly authUrl: string; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly nonce?: string | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
+        └─ { readonly authUrl: string | { readonly logout: string; readonly nonce: string; readonly verify: string }; readonly chainId?: number | undefined; readonly domain?: string | undefined; readonly expirationTime?: DateFromSelf | undefined; readonly issuedAt?: DateFromSelf | undefined; readonly notBefore?: DateFromSelf | undefined; readonly requestId?: string | undefined; readonly resources?: ReadonlyArray<string> | undefined; readonly scheme?: string | undefined; readonly statement?: string | undefined; readonly uri?: string | undefined; readonly version?: "1" | undefined }
            └─ ["authUrl"]
               └─ is missing]
       `)
@@ -499,7 +510,7 @@ describe('signInWithEthereum', () => {
   })
 
   describe('Response', () => {
-    test('behavior: should parse valid response', () => {
+    test('behavior: parse valid response', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.signInWithEthereum.Response,
       )({
@@ -514,7 +525,7 @@ describe('signInWithEthereum', () => {
         `)
     })
 
-    test('error: should reject missing message', () => {
+    test('error: reject missing message', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Response)({
           signature: '0xdeadbeef',
@@ -529,7 +540,7 @@ describe('signInWithEthereum', () => {
       `)
     })
 
-    test('error: should reject missing signature', () => {
+    test('error: reject missing signature', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Response)({
           message: 'Sign in',
@@ -544,7 +555,7 @@ describe('signInWithEthereum', () => {
       `)
     })
 
-    test('behavior: should encode valid response', () => {
+    test('behavior: encode valid response', () => {
       const originalData = {
         message: 'Sign in to example.com',
         signature: '0xdeadbeef',
@@ -577,7 +588,7 @@ describe('signInWithEthereum', () => {
       })
     })
 
-    test('error: should reject invalid signature format', () => {
+    test('error: reject invalid signature format', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.signInWithEthereum.Response)({
           message: 'Sign in',
@@ -597,7 +608,7 @@ describe('signInWithEthereum', () => {
 
 describe('feeToken', () => {
   describe('GetCapabilitiesResponse', () => {
-    test('behavior: should parse response with empty tokens', () => {
+    test('behavior: parse response with empty tokens', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.feeToken.GetCapabilitiesResponse,
       )({
@@ -612,7 +623,7 @@ describe('feeToken', () => {
         `)
     })
 
-    test('behavior: should parse response with tokens', () => {
+    test('behavior: parse response with tokens', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.feeToken.GetCapabilitiesResponse,
       )({
@@ -655,7 +666,7 @@ describe('feeToken', () => {
         `)
     })
 
-    test('error: should reject missing supported field', () => {
+    test('error: reject missing supported field', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.feeToken.GetCapabilitiesResponse)(
           {
@@ -672,7 +683,7 @@ describe('feeToken', () => {
       `)
     })
 
-    test('behavior: should encode response with empty tokens', () => {
+    test('behavior: encode response with empty tokens', () => {
       const originalData = { supported: true, tokens: [] }
       const decoded = Schema.decodeUnknownSync(
         Capabilities.feeToken.GetCapabilitiesResponse,
@@ -688,7 +699,7 @@ describe('feeToken', () => {
       `)
     })
 
-    test('behavior: should encode response with tokens and BigInt nativeRate', () => {
+    test('behavior: encode response with tokens and BigInt nativeRate', () => {
       const originalData = {
         supported: true,
         tokens: [
@@ -783,7 +794,7 @@ describe('feeToken', () => {
       },
     )
 
-    test('error: should reject invalid token structure', () => {
+    test('error: reject invalid token structure', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.feeToken.GetCapabilitiesResponse)(
           {
@@ -807,21 +818,21 @@ describe('feeToken', () => {
   })
 
   describe('Request', () => {
-    test('behavior: should parse string symbol', () => {
+    test('behavior: parse string symbol', () => {
       const result = Schema.decodeUnknownSync(Capabilities.feeToken.Request)(
         'USDC',
       )
       expect(result).toBe('USDC')
     })
 
-    test('behavior: should parse address', () => {
+    test('behavior: parse address', () => {
       const result = Schema.decodeUnknownSync(Capabilities.feeToken.Request)(
         '0x1234567890abcdef',
       )
       expect(result).toBe('0x1234567890abcdef')
     })
 
-    test('behavior: should encode string symbol', () => {
+    test('behavior: encode string symbol', () => {
       const decoded = Schema.decodeUnknownSync(Capabilities.feeToken.Request)(
         'USDC',
       )
@@ -829,7 +840,7 @@ describe('feeToken', () => {
       expect(encoded).toBe('USDC')
     })
 
-    test('behavior: should encode address', () => {
+    test('behavior: encode address', () => {
       const decoded = Schema.decodeUnknownSync(Capabilities.feeToken.Request)(
         '0x1234567890abcdef',
       )
@@ -858,7 +869,7 @@ describe('feeToken', () => {
       },
     )
 
-    test('error: should reject invalid address format', () => {
+    test('error: reject invalid address format', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.feeToken.Request)(123),
       ).toThrowErrorMatchingInlineSnapshot(`
@@ -874,7 +885,7 @@ describe('feeToken', () => {
 
 describe('merchant', () => {
   describe('GetCapabilitiesResponse', () => {
-    test('behavior: should parse supported true', () => {
+    test('behavior: parse supported true', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.merchant.GetCapabilitiesResponse,
       )({ supported: true })
@@ -885,7 +896,7 @@ describe('merchant', () => {
         `)
     })
 
-    test('behavior: should parse supported false', () => {
+    test('behavior: parse supported false', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.merchant.GetCapabilitiesResponse,
       )({ supported: false })
@@ -896,7 +907,7 @@ describe('merchant', () => {
         `)
     })
 
-    test('behavior: should encode supported true', () => {
+    test('behavior: encode supported true', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.merchant.GetCapabilitiesResponse,
       )({ supported: true })
@@ -910,7 +921,7 @@ describe('merchant', () => {
       `)
     })
 
-    test('behavior: should encode supported false', () => {
+    test('behavior: encode supported false', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.merchant.GetCapabilitiesResponse,
       )({ supported: false })
@@ -945,7 +956,7 @@ describe('merchant', () => {
       },
     )
 
-    test('error: should reject missing supported field', () => {
+    test('error: reject missing supported field', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.merchant.GetCapabilitiesResponse)(
           {},
@@ -964,7 +975,7 @@ describe('merchant', () => {
 
 describe('permissions', () => {
   describe('GetCapabilitiesResponse', () => {
-    test('behavior: should parse response', () => {
+    test('behavior: parse response', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.permissions.GetCapabilitiesResponse,
       )({ supported: true })
@@ -975,7 +986,7 @@ describe('permissions', () => {
         `)
     })
 
-    test('behavior: should encode permissions response', () => {
+    test('behavior: encode permissions response', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.permissions.GetCapabilitiesResponse,
       )({ supported: true })
@@ -1010,7 +1021,7 @@ describe('permissions', () => {
       },
     )
 
-    test('error: should reject invalid type', () => {
+    test('error: reject invalid type', () => {
       expect(() =>
         Schema.decodeUnknownSync(
           Capabilities.permissions.GetCapabilitiesResponse,
@@ -1027,14 +1038,14 @@ describe('permissions', () => {
   })
 
   describe('Request', () => {
-    test('behavior: should parse empty object', () => {
+    test('behavior: parse empty object', () => {
       const result = Schema.decodeUnknownSync(Capabilities.permissions.Request)(
         {},
       )
       expect(result).toMatchInlineSnapshot('{}')
     })
 
-    test('behavior: should parse with id', () => {
+    test('behavior: parse with id', () => {
       const result = Schema.decodeUnknownSync(Capabilities.permissions.Request)(
         { id: '0xabc123' },
       )
@@ -1045,7 +1056,7 @@ describe('permissions', () => {
         `)
     })
 
-    test('behavior: should encode empty object', () => {
+    test('behavior: encode empty object', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.permissions.Request,
       )({})
@@ -1055,7 +1066,7 @@ describe('permissions', () => {
       expect(encoded).toMatchInlineSnapshot('{}')
     })
 
-    test('behavior: should encode with id', () => {
+    test('behavior: encode with id', () => {
       const originalData = { id: '0xabc123' }
       const decoded = Schema.decodeUnknownSync(
         Capabilities.permissions.Request,
@@ -1092,7 +1103,7 @@ describe('permissions', () => {
       },
     )
 
-    test('error: should reject invalid id format', () => {
+    test('error: reject invalid id format', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.permissions.Request)({
           id: 'not-hex',
@@ -1113,12 +1124,12 @@ describe('permissions', () => {
 
 describe('preCalls', () => {
   describe('Request', () => {
-    test('behavior: should parse empty array', () => {
+    test('behavior: parse empty array', () => {
       const result = Schema.decodeUnknownSync(Capabilities.preCalls.Request)([])
       expect(result).toMatchInlineSnapshot('[]')
     })
 
-    test('behavior: should parse array with entries', () => {
+    test('behavior: parse array with entries', () => {
       const result = Schema.decodeUnknownSync(Capabilities.preCalls.Request)([
         {
           context: { foo: 'bar' },
@@ -1145,7 +1156,7 @@ describe('preCalls', () => {
         `)
     })
 
-    test('error: should reject entry without signature', () => {
+    test('error: reject entry without signature', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.preCalls.Request)([
           { context: {} },
@@ -1162,7 +1173,7 @@ describe('preCalls', () => {
       `)
     })
 
-    test('behavior: should encode empty array', () => {
+    test('behavior: encode empty array', () => {
       const decoded = Schema.decodeUnknownSync(Capabilities.preCalls.Request)(
         [],
       )
@@ -1170,7 +1181,7 @@ describe('preCalls', () => {
       expect(encoded).toMatchInlineSnapshot('[]')
     })
 
-    test('behavior: should encode array with entries', () => {
+    test('behavior: encode array with entries', () => {
       const originalData = [
         {
           context: { foo: 'bar' },
@@ -1201,7 +1212,7 @@ describe('preCalls', () => {
       `)
     })
 
-    test('behavior: should encode array with various context types', () => {
+    test('behavior: encode array with various context types', () => {
       const originalData = [
         { context: null, signature: '0x123' },
         { context: 'string', signature: '0x456' },
@@ -1264,7 +1275,7 @@ describe('preCalls', () => {
       },
     )
 
-    test('error: should reject invalid signature format', () => {
+    test('error: reject invalid signature format', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.preCalls.Request)([
           { context: null, signature: 'invalid' },
@@ -1285,21 +1296,21 @@ describe('preCalls', () => {
 
 describe('merchantRpcUrl', () => {
   describe('Request', () => {
-    test('behavior: should parse string url', () => {
+    test('behavior: parse string url', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.merchantRpcUrl.Request,
       )('https://rpc.example.com')
       expect(result).toBe('https://rpc.example.com')
     })
 
-    test('behavior: should parse empty string', () => {
+    test('behavior: parse empty string', () => {
       const result = Schema.decodeUnknownSync(
         Capabilities.merchantRpcUrl.Request,
       )('')
       expect(result).toBe('')
     })
 
-    test('behavior: should encode string url', () => {
+    test('behavior: encode string url', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.merchantRpcUrl.Request,
       )('https://rpc.example.com')
@@ -1309,7 +1320,7 @@ describe('merchantRpcUrl', () => {
       expect(encoded).toBe('https://rpc.example.com')
     })
 
-    test('behavior: should encode empty string', () => {
+    test('behavior: encode empty string', () => {
       const decoded = Schema.decodeUnknownSync(
         Capabilities.merchantRpcUrl.Request,
       )('')
@@ -1346,7 +1357,7 @@ describe('merchantRpcUrl', () => {
       },
     )
 
-    test('error: should reject non-string', () => {
+    test('error: reject non-string', () => {
       expect(() =>
         Schema.decodeUnknownSync(Capabilities.merchantRpcUrl.Request)(123),
       ).toThrowErrorMatchingInlineSnapshot(

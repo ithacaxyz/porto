@@ -1,0 +1,36 @@
+body {
+  margin: 32px;
+  font: 16px / 32px sans-serif;
+}
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+h1 {
+  margin: 0;
+  font-size: 32px;
+}
+p {
+  margin: 0;
+}
+code {
+  padding: 2px 4px;
+  font: 16px monospace;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+button {
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: inherit;
+  color: #fff;
+  cursor: pointer;
+  background: #ff007a;
+  border: 0;
+  border-radius: 4px;
+}
+button:active {
+  background: #ff2994;
+  transform: translateY(1px);
+}

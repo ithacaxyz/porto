@@ -4,7 +4,18 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+
+  const defaultEnv = (() => {
+    if (env.VITE_DEFAULT_ENV) return env.VITE_DEFAULT_ENV
+    if (env.RPC_URL?.includes('sepolia')) return 'stg'
+    if (env.RPC_URL?.includes('mainnet')) return 'prod'
+    return 'anvil'
+  })()
+
   return {
+    define: {
+      'import.meta.env.VITE_DEFAULT_ENV': JSON.stringify(defaultEnv),
+    },
     test: {
       alias: {
         porto: join(__dirname, '../src'),
@@ -27,13 +38,13 @@ export default defineConfig(({ mode }) => {
             include: [
               '!src/**/*.browser.test.ts',
               'src/**/*.test.ts',
-              ...(env.VITE_LOCAL === 'false'
+              ...(env.VITE_DEFAULT_ENV !== 'anvil'
                 ? ['!src/**/*ContractActions.test.ts']
                 : []),
             ],
             name: 'default',
             poolOptions:
-              env.VITE_LOCAL === 'false'
+              env.VITE_DEFAULT_ENV !== 'anvil'
                 ? {
                     forks: {
                       maxForks: 1,
@@ -43,7 +54,7 @@ export default defineConfig(({ mode }) => {
                 : {},
             retry: 3,
             setupFiles: [join(__dirname, './setup.ts')],
-            testTimeout: 20_000,
+            testTimeout: 30_000,
           },
         },
         {

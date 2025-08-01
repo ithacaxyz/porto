@@ -1,6 +1,7 @@
 import type * as RpcRequest from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
-import type * as Porto_remote from '../remote/Porto.js'
+import type * as MethodPolicies from '../remote/internal/methodPolicies.js'
+import type * as Theme from '../theme/Theme.js'
 import * as promise from './internal/promise.js'
 import * as Utils from './internal/utils.js'
 import type * as Porto from './Porto.js'
@@ -28,7 +29,7 @@ export type Messenger = {
 export type ReadyOptions = {
   chainId: Porto.State['chainId']
   feeToken: Porto.State['feeToken']
-  methodPolicies?: Porto_remote.MethodPolicies | undefined
+  methodPolicies?: MethodPolicies.MethodPolicies | undefined
 }
 
 /** Bridge messenger. */
@@ -79,6 +80,7 @@ export type Schema = [
             icon?: string | { light: string; dark: string } | undefined
             title: string
           }
+          theme?: Theme.ThemeFragment | undefined
         }
       | {
           type: 'switch'
@@ -88,6 +90,10 @@ export type Schema = [
           type: 'resize'
           height?: number | undefined
           width?: number | undefined
+        }
+      | {
+          type: 'set-theme'
+          theme: Theme.ThemeFragment
         }
     response: undefined
   },

@@ -192,6 +192,10 @@ export default defineConfig({
             link: '/sdk/guides/subscriptions',
             text: 'Subscriptions',
           },
+          {
+            link: '/sdk/guides/theming',
+            text: 'Theming',
+          },
         ],
         text: 'Guides',
       },
@@ -228,6 +232,10 @@ export default defineConfig({
               },
             ],
             text: 'MerchantRpc',
+          },
+          {
+            link: '/sdk/api/theme',
+            text: 'Theme',
           },
           {
             link: '/sdk/api/storage',

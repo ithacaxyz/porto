@@ -63,7 +63,6 @@ describe('resolvePermissions', () => {
     const result = PermissionsRequest.resolvePermissions(
       {
         expiry: 1714857600,
-        feeLimit: 'include',
         permissions: {
           calls: [],
           spend: [
@@ -96,7 +95,6 @@ describe('resolvePermissions', () => {
     const result = PermissionsRequest.resolvePermissions(
       {
         expiry: 1714857600,
-        feeLimit: 'include',
         permissions: {
           calls: [],
           spend: [
@@ -417,7 +415,6 @@ describe('getFeeLimit', () => {
   test('behavior: returns default when no fee limit', () => {
     const request = {
       expiry: 1714857600,
-      feeLimit: 'include',
       permissions: {
         calls: [],
       },
@@ -431,7 +428,6 @@ describe('getFeeLimit', () => {
   test('behavior: returns zero when null fee limit', () => {
     const request = {
       expiry: 1714857600,
-      feeLimit: 'include',
       permissions: {
         calls: [],
         feeLimit: null,

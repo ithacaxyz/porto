@@ -6,7 +6,7 @@ We're opening up a live bug bounty program to encourage responsible security res
 
 ### Capture the Funds
 
-- **Porto smart account** deployed on Base mainnet, funded with **1 ETH**
+- **Porto smart account** deployed on Base mainnet, funded with **5 ETH**
 - Regular operations include: upgrades, signing, execution
 - **Open challenge:** Anyone may attempt to drain the account. If successful, **you keep the funds**
 

@@ -30,6 +30,13 @@ const porto = Porto.create({
 
 ### Options
 
+#### fallback
+
+- **Type**: `Mode.Mode`
+- **Default**: `Mode.rpcServer()`
+
+Mode to fall back to if the renderer does not support background operations (e.g. popups and web views).
+
 #### host
 
 - **Type**: `string`
@@ -67,6 +74,18 @@ const porto = Porto.create({
   }),
 })
 ```
+
+#### theme
+
+- **Type**: `ThemeFragment | undefined`
+
+A custom theme to apply to the dialog, where only `colorScheme` is required. See the [Theme](/sdk/api/theme) API for the list of styling properties that can be defined.
+
+#### themeController
+
+- **Type**: `Dialog.ThemeController | undefined`
+
+A controller to manage the dialog theme, created by `Dialog.createThemeController()`. It can be used to change the theme of the dialog without reinitializing it, with `themeController.setTheme()`. This is intended for advanced use cases, `theme` should be sufficient in regular scenarios.
 
 ## Mode.rpcServer
 

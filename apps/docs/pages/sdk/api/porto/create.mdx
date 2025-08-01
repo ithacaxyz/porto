@@ -77,9 +77,9 @@ Whether to announce the provider via [EIP-6963](https://eips.ethereum.org/EIPS/e
 
 ### authUrl
 
-- **Type:** `string | undefined`
+- **Type:** `string | { logout: string; nonce: string; verify: string } | undefined`
 
-URL to use for [SIWE authentication](/sdk/guides/authentication).
+URL(s) to use for [SIWE authentication](/sdk/guides/authentication).
 
 ### chains
 

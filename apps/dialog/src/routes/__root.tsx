@@ -1,6 +1,7 @@
 import { UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
+import { cx } from 'cva'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useAccount } from 'wagmi'
@@ -36,7 +37,9 @@ function RouteComponent() {
 
   const { status } = useAccount()
   const mode = Dialog.useStore((state) => state.mode)
+  const display = Dialog.useStore((state) => state.display)
   const referrer = Dialog.useStore((state) => state.referrer)
+  const customTheme = Dialog.useStore((state) => state.customTheme)
   const request = Hooks.useRequest(porto)
   const search = Route.useSearch() as {
     requireUpdatedAccount?: boolean | undefined
@@ -104,11 +107,24 @@ function RouteComponent() {
   return (
     <>
       <HeadContent />
-
+      <style>{customTheme?.tailwindCss}</style>
       <div
         data-dialog
         {...{ [`data-${styleMode}`]: '' }} // for conditional styling based on dialog mode ("in-data-iframe:..." or "in-data-popup:...")
-        className="border-primary contain-content data-popup-mobile:absolute data-popup-mobile:bottom-0 data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-mobile:w-full data-popup-standalone:max-w-[360px] data-popup-standalone:rounded-[14px] data-iframe:rounded-t-[14px] data-popup-mobile:rounded-t-[14px] data-iframe:border data-popup-mobile:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8"
+        className={cx(
+          'border-th_frame contain-content data-popup-mobile:absolute data-popup-mobile:bottom-0 data-popup-standalone:mx-auto data-popup-standalone:h-fit data-popup-mobile:w-full data-popup-standalone:max-w-[360px] data-popup-mobile:rounded-th_frame data-popup-standalone:rounded-th_frame data-iframe:border data-popup-mobile:border data-popup-standalone:border data-popup-standalone:[@media(min-height:400px)]:mt-8',
+          display === 'drawer' && 'rounded-t-th_frame',
+          display === 'floating' && 'rounded-th_frame',
+        )}
+        style={{
+          // It is important to set the color scheme here and not at the :root level,
+          // because a mismatch between the color scheme of an iframe and its parent
+          // forces the iframe to be opaque [1][2]. This is why this is separated from
+          // the custom theme styles above, which are applied at the :root level.
+          // [1] https://fvsch.com/transparent-iframes#toc-3
+          // [2] https://github.com/w3c/csswg-drafts/issues/4772
+          colorScheme: customTheme?.colorScheme ?? 'light dark',
+        }}
       >
         <TitleBar
           mode={mode}
@@ -118,7 +134,7 @@ function RouteComponent() {
         />
 
         <div
-          className="flex h-fit flex-col overflow-hidden bg-primary pt-titlebar"
+          className="flex h-fit flex-col overflow-hidden bg-th_base pt-titlebar text-th_base"
           ref={contentRef}
         >
           <div
@@ -196,7 +212,9 @@ function CheckError(props: CheckError.Props) {
             <div className="space-y-2">
               <div>{error.message}</div>
               {error.secondaryMessage && (
-                <div className="text-secondary">{error.secondaryMessage}</div>
+                <div className="text-th_base-secondary">
+                  {error.secondaryMessage}
+                </div>
               )}
             </div>
           }
@@ -221,7 +239,7 @@ function CheckError(props: CheckError.Props) {
             data-testid="primary-action"
             onClick={mainAction.onClick}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             {mainAction.label}
           </Button>
@@ -333,7 +351,7 @@ function CheckUnsupportedBrowser(props: CheckUnsupportedBrowser.Props) {
     <p>
       Please switch to a{' '}
       <a
-        className="text-primary underline"
+        className="text-th_base underline"
         href="https://porto.sh/sdk/faq#which-browsers-are-supported"
         rel="noreferrer"
         target="_blank"

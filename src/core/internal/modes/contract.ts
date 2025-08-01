@@ -322,19 +322,19 @@ export function contract(parameters: contract.Parameters = {}) {
         const { internal, permissions, signInWithEthereum } = parameters
         const { client } = internal
 
-        const { address, credentialId } = await (async () => {
+        const { address, key: loadedKey } = await (async () => {
           if (mock && address_internal)
             return {
               address: address_internal,
-              credentialId: undefined,
+              key: undefined,
             } as const
 
-          // If the address and credentialId are provided, we can skip the
+          // If the address and key are provided, we can skip the
           // WebAuthn discovery step.
-          if (parameters.address && parameters.credentialId)
+          if (parameters.address && parameters.key)
             return {
               address: parameters.address,
-              credentialId: parameters.credentialId,
+              key: parameters.key,
             }
 
           // Discovery step. We will sign a random challenge. We need to do this
@@ -349,7 +349,7 @@ export function contract(parameters: contract.Parameters = {}) {
           const address = Bytes.toHex(new Uint8Array(response.userHandle!))
           const credentialId = credential.raw.id
 
-          return { address, credentialId }
+          return { address, key: { credentialId } }
         })()
 
         // Fetch the delegated account's keys.
@@ -377,7 +377,7 @@ export function contract(parameters: contract.Parameters = {}) {
                 return Key.fromWebAuthnP256({
                   ...key,
                   credential: {
-                    id: credentialId!,
+                    id: loadedKey?.credentialId!,
                     publicKey: PublicKey.fromHex(key.publicKey),
                   },
                   id: address,
@@ -614,6 +614,7 @@ export function contract(parameters: contract.Parameters = {}) {
         throw new Provider.UnsupportedMethodError()
       },
     },
+    config: parameters,
     name: 'contract',
   })
 }

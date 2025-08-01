@@ -1,5 +1,6 @@
 import type { RpcRequest, RpcResponse } from 'ox'
 import * as Provider from 'ox/Provider'
+import type { ThemeFragment } from '../theme/Theme.js'
 import { logger } from './internal/logger.js'
 import type { Internal } from './internal/porto.js'
 import * as UserAgent from './internal/userAgent.js'
@@ -9,12 +10,18 @@ import type { QueuedRequest, Store } from './Porto.js'
 /** Dialog interface. */
 export type Dialog = {
   name: string
-  setup: (parameters: { host: string; internal: Internal }) => {
+  setup: (parameters: {
+    host: string
+    internal: Internal
+    theme?: ThemeFragment | undefined
+    themeController?: ThemeController | undefined
+  }) => {
     close: () => void
     destroy: () => void
     open: (parameters: any) => void
     syncRequests: (requests: readonly QueuedRequest[]) => Promise<void>
   }
+  supportsHeadless: boolean
 }
 
 /**
@@ -33,6 +40,7 @@ export function from<const dialog extends Dialog>(dialog: dialog): dialog {
  * @returns iframe dialog.
  */
 export function iframe(options: iframe.Options = {}) {
+  const { size = defaultSize } = options
   const { skipProtocolCheck, skipUnsupported } = options
 
   // Safari does not support WebAuthn credential creation in iframes.
@@ -51,7 +59,7 @@ export function iframe(options: iframe.Options = {}) {
   return from({
     name: 'iframe',
     setup(parameters) {
-      const { host, internal } = parameters
+      const { host, internal, theme, themeController } = parameters
       const { store } = internal
 
       const fallback = popup().setup(parameters)
@@ -96,23 +104,20 @@ export function iframe(options: iframe.Options = {}) {
 
         dialog iframe {
           background-color: transparent;
-          border-radius: 14px;
         }
 
         @media (min-width: 460px) {
           dialog iframe {
             animation: porto_fadeFromTop 0.1s cubic-bezier(0.32, 0.72, 0, 1);
             top: 16px;
-            inset-inline-end: calc(50% - ${width}px / 2);
-            width: ${width}px;
+            inset-inline-end: calc(50% - ${size.width}px / 2);
+            width: ${size.width}px;
           }
         }
 
         @media (max-width: 460px) {
           dialog iframe {
             animation: porto_slideFromBottom 0.25s cubic-bezier(0.32, 0.72, 0, 1);
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
             bottom: 0;
             left: 0;
             right: 0;
@@ -150,6 +155,18 @@ export function iframe(options: iframe.Options = {}) {
         waitForReady: true,
       })
 
+      themeController?._setup(messenger, true)
+
+      const drawerModeQuery = window.matchMedia('(max-width: 460px)')
+      const onDrawerModeChange = () => {
+        messenger.send('__internal', {
+          type: 'resize',
+          // 460 = drawer mode, 461 = floating mode
+          width: drawerModeQuery.matches ? 460 : 461,
+        })
+      }
+      drawerModeQuery.addEventListener('change', onDrawerModeChange)
+
       messenger.on('ready', (options) => {
         const { chainId, feeToken } = options
 
@@ -162,9 +179,13 @@ export function iframe(options: iframe.Options = {}) {
         messenger.send('__internal', {
           mode: 'iframe',
           referrer: getReferrer(),
+          theme,
           type: 'init',
         })
+
+        onDrawerModeChange()
       })
+
       messenger.on('rpc-response', (response) => {
         if (includesUnsupported([response._request])) {
           // reload iframe to rehydrate storage state if an
@@ -231,6 +252,7 @@ export function iframe(options: iframe.Options = {}) {
           fallback.destroy()
           this.close()
           document.removeEventListener('keydown', onEscape)
+          drawerModeQuery.removeEventListener('change', onDrawerModeChange)
           messenger.destroy()
           root.remove()
         },
@@ -291,11 +313,13 @@ export function iframe(options: iframe.Options = {}) {
         },
       }
     },
+    supportsHeadless: true,
   })
 }
 
 export declare namespace iframe {
   export type Options = {
+    size?: { width: number; height?: number | undefined } | undefined
     /**
      * Skips check for insecure protocol (HTTP).
      * @default false
@@ -315,12 +339,13 @@ export declare namespace iframe {
  *
  * @returns Popup dialog.
  */
-export function popup() {
+export function popup(options: popup.Options = {}) {
   if (typeof window === 'undefined') return noop()
+  const { size = defaultSize } = options
   return from({
     name: 'popup',
     setup(parameters) {
-      const { host, internal } = parameters
+      const { host, internal, themeController } = parameters
       const { store } = internal
 
       const hostUrl = new URL(host)
@@ -339,6 +364,8 @@ export function popup() {
 
       let messenger: Messenger.Bridge | undefined
 
+      themeController?._setup(null, true)
+
       return {
         close() {
           if (!popup) return
@@ -351,13 +378,13 @@ export function popup() {
           messenger?.destroy()
         },
         open() {
-          const left = (window.innerWidth - width) / 2 + window.screenX
+          const left = (window.innerWidth - size.width) / 2 + window.screenX
           const top = window.screenY + 100
 
           popup = window.open(
             getDialogUrl(host),
             '_blank',
-            `width=${width},height=${height},left=${left},top=${top}`,
+            `width=${size.width},height=${size.height},left=${left},top=${top}`,
           )
           if (!popup) throw new Error('Failed to open popup')
 
@@ -371,9 +398,12 @@ export function popup() {
             waitForReady: true,
           })
 
+          themeController?._setup(messenger, false)
+
           messenger.send('__internal', {
             mode: 'popup',
             referrer: getReferrer(),
+            theme: themeController?.getTheme() ?? parameters.theme,
             type: 'init',
           })
 
@@ -397,7 +427,14 @@ export function popup() {
         },
       }
     },
+    supportsHeadless: false,
   })
+}
+
+export declare namespace popup {
+  export type Options = {
+    size?: { width: number; height: number } | undefined
+  }
 }
 
 /**
@@ -416,6 +453,7 @@ export function noop() {
         async syncRequests() {},
       }
     },
+    supportsHeadless: true,
   })
 }
 
@@ -431,7 +469,7 @@ export function experimental_inline(options: inline.Options) {
   return from({
     name: 'inline',
     setup(parameters) {
-      const { host, internal } = parameters
+      const { host, internal, theme, themeController } = parameters
       const { store } = internal
 
       let open = false
@@ -458,13 +496,6 @@ export function experimental_inline(options: inline.Options) {
       iframe.setAttribute('title', 'Porto')
       Object.assign(iframe.style, styles.iframe)
 
-      root.appendChild(document.createElement('style')).textContent = `
-        div iframe {
-          background-color: transparent;
-          border-radius: 14px;
-        }
-      `
-
       root.appendChild(iframe)
 
       const messenger = Messenger.bridge({
@@ -475,13 +506,17 @@ export function experimental_inline(options: inline.Options) {
         waitForReady: true,
       })
 
+      themeController?._setup(messenger, true)
+
       messenger.on('ready', () => {
         messenger.send('__internal', {
           mode: 'inline-iframe',
           referrer: getReferrer(),
+          theme,
           type: 'init',
         })
       })
+
       messenger.on('rpc-response', (response) =>
         handleResponse(store, response),
       )
@@ -512,6 +547,7 @@ export function experimental_inline(options: inline.Options) {
         },
       }
     },
+    supportsHeadless: true,
   })
 }
 
@@ -521,8 +557,50 @@ export namespace inline {
   }
 }
 
-export const width = 360
-export const height = 282
+export type ThemeController = {
+  /**
+   * Used internally to setup the controller.
+   * @deprecated
+   */
+  _setup: (messenger: Messenger.Messenger | null, resetTheme?: boolean) => void
+  /**
+   * Update the dialog theme.
+   * @param theme - The theme to set.
+   */
+  setTheme: (theme: ThemeFragment) => void
+  /**
+   * Get the latest theme set since the controller was initialized.
+   * @returns The latest theme or `null` if no theme was set.
+   */
+  getTheme: () => ThemeFragment | null
+}
+
+/**
+ * A controller to update the dialog theme.
+ */
+export function createThemeController(): ThemeController {
+  let lastTheme: ThemeFragment | null = null
+  let messenger: Messenger.Messenger | null = null
+  const controller: ThemeController = {
+    _setup(messenger_: Messenger.Messenger | null, resetTheme = false) {
+      if (resetTheme) lastTheme = null
+      messenger = messenger_
+    },
+    getTheme() {
+      return lastTheme
+    },
+    setTheme(theme) {
+      lastTheme = theme
+      messenger?.send('__internal', {
+        theme,
+        type: 'set-theme',
+      })
+    },
+  }
+  return controller
+}
+
+export const defaultSize = { height: 282, width: 360 }
 
 export const styles = {
   backdrop: {
@@ -636,6 +714,5 @@ export function getDialogUrl(host: string) {
     if (key.startsWith(prefix))
       url.searchParams.set(key.slice(prefix.length), value)
   }
-
   return url.toString()
 }

@@ -11,10 +11,10 @@ import * as React from 'react'
 import type { Call } from 'viem'
 import { useCapabilities } from 'wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
-import * as FeeToken from '~/lib/FeeToken'
+import * as Calls from '~/lib/Calls'
+import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
 import * as Price from '~/lib/Price'
-import * as RpcServer from '~/lib/RpcServer'
 import { Layout } from '~/routes/-components/Layout'
 import { ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
@@ -43,18 +43,22 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   // This "prepare calls" query is used as the "source of truth" query that will
   // ultimately be used to execute the calls.
-  const prepareCallsQuery = RpcServer.usePrepareCalls({
+  const prepareCallsQuery = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
     feeToken,
     merchantRpcUrl,
+    refetchInterval(query) {
+      if (query.state.error) return false
+      return 15_000
+    },
   })
 
   // However, to prevent a malicious RPC server from providing a mutated asset
   // diff to display to the end-user, we also simulate the prepare calls query
   // without the merchant RPC URL.
-  const prepareCallsQuery_assetDiff = RpcServer.usePrepareCalls({
+  const prepareCallsQuery_assetDiff = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
@@ -109,9 +113,9 @@ export function ActionRequest(props: ActionRequest.Props) {
                 </Button>
                 <Button
                   className="flex-grow"
-                  onClick={onApprove}
+                  onClick={() => onApprove(prepareCallsQuery.data!)}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Confirm anyway
                 </Button>
@@ -131,9 +135,9 @@ export function ActionRequest(props: ActionRequest.Props) {
                   className="flex-grow"
                   data-testid="confirm"
                   disabled={!prepareCallsQuery.isSuccess}
-                  onClick={onApprove}
+                  onClick={() => onApprove(prepareCallsQuery.data!)}
                   type="button"
-                  variant="accent"
+                  variant="primary"
                 >
                   Confirm
                 </Button>
@@ -159,7 +163,7 @@ export namespace ActionRequest {
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     loading?: boolean | undefined
     merchantRpcUrl?: string | undefined
-    onApprove: () => void
+    onApprove: (data: Calls.prepareCalls.useQuery.Data) => void
     onReject: () => void
     quote?: Quote | undefined
   }
@@ -219,7 +223,7 @@ export namespace ActionRequest {
                 className="flex items-center gap-3 font-medium"
                 key={address}
               >
-                <div className="relative flex size-6 items-center justify-center rounded-sm bg-gray6">
+                <div className="relative flex size-6 items-center justify-center rounded-sm bg-th_badge">
                   {decoded?.type === 'image' ? (
                     <img
                       alt={name ?? symbol}
@@ -227,21 +231,21 @@ export namespace ActionRequest {
                       src={decoded.url}
                     />
                   ) : decoded?.type === 'audio' ? (
-                    <LucideMusic className="size-4 text-gray10" />
+                    <LucideMusic className="size-4 text-th_badge" />
                   ) : decoded?.type === 'video' ? (
-                    <LucideVideo className="size-4 text-gray10" />
+                    <LucideVideo className="size-4 text-th_badge" />
                   ) : decoded?.type === 'document' ? (
-                    <LucideFileText className="size-4 text-gray10" />
+                    <LucideFileText className="size-4 text-th_badge" />
                   ) : (
-                    <LucideSparkles className="size-4 text-gray10" />
+                    <LucideSparkles className="size-4 text-th_badge" />
                   )}
 
                   <div
                     className={cx(
-                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-gray3',
+                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-th_base',
                       receiving
-                        ? 'bg-successTint text-success'
-                        : 'bg-gray5 text-current',
+                        ? 'bg-th_positive text-th_positive'
+                        : 'bg-th_badge text-th_badge',
                     )}
                   >
                     {/* TODO: Return erc721 count in API response */}
@@ -250,11 +254,15 @@ export namespace ActionRequest {
                 </div>
                 <div className="flex flex-1 justify-between">
                   {name || symbol ? (
-                    <span className="text-gray12">{name || symbol}</span>
+                    <span className="text-th_base">{name || symbol}</span>
                   ) : (
-                    <span className="text-gray9">No name provided</span>
+                    <span className="text-th_base-secondary">
+                      No name provided
+                    </span>
                   )}
-                  <span className="text-gray10">#{absoluteValue}</span>
+                  <span className="text-th_base-tertiary">
+                    #{absoluteValue}
+                  </span>
                 </div>
               </div>
             )
@@ -267,21 +275,27 @@ export namespace ActionRequest {
                 className={cx(
                   'flex size-6 items-center justify-center rounded-full',
                   {
-                    'bg-gray5': !receiving,
-                    'bg-successTint': receiving,
+                    'bg-th_badge': !receiving,
+                    'bg-th_badge-positive': receiving,
                   },
                 )}
               >
                 <Icon
                   className={cx('size-4 text-current', {
-                    'text-secondary': !receiving,
-                    'text-success': receiving,
+                    'text-th_badge': !receiving,
+                    'text-th_badge-positive': receiving,
                   })}
                 />
               </div>
               <div>
                 {receiving ? 'Receive' : 'Send'}{' '}
-                <span className={receiving ? 'text-success' : 'text-secondary'}>
+                <span
+                  className={
+                    receiving
+                      ? 'text-th_base-positive'
+                      : 'text-th_base-secondary'
+                  }
+                >
                   {formatted}
                 </span>{' '}
                 {symbol}
@@ -320,15 +334,15 @@ export namespace ActionRequest {
       <div className="space-y-1.5">
         {!sponsored && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-secondary leading-4">
+            <span className="text-[14px] text-th_base-secondary leading-4">
               Fees (est.)
             </span>
             <div className="text-right">
               {fiatFee || !quote ? (
                 <div className="flex items-center gap-2">
                   {displayTokenFee && (
-                    <div className="flex h-5.5 items-center rounded-full border border-gray6 px-1.75">
-                      <span className="text-[11.5px] text-secondary">
+                    <div className="flex h-5.5 items-center rounded-full border border-th_separator px-1.75">
+                      <span className="text-[11.5px] text-th_base-secondary">
                         {tokenFee.display}
                       </span>
                     </div>
@@ -338,20 +352,24 @@ export namespace ActionRequest {
                   </div>
                 </div>
               ) : (
-                <span className="font-medium text-secondary">Loading...</span>
+                <span className="font-medium text-th_base-secondary">
+                  Loading…
+                </span>
               )}
             </div>
           </div>
         )}
 
         <div className="flex h-5.5 items-center justify-between text-[14px]">
-          <span className="text-[14px] text-secondary">Duration (est.)</span>
+          <span className="text-[14px] text-th_base-secondary">
+            Duration (est.)
+          </span>
           <span className="font-medium">2 seconds</span>
         </div>
 
         {chain?.name && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
-            <span className="text-[14px] text-secondary">Network</span>
+            <span className="text-[14px] text-th_base-secondary">Network</span>
             <span className="font-medium">{chain?.name}</span>
           </div>
         )}
@@ -386,8 +404,8 @@ export namespace ActionRequest {
         className={cx(
           'space-y-3 overflow-hidden rounded-lg px-3 transition-all duration-300 ease-in-out',
           {
-            'bg-surface py-3': !error,
-            'bg-warningTint py-2 text-warning': error,
+            'bg-th_badge-warning py-2 text-th_badge-warning': error,
+            'bg-th_secondary py-3': !error,
             'h-[90px] max-h-[90px]': loading,
             'max-h-[500px]': !loading,
           },
@@ -396,8 +414,8 @@ export namespace ActionRequest {
         {(() => {
           if (error)
             return (
-              <div className="space-y-2 text-[14px] text-primary">
-                <p className="font-medium text-warning">Error</p>
+              <div className="space-y-2 text-[14px] text-th_base">
+                <p className="font-medium text-th_badge-warning">Error</p>
                 <p>{errorMessage}</p>
                 <p>Details: {(error as any).shortMessage ?? error.message}</p>
               </div>
@@ -407,7 +425,7 @@ export namespace ActionRequest {
             return (
               <div className="flex h-full w-full items-center justify-center">
                 <div className="flex size-[24px] w-full items-center justify-center">
-                  <Spinner className="text-secondary" />
+                  <Spinner className="text-th_base-secondary" />
                 </div>
               </div>
             )
@@ -418,18 +436,20 @@ export namespace ActionRequest {
 
               {quote && (
                 <>
-                  {children && <div className="h-[1px] w-full bg-gray6" />}
+                  {children && (
+                    <div className="h-[1px] w-full bg-th_separator" />
+                  )}
                   <div className={viewQuote ? undefined : 'hidden'}>
                     <ActionRequest.Details quote={quote} />
                   </div>
                   {!viewQuote && (
                     <button
-                      className="flex w-full justify-between text-[13px] text-secondary"
+                      className="flex w-full justify-between text-[13px] text-th_base-secondary"
                       onClick={() => setViewQuote(true)}
                       type="button"
                     >
                       <span>More details</span>
-                      <ChevronDown className="size-4 text-secondary" />
+                      <ChevronDown className="size-4 text-th_base-secondary" />
                     </button>
                   )}
                 </>
@@ -478,17 +498,13 @@ export namespace ActionRequest {
 
     const chain = Hooks.useChain(porto, { chainId })!
     const capabilities = useCapabilities({ chainId: chain.id })
-    const feeToken = FeeToken.useFetch({
+    const feeTokens = FeeTokens.fetch.useQuery({
       addressOrSymbol: paymentToken,
     })
+    const feeToken = feeTokens.data?.[0]
 
     const fee = React.useMemo(() => {
-      if (
-        !nativeFeeEstimate ||
-        !txGas ||
-        !totalPaymentMaxAmount ||
-        !feeToken.data
-      )
+      if (!nativeFeeEstimate || !txGas || !totalPaymentMaxAmount || !feeToken)
         return undefined
 
       const nativeConfig = {
@@ -503,7 +519,7 @@ export namespace ActionRequest {
       const tokenConfig = (() => {
         if (paymentToken && paymentToken !== nativeConfig.address) {
           return {
-            ...feeToken.data,
+            ...feeToken,
             value: totalPaymentMaxAmount,
           }
         }
@@ -535,7 +551,7 @@ export namespace ActionRequest {
       capabilities.data?.feeToken.tokens,
       chain.nativeCurrency.decimals,
       chain.nativeCurrency.symbol,
-      feeToken.data,
+      feeToken,
       nativeFeeEstimate,
       txGas,
       paymentToken,

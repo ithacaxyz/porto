@@ -3,6 +3,10 @@ on:
   workflow_call:
   workflow_dispatch:
     inputs:
+      porto-ref:
+        type: string
+        description: 'Porto ref'
+        default: ''
       contracts-ref:
         type: string
         description: 'Contracts ref'
@@ -14,9 +18,32 @@ on:
       relay-release:
         type: boolean
         description: 'Perform relay image build and push'
+        default: false
+      env:
+        type: string
+        description: 'Environment to use for tests'
+        default: 'stg'
+      rpc-url:
+        type: string
+        description: 'RPC URL to use for tests'
+        default: ''
+      # Test selection inputs
+      test-local-browser:
+        type: boolean
+        description: 'Run Local Browser tests'
         default: true
-  repository_dispatch:
-    types: ['relay-release', 'relay-deployment']
+      test-local-node:
+        type: boolean
+        description: 'Run Local Node tests'
+        default: true
+      test-deployment-browser:
+        type: boolean
+        description: 'Run Deployment Browser tests'
+        default: true
+      test-deployment-node:
+        type: boolean
+        description: 'Run Deployment Node tests'
+        default: true
 
 env:
    ACTIONS_RUNNER_DEBUG: true
@@ -50,53 +77,77 @@ jobs:
           echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
 
   test:
-    name: Tests (${{ matrix.local == 'true' && 'Local' || 'Deployment' }}, ${{ matrix.browser == 'true' && 'Browser' || 'Node' }})
+    name: "Tests (Env: ${{ matrix.env }}, Runtime: ${{ matrix.browser == 'true' && 'Browser' || 'Node.js' }})"
     needs: relay-release
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       matrix:
-        # Only run deployment tests on main branch or when triggered by a repository dispatch, and also when a *-ref input is not provided.
-        local: ${{ fromJSON(((github.ref == 'refs/heads/main' || github.event_name == 'repository_dispatch') && (inputs.relay-ref == '' || inputs.contracts-ref == '')) && '["true", "false"]' || '["true"]') }}
-        browser: ['true', 'false']
+        include:
+          - env: 'anvil'
+            browser: 'true'
+            enabled: ${{ inputs.test-local-browser == true || inputs.test-local-browser == null }}
+          - env: 'anvil'
+            browser: 'false'
+            enabled: ${{ inputs.test-local-node == true || inputs.test-local-node == null }}
+          - env: ${{ inputs.env || 'stg' }}
+            browser: 'true'
+            enabled: ${{ inputs.test-deployment-browser == true || inputs.test-deployment-browser == null }}
+          - env: ${{ inputs.env || 'stg' }}
+            browser: 'false'
+            enabled: ${{ inputs.test-deployment-node == true || inputs.test-deployment-node == null }}
     env: 
       CI: true
-      VITE_LOCAL: ${{ matrix.local }}
-      VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+      VITE_DEFAULT_ENV: ${{ matrix.env }}
       VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
       VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_DEPLOYMENT }}
-      VITE_DISPATCH_TYPE: ${{ github.event_name == 'repository_dispatch' && github.event.action || '' }}
       VITE_RELAY_VERSION: ${{ needs.relay-release.outputs.relay_version || inputs.relay-ref }}
+      VITE_RPC_URL: ${{ inputs.rpc-url }}
 
     steps:
+      - name: Skip if not enabled
+        if: matrix.enabled != true
+        run: |
+          echo "Skipping this test configuration"
+          exit 0
       - name: Clone repository
+        if: matrix.enabled == true
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          ref: ${{ inputs.porto-ref }}
+
+      - name: Initialize submodules
+        if: matrix.enabled == true
+        run: |
+          git submodule update --init --recursive
+          # Configure submodules to fetch all refs
+          git submodule foreach 'git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"'
+          git submodule foreach 'git fetch --tags'
 
       - name: Checkout contracts submodule at specific ref
-        if: inputs.contracts-ref != ''
+        if: matrix.enabled == true && inputs.contracts-ref != ''
         run: |
-          git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
           cd contracts/account
           git fetch origin ${{ inputs.contracts-ref }}
           git checkout ${{ inputs.contracts-ref }}
 
       - name: Install dependencies
+        if: matrix.enabled == true
         uses: ./.github/actions/install-dependencies
 
       - name: Set up Docker
-        if: matrix.local == 'true'
+        if: matrix.enabled == true && matrix.env == 'anvil'
         uses: docker/setup-docker-action@v4
 
       - name: Install Playwright
-        if: matrix.browser == 'true'
+        if: matrix.enabled == true && matrix.browser == 'true'
         run: pnpx playwright@1.53.0 install --with-deps
 
       - name: Test
+        if: matrix.enabled == true
         uses: nick-fields/retry@v3
         with:
           max_attempts: 3
           timeout_minutes: 30
-          command: pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.local == 'true' && '--bail=1 --retry=3' || '' }}
+          command: pnpm ${{ matrix.browser == 'true' && 'test:browser' || 'test' }} ${{ matrix.env == 'anvil' && '--bail=1 --retry=3' || '' }}

@@ -1,13 +1,15 @@
 import * as Ariakit from '@ariakit/react'
 import { Button } from '@porto/apps/components'
-import { useCopyToClipboard } from '@porto/apps/hooks'
-import { useMutation } from '@tanstack/react-query'
+import { erc20Abi } from '@porto/apps/contracts'
+import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
-import { type Address, type Hex, Value } from 'ox'
-import { Hooks } from 'porto/remote'
+import { type Address, Hex, Value } from 'ox'
+import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
+import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
 import { PayButton } from '~/components/PayButton'
-import * as FeeToken from '~/lib/FeeToken'
+import * as FeeTokens from '~/lib/FeeTokens'
 import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
@@ -31,14 +33,14 @@ export function AddFunds(props: AddFunds.Props) {
 
   const account = Hooks.useAccount(porto)
   const chain = Hooks.useChain(porto)
-  const { data: feeToken } = FeeToken.useFetch({
+  const feeTokens = FeeTokens.fetch.useQuery({
     addressOrSymbol: tokenAddress,
   })
+  const feeToken = feeTokens.data?.[0]
 
   const address = props.address ?? account?.address
 
   const [amount, setAmount] = React.useState<string>(value.toString())
-  const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'error'
   >('default')
@@ -61,7 +63,7 @@ export function AddFunds(props: AddFunds.Props) {
         value: value.toString(),
       })
       const response = await fetch(
-        `${import.meta.env.VITE_FAUCET_URL || 'https://faucet.porto.workers.dev'}?${params.toString()}`,
+        `${import.meta.env.VITE_WORKERS_URL}/faucet?${params.toString()}`,
       )
       if (!response.ok) throw new Error('Failed to fetch funds')
       const data = (await response.json()) as { id: Hex.Hex }
@@ -98,8 +100,8 @@ export function AddFunds(props: AddFunds.Props) {
             <div className="col-span-1 row-span-1">
               <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
                 {editView === 'editing' ? (
-                  <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-gray4/45 px-3 py-2.5 text-gray12 focus-within:border-blue9 focus-within:bg-gray4/75 has-invalid:border-red8 dark:bg-gray3">
-                    <span className="-translate-y-1/2 absolute top-1/2 left-3 text-gray11">
+                  <div className="relative flex w-full flex-row items-center justify-between rounded-lg border-[1.5px] border-transparent bg-th_field px-3 py-2.5 text-th_field focus-within:border-th_focus focus-within:bg-th_field-focused focus-within:text-th_field-focused has-invalid:border-th_field-error">
+                    <span className="-translate-y-1/2 absolute top-1/2 left-3 text-th_field">
                       $
                     </span>
                     <input
@@ -108,7 +110,7 @@ export function AddFunds(props: AddFunds.Props) {
                       autoCorrect="off"
                       // biome-ignore lint/a11y/noAutofocus: _
                       autoFocus
-                      className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-gray8 focus:outline-none"
+                      className="h-full max-h-[96%] w-full max-w-[50%] bg-transparent pl-3 placeholder:text-th_field focus:outline-none"
                       inputMode="decimal"
                       max={500}
                       min={0}
@@ -124,7 +126,7 @@ export function AddFunds(props: AddFunds.Props) {
                       value={amount}
                       // should add disabled` if testnet?
                     />
-                    <span className="text-gray9 text-sm">Max. $500</span>
+                    <span className="text-sm text-th_field">Max. $500</span>
                   </div>
                 ) : (
                   <Ariakit.RadioProvider
@@ -135,7 +137,7 @@ export function AddFunds(props: AddFunds.Props) {
                       {presetAmounts.map((predefinedAmount) => (
                         // biome-ignore lint/a11y/noLabelWithoutControl: _
                         <label
-                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-gray4 py-2 text-center align-center text-gray11 leading-normal hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                          className="flex w-full justify-center rounded-[10px] border-[1.5px] border-th_field bg-th_base py-2 text-center align-center text-th_field leading-normal hover:bg-th_field has-checked:border-[1.5px] has-checked:border-th_focus has-checked:bg-th_field has-checked:text-th_base"
                           key={predefinedAmount}
                         >
                           <Ariakit.VisuallyHidden>
@@ -148,7 +150,7 @@ export function AddFunds(props: AddFunds.Props) {
                   </Ariakit.RadioProvider>
                 )}
                 <Ariakit.Button
-                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-gray4 py-2 text-center text-gray11 hover:bg-gray3 has-checked:border-[1.5px] has-checked:border-blue9 has-checked:bg-gray4 has-checked:text-primary"
+                  className="flex min-w-[42px] flex-row items-center justify-center gap-2 rounded-[10px] border-[1.5px] border-th_field py-2 text-center text-th_field hover:bg-th_field has-checked:border-[1.5px] has-checked:border-th_focus has-checked:bg-th_field has-checked:text-th_base"
                   onClick={() =>
                     setEditView(editView === 'default' ? 'editing' : 'default')
                   }
@@ -176,17 +178,17 @@ export function AddFunds(props: AddFunds.Props) {
                   className="w-full flex-1"
                   data-testid="buy"
                   type="submit"
-                  variant="accent"
+                  variant="primary"
                 >
                   Get started
                 </Button>
               )}
             </div>
             <div className="col-span-1 row-span-1">
-              <div className="my-auto flex w-full flex-row items-center gap-2 *:border-gray7">
-                <hr className="flex-1" />
-                <span className="px-3 text-gray9">or</span>
-                <hr className="flex-1" />
+              <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
+                <hr className="flex-1 border-th_separator" />
+                <span className="px-3 text-th_base-secondary">or</span>
+                <hr className="flex-1 border-th_separator" />
               </div>
             </div>
             <div className="col-span-1 row-span-1">
@@ -201,10 +203,10 @@ export function AddFunds(props: AddFunds.Props) {
                     <span>Deposit crypto</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="ml-auto font-normal text-gray10 text-sm">
+                    <span className="ml-auto font-normal text-sm text-th_base-secondary">
                       Instant
                     </span>
-                    <ArrowRightIcon className="size-4 text-gray10" />
+                    <ArrowRightIcon className="size-4 text-th_base-secondary" />
                   </div>
                 </div>
               </Button>
@@ -221,7 +223,7 @@ export function AddFunds(props: AddFunds.Props) {
                     <span>Debit or Credit</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="ml-auto font-normal text-gray10 text-sm">
+                    <span className="ml-auto font-normal text-sm text-th_base-secondary">
                       ~5 mins
                       <ArrowRightIcon className="ml-1 inline size-4" />
                     </span>
@@ -236,59 +238,12 @@ export function AddFunds(props: AddFunds.Props) {
 
   if (view === 'deposit-crypto')
     return (
-      <Layout loading={loading} loadingTitle="Adding funds...">
-        <Layout.Content className="py-3 text-center">
-          <Ariakit.Button
-            className="mx-auto flex h-[148px] items-center justify-center gap-4 rounded-lg border border-surface bg-secondary p-4 hover:cursor-pointer!"
-            onClick={() => copyToClipboard(address ?? '')}
-          >
-            <Cuer.Root errorCorrection="low" value={address ?? ''}>
-              <Cuer.Cells />
-              <Cuer.Finder radius={1} />
-            </Cuer.Root>
-            <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-gray10 text-xs">
-              {address}
-            </p>
-          </Ariakit.Button>
-
-          <div className="h-4" />
-
-          <div className="font-medium text-[18px]">Deposit funds</div>
-          <div className="h-1" />
-          <div className="text-secondary">
-            Send crypto to fund your account.
-          </div>
-        </Layout.Content>
-
-        <Layout.Footer>
-          <Layout.Footer.Actions>
-            <Button
-              className="w-full text-[14px]"
-              onClick={() => setView('default')}
-              type="button"
-              variant="default"
-            >
-              Back
-            </Button>
-            <Button
-              className="w-full text-[14px]"
-              onClick={() => copyToClipboard(address ?? '')}
-              type="button"
-              variant="default"
-            >
-              <CopyIcon className="mr-1.5 size-4" />
-              {isCopied ? 'Copied' : 'Copy'}
-            </Button>
-          </Layout.Footer.Actions>
-
-          {chain && (
-            <div className="px-3 text-center text-secondary text-sm">
-              Please only send assets on {chain.name}. Support for more networks
-              soon.
-            </div>
-          )}
-        </Layout.Footer>
-      </Layout>
+      <DepositCryptoView
+        address={address}
+        loading={loading}
+        onApprove={onApprove}
+        onBack={() => setView('default')}
+      />
     )
 
   if (view === 'error')
@@ -303,8 +258,10 @@ export function AddFunds(props: AddFunds.Props) {
         </Layout.Header>
 
         <Layout.Content className="px-1">
-          <p className="text-primary">Your deposit was cancelled or failed.</p>
-          <p className="text-secondary">No funds have been deposited.</p>
+          <p className="text-th_base">Your deposit was cancelled or failed.</p>
+          <p className="text-th_base-secondary">
+            No funds have been deposited.
+          </p>
         </Layout.Content>
 
         <Layout.Footer>
@@ -319,7 +276,7 @@ export function AddFunds(props: AddFunds.Props) {
             <Button
               className="flex-grow"
               onClick={() => setView('default')}
-              variant="accent"
+              variant="primary"
             >
               Try again
             </Button>
@@ -338,5 +295,124 @@ export declare namespace AddFunds {
     onReject?: () => void
     tokenAddress?: Address.Address | undefined
     value?: bigint | undefined
+  }
+}
+
+function DepositCryptoView(props: DepositCryptoView.Props) {
+  const { address, loading, onBack, onApprove } = props
+
+  const chain = Hooks.useChain(porto)
+
+  const [isCopied, copyToClipboard] = useCopyToClipboard({ timeout: 2_000 })
+
+  const walletClient = Hooks.useWalletClient(porto)
+  const { data: tokens } = useQuery({
+    queryFn: async () => {
+      const chainId = Hex.fromNumber(chain?.id!)
+      const response = await walletClient.request({
+        method: 'wallet_getCapabilities',
+        params: [address!, [chainId]],
+      })
+      return response[chainId]?.feeToken.tokens
+    },
+    queryKey: ['capabilities'],
+    select: (data) => data?.map((token) => token.address.toLowerCase()),
+  })
+
+  useWatchContractEvent({
+    abi: erc20Abi,
+    args: {
+      to: address,
+    },
+    eventName: 'Transfer',
+    onLogs: (events) => {
+      for (const event of events) {
+        if (tokens?.includes(event.address.toLowerCase()))
+          onApprove({ id: event.transactionHash })
+      }
+    },
+  })
+
+  const { data: balance, ...nativeBalance } = useBalance({
+    address: address!,
+    chainId: chain?.id!,
+    query: {
+      enabled: !!address && !!chain,
+      select: (data) => data?.value,
+    },
+  })
+  const previousBalance = usePrevious({ value: balance })
+
+  React.useEffect(() => {
+    if (typeof previousBalance === 'undefined' || previousBalance === 0n) return
+    if (previousBalance !== balance) Actions.rejectAll(porto)
+  }, [previousBalance, balance])
+
+  useWatchBlockNumber({
+    onBlockNumber: () => nativeBalance.refetch(),
+  })
+
+  return (
+    <Layout loading={loading} loadingTitle="Adding funds...">
+      <Layout.Content className="py-3 text-center">
+        <Ariakit.Button
+          className="mx-auto flex h-[148px] items-center justify-center gap-4 rounded-lg border border-th_secondary bg-th_secondary p-4 hover:cursor-pointer!"
+          onClick={() => copyToClipboard(address ?? '')}
+        >
+          <Cuer.Root errorCorrection="low" value={address ?? ''}>
+            <Cuer.Cells />
+            <Cuer.Finder radius={1} />
+          </Cuer.Root>
+          <p className="min-w-[6ch] max-w-[6ch] text-pretty break-all font-mono font-normal text-th_base-secondary text-xs">
+            {address}
+          </p>
+        </Ariakit.Button>
+
+        <div className="h-4" />
+
+        <div className="font-medium text-[18px]">Deposit funds</div>
+        <div className="h-1" />
+        <div className="text-th_base-secondary">
+          Send crypto to fund your account.
+        </div>
+      </Layout.Content>
+
+      <Layout.Footer>
+        <Layout.Footer.Actions>
+          <Button
+            className="w-full text-[14px]"
+            onClick={onBack}
+            type="button"
+            variant="default"
+          >
+            Back
+          </Button>
+          <Button
+            className="w-full text-[14px]"
+            onClick={() => copyToClipboard(address ?? '')}
+            type="button"
+            variant="default"
+          >
+            <CopyIcon className="mr-1.5 size-4" />
+            {isCopied ? 'Copied' : 'Copy'}
+          </Button>
+        </Layout.Footer.Actions>
+
+        {chain && (
+          <div className="px-3 text-center text-sm text-th_base-secondary">
+            Only send assets on {chain.name}. Support for more networks soon.
+          </div>
+        )}
+      </Layout.Footer>
+    </Layout>
+  )
+}
+
+export declare namespace DepositCryptoView {
+  export type Props = {
+    address: Address.Address | undefined
+    loading: boolean
+    onBack: () => void
+    onApprove: (result: { id: Hex.Hex }) => void
   }
 }

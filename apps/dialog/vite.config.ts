@@ -28,12 +28,15 @@ export default defineConfig(({ mode }) => {
     define: {
       __APP_VERSION__: JSON.stringify(commitSha),
       'import.meta.env.ANVIL': process.env.ANVIL === 'true',
-      'import.meta.env.VITE_FAUCET_URL':
+      'import.meta.env.VITE_WORKERS_URL':
         process.env.ANVIL === 'true'
           ? mode === 'test'
-            ? '"http://localhost:5173/faucet"'
-            : '"https://anvil.localhost:5173/faucet"'
-          : process.env.VITE_FAUCET_URL,
+            ? '"http://localhost:5173"'
+            : '"https://anvil.localhost:5173"'
+          : JSON.stringify(
+              process.env.VITE_WORKERS_URL ??
+                'https://service.porto.workers.dev',
+            ),
     },
     plugins: [
       skipMkcert

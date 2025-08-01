@@ -5,6 +5,7 @@ import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 
 import * as Dialog from '~/lib/Dialog'
+import * as PermissionsRequest from '~/lib/PermissionsRequest'
 import { porto } from '~/lib/Porto'
 import * as Router from '~/lib/Router'
 import { Email } from '../-components/Email'
@@ -37,6 +38,11 @@ function RouteComponent() {
     if (address) return ['sign-in']
     return ['sign-in', 'sign-up']
   }, [capabilities?.createAccount, address])
+
+  const grantPermissionsQuery = PermissionsRequest.useResolve(
+    capabilities?.grantPermissions,
+  )
+  const grantPermissions = grantPermissionsQuery.data
 
   const respond = useMutation({
     async mutationFn({
@@ -97,6 +103,7 @@ function RouteComponent() {
                     }
                   : capabilities?.createAccount || !signIn,
                 email: Boolean(email),
+                grantPermissions: grantPermissions?._encoded,
                 selectAccount,
                 ...(capabilities?.signInWithEthereum && {
                   signInWithEthereum: {
@@ -156,6 +163,17 @@ function RouteComponent() {
     },
   })
 
+  const status = React.useMemo(() => {
+    if (capabilities?.grantPermissions && grantPermissionsQuery.isFetching)
+      return 'loading'
+    if (respond.isPending) return 'responding'
+    return undefined
+  }, [
+    capabilities?.grantPermissions,
+    grantPermissionsQuery.isFetching,
+    respond.isPending,
+  ])
+
   if (respond.isSuccess) return
 
   if (capabilities?.email ?? true)
@@ -167,9 +185,9 @@ function RouteComponent() {
             ? capabilities?.createAccount?.label || ''
             : undefined
         }
-        loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
-        permissions={capabilities?.grantPermissions?.permissions}
+        permissions={grantPermissions?.permissions}
+        status={status}
       />
     )
 
@@ -177,18 +195,18 @@ function RouteComponent() {
     return (
       <SignUp
         enableSignIn={actions.includes('sign-in')}
-        loading={respond.isPending}
         onApprove={(options) => respond.mutate(options)}
         onReject={() => Actions.reject(porto, request)}
-        permissions={capabilities?.grantPermissions?.permissions}
+        permissions={grantPermissions?.permissions}
+        status={status}
       />
     )
 
   return (
     <SignIn
-      loading={respond.isPending}
       onApprove={(options) => respond.mutate(options)}
-      permissions={capabilities?.grantPermissions?.permissions}
+      permissions={grantPermissions?.permissions}
+      status={status}
     />
   )
 }

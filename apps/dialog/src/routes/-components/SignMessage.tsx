@@ -24,12 +24,12 @@ export function SignMessage(props: SignMessage.Props) {
       </Layout.Header>
 
       <Layout.Content>
-        <div className="rounded-lg bg-surface">
-          <div className="px-3 pt-2 font-medium text-[14px] text-secondary">
+        <div className="rounded-lg bg-th_field">
+          <div className="px-3 pt-2 font-medium text-[14px] text-th_field-secondary">
             Message
           </div>
           <div className="max-h-[160px] overflow-auto px-3 pb-2">
-            <pre className="whitespace-pre-wrap font-sans text-[14px] text-primary">
+            <pre className="whitespace-pre-wrap font-sans text-[14px] text-th_base">
               {message}
             </pre>
           </div>
@@ -50,7 +50,7 @@ export function SignMessage(props: SignMessage.Props) {
             className="flex-grow"
             onClick={() => onApprove()}
             type="button"
-            variant="accent"
+            variant="primary"
           >
             Sign message
           </Button>
@@ -109,7 +109,7 @@ export namespace SignMessage {
               className="flex-grow"
               onClick={() => onApprove()}
               type="button"
-              variant="accent"
+              variant="primary"
             >
               Approve
             </Button>

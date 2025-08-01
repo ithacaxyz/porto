@@ -1,3 +1,4 @@
+import type { Theme } from '@porto/apps'
 import type { Address } from 'ox'
 import type { Messenger } from 'porto'
 import * as Zustand from 'zustand'
@@ -25,6 +26,8 @@ export const store = createStore(
 
       return {
         accountMetadata: {},
+        customTheme: undefined,
+        display: 'full',
         error: null,
         mode: 'popup-standalone',
         referrer,
@@ -49,6 +52,12 @@ export declare namespace store {
         email?: string | undefined
       }
     >
+    customTheme: Theme.TailwindCustomTheme | undefined
+    // reflects how the dialog window gets displayed:
+    // - 'full': uses the full space available (popup, popup-standalone) (default)
+    // - 'floating': as a floating window, with space around it (iframe)
+    // - 'drawer': as a drawer (iframe with small viewports)
+    display: 'floating' | 'drawer' | 'full'
     error: {
       action: 'close' | 'retry-in-popup'
       message: string

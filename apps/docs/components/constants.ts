@@ -7,7 +7,6 @@ export type ChainId = (typeof config)['state']['chainId']
 export const permissions = (chainId: ChainId) =>
   ({
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-    feeLimit: 'include',
     permissions: {
       calls: [{ to: exp1Config.address[chainId] }],
       spend: [

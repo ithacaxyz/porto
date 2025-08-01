@@ -100,14 +100,13 @@ type GrantPermissions = {
    * Porto will assign a spend permission on the user's
    * selected fee token that is equal to the limit provided.
    * 
-   * Provide `"include"` to have the fee inclusive with `permissions.spend`.
    */
-  feeLimit: {
+  feeLimit?: {
     /** Currency of the limit. */
     currency: 'ETH' | 'USD' | 'USDC' | 'USDT'
     /** Value of the limit in the currency's unit (e.g. '1' = 1 USDC). */
     value: string
-  } | 'include',
+  } | undefined,
 
   /** Key to grant permissions to. Defaults to a wallet-managed key. */
   key?: {
@@ -147,7 +146,11 @@ type GrantPermissions = {
 ```ts
 type SignInWithEthereum = {
   /* Required fields */
-  authUrl: string
+  authUrl: string | {
+    logout: string
+    nonce: string
+    verify: string
+  }
   // OR
   nonce: string
 

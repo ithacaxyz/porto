@@ -19,11 +19,12 @@
     "check:types": "pnpm run --r --parallel check:types && tsc -b",
     "clean": "rm -rf src/_dist ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
     "deps": "pnpx taze -r",
-    "dev": "pnpm preconstruct && pnpm --filter playground --filter dialog --filter id dev",
+    "dev": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground dev",
     "dev:anvil": "pnpm preconstruct && ANVIL=true pnpm --filter playground --filter dialog --filter id dev",
     "dev:cli": "tsx src/cli/bin/index.ts",
+    "dev:ext": "pnpm --filter extension dev",
+    "dev:theme": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground --filter theme dev",
     "dev:wagmi": "pnpm preconstruct && pnpm --filter dialog --filter id --filter wagmi-example dev",
-    "dev:play": "pnpm preconstruct && pnpm --filter dialog --filter id --filter playground dev",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter dialog --filter id --filter docs dev",
     "format": "biome format --write",
@@ -36,7 +37,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.1",
-    "@biomejs/biome": "^2.1.1",
+    "@biomejs/biome": "^2.1.2",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.7",
     "@clack/prompts": "~0.11.0",
@@ -78,7 +79,7 @@
   },
   "knip": {
     "entry": [
-      "src/{index,remote/index,server/index,viem/index,wagmi/index}.ts!"
+      "src/{index,remote/index,server/index,theme/index,viem/index,wagmi/index}.ts!"
     ],
     "ignore": [
       "**/_generated/**",
@@ -116,6 +117,9 @@
     }
   ],
   "pnpm": {
+    "overrides": {
+      "porto": "workspace:*"
+    },
     "patchedDependencies": {
       "@tanstack/react-router": "patches/@tanstack__react-router.patch",
       "@wagmi/cli": "patches/@wagmi__cli.patch",
