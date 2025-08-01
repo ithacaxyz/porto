@@ -1,4 +1,4 @@
-import { Button, Spinner } from '@porto/apps/components'
+import { Button, ChainIcon, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
 import type { Chains } from 'porto'
@@ -393,10 +393,13 @@ export namespace ActionRequest {
           <span className="font-medium">2 seconds</span>
         </div>
 
-        {chain?.name && (
+        {chain && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
             <span className="text-[14px] text-th_base-secondary">Network</span>
-            <span className="font-medium">{chain?.name}</span>
+            <div className="flex items-center gap-1.5">
+              <ChainIcon chainId={chain.id} />
+              <span className="font-medium">{chain.name}</span>
+            </div>
           </div>
         )}
       </div>
