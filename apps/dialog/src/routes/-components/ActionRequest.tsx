@@ -16,8 +16,8 @@ import { Layout } from '~/routes/-components/Layout'
 import { PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
 import ArrowUpRight from '~icons/lucide/arrow-up-right'
-import ChevronDown from '~icons/lucide/chevron-down'
 import LucideFileText from '~icons/lucide/file-text'
+import LucideInfo from '~icons/lucide/info'
 import LucideMusic from '~icons/lucide/music'
 import LucideSparkles from '~icons/lucide/sparkles'
 import TriangleAlert from '~icons/lucide/triangle-alert'
@@ -91,13 +91,13 @@ export function ActionRequest(props: ActionRequest.Props) {
           />
         </Layout.Header>
 
-        <Layout.Content>
+        <Layout.Content className="pb-2!">
           <ActionRequest.PaneWithDetails
             error={prepareCallsQuery.error}
             errorMessage="An error occurred while simulating the action. Proceed with caution."
             feeTotals={feeTotals}
-            loading={prepareCallsQuery.isPending}
             quotes={quotes}
+            status={prepareCallsQuery.status}
           >
             {assetDiffs && address && (
               <ActionRequest.AssetDiff
@@ -112,16 +112,16 @@ export function ActionRequest(props: ActionRequest.Props) {
           <Layout.Footer.Actions>
             {prepareCallsQuery.isError ? (
               <>
-                <Button onClick={onReject} type="button" variant="default">
-                  Cancel
+                <Button onClick={onReject} type="button" variant="destructive">
+                  Deny
                 </Button>
                 <Button
                   className="flex-grow"
                   onClick={() => onApprove(prepareCallsQuery.data!)}
                   type="button"
-                  variant="primary"
+                  variant="success"
                 >
-                  Confirm anyway
+                  Approve anyway
                 </Button>
               </>
             ) : (
@@ -130,9 +130,9 @@ export function ActionRequest(props: ActionRequest.Props) {
                   disabled={!prepareCallsQuery.isSuccess}
                   onClick={onReject}
                   type="button"
-                  variant="default"
+                  variant="destructive"
                 >
-                  Cancel
+                  Deny
                 </Button>
 
                 <Button
@@ -141,9 +141,9 @@ export function ActionRequest(props: ActionRequest.Props) {
                   disabled={!prepareCallsQuery.isSuccess}
                   onClick={() => onApprove(prepareCallsQuery.data!)}
                   type="button"
-                  variant="primary"
+                  variant="success"
                 >
-                  Confirm
+                  Approve
                 </Button>
               </>
             )}
@@ -222,115 +222,12 @@ export namespace ActionRequest {
     return (
       <div className="space-y-2">
         {balances.map((balance) => {
-          const { address, direction, symbol, value } = balance
+          const { value } = balance
           if (value === BigInt(0)) return null
 
-          const receiving = direction === 'incoming'
-          const absoluteValue = value < 0n ? -value : value
-          const formatted = ValueFormatter.format(
-            absoluteValue,
-            'decimals' in balance ? (balance.decimals ?? 0) : 0,
-          )
-
-          if (balance.type === 'erc721') {
-            const { name, uri } = balance
-            // Right now we only handle the ERC721 Metadata JSON Schema
-            // TODO: Parse other content types (audio, video, document)
-            const decoded = (() => {
-              try {
-                const base64Data = uri.split(',')[1]
-                if (!base64Data) return
-                const json = JSON.parse(Base64.toString(base64Data))
-                if ('image' in json && typeof json.image === 'string')
-                  return { type: 'image', url: json.image as string }
-              } catch {
-                return
-              }
-            })()
-            return (
-              <div
-                className="flex items-center gap-3 font-medium"
-                key={address}
-              >
-                <div className="relative flex size-6 items-center justify-center rounded-sm bg-th_badge">
-                  {decoded?.type === 'image' ? (
-                    <img
-                      alt={name ?? symbol}
-                      className="size-full rounded-sm object-cover text-transparent"
-                      src={decoded.url}
-                    />
-                  ) : decoded?.type === 'audio' ? (
-                    <LucideMusic className="size-4 text-th_badge" />
-                  ) : decoded?.type === 'video' ? (
-                    <LucideVideo className="size-4 text-th_badge" />
-                  ) : decoded?.type === 'document' ? (
-                    <LucideFileText className="size-4 text-th_badge" />
-                  ) : (
-                    <LucideSparkles className="size-4 text-th_badge" />
-                  )}
-
-                  <div
-                    className={cx(
-                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-[var(--background-color-th_secondary)]',
-                      receiving
-                        ? 'bg-th_badge-positive text-th_badge-positive'
-                        : 'bg-th_badge text-th_badge',
-                    )}
-                  >
-                    {/* TODO: Return erc721 count in API response */}
-                    {receiving ? 1 : -1}
-                  </div>
-                </div>
-                <div className="flex flex-1 justify-between">
-                  {name || symbol ? (
-                    <span className="text-th_base">{name || symbol}</span>
-                  ) : (
-                    <span className="text-th_base-secondary">
-                      No name provided
-                    </span>
-                  )}
-                  <span className="text-th_base-tertiary">
-                    #{absoluteValue}
-                  </span>
-                </div>
-              </div>
-            )
-          }
-
-          const Icon = receiving ? ArrowDownLeft : ArrowUpRight
-          return (
-            <div className="flex items-center gap-2 font-medium" key={address}>
-              <div
-                className={cx(
-                  'flex size-6 items-center justify-center rounded-full',
-                  {
-                    'bg-th_badge': !receiving,
-                    'bg-th_badge-positive': receiving,
-                  },
-                )}
-              >
-                <Icon
-                  className={cx('size-4 text-current', {
-                    'text-th_badge': !receiving,
-                    'text-th_badge-positive': receiving,
-                  })}
-                />
-              </div>
-              <div>
-                {receiving ? 'Receive' : 'Send'}{' '}
-                <span
-                  className={
-                    receiving
-                      ? 'text-th_base-positive'
-                      : 'text-th_base-secondary'
-                  }
-                >
-                  {formatted}
-                </span>{' '}
-                {symbol}
-              </div>
-            </div>
-          )
+          if (balance.type === 'erc721')
+            return <AssetDiff.Erc721Row {...balance} />
+          return <AssetDiff.CoinRow {...balance} />
         })}
       </div>
     )
@@ -343,7 +240,167 @@ export namespace ActionRequest {
         Rpc.wallet_prepareCalls.Response['capabilities']
       >['assetDiffs']
     }
+
+    export function Erc721Row(props: Erc721Row.Props) {
+      const { direction, name, symbol, uri = '', value } = props
+
+      // Right now we only handle the ERC721 Metadata JSON Schema
+      // TODO: Parse other content types (audio, video, document)
+      const decoded = React.useMemo(() => {
+        try {
+          const base64Data = uri.split(',')[1]
+          if (!base64Data) return
+          const json = JSON.parse(Base64.toString(base64Data))
+          if ('image' in json && typeof json.image === 'string')
+            return { type: 'image', url: json.image as string }
+        } catch {
+          return
+        }
+      }, [uri])
+
+      const receiving = direction === 'incoming'
+
+      return (
+        <div className="flex items-center gap-2 font-medium" key={symbol}>
+          <div className="relative flex size-6 items-center justify-center rounded-sm bg-th_badge">
+            {decoded?.type === 'image' ? (
+              <img
+                alt={name ?? symbol}
+                className="min-h-6 min-w-6 rounded-sm object-cover text-transparent"
+                src={decoded.url}
+              />
+            ) : decoded?.type === 'audio' ? (
+              <LucideMusic className="size-4 text-th_badge" />
+            ) : decoded?.type === 'video' ? (
+              <LucideVideo className="size-4 text-th_badge" />
+            ) : decoded?.type === 'document' ? (
+              <LucideFileText className="size-4 text-th_badge" />
+            ) : (
+              <LucideSparkles className="size-4 text-th_badge" />
+            )}
+          </div>
+          <div className="flex w-full justify-between">
+            <div className="flex flex-1 gap-1.5">
+              {name || symbol ? (
+                <div className="max-w-[150px] truncate">
+                  <span className="text-th_base">{name || symbol}</span>
+                </div>
+              ) : (
+                <span className="text-th_base-secondary">No name provided</span>
+              )}
+              <span className="text-th_base-tertiary">#{value}</span>
+            </div>
+            <div
+              className={
+                receiving ? 'text-th_base-positive' : 'text-th_base-secondary'
+              }
+            >
+              {receiving ? '+' : '-'}1
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    export namespace Erc721Row {
+      export type Props = {
+        direction: 'incoming' | 'outgoing'
+        name?: string | null | undefined
+        symbol: string
+        uri?: string | undefined
+        value: bigint
+      }
+    }
+
+    export function CoinRow(props: CoinRow.Props) {
+      const { decimals, direction, fiat, symbol, value } = props
+
+      const [currencyType, setCurrencyType] = React.useState<'fiat' | 'crypto'>(
+        fiat ? 'fiat' : 'crypto',
+      )
+
+      const receiving = direction === 'incoming'
+
+      const Icon = receiving ? ArrowDownLeft : ArrowUpRight
+      return (
+        <button
+          className="relative flex w-[calc(100%+1rem)] cursor-pointer! items-center justify-between font-medium"
+          key={symbol}
+          onClick={() => {
+            if (!fiat) return
+            setCurrencyType(currencyType === 'fiat' ? 'crypto' : 'fiat')
+          }}
+          type="button"
+        >
+          <div className="flex items-center gap-2">
+            <div
+              className={cx(
+                'flex size-6 items-center justify-center rounded-full',
+                {
+                  'bg-th_badge': !receiving,
+                  'bg-th_badge-positive': receiving,
+                },
+              )}
+            >
+              <Icon
+                className={cx('size-4 text-current', {
+                  'text-th_badge': !receiving,
+                  'text-th_badge-positive': receiving,
+                })}
+              />
+            </div>
+            <div>
+              {receiving ? 'Receive' : 'Spend'} {symbol}
+            </div>
+          </div>
+          <div>
+            <span
+              className={cx(
+                receiving ? 'text-th_base-positive' : 'text-th_base-secondary',
+              )}
+            >
+              <span
+                className={cx(
+                  '-translate-y-1/2 absolute top-[50%] right-4 transition-opacity duration-200 ease-[cubic-bezier(0.42,0,1,1)]',
+                  {
+                    'opacity-0': currencyType === 'crypto',
+                    'opacity-100': currencyType === 'fiat',
+                  },
+                )}
+              >
+                {currencyType === 'fiat' && fiat ? (
+                  <span>{PriceFormatter.format(fiat.value)}</span>
+                ) : null}
+              </span>
+              <span
+                className={cx(
+                  '-translate-y-1/2 absolute top-[50%] right-4 transition-opacity duration-200 ease-[cubic-bezier(0.42,0,1,1)]',
+                  {
+                    'opacity-0': currencyType === 'fiat',
+                    'opacity-100': currencyType === 'crypto',
+                  },
+                )}
+              >
+                {ValueFormatter.format(value, decimals ? (decimals ?? 0) : 0)}{' '}
+                {symbol}
+              </span>
+            </span>
+          </div>
+        </button>
+      )
+    }
+
+    export namespace CoinRow {
+      export type Props = {
+        decimals?: number | null | undefined
+        direction: 'incoming' | 'outgoing'
+        fiat?: { value: number } | undefined
+        symbol: string
+        value: bigint
+      }
+    }
   }
+
   export function Details(props: Details.Props) {
     const { feeTotals, quotes } = props
 
@@ -393,13 +450,6 @@ export namespace ActionRequest {
           </div>
         )}
 
-        <div className="flex h-5.5 items-center justify-between text-[14px]">
-          <span className="text-[14px] text-th_base-secondary">
-            Duration (est.)
-          </span>
-          <span className="font-medium">2 seconds</span>
-        </div>
-
         {destinationChain && (
           <div className="flex h-5.5 items-center justify-between text-[14px]">
             <span className="text-[14px] text-th_base-secondary">
@@ -423,7 +473,6 @@ export namespace ActionRequest {
                     chainId={destinationChain.id}
                     className="size-4.5"
                   />
-                  {/* <span className="font-medium">{destinationChain.name}</span> */}
                 </div>
               </div>
             )}
@@ -447,7 +496,7 @@ export namespace ActionRequest {
       error,
       errorMessage = 'An error occurred. Proceed with caution.',
       feeTotals,
-      loading,
+      status,
       quotes,
     } = props
 
@@ -463,66 +512,61 @@ export namespace ActionRequest {
     }, [hasDetails, children])
 
     return (
-      <div
-        className={cx(
-          'space-y-3 overflow-hidden rounded-lg px-3 transition-all duration-300 ease-in-out',
-          {
-            'bg-th_badge-warning py-2 text-th_badge-warning': error,
-            'bg-th_base-alt py-3': !error,
-            'h-[90px] max-h-[90px]': loading,
-            'max-h-[500px]': !loading,
-          },
-        )}
-      >
-        {(() => {
-          if (error)
-            return (
-              <div className="space-y-2 text-[14px] text-th_base">
-                <p className="font-medium text-th_badge-warning">Error</p>
-                <p>{errorMessage}</p>
-                <p>Details: {(error as any).shortMessage ?? error.message}</p>
-              </div>
-            )
-
-          if (loading)
-            return (
-              <div className="flex h-full w-full items-center justify-center">
-                <div className="flex size-[24px] w-full items-center justify-center">
-                  <Spinner className="text-th_base-secondary" />
+      <div className="space-y-2">
+        <div
+          className={cx('space-y-3 overflow-hidden rounded-lg px-3', {
+            'bg-th_badge-warning py-2 text-th_badge-warning':
+              status === 'error',
+            'bg-th_base-alt py-3': status !== 'error',
+          })}
+        >
+          {(() => {
+            if (error)
+              return (
+                <div className="space-y-2 text-[14px] text-th_base">
+                  <p className="font-medium text-th_badge-warning">Error</p>
+                  <p>{errorMessage}</p>
+                  <p className="text-[11px]">
+                    Details: {(error as any).shortMessage ?? error.message}{' '}
+                    {(error as any).details}
+                  </p>
                 </div>
+              )
+
+            if (status === 'pending')
+              return (
+                <div className="flex h-full w-full items-center justify-center">
+                  <div className="flex size-[24px] w-full items-center justify-center">
+                    <Spinner className="text-th_base-secondary" />
+                  </div>
+                </div>
+              )
+
+            return (
+              <div className="fade-in animate-in space-y-3 duration-150">
+                {children}
               </div>
             )
+          })()}
+        </div>
 
-          return (
-            <div className="fade-in animate-in space-y-3 duration-150">
-              {children}
-
-              {feeTotals && quotes && (
-                <>
-                  {children && (
-                    <div className="h-[1px] w-full bg-th_separator" />
-                  )}
-                  <div className={viewQuote ? undefined : 'hidden'}>
-                    <ActionRequest.Details
-                      feeTotals={feeTotals}
-                      quotes={quotes}
-                    />
-                  </div>
-                  {!viewQuote && (
-                    <button
-                      className="flex w-full justify-between text-[13px] text-th_base-secondary"
-                      onClick={() => setViewQuote(true)}
-                      type="button"
-                    >
-                      <span>More details</span>
-                      <ChevronDown className="size-4 text-th_base-secondary" />
-                    </button>
-                  )}
-                </>
-              )}
+        {status === 'success' && feeTotals && quotes && (
+          <div className="space-y-3 overflow-hidden rounded-lg bg-th_base-alt px-3 py-2">
+            <div className={viewQuote ? undefined : 'hidden'}>
+              <ActionRequest.Details feeTotals={feeTotals} quotes={quotes} />
             </div>
-          )
-        })()}
+            {!viewQuote && (
+              <button
+                className="flex w-full cursor-pointer! items-center justify-center gap-1.5 text-[13px] text-th_base-secondary"
+                onClick={() => setViewQuote(true)}
+                type="button"
+              >
+                <LucideInfo className="size-4" />
+                <span>Show more details</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
     )
   }
@@ -530,11 +574,11 @@ export namespace ActionRequest {
   export namespace PaneWithDetails {
     export type Props = {
       children?: React.ReactNode | undefined
-      feeTotals?: Capabilities.feeTotals.Response | undefined
       error?: Error | null | undefined
+      feeTotals?: Capabilities.feeTotals.Response | undefined
       errorMessage?: string | undefined
-      loading?: boolean | undefined
       quotes?: readonly Quote_schema.Quote[] | undefined
+      status: 'pending' | 'error' | 'success'
     }
   }
 }
