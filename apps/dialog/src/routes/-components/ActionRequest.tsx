@@ -1,4 +1,3 @@
-import type { PortoConfig } from '@porto/apps'
 import { Button, Spinner } from '@porto/apps/components'
 import { cx } from 'cva'
 import { type Address, Base64 } from 'ox'
@@ -7,17 +6,14 @@ import type * as Capabilities from 'porto/core/internal/rpcServer/schema/capabil
 import type * as Quote_schema from 'porto/core/internal/rpcServer/schema/quotes'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type * as Rpc from 'porto/core/internal/schema/request'
-import { Hooks, type Porto as Porto_ } from 'porto/remote'
+import { Hooks } from 'porto/remote'
 import * as React from 'react'
 import { type Call, ethAddress } from 'viem'
-import { useCapabilities } from 'wagmi'
 import { CheckBalance } from '~/components/CheckBalance'
 import * as Calls from '~/lib/Calls'
-import * as FeeTokens from '~/lib/FeeTokens'
 import { porto } from '~/lib/Porto'
-import * as Price from '~/lib/Price'
 import { Layout } from '~/routes/-components/Layout'
-import { ValueFormatter } from '~/utils'
+import { PriceFormatter, ValueFormatter } from '~/utils'
 import ArrowDownLeft from '~icons/lucide/arrow-down-left'
 import ArrowUpRight from '~icons/lucide/arrow-up-right'
 import ChevronDown from '~icons/lucide/chevron-down'
@@ -59,9 +55,9 @@ export function ActionRequest(props: ActionRequest.Props) {
   })
 
   // However, to prevent a malicious RPC server from providing a mutated asset
-  // diff to display to the end-user, we also simulate the prepare calls query
+  // diff or fee calculations to display to the end-user, we also simulate the prepare calls query
   // without the merchant RPC URL.
-  const prepareCallsQuery_assetDiff = Calls.prepareCalls.useQuery({
+  const prepareCallsQuery_noMerchantRpc = Calls.prepareCalls.useQuery({
     address,
     calls,
     chainId,
@@ -69,13 +65,14 @@ export function ActionRequest(props: ActionRequest.Props) {
     feeToken,
     requiredFunds,
   })
-  const query_assetDiff = merchantRpcUrl
-    ? prepareCallsQuery_assetDiff
+  const query_noMerchantRpc = merchantRpcUrl
+    ? prepareCallsQuery_noMerchantRpc
     : prepareCallsQuery
 
-  const assetDiff = query_assetDiff.data?.capabilities.assetDiffs
-  // TODO(next): support interop
-  const quote = prepareCallsQuery.data?.capabilities.quote?.quotes[0]
+  const capabilities = query_noMerchantRpc.data?.capabilities
+  const { assetDiffs, feeTotals } = capabilities ?? {}
+
+  const quotes = prepareCallsQuery.data?.capabilities.quote?.quotes
 
   return (
     <CheckBalance
@@ -97,13 +94,14 @@ export function ActionRequest(props: ActionRequest.Props) {
           <ActionRequest.PaneWithDetails
             error={prepareCallsQuery.error}
             errorMessage="An error occurred while simulating the action. Proceed with caution."
+            feeTotals={feeTotals}
             loading={prepareCallsQuery.isPending}
-            quote={quote}
+            quotes={quotes}
           >
-            {assetDiff && address && (
+            {assetDiffs && address && (
               <ActionRequest.AssetDiff
                 address={address}
-                assetDiff={assetDiff}
+                assetDiff={assetDiffs}
               />
             )}
           </ActionRequest.PaneWithDetails>
@@ -173,7 +171,6 @@ export namespace ActionRequest {
       | undefined
     onApprove: (data: Calls.prepareCalls.useQuery.Data) => void
     onReject: () => void
-    quote?: Quote | undefined
   }
 
   export function AssetDiff(props: AssetDiff.Props) {
@@ -347,19 +344,26 @@ export namespace ActionRequest {
     }
   }
   export function Details(props: Details.Props) {
-    const quote = useQuote(porto, props.quote)
-    const chain = Hooks.useChain(porto, { chainId: props.quote.chainId })
-    const fiatFee = quote?.fee.fiat
-    const tokenFee = quote?.fee.token
+    const { feeTotals, quotes } = props
 
-    const sponsored =
-      props.quote.intent?.payer !== '0x0000000000000000000000000000000000000000'
+    const quote_destination = React.useMemo(
+      () => quotes[quotes.length - 1],
+      [quotes],
+    )
+    const sponsored = React.useMemo(
+      () =>
+        quote_destination?.intent?.payer !==
+        '0x0000000000000000000000000000000000000000',
+      [quote_destination],
+    )
 
-    const displayTokenFee =
-      tokenFee &&
-      fiatFee &&
-      !tokenFee.kind?.startsWith('USD') &&
-      Number.parseInt(fiatFee.formatted) >= 0.01
+    const feeTotal = React.useMemo(() => {
+      const feeTotal = feeTotals['0x0']?.value
+      if (!feeTotal) return
+      return PriceFormatter.format(Number(feeTotal))
+    }, [feeTotals])
+
+    const chain = Hooks.useChain(porto, { chainId: quote_destination?.chainId })
 
     return (
       <div className="space-y-1.5">
@@ -369,18 +373,9 @@ export namespace ActionRequest {
               Fees (est.)
             </span>
             <div className="text-right">
-              {fiatFee || !quote ? (
+              {feeTotal ? (
                 <div className="flex items-center gap-2">
-                  {displayTokenFee && (
-                    <div className="flex h-5.5 items-center rounded-full border border-th_separator px-1.75">
-                      <span className="text-[11.5px] text-th_base-secondary">
-                        {tokenFee.display}
-                      </span>
-                    </div>
-                  )}
-                  <div className="font-medium leading-4">
-                    {fiatFee?.display ?? 'Unknown'}
-                  </div>
+                  <div className="font-medium leading-4">{feeTotal}</div>
                 </div>
               ) : (
                 <span className="font-medium text-th_base-secondary">
@@ -411,7 +406,8 @@ export namespace ActionRequest {
   export namespace Details {
     export type Props = {
       chain?: Chains.Chain | undefined
-      quote: Quote_schema.Quote
+      feeTotals: Capabilities.feeTotals.Response
+      quotes: readonly Quote_schema.Quote[]
     }
   }
 
@@ -420,15 +416,21 @@ export namespace ActionRequest {
       children,
       error,
       errorMessage = 'An error occurred. Proceed with caution.',
+      feeTotals,
       loading,
-      quote,
+      quotes,
     } = props
 
+    const hasDetails = React.useMemo(
+      () => quotes || feeTotals,
+      [quotes, feeTotals],
+    )
+
     // default to `true` if no children, otherwise false
-    const [viewQuote, setViewQuote] = React.useState(quote && !children)
+    const [viewQuote, setViewQuote] = React.useState(hasDetails && !children)
     React.useEffect(() => {
-      if (quote && !children) setViewQuote(true)
-    }, [quote, children])
+      if (hasDetails && !children) setViewQuote(true)
+    }, [hasDetails, children])
 
     return (
       <div
@@ -465,13 +467,16 @@ export namespace ActionRequest {
             <div className="fade-in animate-in space-y-3 duration-150">
               {children}
 
-              {quote && (
+              {feeTotals && quotes && (
                 <>
                   {children && (
                     <div className="h-[1px] w-full bg-th_separator" />
                   )}
                   <div className={viewQuote ? undefined : 'hidden'}>
-                    <ActionRequest.Details quote={quote} />
+                    <ActionRequest.Details
+                      feeTotals={feeTotals}
+                      quotes={quotes}
+                    />
                   </div>
                   {!viewQuote && (
                     <button
@@ -495,102 +500,11 @@ export namespace ActionRequest {
   export namespace PaneWithDetails {
     export type Props = {
       children?: React.ReactNode | undefined
+      feeTotals?: Capabilities.feeTotals.Response | undefined
       error?: Error | null | undefined
       errorMessage?: string | undefined
       loading?: boolean | undefined
-      quote?: Quote_schema.Quote | undefined
-    }
-  }
-
-  export type Quote = {
-    fee: {
-      fiat?: Price.Price | undefined
-      native: Price.Price
-      token: Price.Price
-    }
-  }
-
-  /**
-   * Hook to extract a quote from a `wallet_prepareCalls` context.
-   *
-   * @param porto - Porto instance.
-   * @param parameters - Parameters.
-   * @returns Quote.
-   */
-  export function useQuote<
-    chains extends readonly [PortoConfig.Chain, ...PortoConfig.Chain[]],
-  >(
-    porto: Pick<Porto_.Porto<chains>, '_internal'>,
-    quote: Quote_schema.Quote,
-  ): Quote | undefined {
-    const { chainId, intent, nativeFeeEstimate, txGas } = quote ?? {}
-    const { paymentToken, totalPaymentMaxAmount } = intent ?? {}
-
-    const chain = Hooks.useChain(porto, { chainId })!
-    const capabilities = useCapabilities({ chainId: chain.id })
-    const feeTokens = FeeTokens.fetch.useQuery({
-      addressOrSymbol: paymentToken,
-    })
-    const feeToken = feeTokens.data?.[0]
-
-    const fee = React.useMemo(() => {
-      if (!nativeFeeEstimate || !txGas || !totalPaymentMaxAmount || !feeToken)
-        return undefined
-
-      const nativeConfig = {
-        address: '0x0000000000000000000000000000000000000000',
-        decimals: chain.nativeCurrency.decimals,
-        kind: 'ETH',
-        nativeRate: 10n ** 18n,
-        symbol: chain.nativeCurrency.symbol,
-        value: nativeFeeEstimate.maxFeePerGas * txGas,
-      } as const
-
-      const tokenConfig = (() => {
-        if (paymentToken && paymentToken !== nativeConfig.address) {
-          return {
-            ...feeToken,
-            value: totalPaymentMaxAmount,
-          }
-        }
-        return nativeConfig
-      })()
-
-      const fiatConfig = (() => {
-        const usdConfig = capabilities.data?.feeToken.tokens.find((token) =>
-          token.kind.startsWith('USD'),
-        )
-        if (!usdConfig) return undefined
-        const value =
-          (totalPaymentMaxAmount *
-            tokenConfig.nativeRate! *
-            10n ** BigInt(usdConfig.decimals)) /
-          (BigInt(usdConfig.nativeRate!) * 10n ** BigInt(tokenConfig.decimals))
-        return {
-          ...usdConfig,
-          value,
-        }
-      })()
-
-      return {
-        fiat: fiatConfig ? Price.fromFiat(fiatConfig) : undefined,
-        native: Price.from(nativeConfig),
-        token: Price.from(tokenConfig),
-      }
-    }, [
-      capabilities.data?.feeToken.tokens,
-      chain.nativeCurrency.decimals,
-      chain.nativeCurrency.symbol,
-      feeToken,
-      nativeFeeEstimate,
-      txGas,
-      paymentToken,
-      totalPaymentMaxAmount,
-    ])
-
-    if (!fee) return undefined
-    return {
-      fee,
+      quotes?: readonly Quote_schema.Quote[] | undefined
     }
   }
 }

@@ -1022,8 +1022,6 @@ function SendCalls() {
           } as const
         })()
 
-        console.log(params.capabilities)
-
         const { id } = await porto.provider.request({
           method: 'wallet_sendCalls',
           params: [
