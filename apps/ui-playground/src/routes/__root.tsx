@@ -1,4 +1,4 @@
-import { ColorSchemeSwitch } from '@porto/ui'
+import { ThemeSwitch } from '@porto/ui'
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { useColorScheme } from '~/ColorScheme'
 
@@ -8,7 +8,7 @@ export const Route = createRootRoute({
 
 const sections = [
   {
-    screens: ['Button', 'ColorSchemeSwitch'],
+    screens: ['Button', 'Theme', 'ThemeSwitch'],
     title: 'Base',
   },
   // {
@@ -19,9 +19,9 @@ const sections = [
 
 function RootComponent() {
   return (
-    <div className="flex h-screen select-none bg-th_base-plane text-th_base">
+    <div className="grid h-screen grid-cols-[256px_1fr] select-none bg-th_base-plane text-th_base">
       <Sidebar />
-      <div className="flex-1 px-16 py-12">
+      <div className="flex-1 overflow-y-auto px-16 py-12">
         <Outlet />
       </div>
     </div>
@@ -31,7 +31,7 @@ function RootComponent() {
 function Sidebar() {
   const { colorScheme, setColorScheme } = useColorScheme()
   return (
-    <div className="flex w-64 flex-col gap-12 border-th_frame border-r bg-th_frame px-8 py-6 text-sm">
+    <div className="flex flex-col gap-12 border-th_frame border-r bg-th_frame px-8 py-6 text-sm">
       <div className="flex items-center justify-between">
         <Link
           className="-ml-2 flex h-full items-center whitespace-nowrap rounded-[2px] pr-2 pl-2 text-th_base outline-offset-2 focus-visible:outline-2 focus-visible:outline-th_focus"
@@ -40,10 +40,7 @@ function Sidebar() {
           <h1>@porto/ui</h1>
         </Link>
 
-        <ColorSchemeSwitch
-          colorScheme={colorScheme}
-          onChange={setColorScheme}
-        />
+        <ThemeSwitch colorScheme={colorScheme} onChange={setColorScheme} />
       </div>
       <nav className="flex flex-col gap-4">
         {sections.map(({ title, screens }) => (

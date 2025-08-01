@@ -6,18 +6,18 @@ import { IconSun } from './IconSun'
 
 type ColorScheme = 'light' | 'dark'
 
-export interface ColorSchemeSwitchProps
+export interface ThemeSwitchProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange'> {
   colorScheme: ColorScheme
   onChange: (colorScheme: ColorScheme) => void
 }
 
-export function ColorSchemeSwitch({
+export function ThemeSwitch({
   className,
   colorScheme,
   onChange,
   ...props
-}: ColorSchemeSwitchProps) {
+}: ThemeSwitchProps) {
   return (
     <button
       className={cx(
