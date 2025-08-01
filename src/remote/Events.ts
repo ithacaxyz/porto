@@ -110,11 +110,14 @@ export function onDialogRequest(
  */
 export function onInitialized(
   porto: Pick<Remote.Porto<any>, 'messenger'>,
-  cb: (payload: Extract<Payload<'__internal'>, { type: 'init' }>) => void,
+  cb: (
+    payload: Extract<Payload<'__internal'>, { type: 'init' }>,
+    event: MessageEvent,
+  ) => void,
 ) {
   const { messenger } = porto
-  return messenger.on('__internal', (payload) => {
-    if (payload.type === 'init') cb(payload)
+  return messenger.on('__internal', (payload, event) => {
+    if (payload.type === 'init') cb(payload, event)
   })
 }
 
