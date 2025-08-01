@@ -58,10 +58,9 @@ export function Button({
           backgroundColor: 'var(--button-bg)',
           border: '1px solid transparent',
           borderColor: 'var(--button-bd)',
-          borderRadius: 'var(--radius-th_medium)', // TODO
+          borderRadius: 'var(--radius-th_medium)',
           cursor: 'pointer!',
           display: 'inline-flex',
-          width: '100%',
           fontWeight: 500,
           justifyContent: 'center',
           whiteSpace: 'nowrap',

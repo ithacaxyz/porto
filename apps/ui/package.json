@@ -21,7 +21,7 @@
     "prebuild": "panda codegen"
   },
   "peerDependencies": {
-    "@react-spring/web": "^10.0.1",
+    "@react-spring/web": "^10",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
