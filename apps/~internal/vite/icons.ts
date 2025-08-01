@@ -1,5 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as url from 'node:url'
 import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 import Icons from 'unplugin-icons/vite'
 import type { PluginOption } from 'vite'
@@ -12,12 +13,8 @@ export function plugin(options: Parameters<typeof Icons>[0] = {}) {
       compiler: 'jsx',
       customCollections: {
         ...options.customCollections,
-        chains: FileSystemIconLoader(
-          path.join(import.meta.dirname, 'icons/chains'),
-        ),
-        porto: FileSystemIconLoader(
-          path.join(import.meta.dirname, 'icons/porto'),
-        ),
+        chains: FileSystemIconLoader(path.join(dirname(), 'icons/chains')),
+        porto: FileSystemIconLoader(path.join(dirname(), 'icons/porto')),
       },
       jsx: 'react',
     }),
@@ -33,7 +30,7 @@ function chainIconsPlugin(): PluginOption {
     load(id) {
       if (id !== resolvedVirtualModuleId) return
       try {
-        const iconsDir = path.join(import.meta.dirname, 'icons/chains')
+        const iconsDir = path.join(dirname(), 'icons/chains')
 
         const chains = Object.entries(Chains)
           .map(([key, value]) => {
@@ -82,4 +79,9 @@ function toPascalCase(value: string) {
     .split(/[-_]/)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join('')
+}
+
+function dirname() {
+  if (typeof import.meta.dirname !== 'undefined') return import.meta.dirname
+  return path.dirname(url.fileURLToPath(import.meta.url))
 }
