@@ -1,6 +1,7 @@
 import {
   exp1Abi,
   exp1Address,
+  exp2Abi,
   exp2Address,
   expNftAbi,
   expNftAddress,
@@ -891,6 +892,48 @@ function SendCalls() {
               ],
             } as const
 
+          if (action === 'swap-exp1')
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp1Abi, 'swap'),
+                    [exp2Address[chainId], recipient, Value.fromEther('10')],
+                  ),
+                  to: exp1Address[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP',
+                    value: '10',
+                  },
+                ],
+              },
+            } as const
+
+          if (action === 'swap-exp2')
+            return {
+              calls: [
+                {
+                  data: AbiFunction.encodeData(
+                    AbiFunction.fromAbi(exp2Abi, 'swap'),
+                    [exp1Address[chainId], recipient, Value.fromEther('0.1')],
+                  ),
+                  to: exp2Address[chainId],
+                },
+              ],
+              capabilities: {
+                requiredFunds: [
+                  {
+                    symbol: 'EXP2',
+                    value: '0.1',
+                  },
+                ],
+              },
+            } as const
+
           if (action === 'transfer')
             return {
               calls: [
@@ -936,18 +979,7 @@ function SendCalls() {
                 {
                   data: AbiFunction.encodeData(
                     AbiFunction.fromAbi(exp1Abi, 'approve'),
-                    [recipient, Value.fromEther('50')],
-                  ),
-                  to: exp1Address[chainId],
-                },
-                {
-                  data: AbiFunction.encodeData(
-                    AbiFunction.fromAbi(exp1Abi, 'transferFrom'),
-                    [
-                      recipient,
-                      '0x0000000000000000000000000000000000000000',
-                      Value.fromEther('50'),
-                    ],
+                    [expNftAddress[chainId], Value.fromEther('10')],
                   ),
                   to: exp1Address[chainId],
                 },
@@ -962,7 +994,7 @@ function SendCalls() {
                 requiredFunds: [
                   {
                     symbol: 'EXP',
-                    value: '50',
+                    value: '10',
                   },
                 ],
               },
@@ -1046,10 +1078,10 @@ function SendCalls() {
       <div className="flex gap-2 overflow-auto">
         <select name="action">
           <option value="mint">Mint 100 EXP</option>
+          <option value="swap-exp1">Swap 10 EXP for 0.1 EXP2</option>
+          <option value="swap-exp2">Swap 0.1 EXP2 for 10 EXP</option>
           <option value="transfer">Transfer 50 EXP</option>
-          <option value="mint-transfer">
-            Mint 100 EXP2 + Transfer 50 EXP + Mint NFT
-          </option>
+          <option value="mint-transfer">Mint 100 EXP2 + Mint NFT</option>
           <option value="mint-nft">Mint NFT</option>
           <option value="revert">Revert</option>
           <option value="noop">Noop Calls</option>
