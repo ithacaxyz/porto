@@ -1,0 +1,51 @@
+{
+  "name": "@porto/ui",
+  "private": true,
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "build": "vite build",
+    "check": "biome check --write --unsafe",
+    "check:types": "tsc --noEmit",
+    "dev": "vite build --watch",
+    "prebuild": "panda codegen"
+  },
+  "peerDependencies": {
+    "@react-spring/web": "^10.0.1",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "^7.52.9",
+    "@pandacss/dev": "^0.54.0",
+    "@porto/apps": "workspace:*",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitejs/plugin-react-oxc": "^0.3.0",
+    "@vitejs/plugin-react-swc": "^3.11.0",
+    "postcss": "^8.5.6",
+    "rolldown-plugin-dts": "^0.14.2",
+    "typescript": "catalog:",
+    "unplugin-dts": "1.0.0-beta.4",
+    "unplugin-icons": "catalog:",
+    "unplugin-isolated-decl": "^0.14.6",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "directory": "apps/ui",
+    "url": "https://github.com/ithacaxyz/porto"
+  }
+}
