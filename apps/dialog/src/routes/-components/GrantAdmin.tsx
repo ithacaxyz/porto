@@ -48,8 +48,8 @@ export function GrantAdmin(props: GrantAdmin.Props) {
             error={prepareCallsQuery.error}
             errorMessage="An error occurred while calculating fees. This may be due to network issues or insufficient funds."
             feeTotals={feeTotals}
-            loading={prepareCallsQuery.isPending}
             quotes={quotes}
+            status={prepareCallsQuery.status}
           >
             {account?.address && (
               <div className="flex items-center justify-center gap-2">
