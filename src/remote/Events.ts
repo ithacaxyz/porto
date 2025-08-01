@@ -34,13 +34,14 @@ export function onDialogRequest(
       | undefined
     requireUpdatedAccount?: boolean | undefined
     request: Remote.RemoteState['requests'][number]['request'] | null
+    origin: string
   }) => void,
 ) {
   return onRequests(porto, (requests, event) => {
     const { account, request } = requests[0] ?? {}
 
     if (!request) {
-      cb({ request: null })
+      cb({ origin: event.origin, request: null })
       return
     }
 
@@ -92,6 +93,7 @@ export function onDialogRequest(
 
     cb({
       account: requireConnection ? account : undefined,
+      origin: event.origin,
       request,
       requireUpdatedAccount,
     })

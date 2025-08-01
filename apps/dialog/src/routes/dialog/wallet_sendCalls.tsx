@@ -26,6 +26,8 @@ function RouteComponent() {
   const client = Hooks.useServerClient(porto, { chainId })
 
   const respond = useMutation({
+    // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
+    // to dedupe.
     async mutationFn(data: Calls.prepareCalls.useQuery.Data) {
       if (!account) throw new Error('account not found.')
 

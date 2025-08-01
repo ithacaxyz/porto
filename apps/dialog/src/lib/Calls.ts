@@ -2,6 +2,7 @@ import { Query as Query_porto } from '@porto/apps'
 import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
 import { Account, ServerActions } from 'porto'
+import * as PreCalls from 'porto/core/internal/preCalls'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken'
 import { Hooks } from 'porto/remote'
 import type { ServerClient } from 'porto/viem'
@@ -27,6 +28,8 @@ export namespace prepareCalls {
 
     return Query.queryOptions({
       enabled: enabled && !!account,
+      // TODO: use EIP-1193 Provider + `wallet_sendPreparedCalls` in the future
+      // to dedupe.
       async queryFn({ queryKey }) {
         const [, { account, feeToken, ...parameters }] = queryKey
 
@@ -42,13 +45,18 @@ export namespace prepareCalls {
             }),
           )
 
-        // TODO: consider using EIP-1193 Provider + `wallet_prepareCalls` in the future
-        // (for case where the account wants to self-relay).
+        // Get pre-authorized keys to assign to the call bundle.
+        const preCalls = await PreCalls.get({
+          address: account.address,
+          storage: porto.config.storage,
+        })
+
         return await ServerActions.prepareCalls(client, {
           ...parameters,
           account,
           feeToken: feeTokenAddress,
           key,
+          preCalls,
         })
       },
       queryKey: queryOptions.queryKey(client, {

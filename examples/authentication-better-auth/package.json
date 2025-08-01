@@ -1,0 +1,40 @@
+{
+  "name": "better-auth-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "build:types": "wrangler types --include-runtime=false",
+    "db:init": "pnpx @better-auth/cli generate --config ./better-auth.cli.ts --output ./migrations/0_init.sql && wrangler d1 execute example --file migrations/0_init.sql",
+    "deploy": "pnpm run build && wrangler deploy",
+    "dev": "vite",
+    "prepreview": "pnpm build:types",
+    "preview": "pnpm run build && vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5",
+    "better-auth": "^1.3.4",
+    "better-sqlite3": "^12.2.0",
+    "hono": "^4",
+    "kysely": "^0.28.3",
+    "kysely-d1": "^0.4.0",
+    "porto": "latest",
+    "react": "^19",
+    "react-dom": "^19",
+    "viem": "^2",
+    "wagmi": "^2"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.7.5",
+    "@cloudflare/workers-types": "^4.20250628.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-mkcert": "^1",
+    "wrangler": "^4.21.2"
+  }
+}
