@@ -15,6 +15,7 @@
     "@porto/ui": "workspace:*",
     "@react-spring/web": "catalog:",
     "@tanstack/react-router": "catalog:",
+    "cva": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
