@@ -1,4 +1,4 @@
-import { Query as Query_porto } from '@porto/apps'
+import { Env, Query as Query_porto } from '@porto/apps'
 import * as Query from '@tanstack/react-query'
 import type { Address } from 'ox'
 import { Account, ServerActions } from 'porto'
@@ -12,7 +12,7 @@ import type { ServerClient } from 'porto/viem'
 import * as FeeTokens from './FeeTokens'
 import { porto } from './Porto'
 
-const multichain = import.meta.env.MODE !== 'test'
+const multichain = Env.get() !== 'anvil'
 
 export namespace prepareCalls {
   export function queryOptions<const calls extends readonly unknown[]>(
