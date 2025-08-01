@@ -295,6 +295,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
         return result
       },
 
+      async getAssets(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'wallet_getAssets')
+          throw new Error('Cannot get assets for method: ' + request.method)
+
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getAssets(parameters)
+
+        const provider = getProvider(store)
+        const result = await provider.request(request)
+        return result
+      },
+
       async getCallsStatus(parameters) {
         const { internal } = parameters
         const { store, request } = internal
