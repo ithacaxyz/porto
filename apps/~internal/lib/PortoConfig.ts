@@ -12,6 +12,7 @@ const config = {
     chains: [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros],
     mode: Mode.rpcServer({
       mock,
+      multichain: false,
       persistPreCalls: false,
     }),
   },

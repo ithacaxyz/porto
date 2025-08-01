@@ -19,8 +19,9 @@ export function CheckBalance(props: CheckBalance.Props) {
 
   const quotes = query.data?.capabilities.quote.quotes ?? []
   const hasFeeDeficit = quotes.some((quote, index) => {
-    const isDestination = index === quotes.length - 1 || quotes.length === 1
-    if (isDestination) return false
+    const isMultichainDestination =
+      index === quotes.length - 1 && quotes.length > 1
+    if (isMultichainDestination) return false
     return quote.feeTokenDeficit > 0n
   })
 
