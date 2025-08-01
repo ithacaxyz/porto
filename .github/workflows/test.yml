@@ -82,6 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      max-parallel: 2
       matrix:
         include:
           - env: 'anvil'
