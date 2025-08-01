@@ -2,7 +2,7 @@ import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import Process from 'node:process'
-import Icons from 'unplugin-icons/vite'
+import { Plugins } from '@porto/apps/vite'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
 
@@ -606,7 +606,7 @@ export default defineConfig({
           'anvil.localhost',
         ],
       }),
-      Icons({ compiler: 'jsx', jsx: 'react' }) as never,
+      Plugins.Icons(),
     ],
     server: {
       proxy: {},
