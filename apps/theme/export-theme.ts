@@ -287,10 +287,10 @@ function generateSvg(theme: PortoTheme) {
   const colors = Object.entries(theme)
     .filter(([name, value]) => name !== 'colorScheme' && isThemeColor(value))
     .map(([name, value]) => ({
-      name,
-      lightValue: value[1] as `#${string}`,
       darkValue: value[2] as `#${string}`,
       description: value[0],
+      lightValue: value[1] as `#${string}`,
+      name,
     }))
 
   const colorPairWidth = 280
@@ -303,7 +303,7 @@ function generateSvg(theme: PortoTheme) {
   const svgHeight =
     headerHeight + colors.length * colorSectionHeight + padding * 2
 
-  let svg: string = `<!-- ${GENERATED_BY} -->
+  let svg = `<!-- ${GENERATED_BY} -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">
 <defs>
 <style>
