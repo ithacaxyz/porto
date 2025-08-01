@@ -39,26 +39,11 @@ export const portoTheme: PortoTheme = {
     '#484848',
   ],
 
-  radiusSmall: ['Small radius. Used for small elements like icons.', 5],
-  radiusMedium: [
-    'Medium radius. Used for medium-sized elements like input fields or buttons.',
-    8,
-  ],
-  radiusLarge: [
-    'Large radius. Used for larger elements like dialog windows or panels.',
-    14,
-  ],
-
   // base surface
   baseBackground: [
     'Base background color. Used for the main dialog background and other large areas.',
     '#fcfcfc',
     '#191919',
-  ],
-  basePlaneBackground: [
-    'Base plane background color. Used as a surface underneath baseBackground or as an alternative to it.',
-    '#f9f9f9',
-    '#222222',
   ],
   baseBorder: [
     'Base border color. Used around base surfaces.',
@@ -73,12 +58,12 @@ export const portoTheme: PortoTheme = {
   baseContentSecondary: [
     'Secondary base content color. Used over baseBackground for secondary text and icons.',
     '#8d8d8d',
-    '#7b7b7b',
+    '#6e6e6e',
   ],
   baseContentTertiary: [
     'Tertiary base content color. Used over baseBackground for text and icons.',
     '#838383',
-    '#6e6e6e',
+    '#7b7b7b',
   ],
   baseContentPositive: [
     'Positive base content color, such as success messages or positive values. Used over baseBackground for text and icons.',
@@ -100,17 +85,17 @@ export const portoTheme: PortoTheme = {
   frameBackground: [
     'Frame background color. Used for the dialog title bar and other frame elements.',
     '#fcfcfc',
-    '#191919',
+    '#222222',
   ],
   frameContent: [
     'Frame content color. Used over frameBackground for text and icons.',
     '#838383',
-    '#6e6e6e',
+    '#7b7b7b',
   ],
   frameBorder: [
     'Frame border color. Used around frame surfaces.',
-    '#f0f0f0',
-    '#313131',
+    '#e0e0e0',
+    '#2a2a2a',
   ],
   frameRadius: ['Frame radius. Used for the radius of the dialog.', 14],
 
@@ -127,13 +112,13 @@ export const portoTheme: PortoTheme = {
   ],
   badgeStrongBackground: [
     'More prominent badge background color. Used for badges that need to stand out more than the default badge, such as the default icon in the title bar.',
-    '#d9d9d9',
-    '#3a3a3a',
+    '#D9D9D9',
+    '#3A3A3A',
   ],
   badgeStrongContent: [
     'Content color for strong badges. Used over badgeStrongBackground for text and icons.',
     '#000000',
-    '#ffffff',
+    '#FFFFFF',
   ],
   badgeInfoBackground: [
     'Background color for info badges. Used for the background of icons that provide additional information or context, e.g. the icons used for screen titles.',
@@ -147,33 +132,33 @@ export const portoTheme: PortoTheme = {
   ],
   badgeNegativeBackground: [
     'Background color for negative badges. Used for badges indicating negative states or values, such as errors or warnings.',
-    '#fcd8da',
-    '#500f1c',
+    '#FCD8DA',
+    '#500F1C',
   ],
   badgeNegativeContent: [
     'Content color for negative badges. Used over badgeNegativeBackground for text and icons.',
-    '#dc3e42',
-    '#ec5d5e',
+    '#DC3E42',
+    '#EC5D5E',
   ],
   badgePositiveBackground: [
     'Background color for positive badges. Used for badges indicating positive states or values.',
-    '#e3f3e8',
-    '#1a3428',
+    '#E3F3E8',
+    '#1A3428',
   ],
   badgePositiveContent: [
     'Content color for positive badges. Used over badgePositiveBackground for text and icons.',
-    '#30a46c',
-    '#30a46c',
+    '#30A46C',
+    '#30A46C',
   ],
   badgeWarningBackground: [
     'Background color for warning badges. Used for badges indicating warnings or important notices.',
-    '#fbf8e6',
+    '#FBF8E6',
     '#252018',
   ],
   badgeWarningContent: [
     'Content color for warning badges. Used over badgeWarningBackground for text and icons.',
-    '#e2a336',
-    '#8f6424',
+    '#E2A336',
+    '#8F6424',
   ],
 
   // primary
@@ -184,13 +169,13 @@ export const portoTheme: PortoTheme = {
   ],
   primaryBorder: [
     'Primary border color. Used around primary surfaces.',
-    '#0090ff',
-    '#0090ff',
+    '#e0e0e0',
+    '#2a2a2a',
   ],
   primaryContent: [
     'Primary content color. Used over primaryBackground for text and icons.',
-    '#ffffff',
-    '#ffffff',
+    '#FFF',
+    '#FFF',
   ],
   primaryHoveredBackground: [
     'Primary buttons background color when hovered.',
@@ -206,13 +191,13 @@ export const portoTheme: PortoTheme = {
   // secondary
   secondaryBackground: [
     'Secondary background color. Used for secondary buttons and interactive elements.',
-    '#e8e8e8',
-    '#2a2a2a',
+    '#f0f0f0',
+    '#222222',
   ],
   secondaryBorder: [
     'Secondary border color. Used around secondary surfaces.',
-    '#e8e8e8',
-    '#2a2a2a',
+    '#f0f0f0',
+    '#222222',
   ],
   secondaryContent: [
     'Secondary content color. Used over secondaryBackground for text and icons.',
@@ -221,98 +206,52 @@ export const portoTheme: PortoTheme = {
   ],
   secondaryHoveredBackground: [
     'Secondary buttons background color when hovered.',
-    '#e0e0e0',
-    '#313131',
+    '#e8e8e8',
+    '#2a2a2a',
   ],
   secondaryHoveredBorder: [
     'Secondary buttons border color when hovered. Used around secondary surfaces.',
-    '#e0e0e0',
-    '#313131',
+    '#e8e8e8',
+    '#2a2a2a',
   ],
 
   // disabled
   disabledBackground: [
     'Disabled buttons background color. Used for disabled buttons and interactive elements.',
-    '#f0f0f0',
+    '#F0F0F0',
     '#222222',
   ],
   disabledBorder: [
     'Disabled buttons border color. Used for borders around disabled surfaces.',
-    '#f0f0f0',
+    '#F0F0F0',
     '#222222',
   ],
   disabledContent: [
     'Disabled content color. Used over disabledBackground for text and icons.',
-    '#bbbbbb',
+    '#BBBBBB',
     '#606060',
   ],
 
-  // negative
+  // positive / negative
   negativeBackground: [
-    'Negative background color. Generally red, used for interactive elements indicating a critical action, such as a delete button.',
-    '#dc3e42',
-    '#8f6424',
+    'Negative background color. Generally red, used for elements indicating error or negative state, such as a destructive action or an error message.',
+    '#feebec',
+    '#3b1219',
   ],
   negativeContent: [
-    'Negative content color. Used over negativeBackground for text and icons.',
-    '#ffffff',
-    '#ffffff',
-  ],
-  negativeBorder: [
-    'Negative border color. Used around negative surfaces.',
-    '#dc3e42',
-    '#8f6424',
-  ],
-
-  // negative secondary
-  negativeSecondaryBackground: [
-    'Secondary negative background color. Used for elements indicating a non-critical negative action, such as cancelling an operation.',
-    '#fcd8da',
-    '#500f1c',
-  ],
-  negativeSecondaryContent: [
-    'Danger content color. Used over dangerBackground for text and icons in critical elements.',
+    'Negative content color. Used over negativeBackground for text and icons in error elements.',
     '#e5484d',
     '#e5484d',
   ],
-  negativeSecondaryBorder: [
-    'Secondary negative border color. Used around secondary negative surfaces.',
-    '#fcd8da',
-    '#500f1c',
-  ],
-
-  // positive
   positiveBackground: [
     'Positive background color. Generally green, used for elements indicating success or positive state, such as a success message or a confirmation button.',
-    '#30a46c',
-    '#30a46c',
+    '#e6f7ed',
+    '#0d2a1f',
   ],
   positiveContent: [
     'Positive content color. Used over positiveBackground for text and icons in success elements.',
-    '#ffffff',
-    '#ffffff',
-  ],
-  positiveBorder: [
-    'Positive border color. Used around positive surfaces.',
     '#30a46c',
     '#30a46c',
-  ],
-
-  // strong
-  strongBackground: [
-    'Strong background color. Used for elements that need to stand out, similar to primary but with a more pronounced effect.',
-    '#202020',
-    '#eeeeee',
-  ],
-  strongContent: [
-    'Strong content color. Used over strongBackground for text and icons.',
-    '#ffffff',
-    '#000000',
-  ],
-  strongBorder: [
-    'Strong border color. Used around strong surfaces.',
-    '#202020',
-    '#eeeeee',
   ],
 
   // field

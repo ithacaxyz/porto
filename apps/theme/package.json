@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "pnpm dev:styles",
     "dev:styles": "./export-theme.ts --as tailwind --out ../~internal/styles/porto-theme.css --no-confirm --watch",
-    "export:all": "pnpm export:styles && pnpm export:mappings && pnpm export:docs",
     "export:styles": "./export-theme.ts --as tailwind --out ../~internal/styles/porto-theme.css --no-confirm",
     "export:mappings": "./export-theme.ts --as tailwind_mappings --out ../~internal/_generated/theme-mappings.ts --no-confirm",
     "export:docs": "./export-theme.ts --as mdx --out ../docs/pages/sdk/api/theme.mdx --no-confirm"
