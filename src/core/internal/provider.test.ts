@@ -227,6 +227,191 @@ describe.each([
     })
   })
 
+  describe.runIf(type === 'rpcServer')('wallet_getAssets', () => {
+    test('default', async () => {
+      const porto = getPorto()
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+
+      const result = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: account!.address }],
+      })
+      expect(result).toBeDefined()
+      expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
+    })
+
+    test('behavior: with balances', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+      const address = account!.address
+
+      // Set native balance
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('100'),
+      })
+
+      // Mint some ERC20 tokens
+      await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: contracts.exp1.abi,
+                  args: [address, Value.fromEther('1000')],
+                  functionName: 'mint',
+                }),
+                to: contracts.exp1.address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      const result = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+
+      expect(result).toBeDefined()
+      const assetKeys = Object.keys(result)
+      expect(assetKeys.length).toBeGreaterThanOrEqual(1)
+
+      // Check if we have chain-specific assets
+      const chainId = Hex.fromNumber(client.chain.id)
+      expect(result[chainId]).toBeDefined()
+      expect(Array.isArray(result[chainId])).toBe(true)
+    })
+
+    test('behavior: after transaction', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+      const address = account!.address
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('1000'),
+      })
+
+      // Get assets before transaction
+      const assetsBefore = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+
+      const alice = Hex.random(20)
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: contracts.exp1.abi,
+                  args: [alice, Value.fromEther('50')],
+                  functionName: 'transfer',
+                }),
+                to: contracts.exp1.address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      await waitForCallsStatus(WalletClient.fromPorto(porto), {
+        id,
+      })
+
+      // Get assets after transaction
+      const assetsAfter = await porto.provider.request({
+        method: 'wallet_getAssets',
+        params: [{ account: address }],
+      })
+
+      expect(assetsAfter).toBeDefined()
+      expect(Object.keys(assetsAfter).length).toBeGreaterThanOrEqual(1)
+      // The balance should have changed after the transaction
+      expect(assetsAfter).not.toEqual(assetsBefore)
+    })
+
+    test('behavior: multiple chains; one unsupported', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [
+          {
+            capabilities: {
+              createAccount: true,
+            },
+          },
+        ],
+      })
+      const address = account!.address
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('100'),
+      })
+
+      await expect(
+        porto.provider.request({
+          method: 'wallet_getAssets',
+          params: [{ account: address, chainFilter: [Hex.fromNumber(999999)] }],
+        }),
+      ).rejects.toThrow('unsupported chain 999999')
+    })
+  })
+
   describe('wallet_getAdmins', () => {
     test('default', async () => {
       const porto = getPorto()
@@ -2661,6 +2846,58 @@ describe.each([
           ],
         }),
       ).rejects.matchSnapshot()
+    })
+  })
+
+  describe('wallet_getCallsStatus', () => {
+    test('default', async () => {
+      const porto = getPorto()
+      const client = TestConfig.getServerClient(porto)
+      const contracts = TestConfig.getContracts(porto)
+
+      const {
+        accounts: [account],
+      } = await porto.provider.request({
+        method: 'wallet_connect',
+        params: [{ capabilities: { createAccount: true } }],
+      })
+      const address = account!.address
+
+      await setBalance(client, {
+        address,
+        value: Value.fromEther('10000'),
+      })
+
+      const alice = Hex.random(20)
+
+      const { id } = await porto.provider.request({
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            calls: [
+              {
+                data: encodeFunctionData({
+                  abi: contracts.exp1.abi,
+                  args: [alice, 69420n],
+                  functionName: 'transfer',
+                }),
+                to: contracts.exp1.address,
+              },
+            ],
+            from: address,
+            version: '1',
+          },
+        ],
+      })
+
+      expect(id).toBeDefined()
+
+      const response = await porto.provider.request({
+        method: 'wallet_getCallsStatus',
+        params: [id],
+      })
+
+      expect(response.id).toBe(id)
     })
   })
 

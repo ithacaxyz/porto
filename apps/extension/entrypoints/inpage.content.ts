@@ -5,6 +5,7 @@ const relayMethods = [
   'wallet_feeTokens',
   'wallet_getAccounts',
   'wallet_getCapabilities',
+  'wallet_getAssets',
   'wallet_getCallsStatus',
   'wallet_getKeys',
   'wallet_prepareCalls',

@@ -205,6 +205,10 @@ export function contract(parameters: contract.Parameters = {}) {
         return { current, latest }
       },
 
+      async getAssets(_parameters) {
+        throw new Provider.UnsupportedMethodError()
+      },
+
       async getCallsStatus(parameters) {
         const { id, internal } = parameters
         const { client } = internal
