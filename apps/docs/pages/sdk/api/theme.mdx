@@ -46,12 +46,37 @@ Link color. Used for hyperlinks and interactive text elements.
 
 Separator color. Used for dividing elements, such as lines between sections or items.
 
+## radiusSmall
+
+- **Default:** `5{:ts}`
+
+Small radius. Used for small elements like icons.
+
+## radiusMedium
+
+- **Default:** `8{:ts}`
+
+Medium radius. Used for medium-sized elements like input fields or buttons.
+
+## radiusLarge
+
+- **Default:** `14{:ts}`
+
+Large radius. Used for larger elements like dialog windows or panels.
+
 ## baseBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
 - **Default:** `["#fcfcfc", "#191919"]{:ts}`
 
 Base background color. Used for the main dialog background and other large areas.
+
+## basePlaneBackground
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#f9f9f9", "#222222"]{:ts}`
+
+Base plane background color. Used as a surface underneath baseBackground or as an alternative to it.
 
 ## baseBorder
 
@@ -70,14 +95,14 @@ Base content color. Used over baseBackground for text and icons.
 ## baseContentSecondary
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#8d8d8d", "#6e6e6e"]{:ts}`
+- **Default:** `["#8d8d8d", "#7b7b7b"]{:ts}`
 
 Secondary base content color. Used over baseBackground for secondary text and icons.
 
 ## baseContentTertiary
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#838383", "#7b7b7b"]{:ts}`
+- **Default:** `["#838383", "#6e6e6e"]{:ts}`
 
 Tertiary base content color. Used over baseBackground for text and icons.
 
@@ -105,21 +130,21 @@ Base background color when hovered, e.g. for links showing a background color wh
 ## frameBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#fcfcfc", "#222222"]{:ts}`
+- **Default:** `["#fcfcfc", "#191919"]{:ts}`
 
 Frame background color. Used for the dialog title bar and other frame elements.
 
 ## frameContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#838383", "#7b7b7b"]{:ts}`
+- **Default:** `["#838383", "#6e6e6e"]{:ts}`
 
 Frame content color. Used over frameBackground for text and icons.
 
 ## frameBorder
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#e0e0e0", "#2a2a2a"]{:ts}`
+- **Default:** `["#f0f0f0", "#313131"]{:ts}`
 
 Frame border color. Used around frame surfaces.
 
@@ -146,14 +171,14 @@ Badge content color. Used over badgeBackground for text and icons.
 ## badgeStrongBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#D9D9D9", "#3A3A3A"]{:ts}`
+- **Default:** `["#d9d9d9", "#3a3a3a"]{:ts}`
 
 More prominent badge background color. Used for badges that need to stand out more than the default badge, such as the default icon in the title bar.
 
 ## badgeStrongContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#000000", "#FFFFFF"]{:ts}`
+- **Default:** `["#000000", "#ffffff"]{:ts}`
 
 Content color for strong badges. Used over badgeStrongBackground for text and icons.
 
@@ -174,42 +199,42 @@ Content color for info badges. Used over badgeInfoBackground for text and icons.
 ## badgeNegativeBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#FCD8DA", "#500F1C"]{:ts}`
+- **Default:** `["#fcd8da", "#500f1c"]{:ts}`
 
 Background color for negative badges. Used for badges indicating negative states or values, such as errors or warnings.
 
 ## badgeNegativeContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#DC3E42", "#EC5D5E"]{:ts}`
+- **Default:** `["#dc3e42", "#ec5d5e"]{:ts}`
 
 Content color for negative badges. Used over badgeNegativeBackground for text and icons.
 
 ## badgePositiveBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#E3F3E8", "#1A3428"]{:ts}`
+- **Default:** `["#e3f3e8", "#1a3428"]{:ts}`
 
 Background color for positive badges. Used for badges indicating positive states or values.
 
 ## badgePositiveContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#30A46C", "#30A46C"]{:ts}`
+- **Default:** `["#30a46c", "#30a46c"]{:ts}`
 
 Content color for positive badges. Used over badgePositiveBackground for text and icons.
 
 ## badgeWarningBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#FBF8E6", "#252018"]{:ts}`
+- **Default:** `["#fbf8e6", "#252018"]{:ts}`
 
 Background color for warning badges. Used for badges indicating warnings or important notices.
 
 ## badgeWarningContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#E2A336", "#8F6424"]{:ts}`
+- **Default:** `["#e2a336", "#8f6424"]{:ts}`
 
 Content color for warning badges. Used over badgeWarningBackground for text and icons.
 
@@ -223,14 +248,14 @@ Primary background color. Used for primary buttons and important interactive ele
 ## primaryBorder
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#e0e0e0", "#2a2a2a"]{:ts}`
+- **Default:** `["#0090ff", "#0090ff"]{:ts}`
 
 Primary border color. Used around primary surfaces.
 
 ## primaryContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#FFF", "#FFF"]{:ts}`
+- **Default:** `["#ffffff", "#ffffff"]{:ts}`
 
 Primary content color. Used over primaryBackground for text and icons.
 
@@ -251,14 +276,14 @@ Primary border color when hovered. Used around primary surfaces.
 ## secondaryBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#f0f0f0", "#222222"]{:ts}`
+- **Default:** `["#e8e8e8", "#2a2a2a"]{:ts}`
 
 Secondary background color. Used for secondary buttons and interactive elements.
 
 ## secondaryBorder
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#f0f0f0", "#222222"]{:ts}`
+- **Default:** `["#e8e8e8", "#2a2a2a"]{:ts}`
 
 Secondary border color. Used around secondary surfaces.
 
@@ -272,65 +297,121 @@ Secondary content color. Used over secondaryBackground for text and icons.
 ## secondaryHoveredBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#e8e8e8", "#2a2a2a"]{:ts}`
+- **Default:** `["#e0e0e0", "#313131"]{:ts}`
 
 Secondary buttons background color when hovered.
 
 ## secondaryHoveredBorder
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#e8e8e8", "#2a2a2a"]{:ts}`
+- **Default:** `["#e0e0e0", "#313131"]{:ts}`
 
 Secondary buttons border color when hovered. Used around secondary surfaces.
 
 ## disabledBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#F0F0F0", "#222222"]{:ts}`
+- **Default:** `["#f0f0f0", "#222222"]{:ts}`
 
 Disabled buttons background color. Used for disabled buttons and interactive elements.
 
 ## disabledBorder
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#F0F0F0", "#222222"]{:ts}`
+- **Default:** `["#f0f0f0", "#222222"]{:ts}`
 
 Disabled buttons border color. Used for borders around disabled surfaces.
 
 ## disabledContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#BBBBBB", "#606060"]{:ts}`
+- **Default:** `["#bbbbbb", "#606060"]{:ts}`
 
 Disabled content color. Used over disabledBackground for text and icons.
 
 ## negativeBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#feebec", "#3b1219"]{:ts}`
+- **Default:** `["#dc3e42", "#8f6424"]{:ts}`
 
-Negative background color. Generally red, used for elements indicating error or negative state, such as a destructive action or an error message.
+Negative background color. Generally red, used for interactive elements indicating a critical action, such as a delete button.
 
 ## negativeContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#ffffff", "#ffffff"]{:ts}`
+
+Negative content color. Used over negativeBackground for text and icons.
+
+## negativeBorder
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#dc3e42", "#8f6424"]{:ts}`
+
+Negative border color. Used around negative surfaces.
+
+## negativeSecondaryBackground
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#fcd8da", "#500f1c"]{:ts}`
+
+Secondary negative background color. Used for elements indicating a non-critical negative action, such as cancelling an operation.
+
+## negativeSecondaryContent
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
 - **Default:** `["#e5484d", "#e5484d"]{:ts}`
 
-Negative content color. Used over negativeBackground for text and icons in error elements.
+Danger content color. Used over dangerBackground for text and icons in critical elements.
+
+## negativeSecondaryBorder
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#fcd8da", "#500f1c"]{:ts}`
+
+Secondary negative border color. Used around secondary negative surfaces.
 
 ## positiveBackground
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#e6f7ed", "#0d2a1f"]{:ts}`
+- **Default:** `["#30a46c", "#30a46c"]{:ts}`
 
 Positive background color. Generally green, used for elements indicating success or positive state, such as a success message or a confirmation button.
 
 ## positiveContent
 
 - **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
-- **Default:** `["#30a46c", "#30a46c"]{:ts}`
+- **Default:** `["#ffffff", "#ffffff"]{:ts}`
 
 Positive content color. Used over positiveBackground for text and icons in success elements.
+
+## positiveBorder
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#30a46c", "#30a46c"]{:ts}`
+
+Positive border color. Used around positive surfaces.
+
+## strongBackground
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#202020", "#eeeeee"]{:ts}`
+
+Strong background color. Used for elements that need to stand out, similar to primary but with a more pronounced effect.
+
+## strongContent
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#ffffff", "#000000"]{:ts}`
+
+Strong content color. Used over strongBackground for text and icons.
+
+## strongBorder
+
+- **Type:** `Theme.LightDarkColor | Theme.Color{:ts}`
+- **Default:** `["#202020", "#eeeeee"]{:ts}`
+
+Strong border color. Used around strong surfaces.
 
 ## fieldBackground
 

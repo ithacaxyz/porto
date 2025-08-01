@@ -22,7 +22,12 @@ export type Theme<
   link: SchemeColor
   separator: SchemeColor
 
+  radiusSmall: number
+  radiusMedium: number
+  radiusLarge: number
+
   baseBackground: SchemeColor
+  basePlaneBackground: SchemeColor
   baseBorder: SchemeColor
   baseContent: SchemeColor
   baseContentSecondary: SchemeColor
@@ -56,8 +61,8 @@ export type Theme<
   primaryHoveredBorder: SchemeColor
 
   secondaryBackground: SchemeColor
-  secondaryBorder: SchemeColor
   secondaryContent: SchemeColor
+  secondaryBorder: SchemeColor
   secondaryHoveredBackground: SchemeColor
   secondaryHoveredBorder: SchemeColor
 
@@ -67,8 +72,19 @@ export type Theme<
 
   negativeBackground: SchemeColor
   negativeContent: SchemeColor
+  negativeBorder: SchemeColor
+
+  negativeSecondaryBackground: SchemeColor
+  negativeSecondaryContent: SchemeColor
+  negativeSecondaryBorder: SchemeColor
+
   positiveBackground: SchemeColor
   positiveContent: SchemeColor
+  positiveBorder: SchemeColor
+
+  strongBackground: SchemeColor
+  strongContent: SchemeColor
+  strongBorder: SchemeColor
 
   fieldBackground: SchemeColor
   fieldContent: SchemeColor
