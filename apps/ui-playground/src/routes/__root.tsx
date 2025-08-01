@@ -19,7 +19,7 @@ const sections = [
 
 function RootComponent() {
   return (
-    <div className="grid h-screen grid-cols-[256px_1fr] select-none bg-th_base-plane text-th_base">
+    <div className="grid h-screen select-none grid-cols-[256px_1fr] bg-th_base-plane text-th_base">
       <Sidebar />
       <div className="flex-1 overflow-y-auto px-16 py-12">
         <Outlet />
