@@ -117,8 +117,8 @@ export function UpdateAccount(props: UpdateAccount.Props) {
             error={error}
             errorMessage="An error occurred while calculating fees."
             feeTotals={feeTotals}
-            loading={isPending}
             quotes={quotes}
+            status={isPending ? 'pending' : prepareCallsQuery.status}
           >
             <div className="flex items-center justify-center gap-2">
               <div className="font-mono text-th_base-secondary tabular-nums">

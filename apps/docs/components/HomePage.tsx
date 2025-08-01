@@ -1098,6 +1098,7 @@ function Swap(props: {
   } = useReadContract({
     abi: exp1Config.abi,
     address: exp1Config.address[chainId],
+    chainId: 84532,
     ...shared,
   })
   const {
@@ -1107,6 +1108,7 @@ function Swap(props: {
   } = useReadContract({
     abi: exp2Config.abi,
     address: exp2Config.address[chainId],
+    chainId: 11155420,
     ...shared,
   })
   // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
@@ -1176,6 +1178,7 @@ function Swap(props: {
             },
           ],
         },
+        chainId: fromSymbol === 'exp1' ? 11155420 : 84532,
       })
     } catch (err) {
       const error = (() => {
