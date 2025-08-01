@@ -26,14 +26,14 @@ if (import.meta.env.PROD) {
   })
 }
 
-const offInitialized = Events.onInitialized(porto, (payload) => {
+const offInitialized = Events.onInitialized(porto, (payload, event) => {
   const { mode, referrer, theme } = payload
 
   Dialog.store.setState({
     mode,
     referrer: {
       ...referrer,
-
+      origin: event.origin,
       // If there is no referrer, it is likely the user is using Porto in
       // an incognito window.
       //

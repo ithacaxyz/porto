@@ -26,7 +26,8 @@ describe('authenticate', () => {
             signature: '0xdeadbeef',
             walletAddress: '0x1234567890123456789012345678901234567890',
           })
-          res.end('OK')
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ token: 'test-token' }))
         })
       } else {
         res.statusCode = 404
@@ -34,7 +35,7 @@ describe('authenticate', () => {
       }
     })
 
-    await SiweModule.authenticate({
+    const result = await SiweModule.authenticate({
       address: '0x1234567890123456789012345678901234567890',
       authUrl: {
         logout: `${server.url}/logout`,
@@ -43,6 +44,9 @@ describe('authenticate', () => {
       },
       message: 'test message',
       signature: '0xdeadbeef',
+    })
+    expect(result).toEqual({
+      token: 'test-token',
     })
   })
 

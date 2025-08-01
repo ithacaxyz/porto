@@ -55,6 +55,11 @@ export const portoTheme: PortoTheme = {
     '#fcfcfc',
     '#191919',
   ],
+  baseAltBackground: [
+    'Alternative base background color. Used for surfaces such as panels or sections that need to be visually distinct from the main baseBackground.',
+    '#f0f0f0',
+    '#2a2a2a',
+  ],
   basePlaneBackground: [
     'Base plane background color. Used as a surface underneath baseBackground or as an alternative to it.',
     '#f9f9f9',
@@ -117,8 +122,8 @@ export const portoTheme: PortoTheme = {
   // badges
   badgeBackground: [
     'Default badge background color. Used for small labels, indicators or icons, e.g. for the environment name in the title bar.',
-    '#e8e8e8',
-    '#2a2a2a',
+    '#e0e0e0',
+    '#222222',
   ],
   badgeContent: [
     'Badge content color. Used over badgeBackground for text and icons.',

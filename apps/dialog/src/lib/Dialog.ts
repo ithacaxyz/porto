@@ -68,6 +68,7 @@ export declare namespace store {
     mode: Payload['mode']
     referrer:
       | (Payload['referrer'] & {
+          origin: string
           url?: URL | undefined
         })
       | undefined

@@ -92,10 +92,10 @@ jobs:
             enabled: ${{ inputs.test-local-node == true || inputs.test-local-node == null }}
           - env: ${{ inputs.env || 'stg' }}
             browser: 'true'
-            enabled: ${{ inputs.test-deployment-browser == true || inputs.test-deployment-browser == null }}
+            enabled: ${{ github.ref == 'refs/heads/main' && (inputs.test-deployment-browser == true || inputs.test-deployment-browser == null) }}
           - env: ${{ inputs.env || 'stg' }}
             browser: 'false'
-            enabled: ${{ inputs.test-deployment-node == true || inputs.test-deployment-node == null }}
+            enabled: ${{ github.ref == 'refs/heads/main' && (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}
     env: 
       CI: true
       VITE_DEFAULT_ENV: ${{ matrix.env }}

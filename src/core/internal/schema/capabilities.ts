@@ -73,6 +73,7 @@ export namespace signInWithEthereum {
   export const Response = Schema.Struct({
     message: Schema.String,
     signature: Primitive.Hex,
+    token: Schema.optional(Schema.String),
   })
   export type Response = typeof Response.Type
 }

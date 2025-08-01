@@ -15,6 +15,7 @@ export const tailwindThemeMappings: TailwindThemeMapping[] = [
   ['radiusMedium', '--radius-th_medium', 'px'],
   ['radiusLarge', '--radius-th_large', 'px'],
   ['baseBackground', '--background-color-th_base', 'color'],
+  ['baseAltBackground', '--background-color-th_base-alt', 'color'],
   ['basePlaneBackground', '--background-color-th_base-plane', 'color'],
   ['baseBorder', '--border-color-th_base', 'color'],
   ['baseContent', '--text-color-th_base', 'color'],

@@ -242,9 +242,9 @@ export namespace ActionRequest {
 
                   <div
                     className={cx(
-                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-th_base',
+                      '-tracking-[0.25] -bottom-1.5 -end-2 absolute flex size-4 items-center justify-center rounded-full font-medium text-[11px] outline-2 outline-[var(--background-color-th_secondary)]',
                       receiving
-                        ? 'bg-th_positive text-th_positive'
+                        ? 'bg-th_badge-positive text-th_badge-positive'
                         : 'bg-th_badge text-th_badge',
                     )}
                   >
@@ -405,7 +405,7 @@ export namespace ActionRequest {
           'space-y-3 overflow-hidden rounded-lg px-3 transition-all duration-300 ease-in-out',
           {
             'bg-th_badge-warning py-2 text-th_badge-warning': error,
-            'bg-th_secondary py-3': !error,
+            'bg-th_base-alt py-3': !error,
             'h-[90px] max-h-[90px]': loading,
             'max-h-[500px]': !loading,
           },

@@ -534,7 +534,7 @@ describe('signInWithEthereum', () => {
         [Schema.CoderError: \`message\` is missing
         Path: message
 
-        Details: { readonly message: string; readonly signature: \`0x\${string}\` }
+        Details: { readonly message: string; readonly signature: \`0x\${string}\`; readonly token?: string | undefined }
         └─ ["message"]
            └─ is missing]
       `)
@@ -549,7 +549,7 @@ describe('signInWithEthereum', () => {
         [Schema.CoderError: \`signature\` is missing
         Path: signature
 
-        Details: { readonly message: string; readonly signature: \`0x\${string}\` }
+        Details: { readonly message: string; readonly signature: \`0x\${string}\`; readonly token?: string | undefined }
         └─ ["signature"]
            └─ is missing]
       `)
@@ -598,7 +598,7 @@ describe('signInWithEthereum', () => {
         [Schema.CoderError: Expected \`0x\${string}\`, actual "invalid"
         Path: signature
 
-        Details: { readonly message: string; readonly signature: \`0x\${string}\` }
+        Details: { readonly message: string; readonly signature: \`0x\${string}\`; readonly token?: string | undefined }
         └─ ["signature"]
            └─ Expected \`0x\${string}\`, actual "invalid"]
       `)

@@ -27,6 +27,7 @@ export type Theme<
   radiusLarge: number
 
   baseBackground: SchemeColor
+  baseAltBackground: SchemeColor
   basePlaneBackground: SchemeColor
   baseBorder: SchemeColor
   baseContent: SchemeColor
