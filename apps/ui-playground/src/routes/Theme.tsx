@@ -53,10 +53,10 @@ function ColorSwatch({ color }: { color: string }) {
   return (
     <div className="flex items-center overflow-hidden whitespace-nowrap rounded-th_medium border-1 border-th_base-secondary border-th_frame bg-th_frame text-th_frame">
       <label
+        aria-label={color}
         className="size-7 flex-shrink-0"
         htmlFor={id}
         style={{ backgroundColor: color }}
-        aria-label={color}
       />
       <input
         className="h-full w-24 overflow-hidden text-ellipsis whitespace-nowrap bg-th_frame px-3 text-inherit outline-none"
