@@ -31,7 +31,29 @@ export {
  * Creates a new Porto Account using an ephemeral EOA.
  *
  * @example
- * TODO
+  * ```typescript
+ * import { createClient, http } from 'viem'
+ * import { sepolia } from 'viem/chains'
+ * import * as Key from 'porto/viem/Key'
+ * import { createAccount } from 'porto/viem/ServerActions'
+ * 
+ * // 1. Create a client connected to Porto RPC server
+ * const client = createClient({
+ *   chain: sepolia,
+ *   transport: http('https://rpc.porto.sh')
+ * })
+ * 
+ * // 2. Create an admin key for the account
+ * const adminKey = Key.createHeadlessWebAuthnP256()
+ * 
+ * // 3. Create the Porto account
+ * const account = await createAccount(client, {
+ *   authorizeKeys: [adminKey]
+ * })
+ * 
+ * console.log('Account created:', account.address)
+ * // Account created: 0x742d35Cc6634C0532925a3b8D5c9E9E9E9E9E9E9
+ * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
