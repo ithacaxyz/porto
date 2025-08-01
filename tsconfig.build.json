@@ -3,6 +3,7 @@
   "extends": "./tsconfig.base.json",
   "include": ["src"],
   "exclude": [
+    "**/_/**",
     "**/bin/**",
     "src/**/*.bench.ts",
     "src/**/*.bench-d.ts",

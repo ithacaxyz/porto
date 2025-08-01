@@ -533,3 +533,84 @@ describe('prepareCalls + sendPreparedCalls', () => {
     expect(status).toBe('success')
   })
 })
+
+describe('getAssets', () => {
+  test('default', async () => {
+    const porto = TestConfig.getPorto()
+    const walletClient = TestConfig.getWalletClient(porto)
+
+    const {
+      accounts: [account],
+    } = await WalletActions.connect(walletClient, {
+      createAccount: true,
+    })
+
+    const result = await WalletActions.getAssets(walletClient, {
+      account: account!.address,
+    })
+
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
+  })
+
+  test('behavior: with chainFilter', async () => {
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
+
+    const {
+      accounts: [account],
+    } = await WalletActions.connect(walletClient, {
+      createAccount: true,
+    })
+
+    await setBalance(serverClient, {
+      address: account!.address,
+      value: Value.fromEther('50'),
+    })
+
+    const chainId = `0x${serverClient.chain.id.toString(16)}` as `0x${string}`
+
+    const result = await WalletActions.getAssets(walletClient, {
+      account: account!.address,
+      chainFilter: [chainId as `0x${string}`],
+    })
+
+    expect(Object.keys(result)).toEqual([chainId])
+    expect(result[chainId]).toBeDefined()
+  })
+
+  test('behavior: with assetTypeFilter', async () => {
+    const porto = TestConfig.getPorto()
+    const serverClient = TestConfig.getServerClient(porto)
+    const walletClient = TestConfig.getWalletClient(porto)
+
+    const {
+      accounts: [account],
+    } = await WalletActions.connect(walletClient, {
+      createAccount: true,
+    })
+
+    await setBalance(serverClient, {
+      address: account!.address,
+      value: Value.fromEther('10'),
+    })
+
+    const nativeResult = await WalletActions.getAssets(walletClient, {
+      account: account!.address,
+      assetTypeFilter: ['native'],
+    })
+
+    const chainId = `0x${serverClient.chain.id.toString(16)}` as `0x${string}`
+    const nativeAssets = nativeResult[chainId]
+    expect(nativeAssets?.every((asset) => asset.type === 'native')).toBe(true)
+
+    const erc20Result = await WalletActions.getAssets(walletClient, {
+      account: account!.address,
+      assetTypeFilter: ['erc20'],
+    })
+
+    const erc20Assets = erc20Result[chainId]
+    expect(erc20Assets?.every((asset) => asset.type === 'erc20')).toBe(true)
+  })
+})

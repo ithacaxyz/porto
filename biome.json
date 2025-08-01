@@ -58,6 +58,7 @@
       "enabled": true
     },
     "parser": {
+      "allowComments": true,
       "allowTrailingCommas": true
     }
   },
@@ -110,6 +111,15 @@
     }
   },
   "overrides": [
+    {
+      "includes": ["**/tsconfig.json", "**/*tsconfig.*.json"],
+      "json": {
+        "parser": {
+          "allowComments": true,
+          "allowTrailingCommas": true
+        }
+      }
+    },
     {
       "assist": {
         "actions": {

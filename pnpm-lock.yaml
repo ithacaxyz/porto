@@ -16524,7 +16524,7 @@ snapshots:
       '@types/hast': 3.0.4
       comma-separated-tokens: 2.0.3
       hast-util-parse-selector: 4.0.0
-      property-information: 7.1.0
+      property-information: 7.1.0 
       space-separated-tokens: 2.0.2
 
   highlight.js@10.7.3: {}

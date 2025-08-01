@@ -29,6 +29,7 @@ import {
   connect,
   disconnect,
   getAdmins,
+  getAssets,
   getPermissions,
   grantAdmin,
   grantPermissions,
@@ -37,7 +38,11 @@ import {
   upgradeAccount,
   verifyEmail,
 } from './core.js'
-import { getAdminsQueryKey, getPermissionsQueryKey } from './query.js'
+import {
+  getAdminsQueryKey,
+  getAssetsQueryKey,
+  getPermissionsQueryKey,
+} from './query.js'
 import type { ConfigParameter } from './types.js'
 
 export function useAddFunds<
@@ -177,6 +182,97 @@ export declare namespace useAdmins {
   type ReturnType<selectData = getAdmins.ReturnType> = UseQueryReturnType<
     selectData,
     getAdmins.ErrorType
+  >
+}
+
+export function useAssets<
+  config extends Config = ResolvedRegister['config'],
+  selectData = getAssets.ReturnType,
+>(
+  parameters: useAssets.Parameters<config, selectData>,
+): useAssets.ReturnType<selectData> {
+  const { query = {}, ...rest } = parameters
+
+  const config = useConfig(rest)
+  const queryClient = useQueryClient()
+  const chainId = useChainId({ config })
+  const { address, connector, status } = useAccount()
+  const activeConnector = parameters.connector ?? connector
+
+  const enabled = Boolean(
+    (status === 'connected' ||
+      (status === 'reconnecting' && activeConnector?.getProvider)) &&
+      (query.enabled ?? true),
+  )
+
+  const queryKey = useMemo(
+    () =>
+      getAssetsQueryKey({
+        account: address as `0x${string}`,
+        chainId: parameters.chainId ?? chainId,
+        connector: activeConnector,
+      }),
+    [address, chainId, parameters.chainId, activeConnector],
+  )
+
+  const provider = useRef<EIP1193Provider | undefined>(undefined)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `queryKey` not required
+  useEffect(() => {
+    if (!activeConnector) return
+    ;(async () => {
+      provider.current ??=
+        (await activeConnector.getProvider?.()) as EIP1193Provider
+      provider.current?.on('message', (event) => {
+        if (event.type !== 'assetsChanged') return
+        queryClient.invalidateQueries({ queryKey })
+      })
+    })()
+  }, [address, activeConnector, queryClient])
+
+  return useQuery({
+    ...(query as any),
+    enabled,
+    gcTime: 0,
+    queryFn: activeConnector
+      ? async (context) => {
+          const { connectorUid: _, ...options } = (
+            context.queryKey as typeof queryKey
+          )[1]
+          provider.current ??=
+            (await activeConnector.getProvider()) as EIP1193Provider
+          return await getAssets(config, {
+            ...options,
+            connector: activeConnector,
+          })
+        }
+      : skipToken,
+    queryKey,
+    staleTime: Number.POSITIVE_INFINITY,
+  }) as never
+}
+
+export declare namespace useAssets {
+  type Parameters<
+    config extends Config = Config,
+    selectData = getAssets.ReturnType,
+  > = getAssets.Parameters<config> &
+    ConfigParameter<config> & {
+      query?:
+        | Omit<
+            UseQueryParameters<
+              getAssets.ReturnType,
+              getAssets.ErrorType,
+              selectData,
+              getAssetsQueryKey.Value<config>
+            >,
+            'gcTime' | 'staleTime'
+          >
+        | undefined
+    }
+
+  type ReturnType<selectData = getAssets.ReturnType> = UseQueryReturnType<
+    selectData,
+    getAssets.ErrorType
   >
 }
 
