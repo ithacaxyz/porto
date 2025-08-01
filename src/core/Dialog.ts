@@ -356,6 +356,15 @@ export function popup(options: popup.Options = {}) {
         if (popup) handleBlur(store)
       }
 
+      const offDetectClosed = (() => {
+        const timer = setInterval(() => {
+          if (popup?.closed) {
+            handleBlur(store)
+          }
+        }, 100)
+        return () => clearInterval(timer)
+      })()
+
       let messenger: Messenger.Bridge | undefined
 
       themeController?._setup(null, true)
@@ -370,6 +379,7 @@ export function popup(options: popup.Options = {}) {
           this.close()
           window.removeEventListener('focus', onBlur)
           messenger?.destroy()
+          offDetectClosed()
         },
         open() {
           const left = (window.innerWidth - size.width) / 2 + window.screenX
