@@ -267,6 +267,10 @@ export default defineConfig({
                 text: 'disconnect',
               },
               {
+                link: '/sdk/wagmi/getAssets',
+                text: 'getAssets',
+              },
+              {
                 link: '/sdk/wagmi/grantPermissions',
                 text: 'grantPermissions',
               },
@@ -288,6 +292,10 @@ export default defineConfig({
           {
             collapsed: true,
             items: [
+              {
+                link: '/sdk/wagmi/useAssets',
+                text: 'useAssets',
+              },
               {
                 link: '/sdk/wagmi/useGrantPermissions',
                 text: 'useGrantPermissions',
@@ -330,6 +338,10 @@ export default defineConfig({
               {
                 link: '/sdk/viem/WalletActions/disconnect',
                 text: 'disconnect',
+              },
+              {
+                link: '/sdk/viem/WalletActions/getAssets',
+                text: 'getAssets',
               },
               {
                 link: '/sdk/viem/WalletActions/grantPermissions',
@@ -436,6 +448,10 @@ export default defineConfig({
                     text: 'createAccount',
                   },
                   {
+                    link: '/sdk/viem/ServerActions/getAssets',
+                    text: 'getAssets',
+                  },
+                  {
                     link: '/sdk/viem/ServerActions/getCallsStatus',
                     text: 'getCallsStatus',
                   },
@@ -521,6 +537,10 @@ export default defineConfig({
           {
             link: '/sdk/rpc/wallet_disconnect',
             text: 'wallet_disconnect',
+          },
+          {
+            link: '/sdk/rpc/wallet_getAssets',
+            text: 'wallet_getAssets',
           },
           {
             link: '/sdk/rpc/wallet_getCapabilities',
