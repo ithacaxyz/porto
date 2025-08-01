@@ -214,17 +214,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 storage,
               })
 
-            const signInWithEthereum_response =
-              account.capabilities?.signInWithEthereum
-            if (authUrl && signInWithEthereum_response) {
-              const { message, signature } = signInWithEthereum_response
-              await Siwe.authenticate({
+            const signInWithEthereum_response = await (async () => {
+              if (!authUrl) return
+              if (!account.capabilities?.signInWithEthereum) return
+              const { message, signature } =
+                account.capabilities.signInWithEthereum
+              const { token } = await Siwe.authenticate({
                 address: account.address,
                 authUrl,
                 message,
                 signature,
               })
-            }
+              return {
+                message,
+                signature,
+                token,
+              }
+            })()
 
             return {
               ...Account.from({
@@ -510,17 +516,23 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 })
                 .filter(Boolean) as readonly Key.Key[]
 
-              const signInWithEthereum_response =
-                account.capabilities?.signInWithEthereum
-              if (authUrl && signInWithEthereum_response) {
-                const { message, signature } = signInWithEthereum_response
-                await Siwe.authenticate({
+              const signInWithEthereum_response = await (async () => {
+                if (!authUrl) return
+                if (!account.capabilities?.signInWithEthereum) return
+                const { message, signature } =
+                  account.capabilities.signInWithEthereum
+                const { token } = await Siwe.authenticate({
                   address: account.address,
                   authUrl,
                   message,
                   signature,
                 })
-              }
+                return {
+                  message,
+                  signature,
+                  token,
+                }
+              })()
 
               return {
                 ...Account.from({

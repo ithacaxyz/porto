@@ -14,7 +14,9 @@ export type AuthUrl = {
   verify: string
 }
 
-export async function authenticate(parameters: authenticate.Parameters) {
+export async function authenticate(
+  parameters: authenticate.Parameters,
+): Promise<authenticate.ReturnType> {
   const { address, authUrl, message, signature } = parameters
 
   const { chainId } = Siwe.parseMessage(message)
@@ -32,7 +34,7 @@ export async function authenticate(parameters: authenticate.Parameters) {
       'Content-Type': 'application/json',
     },
     method: 'POST',
-  })
+  }).then((res) => res.json())
 }
 
 export declare namespace authenticate {
@@ -41,6 +43,10 @@ export declare namespace authenticate {
     authUrl: AuthUrl
     message: string
     signature: Hex.Hex
+  }
+
+  type ReturnType = {
+    token?: string | undefined
   }
 }
 
