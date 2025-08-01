@@ -23,12 +23,13 @@ const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 
 export const defaultConfig = {
   announceProvider: true,
-  chains: [Chains.baseSepolia],
+  chains: [Chains.baseSepolia, Chains.optimismSepolia],
   mode: browser ? dialog() : rpcServer(),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {
     [Chains.baseSepolia.id]: http(),
+    [Chains.optimismSepolia.id]: http(),
   },
 } as const satisfies Config
 
