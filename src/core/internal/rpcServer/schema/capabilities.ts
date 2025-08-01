@@ -103,12 +103,13 @@ export namespace authorizeKeys {
 }
 
 export namespace feeTotals {
-  export const Response = Schema.Array(
-    Schema.Struct({
-      address: Primitive.Address,
-      value: Primitive.BigInt,
+  export const Response = Schema.Record({
+    key: Primitive.Hex,
+    value: Schema.Struct({
+      currency: Schema.String,
+      value: Schema.String,
     }),
-  )
+  })
   export type Response = typeof Response.Type
 }
 

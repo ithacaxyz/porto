@@ -364,6 +364,8 @@ export namespace wallet_prepareCalls {
     ),
     /** Fee signature. */
     feeSignature: Schema.optional(Primitive.Hex),
+    /** Fee totals. */
+    feeTotals: Schema.optional(C.feeTotals.Response),
     /** Keys revoked on the account. */
     revokeKeys: Schema.optional(
       Schema.Union(C.revokeKeys.Response, Schema.Null),
