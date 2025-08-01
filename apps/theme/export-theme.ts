@@ -283,6 +283,67 @@ The color scheme for the theme. With \`"light dark"\`, theme colors must be prov
   return lines.join('\n')
 }
 
+function generateSvg(theme: PortoTheme) {
+  const colors = Object.entries(theme)
+    .filter(([name, value]) => name !== 'colorScheme' && isThemeColor(value))
+    .map(([name, value]) => ({
+      name,
+      lightValue: value[1] as `#${string}`,
+      darkValue: value[2] as `#${string}`,
+      description: value[0],
+    }))
+
+  const colorPairWidth = 280
+  const colorPairHeight = 40
+  const colorSectionHeight = colorPairHeight + 35 // title + more spacing
+
+  const padding = 60
+  const headerHeight = 40
+  const svgWidth = colorPairWidth + padding * 2
+  const svgHeight =
+    headerHeight + colors.length * colorSectionHeight + padding * 2
+
+  let svg: string = `<!-- ${GENERATED_BY} -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}">
+<defs>
+<style>
+  text { font-family: sans-serif; }
+</style>
+</defs>
+<rect width="100%" height="100%" fill="#fafafa" />
+<text x="${padding}" y="${padding}" font-size="16px" font-weight="bold" fill="#333">Porto Theme</text>
+<g transform="translate(${padding}, ${headerHeight + padding})">
+`
+  for (const [index, color] of colors.entries()) {
+    const y = index * colorSectionHeight
+    const halfWidth = colorPairWidth / 2
+
+    svg += `<g transform="translate(0, ${y})">`
+    svg += `<text x="0" y="12" font-size="12px" fill="#333" font-weight="bold">${color.name}</text>`
+    svg += `<g transform="translate(0, 20)">`
+
+    const lightTextFill =
+      colorIntensity(color.lightValue as `#${string}`) === 'high'
+        ? '#000000'
+        : '#ffffff'
+    svg += `<rect class="color" x="0" y="0" width="${halfWidth}" height="${colorPairHeight}" fill="${color.lightValue}" stroke="none" />`
+    svg += `<text x="8" y="16" font-size="10px" fill="${lightTextFill}">light</text>`
+    svg += `<text x="8" y="28" font-size="9px" fill="${lightTextFill}">${color.lightValue}</text>`
+
+    const darkTextFill =
+      colorIntensity(color.darkValue as `#${string}`) === 'high'
+        ? '#000000'
+        : '#ffffff'
+    svg += `<rect class="color" x="${halfWidth}" y="0" width="${halfWidth}" height="${colorPairHeight}" fill="${color.darkValue}" rx="0 6 6 0" />`
+    svg += `<text x="${halfWidth + 8}" y="16" font-family="monospace" font-size="10px" fill="${darkTextFill}">dark</text>`
+    svg += `<text x="${halfWidth + 8}" y="28" font-family="monospace" font-size="9px" fill="${darkTextFill}">${color.darkValue}</text>`
+
+    svg += '</g></g>'
+  }
+  svg += '</g></svg>'
+  return svg
+}
+
 function generateTailwindMappings(theme: PortoTheme): string {
   const mappings: string[] = []
 
@@ -396,6 +457,9 @@ const formatExporters = {
   mdx(theme) {
     return generateMdx(theme)
   },
+  svg(theme) {
+    return generateSvg(theme)
+  },
   tailwind(theme) {
     return tailwindCss(theme, { comments: false })
   },
@@ -485,4 +549,17 @@ if (args.values.watch) {
   })
 } else {
   exportTheme()
+}
+
+// thanks https://stackoverflow.com/a/3943023
+function colorIntensity(hex: `#${string}`): 'high' | 'low' {
+  if (!/^#[0-9A-Fa-f]{6,8}$/.test(hex))
+    throw new Error(`Invalid hex color: ${hex}`)
+  const [r, g, b] = [
+    Number.parseInt(hex.slice(1, 3), 16),
+    Number.parseInt(hex.slice(3, 5), 16),
+    Number.parseInt(hex.slice(5, 7), 16),
+  ]
+  const intensity = r * 0.299 + g * 0.587 + b * 0.114
+  return intensity > 186 ? 'high' : 'low'
 }
