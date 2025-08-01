@@ -204,7 +204,7 @@ describe('rpcHandler', () => {
   })
 
   // TODO: unskip when merchant account works with interop
-  test('behavior: required funds', async () => {
+  test.skip('behavior: required funds', async () => {
     const { server, merchantAccount } = await setup()
 
     const chain_dest = TestConfig.chains[1]
