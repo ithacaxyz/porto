@@ -204,6 +204,32 @@ export declare namespace getAdmins {
   type ErrorType = BaseError
 }
 
+export async function getAssets<config extends Config>(
+  config: config,
+  parameters: getAssets.Parameters<config>,
+): Promise<getAssets.ReturnType> {
+  const { account, chainId, connector } = parameters
+
+  const client = await getConnectorClient(config, {
+    account,
+    chainId,
+    connector,
+  })
+
+  return WalletActions.getAssets(client, parameters)
+}
+
+export declare namespace getAssets {
+  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
+    ConnectorParameter &
+    WalletActions.getAssets.Parameters
+
+  type ReturnType = WalletActions.getAssets.ReturnType
+
+  // TODO: Exhaustive ErrorType
+  type ErrorType = BaseError
+}
+
 export async function getPermissions<config extends Config>(
   config: config,
   parameters: getPermissions.Parameters<config> = {},
