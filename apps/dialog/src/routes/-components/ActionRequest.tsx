@@ -405,7 +405,7 @@ export namespace ActionRequest {
           'space-y-3 overflow-hidden rounded-lg px-3 transition-all duration-300 ease-in-out',
           {
             'bg-th_badge-warning py-2 text-th_badge-warning': error,
-            'bg-th_secondary py-3': !error,
+            'bg-th_base-alt py-3': !error,
             'h-[90px] max-h-[90px]': loading,
             'max-h-[500px]': !loading,
           },

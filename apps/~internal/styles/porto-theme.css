@@ -9,6 +9,7 @@
   --radius-th_medium: 8px;
   --radius-th_large: 14px;
   --background-color-th_base: light-dark(#fcfcfc, #191919);
+  --background-color-th_base-alt: light-dark(#f0f0f0, #2a2a2a);
   --background-color-th_base-plane: light-dark(#f9f9f9, #222222);
   --border-color-th_base: light-dark(#e0e0e0, #2a2a2a);
   --text-color-th_base: light-dark(#202020, #eeeeee);
@@ -21,7 +22,7 @@
   --text-color-th_frame: light-dark(#838383, #6e6e6e);
   --border-color-th_frame: light-dark(#f0f0f0, #313131);
   --radius-th_frame: 14px;
-  --background-color-th_badge: light-dark(#e8e8e8, #2a2a2a);
+  --background-color-th_badge: light-dark(#e0e0e0, #222222);
   --text-color-th_badge: light-dark(#838383, #7b7b7b);
   --background-color-th_badge-strong: light-dark(#d9d9d9, #3a3a3a);
   --text-color-th_badge-strong: light-dark(#000000, #ffffff);

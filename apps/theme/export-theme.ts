@@ -15,6 +15,7 @@ const SURFACE_VARIANTS = [
   'secondary',
   'strong',
   'warning',
+  'alt',
 ] as const
 const SURFACE_STATES = ['hovered', 'focused', 'pressed'] as const
 const SURFACE_PARTS = ['background', 'content', 'border', 'radius'] as const
