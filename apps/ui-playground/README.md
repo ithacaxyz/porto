@@ -11,7 +11,7 @@ pnpm i
 pnpm dev
 ```
 
-The playground will be available at http://localhost:5175/
+The playground will be available at <http://localhost:5175/>
 
 ## Adding Components
 
