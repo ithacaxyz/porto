@@ -12,7 +12,9 @@ function ColorSchemeSwitchComponent() {
   return (
     <ComponentScreen title="ThemeSwitch">
       <ComponentScreen.Section title="Default">
-        <ThemeSwitch colorScheme={colorScheme} onChange={setColorScheme} />
+        <div className="flex h-40 w-full max-w-2xl items-center justify-center gap-4 rounded-th_medium border border-th_frame border-r bg-th_frame p-4">
+          <ThemeSwitch colorScheme={colorScheme} onChange={setColorScheme} />
+        </div>
       </ComponentScreen.Section>
     </ComponentScreen>
   )
