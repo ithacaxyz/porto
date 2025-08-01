@@ -2,9 +2,10 @@ import ChildProcess from 'node:child_process'
 import NodeFS from 'node:fs'
 import NodePath from 'node:path'
 import Process from 'node:process'
-import { Plugins } from '@porto/apps/vite'
 import Mkcert from 'vite-plugin-mkcert'
 import { defineConfig } from 'vocs'
+
+import { Plugins } from '../~internal/vite/index'
 
 const commitSha =
   ChildProcess.execSync('git rev-parse --short HEAD').toString().trim() ||
