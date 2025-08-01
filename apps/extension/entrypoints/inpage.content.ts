@@ -38,6 +38,14 @@ const defaultConfigs = {
           },
         }),
       ]),
+      [Chains.optimismSepolia.id]: fallback([
+        http('https://optimism-sepolia.rpc.ithaca.xyz'),
+        http('https://sepolia.optimism.io', {
+          methods: {
+            exclude: relayMethods,
+          },
+        }),
+      ]),
     },
   },
 } as const
