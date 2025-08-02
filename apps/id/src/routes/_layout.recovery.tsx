@@ -1,7 +1,7 @@
 import * as Ariakit from '@ariakit/react'
 import { Button, Spinner, Toast } from '@porto/apps/components'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { base, baseSepolia } from 'porto/core/Chains'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { riseTestnet } from 'porto/core/Chains'
 import { Hooks } from 'porto/wagmi'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -68,10 +68,7 @@ function RouteComponent() {
     event.stopPropagation()
 
     try {
-      const chainId =
-        import.meta.env.VITE_VERCEL_ENV === 'production'
-          ? base.id
-          : baseSepolia.id
+      const chainId = riseTestnet.id
       // 1. disconnect in case user is connected from previous sessions
       await disconnectAll()
 

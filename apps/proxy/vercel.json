@@ -22,56 +22,56 @@
       "source": "/.well-known/apple-developer-merchantid-domain-association.txt"
     },
     {
-      "destination": "https://:env.dialog.porto.sh/dialog/",
+      "destination": "https://rise-wallet-:env-dialog.vercel.app/dialog/",
       "has": [
         {
           "type": "host",
-          "value": "(?<env>.*).id.porto.sh"
+          "value": "rise-wallet-(?<env>[^.]+).vercel.app"
         }
       ],
       "source": "/dialog/"
     },
     {
-      "destination": "https://:env.dialog.porto.sh/dialog/:match*",
+      "destination": "https://rise-wallet-:env-dialog.vercel.app/dialog/:match*",
       "has": [
         {
           "type": "host",
-          "value": "(?<env>.*).id.porto.sh"
+          "value": "rise-wallet-(?<env>[^.]+).vercel.app"
         }
       ],
       "source": "/dialog/:match*"
     },
     {
-      "destination": "https://:env.manage.porto.sh/",
+      "destination": "https://rise-wallet-:env-id.vercel.app/",
       "has": [
         {
           "type": "host",
-          "value": "(?<env>.*).id.porto.sh"
+          "value": "rise-wallet-(?<env>[^.]+).vercel.app"
         }
       ],
       "source": "/"
     },
     {
-      "destination": "https://:env.manage.porto.sh/:match*",
+      "destination": "https://rise-wallet-:env-id.vercel.app/:match*",
       "has": [
         {
           "type": "host",
-          "value": "(?<env>.*).id.porto.sh"
+          "value": "rise-wallet-(?<env>[^.]+).vercel.app"
         }
       ],
       "source": "/:match*"
     },
     {
-      "destination": "https://dialog.porto.sh/dialog/",
+      "destination": "https://rise-wallet-dialog.vercel.app/dialog/",
       "source": "/dialog/"
     },
     {
-      "destination": "https://dialog.porto.sh/dialog/:match*",
+      "destination": "https://rise-wallet-dialog.vercel.app/dialog/:match*",
       "source": "/dialog/:match*"
     },
-    { "destination": "https://manage.porto.sh/", "source": "/" },
+    { "destination": "https://rise-wallet-id.vercel.app/", "source": "/" },
     {
-      "destination": "https://manage.porto.sh/:match*",
+      "destination": "https://rise-wallet-id.vercel.app/:match*",
       "source": "/:match*"
     }
   ]
