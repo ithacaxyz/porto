@@ -5,6 +5,7 @@ exports[`contract > eth_accounts > behavior: disconnected 1`] = `[Provider.Disco
 exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -21,6 +22,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "type": "webauthn-p256",
   },
   {
+    "chainId": 31337,
     "expiry": 9999999999,
     "feeLimit": {
       "currency": "USD",
@@ -47,6 +49,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
 exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -63,6 +66,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` + \`grantPermis
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -102,6 +106,7 @@ exports[`contract > wallet_connect > behavior: \`createAccount\` capability >
        1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -175,6 +180,7 @@ Details: Request.Request
 exports[`contract > wallet_connect > default 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -252,6 +258,10 @@ exports[`contract > wallet_getCapabilities > default 6`] = `
   "supported": false,
 }
 `;
+
+exports[`contract > wallet_getCapabilities > default 7`] = `false`;
+
+exports[`contract > wallet_getCapabilities > default 8`] = `0`;
 
 exports[`contract > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 1`] = `
 [
@@ -432,6 +442,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 2`] = `
 exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -453,6 +464,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -474,6 +486,7 @@ exports[`contract > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -516,6 +529,7 @@ Details: Request.Request
 exports[`contract > wallet_grantPermissions > default 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -532,6 +546,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -559,6 +574,7 @@ exports[`contract > wallet_grantPermissions > default 1`] = `
 exports[`contract > wallet_revokeAdmin > default 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -573,6 +589,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -587,6 +604,7 @@ exports[`contract > wallet_revokeAdmin > default 1`] = `
 exports[`contract > wallet_revokeAdmin > default 2`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -608,6 +626,7 @@ exports[`contract > wallet_revokePermissions > behavior: revoke last admin key 1
 exports[`contract > wallet_revokePermissions > default 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -624,6 +643,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -651,6 +671,7 @@ exports[`contract > wallet_revokePermissions > default 1`] = `
 exports[`contract > wallet_revokePermissions > default 2`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -694,6 +715,7 @@ exports[`rpcServer > eth_accounts > behavior: disconnected 1`] = `[Provider.Disc
 exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability (provided key) 1`] = `
 [
   {
+    "chainId": undefined,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -710,6 +732,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
     "type": "webauthn-p256",
   },
   {
+    "chainId": undefined,
     "expiry": 9999999999,
     "feeLimit": {
       "currency": "USD",
@@ -742,6 +765,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
 exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermissions\` capability 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -758,6 +782,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` + \`grantPermi
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -803,6 +828,7 @@ exports[`rpcServer > wallet_connect > behavior: \`createAccount\` capability >
        1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -876,6 +902,7 @@ Details: Request.Request
 exports[`rpcServer > wallet_connect > default 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -917,6 +944,7 @@ exports[`rpcServer > wallet_getCapabilities > behavior: chainId 4`] = `
   {
     "address": "0x0000000000000000000000000000000000000000",
     "decimals": 18,
+    "interop": false,
     "kind": "ETH",
     "nativeRate": null,
     "symbol": "ETH",
@@ -924,6 +952,7 @@ exports[`rpcServer > wallet_getCapabilities > behavior: chainId 4`] = `
   {
     "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
     "decimals": 18,
+    "interop": true,
     "kind": "USDT",
     "nativeRate": null,
     "symbol": "EXP",
@@ -970,6 +999,10 @@ exports[`rpcServer > wallet_getCapabilities > default 6`] = `
   "supported": true,
 }
 `;
+
+exports[`rpcServer > wallet_getCapabilities > default 7`] = `false`;
+
+exports[`rpcServer > wallet_getCapabilities > default 8`] = `0`;
 
 exports[`rpcServer > wallet_getPermissions > behavior: grant on connect > grant another > get after connect 1`] = `
 [
@@ -1261,6 +1294,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 2`] = `
 exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1288,6 +1322,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -1315,6 +1350,7 @@ exports[`rpcServer > wallet_grantPermissions > behavior: provided key 3`] = `
     "type": "p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -1363,6 +1399,7 @@ Details: Request.Request
 exports[`rpcServer > wallet_grantPermissions > default 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1379,6 +1416,7 @@ exports[`rpcServer > wallet_grantPermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -1412,6 +1450,7 @@ exports[`rpcServer > wallet_grantPermissions > default 1`] = `
 exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1426,6 +1465,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "hash": null,
     "id": null,
@@ -1440,6 +1480,7 @@ exports[`rpcServer > wallet_revokeAdmin > default 1`] = `
 exports[`rpcServer > wallet_revokeAdmin > default 2`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1461,6 +1502,7 @@ exports[`rpcServer > wallet_revokePermissions > behavior: revoke last admin key 
 exports[`rpcServer > wallet_revokePermissions > default 1`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,
@@ -1477,6 +1519,7 @@ exports[`rpcServer > wallet_revokePermissions > default 1`] = `
     "type": "webauthn-p256",
   },
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": {
       "currency": "USD",
@@ -1510,6 +1553,7 @@ exports[`rpcServer > wallet_revokePermissions > default 1`] = `
 exports[`rpcServer > wallet_revokePermissions > default 2`] = `
 [
   {
+    "chainId": null,
     "expiry": null,
     "feeLimit": undefined,
     "hash": null,

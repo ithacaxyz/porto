@@ -3,6 +3,7 @@ export {
   connect,
   disconnect,
   getAdmins,
+  getAssets,
   getPermissions,
   grantAdmin,
   grantPermissions,

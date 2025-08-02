@@ -15,7 +15,7 @@ Alternative to the draft [ERC-7715](https://github.com/ethereum/ERCs/blob/23fa36
 <TryItOut
   exampleSlug="#example"
   fn={async ({ provider }) => {
-    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+    const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 
     const response = await provider.request({
       method: 'wallet_grantPermissions',
@@ -157,7 +157,7 @@ import { Porto } from 'porto'
 import { parseEther, toHex } from 'viem'
 const { provider } = Porto.create()
 
-const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 
 const permissions = await provider.request({
   method: 'wallet_grantPermissions',
@@ -180,7 +180,7 @@ const permissions = await provider.request({
 
 <TryItOut
   fn={async ({ provider }) => {
-    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+    const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 
     const response = await provider.request({
       method: 'wallet_grantPermissions',
@@ -225,7 +225,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const { provider } = Porto.create()
 
 const account = privateKeyToAccount('0x...') // [!code focus]
-const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 
 const permissions = await provider.request({
   method: 'wallet_grantPermissions',
@@ -252,7 +252,7 @@ const permissions = await provider.request({
 
 <TryItOut
   fn={async ({ provider }) => {
-    const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+    const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
     const account = privateKeyToAccount(generatePrivateKey())
 
     const response = await provider.request({

@@ -93,6 +93,13 @@ export type Mode = {
       current: string
     }>
 
+    getAssets: (
+      parameters: RpcRequest.wallet_getAssets.Parameters & {
+        /** Internal properties. */
+        internal: ActionsInternal
+      },
+    ) => Promise<typeof RpcSchema.wallet_getAssets.Response.Encoded>
+
     getCallsStatus: (parameters: {
       /** ID of the calls to get the status of. */
       id: Hex.Hex
@@ -187,10 +194,14 @@ export type Mode = {
       feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
-      /** Pre-calls to be executed. */
-      preCalls?: PreCalls.PreCalls | undefined
       /** Merchant RPC URL. */
       merchantRpcUrl?: string | undefined
+      /** Pre-calls to be executed. */
+      preCalls?: PreCalls.PreCalls | undefined
+      /** Required funds to execute the calls. */
+      requiredFunds?:
+        | RpcSchema.wallet_prepareCalls.Capabilities['requiredFunds']
+        | undefined
     }) => Promise<{
       /** Account to execute the calls with. */
       account: Account.Account
@@ -264,6 +275,10 @@ export type Mode = {
       feeToken?: FeeToken.Symbol | Address.Address | undefined
       /** Internal properties. */
       internal: ActionsInternal
+      /** Required funds to execute the calls. */
+      requiredFunds?:
+        | RpcSchema.wallet_prepareCalls.Capabilities['requiredFunds']
+        | undefined
       /** Permissions ID to use to execute the calls. */
       permissionsId?: Hex.Hex | undefined
       /** Pre-calls to be executed. */
@@ -302,6 +317,15 @@ export type Mode = {
       /** Internal properties. */
       internal: ActionsInternal
     }) => Promise<Hex.Hex>
+
+    switchChain?:
+      | ((parameters: {
+          /** Chain ID to switch to. */
+          chainId: number
+          /** Internal properties. */
+          internal: ActionsInternal
+        }) => Promise<void>)
+      | undefined
 
     updateAccount: (parameters: {
       /** Account to update. */

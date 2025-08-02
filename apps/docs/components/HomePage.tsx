@@ -664,6 +664,14 @@ export function BuyNow(props: { chainId: ChainId; next: () => void }) {
                 to: expNftConfig.address[chainId],
               },
             ],
+            capabilities: {
+              requiredFunds: [
+                {
+                  symbol: 'EXP',
+                  value: '10',
+                },
+              ],
+            },
           })
         }
       >
@@ -810,6 +818,14 @@ export function SendTip(props: {
                 functionName: 'transferFrom',
               },
             ],
+            capabilities: {
+              requiredFunds: [
+                {
+                  symbol: 'EXP',
+                  value: '1',
+                },
+              ],
+            },
           })
         }}
       >
@@ -903,10 +919,6 @@ export function Subscribe(props: {
       })
       const res = await grantPermissions.mutateAsync({
         expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-        feeLimit: {
-          currency: 'USD',
-          value: '1',
-        },
         key: { publicKey, type: 'p256' },
         permissions: {
           calls: [{ to: subscriptionAddress }],
@@ -1086,6 +1098,7 @@ function Swap(props: {
   } = useReadContract({
     abi: exp1Config.abi,
     address: exp1Config.address[chainId],
+    chainId: 84532,
     ...shared,
   })
   const {
@@ -1095,6 +1108,7 @@ function Swap(props: {
   } = useReadContract({
     abi: exp2Config.abi,
     address: exp2Config.address[chainId],
+    chainId: 11155420,
     ...shared,
   })
   // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
@@ -1156,6 +1170,15 @@ function Swap(props: {
             to: expFromConfig.address[chainId],
           },
         ],
+        capabilities: {
+          requiredFunds: [
+            {
+              symbol: fromSymbol === 'exp1' ? 'EXP' : 'EXP2',
+              value: fromValue as `${number}`,
+            },
+          ],
+        },
+        chainId: fromSymbol === 'exp1' ? 11155420 : 84532,
       })
     } catch (err) {
       const error = (() => {

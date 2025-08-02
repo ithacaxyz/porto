@@ -257,7 +257,7 @@ export async function keyAt<
     functionName: 'keyAt',
   })
 
-  return Key.deserialize(key)
+  return Key.deserialize(key, { chainId: client.chain?.id ?? 0 })
 }
 
 export declare namespace keyAt {

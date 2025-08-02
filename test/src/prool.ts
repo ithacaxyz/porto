@@ -12,17 +12,23 @@ type RpcServerParameters = {
   containerName?: string | undefined
   constantRate?: number | undefined
   endpoint: string
+  escrow: string
   delegationProxy: string
   feeTokens: string[]
+  funderSigningKey: string
+  funderOwnerKey: string
+  funder: string
   http?: {
     port?: number | undefined
     metricsPort?: number | undefined
   }
+  interopToken: string
   image?: string | undefined
   legacyDelegationProxy?: string | undefined
   orchestrator: string
   quoteTtl?: number | undefined
   registry?: string | undefined
+  skipDiagnostics?: boolean | undefined
   signersMnemonic?: string | undefined
   simulator?: string | undefined
   txGasBuffer?: bigint | undefined

@@ -7,19 +7,21 @@
 import { ParseError } from 'effect/ParseResult'
 import * as AbiError from 'ox/AbiError'
 import * as AbiFunction from 'ox/AbiFunction'
-import type * as Address from 'ox/Address'
+import * as Address from 'ox/Address'
 import * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
 import {
   BaseError,
   type Calls,
   type Chain,
   type Client,
+  ethAddress,
   type GetChainParameter,
   type Narrow,
   type Transport,
   type ValueOf,
   withCache,
+  zeroAddress,
 } from 'viem'
 import { verifyHash } from 'viem/actions'
 import {
@@ -106,6 +108,39 @@ export namespace getCapabilities {
 }
 
 /**
+ * Get assets owned by user in given chain IDs.
+ */
+export async function getAssets(
+  client: Client,
+  parameters: getAssets.Parameters,
+): Promise<getAssets.ReturnType> {
+  const {
+    account,
+    assetFilter,
+    assetTypeFilter,
+    chainFilter = [Hex.fromNumber(client.chain!.id)],
+  } = parameters
+
+  try {
+    const method = 'wallet_getAssets' as const
+    type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
+    const result = await client.request<Schema>({
+      method,
+      params: [{ account, assetFilter, assetTypeFilter, chainFilter }],
+    })
+    return Schema.decodeUnknownSync(RpcSchema.wallet_getAssets.Response)(result)
+  } catch (error) {
+    parseSchemaError(error)
+    throw error
+  }
+}
+
+export namespace getAssets {
+  export type Parameters = RpcSchema.wallet_getAssets.Parameters
+  export type ReturnType = RpcSchema.wallet_getAssets.Response
+}
+
+/**
  * Gets the status of a call bundle.
  *
  * @example
@@ -171,7 +206,7 @@ export async function getKeys<chain extends Chain | undefined>(
       params: [
         Schema.encodeSync(RpcSchema.wallet_getKeys.Parameters)({
           address,
-          chain_id: chain?.id!,
+          chainId: chain?.id!,
         }),
       ],
     })
@@ -184,7 +219,7 @@ export async function getKeys<chain extends Chain | undefined>(
 
 export namespace getKeys {
   export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<RpcSchema.wallet_getKeys.Parameters, 'chain_id'> &
+    Omit<RpcSchema.wallet_getKeys.Parameters, 'chainId'> &
       GetChainParameter<chain>
 
   export type ReturnType = RpcSchema.wallet_getKeys.Response
@@ -252,6 +287,37 @@ export async function prepareCalls<
     }
   })
 
+  const feeToken = capabilities.meta.feeToken
+
+  // In order to avoid a fee token deficit on the destination chain when a fee
+  // balance exists on the source chains, we must include the fee token in
+  // the required funds.
+  const feeRequiredFunds = (() => {
+    if (!capabilities.requiredFunds) return undefined
+    if (!feeToken) return undefined
+    if (
+      Address.isEqual(feeToken, zeroAddress) ||
+      Address.isEqual(feeToken, ethAddress)
+    )
+      return undefined
+    const requiredFunds = capabilities.requiredFunds.find((fund) =>
+      Address.isEqual(fund.address, feeToken),
+    )
+    return {
+      address: feeToken,
+      value: requiredFunds?.value ?? 0n,
+    }
+  })()
+
+  const requiredFunds = [
+    ...(feeRequiredFunds ? [feeRequiredFunds] : []),
+    ...(capabilities.requiredFunds ?? []).filter(
+      (fund) =>
+        !feeRequiredFunds ||
+        !Address.isEqual(fund.address, feeRequiredFunds.address),
+    ),
+  ]
+
   try {
     const method = 'wallet_prepareCalls' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
@@ -261,7 +327,10 @@ export async function prepareCalls<
         params: [
           Schema.encodeSync(RpcSchema.wallet_prepareCalls.Parameters)({
             calls,
-            capabilities,
+            capabilities: {
+              ...capabilities,
+              requiredFunds,
+            },
             chainId: chain?.id!,
             from: address,
             key: key

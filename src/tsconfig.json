@@ -2,6 +2,7 @@
   "extends": "../tsconfig.base.json",
   "include": ["."],
   "exclude": [
+    "**/_/**",
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/bin/**",

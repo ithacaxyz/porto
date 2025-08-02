@@ -2,6 +2,7 @@ import { Spinner } from '@porto/apps/components'
 import type { UseQueryResult } from '@tanstack/react-query'
 import type { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
+import type { ServerActions } from 'porto/viem'
 import * as React from 'react'
 import * as FeeTokens from '~/lib/FeeTokens'
 import { AddFunds } from '~/routes/-components/AddFunds'
@@ -16,7 +17,17 @@ export function CheckBalance(props: CheckBalance.Props) {
   })
   const feeToken = feeTokens.data?.[0]
 
-  const hasInsufficientBalance = query.error?.message?.includes('PaymentError')
+  const quotes = query.data?.capabilities.quote.quotes ?? []
+  const hasFeeDeficit = quotes.some((quote, index) => {
+    const isMultichainDestination =
+      index === quotes.length - 1 && quotes.length > 1
+    if (isMultichainDestination) return false
+    return quote.feeTokenDeficit > 0n
+  })
+
+  const insufficientFunds =
+    hasFeeDeficit ||
+    (query.error?.cause as Error)?.message.includes('insufficient funds')
 
   if (step === 'success') return children
   if (query.isPending)
@@ -27,7 +38,7 @@ export function CheckBalance(props: CheckBalance.Props) {
         </div>
       </div>
     )
-  if (!hasInsufficientBalance) return children
+  if (!insufficientFunds) return children
   return (
     <AddFunds
       address={address}
@@ -48,6 +59,9 @@ export namespace CheckBalance {
     children: React.ReactNode
     feeToken?: FeeToken_schema.Symbol | Address.Address | undefined
     onReject: () => void
-    query: UseQueryResult
+    query: UseQueryResult<
+      ServerActions.prepareCalls.ReturnType,
+      ServerActions.prepareCalls.ErrorType
+    >
   }
 }

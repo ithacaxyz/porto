@@ -1,6 +1,19 @@
 export const abi = [
   {
     "type": "function",
+    "name": "checkAndIncrementNonce",
+    "inputs": [
+      {
+        "name": "nonce",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
     "name": "getContextKeyHash",
     "inputs": [],
     "outputs": [

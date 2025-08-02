@@ -63,7 +63,9 @@ export function contract(parameters: contract.Parameters = {}) {
         })
       : Key.createHeadlessWebAuthnP256()
 
-    const extraKey = await PermissionsRequest.toKey(permissions)
+    const extraKey = await PermissionsRequest.toKey(permissions, {
+      chainId: client.chain.id,
+    })
 
     const keys = [key, ...(extraKey ? [extraKey] : [])]
 
@@ -203,6 +205,10 @@ export function contract(parameters: contract.Parameters = {}) {
         return { current, latest }
       },
 
+      async getAssets(_parameters) {
+        throw new Provider.UnsupportedMethodError()
+      },
+
       async getCallsStatus(parameters) {
         const { id, internal } = parameters
         const { client } = internal
@@ -246,6 +252,10 @@ export function contract(parameters: contract.Parameters = {}) {
           },
           permissions: {
             supported: true,
+          },
+          requiredFunds: {
+            supported: false,
+            tokens: [],
           },
         } as const
 
@@ -304,7 +314,9 @@ export function contract(parameters: contract.Parameters = {}) {
         const { client } = internal
 
         // Parse permissions request into a structured key.
-        const key = await PermissionsRequest.toKey(permissions)
+        const key = await PermissionsRequest.toKey(permissions, {
+          chainId: client.chain.id,
+        })
         if (!key) throw new Error('key not found.')
 
         // TODO: wait for tx to be included?
@@ -359,7 +371,9 @@ export function contract(parameters: contract.Parameters = {}) {
             address,
             functionName: 'keyCount',
           }),
-          PermissionsRequest.toKey(permissions),
+          PermissionsRequest.toKey(permissions, {
+            chainId: client.chain.id,
+          }),
         ])
         const keys = await Promise.all(
           Array.from({ length: Number(keyCount) }, (_, index) =>

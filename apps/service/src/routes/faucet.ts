@@ -1,4 +1,3 @@
-import { env } from 'cloudflare:workers'
 import { exp1Abi, exp1Address } from '@porto/apps/contracts'
 import { Hono } from 'hono'
 import { getConnInfo } from 'hono/cloudflare-workers'
@@ -10,14 +9,9 @@ import { waitForTransactionReceipt } from 'viem/actions'
 
 const faucetApp = new Hono<{ Bindings: Cloudflare.Env }>()
 
-const DRIP_PRIVATE_KEY = env.DRIP_PRIVATE_KEY
-const account = privateKeyToAccount(DRIP_PRIVATE_KEY)
-
-if (!account?.address) throw new Error('Invalid DRIP_PRIVATE_KEY')
-
 const chains = {
   [Chains.baseSepolia.id]: Chains.baseSepolia,
-  [Chains.portoDev.id]: Chains.portoDev,
+  [Chains.optimismSepolia.id]: Chains.optimismSepolia,
   [Chains.portoDevParos.id]: Chains.portoDevParos,
   [Chains.portoDevLeros.id]: Chains.portoDevLeros,
   [Chains.portoDevTinos.id]: Chains.portoDevTinos,
@@ -62,6 +56,7 @@ faucetApp.on(
   async (context) => {
     const { address, chainId, value } = context.req.valid('query')
 
+    const account = privateKeyToAccount(context.env.DRIP_PRIVATE_KEY)
     const client = createWalletClient({
       account,
       chain: chains[chainId as unknown as keyof typeof chains],

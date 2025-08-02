@@ -29,7 +29,7 @@ export const defaultAssets: Record<
     coingeckoId?: string
   }>
 > = {
-  [Chains.anvil.id]: [
+  [Chains.anvilParos.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
       decimals: 18,
@@ -38,7 +38,7 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
     {
-      address: exp1Address[Chains.anvil.id],
+      address: exp1Address[Chains.anvilParos.id],
       decimals: 18,
       logo: '/icons/exp.svg',
       name: 'Experiment',
@@ -46,7 +46,7 @@ export const defaultAssets: Record<
       symbol: 'EXP',
     },
     {
-      address: exp2Address[Chains.anvil.id],
+      address: exp2Address[Chains.anvilParos.id],
       decimals: 18,
       logo: '/icons/exp2.svg',
       name: 'Experiment 2',
@@ -54,7 +54,7 @@ export const defaultAssets: Record<
       symbol: 'EXP2',
     },
   ],
-  [Chains.portoDev.id]: [
+  [Chains.anvilTinos.id]: [
     {
       address: '0x0000000000000000000000000000000000000000',
       decimals: 18,
@@ -63,7 +63,7 @@ export const defaultAssets: Record<
       symbol: 'ETH',
     },
     {
-      address: exp1Address[Chains.portoDev.id],
+      address: exp1Address[Chains.anvilTinos.id],
       decimals: 18,
       logo: '/icons/exp.svg',
       name: 'Experiment',
@@ -71,7 +71,107 @@ export const defaultAssets: Record<
       symbol: 'EXP',
     },
     {
-      address: exp2Address[Chains.portoDev.id],
+      address: exp2Address[Chains.anvilTinos.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+  ],
+  [Chains.anvilLeros.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.anvilLeros.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.anvilLeros.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+  ],
+  [Chains.portoDevParos.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.portoDevParos.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.portoDevParos.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+  ],
+  [Chains.portoDevLeros.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.portoDevParos.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.portoDevParos.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+  ],
+  [Chains.portoDevTinos.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.portoDevParos.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.portoDevParos.id],
       decimals: 18,
       logo: '/icons/exp2.svg',
       name: 'Experiment 2',
@@ -145,6 +245,48 @@ export const defaultAssets: Record<
     },
     {
       address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+      decimals: 8,
+      logo: '/icons/cbbtc.png',
+      name: 'Coinbase Wrapped BTC',
+      symbol: 'CBBTC',
+    },
+  ],
+  [Chains.optimismSepolia.id]: [
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      coingeckoId: 'ethereum',
+      decimals: 18,
+      logo: '/icons/eth.svg',
+      name: 'Ethereum',
+      symbol: 'ETH',
+    },
+    {
+      address: exp1Address[Chains.optimismSepolia.id],
+      decimals: 18,
+      logo: '/icons/exp.svg',
+      name: 'Experiment',
+      price: 1,
+      symbol: 'EXP',
+    },
+    {
+      address: exp2Address[Chains.optimismSepolia.id],
+      decimals: 18,
+      logo: '/icons/exp2.svg',
+      name: 'Experiment 2',
+      price: 100,
+      symbol: 'EXP2',
+    },
+    {
+      address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+      coingeckoId: 'usd-coin',
+      decimals: 6,
+      logo: '/icons/usdc.svg',
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
+    {
+      address: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+      coingeckoId: 'coinbase-wrapped-btc',
       decimals: 8,
       logo: '/icons/cbbtc.png',
       name: 'Coinbase Wrapped BTC',

@@ -2,6 +2,7 @@ import type * as Address from 'ox/Address'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
+import * as Value from 'ox/Value'
 import { waitForCallsStatus } from 'viem/actions'
 import type { ThemeFragment } from '../../../theme/Theme.js'
 import * as Account from '../../../viem/Account.js'
@@ -134,7 +135,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async createAccount(parameters) {
         const { internal } = parameters
-        const { config, request, store } = internal
+        const { client, config, request, store } = internal
         const { storage } = config
 
         const provider = getProvider(store)
@@ -155,6 +156,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
             // Parse the authorize key into a structured key.
             const key = await PermissionsRequest.toKey(
               capabilities?.grantPermissions,
+              {
+                chainId: client.chain.id,
+              },
             )
 
             // Convert the key into a permission.
@@ -189,7 +193,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
             // Build keys to assign onto the account.
             const adminKeys = account.capabilities?.admins
-              ?.map(Key.from)
+              ?.map((admin) => Key.from(admin, { chainId: client.chain.id }))
               .filter(Boolean) as readonly Key.Key[]
 
             const sessionKeys = account.capabilities?.permissions
@@ -281,6 +285,21 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         if (!renderer.supportsHeadless)
           return fallback.actions.getAccountVersion(parameters)
+
+        const provider = getProvider(store)
+        const result = await provider.request(request)
+        return result
+      },
+
+      async getAssets(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'wallet_getAssets')
+          throw new Error('Cannot get assets for method: ' + request.method)
+
+        if (!renderer.supportsHeadless)
+          return fallback.actions.getAssets(parameters)
 
         const provider = getProvider(store)
         const result = await provider.request(request)
@@ -385,6 +404,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
       async grantPermissions(parameters) {
         const { account, internal } = parameters
         const {
+          client,
           config: { storage },
           request,
           store,
@@ -398,7 +418,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         const [{ address, ...permissions }] = request._decoded.params
 
         // Parse permissions request into a structured key.
-        const key = await PermissionsRequest.toKey(permissions)
+        const key = await PermissionsRequest.toKey(permissions, {
+          chainId: client.chain.id,
+        })
         if (!key) throw new Error('no key found.')
 
         const permissionsRequest = Schema.encodeSync(PermissionsRequest.Schema)(
@@ -421,6 +443,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const key_response = await PermissionsRequest.toKey(
           Schema.decodeSync(PermissionsRequest.Schema)(response),
+          {
+            chainId: client.chain.id,
+          },
         )
 
         return {
@@ -430,7 +455,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async loadAccounts(parameters) {
         const { internal } = parameters
-        const { config, store, request } = internal
+        const { client, config, store, request } = internal
         const { storage } = config
 
         const provider = getProvider(store)
@@ -455,6 +480,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
           // Parse provided (RPC) key into a structured key.
           const key = await PermissionsRequest.toKey(
             capabilities?.grantPermissions,
+            {
+              chainId: client.chain.id,
+            },
           )
 
           // Convert the key into a permissions request.
@@ -602,7 +630,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
       async prepareUpgradeAccount(parameters) {
         const { internal } = parameters
-        const { store, request } = internal
+        const { client, store, request } = internal
 
         if (request.method !== 'wallet_prepareUpgradeAccount')
           throw new Error(
@@ -618,6 +646,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // Parse the authorize key into a structured key.
         const key = await PermissionsRequest.toKey(
           capabilities?.grantPermissions,
+          {
+            chainId: client.chain.id,
+          },
         )
 
         // Convert the key into a permission.
@@ -712,8 +743,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
       },
 
       async sendCalls(parameters) {
-        const { account, asTxHash, calls, internal, merchantRpcUrl } =
-          parameters
+        const {
+          account,
+          asTxHash,
+          calls,
+          internal,
+          merchantRpcUrl,
+          requiredFunds,
+        } = parameters
         const {
           config: { storage },
           client,
@@ -759,6 +796,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
                       feeToken,
                       merchantRpcUrl,
                       preCalls,
+                      requiredFunds,
                     },
                     chainId: client.chain.id,
                     from: account.address,
@@ -767,6 +805,15 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 ],
               }),
             )
+
+            const quotes = req.capabilities?.quote?.quotes ?? []
+            const hasFeeDeficit = quotes.some((quote, index) => {
+              const isMultichainDestination =
+                index === quotes.length - 1 && quotes.length > 1
+              if (isMultichainDestination) return false
+              return Value.fromEther(quote.feeTokenDeficit) > 0n
+            })
+            if (hasFeeDeficit) throw new Error('insufficient funds')
 
             const signature = await Key.sign(key, {
               payload: req.digest,
@@ -911,6 +958,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
           throw new Error(
             'Cannot sign typed data for method: ' + request.method,
           )
+
+        const provider = getProvider(store)
+        return await provider.request(request)
+      },
+
+      async switchChain(parameters) {
+        const { internal } = parameters
+        const { store, request } = internal
+
+        if (request.method !== 'wallet_switchEthereumChain')
+          throw new Error('Cannot switch chain for method: ' + request.method)
 
         const provider = getProvider(store)
         return await provider.request(request)
