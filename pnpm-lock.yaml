@@ -215,7 +215,7 @@ importers:
         specifier: ^2.11.1
         version: 2.13.0
       size-limit:
-        specifier: ^11.1.6
+        specifier: ^11.2.0
         version: 11.2.0
       tsdown:
         specifier: ^0.12.8
