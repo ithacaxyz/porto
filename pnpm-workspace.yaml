@@ -4,6 +4,7 @@ packages:
   - "examples/*"
   - "src"
 
+shellEmulator: true
 autoInstallPeers: false
 enablePrePostScripts: true
 linkWorkspacePackages: false
