@@ -70,9 +70,10 @@
     "vitest": "catalog:",
     "wagmi": "catalog:"
   },
-  "packageManager": "pnpm@10.12.2",
+  "packageManager": "pnpm@10.14.0",
   "engines": {
-    "node": ">=22.5"
+    "node": ">=22.5",
+    "pnpm": ">=10.14.0"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
@@ -126,5 +127,24 @@
       "@wagmi/core": "patches/@wagmi__core.patch",
       "@vitest/browser": "patches/@vitest__browser.patch"
     }
+  },
+  "publishConfig": {
+    "provenance": false
+  },
+  "devEngines": {
+    "runtime": [
+      {
+        "name": "node",
+        "version": "^22.5",
+        "onFail": "download"
+      }
+    ],
+    "packageManager": [
+      {
+        "name": "pnpm",
+        "version": "^10.14",
+        "onFail": "download"
+      }
+    ]
   }
 }

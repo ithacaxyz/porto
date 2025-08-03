@@ -3,7 +3,12 @@ packages:
   - "docker/*"
   - "examples/*"
   - "src"
-  - "test/e2e"
+
+autoInstallPeers: false
+enablePrePostScripts: true
+linkWorkspacePackages: false
+strictPeerDependencies: false
+nodeOptions: "--disable-warning=ExperimentalWarning --disable-warning=DeprecationWarning"
 
 catalog:
   "@ariakit/react": "^0.4.17"
