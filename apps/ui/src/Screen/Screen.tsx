@@ -16,7 +16,7 @@ export interface ScreenProps {
   //     }
 }
 
-export function Screen({ children, loading, loadinTitle }: ScreenProps) {
+export function Screen({ children }: ScreenProps) {
   const mode = Frame.useMode()
   return (
     <div
