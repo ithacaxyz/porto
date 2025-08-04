@@ -45,9 +45,8 @@ describe('getAssets', () => {
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
 
-    const chainId = Hex.fromNumber(client.chain.id)
-    expect(result[chainId]).toBeDefined()
-    expect(Array.isArray(result[chainId])).toBe(true)
+    expect(result[client.chain.id]).toBeDefined()
+    expect(Array.isArray(result[client.chain.id])).toBe(true)
   })
 
   test('behavior: with native balance', async () => {
@@ -65,8 +64,7 @@ describe('getAssets', () => {
       account: account.address,
     })
 
-    const chainId = Hex.fromNumber(client.chain.id)
-    const chainAssets = result[chainId]!
+    const chainAssets = result[client.chain.id]!
 
     const nativeAsset = chainAssets.find((asset) => BigInt(asset.balance) > 0n)
     expect(nativeAsset).toBeDefined()
@@ -97,8 +95,7 @@ describe('getAssets', () => {
       account: account.address,
     })
 
-    const chainId = Hex.fromNumber(client.chain.id)
-    const chainAssets = result[chainId]!
+    const chainAssets = result[client.chain.id]!
 
     // Find ERC20 asset
     const erc20Asset = chainAssets.find(
@@ -145,11 +142,11 @@ describe('getAssets', () => {
       },
     })
 
-    expect(result[chainId]).toBeDefined()
-    expect(Array.isArray(result[chainId])).toBe(true)
+    expect(result[client.chain.id]).toBeDefined()
+    expect(Array.isArray(result[client.chain.id])).toBe(true)
 
     // Should only return erc20 asset
-    const chainAssets = result[chainId]!
+    const chainAssets = result[client.chain.id]!
     expect(chainAssets.every((asset) => asset.type === 'erc20')).toBe(true)
   })
 
@@ -183,8 +180,7 @@ describe('getAssets', () => {
       assetTypeFilter: ['erc20'],
     })
 
-    const chainId = Hex.fromNumber(client.chain.id)
-    const chainAssets = result[chainId]!
+    const chainAssets = result[client.chain.id]!
 
     expect(chainAssets.every((asset) => asset.type === 'erc20')).toBe(true)
     expect(chainAssets.find((asset) => asset.type === 'native')).toBeUndefined()
@@ -196,15 +192,13 @@ describe('getAssets', () => {
       keys: [key],
     })
 
-    const chainId = Hex.fromNumber(client.chain.id)
-
     const result = await getAssets(client, {
       account: account.address,
-      chainFilter: [chainId],
+      chainFilter: [client.chain.id],
     })
 
-    expect(Object.keys(result)).toEqual([chainId])
-    expect(result[chainId]).toBeDefined()
+    expect(Object.keys(result)).toEqual(['0', client.chain.id.toString()])
+    expect(result[client.chain.id]).toBeDefined()
   })
 
   test('behavior: multiple chains; one unsupported', async () => {
@@ -213,13 +207,10 @@ describe('getAssets', () => {
       keys: [key],
     })
 
-    const chainId = Hex.fromNumber(client.chain.id)
-    const otherChainId = Hex.fromNumber(999999) // Non-existent chain
-
     await expect(
       getAssets(client, {
         account: account.address,
-        chainFilter: [chainId, otherChainId],
+        chainFilter: [client.chain.id, 999999],
       }),
     ).rejects.toThrow('unsupported chain 999999')
   })

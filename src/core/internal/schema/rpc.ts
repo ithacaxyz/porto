@@ -572,65 +572,15 @@ export namespace wallet_disconnect {
 
 export namespace wallet_getAssets {
   /** Parameters  */
-  const AssetType = Schema.Union(
-    Schema.Literal('native'),
-    Schema.Literal('erc20'),
-    Schema.Literal('erc721'),
-    Schema.String,
-  )
-  export const Parameters = Schema.Struct({
-    account: Primitive.Address,
-    assetFilter: Schema.optional(
-      Schema.Record({
-        key: Primitive.Hex,
-        value: Schema.Array(
-          Schema.Struct({
-            address: Schema.Union(Primitive.Address, Schema.Literal('native')),
-            type: AssetType,
-          }),
-        ),
-      }),
-    ),
-    assetTypeFilter: Schema.optional(Schema.Array(AssetType)),
-    chainFilter: Schema.optional(Schema.Array(Primitive.Hex)),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAssets.Parameters',
-  })
+  export const Parameters = Rpc_server.wallet_getAssets.Parameters
   export type Parameters = typeof Parameters.Type
 
   /** Request for `wallet_getAssets`. */
-  export const Request = Schema.Struct({
-    method: Schema.Literal('wallet_getAssets'),
-    params: Schema.Tuple(Parameters),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAssets.Request',
-  })
+  export const Request = Rpc_server.wallet_getAssets.Request
   export type Request = typeof Request.Type
 
   /** Response for `wallet_getAssets`. */
-  export const Response = Schema.Record({
-    key: Primitive.Hex,
-    value: Schema.Array(
-      Schema.Struct({
-        address: Schema.Union(
-          Primitive.Address,
-          Schema.Literal('native'),
-          Schema.Null,
-        ),
-        balance: Primitive.Hex,
-        metadata: Schema.NullOr(
-          Schema.Struct({
-            decimals: Schema.Number,
-            name: Schema.String,
-            symbol: Schema.String,
-          }),
-        ),
-        type: Schema.String,
-      }),
-    ),
-  }).annotations({
-    identifier: 'Rpc.wallet_getAssets.Response',
-  })
+  export const Response = Rpc_server.wallet_getAssets.Response
   export type Response = typeof Response.Type
 }
 

@@ -303,7 +303,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
 
         const provider = getProvider(store)
         const result = await provider.request(request)
-        return result
+        return Schema.decodeSync(RpcSchema_porto.wallet_getAssets.Response)(
+          result,
+        )
       },
 
       async getCallsStatus(parameters) {

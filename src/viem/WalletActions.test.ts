@@ -553,6 +553,32 @@ describe('getAssets', () => {
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
   })
 
+  test('behavior: no params (account exists on client)', async () => {
+    const porto = TestConfig.getPorto()
+
+    const {
+      accounts: [account],
+    } = await porto.provider.request({
+      method: 'wallet_connect',
+      params: [
+        {
+          capabilities: {
+            createAccount: true,
+          },
+        },
+      ],
+    })
+
+    const walletClient = TestConfig.getWalletClient(porto, {
+      account: account!.address,
+    })
+
+    const result = await WalletActions.getAssets(walletClient)
+
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
+  })
+
   test('behavior: with chainFilter', async () => {
     const porto = TestConfig.getPorto()
     const serverClient = TestConfig.getServerClient(porto)
@@ -569,15 +595,13 @@ describe('getAssets', () => {
       value: Value.fromEther('50'),
     })
 
-    const chainId = `0x${serverClient.chain.id.toString(16)}` as `0x${string}`
-
     const result = await WalletActions.getAssets(walletClient, {
       account: account!.address,
-      chainFilter: [chainId as `0x${string}`],
+      chainFilter: [serverClient.chain.id],
     })
 
-    expect(Object.keys(result)).toEqual([chainId])
-    expect(result[chainId]).toBeDefined()
+    expect(Object.keys(result)).toEqual(['0', serverClient.chain.id.toString()])
+    expect(result[serverClient.chain.id]).toBeDefined()
   })
 
   test('behavior: with assetTypeFilter', async () => {
@@ -601,8 +625,7 @@ describe('getAssets', () => {
       assetTypeFilter: ['native'],
     })
 
-    const chainId = `0x${serverClient.chain.id.toString(16)}` as `0x${string}`
-    const nativeAssets = nativeResult[chainId]
+    const nativeAssets = nativeResult[0]
     expect(nativeAssets?.every((asset) => asset.type === 'native')).toBe(true)
 
     const erc20Result = await WalletActions.getAssets(walletClient, {
@@ -610,7 +633,17 @@ describe('getAssets', () => {
       assetTypeFilter: ['erc20'],
     })
 
-    const erc20Assets = erc20Result[chainId]
+    const erc20Assets = erc20Result[0]
     expect(erc20Assets?.every((asset) => asset.type === 'erc20')).toBe(true)
+  })
+
+  test('error: account not found', async () => {
+    const porto = TestConfig.getPorto()
+    const walletClient = TestConfig.getWalletClient(porto)
+
+    // @ts-expect-error
+    await expect(WalletActions.getAssets(walletClient)).rejects.toThrow(
+      'account is required',
+    )
   })
 })

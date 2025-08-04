@@ -114,21 +114,49 @@ export async function getAssets(
   client: Client,
   parameters: getAssets.Parameters,
 ): Promise<getAssets.ReturnType> {
-  const {
-    account,
-    assetFilter,
-    assetTypeFilter,
-    chainFilter = [Hex.fromNumber(client.chain!.id)],
-  } = parameters
+  const { account, assetFilter, assetTypeFilter, chainFilter } = parameters
 
   try {
     const method = 'wallet_getAssets' as const
     type Schema = Extract<RpcSchema.Viem[number], { Method: typeof method }>
     const result = await client.request<Schema>({
       method,
-      params: [{ account, assetFilter, assetTypeFilter, chainFilter }],
+      params: [
+        Schema.encodeSync(RpcSchema.wallet_getAssets.Parameters)({
+          account,
+          assetFilter,
+          assetTypeFilter,
+          chainFilter,
+        }),
+      ],
     })
-    return Schema.decodeUnknownSync(RpcSchema.wallet_getAssets.Response)(result)
+
+    const value = Schema.decodeUnknownSync(RpcSchema.wallet_getAssets.Response)(
+      result,
+    )
+    const decoded = Object.entries(value).reduce(
+      (acc, [key, value]) => {
+        acc[Hex.toNumber(key as `0x${string}`)] = value
+        return acc
+      },
+      {} as Record<number, ValueOf<typeof value>>,
+    )
+
+    const aggregated = {} as Record<string, ValueOf<typeof decoded>[number]>
+    for (const value of Object.values(decoded)) {
+      for (const item of value) {
+        const key = JSON.stringify(item.metadata)
+        aggregated[key] = {
+          ...item,
+          balance: item.balance + (aggregated[key]?.balance ?? 0n),
+        }
+      }
+    }
+
+    return {
+      ...decoded,
+      '0': Object.values(aggregated),
+    }
   } catch (error) {
     parseSchemaError(error)
     throw error

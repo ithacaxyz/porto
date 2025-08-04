@@ -407,13 +407,7 @@ function AddFunds() {
 }
 
 function Assets() {
-  const { address } = useAccount()
-  const { data, ...assets } = Hooks.useAssets({
-    account: address!,
-    query: {
-      enabled: !!address,
-    },
-  })
+  const { data, ...assets } = Hooks.useAssets()
 
   return (
     <div>

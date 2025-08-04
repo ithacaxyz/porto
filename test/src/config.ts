@@ -1,4 +1,4 @@
-import { type Chains, Mode, Porto, Storage } from 'porto'
+import { type Account, type Chains, Mode, Porto, Storage } from 'porto'
 import { http } from 'viem'
 import * as ServerClient from '../../src/viem/ServerClient.js'
 import * as WalletClient from '../../src/viem/WalletClient.js'
@@ -72,8 +72,13 @@ export function getServerClient<
 
 export function getWalletClient<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(porto: Porto.Porto<chains>) {
-  return WalletClient.fromPorto(porto)
+  chain extends Chains.Chain | undefined = undefined,
+  account extends Account.Account | undefined = undefined,
+>(
+  porto: Porto.Porto<chains>,
+  config: WalletClient.fromPorto.Config<chain, account> = {},
+) {
+  return WalletClient.fromPorto(porto, config)
 }
 
 export function getContracts<

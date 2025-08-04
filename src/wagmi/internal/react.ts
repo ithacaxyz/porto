@@ -189,30 +189,40 @@ export function useAssets<
   config extends Config = ResolvedRegister['config'],
   selectData = getAssets.ReturnType,
 >(
-  parameters: useAssets.Parameters<config, selectData>,
+  parameters: useAssets.Parameters<config, selectData> = {},
 ): useAssets.ReturnType<selectData> {
-  const { query = {}, ...rest } = parameters
+  const {
+    assetFilter,
+    assetTypeFilter,
+    chainFilter,
+    query = {},
+    ...rest
+  } = parameters
 
   const config = useConfig(rest)
   const queryClient = useQueryClient()
-  const chainId = useChainId({ config })
   const { address, connector, status } = useAccount()
+
+  const account = parameters.account ?? address
   const activeConnector = parameters.connector ?? connector
 
   const enabled = Boolean(
-    (status === 'connected' ||
-      (status === 'reconnecting' && activeConnector?.getProvider)) &&
+    account &&
+      (status === 'connected' ||
+        (status === 'reconnecting' && activeConnector?.getProvider)) &&
       (query.enabled ?? true),
   )
 
   const queryKey = useMemo(
     () =>
       getAssetsQueryKey({
-        account: address as `0x${string}`,
-        chainId: parameters.chainId ?? chainId,
+        account,
+        assetFilter,
+        assetTypeFilter,
+        chainFilter,
         connector: activeConnector,
       }),
-    [address, chainId, parameters.chainId, activeConnector],
+    [account, activeConnector, assetFilter, assetTypeFilter, chainFilter],
   )
 
   const provider = useRef<EIP1193Provider | undefined>(undefined)
@@ -255,7 +265,7 @@ export declare namespace useAssets {
   type Parameters<
     config extends Config = Config,
     selectData = getAssets.ReturnType,
-  > = getAssets.Parameters<config> &
+  > = getAssets.Parameters &
     ConfigParameter<config> & {
       query?:
         | Omit<
