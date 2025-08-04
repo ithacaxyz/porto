@@ -12,8 +12,10 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ThemeSwitchImport } from './routes/ThemeSwitch'
+import { Route as SpacerImport } from './routes/Spacer'
 import { Route as SeparatorImport } from './routes/Separator'
 import { Route as ScreenImport } from './routes/Screen'
+import { Route as InputImport } from './routes/Input'
 import { Route as FrameImport } from './routes/Frame'
 import { Route as ColorsImport } from './routes/Colors'
 import { Route as ButtonImport } from './routes/Button'
@@ -27,6 +29,12 @@ const ThemeSwitchRoute = ThemeSwitchImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const SpacerRoute = SpacerImport.update({
+  id: '/Spacer',
+  path: '/Spacer',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const SeparatorRoute = SeparatorImport.update({
   id: '/Separator',
   path: '/Separator',
@@ -36,6 +44,12 @@ const SeparatorRoute = SeparatorImport.update({
 const ScreenRoute = ScreenImport.update({
   id: '/Screen',
   path: '/Screen',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const InputRoute = InputImport.update({
+  id: '/Input',
+  path: '/Input',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrameImport
       parentRoute: typeof rootRoute
     }
+    '/Input': {
+      id: '/Input'
+      path: '/Input'
+      fullPath: '/Input'
+      preLoaderRoute: typeof InputImport
+      parentRoute: typeof rootRoute
+    }
     '/Screen': {
       id: '/Screen'
       path: '/Screen'
@@ -107,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/Separator'
       fullPath: '/Separator'
       preLoaderRoute: typeof SeparatorImport
+      parentRoute: typeof rootRoute
+    }
+    '/Spacer': {
+      id: '/Spacer'
+      path: '/Spacer'
+      fullPath: '/Spacer'
+      preLoaderRoute: typeof SpacerImport
       parentRoute: typeof rootRoute
     }
     '/ThemeSwitch': {
@@ -126,8 +154,10 @@ export interface FileRoutesByFullPath {
   '/Button': typeof ButtonRoute
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
+  '/Input': typeof InputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
+  '/Spacer': typeof SpacerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
 }
 
@@ -136,8 +166,10 @@ export interface FileRoutesByTo {
   '/Button': typeof ButtonRoute
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
+  '/Input': typeof InputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
+  '/Spacer': typeof SpacerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
 }
 
@@ -147,8 +179,10 @@ export interface FileRoutesById {
   '/Button': typeof ButtonRoute
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
+  '/Input': typeof InputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
+  '/Spacer': typeof SpacerRoute
   '/ThemeSwitch': typeof ThemeSwitchRoute
 }
 
@@ -159,8 +193,10 @@ export interface FileRouteTypes {
     | '/Button'
     | '/Colors'
     | '/Frame'
+    | '/Input'
     | '/Screen'
     | '/Separator'
+    | '/Spacer'
     | '/ThemeSwitch'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -168,8 +204,10 @@ export interface FileRouteTypes {
     | '/Button'
     | '/Colors'
     | '/Frame'
+    | '/Input'
     | '/Screen'
     | '/Separator'
+    | '/Spacer'
     | '/ThemeSwitch'
   id:
     | '__root__'
@@ -177,8 +215,10 @@ export interface FileRouteTypes {
     | '/Button'
     | '/Colors'
     | '/Frame'
+    | '/Input'
     | '/Screen'
     | '/Separator'
+    | '/Spacer'
     | '/ThemeSwitch'
   fileRoutesById: FileRoutesById
 }
@@ -188,8 +228,10 @@ export interface RootRouteChildren {
   ButtonRoute: typeof ButtonRoute
   ColorsRoute: typeof ColorsRoute
   FrameRoute: typeof FrameRoute
+  InputRoute: typeof InputRoute
   ScreenRoute: typeof ScreenRoute
   SeparatorRoute: typeof SeparatorRoute
+  SpacerRoute: typeof SpacerRoute
   ThemeSwitchRoute: typeof ThemeSwitchRoute
 }
 
@@ -198,8 +240,10 @@ const rootRouteChildren: RootRouteChildren = {
   ButtonRoute: ButtonRoute,
   ColorsRoute: ColorsRoute,
   FrameRoute: FrameRoute,
+  InputRoute: InputRoute,
   ScreenRoute: ScreenRoute,
   SeparatorRoute: SeparatorRoute,
+  SpacerRoute: SpacerRoute,
   ThemeSwitchRoute: ThemeSwitchRoute,
 }
 
@@ -217,8 +261,10 @@ export const routeTree = rootRoute
         "/Button",
         "/Colors",
         "/Frame",
+        "/Input",
         "/Screen",
         "/Separator",
+        "/Spacer",
         "/ThemeSwitch"
       ]
     },
@@ -234,11 +280,17 @@ export const routeTree = rootRoute
     "/Frame": {
       "filePath": "Frame.tsx"
     },
+    "/Input": {
+      "filePath": "Input.tsx"
+    },
     "/Screen": {
       "filePath": "Screen.tsx"
     },
     "/Separator": {
       "filePath": "Separator.tsx"
+    },
+    "/Spacer": {
+      "filePath": "Spacer.tsx"
     },
     "/ThemeSwitch": {
       "filePath": "ThemeSwitch.tsx"
