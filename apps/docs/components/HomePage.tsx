@@ -14,6 +14,7 @@ import {
   useAccountEffect,
   useBlockNumber,
   useChainId,
+  useChains,
   useConnect,
   useConnectors,
   useDisconnect,
@@ -1080,6 +1081,14 @@ function Swap(props: {
   const { address, chainId, next } = props
 
   const { status } = useAccount()
+
+  const chains = useChains()
+  const destinationChainId = React.useMemo(() => {
+    const index = chains.findIndex((chain) => chain.id === chainId)
+    if (index === -1) throw new Error(`Chain ${chainId} not found`)
+    return (chains[index + 1]?.id ?? chainId) as typeof chainId
+  }, [chains, chainId])
+
   const { data: blockNumber } = useBlockNumber({
     watch: {
       enabled: status === 'connected',
@@ -1091,26 +1100,29 @@ function Swap(props: {
     functionName: 'balanceOf',
     query: { enabled: Boolean(address) },
   } as const
+  const exp1Config_ = {
+    ...shared,
+    abi: exp1Config.abi,
+    address: exp1Config.address[chainId],
+    chainId,
+  } as const
+  const exp2Config_ = {
+    ...shared,
+    abi: exp2Config.abi,
+    address: exp2Config.address[destinationChainId],
+    chainId: destinationChainId,
+  } as const
+
   const {
     data: exp1Balance,
     isPending: exp1Pending,
     refetch: expBalanceRefetch,
-  } = useReadContract({
-    abi: exp1Config.abi,
-    address: exp1Config.address[chainId],
-    chainId: 84532,
-    ...shared,
-  })
+  } = useReadContract(exp1Config_)
   const {
     data: exp2Balance,
     isPending: exp2Pending,
     refetch: exp2BalanceRefetch,
-  } = useReadContract({
-    abi: exp2Config.abi,
-    address: exp2Config.address[chainId],
-    chainId: 11155420,
-    ...shared,
-  })
+  } = useReadContract(exp2Config_)
   // biome-ignore lint/correctness/useExhaustiveDependencies: refetch balance every block
   React.useEffect(() => {
     expBalanceRefetch()
@@ -1155,22 +1167,21 @@ function Swap(props: {
     try {
       const fromSymbol = state.values.fromSymbol
       const fromValue = state.values.fromValue
-      const expFromConfig = fromSymbol === 'exp1' ? exp1Config : exp2Config
-      const expToConfig = fromSymbol === 'exp1' ? exp2Config : exp1Config
+      const expFromConfig = fromSymbol === 'exp1' ? exp1Config_ : exp2Config_
+      const expToConfig = fromSymbol === 'exp1' ? exp2Config_ : exp1Config_
       await sendCallsAsync({
         calls: [
           {
             abi: expFromConfig.abi,
-            args: [
-              expToConfig.address[chainId],
-              address!,
-              Value.fromEther(fromValue),
-            ],
+            args: [expToConfig.address, address!, Value.fromEther(fromValue)],
             functionName: 'swap',
-            to: expFromConfig.address[chainId],
+            to: expFromConfig.address,
           },
         ],
         capabilities: {
+          permissions: {
+            id: null,
+          },
           requiredFunds: [
             {
               symbol: fromSymbol === 'exp1' ? 'EXP' : 'EXP2',
@@ -1178,7 +1189,7 @@ function Swap(props: {
             },
           ],
         },
-        chainId: fromSymbol === 'exp1' ? 11155420 : 84532,
+        chainId: expToConfig.chainId,
       })
     } catch (err) {
       const error = (() => {

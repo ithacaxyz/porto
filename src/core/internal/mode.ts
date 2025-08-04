@@ -280,7 +280,7 @@ export type Mode = {
         | RpcSchema.wallet_prepareCalls.Capabilities['requiredFunds']
         | undefined
       /** Permissions ID to use to execute the calls. */
-      permissionsId?: Hex.Hex | undefined
+      permissionsId?: Hex.Hex | null | undefined
       /** Pre-calls to be executed. */
       preCalls?: PreCalls.PreCalls | undefined
       /** Merchant RPC URL. */
@@ -467,12 +467,13 @@ export function getAuthorizeCalls(
 export async function getAuthorizedExecuteKey(parameters: {
   account: Account.Account
   calls: readonly Call.Call[]
-  permissionsId?: Hex.Hex | undefined
+  permissionsId?: Hex.Hex | null | undefined
 }): Promise<Key.Key | undefined> {
   const { account, calls, permissionsId } = parameters
 
   // If a key is provided, use it.
-  if (permissionsId) {
+  if (typeof permissionsId !== 'undefined') {
+    if (permissionsId === null) return undefined
     const key = account.keys?.find(
       (key) => key.publicKey === permissionsId && key.privateKey,
     )
