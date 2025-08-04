@@ -98,8 +98,8 @@ export function Input({
           }),
           className,
         )}
-        disabled={disabled}
         data-1p-ignore={autoComplete === 'off' ? true : undefined}
+        disabled={disabled}
         {...props}
       />
       {contextual && (
