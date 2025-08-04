@@ -8,7 +8,11 @@ export const Route = createRootRoute({
 
 const sections = [
   {
-    screens: ['Button', 'Theme', 'ThemeSwitch'],
+    screens: ['Colors'],
+    title: 'Theme',
+  },
+  {
+    screens: ['Button', 'ThemeSwitch'],
     title: 'Base',
   },
   // {
@@ -19,7 +23,7 @@ const sections = [
 
 function RootComponent() {
   return (
-    <div className="grid h-screen select-none grid-cols-[256px_1fr] bg-th_base-plane text-th_base">
+    <div className="grid h-screen select-none grid-cols-[220px_1fr] bg-th_base-plane text-th_base min-w-200">
       <Sidebar />
       <div className="focus-visible:-outline-offset-2 flex-1 overflow-y-auto px-16 py-12 focus-visible:outline-2 focus-visible:outline-th_focus">
         <Outlet />
