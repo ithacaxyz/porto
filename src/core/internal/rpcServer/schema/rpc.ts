@@ -229,7 +229,7 @@ export namespace wallet_getAssets {
       }),
     ),
     assetTypeFilter: Schema.optional(Schema.Array(AssetType)),
-    chainFilter: Schema.optional(Schema.Array(Primitive.Hex)),
+    chainFilter: Schema.optional(Schema.Array(Primitive.Number)),
   }).annotations({
     identifier: 'Rpc.wallet_getAssets.Parameters',
   })
@@ -246,7 +246,7 @@ export namespace wallet_getAssets {
 
   /** Response for `wallet_getAssets`. */
   export const Response = Schema.Record({
-    key: Primitive.Hex,
+    key: Schema.String,
     value: Schema.Array(
       Schema.Struct({
         address: Schema.Union(
@@ -254,7 +254,7 @@ export namespace wallet_getAssets {
           Schema.Literal('native'),
           Schema.Null,
         ),
-        balance: Primitive.Hex,
+        balance: Primitive.BigInt,
         metadata: Schema.NullOr(
           Schema.Struct({
             decimals: Schema.Number,

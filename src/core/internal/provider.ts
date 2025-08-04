@@ -3,6 +3,7 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
+import type { ValueOf } from 'viem'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/serverActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -891,7 +892,15 @@ export function from<
             },
           })
 
-          return response satisfies typeof Rpc.wallet_getAssets.Response.Encoded
+          const value = Object.entries(response).reduce(
+            (acc, [key, value]) => {
+              acc[Hex.fromNumber(Number(key))] = value
+              return acc
+            },
+            {} as Record<string, ValueOf<typeof response>>,
+          )
+
+          return Schema.encodeSync(Rpc.wallet_getAssets.Response)(value)
         }
 
         case 'wallet_getCallsStatus': {

@@ -19,6 +19,7 @@ import {
   custom,
   type EIP1193Provider,
 } from 'viem'
+import type { PartialBy } from '../../core/internal/types.js'
 import type * as RpcSchema from '../../core/RpcSchema.js'
 import * as AccountActions from '../../viem/AccountActions.js'
 import * as WalletActions from '../../viem/WalletActions.js'
@@ -206,23 +207,21 @@ export declare namespace getAdmins {
 
 export async function getAssets<config extends Config>(
   config: config,
-  parameters: getAssets.Parameters<config>,
+  parameters: getAssets.Parameters = {},
 ): Promise<getAssets.ReturnType> {
-  const { account, chainId, connector } = parameters
+  const { account, connector } = parameters
 
   const client = await getConnectorClient(config, {
     account,
-    chainId,
     connector,
   })
 
-  return WalletActions.getAssets(client, parameters)
+  return WalletActions.getAssets(client as any, parameters)
 }
 
 export declare namespace getAssets {
-  type Parameters<config extends Config = Config> = ChainIdParameter<config> &
-    ConnectorParameter &
-    WalletActions.getAssets.Parameters
+  type Parameters = ConnectorParameter &
+    PartialBy<WalletActions.getAssets.Parameters, 'account'>
 
   type ReturnType = WalletActions.getAssets.ReturnType
 

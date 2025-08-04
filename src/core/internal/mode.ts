@@ -98,7 +98,7 @@ export type Mode = {
         /** Internal properties. */
         internal: ActionsInternal
       },
-    ) => Promise<typeof RpcSchema.wallet_getAssets.Response.Encoded>
+    ) => Promise<RpcSchema.wallet_getAssets.Response>
 
     getCallsStatus: (parameters: {
       /** ID of the calls to get the status of. */
