@@ -1,8 +1,8 @@
 import type * as Address from 'ox/Address'
+import * as Hex from 'ox/Hex'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
 import * as RpcSchema from 'ox/RpcSchema'
-import * as Value from 'ox/Value'
 import { waitForCallsStatus } from 'viem/actions'
 import type { ThemeFragment } from '../../../theme/Theme.js'
 import * as Account from '../../../viem/Account.js'
@@ -811,7 +811,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
               const isMultichainDestination =
                 index === quotes.length - 1 && quotes.length > 1
               if (isMultichainDestination) return false
-              return Value.fromEther(quote.feeTokenDeficit) > 0n
+              return Hex.toBigInt(quote.feeTokenDeficit) > 0n
             })
             if (hasFeeDeficit) throw new Error('insufficient funds')
 

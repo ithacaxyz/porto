@@ -117,7 +117,7 @@ export namespace permissions {
   export type GetCapabilitiesResponse = typeof GetCapabilitiesResponse.Type
 
   export const Request = Schema.Struct({
-    id: Schema.optional(Primitive.Hex),
+    id: Schema.optional(Schema.Union(Primitive.Hex, Schema.Null)),
   })
   export type Request = typeof Request.Type
 

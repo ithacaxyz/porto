@@ -1122,10 +1122,12 @@ describe('permissions', () => {
         [Schema.CoderError: Expected \`0x\${string}\`, actual "not-hex"
         Path: id
 
-        Details: { readonly id?: \`0x\${string}\` | undefined }
+        Details: { readonly id?: \`0x\${string}\` | null | undefined }
         └─ ["id"]
-           └─ \`0x\${string}\` | undefined
-              ├─ Expected \`0x\${string}\`, actual "not-hex"
+           └─ \`0x\${string}\` | null | undefined
+              ├─ \`0x\${string}\` | null
+              │  ├─ Expected \`0x\${string}\`, actual "not-hex"
+              │  └─ Expected null, actual "not-hex"
               └─ Expected undefined, actual "not-hex"]
       `)
     })
