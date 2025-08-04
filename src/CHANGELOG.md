@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.60
+
+### Patch Changes
+
+- [#647](https://github.com/ithacaxyz/porto/pull/647) [`a7c9288`](https://github.com/ithacaxyz/porto/commit/a7c9288964edcb6b3e3795298ab49a33c04f7727) Thanks [@bpierre](https://github.com/bpierre)! - Fixed an issue where the Porto dialog rounded corners were opaque in certain cases.
+
+- [#568](https://github.com/ithacaxyz/porto/pull/568) [`a33d5fc`](https://github.com/ithacaxyz/porto/commit/a33d5fc1c42ff2975cb0b85191db8b6a8b0e860b) Thanks [@frolic](https://github.com/frolic)! - Added additional mechanism to detect when popup is closed.
+
 ## 0.0.59
 
 ### Patch Changes
