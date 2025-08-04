@@ -28,7 +28,7 @@ function RouteComponent() {
         ),
       }}
     >
-      <Screen layout="full">
+      <Screen>
         <Screen.Header
           content={
             <>
@@ -49,12 +49,11 @@ function RouteComponent() {
           </Button>
           <Separator label="First time, or lost access?" />
           <Input
-            value={email}
-            placeholder="Email address"
+            autoComplete="off"
             contextual="Optional"
             onChange={(e) => setEmail(e.target.value)}
-            autoComplete="off"
-            data-1p-ignore
+            placeholder="Email address"
+            value={email}
           />
           <Spacer.V size={{ dialog: 8, full: 12 }} />
           <Button variant={emailFilled ? 'primary' : 'secondary'} wide>

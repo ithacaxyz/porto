@@ -3,7 +3,7 @@ import { css, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 
 export interface ScreenProps {
-  layout: 'compact' | 'full'
+  layout?: 'compact' | 'full'
   children?: ReactNode
   loading?: boolean
   loadinTitle?: string
