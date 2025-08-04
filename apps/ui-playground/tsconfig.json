@@ -6,6 +6,6 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": []
+    "types": ["unplugin-icons/types/react"]
   }
 }

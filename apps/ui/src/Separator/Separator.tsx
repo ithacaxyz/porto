@@ -1,0 +1,55 @@
+import type { HTMLAttributes } from 'react'
+import { css, cx } from '../../styled-system/css'
+import { Frame } from '../Frame/Frame.js'
+
+export interface SeparatorProps extends HTMLAttributes<HTMLDivElement> {
+  label?: string
+  size?: 'small' | 'medium'
+}
+
+export function Separator({
+  label,
+  className,
+  size,
+  ...props
+}: SeparatorProps) {
+  const mode = Frame.useMode()
+  if (!size) size = mode === 'dialog' ? 'small' : 'medium'
+  return (
+    <div
+      className={cx(
+        css({
+          alignItems: 'center',
+          color: 'var(--text-color-th_base-secondary)',
+          display: 'flex',
+          letterSpacing: -0.5,
+          whiteSpace: 'nowrap',
+          width: '100%',
+        }),
+        size === 'small' &&
+          css({
+            fontSize: 12,
+            gap: 8,
+            paddingBlock: 8,
+          }),
+        size === 'medium' &&
+          css({
+            fontSize: 14,
+            gap: 12,
+            paddingBlock: 14,
+          }),
+        className,
+      )}
+      {...props}
+    >
+      {label}
+      <div
+        className={css({
+          backgroundColor: 'var(--color-th_separator)',
+          height: 1,
+          width: '100%',
+        })}
+      />
+    </div>
+  )
+}

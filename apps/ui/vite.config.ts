@@ -29,7 +29,10 @@ export default defineConfig({
     sourcemap: true,
   },
   plugins: [
-    Icons(),
+    Icons({
+      compiler: 'jsx',
+      jsx: 'react',
+    }),
     React(),
     TsconfigPaths(),
     Dts({

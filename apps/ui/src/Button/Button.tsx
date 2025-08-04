@@ -1,9 +1,13 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
+import type { FrameMode } from '../Frame/Frame.js'
+import { Frame } from '../Frame/Frame.js'
+
+type ButtonSize = 'small' | 'medium' | 'large'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   shape?: 'normal' | 'square'
-  size?: 'small' | 'medium' | 'large'
+  size?: ButtonSize | Record<FrameMode, ButtonSize>
   variant?:
     | 'negative'
     | 'negative-secondary'
@@ -16,17 +20,20 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 // TODO
 // - Add support for `shape` prop (square vs normal)
+// - Test icons
 
 export function Button({
   children,
   className,
   disabled,
   shape = 'normal',
-  size = 'medium',
+  size,
   variant = 'secondary',
   wide,
   ...props
 }: ButtonProps) {
+  const mode = Frame.useMode()
+  if (!size) size = { dialog: 'medium', full: 'large' }
   return (
     <button
       className={cx(
@@ -122,7 +129,7 @@ export function Button({
           },
         })({
           buttonVariant: variant,
-          size,
+          size: typeof size === 'string' ? size : (size[mode] ?? 'medium'),
         }),
         wide && css({ width: '100%' }),
         className,

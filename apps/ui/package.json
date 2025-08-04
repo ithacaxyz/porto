@@ -26,6 +26,7 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@iconify/json": "catalog:",
     "@microsoft/api-extractor": "^7.52.9",
     "@pandacss/dev": "^0.54.0",
     "@porto/apps": "workspace:*",

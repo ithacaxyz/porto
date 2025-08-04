@@ -8,7 +8,10 @@ import TsconfigPaths from 'vite-tsconfig-paths'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    Icons(),
+    Icons({
+      compiler: 'jsx',
+      jsx: 'react',
+    }),
     Tailwindcss(),
     React(),
     TsconfigPaths(),

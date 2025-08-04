@@ -8,11 +8,9 @@ export function ComponentScreen({
   title: ReactNode
 }) {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="mb-4 text-2xl text-th_base">{title}</h1>
-      </div>
-      <div className="space-y-6">{children}</div>
+    <div className="flex max-w-2xl flex-col gap-4 py-4">
+      <h1 className="mb-4 text-2xl text-th_base">{title}</h1>
+      <div className="w-full space-y-6">{children}</div>
     </div>
   )
 }
@@ -21,13 +19,13 @@ function ComponentScreenSection({
   title,
   children,
 }: {
-  title: string
+  title?: string
   children: ReactNode
 }) {
   return (
-    <section>
-      <h1 className="mb-3 text-lg text-th_base">{title}</h1>
-      <div>{children}</div>
+    <section className="w-full">
+      {title && <h1 className="mb-3 text-lg text-th_base">{title}</h1>}
+      <div className="w-full">{children}</div>
     </section>
   )
 }

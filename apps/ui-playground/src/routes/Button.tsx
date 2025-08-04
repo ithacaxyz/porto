@@ -10,13 +10,17 @@ function ButtonComponent() {
   return (
     <ComponentScreen title="Button">
       <ComponentScreen.Section title="Variants">
-        <div className="flex flex-wrap items-center gap-4">
-          <Button variant="primary">Primary</Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="strong">Strong</Button>
-          <Button variant="negative">Negative</Button>
-          <Button variant="negative-secondary">Negative Secondary</Button>
-          <Button variant="positive">Positive</Button>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <Button variant="primary">Primary</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="strong">Strong</Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button variant="negative">Negative</Button>
+            <Button variant="negative-secondary">Negative Secondary</Button>
+            <Button variant="positive">Positive</Button>
+          </div>
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section title="Sizes">
@@ -30,6 +34,19 @@ function ButtonComponent() {
         <div className="flex flex-wrap items-center gap-4">
           <Button>Normal</Button>
           <Button disabled>Disabled</Button>
+        </div>
+      </ComponentScreen.Section>
+      <ComponentScreen.Section title="Wide">
+        <div className="flex max-w-1xl flex-col items-center gap-4">
+          <Button size="small" wide>
+            Small
+          </Button>
+          <Button size="medium" wide>
+            Medium
+          </Button>
+          <Button size="large" wide>
+            Large
+          </Button>
         </div>
       </ComponentScreen.Section>
     </ComponentScreen>

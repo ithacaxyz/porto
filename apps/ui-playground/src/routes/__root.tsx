@@ -12,18 +12,18 @@ const sections = [
     title: 'Theme',
   },
   {
-    screens: ['Button', 'ThemeSwitch'],
+    screens: ['Button', 'Separator', 'ThemeSwitch'],
     title: 'Base',
   },
-  // {
-  //   screens: ['Frame', 'Screen'],
-  //   title: 'Layout',
-  // },
+  {
+    screens: ['Frame', 'Screen'],
+    title: 'Layout',
+  },
 ] as const
 
 function RootComponent() {
   return (
-    <div className="grid h-screen select-none grid-cols-[220px_1fr] bg-th_base-plane text-th_base min-w-200">
+    <div className="grid h-screen min-w-200 select-none grid-cols-[220px_1fr] bg-th_base-plane text-th_base">
       <Sidebar />
       <div className="focus-visible:-outline-offset-2 flex-1 overflow-y-auto px-16 py-12 focus-visible:outline-2 focus-visible:outline-th_focus">
         <Outlet />

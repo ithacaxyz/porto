@@ -1,3 +1,6 @@
 export { css, cva, cx } from '../styled-system/css'
 export { Button } from './Button/Button.js'
+export { Frame } from './Frame/Frame.js'
+export { Screen } from './Screen/Screen.js'
+export { Separator } from './Separator/Separator.js'
 export { ThemeSwitch } from './ThemeSwitch/ThemeSwitch.js'

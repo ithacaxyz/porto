@@ -8,7 +8,7 @@ function IndexComponent() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-th_base p-8 text-th_base">
       <p className="text-th_base-secondary">
-        Please select a component from the sidebar.
+        Please select a screen from the sidebar.
       </p>
     </div>
   )
