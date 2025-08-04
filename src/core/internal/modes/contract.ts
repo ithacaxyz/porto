@@ -36,7 +36,7 @@ export function contract(parameters: contract.Parameters = {}) {
     if (parameters.keystoreHost === 'self') return undefined
     if (
       typeof window !== 'undefined' &&
-      window.location.hostname === 'localhost'
+      window.location?.hostname === 'localhost'
     )
       return undefined
     return parameters.keystoreHost

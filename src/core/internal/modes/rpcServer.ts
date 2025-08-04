@@ -43,7 +43,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
     if (config.keystoreHost === 'self') return undefined
     if (
       typeof window !== 'undefined' &&
-      window.location.hostname === 'localhost'
+      window.location?.hostname === 'localhost'
     )
       return undefined
     return config.keystoreHost
