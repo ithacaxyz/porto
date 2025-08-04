@@ -1,6 +1,6 @@
+import { css } from '../../styled-system/css'
 import type { FrameMode } from '../Frame/Frame.js'
 import { Frame } from '../Frame/Frame.js'
-import { css } from '../../styled-system/css'
 
 export type SpacerProps = {
   size: number | Record<FrameMode, number>

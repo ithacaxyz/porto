@@ -9,7 +9,7 @@ export const Route = createFileRoute('/Separator')({
 function RouteComponent() {
   return (
     <ComponentScreen title="Separator">
-      <ComponentScreen.Section title="Sizes" surface="base">
+      <ComponentScreen.Section surface="base" title="Sizes">
         <Separator label="Small" />
         <Separator label="Medium" />
       </ComponentScreen.Section>

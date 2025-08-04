@@ -41,22 +41,22 @@ function ButtonComponent() {
       <ComponentScreen.Section title="Icon">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-4">
-            <Button variant="primary" icon={<LucideLogIn />}>
+            <Button icon={<LucideLogIn />} variant="primary">
               Start
             </Button>
-            <Button variant="secondary" icon={<LucideScanFace />}>
+            <Button icon={<LucideScanFace />} variant="secondary">
               Sign in
             </Button>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Button
-              variant="negative-secondary"
               icon={<LucideLogIn />}
               size="small"
+              variant="negative-secondary"
             >
               Start
             </Button>
-            <Button variant="positive" icon={<LucideScanFace />} size="small">
+            <Button icon={<LucideScanFace />} size="small" variant="positive">
               Sign in
             </Button>
           </div>

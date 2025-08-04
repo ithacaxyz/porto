@@ -12,7 +12,7 @@ function SpacerComponent() {
   const space = mode === 'dialog' ? 8 : 24
   return (
     <ComponentScreen title="Spacer">
-      <div className="flex items-center gap-2 text-sm text-th_base mb-4">
+      <div className="mb-4 flex items-center gap-2 text-sm text-th_base">
         <Button
           onClick={() =>
             setMode((mode) => (mode === 'dialog' ? 'full' : 'dialog'))
@@ -39,4 +39,3 @@ function SpacerComponent() {
     </ComponentScreen>
   )
 }
-
