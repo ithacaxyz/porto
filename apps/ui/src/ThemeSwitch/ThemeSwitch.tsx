@@ -20,6 +20,8 @@ export function ThemeSwitch({
 }: ThemeSwitchProps) {
   return (
     <button
+      aria-checked={colorScheme === 'dark'}
+      aria-label="Dark mode"
       className={cx(
         css({
           _focusVisible: {
@@ -29,13 +31,13 @@ export function ThemeSwitch({
           alignItems: 'center',
           border: '1px solid var(--border-color-th_field)',
           borderRadius: 13,
-          color: 'var(--text-color-th_base-secondary)',
           cursor: 'pointer!',
-          display: 'flex',
+          display: 'inline-flex',
           gap: 8,
           height: 26,
           paddingInline: 4,
           transition: '50ms transform ease-out',
+          width: 50,
         }),
         className,
       )}
@@ -49,6 +51,7 @@ export function ThemeSwitch({
         if (e.pointerType === 'mouse' && e.button !== 0) return
         onChange(colorScheme === 'light' ? 'dark' : 'light')
       }}
+      role="switch"
       title={`Switch to ${colorScheme === 'light' ? 'dark' : 'light'} mode`}
       type="button"
       {...props}
@@ -73,9 +76,13 @@ function ColorSchemeIcon({
       mass: 1,
       tension: 1600,
     },
+    initial: {
+      opacity: 1,
+      transform: 'scale(1)',
+    },
     to: active
       ? [
-          { immediate: true, transform: 'scale(0.8)' },
+          { immediate: true, transform: 'scale(0.6)' },
           { opacity: 1, transform: 'scale(1)' },
         ]
       : [{ transform: 'scale(1)' }],
@@ -84,7 +91,9 @@ function ColorSchemeIcon({
     <a.div
       style={{
         ...styles,
-        color: active ? 'var(--text-color-th_base)' : undefined,
+        color: active
+          ? 'var(--text-color-th_base)'
+          : 'var(--text-color-th_base-secondary)',
       }}
     >
       {colorScheme === 'dark' ? <IconMoon /> : <IconSun />}
