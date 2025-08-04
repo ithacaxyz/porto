@@ -25,17 +25,17 @@ export function Input({
     <div
       className={cx(
         css({
-          display: 'inline-flex',
-          width: '100%',
-          position: 'relative',
-          backgroundColor: 'var(--background-color-th_field)',
-          border: '1px solid var(--border-color-th_field)',
-          borderRadius: 'var(--radius-th_medium)',
-          color: 'var(--text-color-th_field)',
           _focusWithin: {
             outline: '2px solid var(--color-th_focus)',
             outlineOffset: -1,
           },
+          backgroundColor: 'var(--background-color-th_field)',
+          border: '1px solid var(--border-color-th_field)',
+          borderRadius: 'var(--radius-th_medium)',
+          color: 'var(--text-color-th_field)',
+          display: 'inline-flex',
+          position: 'relative',
+          width: '100%',
         }),
         cva({
           variants: {
@@ -67,19 +67,19 @@ export function Input({
       <input
         className={cx(
           css({
-            '&::placeholder': {
-              color: 'var(--text-color-th_field-tertiary)',
-            },
             _focus: {
               outline: 'none',
             },
-            flex: '1 1 auto',
-            minWidth: 0,
-            height: '100%',
+            '&::placeholder': {
+              color: 'var(--text-color-th_field-tertiary)',
+            },
             alignItems: 'center',
-            display: 'flex',
             color: 'inherit',
+            display: 'flex',
+            flex: '1 1 auto',
             fontSize: 'inherit',
+            height: '100%',
+            minWidth: 0,
           }),
           cva({
             variants: {
@@ -104,20 +104,20 @@ export function Input({
         <div
           className={cx(
             css({
-              display: 'flex',
               alignItems: 'center',
-              height: '100%',
               color: 'var(--text-color-th_field-secondary)',
+              display: 'flex',
+              height: '100%',
             }),
             mode === 'dialog' &&
               css({
-                paddingRight: 16,
                 fontSize: 12,
+                paddingRight: 16,
               }),
             mode === 'full' &&
               css({
-                paddingRight: 20,
                 fontSize: 13,
+                paddingRight: 20,
               }),
           )}
         >
