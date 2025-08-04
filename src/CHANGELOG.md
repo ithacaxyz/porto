@@ -1,5 +1,23 @@
 # porto
 
+## 0.0.59
+
+### Patch Changes
+
+- [#631](https://github.com/ithacaxyz/porto/pull/631) [`0e03453`](https://github.com/ithacaxyz/porto/commit/0e0345374c02399510c4211d7878e17ed0992935) Thanks [@frolic](https://github.com/frolic)! - Added `origin` to `onDialogRequest`.
+
+- [#633](https://github.com/ithacaxyz/porto/pull/633) [`cf4ebb2`](https://github.com/ithacaxyz/porto/commit/cf4ebb29b4f486eda015535127dd2cbfbe7e7832) Thanks [@bpierre](https://github.com/bpierre)! - Added new values to the theme:
+
+  - Generic radiuses: `radiusSmall`, `radiusMedium` and `radiusLarge`.
+  - A `basePlane` surface (used as a base surface in fullscreen mode).
+  - A `negativeSecondary` surface (e.g. cancel buttons).
+  - A `strong` surface (alternative to primary buttons).
+  - `negativeBorder` and `positiveBorder` (to customize the outline of the corresponding buttons).
+
+- [#640](https://github.com/ithacaxyz/porto/pull/640) [`21525bb`](https://github.com/ithacaxyz/porto/commit/21525bb28966523c95bd52af5858db3d4f25720e) Thanks [@bpierre](https://github.com/bpierre)! - Added a new surface color to the theme: `baseAltBackground`.
+
+- [#635](https://github.com/ithacaxyz/porto/pull/635) [`4d5dcc6`](https://github.com/ithacaxyz/porto/commit/4d5dcc66de54691ff14ae5e43e1dd77746df2f4c) Thanks [@jxom](https://github.com/jxom)! - Added `token` property to `signInWithEthereum` response capability.
+
 ## 0.0.58
 
 ### Patch Changes
