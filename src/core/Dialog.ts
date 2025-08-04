@@ -103,6 +103,7 @@ export function iframe(options: iframe.Options = {}) {
         }
 
         dialog iframe {
+          color-scheme: light dark;
           background-color: transparent;
         }
 
