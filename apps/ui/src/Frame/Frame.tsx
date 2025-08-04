@@ -150,7 +150,7 @@ function FrameBar({ site, mode }: { site: Site; mode: FrameMode }) {
           }),
           mode === 'full' &&
             css({
-              paddingInline: 22,
+              paddingInline: 20,
             }),
         )}
       >

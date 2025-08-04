@@ -14,7 +14,7 @@ export function Separator({
   ...props
 }: SeparatorProps) {
   const mode = Frame.useMode()
-  if (!size) size = mode === 'dialog' ? 'small' : 'medium'
+  size ??= mode === 'dialog' ? 'small' : 'medium'
   return (
     <div
       className={cx(

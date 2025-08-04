@@ -16,8 +16,9 @@ export interface ScreenProps {
   //     }
 }
 
-export function Screen({ children }: ScreenProps) {
+export function Screen({ layout, children }: ScreenProps) {
   const mode = Frame.useMode()
+  layout ??= mode === 'dialog' ? 'compact' : 'full'
   return (
     <div
       className={cx(
@@ -29,7 +30,7 @@ export function Screen({ children }: ScreenProps) {
           padding: 12,
           width: '100%',
         }),
-        mode === 'full' &&
+        layout === 'full' &&
           css({
             padding: 24,
           }),
@@ -41,15 +42,18 @@ export function Screen({ children }: ScreenProps) {
 }
 
 function ScreenHeader({
-  icon,
-  title,
   content,
+  icon,
+  layout,
+  title,
 }: {
-  icon?: ReactNode
-  title: string
   content?: ReactNode
+  icon?: ReactNode
+  layout?: 'compact' | 'full'
+  title: string
 }) {
   const mode = Frame.useMode()
+  layout ??= mode === 'dialog' ? 'compact' : 'full'
   return (
     <div
       className={cx(
@@ -58,9 +62,12 @@ function ScreenHeader({
           flexDirection: 'column',
           gap: 6,
           lineHeight: 1.5,
-          paddingBottom: 8,
         }),
-        mode === 'full' &&
+        layout === 'compact' &&
+          css({
+            paddingBottom: 8,
+          }),
+        layout === 'full' &&
           css({
             '@container (min-width: 480px)': {
               paddingBottom: 40,
@@ -76,10 +83,13 @@ function ScreenHeader({
           css({
             alignItems: 'center',
             display: 'flex',
-            gap: 8,
             justifyContent: 'flex-start',
           }),
-          mode === 'full' &&
+          layout === 'compact' &&
+            css({
+              gap: 8,
+            }),
+          layout === 'full' &&
             css({
               flexDirection: 'column',
               gap: 16,
@@ -98,16 +108,11 @@ function ScreenHeader({
                 borderRadius: '50%',
                 color: 'var(--text-color-th_badge-info)',
                 display: 'grid',
-                height: 32,
                 overflow: 'hidden',
                 placeItems: 'center',
-                width: 32,
               }),
-              mode === 'full' &&
-                css({
-                  height: 64,
-                  width: 64,
-                }),
+              layout === 'compact' && css({ height: 32, width: 32 }),
+              layout === 'full' && css({ height: 64, width: 64 }),
             )}
           >
             {icon}
@@ -115,14 +120,8 @@ function ScreenHeader({
         )}
         <div
           className={cx(
-            mode === 'dialog' &&
-              css({
-                fontSize: 18,
-              }),
-            mode === 'full' &&
-              css({
-                fontSize: 28,
-              }),
+            layout === 'compact' && css({ fontSize: 18 }),
+            layout === 'full' && css({ fontSize: 28 }),
           )}
         >
           {title}
@@ -130,11 +129,12 @@ function ScreenHeader({
       </div>
       <div
         className={cx(
-          mode === 'dialog' &&
+          layout === 'compact' &&
             css({
               fontSize: 15,
+              textAlign: 'left',
             }),
-          mode === 'full' &&
+          layout === 'full' &&
             css({
               fontSize: 18,
               textAlign: 'center',

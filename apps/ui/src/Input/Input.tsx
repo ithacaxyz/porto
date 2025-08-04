@@ -13,6 +13,7 @@ export interface InputProps
 }
 
 export function Input({
+  autoComplete,
   className,
   contextual,
   disabled,
@@ -20,7 +21,7 @@ export function Input({
   ...props
 }: InputProps) {
   const mode = Frame.useMode()
-  if (!size) size = { dialog: 'medium', full: 'large' }
+  size ??= { dialog: 'medium', full: 'large' }
   return (
     <div
       className={cx(
@@ -98,6 +99,7 @@ export function Input({
           className,
         )}
         disabled={disabled}
+        data-1p-ignore={autoComplete === 'off' ? true : undefined}
         {...props}
       />
       {contextual && (

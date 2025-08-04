@@ -31,7 +31,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const mode = Frame.useMode()
-  if (!size) size = { dialog: 'medium', full: 'large' }
+  size ??= { dialog: 'medium', full: 'large' }
   return (
     <button
       className={cx(
