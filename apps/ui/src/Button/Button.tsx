@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import type { FrameMode } from '../Frame/Frame.js'
 import { Frame } from '../Frame/Frame.js'
@@ -6,7 +6,7 @@ import { Frame } from '../Frame/Frame.js'
 type ButtonSize = 'small' | 'medium' | 'large'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  shape?: 'normal' | 'square'
+  icon?: ReactNode
   size?: ButtonSize | Record<FrameMode, ButtonSize>
   variant?:
     | 'negative'
@@ -15,17 +15,15 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     | 'primary'
     | 'secondary'
     | 'strong'
+  shape?: 'normal' | 'square' // TODO: implement
   wide?: boolean
 }
-
-// TODO
-// - Add support for `shape` prop (square vs normal)
-// - Test icons
 
 export function Button({
   children,
   className,
   disabled,
+  icon,
   shape = 'normal',
   size,
   variant = 'secondary',
@@ -68,7 +66,7 @@ export function Button({
           borderRadius: 'var(--radius-th_medium)',
           cursor: 'pointer!',
           display: 'inline-flex',
-          fontWeight: 500,
+          gap: 8,
           justifyContent: 'center',
           whiteSpace: 'nowrap',
         }),
@@ -137,6 +135,7 @@ export function Button({
       disabled={disabled}
       {...props}
     >
+      {icon}
       {children}
     </button>
   )

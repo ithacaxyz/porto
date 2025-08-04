@@ -194,7 +194,9 @@ function FrameBar({ site, mode }: { site: Site; mode: FrameMode }) {
           </div>
           <div>
             <div hidden={mode === 'full'}>{site.label}</div>
-            <div hidden={mode === 'dialog'}>{site.labelExtended}</div>
+            <div hidden={mode === 'dialog'}>
+              {site.labelExtended ?? site.label}
+            </div>
           </div>
         </div>
       </div>

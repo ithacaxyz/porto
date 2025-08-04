@@ -4,17 +4,19 @@ import { Frame } from '../Frame/Frame.js'
 
 export interface ScreenProps {
   layout: 'compact' | 'full'
-  header?: ReactNode
   children?: ReactNode
-  actions?:
-    | ReactNode
-    | {
-        primary?: ReactNode
-        secondary?: ReactNode
-      }
+  loading?: boolean
+  loadinTitle?: string
+  // header?: ReactNode
+  // actions?:
+  //   | ReactNode
+  //   | {
+  //       primary?: ReactNode
+  //       secondary?: ReactNode
+  //     }
 }
 
-export function Screen({ children }: ScreenProps) {
+export function Screen({ children, loading, loadinTitle }: ScreenProps) {
   const mode = Frame.useMode()
   return (
     <div

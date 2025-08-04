@@ -36,7 +36,7 @@ export function Separator({
           css({
             fontSize: 14,
             gap: 12,
-            paddingBlock: 14,
+            paddingBlock: 16,
           }),
         className,
       )}

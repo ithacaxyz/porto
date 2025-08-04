@@ -1,9 +1,10 @@
-import { Button, Frame, Screen, Separator } from '@porto/ui'
+import { Button, Frame, Input, Screen, Separator, Spacer } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen.js'
 import { DemoBrowser } from '~/components/DemoBrowser/DemoBrowser.js'
 import LucideLogIn from '~icons/lucide/log-in'
+import LucideScanFace from '~icons/lucide/scan-face'
 
 export const Route = createFileRoute('/Frame')({
   component: RouteComponent,
@@ -11,7 +12,10 @@ export const Route = createFileRoute('/Frame')({
 
 function RouteComponent() {
   const [mode, setMode] = useState<'dialog' | 'full'>('full')
-  const frame = (
+  const [email, setEmail] = useState('')
+  const emailFilled = Boolean(email.trim())
+
+  const app = (
     <Frame
       mode={mode}
       site={{
@@ -36,17 +40,31 @@ function RouteComponent() {
           title="Get started"
         />
         <div>
-          <Button variant="primary" wide>
+          <Button
+            icon={<LucideScanFace />}
+            variant={emailFilled ? 'secondary' : 'primary'}
+            wide
+          >
             Sign in
           </Button>
           <Separator label="First time, or lost access?" />
-          <Button variant="secondary" wide>
+          <Input
+            value={email}
+            placeholder="Email address"
+            contextual="Optional"
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="off"
+            data-1p-ignore
+          />
+          <Spacer.V size={{ dialog: 8, full: 12 }} />
+          <Button variant={emailFilled ? 'primary' : 'secondary'} wide>
             Create account
           </Button>
         </div>
       </Screen>
     </Frame>
   )
+
   return (
     <ComponentScreen title="Frame">
       <div className="flex items-center gap-2 text-sm text-th_base">
@@ -60,10 +78,10 @@ function RouteComponent() {
         </Button>
       </div>
       {mode === 'dialog' ? (
-        <div className={'flex w-[360px]'}>{frame}</div>
+        <div className={'flex w-[360px]'}>{app}</div>
       ) : (
         <DemoBrowser>
-          <div className="flex w-full flex-col">{frame}</div>
+          <div className="flex w-full flex-col">{app}</div>
         </DemoBrowser>
       )}
     </ComponentScreen>

@@ -9,13 +9,9 @@ export const Route = createFileRoute('/Separator')({
 function RouteComponent() {
   return (
     <ComponentScreen title="Separator">
-      <ComponentScreen.Section title="Sizes">
-        <div className="dark color-scheme-dark flex w-full items-center gap-4">
-          <div className="w-full rounded-th_medium border border-th_base bg-th_base p-4">
-            <Separator label="Small" />
-            <Separator label="Medium" />
-          </div>
-        </div>
+      <ComponentScreen.Section title="Sizes" surface="base">
+        <Separator label="Small" />
+        <Separator label="Medium" />
       </ComponentScreen.Section>
     </ComponentScreen>
   )

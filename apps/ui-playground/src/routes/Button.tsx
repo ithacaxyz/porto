@@ -1,6 +1,8 @@
 import { Button } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
+import LucideLogIn from '~icons/lucide/log-in'
+import LucideScanFace from '~icons/lucide/scan-face'
 
 export const Route = createFileRoute('/Button')({
   component: ButtonComponent,
@@ -34,6 +36,30 @@ function ButtonComponent() {
         <div className="flex flex-wrap items-center gap-4">
           <Button>Normal</Button>
           <Button disabled>Disabled</Button>
+        </div>
+      </ComponentScreen.Section>
+      <ComponentScreen.Section title="Icon">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <Button variant="primary" icon={<LucideLogIn />}>
+              Start
+            </Button>
+            <Button variant="secondary" icon={<LucideScanFace />}>
+              Sign in
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button
+              variant="negative-secondary"
+              icon={<LucideLogIn />}
+              size="small"
+            >
+              Start
+            </Button>
+            <Button variant="positive" icon={<LucideScanFace />} size="small">
+              Sign in
+            </Button>
+          </div>
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section title="Wide">

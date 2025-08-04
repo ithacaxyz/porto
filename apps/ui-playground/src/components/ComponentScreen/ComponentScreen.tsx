@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { cx } from 'cva'
 
 export function ComponentScreen({
   children,
@@ -18,14 +19,24 @@ export function ComponentScreen({
 function ComponentScreenSection({
   title,
   children,
+  surface = 'plane',
 }: {
   title?: string
   children: ReactNode
+  surface?: 'base' | 'plane'
 }) {
   return (
     <section className="w-full">
       {title && <h1 className="mb-3 text-lg text-th_base">{title}</h1>}
-      <div className="w-full">{children}</div>
+      <div
+        className={cx(
+          'w-full',
+          surface === 'base' &&
+            'rounded-th_medium border border-th_base bg-th_base p-4',
+        )}
+      >
+        {children}
+      </div>
     </section>
   )
 }
