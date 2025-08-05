@@ -1,19 +1,21 @@
 import * as Ariakit from '@ariakit/react'
+import { Env } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
 import * as UI from '@porto/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Cuer } from 'cuer'
+import { cx } from 'cva'
 import { type Address, Hex, Value } from 'ox'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
 import { useBalance, useWatchBlockNumber, useWatchContractEvent } from 'wagmi'
-import { PayButton } from '~/components/PayButton'
 import * as FeeTokens from '~/lib/FeeTokens'
-import { enableOnramp, stripeOnrampUrl } from '~/lib/Onramp'
+import { enableOnramp } from '~/lib/Onramp'
 import { porto } from '~/lib/Porto'
 import { Layout } from '~/routes/-components/Layout'
+import AppleIcon from '~icons/basil/apple-solid'
 import ArrowRightIcon from '~icons/lucide/arrow-right'
 import CopyIcon from '~icons/lucide/copy'
 import CardIcon from '~icons/lucide/credit-card'
@@ -22,7 +24,7 @@ import QrCodeIcon from '~icons/lucide/qr-code'
 import TriangleAlertIcon from '~icons/lucide/triangle-alert'
 import XIcon from '~icons/lucide/x'
 
-const presetAmounts = ['25', '50', '100', '250'] as const
+const presetAmounts = ['30', '50', '100', '250'] as const
 
 export function AddFunds(props: AddFunds.Props) {
   const {
@@ -48,12 +50,14 @@ export function AddFunds(props: AddFunds.Props) {
       : presetAmounts[0]!,
   )
   const [view, setView] = React.useState<
-    'default' | 'deposit-crypto' | 'error'
+    'default' | 'deposit-crypto' | 'error' | 'email'
   >('default')
+  const [emailView, setEmailView] = React.useState<
+    'start' | 'added' | 'validated' | 'invalidated'
+  >('start')
+  const [email, setEmail] = React.useState<string>('')
 
-  const showOnramp = enableOnramp()
-
-  const deposit = useMutation({
+  const faucet = useMutation({
     async mutationFn(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault()
       e.stopPropagation()
@@ -84,7 +88,7 @@ export function AddFunds(props: AddFunds.Props) {
     defaultValue ? 'editing' : 'default',
   )
 
-  if (deposit.isSuccess) return
+  if (faucet.isSuccess) return
 
   if (view === 'default')
     return (
@@ -99,7 +103,7 @@ export function AddFunds(props: AddFunds.Props) {
         <Layout.Content>
           <form
             className="grid h-min grid-flow-row auto-rows-min grid-cols-1 space-y-3"
-            onSubmit={(e) => deposit.mutate(e)}
+            onSubmit={(e) => faucet.mutate(e)}
           >
             <div className="col-span-1 row-span-1">
               <div className="flex max-h-[42px] w-full max-w-full flex-row justify-center space-x-2">
@@ -168,27 +172,12 @@ export function AddFunds(props: AddFunds.Props) {
               </div>
             </div>
             <div className="col-span-1 row-span-1 space-y-3.5">
-              {showOnramp ? (
-                <PayButton
-                  disabled={!address || !amount || Number(amount) === 0}
-                  url={stripeOnrampUrl({
-                    address: address!,
-                    amount: Number(amount),
-                  })}
-                  variant="stripe"
-                />
-              ) : (
-                <UI.Button
-                  data-testid="buy"
-                  disabled={!amount || Number(amount) === 0}
-                  loading={deposit.isPending && 'Adding funds…'}
-                  type="submit"
-                  variant="primary"
-                  width="full"
-                >
-                  Add funds
-                </UI.Button>
-              )}
+              <OnrampView
+                address={address}
+                amount={amount}
+                onApprove={onApprove}
+                onReject={onReject}
+              />
             </div>
             <div className="col-span-1 row-span-1">
               <div className="my-auto flex w-full flex-row items-center gap-2 *:border-th_separator">
@@ -197,7 +186,7 @@ export function AddFunds(props: AddFunds.Props) {
                 <hr className="flex-1 border-th_separator" />
               </div>
             </div>
-            <div className="col-span-1 row-span-1">
+            <div className="col-span-1 row-span-1 space-y-2">
               <Button
                 className="w-full px-3!"
                 disabled={deposit.isPending}
@@ -239,6 +228,18 @@ export function AddFunds(props: AddFunds.Props) {
               </Button>
             </div>
           </form>
+
+          <p className="mt-3 px-8 text-center text-[12px] text-th_base-secondary">
+            By using this process, you are agreeing to Mercuryo's{' '}
+            <a
+              className="text-primary"
+              href="https://mercuryo.io/terms-and-conditions"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              terms & conditions
+            </a>
+          </p>
         </Layout.Content>
       </Layout>
     )
@@ -251,6 +252,131 @@ export function AddFunds(props: AddFunds.Props) {
         onBack={() => setView('default')}
       />
     )
+
+  if (view === 'email') {
+    function validateEmail(email: string) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return re.test(email)
+    }
+
+    const isValidEmail = validateEmail(email)
+
+    function handleEmailSubmit(e: React.FormEvent) {
+      e.preventDefault()
+      if (isValidEmail) setEmailView('validated')
+      else if (email.length > 0) setEmailView('invalidated')
+      //  TODO: add email submit (async)
+    }
+
+    return (
+      <Layout>
+        <Layout.Header>
+          <Layout.Header.Default
+            content={
+              emailView === 'invalidated'
+                ? ''
+                : 'We need this to set up Apple Pay and Google Pay for payment.'
+            }
+            title="Add your email"
+          />
+        </Layout.Header>
+
+        <Layout.Content>
+          <form className="space-y-4" onSubmit={handleEmailSubmit}>
+            <div className="relative">
+              <input
+                autoCapitalize="off"
+                autoComplete="email"
+                autoCorrect="off"
+                // biome-ignore lint/a11y/noAutofocus: _
+                autoFocus
+                className={cx(
+                  'w-full rounded-lg border-[1.5px] bg-th_field px-3 py-3 pr-10 placeholder:text-th_field focus:border-th_focus focus:bg-th_field-focused focus:outline-none',
+                  emailView === 'invalidated'
+                    ? 'border-th_field-error text-th_field-error'
+                    : emailView === 'validated'
+                      ? 'border-th_focus text-th_base'
+                      : 'border-transparent text-th_base',
+                )}
+                disabled={emailView === 'validated'}
+                inputMode="email"
+                onChange={(e) => {
+                  const newEmail = e.target.value
+                  setEmail(newEmail)
+
+                  // Reset view states as user types
+                  if (newEmail === '') setEmailView('start')
+                  else if (validateEmail(newEmail)) setEmailView('validated')
+                  else setEmailView('added')
+                }}
+                placeholder="achel@achal.me"
+                required
+                spellCheck={false}
+                type="email"
+                value={email}
+              />
+              {emailView === 'validated' && (
+                <svg
+                  aria-hidden="true"
+                  aria-label="Valid email"
+                  className="-translate-y-1/2 absolute top-1/2 right-3 size-5 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M5 13l4 4L19 7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+              {emailView === 'invalidated' && (
+                <p className="mt-2 text-sm text-th_field-error">
+                  Invalid email
+                </p>
+              )}
+            </div>
+
+            <Button
+              className="w-full"
+              disabled={!isValidEmail}
+              onClick={
+                emailView === 'validated' ? () => setView('default') : undefined
+              }
+              type={emailView === 'validated' ? 'button' : 'submit'}
+              variant="primary"
+            >
+              Continue
+            </Button>
+          </form>
+
+          <p className="mt-4 text-center text-[11.5px] text-th_base-secondary">
+            By using our deposit on-ramp, you agree to our{' '}
+            <a
+              className="text-th_base-secondary underline"
+              href="https://porto.sh/terms"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Terms of Use
+            </a>{' '}
+            and{' '}
+            <a
+              className="text-th_base-secondary underline"
+              href="https://ithaca.xyz/about/privacy-policy"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Privacy Policy for Porto
+            </a>
+            .
+          </p>
+        </Layout.Content>
+      </Layout>
+    )
+  }
 
   if (view === 'error')
     return (
@@ -303,6 +429,164 @@ export declare namespace AddFunds {
     tokenAddress?: Address.Address | undefined
     value?: string | undefined
   }
+}
+
+export declare namespace OnrampView {
+  export type Props = {
+    address: Address.Address | undefined
+    amount: string | undefined
+    onApprove: (result: { id: Hex.Hex }) => void
+    onReject?: () => void
+  }
+}
+
+function OnrampView(props: OnrampView.Props) {
+  const { address, amount, onApprove, onReject } = props
+  const [hasError, setHasError] = React.useState<boolean>(false)
+
+  const showOnramp = enableOnramp()
+  const onrampURL = React.useMemo(() => {
+    const url = new URL('/onramp/global', 'https://onramp.porto.workers.dev')
+    const params = new URLSearchParams({
+      address: address!,
+      amount: amount!,
+      target: 'iframe',
+    })
+    url.search = params.toString()
+    return url.toString()
+  }, [address, amount])
+
+  const iframeRef = React.useRef<HTMLIFrameElement>(null)
+
+  // delay the iframe by 5 seconds. Show a fake apple pay button until then.
+  const [isLoading, setIsLoading] = React.useState<boolean>(true)
+
+  const trustedOrigins = React.useMemo(
+    () =>
+      import.meta.env.DEV
+        ? [
+            `https://${Env.get()}.localhost:5173`,
+            `https://${Env.get()}.localhost:5174`,
+            `https://${Env.get()}.localhost:5175`,
+            import.meta.env.VITE_WORKERS_URL,
+            import.meta.env.VITE_ONRAMP_URL,
+          ]
+        : [
+            'https://porto.sh',
+            'https://id.porto.sh',
+            'https://stg.id.porto.sh',
+            'https://playground.porto.sh',
+            `https://${Env.get()}.porto.sh`,
+            `https://${Env.get()}.id.porto.sh`,
+            `https://${Env.get()}.playground.porto.sh`,
+            import.meta.env.VITE_WORKERS_URL,
+            import.meta.env.VITE_ONRAMP_URL,
+          ],
+    [],
+  )
+
+  React.useEffect(() => {
+    if (!iframeRef.current) return
+
+    const handleMessage = (event: MessageEvent) => {
+      if (!trustedOrigins.includes(event.origin)) return
+      if (event.data?.topic === 'rpc-requests') return
+      console.info('[onramp] Received:', event.data)
+
+      // Handle specific onramp events
+      if (event.data?.type === 'onramp:ready') {
+        // Send initialization data to iframe
+        iframeRef.current?.contentWindow?.postMessage(
+          {
+            data: {
+              address,
+              amount,
+              origin: window.location.origin,
+            },
+            type: 'onramp:init',
+          },
+          event.origin,
+        )
+      }
+
+      if (event.data?.type === 'onramp:loaded') {
+        console.info('[onramp] Widget loaded')
+        setIsLoading(false)
+      }
+
+      if (event.data?.type === 'onramp:success') {
+        onApprove(event.data.result)
+      }
+
+      if (event.data?.type === 'onramp:close') {
+        console.info('[onramp] Widget closed by user')
+        onReject?.()
+      }
+
+      if (event.data?.type === 'onramp:error') {
+        console.error('[onramp] Error:', event.data.error)
+        setHasError(true)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [trustedOrigins, address, amount, onApprove, onReject])
+
+  React.useEffect(() => {
+    setTimeout(() => setIsLoading(false), 5_000)
+  }, [])
+
+  return showOnramp ? (
+    <div className="flex flex-col justify-between gap-2">
+      <article className="relative mx-auto w-full select-none overflow-hidden">
+        <Button
+          className={cx('w-full cursor-pointer!', isLoading && 'opacity-50')}
+          disabled={isLoading}
+          variant="invert"
+        >
+          Buy with
+          <div className="-mt-px flex">
+            <AppleIcon className="mt-px ml-1 inline size-4.5" />
+
+            <span className="text-[16px]">Pay</span>
+          </div>
+        </Button>
+
+        <iframe
+          allow="payment *; public-key-credentials-create *; clipboard-read *; clipboard-write *; sync-xhr *; document-domain *; geolocation *; publickey-credentials-get *; camera *; microphone *;"
+          allowFullScreen
+          // @ts-expect-error
+          allowtransparency="true"
+          className="absolute top-0 mx-auto h-[44px] w-full min-w-full border-none p-0 opacity-0"
+          loading="eager"
+          name="onramp"
+          onError={(event) => {
+            console.error('[onramp] Error:', event)
+            setHasError(true)
+            console.info(hasError)
+          }}
+          ref={iframeRef}
+          role="presentation"
+          sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts"
+          src={onrampURL}
+          style={{
+            transform: 'translateY(-30%) scale(1.5)',
+          }}
+          title="onramp"
+        />
+      </article>
+    </div>
+  ) : (
+    <Button
+      className="w-full flex-1"
+      data-testid="buy"
+      type="submit"
+      variant="primary"
+    >
+      Get started
+    </Button>
+  )
 }
 
 function DepositCryptoView(props: DepositCryptoView.Props) {
