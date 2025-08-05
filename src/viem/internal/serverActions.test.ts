@@ -1,4 +1,3 @@
-import { setTimeout } from 'node:timers/promises'
 import { AbiFunction, Hex, Value } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { getCode, readContract, waitForCallsStatus } from 'viem/actions'
@@ -26,9 +25,8 @@ const client = TestConfig.getServerClient(porto)
 const contracts = TestConfig.getContracts(porto)
 
 describe('health', () => {
-  test.only('default', async () => {
+  test('default', async () => {
     const version = await health(client)
-    await setTimeout(100000)
     expect(version).toBeDefined()
   })
 })
