@@ -1,6 +1,20 @@
 RELAY_ADDRESS=0xa0Ee7A142d267C1f36714E4a8F75612F20a79720
 RELAY_PRIVATE_KEY=0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
-RPC_URL=http://anvil:8545
+RPC_URL=http://localhost:8545
+
+# Check if state already exists.
+if [ -f /app/shared/anvil.json ]; then
+  echo "State already initialized, skipping..."
+  exit 0
+fi
+
+anvil --odyssey --host 0.0.0.0 --port 8545 --accounts 20 --dump-state /app/shared/anvil.json &
+
+# Wait until anvil is healthy.
+while ! cast block-number --rpc-url $RPC_URL > /dev/null; do
+  echo "Waiting for anvil to start..."
+  sleep 1
+done
 
 # Deploy contracts.
 ORCHESTRATOR_ADDRESS=$(forge create Orchestrator --config-path ./account/foundry.toml --json --broadcast --rpc-url $RPC_URL --private-key $RELAY_PRIVATE_KEY --constructor-args 0x0000000000000000000000000000000000000000 | jq -r '.deployedTo')
@@ -31,12 +45,17 @@ echo "Multicall deployed to: $MULTICALL_ADDRESS"
 # Fund funder.
 FUNDER_BALANCE=$(cast to-wei 10000 | cast to-hex)
 cast rpc --rpc-url $RPC_URL anvil_setBalance $FUNDER_ADDRESS $FUNDER_BALANCE
+cast send --rpc-url $RPC_URL --private-key $RELAY_PRIVATE_KEY $EXP1_ADDRESS 'mint(address,uint256)' $FUNDER_ADDRESS $FUNDER_BALANCE
+cast send --rpc-url $RPC_URL --private-key $RELAY_PRIVATE_KEY $EXP2_ADDRESS 'mint(address,uint256)' $FUNDER_ADDRESS $FUNDER_BALANCE
 echo "Funder ($FUNDER_ADDRESS) funded."
 
 # Set gas wallets for funder.
 GAS_WALLET_ADDRESSES="[$(for i in {0..19}; do cast wallet address --mnemonic "test test test test test test test test test test test junk" --mnemonic-index $i; done | tr '\n' ',' | sed 's/,$//')]"
 cast send --rpc-url $RPC_URL --private-key $RELAY_PRIVATE_KEY $FUNDER_ADDRESS 'setGasWallet(address[],bool)' "$GAS_WALLET_ADDRESSES" true
 echo "Gas wallets set."
+
+# Kill anvil.
+kill $(pgrep anvil)
 
 # Copy relay.yaml to shared directory.
 cp /app/relay.yaml /app/shared/relay.yaml
@@ -54,8 +73,9 @@ yq -i ".chain.interop_tokens[1] = \"$EXP2_ADDRESS\"" /app/shared/relay.yaml
 
 # Update registry.yaml.
 touch /app/shared/registry.yaml
+
 yq -i ".31337[0].address = \"$EXP1_ADDRESS\"" /app/shared/registry.yaml
 yq -i ".31337[0].kind = \"USDT\"" /app/shared/registry.yaml
 yq -i ".31337[1].address = \"$EXP2_ADDRESS\"" /app/shared/registry.yaml
-yq -i ".31337[1].kind = \"USDT\"" /app/shared/registry.yaml
+yq -i ".31337[1].kind = \"USDC\"" /app/shared/registry.yaml
 yq -i ".31337[2].kind = \"ETH\"" /app/shared/registry.yaml
