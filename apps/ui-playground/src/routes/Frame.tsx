@@ -10,10 +10,35 @@ export const Route = createFileRoute('/Frame')({
   component: RouteComponent,
 })
 
+const DEMOS = [
+  {
+    title: 'Get started',
+    subtitle: (
+      <>
+        Authenticate with your passkey wallet to start using{' '}
+        <strong className="font-medium">uniswap.org</strong>.
+      </>
+    ),
+    icon: <LucideLogIn />,
+    showCreate: true,
+  },
+  {
+    title: 'Sign in',
+    subtitle: (
+      <>
+        Authenticate with your passkey wallet to start using{' '}
+        <strong className="font-medium">uniswap.org</strong>.
+      </>
+    ),
+    icon: <LucideScanFace />,
+    showCreate: false,
+  },
+] as const
+
 function RouteComponent() {
-  const [mode, setMode] = useState<'dialog' | 'full'>('full')
-  const [email, setEmail] = useState('')
-  const emailFilled = Boolean(email.trim())
+  const [mode, setMode] = useState<'dialog' | 'full'>('dialog')
+  const [loading, _setLoading] = useState(false)
+  const [screen, setScreen] = useState(0)
 
   const app = (
     <Frame
@@ -28,38 +53,10 @@ function RouteComponent() {
         ),
       }}
     >
-      <Screen>
-        <Screen.Header
-          content={
-            <>
-              Authenticate with your passkey wallet to start using{' '}
-              <strong className="font-medium">uniswap.org</strong>.
-            </>
-          }
-          icon={<LucideLogIn />}
-          title="Get started"
+      <Screen name={`screen-${screen}`} loading={loading}>
+        <DemoScreen
+          demo={DEMOS[screen % DEMOS.length] as (typeof DEMOS)[number]}
         />
-        <div>
-          <Button
-            icon={<LucideScanFace />}
-            variant={emailFilled ? 'secondary' : 'primary'}
-            wide
-          >
-            Sign in
-          </Button>
-          <Separator label="First time, or lost access?" />
-          <Input
-            autoComplete="off"
-            contextual="Optional"
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address"
-            value={email}
-          />
-          <Spacer.V size={{ dialog: 8, full: 12 }} />
-          <Button variant={emailFilled ? 'primary' : 'secondary'} wide>
-            Create account
-          </Button>
-        </div>
       </Screen>
     </Frame>
   )
@@ -75,6 +72,9 @@ function RouteComponent() {
         >
           Frame mode: {mode}
         </Button>
+        <Button onClick={() => setScreen((s) => s + 1)} size="small">
+          Next screen
+        </Button>
       </div>
       {mode === 'dialog' ? (
         <div className={'flex w-[360px]'}>{app}</div>
@@ -84,5 +84,44 @@ function RouteComponent() {
         </DemoBrowser>
       )}
     </ComponentScreen>
+  )
+}
+
+function DemoScreen({ demo }: { demo: (typeof DEMOS)[number] }) {
+  const [email, setEmail] = useState('')
+  const emailFilled = Boolean(email.trim())
+  return (
+    <>
+      <Screen.Header
+        content={demo.subtitle}
+        icon={demo.icon}
+        title={demo.title}
+      />
+      <div>
+        <Button
+          icon={<LucideScanFace />}
+          variant={emailFilled ? 'secondary' : 'primary'}
+          wide
+        >
+          Sign in
+        </Button>
+        {demo.showCreate && (
+          <>
+            <Separator label="First time, or lost access?" />
+            <Input
+              autoComplete="off"
+              contextual="Optional"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email address"
+              value={email}
+            />
+            <Spacer.V size={{ dialog: 8, full: 12 }} />
+            <Button variant={emailFilled ? 'primary' : 'secondary'} wide>
+              Create account
+            </Button>
+          </>
+        )}
+      </div>
+    </>
   )
 }

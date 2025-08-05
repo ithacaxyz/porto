@@ -1,28 +1,75 @@
 import type { ReactNode } from 'react'
+import { a, useTransition, useSpring } from '@react-spring/web'
 import { css, cx } from '../../styled-system/css'
+import { useRef } from 'react'
 import { Frame } from '../Frame/Frame.js'
 
 export interface ScreenProps {
   layout?: 'compact' | 'full'
   children?: ReactNode
   loading?: boolean
-  loadinTitle?: string
-  // header?: ReactNode
-  // actions?:
-  //   | ReactNode
-  //   | {
-  //       primary?: ReactNode
-  //       secondary?: ReactNode
-  //     }
+  loadingTitle?: string
+  name?: string
 }
 
-export function Screen({ layout, children }: ScreenProps) {
+export function Screen({
+  name,
+  layout,
+  loading,
+  children,
+}: ScreenProps) {
   const mode = Frame.useMode()
   layout ??= mode === 'dialog' ? 'compact' : 'full'
+
+  const appear = useTransition(
+    { loading, show: !loading, children, name },
+    {
+      keys: ({ loading, name }) => (loading ? 'loading' : (name ?? '')),
+      initial: {
+        opacity: 1,
+        transform: 'translate3d(0px, 0, 0)',
+      },
+      from: {
+        opacity: 0,
+        transform: 'translate3d(20px, 0, 0)',
+      },
+      enter: {
+        delay: 80,
+        opacity: 1,
+        transform: 'translate3d(0px, 0, 0)',
+      },
+      leave: {
+        opacity: 0,
+        transform: 'translate3d(-20px, 0, 0)',
+        config: {
+          mass: 1,
+          tension: 2000,
+          friction: 80,
+        },
+      },
+      config: {
+        mass: 2,
+        tension: 1400,
+        friction: 120,
+      },
+    },
+  )
+
+  const screenRef = useRef<HTMLDivElement>(null)
+  const screenSpring = useSpring({
+    from: { height: 0 },
+    config: {
+      mass: 1,
+      tension: 2000,
+      friction: 80,
+    },
+  })
+
   return (
     <div
       className={cx(
         css({
+          overflow: 'hidden',
           display: 'flex',
           flex: '1 1 auto',
           flexDirection: 'column',
@@ -36,7 +83,52 @@ export function Screen({ layout, children }: ScreenProps) {
           }),
       )}
     >
-      {children}
+      <a.div
+        className={css({
+          flex: '1 1 auto',
+          minHeight: 0,
+          width: '100%',
+          position: 'relative',
+        })}
+        style={screenSpring}
+      >
+        {appear(
+          (styles, { show, children }) =>
+            show && (
+              <a.div
+                className={css({
+                  position: 'absolute',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '100%',
+                  inset: '0 0 auto',
+                })}
+                style={{
+                  ...styles,
+                  opacity: styles.opacity.to([0, 0.2, 1], [0, 0, 1]),
+                }}
+              >
+                <div
+                  ref={(el) => {
+                    if (!el) return
+
+                    screenSpring.height.start(el.clientHeight, {
+                      immediate: !screenRef.current,
+                    })
+
+                    // make sure the initial height doesnt
+                    // animate, even with double rendering
+                    queueMicrotask(() => {
+                      screenRef.current = el
+                    })
+                  }}
+                >
+                  {children}
+                </div>
+              </a.div>
+            ),
+        )}
+      </a.div>
     </div>
   )
 }

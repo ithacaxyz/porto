@@ -21,15 +21,16 @@
     "prebuild": "panda codegen"
   },
   "peerDependencies": {
-    "@react-spring/web": "^10",
-    "react": "catalog:",
-    "react-dom": "catalog:"
+    "@react-spring/web": ">=10",
+    "react": ">=19",
+    "react-dom": ">=19"
   },
   "devDependencies": {
     "@iconify/json": "catalog:",
     "@microsoft/api-extractor": "^7.52.9",
     "@pandacss/dev": "^0.54.0",
     "@porto/apps": "workspace:*",
+    "@react-spring/web": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
