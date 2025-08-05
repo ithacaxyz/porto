@@ -83,18 +83,34 @@ function RouteComponent() {
         >
           Frame mode: {mode}
         </Button>
-        {[50, 150, 500].map((delay) => (
-          <Button
-            onClick={() => {
-              setScreen((s) => s + 1)
-              loadingDelay.current = delay
-              setLoading(true)
-            }}
-            size="small"
+        <Button
+          onClick={() => {
+            setScreen((s) => s + 1)
+            setLoading(true)
+          }}
+          size="small"
+        >
+          Next screen
+        </Button>
+        <label className="flex items-center gap-1">
+          Delay:
+          <select
+            className="h-[28px] bg-th_field border border-th_field rounded-th_small px-1"
+            defaultValue={loadingDelay.current}
           >
-            Next screen ({delay}ms)
-          </Button>
-        ))}
+            {[0, 50, 150, 500].map((delay) => (
+              <option
+                key={delay}
+                value={delay}
+                onClick={() => {
+                  loadingDelay.current = delay
+                }}
+              >
+                {delay}ms
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
       {mode === 'dialog' ? (
         <div className={'flex w-[360px]'}>{app}</div>
