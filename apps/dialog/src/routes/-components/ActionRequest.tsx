@@ -75,6 +75,11 @@ export function ActionRequest(props: ActionRequest.Props) {
 
   const quotes = prepareCallsQuery.data?.capabilities.quote?.quotes
 
+  const assetDiff = ActionRequest.AssetDiff.useAssetDiff({
+    address: account!.address,
+    assetDiff: assetDiffs,
+  })
+
   return (
     <CheckBalance
       address={address}
@@ -99,12 +104,9 @@ export function ActionRequest(props: ActionRequest.Props) {
             quotes={quotes}
             status={prepareCallsQuery.status}
           >
-            {assetDiffs && address && (
-              <ActionRequest.AssetDiff
-                address={address}
-                assetDiff={assetDiffs}
-              />
-            )}
+            {assetDiff.length > 0 ? (
+              <ActionRequest.AssetDiff assetDiff={assetDiff} />
+            ) : undefined}
           </ActionRequest.PaneWithDetails>
         </Layout.Content>
 
@@ -175,56 +177,11 @@ export namespace ActionRequest {
   }
 
   export function AssetDiff(props: AssetDiff.Props) {
-    const { address } = props
-
-    const account = Hooks.useAccount(porto, { address })
-
-    const balances = React.useMemo(() => {
-      if (!props.assetDiff) return []
-
-      const balances: Map<
-        Address.Address,
-        Capabilities.assetDiffs.AssetDiffAsset
-      > = new Map()
-
-      for (const chainDiff of Object.values(props.assetDiff)) {
-        for (const [account_, assetDiff] of chainDiff) {
-          if (account_ !== account?.address) continue
-          for (const asset of assetDiff) {
-            const address = asset.address ?? ethAddress
-            const current = balances.get(address)
-
-            const direction = asset.direction === 'incoming' ? 1n : -1n
-            const fiat = asset.fiat
-              ? {
-                  ...asset.fiat,
-                  value:
-                    (current?.fiat?.value ?? 0) +
-                    Number(direction) * asset.fiat.value,
-                }
-              : undefined
-            const value = (current?.value ?? 0n) + direction * asset.value
-
-            balances.set(address, {
-              ...asset,
-              direction: value > 0 ? 'incoming' : 'outgoing',
-              fiat,
-              value,
-            })
-          }
-        }
-      }
-      return Array.from(balances.values()).sort((a, b) =>
-        a.value > b.value ? 1 : -1,
-      )
-    }, [props.assetDiff, account?.address])
-
+    const { assetDiff } = props
+    if (assetDiff.length === 0) return null
     return (
       <div className="space-y-2">
-        {balances.map((balance) => {
-          const { value } = balance
-          if (value === BigInt(0)) return null
-
+        {assetDiff.map((balance) => {
           if (balance.type === 'erc721')
             return <AssetDiff.Erc721Row {...balance} />
           return <AssetDiff.CoinRow {...balance} />
@@ -235,10 +192,62 @@ export namespace ActionRequest {
 
   export namespace AssetDiff {
     export type Props = {
-      address: Address.Address
-      assetDiff: NonNullable<
-        Rpc.wallet_prepareCalls.Response['capabilities']
-      >['assetDiffs']
+      assetDiff: readonly Capabilities.assetDiffs.AssetDiffAsset[]
+    }
+
+    export function useAssetDiff(props: useAssetDiff.Props) {
+      const { address, assetDiff } = props
+
+      const account = Hooks.useAccount(porto, { address })
+
+      return React.useMemo(() => {
+        if (!assetDiff) return []
+
+        const balances: Map<
+          Address.Address,
+          Capabilities.assetDiffs.AssetDiffAsset
+        > = new Map()
+
+        for (const chainDiff of Object.values(assetDiff)) {
+          for (const [account_, assetDiff] of chainDiff) {
+            if (account_ !== account?.address) continue
+            for (const asset of assetDiff) {
+              const address = asset.address ?? ethAddress
+              const current = balances.get(address)
+
+              const direction = asset.direction === 'incoming' ? 1n : -1n
+              const fiat = asset.fiat
+                ? {
+                    ...asset.fiat,
+                    value:
+                      (current?.fiat?.value ?? 0) +
+                      Number(direction) * asset.fiat.value,
+                  }
+                : undefined
+              const value = (current?.value ?? 0n) + direction * asset.value
+
+              balances.set(address, {
+                ...asset,
+                direction: value > 0 ? 'incoming' : 'outgoing',
+                fiat,
+                value,
+              })
+            }
+          }
+        }
+        return Array.from(balances.values())
+          .filter((balance) => balance.value !== BigInt(0))
+          .sort((a, b) => (a.value > b.value ? 1 : -1))
+      }, [assetDiff, account?.address])
+    }
+
+    export namespace useAssetDiff {
+      export type Props = {
+        address: Address.Address
+        assetDiff: NonNullable<
+          Rpc.wallet_prepareCalls.Response['capabilities']
+        >['assetDiffs']
+      }
     }
 
     export function Erc721Row(props: Erc721Row.Props) {
@@ -500,55 +509,65 @@ export namespace ActionRequest {
       quotes,
     } = props
 
+    const hasChildren = React.useMemo(
+      () => React.Children.count(children) > 0,
+      [children],
+    )
     const hasDetails = React.useMemo(
       () => quotes || feeTotals,
       [quotes, feeTotals],
     )
+    const showOverview = React.useMemo(
+      () => hasChildren || status !== 'success',
+      [status, hasChildren],
+    )
 
     // default to `true` if no children, otherwise false
-    const [viewQuote, setViewQuote] = React.useState(hasDetails && !children)
+    const [viewQuote, setViewQuote] = React.useState(hasDetails && !hasChildren)
     React.useEffect(() => {
-      if (hasDetails && !children) setViewQuote(true)
-    }, [hasDetails, children])
+      if (hasDetails && !hasChildren) setViewQuote(true)
+    }, [hasDetails, hasChildren])
 
     return (
       <div className="space-y-2">
-        <div
-          className={cx('space-y-3 overflow-hidden rounded-lg px-3', {
-            'bg-th_badge-warning py-2 text-th_badge-warning':
-              status === 'error',
-            'bg-th_base-alt py-3': status !== 'error',
-          })}
-        >
-          {(() => {
-            if (error)
-              return (
-                <div className="space-y-2 text-[14px] text-th_base">
-                  <p className="font-medium text-th_badge-warning">Error</p>
-                  <p>{errorMessage}</p>
-                  <p className="text-[11px]">
-                    Details: {(error as any).shortMessage ?? error.message}{' '}
-                    {(error as any).details}
-                  </p>
-                </div>
-              )
-
-            if (status === 'pending')
-              return (
-                <div className="flex h-full w-full items-center justify-center">
-                  <div className="flex size-[24px] w-full items-center justify-center">
-                    <Spinner className="text-th_base-secondary" />
+        {showOverview && (
+          <div
+            className={cx('space-y-3 overflow-hidden rounded-lg px-3', {
+              'bg-th_badge-warning py-2 text-th_badge-warning':
+                status === 'error',
+              'bg-th_base-alt py-3': status !== 'error',
+            })}
+          >
+            {(() => {
+              if (error)
+                return (
+                  <div className="space-y-2 text-[14px] text-th_base">
+                    <p className="font-medium text-th_badge-warning">Error</p>
+                    <p>{errorMessage}</p>
+                    <p className="text-[11px]">
+                      Details: {(error as any).shortMessage ?? error.message}{' '}
+                      {(error as any).details}
+                    </p>
                   </div>
+                )
+
+              if (status === 'pending')
+                return (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <div className="flex size-[24px] w-full items-center justify-center">
+                      <Spinner className="text-th_base-secondary" />
+                    </div>
+                  </div>
+                )
+
+              return (
+                <div className="fade-in animate-in space-y-3 duration-150">
+                  {children}
                 </div>
               )
-
-            return (
-              <div className="fade-in animate-in space-y-3 duration-150">
-                {children}
-              </div>
-            )
-          })()}
-        </div>
+            })()}
+          </div>
+        )}
 
         {status === 'success' && feeTotals && quotes && (
           <div className="space-y-3 overflow-hidden rounded-lg bg-th_base-alt px-3 py-2">
