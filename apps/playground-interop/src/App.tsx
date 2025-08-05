@@ -62,7 +62,7 @@ function Account() {
 
 function Connect() {
   const connect = useConnect()
-  const [connector] = connect.connectors
+  const connector = connect.connectors[0]!
 
   return (
     <div>
