@@ -95,16 +95,16 @@ function RouteComponent() {
         <label className="flex items-center gap-1">
           Delay:
           <select
-            className="h-[28px] bg-th_field border border-th_field rounded-th_small px-1"
+            className="h-[28px] rounded-th_small border border-th_field bg-th_field px-1"
             defaultValue={loadingDelay.current}
           >
             {[0, 50, 150, 500].map((delay) => (
               <option
                 key={delay}
-                value={delay}
                 onClick={() => {
                   loadingDelay.current = delay
                 }}
+                value={delay}
               >
                 {delay}ms
               </option>
