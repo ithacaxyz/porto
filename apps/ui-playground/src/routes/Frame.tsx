@@ -1,6 +1,6 @@
 import { Button, Frame, Input, Screen, Separator, Spacer } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen.js'
 import { DemoBrowser } from '~/components/DemoBrowser/DemoBrowser.js'
 import LucideLogIn from '~icons/lucide/log-in'
@@ -12,33 +12,44 @@ export const Route = createFileRoute('/Frame')({
 
 const DEMOS = [
   {
-    title: 'Get started',
-    subtitle: (
-      <>
-        Authenticate with your passkey wallet to start using{' '}
-        <strong className="font-medium">uniswap.org</strong>.
-      </>
-    ),
     icon: <LucideLogIn />,
     showCreate: true,
-  },
-  {
-    title: 'Sign in',
     subtitle: (
       <>
         Authenticate with your passkey wallet to start using{' '}
         <strong className="font-medium">uniswap.org</strong>.
       </>
     ),
+    title: 'Get started',
+  },
+  {
     icon: <LucideScanFace />,
     showCreate: false,
+    subtitle: (
+      <>
+        Authenticate with your passkey wallet to start using{' '}
+        <strong className="font-medium">uniswap.org</strong>.
+      </>
+    ),
+    title: 'Sign in',
   },
 ] as const
 
+const INITIAL_MODE = 'dialog'
+
 function RouteComponent() {
-  const [mode, setMode] = useState<'dialog' | 'full'>('dialog')
-  const [loading, _setLoading] = useState(false)
+  const [mode, setMode] = useState<'dialog' | 'full'>(INITIAL_MODE)
+  const [loading, setLoading] = useState(false)
   const [screen, setScreen] = useState(0)
+
+  const loadingDelay = useRef(0)
+
+  useEffect(() => {
+    if (!loading) return
+
+    const timeout = setTimeout(() => setLoading(false), loadingDelay.current)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const app = (
     <Frame
@@ -53,7 +64,7 @@ function RouteComponent() {
         ),
       }}
     >
-      <Screen name={`screen-${screen}`} loading={loading}>
+      <Screen loading={loading} name={`screen-${screen}`}>
         <DemoScreen
           demo={DEMOS[screen % DEMOS.length] as (typeof DEMOS)[number]}
         />
@@ -72,9 +83,18 @@ function RouteComponent() {
         >
           Frame mode: {mode}
         </Button>
-        <Button onClick={() => setScreen((s) => s + 1)} size="small">
-          Next screen
-        </Button>
+        {[50, 150, 500].map((delay) => (
+          <Button
+            onClick={() => {
+              setScreen((s) => s + 1)
+              loadingDelay.current = delay
+              setLoading(true)
+            }}
+            size="small"
+          >
+            Next screen ({delay}ms)
+          </Button>
+        ))}
       </div>
       {mode === 'dialog' ? (
         <div className={'flex w-[360px]'}>{app}</div>

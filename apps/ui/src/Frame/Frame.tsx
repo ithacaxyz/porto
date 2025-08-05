@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useMemo, useRef, useState } from 'react'
 import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
+import { useSize } from '../hooks/useSize.js'
 
 type Site = {
   icon?: string
@@ -17,19 +18,50 @@ export interface FrameProps {
   site: Site
 }
 
-const FrameContext = createContext<{
-  mode: FrameMode
-}>({
+type FrameContext =
+  | { mode: 'dialog' }
+  | { mode: 'full'; variant: 'medium' | 'large' }
+
+const FrameContext = createContext<FrameContext>({
   mode: 'full',
+  variant: 'medium',
 })
 
+// TODO: remove
 export function useFrameMode() {
   return useContext(FrameContext).mode
 }
+export function useFrame() {
+  return useContext(FrameContext)
+}
 
 export function Frame({ children, mode, site }: FrameProps) {
+  const frameRef = useRef<HTMLDivElement>(null)
+  const [variant, setVariant] = useState<'medium' | 'large'>('medium')
+
+  useSize(
+    frameRef,
+    ({ width }) => {
+      if (mode === 'dialog') return
+      if (width < 480 && variant !== 'medium') {
+        setVariant('medium')
+        return
+      }
+      if (width >= 480 && variant !== 'large') {
+        setVariant('large')
+        return
+      }
+    },
+    [mode, variant],
+  )
+
+  const contextValue = useMemo<FrameContext>(
+    () => (mode === 'dialog' ? { mode } : { mode, variant }),
+    [mode, variant],
+  )
+
   return (
-    <FrameContext.Provider value={{ mode }}>
+    <FrameContext.Provider value={contextValue}>
       <div
         className={css({
           containerType: 'inline-size',
@@ -38,6 +70,7 @@ export function Frame({ children, mode, site }: FrameProps) {
           minHeight: 200,
           width: '100%',
         })}
+        ref={frameRef}
       >
         <div
           className={cx(
@@ -241,3 +274,4 @@ function CloseButton() {
 }
 
 Frame.useMode = useFrameMode
+Frame.useFrame = useFrame
