@@ -444,7 +444,7 @@ function OnrampView(props: OnrampView.Props) {
   const { address, amount, onApprove, onReject } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
 
-  const showOnramp = enableOnramp()
+  // const showOnramp = enableOnramp()
   const onrampURL = React.useMemo(() => {
     const url = new URL('/onramp/global', 'https://onramp.porto.workers.dev')
     const params = new URLSearchParams({
@@ -537,7 +537,7 @@ function OnrampView(props: OnrampView.Props) {
     setTimeout(() => setIsLoading(false), 5_000)
   }, [])
 
-  return showOnramp ? (
+  return (
     <div className="flex flex-col justify-between gap-2">
       <article className="relative mx-auto w-full select-none overflow-hidden">
         <Button
@@ -548,7 +548,6 @@ function OnrampView(props: OnrampView.Props) {
           Buy with
           <div className="-mt-px flex">
             <AppleIcon className="mt-px ml-1 inline size-4.5" />
-
             <span className="text-[16px]">Pay</span>
           </div>
         </Button>
@@ -577,15 +576,6 @@ function OnrampView(props: OnrampView.Props) {
         />
       </article>
     </div>
-  ) : (
-    <Button
-      className="w-full flex-1"
-      data-testid="buy"
-      type="submit"
-      variant="primary"
-    >
-      Get started
-    </Button>
   )
 }
 
