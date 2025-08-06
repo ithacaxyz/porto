@@ -302,12 +302,13 @@ export function iframe(options: iframe.Options = {}) {
             return insecure
           })()
 
-          // if any request is wallet_addFunds, use popup
+          const unsupported = includesUnsupported(
+            requests.map((x) => x.request),
+          )
 
+          // if any request is wallet_addFunds, use popup
           const hasAddFunds = requests?.some(
-            (x) =>
-              x.request.method === 'wallet_addFunds' ||
-              x.request.method === 'wallet_sendCalls',
+            (x) => x.request.method === 'wallet_addFunds',
           )
 
           if (!headless && (unsupported || insecureProtocol || hasAddFunds))
