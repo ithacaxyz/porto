@@ -14,10 +14,14 @@
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "pnpm run /^build:.*/",
+    "build:lib": "vite build",
+    "build:css": "panda cssgen --outfile dist/styles.css",
     "check": "biome check --write --unsafe",
     "check:types": "tsc --noEmit",
-    "dev": "vite build --watch",
+    "dev": "pnpm run /^dev:.*/",
+    "dev:lib": "vite build --watch",
+    "dev:css": "panda cssgen --outfile dist/styles.css --watch",
     "prebuild": "panda codegen"
   },
   "peerDependencies": {
@@ -33,9 +37,7 @@
     "@react-spring/web": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "@vitejs/plugin-react-oxc": "^0.3.0",
-    "@vitejs/plugin-react-swc": "^3.11.0",
+    "@vitejs/plugin-react-swc": "catalog:",
     "postcss": "^8.5.6",
     "rolldown-plugin-dts": "^0.14.2",
     "typescript": "catalog:",

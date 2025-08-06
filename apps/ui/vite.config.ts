@@ -1,4 +1,3 @@
-import { execSync } from 'node:child_process'
 import React from '@vitejs/plugin-react-swc'
 import Dts from 'unplugin-dts/vite'
 import Icons from 'unplugin-icons/vite'
@@ -35,16 +34,6 @@ export default defineConfig({
     }),
     React(),
     TsconfigPaths(),
-    Dts({
-      exclude: ['styled-system'],
-    }),
-    {
-      closeBundle() {
-        execSync('mkdir -p dist && panda cssgen --outfile dist/styles.css', {
-          stdio: 'inherit',
-        })
-      },
-      name: 'panda-cssgen',
-    },
+    Dts({ exclude: ['styled-system'] }),
   ],
 })
