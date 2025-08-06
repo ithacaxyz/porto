@@ -561,7 +561,6 @@ function OnrampView(props: OnrampView.Props) {
           name="onramp"
           onError={(event) => {
             console.error('[onramp] Error:', event)
-
             setHasError(true)
             console.info(hasError)
           }}
