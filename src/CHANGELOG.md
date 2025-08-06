@@ -1,5 +1,13 @@
 # porto
 
+## 0.0.61
+
+### Patch Changes
+
+- [#655](https://github.com/ithacaxyz/porto/pull/655) [`4f36751`](https://github.com/ithacaxyz/porto/commit/4f3675127cc83532054dea922f343d2fdc94e889) Thanks [@jxom](https://github.com/jxom)! - Fixed `signInWithEthereum` response capability not populating.
+
+- [#650](https://github.com/ithacaxyz/porto/pull/650) [`b54742f`](https://github.com/ithacaxyz/porto/commit/b54742fcfac2ad3ee55e81193dae7253547a1970) Thanks [@DonGambas](https://github.com/DonGambas)! - Fixed access to `location.hostname` for non-browser environments.
+
 ## 0.0.60
 
 ### Patch Changes
