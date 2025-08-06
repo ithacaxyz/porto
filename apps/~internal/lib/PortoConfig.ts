@@ -63,7 +63,7 @@ const dialogHosts = {
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
   prod: import.meta.env.PROD
-    ? 'https://id.porto.sh/dialog/'
+    ? 'https://prod.id.porto.sh/dialog/'
     : 'https://prod.localhost:5174/dialog/',
   stg: import.meta.env.PROD
     ? 'https://stg.id.porto.sh/dialog/'
