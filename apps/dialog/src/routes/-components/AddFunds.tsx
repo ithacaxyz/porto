@@ -554,7 +554,7 @@ function OnrampView(props: OnrampView.Props) {
         </Button>
 
         <iframe
-          allow="payment *; public-key-credentials-create *; clipboard-read *; clipboard-write *; sync-xhr *; document-domain *; geolocation *; publickey-credentials-get *; camera *; microphone *;"
+          allow="payment; camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen"
           allowFullScreen
           // @ts-expect-error
           allowtransparency="true"
@@ -568,7 +568,7 @@ function OnrampView(props: OnrampView.Props) {
           }}
           ref={iframeRef}
           role="presentation"
-          sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
           src={onrampURL}
           style={{
             transform: 'translateY(-30%) scale(1.5)',
