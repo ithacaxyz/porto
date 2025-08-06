@@ -1,31 +1,32 @@
 import { a, useSpring, useTransition } from '@react-spring/web'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ComponentProps, CSSProperties, ReactNode } from 'react'
 import { useEffect, useRef } from 'react'
 import { css, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 
 export interface ScreenProps {
-  layout?: 'compact' | 'full'
   children?: ReactNode
+  header?: ComponentProps<typeof ScreenHeader>
+  layout?: 'compact' | 'full'
   loading?: boolean
   loadingTitle?: string
-  name?: string
+  name: string
 }
 
 const SHOW_LOADER_DELAY = 200
 
 export function Screen({
-  name,
+  children,
   layout,
   loading,
   loadingTitle,
-  children,
+  name,
 }: ScreenProps) {
   const frame = Frame.useFrame()
   layout ??= frame.mode === 'dialog' ? 'compact' : 'full'
 
-  const screensTransition = useTransition(
-    { children, loading, name, show: !loading },
+  const appearTransition = useTransition(
+    { children, name, show: !loading },
     {
       config: {
         friction: 120,
@@ -45,7 +46,7 @@ export function Screen({
         opacity: 1,
         transform: 'translate3d(0px, 0, 0)',
       },
-      keys: ({ loading, name }) => (loading ? 'loading' : (name ?? '')),
+      keys: ({ name }) => name,
       leave: {
         config: {
           friction: 80,
@@ -76,7 +77,7 @@ export function Screen({
         transform: 'scale3d(0.97, 0.97, 1)',
       },
       initial: {
-        opacity: 1,
+        opacity: 0,
         transform: 'scale3d(1, 1, 1)',
       },
       keys: ({ loading }) => String(loading),
@@ -120,7 +121,7 @@ export function Screen({
         immediate: true,
       })
     }
-  }, [frame, screenSpring.height.start])
+  }, [frame, screenSpring])
 
   return (
     <div
@@ -184,7 +185,7 @@ export function Screen({
             } as CSSProperties
           }
         >
-          {screensTransition(
+          {appearTransition(
             (styles, { show, children }) =>
               show && (
                 <a.div
@@ -275,6 +276,7 @@ function ScreenHeader({
 }) {
   const frame = Frame.useFrame()
   layout ??= frame.mode === 'dialog' ? 'compact' : 'full'
+
   return (
     <div
       className={cx(

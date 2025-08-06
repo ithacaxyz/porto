@@ -1,5 +1,6 @@
 import { Button, Frame, Input, Screen, Separator, Spacer } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen.js'
 import { DemoBrowser } from '~/components/DemoBrowser/DemoBrowser.js'
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/Frame')({
 const DEMOS = [
   {
     icon: <LucideLogIn />,
+    name: 'get-started',
     showCreate: true,
     subtitle: (
       <>
@@ -24,6 +26,7 @@ const DEMOS = [
   },
   {
     icon: <LucideScanFace />,
+    name: 'sign-in',
     showCreate: false,
     subtitle: (
       <>
@@ -51,27 +54,6 @@ function RouteComponent() {
     return () => clearTimeout(timeout)
   }, [loading])
 
-  const app = (
-    <Frame
-      mode={mode}
-      site={{
-        icon: '/uniswap-icon.svg',
-        label: 'uniswap.org',
-        labelExtended: (
-          <>
-            Connected to <span className="text-th_base">uniswap.org</span>
-          </>
-        ),
-      }}
-    >
-      <Screen loading={loading} name={`screen-${screen}`}>
-        <DemoScreen
-          demo={DEMOS[screen % DEMOS.length] as (typeof DEMOS)[number]}
-        />
-      </Screen>
-    </Frame>
-  )
-
   return (
     <ComponentScreen title="Frame">
       <div className="flex items-center gap-2 text-sm text-th_base">
@@ -97,37 +79,60 @@ function RouteComponent() {
           <select
             className="h-[28px] rounded-th_small border border-th_field bg-th_field px-1"
             defaultValue={loadingDelay.current}
+            onChange={(e) => {
+              loadingDelay.current = Number(e.target.value)
+            }}
           >
             {[0, 50, 150, 500].map((delay) => (
-              <option
-                key={delay}
-                onClick={() => {
-                  loadingDelay.current = delay
-                }}
-                value={delay}
-              >
+              <option key={delay} value={delay}>
                 {delay}ms
               </option>
             ))}
           </select>
         </label>
       </div>
-      {mode === 'dialog' ? (
-        <div className={'flex w-[360px]'}>{app}</div>
-      ) : (
-        <DemoBrowser>
-          <div className="flex w-full flex-col">{app}</div>
-        </DemoBrowser>
-      )}
+      <DemoContainer mode={mode}>
+        <Frame
+          mode={mode}
+          site={{
+            icon: '/uniswap-icon.svg',
+            label: 'uniswap.org',
+            labelExtended: (
+              <>
+                Connected to <span className="text-th_base">uniswap.org</span>
+              </>
+            ),
+          }}
+        >
+          <DemoScreen
+            demo={DEMOS[screen % DEMOS.length] as (typeof DEMOS)[number]}
+            loading={loading}
+          />
+        </Frame>
+      </DemoContainer>
     </ComponentScreen>
   )
 }
 
-function DemoScreen({ demo }: { demo: (typeof DEMOS)[number] }) {
+function DemoScreen({
+  demo,
+  loading,
+}: {
+  demo: (typeof DEMOS)[number]
+  loading?: boolean
+}) {
   const [email, setEmail] = useState('')
   const emailFilled = Boolean(email.trim())
+
+  const incr = useRef(0)
+  const lastDemo = useRef(demo)
+  if (lastDemo.current !== demo) {
+    incr.current += 1
+    lastDemo.current = demo
+  }
+
   return (
-    <>
+    <Screen loading={loading} name={`screen-${incr.current}`}>
       <Screen.Header
         content={demo.subtitle}
         icon={demo.icon}
@@ -158,6 +163,22 @@ function DemoScreen({ demo }: { demo: (typeof DEMOS)[number] }) {
           </>
         )}
       </div>
-    </>
+    </Screen>
+  )
+}
+
+function DemoContainer({
+  mode,
+  children,
+}: {
+  mode: 'dialog' | 'full'
+  children: ReactNode
+}) {
+  return mode === 'dialog' ? (
+    <div className={'flex w-[360px]'}>{children}</div>
+  ) : (
+    <DemoBrowser>
+      <div className="flex w-full flex-col">{children}</div>
+    </DemoBrowser>
   )
 }
