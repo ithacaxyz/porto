@@ -114,7 +114,7 @@ export function Button({
               medium: {
                 borderRadius: 8,
                 fontSize: 15,
-                height: 36,
+                height: 38,
                 paddingInline: 16,
               },
               small: {

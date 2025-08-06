@@ -49,7 +49,7 @@ export function Input({
               medium: {
                 borderRadius: 8,
                 fontSize: 15,
-                height: 36,
+                height: 38,
               },
             },
           },
