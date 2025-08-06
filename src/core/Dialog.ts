@@ -301,11 +301,16 @@ export function iframe(options: iframe.Options = {}) {
               )
             return insecure
           })()
-          const unsupported = includesUnsupported(
-            requests.map((x) => x.request),
+
+          // if any request is wallet_addFunds, use popup
+
+          const hasAddFunds = requests?.some(
+            (x) =>
+              x.request.method === 'wallet_addFunds' ||
+              x.request.method === 'wallet_sendCalls',
           )
 
-          if (!headless && (unsupported || insecureProtocol))
+          if (!headless && (unsupported || insecureProtocol || hasAddFunds))
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>
