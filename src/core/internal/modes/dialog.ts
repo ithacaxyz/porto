@@ -55,14 +55,14 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 {
                   account: account
                     ? {
-                        address: account.address,
-                        key: adminKey
-                          ? {
-                              credentialId: (adminKey as any)?.credentialId,
-                              publicKey: adminKey.publicKey,
-                            }
-                          : undefined,
-                      }
+                      address: account.address,
+                      key: adminKey
+                        ? {
+                          credentialId: (adminKey as any)?.credentialId,
+                          publicKey: adminKey.publicKey,
+                        }
+                        : undefined,
+                    }
                     : undefined,
                   request,
                   status: 'pending',
@@ -160,8 +160,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
             // Convert the key into a permission.
             const permissionsRequest = key
               ? Schema.encodeSync(PermissionsRequest.Schema)(
-                  PermissionsRequest.fromKey(key),
-                )
+                PermissionsRequest.fromKey(key),
+              )
               : undefined
 
             // Send a request off to the dialog to create an account.
@@ -175,9 +175,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
                     signInWithEthereum:
                       authUrl || signInWithEthereum
                         ? {
-                            ...signInWithEthereum,
-                            authUrl: authUrl!,
-                          }
+                          ...signInWithEthereum,
+                          authUrl: authUrl!,
+                        }
                         : undefined,
                   },
                 },
@@ -215,10 +215,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
               })
 
             const signInWithEthereum_response = await (async () => {
-              if (!authUrl) return
               if (!account.capabilities?.signInWithEthereum) return
               const { message, signature } =
                 account.capabilities.signInWithEthereum
+
+              // If no authUrl, return the capability as-is (without token)
+              if (!authUrl) {
+                return {
+                  message,
+                  signature,
+                }
+              }
               const { token } = await Siwe.authenticate({
                 address: account.address,
                 authUrl,
@@ -460,8 +467,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
           // Convert the key into a permissions request.
           const permissionsRequest = key
             ? Schema.encodeSync(PermissionsRequest.Schema)(
-                PermissionsRequest.fromKey(key),
-              )
+              PermissionsRequest.fromKey(key),
+            )
             : undefined
 
           // Send a request to the dialog.
@@ -476,9 +483,9 @@ export function dialog(parameters: dialog.Parameters = {}) {
                   signInWithEthereum:
                     authUrl || signInWithEthereum
                       ? {
-                          ...signInWithEthereum,
-                          authUrl: authUrl!,
-                        }
+                        ...signInWithEthereum,
+                        authUrl: authUrl!,
+                      }
                       : undefined,
                 },
               },
@@ -517,10 +524,17 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 .filter(Boolean) as readonly Key.Key[]
 
               const signInWithEthereum_response = await (async () => {
-                if (!authUrl) return
                 if (!account.capabilities?.signInWithEthereum) return
                 const { message, signature } =
                   account.capabilities.signInWithEthereum
+
+                // If no authUrl, return the capability as-is (without token)
+                if (!authUrl) {
+                  return {
+                    message,
+                    signature,
+                  }
+                }
                 const { token } = await Siwe.authenticate({
                   address: account.address,
                   authUrl,
@@ -623,8 +637,8 @@ export function dialog(parameters: dialog.Parameters = {}) {
         // Convert the key into a permission.
         const permissionsRequest = key
           ? Schema.encodeSync(PermissionsRequest.Schema)(
-              PermissionsRequest.fromKey(key),
-            )
+            PermissionsRequest.fromKey(key),
+          )
           : undefined
 
         // Send a request off to the dialog to prepare the upgrade.
@@ -671,7 +685,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
         if (
           key.type === 'webauthn-p256' &&
           account.keys?.filter((key) => key.type === 'webauthn-p256').length ===
-            1
+          1
         )
           throw new Error('revoke the only WebAuthn key left.')
 
@@ -804,7 +818,7 @@ export function dialog(parameters: dialog.Parameters = {}) {
             }
 
             return response
-          } catch {}
+          } catch { }
         }
 
         if (request.method === 'eth_sendTransaction') {
