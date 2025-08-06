@@ -465,7 +465,6 @@ function OnrampView(props: OnrampView.Props) {
     () =>
       import.meta.env.DEV
         ? [
-            'https://localhost:5173',
             `https://${Env.get()}.localhost:5173`,
             `https://${Env.get()}.localhost:5174`,
             `https://${Env.get()}.localhost:5175`,
@@ -564,6 +563,7 @@ function OnrampView(props: OnrampView.Props) {
           name="onramp"
           onError={(event) => {
             console.error('[onramp] Error:', event)
+
             setHasError(true)
             console.info(hasError)
           }}
