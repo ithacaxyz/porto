@@ -128,7 +128,7 @@ export function from<
               store,
             },
             token,
-            value: value ? Hex.toBigInt(value) : undefined,
+            value,
           })
 
           emitter.emit('message', {

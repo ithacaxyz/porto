@@ -418,7 +418,7 @@ function AddFunds() {
               params: [
                 {
                   token: exp1Address[chainId],
-                  value: Hex.fromNumber(100),
+                  value: '100',
                 },
               ],
             })

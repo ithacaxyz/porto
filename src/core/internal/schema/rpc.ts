@@ -67,7 +67,7 @@ export namespace wallet_addFunds {
   export const Parameters = Schema.Struct({
     address: Schema.optional(Primitive.Address),
     token: Schema.optional(Primitive.Address),
-    value: Schema.optional(Primitive.BigInt),
+    value: Schema.optional(Schema.String),
   }).annotations({
     identifier: 'Rpc.wallet_addFunds.Parameters',
   })

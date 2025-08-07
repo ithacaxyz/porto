@@ -25,14 +25,15 @@ const presetAmounts = ['25', '50', '100', '250'] as const
 
 export function AddFunds(props: AddFunds.Props) {
   const {
+    chainId,
     onApprove,
     onReject,
     tokenAddress,
-    value = BigInt(presetAmounts[0]!),
+    value: defaultValue,
   } = props
 
   const account = Hooks.useAccount(porto)
-  const chain = Hooks.useChain(porto)
+  const chain = Hooks.useChain(porto, { chainId })
   const feeTokens = FeeTokens.fetch.useQuery({
     addressOrSymbol: tokenAddress,
   })
@@ -40,7 +41,9 @@ export function AddFunds(props: AddFunds.Props) {
 
   const address = props.address ?? account?.address
 
-  const [amount, setAmount] = React.useState<string>(value.toString())
+  const [amount, setAmount] = React.useState<string>(
+    defaultValue ?? presetAmounts[0]!,
+  )
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'error'
   >('default')
@@ -77,7 +80,7 @@ export function AddFunds(props: AddFunds.Props) {
   const loading = deposit.isPending
 
   const [editView, setEditView] = React.useState<'default' | 'editing'>(
-    'default',
+    defaultValue ? 'editing' : 'default',
   )
 
   if (deposit.isSuccess) return
@@ -291,10 +294,11 @@ export function AddFunds(props: AddFunds.Props) {
 export declare namespace AddFunds {
   export type Props = {
     address?: Address.Address | undefined
+    chainId?: number | undefined
     onApprove: (result: { id: Hex.Hex }) => void
     onReject?: () => void
     tokenAddress?: Address.Address | undefined
-    value?: bigint | undefined
+    value?: string | undefined
   }
 }
 

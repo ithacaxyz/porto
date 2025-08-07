@@ -46,7 +46,7 @@ export type Mode = {
       /** Token to add funds to. */
       token?: Address.Address | undefined
       /** Amount to add. */
-      value?: bigint | undefined
+      value?: string | undefined
     }) => Promise<{ id: Hex.Hex }>
 
     createAccount: (parameters: {
