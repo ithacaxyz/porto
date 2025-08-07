@@ -3,14 +3,17 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react'
 import { useEffect, useRef } from 'react'
 import { css, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
+import { useSize } from '../hooks/useSize.js'
 
 export interface ScreenProps {
   children?: ReactNode
   header?: ComponentProps<typeof ScreenHeader>
   layout?: 'compact' | 'full'
   loading?: boolean
-  loadingTitle?: string
+  loadingText?: ReactNode
   name: string
+  onContentHeight?: (height: number) => void
+  showLoaderDelay?: number
 }
 
 const SHOW_LOADER_DELAY = 200
@@ -19,11 +22,18 @@ export function Screen({
   children,
   layout,
   loading,
-  loadingTitle,
+  loadingText,
   name,
+  onContentHeight,
+  showLoaderDelay = SHOW_LOADER_DELAY,
 }: ScreenProps) {
   const frame = Frame.useFrame()
   layout ??= frame.mode === 'dialog' ? 'compact' : 'full'
+
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  useSize(contentRef, ({ height }) => onContentHeight?.(height), [
+    onContentHeight,
+  ])
 
   const appearTransition = useTransition(
     { children, name, show: !loading },
@@ -60,7 +70,7 @@ export function Screen({
   )
 
   const loaderTransition = useTransition(
-    { loading: Boolean(loading), loadingTitle },
+    { loading: Boolean(loading), loadingText },
     {
       config: {
         friction: 80,
@@ -68,7 +78,7 @@ export function Screen({
         tension: 2000,
       },
       enter: {
-        delay: SHOW_LOADER_DELAY,
+        delay: showLoaderDelay,
         opacity: 1,
         transform: 'scale3d(1, 1, 1)',
       },
@@ -145,6 +155,7 @@ export function Screen({
             overflowY: 'auto',
           }),
       )}
+      ref={contentRef}
     >
       <div
         className={cx(
@@ -238,7 +249,7 @@ export function Screen({
           )}
         </a.div>
         {loaderTransition(
-          (styles, { loading, loadingTitle }) =>
+          (styles, { loading, loadingText }) =>
             loading && (
               <a.div
                 className={cx(
@@ -254,7 +265,7 @@ export function Screen({
                 )}
                 style={styles}
               >
-                {loadingTitle ?? 'Loading…'}
+                {loadingText ?? 'Loading…'}
               </a.div>
             ),
         )}
