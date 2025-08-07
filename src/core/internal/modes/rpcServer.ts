@@ -865,7 +865,6 @@ export declare namespace rpcServer {
     persistPreCalls?: boolean | undefined
     /**
      * WebAuthn configuration.
-     * @default undefined
      */
     webAuthn?:
       | {
