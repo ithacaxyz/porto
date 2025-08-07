@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.62
+
+### Patch Changes
+
+- [`7cee364`](https://github.com/ithacaxyz/porto/commit/7cee3643f4388939eb606a03678381722c24de02) Thanks [@jxom](https://github.com/jxom)! - Fixed `authUrl.logout` invocation.
+
 ## 0.0.61
 
 ### Patch Changes
