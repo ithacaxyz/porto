@@ -1,5 +1,11 @@
 # porto
 
+## 0.0.63
+
+### Patch Changes
+
+- [`022b5bc`](https://github.com/ithacaxyz/porto/commit/022b5bc67211f20a3b76d28cac57ab682db7da95) Thanks [@jxom](https://github.com/jxom)! - Added `webAuthn` config option to `Mode.rpcServer`.
+
 ## 0.0.62
 
 ### Patch Changes
