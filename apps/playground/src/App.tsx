@@ -173,8 +173,11 @@ export function App() {
         </div>
         <ShowClientCapabilities />
       </div>
-      <div className="fixed top-0 left-[calc(768px+var(--spacing)*2)] p-4">
-        <div id="porto" />
+      <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] p-4">
+        <div
+          id="porto"
+          className="h-full border border-1 border-th_frame rounded-md overflow-hidden"
+        />
       </div>
     </main>
   )
