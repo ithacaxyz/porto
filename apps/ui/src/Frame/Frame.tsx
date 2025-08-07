@@ -1,5 +1,12 @@
 import type { ReactNode } from 'react'
-import { createContext, useContext, useMemo, useRef, useState } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
 import { useSize } from '../hooks/useSize.js'
@@ -14,7 +21,9 @@ export type FrameMode = 'dialog' | 'full'
 
 export interface FrameProps {
   children?: ReactNode
+  colorScheme?: 'light' | 'dark' | 'light dark'
   mode: FrameMode
+  onClose?: () => void
   site: Site
 }
 
@@ -35,7 +44,13 @@ export function useFrame() {
   return useContext(FrameContext)
 }
 
-export function Frame({ children, mode, site }: FrameProps) {
+export function Frame({
+  children,
+  colorScheme,
+  mode,
+  onClose,
+  site,
+}: FrameProps) {
   const frameRef = useRef<HTMLDivElement>(null)
   const [variant, setVariant] = useState<'medium' | 'large'>('medium')
 
@@ -60,6 +75,15 @@ export function Frame({ children, mode, site }: FrameProps) {
     [mode, variant],
   )
 
+  useEffect(() => {
+    if (!onClose) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
   return (
     <FrameContext.Provider value={contextValue}>
       <div
@@ -71,6 +95,7 @@ export function Frame({ children, mode, site }: FrameProps) {
           width: '100%',
         })}
         ref={frameRef}
+        style={{ colorScheme }}
       >
         <div
           className={cx(
@@ -96,7 +121,7 @@ export function Frame({ children, mode, site }: FrameProps) {
               }),
           )}
         >
-          <FrameBar mode={mode} site={site} />
+          <FrameBar mode={mode} onClose={onClose} site={site} />
           <div
             className={cx(
               css({
@@ -142,7 +167,15 @@ export function Frame({ children, mode, site }: FrameProps) {
   )
 }
 
-function FrameBar({ site, mode }: { site: Site; mode: FrameMode }) {
+function FrameBar({
+  mode,
+  onClose,
+  site,
+}: {
+  mode: FrameMode
+  onClose?: () => void
+  site: Site
+}) {
   return (
     <div
       className={cx(
@@ -151,7 +184,6 @@ function FrameBar({ site, mode }: { site: Site; mode: FrameMode }) {
           color: 'var(--text-color-th_frame)',
           display: 'flex',
           flex: '0 0 auto',
-          height: 33, // 32 + 1px border
           justifyContent: 'space-between',
           width: '100%',
         }),
@@ -159,6 +191,7 @@ function FrameBar({ site, mode }: { site: Site; mode: FrameMode }) {
           css({
             backgroundColor: 'var(--background-color-th_frame)',
             borderBottom: '1px solid var(--border-color-th_frame)',
+            height: 33, // 32 + 1px border
           }),
         mode === 'full' &&
           css({
@@ -233,12 +266,12 @@ function FrameBar({ site, mode }: { site: Site; mode: FrameMode }) {
           </div>
         </div>
       </div>
-      {mode === 'dialog' && <CloseButton />}
+      {mode === 'dialog' && <CloseButton onClick={onClose} />}
     </div>
   )
 }
 
-function CloseButton() {
+function CloseButton({ onClick }: { onClick?: () => void }) {
   return (
     <button
       className={css({
@@ -259,6 +292,7 @@ function CloseButton() {
         padding: 0,
         paddingInline: '6px 12px',
       })}
+      onClick={onClick}
       title="Close Dialog"
       type="button"
     >
