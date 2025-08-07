@@ -1,35 +1,37 @@
-# `MerchantRpc.requestHandler`
+# `Route.merchant`
 
-Creates a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request handler for merchant RPC operations. This allows merchants to sponsor transaction fees for users and handle Porto RPC requests in various server environments.
+Creates a framework-agnostic server route for merchant RPC operations. This allows merchants to sponsor transaction fees for users and handle Porto RPC requests in various server environments.
 
 ## Imports
 
 :::code-group
 
 ```ts [Named]
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 ```
 
 ```ts [Entrypoint]
-import * as MerchantRpc from 'porto/server/MerchantRpc'
+import * as Route from 'porto/server/Route'
 ```
 
 :::
 
 ## Usage
 
-`MerchantRpc.requestHandler` is compatible with any server framework that supports the Fetch API, including:
+`Route.merchant` is compatible with any server framework that supports the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) 
+or [Node.js Request Listener](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener), including:
 
 - [Next.js](#nextjs)
 - [Cloudflare Workers](#cloudflare-workers)
 - [Hono](#hono)
 - [Deno](https://deno.com)
+- [Express](#express)
 
 ```ts twoslash
 // @noErrors
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 
-const handler = MerchantRpc.requestHandler({
+const route = Route.merchant({
   address: process.env.MERCHANT_ADDRESS,
   key: process.env.MERCHANT_PRIVATE_KEY,
 })
@@ -37,79 +39,78 @@ const handler = MerchantRpc.requestHandler({
 
 ### Next.js
 
-The `MerchantRpc` module exports `GET`, `OPTIONS`, and `POST` helpers over the `requestHandler` function for [Next.js](https://nextjs.org).
+Expose the `fetch` handler from `Route.merchant` to the `GET`, `OPTIONS`, and `POST` exports:
 
 ```ts
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 
-export const GET = MerchantRpc.GET
-
-export const OPTIONS = MerchantRpc.OPTIONS
-
-export const POST = MerchantRpc.POST({
+const route = Route.merchant({
   address: process.env.NEXT_PUBLIC_MERCHANT_ADDRESS,
   key: process.env.NEXT_PUBLIC_MERCHANT_PRIVATE_KEY,
 })
+
+export const GET = route.fetch
+export const OPTIONS = route.fetch
+export const POST = route.fetch
 
 ```
 
 ### Cloudflare Workers
 
-Use the `MerchantRpc.requestHandler` function directly in your Cloudflare Worker.
+Use the `Route.merchant` function directly in your Cloudflare Worker.
 
 ```ts
 import { env } from 'cloudflare:workers'
-import { MerchantRpc } from 'porto/server'
+import { Router, Route } from 'porto/server'
 
-export default {
-  fetch: MerchantRpc.requestHandler({
+export default Router()
+  .route('/rpc', Route.merchant({
     address: env.MERCHANT_ADDRESS,
-    base: '/rpc',
     key: env.MERCHANT_PRIVATE_KEY,
-  }),
-} satisfies ExportedHandler<Env>
+  })
+) satisfies ExportedHandler<Env>
 
 ```
 
 ### Hono
 
-Use the `MerchantRpc.requestHandler` function directly in your Hono server.
+Use the `Route.merchant` function directly in your Hono server.
 
 ```ts
 import { Hono } from 'hono'
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 
 const app = new Hono()
 
-app.all('/rpc', (c) => MerchantRpc.requestHandler({
+app.all('/rpc', Route.merchant({
   address: c.env.MERCHANT_ADDRESS,
   key: c.env.MERCHANT_PRIVATE_KEY,
-})(c.req.raw))
+}))
 
 export default app
 ```
 
 ### Express
 
-If you are using a server framework that supports the Node.js `http` API (e.g. [Express](https://expressjs.com)) instead of the Fetch API, you can use the `MerchantRpc.requestListener` function instead:
+If you are using a server framework that supports the Node.js `http` API (e.g. [Express](https://expressjs.com)) instead of the Fetch API, you can use the `.listener` function:
 
 ```ts
 import express from 'express'
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 
 const app = express()
 
-app.all('/rpc', MerchantRpc.requestListener({
+app.all('/rpc', Route.merchant({
   address: process.env.MERCHANT_ADDRESS,
   key: process.env.MERCHANT_PRIVATE_KEY,
-}))
+}).listener)
 
 app.listen(3000)
 ```
 
 ### Other Frameworks
 
-Using [`MerchantRpc.requestHandler`](#usage) (for [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) frameworks) or [`MerchantRpc.requestListener`](#express) (for [Node.js](https://nodejs.org) API frameworks) should get you far enough.
+Using [`Route.merchant#fetch`](#usage) (for [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) frameworks) or [`Route.merchant#listener`](#express) (for [Node.js](https://nodejs.org) API frameworks) should get you far enough.
 
 If you would like to see an example of your framework here, please [open a discussion](https://github.com/ithacaxyz/porto/discussions/new) and we'll add it.
 
@@ -121,11 +122,11 @@ When a function is provided to `sponsor`, the first parameter is a `request` obj
 In the following example, the call will only be sponsored if the `to` address is the same as the `target` address.
 
 ```ts
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 
 const target = '0x...'
 
-const handler = MerchantRpc.requestHandler({
+const handler = Route.merchant({
   address: process.env.MERCHANT_ADDRESS,
   key: process.env.MERCHANT_PRIVATE_KEY,
   sponsor(request) {
@@ -138,10 +139,10 @@ const handler = MerchantRpc.requestHandler({
 You can also pass an `async` function to `sponsor` if you wish to call out to an external service to determine whether to sponsor the call.
 
 ```ts
-import { MerchantRpc } from 'porto/server'
+import { Route } from 'porto/server'
 import { myAsyncFunction } from './myAsyncFunction'
 
-const handler = MerchantRpc.requestHandler({
+const handler = Route.merchant({
   address: process.env.MERCHANT_ADDRESS,
   key: process.env.MERCHANT_PRIVATE_KEY,
   async sponsor(request) { // [!code focus]
@@ -180,10 +181,3 @@ type Parameters = {
 }
 ```
 
-## Returns
-
-```ts
-type ReturnType = (request: Request) => Promise<Response>
-```
-
-A function that accepts a [Fetch API `Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) and returns a [Fetch API `Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response).

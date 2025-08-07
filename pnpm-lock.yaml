@@ -1262,6 +1262,9 @@ importers:
       effect:
         specifier: ^3.16.12
         version: 3.16.12
+      hono:
+        specifier: ^4.8.2
+        version: 4.8.5
       idb-keyval:
         specifier: ^6.2.1
         version: 6.2.2

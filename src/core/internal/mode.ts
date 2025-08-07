@@ -16,7 +16,7 @@ import type * as FeeToken from './schema/feeToken.js'
 import type * as RpcRequest from './schema/request.js'
 import type { Assign, PartialBy } from './types.js'
 
-type Request = RpcRequest.parseRequest.ReturnType
+type Request = RpcRequest.validate.ReturnType<typeof RpcRequest.Schema>
 
 export type ActionsInternal<
   chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [

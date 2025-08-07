@@ -11,7 +11,7 @@ import * as chains from 'viem/chains'
 import { createLogger, defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 import { Key, ServerActions } from '../../src/index.js'
-import { MerchantRpc } from '../../src/server/index.js'
+import { Route } from '../../src/server/index.js'
 import {
   accountNewProxyAddress,
   accountProxyAddress,
@@ -210,13 +210,13 @@ export default defineConfig(({ mode }) => {
             if (!req.url?.startsWith('/merchant')) return next()
             if (req.method !== 'POST') return next()
 
-            return MerchantRpc.requestListener({
+            return Route.merchant({
               address: merchantAccount.address,
               key: merchantKey.privateKey!(),
               transports: {
                 [chains.anvil.id]: http(rpcServerConfig.rpcUrl),
               },
-            })(req, res)
+            }).listener(req, res)
           })
         },
         name: 'anvil',

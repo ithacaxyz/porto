@@ -1,14 +1,18 @@
-import { type Address, type Hex, RpcRequest, RpcResponse, TypedData } from 'ox'
+import * as Schema from 'effect/Schema'
+import type * as Address from 'ox/Address'
+import type * as Hex from 'ox/Hex'
+import * as RpcResponse from 'ox/RpcResponse'
+import * as TypedData from 'ox/TypedData'
 import { createClient, rpcSchema } from 'viem'
 import type * as Chains from '../core/Chains.js'
 import type * as RpcSchema_internal from '../core/internal/rpcServer/rpcSchema.js'
+import * as Request from '../core/internal/rpcServer/schema/request.js'
 import * as Rpc from '../core/internal/rpcServer/schema/rpc.js'
-import * as Schema from '../core/internal/schema/schema.js'
 import type { MaybePromise, OneOf } from '../core/internal/types.js'
 import * as Porto from '../core/Porto.js'
 import type * as RpcSchema from '../core/RpcSchema.js'
 import * as Key from '../viem/Key.js'
-import * as RequestListener from './internal/requestListener.js'
+import { Router } from './Router.js'
 
 /**
  * Defines a Merchant RPC request handler. This will return a function that
@@ -19,12 +23,11 @@ import * as RequestListener from './internal/requestListener.js'
  * @param options - Options.
  * @returns Request handler.
  */
-export function requestHandler<
+export function merchant<
   const chains extends readonly [Chains.Chain, ...Chains.Chain[]],
->(options: requestHandler.Options<chains>) {
+>(options: merchant.Options<chains>) {
   const {
     address,
-    base,
     chains = Porto.defaultConfig.chains,
     transports = Porto.defaultConfig.transports,
   } = options
@@ -41,18 +44,29 @@ export function requestHandler<
         privateKey: options.key as Hex.Hex,
       })
 
-  return async (r: Request) => {
-    if (base && !new URL(r.url).pathname.startsWith(base))
-      return new Response(null, { status: 404 })
+  const router = new Router.Base()
 
-    if (r.method === 'GET') return GET()
-    if (r.method === 'OPTIONS') return OPTIONS()
+  router.hono.get('*', (c) => c.text('ok'))
 
-    const request = (await r
-      .json()
-      .then(
-        RpcRequest.from,
-      )) as RpcRequest.RpcRequest<RpcSchema_internal.Schema>
+  router.hono.post('*', async (c) => {
+    let request: Request.validate.ReturnType<typeof Request.Schema> =
+      await c.req.json()
+    try {
+      request = Request.validate(Request.Schema)(request)
+    } catch (e) {
+      const error = e as RpcResponse.ErrorObject
+      return c.json(
+        RpcResponse.from(
+          {
+            error: {
+              code: error.code,
+              message: error.message,
+            },
+          },
+          { request },
+        ),
+      )
+    }
 
     switch (request.method) {
       case 'wallet_prepareCalls': {
@@ -130,7 +144,7 @@ export function requestHandler<
             { request },
           )
 
-          return withCors(Response.json(response))
+          return c.json(response)
         } catch (e) {
           const error = (() => {
             const error = RpcResponse.parseError(e as Error)
@@ -138,20 +152,20 @@ export function requestHandler<
               return error.cause as any
             return error
           })()
-          return withCors(
-            Response.json(RpcResponse.from({ error }, { request })),
-          )
+          return c.json(RpcResponse.from({ error }, { request }))
         }
       }
       default: {
         const error = new RpcResponse.MethodNotSupportedError()
-        return withCors(Response.json(RpcResponse.from({ error }, { request })))
+        return c.json(RpcResponse.from({ error }, { request }))
       }
     }
-  }
+  })
+
+  return router
 }
 
-export declare namespace requestHandler {
+export declare namespace merchant {
   export type Options<
     chains extends readonly [Chains.Chain, ...Chains.Chain[]] = readonly [
       Chains.Chain,
@@ -160,8 +174,6 @@ export declare namespace requestHandler {
   > = {
     /** Address of the Merchant Account. */
     address: Address.Address
-    /** Base path of the request handler. */
-    base?: string | undefined
     /** Supported chains. */
     chains?: Porto.Config<chains>['chains'] | undefined
     /** An Admin Key of the Merchant Account to use for signing. */
@@ -180,53 +192,4 @@ export declare namespace requestHandler {
     /** Supported transports. */
     transports?: Porto.Config<chains>['transports'] | undefined
   }
-}
-
-/**
- * Defines a request listener for the Merchant RPC.
- *
- * @param options - Options.
- * @returns Request listener.
- */
-export function requestListener(options: requestHandler.Options) {
-  return RequestListener.fromFetchHandler(requestHandler(options))
-}
-
-/**
- * Defines a `GET` request handler for the Merchant RPC.
- * Mainly a convenience function for Next.js.
- *
- * @returns Request handler.
- */
-export function GET() {
-  return withCors(new Response('hello porto'))
-}
-
-/**
- * Defines a `POST` request handler for the Merchant RPC.
- * Mainly a convenience function for Next.js.
- *
- * @param options - Options.
- * @returns Request handler.
- */
-export function POST(options: requestHandler.Options) {
-  return requestHandler(options)
-}
-
-/**
- * Defines an `OPTIONS` request handler for the Merchant RPC.
- * Mainly a convenience function for Next.js.
- *
- * @returns Request handler.
- */
-export function OPTIONS() {
-  return withCors(new Response())
-}
-
-/** @internal */
-function withCors(response: Response) {
-  response.headers.set('Access-Control-Allow-Origin', '*')
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
-  return response
 }
