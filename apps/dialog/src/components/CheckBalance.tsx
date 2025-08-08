@@ -1,6 +1,6 @@
 import { Spinner } from '@porto/apps/components'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { Address, Value } from 'ox'
+import type { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type { ServerActions } from 'porto/viem'
 import * as React from 'react'
@@ -51,16 +51,6 @@ export function CheckBalance(props: CheckBalance.Props) {
     }
   }, [quotes, query.error?.cause])
 
-  const value = React.useMemo(() => {
-    if (!deficitToken) return undefined
-    if (deficitToken.value === 0n) return undefined
-    const feeToken = feeTokens.data?.find((token) =>
-      Address.isEqual(token.address, deficitToken.address),
-    )
-    if (!feeToken) return undefined
-    return Value.format(deficitToken.value, feeToken.decimals)
-  }, [deficitToken, feeTokens.data])
-
   if (step === 'success') return children
   if (query.isPending)
     return (
@@ -81,7 +71,6 @@ export function CheckBalance(props: CheckBalance.Props) {
       }}
       onReject={onReject}
       tokenAddress={deficitToken.address}
-      value={value}
     />
   )
 }
