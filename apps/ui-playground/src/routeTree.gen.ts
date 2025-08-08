@@ -15,6 +15,7 @@ import { Route as ThemeSwitchImport } from './routes/ThemeSwitch'
 import { Route as SpacerImport } from './routes/Spacer'
 import { Route as SeparatorImport } from './routes/Separator'
 import { Route as ScreenImport } from './routes/Screen'
+import { Route as PresetsInputImport } from './routes/PresetsInput'
 import { Route as InputImport } from './routes/Input'
 import { Route as FrameImport } from './routes/Frame'
 import { Route as ColorsImport } from './routes/Colors'
@@ -44,6 +45,12 @@ const SeparatorRoute = SeparatorImport.update({
 const ScreenRoute = ScreenImport.update({
   id: '/Screen',
   path: '/Screen',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PresetsInputRoute = PresetsInputImport.update({
+  id: '/PresetsInput',
+  path: '/PresetsInput',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -116,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InputImport
       parentRoute: typeof rootRoute
     }
+    '/PresetsInput': {
+      id: '/PresetsInput'
+      path: '/PresetsInput'
+      fullPath: '/PresetsInput'
+      preLoaderRoute: typeof PresetsInputImport
+      parentRoute: typeof rootRoute
+    }
     '/Screen': {
       id: '/Screen'
       path: '/Screen'
@@ -155,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
+  '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/Spacer': typeof SpacerRoute
@@ -167,6 +182,7 @@ export interface FileRoutesByTo {
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
+  '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/Spacer': typeof SpacerRoute
@@ -180,6 +196,7 @@ export interface FileRoutesById {
   '/Colors': typeof ColorsRoute
   '/Frame': typeof FrameRoute
   '/Input': typeof InputRoute
+  '/PresetsInput': typeof PresetsInputRoute
   '/Screen': typeof ScreenRoute
   '/Separator': typeof SeparatorRoute
   '/Spacer': typeof SpacerRoute
@@ -194,6 +211,7 @@ export interface FileRouteTypes {
     | '/Colors'
     | '/Frame'
     | '/Input'
+    | '/PresetsInput'
     | '/Screen'
     | '/Separator'
     | '/Spacer'
@@ -205,6 +223,7 @@ export interface FileRouteTypes {
     | '/Colors'
     | '/Frame'
     | '/Input'
+    | '/PresetsInput'
     | '/Screen'
     | '/Separator'
     | '/Spacer'
@@ -216,6 +235,7 @@ export interface FileRouteTypes {
     | '/Colors'
     | '/Frame'
     | '/Input'
+    | '/PresetsInput'
     | '/Screen'
     | '/Separator'
     | '/Spacer'
@@ -229,6 +249,7 @@ export interface RootRouteChildren {
   ColorsRoute: typeof ColorsRoute
   FrameRoute: typeof FrameRoute
   InputRoute: typeof InputRoute
+  PresetsInputRoute: typeof PresetsInputRoute
   ScreenRoute: typeof ScreenRoute
   SeparatorRoute: typeof SeparatorRoute
   SpacerRoute: typeof SpacerRoute
@@ -241,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColorsRoute: ColorsRoute,
   FrameRoute: FrameRoute,
   InputRoute: InputRoute,
+  PresetsInputRoute: PresetsInputRoute,
   ScreenRoute: ScreenRoute,
   SeparatorRoute: SeparatorRoute,
   SpacerRoute: SpacerRoute,
@@ -262,6 +284,7 @@ export const routeTree = rootRoute
         "/Colors",
         "/Frame",
         "/Input",
+        "/PresetsInput",
         "/Screen",
         "/Separator",
         "/Spacer",
@@ -282,6 +305,9 @@ export const routeTree = rootRoute
     },
     "/Input": {
       "filePath": "Input.tsx"
+    },
+    "/PresetsInput": {
+      "filePath": "PresetsInput.tsx"
     },
     "/Screen": {
       "filePath": "Screen.tsx"
