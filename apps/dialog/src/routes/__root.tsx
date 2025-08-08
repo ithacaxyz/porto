@@ -7,7 +7,6 @@ import * as React from 'react'
 import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
-import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
 import { Layout } from './-components/Layout'
 import { UpdateAccount } from './-components/UpdateAccount'
@@ -92,7 +91,7 @@ function RouteComponent() {
             : () => Actions.rejectAll(porto)
         }
         site={{
-          icon: typeof icon === 'string' ? icon : (icon?.dark ?? ''),
+          icon: typeof icon === 'object' ? [icon.light, icon.dark] : icon,
           label: (
             <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-th_frame leading-[22px]">
               {url?.startsWith('cli') ? (
@@ -110,18 +109,10 @@ function RouteComponent() {
               ) : (
                 'Porto'
               )}
-              {verifyStatus.data?.status === 'whitelisted' && (
-                <div className="flex items-center justify-center">
-                  <LucideBadgeCheck className="size-4 text-th_accent" />
-                </div>
-              )}
-              {env && (
-                <div className="flex h-5 items-center rounded-full bg-th_badge px-1.25 text-[11.5px] text-th_badge capitalize">
-                  {env}
-                </div>
-              )}
             </div>
           ),
+          tag: env,
+          verified: verifyStatus.data?.status === 'whitelisted',
         }}
       >
         <CheckError>
