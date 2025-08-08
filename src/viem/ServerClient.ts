@@ -4,17 +4,16 @@ import {
   createClient,
   fallback,
   http,
-  type Transport,
   type Client as viem_Client,
 } from 'viem'
 import type * as Chains from '../core/Chains.js'
 import type { Internal } from '../core/internal/porto.js'
-import * as Transports from '../core/Transports.js'
+import * as Transport from '../core/Transport.js'
 import type * as Account from './Account.js'
 import type * as RpcSchema from './RpcSchema.js'
 
 export type ServerClient<
-  transport extends Transport = Transport,
+  transport extends Transport.Transport = Transport.Transport,
   chain extends Chains.Chain = Chains.Chain,
   account extends Account.Account | undefined = Account.Account | undefined,
 > = viem_Client<transport, chain, account, RpcSchema.Server>
@@ -35,9 +34,9 @@ export function fromPorto<
 >(
   porto: { _internal: Internal<chains> },
   config: fromPorto.Config<chains, account> = {},
-): ServerClient<Transport, chains[number], account> {
+): ServerClient<Transport.Transport, chains[number], account> {
   const { config: config_, id, store } = porto._internal
-  const { chains } = config_
+  const { chains, relay } = config_
 
   const state = store.getState()
   const chainId = config.chainId ?? state.chainId
@@ -52,28 +51,9 @@ export function fromPorto<
       ].join('\n'),
     )
 
-  const transport = (() => {
-    const transport = config_.transports[chain.id as chains[number]['id']] as
-      | Transport
-      | undefined
-
-    // Check if this transport is a relay proxy. If it is, then we
-    // have a relay to use.
-    const { config } = transport?.({ chain }) ?? {}
-    if (transport && config?.type === 'relayProxy') return transport
-
-    // If the transport is not a relay proxy, and we don't have any
-    // relay URLs to use in the provided chain, throw an error.
-    if (!('relay' in chain.rpcUrls))
-      throw new Error('transport `relayProxy` is required.')
-
-    return Transports.relayProxy({
-      public:
-        transport ??
-        fallback(chain.rpcUrls.default.http.map((url) => http(url))),
-      relay: fallback(chain.rpcUrls.relay.http.map((url) => http(url))),
-    })
-  })()
+  const transport = config_.transports[chain.id as chains[number]['id']] as
+    | Transport.Transport
+    | undefined
 
   const key = [id, Json.stringify(chain)].filter(Boolean).join(':')
   if (clientCache.has(key)) return clientCache.get(key)!
@@ -81,7 +61,12 @@ export function fromPorto<
     ...config,
     chain,
     pollingInterval: 1_000,
-    transport,
+    transport: Transport.relayProxy({
+      public:
+        transport ??
+        fallback(chain.rpcUrls.default.http.map((url) => http(url))),
+      relay: relay,
+    }),
   })
   clientCache.set(key, client)
   return client as never
@@ -95,7 +80,7 @@ export declare namespace fromPorto {
     ],
     account extends Account.Account | undefined = Account.Account | undefined,
   > = Pick<
-    ClientConfig<Transport, Chains.Chain | undefined, account>,
+    ClientConfig<Transport.Transport, Chains.Chain | undefined, account>,
     'account' | 'cacheTime' | 'key' | 'name' | 'pollingInterval'
   > & {
     chainId?: chains[number]['id'] | undefined

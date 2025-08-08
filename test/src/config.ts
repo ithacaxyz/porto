@@ -1,6 +1,6 @@
 import { type Account, type Chains, Mode, Porto, Storage } from 'porto'
 import { type HttpTransportConfig, http } from 'viem'
-import * as Transports from '../../src/core/Transports.js'
+import { relayUrls } from '../../src/core/Transport.js'
 import * as ServerClient from '../../src/viem/ServerClient.js'
 import * as WalletClient from '../../src/viem/WalletClient.js'
 import * as Contracts from './_generated/contracts.js'
@@ -23,6 +23,11 @@ export function getPorto(
     relayRpcUrl = process.env.VITE_RELAY_URL,
   } = parameters
 
+  const relayUrl =
+    relayRpcUrl ??
+    relayUrls[env as keyof typeof relayUrls].http +
+      (env === 'anvil' ? `/${poolId}` : '')
+
   return Porto.create({
     chains,
     feeToken: 'EXP',
@@ -31,34 +36,29 @@ export function getPorto(
       mock: true,
       multichain: env !== 'anvil',
     }),
+    relay: http(
+      relayUrl,
+      debugOptions({
+        enabled: process.env.VITE_RPC_DEBUG === 'true',
+        rpcUrl: relayUrl,
+      }),
+    ),
     storage: Storage.memory(),
     transports: chains.reduce(
       (transports, chain) => {
         const rpcUrl =
           chain.rpcUrls.default.http[0] + (env === 'anvil' ? `/${poolId}` : '')
-        const relayUrl =
-          relayRpcUrl ??
-          chain.rpcUrls.relay.http[0] + (env === 'anvil' ? `/${poolId}` : '')
 
         return {
           // biome-ignore lint/performance/noAccumulatingSpread: _
           ...transports,
-          [chain.id]: Transports.relayProxy({
-            public: http(
+          [chain.id]: http(
+            rpcUrl,
+            debugOptions({
+              enabled: process.env.VITE_RPC_DEBUG === 'true',
               rpcUrl,
-              debugOptions({
-                enabled: process.env.VITE_RPC_DEBUG === 'true',
-                rpcUrl,
-              }),
-            ),
-            relay: http(
-              relayUrl,
-              debugOptions({
-                enabled: process.env.VITE_RPC_DEBUG === 'true',
-                rpcUrl: relayUrl,
-              }),
-            ),
-          }),
+            }),
+          ),
         }
       },
       {} as Porto.Config['transports'],
