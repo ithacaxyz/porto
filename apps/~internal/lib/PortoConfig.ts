@@ -1,4 +1,4 @@
-import { Chains, Mode } from 'porto'
+import { Chains, Mode, Transports } from 'porto'
 import type { Porto } from 'porto/remote'
 import { http, type ValueOf } from 'viem'
 
@@ -9,26 +9,12 @@ const mock = import.meta.env.MODE === 'test'
 
 const config = {
   anvil: {
-    chains: [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros],
+    chains: [Chains.anvil, Chains.anvil2, Chains.anvil3],
     mode: Mode.rpcServer({
       mock,
       multichain: false,
       persistPreCalls: false,
     }),
-  },
-  dev: {
-    chains: [Chains.portoDevParos, Chains.portoDevLeros, Chains.portoDevTinos],
-    feeToken: 'EXP',
-    mode: Mode.rpcServer({
-      mock,
-      persistPreCalls: false,
-    }),
-    storageKey: 'porto.store.dev',
-    transports: {
-      [Chains.portoDevParos.id]: http(undefined, Sentry.httpTransportOptions()),
-      [Chains.portoDevLeros.id]: http(undefined, Sentry.httpTransportOptions()),
-      [Chains.portoDevTinos.id]: http(undefined, Sentry.httpTransportOptions()),
-    },
   },
   prod: {
     chains: [Chains.base],
@@ -38,7 +24,10 @@ const config = {
       persistPreCalls: false,
     }),
     transports: {
-      [Chains.base.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.base.id]: Transports.relayProxy({
+        public: http(undefined, Sentry.httpTransportOptions()),
+        relay: http(undefined, Sentry.httpTransportOptions()),
+      }),
     },
   },
   stg: {
@@ -50,11 +39,14 @@ const config = {
     }),
     storageKey: 'porto.store.stg',
     transports: {
-      [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
-      [Chains.optimismSepolia.id]: http(
-        undefined,
-        Sentry.httpTransportOptions(),
-      ),
+      [Chains.baseSepolia.id]: Transports.relayProxy({
+        public: http(undefined, Sentry.httpTransportOptions()),
+        relay: http(undefined, Sentry.httpTransportOptions()),
+      }),
+      [Chains.optimismSepolia.id]: Transports.relayProxy({
+        public: http(undefined, Sentry.httpTransportOptions()),
+        relay: http(undefined, Sentry.httpTransportOptions()),
+      }),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
@@ -63,9 +55,6 @@ const dialogHosts = {
   anvil: import.meta.env.PROD
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
-  dev: import.meta.env.PROD
-    ? 'https://dev.id.porto.sh/dialog/'
-    : 'https://dev.localhost:5174/dialog/',
   prod: import.meta.env.PROD
     ? 'https://id.porto.sh/dialog/'
     : 'https://prod.localhost:5174/dialog/',
