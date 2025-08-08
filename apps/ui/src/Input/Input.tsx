@@ -20,7 +20,7 @@ export function Input({
   size,
   ...props
 }: InputProps) {
-  const mode = Frame.useFrame().mode
+  const { mode } = Frame.useFrame()
   size ??= { dialog: 'medium', full: 'large' }
   return (
     <div

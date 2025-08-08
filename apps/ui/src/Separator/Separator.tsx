@@ -13,7 +13,7 @@ export function Separator({
   size,
   ...props
 }: SeparatorProps) {
-  const mode = Frame.useFrame().mode
+  const { mode } = Frame.useFrame()
   size ??= mode === 'dialog' ? 'small' : 'medium'
   return (
     <div

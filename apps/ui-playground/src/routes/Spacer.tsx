@@ -1,4 +1,5 @@
 import { Button, Frame, Spacer } from '@porto/ui'
+import type { FrameMode } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
@@ -8,7 +9,7 @@ export const Route = createFileRoute('/Spacer')({
 })
 
 function SpacerComponent() {
-  const [mode, setMode] = useState<'dialog' | 'full'>('full')
+  const [mode, setMode] = useState<FrameMode>('full')
   const space = mode === 'dialog' ? 8 : 24
   return (
     <ComponentScreen title="Spacer">

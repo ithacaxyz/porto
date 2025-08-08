@@ -1,4 +1,5 @@
 import { Button, Frame, Input, Screen, Separator, Spacer } from '@porto/ui'
+import type { FrameMode } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
@@ -42,7 +43,7 @@ const DEMOS = [
 const INITIAL_MODE = 'dialog'
 
 function RouteComponent() {
-  const [mode, setMode] = useState<'dialog' | 'full'>(INITIAL_MODE)
+  const [mode, setMode] = useState<FrameMode>(INITIAL_MODE)
   const [loading, setLoading] = useState(false)
   const [screen, setScreen] = useState(0)
 
@@ -174,7 +175,7 @@ function DemoContainer({
   mode,
   children,
 }: {
-  mode: 'dialog' | 'full'
+  mode: FrameMode
   children: ReactNode
 }) {
   return mode === 'dialog' ? (
