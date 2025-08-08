@@ -11,24 +11,28 @@ import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
 import { useSize } from '../hooks/useSize.js'
 
+export interface FrameProps {
+  children?: ReactNode
+  colorScheme?: 'light' | 'dark' | 'light dark'
+  mode: FrameMode
+  onClose?: (() => void) | null
+  site: Site
+}
+
 type Site = {
   icon?: string
   label: ReactNode
   labelExtended?: ReactNode
 }
 
-export type FrameMode = 'dialog' | 'full'
-
-export interface FrameProps {
-  children?: ReactNode
-  colorScheme?: 'light' | 'dark' | 'light dark'
-  mode: FrameMode
-  onClose?: () => void
-  site: Site
-}
+export type FrameMode =
+  | 'dialog'
+  | 'full'
+  | { mode: 'dialog'; variant?: 'normal' | 'drawer' }
+  | { mode: 'full'; variant?: 'medium' | 'large' }
 
 type FrameContext =
-  | { mode: 'dialog' }
+  | { mode: 'dialog'; variant: 'normal' | 'drawer' }
   | { mode: 'full'; variant: 'medium' | 'large' }
 
 const FrameContext = createContext<FrameContext>({
@@ -47,33 +51,46 @@ export function useFrame() {
 export function Frame({
   children,
   colorScheme,
-  mode,
+  mode: mode_,
   onClose,
   site,
 }: FrameProps) {
   const frameRef = useRef<HTMLDivElement>(null)
-  const [variant, setVariant] = useState<'medium' | 'large'>('medium')
+
+  const { mode, variant } =
+    typeof mode_ === 'string' ? { mode: mode_, variant: undefined } : mode_
+
+  const [fullVariantAuto, setFullVariantAuto] = useState<'medium' | 'large'>(
+    'medium',
+  )
 
   useSize(
     frameRef,
     ({ width }) => {
-      if (mode === 'dialog') return
-      if (width < 480 && variant !== 'medium') {
-        setVariant('medium')
+      if (mode === 'dialog' || variant) return
+      if (width < 480 && fullVariantAuto !== 'medium') {
+        setFullVariantAuto('medium')
         return
       }
-      if (width >= 480 && variant !== 'large') {
-        setVariant('large')
+      if (width >= 480 && fullVariantAuto !== 'large') {
+        setFullVariantAuto('large')
         return
       }
     },
-    [mode, variant],
+    [mode, variant, fullVariantAuto],
   )
 
-  const contextValue = useMemo<FrameContext>(
-    () => (mode === 'dialog' ? { mode } : { mode, variant }),
-    [mode, variant],
-  )
+  const contextValue = useMemo<FrameContext>(() => {
+    if (mode === 'dialog')
+      return {
+        mode: 'dialog',
+        variant: variant || 'normal',
+      }
+    return {
+      mode: 'full',
+      variant: variant || fullVariantAuto,
+    }
+  }, [mode, variant, fullVariantAuto])
 
   useEffect(() => {
     if (!onClose) return
@@ -87,13 +104,22 @@ export function Frame({
   return (
     <FrameContext.Provider value={contextValue}>
       <div
-        className={css({
-          containerType: 'inline-size',
-          display: 'flex',
-          height: '100%',
-          minHeight: 200,
-          width: '100%',
-        })}
+        className={cx(
+          css({
+            containerType: 'inline-size',
+            display: 'flex',
+          }),
+          mode === 'dialog' && variant === 'drawer'
+            ? css({
+                inset: 'auto 0 0',
+                position: 'absolute',
+              })
+            : css({
+                height: '100%',
+                minHeight: 100,
+                width: '100%',
+              }),
+        )}
         ref={frameRef}
         style={{ colorScheme }}
       >
@@ -111,6 +137,11 @@ export function Frame({
                 border: '1px solid var(--border-color-th_frame)',
                 borderRadius: 'var(--radius-th_frame)',
                 overflow: 'hidden',
+              }),
+            contextValue.mode === 'dialog' &&
+              contextValue.variant === 'drawer' &&
+              css({
+                borderBottomRadius: 0,
               }),
             mode === 'full' &&
               css({
@@ -172,8 +203,8 @@ function FrameBar({
   onClose,
   site,
 }: {
-  mode: FrameMode
-  onClose?: () => void
+  mode: 'dialog' | 'full'
+  onClose?: (() => void) | null
   site: Site
 }) {
   return (
@@ -266,32 +297,44 @@ function FrameBar({
           </div>
         </div>
       </div>
-      {mode === 'dialog' && <CloseButton onClick={onClose} />}
+      {onClose && <CloseButton mode={mode} onClick={onClose} />}
     </div>
   )
 }
 
-function CloseButton({ onClick }: { onClick?: () => void }) {
+function CloseButton({
+  mode,
+  onClick,
+}: {
+  mode: 'dialog' | 'full'
+  onClick?: () => void
+}) {
   return (
     <button
-      className={css({
-        _active: {
-          transform: 'translateY(1px)',
-        },
-        _focusVisible: {
-          outline: '2px solid var(--color-th_focus)',
-          outlineOffset: -2,
-        },
-        alignItems: 'center',
-        background: 'transparent',
-        border: 'none',
-        borderTopRightRadius: 'var(--radius-th_frame)',
-        cursor: 'pointer!',
-        display: 'flex',
-        height: '100%',
-        padding: 0,
-        paddingInline: '6px 12px',
-      })}
+      className={cx(
+        css({
+          _active: {
+            transform: 'translateY(1px)',
+          },
+          _focusVisible: {
+            outline: '2px solid var(--color-th_focus)',
+            outlineOffset: -2,
+          },
+          alignItems: 'center',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer!',
+          display: 'flex',
+          height: '100%',
+          padding: '0 12px',
+        }),
+        mode === 'dialog' &&
+          css({
+            borderTopRightRadius: 'var(--radius-th_frame)',
+            height: '100%',
+            paddingInline: '6px 12px',
+          }),
+      )}
       onClick={onClick}
       title="Close Dialog"
       type="button"

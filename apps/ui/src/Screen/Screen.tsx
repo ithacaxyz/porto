@@ -13,10 +13,8 @@ export interface ScreenProps {
   loadingText?: ReactNode
   name: string
   onContentHeight?: (height: number) => void
-  showLoaderDelay?: number
+  showLoaderAfter?: number
 }
-
-const SHOW_LOADER_DELAY = 200
 
 export function Screen({
   children,
@@ -25,15 +23,23 @@ export function Screen({
   loadingText,
   name,
   onContentHeight,
-  showLoaderDelay = SHOW_LOADER_DELAY,
+  showLoaderAfter = 200,
 }: ScreenProps) {
   const frame = Frame.useFrame()
   layout ??= frame.mode === 'dialog' ? 'compact' : 'full'
 
   const contentRef = useRef<HTMLDivElement | null>(null)
-  useSize(contentRef, ({ height }) => onContentHeight?.(height), [
-    onContentHeight,
-  ])
+  const lastHeight = useRef<number | null>(null)
+  useSize(
+    contentRef,
+    ({ height }) => {
+      if (!loading && height > 0 && height !== lastHeight.current) {
+        onContentHeight?.(height)
+        lastHeight.current = height
+      }
+    },
+    [onContentHeight, layout, loading],
+  )
 
   const appearTransition = useTransition(
     { children, name, show: !loading },
@@ -78,7 +84,7 @@ export function Screen({
         tension: 2000,
       },
       enter: {
-        delay: showLoaderDelay,
+        delay: showLoaderAfter,
         opacity: 1,
         transform: 'scale3d(1, 1, 1)',
       },
@@ -131,20 +137,19 @@ export function Screen({
         immediate: true,
       })
     }
-  }, [frame, screenSpring])
+  }, [frame, screenSpring.height.start])
 
   return (
     <div
       className={cx(
         css({
           display: 'flex',
-          flex: '1 1 auto',
           flexDirection: 'column',
-          minHeight: 0,
           width: '100%',
         }),
         layout === 'compact' &&
           css({
+            minHeight: 0,
             overflow: 'hidden',
           }),
         layout === 'full' &&
@@ -152,6 +157,8 @@ export function Screen({
             '@container (min-width: 480px)': {
               overflowY: 'hidden',
             },
+            flex: '1 1 auto',
+            minHeight: 120,
             overflowY: 'auto',
           }),
       )}
@@ -237,7 +244,6 @@ export function Screen({
                             flex: '0 0 auto',
                           },
                           flex: '1 1 auto',
-                          paddingBottom: 24,
                         }),
                     )}
                     ref={handleSreenRef}
