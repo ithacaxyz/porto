@@ -29,22 +29,22 @@ const defaultConfig = {
 export const instances = {
   paros: defineRpcServer({
     ...defaultConfig,
-    endpoint: (key) => `http://127.0.0.1:${Anvil.instances.paros.port}/${key}`,
+    endpoint: (key) => `http://127.0.0.1:${Anvil.instances.anvil.port}/${key}`,
     feeTokens: [
       '0x0000000000000000000000000000000000000000',
-      exp1Address[Chains.anvilParos.id],
+      exp1Address[Chains.anvil.id],
     ],
-    interopToken: exp1Address[Chains.anvilParos.id],
+    interopToken: exp1Address[Chains.anvil.id],
   }),
   paros_newAccount: defineRpcServer({
     ...defaultConfig,
     delegationProxy: accountNewProxyAddress,
-    endpoint: (key) => `http://127.0.0.1:${Anvil.instances.paros.port}/${key}`,
+    endpoint: (key) => `http://127.0.0.1:${Anvil.instances.anvil.port}/${key}`,
     feeTokens: [
       '0x0000000000000000000000000000000000000000',
-      exp1Address[Chains.anvilParos.id],
+      exp1Address[Chains.anvil.id],
     ],
-    interopToken: exp1Address[Chains.anvilParos.id],
+    interopToken: exp1Address[Chains.anvil.id],
     legacyDelegationProxy: accountProxyAddress,
     port: 9120,
   }),

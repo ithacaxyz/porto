@@ -18,6 +18,7 @@ import type * as Siwe from './internal/siwe.js'
 import type { ExactPartial, OneOf } from './internal/types.js'
 import * as Utils from './internal/utils.js'
 import * as Storage from './Storage.js'
+import { relayUrls } from './Transport.js'
 
 const browser = typeof window !== 'undefined' && typeof document !== 'undefined'
 
@@ -25,6 +26,7 @@ export const defaultConfig = {
   announceProvider: true,
   chains: [Chains.baseSepolia, Chains.optimismSepolia],
   mode: browser ? dialog() : rpcServer(),
+  relay: http(relayUrls.stg.http),
   storage: browser ? Storage.idb() : Storage.memory(),
   storageKey: 'porto.store',
   transports: {
@@ -67,6 +69,7 @@ export function create(
     feeToken: parameters.feeToken,
     merchantRpcUrl: parameters.merchantRpcUrl,
     mode: parameters.mode ?? defaultConfig.mode,
+    relay: parameters.relay ?? defaultConfig.relay,
     storage: parameters.storage ?? defaultConfig.storage,
     storageKey: parameters.storageKey ?? defaultConfig.storageKey,
     transports,
@@ -183,6 +186,7 @@ export function unstable_create(
           host: 'https://id.porto.sh/dialog',
         })
       : rpcServer(),
+    relay: http(relayUrls.prod.http),
     storageKey: 'prod.porto.store',
     transports: {
       [Chains.base.id]: http(),
@@ -225,6 +229,10 @@ export type Config<
    */
   merchantRpcUrl?: string | undefined
   /**
+   * Relay RPC Transport override.
+   */
+  relay: Transport
+  /**
    * Storage to use.
    * @default Storage.idb()
    */
@@ -234,7 +242,7 @@ export type Config<
    */
   storageKey?: string | undefined
   /**
-   * Transport overrides to use for each chain.
+   * Public RPC Transport overrides to use for each chain.
    */
   transports: Record<chains[number]['id'], Transport>
 }

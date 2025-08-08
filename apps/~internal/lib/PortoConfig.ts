@@ -1,4 +1,4 @@
-import { Chains, Mode } from 'porto'
+import { Chains, Mode, Transport } from 'porto'
 import type { Porto } from 'porto/remote'
 import { http, type ValueOf } from 'viem'
 
@@ -9,26 +9,13 @@ const mock = import.meta.env.MODE === 'test'
 
 const config = {
   anvil: {
-    chains: [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros],
+    chains: [Chains.anvil, Chains.anvil2, Chains.anvil3],
     mode: Mode.rpcServer({
       mock,
       multichain: false,
       persistPreCalls: false,
     }),
-  },
-  dev: {
-    chains: [Chains.portoDevParos, Chains.portoDevLeros, Chains.portoDevTinos],
-    feeToken: 'EXP',
-    mode: Mode.rpcServer({
-      mock,
-      persistPreCalls: false,
-    }),
-    storageKey: 'porto.store.dev',
-    transports: {
-      [Chains.portoDevParos.id]: http(undefined, Sentry.httpTransportOptions()),
-      [Chains.portoDevLeros.id]: http(undefined, Sentry.httpTransportOptions()),
-      [Chains.portoDevTinos.id]: http(undefined, Sentry.httpTransportOptions()),
-    },
+    relay: http(Transport.relayUrls.anvil.http),
   },
   prod: {
     chains: [Chains.base],
@@ -37,6 +24,7 @@ const config = {
       mock,
       persistPreCalls: false,
     }),
+    relay: http(Transport.relayUrls.prod.http),
     transports: {
       [Chains.base.id]: http(undefined, Sentry.httpTransportOptions()),
     },
@@ -48,6 +36,7 @@ const config = {
       mock,
       persistPreCalls: false,
     }),
+    relay: http(Transport.relayUrls.stg.http),
     storageKey: 'porto.store.stg',
     transports: {
       [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
@@ -63,9 +52,6 @@ const dialogHosts = {
   anvil: import.meta.env.PROD
     ? undefined
     : 'https://anvil.localhost:5174/dialog/',
-  dev: import.meta.env.PROD
-    ? 'https://dev.id.porto.sh/dialog/'
-    : 'https://dev.localhost:5174/dialog/',
   prod: import.meta.env.PROD
     ? 'https://id.porto.sh/dialog/'
     : 'https://prod.localhost:5174/dialog/',
