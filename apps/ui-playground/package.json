@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@porto/ui": "workspace:*",
+    "@porto/apps": "workspace:*",
     "@react-spring/web": "catalog:",
     "@tanstack/react-router": "catalog:",
     "cva": "catalog:",
