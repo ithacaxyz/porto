@@ -37,7 +37,13 @@ export function App() {
   const [mode, setMode] = React.useState<ModeType>(() => {
     const url = new URL(window.location.href)
     const mode = url.searchParams.get('mode') as ModeType | null
-    return mode ?? 'iframe-dialog'
+
+    if (!mode) return 'iframe-dialog'
+    if (mode in modes) return mode
+
+    const err = `Invalid mode: ${mode}.\nValid modes: ${Object.keys(modes).join(', ')}.`
+    alert(err)
+    throw new Error(err)
   })
 
   const [options, setOptions] = React.useState<{
@@ -77,7 +83,7 @@ export function App() {
   }, [options.theme])
 
   return (
-    <main>
+    <main className="flex">
       <div className="max-w-[768px] p-2">
         <h1>Playground</h1>
 
@@ -173,12 +179,14 @@ export function App() {
         </div>
         <ShowClientCapabilities />
       </div>
-      <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] p-4">
-        <div
-          id="porto"
-          className="h-full border border-1 border-th_frame rounded-md overflow-hidden"
-        />
-      </div>
+      {mode === 'inline-dialog' && (
+        <div className="fixed top-0 bottom-0 left-[calc(768px+var(--spacing)*2)] w-[300px] p-4">
+          <div
+            className="h-full overflow-hidden rounded-md border border-1 border-th_frame"
+            id="porto"
+          />
+        </div>
+      )}
     </main>
   )
 }
