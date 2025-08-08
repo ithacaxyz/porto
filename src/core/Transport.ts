@@ -6,7 +6,7 @@ export const relayUrls = {
   anvil: { http: 'http://localhost:9119' },
   // TODO: replace with chain-agnostic relay
   // prod: 'https://rpc.ithaca.xyz',
-  prod: { http: 'https://base-mainnet-int.rpc.ithaca.xyz' },
+  prod: { http: 'https://base-mainnet-preprod.rpc.ithaca.xyz' },
   // TODO: replace with chain-agnostic relay
   // stg: 'https://stg-rpc.ithaca.xyz',
   stg: { http: 'https://base-sepolia-int.rpc.ithaca.xyz' },
