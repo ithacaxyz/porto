@@ -12,18 +12,18 @@ function PresetsInputComponent() {
   return (
     <ComponentScreen title="PresetsInput">
       <ComponentScreen.Section surface="base" title="Using percentage presets">
-        <div className="w-[360px] flex flex-col gap-8">
+        <div className="flex w-[360px] flex-col gap-8">
           <Demo<number>
             formatValue={(value) => {
               return new Intl.NumberFormat('en-US', {
-                style: 'percent',
-                minimumFractionDigits: 0,
                 maximumFractionDigits: 2,
+                minimumFractionDigits: 0,
+                style: 'percent',
               }).format(value)
             }}
             parseValue={(value) => {
-              const numValue = parseFloat(value.replace(/%/g, '')) / 100
-              return isNaN(numValue) ? null : numValue
+              const numValue = Number.parseFloat(value.replace(/%/g, '')) / 100
+              return Number.isNaN(numValue) ? null : numValue
             }}
             placeholder="e.g. 33%"
             presets={[
@@ -36,17 +36,17 @@ function PresetsInputComponent() {
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section surface="base" title="Currency Presets Input">
-        <div className="w-[360px] flex flex-col gap-8">
+        <div className="flex w-[360px] flex-col gap-8">
           <Demo<number>
             formatValue={(value) => {
               return new Intl.NumberFormat('en-US', {
-                style: 'currency',
                 currency: 'USD',
+                style: 'currency',
               }).format(value)
             }}
             parseValue={(value) => {
-              const numValue = parseFloat(value.replace(/[$,]/g, ''))
-              return isNaN(numValue) ? null : numValue
+              const numValue = Number.parseFloat(value.replace(/[$,]/g, ''))
+              return Number.isNaN(numValue) ? null : numValue
             }}
             placeholder="e.g. $123.45"
             presets={[
@@ -87,13 +87,13 @@ function Demo<Parsed>({
   return (
     <div className="flex flex-col gap-4">
       <PresetsInput
+        formatValue={() => formatted}
         mode={mode}
-        onModeChange={setMode}
         onChange={setValue}
+        onModeChange={setMode}
         placeholder={placeholder}
         presets={presets}
         value={value}
-        formatValue={() => formatted}
       />
       <div>
         Value: {empty ? '<empty>' : parsed === null ? '<error>' : formatted}

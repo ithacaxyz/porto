@@ -1,7 +1,7 @@
-import type { ComponentPropsWithRef } from 'react'
-import { useState } from 'react'
 import { Input } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
+import type { ComponentPropsWithRef } from 'react'
+import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 
 export const Route = createFileRoute('/Input')({
@@ -32,16 +32,16 @@ function InputComponent() {
       <ComponentScreen.Section surface="base" title="Unfocused Value">
         <div className="flex flex-col gap-4">
           <DemoInput
-            placeholder="$200"
             formatValue={(value) => {
               if (value.trim() === '') return ''
-              const numValue = parseFloat(value)
-              if (isNaN(numValue)) return value
+              const numValue = Number.parseFloat(value)
+              if (Number.isNaN(numValue)) return value
               return new Intl.NumberFormat('en-US', {
-                style: 'currency',
                 currency: 'USD',
+                style: 'currency',
               }).format(numValue)
             }}
+            placeholder="$200"
           />
         </div>
       </ComponentScreen.Section>
@@ -57,8 +57,8 @@ function DemoInput(
   const [value, setValue] = useState('')
   return (
     <Input
-      value={value}
       onChange={(event) => setValue(event.target.value)}
+      value={value}
       {...props}
     />
   )

@@ -75,12 +75,9 @@ export function Input({
       )}
     >
       <input
-        data-1p-ignore={removeCompletion ? true : undefined}
-        spellCheck={removeCompletion ? false : undefined}
         autoCapitalize={removeCompletion ? 'off' : undefined}
         autoComplete={removeCompletion ? 'off' : undefined}
         autoCorrect={removeCompletion ? 'off' : undefined}
-        disabled={disabled}
         className={cx(
           css({
             _focus: {
@@ -113,6 +110,9 @@ export function Input({
           }),
           className,
         )}
+        data-1p-ignore={removeCompletion ? true : undefined}
+        disabled={disabled}
+        spellCheck={removeCompletion ? false : undefined}
         value={isFocused || !formatValue ? value : formatValue(value)}
         {...props}
         onBlur={() => setIsFocused(false)}

@@ -154,10 +154,10 @@ function DemoScreen({
           <>
             <Separator label="First time, or lost access?" />
             <Input
-              removeCompletion={true}
               contextual="Optional"
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
+              removeCompletion={true}
               value={email}
             />
             <Spacer.V size={{ dialog: 8, full: 12 }} />

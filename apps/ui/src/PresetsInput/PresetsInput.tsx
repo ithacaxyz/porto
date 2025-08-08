@@ -172,6 +172,7 @@ export function PresetsInput({
                       flex: 1,
                       minWidth: 200,
                     })}
+                    formatValue={formatValue}
                     onChange={(event) =>
                       handleInputChange?.(event.target.value)
                     }
@@ -182,7 +183,6 @@ export function PresetsInput({
                       }
                     }}
                     placeholder={placeholder}
-                    formatValue={formatValue}
                     size="medium"
                     value={value}
                   />
