@@ -14,7 +14,7 @@
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
-    "build": "pnpm run /^build:.*/",
+    "build": "mkdir -p dist && pnpm run /^build:.*/",
     "build:lib": "vite build",
     "build:css": "panda cssgen --outfile dist/styles.css",
     "check": "biome check --write --unsafe",
