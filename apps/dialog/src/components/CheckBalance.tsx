@@ -4,17 +4,12 @@ import type { Address } from 'ox'
 import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type { ServerActions } from 'porto/viem'
 import * as React from 'react'
-import * as FeeTokens from '~/lib/FeeTokens'
 import { AddFunds } from '~/routes/-components/AddFunds'
 
 export function CheckBalance(props: CheckBalance.Props) {
   const { address, children, onReject, query } = props
 
   const [step, setStep] = React.useState<'default' | 'success'>('default')
-
-  const feeTokens = FeeTokens.fetch.useQuery({
-    addressOrSymbol: props.feeToken,
-  })
 
   const quotes = query.data?.capabilities.quote.quotes ?? []
 
