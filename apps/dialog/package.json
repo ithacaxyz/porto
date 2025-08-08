@@ -14,6 +14,8 @@
   "dependencies": {
     "@ariakit/react": "catalog:",
     "@porto/apps": "workspace:*",
+    "@porto/ui": "workspace:*",
+    "@react-spring/web": "catalog:",
     "@sentry/react": "catalog:",
     "@sentry/vite-plugin": "catalog:",
     "@tanstack/query-sync-storage-persister": "catalog:",
