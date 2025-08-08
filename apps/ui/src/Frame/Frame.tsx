@@ -18,7 +18,7 @@ import iconDefaultLight from './icon-default-light.svg'
 export interface FrameProps {
   children?: ReactNode
   colorScheme?: 'light' | 'dark' | 'light dark'
-  mode: FrameMode
+  mode: FrameModeWithVariant
   onClose?: (() => void) | null
   site: Site
 }
@@ -31,9 +31,10 @@ type Site = {
   verified?: boolean
 }
 
-export type FrameMode =
-  | 'dialog'
-  | 'full'
+export type FrameMode = 'dialog' | 'full'
+
+export type FrameModeWithVariant =
+  | FrameMode
   | { mode: 'dialog'; variant?: 'normal' | 'drawer' }
   | { mode: 'full'; variant?: 'medium' | 'large' }
 
@@ -211,7 +212,7 @@ function FrameBar({
   onClose,
   site,
 }: {
-  mode: 'dialog' | 'full'
+  mode: FrameMode
   onClose?: (() => void) | null
   site: Site
 }) {
@@ -352,7 +353,7 @@ function CloseButton({
   mode,
   onClick,
 }: {
-  mode: 'dialog' | 'full'
+  mode: FrameMode
   onClick?: () => void
 }) {
   return (

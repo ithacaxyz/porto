@@ -132,8 +132,12 @@ export function Screen({
 
   // refresh the height when changing from full.medium to full.large
   useEffect(() => {
-    if (frame.mode === 'full' && frame.variant === 'large') {
-      screenSpring.height.start(screenRef.current?.clientHeight ?? 0, {
+    if (
+      frame.mode === 'full' &&
+      frame.variant === 'large' &&
+      screenRef.current
+    ) {
+      screenSpring.height.start(screenRef.current.clientHeight, {
         immediate: true,
       })
     }
