@@ -383,9 +383,6 @@ export function popup(options: popup.Options = {}) {
           offDetectClosed()
         },
         open() {
-          const left = (window.innerWidth - size.width) / 2 + window.screenX
-          const top = window.screenY + 100
-
           popup = window.open(getDialogUrl(host), '_blank')
           if (!popup) throw new Error('Failed to open popup')
 
