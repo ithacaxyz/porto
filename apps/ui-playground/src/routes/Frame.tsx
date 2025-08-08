@@ -2,6 +2,7 @@ import { Button, Frame, Input, Screen, Separator, Spacer } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { useColorScheme } from '~/ColorScheme.js'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen.js'
 import { DemoBrowser } from '~/components/DemoBrowser/DemoBrowser.js'
 import LucideLogIn from '~icons/lucide/log-in'
@@ -54,6 +55,8 @@ function RouteComponent() {
     return () => clearTimeout(timeout)
   }, [loading])
 
+  const { colorScheme } = useColorScheme()
+
   return (
     <ComponentScreen title="Frame">
       <div className="flex items-center gap-2 text-sm text-th_base">
@@ -93,13 +96,13 @@ function RouteComponent() {
       </div>
       <DemoContainer mode={mode}>
         <Frame
+          colorScheme={colorScheme}
           mode={mode}
           site={{
-            icon: '/uniswap-icon.svg',
-            label: 'uniswap.org',
+            label: 'porto.sh',
             labelExtended: (
               <>
-                Connected to <span className="text-th_base">uniswap.org</span>
+                Connected to <span className="text-th_base">porto.sh</span>
               </>
             ),
           }}
