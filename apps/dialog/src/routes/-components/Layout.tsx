@@ -1,21 +1,18 @@
-import { IndeterminateLoader } from '@porto/apps/components'
 import { cva, cx, type VariantProps } from 'cva'
 import { Address } from 'ox'
 import type * as React from 'react'
 
 import { StringFormatter } from '~//utils'
+import { DialogScreen } from '~/components/DialogScreen'
 import ChevronDown from '~icons/lucide/chevron-down'
 
 export function Layout(props: Layout.Props) {
   const { children, loading, loadingTitle } = props
-
-  if (loading)
-    return (
-      <div className="flex flex-grow p-3 in-data-popup:[body:has(com-1password-notification)_&]:pb-50">
-        <IndeterminateLoader title={loadingTitle} />
-      </div>
-    )
-  return <div className="flex flex-grow flex-col">{children}</div>
+  return (
+    <DialogScreen loading={loading} loadingTitle={loadingTitle}>
+      {children}
+    </DialogScreen>
+  )
 }
 
 export namespace Layout {
