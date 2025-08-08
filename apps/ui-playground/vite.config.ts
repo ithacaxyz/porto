@@ -1,6 +1,6 @@
 import Tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
-import React from '@vitejs/plugin-react'
+import React from '@vitejs/plugin-react-swc'
 import Icons from 'unplugin-icons/vite'
 import { defineConfig } from 'vite'
 import TsconfigPaths from 'vite-tsconfig-paths'
