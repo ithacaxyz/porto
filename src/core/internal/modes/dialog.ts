@@ -215,10 +215,16 @@ export function dialog(parameters: dialog.Parameters = {}) {
               })
 
             const signInWithEthereum_response = await (async () => {
-              if (!authUrl) return
               if (!account.capabilities?.signInWithEthereum) return
               const { message, signature } =
                 account.capabilities.signInWithEthereum
+
+              if (!authUrl)
+                return {
+                  message,
+                  signature,
+                }
+
               const { token } = await Siwe.authenticate({
                 address: account.address,
                 authUrl,
@@ -263,13 +269,11 @@ export function dialog(parameters: dialog.Parameters = {}) {
           storage,
         })
 
-        if (authUrl) {
-          const response = await fetch(authUrl.logout, {
+        if (authUrl)
+          await fetch(authUrl.logout, {
             credentials: 'include',
             method: 'POST',
-          })
-          if (!response.ok) throw new Error('failed to logout.')
-        }
+          }).catch(() => {})
       },
 
       async getAccountVersion(parameters) {
@@ -517,10 +521,16 @@ export function dialog(parameters: dialog.Parameters = {}) {
                 .filter(Boolean) as readonly Key.Key[]
 
               const signInWithEthereum_response = await (async () => {
-                if (!authUrl) return
                 if (!account.capabilities?.signInWithEthereum) return
                 const { message, signature } =
                   account.capabilities.signInWithEthereum
+
+                if (!authUrl)
+                  return {
+                    message,
+                    signature,
+                  }
+
                 const { token } = await Siwe.authenticate({
                   address: account.address,
                   authUrl,

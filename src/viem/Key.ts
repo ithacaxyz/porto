@@ -862,15 +862,8 @@ export function serialize(key: Key): Serialized {
   }
 }
 
-export async function sign(
-  key: Key,
-  parameters: {
-    payload: Hex.Hex
-    storage?: Storage.Storage | undefined
-    wrap?: boolean | undefined
-  },
-) {
-  const { payload, storage, wrap = true } = parameters
+export async function sign(key: Key, parameters: sign.Parameters) {
+  const { payload, storage, webAuthn, wrap = true } = parameters
   const { privateKey, publicKey, type: keyType } = key
 
   if (!privateKey)
@@ -939,6 +932,7 @@ export async function sign(
       } = await WebAuthnP256.sign({
         challenge: payload,
         credentialId: credential.id,
+        getFn: webAuthn?.getFn,
         rpId,
         userVerification: requireVerification ? 'required' : 'preferred',
       })
@@ -976,6 +970,20 @@ export async function sign(
       publicKey,
     })
   return signature
+}
+
+export declare namespace sign {
+  type Parameters = {
+    payload: Hex.Hex
+    storage?: Storage.Storage | undefined
+    webAuthn?:
+      | {
+          createFn?: WebAuthnP256.createCredential.Options['createFn']
+          getFn?: WebAuthnP256.sign.Options['getFn']
+        }
+      | undefined
+    wrap?: boolean | undefined
+  }
 }
 
 /**

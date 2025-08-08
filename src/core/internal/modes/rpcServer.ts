@@ -34,7 +34,7 @@ import * as U from '../utils.js'
  */
 export function rpcServer(parameters: rpcServer.Parameters = {}) {
   const config = parameters
-  const { mock, persistPreCalls = true } = config
+  const { mock, persistPreCalls = true, webAuthn } = config
 
   let address_internal: Hex.Hex | undefined
   let email_internal: string | undefined
@@ -74,6 +74,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
+              createFn: webAuthn?.createFn,
               label:
                 label ||
                 `${eoa.address.slice(0, 8)}\u2026${eoa.address.slice(-6)}`,
@@ -370,6 +371,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
             // a session key if the user has provided one.
             const webAuthnSignature = await WebAuthnP256.sign({
               challenge: digest,
+              getFn: webAuthn?.getFn,
               rpId: keystoreHost,
             })
             const response = webAuthnSignature.raw
@@ -540,6 +542,7 @@ export function rpcServer(parameters: rpcServer.Parameters = {}) {
 
         const adminKey = !mock
           ? await Key.createWebAuthnP256({
+              createFn: webAuthn?.createFn,
               label:
                 label || `${address.slice(0, 8)}\u2026${address.slice(-6)}`,
               rpId: keystoreHost,
@@ -860,6 +863,17 @@ export declare namespace rpcServer {
      * @default true
      */
     persistPreCalls?: boolean | undefined
+    /**
+     * WebAuthn configuration.
+     */
+    webAuthn?:
+      | {
+          createFn?:
+            | WebAuthnP256.createCredential.Options['createFn']
+            | undefined
+          getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
+        }
+      | undefined
   }
 }
 
