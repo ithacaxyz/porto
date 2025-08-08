@@ -24,7 +24,7 @@ function SpacerHorizontal(_props: SpacerProps) {
 }
 
 function SpacerVertical({ size }: SpacerProps) {
-  const mode = Frame.useMode()
+  const mode = Frame.useFrame().mode
   return (
     <div
       className={css({
