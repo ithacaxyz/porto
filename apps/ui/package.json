@@ -22,7 +22,7 @@
     "dev": "pnpm run /^dev:.*/",
     "dev:lib": "vite build --watch",
     "dev:css": "panda cssgen --outfile dist/styles.css --watch",
-    "postinstall": "panda codegen"
+    "postinstall": "panda codegen && pnpm build"
   },
   "peerDependencies": {
     "@react-spring/web": ">=10",
@@ -46,10 +46,5 @@
     "unplugin-isolated-decl": "^0.14.6",
     "vite": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
-  },
-  "repository": {
-    "type": "git",
-    "directory": "apps/ui",
-    "url": "https://github.com/ithacaxyz/porto"
   }
 }

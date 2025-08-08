@@ -32,10 +32,5 @@
     "unplugin-icons": "catalog:",
     "vite": "catalog:",
     "vite-tsconfig-paths": "^5.1.4"
-  },
-  "repository": {
-    "type": "git",
-    "directory": "apps/ui-playground",
-    "url": "https://github.com/ithacaxyz/porto"
   }
 }
