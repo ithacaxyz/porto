@@ -340,9 +340,8 @@ export declare namespace iframe {
  *
  * @returns Popup dialog.
  */
-export function popup(options: popup.Options = {}) {
+export function popup() {
   if (typeof window === 'undefined') return noop()
-  const { size = defaultSize } = options
   return from({
     name: 'popup',
     setup(parameters) {
@@ -431,6 +430,9 @@ export function popup(options: popup.Options = {}) {
 
 export declare namespace popup {
   export type Options = {
+    /** Size is not used anymore in popup dialogs.
+     * @deprecated
+     */
     size?: { width: number; height: number } | undefined
   }
 }
