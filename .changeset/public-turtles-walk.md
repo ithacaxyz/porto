@@ -2,4 +2,4 @@
 "porto": patch
 ---
 
-Migrated to Relay v15.
+Migrated to Relay v17.
