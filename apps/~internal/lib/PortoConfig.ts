@@ -26,10 +26,7 @@ const config = {
     }),
     relay: http(Transport.relayUrls.prod.http),
     transports: {
-      [Chains.base.id]: Transport.relayProxy({
-        public: http(undefined, Sentry.httpTransportOptions()),
-        relay: http(undefined, Sentry.httpTransportOptions()),
-      }),
+      [Chains.base.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   stg: {
@@ -42,14 +39,11 @@ const config = {
     relay: http(Transport.relayUrls.stg.http),
     storageKey: 'porto.store.stg',
     transports: {
-      [Chains.baseSepolia.id]: Transport.relayProxy({
-        public: http(undefined, Sentry.httpTransportOptions()),
-        relay: http(undefined, Sentry.httpTransportOptions()),
-      }),
-      [Chains.optimismSepolia.id]: Transport.relayProxy({
-        public: http(undefined, Sentry.httpTransportOptions()),
-        relay: http(undefined, Sentry.httpTransportOptions()),
-      }),
+      [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.optimismSepolia.id]: http(
+        undefined,
+        Sentry.httpTransportOptions(),
+      ),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>
