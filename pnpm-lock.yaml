@@ -737,6 +737,9 @@ importers:
 
   apps/ui-playground:
     dependencies:
+      '@porto/apps':
+        specifier: workspace:*
+        version: link:../~internal
       '@porto/ui':
         specifier: workspace:*
         version: link:../ui
