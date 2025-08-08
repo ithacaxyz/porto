@@ -2,9 +2,9 @@ export { css, cva, cx } from '../styled-system/css'
 export { Button, type ButtonProps } from './Button/Button.js'
 export {
   Frame,
-  type FrameProps,
   type FrameMode,
   type FrameModeWithVariant,
+  type FrameProps,
 } from './Frame/Frame.js'
 export { Input, type InputProps } from './Input/Input.js'
 export {

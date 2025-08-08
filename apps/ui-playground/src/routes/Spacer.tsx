@@ -1,5 +1,5 @@
-import { Button, Frame, Spacer } from '@porto/ui'
 import type { FrameMode } from '@porto/ui'
+import { Button, Frame, Spacer } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'

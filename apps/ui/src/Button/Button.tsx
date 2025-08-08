@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
-import { Frame } from '../Frame/Frame.js'
 import type { FrameMode } from '../Frame/Frame.js'
+import { Frame } from '../Frame/Frame.js'
 
 type ButtonSize = 'small' | 'medium' | 'large'
 
