@@ -295,11 +295,17 @@ export function iframe(options: iframe.Options = {}) {
               )
             return insecure
           })()
+
           const unsupported = includesUnsupported(
             requests.map((x) => x.request),
           )
 
-          if (!headless && (unsupported || insecureProtocol))
+          // if any request is wallet_addFunds, use popup
+          const hasAddFunds = requests?.some(
+            (x) => x.request.method === 'wallet_addFunds',
+          )
+
+          if (!headless && (unsupported || insecureProtocol || hasAddFunds))
             fallback.syncRequests(requests)
           else {
             const requiresConfirm = requests.some((x) =>
