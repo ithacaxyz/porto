@@ -1,4 +1,4 @@
-import { UserAgent } from '@porto/apps'
+import { Env, UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { Frame } from '@porto/ui'
 import { createRootRoute, HeadContent, Outlet } from '@tanstack/react-router'
@@ -9,6 +9,7 @@ import * as Dialog from '~/lib/Dialog'
 import { porto } from '~/lib/Porto'
 import * as Referrer from '~/lib/Referrer'
 import LucideCircleAlert from '~icons/lucide/circle-alert'
+import LucideBadgeCheck from '~icons/lucide/badge-check'
 import { Layout } from './-components/Layout'
 import { UpdateAccount } from './-components/UpdateAccount'
 
@@ -24,6 +25,15 @@ export const Route = createRootRoute({
   }),
 })
 
+const env = (
+  {
+    anvil: 'anvil',
+    dev: 'development',
+    prod: undefined,
+    stg: 'staging',
+  } satisfies Record<Env.Env, string | undefined>
+)[Env.get()]
+
 function RouteComponent() {
   React.useEffect(() => {
     // Note: we already call `porto.ready()` optimistically in `main.tsx`, but
@@ -34,7 +44,6 @@ function RouteComponent() {
   // Optimistically fetch account version (populate cache).
   UpdateAccount.useAccountVersion()
 
-  const { status } = useAccount()
   const mode = Dialog.useStore((state) => state.mode)
   const referrer = Dialog.useStore((state) => state.referrer)
   const customTheme = Dialog.useStore((state) => state.customTheme)
@@ -43,12 +52,6 @@ function RouteComponent() {
     requireUpdatedAccount?: boolean | undefined
   }
   const verifyStatus = Referrer.useVerify()
-
-  const styleMode = React.useMemo(() => {
-    if (mode === 'inline-iframe') return 'iframe' // condense to "iframe" for style simplicity
-    if (mode === 'popup' && UserAgent.isMobile()) return 'popup-mobile'
-    return mode
-  }, [mode])
 
   const { domain, subdomain, icon, url } = React.useMemo(() => {
     const hostnameParts = referrer?.url?.hostname.split('.').slice(-3)
@@ -91,16 +94,37 @@ function RouteComponent() {
         }
         site={{
           icon: typeof icon === 'string' ? icon : (icon?.dark ?? ''),
-          label: 'porto.sh',
-          labelExtended: 'porto.sh',
+          label: (
+            <div className="mr-auto flex shrink items-center gap-1 overflow-hidden whitespace-nowrap font-normal text-[14px] text-th_frame leading-[22px]">
+              {url?.startsWith('cli') ? (
+                referrer?.title
+              ) : url ? (
+                <div className="flex overflow-hidden" title={url}>
+                  {subdomain && (
+                    <>
+                      <div className="truncate">{subdomain}</div>
+                      <div>.</div>
+                    </>
+                  )}
+                  <div>{domain}</div>
+                </div>
+              ) : (
+                'Porto'
+              )}
+              {verifyStatus.data?.status === 'whitelisted' && (
+                <div className="flex items-center justify-center">
+                  <LucideBadgeCheck className="size-4 text-th_accent" />
+                </div>
+              )}
+              {env && (
+                <div className="flex h-5 items-center rounded-full bg-th_badge px-1.25 text-[11.5px] text-th_badge capitalize">
+                  {env}
+                </div>
+              )}
+            </div>
+          ),
         }}
       >
-        {/*<TitleBar
-          mode={mode}
-          ref={titlebarRef}
-          referrer={referrer}
-          verifyStatus={verifyStatus.data?.status}
-        />*/}
         <CheckError>
           <CheckUnsupportedBrowser>
             <CheckReferrer>
