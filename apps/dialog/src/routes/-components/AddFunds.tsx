@@ -42,7 +42,9 @@ export function AddFunds(props: AddFunds.Props) {
   const address = props.address ?? account?.address
 
   const [amount, setAmount] = React.useState<string>(
-    defaultValue ?? presetAmounts[0]!,
+    defaultValue
+      ? Math.ceil(Number(defaultValue)).toString()
+      : presetAmounts[0]!,
   )
   const [view, setView] = React.useState<
     'default' | 'deposit-crypto' | 'error'
