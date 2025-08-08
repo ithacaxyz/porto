@@ -22,14 +22,14 @@ export function LightDarkImage({
     <picture>
       <source media="(prefers-color-scheme: dark)" srcSet={dark} />
       <source media="(prefers-color-scheme: light)" srcSet={light} />
-      <img {...imgProps} src={light} alt={alt} />
+      <img {...imgProps} alt={alt} src={light} />
     </picture>
   ) : (
     // for single color scheme themes (either light or dark),
     // we ignore the browser's color scheme preference, since
     // it could be set to a given color scheme while the dialog
     // theme only supports the other one
-    <img {...imgProps} src={colorScheme === 'light' ? light : dark} alt={alt} />
+    <img {...imgProps} alt={alt} src={colorScheme === 'light' ? light : dark} />
   )
 }
 
