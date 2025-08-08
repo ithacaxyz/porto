@@ -154,7 +154,7 @@ function DemoScreen({
           <>
             <Separator label="First time, or lost access?" />
             <Input
-              autoComplete="off"
+              removeCompletion={true}
               contextual="Optional"
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"

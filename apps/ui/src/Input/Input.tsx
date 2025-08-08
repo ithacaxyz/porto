@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from 'react'
+import { useState } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import type { FrameMode } from '../Frame/Frame.js'
 import { Frame } from '../Frame/Frame.js'
@@ -8,20 +9,28 @@ type InputSize = 'medium' | 'large'
 export interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   contextual?: ReactNode
+  removeCompletion?: boolean
   size?: InputSize | Record<FrameMode, InputSize>
   variant?: 'negative' | 'primary' | 'secondary'
+  value: string
+  formatValue?: (value: string) => string
 }
 
 export function Input({
-  autoComplete,
   className,
   contextual,
   disabled,
+  removeCompletion = true,
   size,
+  value,
+  formatValue,
   ...props
 }: InputProps) {
   const { mode } = Frame.useFrame()
   size ??= { dialog: 'medium', full: 'large' }
+
+  const [isFocused, setIsFocused] = useState(false)
+
   return (
     <div
       className={cx(
@@ -66,6 +75,12 @@ export function Input({
       )}
     >
       <input
+        data-1p-ignore={removeCompletion ? true : undefined}
+        spellCheck={removeCompletion ? false : undefined}
+        autoCapitalize={removeCompletion ? 'off' : undefined}
+        autoComplete={removeCompletion ? 'off' : undefined}
+        autoCorrect={removeCompletion ? 'off' : undefined}
+        disabled={disabled}
         className={cx(
           css({
             _focus: {
@@ -98,9 +113,10 @@ export function Input({
           }),
           className,
         )}
-        data-1p-ignore={autoComplete === 'off' ? true : undefined}
-        disabled={disabled}
+        value={isFocused || !formatValue ? value : formatValue(value)}
         {...props}
+        onBlur={() => setIsFocused(false)}
+        onFocus={() => setIsFocused(true)}
       />
       {contextual && (
         <div

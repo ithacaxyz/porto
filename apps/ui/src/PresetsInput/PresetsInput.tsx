@@ -8,63 +8,71 @@ import { Input } from '../Input/Input.js'
 
 export interface PresetsInputProps {
   className?: string
-  defaultPreset?: string
+  mode?: 'preset' | 'custom'
+  onModeChange?: (mode: 'preset' | 'custom') => void
   onChange: (value: string) => void
   placeholder?: string
   presets: Array<{
-    id: string
     label: ReactNode
     value: string
   }>
+  value: string
+  formatValue?: (value: string) => string
 }
 
 export function PresetsInput({
   className,
-  defaultPreset,
+  mode: controlledMode,
+  onModeChange,
   placeholder,
   onChange,
   presets,
+  value,
+  formatValue,
   ...props
 }: PresetsInputProps) {
   const buttonsRef = useRef<Map<string, HTMLButtonElement>>(new Map())
   const editButtonRef = useRef<HTMLButtonElement>(null)
 
-  const [selectedPreset, setSelectedPreset] = useState(
-    defaultPreset ?? presets[0]?.id ?? '',
+  const [internalMode, setInternalMode] = useState<'preset' | 'custom'>(
+    'preset',
   )
-  const [inputValue, setInputValue] = useState('')
-  const [customMode, setCustomMode] = useState(false)
-  const handlePresetChange = (id: string) => {
-    setSelectedPreset(id)
-    onChange(presets.find((item) => item.id === id)?.value || '')
+  const mode = controlledMode ?? internalMode
+  const customMode = mode === 'custom'
+  const handlePresetChange = (presetValue: string) => {
+    onChange(presetValue)
   }
-  const handleInputChange = (value: string) => {
-    setInputValue(value)
-    onChange(value)
+  const handleInputChange = (newValue: string) => {
+    onChange(newValue)
   }
-  const handleCustomModeChange = (enabled: boolean) => {
-    setCustomMode(enabled)
-    onChange(
-      enabled
-        ? inputValue
-        : presets.find((item) => item.id === selectedPreset)?.value || '',
-    )
+  const handleModeChange = (newMode: 'preset' | 'custom') => {
+    if (controlledMode === undefined) {
+      setInternalMode(newMode)
+    }
+    onModeChange?.(newMode)
+    if (newMode === 'preset' && presets.length > 0) {
+      const currentPreset = presets.find((p) => p.value === value)
+      if (!currentPreset && presets[0]) {
+        onChange(presets[0].value)
+      }
+    }
   }
 
   useEffect(() => {
-    const button = buttonsRef.current.get(selectedPreset)
+    if (mode !== 'preset') return
+    const button = buttonsRef.current.get(value)
     if (
       button &&
       document.activeElement?.parentElement === button.parentElement
     ) {
       button.focus()
     }
-  }, [selectedPreset])
+  }, [value, mode])
 
   const handleRadioKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const currentIndex = presets.findIndex((item) => item.id === selectedPreset)
+    const currentIndex = presets.findIndex((item) => item.value === value)
 
-    let nextIndex: number | undefined
+    let nextIndex: null | number = null
 
     switch (event.key) {
       case 'ArrowLeft':
@@ -79,9 +87,9 @@ export function PresetsInput({
         break
     }
 
-    if (nextIndex !== undefined && presets[nextIndex]) {
-      handlePresetChange((presets[nextIndex] as { id: string }).id)
-    }
+    if (nextIndex === null) return
+    const preset = presets[nextIndex]
+    if (preset) handlePresetChange(preset.value)
   }
 
   const presetsTransition = useTransition(customMode ? [] : presets, {
@@ -93,7 +101,7 @@ export function PresetsInput({
     enter: { opacity: 1, transform: ' scale(1)' },
     from: { opacity: 0, transform: ' scale(0.85)' },
     initial: { opacity: 1, transform: ' scale(1)' },
-    keys: (item) => item.id,
+    keys: (item) => item.value,
     leave: { immediate: true, opacity: 0 },
     trail: 20,
   })
@@ -168,14 +176,15 @@ export function PresetsInput({
                       handleInputChange?.(event.target.value)
                     }
                     onKeyDown={(event) => {
-                      if (event.key === 'Escape' && inputValue.trim() === '') {
-                        handleCustomModeChange(false)
+                      if (event.key === 'Escape') {
+                        handleModeChange('preset')
                         editButtonRef.current?.focus()
                       }
                     }}
                     placeholder={placeholder}
+                    formatValue={formatValue}
                     size="medium"
-                    value={inputValue}
+                    value={value}
                   />
                 </a.div>
               ),
@@ -198,7 +207,7 @@ export function PresetsInput({
             {presetsTransition((styles, item) => (
               // biome-ignore lint/a11y/useSemanticElements: _
               <a.button
-                aria-checked={selectedPreset === item.id}
+                aria-checked={value === item.value}
                 className={css({
                   _active: {
                     transform: 'translateY(1px)',
@@ -225,15 +234,15 @@ export function PresetsInput({
                   outline: 'none',
                   position: 'relative',
                 })}
-                key={item.id}
-                onClick={() => handlePresetChange(item.id)}
+                key={item.value}
+                onClick={() => handlePresetChange(item.value)}
                 ref={(el) => {
-                  if (el) buttonsRef.current.set(item.id, el)
-                  else buttonsRef.current.delete(item.id)
+                  if (el) buttonsRef.current.set(item.value, el)
+                  else buttonsRef.current.delete(item.value)
                 }}
                 role="radio"
                 style={styles}
-                tabIndex={selectedPreset === item.id ? 0 : -1}
+                tabIndex={value === item.value ? 0 : -1}
                 type="button"
                 {...props}
               >
@@ -264,7 +273,7 @@ export function PresetsInput({
           position: 'relative',
           width: 38,
         })}
-        onClick={() => handleCustomModeChange(!customMode)}
+        onClick={() => handleModeChange(customMode ? 'preset' : 'custom')}
         ref={editButtonRef}
         title={customMode ? 'Back to presets' : 'Custom value'}
         type="button"
