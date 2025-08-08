@@ -98,11 +98,6 @@ describe('fromPorto', () => {
                 "https://sepolia.base.org",
               ],
             },
-            "relay": {
-              "http": [
-                "https://base-sepolia-int.rpc.ithaca.xyz",
-              ],
-            },
           },
           "serializers": {
             "transaction": [Function],

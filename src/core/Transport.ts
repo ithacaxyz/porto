@@ -1,5 +1,17 @@
 import { createTransport, type Transport } from 'viem'
 
+export { fallback, http, type Transport, webSocket } from 'viem'
+
+export const relayUrls = {
+  anvil: { http: 'http://localhost:9119' },
+  // TODO: replace with chain-agnostic relay
+  // prod: 'https://rpc.ithaca.xyz',
+  prod: { http: 'https://base-mainnet-int.rpc.ithaca.xyz' },
+  // TODO: replace with chain-agnostic relay
+  // stg: 'https://stg-rpc.ithaca.xyz',
+  stg: { http: 'https://base-sepolia-int.rpc.ithaca.xyz' },
+} as const
+
 export function relayProxy(
   transports: relayProxy.Value,
 ): relayProxy.ReturnType {
