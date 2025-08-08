@@ -22,7 +22,7 @@
     "dev": "pnpm run /^dev:.*/",
     "dev:lib": "vite build --watch",
     "dev:css": "panda cssgen --outfile dist/styles.css --watch",
-    "prebuild": "panda codegen"
+    "postinstall": "panda codegen"
   },
   "peerDependencies": {
     "@react-spring/web": ">=10",
