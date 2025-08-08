@@ -1,6 +1,6 @@
 import { Button } from '@porto/apps/components'
+import { LightDarkImage } from '@porto/ui'
 import { useState } from 'react'
-import { LightDarkImage } from '~/components/LightDarkImage'
 import * as Dialog from '~/lib/Dialog'
 import { Layout } from '~/routes/-components/Layout'
 import { Permissions } from '~/routes/-components/Permissions'
