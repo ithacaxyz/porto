@@ -20,6 +20,7 @@ describe('fromPorto', () => {
               "url": "https://sepolia.basescan.org",
             },
           },
+          "blockTime": 2000,
           "contracts": {
             "disputeGameFactory": {
               "11155111": {
