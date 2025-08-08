@@ -7,9 +7,13 @@ import {
   useRef,
   useState,
 } from 'react'
+import { css, cx } from '~/../styled-system/css'
+import { useSize } from '~/hooks/useSize.js'
+import { LightDarkImage } from '~/LightDarkImage/LightDarkImage.js'
+import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideX from '~icons/lucide/x'
-import { css, cx } from '../../styled-system/css'
-import { useSize } from '../hooks/useSize.js'
+import iconDefaultDark from './icon-default-dark.svg'
+import iconDefaultLight from './icon-default-light.svg'
 
 export interface FrameProps {
   children?: ReactNode
@@ -20,9 +24,11 @@ export interface FrameProps {
 }
 
 type Site = {
-  icon?: string
+  icon?: string | [light: string, dark: string]
   label: ReactNode
   labelExtended?: ReactNode
+  tag?: ReactNode
+  verified?: boolean
 }
 
 export type FrameMode =
@@ -31,26 +37,26 @@ export type FrameMode =
   | { mode: 'dialog'; variant?: 'normal' | 'drawer' }
   | { mode: 'full'; variant?: 'medium' | 'large' }
 
-type FrameContext =
+type FrameContext = {
+  colorScheme: 'light' | 'dark' | 'light dark'
+} & (
   | { mode: 'dialog'; variant: 'normal' | 'drawer' }
   | { mode: 'full'; variant: 'medium' | 'large' }
+)
 
 const FrameContext = createContext<FrameContext>({
+  colorScheme: 'light dark',
   mode: 'full',
   variant: 'medium',
 })
 
-// TODO: remove
-export function useFrameMode() {
-  return useContext(FrameContext).mode
-}
 export function useFrame() {
   return useContext(FrameContext)
 }
 
 export function Frame({
   children,
-  colorScheme,
+  colorScheme = 'light dark',
   mode: mode_,
   onClose,
   site,
@@ -83,14 +89,16 @@ export function Frame({
   const contextValue = useMemo<FrameContext>(() => {
     if (mode === 'dialog')
       return {
+        colorScheme,
         mode: 'dialog',
         variant: variant || 'normal',
       }
     return {
+      colorScheme,
       mode: 'full',
       variant: variant || fullVariantAuto,
     }
-  }, [mode, variant, fullVariantAuto])
+  }, [mode, variant, fullVariantAuto, colorScheme])
 
   useEffect(() => {
     if (!onClose) return
@@ -207,6 +215,11 @@ function FrameBar({
   onClose?: (() => void) | null
   site: Site
 }) {
+  const icon =
+    typeof site.icon === 'string'
+      ? ([site.icon, site.icon] as const)
+      : (site.icon ?? [iconDefaultLight, iconDefaultDark])
+
   return (
     <div
       className={cx(
@@ -216,6 +229,8 @@ function FrameBar({
           display: 'flex',
           flex: '0 0 auto',
           justifyContent: 'space-between',
+          userSelect: 'none',
+          whiteSpace: 'nowrap',
           width: '100%',
         }),
         mode === 'dialog' &&
@@ -272,22 +287,20 @@ function FrameBar({
               }),
           )}
         >
-          <div>
-            {typeof site.icon === 'string' ? (
-              <img
-                alt=""
-                className={css({
-                  borderRadius: 'var(--icon-radius)',
-                  height: 'var(--icon-size)',
-                  width: 'var(--icon-size)',
-                })}
-                height={28}
-                src={site.icon}
-                width={28}
-              />
-            ) : (
-              site.icon
-            )}
+          <div
+            className={css({
+              borderRadius: 'var(--icon-radius)',
+              height: 'var(--icon-size)',
+              overflow: 'hidden',
+              width: 'var(--icon-size)',
+            })}
+          >
+            <LightDarkImage
+              dark={icon[1]}
+              height={28}
+              light={icon[0]}
+              width={28}
+            />
           </div>
           <div>
             <div hidden={mode === 'full'}>{site.label}</div>
@@ -295,6 +308,39 @@ function FrameBar({
               {site.labelExtended ?? site.label}
             </div>
           </div>
+          {site.verified && (
+            <div
+              className={css({
+                alignItems: 'center',
+                display: 'flex',
+                justifyContent: 'center',
+              })}
+            >
+              <LucideBadgeCheck
+                className={css({
+                  color: 'var(--color-th_accent)',
+                  height: 16,
+                  width: 16,
+                })}
+              />
+            </div>
+          )}
+          {site.tag && (
+            <div
+              className={css({
+                alignItems: 'center',
+                backgroundColor: 'var(--background-color-th_badge)',
+                borderRadius: 10,
+                color: 'var(--text-color-th_badge)',
+                display: 'flex',
+                fontSize: 11,
+                height: 20,
+                paddingInline: 5,
+              })}
+            >
+              {site.tag}
+            </div>
+          )}
         </div>
       </div>
       {onClose && <CloseButton mode={mode} onClick={onClose} />}
@@ -350,5 +396,4 @@ function CloseButton({
   )
 }
 
-Frame.useMode = useFrameMode
 Frame.useFrame = useFrame
