@@ -74,7 +74,8 @@ export function contract(parameters: contract.Parameters = {}) {
       keys,
     })
 
-    const delegation = client.chain.contracts?.portoAccount?.address
+    // TODO: fix
+    const delegation = '0xb19b36b1456e65e3a6d514d3f715f204bd59f431'
     if (!delegation)
       throw new Error(
         `contract \`portoAccount\` not found on chain ${client.chain.name}.`,
@@ -177,7 +178,8 @@ export function contract(parameters: contract.Parameters = {}) {
         const { address, internal } = parameters
         const { client } = internal
 
-        const delegation = client.chain.contracts?.portoAccount?.address
+        // TODO: fix
+        const delegation = '0xb19b36b1456e65e3a6d514d3f715f204bd59f431'
         if (!delegation) throw new Error('portoAccount address not found.')
 
         const { data } = await call(client, {

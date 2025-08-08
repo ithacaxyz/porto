@@ -9,6 +9,7 @@ import {
 } from 'viem'
 import type * as Chains from '../core/Chains.js'
 import type { Internal } from '../core/internal/porto.js'
+import * as Transports from '../core/Transports.js'
 import type * as Account from './Account.js'
 import type * as RpcSchema from './RpcSchema.js'
 
@@ -51,10 +52,28 @@ export function fromPorto<
       ].join('\n'),
     )
 
-  const transport =
-    (config_.transports as Record<number, Transport>)[chain.id] ??
-    fallback(chain.rpcUrls.default.http.map((url) => http(url)))
-  if (!transport) throw new Error('transport not found.')
+  const transport = (() => {
+    const transport = config_.transports[chain.id as chains[number]['id']] as
+      | Transport
+      | undefined
+
+    // Check if this transport is a relay proxy. If it is, then we
+    // have a relay to use.
+    const { config } = transport?.({ chain }) ?? {}
+    if (transport && config?.type === 'relayProxy') return transport
+
+    // If the transport is not a relay proxy, and we don't have any
+    // relay URLs to use in the provided chain, throw an error.
+    if (!('relay' in chain.rpcUrls))
+      throw new Error('transport `relayProxy` is required.')
+
+    return Transports.relayProxy({
+      public:
+        transport ??
+        fallback(chain.rpcUrls.default.http.map((url) => http(url))),
+      relay: fallback(chain.rpcUrls.relay.http.map((url) => http(url))),
+    })
+  })()
 
   const key = [id, Json.stringify(chain)].filter(Boolean).join(':')
   if (clientCache.has(key)) return clientCache.get(key)!

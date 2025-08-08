@@ -20,7 +20,6 @@ describe('fromPorto', () => {
               "url": "https://sepolia.basescan.org",
             },
           },
-          "blockTime": 2000,
           "contracts": {
             "disputeGameFactory": {
               "11155111": {
@@ -66,11 +65,7 @@ describe('fromPorto', () => {
                 "blockCreated": 4446677,
               },
             },
-            "portoAccount": {
-              "address": "0xf6c6ac93076be50f087cdfcee0002d34a6f672c0",
-            },
           },
-          "experimental_preconfirmationTime": 200,
           "fees": undefined,
           "formatters": {
             "block": {
@@ -100,8 +95,12 @@ describe('fromPorto', () => {
           "rpcUrls": {
             "default": {
               "http": [
-                "https://base-sepolia-int.rpc.ithaca.xyz",
                 "https://sepolia.base.org",
+              ],
+            },
+            "relay": {
+              "http": [
+                "https://base-sepolia-int.rpc.ithaca.xyz",
               ],
             },
           },
@@ -111,23 +110,20 @@ describe('fromPorto', () => {
           "sourceId": 11155111,
           "testnet": true,
         },
-        "experimental_blockTag": "pending",
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
         "pollingInterval": 1000,
         "request": [Function],
         "transport": {
-          "fetchOptions": undefined,
-          "key": "http",
+          "key": "relayProxy",
           "methods": undefined,
-          "name": "HTTP JSON-RPC",
+          "name": "Relay Proxy",
           "request": [Function],
           "retryCount": 3,
           "retryDelay": 150,
-          "timeout": 10000,
-          "type": "http",
-          "url": "https://base-sepolia-int.rpc.ithaca.xyz",
+          "timeout": undefined,
+          "type": "relayProxy",
         },
         "type": "base",
         "uid": null,

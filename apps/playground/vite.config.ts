@@ -56,7 +56,6 @@ export default defineConfig(({ mode }) => {
               'localhost',
               'prod.localhost',
               'stg.localhost',
-              'dev.localhost',
               'anvil.localhost',
             ],
           }),
