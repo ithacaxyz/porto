@@ -23,8 +23,9 @@ export function GrantAdmin(props: GrantAdmin.Props) {
     authorizeKeys: [Key.from(authorizeKey)],
     feeToken,
   })
-
-  const quote = prepareCallsQuery.data?.capabilities.quote
+  const { capabilities } = prepareCallsQuery.data ?? {}
+  const { feeTotals, quote } = capabilities ?? {}
+  const quotes = quote?.quotes ?? []
 
   return (
     <CheckBalance onReject={onReject} query={prepareCallsQuery}>
@@ -46,8 +47,9 @@ export function GrantAdmin(props: GrantAdmin.Props) {
           <ActionRequest.PaneWithDetails
             error={prepareCallsQuery.error}
             errorMessage="An error occurred while calculating fees. This may be due to network issues or insufficient funds."
-            loading={prepareCallsQuery.isPending}
-            quote={quote}
+            feeTotals={feeTotals}
+            quotes={quotes}
+            status={prepareCallsQuery.status}
           >
             {account?.address && (
               <div className="flex items-center justify-center gap-2">

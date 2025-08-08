@@ -1,6 +1,7 @@
 export {
   useAddFunds,
   useAdmins,
+  useAssets,
   useConnect,
   useDisconnect,
   useGrantAdmin,

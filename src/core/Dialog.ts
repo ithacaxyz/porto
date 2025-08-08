@@ -596,10 +596,12 @@ export function createThemeController(): ThemeController {
     },
     setTheme(theme) {
       lastTheme = theme
-      messenger?.send('__internal', {
-        theme,
-        type: 'set-theme',
-      })
+      messenger
+        ?.send('__internal', {
+          theme,
+          type: 'set-theme',
+        })
+        .catch(() => {})
     },
   }
   return controller

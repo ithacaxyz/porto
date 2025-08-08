@@ -11,7 +11,7 @@ import { parseEther } from 'viem'
 import { WalletActions } from 'porto/viem'
 import { client } from './config'
 
-const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 
 const permissions = await WalletActions.grantPermissions(client, { // [!code focus]
   expiry: Math.floor(Date.now() / 1_000) + 60 * 60, // 1 hour // [!code focus]
@@ -50,7 +50,7 @@ import { privateKeyToAccount, parseEther } from 'viem'
 import { WalletActions } from 'porto/viem'
 import { client } from './config'
 
-const token = '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
+const token = '0xaf3b0a5b4becc4fa1dfafe74580efa19a2ea49fa'
 const account = privateKeyToAccount('0x...') // [!code focus]
 
 // Grant permissions with custom key

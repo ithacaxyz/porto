@@ -1,0 +1,11 @@
+<svg viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_975_1182)">
+<rect y="0.5" width="16" height="16" rx="8" fill="var(--background-color-th_badge)"/>
+<path d="M8 5L11.5 8.5M11.5 8.5L8 12M11.5 8.5H4.5" stroke="var(--text-color-th_badge)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_975_1182">
+<rect y="0.5" width="16" height="16" rx="8" fill="var(--text-color-th_badge)"/>
+</clipPath>
+</defs>
+</svg>

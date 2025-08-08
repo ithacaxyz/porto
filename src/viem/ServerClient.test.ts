@@ -20,6 +20,7 @@ describe('fromPorto', () => {
               "url": "https://sepolia.basescan.org",
             },
           },
+          "blockTime": 2000,
           "contracts": {
             "disputeGameFactory": {
               "11155111": {
@@ -66,9 +67,10 @@ describe('fromPorto', () => {
               },
             },
             "portoAccount": {
-              "address": "0x6d0f5e01df440cb03d67c076d220b412d5d011ca",
+              "address": "0xf6c6ac93076be50f087cdfcee0002d34a6f672c0",
             },
           },
+          "experimental_preconfirmationTime": 200,
           "fees": undefined,
           "formatters": {
             "block": {
@@ -98,7 +100,7 @@ describe('fromPorto', () => {
           "rpcUrls": {
             "default": {
               "http": [
-                "https://base-sepolia.rpc.ithaca.xyz",
+                "https://base-sepolia-int.rpc.ithaca.xyz",
                 "https://sepolia.base.org",
               ],
             },
@@ -109,6 +111,7 @@ describe('fromPorto', () => {
           "sourceId": 11155111,
           "testnet": true,
         },
+        "experimental_blockTag": "pending",
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -124,7 +127,7 @@ describe('fromPorto', () => {
           "retryDelay": 150,
           "timeout": 10000,
           "type": "http",
-          "url": "https://base-sepolia.rpc.ithaca.xyz",
+          "url": "https://base-sepolia-int.rpc.ithaca.xyz",
         },
         "type": "base",
         "uid": null,

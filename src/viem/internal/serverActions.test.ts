@@ -4,10 +4,11 @@ import { getCode, readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import * as TestActions from '../../../test/src/actions.js'
 import * as Anvil from '../../../test/src/anvil.js'
-import { exp1Abi, exp1Address, getPorto } from '../../../test/src/porto.js'
+import * as TestConfig from '../../../test/src/config.js'
 import * as Key from '../Key.js'
 import { sendCalls } from '../ServerActions.js'
 import {
+  getAssets,
   getCallsStatus,
   getCapabilities,
   getKeys,
@@ -19,14 +20,199 @@ import {
   verifySignature,
 } from './serverActions.js'
 
-const { client, delegation } = getPorto()
-
-const feeToken = exp1Address
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
+const contracts = TestConfig.getContracts(porto)
 
 describe('health', () => {
   test('default', async () => {
     const version = await health(client)
     expect(version).toBeDefined()
+  })
+})
+
+describe('getAssets', () => {
+  test('default', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+    })
+
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
+
+    expect(result[client.chain.id]).toBeDefined()
+    expect(Array.isArray(result[client.chain.id])).toBe(true)
+  })
+
+  test('behavior: with native balance', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await TestActions.setBalance(client, {
+      address: account.address,
+      value: Value.fromEther('10'),
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+    })
+
+    const chainAssets = result[client.chain.id]!
+
+    const nativeAsset = chainAssets.find((asset) => BigInt(asset.balance) > 0n)
+    expect(nativeAsset).toBeDefined()
+    expect(nativeAsset!.type).toBeOneOf(['native', 'erc20'])
+    expect(BigInt(nativeAsset!.balance)).toBeGreaterThan(0n)
+  })
+
+  test('behavior: with ERC20 tokens', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await sendCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [account.address, Value.fromEther('1000')],
+          functionName: 'mint',
+          to: contracts.exp1.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+    })
+
+    const chainAssets = result[client.chain.id]!
+
+    // Find ERC20 asset
+    const erc20Asset = chainAssets.find(
+      (asset) =>
+        asset.address?.toLowerCase() === contracts.exp1.address.toLowerCase(),
+    )
+    expect(erc20Asset).toBeDefined()
+    expect(erc20Asset!.type).toBe('erc20')
+    expect(BigInt(erc20Asset!.balance)).toBeGreaterThan(0n)
+    expect(erc20Asset!.metadata).toBeDefined()
+    expect(erc20Asset!.metadata!.symbol).toBe('EXP')
+  })
+
+  test('behavior: with assetFilter', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const chainId = Hex.fromNumber(client.chain.id)
+
+    await sendCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [account.address, Value.fromEther('1000')],
+          functionName: 'mint',
+          to: contracts.exp1.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+      assetFilter: {
+        [chainId]: [
+          {
+            address: contracts.exp1.address,
+            type: 'erc20',
+          },
+        ],
+      },
+    })
+
+    expect(result[client.chain.id]).toBeDefined()
+    expect(Array.isArray(result[client.chain.id])).toBe(true)
+
+    // Should only return erc20 asset
+    const chainAssets = result[client.chain.id]!
+    expect(chainAssets.every((asset) => asset.type === 'erc20')).toBe(true)
+  })
+
+  test('behavior: with assetTypeFilter', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    // Set native balance and mint tokens
+    await TestActions.setBalance(client, {
+      address: account.address,
+      value: Value.fromEther('10'),
+    })
+
+    await sendCalls(client, {
+      account,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [account.address, Value.fromEther('1000')],
+          functionName: 'mint',
+          to: contracts.exp1.address,
+        },
+      ],
+      feeToken: contracts.exp1.address,
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+      assetTypeFilter: ['erc20'],
+    })
+
+    const chainAssets = result[client.chain.id]!
+
+    expect(chainAssets.every((asset) => asset.type === 'erc20')).toBe(true)
+    expect(chainAssets.find((asset) => asset.type === 'native')).toBeUndefined()
+  })
+
+  test('behavior: with chainFilter', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    const result = await getAssets(client, {
+      account: account.address,
+      chainFilter: [client.chain.id],
+    })
+
+    expect(Object.keys(result)).toEqual(['0', client.chain.id.toString()])
+    expect(result[client.chain.id]).toBeDefined()
+  })
+
+  test('behavior: multiple chains; one unsupported', async () => {
+    const key = Key.createHeadlessWebAuthnP256()
+    const account = await TestActions.createAccount(client, {
+      keys: [key],
+    })
+
+    await expect(
+      getAssets(client, {
+        account: account.address,
+        chainFilter: [client.chain.id, 999999],
+      }),
+    ).rejects.toThrow('unsupported chain 999999')
   })
 })
 
@@ -44,7 +230,7 @@ describe('getCapabilities', () => {
 
   test('behavior: chainIds', async () => {
     const result = await getCapabilities(client, {
-      chainIds: [client.chain!.id],
+      chainIds: [client.chain.id],
     })
 
     const keys = Object.keys(result)
@@ -80,7 +266,7 @@ describe('getCallsStatus', () => {
       ],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -119,7 +305,7 @@ describe('getKeys', () => {
     await sendCalls(client, {
       account,
       calls: [],
-      feeToken,
+      feeToken: contracts.exp1.address,
     })
 
     const result = await getKeys(client, {
@@ -162,7 +348,7 @@ describe('getKeys', () => {
     await sendCalls(client, {
       account,
       calls: [],
-      feeToken,
+      feeToken: contracts.exp1.address,
     })
 
     const result = await getKeys(client, {
@@ -182,14 +368,14 @@ describe('getKeys', () => {
       permissions: {
         calls: [
           {
-            to: exp1Address,
+            to: contracts.exp1.address,
           },
         ],
         spend: [
           {
             limit: Value.fromEther('100'),
             period: 'minute',
-            token: exp1Address,
+            token: contracts.exp1.address,
           },
         ],
       },
@@ -203,7 +389,7 @@ describe('getKeys', () => {
       account,
       authorizeKeys: [key_3],
       calls: [],
-      feeToken,
+      feeToken: contracts.exp1.address,
     })
     await waitForCallsStatus(client, {
       id,
@@ -245,7 +431,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
       ],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -280,14 +466,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const userBalance_pre = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
     const merchantBalance_pre = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
       args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
@@ -296,16 +482,16 @@ describe('prepareCalls + sendPreparedCalls', () => {
       address: userAccount.address,
       calls: [
         {
-          abi: exp1Abi,
+          abi: contracts.exp1.abi,
           args: [userAccount.address, Value.fromEther('1')],
           functionName: 'mint',
-          to: exp1Address,
+          to: contracts.exp1.address,
         },
       ],
       capabilities: {
         meta: {
           feePayer: merchantAccount.address,
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -337,14 +523,14 @@ describe('prepareCalls + sendPreparedCalls', () => {
     })
 
     const userBalance_post = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
     const merchantBalance_post = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      abi: contracts.exp1.abi,
+      address: contracts.exp1.address,
       args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
@@ -356,6 +542,187 @@ describe('prepareCalls + sendPreparedCalls', () => {
     expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
+  // TODO: enable interop on anvil
+  test.runIf(!Anvil.enabled)(
+    'behavior: required funds (prefunded on all chains)',
+    async () => {
+      const key = Key.createHeadlessWebAuthnP256()
+      const account = await TestActions.createAccount(client, {
+        keys: [key],
+      })
+
+      const chain_dest = TestConfig.chains[1]
+
+      // fund account on destination chain
+      const client_dest = TestConfig.getServerClient(porto, {
+        chainId: chain_dest!.id,
+      })
+      await TestActions.setBalance(client_dest, {
+        address: account.address,
+        value: Value.fromEther('2'),
+      })
+
+      const balance_pre_source = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
+
+      const request = await prepareCalls(client, {
+        address: account.address,
+        calls: [
+          {
+            abi: contracts.exp1.abi,
+            args: [account.address, Value.fromEther('5')],
+            functionName: 'transfer',
+            to: contracts.exp1.address,
+          },
+        ],
+        capabilities: {
+          meta: {
+            feeToken: contracts.exp1.address,
+          },
+          requiredFunds: [
+            {
+              address: contracts.exp1.address,
+              value: Value.fromEther('5'),
+            },
+          ],
+        },
+        chain: chain_dest,
+        key: {
+          prehash: false,
+          publicKey: key.publicKey,
+          type: 'webauthnp256',
+        },
+      })
+
+      const signature = await Key.sign(key, {
+        payload: request.digest,
+        wrap: false,
+      })
+
+      const { id } = await sendPreparedCalls(client, {
+        context: request.context,
+        key: request.key!,
+        signature,
+      })
+
+      const { status } = await waitForCallsStatus(client, {
+        id,
+      })
+      expect(status).toBe('success')
+
+      const balance_post_source = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
+      expect(balance_post_source).toBeLessThan(balance_pre_source)
+
+      const contracts_dest = TestConfig.getContracts(porto, {
+        chainId: chain_dest!.id,
+      })
+      const balance_post_destination = await readContract(client_dest, {
+        abi: contracts_dest.exp1.abi,
+        address: contracts_dest.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
+      expect(balance_post_destination).toBeGreaterThan(Value.fromEther('5'))
+      expect(balance_post_destination).toBeLessThan(Value.fromEther('5.0005'))
+    },
+  )
+
+  // TODO: enable interop on anvil
+  test.runIf(!Anvil.enabled)(
+    'behavior: required funds (not prefunded on destination chain)',
+    async () => {
+      const key = Key.createHeadlessWebAuthnP256()
+      const account = await TestActions.createAccount(client, {
+        keys: [key],
+      })
+
+      const balance_pre = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
+
+      const alice = Hex.random(20)
+      const chain_dest = TestConfig.chains[1]
+
+      const request = await prepareCalls(client, {
+        address: account.address,
+        calls: [
+          {
+            abi: contracts.exp1.abi,
+            args: [alice, Value.fromEther('50')],
+            functionName: 'transfer',
+            to: contracts.exp1.address,
+          },
+        ],
+        capabilities: {
+          meta: {
+            feeToken: contracts.exp1.address,
+          },
+          requiredFunds: [
+            {
+              address: contracts.exp1.address,
+              value: Value.fromEther('50'),
+            },
+          ],
+        },
+        chain: chain_dest,
+        key: {
+          prehash: false,
+          publicKey: key.publicKey,
+          type: 'webauthnp256',
+        },
+      })
+
+      const signature = await Key.sign(key, {
+        payload: request.digest,
+        wrap: false,
+      })
+
+      const { id } = await sendPreparedCalls(client, {
+        context: request.context,
+        key: request.key!,
+        signature,
+      })
+
+      const { status } = await waitForCallsStatus(client, {
+        id,
+      })
+      expect(status).toBe('success')
+
+      const client_dest = TestConfig.getServerClient(porto, {
+        chainId: chain_dest!.id,
+      })
+
+      const balance_post = await readContract(client, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [account.address],
+        functionName: 'balanceOf',
+      })
+      expect(balance_post).toBeLessThan(balance_pre)
+
+      const balance_dest = await readContract(client_dest, {
+        abi: contracts.exp1.abi,
+        address: contracts.exp1.address,
+        args: [alice],
+        functionName: 'balanceOf',
+      })
+      expect(balance_dest).toBeGreaterThanOrEqual(Value.fromEther('50'))
+      expect(balance_dest).toBeLessThan(Value.fromEther('50.0005'))
+    },
+  )
+
   test('behavior: contract calls', async () => {
     const key = Key.createHeadlessWebAuthnP256()
     const account = await TestActions.createAccount(client, {
@@ -366,15 +733,15 @@ describe('prepareCalls + sendPreparedCalls', () => {
       address: account.address,
       calls: [
         {
-          abi: exp1Abi,
+          abi: contracts.exp1.abi,
           args: [account.address, Value.fromEther('1')],
           functionName: 'mint',
-          to: exp1Address,
+          to: contracts.exp1.address,
         },
       ],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: {
@@ -408,7 +775,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         calls: [],
         capabilities: {
           meta: {
-            feeToken,
+            feeToken: contracts.exp1.address,
           },
         },
         key: {
@@ -449,7 +816,7 @@ describe('prepareCalls + sendPreparedCalls', () => {
         ],
         capabilities: {
           meta: {
-            feeToken,
+            feeToken: contracts.exp1.address,
           },
         },
         key: {
@@ -497,7 +864,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey],
-      delegation,
+      delegation: contracts.delegation.address,
     })
 
     const { digests } = request
@@ -531,7 +898,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       calls: [],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: adminKey,
@@ -582,7 +949,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey, adminKey_2],
-      delegation,
+      delegation: contracts.delegation.address,
     })
 
     const { digests } = request
@@ -616,7 +983,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       calls: [],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: adminKey,
@@ -656,22 +1023,22 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       permissions: [
         {
           selector: AbiFunction.getSelector(
-            AbiFunction.fromAbi(exp1Abi, 'mint'),
+            AbiFunction.fromAbi(contracts.exp1.abi, 'mint'),
           ),
-          to: exp1Address,
+          to: contracts.exp1.address,
           type: 'call',
         },
         {
           selector: AbiFunction.getSelector(
-            AbiFunction.fromAbi(exp1Abi, 'transfer'),
+            AbiFunction.fromAbi(contracts.exp1.abi, 'transfer'),
           ),
-          to: exp1Address,
+          to: contracts.exp1.address,
           type: 'call',
         },
         {
           limit: Value.fromEther('100'),
           period: 'minute',
-          token: exp1Address,
+          token: contracts.exp1.address,
           type: 'spend',
         },
       ],
@@ -688,7 +1055,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
     const request = await prepareUpgradeAccount(client, {
       address: eoa.address,
       authorizeKeys: [adminKey, sessionKey],
-      delegation,
+      delegation: contracts.delegation.address,
     })
 
     const { digests } = request
@@ -722,7 +1089,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
       calls: [],
       capabilities: {
         meta: {
-          feeToken,
+          feeToken: contracts.exp1.address,
         },
       },
       key: adminKey,
@@ -762,7 +1129,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
             type: 'secp256k1',
           },
         ],
-        delegation,
+        delegation: contracts.delegation.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"
@@ -793,7 +1160,7 @@ describe('prepareUpgradeAccount + upgradeAccount', () => {
             type: 'secp256k1',
           },
         ],
-        delegation,
+        delegation: contracts.delegation.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Schema.CoderError: Expected \`0x\${string}\`, actual "INVALID!"

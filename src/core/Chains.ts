@@ -13,7 +13,23 @@ export function define<const chain extends Chain>(chain: chain): chain {
   return chain
 }
 
-export const anvil = /*#__PURE__*/ define({
+export const anvilLeros = /*#__PURE__*/ define({
+  ...chains.anvil,
+  contracts: {
+    ...chains.anvil.contracts,
+    portoAccount: {
+      address: '0xb19b36b1456e65e3a6d514d3f715f204bd59f431',
+    },
+  },
+  id: 31_339,
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:9120'],
+    },
+  },
+})
+
+export const anvilParos = /*#__PURE__*/ define({
   ...chains.anvil,
   contracts: {
     ...chains.anvil.contracts,
@@ -28,14 +44,31 @@ export const anvil = /*#__PURE__*/ define({
   },
 })
 
+export const anvilTinos = /*#__PURE__*/ define({
+  ...chains.anvil,
+  contracts: {
+    ...chains.anvil.contracts,
+    portoAccount: {
+      address: '0xb19b36b1456e65e3a6d514d3f715f204bd59f431',
+    },
+  },
+  id: 31_338,
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:9120'],
+    },
+  },
+})
+
 export const base = /*#__PURE__*/ define({
   ...chains.base,
   contracts: {
     ...chains.base.contracts,
     portoAccount: {
-      address: '0x664ab8c20b629422f5398e58ff8989e68b26a4e6',
+      address: '0xf6c6ac93076be50f087cdfcee0002d34a6f672c0',
     },
   },
+  experimental_preconfirmationTime: 200,
   rpcUrls: {
     default: {
       http: [
@@ -51,39 +84,37 @@ export const baseSepolia = /*#__PURE__*/ define({
   contracts: {
     ...chains.baseSepolia.contracts,
     portoAccount: {
-      address: '0x6d0f5e01df440cb03d67c076d220b412d5d011ca',
+      address: '0xf6c6ac93076be50f087cdfcee0002d34a6f672c0',
     },
   },
+  experimental_preconfirmationTime: 200,
   rpcUrls: {
     default: {
       http: [
-        'https://base-sepolia.rpc.ithaca.xyz',
+        'https://base-sepolia-int.rpc.ithaca.xyz',
         ...chains.baseSepolia.rpcUrls.default.http,
       ],
     },
   },
 })
 
-export const portoDev = /*#__PURE__*/ define({
-  blockExplorers: {
-    default: {
-      apiUrl: '',
-      name: '',
-      url: '',
-    },
-  },
+export const optimismSepolia = /*#__PURE__*/ define({
+  ...chains.optimismSepolia,
   contracts: {
+    ...chains.optimismSepolia.contracts,
     portoAccount: {
-      address: '0xc6e7df5e7b4f2a278906862b61205850344d4e7d',
+      address: '0xf6c6ac93076be50f087cdfcee0002d34a6f672c0',
     },
   },
-  id: 28_404,
-  name: 'Porto Dev',
-  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+  experimental_preconfirmationTime: 200,
   rpcUrls: {
-    default: { http: ['https://porto-dev.rpc.ithaca.xyz'] },
+    default: {
+      http: [
+        'https://optimism-sepolia-int.rpc.ithaca.xyz',
+        ...chains.optimismSepolia.rpcUrls.default.http,
+      ],
+    },
   },
-  testnet: true,
 })
 
 export const portoDevLeros = /*#__PURE__*/ define({

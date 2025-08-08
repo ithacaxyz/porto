@@ -16,3 +16,10 @@ interface ImportMeta {
 declare namespace NodeJS {
   interface ProcessEnv extends Environment {}
 }
+
+declare module 'virtual:chain-icons' {
+  import type { ComponentType } from 'react'
+
+  export const icons: Record<number, ComponentType>
+  export type Icons = typeof icons
+}

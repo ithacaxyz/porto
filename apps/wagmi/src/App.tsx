@@ -21,6 +21,7 @@ import {
   useDisconnect,
   useReadContract,
   useSendCalls,
+  useSwitchChain,
   useWaitForCallsStatus,
 } from 'wagmi'
 import { exp1Address, exp1Config } from './contracts'
@@ -50,6 +51,7 @@ export function App() {
     <>
       <Account />
       <Connect />
+      <SwitchChain />
       <UpgradeAccount />
       {isConnected && (
         <>
@@ -58,6 +60,7 @@ export function App() {
           <GrantAdmin />
           <Mint />
           <AddFunds />
+          <Assets />
         </>
       )}
     </>
@@ -154,6 +157,30 @@ function Connect() {
       <pre>{connect.data ? stringify(connect.data, null, 2) : ''}</pre>
       <div>{connect.status}</div>
       <div>{connect.error?.message}</div>
+    </div>
+  )
+}
+
+function SwitchChain() {
+  const chainId = useChainId()
+  const { chains, switchChain, error } = useSwitchChain()
+
+  return (
+    <div>
+      <h2>Switch Chain</h2>
+
+      {chains.map((chain) => (
+        <button
+          disabled={chainId === chain.id}
+          key={chain.id}
+          onClick={() => switchChain({ chainId: chain.id })}
+          type="button"
+        >
+          {chain.name}
+        </button>
+      ))}
+
+      {error?.message}
     </div>
   )
 }
@@ -373,6 +400,27 @@ function AddFunds() {
       {data?.id && <div>Transaction Hash: {data.id}</div>}
       {addFunds.isError && (
         <div>Error: {(error as BaseError).shortMessage || error?.message}</div>
+      )}
+      <br />
+    </div>
+  )
+}
+
+function Assets() {
+  const { data, ...assets } = Hooks.useAssets()
+
+  return (
+    <div>
+      <h2>Assets</h2>
+      <button onClick={() => assets.refetch()} type="button">
+        Refetch
+      </button>
+      {data && <pre>{stringify(data, null, 2)}</pre>}
+      {assets.isError && (
+        <div>
+          Error:{' '}
+          {(assets.error as BaseError).shortMessage || assets.error?.message}
+        </div>
       )}
       <br />
     </div>

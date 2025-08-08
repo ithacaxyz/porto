@@ -15,10 +15,13 @@ import { MerchantRpc } from '../../src/server/index.js'
 import {
   accountNewProxyAddress,
   accountProxyAddress,
+  escrowAddress,
   exp1Address,
+  funderAddress,
   orchestratorAddress,
   simulatorAddress,
 } from '../../test/src/_generated/addresses.js'
+import * as Anvil from '../../test/src/anvil.js'
 import { rpcServer } from '../../test/src/prool.js'
 
 const commitSha =
@@ -60,6 +63,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       {
+        // TODO(next): support `anvilTinos` & `anvilLeros`.
         async configureServer(server) {
           if (process.env.ANVIL !== 'true') return
 
@@ -122,19 +126,23 @@ export default defineConfig(({ mode }) => {
               containerName: 'playground',
               delegationProxy: accountProxy,
               endpoint: anvilConfig.rpcUrl,
+              escrow: escrowAddress,
               feeTokens: [
                 '0x0000000000000000000000000000000000000000',
                 exp1Address,
               ],
+              funder: funderAddress,
+              funderOwnerKey: Anvil.account.relay.privateKey,
+              funderSigningKey: Anvil.account.relay.privateKey,
               http: {
                 port: rpcServerConfig.port,
               },
               intentGasBuffer: 100_000n,
+              interopToken: exp1Address,
               legacyDelegationProxy: legacyAccountProxy,
               orchestrator: orchestratorAddress,
               simulator: simulatorAddress,
               txGasBuffer: 100_000n,
-              version: 'v14.2.1',
             }).start()
             await fetch(rpcServerConfig.rpcUrl + '/start')
             return stop

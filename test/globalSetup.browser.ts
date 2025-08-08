@@ -20,7 +20,6 @@ export default async function () {
       })
     })
   })
-
   // TODO: use prool rpc server instance directly.
   let process_playground: process.ChildProcess | undefined
   if (import.meta.env.VITE_DEFAULT_ENV === 'anvil')
@@ -42,7 +41,6 @@ export default async function () {
         })
       })
     })
-
   return () => {
     process_dialog?.kill()
     process_playground?.kill()

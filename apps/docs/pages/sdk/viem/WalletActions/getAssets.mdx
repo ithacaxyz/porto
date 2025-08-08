@@ -1,0 +1,54 @@
+# `WalletActions.getAssets`
+
+Viem Action for retrieving assets for an account. Uses [`wallet_getAssets`](/sdk/rpc/wallet_getAssets) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { WalletActions } from 'porto/viem'
+import { client } from './config'
+
+const assets = await WalletActions.getAssets(client, { // [!code focus]
+  account: '0x...', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/viem/config.ts]
+```
+
+:::
+
+## Parameters
+
+### account
+
+`Address`
+
+Account address to get assets for.
+
+### chainFilter
+
+`number[] | undefined`
+
+Filter assets by chain. If not provided, all chains will be included.
+
+### assetTypeFilter
+
+`AssetType[] | undefined`
+
+Filter assets by type. If not provided, all asset types will be included.
+
+### assetFilter
+
+`Record<Hex, { address: Address, type: AssetType }> | undefined`
+
+Filter assets by address and type. If not provided, all assets will be included.
+
+## Return value
+
+`Record<number, Asset[]>`
+
+Assets for the account.

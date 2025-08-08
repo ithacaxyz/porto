@@ -389,15 +389,26 @@ export declare namespace createWebCryptoP256 {
  * @param serialized - Serialized key.
  * @returns Key.
  */
-export function deserialize(serialized: Serialized): Key {
+export function deserialize(
+  serialized: Serialized,
+  options: deserialize.Options = {},
+): Key {
+  const { chainId } = options
   const publicKey = serialized.publicKey
   const type = (fromSerializedKeyType as any)[serialized.keyType]
   return from({
+    chainId,
     expiry: serialized.expiry,
     publicKey,
     role: serialized.isSuperAdmin ? 'admin' : 'session',
     type,
   })
+}
+
+export declare namespace deserialize {
+  type Options = {
+    chainId?: number | undefined
+  }
 }
 
 /**
@@ -426,7 +437,9 @@ export function deserialize(serialized: Serialized): Key {
  */
 export function from<type extends Key['type']>(
   key: from.Value<type>,
+  options: from.Options = {},
 ): Extract<Key, { type: type }> {
+  const { chainId = key.chainId } = options
   const { expiry = 0, id, prehash = false, role = 'admin', type } = key
 
   const publicKey = (() => {
@@ -446,6 +459,7 @@ export function from<type extends Key['type']>(
 
   return {
     ...key,
+    chainId,
     expiry,
     hash: hash({
       publicKey,
@@ -465,6 +479,10 @@ export declare namespace from {
       type: type | Key['type']
     }
   >
+
+  type Options = {
+    chainId?: number | undefined
+  }
 }
 
 /**
@@ -492,11 +510,13 @@ export declare namespace from {
  * @returns P256 key.
  */
 export function fromP256(parameters: fromP256.Parameters) {
-  const { expiry, feeLimit, permissions, privateKey, role } = parameters
+  const { chainId, expiry, feeLimit, permissions, privateKey, role } =
+    parameters
   const publicKey = PublicKey.toHex(P256.getPublicKey({ privateKey }), {
     includePrefix: false,
   })
   return from({
+    chainId,
     expiry,
     feeLimit,
     permissions,
@@ -512,7 +532,7 @@ export function fromP256(parameters: fromP256.Parameters) {
 export declare namespace fromP256 {
   type Parameters = Pick<
     from.Value,
-    'expiry' | 'feeLimit' | 'permissions' | 'role'
+    'chainId' | 'expiry' | 'feeLimit' | 'permissions' | 'role'
   > & {
     /** P256 private key. */
     privateKey: Hex.Hex
@@ -528,7 +548,11 @@ export declare namespace fromP256 {
  * @param serverKey - RPC Server key.
  * @returns Key.
  */
-export function fromRpcServer(serverKey: Server): Key {
+export function fromRpcServer(
+  serverKey: Server,
+  options: { chainId: number },
+): Key {
+  const { chainId } = options
   const { publicKey } = serverKey
 
   const isAddress =
@@ -559,6 +583,7 @@ export function fromRpcServer(serverKey: Server): Key {
   }
 
   return from({
+    chainId,
     expiry: serverKey.expiry,
     permissions: permissions as Permissions,
     publicKey: serverKey.publicKey,
@@ -663,6 +688,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
     includePrefix: false,
   })
   return from({
+    chainId: parameters.chainId,
     expiry: parameters.expiry ?? 0,
     feeLimit: parameters.feeLimit,
     id,
@@ -680,7 +706,7 @@ export function fromWebAuthnP256(parameters: fromWebAuthnP256.Parameters) {
 export declare namespace fromWebAuthnP256 {
   type Parameters = Pick<
     from.Value,
-    'expiry' | 'feeLimit' | 'id' | 'permissions' | 'role'
+    'chainId' | 'expiry' | 'feeLimit' | 'id' | 'permissions' | 'role'
   > & {
     /** WebAuthnP256 Credential. */
     credential: Pick<WebAuthnP256.P256Credential, 'id' | 'publicKey'>
@@ -723,6 +749,7 @@ export function fromHeadlessWebAuthnP256(
     includePrefix: false,
   })
   return from({
+    chainId: parameters.chainId,
     expiry: parameters.expiry ?? 0,
     feeLimit: parameters.feeLimit,
     permissions: parameters.permissions,
@@ -740,7 +767,7 @@ export function fromHeadlessWebAuthnP256(
 export declare namespace fromHeadlessWebAuthnP256 {
   type Parameters = Pick<
     from.Value,
-    'expiry' | 'feeLimit' | 'permissions' | 'role'
+    'chainId' | 'expiry' | 'feeLimit' | 'permissions' | 'role'
   > & {
     /** P256 private key. */
     privateKey: Hex.Hex
@@ -774,12 +801,13 @@ export declare namespace fromHeadlessWebAuthnP256 {
  * @returns WebCryptoP256 key.
  */
 export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
-  const { expiry, feeLimit, keyPair, permissions, role } = parameters
+  const { chainId, expiry, feeLimit, keyPair, permissions, role } = parameters
   const { privateKey } = keyPair
   const publicKey = PublicKey.toHex(keyPair.publicKey, {
     includePrefix: false,
   })
   return from({
+    chainId,
     expiry,
     feeLimit,
     permissions,
@@ -794,7 +822,7 @@ export function fromWebCryptoP256(parameters: fromWebCryptoP256.Parameters) {
 export declare namespace fromWebCryptoP256 {
   type Parameters = Pick<
     from.Value,
-    'expiry' | 'feeLimit' | 'permissions' | 'role'
+    'chainId' | 'expiry' | 'feeLimit' | 'permissions' | 'role'
   > & {
     /** P256 private key. */
     keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>

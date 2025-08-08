@@ -5,6 +5,7 @@
  * API is solidified & stable.
  */
 
+import * as Hex from 'ox/Hex'
 import {
   type Call,
   type Calls,
@@ -14,6 +15,7 @@ import {
   type Narrow,
   type PrivateKeyAccount,
   type Transport,
+  type ValueOf,
   type WalletActions as viem_WalletActions,
 } from 'viem'
 import {
@@ -31,7 +33,8 @@ import {
 } from 'viem/actions'
 import * as Schema from '../core/internal/schema/schema.js'
 import * as RpcSchema from '../core/RpcSchema.js'
-import type * as Account from './Account.js'
+import * as Account from './Account.js'
+import type { GetAccountParameter } from './internal/utils.js'
 import type * as RpcSchema_viem from './RpcSchema.js'
 
 const supportedWalletActions = [
@@ -71,6 +74,54 @@ export declare namespace addFunds {
   type Parameters = RpcSchema.wallet_addFunds.Parameters
 
   type ReturnType = RpcSchema.wallet_addFunds.Response
+}
+
+export async function getAssets<
+  chain extends Chain | undefined,
+  account extends Account.Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  ...parameters: account extends undefined
+    ? [getAssets.Parameters<account>]
+    : [getAssets.Parameters<account>] | []
+): Promise<getAssets.ReturnType> {
+  const { account = client.account, ...rest } = parameters[0] ?? {}
+
+  const account_ = account ? Account.from(account) : undefined
+  if (!account_) throw new Error('account is required')
+
+  const method = 'wallet_getAssets' as const
+  type Method = typeof method
+  const response = await client.request<
+    Extract<RpcSchema_viem.Wallet[number], { Method: Method }>
+  >({
+    method,
+    params: [
+      Schema.encodeSync(RpcSchema.wallet_getAssets.Parameters)({
+        ...rest,
+        account: account_.address,
+      }),
+    ],
+  })
+
+  const value = Schema.decodeSync(RpcSchema.wallet_getAssets.Response)(response)
+  const decoded = Object.entries(value).reduce(
+    (acc, [key, value]) => {
+      acc[Hex.toNumber(key as `0x${string}`)] = value
+      return acc
+    },
+    {} as Record<number, ValueOf<typeof value>>,
+  )
+
+  return decoded
+}
+
+export declare namespace getAssets {
+  type Parameters<account extends Account.Account | undefined = undefined> =
+    Omit<RpcSchema.wallet_getAssets.Parameters, 'account'> &
+      GetAccountParameter<account>
+
+  type ReturnType = RpcSchema.wallet_getAssets.Response
 }
 
 export async function connect(

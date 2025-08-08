@@ -93,6 +93,12 @@ export const methodPolicies = [
     requireUpdatedAccount: false,
   },
   {
+    method: 'wallet_getAssets',
+    modes: {
+      headless: true,
+    },
+  },
+  {
     method: 'wallet_getCallsStatus',
     modes: {
       headless: true,
@@ -112,6 +118,12 @@ export const methodPolicies = [
   },
   {
     method: 'wallet_sendPreparedCalls',
+    modes: {
+      headless: true,
+    },
+  },
+  {
+    method: 'wallet_switchEthereumChain',
     modes: {
       headless: true,
     },

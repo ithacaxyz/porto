@@ -5,6 +5,7 @@ const relayMethods = [
   'wallet_feeTokens',
   'wallet_getAccounts',
   'wallet_getCapabilities',
+  'wallet_getAssets',
   'wallet_getCallsStatus',
   'wallet_getKeys',
   'wallet_prepareCalls',
@@ -32,6 +33,14 @@ const defaultConfigs = {
       [Chains.baseSepolia.id]: fallback([
         http('https://base-sepolia.rpc.ithaca.xyz'),
         http('https://sepolia.base.org', {
+          methods: {
+            exclude: relayMethods,
+          },
+        }),
+      ]),
+      [Chains.optimismSepolia.id]: fallback([
+        http('https://optimism-sepolia.rpc.ithaca.xyz'),
+        http('https://sepolia.optimism.io', {
           methods: {
             exclude: relayMethods,
           },

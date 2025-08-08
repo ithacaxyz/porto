@@ -1,23 +1,17 @@
-import { Value } from 'ox'
+import { Hex, Value } from 'ox'
 import { Key, ServerActions } from 'porto'
 import { MerchantRpc } from 'porto/server'
 import { readContract, waitForCallsStatus } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import * as TestActions from '../../test/src/actions.js'
+import * as TestConfig from '../../test/src/config.js'
 import * as Http from '../../test/src/http.js'
-import {
-  exp1Abi,
-  exp1Address,
-  exp2Abi,
-  exp2Address,
-  getPorto,
-} from '../../test/src/porto.js'
 import type { ExactPartial } from '../core/internal/types.js'
 
-const { client, porto } = getPorto()
-
-const feeToken = exp1Address
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
+const contracts = TestConfig.getContracts(porto)
 
 let server: Http.Server | undefined
 async function setup(
@@ -52,14 +46,12 @@ describe('rpcHandler', () => {
     })
 
     const userBalance_pre = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      ...contracts.exp1,
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
     const merchantBalance_pre = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      ...contracts.exp1,
       args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
@@ -68,13 +60,13 @@ describe('rpcHandler', () => {
       account: userAccount,
       calls: [
         {
-          abi: exp1Abi,
+          abi: contracts.exp1.abi,
           args: [userAccount.address, Value.fromEther('1')],
           functionName: 'mint',
-          to: exp1Address,
+          to: contracts.exp1.address,
         },
       ],
-      feeToken,
+      feeToken: contracts.exp1.address,
       merchantRpcUrl: server.url,
     })
 
@@ -83,14 +75,12 @@ describe('rpcHandler', () => {
     })
 
     const userBalance_post = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      ...contracts.exp1,
       args: [userAccount.address],
       functionName: 'balanceOf',
     })
     const merchantBalance_post = await readContract(client, {
-      abi: exp1Abi,
-      address: exp1Address,
+      ...contracts.exp1,
       args: [merchantAccount.address],
       functionName: 'balanceOf',
     })
@@ -106,7 +96,7 @@ describe('rpcHandler', () => {
     const { server, merchantAccount } = await setup({
       sponsor: (request) =>
         // Only sponsor calls targeting the exp1Address
-        request.calls.every((call) => call.to === exp1Address),
+        request.calls.every((call) => call.to === contracts.exp1.address),
     })
 
     const userKey = Key.createHeadlessWebAuthnP256()
@@ -117,14 +107,12 @@ describe('rpcHandler', () => {
     {
       // Test 1: Calls satisfy the sponsor condition.
       const userBalance_pre = await readContract(client, {
-        abi: exp1Abi,
-        address: exp1Address,
+        ...contracts.exp1,
         args: [userAccount.address],
         functionName: 'balanceOf',
       })
       const merchantBalance_pre = await readContract(client, {
-        abi: exp1Abi,
-        address: exp1Address,
+        ...contracts.exp1,
         args: [merchantAccount.address],
         functionName: 'balanceOf',
       })
@@ -133,13 +121,13 @@ describe('rpcHandler', () => {
         account: userAccount,
         calls: [
           {
-            abi: exp1Abi,
+            abi: contracts.exp1.abi,
             args: [userAccount.address, Value.fromEther('1')],
             functionName: 'mint',
-            to: exp1Address,
+            to: contracts.exp1.address,
           },
         ],
-        feeToken,
+        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       })
 
@@ -148,14 +136,12 @@ describe('rpcHandler', () => {
       })
 
       const userBalance_post = await readContract(client, {
-        abi: exp1Abi,
-        address: exp1Address,
+        ...contracts.exp1,
         args: [userAccount.address],
         functionName: 'balanceOf',
       })
       const merchantBalance_post = await readContract(client, {
-        abi: exp1Abi,
-        address: exp1Address,
+        ...contracts.exp1,
         args: [merchantAccount.address],
         functionName: 'balanceOf',
       })
@@ -170,14 +156,12 @@ describe('rpcHandler', () => {
     {
       // Test 2: Calls do not satisfy the sponsor condition.
       const userBalance_pre = await readContract(client, {
-        abi: exp2Abi,
-        address: exp2Address,
+        ...contracts.exp2,
         args: [userAccount.address],
         functionName: 'balanceOf',
       })
       const merchantBalance_pre = await readContract(client, {
-        abi: exp1Abi,
-        address: exp1Address,
+        ...contracts.exp1,
         args: [merchantAccount.address],
         functionName: 'balanceOf',
       })
@@ -186,13 +170,13 @@ describe('rpcHandler', () => {
         account: userAccount,
         calls: [
           {
-            abi: exp2Abi,
+            abi: contracts.exp2.abi,
             args: [userAccount.address, Value.fromEther('1')],
             functionName: 'mint',
-            to: exp2Address,
+            to: contracts.exp2.address,
           },
         ],
-        feeToken,
+        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       })
 
@@ -201,14 +185,12 @@ describe('rpcHandler', () => {
       })
 
       const userBalance_post = await readContract(client, {
-        abi: exp2Abi,
-        address: exp2Address,
+        ...contracts.exp2,
         args: [userAccount.address],
         functionName: 'balanceOf',
       })
       const merchantBalance_post = await readContract(client, {
-        abi: exp1Abi,
-        address: exp1Address,
+        ...contracts.exp1,
         args: [merchantAccount.address],
         functionName: 'balanceOf',
       })
@@ -219,6 +201,92 @@ describe('rpcHandler', () => {
       // Check if merchant was NOT debited the fee payment.
       expect(merchantBalance_post).toEqual(merchantBalance_pre)
     }
+  })
+
+  // TODO: unskip when merchant account works with interop
+  test.skip('behavior: required funds', async () => {
+    const { server, merchantAccount } = await setup()
+
+    const chain_dest = TestConfig.chains[1]
+    const client_dest = TestConfig.getServerClient(porto, {
+      chainId: chain_dest!.id,
+    })
+
+    // Deploy merchant account on destination chain.
+    const { id } = await ServerActions.sendCalls(client_dest, {
+      account: merchantAccount,
+      calls: [],
+      feeToken: contracts.exp1.address,
+    })
+    await waitForCallsStatus(client_dest, {
+      id,
+    })
+
+    await TestActions.setBalance(client_dest, {
+      address: merchantAccount.address,
+    })
+
+    const userKey = Key.createHeadlessWebAuthnP256()
+    const userAccount = await TestActions.createAccount(client, {
+      keys: [userKey],
+    })
+
+    const userBalance_pre = await readContract(client, {
+      ...contracts.exp1,
+      args: [userAccount.address],
+      functionName: 'balanceOf',
+    })
+    const merchantBalance_pre = await readContract(client, {
+      ...contracts.exp1,
+      args: [merchantAccount.address],
+      functionName: 'balanceOf',
+    })
+
+    const alice = Hex.random(20)
+
+    const result = await ServerActions.sendCalls(client, {
+      account: userAccount,
+      calls: [
+        {
+          abi: contracts.exp1.abi,
+          args: [alice, Value.fromEther('50')],
+          functionName: 'transfer',
+          to: contracts.exp1.address,
+        },
+      ],
+      chain: chain_dest,
+      feeToken: contracts.exp1.address,
+      merchantRpcUrl: server.url,
+      requiredFunds: [
+        {
+          address: contracts.exp1.address,
+          value: Value.fromEther('50'),
+        },
+      ],
+    })
+
+    await waitForCallsStatus(client, {
+      id: result.id,
+    })
+
+    const userBalance_post = await readContract(client, {
+      ...contracts.exp1,
+      args: [userAccount.address],
+      functionName: 'balanceOf',
+    })
+    const merchantBalance_post = await readContract(client, {
+      ...contracts.exp1,
+      args: [merchantAccount.address],
+      functionName: 'balanceOf',
+    })
+
+    // Check if user was credited with 1 EXP.
+    expect(userBalance_post).toBeLessThanOrEqual(
+      userBalance_pre - Value.fromEther('50'),
+    )
+
+    // Check if merchant was debited the fee payment.
+    expect(merchantBalance_post).toBeLessThan(merchantBalance_pre)
   })
 
   test('error: contract error', async () => {
@@ -234,17 +302,17 @@ describe('rpcHandler', () => {
         account: userAccount,
         calls: [
           {
-            abi: exp1Abi,
+            abi: contracts.exp1.abi,
             args: [
               '0x0000000000000000000000000000000000000000',
               userAccount.address,
               Value.fromEther('1'),
             ],
             functionName: 'transferFrom',
-            to: exp1Address,
+            to: contracts.exp1.address,
           },
         ],
-        feeToken,
+        feeToken: contracts.exp1.address,
         merchantRpcUrl: server.url,
       }),
     ).rejects.toThrowError('InsufficientAllowance')

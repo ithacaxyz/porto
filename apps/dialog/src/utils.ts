@@ -1,5 +1,23 @@
 import { Value } from 'ox'
 
+export namespace PriceFormatter {
+  /**
+   * Formats a number or bigint to a currency-formatted string.
+   *
+   * @param value - The number or bigint to format.
+   * @returns The formatted string.
+   */
+  export function format(value: number | bigint) {
+    return numberIntl.format(value)
+  }
+
+  /** @internal */
+  const numberIntl = new Intl.NumberFormat('en-US', {
+    currency: 'USD',
+    style: 'currency',
+  })
+}
+
 export namespace StringFormatter {
   export function truncate(
     str: string,

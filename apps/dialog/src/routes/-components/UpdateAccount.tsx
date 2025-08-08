@@ -43,9 +43,12 @@ export function UpdateAccount(props: UpdateAccount.Props) {
     enabled: !!account?.address && !!accountImplementation,
     feeToken,
   })
+
   const request = prepareCallsQuery.data
   const digest = request?.digest
-  const quote = request?.capabilities.quote
+  const { capabilities } = request ?? {}
+  const { feeTotals, quote } = capabilities ?? {}
+  const quotes = quote?.quotes ?? []
 
   // TODO: consider using EIP-1193 Provider + `wallet_sendPreparedCalls` in
   // the future (for case where the account wants to self-relay).
@@ -113,8 +116,9 @@ export function UpdateAccount(props: UpdateAccount.Props) {
           <ActionRequest.PaneWithDetails
             error={error}
             errorMessage="An error occurred while calculating fees."
-            loading={isPending}
-            quote={quote}
+            feeTotals={feeTotals}
+            quotes={quotes}
+            status={isPending ? 'pending' : prepareCallsQuery.status}
           >
             <div className="flex items-center justify-center gap-2">
               <div className="font-mono text-th_base-secondary tabular-nums">

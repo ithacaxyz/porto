@@ -3,11 +3,12 @@ import { verifyHash, verifyMessage } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 
 import { createAccount } from '../../test/src/actions.js'
-import { getPorto } from '../../test/src/porto.js'
+import * as TestConfig from '../../test/src/config.js'
 import * as Key from '../viem/Key.js'
 import * as Account from './Account.js'
 
-const { client } = getPorto()
+const porto = TestConfig.getPorto()
+const client = TestConfig.getServerClient(porto)
 
 describe('from', () => {
   test('default', () => {
@@ -27,6 +28,7 @@ describe('from', () => {
         "address": "0x0000000000000000000000000000000000000001",
         "keys": [
           {
+            "chainId": undefined,
             "expiry": 42069,
             "feeLimit": undefined,
             "hash": "0xed7ac7c7b35b77e97be67b84f5889e0ab3ecc69ab65d57db191e11f8811e9965",
