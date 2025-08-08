@@ -2,7 +2,7 @@ import { type Env, type ExecutionContext, Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { poweredBy } from 'hono/powered-by'
 import type { BlankEnv, BlankSchema, Schema } from 'hono/types'
-import * as RequestListener from './internal/RequestListener.js'
+import * as RequestListener from './internal/requestListener.js'
 
 export function Router<
   env extends Env = BlankEnv,
