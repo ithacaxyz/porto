@@ -103,7 +103,6 @@ export function PresetsInput({
     initial: { opacity: 1, transform: ' scale(1)' },
     keys: (item) => item.value,
     leave: { immediate: true, opacity: 0 },
-    trail: 20,
   })
 
   const customInputTransition = useTransition(customMode, {
