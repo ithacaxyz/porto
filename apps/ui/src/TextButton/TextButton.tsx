@@ -9,7 +9,6 @@ export interface TextButtonProps
 export function TextButton({ children, className, ...props }: TextButtonProps) {
   return (
     <button
-      type="button"
       className={cx(
         css({
           _active: {
@@ -19,13 +18,14 @@ export function TextButton({ children, className, ...props }: TextButtonProps) {
             outline: '2px solid var(--color-th_focus)',
             outlineOffset: 2,
           },
-          color: 'inherit',
-          fontSize: 'inherit',
-          cursor: 'pointer!',
           borderRadius: 2,
+          color: 'inherit',
+          cursor: 'pointer!',
+          fontSize: 'inherit',
           whiteSpace: 'nowrap',
         }),
       )}
+      type="button"
       {...props}
     >
       {children}

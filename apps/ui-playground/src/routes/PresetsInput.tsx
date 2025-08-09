@@ -43,12 +43,12 @@ function PresetsInputComponent() {
           <div className="flex flex-col gap-4">
             <PresetsInput
               adornments={{
-                start: '$',
                 end: {
+                  label: 'Max. $500',
                   type: 'fill',
                   value: '500',
-                  label: 'Max. $500',
                 },
+                start: '$',
               }}
               mode={mode}
               onChange={setValue}

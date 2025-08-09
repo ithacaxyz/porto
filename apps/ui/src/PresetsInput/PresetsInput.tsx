@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import LucidePencil from '~icons/lucide/pencil'
 import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
-import { Input } from '../Input/Input.js'
 import type { InputProps } from '../Input/Input.js'
+import { Input } from '../Input/Input.js'
 
 export interface PresetsInputProps {
   adornments?: InputProps['adornments']

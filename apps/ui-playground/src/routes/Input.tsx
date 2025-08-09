@@ -41,9 +41,9 @@ function InputComponent() {
               if (Number.isNaN(numValue)) return value
               return new Intl.NumberFormat('en-US', {
                 currency: 'USD',
-                style: 'currency',
-                notation: 'standard',
                 currencyDisplay: 'name',
+                notation: 'standard',
+                style: 'currency',
               }).format(numValue)
             }}
             placeholder="$200"
@@ -53,16 +53,16 @@ function InputComponent() {
       <ComponentScreen.Section surface="base" title="Adornments">
         <div className="flex flex-col gap-4">
           <DemoInput
-            size="medium"
             adornments={{
-              start: '$',
               end: {
-                type: 'fill',
                 label: 'Max. $500',
+                type: 'fill',
                 value: '500',
               },
+              start: '$',
             }}
             placeholder="200"
+            size="medium"
           />
         </div>
       </ComponentScreen.Section>

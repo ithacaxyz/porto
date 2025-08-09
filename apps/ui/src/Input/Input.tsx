@@ -1,5 +1,5 @@
 import type { InputHTMLAttributes, ReactNode, RefObject } from 'react'
-import { useState, useRef } from 'react'
+import { useRef, useState } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
 import type { FrameMode } from '../Frame/Frame.js'
 import { Frame } from '../Frame/Frame.js'
@@ -78,18 +78,18 @@ export function Input({
           variants: {
             size: {
               large: {
+                '--adornment-font-size': 13,
+                '--input-padding-inline': '20px',
                 borderRadius: 26,
                 fontSize: 18,
                 height: 52,
-                '--input-padding-inline': '20px',
-                '--adornment-font-size': 13,
               },
               medium: {
+                '--adornment-font-size': 12,
+                '--input-padding-inline': '16px',
                 borderRadius: 8,
                 fontSize: 15,
                 height: 38,
-                '--input-padding-inline': '16px',
-                '--adornment-font-size': 12,
               },
             },
           },
@@ -114,7 +114,6 @@ export function Input({
         />
       )}
       <input
-        ref={inputRef}
         autoCapitalize={removeCompletion ? 'off' : undefined}
         autoComplete={removeCompletion ? 'off' : undefined}
         autoCorrect={removeCompletion ? 'off' : undefined}
@@ -142,10 +141,11 @@ export function Input({
         )}
         data-1p-ignore={removeCompletion ? true : undefined}
         disabled={disabled}
-        spellCheck={removeCompletion ? false : undefined}
         onChange={(event) => {
           onChange(event.target.value)
         }}
+        ref={inputRef}
+        spellCheck={removeCompletion ? false : undefined}
         value={isFocused || !formatValue ? value : formatValue(value)}
         {...props}
         onBlur={() => setIsFocused(false)}
@@ -180,9 +180,9 @@ function Adornment({
         css({
           alignItems: 'center',
           display: 'flex',
+          fontSize: 'var(--adornment-font-size)',
           height: '100%',
           paddingInline: 'var(--input-padding-inline)',
-          fontSize: 'var(--adornment-font-size)',
         }),
         position === 'start' &&
           css({
