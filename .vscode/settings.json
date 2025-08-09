@@ -43,6 +43,7 @@
   },
 
   "files.exclude": {
+    "**/.tanstack/**": true,
     "**/.vercel/**": true,
     "**/.wrangler/**": true,
     "**/*.tsbuildinfo": true
@@ -51,6 +52,10 @@
     "**/routeTree.gen.ts": true
   },
   "javascript.preferences.autoImportFileExcludePatterns": ["**/index.js"],
+  "markdownlint.config": {
+    "first-line-heading": false,
+    "no-inline-html": false
+  },
   "search.exclude": {
     "**/_/**": true,
     "**/dist/**": true,
