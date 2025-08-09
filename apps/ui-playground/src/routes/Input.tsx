@@ -1,7 +1,7 @@
-import type { ComponentPropsWithRef } from 'react'
-import { useState } from 'react'
 import { Input } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
+import type { ComponentPropsWithRef } from 'react'
+import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 
 export const Route = createFileRoute('/Input')({
@@ -26,22 +26,43 @@ function InputComponent() {
       </ComponentScreen.Section>
       <ComponentScreen.Section surface="base" title="Contextual">
         <div className="flex flex-col gap-4">
-          <DemoInput contextual="Optional" placeholder="Placeholder" />
+          <DemoInput
+            adornments={{ end: 'Optional' }}
+            placeholder="Placeholder"
+          />
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section surface="base" title="Unfocused Value">
         <div className="flex flex-col gap-4">
           <DemoInput
-            placeholder="$200"
             formatValue={(value) => {
               if (value.trim() === '') return ''
-              const numValue = parseFloat(value)
-              if (isNaN(numValue)) return value
+              const numValue = Number.parseFloat(value)
+              if (Number.isNaN(numValue)) return value
               return new Intl.NumberFormat('en-US', {
-                style: 'currency',
                 currency: 'USD',
+                style: 'currency',
+                notation: 'standard',
+                currencyDisplay: 'name',
               }).format(numValue)
             }}
+            placeholder="$200"
+          />
+        </div>
+      </ComponentScreen.Section>
+      <ComponentScreen.Section surface="base" title="Adornments">
+        <div className="flex flex-col gap-4">
+          <DemoInput
+            size="medium"
+            adornments={{
+              start: '$',
+              end: {
+                type: 'fill',
+                label: 'Max. $500',
+                value: '500',
+              },
+            }}
+            placeholder="200"
           />
         </div>
       </ComponentScreen.Section>
@@ -50,16 +71,10 @@ function InputComponent() {
 }
 
 function DemoInput(
-  props: Omit<ComponentPropsWithRef<typeof Input>, 'value'> & {
+  props: Omit<ComponentPropsWithRef<typeof Input>, 'value' | 'onChange'> & {
     value?: string
   },
 ) {
   const [value, setValue] = useState('')
-  return (
-    <Input
-      value={value}
-      onChange={(event) => setValue(event.target.value)}
-      {...props}
-    />
-  )
+  return <Input {...props} onChange={setValue} value={value} />
 }

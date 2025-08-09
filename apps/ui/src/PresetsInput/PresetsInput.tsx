@@ -5,22 +5,22 @@ import LucidePencil from '~icons/lucide/pencil'
 import LucideX from '~icons/lucide/x'
 import { css, cx } from '../../styled-system/css'
 import { Input } from '../Input/Input.js'
+import type { InputProps } from '../Input/Input.js'
 
 export interface PresetsInputProps {
+  adornments?: InputProps['adornments']
   className?: string
   mode?: 'preset' | 'custom'
   onModeChange?: (mode: 'preset' | 'custom') => void
   onChange: (value: string) => void
   placeholder?: string
-  presets: Array<{
-    label: ReactNode
-    value: string
-  }>
+  presets: Array<{ label: ReactNode; value: string }>
   value: string
   formatValue?: (value: string) => string
 }
 
 export function PresetsInput({
+  adornments,
   className,
   mode: controlledMode,
   onModeChange,
@@ -166,15 +166,15 @@ export function PresetsInput({
                   style={styles}
                 >
                   <Input
+                    adornments={adornments}
                     autoFocus
                     className={css({
                       borderRadius: 16,
                       flex: 1,
                       minWidth: 200,
                     })}
-                    onChange={(event) =>
-                      handleInputChange?.(event.target.value)
-                    }
+                    formatValue={formatValue}
+                    onChange={handleInputChange}
                     onKeyDown={(event) => {
                       if (event.key === 'Escape') {
                         handleModeChange('preset')
@@ -182,7 +182,6 @@ export function PresetsInput({
                       }
                     }}
                     placeholder={placeholder}
-                    formatValue={formatValue}
                     size="medium"
                     value={value}
                   />
