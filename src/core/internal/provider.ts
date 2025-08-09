@@ -50,11 +50,11 @@ export function from<
   const provider = ox_Provider.from({
     ...emitter,
     async request(request_) {
-      let request: RpcRequest.parseRequest.ReturnType
+      let request: RpcRequest.validate.ReturnType<typeof RpcRequest.Schema>
       try {
-        request = RpcRequest.parseRequest(request_)
+        request = RpcRequest.validate(RpcRequest.Schema)(request_)
       } catch (e) {
-        const error = e as RpcRequest.parseRequest.Error
+        const error = e as RpcRequest.validate.Error
         if (!(error instanceof RpcResponse.MethodNotSupportedError)) throw error
 
         // catch unsupported methods
@@ -1166,7 +1166,7 @@ async function getMerchantRpcUrl(
     const response = await fetch(defaultMerchantRpcUrl)
       .then((x) => x.text())
       .catch(() => undefined)
-    if (response !== 'hello porto') {
+    if (response !== 'ok') {
       await storage.setItem('porto.merchant-rpc', false)
       return undefined
     }

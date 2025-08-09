@@ -1,9 +1,9 @@
 import { bench, describe } from 'vitest'
-import { parseRequest } from './request.js'
+import { Schema, validate } from './request.js'
 
 describe('Request', () => {
-  bench('parseRequest', () => {
-    parseRequest({
+  bench('validate', () => {
+    validate(Schema)({
       method: 'wallet_connect',
       params: [
         {
