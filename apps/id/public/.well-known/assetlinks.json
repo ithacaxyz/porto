@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.hazelnutcloud.risewalletapp",
+      "sha256_cert_fingerprints": [
+        "2F:55:5F:6D:72:63:5E:CD:B1:C7:CA:C2:76:3B:3D:A0:7D:9D:7F:37:6F:5D:65:74:8F:21:AC:E7:1E:29:49:81"
+      ]
+    }
+  }
+]
