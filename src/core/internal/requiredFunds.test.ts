@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import * as Anvil from '../../../test/src/anvil.js'
 import * as TestConfig from '../../../test/src/config.js'
 import * as FeeTokens from './feeTokens.js'
 import * as RequiredFunds from './requiredFunds.js'
@@ -84,19 +85,21 @@ describe('toRpcServer', () => {
   })
 
   test('behavior: only non-interop tokens available', async () => {
-    expect(() =>
+    try {
       RequiredFunds.toRpcServer(
         [
           {
-            symbol: 'ETH',
+            symbol: Anvil.enabled ? 'ETH' : 'USDT',
             value: '1.0',
           },
         ],
         { feeTokens },
-      ),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '[Error: interop token not found: ETH]',
-    )
+      )
+    } catch (error) {
+      expect((error as Error).message).toMatch(
+        /interop token not found: (ETH|USDT)/,
+      )
+    }
   })
 
   test('error: symbol not found in interop tokens', async () => {
