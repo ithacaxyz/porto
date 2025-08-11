@@ -65,7 +65,12 @@ export function Frame({
       if (height === 0) return
       if (containerRef.current)
         containerRef.current.style.setProperty('--screen-height', `${height}px`)
-      if (mode === 'dialog') onHeight?.(height + 33)
+      if (mode === 'dialog')
+        onHeight?.(
+          height +
+            33 + // 32px + 1px border for the frame bar in dialog mode
+            2, // frame top & bottom borders
+        )
     },
     [currentScreen, onHeight, mode],
   )
