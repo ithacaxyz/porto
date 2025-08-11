@@ -21,7 +21,7 @@ function GetStartedDemo() {
   const emailFilled = Boolean(email.trim())
 
   return (
-    <Screen screenKey="get-started">
+    <Screen>
       <Screen.Header
         content={
           <>
@@ -59,7 +59,7 @@ function GetStartedDemo() {
 
 function SignInDemo() {
   return (
-    <Screen screenKey="sign-in">
+    <Screen>
       <Screen.Header
         content={
           <>
@@ -83,7 +83,7 @@ function ActionRequestDemo() {
   const [viewDetails, setViewDetails] = useState(false)
 
   return (
-    <Screen screenKey="action-request">
+    <Screen>
       <Screen.Header icon={<PhStarFourBold />} title="Review action" />
       <div
         className={css({
