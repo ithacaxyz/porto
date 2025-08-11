@@ -48,7 +48,7 @@ services:
       - state:/app
     environment:
       RELAY_MNEMONIC: "test test test test test test test test test test test junk"
-      RELAY_FUNDER_KEY: "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+      RELAY_FUNDER_SIGNER_KEY: "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
     command: --config-only --registry /app/registry.yaml --funder-signing-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6 --funder-owner-key 0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6
     healthcheck:
       test: ["CMD", "cast", "rpc", "--rpc-url", "http://localhost:9119", "health"]
