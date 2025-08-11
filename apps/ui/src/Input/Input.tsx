@@ -4,13 +4,6 @@ import { Frame } from '../Frame/Frame.js'
 
 type InputSize = 'medium' | 'large'
 
-export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  contextual?: ReactNode
-  size?: InputSize | Record<Frame.Mode, InputSize>
-  variant?: 'negative' | 'primary' | 'secondary'
-}
-
 export function Input({
   autoComplete,
   className,
@@ -18,9 +11,12 @@ export function Input({
   disabled,
   size,
   ...props
-}: InputProps) {
-  const { mode } = Frame.useFrame()
+}: Input.Props) {
   size ??= { dialog: 'medium', full: 'large' }
+
+  const frame = Frame.useFrame(true)
+  const mode = frame?.mode ?? 'dialog'
+
   return (
     <div
       className={cx(
@@ -127,4 +123,13 @@ export function Input({
       )}
     </div>
   )
+}
+
+export namespace Input {
+  export interface Props
+    extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+    contextual?: ReactNode
+    size?: InputSize | Record<Frame.Mode, InputSize>
+    variant?: 'negative' | 'primary' | 'secondary'
+  }
 }

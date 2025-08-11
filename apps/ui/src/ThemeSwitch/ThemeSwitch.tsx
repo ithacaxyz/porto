@@ -6,18 +6,12 @@ import { IconSun } from './IconSun'
 
 type ColorScheme = 'light' | 'dark'
 
-export interface ThemeSwitchProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange'> {
-  colorScheme: ColorScheme
-  onChange: (colorScheme: ColorScheme) => void
-}
-
 export function ThemeSwitch({
   className,
   colorScheme,
   onChange,
   ...props
-}: ThemeSwitchProps) {
+}: ThemeSwitch.Props) {
   return (
     <button
       aria-checked={colorScheme === 'dark'}
@@ -99,4 +93,12 @@ function ColorSchemeIcon({
       {colorScheme === 'dark' ? <IconMoon /> : <IconSun />}
     </a.div>
   )
+}
+
+export namespace ThemeSwitch {
+  export interface Props
+    extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange'> {
+    colorScheme: ColorScheme
+    onChange: (colorScheme: ColorScheme) => void
+  }
 }

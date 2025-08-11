@@ -2,18 +2,14 @@ import type { HTMLAttributes } from 'react'
 import { css, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
 
-export interface SeparatorProps extends HTMLAttributes<HTMLDivElement> {
-  label?: string
-  size?: 'small' | 'medium'
-}
-
 export function Separator({
   label,
   className,
   size,
   ...props
-}: SeparatorProps) {
-  const { mode } = Frame.useFrame()
+}: Separator.Props) {
+  const frame = Frame.useFrame(true)
+  const mode = frame?.mode ?? 'dialog'
   size ??= mode === 'dialog' ? 'small' : 'medium'
   return (
     <div
@@ -52,4 +48,11 @@ export function Separator({
       />
     </div>
   )
+}
+
+export namespace Separator {
+  export interface Props extends HTMLAttributes<HTMLDivElement> {
+    label?: string
+    size?: 'small' | 'medium'
+  }
 }

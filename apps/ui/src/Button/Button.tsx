@@ -4,20 +4,6 @@ import { Frame } from '../Frame/Frame.js'
 
 type ButtonSize = 'small' | 'medium' | 'large'
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  icon?: ReactNode
-  size?: ButtonSize | Record<Frame.Mode, ButtonSize>
-  variant?:
-    | 'negative'
-    | 'negative-secondary'
-    | 'positive'
-    | 'primary'
-    | 'secondary'
-    | 'strong'
-  shape?: 'normal' | 'square' // TODO: implement
-  wide?: boolean
-}
-
 export function Button({
   children,
   className,
@@ -28,7 +14,7 @@ export function Button({
   variant = 'secondary',
   wide,
   ...props
-}: ButtonProps) {
+}: Button.Props) {
   const frame = Frame.useFrame(true)
   size ??= { dialog: 'medium', full: 'large' }
   return (
@@ -141,4 +127,20 @@ export function Button({
       {children}
     </button>
   )
+}
+
+export namespace Button {
+  export interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
+    icon?: ReactNode
+    size?: ButtonSize | Record<Frame.Mode, ButtonSize>
+    variant?:
+      | 'negative'
+      | 'negative-secondary'
+      | 'positive'
+      | 'primary'
+      | 'secondary'
+      | 'strong'
+    shape?: 'normal' | 'square' // TODO: implement
+    wide?: boolean
+  }
 }
