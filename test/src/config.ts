@@ -24,7 +24,7 @@ export function getPorto(
   } = parameters
 
   const relayUrl =
-    relayRpcUrl ??
+    relayRpcUrl ||
     relayUrls[env as keyof typeof relayUrls].http +
       (env === 'anvil' ? `/${poolId}` : '')
 
