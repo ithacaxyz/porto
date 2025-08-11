@@ -1,17 +1,18 @@
 import { cva, cx, type VariantProps } from 'cva'
 import { Address } from 'ox'
 import type * as React from 'react'
+import { Screen } from '@porto/ui'
+import { IndeterminateLoader } from '@porto/apps/components'
 
 import { StringFormatter } from '~//utils'
-import { DialogScreen } from '~/components/DialogScreen'
 import ChevronDown from '~icons/lucide/chevron-down'
 
 export function Layout(props: Layout.Props) {
-  const { children, loading, loadingTitle } = props
+  const { children, loading = false, loadingTitle } = props
   return (
-    <DialogScreen loading={loading} loadingTitle={loadingTitle}>
-      {children}
-    </DialogScreen>
+    <Screen>
+      {loading ? <IndeterminateLoader title={loadingTitle ?? ''} /> : children}
+    </Screen>
   )
 }
 

@@ -1,13 +1,12 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
-import type { FrameMode } from '../Frame/Frame.js'
 import { Frame } from '../Frame/Frame.js'
 
 type ButtonSize = 'small' | 'medium' | 'large'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode
-  size?: ButtonSize | Record<FrameMode, ButtonSize>
+  size?: ButtonSize | Record<Frame.Mode, ButtonSize>
   variant?:
     | 'negative'
     | 'negative-secondary'
@@ -30,7 +29,7 @@ export function Button({
   wide,
   ...props
 }: ButtonProps) {
-  const { mode } = Frame.useFrame()
+  const frame = Frame.useFrame(true)
   size ??= { dialog: 'medium', full: 'large' }
   return (
     <button
@@ -127,7 +126,10 @@ export function Button({
           },
         })({
           buttonVariant: variant,
-          size: typeof size === 'string' ? size : (size[mode] ?? 'medium'),
+          size:
+            typeof size === 'string'
+              ? size
+              : (frame && size[frame.mode]) || 'medium',
         }),
         wide && css({ width: '100%' }),
         className,

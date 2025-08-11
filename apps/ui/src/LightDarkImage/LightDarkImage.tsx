@@ -1,5 +1,5 @@
 import type { ImgHTMLAttributes } from 'react'
-import { useFrame } from '~/Frame/Frame.js'
+import { Frame } from '~/Frame/Frame.js'
 
 export interface LightDarkImageProps
   extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> {
@@ -14,7 +14,8 @@ export function LightDarkImage({
   light,
   ...imgProps
 }: LightDarkImageProps) {
-  const { colorScheme } = useFrame()
+  const frame = Frame.useFrame(true)
+  const colorScheme = frame?.colorScheme ?? 'light dark'
   return colorScheme === 'light dark' ? (
     // if the theme supports both light & dark color schemes,
     // we can rely on `prefers-color-scheme` media queries

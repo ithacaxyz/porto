@@ -1,6 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from 'react'
 import { css, cva, cx } from '../../styled-system/css'
-import type { FrameMode } from '../Frame/Frame.js'
 import { Frame } from '../Frame/Frame.js'
 
 type InputSize = 'medium' | 'large'
@@ -8,7 +7,7 @@ type InputSize = 'medium' | 'large'
 export interface InputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   contextual?: ReactNode
-  size?: InputSize | Record<FrameMode, InputSize>
+  size?: InputSize | Record<Frame.Mode, InputSize>
   variant?: 'negative' | 'primary' | 'secondary'
 }
 

@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -14,59 +15,27 @@ import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideX from '~icons/lucide/x'
 import iconDefaultDark from './icon-default-dark.svg'
 import iconDefaultLight from './icon-default-light.svg'
+import { a, useTransition, useSpring } from '@react-spring/web'
 
-export interface FrameProps {
-  children?: ReactNode
-  colorScheme?: 'light' | 'dark' | 'light dark'
-  mode: FrameModeWithVariant
-  onClose?: (() => void) | null
-  site: Site
-}
-
-type Site = {
-  icon?: string | [light: string, dark: string]
-  label: ReactNode
-  labelExtended?: ReactNode
-  tag?: ReactNode
-  verified?: boolean
-}
-
-export type FrameMode = 'dialog' | 'full'
-
-export type FrameModeWithVariant =
-  | FrameMode
-  | { mode: 'dialog'; variant?: 'normal' | 'drawer' }
-  | { mode: 'full'; variant?: 'medium' | 'large' }
-
-type FrameContext = {
-  colorScheme: 'light' | 'dark' | 'light dark'
-} & (
-  | { mode: 'dialog'; variant: 'normal' | 'drawer' }
-  | { mode: 'full'; variant: 'medium' | 'large' }
-)
-
-const FrameContext = createContext<FrameContext>({
-  colorScheme: 'light dark',
-  mode: 'full',
-  variant: 'medium',
-})
-
-export function useFrame() {
-  return useContext(FrameContext)
-}
+const FrameContext = createContext<Frame.Context | null>(null)
 
 export function Frame({
+  loading,
+  loadingText = 'Loading…',
   children,
   colorScheme = 'light dark',
   mode: mode_,
   onClose,
+  onHeight,
   site,
-}: FrameProps) {
+  screenKey = '',
+}: Frame.Props) {
   const frameRef = useRef<HTMLDivElement>(null)
 
   const { mode, variant } =
     typeof mode_ === 'string' ? { mode: mode_, variant: undefined } : mode_
 
+  // variant for the full mode, used when variant is not specified
   const [fullVariantAuto, setFullVariantAuto] = useState<'medium' | 'large'>(
     'medium',
   )
@@ -87,19 +56,114 @@ export function Frame({
     [mode, variant, fullVariantAuto],
   )
 
-  const contextValue = useMemo<FrameContext>(() => {
+  const screenTransition = useTransition(
+    loading
+      ? {
+          children: <LoadingScreen loadingText={loadingText} />,
+          screenKey: '__loading__',
+        }
+      : { children, screenKey },
+    {
+      keys: ({ screenKey }) => screenKey,
+      config: {
+        friction: 120,
+        mass: 2,
+        tension: 1400,
+      },
+      immediate: mode === 'full',
+      enter: {
+        opacity: 1,
+        transform: 'translate3d(0px, 0, 0)',
+      },
+      from: {
+        opacity: 0,
+        transform: 'translate3d(20px, 0, 0)',
+      },
+      initial: {
+        opacity: 1,
+        transform: 'translate3d(0px, 0, 0)',
+      },
+      leave: {
+        opacity: 0,
+        transform: 'translate3d(-20px, 0, 0)',
+      },
+    },
+  )
+
+  const heightSpring = useSpring({
+    config: {
+      friction: 80,
+      mass: 1,
+      tension: 2000,
+    },
+    from: {
+      height: 0,
+    },
+  })
+
+  const screenRef = useRef<HTMLDivElement | null>(null)
+  const hasReceivedInitialScreenHeight = useRef(false)
+  const currentScreenId = useRef<string>('')
+  const [currentScreen, setCurrentScreen] = useState<HTMLDivElement | null>(
+    null,
+  )
+
+  const lastScreenHeight = useRef<number | null>(null)
+
+  useSize(
+    screenRef,
+    ({ height }) => {
+      if (height === lastScreenHeight.current) return
+
+      const immediate =
+        // dont animate between screen transitions
+        hasReceivedInitialScreenHeight.current ||
+        // dont animate on the first render (height: 0)
+        heightSpring.height.get() === 0
+
+      heightSpring.height.start(height, { immediate })
+
+      if (mode === 'dialog') onHeight?.(height + 33)
+
+      lastScreenHeight.current = height
+      hasReceivedInitialScreenHeight.current = true
+    },
+    [currentScreen, onHeight, mode],
+  )
+
+  const setScreen = useCallback((el: HTMLDivElement | null, id: string) => {
+    if (el === null) {
+      // only clear if this is the current screen
+      if (id === currentScreenId.current) {
+        screenRef.current = null
+        setCurrentScreen(null)
+      }
+      return
+    }
+
+    if (currentScreenId.current !== id)
+      hasReceivedInitialScreenHeight.current = false
+
+    screenRef.current = el
+    setCurrentScreen(el)
+    currentScreenId.current = id
+  }, [])
+
+  const contextValue = useMemo<Frame.Context>(() => {
     if (mode === 'dialog')
       return {
         colorScheme,
         mode: 'dialog',
+        setScreen,
         variant: variant || 'normal',
       }
     return {
       colorScheme,
       mode: 'full',
+      setScreen,
       variant: variant || fullVariantAuto,
     }
-  }, [mode, variant, fullVariantAuto, colorScheme])
+  }, [colorScheme, fullVariantAuto, mode, variant, setScreen])
 
   useEffect(() => {
     if (!onClose) return
@@ -125,7 +189,6 @@ export function Frame({
               })
             : css({
                 height: '100%',
-                minHeight: 100,
                 width: '100%',
               }),
         )}
@@ -179,16 +242,19 @@ export function Frame({
                 }),
             )}
           >
-            <div
+            <a.div
               className={cx(
                 css({
+                  position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   width: '100%',
                 }),
                 mode === 'full' &&
                   css({
+                    overflow: 'hidden',
                     '@container (min-width: 480px)': {
+                      height: 'var(--screen-height)',
                       backgroundColor: 'var(--background-color-th_base)',
                       border: '1px solid var(--border-color-th_frame)',
                       borderRadius: 'var(--radius-th_large)',
@@ -196,10 +262,46 @@ export function Frame({
                       overflow: 'hidden',
                     },
                   }),
+                mode === 'dialog' &&
+                  css({
+                    height: 'var(--screen-height)',
+                  }),
               )}
+              style={
+                {
+                  '--screen-height': heightSpring.height.to((v) => `${v}px`),
+                } as CSSProperties
+              }
             >
-              {children}
-            </div>
+              {screenTransition((style, { children }) => (
+                <a.div
+                  className={cx(
+                    css({
+                      position: 'absolute',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      width: '100%',
+                    }),
+                    mode === 'dialog' &&
+                      css({
+                        inset: '0 0 auto',
+                      }),
+                    mode === 'full' &&
+                      css({
+                        inset: 0,
+                        '@container (min-width: 480px)': {
+                          inset: '0 0 auto',
+                        },
+                      }),
+                  )}
+                  style={{
+                    ...style,
+                  }}
+                >
+                  {children}
+                </a.div>
+              ))}
+            </a.div>
           </div>
         </div>
       </div>
@@ -212,9 +314,9 @@ function FrameBar({
   onClose,
   site,
 }: {
-  mode: FrameMode
+  mode: Frame.Mode
   onClose?: (() => void) | null
-  site: Site
+  site: Frame.Site
 }) {
   const icon =
     typeof site.icon === 'string'
@@ -353,7 +455,7 @@ function CloseButton({
   mode,
   onClick,
 }: {
-  mode: FrameMode
+  mode: Frame.Mode
   onClick?: () => void
 }) {
   return (
@@ -397,4 +499,65 @@ function CloseButton({
   )
 }
 
-Frame.useFrame = useFrame
+function LoadingScreen({ loadingText }: { loadingText?: string }) {
+  const frame = Frame.useFrame()
+  return (
+    <div
+      ref={(el) => frame.setScreen(el, 'loader')}
+      className={css({
+        color: 'var(--text-color-th_base)',
+        display: 'grid',
+        placeItems: 'center',
+        minHeight: 200,
+      })}
+    >
+      {loadingText ?? 'Loading…'}
+    </div>
+  )
+}
+
+export namespace Frame {
+  export interface Props {
+    children?: ReactNode
+    colorScheme?: 'light' | 'dark' | 'light dark'
+    loading?: boolean
+    loadingText?: string
+    mode: Frame.ModeWithVariant
+    onClose?: (() => void) | null
+    onHeight?: (height: number) => void
+    site: Site
+    screenKey?: string
+  }
+
+  export type Mode = 'dialog' | 'full'
+
+  export type ModeWithVariant =
+    | Frame.Mode
+    | { mode: 'dialog'; variant?: 'normal' | 'drawer' }
+    | { mode: 'full'; variant?: 'medium' | 'large' }
+
+  export type Site = {
+    icon?: string | [light: string, dark: string]
+    label: ReactNode
+    labelExtended?: ReactNode
+    tag?: ReactNode
+    verified?: boolean
+  }
+
+  export type Context = {
+    colorScheme: 'light' | 'dark' | 'light dark'
+    setScreen: (element: HTMLDivElement | null, id: string) => void
+  } & (
+    | { mode: 'dialog'; variant: 'normal' | 'drawer' }
+    | { mode: 'full'; variant: 'medium' | 'large' }
+  )
+
+  export function useFrame(optional: true): Frame.Context | null
+  export function useFrame(optional?: false): Frame.Context
+  export function useFrame(optional?: boolean): Frame.Context | null {
+    const context = useContext(FrameContext)
+    if (!context && !optional)
+      throw new Error('useFrame must be used within a Frame context')
+    return context
+  }
+}
