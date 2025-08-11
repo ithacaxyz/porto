@@ -1,5 +1,4 @@
 import * as Ariakit from '@ariakit/react'
-import { Env } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { erc20Abi } from '@porto/apps/contracts'
 import { useCopyToClipboard, usePrevious } from '@porto/apps/hooks'
@@ -443,136 +442,198 @@ export declare namespace OnrampView {
 function OnrampView(props: OnrampView.Props) {
   const { address, amount, onApprove, onReject } = props
   const [hasError, setHasError] = React.useState<boolean>(false)
-
-  // const showOnramp = enableOnramp()
-  const onrampURL = React.useMemo(() => {
-    const url = new URL('/onramp/global', 'https://onramp.porto.workers.dev')
-    const params = new URLSearchParams({
-      address: address!,
-      amount: amount!,
-      target: 'iframe',
-    })
-    url.search = params.toString()
-    return url.toString()
-  }, [address, amount])
-
-  const iframeRef = React.useRef<HTMLIFrameElement>(null)
-
-  // delay the iframe by 5 seconds. Show a fake apple pay button until then.
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
+  const widgetContainerRef = React.useRef<HTMLDivElement>(null)
+  const widgetInstanceRef = React.useRef<any>(null)
 
-  const trustedOrigins = React.useMemo(
-    () =>
-      import.meta.env.DEV
-        ? [
-            `https://${Env.get()}.localhost:5173`,
-            `https://${Env.get()}.localhost:5174`,
-            `https://${Env.get()}.localhost:5175`,
-            import.meta.env.VITE_WORKERS_URL,
-            import.meta.env.VITE_ONRAMP_URL,
-          ]
-        : [
-            'https://porto.sh',
-            'https://id.porto.sh',
-            'https://stg.id.porto.sh',
-            'https://playground.porto.sh',
-            `https://${Env.get()}.porto.sh`,
-            `https://${Env.get()}.id.porto.sh`,
-            `https://${Env.get()}.playground.porto.sh`,
-            import.meta.env.VITE_WORKERS_URL,
-            import.meta.env.VITE_ONRAMP_URL,
-          ],
-    [],
-  )
+  const authToken = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(
+        `https://onramp.porto.workers.dev/token?address=${address}`,
+      )
+      if (!response.ok) throw new Error('Failed to fetch auth token')
+
+      return response.json() as Promise<{
+        initToken: string
+        initTypeToken: string
+        widgetId: string
+        merchantTransactionId: string
+        signature: string
+        widgetFlow: string
+        widgetUrl: string
+        birthdate: string
+        firstName: string
+        lastName: string
+        network: string
+        paymentMethod: string
+        fiatAmount: string
+        fiatCurrency: string
+      }>
+    },
+    mutationKey: ['onramp-token', address],
+  })
 
   React.useEffect(() => {
-    if (!iframeRef.current) return
+    if (!address || !amount || !widgetContainerRef.current) return
 
-    const handleMessage = (event: MessageEvent) => {
-      if (!trustedOrigins.includes(event.origin)) return
-      if (event.data?.topic === 'rpc-requests') return
-      console.info('[onramp] Received:', event.data)
-
-      // Handle specific onramp events
-      if (event.data?.type === 'onramp:ready') {
-        // Send initialization data to iframe
-        iframeRef.current?.contentWindow?.postMessage(
-          {
-            data: {
-              address,
-              amount,
-              origin: window.location.origin,
-            },
-            type: 'onramp:init',
-          },
-          event.origin,
-        )
-      }
-
-      if (event.data?.type === 'onramp:loaded') {
-        console.info('[onramp] Widget loaded')
-        setIsLoading(false)
-      }
-
-      if (event.data?.type === 'onramp:success') {
-        onApprove(event.data.result)
-      }
-
-      if (event.data?.type === 'onramp:close') {
-        console.info('[onramp] Widget closed by user')
-        onReject?.()
-      }
-
-      if (event.data?.type === 'onramp:error') {
-        console.error('[onramp] Error:', event.data.error)
+    authToken.mutate(undefined, {
+      onError: (error) => {
+        console.error('[onramp] Failed to fetch auth token:', error)
         setHasError(true)
+        setIsLoading(false)
+      },
+      onSuccess: (tokenData) => {
+        if (!tokenData.initToken) {
+          console.error('[onramp] No auth token received')
+          setHasError(true)
+          return
+        }
+
+        const initializeWidget = () => {
+          if (
+            // @ts-expect-error - mercuryoWidget is loaded from CDN
+            typeof window.mercuryoWidget === 'undefined' ||
+            // @ts-expect-error - mercuryoWidget is loaded from CDN
+            !window.mercuryoWidget.run
+          ) {
+            // Retry after a short delay
+            setTimeout(initializeWidget, 100)
+            return
+          }
+
+          try {
+            // Generate signature for the transaction
+            const merchantTransactionId = `${address.toLowerCase()}_${Date.now()}`
+
+            // Initialize the widget with parameters
+            // @ts-expect-error - mercuryoWidget is loaded from CDN
+            const widget = window.mercuryoWidget.run({
+              address: address,
+              amount: amount,
+              birthdate: tokenData.birthdate,
+              currency: tokenData.fiatCurrency,
+              fiatAmount: tokenData.fiatAmount,
+              firstName: tokenData.firstName,
+              host: widgetContainerRef.current,
+              initToken: tokenData.initToken,
+              initTokenType: tokenData.initTypeToken,
+              lastName: tokenData.lastName,
+              merchantTransactionId: merchantTransactionId,
+              network: tokenData.network,
+              paymentMethod: tokenData.paymentMethod,
+              widgetFlow: tokenData.widgetFlow,
+              widgetId: tokenData.widgetId,
+            })
+
+            widgetInstanceRef.current = widget
+
+            // Set up event handlers
+            if (widget?.onReady) {
+              widget.onReady(() => {
+                console.log('[onramp] Widget is ready')
+                setIsLoading(false)
+              })
+            }
+
+            if (widget?.onLoad) {
+              widget.onLoad(() => {
+                console.log('[onramp] Widget loaded')
+                setIsLoading(false)
+              })
+            }
+
+            if (widget?.onPaymentFinished) {
+              widget.onPaymentFinished((data: any) => {
+                console.log('[onramp] Payment finished:', data)
+                onApprove({ id: data.txHash || data.transactionHash || '0x' })
+              })
+            }
+
+            if (widget?.onStatusChange) {
+              widget.onStatusChange((data: any) => {
+                console.log('[onramp] Status changed:', data)
+                if (data.status === 'failed' || data.status === 'cancelled') {
+                  setHasError(true)
+                  onReject?.()
+                }
+              })
+            }
+
+            // Fallback to set loading false after timeout
+            setTimeout(() => setIsLoading(false), 3000)
+          } catch (error) {
+            console.error('[onramp] Failed to initialize widget:', error)
+            setHasError(true)
+            setIsLoading(false)
+          }
+        }
+
+        // Start initialization
+        initializeWidget()
+      },
+    })
+  }, [address, amount, authToken, onApprove, onReject])
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      if (widgetInstanceRef.current?.destroy) {
+        widgetInstanceRef.current.destroy()
       }
     }
-
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [trustedOrigins, address, amount, onApprove, onReject])
-
-  React.useEffect(() => {
-    setTimeout(() => setIsLoading(false), 5_000)
   }, [])
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 p-4 text-center">
+        <TriangleAlertIcon className="size-6 text-th_field-error" />
+        <p className="text-sm text-th_field-error">
+          Failed to load payment options
+        </p>
+        <Button
+          className="text-xs"
+          onClick={() => {
+            setHasError(false)
+            setIsLoading(true)
+            authToken.reset()
+          }}
+          variant="default"
+        >
+          Try again
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col justify-between gap-2">
       <article className="relative mx-auto w-full select-none overflow-hidden">
-        <Button
-          className={cx('w-full cursor-pointer!', isLoading && 'opacity-50')}
-          disabled={isLoading}
-          variant="invert"
-        >
-          Buy with
-          <div className="-mt-px flex">
-            <AppleIcon className="mt-px ml-1 inline size-4.5" />
-            <span className="text-[16px]">Pay</span>
-          </div>
-        </Button>
+        {/* Show loading state with fake Apple Pay button */}
+        {isLoading && (
+          <Button
+            className="w-full cursor-pointer! opacity-50"
+            disabled
+            variant="invert"
+          >
+            Buy with
+            <div className="-mt-px flex">
+              <AppleIcon className="mt-px ml-1 inline size-4.5" />
+              <span className="text-[16px]">Pay</span>
+            </div>
+          </Button>
+        )}
 
-        <iframe
-          allow="payment; camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen"
-          allowFullScreen
-          // @ts-expect-error
-          allowtransparency="true"
-          className="absolute top-0 mx-auto h-[44px] w-full min-w-full border-none p-0 opacity-0"
-          loading="eager"
-          name="onramp"
-          onError={(event) => {
-            console.error('[onramp] Error:', event)
-            setHasError(true)
-            console.info(hasError)
-          }}
-          ref={iframeRef}
-          role="presentation"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
-          src={onrampURL}
+        {/* Container for the Mercuryo widget */}
+        <div
+          className={cx(
+            'mercuryo-widget-container',
+            isLoading && 'pointer-events-none absolute inset-0 opacity-0',
+          )}
+          ref={widgetContainerRef}
           style={{
-            transform: 'translateY(-30%) scale(1.5)',
+            minHeight: '44px',
+            width: '100%',
           }}
-          title="onramp"
         />
       </article>
     </div>
