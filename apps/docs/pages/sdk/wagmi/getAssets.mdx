@@ -1,0 +1,54 @@
+# Actions.getAssets
+
+VanillaJS action for retrieving assets for an account. Uses Viem's [`getAssets`](/sdk/viem/WalletActions/getAssets) under the hood.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'porto/wagmi'
+import { config } from './config'
+
+const assets = await Actions.getAssets(config, {
+  account: '0x...',
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+// [!include ~/snippets/wagmi/config.ts]
+```
+
+:::
+
+## Parameters
+
+### account
+
+`Address`
+
+Account address to get assets for.
+
+### chainFilter
+
+`number[] | undefined`
+
+Filter assets by chain. If not provided, all chains will be included.
+
+### assetTypeFilter
+
+`AssetType[] | undefined`
+
+Filter assets by type. If not provided, all asset types will be included.
+
+### assetFilter
+
+`Record<Hex, { address: Address, type: AssetType }> | undefined`
+
+Filter assets by address and type. If not provided, all assets will be included.
+
+## Return value
+
+`Record<number, Asset[]>`
+
+Assets for the account.

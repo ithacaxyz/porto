@@ -1,21 +1,14 @@
 import { PortoConfig } from '@porto/apps'
-import {
-  exp1Address as exp1Address_,
-  exp2Address as exp2Address_,
-  expNftAddress as expNftAddress_,
-} from '@porto/apps/contracts'
+import { exp1Address, exp2Address } from '@porto/apps/contracts'
 import { createStore } from 'mipd'
 import { Hex, Value } from 'ox'
 import { Dialog, Mode, Porto } from 'porto'
 import type { ThemeFragment } from 'porto/theme'
 
+export type ChainId = (typeof config.chains)[number]['id']
+
 const config = PortoConfig.getConfig()
 const host = PortoConfig.getDialogHost()
-const chainId = config.chains[0].id
-
-export const exp1Address = exp1Address_[chainId]
-export const exp2Address = exp2Address_[chainId]
-export const expNftAddress = expNftAddress_[chainId]
 
 const dialogModes = {
   'iframe-dialog': (parameters: Mode.dialog.Parameters) =>
@@ -98,7 +91,7 @@ export type ThemeType = keyof typeof themes
 
 export const mipd = createStore()
 
-export const permissions = () =>
+export const permissions = ({ chainId }: { chainId: ChainId }) =>
   ({
     expiry: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
     feeLimit: {
@@ -108,10 +101,10 @@ export const permissions = () =>
     permissions: {
       calls: [
         {
-          to: exp1Address,
+          to: exp1Address[chainId],
         },
         {
-          to: exp2Address,
+          to: exp2Address[chainId],
         },
         {
           signature: 'mint()',
@@ -122,7 +115,7 @@ export const permissions = () =>
         {
           limit: Hex.fromNumber(Value.fromEther('50')),
           period: 'minute',
-          token: exp1Address,
+          token: exp1Address[chainId],
         },
       ],
     },

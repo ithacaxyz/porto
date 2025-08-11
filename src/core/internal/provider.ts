@@ -3,6 +3,7 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as ox_Provider from 'ox/Provider'
 import * as RpcResponse from 'ox/RpcResponse'
+import type { ValueOf } from 'viem'
 import * as Account from '../../viem/Account.js'
 import * as Actions from '../../viem/internal/serverActions.js'
 import type * as Key from '../../viem/Key.js'
@@ -15,6 +16,7 @@ import type * as Porto_internal from './porto.js'
 import * as RpcRequest from './schema/request.js'
 import * as Rpc from './schema/rpc.js'
 import * as Schema from './schema/schema.js'
+import * as Store from './store.js'
 
 export type Provider = ox_Provider.Provider<{
   includeEvents: true
@@ -50,6 +52,8 @@ export function from<
   const provider = ox_Provider.from({
     ...emitter,
     async request(request_) {
+      await Store.waitForHydration(store)
+
       let request: RpcRequest.parseRequest.ReturnType
       try {
         request = RpcRequest.parseRequest(request_)
@@ -115,7 +119,7 @@ export function from<
 
           const client = getClient()
 
-          return await getMode().actions.addFunds({
+          const result = await getMode().actions.addFunds({
             address: account.address,
             internal: {
               client,
@@ -124,8 +128,15 @@ export function from<
               store,
             },
             token,
-            value: value ? Hex.toBigInt(value) : undefined,
+            value,
           })
+
+          emitter.emit('message', {
+            data: null,
+            type: 'assetsChanged',
+          })
+
+          return result
         }
 
         case 'eth_accounts': {
@@ -358,7 +369,6 @@ export function from<
             ...Permissions.fromKey(key, {
               address: account.address,
             }),
-            chainId: client.chain.id,
             ...(preCalls
               ? {
                   capabilities: {
@@ -862,6 +872,37 @@ export function from<
           return
         }
 
+        case 'wallet_getAssets': {
+          const [parameters] = request._decoded.params ?? []
+          const { account, chainFilter, assetFilter, assetTypeFilter } =
+            parameters
+
+          const client = getClient()
+
+          const response = await getMode().actions.getAssets({
+            account,
+            assetFilter,
+            assetTypeFilter,
+            chainFilter,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          const value = Object.entries(response).reduce(
+            (acc, [key, value]) => {
+              acc[Hex.fromNumber(Number(key))] = value
+              return acc
+            },
+            {} as Record<string, ValueOf<typeof response>>,
+          )
+
+          return Schema.encodeSync(Rpc.wallet_getAssets.Response)(value)
+        }
+
         case 'wallet_getCallsStatus': {
           const [id] = request._decoded.params ?? []
 
@@ -924,6 +965,7 @@ export function from<
               config,
             ),
             preCalls: capabilities?.preCalls as any,
+            requiredFunds: capabilities?.requiredFunds,
           })
 
           return Schema.encodeSync(Rpc.wallet_prepareCalls.Response)({
@@ -1006,9 +1048,38 @@ export function from<
             ),
             permissionsId: capabilities?.permissions?.id,
             preCalls: capabilities?.preCalls as any,
+            requiredFunds: capabilities?.requiredFunds,
           })
 
           return { id } satisfies typeof Rpc.wallet_sendCalls.Response.Encoded
+        }
+
+        case 'wallet_switchEthereumChain': {
+          const [parameters] = request._decoded.params
+          const { chainId } = parameters
+
+          const chain = config.chains.find(
+            (chain) => chain.id === Hex.toNumber(chainId),
+          )
+          if (!chain) throw new ox_Provider.UnsupportedChainIdError()
+
+          const client = getClient(chainId)
+          await getMode().actions.switchChain?.({
+            chainId: client.chain.id,
+            internal: {
+              client,
+              config,
+              request,
+              store,
+            },
+          })
+
+          store.setState((state) => ({
+            ...state,
+            chainId: Hex.toNumber(chainId),
+          }))
+
+          return undefined
         }
 
         case 'wallet_verifySignature': {
@@ -1034,23 +1105,34 @@ export function from<
   })
 
   function setup() {
-    const unsubscribe_accounts = store.subscribe(
-      (state) => state.accounts,
-      (accounts) => {
-        emitter.emit(
-          'accountsChanged',
-          accounts.map((account) => account.address),
-        )
-      },
-    )
+    let unsubscribe_accounts: () => void = () => {}
+    let unsubscribe_chain: () => void = () => {}
 
-    const unsubscribe_chain = store.subscribe(
-      (state) => state.chainId,
-      (chainId, previousChainId) => {
-        if (chainId === previousChainId) return
-        emitter.emit('chainChanged', Hex.fromNumber(chainId))
-      },
-    )
+    Store.waitForHydration(store).then(() => {
+      unsubscribe_accounts()
+      unsubscribe_accounts = store.subscribe(
+        (state) => state.accounts,
+        (accounts) => {
+          emitter.emit(
+            'accountsChanged',
+            accounts.map((account) => account.address),
+          )
+        },
+        {
+          equalityFn: (a, b) =>
+            a.every((a, index) => a.address === b[index]?.address),
+        },
+      )
+
+      unsubscribe_chain()
+      unsubscribe_chain = store.subscribe(
+        (state) => state.chainId,
+        (chainId, previousChainId) => {
+          if (chainId === previousChainId) return
+          emitter.emit('chainChanged', Hex.fromNumber(chainId))
+        },
+      )
+    })
 
     const unwatch = announceProvider ? announce(provider as Provider) : () => {}
 
@@ -1133,9 +1215,10 @@ function getActivePermissions(
       if (key.role !== 'session') return undefined
       if (key.expiry > 0 && key.expiry < BigInt(Math.floor(Date.now() / 1000)))
         return undefined
+      if (chainId && key.chainId !== chainId) return undefined
       try {
         return Schema.encodeSync(Permissions.Schema)(
-          Permissions.fromKey(key, { address, chainId }),
+          Permissions.fromKey(key, { address }),
         )
       } catch {
         return undefined

@@ -1,11 +1,12 @@
 import { describe, expect, test } from 'vitest'
 import * as Anvil from '../../../test/src/anvil.js'
-import { getPorto } from '../../../test/src/porto.js'
+import * as TestConfig from '../../../test/src/config.js'
 import * as FeeTokens from './feeTokens.js'
 
 describe.runIf(Anvil.enabled)('resolve', () => {
   test('default', async () => {
-    const { client } = getPorto()
+    const porto = TestConfig.getPorto()
+    const client = TestConfig.getServerClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client)
 
@@ -14,6 +15,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -21,6 +23,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
@@ -30,7 +33,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
   })
 
   test('behavior: with store', async () => {
-    const { porto, client } = getPorto()
+    const porto = TestConfig.getPorto()
+    const client = TestConfig.getServerClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
       store: porto._internal.store,
@@ -41,6 +45,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
@@ -48,6 +53,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -57,7 +63,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
   })
 
   test('param: feeToken (as symbol)', async () => {
-    const { porto, client } = getPorto()
+    const porto = TestConfig.getPorto()
+    const client = TestConfig.getServerClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
       addressOrSymbol: 'ETH',
@@ -69,6 +76,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -76,6 +84,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
@@ -85,7 +94,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
   })
 
   test('param: feeToken (as address)', async () => {
-    const { porto, client } = getPorto()
+    const porto = TestConfig.getPorto()
+    const client = TestConfig.getServerClient(porto)
 
     const feeTokens = await FeeTokens.fetch(client, {
       addressOrSymbol: '0x0000000000000000000000000000000000000000',
@@ -97,6 +107,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -104,6 +115,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",
@@ -113,7 +125,8 @@ describe.runIf(Anvil.enabled)('resolve', () => {
   })
 
   test('behavior: default fee token', async () => {
-    const { porto, client } = getPorto()
+    const porto = TestConfig.getPorto()
+    const client = TestConfig.getServerClient(porto)
 
     porto._internal.store.setState({
       feeToken: 'ETH',
@@ -128,6 +141,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x0000000000000000000000000000000000000000",
           "decimals": 18,
+          "interop": false,
           "kind": "ETH",
           "nativeRate": 1000000000000000000n,
           "symbol": "ETH",
@@ -135,6 +149,7 @@ describe.runIf(Anvil.enabled)('resolve', () => {
         {
           "address": "0x8ce361602b935680e8dec218b820ff5056beb7af",
           "decimals": 18,
+          "interop": true,
           "kind": "USDT",
           "nativeRate": 1000000000000000000n,
           "symbol": "EXP",

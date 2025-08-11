@@ -32,12 +32,13 @@ export declare namespace fromKey {
 
 export async function toKey(
   request: PermissionsRequest | undefined,
-  options: toKey.Options = {},
+  options: toKey.Options,
 ): Promise<Key.Key | undefined> {
   if (!request) return undefined
 
   const { feeTokens = [] } = options
 
+  const chainId = options.chainId ?? request.chainId
   const expiry = request.expiry ?? 0
   const feeLimit = request.feeLimit
   const type = request.key?.type ?? 'secp256k1'
@@ -47,6 +48,7 @@ export async function toKey(
   const publicKey = request?.key?.publicKey ?? '0x'
 
   const key = Key.from({
+    chainId,
     expiry,
     feeLimit,
     permissions,
@@ -64,6 +66,7 @@ export async function toKey(
 
 export declare namespace toKey {
   export type Options = {
+    chainId?: number | undefined
     feeTokens?: FeeTokens.FeeTokens | undefined
   }
 }

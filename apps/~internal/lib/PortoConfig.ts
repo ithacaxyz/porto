@@ -9,14 +9,15 @@ const mock = import.meta.env.MODE === 'test'
 
 const config = {
   anvil: {
-    chains: [Chains.anvil],
+    chains: [Chains.anvilParos, Chains.anvilTinos, Chains.anvilLeros],
     mode: Mode.rpcServer({
       mock,
+      multichain: false,
       persistPreCalls: false,
     }),
   },
   dev: {
-    chains: [Chains.portoDev],
+    chains: [Chains.portoDevParos, Chains.portoDevLeros, Chains.portoDevTinos],
     feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
@@ -24,7 +25,9 @@ const config = {
     }),
     storageKey: 'porto.store.dev',
     transports: {
-      [Chains.portoDev.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.portoDevParos.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.portoDevLeros.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.portoDevTinos.id]: http(undefined, Sentry.httpTransportOptions()),
     },
   },
   prod: {
@@ -39,7 +42,7 @@ const config = {
     },
   },
   stg: {
-    chains: [Chains.baseSepolia],
+    chains: [Chains.baseSepolia, Chains.optimismSepolia],
     feeToken: 'EXP',
     mode: Mode.rpcServer({
       mock,
@@ -48,6 +51,10 @@ const config = {
     storageKey: 'porto.store.stg',
     transports: {
       [Chains.baseSepolia.id]: http(undefined, Sentry.httpTransportOptions()),
+      [Chains.optimismSepolia.id]: http(
+        undefined,
+        Sentry.httpTransportOptions(),
+      ),
     },
   },
 } as const satisfies Record<Env.Env, Partial<Porto.Config>>

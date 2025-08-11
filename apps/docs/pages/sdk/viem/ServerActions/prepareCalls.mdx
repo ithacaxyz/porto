@@ -79,6 +79,12 @@ Key that will be used to sign the calls.
 
 URL of the merchant to front the request (and sponsor calls if needed).
 
+### requiredFunds
+
+- **Type:** `readonly ({ address: "0x${string}"; value: "0x${string}" } | { symbol: string; value: string })[]`
+
+Funds required on the target chain.
+
 ### revokeKeys
 
 - **Type:** `readonly Key.Key[]`

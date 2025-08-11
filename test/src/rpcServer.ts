@@ -5,6 +5,8 @@ import * as Chains from '../../src/core/Chains.js'
 import {
   accountNewProxyAddress,
   accountProxyAddress,
+  escrowAddress,
+  funderAddress,
   orchestratorAddress,
   simulatorAddress,
 } from './_generated/addresses.js'
@@ -14,23 +16,35 @@ import { poolId, rpcServer } from './prool.js'
 
 const defaultConfig = {
   delegationProxy: accountProxyAddress,
-  endpoint: (key) => `http://127.0.0.1:${Anvil.instances.portoDev.port}/${key}`,
-  feeTokens: [
-    '0x0000000000000000000000000000000000000000',
-    exp1Address[Chains.anvil.id],
-  ],
+  escrow: escrowAddress,
+  funder: funderAddress,
+  funderOwnerKey: Anvil.account.relay.privateKey,
+  funderSigningKey: Anvil.account.relay.privateKey,
   intentGasBuffer: 100_000n,
   orchestrator: orchestratorAddress,
   simulator: simulatorAddress,
   txGasBuffer: 100_000n,
-  version: 'v14.2.1',
-} satisfies Parameters<typeof defineRpcServer>[0]
+} satisfies Partial<Parameters<typeof defineRpcServer>[0]>
 
 export const instances = {
-  portoDev: defineRpcServer(defaultConfig),
-  portoDev_newAccount: defineRpcServer({
+  paros: defineRpcServer({
+    ...defaultConfig,
+    endpoint: (key) => `http://127.0.0.1:${Anvil.instances.paros.port}/${key}`,
+    feeTokens: [
+      '0x0000000000000000000000000000000000000000',
+      exp1Address[Chains.anvilParos.id],
+    ],
+    interopToken: exp1Address[Chains.anvilParos.id],
+  }),
+  paros_newAccount: defineRpcServer({
     ...defaultConfig,
     delegationProxy: accountNewProxyAddress,
+    endpoint: (key) => `http://127.0.0.1:${Anvil.instances.paros.port}/${key}`,
+    feeTokens: [
+      '0x0000000000000000000000000000000000000000',
+      exp1Address[Chains.anvilParos.id],
+    ],
+    interopToken: exp1Address[Chains.anvilParos.id],
     legacyDelegationProxy: accountProxyAddress,
     port: 9120,
   }),
@@ -43,7 +57,12 @@ export const instances = {
 function defineRpcServer(parameters: {
   endpoint: (key: number) => string
   delegationProxy: string
+  escrow: string
   feeTokens: string[]
+  funderSigningKey: string
+  funderOwnerKey: string
+  funder: string
+  interopToken: string
   image?: string | undefined
   intentGasBuffer?: bigint | undefined
   legacyDelegationProxy?: string
