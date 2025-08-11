@@ -100,11 +100,8 @@ function RouteComponent() {
             : () => Actions.rejectAll(porto)
         }
         onHeight={(height) => {
-          if (mode === 'inline-iframe' || mode === 'popup-standalone') return
-          porto.messenger.send('__internal', {
-            height,
-            type: 'resize',
-          })
+          if (mode !== 'inline-iframe' && mode !== 'popup-standalone')
+            porto.messenger.send('__internal', { height, type: 'resize' })
         }}
         screenKey={`${location.pathname}${request?.id}`}
         site={{
