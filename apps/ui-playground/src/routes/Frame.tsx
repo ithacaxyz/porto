@@ -303,7 +303,7 @@ const DEMOS = [GetStartedDemo, SignInDemo, ActionRequestDemo] as const
 
 const INITIAL_MODE = 'dialog'
 
-const FRAME_LOADING_DELAY = 1000
+const FRAME_LOADING_DELAY = 0
 
 function RouteComponent() {
   const [mode, setMode] = useState<Frame.Mode>(INITIAL_MODE)
