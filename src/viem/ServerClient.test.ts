@@ -67,7 +67,6 @@ describe('fromPorto', () => {
               },
             },
           },
-          "experimental_preconfirmationTime": 200,
           "fees": undefined,
           "formatters": {
             "block": {
@@ -107,7 +106,6 @@ describe('fromPorto', () => {
           "sourceId": 11155111,
           "testnet": true,
         },
-        "experimental_blockTag": "pending",
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
