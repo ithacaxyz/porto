@@ -23,6 +23,7 @@ export default defineConfig({
       output: {
         dir: 'dist',
         preserveModules: true,
+        preserveModulesRoot: 'src',
       },
     },
     sourcemap: true,

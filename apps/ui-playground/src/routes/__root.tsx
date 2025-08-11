@@ -12,7 +12,7 @@ const sections = [
     title: 'Theme',
   },
   {
-    screens: ['Button', 'Input', 'PresetsInput', 'Separator', 'ThemeSwitch'],
+    screens: ['Button', 'Input', 'Separator', 'ThemeSwitch'],
     title: 'Base',
   },
   {

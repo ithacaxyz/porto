@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -15,58 +16,22 @@ import LucideX from '~icons/lucide/x'
 import iconDefaultDark from './icon-default-dark.svg'
 import iconDefaultLight from './icon-default-light.svg'
 
-export interface FrameProps {
-  children?: ReactNode
-  colorScheme?: 'light' | 'dark' | 'light dark'
-  mode: FrameModeWithVariant
-  onClose?: (() => void) | null
-  site: Site
-}
-
-type Site = {
-  icon?: string | [light: string, dark: string]
-  label: ReactNode
-  labelExtended?: ReactNode
-  tag?: ReactNode
-  verified?: boolean
-}
-
-export type FrameMode = 'dialog' | 'full'
-
-export type FrameModeWithVariant =
-  | FrameMode
-  | { mode: 'dialog'; variant?: 'normal' | 'drawer' }
-  | { mode: 'full'; variant?: 'medium' | 'large' }
-
-type FrameContext = {
-  colorScheme: 'light' | 'dark' | 'light dark'
-} & (
-  | { mode: 'dialog'; variant: 'normal' | 'drawer' }
-  | { mode: 'full'; variant: 'medium' | 'large' }
-)
-
-const FrameContext = createContext<FrameContext>({
-  colorScheme: 'light dark',
-  mode: 'full',
-  variant: 'medium',
-})
-
-export function useFrame() {
-  return useContext(FrameContext)
-}
+const FrameContext = createContext<Frame.Context | null>(null)
 
 export function Frame({
   children,
   colorScheme = 'light dark',
   mode: mode_,
   onClose,
+  onHeight,
   site,
-}: FrameProps) {
+}: Frame.Props) {
   const frameRef = useRef<HTMLDivElement>(null)
 
   const { mode, variant } =
     typeof mode_ === 'string' ? { mode: mode_, variant: undefined } : mode_
 
+  // variant for the full mode, used when variant is not specified
   const [fullVariantAuto, setFullVariantAuto] = useState<'medium' | 'large'>(
     'medium',
   )
@@ -87,19 +52,53 @@ export function Frame({
     [mode, variant, fullVariantAuto],
   )
 
-  const contextValue = useMemo<FrameContext>(() => {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const screenRef = useRef<HTMLDivElement | null>(null)
+  const currentScreenId = useRef<string>('')
+  const [currentScreen, setCurrentScreen] = useState<HTMLDivElement | null>(
+    null,
+  )
+
+  useSize(
+    screenRef,
+    ({ height }) => {
+      if (height === 0) return
+      if (containerRef.current)
+        containerRef.current.style.setProperty('--screen-height', `${height}px`)
+      if (mode === 'dialog') onHeight?.(height + 33)
+    },
+    [currentScreen, onHeight, mode],
+  )
+
+  const setScreen = useCallback((el: HTMLDivElement | null, id: string) => {
+    if (el === null) {
+      // only clear if this is the current screen
+      if (id === currentScreenId.current) {
+        screenRef.current = null
+        setCurrentScreen(null)
+      }
+      return
+    }
+    screenRef.current = el
+    setCurrentScreen(el)
+    currentScreenId.current = id
+  }, [])
+
+  const contextValue = useMemo<Frame.Context>(() => {
     if (mode === 'dialog')
       return {
         colorScheme,
         mode: 'dialog',
+        setScreen,
         variant: variant || 'normal',
       }
     return {
       colorScheme,
       mode: 'full',
+      setScreen,
       variant: variant || fullVariantAuto,
     }
-  }, [mode, variant, fullVariantAuto, colorScheme])
+  }, [colorScheme, fullVariantAuto, mode, variant, setScreen])
 
   useEffect(() => {
     if (!onClose) return
@@ -125,7 +124,6 @@ export function Frame({
               })
             : css({
                 height: '100%',
-                minHeight: 100,
                 width: '100%',
               }),
         )}
@@ -184,6 +182,7 @@ export function Frame({
                 css({
                   display: 'flex',
                   flexDirection: 'column',
+                  position: 'relative',
                   width: '100%',
                 }),
                 mode === 'full' &&
@@ -192,13 +191,42 @@ export function Frame({
                       backgroundColor: 'var(--background-color-th_base)',
                       border: '1px solid var(--border-color-th_frame)',
                       borderRadius: 'var(--radius-th_large)',
+                      height: 'var(--screen-height)',
                       maxWidth: 400,
                       overflow: 'hidden',
                     },
+                    overflow: 'hidden',
+                  }),
+                mode === 'dialog' &&
+                  css({
+                    height: 'var(--screen-height)',
                   }),
               )}
+              ref={containerRef}
             >
-              {children}
+              <div
+                className={cx(
+                  css({
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'absolute',
+                    width: '100%',
+                  }),
+                  mode === 'dialog' &&
+                    css({
+                      inset: '0 0 auto',
+                    }),
+                  mode === 'full' &&
+                    css({
+                      '@container (min-width: 480px)': {
+                        inset: '0 0 auto',
+                      },
+                      inset: 0,
+                    }),
+                )}
+              >
+                {children}
+              </div>
             </div>
           </div>
         </div>
@@ -212,9 +240,9 @@ function FrameBar({
   onClose,
   site,
 }: {
-  mode: FrameMode
+  mode: Frame.Mode
   onClose?: (() => void) | null
-  site: Site
+  site: Frame.Site
 }) {
   const icon =
     typeof site.icon === 'string'
@@ -353,7 +381,7 @@ function CloseButton({
   mode,
   onClick,
 }: {
-  mode: FrameMode
+  mode: Frame.Mode
   onClick?: () => void
 }) {
   return (
@@ -397,4 +425,48 @@ function CloseButton({
   )
 }
 
-Frame.useFrame = useFrame
+export namespace Frame {
+  export interface Props {
+    children?: ReactNode
+    colorScheme?: 'light' | 'dark' | 'light dark'
+    loading?: boolean
+    loadingText?: string
+    mode: Frame.ModeWithVariant
+    onClose?: (() => void) | null
+    onHeight?: (height: number) => void
+    site: Site
+    screenKey?: string
+  }
+
+  export type Mode = 'dialog' | 'full'
+
+  export type ModeWithVariant =
+    | Frame.Mode
+    | { mode: 'dialog'; variant?: 'normal' | 'drawer' }
+    | { mode: 'full'; variant?: 'medium' | 'large' }
+
+  export type Site = {
+    icon?: string | [light: string, dark: string]
+    label: ReactNode
+    labelExtended?: ReactNode
+    tag?: ReactNode
+    verified?: boolean
+  }
+
+  export type Context = {
+    colorScheme: 'light' | 'dark' | 'light dark'
+    setScreen: (element: HTMLDivElement | null, id: string) => void
+  } & (
+    | { mode: 'dialog'; variant: 'normal' | 'drawer' }
+    | { mode: 'full'; variant: 'medium' | 'large' }
+  )
+
+  export function useFrame(optional: true): Frame.Context | null
+  export function useFrame(optional?: false): Frame.Context
+  export function useFrame(optional?: boolean): Frame.Context | null {
+    const context = useContext(FrameContext)
+    if (!context && !optional)
+      throw new Error('useFrame must be used within a Frame context')
+    return context
+  }
+}

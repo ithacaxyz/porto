@@ -1,7 +1,5 @@
 import { Input } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
-import type { ComponentPropsWithRef } from 'react'
-import { useState } from 'react'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen'
 
 export const Route = createFileRoute('/Input')({
@@ -13,68 +11,22 @@ function InputComponent() {
     <ComponentScreen title="Input">
       <ComponentScreen.Section surface="base" title="Sizes">
         <div className="flex flex-col gap-4">
-          <DemoInput placeholder="Medium" size="medium" />
-          <DemoInput placeholder="Large" size="large" />
+          <Input placeholder="Medium" size="medium" />
+          <Input placeholder="Large" size="large" />
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section surface="base" title="States">
         <div className="flex flex-col gap-4">
-          <DemoInput placeholder="Placeholder" />
-          <DemoInput disabled placeholder="Disabled" />
-          <DemoInput placeholder="With value" readOnly value="Filled value" />
+          <Input placeholder="Placeholder" />
+          <Input disabled placeholder="Disabled" />
+          <Input placeholder="With value" readOnly value="Filled value" />
         </div>
       </ComponentScreen.Section>
       <ComponentScreen.Section surface="base" title="Contextual">
         <div className="flex flex-col gap-4">
-          <DemoInput
-            adornments={{ end: 'Optional' }}
-            placeholder="Placeholder"
-          />
-        </div>
-      </ComponentScreen.Section>
-      <ComponentScreen.Section surface="base" title="Unfocused Value">
-        <div className="flex flex-col gap-4">
-          <DemoInput
-            formatValue={(value) => {
-              if (value.trim() === '') return ''
-              const numValue = Number.parseFloat(value)
-              if (Number.isNaN(numValue)) return value
-              return new Intl.NumberFormat('en-US', {
-                currency: 'USD',
-                currencyDisplay: 'name',
-                notation: 'standard',
-                style: 'currency',
-              }).format(numValue)
-            }}
-            placeholder="$200"
-          />
-        </div>
-      </ComponentScreen.Section>
-      <ComponentScreen.Section surface="base" title="Adornments">
-        <div className="flex flex-col gap-4">
-          <DemoInput
-            adornments={{
-              end: {
-                label: 'Max. $500',
-                type: 'fill',
-                value: '500',
-              },
-              start: '$',
-            }}
-            placeholder="200"
-            size="medium"
-          />
+          <Input contextual="Optional" placeholder="Placeholder" />
         </div>
       </ComponentScreen.Section>
     </ComponentScreen>
   )
-}
-
-function DemoInput(
-  props: Omit<ComponentPropsWithRef<typeof Input>, 'value' | 'onChange'> & {
-    value?: string
-  },
-) {
-  const [value, setValue] = useState('')
-  return <Input {...props} onChange={setValue} value={value} />
 }
