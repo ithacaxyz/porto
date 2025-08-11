@@ -54,25 +54,18 @@ export function Frame({
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const screenRef = useRef<HTMLDivElement | null>(null)
-  const hasReceivedInitialScreenHeight = useRef(false)
   const currentScreenId = useRef<string>('')
   const [currentScreen, setCurrentScreen] = useState<HTMLDivElement | null>(
     null,
   )
 
-  const lastScreenHeight = useRef<number | null>(null)
-
   useSize(
     screenRef,
     ({ height }) => {
-      if (containerRef.current && height > 0) {
+      if (height === 0) return
+      if (containerRef.current)
         containerRef.current.style.setProperty('--screen-height', `${height}px`)
-      }
-
       if (mode === 'dialog') onHeight?.(height + 33)
-
-      lastScreenHeight.current = height
-      hasReceivedInitialScreenHeight.current = true
     },
     [currentScreen, onHeight, mode],
   )
@@ -86,10 +79,6 @@ export function Frame({
       }
       return
     }
-
-    if (currentScreenId.current !== id)
-      hasReceivedInitialScreenHeight.current = false
-
     screenRef.current = el
     setCurrentScreen(el)
     currentScreenId.current = id
