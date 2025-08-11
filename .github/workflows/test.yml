@@ -99,6 +99,7 @@ jobs:
             enabled: ${{ github.ref == 'refs/heads/main' && (inputs.test-deployment-node == true || inputs.test-deployment-node == null) }}
     env: 
       CI: true
+      VITE_RPC_DEBUG: true
       VITE_DEFAULT_ENV: ${{ matrix.env }}
       VITE_FAUCET_PRIVATE_KEY: ${{ secrets.VITE_FAUCET_PRIVATE_KEY }}
       VITE_FAUCET_PRIVATE_KEY_RELEASE: ${{ secrets.VITE_FAUCET_PRIVATE_KEY_RELEASE }}
