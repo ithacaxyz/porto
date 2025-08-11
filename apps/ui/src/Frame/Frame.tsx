@@ -1,5 +1,4 @@
-import { a, useSpring, useTransition } from '@react-spring/web'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import {
   createContext,
   useCallback,
@@ -20,15 +19,12 @@ import iconDefaultLight from './icon-default-light.svg'
 const FrameContext = createContext<Frame.Context | null>(null)
 
 export function Frame({
-  loading,
-  loadingText = 'Loading…',
   children,
   colorScheme = 'light dark',
   mode: mode_,
   onClose,
   onHeight,
   site,
-  screenKey = '',
 }: Frame.Props) {
   const frameRef = useRef<HTMLDivElement>(null)
 
@@ -56,52 +52,7 @@ export function Frame({
     [mode, variant, fullVariantAuto],
   )
 
-  const screenTransition = useTransition(
-    loading || !children
-      ? {
-          children: <LoadingScreen loadingText={loadingText} />,
-          screenKey: '__loading__',
-        }
-      : { children, screenKey },
-    {
-      config: {
-        friction: 120,
-        mass: 2,
-        tension: 1400,
-      },
-      enter: {
-        opacity: 1,
-        transform: 'translate3d(0px, 0, 0)',
-      },
-      from: {
-        opacity: 0,
-        transform: 'translate3d(20px, 0, 0)',
-      },
-      immediate: true, // temporarily disable animated screen transition
-      initial: {
-        opacity: 1,
-        transform: 'translate3d(0px, 0, 0)',
-      },
-      keys: ({ screenKey }) => screenKey,
-      leave: {
-        opacity: 0,
-        transform: 'translate3d(-20px, 0, 0)',
-      },
-    },
-  )
-
-  const heightSpring = useSpring({
-    config: {
-      friction: 80,
-      mass: 1,
-      tension: 2000,
-    },
-    from: {
-      height: 0,
-    },
-    immediate: true, // temporarily disable animated height transitions
-  })
-
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const screenRef = useRef<HTMLDivElement | null>(null)
   const hasReceivedInitialScreenHeight = useRef(false)
   const currentScreenId = useRef<string>('')
@@ -114,13 +65,9 @@ export function Frame({
   useSize(
     screenRef,
     ({ height }) => {
-      const immediate =
-        // dont animate between screen transitions
-        hasReceivedInitialScreenHeight.current ||
-        // dont animate on the first render (height: 0)
-        heightSpring.height.get() === 0
-
-      heightSpring.height.start(height, { immediate })
+      if (containerRef.current && height > 0) {
+        containerRef.current.style.setProperty('--screen-height', `${height}px`)
+      }
 
       if (mode === 'dialog') onHeight?.(height + 33)
 
@@ -241,7 +188,8 @@ export function Frame({
                 }),
             )}
           >
-            <a.div
+            <div
+              ref={containerRef}
               className={cx(
                 css({
                   display: 'flex',
@@ -264,43 +212,34 @@ export function Frame({
                 mode === 'dialog' &&
                   css({
                     height: 'var(--screen-height)',
+                    minHeight: 200,
                   }),
               )}
-              style={
-                {
-                  '--screen-height': heightSpring.height.to((v) => `${v}px`),
-                } as CSSProperties
-              }
             >
-              {screenTransition((style, { children }) => (
-                <a.div
-                  className={cx(
+              <div
+                className={cx(
+                  css({
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'absolute',
+                    width: '100%',
+                  }),
+                  mode === 'dialog' &&
                     css({
-                      display: 'flex',
-                      flexDirection: 'column',
-                      position: 'absolute',
-                      width: '100%',
+                      inset: '0 0 auto',
                     }),
-                    mode === 'dialog' &&
-                      css({
+                  mode === 'full' &&
+                    css({
+                      '@container (min-width: 480px)': {
                         inset: '0 0 auto',
-                      }),
-                    mode === 'full' &&
-                      css({
-                        '@container (min-width: 480px)': {
-                          inset: '0 0 auto',
-                        },
-                        inset: 0,
-                      }),
-                  )}
-                  style={{
-                    ...style,
-                  }}
-                >
-                  {children}
-                </a.div>
-              ))}
-            </a.div>
+                      },
+                      inset: 0,
+                    }),
+                )}
+              >
+                {children}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -495,23 +434,6 @@ function CloseButton({
         })}
       />
     </button>
-  )
-}
-
-function LoadingScreen({ loadingText }: { loadingText?: string }) {
-  const frame = Frame.useFrame()
-  return (
-    <div
-      className={css({
-        color: 'var(--text-color-th_base)',
-        display: 'grid',
-        minHeight: 200,
-        placeItems: 'center',
-      })}
-      ref={(el) => frame.setScreen(el, 'loader')}
-    >
-      {loadingText ?? 'Loading…'}
-    </div>
   )
 }
 
