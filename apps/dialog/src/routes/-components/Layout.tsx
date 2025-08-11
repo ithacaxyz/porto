@@ -1,8 +1,8 @@
+import { IndeterminateLoader } from '@porto/apps/components'
+import { Screen } from '@porto/ui'
 import { cva, cx, type VariantProps } from 'cva'
 import { Address } from 'ox'
 import type * as React from 'react'
-import { Screen } from '@porto/ui'
-import { IndeterminateLoader } from '@porto/apps/components'
 
 import { StringFormatter } from '~//utils'
 import ChevronDown from '~icons/lucide/chevron-down'

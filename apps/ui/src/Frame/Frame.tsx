@@ -1,3 +1,4 @@
+import { a, useSpring, useTransition } from '@react-spring/web'
 import type { CSSProperties, ReactNode } from 'react'
 import {
   createContext,
@@ -15,7 +16,6 @@ import LucideBadgeCheck from '~icons/lucide/badge-check'
 import LucideX from '~icons/lucide/x'
 import iconDefaultDark from './icon-default-dark.svg'
 import iconDefaultLight from './icon-default-light.svg'
-import { a, useTransition, useSpring } from '@react-spring/web'
 
 const FrameContext = createContext<Frame.Context | null>(null)
 
@@ -64,13 +64,11 @@ export function Frame({
         }
       : { children, screenKey },
     {
-      keys: ({ screenKey }) => screenKey,
       config: {
         friction: 120,
         mass: 2,
         tension: 1400,
       },
-      immediate: mode === 'full',
       enter: {
         opacity: 1,
         transform: 'translate3d(0px, 0, 0)',
@@ -79,10 +77,12 @@ export function Frame({
         opacity: 0,
         transform: 'translate3d(20px, 0, 0)',
       },
+      immediate: mode === 'full',
       initial: {
         opacity: 1,
         transform: 'translate3d(0px, 0, 0)',
       },
+      keys: ({ screenKey }) => screenKey,
       leave: {
         opacity: 0,
         transform: 'translate3d(-20px, 0, 0)',
@@ -245,22 +245,22 @@ export function Frame({
             <a.div
               className={cx(
                 css({
-                  position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
+                  position: 'relative',
                   width: '100%',
                 }),
                 mode === 'full' &&
                   css({
-                    overflow: 'hidden',
                     '@container (min-width: 480px)': {
-                      height: 'var(--screen-height)',
                       backgroundColor: 'var(--background-color-th_base)',
                       border: '1px solid var(--border-color-th_frame)',
                       borderRadius: 'var(--radius-th_large)',
+                      height: 'var(--screen-height)',
                       maxWidth: 400,
                       overflow: 'hidden',
                     },
+                    overflow: 'hidden',
                   }),
                 mode === 'dialog' &&
                   css({
@@ -277,9 +277,9 @@ export function Frame({
                 <a.div
                   className={cx(
                     css({
-                      position: 'absolute',
                       display: 'flex',
                       flexDirection: 'column',
+                      position: 'absolute',
                       width: '100%',
                     }),
                     mode === 'dialog' &&
@@ -288,10 +288,10 @@ export function Frame({
                       }),
                     mode === 'full' &&
                       css({
-                        inset: 0,
                         '@container (min-width: 480px)': {
                           inset: '0 0 auto',
                         },
+                        inset: 0,
                       }),
                   )}
                   style={{
@@ -503,13 +503,13 @@ function LoadingScreen({ loadingText }: { loadingText?: string }) {
   const frame = Frame.useFrame()
   return (
     <div
-      ref={(el) => frame.setScreen(el, 'loader')}
       className={css({
         color: 'var(--text-color-th_base)',
         display: 'grid',
-        placeItems: 'center',
         minHeight: 200,
+        placeItems: 'center',
       })}
+      ref={(el) => frame.setScreen(el, 'loader')}
     >
       {loadingText ?? 'Loading…'}
     </div>

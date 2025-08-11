@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
+import { useId } from 'react'
 import { css, cx } from '../../styled-system/css'
 import { Frame } from '../Frame/Frame.js'
-import { useId } from 'react'
 
 export interface ScreenProps {
   children?: ReactNode
@@ -16,13 +16,10 @@ export function Screen({ children, layout }: ScreenProps) {
 
   return (
     <div
-      ref={(el) => {
-        frame.setScreen(el, id)
-      }}
       className={cx(
         css({
-          flex: '0 0 auto',
           display: 'flex',
+          flex: '0 0 auto',
           flexDirection: 'column',
           width: '100%',
         }),
@@ -40,6 +37,9 @@ export function Screen({ children, layout }: ScreenProps) {
             overflowY: 'auto',
           }),
       )}
+      ref={(el) => {
+        frame.setScreen(el, id)
+      }}
     >
       <div
         className={cx(

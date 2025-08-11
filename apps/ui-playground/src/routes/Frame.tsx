@@ -1,15 +1,15 @@
-import { Button, Frame, Input, Screen, Separator, Spacer, css } from '@porto/ui'
+import { Button, css, Frame, Input, Screen, Separator, Spacer } from '@porto/ui'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { useColorScheme } from '~/ColorScheme.js'
 import { ComponentScreen } from '~/components/ComponentScreen/ComponentScreen.js'
 import { DemoBrowser } from '~/components/DemoBrowser/DemoBrowser.js'
-import LucideLogIn from '~icons/lucide/log-in'
-import LucideScanFace from '~icons/lucide/scan-face'
 import LucideArrowDownLeft from '~icons/lucide/arrow-down-left'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronDown from '~icons/lucide/chevron-down'
+import LucideLogIn from '~icons/lucide/log-in'
+import LucideScanFace from '~icons/lucide/scan-face'
 import PhStarFourBold from '~icons/ph/star-four-bold'
 
 export const Route = createFileRoute('/Frame')({
@@ -23,14 +23,14 @@ function GetStartedDemo() {
   return (
     <Screen screenKey="get-started">
       <Screen.Header
-        icon={<LucideLogIn />}
-        title="Get started"
         content={
           <>
             Authenticate with your passkey wallet to start using{' '}
             <strong className="font-medium">uniswap.org</strong>.
           </>
         }
+        icon={<LucideLogIn />}
+        title="Get started"
       />
       <div>
         <Button
@@ -61,14 +61,14 @@ function SignInDemo() {
   return (
     <Screen screenKey="sign-in">
       <Screen.Header
-        icon={<LucideScanFace />}
-        title="Sign in"
         content={
           <>
             Authenticate with your passkey wallet to start using{' '}
             <strong className="font-medium">uniswap.org</strong>.
           </>
         }
+        icon={<LucideScanFace />}
+        title="Sign in"
       />
       <div>
         <Button icon={<LucideScanFace />} variant="primary" wide>
@@ -116,28 +116,28 @@ function ActionRequestDemo() {
             >
               <div
                 className={css({
-                  display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
+                  display: 'flex',
                   fontWeight: 500,
+                  gap: 8,
                 })}
               >
                 <div
                   className={css({
-                    width: 24,
-                    height: 24,
-                    borderRadius: '50%',
-                    backgroundColor: 'var(--background-color-th_badge)',
-                    display: 'flex',
                     alignItems: 'center',
+                    backgroundColor: 'var(--background-color-th_badge)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    height: 24,
                     justifyContent: 'center',
+                    width: 24,
                   })}
                 >
                   <LucideArrowUpRight
                     className={css({
-                      width: 16,
-                      height: 16,
                       color: 'var(--text-color-th_badge)',
+                      height: 16,
+                      width: 16,
                     })}
                   />
                 </div>
@@ -156,29 +156,29 @@ function ActionRequestDemo() {
 
               <div
                 className={css({
-                  display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
+                  display: 'flex',
                   fontWeight: 500,
+                  gap: 8,
                 })}
               >
                 <div
                   className={css({
-                    width: 24,
-                    height: 24,
-                    borderRadius: '50%',
+                    alignItems: 'center',
                     backgroundColor:
                       'var(--background-color-th_badge-positive)',
+                    borderRadius: '50%',
                     display: 'flex',
-                    alignItems: 'center',
+                    height: 24,
                     justifyContent: 'center',
+                    width: 24,
                   })}
                 >
                   <LucideArrowDownLeft
                     className={css({
-                      width: 16,
-                      height: 16,
                       color: 'var(--text-color-th_badge-positive)',
+                      height: 16,
+                      width: 16,
                     })}
                   />
                 </div>
@@ -198,8 +198,8 @@ function ActionRequestDemo() {
 
             <div
               className={css({
-                height: 1,
                 backgroundColor: 'var(--background-color-th_separator)',
+                height: 1,
               })}
             />
 
@@ -214,8 +214,8 @@ function ActionRequestDemo() {
                 <div
                   className={css({
                     display: 'flex',
-                    justifyContent: 'space-between',
                     fontSize: 14,
+                    justifyContent: 'space-between',
                   })}
                 >
                   <span
@@ -230,8 +230,8 @@ function ActionRequestDemo() {
                 <div
                   className={css({
                     display: 'flex',
-                    justifyContent: 'space-between',
                     fontSize: 14,
+                    justifyContent: 'space-between',
                   })}
                 >
                   <span
@@ -246,8 +246,8 @@ function ActionRequestDemo() {
                 <div
                   className={css({
                     display: 'flex',
-                    justifyContent: 'space-between',
                     fontSize: 14,
+                    justifyContent: 'space-between',
                   })}
                 >
                   <span
@@ -263,29 +263,29 @@ function ActionRequestDemo() {
             ) : (
               <button
                 className={css({
-                  display: 'flex',
-                  width: '100%',
-                  justifyContent: 'space-between',
-                  fontSize: 13,
-                  color: 'var(--text-color-th_base-secondary)',
                   background: 'none',
                   border: 'none',
+                  color: 'var(--text-color-th_base-secondary)',
                   cursor: 'pointer',
+                  display: 'flex',
+                  fontSize: 13,
+                  justifyContent: 'space-between',
                   padding: 0,
+                  width: '100%',
                 })}
                 onClick={() => setViewDetails(true)}
                 type="button"
               >
                 <span>More details</span>
-                <LucideChevronDown className={css({ width: 16, height: 16 })} />
+                <LucideChevronDown className={css({ height: 16, width: 16 })} />
               </button>
             )}
           </div>
         </div>
         <div className={css({ display: 'flex', gap: 8 })}>
           <Button
-            variant="secondary"
             onClick={() => setViewDetails(false)}
+            variant="secondary"
             wide
           >
             Cancel
@@ -346,10 +346,10 @@ function RouteComponent() {
       </div>
       <DemoContainer mode={mode}>
         <Frame
-          screenKey={String(screen)}
-          loading={frameLoading}
           colorScheme={colorScheme}
+          loading={frameLoading}
           mode={mode}
+          screenKey={String(screen)}
           site={{
             label: 'porto.sh',
             labelExtended: (

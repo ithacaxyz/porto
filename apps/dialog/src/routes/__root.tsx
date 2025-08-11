@@ -2,10 +2,10 @@ import { Env, UserAgent } from '@porto/apps'
 import { Button } from '@porto/apps/components'
 import { Frame } from '@porto/ui'
 import {
-  useLocation,
   createRootRoute,
   HeadContent,
   Outlet,
+  useLocation,
 } from '@tanstack/react-router'
 import { Actions, Hooks } from 'porto/remote'
 import * as React from 'react'
@@ -85,7 +85,6 @@ function RouteComponent() {
         // [1] https://fvsch.com/transparent-iframes#toc-3
         // [2] https://github.com/w3c/csswg-drafts/issues/4772
         colorScheme={customTheme?.colorScheme}
-        screenKey={`${location.pathname}${request?.id}`}
         loading={!request}
         mode={
           display === 'full'
@@ -103,10 +102,11 @@ function RouteComponent() {
         onHeight={(height) => {
           if (mode === 'inline-iframe' || mode === 'popup-standalone') return
           porto.messenger.send('__internal', {
-            type: 'resize',
             height,
+            type: 'resize',
           })
         }}
+        screenKey={`${location.pathname}${request?.id}`}
         site={{
           icon: typeof icon === 'object' ? [icon.light, icon.dark] : icon,
           label: (
