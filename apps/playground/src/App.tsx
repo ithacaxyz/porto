@@ -1155,6 +1155,12 @@ function SendTransaction() {
           method: 'eth_accounts',
         })
 
+        const chainId = Hex.toNumber(
+          await porto.provider.request({
+            method: 'eth_chainId',
+          }),
+        ) as ChainId
+
         const params = (() => {
           if (action === 'mint')
             return [
@@ -1164,7 +1170,7 @@ function SendTransaction() {
                   [account, Value.fromEther('100')],
                 ),
                 from: account,
-                to: exp1Address,
+                to: exp1Address[chainId],
               },
             ] as const
 
