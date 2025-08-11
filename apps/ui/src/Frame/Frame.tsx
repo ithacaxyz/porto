@@ -57,7 +57,7 @@ export function Frame({
   )
 
   const screenTransition = useTransition(
-    loading
+    loading || !children
       ? {
           children: <LoadingScreen loadingText={loadingText} />,
           screenKey: '__loading__',
@@ -77,7 +77,7 @@ export function Frame({
         opacity: 0,
         transform: 'translate3d(20px, 0, 0)',
       },
-      immediate: mode === 'full',
+      immediate: true, // temporarily disable animated screen transition
       initial: {
         opacity: 1,
         transform: 'translate3d(0px, 0, 0)',
@@ -99,6 +99,7 @@ export function Frame({
     from: {
       height: 0,
     },
+    immediate: true, // temporarily disable animated height transitions
   })
 
   const screenRef = useRef<HTMLDivElement | null>(null)
@@ -113,8 +114,6 @@ export function Frame({
   useSize(
     screenRef,
     ({ height }) => {
-      if (height === lastScreenHeight.current) return
-
       const immediate =
         // dont animate between screen transitions
         hasReceivedInitialScreenHeight.current ||
