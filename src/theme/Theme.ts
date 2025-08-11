@@ -90,6 +90,7 @@ export type Theme<
   fieldBackground: SchemeColor
   fieldContent: SchemeColor
   fieldContentSecondary: SchemeColor
+  fieldContentTertiary: SchemeColor
   fieldBorder: SchemeColor
   fieldErrorBorder: SchemeColor
   fieldFocusedBackground: SchemeColor

@@ -5,6 +5,7 @@ import type * as FeeToken_schema from 'porto/core/internal/schema/feeToken.js'
 import type { ServerActions } from 'porto/viem'
 import * as React from 'react'
 import { AddFunds } from '~/routes/-components/AddFunds'
+import { Layout } from '~/routes/-components/Layout'
 
 export function CheckBalance(props: CheckBalance.Props) {
   const { address, children, onReject, query } = props
@@ -49,11 +50,13 @@ export function CheckBalance(props: CheckBalance.Props) {
   if (step === 'success') return children
   if (query.isPending)
     return (
-      <div className="flex h-40 items-center justify-center">
-        <div className="size-[24px]">
-          <Spinner className="text-th_base-secondary" />
+      <Layout>
+        <div className="flex h-40 items-center justify-center">
+          <div className="size-[24px]">
+            <Spinner className="text-th_base-secondary" />
+          </div>
         </div>
-      </div>
+      </Layout>
     )
   if (!deficitToken) return children
   return (

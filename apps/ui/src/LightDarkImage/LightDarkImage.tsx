@@ -1,12 +1,21 @@
 import type { ImgHTMLAttributes } from 'react'
-import * as Dialog from '~/lib/Dialog'
+import { Frame } from '~/Frame/Frame.js'
 
-export function LightDarkImage(props: LightDarkImage.Props) {
-  const { dark, light, ...imgProps } = props
-  const colorScheme = Dialog.useStore(
-    (state) => state.customTheme?.colorScheme ?? 'light dark',
-  )
+export interface LightDarkImageProps
+  extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> {
+  colorScheme?: 'light' | 'dark' | 'light dark'
+  dark: string
+  light: string
+}
 
+export function LightDarkImage({
+  alt = '',
+  dark,
+  light,
+  ...imgProps
+}: LightDarkImageProps) {
+  const frame = Frame.useFrame(true)
+  const colorScheme = frame?.colorScheme ?? 'light dark'
   return colorScheme === 'light dark' ? (
     // if the theme supports both light & dark color schemes,
     // we can rely on `prefers-color-scheme` media queries
@@ -14,22 +23,14 @@ export function LightDarkImage(props: LightDarkImage.Props) {
     <picture>
       <source media="(prefers-color-scheme: dark)" srcSet={dark} />
       <source media="(prefers-color-scheme: light)" srcSet={light} />
-      <img
-        {...imgProps}
-        alt={imgProps.alt} // for the linter
-        src={light}
-      />
+      <img {...imgProps} alt={alt} src={light} />
     </picture>
   ) : (
     // for single color scheme themes (either light or dark),
     // we ignore the browser's color scheme preference, since
     // it could be set to a given color scheme while the dialog
     // theme only supports the other one
-    <img
-      {...imgProps}
-      alt={imgProps.alt} // for the linter
-      src={colorScheme === 'light' ? light : dark}
-    />
+    <img {...imgProps} alt={alt} src={colorScheme === 'light' ? light : dark} />
   )
 }
 
